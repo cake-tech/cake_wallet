@@ -145,8 +145,7 @@ class OnRamperBuyProvider extends BuyProvider {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
         final List<dynamic> message = data['message'] as List<dynamic>;
-
-        return message.map((item) => PaymentMethod.fromJson(item as Map<String, dynamic>)).toList();
+        return message.map((item) => PaymentMethod.fromOnramperJson(item as Map<String, dynamic>)).toList();
       } else {
         print('Failed to fetch available payment types');
         return [];
@@ -161,13 +160,19 @@ class OnRamperBuyProvider extends BuyProvider {
     required String sourceCurrency,
     required String destinationCurrency,
     required int amount,
-    required PaymentMethodType paymentMethod,
+    required PaymentType paymentType,
     required String type,
     required String walletAddress,
   }) async {
+    final paymentMethod = normalizePaymentMethod(paymentType);
+    if (paymentMethod == null) {
+      print('OnRamper Unsupported payment method: $paymentType');
+      return null;
+    }
+
     final params = {
       'amount': amount.toString(),
-      'paymentMethod': normalizePaymentMethod(paymentMethod),
+      'paymentMethod': paymentMethod,
       'uuid': 'acad3928-556f-48a1-a478-4e2ec76700cd',
       'clientName': 'CakeWallet',
       'type': type,
@@ -197,6 +202,8 @@ class OnRamperBuyProvider extends BuyProvider {
         for (var item in data) {
           if (item['errors'] != null) break;
           final quote = Quote.fromOnramperJson(item as Map<String, dynamic>, ProviderType.onramper);
+          quote.setSourceCurrency = sourceCurrency;
+          quote.setDestinationCurrency = destinationCurrency;
           validQuotes.add(quote);
         }
 
@@ -204,9 +211,11 @@ class OnRamperBuyProvider extends BuyProvider {
 
         validQuotes.sort((a, b) => a.rate.compareTo(b.rate));
 
-        return validQuotes.first;;
+        return validQuotes.first;
+        ;
       } else {
-        throw Exception('buy quote is not found');
+        print('Failed to fetch Onramper rate');
+        return null;
       }
     } catch (e) {
       print('Failed to fetch Onramper rate: $e');
@@ -214,21 +223,20 @@ class OnRamperBuyProvider extends BuyProvider {
     }
   }
 
-
-  String normalizePaymentMethod(PaymentMethodType paymentMethod) {
+  String? normalizePaymentMethod(PaymentType paymentMethod) {
     switch (paymentMethod) {
-      case PaymentMethodType.creditCard:
+      case PaymentType.creditCard:
         return 'creditcard';
-      case PaymentMethodType.debitCard:
+      case PaymentType.debitCard:
         return 'debitcard';
-      case PaymentMethodType.applePay:
+      case PaymentType.applePay:
         return 'applepay';
-      case PaymentMethodType.googlePay:
+      case PaymentType.googlePay:
         return 'googlepay';
-      case PaymentMethodType.revolutPay:
+      case PaymentType.revolutPay:
         return 'revolutpay';
       default:
-        throw Exception('Unknown payment type');
+        return null;
     }
   }
 }

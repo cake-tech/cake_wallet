@@ -34,18 +34,12 @@ class BuySellOptionsPage extends BasePage {
             child: Column(
               children: [
                 ...availableProviders.map((provider) {
-                  final icon = Image.asset(
-                    isLightMode ? provider.lightIcon : provider.darkIcon,
-                    height: 40,
-                    width: 40,
-                  );
-
                   return Padding(
                     padding: EdgeInsets.only(top: 24),
                     child: OptionTile(
-                      image: icon,
+                      imagePath: isLightMode ? provider.lightIcon : provider.darkIcon,
                       title: provider.toString(),
-                      subTitle: provider.providerDescription,
+                      leftSubTitle: provider.providerDescription,
                       onPressed: () => provider.launchProvider(context, isBuyAction),
                     ),
                   );

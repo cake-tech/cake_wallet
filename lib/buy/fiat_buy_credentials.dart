@@ -1,4 +1,4 @@
-class FiatCurrencyBuyCredentials {
+class FiatBuyCredentials {
   final int id;
   final String name;
   final bool buyable;
@@ -9,7 +9,7 @@ class FiatCurrencyBuyCredentials {
   final bool instantSellable;
   final Map<String, VolumeLimits> limits;
 
-  FiatCurrencyBuyCredentials({
+  FiatBuyCredentials({
     required this.id,
     required this.name,
     required this.buyable,
@@ -21,8 +21,8 @@ class FiatCurrencyBuyCredentials {
     required this.limits,
   });
 
-  factory FiatCurrencyBuyCredentials.fromJson(Map<String, dynamic> json) {
-    return FiatCurrencyBuyCredentials(
+  factory FiatBuyCredentials.fromJson(Map<String, dynamic> json) {
+    return FiatBuyCredentials(
       id: json['id'] as int,
       name: json['name'] as String,
       buyable: json['buyable'] as bool,

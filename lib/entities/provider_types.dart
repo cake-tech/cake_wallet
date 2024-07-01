@@ -1,10 +1,12 @@
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
+import 'package:cake_wallet/buy/meld/meld_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:http/http.dart';
 
 enum ProviderType {
   askEachTime,
@@ -12,6 +14,7 @@ enum ProviderType {
   dfx,
   onramper,
   moonpay,
+  meld
 }
 
 extension ProviderTypeName on ProviderType {
@@ -27,6 +30,8 @@ extension ProviderTypeName on ProviderType {
         return 'Onramper';
       case ProviderType.moonpay:
         return 'MoonPay';
+      case ProviderType.meld:
+        return 'Meld';
     }
   }
 
@@ -42,6 +47,8 @@ extension ProviderTypeName on ProviderType {
         return 'onramper_provider';
       case ProviderType.moonpay:
         return 'moonpay_provider';
+      case ProviderType.meld:
+        return 'meld_provider';
     }
   }
 }
@@ -63,6 +70,7 @@ class ProvidersHelper {
           ProviderType.dfx,
           ProviderType.robinhood,
           ProviderType.moonpay,
+          ProviderType.meld,
         ];
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
@@ -128,6 +136,8 @@ class ProvidersHelper {
         return getIt.get<OnRamperBuyProvider>();
       case ProviderType.moonpay:
         return getIt.get<MoonPayProvider>();
+      case ProviderType.meld:
+        return getIt.get<MeldBuyProvider>();
       case ProviderType.askEachTime:
         return null;
     }

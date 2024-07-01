@@ -78,37 +78,28 @@ class _BodySelectOptionsPageState<T extends SelectableOption>
 
   @override
   Widget build(BuildContext context) {
-    final isLightMode = Theme
-        .of(context)
-        .extension<OptionTileTheme>()
-        ?.useDarkImage ?? false;
+    final isLightMode = Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
 
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: 330),
         child: Column(
           children: [
-            ..._options.map((option) {
-              final icon = Image.asset(
-                option.iconPath,
-                height: 40,
-                width: 40,
-              );
-
-              return Padding(
-                padding: EdgeInsets.only(top: 24),
-                child: OptionTile(
-                  image: icon,
-                  title: option.title.toString(),
-                  subTitle: option.subTitle,
-                  description: option.description ?? '',
-                  firstBadgeName: option.firstBadgeName,
-                  secondBadgeName: option.secondBadgeName,
-                  isSelected: option.isOptionSelected,
-                  onPressed: () => _handleOptionTap(option),
-                ),
-              );
-            }).toList(),
+            ..._options
+                .map((option) => Padding(
+                    padding: EdgeInsets.only(top: 24),
+                    child: OptionTile(
+                      imagePath: option.iconPath,
+                      title: option.title.toString(),
+                      leftSubTitle: option.leftSubTitle,
+                      rightSubTitle: option.rightSubTitle,
+                      description: option.description ?? '',
+                      firstBadgeName: option.firstBadgeName,
+                      secondBadgeName: option.secondBadgeName,
+                      isSelected: option.isOptionSelected,
+                      onPressed: () => _handleOptionTap(option),
+                    )))
+                .toList(),
           ],
         ),
       ),

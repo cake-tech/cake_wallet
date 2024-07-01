@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/selectable_option.dart';
 
-enum PaymentMethodType {
+enum PaymentType {
   creditCard,
   debitCard,
   applePay,
@@ -11,76 +11,122 @@ enum PaymentMethodType {
   sepa
 }
 
+extension PaymentTypeTitle on PaymentType {
+  String get title {
+    switch (this) {
+      case PaymentType.creditCard:
+        return 'Credit Card';
+      case PaymentType.debitCard:
+        return 'Debit Card';
+      case PaymentType.applePay:
+        return 'Apple Pay';
+      case PaymentType.googlePay:
+        return 'Google Pay';
+      case PaymentType.revolutPay:
+        return 'Revolut Pay';
+      case PaymentType.neteller:
+        return 'Neteller';
+      case PaymentType.skrill:
+        return 'Skrill';
+      case PaymentType.sepa:
+        return 'SEPA';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  String? get iconPath {
+    switch (this) {
+      case PaymentType.creditCard:
+      case PaymentType.debitCard:
+        return 'assets/images/card.png';
+      case PaymentType.debitCard:
+        return 'assets/images/card.png';
+      case PaymentType.skrill:
+        return 'assets/images/card.png';
+      default:
+        return null;
+    }
+  }
+
+  String? get description {
+    switch (this) {
+      default:
+        return null;
+    }
+  }
+}
+
 class PaymentMethod extends SelectableOption {
-  final PaymentMethodType? paymentMethodType;
-  final String title;
-  final String icon;
-  final Map<String, dynamic> details;
+  final PaymentType? paymentMethodType;
+  final String customTitle;
+  final String customIconPath;
+  final String customDescription;
   bool isSelected = false;
 
   PaymentMethod({
     this.paymentMethodType,
-    required this.title,
-    required this.icon,
-    required this.details,
+    required this.customTitle,
+    required this.customIconPath,
+    required this.customDescription,
   });
+
+  @override
+  String get title =>
+      paymentMethodType?.title ?? customTitle;
+
+  @override
+  String get description =>
+      paymentMethodType?.description ?? customDescription;
+
+  @override
+  String get iconPath =>
+      paymentMethodType?.iconPath ?? customIconPath;
 
   @override
   bool get isOptionSelected => isSelected;
 
-  factory PaymentMethod.fromJson(Map<String, dynamic> json) {
+  factory PaymentMethod.fromOnramperJson(Map<String, dynamic> json) {
     final type = PaymentMethod.getPaymentTypeId(json['paymentTypeId'] as String?);
-    final iconPath = PaymentMethod.getIconPath(type);
-
     return PaymentMethod(
       paymentMethodType: type,
-      title: json['name'] as String,
-      icon: iconPath,
-      details: json['details'] as Map<String, dynamic>,
+      customTitle: json['name'] as String? ?? 'Unknown',
+      customIconPath: json['icon'] as String? ?? 'assets/images/default.png',
+      customDescription: json['description'] as String? ?? '',
     );
   }
 
-  static PaymentMethodType? getPaymentTypeId(String? type) {
+  factory PaymentMethod.fromMeldJson(Map<String, dynamic> json) {
+    final type = PaymentMethod.getPaymentTypeId(json['paymentMethod'] as String?);
+    final logos = json['logos'] as Map<String, dynamic>;
+    return PaymentMethod(
+      paymentMethodType: type,
+      customTitle: json['name'] as String? ?? 'Unknown',
+      customIconPath: logos['dark'] as String? ?? 'assets/images/default.png',
+      customDescription: json['description'] as String? ?? '',
+    );
+  }
+
+  static PaymentType? getPaymentTypeId(String? type) {
     switch (type) {
       case 'creditcard':
-        return PaymentMethodType.creditCard;
+        return PaymentType.creditCard;
       case 'debitcard':
-        return PaymentMethodType.debitCard;
+        return PaymentType.debitCard;
       case 'applepay':
-        return PaymentMethodType.applePay;
+        return PaymentType.applePay;
       case 'googlepay':
-        return PaymentMethodType.googlePay;
+        return PaymentType.googlePay;
       case 'revolutpay':
-        return PaymentMethodType.revolutPay;
+        return PaymentType.revolutPay;
       case 'neteller':
-        return PaymentMethodType.neteller;
+        return PaymentType.neteller;
       case 'skrill':
-        return PaymentMethodType.skrill;
+        return PaymentType.skrill;
+      case 'sepa':
+        return PaymentType.sepa;
       default:
-        throw Exception('Unknown payment type');
+        return null;
     }
   }
-
-  static String getIconPath(PaymentMethodType? type) {
-    switch (type) {
-      case PaymentMethodType.creditCard:
-        return 'assets/images/card.png';
-      case PaymentMethodType.debitCard:
-        return 'assets/images/card.png';
-      case PaymentMethodType.applePay:
-        return 'assets/images/apple_pay_logo.png';
-      case PaymentMethodType.googlePay:
-        return 'assets/images/google_pay_icon.png';
-      case PaymentMethodType.revolutPay:
-        return 'assets/images/revolut.png';
-      default:
-        return 'assets/images/card.png';
-    }
-  }
-
-  @override
-  String get description => '';
-
-  @override
-  String get iconPath => icon;
 }

@@ -50,7 +50,7 @@ abstract class BuyProvider {
     required String sourceCurrency,
     required String destinationCurrency,
     required int amount,
-    required PaymentMethodType paymentMethod,
+    required PaymentType paymentType,
     required String type,
     required String walletAddress,
   }) async =>

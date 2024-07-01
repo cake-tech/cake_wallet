@@ -5,7 +5,9 @@ abstract class SelectableOption {
 
   String get description;
 
-  String? get subTitle => null;
+  String? get leftSubTitle => null;
+
+  String? get rightSubTitle => null;
 
   String? get firstBadgeName => null;
 

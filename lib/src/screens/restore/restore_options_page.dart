@@ -44,11 +44,10 @@ class RestoreOptionsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final imageColor = Theme.of(context).extension<OptionTileTheme>()!.titleColor;
-    final imageLedger = Image.asset('assets/images/ledger_nano.png', width: 40, color: imageColor);
-    final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png', color: imageColor);
-    final imageBackup = Image.asset('assets/images/backup.png', color: imageColor);
-    final qrCode = Image.asset('assets/images/restore_qr.png', color: imageColor);
+    final imageLedger = 'assets/images/ledger_nano.png';
+    final imageSeedKeys = 'assets/images/restore_wallet_image.png';
+    final imageBackup = 'assets/images/backup.png';
+    final qrCode = 'assets/images/restore_qr.png';
 
     return Center(
       child: Container(
@@ -61,18 +60,18 @@ class RestoreOptionsPage extends BasePage {
                 OptionTile(
                   onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletFromSeedKeys,
                       arguments: isNewInstall),
-                  image: imageSeedKeys,
+                  imagePath: imageSeedKeys,
                   title: S.of(context).restore_title_from_seed_keys,
-                  subTitle: S.of(context).restore_description_from_seed_keys,
+                  description: S.of(context).restore_description_from_seed_keys,
                 ),
                 if (isNewInstall)
                   Padding(
                     padding: EdgeInsets.only(top: 24),
                     child: OptionTile(
                       onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
-                      image: imageBackup,
+                      imagePath: imageBackup,
                       title: S.of(context).restore_title_from_backup,
-                      subTitle: S.of(context).restore_description_from_backup,
+                      description: S.of(context).restore_description_from_backup,
                     ),
                   ),
                 if (_doesSupportHardwareWallets)
@@ -82,18 +81,18 @@ class RestoreOptionsPage extends BasePage {
                       onPressed: () => Navigator.pushNamed(
                           context, Routes.restoreWalletFromHardwareWallet,
                           arguments: isNewInstall),
-                      image: imageLedger,
+                      imagePath: imageLedger,
                       title: S.of(context).restore_title_from_hardware_wallet,
-                      subTitle: S.of(context).restore_description_from_hardware_wallet,
+                      description: S.of(context).restore_description_from_hardware_wallet,
                     ),
                   ),
                 Padding(
                   padding: EdgeInsets.only(top: 24),
                   child: OptionTile(
                       onPressed: () => _onScanQRCode(context),
-                      image: qrCode,
+                      imagePath: qrCode,
                       title: S.of(context).scan_qr_code,
-                      subTitle: S.of(context).cold_or_recover_wallet),
+                      description: S.of(context).cold_or_recover_wallet),
                 )
               ],
             ),

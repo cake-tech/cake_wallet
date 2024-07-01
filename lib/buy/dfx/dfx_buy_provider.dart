@@ -1,8 +1,9 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/buy/asset_buy_credentials.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
-import 'package:cake_wallet/buy/fiat_currency_buy_credentials.dart';
+import 'package:cake_wallet/buy/fiat_buy_credentials.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -197,7 +198,7 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  Future<List<FiatCurrencyBuyCredentials>> fetchFiatCurrencies() async {
+  Future<List<FiatBuyCredentials>> fetchFiatCurrencies() async {
     final url = Uri.parse('https://api.dfx.swiss/v1/fiat');
     final headers = {
       'accept': 'application/json',
@@ -209,7 +210,7 @@ class DFXBuyProvider extends BuyProvider {
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
         return data
-            .map((item) => FiatCurrencyBuyCredentials.fromJson(item as Map<String, dynamic>))
+            .map((item) => FiatBuyCredentials.fromJson(item as Map<String, dynamic>))
             .toList();
       } else {
         print('Failed to fetch fiat currencies: ${response.statusCode}');
@@ -221,14 +222,60 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
+  Future<List<AssetBuyCredentials?>> fetchAssets({required List<String> assetsName}) async {
+    final url = Uri.parse('https://api.dfx.swiss/v1/asset?blockchains=BTC');
+    final headers = {
+      'accept': 'application/json',
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
+        return data.map((item) => AssetBuyCredentials.fromJson(item as Map<String, dynamic>)).toList();
+      } else {
+        print('Failed to fetch assets: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching assets: $e');
+      return [];
+    }
+  }
+
   Future<Quote?> fetchQuote({
     required String sourceCurrency,
     required String destinationCurrency,
     required int amount,
-    required PaymentMethodType paymentMethod,
+    required PaymentType paymentType,
     required String type,
     required String walletAddress,
   }) async {
+    final paymentMethod = normalizePaymentMethod(paymentType);
+    if (paymentMethod == null) {
+      print('DFX Unsupported payment method: $paymentType');
+      return null;
+    }
+
+    int? currencyId;
+    int? assetId;
+
+    final fiatCurrencies = await fetchFiatCurrencies();
+
+    for (final fiatCurrency in fiatCurrencies) {
+      if (fiatCurrency.name == sourceCurrency) {
+        currencyId = fiatCurrency.id;
+      }
+    }
+    if (currencyId == null) {
+      print('DFX Unsupported source currency: $sourceCurrency');
+      return null;
+    }
+
+
+
+
     final url = Uri.parse('https://api.dfx.swiss/v1/buy/quote');
     final headers = {
       'accept': 'application/json',
@@ -243,7 +290,7 @@ class DFXBuyProvider extends BuyProvider {
       },
       'amount': amount,
       'targetAmount': 0,
-      'paymentMethod': normalizePaymentMethod(paymentMethod),
+      'paymentMethod': paymentMethod,
       'discountCode': '',
     });
 
@@ -253,7 +300,10 @@ class DFXBuyProvider extends BuyProvider {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is Map<String, dynamic>) {
-          return Quote.fromDFXJson(data, ProviderType.dfx);
+          final quote = Quote.fromDFXJson(data, ProviderType.dfx);
+          quote.setSourceCurrency = sourceCurrency;
+          quote.setDestinationCurrency = destinationCurrency;
+          return quote;
         } else {
           print('DFX Unexpected data type: ${data.runtimeType}');
           return null;
@@ -268,16 +318,16 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  String normalizePaymentMethod(PaymentMethodType paymentMethod) {
+  String? normalizePaymentMethod(PaymentType paymentMethod) {
     switch (paymentMethod) {
-      case PaymentMethodType.creditCard:
+      case PaymentType.creditCard:
         return 'Card';
-      case PaymentMethodType.debitCard:
+      case PaymentType.debitCard:
         return 'Bank';
-      case PaymentMethodType.sepa:
+      case PaymentType.sepa:
         return 'Instant';
       default:
-        throw Exception('Unknown payment type');
+        return null;
     }
   }
 }

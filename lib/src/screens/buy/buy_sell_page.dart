@@ -159,10 +159,9 @@ class BuySellPage extends BasePage {
                           return Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                               child: OptionTile(
-                                image: Image.asset(buySellViewModel.selectedPaymentMethod!.icon,
-                                    height: 35, width: 35),
+                                imagePath: buySellViewModel.selectedPaymentMethod!.iconPath,
                                 title: buySellViewModel.selectedPaymentMethod!.title,
-                                subTitle: '',
+                                leftSubTitle: '',
                                 onPressed: () {
                                   Navigator.of(context).pushNamed(Routes.selectOptions, arguments: [
                                     'S.of(context).payment_methods',
@@ -172,7 +171,7 @@ class BuySellPage extends BasePage {
                                 },
                                 leadingIcon: Icons.arrow_forward_ios,
                                 borderRadius: 24,
-                                padding: EdgeInsets.fromLTRB(24, 12, 24, 24),
+                                padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
                                 titleTextStyle: textLargeBold(
                                     color:
                                         Theme.of(context).extension<CakeTextTheme>()!.titleColor),
@@ -184,17 +183,19 @@ class BuySellPage extends BasePage {
                           return Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
                               child: OptionTile(
-                                image: Image.asset(
-                                  selectedQuote.provider!.lightIcon,
-                                  height: 35,
-                                  width: 35,
-                                ),
+                                imagePath: selectedQuote.provider!.lightIcon,
                                 title: selectedQuote.provider!.title,
                                 firstBadgeName: selectedQuote.firstBadgeName,
                                 secondBadgeName: selectedQuote.secondBadgeName,
-                                subTitle: selectedQuote.subTitle,
+                                leftSubTitle: selectedQuote.leftSubTitle,
+                                leftSubTitleMaxLines: 1,
+                                leftSubTitleTextStyle: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                ),
+                                rightSubTitle: selectedQuote.rightSubTitle,
                                 onPressed: () {
-
                                   Navigator.of(context).pushNamed(Routes.selectOptions, arguments: [
                                     'S.of(context).payment_methods',
                                     buySellViewModel.sortedAvailableQuotes,
@@ -203,7 +204,7 @@ class BuySellPage extends BasePage {
                                 },
                                 leadingIcon: Icons.arrow_forward_ios,
                                 borderRadius: 24,
-                                padding: EdgeInsets.fromLTRB(24, 12, 24, 24),
+                                padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
                                 titleTextStyle: textLargeBold(
                                     color:
                                         Theme.of(context).extension<CakeTextTheme>()!.titleColor),

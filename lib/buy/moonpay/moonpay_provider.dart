@@ -314,16 +314,15 @@ class MoonPayProvider extends BuyProvider {
     return currency.toString().toLowerCase();
   }
 
-
   Future<Quote?> fetchQuote({
     required String sourceCurrency,
     required String destinationCurrency,
     required int amount,
-    required PaymentMethodType paymentMethod,
+    required PaymentType paymentType,
     required String type,
     required String walletAddress,
   }) async {
-    if (paymentMethod != PaymentMethodType.creditCard) return null;
+    if (paymentType != PaymentType.creditCard) return null;
 
     final params = {
       'baseCurrencyCode': sourceCurrency.toLowerCase(),
@@ -341,7 +340,12 @@ class MoonPayProvider extends BuyProvider {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        return Quote.fromMoonPayJson(data, ProviderType.moonpay);
+        final quote = Quote.fromMoonPayJson(data, ProviderType.moonpay);
+
+        quote.setSourceCurrency = sourceCurrency;
+        quote.setDestinationCurrency = destinationCurrency;
+
+        return quote;
       } else {
         return null;
       }

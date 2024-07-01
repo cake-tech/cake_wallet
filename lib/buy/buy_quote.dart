@@ -12,9 +12,10 @@ class Quote extends SelectableOption {
   final BuyProvider? provider;
   final String? quoteId;
   final String? ramp;
+  String sourceCurrency = '';
+  String destinationCurrency = '';
   bool isSelected = false;
   bool isBestRate = false;
-
 
   Quote({
     required this.rate,
@@ -41,17 +42,27 @@ class Quote extends SelectableOption {
   String get description => provider?.providerDescription ?? '';
 
   @override
-  String? get firstBadgeName => isBestRate ? 'Best rate' : null;
+  String? get firstBadgeName => isBestRate ? 'BEST RATE' : null;
 
   @override
-  String? get secondBadgeName => provider?.isAggregator ?? false ? 'Aggregator' : null;
+  String? get secondBadgeName => provider?.isAggregator ?? false ? 'AGGREGATOR' : null;
 
   @override
-  String? get subTitle =>  this.rate > 0 ?  '1 ${'BTC'} = ${(rate).toStringAsFixed(2)} ${'USD'}' : null;
+  String? get leftSubTitle => this.rate > 0
+      ? '1 $destinationCurrency = ${(rate).toStringAsFixed(2)} $sourceCurrency\ntotal fee = ${this.feeAmount} $sourceCurrency'
+      : null;
 
+  @override
+  String? get rightSubTitle => this.ramp != null ? 'Provider: $ramp' : null;
 
   void set setIsSelected(bool isSelected) => this.isSelected = isSelected;
+
   void set setIsBestRate(bool isBestRate) => this.isBestRate = isBestRate;
+
+  void set setSourceCurrency(String sourceCurrency) => this.sourceCurrency = sourceCurrency;
+
+  void set setDestinationCurrency(String destinationCurrency) =>
+      this.destinationCurrency = destinationCurrency;
 
   factory Quote.fromOnramperJson(Map<String, dynamic> json, ProviderType providerType) {
     final networkFee = json['networkFee'] as double? ?? 0.0;
@@ -90,10 +101,23 @@ class Quote extends SelectableOption {
     return Quote(
       rate: json['exchangeRate'] as double? ?? 0.0,
       feeAmount: json['feeAmount'] as double? ?? 0.0,
-      networkFee: fees['network'] as double? ?? 0.0 ,
+      networkFee: fees['network'] as double? ?? 0.0,
       transactionFee: fees['rate'] as double? ?? 0.0,
       payout: json['payout'] as double? ?? 0.0,
       paymentMethod: json['paymentMethod'] as String? ?? '',
+      provider: ProvidersHelper.getProviderByType(providerType),
+    );
+  }
+
+  factory Quote.fromMeldJson(Map<String, dynamic> json, ProviderType providerType) {
+    final quotes = json['quotes'][0] as Map<String, dynamic>;
+    return Quote(
+      rate: quotes['exchangeRate'] as double? ?? 0.0,
+      feeAmount: quotes['totalFee'] as double? ?? 0.0,
+      networkFee: quotes['networkFee'] as double? ?? 0.0,
+      transactionFee: quotes['transactionFee'] as double? ?? 0.0,
+      payout: quotes['payout'] as double? ?? 0.0,
+      paymentMethod: quotes['paymentMethodType'] as String? ?? '',
       provider: ProvidersHelper.getProviderByType(providerType),
     );
   }
