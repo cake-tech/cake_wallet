@@ -5,6 +5,7 @@ import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
+import 'package:cw_mweb/mwebd.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -211,16 +212,68 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await mwebUtxosBox.clear();
     transactionHistory.clear();
     mwebUtxosHeight = height;
-    walletInfo.restoreHeight = height;
-    await walletInfo.save();
+    await walletInfo.updateRestoreHeight(height);
     // processMwebUtxos();
+    print("STARTING SYNC");
     await startSync();
   }
 
   @override
   Future<void> init() async {
-    await transactionHistory.init();
+    await super.init();
     await initMwebUtxosBox();
+  }
+
+  Future<void> handleIncoming(MwebUtxo utxo, RpcClient stub) async {
+    final status = await stub.status(StatusRequest());
+    var date = DateTime.now();
+    var confirmations = 0;
+    if (utxo.height > 0) {
+      date = DateTime.fromMillisecondsSinceEpoch(utxo.blockTime * 1000);
+      confirmations = status.blockHeaderHeight - utxo.height + 1;
+    }
+    var tx = transactionHistory.transactions.values
+        .firstWhereOrNull((tx) => tx.outputAddresses?.contains(utxo.outputId) ?? false);
+
+    if (tx == null) {
+      tx = ElectrumTransactionInfo(
+        WalletType.litecoin,
+        id: utxo.outputId,
+        height: utxo.height,
+        amount: utxo.value.toInt(),
+        fee: 0,
+        direction: TransactionDirection.incoming,
+        isPending: utxo.height == 0,
+        date: date,
+        confirmations: confirmations,
+        inputAddresses: [],
+        outputAddresses: [utxo.outputId],
+      );
+    }
+
+    tx.height = utxo.height;
+    tx.isPending = utxo.height == 0;
+    tx.confirmations = confirmations;
+    bool isNew = transactionHistory.transactions[tx.id] == null;
+
+    if (!(tx.outputAddresses?.contains(utxo.address) ?? false)) {
+      tx.outputAddresses?.add(utxo.address);
+      isNew = true;
+    }
+
+    if (isNew) {
+      final addressRecord = walletAddresses.allAddresses
+          .firstWhereOrNull((addressRecord) => addressRecord.address == utxo.address);
+      if (addressRecord == null) {
+        print("addressRecord is null! TODO: handle this case 1");
+        return;
+      }
+      if (!(tx.inputAddresses?.contains(utxo.address) ?? false)) addressRecord.txCount++;
+      addressRecord.balance += utxo.value.toInt();
+      addressRecord.setAsUsed();
+    }
+    print("BEING ADDED HERE@@@@@@@@@@@@@@@@@@@@@@@");
+    transactionHistory.addOne(tx);
   }
 
   Future<void> processMwebUtxos() async {
@@ -237,55 +290,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         continue;
       }
 
-      final status = await stub.status(StatusRequest());
-      var date = DateTime.now();
-      var confirmations = 0;
-      if (utxo.height > 0) {
-        date = DateTime.fromMillisecondsSinceEpoch(utxo.blockTime * 1000);
-        confirmations = status.blockHeaderHeight - utxo.height + 1;
-      }
-      var tx = transactionHistory.transactions.values
-          .firstWhereOrNull((tx) => tx.outputAddresses?.contains(utxo.outputId) ?? false);
-
-      if (tx == null) {
-        tx = ElectrumTransactionInfo(
-          WalletType.litecoin,
-          id: utxo.outputId,
-          height: utxo.height,
-          amount: utxo.value.toInt(),
-          fee: 0,
-          direction: TransactionDirection.incoming,
-          isPending: utxo.height == 0,
-          date: date,
-          confirmations: confirmations,
-          inputAddresses: [],
-          outputAddresses: [utxo.outputId],
-        );
+      if (walletInfo.restoreHeight > utxo.height) {
+        continue;
       }
 
-      tx.height = utxo.height;
-      tx.isPending = utxo.height == 0;
-      tx.confirmations = confirmations;
-      bool isNew = transactionHistory.transactions[tx.id] == null;
+      await handleIncoming(utxo, stub);
 
-      if (!(tx.outputAddresses?.contains(utxo.address) ?? false)) {
-        tx.outputAddresses?.add(utxo.address);
-        isNew = true;
-      }
-
-      if (isNew) {
-        final addressRecord = walletAddresses.allAddresses
-            .firstWhereOrNull((addressRecord) => addressRecord.address == utxo.address);
-        if (addressRecord == null) {
-          print("addressRecord is null! TODO: handle this case 1");
-          continue;
-        }
-        if (!(tx.inputAddresses?.contains(utxo.address) ?? false)) addressRecord.txCount++;
-        addressRecord.balance += utxo.value.toInt();
-        addressRecord.setAsUsed();
-      }
-      print("BEING ADDED HERE@@@@@@@@@@@@@@@@@@@@@@@");
-      transactionHistory.addOne(tx);
       if (initDone) {
         await updateUnspent();
         await updateBalance();
@@ -316,7 +326,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (!mwebAddrs.contains(utxo.address) && utxo.address.isNotEmpty) {
         continue;
       }
+      
       await mwebUtxosBox.put(utxo.outputId, utxo);
+      
+      await handleIncoming(utxo, stub);
     }
   }
 
@@ -427,8 +440,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         return;
       }
       final unspent = BitcoinUnspent(
-          addressRecord, outputId, utxo.value.toInt(), mwebAddrs.indexOf(utxo.address));
-      if (unspent.vout == 0) unspent.isChange = true;
+        addressRecord,
+        outputId,
+        utxo.value.toInt(),
+        mwebAddrs.indexOf(utxo.address),
+      );
+      if (unspent.vout == 0) {
+        unspent.isChange = true;
+      }
       unspentCoins.add(unspent);
     });
   }
