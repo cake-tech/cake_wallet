@@ -19,15 +19,15 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     ...(CryptoCurrency.all
         .where((element) => ![
               CryptoCurrency.btc,
-              // CryptoCurrency.eth,
+              CryptoCurrency.eth,
               CryptoCurrency.ltc,
               CryptoCurrency.bch,
-              // CryptoCurrency.aave,
-              // CryptoCurrency.dai,
-              // CryptoCurrency.gusd,
-              // CryptoCurrency.usdc,
-              // CryptoCurrency.usdterc20,
-              // CryptoCurrency.wbtc, // TODO: temporarily commented until https://github.com/cake-tech/cake_wallet/pull/1436 is merged
+              CryptoCurrency.aave,
+              CryptoCurrency.dai,
+              CryptoCurrency.gusd,
+              CryptoCurrency.usdc,
+              CryptoCurrency.usdterc20,
+              CryptoCurrency.wbtc,
             ].contains(element))
         .toList())
   ];
@@ -40,7 +40,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static const _txInfoPath = '/thorchain/tx/status/';
   static const _affiliateName = 'cakewallet';
   static const _affiliateBps = '175';
-  static const _nameLookUpPath= 'v2/thorname/lookup/';
+  static const _nameLookUpPath = 'v2/thorname/lookup/';
 
   final Box<Trade> tradesStore;
 
@@ -99,7 +99,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final params = {
       'from_asset': _normalizeCurrency(from),
       'to_asset': _normalizeCurrency(to),
-      'amount': _doubleToThorChainString(1),
+      'amount': _doubleToThorChainString(10),
       'affiliate': _affiliateName,
       'affiliate_bps': _affiliateBps
     };
@@ -137,19 +137,22 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     final inputAddress = responseJSON['inbound_address'] as String?;
     final memo = responseJSON['memo'] as String?;
+    final router = responseJSON['router'] as String?;
 
     return Trade(
-        id: '',
-        from: request.fromCurrency,
-        to: request.toCurrency,
-        provider: description,
-        inputAddress: inputAddress,
-        createdAt: DateTime.now(),
-        amount: request.fromAmount,
-        state: TradeState.notFound,
-        payoutAddress: request.toAddress,
-        memo: memo,
-        isSendAll: isSendAll);
+      id: '',
+      from: request.fromCurrency,
+      to: request.toCurrency,
+      provider: description,
+      inputAddress: inputAddress,
+      createdAt: DateTime.now(),
+      amount: request.fromAmount,
+      state: TradeState.notFound,
+      payoutAddress: request.toAddress,
+      memo: memo,
+      isSendAll: isSendAll,
+      router: router,
+    );
   }
 
   @override
@@ -233,7 +236,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     return chainToAddressMap;
   }
-
 
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
     Uri uri = Uri.https(_baseNodeURL, _quotePath, params);
