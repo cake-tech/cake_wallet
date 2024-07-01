@@ -59,6 +59,7 @@ void main() {
 
       final pin = [0, 8, 0, 1];
 
+      // String testAmount = '0.08';
       String testAmount = '8';
       CryptoCurrency testReceiveCurrency = CryptoCurrency.sol;
       CryptoCurrency testDepositCurrency = CryptoCurrency.usdtSol;
@@ -146,9 +147,9 @@ void main() {
 
       await exchangeTradePageRobot.onConfirmSendingButtonPressed();
 
-      // await exchangeTradePageRobot.handleSendSuccessOrFailure();
+      await exchangeTradePageRobot.handleSendSuccessOrFailure();
 
-      // await exchangeTradePageRobot.onSendButtonOnConfirmSendingDialogPressed();
+      await exchangeTradePageRobot.onSendButtonOnConfirmSendingDialogPressed();
     });
   });
 }

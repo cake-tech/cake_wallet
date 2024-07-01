@@ -252,9 +252,9 @@ class ExchangePageRobot {
 
     isMinLimitError = hasMinLimitError();
 
-    int amount;
+    double amount;
 
-    amount = int.parse(initialAmount);
+    amount = double.parse(initialAmount);
 
     int maxRetries = 20;
     int retries = 0;
@@ -289,9 +289,9 @@ class ExchangePageRobot {
 
     isMaxLimitError = hasMaxLimitError();
 
-    int amount;
+    double amount;
 
-    amount = int.parse(initialAmount);
+    amount = double.parse(initialAmount);
 
     int maxRetries = 20;
     int retries = 0;

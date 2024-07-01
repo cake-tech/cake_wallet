@@ -16,6 +16,11 @@ class CommonTestCases {
     await tester.pumpAndSettle();
   }
 
+  Future<void> tapItemByFinder(Finder finder) async {
+    await tester.tap(finder);
+    await tester.pumpAndSettle();
+  }
+
   void hasText(String text, {bool hasWidget = true}) {
     final textWidget = find.text(text);
     expect(textWidget, hasWidget ? findsOneWidget : findsNothing);

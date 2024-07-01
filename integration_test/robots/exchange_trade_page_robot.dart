@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,48 +28,124 @@ class ExchangeTradePageRobot {
   }
 
   Future<void> onConfirmSendingButtonPressed() async {
-    await commonTestCases.tapItemByKey('exchange_trade_page_confirm_sending_button_key');
+    tester.printToConsole('Now confirming sending');
+
+    final widget = find.byKey(ValueKey('exchange_trade_page_confirm_sending_button_key'));
+    await tester.tap(widget);
+    await tester.pump();
+
+    final Completer<void> completer = Completer<void>();
+
+    // Loop to wait for the async operation to complete
+    while (true) {
+      await Future.delayed(Duration(seconds: 1));
+
+      final ExchangeTradeState state = tester.state(find.byType(ExchangeTradeForm));
+      final execState = state.widget.exchangeTradeViewModel.sendViewModel.state;
+
+      bool isDone = execState is ExecutedSuccessfullyState;
+      bool isFailed = execState is FailureState;
+
+      tester.printToConsole('isDone: $isDone');
+      tester.printToConsole('isFailed: $isFailed');
+
+      if (isDone || isFailed) {
+        tester.printToConsole(
+            isDone ? 'Completer is done' : 'Completer is done though operation failed');
+        completer.complete();
+        await tester.pump();
+        break;
+      } else {
+        tester.printToConsole('Completer is not done');
+        await tester.pump();
+      }
+    }
+
+    await expectLater(completer.future, completes);
+
+    tester.printToConsole('Done confirming sending');
+
+    await commonTestCases.defaultSleepTime(seconds: 4);
   }
 
   Future<void> onSendButtonOnConfirmSendingDialogPressed() async {
-    await commonTestCases
-        .tapItemByKey('exchange_trade_page_confirm_sending_dialog_send_button_key');
-    await commonTestCases.defaultSleepTime();
+    tester.printToConsole('Send Button on Confirm Dialog Triggered');
+    await commonTestCases.defaultSleepTime(seconds: 4);
+
+    final sendText = find.text(S.current.send);
+    bool hasText = sendText.tryEvaluate();
+
+    if (hasText) {
+      await commonTestCases.tapItemByFinder(sendText);
+
+      await commonTestCases.defaultSleepTime(seconds: 4);
+    }
   }
 
   Future<void> onCancelButtonOnConfirmSendingDialogPressed() async {
-    await commonTestCases
-        .tapItemByKey('exchange_trade_page_confirm_sending_dialog_cancel_button_key');
-    await commonTestCases.defaultSleepTime();
-  }
+    tester.printToConsole('Cancel Button on Confirm Dialog Triggered');
 
-  bool hasErrorWhileSending() {
-    final errorDialog = find.byKey(ValueKey('exchange_trade_page_send_failure_dialog_button_key'));
-    bool hasError = errorDialog.tryEvaluate();
-    return hasError;
+    await commonTestCases.tapItemByKey(
+      'exchange_trade_page_confirm_sending_dialog_cancel_button_key',
+    );
+
+    await commonTestCases.defaultSleepTime();
   }
 
   Future<void> onSendFailureDialogButtonPressed() async {
+    await commonTestCases.defaultSleepTime(seconds: 6);
+
+    tester.printToConsole('Send Button Failure Dialog Triggered');
+
     await commonTestCases.tapItemByKey('exchange_trade_page_send_failure_dialog_button_key');
-    await commonTestCases.defaultSleepTime();
   }
 
-  // Future<void> handleSendSuccessOrFailure() async {
-  //   bool hasError = false;
+  Future<bool> hasErrorWhileSending() async {
+    await tester.pump();
 
-  //   hasError = hasErrorWhileSending();
+    tester.printToConsole('Checking if there is an error');
 
-  //   if (hasError) {
-  //     tester.printToConsole('hasError: $hasError');
-  //     await onSendFailureDialogButtonPressed();
-  //     tester.printToConsole('Failure button tapped');
-  //     await onConfirmSendingButtonPressed();
-  //     tester.printToConsole('Confirm sending tapped');
-  //     await handleSendSuccessOrFailure();
-  //     tester.printToConsole('Let\'s go');
-  //   } else {
-  //     await onSendButtonOnConfirmSendingDialogPressed();
-  //     return;
-  //   }
-  // }
+    final errorDialog = find.byKey(
+      ValueKey('exchange_trade_page_send_failure_dialog_button_key'),
+    );
+
+    bool hasError = errorDialog.tryEvaluate();
+
+    tester.printToConsole('Has error: $hasError');
+
+    return hasError;
+  }
+
+  Future<void> handleSendSuccessOrFailure() async {
+    bool hasError = false;
+
+    hasError = await hasErrorWhileSending();
+
+    int maxRetries = 20;
+    int retries = 0;
+
+    while (hasError && retries < maxRetries) {
+      tester.printToConsole('hasErrorInLoop: $hasError');
+      await tester.pump();
+
+      await onSendFailureDialogButtonPressed();
+      tester.printToConsole('Failure button tapped');
+
+      await commonTestCases.defaultSleepTime();
+
+      await onConfirmSendingButtonPressed();
+      tester.printToConsole('Confirm sending button tapped');
+
+      hasError = await hasErrorWhileSending();
+
+      retries++;
+    }
+
+    if (!hasError) {
+      tester.printToConsole('No error, proceeding with flow');
+      await tester.pump();
+    }
+
+    await commonTestCases.defaultSleepTime();
+  }
 }
