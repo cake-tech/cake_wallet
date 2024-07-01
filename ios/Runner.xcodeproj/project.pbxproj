@@ -43,6 +43,7 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9F46EE5D2BC11178009318F5 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AD0937B0140D5A4C24E73BEA /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
+		C58D93382C00FAC6004BCF69 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +61,7 @@
 		06957875428D0F5AAE053765 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C58D93382C00FAC6004BCF69 /* libresolv.tbd */,
 				0C9986A3251A932F00D566FD /* CryptoSwift.framework */,
 				3C663361C56EBB242598F609 /* Pods_Runner.framework */,
 			);

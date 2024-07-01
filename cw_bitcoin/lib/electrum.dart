@@ -353,14 +353,18 @@ class ElectrumClient {
   //   "height": 520481,
   //   "hex": "00000020890208a0ae3a3892aa047c5468725846577cfcd9b512b50000000000000000005dc2b02f2d297a9064ee103036c14d678f9afc7e3d9409cf53fd58b82e938e8ecbeca05a2d2103188ce804c4"
   // }
-  Future<int?> getCurrentBlockChainTip() =>
-      callWithTimeout(method: 'blockchain.headers.subscribe').then((result) {
-        if (result is Map<String, dynamic>) {
-          return result["height"] as int;
-        }
-
-        return null;
-      });
+  BehaviorSubject<Map<String, dynamic>>? tipListener;
+  int? currentTip;
+  Future<int?> getCurrentBlockChainTip() async {
+    final method = 'blockchain.headers.subscribe';
+    final cb = (result) => currentTip = result['height'] as int;
+    if (tipListener == null) {
+      tipListener = subscribe(id: method, method: method);
+      tipListener?.listen(cb);
+      callWithTimeout(method: method).then(cb);
+    }
+    return currentTip;
+  }
 
   BehaviorSubject<Object>? chainTipSubscribe() {
     _id += 1;
@@ -454,6 +458,12 @@ class ElectrumClient {
 
   void _methodHandler({required String method, required Map<String, dynamic> request}) {
     switch (method) {
+      case 'blockchain.headers.subscribe':
+        final params = request['params'] as List<dynamic>;
+        final id = 'blockchain.headers.subscribe';
+
+        _tasks[id]?.subject?.add(params.last);
+        break;
       case 'blockchain.scripthash.subscribe':
         final params = request['params'] as List<dynamic>;
         final scripthash = params.first as String?;

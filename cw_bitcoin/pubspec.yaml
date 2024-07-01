@@ -32,7 +32,7 @@ dependencies:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v3
+      ref: cake-mweb
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
@@ -41,6 +41,9 @@ dependencies:
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-bitcoin
+  cw_mweb:
+    path: ../cw_mweb
+  grpc: ^3.2.4
   sp_scanner:
     git:
       url: https://github.com/cake-tech/sp_scanner
@@ -57,6 +60,11 @@ dev_dependencies:
 
 dependency_overrides:
   watcher: ^1.1.0
+  protobuf: ^3.1.0
+  bitcoin_base:
+    git:
+      url: https://github.com/cake-tech/bitcoin_base
+      ref: cake-mweb
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

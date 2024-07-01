@@ -259,6 +259,8 @@ class CWBitcoin extends Bitcoin {
         return SegwitAddresType.p2tr;
       case BitcoinReceivePageOption.p2wsh:
         return SegwitAddresType.p2wsh;
+      case BitcoinReceivePageOption.mweb:
+        return SegwitAddresType.mweb;
       case BitcoinReceivePageOption.p2wpkh:
       default:
         return SegwitAddresType.p2wpkh;
