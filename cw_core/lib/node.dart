@@ -6,7 +6,6 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
-import 'package:cw_core/.secrets.g.dart' as secrets;
 
 // import 'package:tor/tor.dart';
 
@@ -148,7 +147,6 @@ class Node extends HiveObject with Keyable {
           return requestMoneroNode();
         case WalletType.nano:
         case WalletType.banano:
-          return requestNanoNode();
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.bitcoinCash:
@@ -199,32 +197,6 @@ class Node extends HiveObject with Keyable {
       final resBody = json.decode(response.body) as Map<String, dynamic>;
       return !(resBody['result']['offline'] as bool);
     } catch (_) {
-      return false;
-    }
-  }
-
-  Future<bool> requestNanoNode() async {
-
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-    
-    if (uri.host == 'nano.nownodes.io') {
-      headers['api-key'] = secrets.nowNodesApiKey;
-    }
-
-    http.Response response = await http.post(
-      uri,
-      headers: headers,
-      body: json.encode(
-        {
-          "action": "block_count",
-        },
-      ),
-    );
-    if (response.statusCode == 200) {
-      return true;
-    } else {
       return false;
     }
   }
