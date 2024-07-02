@@ -533,6 +533,11 @@ abstract class DashboardViewModelBase with Store {
   @action
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
+  Future<List<String>> checkForHavenWallets() async {
+    final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName); 
+    return walletInfoSource.values.where((element) => element.type == WalletType.haven).map((e) => e.name).toList();
+  }
+
   Future<List<String>> checkAffectedWallets() async {
     try {
       // await load file

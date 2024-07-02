@@ -471,7 +471,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       for (var i = 0; i < coinCount; i++) {
         final coin = getCoin(i);
         final coinSpent = monero.CoinsInfo_spent(coin);
-        if (coinSpent == 0) {
+        if (coinSpent == false) {
           final unspent = MoneroUnspent(
             monero.CoinsInfo_address(coin),
             monero.CoinsInfo_hash(coin),

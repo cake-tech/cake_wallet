@@ -446,7 +446,7 @@ abstract class WowneroWalletBase
       for (var i = 0; i < coinCount; i++) {
         final coin = getCoin(i);
         final coinSpent = wownero.CoinsInfo_spent(coin);
-        if (coinSpent == 0) {
+        if (coinSpent == false) {
           final unspent = WowneroUnspent(
             wownero.CoinsInfo_address(coin),
             wownero.CoinsInfo_hash(coin),

@@ -1184,6 +1184,10 @@ abstract class SettingsStoreBase with Store {
             raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
         priority[WalletType.monero]!;
 
+    priority[WalletType.wownero] = wownero?.deserializeWowneroTransactionPriority(
+            raw: sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority)!) ??
+        priority[WalletType.wownero]!;
+
     if (bitcoin != null &&
         sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority) != null) {
       priority[WalletType.bitcoin] = bitcoin!.deserializeBitcoinTransactionPriority(

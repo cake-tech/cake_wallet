@@ -512,10 +512,17 @@ Node getWowneroDefaultNode({required Box<Node> nodes}) {
     nodeUri = 'node3.monerodevs.org:34568';
   }
 
+  if (nodeUri == '') {
+    return nodes.values.where((element) => element.type == WalletType.wownero).first;
+  }
+
   try {
-    return nodes.values.firstWhere((Node node) => node.uriRaw == nodeUri);
+    return nodes.values.firstWhere(
+      (Node node) => node.uriRaw == nodeUri,
+      orElse: () => nodes.values.where((element) => element.type == WalletType.wownero).first,
+    );
   } catch (_) {
-    return nodes.values.first;
+    return nodes.values.where((element) => element.type == WalletType.wownero).first;
   }
 }
 
