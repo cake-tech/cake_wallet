@@ -167,8 +167,9 @@ class LightningInvoicePage extends BasePage {
                           InvoiceSoftLimitsResult limits = snapshot.data as InvoiceSoftLimitsResult;
                           if (limits.inboundLiquidity == 0) {
                             finalText = S.of(context).lightning_invoice_min(
-                                limits.feePercent.toString(),
-                                lightning!.satsToLightningString(limits.minFee));
+                                  limits.feePercent.toString(),
+                                  lightning!.satsToLightningString(limits.minFee),
+                                );
                           } else {
                             finalText = S.of(context).lightning_invoice_min_max(
                                   limits.feePercent.toString(),
@@ -221,6 +222,13 @@ class LightningInvoicePage extends BasePage {
     if (effectsInstalled) {
       return;
     }
+
+    _amountController.addListener(() {
+      lightningInvoicePageViewModel.setRequestParams(
+        inputAmount: _amountController.text,
+        inputDescription: '',
+      );
+    });
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) async {
       if (option == lightning!.getOptionOnchain()) {

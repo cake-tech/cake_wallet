@@ -1218,6 +1218,7 @@ Future<void> setup({
       getIt.get<AppStore>().wallet!,
       getIt.get<SharedPreferences>(),
       getIt.get<LightningViewModel>(),
+      useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,
     );
   });
 

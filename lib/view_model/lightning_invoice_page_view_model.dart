@@ -1,5 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -20,8 +22,9 @@ abstract class LightningInvoicePageViewModelBase with Store {
     this.settingsStore,
     this._wallet,
     this.sharedPreferences,
-    this.lightningViewModel,
-  )   : description = '',
+    this.lightningViewModel, {
+    required this.useTorOnly,
+  })  : description = '',
         amount = '',
         state = InitialExecutionState(),
         selectedCurrency = walletTypeToCryptoCurrency(_wallet.type),
@@ -34,6 +37,7 @@ abstract class LightningInvoicePageViewModelBase with Store {
   final WalletBase _wallet;
   final SharedPreferences sharedPreferences;
   final LightningViewModel lightningViewModel;
+  final bool useTorOnly;
 
   @observable
   Currency selectedCurrency;
@@ -53,46 +57,70 @@ abstract class LightningInvoicePageViewModelBase with Store {
   int get selectedCurrencyIndex => currencies.indexOf(selectedCurrency);
 
   @observable
-  double? minimum;
+  double minimum = 2500;
 
   @observable
-  double? maximum;
+  double maximum = 4000000;
+
+  @observable
+  double fiatRate = 1;
+
+  @observable
+  String minimumCurrency = '...';
 
   @action
-  void selectCurrency(Currency currency) {
+  Future<void> selectCurrency(Currency currency) async {
     selectedCurrency = currency;
-    maximum = minimum = null;
+    // maximum = minimum = null;
     if (currency is CryptoCurrency) {
       cryptoCurrency = currency;
     } else {
       cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
     }
 
-    _fetchLimits();
+    await _fetchLimits();
+  }
+
+  @computed
+  int? get satAmount {
+    final inputAmount = double.tryParse(amount);
+    if (inputAmount == null) {
+      return null;
+    }
+    int amt = inputAmount.round();
+    if (selectedCurrency is FiatCurrency) {
+      amt = (inputAmount / fiatRate).round();
+    }
+    return amt;
   }
 
   @action
   Future<void> createInvoice() async {
     state = IsExecutingState();
-    if (amount.isNotEmpty) {
-      final amountInCrypto = double.tryParse(amount);
-      if (amountInCrypto == null) {
-        state = FailureState('Amount is invalid');
-        return;
-      }
-      if (minimum != null && amountInCrypto < minimum!) {
-        state = FailureState('Amount is too small');
-        return;
-      }
-      if (amountInCrypto > 4000000) {
-        state = FailureState('Amount is too big');
-        return;
-      }
+
+    if (amount.isEmpty) {
+      state = FailureState('Amount cannot be empty');
+      return;
+    }
+
+    if (satAmount == null) {
+      state = FailureState('Amount entered is invalid');
+      return;
+    }
+
+    if (satAmount! < minimum) {
+      state = FailureState('Amount is too small');
+      return;
+    }
+
+    if (satAmount! > maximum && maximum != 0) {
+      state = FailureState('Amount is too big');
+      return;
     }
 
     try {
       String bolt11 = await lightningViewModel.createInvoice(
-        amountSats: amount,
+        amountSats: satAmount.toString(),
         description: description,
       );
       state = ExecutedSuccessfullyState(payload: bolt11);
@@ -115,6 +143,18 @@ abstract class LightningInvoicePageViewModelBase with Store {
     final limits = await lightningViewModel.invoiceSoftLimitsSats();
     minimum = limits.minFee.toDouble();
     maximum = limits.inboundLiquidity.toDouble();
+
+    if (selectedCurrency is FiatCurrency) {
+      fiatRate = await FiatConversionService.fetchPrice(
+            crypto: CryptoCurrency.btc,
+            fiat: selectedCurrency as FiatCurrency,
+            torOnly: useTorOnly,
+          ) /
+          100000000;
+      minimumCurrency = (minimum * fiatRate).toStringAsFixed(2);
+    } else {
+      minimumCurrency = lightning!.satsToLightningString(minimum.round());
+    }
   }
 
   @action

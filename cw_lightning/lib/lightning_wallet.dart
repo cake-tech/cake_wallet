@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bitbox/bitbox.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
@@ -24,7 +22,6 @@ import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:cw_lightning/.secrets.g.dart' as secrets;
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -55,6 +52,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         syncStatus = NotConnectedSyncStatus(),
         _balance = ObservableMap<CryptoCurrency, LightningBalance>(),
         mnemonic = mnemonic,
+        seedBytes = seedBytes,
         super(
           password: password,
           walletInfo: walletInfo,
@@ -80,13 +78,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       network: network,
     );
 
-    // initialize breez:
-    try {
-      setupBreez(seedBytes);
-    } catch (e) {
-      print("Error initializing Breez: $e");
-    }
-
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
@@ -97,9 +88,26 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   StreamSubscription<NodeState?>? _nodeStateSub;
   StreamSubscription<LogEntry>? _logStream;
 
+  late final Uint8List seedBytes;
+  String mnemonic;
+  @override
+  String get seed => mnemonic;
+
   @override
   @computed
   ObservableMap<CryptoCurrency, LightningBalance> get balance => _balance;
+
+  static Future<Uint8List> toSeedBytes(String mnemonic) async {
+    // electrum:
+    // if (validateMnemonic(mnemonic)) {
+    // return await mnemonicToSeedBytes(mnemonic);
+    // bip39:
+    // } else if (bip39.validateMnemonic(mnemonic)) {
+    return await bip39.mnemonicToSeed(mnemonic);
+    // } else {
+    //   throw Exception("Invalid mnemonic!");
+    // }
+  }
 
   static Future<LightningWallet> create(
       {required String mnemonic,
@@ -111,16 +119,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       LightningBalance? initialBalance,
       Map<String, int>? initialRegularAddressIndex,
       Map<String, int>? initialChangeAddressIndex}) async {
-    late final Uint8List seedBytes;
-    // electrum:
-    if (validateMnemonic(mnemonic)) {
-      seedBytes = await mnemonicToSeedBytes(mnemonic);
-      // bip39:
-    } else if (bip39.validateMnemonic(mnemonic)) {
-      seedBytes = await bip39.mnemonicToSeed(mnemonic);
-    } else {
-      throw Exception("Invalid mnemonic!");
-    }
     return LightningWallet(
       mnemonic: mnemonic,
       password: password,
@@ -128,7 +126,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
-      seedBytes: seedBytes,
+      seedBytes: await toSeedBytes(mnemonic),
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
@@ -144,7 +142,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     final snp =
         await ElectrumWalletSnapshot.load(name, walletInfo.type, password, BitcoinNetwork.mainnet);
 
-    print("OPENING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     return LightningWallet(
       mnemonic: snp.mnemonic!,
       password: password,
@@ -156,7 +153,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         unconfirmed: snp.balance.unconfirmed,
         frozen: snp.balance.frozen,
       ),
-      seedBytes: await Mnemonic.toSeed(snp.mnemonic!),
+      seedBytes: await toSeedBytes(snp.mnemonic!),
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,
@@ -183,7 +180,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   Future<void> renameWalletFiles(String newWalletName) async {
     await stopBreez(true);
     await super.renameWalletFiles(newWalletName);
-    await setupBreez(await Mnemonic.toSeed(mnemonic));
+    await setupBreez(seedBytes);
   }
 
   void _logSdkEntries(LogEntry entry) {
@@ -266,6 +263,19 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       _handlePayments(payments);
     });
     await _handlePayments(await sdk.listPayments(req: ListPaymentsRequest()));
+
+    // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+    // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+    // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+    // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+    // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+    // await BreezSDK().rescanSwaps();  
+    // List<SwapInfo> refundables = await BreezSDK().listRefundables();
+    // for (var refundable in refundables) {
+    //   print(refundable.bitcoinAddress);
+    // }
+    // SwapInfo? swapInfo = await BreezSDK().inProgressSwap();
+    // print(swapInfo);
 
     print("initialized breez: ${(await sdk.isInitialized())}");
   }
@@ -377,10 +387,16 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     updateTransactions();
   }
 
+  @override
   Future<void> init() async {
-    await walletAddresses.init();
-    await transactionHistory.init();
-    await save();
+    super.init();
+    // initialize breez:
+    try {
+      // final seedBytes = await bip39.mnemonicToSeed(mnemonic);
+      await setupBreez(seedBytes);
+    } catch (e) {
+      print("Error initializing Breez: $e");
+    }
   }
 
   String toJSON() => json.encode({
@@ -398,12 +414,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   Future<void> updateBalance() async {
     // balance is updated automatically
   }
-
-  @override
-  String mnemonic;
-
-  @override
-  String get seed => mnemonic;
 
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 

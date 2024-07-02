@@ -1,9 +1,12 @@
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/lightning/lightning.dart';
+import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/lightning_invoice_page_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -46,12 +49,28 @@ class LightningInvoiceForm extends StatelessWidget {
                 controller: amountController,
                 focusNode: depositAmountFocus,
                 maxAmount: '',
-                minAmount: (lightningInvoicePageViewModel.minimum != null)
-                    ? lightning!
-                        .satsToLightningString(lightningInvoicePageViewModel.minimum!.round())
-                    : '...',
-                selectedCurrency: CryptoCurrency.btcln,
+                minAmount: lightningInvoicePageViewModel.minimumCurrency,
+                selectedCurrency: lightningInvoicePageViewModel.selectedCurrency,
+                onTapPicker: () => _presentPicker(context),
               );
+            }),
+            Observer(builder: (context) {
+              if (lightningInvoicePageViewModel.selectedCurrency is FiatCurrency) {
+                String satString = "${lightning!.satsToLightningString(lightningInvoicePageViewModel.satAmount ?? 0)} sats";
+                return BaseTextFormField(
+                  enabled: false,
+                  borderColor: Theme.of(context)
+                      .extension<ExchangePageTheme>()!
+                      .textFieldBorderTopPanelColor,
+                  hintText: satString,
+                  placeholderTextStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
+                  ),
+                );
+              }
+              return SizedBox();
             }),
             SizedBox(
               height: 24,
@@ -77,5 +96,17 @@ class LightningInvoiceForm extends StatelessWidget {
             ),
           ],
         ));
+  }
+
+  void _presentPicker(BuildContext context) {
+    showPopUp<void>(
+      builder: (_) => CurrencyPicker(
+        selectedAtIndex: lightningInvoicePageViewModel.selectedCurrencyIndex,
+        items: lightningInvoicePageViewModel.currencies,
+        hintText: S.of(context).search_currency,
+        onItemSelected: lightningInvoicePageViewModel.selectCurrency,
+      ),
+      context: context,
+    );
   }
 }
