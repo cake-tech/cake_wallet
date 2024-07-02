@@ -39,6 +39,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.lightning:
         return true;
       case WalletType.monero:
       case WalletType.none:
@@ -47,7 +48,6 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.haven:
       case WalletType.nano:
       case WalletType.banano:
-      case WalletType.lightning:
         return false;
     }
   }

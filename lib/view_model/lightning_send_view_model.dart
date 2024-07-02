@@ -59,11 +59,19 @@ abstract class LightningSendViewModelBase with Store {
         req = BZG.SendPaymentRequest(bolt11: invoice.bolt11);
       }
 
-      await sdk.sendPayment(req: req);
+      final response = await sdk.sendPayment(req: req);
+      if (response.payment.error != null) {
+        throw Exception(response.payment.error);
+      }
+
+      if (response.payment.status == BZG.PaymentStatus.Failed) {
+        throw Exception("Payment failed");
+      }
 
       setLoading(false);
     } catch (e) {
       setLoading(false);
+      rethrow;
     }
   }
 

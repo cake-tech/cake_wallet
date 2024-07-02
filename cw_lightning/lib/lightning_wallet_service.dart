@@ -29,8 +29,11 @@ class LightningWalletService extends WalletService<
 
   @override
   Future<LightningWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
+    final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+    final mnemonic = bip39.generateMnemonic(strength: strength);
+
     final wallet = await LightningWalletBase.create(
-      mnemonic: bip39.generateMnemonic(),
+      mnemonic: mnemonic,
       password: credentials.password!,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,

@@ -251,10 +251,8 @@ class LightningSendConfirmPage extends BasePage {
                     onPressed: () async {
                       try {
                         await lightningSendViewModel.send(
-                          invoice,
-                          int.parse(_amountController.text)
-                        );
-                        showPopUp<void>(
+                            invoice, int.parse(_amountController.text));
+                        await showPopUp<void>(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertWithOneAction(
@@ -264,8 +262,10 @@ class LightningSendConfirmPage extends BasePage {
                                   buttonText: S.of(context).ok,
                                   buttonAction: () {
                                     Navigator.of(context).pop();
+                                    // todo: Navigator.popUntil(context, (route) => route.isFirst);
                                   });
                             });
+                        Navigator.of(context).pop();
                       } catch (e) {
                         showPopUp<void>(
                             context: context,
