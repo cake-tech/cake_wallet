@@ -42,6 +42,9 @@ import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
+import 'package:cake_wallet/src/screens/receive/lightning_invoice_page.dart';
+import 'package:cake_wallet/src/screens/receive/lightning_receive_page.dart';
+import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
@@ -53,6 +56,8 @@ import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
+import 'package:cake_wallet/src/screens/send/lightning_send_confirm_page.dart';
+import 'package:cake_wallet/src/screens/send/lightning_send_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
@@ -651,6 +656,25 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.torPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
 
+    case Routes.lightningSend:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<LightningSendPage>());
+
+    case Routes.lightningSendConfirm:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<LightningSendConfirmPage>(param1: settings.arguments));
+
+    case Routes.lightningReceiveOnchain:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<LightningReceiveOnchainPage>(param1: args));
+
+    case Routes.lightningInvoice:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<LightningInvoicePage>());
+          
     case Routes.connectDevices:
       final params = settings.arguments as ConnectDevicePageParams;
       return MaterialPageRoute<void>(

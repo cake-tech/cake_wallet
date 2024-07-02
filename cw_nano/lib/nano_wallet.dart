@@ -138,7 +138,7 @@ abstract class NanoWalletBase
   }
 
   @override
-  void close() {
+  void close({bool? switchingToSameWalletType}) {
     _client.stop();
     _receiveTimer?.cancel();
   }

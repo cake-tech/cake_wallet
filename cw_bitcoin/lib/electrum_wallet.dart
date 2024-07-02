@@ -73,6 +73,7 @@ abstract class ElectrumWalletBase
             getAccountHDWallet(currency, networkType, seedBytes, xpub, walletInfo.derivationInfo),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
+        _mnemonic = mnemonic,
         _feeRates = <int>[],
         _isTransactionUpdating = false,
         isEnabledAutoGenerateSubaddress = true,
@@ -91,7 +92,6 @@ abstract class ElectrumWalletBase
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.network = _getNetwork(networkType, currency),
         this.isTestnet = networkType == bitcoin.testnet,
-        this._mnemonic = mnemonic,
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
@@ -1138,7 +1138,7 @@ abstract class ElectrumWalletBase
   }
 
   @override
-  Future<void> close() async {
+  Future<void> close({bool? switchingToSameWalletType}) async {
     try {
       await electrumClient.close();
     } catch (_) {}

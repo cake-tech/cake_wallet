@@ -80,7 +80,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> rescan({required int height});
 
-  void close();
+  void close({bool? switchingToSameWalletType});
 
   Future<void> changePassword(String password);
 
