@@ -57,6 +57,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sideba
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
+import 'package:cake_wallet/src/screens/qr/scan_screen.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
@@ -1181,6 +1182,8 @@ Future<void> setup({
     }
     return ManageNodesPage(isPow, nodeListViewModel: getIt.get<NodeListViewModel>());
   });
+
+  getIt.registerFactory<ScanScreen>(() => ScanScreen());
 
   getIt.registerFactory(
       () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));

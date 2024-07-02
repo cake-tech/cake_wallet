@@ -95,6 +95,7 @@ class Routes {
   static const homeSettings = '/home_settings';
   static const editToken = '/edit_token';
   static const manageNodes = '/manage_nodes';
+  static const scanQr = '/scan_qr';
   static const managePowNodes = '/manage_pow_nodes';
   static const walletConnectConnectionsListing =
       '/wallet-connect-connections-listing';

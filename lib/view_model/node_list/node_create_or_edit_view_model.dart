@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -212,7 +213,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       bool isCameraPermissionGranted =
           await PermissionHandler.checkPermission(Permission.camera, context);
       if (!isCameraPermissionGranted) return;
-      String code = await presentQRScanner();
+      String code = await presentQRScanner(context);
 
       if (code.isEmpty) {
         throw Exception('Unexpected scan QR code value: value is empty');
