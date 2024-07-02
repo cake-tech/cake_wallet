@@ -39,12 +39,8 @@ abstract class BuyProvider {
   Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) =>
       throw UnimplementedError();
 
-  Future<List<PaymentMethod>> getAvailablePaymentTypes({
-    required String fiatCurrency,
-    required String type,
-    bool isRecurringPayment = false,
-  }) async =>
-      List<PaymentMethod>.empty();
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String type) async =>
+      [];
 
   Future<Quote?> fetchQuote({
     required String sourceCurrency,

@@ -44,7 +44,7 @@ class BuySellPage extends BasePage {
   final _depositAddressFocus = FocusNode();
   final _cryptoAmountFocus = FocusNode();
   final _receiveAddressFocus = FocusNode();
-  final _receiveAmountDebounce = Debounce(Duration(milliseconds: 500));
+  final _cryptoAmountDebounce = Debounce(Duration(milliseconds: 500));
   Debounce _depositAmountDebounce = Debounce(Duration(milliseconds: 500));
   var _isReactionsSet = false;
 
@@ -232,6 +232,10 @@ class BuySellPage extends BasePage {
     if (_isReactionsSet) {
       return;
     }
+
+
+    final fiatAmountController = fiatCurrencyKey.currentState!.amountController;
+    
     _onCryptoCurrencyChange(buySellViewModel.cryptoCurrency, buySellViewModel, cryptoCurrencyKey);
     _onFiatCurrencyChange(buySellViewModel.fiatCurrency, buySellViewModel, fiatCurrencyKey);
 
@@ -244,6 +248,33 @@ class BuySellPage extends BasePage {
         (_) => buySellViewModel.fiatCurrency,
         (FiatCurrency currency) =>
             _onFiatCurrencyChange(currency, buySellViewModel, fiatCurrencyKey));
+
+    reaction((_) => buySellViewModel.fiatAmount, (String amount) {
+      if (fiatCurrencyKey.currentState!.amountController.text != amount ) {
+        fiatCurrencyKey.currentState!.amountController.text = amount;
+      }
+    });
+
+    reaction((_) => buySellViewModel.depositAddress, (String address) {
+      if (cryptoCurrencyKey.currentState!.addressController.text != address) {
+        cryptoCurrencyKey.currentState!.addressController.text = address;
+      }
+    });
+
+    reaction((_) => buySellViewModel.cryptoAmount, (String amount) {
+      if (cryptoCurrencyKey.currentState!.amountController.text != amount) {
+        cryptoCurrencyKey.currentState!.amountController.text = amount;
+      }
+    });
+
+    fiatAmountController.addListener(() {
+      if (fiatAmountController.text != buySellViewModel.cryptoAmount) {
+        _cryptoAmountDebounce.run(() {
+          buySellViewModel.changeFiatAmount(amount: fiatAmountController.text);
+          buySellViewModel.isCryptoAmountEntered = true;
+        });
+      }
+    });
 
     _isReactionsSet = true;
   }

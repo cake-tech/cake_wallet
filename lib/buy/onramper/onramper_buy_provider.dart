@@ -118,15 +118,11 @@ class OnRamperBuyProvider extends BuyProvider {
     }
   }
 
-  Future<List<PaymentMethod>> getAvailablePaymentTypes({
-    required String fiatCurrency,
-    required String type,
-    bool isRecurringPayment = false,
-  }) async {
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String type) async {
     final params = {
       'fiatCurrency': fiatCurrency,
       'type': type,
-      'isRecurringPayment': isRecurringPayment.toString(),
+      'isRecurringPayment': 'false',
     };
 
     final path = '$supported$paymentTypes/$fiatCurrency';
@@ -145,7 +141,9 @@ class OnRamperBuyProvider extends BuyProvider {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
         final List<dynamic> message = data['message'] as List<dynamic>;
-        return message.map((item) => PaymentMethod.fromOnramperJson(item as Map<String, dynamic>)).toList();
+        return message
+            .map((item) => PaymentMethod.fromOnramperJson(item as Map<String, dynamic>))
+            .toList();
       } else {
         print('Failed to fetch available payment types');
         return [];

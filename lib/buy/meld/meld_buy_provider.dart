@@ -20,7 +20,6 @@ class MeldBuyProvider extends BuyProvider {
   static const _paymentMethodsPath = '/payment-methods';
   static const _quotePath = '/payments/crypto/quote';
 
-
   @override
   String get title => 'Meld';
 
@@ -37,13 +36,7 @@ class MeldBuyProvider extends BuyProvider {
   bool get isAggregator => true;
 
   @override
-  Future<List<PaymentMethod>> getAvailablePaymentTypes({
-    required String fiatCurrency,
-    required String type,
-    bool isRecurringPayment = false,
-  }) async {
-
-    print('Fetching Meld payment methods $fiatCurrency');
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String type) async {
     final params = {
       'fiatCurrencies': fiatCurrency,
       'statuses': 'LIVE,RECENTLY_ADDED,BUILDING',
@@ -52,7 +45,6 @@ class MeldBuyProvider extends BuyProvider {
     final path = '$_providersProperties$_paymentMethodsPath';
 
     final url = Uri.https(_basTestUrl, path, params);
-
 
     try {
       final response = await http.get(

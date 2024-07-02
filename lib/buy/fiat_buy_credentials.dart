@@ -1,23 +1,11 @@
 class FiatBuyCredentials {
   final int id;
   final String name;
-  final bool buyable;
-  final bool sellable;
-  final bool cardBuyable;
-  final bool cardSellable;
-  final bool instantBuyable;
-  final bool instantSellable;
   final Map<String, VolumeLimits> limits;
 
   FiatBuyCredentials({
     required this.id,
     required this.name,
-    required this.buyable,
-    required this.sellable,
-    required this.cardBuyable,
-    required this.cardSellable,
-    required this.instantBuyable,
-    required this.instantSellable,
     required this.limits,
   });
 
@@ -25,14 +13,8 @@ class FiatBuyCredentials {
     return FiatBuyCredentials(
       id: json['id'] as int,
       name: json['name'] as String,
-      buyable: json['buyable'] as bool,
-      sellable: json['sellable'] as bool,
-      cardBuyable: json['cardBuyable'] as bool,
-      cardSellable: json['cardSellable'] as bool,
-      instantBuyable: json['instantBuyable'] as bool,
-      instantSellable: json['instantSellable'] as bool,
       limits: (json['limits'] as Map<String, dynamic>).map(
-            (key, value) => MapEntry(key, VolumeLimits.fromJson(value as Map<String, dynamic>)),
+        (key, value) => MapEntry(key, VolumeLimits.fromJson(value as Map<String, dynamic>)),
       ),
     );
   }
@@ -48,9 +30,16 @@ class VolumeLimits {
   });
 
   factory VolumeLimits.fromJson(Map<String, dynamic> json) {
+    final minVolume = json['minVolume'] is int
+        ? (json['minVolume'] as int).toDouble()
+        : json['minVolume'] as double?;
+    final maxVolume = json['maxVolume'] is int
+        ? (json['maxVolume'] as int).toDouble()
+        : json['maxVolume'] as double?;
+
     return VolumeLimits(
-      minVolume: (json['minVolume'] as num).toDouble(),
-      maxVolume: (json['maxVolume'] as num).toDouble(),
+      minVolume: minVolume ?? 0.0,
+      maxVolume: maxVolume ?? 0.0,
     );
   }
 }

@@ -198,50 +198,69 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  Future<List<FiatBuyCredentials>> fetchFiatCurrencies() async {
-    final url = Uri.parse('https://api.dfx.swiss/v1/fiat');
-    final headers = {
-      'accept': 'application/json',
-    };
+  Future<FiatBuyCredentials?> fetchFiatCurrencies(String fiatCurrency) async {
+    final url = Uri.https(_baseUrl, '/v1/fiat');
 
     try {
-      final response = await http.get(url, headers: headers);
+      final response = await http.get(url, headers: {'accept': 'application/json'});
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
-        return data
-            .map((item) => FiatBuyCredentials.fromJson(item as Map<String, dynamic>))
-            .toList();
+        final data = jsonDecode(response.body) as List<dynamic>;
+        for (final item in data) {
+          if (item['name'] == fiatCurrency) {
+            return FiatBuyCredentials.fromJson(item as Map<String, dynamic>);
+          }
+        }
+        print('DFX does not support fiat: $fiatCurrency');
+        return null;
       } else {
-        print('Failed to fetch fiat currencies: ${response.statusCode}');
-        return [];
+        print('DFX Failed to fetch fiat currencies: ${response.statusCode}');
+        return null;
       }
     } catch (e) {
-      print('Error fetching fiat currencies: $e');
-      return [];
+      print('DFX Error fetching fiat currencies: $e');
+      return null;
     }
   }
 
-  Future<List<AssetBuyCredentials?>> fetchAssets({required List<String> assetsName}) async {
-    final url = Uri.parse('https://api.dfx.swiss/v1/asset?blockchains=BTC');
-    final headers = {
-      'accept': 'application/json',
-    };
+  Future<AssetBuyCredentials?> fetchAssets({required List<String> assetsName}) async {
+    final url = Uri.https(_baseUrl, '/v1/asset', {'blockchain': assetsName});
 
     try {
-      final response = await http.get(url, headers: headers);
+      final response = await http.get(url, headers: {'accept': 'application/json'});
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
-        return data.map((item) => AssetBuyCredentials.fromJson(item as Map<String, dynamic>)).toList();
-      } else {
-        print('Failed to fetch assets: ${response.statusCode}');
-        return [];
+        final data = jsonDecode(response.body) as List<dynamic>;
+        final assets = data[0] as Map<String, dynamic>;
+        return AssetBuyCredentials.fromJson(assets);
       }
     } catch (e) {
       print('Error fetching assets: $e');
-      return [];
+      return null;
     }
+    return null;
+  }
+
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String type) async {
+    final List<PaymentMethod> paymentMethods = [];
+
+    if (type == 'buy') {
+      final fiatBuyCredentials = await fetchFiatCurrencies(fiatCurrency);
+      if (fiatBuyCredentials != null) {
+        fiatBuyCredentials.limits.forEach((key, value) {
+          if (value.minVolume != 0 && value.maxVolume != 0) {
+            return paymentMethods.add(PaymentMethod.fromDFXJson({
+              'paymentTypeId': key,
+              'name': key,
+            }, value));
+          }
+        });
+      }
+    } else {
+      //final assetBuyCredentials = await fetchAssets(assetsName: [fiatCurrency]);
+    }
+
+    return paymentMethods;
   }
 
   Future<Quote?> fetchQuote({
@@ -258,32 +277,19 @@ class DFXBuyProvider extends BuyProvider {
       return null;
     }
 
-    int? currencyId;
     int? assetId;
 
-    final fiatCurrencies = await fetchFiatCurrencies();
+    final fiatCurrency = await fetchFiatCurrencies(sourceCurrency);
+    if (fiatCurrency == null) return null;
 
-    for (final fiatCurrency in fiatCurrencies) {
-      if (fiatCurrency.name == sourceCurrency) {
-        currencyId = fiatCurrency.id;
-      }
-    }
-    if (currencyId == null) {
-      print('DFX Unsupported source currency: $sourceCurrency');
-      return null;
-    }
-
-
-
-
-    final url = Uri.parse('https://api.dfx.swiss/v1/buy/quote');
+    final url = Uri.parse('https://$_baseUrl/v1/buy/quote');
     final headers = {
       'accept': 'application/json',
       'Content-Type': 'application/json',
     };
     final body = jsonEncode({
       'currency': {
-        'id': 3,
+        'id': fiatCurrency.id,
       },
       'asset': {
         'id': 113,
@@ -313,7 +319,7 @@ class DFXBuyProvider extends BuyProvider {
         return null;
       }
     } catch (e) {
-      print('Error fetching buy quote: $e');
+      print('DFX Error fetching buy quote: $e');
       return null;
     }
   }
