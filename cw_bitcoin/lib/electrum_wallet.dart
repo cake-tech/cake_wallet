@@ -1831,7 +1831,7 @@ abstract class ElectrumWalletBase
         if (this.syncStatus is! SyncedSyncStatus && this.syncStatus is! SyncedTipSyncStatus) {
           this.electrumClient.connectToUri(
                 node!.uri,
-                useSSL: node!.useSSL == null ? false : node!.useSSL,
+                useSSL: node!.useSSL ?? false,
               );
         }
         _isTryingToConnect = false;
