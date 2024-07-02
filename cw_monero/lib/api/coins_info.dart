@@ -1,35 +1,17 @@
-import 'dart:ffi';
-import 'package:cw_monero/api/signatures.dart';
-import 'package:cw_monero/api/structs/coins_info_row.dart';
-import 'package:cw_monero/api/types.dart';
-import 'package:cw_monero/api/monero_api.dart';
+import 'package:cw_monero/api/account_list.dart';
+import 'package:monero/monero.dart' as monero;
 
-final refreshCoinsNative = moneroApi
-    .lookup<NativeFunction<refresh_coins>>('refresh_coins')
-    .asFunction<RefreshCoins>();
+monero.Coins? coins = null;
 
-final coinsCountNative = moneroApi
-    .lookup<NativeFunction<coins_count>>('coins_count')
-    .asFunction<CoinsCount>();
+void refreshCoins(int accountIndex) {
+  coins = monero.Wallet_coins(wptr!);
+  monero.Coins_refresh(coins!);
+}
 
-final coinNative = moneroApi
-    .lookup<NativeFunction<coin>>('coin')
-    .asFunction<GetCoin>();
+int countOfCoins() => monero.Coins_count(coins!);
 
-final freezeCoinNative = moneroApi
-    .lookup<NativeFunction<freeze_coin>>('freeze_coin')
-    .asFunction<FreezeCoin>();
+monero.CoinsInfo getCoin(int index) => monero.Coins_coin(coins!, index);
 
-final thawCoinNative = moneroApi
-    .lookup<NativeFunction<thaw_coin>>('thaw_coin')
-    .asFunction<ThawCoin>();
+void freezeCoin(int index) => monero.Coins_setFrozen(coins!, index: index);
 
-void refreshCoins(int accountIndex) => refreshCoinsNative(accountIndex);
-
-int countOfCoins() => coinsCountNative();
-
-CoinsInfoRow getCoin(int index) => coinNative(index).ref;
-
-void freezeCoin(int index) => freezeCoinNative(index);
-
-void thawCoin(int index) => thawCoinNative(index);
+void thawCoin(int index) => monero.Coins_thaw(coins!, index: index);

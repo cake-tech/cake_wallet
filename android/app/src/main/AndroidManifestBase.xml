@@ -38,7 +38,8 @@
         android:fullBackupContent="false"
         android:versionCode="__versionCode__"
         android:versionName="__versionName__"
-        android:requestLegacyExternalStorage="true">
+        android:requestLegacyExternalStorage="true"
+        android:extractNativeLibs="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleInstance"
@@ -90,6 +91,9 @@
                 <data android:scheme="tron" />
                 <data android:scheme="tron-wallet" />
                 <data android:scheme="tron_wallet" />
+                <data android:scheme="wownero" />
+                <data android:scheme="wownero-wallet" />
+                <data android:scheme="wownero_wallet" />
             </intent-filter>
             <!-- nano-gpt link scheme -->
             <intent-filter android:autoVerify="true">

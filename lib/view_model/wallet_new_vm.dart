@@ -2,6 +2,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -35,11 +36,13 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   @observable
   String selectedMnemonicLanguage;
 
-  bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
+  bool get hasLanguageSelector =>
+      type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero;
 
   int get seedPhraseWordsLength {
     switch (type) {
       case WalletType.monero:
+      case WalletType.wownero:
         if (advancedPrivacySettingsViewModel.isPolySeed) {
           return 16;
         }
@@ -55,7 +58,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
     }
   }
 
-  bool get hasSeedType => type == WalletType.monero;
+  bool get hasSeedType => type == WalletType.monero || type == WalletType.wownero;
 
   @override
   WalletCredentials getCredentials(dynamic _options) {
@@ -76,6 +79,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashNewWalletCredentials(name: name);
       case WalletType.nano:
+      case WalletType.banano:
         return nano!.createNanoNewWalletCredentials(name: name);
       case WalletType.polygon:
         return polygon!.createPolygonNewWalletCredentials(name: name);
@@ -83,7 +87,10 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return solana!.createSolanaNewWalletCredentials(name: name);
       case WalletType.tron:
         return tron!.createTronNewWalletCredentials(name: name);
-      default:
+      case WalletType.wownero:
+        return wownero!.createWowneroNewWalletCredentials(
+            name: name, language: options!.first as String, isPolyseed: options.last as bool);
+      case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
   }

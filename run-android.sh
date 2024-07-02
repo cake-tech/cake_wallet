@@ -4,8 +4,7 @@
 get_current_branch() {
     if git rev-parse --git-dir > /dev/null 2>&1; then
         branch=$(git rev-parse --abbrev-ref HEAD)
-        branch=${branch//[-]/_} # Replace all dashes with underscores
-        echo "$branch"
+        echo "$branch" | tr '-' '_'
     else
         echo "Error: Not a git repository."
         return 1
@@ -16,6 +15,7 @@ get_current_branch() {
 update_app_properties() {
     local branch=$1
     local file_path="./android/app.properties"
+    
     sed -i "s/^id=.*/id=com.cakewallet.$branch/" "$file_path"
     sed -i "s/^name=.*/name=$branch-Cake Wallet/" "$file_path"
 }

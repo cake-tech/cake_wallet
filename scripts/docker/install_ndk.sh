@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x -e
 
 . ./config.sh
 TOOLCHAIN_DIR=${WORKDIR}/toolchain
