@@ -239,6 +239,9 @@ Future<void> defaultSettingsMigration(
         case 38:
           await fixBtcDerivationPaths(walletInfoSource);
           break;
+        case 39:
+          _fixNodesUseSSLFlag(nodes);
+          break;
         default:
           break;
       }
@@ -251,6 +254,17 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+void _fixNodesUseSSLFlag(Box<Node> nodes) {
+  for (Node node in nodes.values) {
+    switch (node.uriRaw) {
+      case cakeWalletLitecoinElectrumUri:
+      case cakeWalletBitcoinElectrumUri:
+        node.useSSL = true;
+        break;
+    }
+  }
 }
 
 Future<void> updateNanoNodeList({required Box<Node> nodes}) async {

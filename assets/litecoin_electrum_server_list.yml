@@ -1,2 +1,4 @@
 -
   uri: ltc-electrum.cakewallet.com:50002
+  useSSL: true
+  isDefault: true
