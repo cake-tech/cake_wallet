@@ -2,12 +2,11 @@ name: Automated Integration Tests
 
 on: 
   pull_request:
-    branches:
-      [main]
+    branches: [ main ]
 
 jobs: 
   Automated_integration_tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
         matrix:
           api-level: [23, 24, 29]
