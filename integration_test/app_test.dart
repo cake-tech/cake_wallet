@@ -1,7 +1,6 @@
 import 'package:cake_wallet/main.dart' as app;
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -17,15 +16,6 @@ import 'robots/restore_options_page_robot.dart';
 import 'robots/setup_pin_code_robot.dart';
 import 'robots/welcome_page_robot.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-
-Future<void> restoreFlutterError() async {
-  final originalOnError = FlutterError.onError!;
-
-  // restore FlutterError.onError
-  FlutterError.onError = (FlutterErrorDetails details) {
-    originalOnError(details);
-  };
-}
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -59,10 +49,10 @@ void main() {
 
       final pin = [0, 8, 0, 1];
 
-      // String testAmount = '0.08';
-      String testAmount = '8';
-      CryptoCurrency testReceiveCurrency = CryptoCurrency.sol;
-      CryptoCurrency testDepositCurrency = CryptoCurrency.usdtSol;
+      String testAmount = '0.08';
+      // String testAmount = '8';
+      CryptoCurrency testReceiveCurrency = CryptoCurrency.usdtSol;
+      CryptoCurrency testDepositCurrency = CryptoCurrency.sol;
 
       WalletType testWalletType = WalletType.solana;
       String testWalletName = 'Integrated Testing Wallet';

@@ -29,14 +29,10 @@ class PinCodeWidgetRobot {
   }
 
   Future<void> enterPinCode(List<int> pinCode, bool isFirstEntry) async {
-    // final PinCodeWidget pinCodeState = tester.widget(find.bySubtype<PinCodeWidget>());
 
     for (int pin in pinCode) {
       await pushPinButton(pin);
     }
-
-    // the state is cleared once it get's to the last entry
-    // expect(pinCodeState. .pin, isFirstEntry ? '' : '0801');
 
     await commonTestCases.defaultSleepTime();
   }
