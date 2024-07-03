@@ -201,7 +201,7 @@ class AddressResolver {
           final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
           if (txtRecord != null) {
             final record = await OpenaliasRecord.fetchAddressAndName(
-                formattedName: formattedName, ticker: ticker, txtRecord: txtRecord);
+                formattedName: formattedName, ticker: ticker.toLowerCase(), txtRecord: txtRecord);
             return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
           }
         }
