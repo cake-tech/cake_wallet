@@ -61,7 +61,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   SendViewModelBase(
     AppStore appStore,
     this.sendTemplateViewModel,
-    this._fiatConversationStore,
+    this.fiatConversionStore,
     this.balanceViewModel,
     this.contactListViewModel,
     this.transactionDescriptionBox,
@@ -87,7 +87,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     outputs
-        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+        .add(Output(wallet, _settingsStore, fiatConversionStore, () => selectedCryptoCurrency));
   }
 
   @observable
@@ -98,7 +98,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   void addOutput() {
     outputs
-        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+        .add(Output(wallet, _settingsStore, fiatConversionStore, () => selectedCryptoCurrency));
   }
 
   @action
@@ -125,14 +125,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return '0.00';
     }
 
-    final pricesKeys = _fiatConversationStore.prices.keys.toList();
+    final pricesKeys = fiatConversionStore.prices.keys.toList();
 
     final selectedCurr = pricesKeys.firstWhereOrNull((element) =>
     element.title == selectedCryptoCurrency.title && element.tag == selectedCryptoCurrency.tag);
 
     try {
       final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[selectedCurr]!,
+          price: fiatConversionStore.prices[selectedCurr]!,
           cryptoAmount: pendingTransaction!.amountFormatted);
       return fiat;
     } catch (_) {
@@ -146,7 +146,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (pendingTransaction != null) {
         final currency = pendingTransactionFeeCurrency(walletType);
         final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[currency]!,
+            price: fiatConversionStore.prices[currency]!,
             cryptoAmount: pendingTransaction!.feeFormatted);
         return fiat;
       } else {
@@ -289,7 +289,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   final BalanceViewModel balanceViewModel;
   final ContactListViewModel contactListViewModel;
   final LedgerViewModel? ledgerViewModel;
-  final FiatConversionStore _fiatConversationStore;
+  final FiatConversionStore fiatConversionStore;
   final Box<TransactionDescription> transactionDescriptionBox;
 
   @observable

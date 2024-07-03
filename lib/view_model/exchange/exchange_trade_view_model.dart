@@ -53,7 +53,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         _provider = QuantexExchangeProvider();
         break;
       case ExchangeProviderDescription.thorChain:
-        _provider = ThorChainExchangeProvider(tradesStore: trades);
+        _provider = ThorChainExchangeProvider(tradesStore: trades, settingsStore: sendViewModel.balanceViewModel.settingsStore);
         break;
     }
 

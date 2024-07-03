@@ -1,5 +1,9 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -7,12 +11,13 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 
 class ThorChainExchangeProvider extends ExchangeProvider {
-  ThorChainExchangeProvider({required this.tradesStore})
+  ThorChainExchangeProvider({required this.tradesStore, required this.settingsStore})
       : super(pairList: supportedPairs(_notSupported));
 
   static final List<CryptoCurrency> _notSupported = [
@@ -43,6 +48,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static const _nameLookUpPath = 'v2/thorname/lookup/';
 
   final Box<Trade> tradesStore;
+  final SettingsStore settingsStore;
 
   @override
   String get title => 'THORChain';
@@ -238,6 +244,25 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   }
 
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
+
+    // Remove 'affiliate_bps' if the fiat value is less than $100
+    if (params['from_asset'] != null && params['amount'] != null) {
+      final String formattedAsset = params['from_asset']!.split('.')[1];
+      final CryptoCurrency selectedCryptoCurrency = CryptoCurrency.fromString(formattedAsset);
+
+      final double price = await FiatConversionService.fetchPrice(
+        crypto: selectedCryptoCurrency,
+        fiat: FiatCurrency.usd,
+        torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+      );
+
+      final double fiatValue = price * _thorChainAmountToDouble(params['amount']!);
+
+      if (fiatValue < 100 && params['affiliate_bps'] != null) {
+        params.remove('affiliate_bps');
+      }
+    }
+
     Uri uri = Uri.https(_baseNodeURL, _quotePath, params);
 
     final response = await http.get(uri);
