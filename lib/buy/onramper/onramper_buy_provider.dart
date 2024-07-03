@@ -118,7 +118,7 @@ class OnRamperBuyProvider extends BuyProvider {
     }
   }
 
-  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String type) async {
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String cryptoCurrency, String type)async {
     final params = {
       'fiatCurrency': fiatCurrency,
       'type': type,

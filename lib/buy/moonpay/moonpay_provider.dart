@@ -6,6 +6,7 @@ import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
+import 'package:cake_wallet/buy/fiat_buy_credentials.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
@@ -312,6 +313,64 @@ class MoonPayProvider extends BuyProvider {
     }
 
     return currency.toString().toLowerCase();
+  }
+
+  Future<FiatBuyCredentials?> fetchFiatBuyCredentials(
+      String fiatCurrency, String cryptocurrency, String? paymentMethod) async {
+    final params = {
+      'baseCurrencyCode': fiatCurrency.toLowerCase(),
+      'apiKey': _apiKey,
+    };
+
+    if (paymentMethod != null) {
+      params['paymentMethod'] = paymentMethod;
+    }
+    final path = '$_buyPath/${cryptocurrency.toLowerCase()}/limits';
+    final url = Uri.https(_baseUrl, path, params);
+
+
+    try {
+      final response = await get(url, headers: {'accept': 'application/json'});
+
+      print('MoonPay fetchFiatBuyCredentials: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final credentials = FiatBuyCredentials(data['baseCurrency'] as Map<String, dynamic>);
+        }
+        print('MoonPay does not support fiat: $fiatCurrency');
+        return null;
+      } else {
+        print('MoonPay Failed to fetch fiat currencies: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('MoonPay Error fetching fiat currencies: $e');
+      return null;
+    }
+  }
+
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(
+      String fiatCurrency, String cryptoCurrency, String type) async {
+    final List<PaymentMethod> paymentMethods = [];
+
+    if (type == 'buy') {
+      final fiatBuyCredentials = await fetchFiatBuyCredentials(fiatCurrency, cryptoCurrency, null);
+      if (fiatBuyCredentials != null) {
+        fiatBuyCredentials.limits.forEach((key, value) {
+          if (value.minVolume != 0 && value.maxVolume != 0) {
+            return paymentMethods.add(PaymentMethod.fromDFXJson({
+              'paymentTypeId': key,
+              'name': key,
+            }, value));
+          }
+        });
+      }
+    } else {
+      //final assetBuyCredentials = await fetchAssets(assetsName: [fiatCurrency]);
+    }
+
+    return paymentMethods;
   }
 
   Future<Quote?> fetchQuote({

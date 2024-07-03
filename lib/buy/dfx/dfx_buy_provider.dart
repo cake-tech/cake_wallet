@@ -241,7 +241,7 @@ class DFXBuyProvider extends BuyProvider {
     return null;
   }
 
-  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String type) async {
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String cryptoCurrency, String type) async {
     final List<PaymentMethod> paymentMethods = [];
 
     if (type == 'buy') {

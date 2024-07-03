@@ -274,7 +274,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   Future<void> _getAvailablePaymentTypes() async {
     final result = await Future.wait(providerList.map((element) =>
-        element.getAvailablePaymentTypes(fiatCurrency.title, isBuyAction ? 'buy' : 'sell')));
+        element.getAvailablePaymentTypes(fiatCurrency.title,cryptoCurrency.title, isBuyAction ? 'buy' : 'sell')));
 
     final Map<PaymentType, PaymentMethod> uniquePaymentMethods = {};
     for (var methods in result) {

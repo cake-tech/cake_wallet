@@ -36,7 +36,7 @@ class MeldBuyProvider extends BuyProvider {
   bool get isAggregator => true;
 
   @override
-  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String type) async {
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String cryptoCurrency, String type) async {
     final params = {
       'fiatCurrencies': fiatCurrency,
       'statuses': 'LIVE,RECENTLY_ADDED,BUILDING',
