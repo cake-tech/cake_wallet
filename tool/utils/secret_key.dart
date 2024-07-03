@@ -39,6 +39,7 @@ class SecretKey {
     SecretKey('moralisApiKey', () => ''),
     SecretKey('ankrApiKey', () => ''),
     SecretKey('quantexExchangeMarkup', () => ''),
+    SecretKey('seeds', () => ''),
   ];
 
   static final evmChainsSecrets = [

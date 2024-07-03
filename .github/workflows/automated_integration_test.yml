@@ -118,6 +118,7 @@ jobs:
           touch cw_solana/lib/.secrets.g.dart
           touch cw_tron/lib/.secrets.g.dart
           echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
+          echo "const seeds = '${{ secrets.SEEDS }}';" > lib/.secrets.g.dart
           echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
           echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
           echo "const walletSalt = '${{ secrets.WALLET_SALT }}';" >> lib/.secrets.g.dart
