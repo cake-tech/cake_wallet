@@ -120,6 +120,7 @@ jobs:
           echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
           echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
           echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
+          echo "const seeds = '${{ secrets.SEEDS }}';" >> lib/.secrets.g.dart
           echo "const walletSalt = '${{ secrets.WALLET_SALT }}';" >> lib/.secrets.g.dart
           echo "const shortKey = '${{ secrets.SHORT_KEY }}';" >> lib/.secrets.g.dart
           echo "const backupSalt = '${{ secrets.BACKUP_SALT }}';" >> lib/.secrets.g.dart
