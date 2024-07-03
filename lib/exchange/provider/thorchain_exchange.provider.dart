@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';

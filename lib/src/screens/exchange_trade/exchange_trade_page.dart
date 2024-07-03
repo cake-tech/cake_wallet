@@ -217,7 +217,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 ? LoadingPrimaryButton(
                     isDisabled: trade.inputAddress == null ||
                         trade.inputAddress!.isEmpty,
-                    isLoading: sendingState is IsExecutingState,
+                    isLoading: sendingState is IsExecutingState ||
+                        sendingState is TransactionCommitting,
                     onPressed: () =>
                         widget.exchangeTradeViewModel.confirmSending(),
                     text: S.of(context).confirm,
