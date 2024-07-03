@@ -87,6 +87,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   StreamSubscription<List<Payment>>? _paymentsSub;
   StreamSubscription<NodeState?>? _nodeStateSub;
   StreamSubscription<LogEntry>? _logStream;
+  late final BreezSDK _sdk;
 
   late final Uint8List seedBytes;
   String mnemonic;
@@ -98,15 +99,16 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   ObservableMap<CryptoCurrency, LightningBalance> get balance => _balance;
 
   static Future<Uint8List> toSeedBytes(String mnemonic) async {
-    // electrum:
+    // // electrum:
     // if (validateMnemonic(mnemonic)) {
-    // return await mnemonicToSeedBytes(mnemonic);
-    // bip39:
+    //   return await mnemonicToSeedBytes(mnemonic);
+    //   // bip39:
     // } else if (bip39.validateMnemonic(mnemonic)) {
-    return await bip39.mnemonicToSeed(mnemonic);
+    //   return await bip39.mnemonicToSeed(mnemonic);
     // } else {
     //   throw Exception("Invalid mnemonic!");
     // }
+    return await bip39.mnemonicToSeed(mnemonic);
   }
 
   static Future<LightningWallet> create(
@@ -196,13 +198,13 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> setupBreez(Uint8List seedBytes) async {
-    final sdk = await BreezSDK();
+    _sdk = BreezSDK();
     _logStream?.cancel();
-    _logStream = sdk.logStream.listen(_logSdkEntries);
+    _logStream = _sdk.logStream.listen(_logSdkEntries);
 
     try {
-      if (!(await sdk.isInitialized())) {
-        sdk.initialize();
+      if (!(await _sdk.isInitialized())) {
+        _sdk.initialize();
       }
     } catch (e) {
       print("Error initializing Breez: $e");
@@ -220,7 +222,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         inviteCode: null,
       ),
     );
-    Config breezConfig = await sdk.defaultConfig(
+    Config breezConfig = await _sdk.defaultConfig(
       envType: EnvironmentType.Production,
       apiKey: secrets.breezApiKey,
       nodeConfig: breezNodeConfig,
@@ -234,15 +236,15 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
     // disconnect if already connected
     try {
-      if (await sdk.isInitialized()) {
-        await sdk.disconnect();
+      if (await _sdk.isInitialized()) {
+        await _sdk.disconnect();
       }
     } catch (e, s) {
       print("ERROR disconnecting from Breez: $e\n$s");
     }
 
     try {
-      await sdk.connect(
+      await _sdk.connect(
         req: ConnectRequest(
           config: breezConfig,
           seed: seedBytes,
@@ -253,23 +255,23 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     }
 
     await _nodeStateSub?.cancel();
-    _nodeStateSub = sdk.nodeStateStream.listen((event) {
+    _nodeStateSub = _sdk.nodeStateStream.listen((event) {
       _handleNodeState(event);
     });
-    await _handleNodeState(await sdk.nodeInfo());
+    await _handleNodeState(await _sdk.nodeInfo());
 
     await _paymentsSub?.cancel();
-    _paymentsSub = sdk.paymentsStream.listen((List<Payment> payments) {
+    _paymentsSub = _sdk.paymentsStream.listen((List<Payment> payments) {
       _handlePayments(payments);
     });
-    await _handlePayments(await sdk.listPayments(req: ListPaymentsRequest()));
+    await _handlePayments(await _sdk.listPayments(req: ListPaymentsRequest()));
 
     // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
     // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    // await BreezSDK().rescanSwaps();  
+    // await BreezSDK().rescanSwaps();
     // List<SwapInfo> refundables = await BreezSDK().listRefundables();
     // for (var refundable in refundables) {
     //   print(refundable.bitcoinAddress);
@@ -277,14 +279,13 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     // SwapInfo? swapInfo = await BreezSDK().inProgressSwap();
     // print(swapInfo);
 
-    print("initialized breez: ${(await sdk.isInitialized())}");
+    print("initialized breez: ${(await _sdk.isInitialized())}");
   }
 
   Future<void> stopBreez(bool disconnect) async {
     if (disconnect) {
-      final sdk = await BreezSDK();
-      if (await sdk.isInitialized()) {
-        await sdk.disconnect();
+      if (await _sdk.isInitialized()) {
+        await _sdk.disconnect();
       }
     }
     await _nodeStateSub?.cancel();
@@ -311,8 +312,36 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   }
 
   @action
+  void _onConnectionStatusChange(bool? isConnected) {
+    if (syncStatus is SyncingSyncStatus) return;
+
+    if (isConnected == true && syncStatus is! SyncedSyncStatus) {
+      syncStatus = ConnectedSyncStatus();
+    } else if (isConnected == false) {
+      syncStatus = LostConnectionSyncStatus();
+    } else if (isConnected != true && syncStatus is! ConnectingSyncStatus) {
+      syncStatus = NotConnectedSyncStatus();
+    }
+  }
+
+  @action
   @override
   Future<void> connectToNode({required Node node}) async {
+    this.node = node;
+
+    try {
+      syncStatus = ConnectingSyncStatus();
+
+      await electrumClient.close();
+
+      electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
+
+      await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
+    } catch (e) {
+      print(e.toString());
+      syncStatus = FailedSyncStatus();
+    }
+
     try {
       syncStatus = ConnectingSyncStatus();
       await updateTransactions();
@@ -368,9 +397,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<Map<String, LightningTransactionInfo>> fetchTransactions() async {
-    final sdk = await BreezSDK();
-
-    final payments = await sdk.listPayments(req: ListPaymentsRequest());
+    final payments = await _sdk.listPayments(req: ListPaymentsRequest());
     final transactions = convertToTxInfo(payments);
 
     return transactions;
