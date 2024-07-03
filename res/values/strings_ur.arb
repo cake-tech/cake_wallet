@@ -836,6 +836,7 @@
   "wallet_menu": "مینو",
   "wallet_name": "بٹوے کا نام",
   "wallet_name_exists": "اس نام کا پرس پہلے سے موجود ہے۔ براہ کرم ایک مختلف نام منتخب کریں یا پہلے دوسرے بٹوے کا نام تبدیل کریں۔",
+  "wallet_recovery_height": "بحالی کی اونچائی",
   "wallet_restoration_store_incorrect_seed_length": "غلط بیج کی لمبائی",
   "wallet_seed": "بٹوے کا بیج",
   "wallet_seed_legacy": "میراثی پرس کا بیج",

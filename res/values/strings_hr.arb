@@ -834,6 +834,7 @@
   "wallet_menu": "Izbornik",
   "wallet_name": "Ime novčanika",
   "wallet_name_exists": "Novčanik s tim nazivom već postoji",
+  "wallet_recovery_height": "Visina oporavka",
   "wallet_restoration_store_incorrect_seed_length": "Netočna dužina pristupnog izraza",
   "wallet_seed": "Pristupni izraz novčanika",
   "wallet_seed_legacy": "Sjeme naslijeđenog novčanika",

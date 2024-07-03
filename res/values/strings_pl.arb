@@ -834,6 +834,7 @@
   "wallet_menu": "Menu portfela",
   "wallet_name": "Nazwa portfela",
   "wallet_name_exists": "Portfel o tej nazwie już istnieje",
+  "wallet_recovery_height": "Wysokość odzysku",
   "wallet_restoration_store_incorrect_seed_length": "Nieprawidłowa długość frazy seed",
   "wallet_seed": "Seed portfela",
   "wallet_seed_legacy": "Dziedziczne ziarno portfela",

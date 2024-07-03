@@ -835,6 +835,7 @@
   "wallet_menu": "Mẹ́nù",
   "wallet_name": "Orúkọ àpamọ́wọ́",
   "wallet_name_exists": "Ẹ ti ní àpamọ́wọ́ pẹ̀lú orúkọ̀ yẹn. Ẹ jọ̀wọ́ yàn orúkọ̀ tó yàtọ̀ tàbí pààrọ̀ orúkọ ti àpamọ́wọ́ tẹ́lẹ̀.",
+  "wallet_recovery_height": "Iga Imularada",
   "wallet_restoration_store_incorrect_seed_length": "Gígùn hóró tí a máa ń lò kọ́ ni èyí",
   "wallet_seed": "Hóró àpamọ́wọ́",
   "wallet_seed_legacy": "Irugbin akole",

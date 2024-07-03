@@ -150,6 +150,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
 
     await sharedPreferences.setString(PreferencesKey.clearnetDonationLink, result.clearnetUrl);
     await sharedPreferences.setString(PreferencesKey.onionDonationLink, result.onionUrl);
+    await sharedPreferences.setString(PreferencesKey.donationLinkWalletName, _wallet.name);
 
     state = ExecutedSuccessfullyState(payload: result);
   }
@@ -163,10 +164,13 @@ abstract class AnonInvoicePageViewModelBase with Store {
     maximum = limit.max != null ? limit.max! / 4 : null;
   }
 
+  @computed
+  String get currentWalletName => _wallet.name;
+
   @action
   void reset() {
     selectedCurrency = walletTypeToCryptoCurrency(_wallet.type);
-    cryptoCurrency =  walletTypeToCryptoCurrency(_wallet.type);
+    cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
     receipientEmail = '';
     receipientName = '';
     description = '';
@@ -177,7 +181,10 @@ abstract class AnonInvoicePageViewModelBase with Store {
   Future<void> _getPreviousDonationLink() async {
     if (pageOption == ReceivePageOption.anonPayDonationLink) {
       final donationLink = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
-      if (donationLink != null) {
+      final donationLinkWalletName =
+          sharedPreferences.getString(PreferencesKey.donationLinkWalletName);
+
+      if (donationLink != null && currentWalletName == donationLinkWalletName) {
         final url = Uri.parse(donationLink);
         url.queryParameters.forEach((key, value) {
           if (key == 'name') receipientName = value;

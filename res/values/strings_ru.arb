@@ -835,6 +835,7 @@
   "wallet_menu": "Меню кошелька",
   "wallet_name": "Имя кошелька",
   "wallet_name_exists": "Кошелек с таким именем уже существует",
+  "wallet_recovery_height": "Высота восстановления",
   "wallet_restoration_store_incorrect_seed_length": "Неверная длина мнемонической фразы",
   "wallet_seed": "Мнемоническая фраза кошелька",
   "wallet_seed_legacy": "Наследие семя кошелька",

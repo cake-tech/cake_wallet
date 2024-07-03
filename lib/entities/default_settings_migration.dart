@@ -37,7 +37,7 @@ const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'rpc.ankr.com';
-const tronDefaultNodeUri = 'api.trongrid.io';
+const tronDefaultNodeUri = 'trx.nownodes.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 
 Future<void> defaultSettingsMigration(
@@ -232,6 +232,12 @@ Future<void> defaultSettingsMigration(
           break;
         case 36:
           await changeTronCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+          break;
+        case 37:
+          await replaceTronDefaultNode(sharedPreferences: sharedPreferences, nodes: nodes);
+          break;
+        case 38:
+          await fixBtcDerivationPaths(walletInfoSource);
           break;
         default:
           break;
@@ -775,6 +781,19 @@ Future<void> changeDefaultMoneroNode(
   }
 }
 
+Future<void> fixBtcDerivationPaths(Box<WalletInfo> walletsInfoSource) async {
+  for (WalletInfo walletInfo in walletsInfoSource.values) {
+    if (walletInfo.type == WalletType.bitcoin ||
+        walletInfo.type == WalletType.bitcoinCash ||
+        walletInfo.type == WalletType.litecoin) {
+      if (walletInfo.derivationInfo?.derivationPath == "m/0'/0") {
+        walletInfo.derivationInfo!.derivationPath = "m/0'";
+        await walletInfo.save();
+      }
+    }
+  }
+}
+
 Future<void> updateBtcNanoWalletInfos(Box<WalletInfo> walletsInfoSource) async {
   for (WalletInfo walletInfo in walletsInfoSource.values) {
     if (walletInfo.type == WalletType.nano || walletInfo.type == WalletType.bitcoin) {
@@ -1126,4 +1145,30 @@ Future<void> changeTronCurrentNodeToDefault(
   final nodeId = node?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, nodeId);
+}
+
+Future<void> replaceTronDefaultNode({
+  required SharedPreferences sharedPreferences,
+  required Box<Node> nodes,
+}) async {
+  // Get the currently active node
+  final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
+  final currentTronNode =
+      nodes.values.firstWhereOrNull((Node node) => node.key == currentTronNodeId);
+
+  //Confirm if this node is part of the default nodes from CakeWallet
+  final tronDefaultNodeList = [
+    'tron-rpc.publicnode.com:443',
+    'api.trongrid.io',
+  ];
+  bool needsToBeReplaced =
+      currentTronNode == null ? true : tronDefaultNodeList.contains(currentTronNode.uriRaw);
+
+  // If it's a custom node, return. We don't want to switch users from their custom nodes
+  if (!needsToBeReplaced) {
+    return;
+  }
+
+  // If it's not, we switch user to the new default node: NowNodes
+  await changeTronCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
 }
