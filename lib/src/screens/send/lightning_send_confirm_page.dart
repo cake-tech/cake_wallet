@@ -1,6 +1,4 @@
-import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart' as BZG;
-import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_currency_input_field.dart';
@@ -15,7 +13,6 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/lightning_send_view_model.dart';
-import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -28,8 +25,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class LightningSendConfirmPage extends BasePage {
-  LightningSendConfirmPage({this.btcAddress, this.invoice, required this.lightningSendViewModel})
-      : _formKey = GlobalKey<FormState>() {
+  LightningSendConfirmPage({this.btcAddress, this.invoice, required this.lightningSendViewModel}) {
     initialSatAmount = ((invoice?.amountMsat ?? 0) ~/ 1000);
     _amountController = TextEditingController();
     _fiatAmountController = TextEditingController();
@@ -38,7 +34,6 @@ class LightningSendConfirmPage extends BasePage {
     assert(btcAddress != null || invoice != null);
   }
 
-  final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
 
   BZG.LNInvoice? invoice;
@@ -178,8 +173,10 @@ class LightningSendConfirmPage extends BasePage {
                           return AnonpayCurrencyInputField(
                             controller: _amountController,
                             focusNode: _depositAmountFocus,
-                            maxAmount: '',
-                            minAmount: '',
+                            minAmount:
+                                btcAddress != null ? lightningSendViewModel.minSats.toString() : '',
+                            maxAmount:
+                                btcAddress != null ? lightningSendViewModel.maxSats.toString() : '',
                             selectedCurrency: CryptoCurrency.btcln,
                           );
                         })
@@ -387,6 +384,8 @@ class LightningSendConfirmPage extends BasePage {
     if (_effectsInstalled) {
       return;
     }
+
+    lightningSendViewModel.fetchLimits();
 
     _amountController.addListener(() {
       final amount = _amountController.text;

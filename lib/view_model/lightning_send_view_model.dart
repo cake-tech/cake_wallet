@@ -38,12 +38,23 @@ abstract class LightningSendViewModelBase with Store {
   final SettingsStore settingsStore;
   final FiatConversionStore fiatConversionStore;
   int satAmount = 0;
+  int minSats = 0;
+  int maxSats = 1000000;
 
   late final BreezSDK _sdk;
 
   FiatCurrency get fiat => settingsStore.fiatCurrency;
 
   CryptoCurrency get currency => wallet.currency;
+
+  @action
+  Future<void> fetchLimits() async {
+    BZG.OnchainPaymentLimitsResponse currentLimits = await _sdk.onchainPaymentLimits();
+    print("Minimum amount, in sats: ${currentLimits.minSat}");
+    print("Maximum amount, in sats: ${currentLimits.maxSat}");
+    minSats = currentLimits.minSat;
+    maxSats = currentLimits.maxSat;
+  }
 
   @observable
   bool loading = false;
@@ -96,10 +107,11 @@ abstract class LightningSendViewModelBase with Store {
 
   int get estimatedFeeSats {
     int formattedCryptoAmount = satAmount;
-    int? fee =
-        wallet.calculateEstimatedFee(settingsStore.priority[WalletType.bitcoin]!, formattedCryptoAmount);
+    int? fee = wallet.calculateEstimatedFee(
+        settingsStore.priority[WalletType.bitcoin]!, formattedCryptoAmount);
 
-    if (settingsStore.priority[WalletType.bitcoin] == bitcoin!.getBitcoinTransactionPriorityCustom()) {
+    if (settingsStore.priority[WalletType.bitcoin] ==
+        bitcoin!.getBitcoinTransactionPriorityCustom()) {
       fee = bitcoin!.getEstimatedFeeWithFeeRate(
           wallet, settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
     }
@@ -160,10 +172,23 @@ abstract class LightningSendViewModelBase with Store {
     try {
       setLoading(true);
 
+      if (satAmount < minSats || satAmount > maxSats) {
+        throw Exception("Amount is outside of liquidity limits!");
+      }
+
+      late int feeRate;
+
+      if (settingsStore.priority[WalletType.bitcoin] ==
+          bitcoin!.getBitcoinTransactionPriorityCustom()) {
+        feeRate = settingsStore.customBitcoinFeeRate;
+      } else {
+        feeRate = bitcoin!.getFeeRate(wallet, settingsStore.priority[WalletType.bitcoin]!);
+      }
+
       BZG.PrepareOnchainPaymentRequest prep = BZG.PrepareOnchainPaymentRequest(
         amountSat: satAmount,
         amountType: BZG.SwapAmountType.Send,
-        claimTxFeerate: 10,
+        claimTxFeerate: feeRate,
       );
       BZG.PrepareOnchainPaymentResponse prepareRes = await _sdk.prepareOnchainPayment(req: prep);
 
