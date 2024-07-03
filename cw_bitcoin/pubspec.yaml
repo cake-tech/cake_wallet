@@ -43,10 +43,9 @@ dependencies:
     git:
       url: https://github.com/cake-tech/ledger-bitcoin
   sp_scanner:
-    path: ../../sp_scanner
-    # git:
-    #   url: https://github.com/cake-tech/sp_scanner
-    #   ref: sp_v2.0.0
+     git:
+       url: https://github.com/cake-tech/sp_scanner
+       ref: sp_v2.1.0
 
 
 dev_dependencies:
