@@ -1,3 +1,4 @@
+import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -520,8 +521,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.cakePayBuyCardPage:
       final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<CakePayBuyCardPage>(param1: args));
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayBuyCardPage>(param1: args));
 
     case Routes.cakePayBuyCardDetailPage:
       final args = settings.arguments as List;
@@ -535,7 +535,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.cakePayVerifyOtpPage:
       final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayVerifyOtpPage>(param1: args));
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<CakePayVerifyOtpPage>(param1: args));
 
     case Routes.cakePayAccountPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayAccountPage>());
@@ -661,9 +662,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true, builder: (_) => getIt.get<LightningSendPage>());
 
     case Routes.lightningSendConfirm:
+      final args = settings.arguments as Map<String, dynamic>;
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true,
-          builder: (_) => getIt.get<LightningSendConfirmPage>(param1: settings.arguments));
+        fullscreenDialog: true,
+        builder: (_) => getIt.get<LightningSendConfirmPage>(
+          param1: args['invoice'] as LNInvoice?,
+          param2: args['btcAddress'] as String?,
+        ),
+      );
 
     case Routes.lightningReceiveOnchain:
       final args = settings.arguments as List;
@@ -674,7 +680,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.lightningInvoice:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<LightningInvoicePage>());
-          
+
     case Routes.connectDevices:
       final params = settings.arguments as ConnectDevicePageParams;
       return MaterialPageRoute<void>(

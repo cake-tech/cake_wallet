@@ -9,13 +9,16 @@ part 'lightning_view_model.g.dart';
 class LightningViewModel = LightningViewModelBase with _$LightningViewModel;
 
 abstract class LightningViewModelBase with Store {
-  LightningViewModelBase() {}
+  LightningViewModelBase() {
+    _sdk = BreezSDK();
+  }
+
+  late final BreezSDK _sdk;
 
   Future<ReceiveOnchainResult> receiveOnchain() async {
-    final sdk = await BreezSDK();
 
     BZG.ReceiveOnchainRequest req = const BZG.ReceiveOnchainRequest();
-    BZG.SwapInfo swapInfo = await sdk.receiveOnchain(req: req);
+    BZG.SwapInfo swapInfo = await _sdk.receiveOnchain(req: req);
     print("Minimum amount allowed to deposit in sats: ${swapInfo.minAllowedDeposit}");
     print("Maximum amount allowed to deposit in sats: ${swapInfo.maxAllowedDeposit}");
 
@@ -23,9 +26,9 @@ abstract class LightningViewModelBase with Store {
     double feePercent = 0;
 
     try {
-      final nodeState = (await sdk.nodeInfo())!;
+      final nodeState = (await _sdk.nodeInfo())!;
       int inboundLiquidity = nodeState.inboundLiquidityMsats ~/ 1000;
-      final openingFees = await sdk.openChannelFee(
+      final openingFees = await _sdk.openChannelFee(
           req: BZG.OpenChannelFeeRequest(amountMsat: inboundLiquidity + 1));
       feePercent = (openingFees.feeParams.proportional * 100) / 1000000;
       fee = openingFees.feeParams.minMsat ~/ 1000;
@@ -41,12 +44,14 @@ abstract class LightningViewModelBase with Store {
   }
 
   Future<String> createInvoice({required String amountSats, String? description}) async {
-    final sdk = await BreezSDK();
     final req = BZG.ReceivePaymentRequest(
       amountMsat: (double.parse(amountSats) * 1000).round(),
       description: description ?? '',
     );
-    final res = await sdk.receivePayment(req: req);
+    print("11111111111111111111111111111");
+    final res = await _sdk.receivePayment(req: req);
+    print("2222222222222222222222222222222");
+
     return res.lnInvoice.bolt11;
   }
 
@@ -56,13 +61,11 @@ abstract class LightningViewModelBase with Store {
     int inboundLiquidity = 1000000000 * 1000 * 10; // 10 BTC
     int balance = 0;
 
-    final sdk = await BreezSDK();
-
     try {
-      final nodeState = (await sdk.nodeInfo())!;
+      final nodeState = (await _sdk.nodeInfo())!;
       inboundLiquidity = nodeState.inboundLiquidityMsats ~/ 1000;
 
-      final openingFees = await sdk.openChannelFee(
+      final openingFees = await _sdk.openChannelFee(
           req: BZG.OpenChannelFeeRequest(amountMsat: inboundLiquidity + 1));
 
       feePercent = (openingFees.feeParams.proportional * 100) / 1000000;
@@ -79,8 +82,7 @@ abstract class LightningViewModelBase with Store {
 
   Future<int> getBalanceSats() async {
     try {
-      final sdk = await BreezSDK();
-      final nodeState = (await sdk.nodeInfo())!;
+      final nodeState = (await _sdk.nodeInfo())!;
       return nodeState.channelsBalanceMsat ~/ 1000;
     } catch (_) {
       return 0;
@@ -89,9 +91,8 @@ abstract class LightningViewModelBase with Store {
 
   Future<BZG.HealthCheckStatus> serviceHealthCheck() async {
     try {
-      final sdk = await BreezSDK();
       BZG.ServiceHealthCheckResponse response =
-          await sdk.serviceHealthCheck(apiKey: secrets.breezApiKey);
+          await _sdk.serviceHealthCheck(apiKey: secrets.breezApiKey);
       return response.status;
     } catch (_) {
       return BZG.HealthCheckStatus.ServiceDisruption;

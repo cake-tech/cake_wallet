@@ -8,10 +8,8 @@ import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/lightning_invoice_page_view_model.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/lightning/lightning.dart';
 
 class LightningInvoiceForm extends StatelessWidget {
   LightningInvoiceForm({

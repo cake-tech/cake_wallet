@@ -71,7 +71,6 @@ abstract class LightningInvoicePageViewModelBase with Store {
   @action
   Future<void> selectCurrency(Currency currency) async {
     selectedCurrency = currency;
-    // maximum = minimum = null;
     if (currency is CryptoCurrency) {
       cryptoCurrency = currency;
     } else {
@@ -113,10 +112,10 @@ abstract class LightningInvoicePageViewModelBase with Store {
       return;
     }
 
-    if (satAmount! > maximum && maximum != 0) {
-      state = FailureState('Amount is too big');
-      return;
-    }
+    // if (satAmount! > maximum && maximum != 0) {
+    //   state = FailureState('Amount is too big');
+    //   return;
+    // }
 
     try {
       String bolt11 = await lightningViewModel.createInvoice(

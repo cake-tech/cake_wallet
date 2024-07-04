@@ -570,7 +570,8 @@ Future<void> setup({
   getIt.registerFactory<Modify2FAPage>(
       () => Modify2FAPage(setup2FAViewModel: getIt.get<Setup2FAViewModel>()));
 
-  getIt.registerFactory<DesktopSettingsPage>(() => DesktopSettingsPage(getIt.get<DashboardViewModel>()));
+  getIt.registerFactory<DesktopSettingsPage>(
+      () => DesktopSettingsPage(getIt.get<DashboardViewModel>()));
 
   getIt.registerFactoryParam<ReceiveOptionViewModel, ReceivePageOption?, void>(
       (pageOption, _) => ReceiveOptionViewModel(getIt.get<AppStore>().wallet!, pageOption));
@@ -1097,7 +1098,8 @@ Future<void> setup({
   getIt.registerFactory<CakePayService>(
       () => CakePayService(getIt.get<SecureStorage>(), getIt.get<CakePayApi>()));
 
-  getIt.registerFactory(() => CakePayCardsListViewModel(cakePayService: getIt.get<CakePayService>()));
+  getIt.registerFactory(
+      () => CakePayCardsListViewModel(cakePayService: getIt.get<CakePayService>()));
 
   getIt.registerFactory(() => CakePayAuthViewModel(cakePayService: getIt.get<CakePayService>()));
 
@@ -1129,12 +1131,12 @@ Future<void> setup({
   getIt.registerFactoryParam<CakePayBuyCardPage, List<dynamic>, void>((List<dynamic> args, _) {
     final vendor = args.first as CakePayVendor;
 
-    return CakePayBuyCardPage(getIt.get<CakePayBuyCardViewModel>(param1: vendor),
-        getIt.get<CakePayService>());
+    return CakePayBuyCardPage(
+        getIt.get<CakePayBuyCardViewModel>(param1: vendor), getIt.get<CakePayService>());
   });
 
-  getIt.registerFactoryParam<CakePayBuyCardDetailPage, List<dynamic>, void>(
-      (List<dynamic> args, _) {
+  getIt
+      .registerFactoryParam<CakePayBuyCardDetailPage, List<dynamic>, void>((List<dynamic> args, _) {
     final paymentCredential = args.first as PaymentCredential;
     final card = args[1] as CakePayCard;
     return CakePayBuyCardDetailPage(
@@ -1207,6 +1209,7 @@ Future<void> setup({
 
   getIt.registerFactory<LightningSendViewModel>(
     () => LightningSendViewModel(
+      wallet: getIt.get<AppStore>().wallet!,
       settingsStore: getIt.get<SettingsStore>(),
       fiatConversionStore: getIt.get<FiatConversionStore>(),
     ),
@@ -1252,9 +1255,11 @@ Future<void> setup({
     );
   });
 
-  getIt.registerFactoryParam<LightningSendConfirmPage, LNInvoice, void>((LNInvoice invoice, _) {
+  getIt.registerFactoryParam<LightningSendConfirmPage, LNInvoice?, String?>(
+      (LNInvoice? invoice, String? btcAddress) {
     return LightningSendConfirmPage(
       invoice: invoice,
+      btcAddress: btcAddress,
       lightningSendViewModel: getIt.get<LightningSendViewModel>(),
     );
   });

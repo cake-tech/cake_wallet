@@ -1,15 +1,25 @@
 import 'dart:async';
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart' as BZG;
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
+import 'package:collection/collection.dart';
 
 part 'lightning_send_view_model.g.dart';
 
@@ -17,12 +27,34 @@ class LightningSendViewModel = LightningSendViewModelBase with _$LightningSendVi
 
 abstract class LightningSendViewModelBase with Store {
   LightningSendViewModelBase({
+    required this.wallet,
     required this.settingsStore,
     required this.fiatConversionStore,
-  }) {}
+  }) {
+    _sdk = BreezSDK();
+  }
 
+  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
   final SettingsStore settingsStore;
   final FiatConversionStore fiatConversionStore;
+  int satAmount = 0;
+  int minSats = 0;
+  int maxSats = 1000000;
+
+  late final BreezSDK _sdk;
+
+  FiatCurrency get fiat => settingsStore.fiatCurrency;
+
+  CryptoCurrency get currency => wallet.currency;
+
+  @action
+  Future<void> fetchLimits() async {
+    BZG.OnchainPaymentLimitsResponse currentLimits = await _sdk.onchainPaymentLimits();
+    print("Minimum amount, in sats: ${currentLimits.minSat}");
+    print("Maximum amount, in sats: ${currentLimits.maxSat}");
+    minSats = currentLimits.minSat;
+    maxSats = currentLimits.maxSat;
+  }
 
   @observable
   bool loading = false;
@@ -32,7 +64,65 @@ abstract class LightningSendViewModelBase with Store {
     loading = value;
   }
 
-  FiatCurrency get fiat => settingsStore.fiatCurrency;
+  @computed
+  int get customBitcoinFeeRate => settingsStore.customBitcoinFeeRate;
+
+  void set customBitcoinFeeRate(int value) => settingsStore.customBitcoinFeeRate = value;
+
+  @computed
+  bool get isFiatDisabled => settingsStore.fiatApiMode == FiatApiMode.disabled;
+
+  TransactionPriority get transactionPriority {
+    final priority = settingsStore.priority[WalletType.bitcoin];
+
+    if (priority == null) {
+      throw Exception('Unexpected type ${WalletType.bitcoin}');
+    }
+
+    return priority;
+  }
+
+  int? getCustomPriorityIndex(List<TransactionPriority> priorities) {
+    final customItem = priorities
+        .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
+
+    return customItem != null ? priorities.indexOf(customItem) : null;
+  }
+
+  Future<int?> get maxCustomFeeRate async {
+    await (wallet as ElectrumWallet).updateFeeRates();
+    return bitcoin!.getMaxCustomFeeRate(wallet);
+  }
+
+  @action
+  void setTransactionPriority(TransactionPriority priority) =>
+      settingsStore.priority[WalletType.bitcoin] = priority;
+
+  String displayFeeRate(dynamic priority, int? customValue) {
+    final _priority = priority as TransactionPriority;
+
+    final rate = bitcoin!.getFeeRate(wallet, _priority);
+    return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
+  }
+
+  int get estimatedFeeSats {
+    int formattedCryptoAmount = satAmount;
+    int? fee = wallet.calculateEstimatedFee(
+        settingsStore.priority[WalletType.bitcoin]!, formattedCryptoAmount);
+
+    if (settingsStore.priority[WalletType.bitcoin] ==
+        bitcoin!.getBitcoinTransactionPriorityCustom()) {
+      fee = bitcoin!.getEstimatedFeeWithFeeRate(
+          wallet, settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
+    }
+
+    return (bitcoin!.formatterBitcoinAmountToDouble(amount: fee) * 100000000).round();
+  }
+
+  @action
+  void setCryptoAmount(int sats) {
+    satAmount = sats;
+  }
 
   String formattedFiatAmount(int sats) {
     String amount = calculateFiatAmountRaw(
@@ -42,12 +132,14 @@ abstract class LightningSendViewModelBase with Store {
     return amount;
   }
 
+  String get estimatedFeeFiatAmount {
+    return formattedFiatAmount(estimatedFeeSats);
+  }
+
   @action
-  Future<void> send(BZG.LNInvoice invoice, int satAmount) async {
+  Future<void> sendInvoice(BZG.LNInvoice invoice, int satAmount) async {
     try {
       setLoading(true);
-
-      final sdk = await BreezSDK();
       late BZG.SendPaymentRequest req;
 
       if (invoice.amountMsat == null) {
@@ -59,7 +151,7 @@ abstract class LightningSendViewModelBase with Store {
         req = BZG.SendPaymentRequest(bolt11: invoice.bolt11);
       }
 
-      final response = await sdk.sendPayment(req: req);
+      final response = await _sdk.sendPayment(req: req);
       if (response.payment.error != null) {
         throw Exception(response.payment.error);
       }
@@ -76,22 +168,66 @@ abstract class LightningSendViewModelBase with Store {
   }
 
   @action
+  Future<void> sendBtc(String address, int satAmount) async {
+    try {
+      setLoading(true);
+
+      if (satAmount < minSats || satAmount > maxSats) {
+        throw Exception("Amount is outside of liquidity limits!");
+      }
+
+      late int feeRate;
+
+      if (settingsStore.priority[WalletType.bitcoin] ==
+          bitcoin!.getBitcoinTransactionPriorityCustom()) {
+        feeRate = settingsStore.customBitcoinFeeRate;
+      } else {
+        feeRate = bitcoin!.getFeeRate(wallet, settingsStore.priority[WalletType.bitcoin]!);
+      }
+
+      BZG.PrepareOnchainPaymentRequest prep = BZG.PrepareOnchainPaymentRequest(
+        amountSat: satAmount,
+        amountType: BZG.SwapAmountType.Send,
+        claimTxFeerate: feeRate,
+      );
+      BZG.PrepareOnchainPaymentResponse prepareRes = await _sdk.prepareOnchainPayment(req: prep);
+
+      BZG.PayOnchainRequest req = BZG.PayOnchainRequest(
+        recipientAddress: address,
+        prepareRes: prepareRes,
+      );
+      BZG.PayOnchainResponse res = await _sdk.payOnchain(req: req);
+
+      if (res.reverseSwapInfo.status == BZG.ReverseSwapStatus.Cancelled) {
+        throw Exception("Payment cancelled / error");
+      }
+
+      setLoading(false);
+    } catch (e) {
+      setLoading(false);
+      rethrow;
+    }
+  }
+
+  @action
   Future<void> processInput(BuildContext context, String input) async {
     FocusScope.of(context).unfocus();
-
-    final sdk = await BreezSDK();
 
     late BZG.InputType inputType;
 
     try {
-      inputType = await sdk.parseInput(input: input);
+      inputType = await _sdk.parseInput(input: input);
     } catch (_) {
       throw Exception("Unknown input type");
     }
 
     if (inputType is BZG.InputType_Bolt11) {
-      final bolt11 = await sdk.parseInvoice(input);
-      Navigator.of(context).pushNamed(Routes.lightningSendConfirm, arguments: bolt11);
+      final bolt11 = await _sdk.parseInvoice(input);
+      Navigator.of(context).pushNamed(Routes.lightningSendConfirm, arguments: {'invoice': bolt11});
+    } else if (inputType is BZG.InputType_BitcoinAddress) {
+      final address = inputType.address.address;
+      Navigator.of(context)
+          .pushNamed(Routes.lightningSendConfirm, arguments: {'btcAddress': address});
     } else if (inputType is BZG.InputType_LnUrlPay) {
       throw Exception("Unsupported input type");
     } else {
