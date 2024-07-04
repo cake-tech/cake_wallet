@@ -58,7 +58,8 @@ abstract class OtherSettingsViewModelBase with Store {
   @computed
   bool get displayTransactionPriority => !(changeRepresentativeEnabled ||
       _wallet.type == WalletType.solana ||
-      _wallet.type == WalletType.tron);
+      _wallet.type == WalletType.tron ||
+      _wallet.type == WalletType.lightning);
 
   @computed
   bool get isEnabledBuyAction => !_settingsStore.disableBuy && _wallet.type != WalletType.haven;
@@ -78,8 +79,6 @@ abstract class OtherSettingsViewModelBase with Store {
 
   ProviderType get sellProviderType =>
       _settingsStore.defaultSellProviders[walletType] ?? ProviderType.askEachTime;
-
-
 
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
