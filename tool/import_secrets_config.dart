@@ -16,6 +16,7 @@ const tronOutputPath = 'cw_tron/lib/.secrets.g.dart';
 
 const nanoConfigPath = 'tool/.nano-secrets-config.json';
 const nanoOutputPath = 'cw_nano/lib/.secrets.g.dart';
+
 Future<void> main(List<String> args) async => importSecretsConfig();
 
 Future<void> importSecretsConfig() async {

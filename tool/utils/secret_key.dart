@@ -46,6 +46,8 @@ class SecretKey {
     SecretKey('authorization', () => ''),
   ];
 
+  static final coreSecrets = [];
+
   static final evmChainsSecrets = [
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
@@ -58,6 +60,7 @@ class SecretKey {
 
   static final nanoSecrets = [
     SecretKey('nano2ApiKey', () => ''),
+    SecretKey('nanoNowNodesApiKey', () => ''),
   ];
 
   static final tronSecrets = [

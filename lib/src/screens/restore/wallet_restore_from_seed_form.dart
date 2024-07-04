@@ -83,11 +83,16 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   }
 
   void onSeedChange(String seed) {
-    if (widget.type == WalletType.monero && Polyseed.isValidSeed(seed)) {
+    if ((widget.type == WalletType.monero || widget.type == WalletType.wownero) &&
+        Polyseed.isValidSeed(seed)) {
       final lang = PolyseedLang.getByPhrase(seed);
 
       _changeSeedType(SeedType.polyseed);
       _changeLanguage(lang.nameEnglish);
+    }
+    if (widget.type == WalletType.wownero && seed.split(" ").length == 14) {
+      _changeSeedType(SeedType.wowneroSeed);
+      _changeLanguage("English");
     }
     widget.onSeedChange?.call(seed);
   }
@@ -144,14 +149,18 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               language: language,
               type: widget.type,
               onSeedChange: onSeedChange),
-          if (widget.type == WalletType.monero)
+          if (widget.type == WalletType.monero || widget.type == WalletType.wownero)
             GestureDetector(
               onTap: () async {
                 await showPopUp<void>(
                     context: context,
                     builder: (_) => Picker(
-                          items: SeedType.all,
-                          selectedAtIndex: isPolyseed ? 1 : 0,
+                          items: _getItems(),
+                          selectedAtIndex: isPolyseed
+                              ? 1
+                              : seedTypeController.value.text.contains("14")
+                                  ? 2
+                                  : 0,
                           mainAxisAlignment: MainAxisAlignment.start,
                           onItemSelected: _changeSeedType,
                           isSeparated: false,
@@ -170,7 +179,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 ),
               ),
             ),
-          if (widget.displayLanguageSelector)
+          if (!seedTypeController.value.text.contains("14") && widget.displayLanguageSelector)
             GestureDetector(
               onTap: () async {
                 await showPopUp<void>(
@@ -194,12 +203,14 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 ),
               ),
             ),
-          if (!isPolyseed && widget.displayBlockHeightSelector)
+          if ((!isPolyseed) && widget.displayBlockHeightSelector)
             BlockchainHeightWidget(
-                focusNode: widget.blockHeightFocusNode,
-                key: blockchainHeightKey,
-                onHeightOrDateEntered: widget.onHeightOrDateEntered,
-                hasDatePicker: widget.type == WalletType.monero),
+              focusNode: widget.blockHeightFocusNode,
+              key: blockchainHeightKey,
+              onHeightOrDateEntered: widget.onHeightOrDateEntered,
+              hasDatePicker: widget.type == WalletType.monero || widget.type == WalletType.wownero,
+              walletType: widget.type,
+            ),
           if (widget.displayPassphrase) ...[
             const SizedBox(height: 10),
             BaseTextFormField(
@@ -211,7 +222,9 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         ]));
   }
 
-  bool get isPolyseed => widget.seedTypeViewModel.moneroSeedType == SeedType.polyseed;
+  bool get isPolyseed =>
+      widget.seedTypeViewModel.moneroSeedType == SeedType.polyseed &&
+      (widget.type == WalletType.monero || widget.type == WalletType.wownero);
 
   Widget get expandIcon => Container(
         padding: EdgeInsets.all(18),
@@ -225,7 +238,11 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       );
 
   void _changeLanguage(String language) {
-    final setLang = isPolyseed ? "POLYSEED_$language" : language;
+    final setLang = isPolyseed
+        ? "POLYSEED_$language"
+        : seedTypeController.value.text.contains("14")
+            ? "WOWSEED_" + language
+            : language;
     setState(() {
       this.language = setLang;
       seedWidgetStateKey.currentState!.changeSeedLanguage(setLang);
@@ -245,5 +262,16 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   void _setSeedType(SeedType item) {
     seedTypeController.text = item.toString();
+  }
+
+  List<SeedType> _getItems() {
+    switch (widget.type) {
+      case WalletType.monero:
+        return [SeedType.legacy, SeedType.polyseed];
+      case WalletType.wownero:
+        return [SeedType.legacy, SeedType.polyseed, SeedType.wowneroSeed];
+      default:
+        return [SeedType.legacy];
+    }
   }
 }
