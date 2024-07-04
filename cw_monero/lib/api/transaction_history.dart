@@ -37,7 +37,7 @@ List<Transaction> getAllTransactions() {
     final fullBalance = monero.Wallet_balance(wptr!, accountIndex: i);
     final availBalance = monero.Wallet_unlockedBalance(wptr!, accountIndex: i);
     if (fullBalance > availBalance) {
-      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).isNotEmpty) {
+      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).isEmpty) {
         dummyTxs.add(
           Transaction.dummy(
             displayLabel: "",
