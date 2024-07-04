@@ -40,6 +40,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final bananoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
   final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
+  final wowneroIcon = Image.asset('assets/images/wownero_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(

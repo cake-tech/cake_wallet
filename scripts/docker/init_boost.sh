@@ -1,4 +1,6 @@
 #!/bin/bash
+set -x -e
+
 
 ARCH=$1
 PREFIX=$2
@@ -17,6 +19,6 @@ echo $BOOST_SHA256 $BOOST_FILE_PATH | sha256sum -c - || exit 1
 cd $WORKDIR
 rm -rf $BOOST_SRC_DIR
 rm -rf $PREFIX/include/boost
-tar -xvf $BOOST_FILE_PATH -C $WORKDIR
+tar -xf $BOOST_FILE_PATH -C $WORKDIR
 cd $BOOST_SRC_DIR
-./bootstrap.sh --prefix=${PREFIX}
+./bootstrap.sh --prefix=${PREFIX} --with-toolset=gcc
