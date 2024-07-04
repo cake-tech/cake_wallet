@@ -4,7 +4,6 @@ import 'utils/secret_key.dart';
 import 'utils/utils.dart';
 
 const baseConfigPath = 'tool/.secrets-config.json';
-const coreConfigPath = 'tool/.core-secrets-config.json';
 const evmChainsConfigPath = 'tool/.evm-secrets-config.json';
 const solanaConfigPath = 'tool/.solana-secrets-config.json';
 const nanoConfigPath = 'tool/.nano-secrets-config.json';
@@ -38,7 +37,6 @@ Future<void> generateSecretsConfig(List<String> args) async {
   });
 
   final baseConfigFile = File(baseConfigPath);
-  final coreConfigFile = File(coreConfigPath);
   final evmChainsConfigFile = File(evmChainsConfigPath);
   final solanaConfigFile = File(solanaConfigPath);
   final nanoConfigFile = File(nanoConfigPath);
@@ -64,7 +62,6 @@ Future<void> generateSecretsConfig(List<String> args) async {
   
   await writeConfig(baseConfigFile, SecretKey.base, existingSecrets: secrets);
   
-  await writeConfig(coreConfigFile, SecretKey.coreSecrets);
   await writeConfig(evmChainsConfigFile, SecretKey.evmChainsSecrets);
   await writeConfig(solanaConfigFile, SecretKey.solanaSecrets);
   await writeConfig(nanoConfigFile, SecretKey.nanoSecrets);
