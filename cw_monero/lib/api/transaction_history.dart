@@ -34,10 +34,10 @@ List<Transaction> getAllTransactions() {
 
   final accts = monero.Wallet_numSubaddressAccounts(wptr!);
   for (var i = 0; i < accts; i++) {  
-    final fullBalance = monero.Wallet_balance(wptr!, accountIndex: 0);
-    final availBalance = monero.Wallet_unlockedBalance(wptr!, accountIndex: 0); 
+    final fullBalance = monero.Wallet_balance(wptr!, accountIndex: i);
+    final availBalance = monero.Wallet_unlockedBalance(wptr!, accountIndex: i);
     if (fullBalance > availBalance) {
-      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false ).length == 0) {
+      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).isNotEmpty) {
         dummyTxs.add(
           Transaction.dummy(
             displayLabel: "",

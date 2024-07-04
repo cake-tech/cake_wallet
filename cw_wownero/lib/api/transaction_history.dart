@@ -33,10 +33,10 @@ List<Transaction> getAllTransactions() {
 
   final accts = wownero.Wallet_numSubaddressAccounts(wptr!);
   for (var i = 0; i < accts; i++) {  
-    final fullBalance = wownero.Wallet_balance(wptr!, accountIndex: 0);
-    final availBalance = wownero.Wallet_unlockedBalance(wptr!, accountIndex: 0); 
+    final fullBalance = wownero.Wallet_balance(wptr!, accountIndex: i);
+    final availBalance = wownero.Wallet_unlockedBalance(wptr!, accountIndex: i);
     if (fullBalance > availBalance) {
-      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).length == 0) {
+      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).isNotEmpty) {
         dummyTxs.add(
           Transaction.dummy(
             displayLabel: "",
