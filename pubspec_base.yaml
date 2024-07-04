@@ -163,6 +163,7 @@ flutter:
     - assets/polygon_node_list.yml
     - assets/solana_node_list.yml
     - assets/tron_node_list.yml
+    - assets/wownero_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/
