@@ -17,7 +17,7 @@ String getTxKey(String txId) {
 wownero.TransactionHistory? txhistory;
 
 void refreshTransactions() {
-  txhistory = wownero.Wallet_history(wptr!);
+  txhistory ??= wownero.Wallet_history(wptr!);
   wownero.TransactionHistory_refresh(txhistory!);
 }
 
@@ -26,7 +26,7 @@ int countOfTransactions() => wownero.TransactionHistory_count(txhistory!);
 List<Transaction> getAllTransactions() {
   List<Transaction> dummyTxs = [];
 
-  txhistory = wownero.Wallet_history(wptr!);
+  txhistory ??= wownero.Wallet_history(wptr!);
   wownero.TransactionHistory_refresh(txhistory!);
   int size = countOfTransactions();
   final list = List.generate(size, (index) => Transaction(txInfo: wownero.TransactionHistory_transaction(txhistory!, index: index)))..addAll(dummyTxs);
