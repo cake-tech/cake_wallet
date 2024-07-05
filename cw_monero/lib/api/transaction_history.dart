@@ -30,7 +30,7 @@ List<Transaction> getAllTransactions() {
   txhistory ??= monero.Wallet_history(wptr!);
   monero.TransactionHistory_refresh(txhistory!);
   int size = countOfTransactions();
-  final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)))..addAll(dummyTxs);
+  final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
 
   final accts = monero.Wallet_numSubaddressAccounts(wptr!);
   for (var i = 0; i < accts; i++) {  
