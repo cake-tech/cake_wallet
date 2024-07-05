@@ -38,6 +38,7 @@ abstract class OutputBase with Store {
         key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
+        cryptoFullBalance = '',
         fiatAmount = '',
         address = '',
         note = '',
@@ -53,6 +54,9 @@ abstract class OutputBase with Store {
 
   @observable
   String cryptoAmount;
+
+  @observable
+  String cryptoFullBalance;
 
   @observable
   String address;
@@ -202,9 +206,11 @@ abstract class OutputBase with Store {
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
   final NumberFormat _cryptoNumberFormat;
-
   @action
-  void setSendAll() => sendAll = true;
+  void setSendAll(String fullBalance) {
+    cryptoFullBalance = fullBalance;
+    sendAll = true;
+  }
 
   @action
   void reset() {
@@ -243,7 +249,7 @@ abstract class OutputBase with Store {
     try {
       final fiat = calculateFiatAmount(
           price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
-          cryptoAmount: cryptoAmount.replaceAll(',', '.'));
+          cryptoAmount: sendAll ? cryptoFullBalance.replaceAll(",", ".") : cryptoAmount.replaceAll(',', '.'));
       if (fiatAmount != fiat) {
         fiatAmount = fiat;
       }
