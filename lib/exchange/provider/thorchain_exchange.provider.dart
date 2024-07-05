@@ -111,6 +111,11 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     final responseJSON = await _getSwapQuote(params);
     final minAmountIn = responseJSON['recommended_min_amount_in'] as String? ?? '0.0';
+    final dustThreshold = responseJSON['dust_threshold'] as String? ?? '0.0';
+
+    if (double.parse(minAmountIn) < double.parse(dustThreshold)) {
+      throw Exception('ThorChain: Min amount in is less than dust threshold');
+    }
 
     return Limits(min: _thorChainAmountToDouble(minAmountIn));
   }
@@ -245,21 +250,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
 
     // Remove 'affiliate_bps' if the fiat value is less than $100
-    if (params['from_asset'] != null && params['amount'] != null) {
-      final String formattedAsset = params['from_asset']!.split('.')[1];
-      final CryptoCurrency selectedCryptoCurrency = CryptoCurrency.fromString(formattedAsset);
-
-      final double price = await FiatConversionService.fetchPrice(
-        crypto: selectedCryptoCurrency,
-        fiat: FiatCurrency.usd,
-        torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-      );
-
-      final double fiatValue = price * _thorChainAmountToDouble(params['amount']!);
-
-      if (fiatValue < 100 && params['affiliate_bps'] != null) {
-        params.remove('affiliate_bps');
-      }
+    if (await isSwapUnder100$(params: params) && params['affiliate_bps'] != null) {
+      params.remove('affiliate_bps');
     }
 
     Uri uri = Uri.https(_baseNodeURL, _quotePath, params);
@@ -306,5 +298,23 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     }
 
     return currentState;
+  }
+
+  Future<bool> isSwapUnder100$({required Map<String, String> params}) async {
+    if (params['from_asset'] != null && params['amount'] != null) {
+      final String formattedAsset = params['from_asset']!.split('.')[1];
+      final CryptoCurrency selectedCryptoCurrency = CryptoCurrency.fromString(formattedAsset);
+
+      final double price = await FiatConversionService.fetchPrice(
+        crypto: selectedCryptoCurrency,
+        fiat: FiatCurrency.usd,
+        torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+      );
+
+      final double fiatValue = price * _thorChainAmountToDouble(params['amount']!);
+
+      return fiatValue < 100;
+    }
+    return false;
   }
 }
