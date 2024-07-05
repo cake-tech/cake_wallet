@@ -136,6 +136,10 @@ class CWPolygon extends Polygon {
       await (wallet as PolygonWallet).deleteErc20Token(token as Erc20Token);
 
   @override
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as PolygonWallet).removeTokenTransactionsInHistory(token as Erc20Token);
+
+  @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
     final polygonWallet = wallet as PolygonWallet;
     return await polygonWallet.getErc20Token(contractAddress, 'polygon');

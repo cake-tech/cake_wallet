@@ -60,8 +60,7 @@ class AnonPayInvoicePage extends BasePage {
 
   @override
   Widget middle(BuildContext context) => PresentReceiveOptionPicker(
-      receiveOptionViewModel: receiveOptionViewModel,
-      color: titleColor(context));
+      receiveOptionViewModel: receiveOptionViewModel, color: titleColor(context));
 
   @override
   Widget trailing(BuildContext context) => TrailButton(
@@ -87,30 +86,36 @@ class AnonPayInvoicePage extends BasePage {
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
             keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
-          nextFocus: false,
-          actions: [
-            KeyboardActionsItem(
-              focusNode: _amountFocusNode,
-              toolbarButtons: [(_) => KeyboardDoneButton()],
-            ),
-          ]),
-      child: Container(
-        color: Theme.of(context).colorScheme.background,
-        child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(bottom: 24),
-          content: Container(
-            decoration: responsiveLayoutUtil.shouldRenderMobileUI ? BoxDecoration(
-              borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).extension<ExchangePageTheme>()!.firstGradientTopPanelColor,
-                  Theme.of(context).extension<ExchangePageTheme>()!.secondGradientTopPanelColor,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+            nextFocus: false,
+            actions: [
+              KeyboardActionsItem(
+                focusNode: _amountFocusNode,
+                toolbarButtons: [(_) => KeyboardDoneButton()],
               ),
-              ) : null,
+            ]),
+        child: Container(
+          color: Theme.of(context).colorScheme.background,
+          child: ScrollableWithBottomSection(
+            contentPadding: EdgeInsets.only(bottom: 24),
+            content: Container(
+              decoration: responsiveLayoutUtil.shouldRenderMobileUI
+                  ? BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context)
+                              .extension<ExchangePageTheme>()!
+                              .firstGradientTopPanelColor,
+                          Theme.of(context)
+                              .extension<ExchangePageTheme>()!
+                              .secondGradientTopPanelColor,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    )
+                  : null,
               child: Observer(builder: (_) {
                 return Padding(
                   padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
@@ -143,9 +148,11 @@ class AnonPayInvoicePage extends BasePage {
                             : S.of(context).anonpay_description("a donation link", "donate"),
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12),
+                            color: Theme.of(context)
+                                .extension<ExchangePageTheme>()!
+                                .receiveAmountColor,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12),
                       ),
                     ),
                   ),
@@ -172,7 +179,7 @@ class AnonPayInvoicePage extends BasePage {
                         anonInvoicePageViewModel.generateDonationLink();
                       }
                     },
-                     color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                     isLoading: anonInvoicePageViewModel.state is IsExecutingState,
                   ),
@@ -199,8 +206,12 @@ class AnonPayInvoicePage extends BasePage {
           final sharedPreferences = getIt.get<SharedPreferences>();
           final clearnetUrl = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
           final onionUrl = sharedPreferences.getString(PreferencesKey.onionDonationLink);
+          final donationWalletName =
+              sharedPreferences.getString(PreferencesKey.donationLinkWalletName);
 
-          if (clearnetUrl != null && onionUrl != null) {
+          if (clearnetUrl != null &&
+              onionUrl != null &&
+              anonInvoicePageViewModel.currentWalletName == donationWalletName) {
             Navigator.pushReplacementNamed(context, Routes.anonPayReceivePage,
                 arguments: AnonpayDonationLinkInfo(
                   clearnetUrl: clearnetUrl,

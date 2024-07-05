@@ -58,6 +58,7 @@ class ProvidersHelper {
     switch (walletType) {
       case WalletType.nano:
       case WalletType.banano:
+      case WalletType.wownero:
         return [ProviderType.askEachTime, ProviderType.onramper];
       case WalletType.monero:
         return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.dfx];
@@ -122,6 +123,7 @@ class ProvidersHelper {
       case WalletType.banano:
       case WalletType.none:
       case WalletType.haven:
+      case WalletType.wownero:
         return [];
     }
   }

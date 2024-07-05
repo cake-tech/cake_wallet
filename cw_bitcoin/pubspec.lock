@@ -863,7 +863,7 @@ packages:
     source: hosted
     version: "1.3.2"
   unorm_dart:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: unorm_dart
       sha256: "5b35bff83fce4d76467641438f9e867dc9bcfdb8c1694854f230579d68cd8f4b"

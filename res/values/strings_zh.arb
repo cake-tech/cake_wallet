@@ -834,6 +834,7 @@
   "wallet_menu": "钱包菜单",
   "wallet_name": "钱包名称",
   "wallet_name_exists": "同名的钱包已经存在",
+  "wallet_recovery_height": "恢复高度",
   "wallet_restoration_store_incorrect_seed_length": "种子长度错误",
   "wallet_seed": "钱包种子",
   "wallet_seed_legacy": "旧的钱包种子",

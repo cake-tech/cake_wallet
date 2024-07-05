@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
+
 // import 'package:tor/tor.dart';
 
 part 'node.g.dart';
@@ -79,6 +80,7 @@ class Node extends HiveObject with Keyable {
     switch (type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.wownero:
         return Uri.http(uriRaw, '');
       case WalletType.bitcoin:
       case WalletType.litecoin:
@@ -96,7 +98,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.solana:
       case WalletType.tron:
         return Uri.https(uriRaw, path ?? '');
-      default:
+      case WalletType.none:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
   }
@@ -143,10 +145,10 @@ class Node extends HiveObject with Keyable {
       switch (type) {
         case WalletType.monero:
         case WalletType.haven:
+        case WalletType.wownero:
           return requestMoneroNode();
         case WalletType.nano:
         case WalletType.banano:
-          return requestNanoNode();
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.bitcoinCash:
@@ -155,7 +157,7 @@ class Node extends HiveObject with Keyable {
         case WalletType.solana:
         case WalletType.tron:
           return requestElectrumServer();
-        default:
+        case WalletType.none:
           return false;
       }
     } catch (_) {
@@ -197,23 +199,6 @@ class Node extends HiveObject with Keyable {
       final resBody = json.decode(response.body) as Map<String, dynamic>;
       return !(resBody['result']['offline'] as bool);
     } catch (_) {
-      return false;
-    }
-  }
-
-  Future<bool> requestNanoNode() async {
-    http.Response response = await http.post(
-      uri,
-      headers: {'Content-type': 'application/json'},
-      body: json.encode(
-        {
-          "action": "block_count",
-        },
-      ),
-    );
-    if (response.statusCode == 200) {
-      return true;
-    } else {
       return false;
     }
   }

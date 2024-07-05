@@ -836,6 +836,7 @@
   "wallet_menu": "बटुआ मेनू",
   "wallet_name": "बटुए का नाम",
   "wallet_name_exists": "उस नाम वाला वॉलेट पहले से मौजूद है",
+  "wallet_recovery_height": "वसूली ऊंचाई",
   "wallet_restoration_store_incorrect_seed_length": "गलत बीज की लंबाई",
   "wallet_seed": "बटुआ का बीज",
   "wallet_seed_legacy": "विरासत बटुए बीज",

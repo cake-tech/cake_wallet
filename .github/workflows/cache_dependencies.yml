@@ -46,6 +46,7 @@ jobs:
             /opt/android/cake_wallet/cw_monero/android/.cxx
             /opt/android/cake_wallet/cw_monero/ios/External
             /opt/android/cake_wallet/cw_shared_external/ios/External
+            /opt/android/cake_wallet/scripts/monero_c/release
           key: ${{ hashFiles('**/build_monero.sh', '**/build_haven.sh', '**/monero_api.cpp') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
