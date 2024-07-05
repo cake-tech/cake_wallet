@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x -e
 
 . ./config.sh
 export ICONV_FILENAME=libiconv-1.16.tar.gz

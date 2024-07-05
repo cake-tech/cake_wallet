@@ -7,6 +7,7 @@ import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.d
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -82,6 +83,10 @@ class TransactionsPage extends StatelessWidget {
                           }
 
                           final transaction = item.transaction;
+                          final transactionType = dashboardViewModel.type == WalletType.ethereum &&
+                              transaction.evmSignatureName == 'approval'
+                              ? ' (${transaction.evmSignatureName})'
+                              : '';
 
                           return Observer(
                             builder: (_) => TransactionRow(
@@ -95,7 +100,8 @@ class TransactionsPage extends StatelessWidget {
                                       ? ''
                                       : item.formattedFiatAmount,
                               isPending: transaction.isPending,
-                              title: item.formattedTitle + item.formattedStatus,
+                              title: item.formattedTitle +
+                                  item.formattedStatus + ' $transactionType',
                             ),
                           );
                         }

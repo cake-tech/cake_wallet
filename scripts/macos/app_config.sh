@@ -9,7 +9,9 @@ if [ -z "$APP_MACOS_TYPE" ]; then
         exit 1
 fi
 
-cd ../.. # go to root
+cd .. # go to scipts
+./gen_android_manifest.sh
+cd .. # go to root
 cp -rf ./macos/Runner/InfoBase.plist ./macos/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName ${APP_MACOS_NAME}" ./macos/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleName ${APP_MACOS_NAME}" ./macos/Runner/Info.plist
@@ -20,9 +22,11 @@ cp -rf ./macos/Runner/InfoBase.plist ./macos/Runner/Info.plist
 # Fill entitlements Bundle ID
 cp -rf ./macos/Runner/DebugProfileBase.entitlements ./macos/Runner/DebugProfile.entitlements
 cp -rf ./macos/Runner/ReleaseBase.entitlements ./macos/Runner/Release.entitlements
+cp -rf ./macos/Runner/RunnerBase.entitlements ./macos/Runner/Runner.entitlements
 cp -rf ./macos/Runner/Configs/AppInfoBase.xcconfig ./macos/Runner/Configs/AppInfo.xcconfig
 sed -i '' "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/DebugProfile.entitlements
 sed -i '' "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Release.entitlements
+sed -i '' "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Runner.entitlements
 sed -i '' "s/\${PRODUCT_NAME}/${APP_MACOS_NAME}/g" ./macos/Runner/Configs/AppInfo.xcconfig
 sed -i '' "s/\${PRODUCT_BUNDLE_IDENTIFIER}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Configs/AppInfo.xcconfig
 CONFIG_ARGS=""
@@ -31,7 +35,7 @@ case $APP_MACOS_TYPE in
         $MONERO_COM)
 		CONFIG_ARGS="--monero";;
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron";; #--haven
+		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero";; #--haven
 esac
 
 cp -rf pubspec_description.yaml pubspec.yaml

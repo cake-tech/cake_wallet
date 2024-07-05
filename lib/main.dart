@@ -1,45 +1,45 @@
 import 'dart:async';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/default_settings_migration.dart';
+import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/language_service.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/locales/locale.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/reactions/bootstrap.dart';
+import 'package:cake_wallet/router.dart' as Router;
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/root/root.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
-import 'package:cw_core/address_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/address_info.dart';
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/router.dart' as Router;
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/bootstrap.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/entities/get_encryption_key.dart';
-import 'package:cake_wallet/entities/contact.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cake_wallet/entities/default_settings_migration.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/entities/template.dart';
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/exchange_template.dart';
-import 'package:cake_wallet/src/screens/root/root.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cw_core/cake_hive.dart';
+import 'package:hive/hive.dart';
+import 'package:cw_core/root_dir.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -103,7 +103,8 @@ Future<void> main() async {
 }
 
 Future<void> initializeAppConfigs() async {
-  final appDir = await getApplicationDocumentsDirectory();
+  setRootDirFromEnv();
+  final appDir = await getAppDir();
   CakeHive.init(appDir.path);
 
   if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
@@ -202,7 +203,7 @@ Future<void> initializeAppConfigs() async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 34,
+    initialMigrationVersion: 39,
   );
 }
 

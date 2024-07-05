@@ -17,6 +17,7 @@ import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -96,13 +97,17 @@ abstract class ElectrumWalletBase
     this.walletInfo = walletInfo;
     transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
 
-    reaction((_) => syncStatus, (SyncStatus syncStatus) {
-      if (syncStatus is! AttemptingSyncStatus && syncStatus is! SyncedTipSyncStatus)
+    reaction((_) => syncStatus, (SyncStatus syncStatus) async {
+      if (syncStatus is! AttemptingSyncStatus && syncStatus is! SyncedTipSyncStatus) {
         silentPaymentsScanningActive = syncStatus is SyncingSyncStatus;
+      }
 
       if (syncStatus is NotConnectedSyncStatus) {
         // Needs to re-subscribe to all scripthashes when reconnected
         _scripthashesUpdateSubject = {};
+
+        // TODO: double check this and make sure it doesn't cause any un-necessary calls
+        // await this.electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL);
       }
 
       // Message is shown on the UI for 3 seconds, revert to synced
@@ -129,7 +134,7 @@ abstract class ElectrumWalletBase
       return currency == CryptoCurrency.bch
           ? bitcoinCashHDWallet(seedBytes)
           : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? "m/0'"));
+              .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path));
     }
 
     return bitcoin.HDWallet.fromBase58(xpub!);
@@ -197,7 +202,7 @@ abstract class ElectrumWalletBase
   bool silentPaymentsScanningActive = false;
 
   @action
-  Future<void> setSilentPaymentsScanning(bool active) async {
+  Future<void> setSilentPaymentsScanning(bool active, bool usingElectrs) async {
     silentPaymentsScanningActive = active;
 
     if (active) {
@@ -210,18 +215,22 @@ abstract class ElectrumWalletBase
       }
 
       if (tip > walletInfo.restoreHeight) {
-        _setListeners(walletInfo.restoreHeight, chainTipParam: _currentChainTip);
+        _setListeners(
+          walletInfo.restoreHeight,
+          chainTipParam: _currentChainTip,
+          usingElectrs: usingElectrs,
+        );
       }
     } else {
       alwaysScan = false;
 
-      (await _isolate)?.kill(priority: Isolate.immediate);
+      _isolate?.then((value) => value.kill(priority: Isolate.immediate));
 
       if (electrumClient.isConnected) {
         syncStatus = SyncedSyncStatus();
       } else {
         if (electrumClient.uri != null) {
-          await electrumClient.connectToUri(electrumClient.uri!);
+          await electrumClient.connectToUri(electrumClient.uri!, useSSL: electrumClient.useSSL);
           startSync();
         }
       }
@@ -277,7 +286,12 @@ abstract class ElectrumWalletBase
   }
 
   @action
-  Future<void> _setListeners(int height, {int? chainTipParam, bool? doSingleScan}) async {
+  Future<void> _setListeners(
+    int height, {
+    int? chainTipParam,
+    bool? doSingleScan,
+    bool? usingElectrs,
+  }) async {
     final chainTip = chainTipParam ?? await getUpdatedChainTip();
 
     if (chainTip == height) {
@@ -303,7 +317,7 @@ abstract class ElectrumWalletBase
           chainTip: chainTip,
           electrumClient: ElectrumClient(),
           transactionHistoryIds: transactionHistory.transactions.keys.toList(),
-          node: ScanNode(node!.uri, node!.useSSL),
+          node: usingElectrs == true ? ScanNode(node!.uri, node!.useSSL) : null,
           labels: walletAddresses.labels,
           labelIndexes: walletAddresses.silentAddresses
               .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.index >= 1)
@@ -454,17 +468,7 @@ abstract class ElectrumWalletBase
 
       await electrumClient.close();
 
-      electrumClient.onConnectionStatusChange = (bool? isConnected) async {
-        if (syncStatus is SyncingSyncStatus) return;
-
-        if (isConnected == true && syncStatus is! SyncedSyncStatus) {
-          syncStatus = ConnectedSyncStatus();
-        } else if (isConnected == false) {
-          syncStatus = LostConnectionSyncStatus();
-        } else if (!(isConnected ?? false) && syncStatus is! ConnectingSyncStatus) {
-          syncStatus = NotConnectedSyncStatus();
-        }
-      };
+      electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
 
       await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
     } catch (e) {
@@ -1122,10 +1126,15 @@ abstract class ElectrumWalletBase
 
   @action
   @override
-  Future<void> rescan(
-      {required int height, int? chainTip, ScanData? scanData, bool? doSingleScan}) async {
+  Future<void> rescan({
+    required int height,
+    int? chainTip,
+    ScanData? scanData,
+    bool? doSingleScan,
+    bool? usingElectrs,
+  }) async {
     silentPaymentsScanningActive = true;
-    _setListeners(height, doSingleScan: doSingleScan);
+    _setListeners(height, doSingleScan: doSingleScan, usingElectrs: usingElectrs);
   }
 
   @override
@@ -1465,7 +1474,7 @@ abstract class ElectrumWalletBase
 
       time = status["block_time"] as int?;
       final height = status["block_height"] as int? ?? 0;
-      final tip = await getCurrentChainTip();
+      final tip = await getUpdatedChainTip();
       if (tip > 0) confirmations = height > 0 ? tip - height + 1 : 0;
     } else {
       final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
@@ -1518,6 +1527,23 @@ abstract class ElectrumWalletBase
       } else if (type == WalletType.litecoin) {
         await fetchTransactionsForAddressType(historiesWithDetails, SegwitAddresType.p2wpkh);
       }
+
+      transactionHistory.transactions.values.forEach((tx) async {
+        final isPendingSilentPaymentUtxo =
+            (tx.isPending || tx.confirmations == 0) && historiesWithDetails[tx.id] == null;
+
+        if (isPendingSilentPaymentUtxo) {
+          final info =
+              await fetchTransactionInfo(hash: tx.id, height: tx.height, retryOnFailure: true);
+
+          if (info != null) {
+            tx.confirmations = info.confirmations;
+            tx.isPending = tx.confirmations == 0;
+            transactionHistory.addOne(tx);
+            await transactionHistory.save();
+          }
+        }
+      });
 
       return historiesWithDetails;
     } catch (e) {
@@ -1626,6 +1652,7 @@ abstract class ElectrumWalletBase
       if (_isTransactionUpdating) {
         return;
       }
+      await getCurrentChainTip();
 
       transactionHistory.transactions.values.forEach((tx) async {
         if (tx.unspents != null && tx.unspents!.isNotEmpty && tx.height > 0) {
@@ -1790,6 +1817,19 @@ abstract class ElectrumWalletBase
 
   static String _hardenedDerivationPath(String derivationPath) =>
       derivationPath.substring(0, derivationPath.lastIndexOf("'") + 1);
+
+  @action
+  void _onConnectionStatusChange(bool? isConnected) {
+    if (syncStatus is SyncingSyncStatus) return;
+
+    if (isConnected == true && syncStatus is! SyncedSyncStatus) {
+      syncStatus = ConnectedSyncStatus();
+    } else if (isConnected == false) {
+      syncStatus = LostConnectionSyncStatus();
+    } else if (isConnected != true && syncStatus is! ConnectingSyncStatus) {
+      syncStatus = NotConnectedSyncStatus();
+    }
+  }
 }
 
 class ScanNode {
@@ -1803,7 +1843,7 @@ class ScanData {
   final SendPort sendPort;
   final SilentPaymentOwner silentAddress;
   final int height;
-  final ScanNode node;
+  final ScanNode? node;
   final BasedUtxoNetwork network;
   final int chainTip;
   final ElectrumClient electrumClient;
@@ -1864,7 +1904,10 @@ Future<void> startRefresh(ScanData scanData) async {
   scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
 
   final electrumClient = scanData.electrumClient;
-  await electrumClient.connectToUri(scanData.node.uri, useSSL: scanData.node.useSSL);
+  await electrumClient.connectToUri(
+    scanData.node?.uri ?? Uri.parse("tcp://electrs.cakewallet.com:50001"),
+    useSSL: scanData.node?.useSSL ?? false,
+  );
 
   if (tweaksSubscription == null) {
     final count = scanData.isSingleScan ? 1 : TWEAKS_COUNT;

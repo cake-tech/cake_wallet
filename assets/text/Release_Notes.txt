@@ -1,2 +1,2 @@
-Bitcoin Silent Payments
-Bug fixes and generic enhancements
+Monero enhancements
+Bug fixes

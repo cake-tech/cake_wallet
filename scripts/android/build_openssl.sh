@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+set -e -x
 
 . ./config.sh
 OPENSSL_FILENAME=openssl-1.1.1q.tar.gz
@@ -26,7 +26,6 @@ do
 PREFIX=$WORKDIR/prefix_${arch}
 TOOLCHAIN=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64
 PATH="${TOOLCHAIN}/bin:${ORIGINAL_PATH}"
-
 case $arch in
 	"aarch")   X_ARCH="android-arm";;
 	"aarch64") X_ARCH="android-arm64";;

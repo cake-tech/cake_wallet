@@ -28,7 +28,9 @@ CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
       return CryptoCurrency.sol;
     case WalletType.tron:
       return CryptoCurrency.trx;
-    default:
+    case WalletType.wownero:
+      return CryptoCurrency.wow;
+    case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
   }
