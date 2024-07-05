@@ -30,12 +30,16 @@ jobs:
         if: github.event_name != 'pull_request'
         run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
 
-      - name: Free Up GitHub Actions Ubuntu Runner Disk Space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      - name: Free Disk Space (Ubuntu)
+        uses: insightsengineering/disk-space-reclaimer@v1
+        with:
+          tools-cache: true
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
+          docker-images: true
 
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
