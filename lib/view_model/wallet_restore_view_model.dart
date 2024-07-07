@@ -57,6 +57,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       case WalletType.bitcoin:
+      case WalletType.lightning:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.none:

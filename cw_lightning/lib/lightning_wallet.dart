@@ -177,8 +177,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     _isTransactionUpdating = true;
     final txs = convertToTxInfo(payments);
     transactionHistory.addMany(txs);
-    for (var tx in txs) {
-      if (tx.paymentType != PaymentType.Sent) {
+    for (var tx in txs.values) {
+      if (tx.direction == TransactionDirection.incoming) {
         Fluttertoast.showToast(
           msg: "Received ${tx.amount} sats!",
           toastLength: Toast.LENGTH_LONG,

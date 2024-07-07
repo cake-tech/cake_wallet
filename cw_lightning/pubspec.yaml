@@ -38,6 +38,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bitcoin_base
       ref: cake-update-v3
+  fluttertoast: 8.1.4
 
 dev_dependencies:
   flutter_test:
