@@ -8,6 +8,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -56,8 +57,14 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedPendingStatus {
-    if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
-      return ' (${transaction.confirmations}/10)';
+    if (balanceViewModel.wallet.type == WalletType.monero || balanceViewModel.wallet.type == WalletType.haven) {
+      if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
+        return ' (${transaction.confirmations}/10)';
+      }
+    } else if (balanceViewModel.wallet.type == WalletType.wownero) {
+      if (transaction.confirmations >= 0 && transaction.confirmations < 3) {
+        return ' (${transaction.confirmations}/3)';
+      }
     }
     return '';
   }
@@ -65,6 +72,7 @@ class TransactionListItem extends ActionListItem with Keyable {
   String get formattedStatus {
     if (transaction.direction == TransactionDirection.incoming) {
       if (balanceViewModel.wallet.type == WalletType.monero ||
+          balanceViewModel.wallet.type == WalletType.wownero ||
           balanceViewModel.wallet.type == WalletType.haven) {
         return formattedPendingStatus;
       }
@@ -96,7 +104,7 @@ class TransactionListItem extends ActionListItem with Keyable {
     } catch (e) {
       return null;
     }
-    
+
     return null;
   }
 
@@ -107,6 +115,11 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.monero:
         amount = calculateFiatAmountRaw(
             cryptoAmount: monero!.formatterMoneroAmountToDouble(amount: transaction.amount),
+            price: price);
+        break;
+      case WalletType.wownero:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: wownero!.formatterWowneroAmountToDouble(amount: transaction.amount),
             price: price);
         break;
       case WalletType.bitcoin:

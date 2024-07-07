@@ -13,6 +13,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:polyseed/polyseed.dart';
 
 part 'wallet_creation_vm.g.dart';
 
@@ -41,6 +42,10 @@ abstract class WalletCreationVMBase with Store {
   final WalletCreationService walletCreationService;
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
+
+  bool isPolyseed(String seed) =>
+      (type == WalletType.monero || type == WalletType.wownero) &&
+      (Polyseed.isValidSeed(seed) || (seed.split(" ").length == 14));
 
   bool nameExists(String name) => walletCreationService.exists(name);
 
@@ -86,7 +91,9 @@ abstract class WalletCreationVMBase with Store {
       getIt.get<BackgroundTasks>().registerSyncTask();
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
-    } catch (e) {
+    } catch (e, s) {
+      print("@@@@@@@@");
+      print(s);
       state = FailureState(e.toString());
     }
   }

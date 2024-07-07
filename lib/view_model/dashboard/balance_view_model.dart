@@ -127,6 +127,7 @@ abstract class BalanceViewModelBase with Store {
   String get availableBalanceLabel {
     switch (wallet.type) {
       case WalletType.monero:
+      case WalletType.wownero:
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -144,6 +145,7 @@ abstract class BalanceViewModelBase with Store {
   String get additionalBalanceLabel {
     switch (wallet.type) {
       case WalletType.monero:
+      case WalletType.wownero:
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:

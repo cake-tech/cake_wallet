@@ -1,0 +1,12 @@
+-
+  uri: node3.monerodevs.org:34568
+  is_default: true
+  useSSL: false
+-
+  uri: node2.monerodevs.org:34568
+  is_default: false
+  useSSL: false
+-
+  uri: node.monerodevs.org:34568
+  is_default: false
+  useSSL: false

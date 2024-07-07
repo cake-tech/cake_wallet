@@ -42,6 +42,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.lightning:
         return true;
       case WalletType.monero:
+      case WalletType.wownero:
       case WalletType.none:
       case WalletType.bitcoin:
       case WalletType.litecoin:
@@ -52,7 +53,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
     }
   }
 
-  bool get hasSeedTypeOption => type == WalletType.monero;
+  bool get hasSeedTypeOption => type == WalletType.monero || type == WalletType.wownero;
 
   @computed
   bool get addCustomNode => _addCustomNode;

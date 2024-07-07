@@ -88,6 +88,9 @@ abstract class NodeListViewModelBase with Store {
       case WalletType.tron:
         node = getTronDefaultNode(nodes: _nodeSource)!;
         break;
+      case WalletType.wownero:
+        node = getWowneroDefaultNode(nodes: _nodeSource);
+        break;
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');
     }

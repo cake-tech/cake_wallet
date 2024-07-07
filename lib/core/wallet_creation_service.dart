@@ -82,6 +82,7 @@ class WalletCreationService {
       case WalletType.lightning:
         return true;
       case WalletType.monero:
+      case WalletType.wownero:
       case WalletType.none:
       case WalletType.bitcoin:
       case WalletType.litecoin:
