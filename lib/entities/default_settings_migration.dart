@@ -1,11 +1,15 @@
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/haven_seed_store.dart';
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_haven/haven_wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -49,7 +53,8 @@ Future<void> defaultSettingsMigration(
     required Box<Node> powNodes,
     required Box<WalletInfo> walletInfoSource,
     required Box<Trade> tradeSource,
-    required Box<Contact> contactSource}) async {
+    required Box<Contact> contactSource,
+    required Box<HavenSeedStore> havenSeedStore}) async {
   if (Platform.isIOS) {
     await ios_migrate_v1(walletInfoSource, tradeSource, contactSource);
   }
@@ -245,6 +250,9 @@ Future<void> defaultSettingsMigration(
           _fixNodesUseSSLFlag(nodes);
           await changeDefaultNanoNode(nodes, sharedPreferences);
           break;
+        case 40:
+          await _backupHavenSeeds(havenSeedStore);
+
         default:
           break;
       }
@@ -257,6 +265,21 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+Future<void> _backupHavenSeeds(Box<HavenSeedStore> havenSeedStore) async {
+  final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+  final wallets = walletInfoSource.values
+    .where((element) => element.type == WalletType.haven);
+  for (var w in wallets) {
+    final walletService = HavenWalletService(walletInfoSource);
+    final flutterSecureStorage = secureStorageShared;
+    final keyService = KeyService(flutterSecureStorage);
+    final password = await keyService.getWalletPassword(walletName: w.name);
+    final wallet = await walletService.openWallet(w.name, password);
+    havenSeedStore.add(HavenSeedStore(id: wallet.id, seed: wallet.seed));
+    wallet.close();
+  }
 }
 
 void _fixNodesUseSSLFlag(Box<Node> nodes) {
