@@ -140,8 +140,19 @@ abstract class LightningInvoicePageViewModelBase with Store {
   @action
   Future<void> _fetchLimits() async {
     final limits = await lightningViewModel.invoiceSoftLimitsSats();
-    minimum = limits.minFee.toDouble();
+    // we definitely already have an open channel:
+    if (limits.balance > 0 || limits.inboundLiquidity > 0) {
+      minimum = 0;
+    } else {
+      minimum = limits.minFee.toDouble();
+    }
     maximum = limits.inboundLiquidity.toDouble();
+
+    // we don't need to fetch the price if we know it's 0
+    if (minimum == 0) {
+      minimumCurrency = '';
+      return;
+    }
 
     if (selectedCurrency is FiatCurrency) {
       fiatRate = await FiatConversionService.fetchPrice(

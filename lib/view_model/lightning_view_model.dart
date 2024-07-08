@@ -72,13 +72,6 @@ abstract class LightningViewModelBase with Store {
       minFee = 0;
     }
 
-    // technically we should check for an open lightning channel here
-    // but if the sdk call for checking the opening fees doesn't fail we shouldn't
-    // even need this line:
-    if (balance > 0) {
-      minFee = 0;
-    }
-
     return InvoiceSoftLimitsResult(
       minFee: minFee,
       inboundLiquidity: inboundLiquidity,

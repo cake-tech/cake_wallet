@@ -105,7 +105,10 @@ abstract class LightningSendViewModelBase with Store {
   String displayFeeRate(dynamic priority, int? customValue) {
     final _priority = priority as TransactionPriority;
 
-    final rate = bitcoin!.getFeeRate(wallet, _priority);
+    // final rate = bitcoin!.getFeeRate(wallet, _priority);
+    
+    final rate = 11;
+
     return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
   }
 
@@ -182,12 +185,15 @@ abstract class LightningSendViewModelBase with Store {
 
       late int feeRate;
 
-      if (settingsStore.priority[WalletType.bitcoin] ==
-          bitcoin!.getBitcoinTransactionPriorityCustom()) {
-        feeRate = settingsStore.customBitcoinFeeRate;
-      } else {
-        feeRate = bitcoin!.getFeeRate(wallet, settingsStore.priority[WalletType.bitcoin]!);
-      }
+      // if (settingsStore.priority[WalletType.bitcoin] ==
+      //     bitcoin!.getBitcoinTransactionPriorityCustom()) {
+      //   feeRate = settingsStore.customBitcoinFeeRate;
+      // } else {
+      //   feeRate = bitcoin!.getFeeRate(wallet, settingsStore.priority[WalletType.bitcoin]!);
+      // }
+
+      feeRate = 11;
+      print(satAmount);
 
       BZG.PrepareOnchainPaymentRequest prep = BZG.PrepareOnchainPaymentRequest(
         amountSat: satAmount,
@@ -200,15 +206,15 @@ abstract class LightningSendViewModelBase with Store {
       print("Recipient amount: ${prepareRes.recipientAmountSat} sats");
       print("Total fees: ${prepareRes.totalFees} sats");
 
-      BZG.PayOnchainRequest req = BZG.PayOnchainRequest(
-        recipientAddress: address,
-        prepareRes: prepareRes,
-      );
-      BZG.PayOnchainResponse res = await _sdk.payOnchain(req: req);
+      // BZG.PayOnchainRequest req = BZG.PayOnchainRequest(
+      //   recipientAddress: address,
+      //   prepareRes: prepareRes,
+      // );
+      // BZG.PayOnchainResponse res = await _sdk.payOnchain(req: req);
 
-      if (res.reverseSwapInfo.status == BZG.ReverseSwapStatus.Cancelled) {
-        throw Exception("Payment cancelled / error");
-      }
+      // if (res.reverseSwapInfo.status == BZG.ReverseSwapStatus.Cancelled) {
+      //   throw Exception("Payment cancelled / error");
+      // }
 
       setLoading(false);
     } catch (e) {

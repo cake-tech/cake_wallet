@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart';
+import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
@@ -80,6 +81,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       network: network,
     );
 
+    // transactionHistory = LightningTransactionHistory(walletInfo: walletInfo, password: password);
+
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
@@ -101,16 +104,18 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   ObservableMap<CryptoCurrency, LightningBalance> get balance => _balance;
 
   static Future<Uint8List> toSeedBytes(String mnemonic) async {
-    // // electrum:
-    // if (validateMnemonic(mnemonic)) {
-    //   return await mnemonicToSeedBytes(mnemonic);
-    //   // bip39:
-    // } else if (bip39.validateMnemonic(mnemonic)) {
-    //   return await bip39.mnemonicToSeed(mnemonic);
-    // } else {
-    //   throw Exception("Invalid mnemonic!");
-    // }
-    return await bip39.mnemonicToSeed(mnemonic);
+    // force bip39:
+    // return await bip39.mnemonicToSeed(mnemonic);
+
+    // electrum:
+    if (validateMnemonic(mnemonic)) {
+      return await mnemonicToSeedBytes(mnemonic);
+      // bip39:
+    } else if (bip39.validateMnemonic(mnemonic)) {
+      return await bip39.mnemonicToSeed(mnemonic);
+    } else {
+      throw Exception("Invalid mnemonic!");
+    }
   }
 
   static Future<LightningWallet> create(
@@ -176,19 +181,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   Future<void> _handlePayments(List<Payment> payments) async {
     _isTransactionUpdating = true;
     final txs = convertToTxInfo(payments);
+    await alertIncomingTxs(txs);
     transactionHistory.addMany(txs);
-    for (var tx in txs.values) {
-      if (tx.direction == TransactionDirection.incoming) {
-        Fluttertoast.showToast(
-          msg: "Received ${tx.amount} sats!",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.SNACKBAR,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          fontSize: 14,
-        );
-      }
-    }
     _isTransactionUpdating = false;
   }
 
@@ -276,22 +270,10 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
     await _paymentsSub?.cancel();
     _paymentsSub = _sdk.paymentsStream.listen((List<Payment> payments) {
+      print("PAYMENT STREAM EVENT @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
       _handlePayments(payments);
     });
     await _handlePayments(await _sdk.listPayments(req: ListPaymentsRequest()));
-
-    // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    // await BreezSDK().rescanSwaps();
-    // List<SwapInfo> refundables = await BreezSDK().listRefundables();
-    // for (var refundable in refundables) {
-    //   print(refundable.bitcoinAddress);
-    // }
-    // SwapInfo? swapInfo = await BreezSDK().inProgressSwap();
-    // print(swapInfo);
 
     print("initialized breez: ${(await _sdk.isInitialized())}");
   }
@@ -373,6 +355,24 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     throw UnimplementedError("createTransaction");
   }
 
+  Future<void> alertIncomingTxs(Map<String, LightningTransactionInfo> transactions) async {
+    for (var tx in transactions.values) {
+      // transaction is a receive that we haven't seen before:
+      if (tx.direction == TransactionDirection.incoming &&
+          transactionHistory.transactions[tx.id] == null) {
+        Fluttertoast.showToast(
+          // msg: S.current.lightning_received_sats(tx.amount),
+          msg: "Received ${tx.amount} sats!",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.SNACKBAR,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 14,
+        );
+      }
+    }
+  }
+
   Future<bool> updateTransactions() async {
     try {
       if (_isTransactionUpdating) {
@@ -381,6 +381,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
+      await alertIncomingTxs(transactions);
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
       _isTransactionUpdating = false;
@@ -435,7 +436,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     super.init();
     // initialize breez:
     try {
-      // final seedBytes = await bip39.mnemonicToSeed(mnemonic);
       await setupBreez(seedBytes);
     } catch (e) {
       print("Error initializing Breez: $e");
