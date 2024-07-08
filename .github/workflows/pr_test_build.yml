@@ -75,10 +75,6 @@ jobs:
         with:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
-            /opt/android/cake_wallet/cw_haven/ios/External
-            /opt/android/cake_wallet/cw_monero/android/.cxx
-            /opt/android/cake_wallet/cw_monero/ios/External
-            /opt/android/cake_wallet/cw_shared_external/ios/External
             /opt/android/cake_wallet/scripts/monero_c/release
           key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
 
@@ -87,8 +83,7 @@ jobs:
         run: |
           cd /opt/android/cake_wallet/scripts/android/
           source ./app_env.sh cakewallet
-          ./build_all.sh
-          ./copy_monero_deps.sh
+          ./build_monero_all.sh
 
       - name: Install Flutter dependencies
         run: |
