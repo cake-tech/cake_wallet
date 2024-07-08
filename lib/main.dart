@@ -41,6 +41,7 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
+import 'package:monero/monero.dart' as monero_d;
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -60,6 +61,7 @@ Future<void> main() async {
 
       return true;
     };
+    //monero_d.WalletManagerFactory_setLogLevel(3);
 
     await setDefaultMinimumWindowSize();
 
