@@ -30,10 +30,13 @@ jobs:
           sudo mkdir -p /opt/android
           sudo chown $USER /opt/android
           cd /opt/android
+          -y curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          cargo install cargo-ndk
           git clone https://github.com/cake-tech/cake_wallet.git --branch main
           cd cake_wallet/scripts/android/
           ./install_ndk.sh
           source ./app_env.sh cakewallet
+          chmod +x pubspec_gen.sh
           ./app_config.sh
 
       - name: Cache Externals
@@ -41,6 +44,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
+            /opt/android/cake_wallet/cw_haven/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
           key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
 
@@ -49,5 +53,4 @@ jobs:
         run: |
           cd /opt/android/cake_wallet/scripts/android/
           source ./app_env.sh cakewallet
-          ./build_all.sh
-          ./copy_monero_deps.sh
+          ./build_monero_all.sh
