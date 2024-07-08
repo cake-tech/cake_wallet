@@ -270,7 +270,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
     await _paymentsSub?.cancel();
     _paymentsSub = _sdk.paymentsStream.listen((List<Payment> payments) {
-      print("PAYMENT STREAM EVENT @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
       _handlePayments(payments);
     });
     await _handlePayments(await _sdk.listPayments(req: ListPaymentsRequest()));
@@ -327,11 +326,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
     try {
       syncStatus = ConnectingSyncStatus();
-
       await electrumClient.close();
-
       electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
-
       await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
     } catch (e) {
       print(e.toString());
