@@ -41,13 +41,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            /opt/android/cake_wallet/cw_haven/android/.cxx
-            /opt/android/cake_wallet/cw_haven/ios/External
-            /opt/android/cake_wallet/cw_monero/android/.cxx
-            /opt/android/cake_wallet/cw_monero/ios/External
-            /opt/android/cake_wallet/cw_shared_external/ios/External
             /opt/android/cake_wallet/scripts/monero_c/release
-          key: ${{ hashFiles('**/build_monero.sh', '**/build_haven.sh', '**/monero_api.cpp') }}
+          key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
