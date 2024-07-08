@@ -47,7 +47,6 @@ abstract class LightningViewModelBase with Store {
       amountMsat: (double.parse(amountSats) * 1000).round(),
       description: description ?? '',
     );
-
     final res = await _sdk.receivePayment(req: req);
 
     return res.lnInvoice.bolt11;
@@ -69,7 +68,17 @@ abstract class LightningViewModelBase with Store {
       feePercent = (openingFees.feeParams.proportional * 100) / 1000000;
       minFee = openingFees.feeParams.minMsat ~/ 1000;
       balance = nodeState.channelsBalanceMsat ~/ 1000;
-    } catch (_) {}
+    } catch (_) {
+      minFee = 0;
+    }
+
+    // technically we should check for an open lightning channel here
+    // but if the sdk call for checking the opening fees doesn't fail we shouldn't
+    // even need this line:
+    if (balance > 0) {
+      minFee = 0;
+    }
+
     return InvoiceSoftLimitsResult(
       minFee: minFee,
       inboundLiquidity: inboundLiquidity,

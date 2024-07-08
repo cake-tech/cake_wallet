@@ -58,6 +58,9 @@ enum WalletType {
   tron,
 
   @HiveField(12)
+  wownero,
+
+  @HiveField(13)
   lightning,
 }
 
@@ -85,9 +88,11 @@ int serializeToInt(WalletType type) {
       return 9;
     case WalletType.tron:
       return 10;
-    case WalletType.lightning:
+    case WalletType.wownero:
       return 11;
-    default:
+    case WalletType.lightning:
+      return 12;
+    case WalletType.none:
       return -1;
   }
 }
@@ -117,6 +122,8 @@ WalletType deserializeFromInt(int raw) {
     case 10:
       return WalletType.tron;
     case 11:
+      return WalletType.wownero;
+    case 12:
       return WalletType.lightning;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
@@ -149,7 +156,9 @@ String walletTypeToString(WalletType type) {
       return 'Solana';
     case WalletType.tron:
       return 'Tron';
-    default:
+    case WalletType.wownero:
+      return 'Wownero';
+    case WalletType.none:
       return '';
   }
 }
@@ -180,7 +189,9 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Solana (SOL)';
     case WalletType.tron:
       return 'Tron (TRX)';
-    default:
+    case WalletType.wownero:
+      return 'Wownero (WOW)';
+    case WalletType.none:
       return '';
   }
 }
@@ -214,7 +225,9 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.sol;
     case WalletType.tron:
       return CryptoCurrency.trx;
-    default:
+    case WalletType.wownero:
+      return CryptoCurrency.wow;
+    case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }

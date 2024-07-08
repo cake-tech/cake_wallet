@@ -33,6 +33,7 @@ class RescanPage extends BasePage {
                   doSingleScan: _rescanViewModel.doSingleScan,
                   toggleSingleScan: () =>
                       _rescanViewModel.doSingleScan = !_rescanViewModel.doSingleScan,
+                  walletType: _rescanViewModel.wallet.type,
                 )),
         Observer(
             builder: (_) => LoadingPrimaryButton(

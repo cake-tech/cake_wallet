@@ -16,6 +16,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -244,6 +245,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.wownero ||
       wallet.type == WalletType.bitcoinCash;
 
   @computed
@@ -477,6 +479,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.monero:
         return monero!
             .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+
+      case WalletType.wownero:
+        return wownero!
+            .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
       case WalletType.haven:
         return haven!.createHavenTransactionCreationCredentials(

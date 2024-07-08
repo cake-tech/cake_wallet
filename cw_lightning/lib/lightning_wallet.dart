@@ -25,6 +25,8 @@ import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_lightning/.secrets.g.dart' as secrets;
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 part 'lightning_wallet.g.dart';
 
@@ -175,6 +177,18 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     _isTransactionUpdating = true;
     final txs = convertToTxInfo(payments);
     transactionHistory.addMany(txs);
+    for (var tx in txs.values) {
+      if (tx.direction == TransactionDirection.incoming) {
+        Fluttertoast.showToast(
+          msg: "Received ${tx.amount} sats!",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.SNACKBAR,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 14,
+        );
+      }
+    }
     _isTransactionUpdating = false;
   }
 
