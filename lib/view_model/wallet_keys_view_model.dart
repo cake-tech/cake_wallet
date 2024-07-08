@@ -10,7 +10,6 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
-import 'package:cw_wownero/wownero_wallet.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
 
@@ -157,8 +156,7 @@ abstract class WalletKeysViewModelBase with Store {
         final lang = PolyseedLang.getByPhrase(_appStore.wallet!.seed!);
         items.add(StandartListItem(
             title: S.current.wallet_seed_legacy,
-            value: (_appStore.wallet as WowneroWalletBase)
-                .seedLegacy(lang.nameEnglish)));
+            value: wownero!.getLegacySeed(_appStore.wallet!, lang.nameEnglish)));
       }
     }
 
@@ -315,23 +313,4 @@ abstract class WalletKeysViewModelBase with Store {
 
   String getRoundedRestoreHeight(int height) =>
       ((height / 1000).floor() * 1000).toString();
-
-  LegacySeedLang _getLegacySeedLang(PolyseedLang lang) {
-    switch (lang.nameEnglish) {
-      case "Spanish":
-        return LegacySeedLang.getByEnglishName("Spanish");
-      case "French":
-        return LegacySeedLang.getByEnglishName("French");
-      case "Italian":
-        return LegacySeedLang.getByEnglishName("Italian");
-      case "Japanese":
-        return LegacySeedLang.getByEnglishName("Japanese");
-      case "Portuguese":
-        return LegacySeedLang.getByEnglishName("Portuguese");
-      case "Chinese (Simplified)":
-        return LegacySeedLang.getByEnglishName("Chinese (simplified)");
-      default:
-        return LegacySeedLang.getByEnglishName("English");
-    }
-  }
 }
