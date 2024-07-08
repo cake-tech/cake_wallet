@@ -189,7 +189,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     switch (entry.level) {
       case "ERROR":
       case "WARN":
-      case "INFO":
+        // case "INFO":
         // case "DEBUG":
         // case "TRACE":
         print("BREEZ:${entry.level}: ${entry.line}");
@@ -198,8 +198,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> setupBreez(Uint8List seedBytes) async {
-    _sdk = BreezSDK();
-    _logStream?.cancel();
+    _sdk = await BreezSDK();
+    await _logStream?.cancel();
     _logStream = _sdk.logStream.listen(_logSdkEntries);
 
     try {
@@ -350,6 +350,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       print(e);
       syncStatus = FailedSyncStatus();
     }
+
+    super.updateFeeRates();
   }
 
   @override

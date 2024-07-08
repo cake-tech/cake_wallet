@@ -16,7 +16,6 @@ abstract class LightningViewModelBase with Store {
   late final BreezSDK _sdk;
 
   Future<ReceiveOnchainResult> receiveOnchain() async {
-
     BZG.ReceiveOnchainRequest req = const BZG.ReceiveOnchainRequest();
     BZG.SwapInfo swapInfo = await _sdk.receiveOnchain(req: req);
     print("Minimum amount allowed to deposit in sats: ${swapInfo.minAllowedDeposit}");
@@ -48,9 +47,8 @@ abstract class LightningViewModelBase with Store {
       amountMsat: (double.parse(amountSats) * 1000).round(),
       description: description ?? '',
     );
-    print("11111111111111111111111111111");
+
     final res = await _sdk.receivePayment(req: req);
-    print("2222222222222222222222222222222");
 
     return res.lnInvoice.bolt11;
   }

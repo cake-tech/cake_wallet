@@ -38,8 +38,6 @@ abstract class LightningSendViewModelBase with Store {
   final SettingsStore settingsStore;
   final FiatConversionStore fiatConversionStore;
   int satAmount = 0;
-  int minSats = 0;
-  int maxSats = 1000000;
 
   late final BreezSDK _sdk;
 
@@ -58,6 +56,12 @@ abstract class LightningSendViewModelBase with Store {
 
   @observable
   bool loading = false;
+
+  @observable
+  int minSats = 0;
+
+  @observable
+  int maxSats = 0;
 
   @action
   void setLoading(bool value) {
@@ -172,7 +176,7 @@ abstract class LightningSendViewModelBase with Store {
     try {
       setLoading(true);
 
-      if (satAmount < minSats || satAmount > maxSats) {
+      if (satAmount < minSats || (satAmount > maxSats && maxSats != 0)) {
         throw Exception("Amount is outside of liquidity limits!");
       }
 
@@ -191,6 +195,10 @@ abstract class LightningSendViewModelBase with Store {
         claimTxFeerate: feeRate,
       );
       BZG.PrepareOnchainPaymentResponse prepareRes = await _sdk.prepareOnchainPayment(req: prep);
+
+      print("Sender amount: ${prepareRes.senderAmountSat} sats");
+      print("Recipient amount: ${prepareRes.recipientAmountSat} sats");
+      print("Total fees: ${prepareRes.totalFees} sats");
 
       BZG.PayOnchainRequest req = BZG.PayOnchainRequest(
         recipientAddress: address,
