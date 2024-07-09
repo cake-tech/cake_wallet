@@ -12,7 +12,7 @@ on:
 
 jobs:
   Automated_integration_test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
@@ -44,9 +44,6 @@ jobs:
           docker-images: true
 
       - uses: actions/checkout@v2
-      # - uses: actions/setup-java@v1
-      #   with:
-      #     java-version: "11.x"
 
       - name: Setup JDK
         uses: actions/setup-java@v1
@@ -60,7 +57,7 @@ jobs:
           channel: stable
 
       - name: Install package dependencies
-        run: sudo apt-get install -y curl unzip automake build-essential file pkg-config git python-is-python3 libtool libtinfo5 cmake clang
+        run: sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
 
       - name: Execute Build and Setup Commands
         run: |
