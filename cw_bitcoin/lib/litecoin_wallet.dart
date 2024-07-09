@@ -326,9 +326,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (!mwebAddrs.contains(utxo.address) && utxo.address.isNotEmpty) {
         continue;
       }
-      
+
       await mwebUtxosBox.put(utxo.outputId, utxo);
-      
+
       await handleIncoming(utxo, stub);
     }
   }
@@ -368,17 +368,19 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (inputAddresses.isEmpty) return;
     input.close();
     var digest = output.events.single;
-    final tx = ElectrumTransactionInfo(WalletType.litecoin,
-        id: digest.toString(),
-        height: height,
-        amount: amount,
-        fee: 0,
-        direction: TransactionDirection.outgoing,
-        isPending: false,
-        date: DateTime.fromMillisecondsSinceEpoch(status.blockTime * 1000),
-        confirmations: 1,
-        inputAddresses: inputAddresses.toList(),
-        outputAddresses: []);
+    final tx = ElectrumTransactionInfo(
+      WalletType.litecoin,
+      id: digest.toString(),
+      height: height,
+      amount: amount,
+      fee: 0,
+      direction: TransactionDirection.outgoing,
+      isPending: false,
+      date: DateTime.fromMillisecondsSinceEpoch(status.blockTime * 1000),
+      confirmations: 1,
+      inputAddresses: inputAddresses.toList(),
+      outputAddresses: [],
+    );
     print("BEING ADDED HERE@@@@@@@@@@@@@@@@@@@@@@@2");
 
     transactionHistory.addOne(tx);
@@ -397,7 +399,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     for (final outputId in payingToOutputIds) {
       final spendingTx = transactionHistory.transactions.values
           .firstWhereOrNull((tx) => tx.inputAddresses?.contains(outputId) ?? false);
-      if (spendingTx != null && !spendingTx.isPending) target.add(outputId);
+      if (spendingTx != null && !spendingTx.isPending) {
+        target.add(outputId);
+      }
     }
     if (outputId.isEmpty) return false;
     final stub = await CwMweb.stub();
@@ -464,7 +468,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         unconfirmed += utxo.value.toInt();
       }
     });
-    // print("confirmed: $confirmed, unconfirmed: $unconfirmed");
     return ElectrumBalance(confirmed: confirmed, unconfirmed: unconfirmed, frozen: balance.frozen);
   }
 
