@@ -57,6 +57,7 @@ class SecretKey {
 
   static final nanoSecrets = [
     SecretKey('nano2ApiKey', () => ''),
+    SecretKey('nanoNowNodesApiKey', () => ''),
   ];
 
   static final tronSecrets = [

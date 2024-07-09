@@ -1,7 +1,7 @@
 #!/bin/bash
+set -x -e
 
 . ./config.sh
-
 EXPAT_VERSION=R_2_4_8
 EXPAT_HASH="3bab6c09bbe8bf42d84b81563ddbcf4cca4be838"
 EXPAT_SRC_DIR=$WORKDIR/libexpat

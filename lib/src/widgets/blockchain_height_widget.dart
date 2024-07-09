@@ -2,6 +2,8 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/date_picker.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -19,6 +21,7 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.isMwebScan = false,
     this.toggleSingleScan,
     this.doSingleScan = false,
+    required this.walletType,
   }) : super(key: key);
 
   final Function(int)? onHeightChange;
@@ -29,6 +32,7 @@ class BlockchainHeightWidget extends StatefulWidget {
   final bool isMwebScan;
   final bool doSingleScan;
   final Function()? toggleSingleScan;
+  final WalletType walletType;
 
   @override
   State<StatefulWidget> createState() => BlockchainHeightState();
@@ -165,7 +169,13 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
       } else if (widget.isSilentPaymentsScan) {
         height = bitcoin!.getHeightByDate(date: date);
       } else {
-        height = monero!.getHeightByDate(date: date);
+        if (widget.walletType == WalletType.monero) {
+          height = monero!.getHeightByDate(date: date);
+        } else {
+          assert(widget.walletType == WalletType.wownero,
+              "unknown currency in BlockchainHeightWidget");
+          height = wownero!.getHeightByDate(date: date);
+        }
       }
       setState(() {
         dateController.text = DateFormat('yyyy-MM-dd').format(date);
