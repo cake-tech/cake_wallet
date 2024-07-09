@@ -52,6 +52,9 @@ class LightningTransactionInfo extends ElectrumTransactionInfo {
     m['date'] = date.millisecondsSinceEpoch;
     m['isPending'] = isPending;
     m['fee'] = fee;
+    // to remain compatible with electrumTx's when loaded from a file:
+    m['height'] = super.height;
+    m['confirmations'] = super.confirmations;
     return m;
   }
 }

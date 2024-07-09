@@ -28,7 +28,7 @@ abstract class ElectrumTransactionHistoryBase
   Future<void> init() async => await _load();
 
   @override
-  void addOne(ElectrumTransactionInfo transaction) => transactions[transaction.id] = transaction;
+  void addOne(ElectrumTransactionInfo transaction) => _update(transaction);
 
   @override
   void addMany(Map<String, ElectrumTransactionInfo> transactions) =>
@@ -77,8 +77,9 @@ abstract class ElectrumTransactionHistoryBase
       });
 
       _height = content['height'] as int;
-    } catch (e) {
+    } catch (e, s) {
       print(e);
+      print(s);
     }
   }
 

@@ -1,7 +1,6 @@
 part of 'lightning.dart';
 
 class CWLightning extends Lightning {
-
   @override
   String formatterLightningAmountToString({required int amount}) =>
       bitcoinAmountToString(amount: amount * 100000000);
@@ -65,5 +64,15 @@ class CWLightning extends Lightning {
   @override
   double lightningDoubleToBitcoinDouble({required double amount}) {
     return amount / 100000000;
+  }
+
+  @override
+  List<int> getIncomingPayments(Object wallet) {
+    return (wallet as LightningWallet).incomingPayments;
+  }
+
+  @override
+  void clearIncomingPayments(Object wallet) {
+    (wallet as LightningWallet).incomingPayments = [];
   }
 }

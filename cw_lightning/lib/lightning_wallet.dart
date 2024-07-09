@@ -99,6 +99,11 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   @override
   String get seed => mnemonic;
 
+  // @observable
+  // ObservableList<int> incomingPayments = ObservableList<int>();
+
+  List<int> incomingPayments = <int>[];
+
   @override
   @computed
   ObservableMap<CryptoCurrency, LightningBalance> get balance => _balance;
@@ -356,15 +361,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       // transaction is a receive that we haven't seen before:
       if (tx.direction == TransactionDirection.incoming &&
           transactionHistory.transactions[tx.id] == null) {
-        Fluttertoast.showToast(
-          // msg: S.current.lightning_received_sats(tx.amount),
-          msg: "Received ${tx.amount} sats!",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.SNACKBAR,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          fontSize: 14,
-        );
+        incomingPayments.add(tx.amount);
+        print("TOASTING");
       }
     }
   }
@@ -429,7 +427,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<void> init() async {
-    super.init();
+    await super.init();
     // initialize breez:
     try {
       await setupBreez(seedBytes);

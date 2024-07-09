@@ -11,6 +11,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -34,6 +35,7 @@ import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -45,7 +47,9 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:http/http.dart' as http;
@@ -178,6 +182,28 @@ abstract class DashboardViewModelBase with Store {
           transaction: transaction,
           balanceViewModel: balanceViewModel,
           settingsStore: appStore.settingsStore)));
+    }
+
+    if (wallet.type == WalletType.lightning) {
+      _onLightningBalanceChangeReaction?.reaction.dispose();
+      _onLightningBalanceChangeReaction = autorun((_) {
+        // intentionally unused variable to get the reaction to trigger:
+        // ignore: unused_local_variable
+        var transactions = appStore.wallet!.transactionHistory.transactions;
+
+        List<int> payments = lightning!.getIncomingPayments(wallet);
+        for (int amount in payments) {
+          Fluttertoast.showToast(
+            msg: S.current.lightning_received_sats(amount.toString()),
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.SNACKBAR,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 14,
+          );
+        }
+        lightning!.clearIncomingPayments(wallet);
+      });
     }
 
     // TODO: nano sub-account generation is disabled:
@@ -418,6 +444,8 @@ abstract class DashboardViewModelBase with Store {
   ReactionDisposer? _onMoneroAccountChangeReaction;
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;
+
+  ReactionDisposer? _onLightningBalanceChangeReaction;
 
   @computed
   bool get hasNodes => wallet.type != WalletType.lightning;
