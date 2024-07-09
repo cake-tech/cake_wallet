@@ -60,7 +60,7 @@ jobs:
           channel: stable
 
       - name: Install package dependencies
-        run: sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
+        run: sudo apt-get install -y curl unzip automake build-essential file pkg-config git python-is-python3 libtool libtinfo5 cmake clang
 
       - name: Execute Build and Setup Commands
         run: |
