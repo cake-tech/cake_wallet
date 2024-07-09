@@ -168,16 +168,16 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   Future<void> onTypeSelected() async {
     if (selected == null) throw Exception('Wallet Type is not selected yet.');
 
-    if (selected == WalletType.haven && widget.isCreate) {
-      return await showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) => PopUpCancellableAlertDialog(
-          contentText: S.of(context).pause_wallet_creation,
-          actionButtonText: S.of(context).ok,
-          buttonAction: () => Navigator.of(context).pop(),
-        ),
-      );
-    }
+    // if (selected == WalletType.haven && widget.isCreate) {
+    //   return await showPopUp<void>(
+    //     context: context,
+    //     builder: (BuildContext context) => PopUpCancellableAlertDialog(
+    //       contentText: S.of(context).pause_wallet_creation,
+    //       actionButtonText: S.of(context).ok,
+    //       buttonAction: () => Navigator.of(context).pop(),
+    //     ),
+    //   );
+    // }
 
     widget.onTypeSelected(context, selected!);
   }

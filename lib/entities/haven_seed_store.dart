@@ -7,7 +7,7 @@ part 'haven_seed_store.g.dart';
 class HavenSeedStore extends HiveObject {
   HavenSeedStore({required this.id, this.seed});
 
-  static const typeId = TRANSACTION_TYPE_ID;
+  static const typeId = HAVEN_SEED_STORE_TYPE_ID;
   static const boxName = 'HavenSeedStore';
   static const boxKey = 'havenSeedStoreKey';
 

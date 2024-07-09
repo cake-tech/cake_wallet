@@ -277,9 +277,10 @@ Future<void> _backupHavenSeeds(Box<HavenSeedStore> havenSeedStore) async {
     final keyService = KeyService(flutterSecureStorage);
     final password = await keyService.getWalletPassword(walletName: w.name);
     final wallet = await walletService.openWallet(w.name, password);
-    havenSeedStore.add(HavenSeedStore(id: wallet.id, seed: wallet.seed));
+    await havenSeedStore.add(HavenSeedStore(id: wallet.id, seed: wallet.seed));
     wallet.close();
   }
+  await havenSeedStore.flush();
 }
 
 void _fixNodesUseSSLFlag(Box<Node> nodes) {
