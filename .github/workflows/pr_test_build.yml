@@ -67,7 +67,7 @@ jobs:
           ./install_ndk.sh
           source ./app_env.sh cakewallet
           chmod +x pubspec_gen.sh
-          ./app_config.sh
+          CW_WITH_HAVEN=true ./app_config.sh
 
       - name: Cache Externals
         id: cache-externals
@@ -80,7 +80,7 @@ jobs:
             /opt/android/cake_wallet/cw_monero/ios/External
             /opt/android/cake_wallet/cw_shared_external/ios/External
             /opt/android/cake_wallet/scripts/monero_c/release
-          key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
+          key: haven-${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
