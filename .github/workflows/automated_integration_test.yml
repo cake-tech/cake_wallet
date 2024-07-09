@@ -200,6 +200,8 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           force-avd-creation: false
+          arch: ${{ matrix.arch }}
+          target: ${{ matrix.target}}
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
           script: echo "Generated AVD snapshot for caching."
@@ -210,6 +212,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           force-avd-creation: false
           arch: ${{ matrix.arch }}
+          target: ${{ matrix.target}}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: cd /opt/android/cake_wallet && flutter pub get && flutter test integration_test
+          script: cd /opt/android/cake_wallet && flutter pub get && flutter test integration_test/app_test.dart
