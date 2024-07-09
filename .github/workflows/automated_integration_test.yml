@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api-level: [29]
+        api-level: [27, 28, 29, 30, 31, 32, 33]
         arch: [x86_64]
     env:
       STORE_PASS: test@cake_wallet
