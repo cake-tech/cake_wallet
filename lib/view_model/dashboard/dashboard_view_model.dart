@@ -188,11 +188,15 @@ abstract class DashboardViewModelBase with Store {
       _onLightningBalanceChangeReaction?.reaction.dispose();
       _onLightningBalanceChangeReaction = autorun((_) {
         // intentionally unused variable to get the reaction to trigger:
-        // ignore: unused_local_variable
         var transactions = appStore.wallet!.transactionHistory.transactions;
+        if (transactions.isEmpty) {
+          // this intentionally does nothing but we need to use the variable
+          // to get the reaction to trigger
+        }
 
-        List<int> payments = lightning!.getIncomingPayments(wallet);
-        for (int amount in payments) {
+        Map<String, int> payments = lightning!.getIncomingPayments(wallet);
+
+        for (int amount in payments.values) {
           Fluttertoast.showToast(
             msg: S.current.lightning_received_sats(amount.toString()),
             toastLength: Toast.LENGTH_LONG,

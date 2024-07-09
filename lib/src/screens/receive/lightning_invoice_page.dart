@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/lightning_input_form.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
@@ -42,6 +44,7 @@ class LightningInvoicePage extends BasePage {
   final LightningInvoicePageViewModel lightningInvoicePageViewModel;
   final ReceiveOptionViewModel receiveOptionViewModel;
   final _formKey = GlobalKey<FormState>();
+  Timer? _rescanTimer;
 
   bool effectsInstalled = false;
 
@@ -58,7 +61,10 @@ class LightningInvoicePage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
-  void onClose(BuildContext context) => Navigator.popUntil(context, (route) => route.isFirst);
+  void onClose(BuildContext context) {
+    _rescanTimer?.cancel();
+    Navigator.popUntil(context, (route) => route.isFirst);
+  }
 
   @override
   Widget middle(BuildContext context) => PresentReceiveOptionPicker(
@@ -341,6 +347,13 @@ class LightningInvoicePage extends BasePage {
                   buttonAction: () => Navigator.of(context).pop());
             });
       }
+    });
+
+    // the payments stream is NOT consistently triggered but calling updateTransactions()
+    // will get breez to notify us of incoming payments, we do this only on this screen:
+    _rescanTimer?.cancel();
+    _rescanTimer = Timer.periodic(Duration(seconds: 5), (timer) {
+      lightningInvoicePageViewModel.updateTransactions();
     });
 
     effectsInstalled = true;

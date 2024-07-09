@@ -102,7 +102,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   // @observable
   // ObservableList<int> incomingPayments = ObservableList<int>();
 
-  List<int> incomingPayments = <int>[];
+  Map<String, int> incomingPayments = <String, int>{};
 
   @override
   @computed
@@ -361,7 +361,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       // transaction is a receive that we haven't seen before:
       if (tx.direction == TransactionDirection.incoming &&
           transactionHistory.transactions[tx.id] == null) {
-        incomingPayments.add(tx.amount);
+        incomingPayments[tx.id] = tx.amount;
       }
     }
   }
@@ -421,7 +421,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     bool? doSingleScan,
     bool? usingElectrs,
   }) async {
-    updateTransactions();
+    await updateTransactions();
   }
 
   @override

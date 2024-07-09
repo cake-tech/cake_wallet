@@ -1029,7 +1029,7 @@ abstract class Lightning {
   int bitcoinAmountToLightningAmount({required int amount});
   double bitcoinDoubleToLightningDouble({required double amount});
   double lightningDoubleToBitcoinDouble({required double amount});
-  List<int> getIncomingPayments(Object wallet);
+  Map<String, int> getIncomingPayments(Object wallet);
   void clearIncomingPayments(Object wallet);
 }
   """;

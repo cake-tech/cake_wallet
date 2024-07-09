@@ -99,7 +99,6 @@ abstract class LightningInvoicePageViewModelBase with Store {
 
   @action
   Future<void> createInvoice() async {
-
     state = IsExecutingState();
     if (amount.isEmpty) {
       state = FailureState('Amount cannot be empty');
@@ -180,5 +179,10 @@ abstract class LightningInvoicePageViewModelBase with Store {
     try {
       _fetchLimits();
     } catch (_) {}
+  }
+
+  void updateTransactions() {
+    // internally calls updateTransactions():
+    _wallet.rescan(height: 0);
   }
 }

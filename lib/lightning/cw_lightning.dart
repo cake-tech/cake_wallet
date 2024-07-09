@@ -67,12 +67,12 @@ class CWLightning extends Lightning {
   }
 
   @override
-  List<int> getIncomingPayments(Object wallet) {
+  Map<String, int> getIncomingPayments(Object wallet) {
     return (wallet as LightningWallet).incomingPayments;
   }
 
   @override
   void clearIncomingPayments(Object wallet) {
-    (wallet as LightningWallet).incomingPayments = [];
+    (wallet as LightningWallet).incomingPayments = {};
   }
 }
