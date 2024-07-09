@@ -362,7 +362,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       if (tx.direction == TransactionDirection.incoming &&
           transactionHistory.transactions[tx.id] == null) {
         incomingPayments.add(tx.amount);
-        print("TOASTING");
       }
     }
   }
