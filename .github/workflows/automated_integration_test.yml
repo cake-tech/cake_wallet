@@ -18,6 +18,7 @@ jobs:
       matrix:
         api-level: [27, 28, 29, 30, 31, 32, 33]
         arch: [x86_64]
+        target: [default, google_apis, playstore]
     env:
       STORE_PASS: test@cake_wallet
       KEY_PASS: test@cake_wallet
