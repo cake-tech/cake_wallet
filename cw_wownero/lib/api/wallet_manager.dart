@@ -6,6 +6,7 @@ import 'package:cw_wownero/api/exceptions/wallet_creation_exception.dart';
 import 'package:cw_wownero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_wownero/api/exceptions/wallet_restore_from_keys_exception.dart';
 import 'package:cw_wownero/api/exceptions/wallet_restore_from_seed_exception.dart';
+import 'package:cw_wownero/api/transaction_history.dart';
 import 'package:cw_wownero/api/wallet.dart';
 import 'package:monero/wownero.dart' as wownero;
 
@@ -29,6 +30,7 @@ void createWalletSync(
     required String password,
     required String language,
     int nettype = 0}) {
+  txhistory = null;
   wptr = wownero.WalletManager_createWallet(wmPtr,
       path: path, password: password, language: language, networkType: 0);
 
@@ -54,6 +56,7 @@ void restoreWalletFromSeedSync(
     int nettype = 0,
     int restoreHeight = 0}) {
   if (seed.split(" ").length == 14) {
+    txhistory = null;
     wptr = wownero.WOWNERO_deprecated_restore14WordSeed(
       path: path,
       password: password,
@@ -65,6 +68,7 @@ void restoreWalletFromSeedSync(
       height: wownero.WOWNERO_deprecated_14WordSeedHeight(seed: seed),
     );
   } else {
+    txhistory = null;
     wptr = wownero.WalletManager_recoveryWallet(
       wmPtr,
       path: path,
@@ -95,6 +99,7 @@ void restoreWalletFromKeysSync(
     required String spendKey,
     int nettype = 0,
     int restoreHeight = 0}) {
+  txhistory = null;
   wptr = wownero.WalletManager_createWalletFromKeys(
     wmPtr,
     path: path,
@@ -123,6 +128,7 @@ void restoreWalletFromSpendKeySync(
     required String spendKey,
     int nettype = 0,
     int restoreHeight = 0}) {
+  // txhistory = null;
   // wptr = wownero.WalletManager_createWalletFromKeys(
   //   wmPtr,
   //   path: path,
@@ -134,6 +140,7 @@ void restoreWalletFromSpendKeySync(
   //   nettype: 0,
   // );
 
+  txhistory = null;
   wptr = wownero.WalletManager_createDeterministicWalletFromSpendKey(
     wmPtr,
     path: path,
@@ -197,6 +204,7 @@ Map<String, wownero.wallet> openedWalletsByPath = {};
 void loadWallet(
     {required String path, required String password, int nettype = 0}) {
   if (openedWalletsByPath[path] != null) {
+    txhistory = null;
     wptr = openedWalletsByPath[path]!;
     return;
   }
@@ -208,6 +216,7 @@ void loadWallet(
           wownero.Wallet_store(Pointer.fromAddress(addr));
         });
       }
+      txhistory = null;
       wptr = wownero.WalletManager_openWallet(wmPtr,
           path: path, password: password);
       openedWalletsByPath[path] = wptr!;
