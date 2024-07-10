@@ -107,6 +107,12 @@ install(CODE "
 set(INSTALL_BUNDLE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data")
 set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x86_64-linux-gnu_libwallet2_api_c.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "monero_libwallet2_api_c.so"
+  COMPONENT Runtime)
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/wownero/x86_64-linux-gnu_libwallet2_api_c.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "wownero_libwallet2_api_c.so"
+  COMPONENT Runtime)
+
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
   COMPONENT Runtime)
 
