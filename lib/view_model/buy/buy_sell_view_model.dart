@@ -138,7 +138,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   String cryptoAmount;
 
   @observable
-  String  fiatAmount;
+  String fiatAmount;
 
   @observable
   String depositAddress;
@@ -203,7 +203,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     if (bestRateQuote == null) {
       cryptoAmount = S.current.fetching;
 
-      await _calculateBestRate();
+      await calculateBestRate();
     }
     _cryptoNumberFormat.maximumFractionDigits = cryptoCurrency.decimals;
 
@@ -223,7 +223,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       paymentMethods.forEach((element) => element.isSelected = false);
       option.isSelected = true;
       selectedPaymentMethod = option;
-      _calculateBestRate();
     } else {
       throw ArgumentError('Unknown option type');
     }
@@ -243,18 +242,18 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     _setProviders();
     await _getAvailablePaymentTypes();
     if (selectedPaymentMethod != null) {
-      await _calculateBestRate();
+      await calculateBestRate();
     }
   }
 
   @action
-  Future<void> _calculateBestRate() async {
+  Future<void> calculateBestRate() async {
     final amount = double.tryParse(isBuyAction ? fiatAmount : cryptoAmount) ?? 100;
     final result = await Future.wait<Quote?>(providerList.map((element) => element.fetchQuote(
           sourceCurrency: isBuyAction ? fiatCurrency.title : cryptoCurrency.title,
           destinationCurrency: isBuyAction ? cryptoCurrency.title : fiatCurrency.title,
           amount: amount.toInt(),
-          paymentType: selectedPaymentMethod!.paymentMethodType!,
+          paymentType: selectedPaymentMethod!.paymentMethodType,
           type: isBuyAction ? 'buy' : 'sell',
           walletAddress: wallet.walletAddresses.address,
         )));
@@ -273,8 +272,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   Future<void> _getAvailablePaymentTypes() async {
-    final result = await Future.wait(providerList.map((element) =>
-        element.getAvailablePaymentTypes(fiatCurrency.title,cryptoCurrency.title, isBuyAction ? 'buy' : 'sell')));
+    final result = await Future.wait(providerList.map((element) => element.getAvailablePaymentTypes(
+        fiatCurrency.title, cryptoCurrency.title, isBuyAction ? 'buy' : 'sell')));
 
     final Map<PaymentType, PaymentMethod> uniquePaymentMethods = {};
     for (var methods in result) {
@@ -285,7 +284,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     paymentMethods = ObservableList<PaymentMethod>.of(uniquePaymentMethods.values);
     if (paymentMethods.isNotEmpty) {
-      selectedPaymentMethod = paymentMethods.first;
+      selectedPaymentMethod = selectedPaymentMethod = paymentMethods.firstWhere(
+          (element) => element.paymentMethodType == PaymentType.creditCard,
+          orElse: () => paymentMethods.first);
       selectedPaymentMethod!.isSelected = true;
     }
   }

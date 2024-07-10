@@ -1,4 +1,3 @@
-import 'package:cake_wallet/buy/fiat_buy_credentials.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 
 enum PaymentType {
@@ -23,9 +22,16 @@ enum PaymentType {
   imps,
   dana,
   ideal,
+  paypal,
+  sepaOpenBankingPayment,
+  gbpOpenBankingPayment,
+  lowCostAch,
+  mobileWallet,
+  pixInstantPayment,
+  yellowCardBankTransfer,
+  fiatBalance,
   unknown
 }
-
 
 extension PaymentTypeTitle on PaymentType {
   String? get title {
@@ -48,7 +54,7 @@ extension PaymentTypeTitle on PaymentType {
         return 'Skrill';
       case PaymentType.sepa:
         return 'SEPA';
-        case PaymentType.sepaInstant:
+      case PaymentType.sepaInstant:
         return 'SEPA Instant';
       case PaymentType.ach:
         return 'ACH';
@@ -72,12 +78,26 @@ extension PaymentTypeTitle on PaymentType {
         return 'DANA';
       case PaymentType.ideal:
         return 'iDEAL';
+      case PaymentType.paypal:
+        return 'PayPal';
+      case PaymentType.sepaOpenBankingPayment:
+        return 'SEPA Open Banking Payment';
+      case PaymentType.gbpOpenBankingPayment:
+        return 'GBP Open Banking Payment';
+      case PaymentType.lowCostAch:
+        return 'Low Cost ACH';
+      case PaymentType.mobileWallet:
+        return 'Mobile Wallet';
+      case PaymentType.pixInstantPayment:
+        return 'PIX Instant Payment';
+      case PaymentType.yellowCardBankTransfer:
+        return 'Yellow Card Bank Transfer';
+      case PaymentType.fiatBalance:
+        return 'Fiat Balance';
       default:
         return null;
-
-
     }
-}
+  }
 
   String? get iconPath {
     switch (this) {
@@ -98,6 +118,8 @@ extension PaymentTypeTitle on PaymentType {
         return 'assets/images/card.png';
       case PaymentType.neteller:
         return 'assets/images/card.png';
+      case PaymentType.paypal:
+        return 'assets/images/card.png';
       default:
         return null;
     }
@@ -116,7 +138,6 @@ class PaymentMethod extends SelectableOption {
   final String customTitle;
   final String customIconPath;
   final String customDescription;
-  final VolumeLimits limits;
   bool isSelected = false;
 
   PaymentMethod({
@@ -124,7 +145,6 @@ class PaymentMethod extends SelectableOption {
     required this.customTitle,
     required this.customIconPath,
     required this.customDescription,
-    required this.limits,
   });
 
   @override
@@ -142,69 +162,76 @@ class PaymentMethod extends SelectableOption {
   factory PaymentMethod.fromOnramperJson(Map<String, dynamic> json) {
     final type = PaymentMethod.getPaymentTypeId(json['paymentTypeId'] as String?);
     return PaymentMethod(
-      paymentMethodType: type,
-      customTitle: json['name'] as String? ?? 'Unknown',
-      customIconPath: json['icon'] as String? ?? 'assets/images/card.png',
-      customDescription: json['description'] as String? ?? '',
-      limits: VolumeLimits.fromJson(json['limits'] as Map<String, dynamic>? ?? {}),
-    );
-  }
-
-  factory PaymentMethod.fromDFXJson(Map<String, dynamic> json, VolumeLimits limits) {
-    final type = PaymentMethod.getPaymentTypeId(json['paymentTypeId'] as String?);
-    print('PaymentMethod.fromDFXJson: type = $type');
-    return PaymentMethod(
         paymentMethodType: type,
         customTitle: json['name'] as String? ?? 'Unknown',
         customIconPath: json['icon'] as String? ?? 'assets/images/card.png',
-        customDescription: json['description'] as String? ?? '',
-        limits: limits);
+        customDescription: json['description'] as String? ?? '');
+  }
+
+  factory PaymentMethod.fromDFX(String paymentMethod, PaymentType paymentType) {
+    return PaymentMethod(
+        paymentMethodType: paymentType,
+        customTitle: paymentMethod,
+        customIconPath: 'assets/images/card.png',
+        customDescription: '');
+  }
+
+  factory PaymentMethod.fromMoonPayJson(Map<String, dynamic> json, PaymentType paymentType) {
+    return PaymentMethod(
+        paymentMethodType: paymentType,
+        customTitle: json['paymentMethod'] as String,
+        customIconPath: 'assets/images/card.png',
+        customDescription: '');
   }
 
   factory PaymentMethod.fromMeldJson(Map<String, dynamic> json) {
     final type = PaymentMethod.getPaymentTypeId(json['paymentMethod'] as String?);
     final logos = json['logos'] as Map<String, dynamic>;
     return PaymentMethod(
-      paymentMethodType: type,
-      customTitle: json['name'] as String? ?? 'Unknown',
-      customIconPath: logos['dark'] as String? ?? 'assets/images/card.png',
-      customDescription: json['description'] as String? ?? '',
-      limits: VolumeLimits.fromJson(json['limits'] as Map<String, dynamic>? ?? {}),
-    );
+        paymentMethodType: type,
+        customTitle: json['name'] as String? ?? 'Unknown',
+        customIconPath: logos['dark'] as String? ?? 'assets/images/card.png',
+        customDescription: json['description'] as String? ?? '');
   }
 
   static PaymentType getPaymentTypeId(String? type) {
     switch (type) {
       case 'banktransfer':
       case 'Bank':
+      case 'yellow_card_bank_transfer':
         return PaymentType.bankTransfer;
       case 'creditcard':
       case 'Card':
-      case 'CREDIT_DEBIT_CARD"':
+      case 'CREDIT_DEBIT_CARD':
+      case 'credit_debit_card':
         return PaymentType.creditCard;
       case 'debitcard':
         return PaymentType.debitCard;
       case 'applepay':
       case 'APPLE_PAY':
+      case 'apple_pay':
         return PaymentType.applePay;
       case 'googlepay':
       case 'GOOGLE_PAY':
+      case 'google_pay':
         return PaymentType.googlePay;
       case 'revolutpay':
         return PaymentType.revolutPay;
       case 'neteller':
-      case 'ETELLER':
+      case 'NETELLER':
         return PaymentType.neteller;
       case 'skrill':
       case 'SKRILL':
         return PaymentType.skrill;
       case 'sepabanktransfer':
       case 'SEPA':
+      case 'sepa_bank_transfer':
         return PaymentType.sepa;
       case 'sepainstant':
       case 'SEPA_INSTANT':
         return PaymentType.sepaInstant;
       case 'ACH':
+      case 'ach_bank_transfer':
         return PaymentType.ach;
       case 'iach':
       case 'INSTANT_ACH':
@@ -235,6 +262,10 @@ class PaymentMethod extends SelectableOption {
       case 'ideal':
       case 'IDEAL':
         return PaymentType.ideal;
+      case 'paypal':
+        return PaymentType.paypal;
+      case 'sepa_open_banking_payment':
+        return PaymentType.sepaOpenBankingPayment;
       default:
         return PaymentType.unknown;
     }

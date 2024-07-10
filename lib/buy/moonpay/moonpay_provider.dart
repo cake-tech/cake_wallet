@@ -6,7 +6,6 @@ import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
-import 'package:cake_wallet/buy/fiat_buy_credentials.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
@@ -315,38 +314,26 @@ class MoonPayProvider extends BuyProvider {
     return currency.toString().toLowerCase();
   }
 
-  Future<FiatBuyCredentials?> fetchFiatBuyCredentials(
+  Future<Map<String, dynamic>> fetchFiatCredentials(
       String fiatCurrency, String cryptocurrency, String? paymentMethod) async {
-    final params = {
-      'baseCurrencyCode': fiatCurrency.toLowerCase(),
-      'apiKey': _apiKey,
-    };
+    final params = {'baseCurrencyCode': fiatCurrency.toLowerCase(), 'apiKey': _apiKey};
 
-    if (paymentMethod != null) {
-      params['paymentMethod'] = paymentMethod;
-    }
+    if (paymentMethod != null) params['paymentMethod'] = paymentMethod;
+
     final path = '$_buyPath/${cryptocurrency.toLowerCase()}/limits';
     final url = Uri.https(_baseUrl, path, params);
 
-
     try {
       final response = await get(url, headers: {'accept': 'application/json'});
-
-      print('MoonPay fetchFiatBuyCredentials: ${response.body}');
-
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final credentials = FiatBuyCredentials(data['baseCurrency'] as Map<String, dynamic>);
-        }
-        print('MoonPay does not support fiat: $fiatCurrency');
-        return null;
+        return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
-        print('MoonPay Failed to fetch fiat currencies: ${response.statusCode}');
-        return null;
+        print('MoonPay does not support fiat: $fiatCurrency');
+        return {};
       }
     } catch (e) {
       print('MoonPay Error fetching fiat currencies: $e');
-      return null;
+      return {};
     }
   }
 
@@ -355,19 +342,16 @@ class MoonPayProvider extends BuyProvider {
     final List<PaymentMethod> paymentMethods = [];
 
     if (type == 'buy') {
-      final fiatBuyCredentials = await fetchFiatBuyCredentials(fiatCurrency, cryptoCurrency, null);
-      if (fiatBuyCredentials != null) {
-        fiatBuyCredentials.limits.forEach((key, value) {
-          if (value.minVolume != 0 && value.maxVolume != 0) {
-            return paymentMethods.add(PaymentMethod.fromDFXJson({
-              'paymentTypeId': key,
-              'name': key,
-            }, value));
-          }
-        });
+      final fiatBuyCredentials = await fetchFiatCredentials(fiatCurrency, cryptoCurrency, null);
+      if (fiatBuyCredentials.isNotEmpty) {
+        final paymentMethod = fiatBuyCredentials['paymentMethods'] as String?;
+        paymentMethods
+            .add(PaymentMethod.fromMoonPayJson(fiatBuyCredentials, getPaymentType(paymentMethod)));
+        return paymentMethods;
       }
     } else {
       //final assetBuyCredentials = await fetchAssets(assetsName: [fiatCurrency]);
+      paymentMethods;
     }
 
     return paymentMethods;
@@ -381,15 +365,20 @@ class MoonPayProvider extends BuyProvider {
     required String type,
     required String walletAddress,
   }) async {
-    if (paymentType != PaymentType.creditCard) return null;
+    var paymentMethod = normalizePaymentMethod(paymentType);
+    if (paymentMethod == null) paymentMethod = paymentType.name;
 
     final params = {
       'baseCurrencyCode': sourceCurrency.toLowerCase(),
       'baseCurrencyAmount': amount.toString(),
       'amount': amount.toString(),
+      'paymentMethod': paymentMethod,
       'areFeesIncluded': 'false',
       'apiKey': _apiKey,
     };
+
+    print(
+        'MoonPay: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
     final path = '$_buyPath/${destinationCurrency.toLowerCase()}$_buyQuote';
     final url = Uri.https(_baseUrl, path, params);
@@ -406,11 +395,80 @@ class MoonPayProvider extends BuyProvider {
 
         return quote;
       } else {
+        print('Moon Pay: Error fetching buy quote: ');
         return null;
       }
     } catch (e) {
-      print('Error fetching buy quote: $e');
+      print('Moon Pay: Error fetching buy quote: $e');
       return null;
+    }
+  }
+
+  String? normalizePaymentMethod(PaymentType paymentMethod) {
+    switch (paymentMethod) {
+      case PaymentType.creditCard:
+        return 'credit_debit_card';
+      case PaymentType.debitCard:
+        return 'credit_debit_card';
+      case PaymentType.ach:
+        return 'ach_bank_transfer';
+      case PaymentType.applePay:
+        return 'apple_pay';
+      case PaymentType.googlePay:
+        return 'google_pay';
+      case PaymentType.sepa:
+        return 'sepa_bank_transfer';
+      case PaymentType.paypal:
+        return 'paypal';
+      case PaymentType.sepaOpenBankingPayment:
+        return 'sepa_open_banking_payment';
+      case PaymentType.gbpOpenBankingPayment:
+        return 'gbp_open_banking_payment';
+      case PaymentType.lowCostAch:
+        return 'low_cost_ach';
+      case PaymentType.mobileWallet:
+        return 'mobile_wallet';
+      case PaymentType.pixInstantPayment:
+        return 'pix_instant_payment';
+      case PaymentType.yellowCardBankTransfer:
+        return 'yellow_card_bank_transfer';
+      case PaymentType.fiatBalance:
+        return 'fiat_balance';
+      default:
+        return null;
+    }
+  }
+
+  PaymentType getPaymentType(String? paymentMethod) {
+    switch (paymentMethod) {
+      case 'ach_bank_transfer':
+        return PaymentType.ach;
+      case 'apple_pay':
+        return PaymentType.applePay;
+      case 'credit_debit_card':
+        return PaymentType.creditCard;
+      case 'fiat_balance':
+        return PaymentType.fiatBalance;
+      case 'gbp_open_banking_payment':
+        return PaymentType.gbpOpenBankingPayment;
+      case 'google_pay':
+        return PaymentType.googlePay;
+      case 'low_cost_ach':
+        return PaymentType.lowCostAch;
+      case 'mobile_wallet':
+        return PaymentType.mobileWallet;
+      case 'paypal':
+        return PaymentType.paypal;
+      case 'pix_instant_payment':
+        return PaymentType.pixInstantPayment;
+      case 'sepa_bank_transfer':
+        return PaymentType.sepa;
+      case 'sepa_open_banking_payment':
+        return PaymentType.sepaOpenBankingPayment;
+      case 'yellow_card_bank_transfer':
+        return PaymentType.yellowCardBankTransfer;
+      default:
+        return PaymentType.unknown;
     }
   }
 }

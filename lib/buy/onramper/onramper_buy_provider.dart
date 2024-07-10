@@ -118,7 +118,8 @@ class OnRamperBuyProvider extends BuyProvider {
     }
   }
 
-  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String cryptoCurrency, String type)async {
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(
+      String fiatCurrency, String cryptoCurrency, String type) async {
     final params = {
       'fiatCurrency': fiatCurrency,
       'type': type,
@@ -162,11 +163,8 @@ class OnRamperBuyProvider extends BuyProvider {
     required String type,
     required String walletAddress,
   }) async {
-    final paymentMethod = normalizePaymentMethod(paymentType);
-    if (paymentMethod == null) {
-      print('OnRamper Unsupported payment method: $paymentType');
-      return null;
-    }
+    var paymentMethod = normalizePaymentMethod(paymentType);
+    if (paymentMethod == null) paymentMethod = paymentType.name;
 
     final params = {
       'amount': amount.toString(),
@@ -178,18 +176,15 @@ class OnRamperBuyProvider extends BuyProvider {
       'isRecurringPayment': 'false',
       'input': 'source',
     };
+    print(
+        'Onramper: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
     final path = '$quotes/$sourceCurrency/$destinationCurrency';
     final url = Uri.https(_baseUrl, path, params);
+    final headers = {'Authorization': authorization, 'accept': 'application/json'};
 
     try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': authorization,
-          'accept': 'application/json',
-        },
-      );
+      final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List<dynamic>;
@@ -210,19 +205,20 @@ class OnRamperBuyProvider extends BuyProvider {
         validQuotes.sort((a, b) => a.rate.compareTo(b.rate));
 
         return validQuotes.first;
-        ;
       } else {
-        print('Failed to fetch Onramper rate');
+        print('Onramper: Failed to fetch rate');
         return null;
       }
     } catch (e) {
-      print('Failed to fetch Onramper rate: $e');
+      print('Onramper: Failed to fetch rate $e');
       return null;
     }
   }
 
-  String? normalizePaymentMethod(PaymentType paymentMethod) {
-    switch (paymentMethod) {
+  String? normalizePaymentMethod(PaymentType paymentType) {
+    switch (paymentType) {
+      case PaymentType.bankTransfer:
+        return 'banktransfer';
       case PaymentType.creditCard:
         return 'creditcard';
       case PaymentType.debitCard:
@@ -233,6 +229,36 @@ class OnRamperBuyProvider extends BuyProvider {
         return 'googlepay';
       case PaymentType.revolutPay:
         return 'revolutpay';
+      case PaymentType.neteller:
+        return 'neteller';
+      case PaymentType.skrill:
+        return 'skrill';
+      case PaymentType.sepa:
+        return 'sepabanktransfer';
+      case PaymentType.sepaInstant:
+        return 'sepainstant';
+      case PaymentType.ach:
+        return 'ach';
+      case PaymentType.achInstant:
+        return 'iach';
+      case PaymentType.Khipu:
+        return 'khipu';
+      case PaymentType.palomaBanktTansfer:
+        return 'palomabanktransfer';
+      case PaymentType.ovo:
+        return 'ovo';
+      case PaymentType.zaloPay:
+        return 'zalopay';
+      case PaymentType.zaloBankTransfer:
+        return 'zalobanktransfer';
+      case PaymentType.gcash:
+        return 'gcash';
+      case PaymentType.imps:
+        return 'imps';
+      case PaymentType.dana:
+        return 'dana';
+      case PaymentType.ideal:
+        return 'ideal';
       default:
         return null;
     }

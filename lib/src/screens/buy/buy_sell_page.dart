@@ -162,13 +162,7 @@ class BuySellPage extends BasePage {
                                 imagePath: buySellViewModel.selectedPaymentMethod!.iconPath,
                                 title: buySellViewModel.selectedPaymentMethod!.title,
                                 leftSubTitle: '',
-                                onPressed: () {
-                                  Navigator.of(context).pushNamed(Routes.selectOptions, arguments: [
-                                    'S.of(context).payment_methods',
-                                    buySellViewModel.paymentMethods,
-                                    buySellViewModel.changeOption
-                                  ]);
-                                },
+                                onPressed: () => _pickPaymentMethod(context),
                                 leadingIcon: Icons.arrow_forward_ios,
                                 borderRadius: 24,
                                 padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
@@ -228,14 +222,32 @@ class BuySellPage extends BasePage {
         ));
   }
 
+  void _pickPaymentMethod(BuildContext context) async {
+    final currentOption = buySellViewModel.selectedPaymentMethod;
+    await Navigator.of(context).pushNamed(
+      Routes.selectOptions,
+      arguments: [
+        'S.of(context).payment_methods',
+        buySellViewModel.paymentMethods,
+        buySellViewModel.changeOption
+      ],
+    );
+
+    buySellViewModel.selectedPaymentMethod;
+    if (currentOption != null &&
+        currentOption.paymentMethodType !=
+            buySellViewModel.selectedPaymentMethod?.paymentMethodType) {
+      await buySellViewModel.calculateBestRate();
+    }
+  }
+
   void _setReactions(BuildContext context, BuySellViewModel buySellViewModel) {
     if (_isReactionsSet) {
       return;
     }
 
-
     final fiatAmountController = fiatCurrencyKey.currentState!.amountController;
-    
+
     _onCryptoCurrencyChange(buySellViewModel.cryptoCurrency, buySellViewModel, cryptoCurrencyKey);
     _onFiatCurrencyChange(buySellViewModel.fiatCurrency, buySellViewModel, fiatCurrencyKey);
 
@@ -250,7 +262,7 @@ class BuySellPage extends BasePage {
             _onFiatCurrencyChange(currency, buySellViewModel, fiatCurrencyKey));
 
     reaction((_) => buySellViewModel.fiatAmount, (String amount) {
-      if (fiatCurrencyKey.currentState!.amountController.text != amount ) {
+      if (fiatCurrencyKey.currentState!.amountController.text != amount) {
         fiatCurrencyKey.currentState!.amountController.text = amount;
       }
     });

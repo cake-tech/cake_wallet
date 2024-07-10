@@ -1,9 +1,6 @@
 import 'dart:convert';
-
-import 'package:cake_wallet/buy/asset_buy_credentials.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
-import 'package:cake_wallet/buy/fiat_buy_credentials.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -13,6 +10,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -198,7 +196,7 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  Future<FiatBuyCredentials?> fetchFiatCurrencies(String fiatCurrency) async {
+  Future<Map<String, dynamic>> fetchFiatCredentials(String fiatCurrency) async {
     final url = Uri.https(_baseUrl, '/v1/fiat');
 
     try {
@@ -207,80 +205,93 @@ class DFXBuyProvider extends BuyProvider {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List<dynamic>;
         for (final item in data) {
-          if (item['name'] == fiatCurrency) {
-            return FiatBuyCredentials.fromJson(item as Map<String, dynamic>);
-          }
+          if (item['name'] == fiatCurrency) return item as Map<String, dynamic>;
         }
         print('DFX does not support fiat: $fiatCurrency');
-        return null;
+        return {};
       } else {
         print('DFX Failed to fetch fiat currencies: ${response.statusCode}');
-        return null;
+        return {};
       }
     } catch (e) {
       print('DFX Error fetching fiat currencies: $e');
-      return null;
+      return {};
     }
   }
 
-  Future<AssetBuyCredentials?> fetchAssets({required List<String> assetsName}) async {
-    final url = Uri.https(_baseUrl, '/v1/asset', {'blockchain': assetsName});
+  Future<Map<String, dynamic>> fetchAssetCredential(String assetsName) async {
+    final blockchain = CryptoCurrency.fromString(assetsName);
+
+    final url = Uri.https(_baseUrl, '/v1/asset', {'blockchains': blockchain.fullName});
 
     try {
       final response = await http.get(url, headers: {'accept': 'application/json'});
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List<dynamic>;
-        final assets = data[0] as Map<String, dynamic>;
-        return AssetBuyCredentials.fromJson(assets);
+        final responseData = jsonDecode(response.body);
+
+        if (responseData is List && responseData.isNotEmpty) {
+          return responseData.first as Map<String, dynamic>;
+        } else if (responseData is Map<String, dynamic>) {
+          return responseData;
+        } else {
+          print('DFX: Does not support this asset name : ${blockchain.fullName}');
+        }
+      } else {
+        print('DFX: Failed to fetch assets: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching assets: $e');
-      return null;
+      print('DFX: Error fetching assets: $e');
     }
-    return null;
+    return {};
   }
 
-  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String cryptoCurrency, String type) async {
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(
+      String fiatCurrency, String cryptoCurrency, String type) async {
     final List<PaymentMethod> paymentMethods = [];
 
     if (type == 'buy') {
-      final fiatBuyCredentials = await fetchFiatCurrencies(fiatCurrency);
-      if (fiatBuyCredentials != null) {
-        fiatBuyCredentials.limits.forEach((key, value) {
-          if (value.minVolume != 0 && value.maxVolume != 0) {
-            return paymentMethods.add(PaymentMethod.fromDFXJson({
-              'paymentTypeId': key,
-              'name': key,
-            }, value));
+      final fiatBuyCredentials = await fetchFiatCredentials(fiatCurrency);
+      if (fiatBuyCredentials.isNotEmpty) {
+        fiatBuyCredentials.forEach((key, value) {
+          if (key == 'limits') {
+            final limits = value as Map<String, dynamic>;
+            limits.forEach((paymentMethodKey, paymentMethodValue) {
+              final min = _toDouble(paymentMethodValue['minVolume']);
+              final max = _toDouble(paymentMethodValue['maxVolume']);
+              if (min != null && max != null && min > 0 && max > 0) {
+                final paymentMethod =
+                    PaymentMethod.fromDFX(paymentMethodKey, getPaymentType(paymentMethodKey));
+                paymentMethods.add(paymentMethod);
+              }
+            });
           }
         });
       }
     } else {
       //final assetBuyCredentials = await fetchAssets(assetsName: [fiatCurrency]);
     }
-
     return paymentMethods;
   }
 
-  Future<Quote?> fetchQuote({
-    required String sourceCurrency,
-    required String destinationCurrency,
-    required int amount,
-    required PaymentType paymentType,
-    required String type,
-    required String walletAddress,
-  }) async {
-    final paymentMethod = normalizePaymentMethod(paymentType);
-    if (paymentMethod == null) {
-      print('DFX Unsupported payment method: $paymentType');
-      return null;
-    }
+  Future<Quote?> fetchQuote(
+      {required String sourceCurrency,
+      required String destinationCurrency,
+      required int amount,
+      required PaymentType paymentType,
+      required String type,
+      required String walletAddress}) async {
+    var paymentMethod = normalizePaymentMethod(paymentType);
+    if (paymentMethod == null) paymentMethod = paymentType.name;
 
-    int? assetId;
+    final fiatCredentials = await fetchFiatCredentials(sourceCurrency);
+    if (fiatCredentials['id'] == null) return null;
 
-    final fiatCurrency = await fetchFiatCurrencies(sourceCurrency);
-    if (fiatCurrency == null) return null;
+    final assetCredentials = await fetchAssetCredential(destinationCurrency);
+    if (assetCredentials['id'] == null) return null;
+
+    print(
+        'DFX: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
     final url = Uri.parse('https://$_baseUrl/v1/buy/quote');
     final headers = {
@@ -289,10 +300,10 @@ class DFXBuyProvider extends BuyProvider {
     };
     final body = jsonEncode({
       'currency': {
-        'id': fiatCurrency.id,
+        'id': fiatCredentials['id'] as int,
       },
       'asset': {
-        'id': 113,
+        'id': assetCredentials['id'],
       },
       'amount': amount,
       'targetAmount': 0,
@@ -302,20 +313,24 @@ class DFXBuyProvider extends BuyProvider {
 
     try {
       final response = await http.put(url, headers: headers, body: body);
+      final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data is Map<String, dynamic>) {
-          final quote = Quote.fromDFXJson(data, ProviderType.dfx);
+        if (responseData is Map<String, dynamic>) {
+          final quote = Quote.fromDFXJson(responseData, ProviderType.dfx);
           quote.setSourceCurrency = sourceCurrency;
           quote.setDestinationCurrency = destinationCurrency;
           return quote;
         } else {
-          print('DFX Unexpected data type: ${data.runtimeType}');
+          print('DFX: Unexpected data type: ${responseData.runtimeType}');
           return null;
         }
       } else {
-        print('DFX Failed to fetch buy quote: ${response.statusCode}');
+        if (responseData is Map<String, dynamic> && responseData.containsKey('message')) {
+          print('DFX Error: ${responseData['message']}');
+        } else {
+          print('DFX Failed to fetch buy quote: ${response.statusCode}');
+        }
         return null;
       }
     } catch (e) {
@@ -326,14 +341,36 @@ class DFXBuyProvider extends BuyProvider {
 
   String? normalizePaymentMethod(PaymentType paymentMethod) {
     switch (paymentMethod) {
+      case PaymentType.bankTransfer:
+        return 'Bank';
       case PaymentType.creditCard:
         return 'Card';
-      case PaymentType.debitCard:
-        return 'Bank';
       case PaymentType.sepa:
         return 'Instant';
       default:
         return null;
     }
+  }
+
+  PaymentType getPaymentType(String? paymentMethod) {
+    switch (paymentMethod) {
+      case 'Bank':
+        return PaymentType.bankTransfer;
+      case 'Card':
+        return PaymentType.creditCard;
+      case 'Instant':
+        return PaymentType.sepa;
+      default:
+        return PaymentType.unknown;
+    }
+  }
+
+  double? _toDouble(dynamic value) {
+    if (value is int) {
+      return value.toDouble();
+    } else if (value is double) {
+      return value;
+    }
+    return null;
   }
 }

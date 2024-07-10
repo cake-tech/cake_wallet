@@ -36,14 +36,11 @@ class MeldBuyProvider extends BuyProvider {
   bool get isAggregator => true;
 
   @override
-  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String cryptoCurrency, String type) async {
-    final params = {
-      'fiatCurrencies': fiatCurrency,
-      'statuses': 'LIVE,RECENTLY_ADDED,BUILDING',
-    };
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(
+      String fiatCurrency, String cryptoCurrency, String type) async {
+    final params = {'fiatCurrencies': fiatCurrency, 'statuses': 'LIVE,RECENTLY_ADDED,BUILDING'};
 
     final path = '$_providersProperties$_paymentMethodsPath';
-
     final url = Uri.https(_basTestUrl, path, params);
 
     try {
@@ -63,11 +60,11 @@ class MeldBuyProvider extends BuyProvider {
             data.map((e) => PaymentMethod.fromMeldJson(e as Map<String, dynamic>)).toList();
         return paymentMethods;
       } else {
-        print('Failed to fetch Meld payment types');
+        print('Meld: Failed to fetch payment types');
         return List<PaymentMethod>.empty();
       }
     } catch (e) {
-      print('Failed to fetch Meld payment types: $e');
+      print('Meld: Failed to fetch payment types: $e');
       return List<PaymentMethod>.empty();
     }
   }
@@ -80,6 +77,13 @@ class MeldBuyProvider extends BuyProvider {
     required String type,
     required String walletAddress,
   }) async {
+
+    var paymentMethod = normalizePaymentMethod(paymentType);
+    if (paymentMethod == null) paymentMethod = paymentType.name;
+
+    print(
+        'Meld: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
+
     final url = Uri.https(_basTestUrl, _quotePath);
     final headers = {
       'Authorization': _testApiKey,
@@ -88,10 +92,11 @@ class MeldBuyProvider extends BuyProvider {
       'content-type': 'application/json',
     };
     final body = jsonEncode({
-      'countryCode': 'US',
+      'countryCode': 'US',//TODO: get from user
       'destinationCurrencyCode': destinationCurrency,
       'sourceAmount': amount,
       'sourceCurrencyCode': sourceCurrency,
+      'paymentMethodType' : paymentMethod,
     });
 
     try {
@@ -111,6 +116,47 @@ class MeldBuyProvider extends BuyProvider {
     } catch (e) {
       print('Error fetching buy quote: $e');
       return null;
+    }
+  }
+
+  String? normalizePaymentMethod(PaymentType paymentType) {
+    switch (paymentType) {
+      case PaymentType.creditCard:
+        return 'CREDIT_DEBIT_CARD';
+      case PaymentType.applePay:
+        return 'APPLE_PAY';
+      case PaymentType.googlePay:
+        return 'GOOGLE_PAY';
+      case PaymentType.neteller:
+        return 'NETELLER';
+      case PaymentType.skrill:
+        return 'SKRILL';
+      case PaymentType.sepa:
+        return 'SEPA';
+      case PaymentType.sepaInstant:
+        return 'SEPA_INSTANT';
+      case PaymentType.ach:
+        return 'ACH';
+      case PaymentType.achInstant:
+        return 'INSTANT_ACH';
+      case PaymentType.Khipu:
+        return 'KHIPU';
+      case PaymentType.ovo:
+        return 'OVO';
+      case PaymentType.zaloPay:
+        return 'ZALOPAY';
+      case PaymentType.zaloBankTransfer:
+        return 'ZA_BANK_TRANSFER';
+      case PaymentType.gcash:
+        return 'GCASH';
+      case PaymentType.imps:
+        return 'IMPS';
+      case PaymentType.dana:
+        return 'DANA';
+      case PaymentType.ideal:
+        return 'IDEAL';
+      default:
+        return null;
     }
   }
 

@@ -53,7 +53,7 @@ class Quote extends SelectableOption {
       : null;
 
   @override
-  String? get rightSubTitle => this.ramp != null ? 'Provider: $ramp' : null;
+  String? get rightSubTitle => this.ramp;
 
   void set setIsSelected(bool isSelected) => this.isSelected = isSelected;
 
@@ -66,10 +66,11 @@ class Quote extends SelectableOption {
 
   factory Quote.fromOnramperJson(Map<String, dynamic> json, ProviderType providerType) {
     final networkFee = json['networkFee'] as double? ?? 0.0;
-    final transactionFee = (json['transactionFee'] as int?)?.toDouble() ?? 0.0;
+    final transactionFee = _toDouble(json['transactionFee']) ?? 0.0;
+    final feeAmount = double.parse((networkFee + transactionFee).toStringAsFixed(2));
     return Quote(
       rate: json['rate'] as double? ?? 0.0,
-      feeAmount: networkFee + transactionFee,
+      feeAmount: feeAmount,
       networkFee: networkFee,
       transactionFee: transactionFee,
       payout: json['payout'] as double? ?? 0.0,
@@ -120,5 +121,14 @@ class Quote extends SelectableOption {
       paymentMethod: quotes['paymentMethodType'] as String? ?? '',
       provider: ProvidersHelper.getProviderByType(providerType),
     );
+  }
+
+  static double? _toDouble(dynamic value) {
+    if (value is int) {
+      return value.toDouble();
+    } else if (value is double) {
+      return value;
+    }
+    return null;
   }
 }
