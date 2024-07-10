@@ -167,7 +167,6 @@ jobs:
         run: |
           cd /opt/android/cake_wallet/build/linux/x64/release
           zip -r ${{env.BRANCH_NAME}}.zip bundle
-          cp ${{env.BRANCH_NAME}}.zip test-apk/${{env.BRANCH_NAME}}.zip
 
       - name: Upload Artifact
         uses: kittaakos/upload-artifact-as-is@v0
