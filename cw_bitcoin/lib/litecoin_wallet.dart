@@ -271,8 +271,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (!(tx.inputAddresses?.contains(utxo.address) ?? false)) addressRecord.txCount++;
       addressRecord.balance += utxo.value.toInt();
       addressRecord.setAsUsed();
+
+      // update the unconfirmed balance when a new tx is added:
+      await updateBalance();
     }
-    print("BEING ADDED HERE@@@@@@@@@@@@@@@@@@@@@@@");
     transactionHistory.addOne(tx);
   }
 
