@@ -110,19 +110,19 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   ObservableMap<CryptoCurrency, LightningBalance> get balance => _balance;
 
   static Future<Uint8List> toSeedBytes(String mnemonic) async {
-    // force bip39:
-    var seedBytes = await bip39.mnemonicToSeed(mnemonic);
-    print(seedBytes);
-    return seedBytes;
-    // // electrum:
-    // if (validateMnemonic(mnemonic)) {
-    //   return await mnemonicToSeedBytes(mnemonic);
-    //   // bip39:
-    // } else if (bip39.validateMnemonic(mnemonic)) {
-    //   return await bip39.mnemonicToSeed(mnemonic);
-    // } else {
-    //   throw Exception("Invalid mnemonic!");
-    // }
+    // // force bip39:
+    // var seedBytes = await bip39.mnemonicToSeed(mnemonic);
+    // print(seedBytes);
+    // return seedBytes;
+    // electrum:
+    if (validateMnemonic(mnemonic)) {
+      return await mnemonicToSeedBytes(mnemonic);
+      // bip39:
+    } else if (bip39.validateMnemonic(mnemonic)) {
+      return await bip39.mnemonicToSeed(mnemonic);
+    } else {
+      throw Exception("Invalid mnemonic!");
+    }
   }
 
   static Future<LightningWallet> create(
