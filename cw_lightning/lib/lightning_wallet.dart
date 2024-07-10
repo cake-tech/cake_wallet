@@ -498,8 +498,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
   Future<int> getEstimatedFeeWithFeeRate(int feeRate, int? amount) async {
     try {
-      if (amount == null || amount == 0) {
-        amount = 1000000;
+      if (amount == null) {
+        amount = 0;
       }
 
       PrepareOnchainPaymentResponse prepareRes = await _sdk.prepareOnchainPayment(
@@ -525,8 +525,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     try {
       if (priority is LightningTransactionPriority) {
         switch (priority) {
-          case LightningTransactionPriority.custom:
-            return 0;
           case LightningTransactionPriority.economy:
             return recommendedFees.economyFee;
           case LightningTransactionPriority.fastest:
@@ -537,6 +535,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
             return recommendedFees.hourFee;
           case LightningTransactionPriority.minimum:
             return recommendedFees.minimumFee;
+          case LightningTransactionPriority.custom:
+            throw Exception("Use getEstimatedFeeWithFeeRate instead!");
         }
       }
 

@@ -55,7 +55,7 @@ abstract class LightningSendViewModelBase with Store {
 
   @action
   Future<void> fetchFees() async {
-    recommendedFees = await _sdk.recommendedFees();
+    lightning!.fetchFees(wallet);
   }
 
   @observable
@@ -66,15 +66,6 @@ abstract class LightningSendViewModelBase with Store {
 
   @observable
   int maxSats = 0;
-
-  @observable
-  BZG.RecommendedFees recommendedFees = BZG.RecommendedFees(
-    economyFee: 0,
-    fastestFee: 0,
-    halfHourFee: 0,
-    hourFee: 0,
-    minimumFee: 0,
-  );
 
   @action
   void setLoading(bool value) {
