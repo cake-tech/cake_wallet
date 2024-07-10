@@ -75,4 +75,51 @@ class CWLightning extends Lightning {
   void clearIncomingPayments(Object wallet) {
     (wallet as LightningWallet).incomingPayments = {};
   }
+
+  @override
+  String lightningTransactionPriorityWithLabel(TransactionPriority priority, int rate,
+          {int? customRate}) =>
+      (priority as LightningTransactionPriority).labelWithRate(rate, customRate);
+
+  @override
+  List<TransactionPriority> getTransactionPriorities() => LightningTransactionPriority.all;
+
+  @override
+  TransactionPriority getLightningTransactionPriorityCustom() =>
+      LightningTransactionPriority.custom;
+
+  @override
+  int getFeeRate(Object wallet, TransactionPriority priority) {
+    final lightningWallet = wallet as LightningWallet;
+    return lightningWallet.feeRate(priority);
+  }
+
+  @override
+  int getMaxCustomFeeRate(Object wallet) {
+    final lightningWallet = wallet as LightningWallet;
+    return (lightningWallet.feeRate(LightningTransactionPriority.fastest) * 10).round();
+  }
+
+  @override
+  Future<void> fetchFees(Object wallet) async {
+    await (wallet as LightningWallet).fetchFees();
+  }
+
+  @override
+  Future<int> calculateEstimatedFeeAsync(
+      Object wallet, TransactionPriority? priority, int? amount) async {
+    return await (wallet as LightningWallet).calculateEstimatedFeeAsync(priority, amount);
+  }
+
+  @override
+  Future<int> getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount) async {
+    return await (wallet as LightningWallet).getEstimatedFeeWithFeeRate(feeRate, amount);
+  }
+
+  @override
+  TransactionPriority getDefaultTransactionPriority() => LightningTransactionPriority.economy;
+
+  @override
+  TransactionPriority deserializeLightningTransactionPriority({required int raw}) =>
+      LightningTransactionPriority.deserialize(raw: raw);
 }

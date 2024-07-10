@@ -9,7 +9,6 @@ import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -54,6 +53,11 @@ abstract class LightningSendViewModelBase with Store {
     maxSats = currentLimits.maxSat;
   }
 
+  @action
+  Future<void> fetchFees() async {
+    recommendedFees = await _sdk.recommendedFees();
+  }
+
   @observable
   bool loading = false;
 
@@ -62,6 +66,15 @@ abstract class LightningSendViewModelBase with Store {
 
   @observable
   int maxSats = 0;
+
+  @observable
+  BZG.RecommendedFees recommendedFees = BZG.RecommendedFees(
+    economyFee: 0,
+    fastestFee: 0,
+    halfHourFee: 0,
+    hourFee: 0,
+    minimumFee: 0,
+  );
 
   @action
   void setLoading(bool value) {
@@ -77,56 +90,74 @@ abstract class LightningSendViewModelBase with Store {
   bool get isFiatDisabled => settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   TransactionPriority get transactionPriority {
-    final priority = settingsStore.priority[WalletType.bitcoin];
+    final priority = settingsStore.priority[WalletType.lightning];
 
     if (priority == null) {
-      throw Exception('Unexpected type ${WalletType.bitcoin}');
+      throw Exception('Unexpected type ${WalletType.lightning}');
     }
 
     return priority;
   }
 
   int? getCustomPriorityIndex(List<TransactionPriority> priorities) {
-    final customItem = priorities
-        .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
+    final customItem = priorities.firstWhereOrNull(
+        (element) => element == lightning!.getLightningTransactionPriorityCustom());
 
     return customItem != null ? priorities.indexOf(customItem) : null;
   }
 
   Future<int?> get maxCustomFeeRate async {
-    await (wallet as ElectrumWallet).updateFeeRates();
-    return bitcoin!.getMaxCustomFeeRate(wallet);
+    await lightning!.fetchFees(wallet);
+    return lightning!.getMaxCustomFeeRate(wallet);
   }
 
   @action
-  void setTransactionPriority(TransactionPriority priority) =>
-      settingsStore.priority[WalletType.bitcoin] = priority;
+  void setTransactionPriority(TransactionPriority priority) {
+    settingsStore.priority[WalletType.lightning] = priority;
+    estimateFeeSats();
+  }
 
   String displayFeeRate(dynamic priority, int? customValue) {
     final _priority = priority as TransactionPriority;
 
-    final rate = bitcoin!.getFeeRate(wallet, _priority);    
+    final rate = lightning!.getFeeRate(wallet, _priority);
 
-    return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
+    return lightning!
+        .lightningTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
   }
 
-  int get estimatedFeeSats {
-    int formattedCryptoAmount = satAmount;
-    int? fee = wallet.calculateEstimatedFee(
-        settingsStore.priority[WalletType.bitcoin]!, formattedCryptoAmount);
+  @observable
+  int estimatedFeeSats = 0;
 
-    if (settingsStore.priority[WalletType.bitcoin] ==
-        bitcoin!.getBitcoinTransactionPriorityCustom()) {
-      fee = bitcoin!.getEstimatedFeeWithFeeRate(
-          wallet, settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
+  @observable
+  String estimatedFeeFiatAmount = "";
+
+  @action
+  Future<void> estimateFeeSats() async {
+    int formattedCryptoAmount = satAmount;
+    int? fee = await lightning!.calculateEstimatedFeeAsync(
+      wallet,
+      settingsStore.priority[WalletType.lightning]!,
+      formattedCryptoAmount,
+    );
+
+    if (settingsStore.priority[WalletType.lightning] ==
+        lightning!.getLightningTransactionPriorityCustom()) {
+      fee = await lightning!.getEstimatedFeeWithFeeRate(
+        wallet,
+        settingsStore.customBitcoinFeeRate,
+        formattedCryptoAmount,
+      );
     }
 
-    return (bitcoin!.formatterBitcoinAmountToDouble(amount: fee) * 100000000).round();
+    estimatedFeeSats = (bitcoin!.formatterBitcoinAmountToDouble(amount: fee) * 100000000).round();
+    estimatedFeeFiatAmount = formattedFiatAmount(estimatedFeeSats);
   }
 
   @action
   void setCryptoAmount(int sats) {
     satAmount = sats;
+    estimateFeeSats();
   }
 
   String formattedFiatAmount(int sats) {
@@ -137,9 +168,9 @@ abstract class LightningSendViewModelBase with Store {
     return amount;
   }
 
-  String get estimatedFeeFiatAmount {
-    return formattedFiatAmount(estimatedFeeSats);
-  }
+  // String estimatedFeeFiatAmount async {
+  //   return formattedFiatAmount(await estimatedFeeSats);
+  // }
 
   @action
   Future<void> sendInvoice(BZG.LNInvoice invoice, int satAmount) async {
@@ -183,19 +214,20 @@ abstract class LightningSendViewModelBase with Store {
 
       late int feeRate;
 
-      if (settingsStore.priority[WalletType.bitcoin] ==
-          bitcoin!.getBitcoinTransactionPriorityCustom()) {
+      if (settingsStore.priority[WalletType.lightning] ==
+          lightning!.getLightningTransactionPriorityCustom()) {
         feeRate = settingsStore.customBitcoinFeeRate;
       } else {
-        feeRate = bitcoin!.getFeeRate(wallet, settingsStore.priority[WalletType.bitcoin]!);
+        feeRate = lightning!.getFeeRate(wallet, settingsStore.priority[WalletType.lightning]!);
       }
 
-      BZG.PrepareOnchainPaymentRequest prep = BZG.PrepareOnchainPaymentRequest(
-        amountSat: satAmount,
-        amountType: BZG.SwapAmountType.Send,
-        claimTxFeerate: feeRate,
+      BZG.PrepareOnchainPaymentResponse prepareRes = await _sdk.prepareOnchainPayment(
+        req: BZG.PrepareOnchainPaymentRequest(
+          amountSat: satAmount,
+          amountType: BZG.SwapAmountType.Send,
+          claimTxFeerate: feeRate,
+        ),
       );
-      BZG.PrepareOnchainPaymentResponse prepareRes = await _sdk.prepareOnchainPayment(req: prep);
 
       print("Sender amount: ${prepareRes.senderAmountSat} sats");
       print("Recipient amount: ${prepareRes.recipientAmountSat} sats");

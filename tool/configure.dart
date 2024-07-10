@@ -998,6 +998,7 @@ abstract class Polygon {
 Future<void> generateLightning(bool hasImplementation) async {
   final outputFile = File(lightningOutputPath);
   const lightningCommonHeaders = """
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -1012,6 +1013,7 @@ import 'package:intl/intl.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_lightning/lightning_wallet_service.dart';
 import 'package:cw_lightning/lightning_receive_page_option.dart';
+import 'package:cw_lightning/lightning_transaction_priority.dart';
 """;
   const lightningCwPart = "part 'cw_lightning.dart';";
   const lightningContent = """
@@ -1031,6 +1033,16 @@ abstract class Lightning {
   double lightningDoubleToBitcoinDouble({required double amount});
   Map<String, int> getIncomingPayments(Object wallet);
   void clearIncomingPayments(Object wallet);
+  String lightningTransactionPriorityWithLabel(TransactionPriority priority, int rate, {int? customRate});
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority getLightningTransactionPriorityCustom();
+  int getFeeRate(Object wallet, TransactionPriority priority);
+  int getMaxCustomFeeRate(Object wallet);
+  Future<void> fetchFees(Object wallet);
+  Future<int> calculateEstimatedFeeAsync(Object wallet, TransactionPriority? priority, int? amount);
+  Future<int> getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount);
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority deserializeLightningTransactionPriority({required int raw});
 }
   """;
 

@@ -327,7 +327,7 @@ class LightningSendConfirmPage extends BasePage {
                 children: <Widget>[
                   Observer(
                     builder: (context) {
-                      if (lightningSendViewModel.maxSats > lightningSendViewModel.minSats) {
+                      if (lightningSendViewModel.maxSats > lightningSendViewModel.minSats || true) {
                         return LoadingPrimaryButton(
                           text: S.of(context).send,
                           onPressed: () async {
@@ -360,10 +360,11 @@ class LightningSendConfirmPage extends BasePage {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertWithOneAction(
-                                        alertTitle: S.of(context).error,
-                                        alertContent: e.toString(),
-                                        buttonText: S.of(context).ok,
-                                        buttonAction: () => Navigator.of(context).pop());
+                                      alertTitle: S.of(context).error,
+                                      alertContent: e.toString(),
+                                      buttonText: S.of(context).ok,
+                                      buttonAction: () => Navigator.of(context).pop(),
+                                    );
                                   });
                             }
                           },
@@ -426,26 +427,8 @@ class LightningSendConfirmPage extends BasePage {
     return false;
   }
 
-  void _setEffects(BuildContext context) {
-    if (_effectsInstalled) {
-      return;
-    }
-
-    lightningSendViewModel.fetchLimits();
-
-    _amountController.addListener(() {
-      final amount = _amountController.text;
-      if (amount.isNotEmpty) {
-        _fiatAmountController.text = lightningSendViewModel.formattedFiatAmount(int.parse(amount));
-        lightningSendViewModel.setCryptoAmount(int.parse(amount));
-      }
-    });
-
-    _effectsInstalled = true;
-  }
-
   Future<void> pickTransactionPriority(BuildContext context) async {
-    final items = priorityForWalletType(WalletType.bitcoin);
+    final items = priorityForWalletType(WalletType.lightning);
     final selectedItem = items.indexOf(lightningSendViewModel.transactionPriority);
     final customItemIndex = lightningSendViewModel.getCustomPriorityIndex(items);
     double? maxCustomFeeRate = (await lightningSendViewModel.maxCustomFeeRate)?.toDouble();
@@ -459,8 +442,10 @@ class LightningSendConfirmPage extends BasePage {
           builder: (BuildContext context, StateSetter setState) {
             return Picker(
               items: items,
-              displayItem: (TransactionPriority priority) =>
-                  lightningSendViewModel.displayFeeRate(priority, customFeeRate?.round()),
+              displayItem: (TransactionPriority priority) => lightningSendViewModel.displayFeeRate(
+                priority,
+                customFeeRate?.round(),
+              ),
               selectedAtIndex: selectedIdx,
               customItemIndex: customItemIndex,
               maxValue: maxCustomFeeRate,
@@ -480,5 +465,25 @@ class LightningSendConfirmPage extends BasePage {
       },
     );
     lightningSendViewModel.customBitcoinFeeRate = customFeeRate!.round();
+  }
+
+  void _setEffects(BuildContext context) {
+    if (_effectsInstalled) {
+      return;
+    }
+
+    lightningSendViewModel.fetchLimits();
+    lightningSendViewModel.fetchFees();
+    lightningSendViewModel.estimateFeeSats();
+
+    _amountController.addListener(() {
+      final amount = _amountController.text;
+      if (amount.isNotEmpty) {
+        _fiatAmountController.text = lightningSendViewModel.formattedFiatAmount(int.parse(amount));
+        lightningSendViewModel.setCryptoAmount(int.parse(amount));
+      }
+    });
+
+    _effectsInstalled = true;
   }
 }

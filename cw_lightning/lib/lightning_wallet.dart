@@ -13,9 +13,11 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_lightning/lightning_balance.dart';
 import 'package:cw_lightning/lightning_transaction_info.dart';
+import 'package:cw_lightning/lightning_transaction_priority.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
@@ -100,10 +102,15 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   @override
   String get seed => mnemonic;
 
-  // @observable
-  // ObservableList<int> incomingPayments = ObservableList<int>();
-
   Map<String, int> incomingPayments = <String, int>{};
+
+  RecommendedFees recommendedFees = RecommendedFees(
+    economyFee: 0,
+    fastestFee: 0,
+    halfHourFee: 0,
+    hourFee: 0,
+    minimumFee: 0,
+  );
 
   @override
   @computed
@@ -320,6 +327,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     try {
       syncStatus = AttemptingSyncStatus();
       await updateTransactions();
+      await fetchFees();
       syncStatus = SyncedSyncStatus();
     } catch (e) {
       print(e);
@@ -349,18 +357,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
-    this.node = node;
-
-    try {
-      syncStatus = ConnectingSyncStatus();
-      await electrumClient.close();
-      electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
-      await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
-    } catch (e) {
-      print(e.toString());
-      syncStatus = FailedSyncStatus();
-    }
-
     try {
       syncStatus = ConnectingSyncStatus();
       await updateTransactions();
@@ -369,8 +365,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       print(e);
       syncStatus = FailedSyncStatus();
     }
-
-    super.updateFeeRates();
   }
 
   @override
@@ -492,5 +486,67 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     } catch (e, s) {
       print("Error stopping breez: $e\n$s");
     }
+  }
+
+  Future<int> calculateEstimatedFeeAsync(TransactionPriority? priority, int? amount) async {
+    if (priority is LightningTransactionPriority) {
+      int feeRate = this.feeRate(priority);
+      return getEstimatedFeeWithFeeRate(feeRate, amount);
+    }
+    return 0;
+  }
+
+  Future<int> getEstimatedFeeWithFeeRate(int feeRate, int? amount) async {
+    try {
+      if (amount == null || amount == 0) {
+        amount = 1000000;
+      }
+
+      PrepareOnchainPaymentResponse prepareRes = await _sdk.prepareOnchainPayment(
+        req: PrepareOnchainPaymentRequest(
+          amountSat: amount,
+          amountType: SwapAmountType.Send,
+          claimTxFeerate: feeRate,
+        ),
+      );
+
+      print("Sender amount: ${prepareRes.senderAmountSat} sats");
+      print("Recipient amount: ${prepareRes.recipientAmountSat} sats");
+      print("Total fees: ${prepareRes.totalFees} sats");
+      return prepareRes.totalFees;
+    } catch (e) {
+      print("Error calculating fee: $e");
+      return 0;
+    }
+  }
+
+  @override
+  int feeRate(TransactionPriority priority) {
+    try {
+      if (priority is LightningTransactionPriority) {
+        switch (priority) {
+          case LightningTransactionPriority.custom:
+            return 0;
+          case LightningTransactionPriority.economy:
+            return recommendedFees.economyFee;
+          case LightningTransactionPriority.fastest:
+            return recommendedFees.fastestFee;
+          case LightningTransactionPriority.halfhour:
+            return recommendedFees.halfHourFee;
+          case LightningTransactionPriority.hour:
+            return recommendedFees.hourFee;
+          case LightningTransactionPriority.minimum:
+            return recommendedFees.minimumFee;
+        }
+      }
+
+      return 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  Future<void> fetchFees() async {
+    recommendedFees = await _sdk.recommendedFees();
   }
 }
