@@ -278,7 +278,7 @@ void _restoreFromSpendKey(Map<String, dynamic> args) {
 Future<void> _openWallet(Map<String, String> args) async => loadWallet(
     path: args['path'] as String, password: args['password'] as String);
 
-Future<bool> _isWalletExist(String path) async => isWalletExistSync(path: path);
+bool _isWalletExist(String path) => isWalletExistSync(path: path);
 
 void openWallet(
         {required String path,

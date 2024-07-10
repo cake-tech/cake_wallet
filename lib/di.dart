@@ -907,7 +907,7 @@ Future<void> setup({
             _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.nano:
       case WalletType.banano:
-        return nano!.createNanoWalletService(_walletInfoSource);
+        return nano!.createNanoWalletService(_walletInfoSource, true);
       case WalletType.polygon:
         return polygon!.createPolygonWalletService(
             _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
@@ -915,7 +915,7 @@ Future<void> setup({
         return solana!.createSolanaWalletService(
             _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.tron:
-        return tron!.createTronWalletService(_walletInfoSource);
+        return tron!.createTronWalletService(_walletInfoSource, true);
       case WalletType.wownero:
         return wownero!.createWowneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.none:

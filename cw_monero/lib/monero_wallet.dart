@@ -53,7 +53,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     MoneroTransactionHistory, MoneroTransactionInfo> with Store {
   MoneroWalletBase(
       {required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo})
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required String password})
       : balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
           CryptoCurrency.xmr: MoneroBalance(
               fullBalance: monero_wallet.getFullBalance(accountIndex: 0),

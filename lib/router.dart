@@ -90,6 +90,7 @@ import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';

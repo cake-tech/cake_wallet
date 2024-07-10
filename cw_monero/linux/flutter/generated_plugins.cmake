@@ -3,13 +3,9 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  devicelocale
-  flutter_local_authentication
-  url_launcher_linux
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
-  sp_scanner
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)
