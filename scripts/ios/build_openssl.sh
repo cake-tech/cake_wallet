@@ -12,6 +12,8 @@ git clone $OPEN_SSL_URL $OPEN_SSL_DIR_PATH
 cd $OPEN_SSL_DIR_PATH
 ./build-libssl.sh --version=1.1.1q --targets="ios-cross-arm64" --deprecated
 
-mv ${OPEN_SSL_DIR_PATH}/include/* $EXTERNAL_IOS_INCLUDE_DIR
+# copy and then remove because mv is not working when there is subdirectories
+cp -R ${OPEN_SSL_DIR_PATH}/include/* $EXTERNAL_IOS_INCLUDE_DIR
+rm -rf ${OPEN_SSL_DIR_PATH}/include/
 mv ${OPEN_SSL_DIR_PATH}/lib/libcrypto-iOS.a ${EXTERNAL_IOS_LIB_DIR}/libcrypto.a
 mv ${OPEN_SSL_DIR_PATH}/lib/libssl-iOS.a ${EXTERNAL_IOS_LIB_DIR}/libssl.a

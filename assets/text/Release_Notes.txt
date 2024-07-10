@@ -1,2 +1,3 @@
-Bitcoin Silent Payments
-Bug fixes and generic enhancements
+Monero enhancements
+Improvements for Tron and Nano wallets
+Bug fixes

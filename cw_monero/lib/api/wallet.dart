@@ -43,7 +43,16 @@ String getSeed() {
   return legacy;
 }
 
-String getAddress({int accountIndex = 0, int addressIndex = 1}) =>
+String getSeedLegacy(String? language) {
+  var legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  if (monero.Wallet_status(wptr!) != 0) {
+    monero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
+    legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  }
+  return legacy;
+}
+
+String getAddress({int accountIndex = 0, int addressIndex = 0}) =>
     monero.Wallet_address(wptr!,
         accountIndex: accountIndex, addressIndex: addressIndex);
 
@@ -103,9 +112,6 @@ void startRefreshSync() {
   monero.Wallet_startRefresh(wptr!);
 }
 
-Future<bool> connectToNode() async {
-  return true;
-}
 
 void setRefreshFromBlockHeight({required int height}) =>
     monero.Wallet_setRefreshFromBlockHeight(wptr!,
@@ -118,7 +124,7 @@ final storeMutex = Mutex();
 void storeSync() async {
   await storeMutex.acquire();
   final addr = wptr!.address;
-  Isolate.run(() {
+  await Isolate.run(() {
     monero.Wallet_store(Pointer.fromAddress(addr));
   });
   storeMutex.release();

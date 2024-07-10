@@ -7,7 +7,7 @@ The following are the system requirements to build CakeWallet for your iOS devic
 ```
 macOS >= 14.0 
 Xcode 15.3
-Flutter 3.10.x
+Flutter 3.19.x
 ```
 
 ## Building CakeWallet on iOS
@@ -30,7 +30,7 @@ You may download and install the latest version of [Xcode](https://developer.app
 
 ### 3. Installing Flutter
 
-Need to install flutter with version `3.10.x`. For this please check section [Install Flutter](https://docs.flutter.dev/get-started/install/macos/mobile-ios?tab=download).
+Need to install flutter with version `3.19.x`. For this please check section [Install Flutter](https://docs.flutter.dev/get-started/install/macos/mobile-ios?tab=download).
 
 ### 4. Verify Installations
 
@@ -41,7 +41,7 @@ Verify that the Flutter and Xcode have been correctly installed on your system w
 The output of this command will appear like this, indicating successful installations. If there are problems with your installation, they **must** be corrected before proceeding.
 ```
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 3.10.x, on macOS 14.x.x)
+[✓] Flutter (Channel stable, 3.19.x, on macOS 14.x.x)
 [✓] Xcode - develop for iOS and macOS (Xcode 15.3)
 ```
 

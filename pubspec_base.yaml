@@ -59,8 +59,6 @@ dependencies:
     git:
       url: https://github.com/cake-tech/flutter_file_picker.git
       ref: master
-  unorm_dart: ^0.2.0
-  # check unorm_dart for usage and for replace
   permission_handler: ^10.0.0
   device_display_brightness:
     git:
@@ -99,7 +97,7 @@ dependencies:
 #      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
-  polyseed: ^0.0.4
+  polyseed: ^0.0.5
   nostr_tools: ^1.0.9
   solana: ^0.30.1
   bitcoin_base:
@@ -107,6 +105,7 @@ dependencies:
       url: https://github.com/cake-tech/bitcoin_base
       ref: cake-update-v3
   ledger_flutter: ^1.0.1
+  hashlib: 1.12.0
 
 dev_dependencies:
   flutter_test:
@@ -164,6 +163,7 @@ flutter:
     - assets/polygon_node_list.yml
     - assets/solana_node_list.yml
     - assets/tron_node_list.yml
+    - assets/wownero_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

@@ -2,12 +2,12 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_ro
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -52,11 +52,7 @@ class TransactionsPage extends StatelessWidget {
                       try {
                         final uri = Uri.parse(
                             "https://guides.cakewallet.com/docs/FAQ/why_are_my_funds_not_appearing/");
-                        if (DeviceInfo.instance.isMobile) {
-                          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: ['', uri]);
-                        } else {
-                          launchUrl(uri);
-                        }
+                          launchUrl(uri, mode: LaunchMode.externalApplication);
                       } catch (_) {}
                     },
                     title: S.of(context).syncing_wallet_alert_title,
@@ -87,6 +83,10 @@ class TransactionsPage extends StatelessWidget {
                           }
 
                           final transaction = item.transaction;
+                          final transactionType = dashboardViewModel.type == WalletType.ethereum &&
+                              transaction.evmSignatureName == 'approval'
+                              ? ' (${transaction.evmSignatureName})'
+                              : '';
 
                           return Observer(
                             builder: (_) => TransactionRow(
@@ -100,7 +100,8 @@ class TransactionsPage extends StatelessWidget {
                                       ? ''
                                       : item.formattedFiatAmount,
                               isPending: transaction.isPending,
-                              title: item.formattedTitle + item.formattedStatus,
+                              title: item.formattedTitle +
+                                  item.formattedStatus + ' $transactionType',
                             ),
                           );
                         }

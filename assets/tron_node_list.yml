@@ -1,8 +1,12 @@
 -
   uri: tron-rpc.publicnode.com:443
-  is_default: true
+  is_default: false
   useSSL: true
 -
   uri: api.trongrid.io
   is_default: false
+  useSSL: true
+- 
+  uri: trx.nownodes.io
+  is_default: true
   useSSL: true

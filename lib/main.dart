@@ -111,7 +111,6 @@ Future<void> main() async {
 Future<void> initializeAppConfigs() async {
   setRootDirFromEnv();
   final appDir = await getAppDir();
-  await CakeHive.close();
   CakeHive.init(appDir.path);
 
   if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
@@ -209,7 +208,7 @@ Future<void> initializeAppConfigs() async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 34,
+    initialMigrationVersion: 39,
   );
 }
 
