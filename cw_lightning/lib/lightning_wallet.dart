@@ -92,6 +92,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   StreamSubscription<List<Payment>>? _paymentsSub;
   StreamSubscription<NodeState?>? _nodeStateSub;
   StreamSubscription<LogEntry>? _logStream;
+  StreamSubscription<InvoicePaidDetails>? _invoiceSub;
   late final BreezSDK _sdk;
 
   late final Uint8List seedBytes;
@@ -110,17 +111,18 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
   static Future<Uint8List> toSeedBytes(String mnemonic) async {
     // force bip39:
-    // return await bip39.mnemonicToSeed(mnemonic);
-
-    // electrum:
-    if (validateMnemonic(mnemonic)) {
-      return await mnemonicToSeedBytes(mnemonic);
-      // bip39:
-    } else if (bip39.validateMnemonic(mnemonic)) {
-      return await bip39.mnemonicToSeed(mnemonic);
-    } else {
-      throw Exception("Invalid mnemonic!");
-    }
+    var seedBytes = await bip39.mnemonicToSeed(mnemonic);
+    print(seedBytes);
+    return seedBytes;
+    // // electrum:
+    // if (validateMnemonic(mnemonic)) {
+    //   return await mnemonicToSeedBytes(mnemonic);
+    //   // bip39:
+    // } else if (bip39.validateMnemonic(mnemonic)) {
+    //   return await bip39.mnemonicToSeed(mnemonic);
+    // } else {
+    //   throw Exception("Invalid mnemonic!");
+    // }
   }
 
   static Future<LightningWallet> create(
@@ -186,6 +188,21 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   Future<void> _handlePayments(List<Payment> payments) async {
     _isTransactionUpdating = true;
     final txs = convertToTxInfo(payments);
+    await alertIncomingTxs(txs);
+    transactionHistory.addMany(txs);
+    _isTransactionUpdating = false;
+  }
+
+  Future<void> _handleInvoicePaid(InvoicePaidDetails details) async {
+    print("HANDLING INVOICE PAID");
+    print(details);
+    _isTransactionUpdating = true;
+
+    if (details.payment == null) {
+      return;
+    }
+
+    final txs = convertToTxInfo([details.payment!]);
     await alertIncomingTxs(txs);
     transactionHistory.addMany(txs);
     _isTransactionUpdating = false;
@@ -278,6 +295,11 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       _handlePayments(payments);
     });
     await _handlePayments(await _sdk.listPayments(req: ListPaymentsRequest()));
+
+    await _invoiceSub?.cancel();
+    _invoiceSub = _sdk.invoicePaidStream.listen((InvoicePaidDetails details) {
+      _handleInvoicePaid(details);
+    });
 
     print("initialized breez: ${(await _sdk.isInitialized())}");
   }
@@ -392,9 +414,15 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       if (tx.paymentType == PaymentType.ClosedChannel) {
         continue;
       }
+
+      bool pending = tx.status == PaymentStatus.Pending;
+      if (tx.status == PaymentStatus.Complete) {
+        pending = false;
+      }
+
       bool isSend = tx.paymentType == PaymentType.Sent;
       transactions[tx.id] = LightningTransactionInfo(
-        isPending: false,
+        isPending: pending,
         id: tx.id,
         amount: tx.amountMsat ~/ 1000,
         fee: tx.feeMsat ~/ 1000,
