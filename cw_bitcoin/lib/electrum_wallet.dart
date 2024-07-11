@@ -1170,7 +1170,7 @@ abstract class ElectrumWalletBase
     await updateAllUnspents();
 
     if (unspentCoinsInfo.isEmpty) {
-      unspentCoins.forEach((coin) => _addCoinInfo(coin));
+      unspentCoins.forEach((coin) => addCoinInfo(coin));
       return;
     }
 
@@ -1190,7 +1190,7 @@ abstract class ElectrumWalletBase
           if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
             coin.bitcoinAddressRecord.balance += coinInfo.value;
         } else {
-          _addCoinInfo(coin);
+          addCoinInfo(coin);
         }
       });
     }
@@ -1222,7 +1222,7 @@ abstract class ElectrumWalletBase
           if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
             coin.bitcoinAddressRecord.balance += coinInfo.value;
         } else {
-          _addCoinInfo(coin);
+          addCoinInfo(coin);
         }
       });
     }
@@ -1249,7 +1249,7 @@ abstract class ElectrumWalletBase
   }
 
   @action
-  Future<void> _addCoinInfo(BitcoinUnspent coin) async {
+  Future<void> addCoinInfo(BitcoinUnspent coin) async {
     final newInfo = UnspentCoinsInfo(
       walletId: id,
       hash: coin.hash,

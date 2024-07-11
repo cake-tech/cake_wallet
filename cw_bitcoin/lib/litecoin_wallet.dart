@@ -481,6 +481,36 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         unconfirmed += utxo.value.toInt();
       }
     });
+
+    // update unspent balances:
+
+    // reset coin balances to 0:
+    unspentCoins.forEach((coin) {
+      if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
+        coin.bitcoinAddressRecord.balance = 0;
+    });
+
+    unspentCoins.forEach((coin) {
+      final coinInfoList = unspentCoinsInfo.values.where(
+        (element) =>
+            element.walletId.contains(id) &&
+            element.hash.contains(coin.hash) &&
+            element.vout == coin.vout,
+      );
+
+      if (coinInfoList.isNotEmpty) {
+        final coinInfo = coinInfoList.first;
+
+        coin.isFrozen = coinInfo.isFrozen;
+        coin.isSending = coinInfo.isSending;
+        coin.note = coinInfo.note;
+        if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
+          coin.bitcoinAddressRecord.balance += coinInfo.value;
+      } else {
+        super.addCoinInfo(coin);
+      }
+    });
+
     return ElectrumBalance(confirmed: confirmed, unconfirmed: unconfirmed, frozen: balance.frozen);
   }
 
