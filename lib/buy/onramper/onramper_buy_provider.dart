@@ -119,10 +119,10 @@ class OnRamperBuyProvider extends BuyProvider {
   }
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
-      String fiatCurrency, String cryptoCurrency, String type) async {
+      String fiatCurrency, String cryptoCurrency, bool isBuyAction) async {
     final params = {
       'fiatCurrency': fiatCurrency,
-      'type': type,
+      'type': isBuyAction ? 'buy' : 'sell',
       'isRecurringPayment': 'false',
     };
 
@@ -160,7 +160,7 @@ class OnRamperBuyProvider extends BuyProvider {
     required String destinationCurrency,
     required int amount,
     required PaymentType paymentType,
-    required String type,
+    required bool isBuyAction,
     required String walletAddress,
   }) async {
     var paymentMethod = normalizePaymentMethod(paymentType);
@@ -171,7 +171,7 @@ class OnRamperBuyProvider extends BuyProvider {
       'paymentMethod': paymentMethod,
       'uuid': 'acad3928-556f-48a1-a478-4e2ec76700cd',
       'clientName': 'CakeWallet',
-      'type': type,
+      'type': isBuyAction ? 'buy' : 'sell',
       'walletAddress': walletAddress,
       'isRecurringPayment': 'false',
       'input': 'source',

@@ -247,10 +247,10 @@ class DFXBuyProvider extends BuyProvider {
   }
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
-      String fiatCurrency, String cryptoCurrency, String type) async {
+      String fiatCurrency, String cryptoCurrency, bool isBuyAction) async {
     final List<PaymentMethod> paymentMethods = [];
 
-    if (type == 'buy') {
+    if (isBuyAction) {
       final fiatBuyCredentials = await fetchFiatCredentials(fiatCurrency);
       if (fiatBuyCredentials.isNotEmpty) {
         fiatBuyCredentials.forEach((key, value) {
@@ -279,7 +279,7 @@ class DFXBuyProvider extends BuyProvider {
       required String destinationCurrency,
       required int amount,
       required PaymentType paymentType,
-      required String type,
+      required bool isBuyAction,
       required String walletAddress}) async {
     var paymentMethod = normalizePaymentMethod(paymentType);
     if (paymentMethod == null) paymentMethod = paymentType.name;

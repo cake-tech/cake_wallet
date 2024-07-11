@@ -230,7 +230,7 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'buy/meld/meld_buy_provider.dart';
-import 'src/screens/buy/buy_sell_page.dart';
+import 'src/screens/buy/new_buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
 
 final getIt = GetIt.instance;

@@ -85,9 +85,10 @@ class Quote extends SelectableOption {
     final fee = json['feeAmount'] as double? ?? 0.0;
     final networkFee = json['networkFeeAmount'] as double? ?? 0.0;
     final transactionFee = (json['extraFeeAmount'] as int?)?.toDouble() ?? 0.0;
+    final feeAmount = double.parse((fee + networkFee + transactionFee).toStringAsFixed(2));
     return Quote(
       rate: json['quoteCurrencyPrice'] as double? ?? 0.0,
-      feeAmount: fee + networkFee + transactionFee,
+      feeAmount: feeAmount,
       networkFee: networkFee,
       transactionFee: transactionFee,
       payout: json['quoteCurrencyAmount'] as double? ?? 0.0,

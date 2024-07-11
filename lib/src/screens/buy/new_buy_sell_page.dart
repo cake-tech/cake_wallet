@@ -1,5 +1,6 @@
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
+import 'package:cake_wallet/buy/sell_buy_states.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/di.dart';
@@ -154,56 +155,8 @@ class BuySellPage extends BasePage {
                   builder: (_) => Column(
                     children: <Widget>[
                       _exchangeCardsSection(context),
-                      if (buySellViewModel.selectedPaymentMethod != null)
-                        Observer(builder: (_) {
-                          return Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                              child: OptionTile(
-                                imagePath: buySellViewModel.selectedPaymentMethod!.iconPath,
-                                title: buySellViewModel.selectedPaymentMethod!.title,
-                                leftSubTitle: '',
-                                onPressed: () => _pickPaymentMethod(context),
-                                leadingIcon: Icons.arrow_forward_ios,
-                                borderRadius: 24,
-                                padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
-                                titleTextStyle: textLargeBold(
-                                    color:
-                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                              ));
-                        }),
-                      if (buySellViewModel.selectedQuote != null)
-                        Observer(builder: (_) {
-                          final selectedQuote = buySellViewModel.selectedQuote!;
-                          return Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-                              child: OptionTile(
-                                imagePath: selectedQuote.provider!.lightIcon,
-                                title: selectedQuote.provider!.title,
-                                firstBadgeName: selectedQuote.firstBadgeName,
-                                secondBadgeName: selectedQuote.secondBadgeName,
-                                leftSubTitle: selectedQuote.leftSubTitle,
-                                leftSubTitleMaxLines: 1,
-                                leftSubTitleTextStyle: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                                ),
-                                rightSubTitle: selectedQuote.rightSubTitle,
-                                onPressed: () {
-                                  Navigator.of(context).pushNamed(Routes.selectOptions, arguments: [
-                                    'S.of(context).payment_methods',
-                                    buySellViewModel.sortedAvailableQuotes,
-                                    buySellViewModel.changeOption
-                                  ]);
-                                },
-                                leadingIcon: Icons.arrow_forward_ios,
-                                borderRadius: 24,
-                                padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
-                                titleTextStyle: textLargeBold(
-                                    color:
-                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                              ));
-                        })
+                      _buildPaymentMethodTile(context),
+                      if (buySellViewModel.selectedQuote != null) _quoteTile(context),
                     ],
                   ),
                 ),
@@ -220,6 +173,69 @@ class BuySellPage extends BasePage {
                 ]),
               )),
         ));
+  }
+
+  Widget _buildPaymentMethodTile(BuildContext context) {
+    if (buySellViewModel.paymentMethodState is PaymentMethodLoading) {
+      return OptionTilePlaceholder(context, Center(child: CircularProgressIndicator()));
+    } else if (buySellViewModel.paymentMethodState is PaymentMethodFailed) {
+      return OptionTilePlaceholder(context, Center(child: Text('Failed to load payment methods')));
+    } else if (buySellViewModel.paymentMethodState is PaymentMethodLoaded &&
+        buySellViewModel.selectedPaymentMethod != null) {
+      return Observer(builder: (_) {
+        final selectedPaymentMethod = buySellViewModel.selectedPaymentMethod!;
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+          child: OptionTile(
+            imagePath: selectedPaymentMethod.iconPath,
+            title: selectedPaymentMethod.title,
+            leftSubTitle: selectedPaymentMethod.description,
+            onPressed: () => _pickPaymentMethod(context),
+            leadingIcon: Icons.arrow_forward_ios,
+            borderRadius: 24,
+            padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
+            titleTextStyle:
+                textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+          ),
+        );
+      });
+    } else {
+      return OptionTilePlaceholder(context, Container());
+    }
+  }
+
+  Widget _quoteTile(BuildContext context) {
+    return Observer(builder: (_) {
+      final selectedQuote = buySellViewModel.selectedQuote!;
+      return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+          child: OptionTile(
+            imagePath: selectedQuote.provider!.lightIcon,
+            title: selectedQuote.provider!.title,
+            firstBadgeName: selectedQuote.firstBadgeName,
+            secondBadgeName: selectedQuote.secondBadgeName,
+            leftSubTitle: selectedQuote.leftSubTitle,
+            leftSubTitleMaxLines: 1,
+            leftSubTitleTextStyle: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+            ),
+            rightSubTitle: selectedQuote.rightSubTitle,
+            onPressed: () {
+              Navigator.of(context).pushNamed(Routes.selectOptions, arguments: [
+                'S.of(context).payment_methods',
+                buySellViewModel.sortedAvailableQuotes,
+                buySellViewModel.changeOption
+              ]);
+            },
+            leadingIcon: Icons.arrow_forward_ios,
+            borderRadius: 24,
+            padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
+            titleTextStyle:
+                textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+          ));
+    });
   }
 
   void _pickPaymentMethod(BuildContext context) async {
@@ -280,7 +296,7 @@ class BuySellPage extends BasePage {
     });
 
     fiatAmountController.addListener(() {
-      if (fiatAmountController.text != buySellViewModel.cryptoAmount) {
+      if (fiatAmountController.text != buySellViewModel.fiatAmount) {
         _cryptoAmountDebounce.run(() {
           buySellViewModel.changeFiatAmount(amount: fiatAmountController.text);
           buySellViewModel.isCryptoAmountEntered = true;
@@ -334,7 +350,7 @@ class BuySellPage extends BasePage {
   void disposeBestRateSync() => {};
 
   Widget _exchangeCardsSection(BuildContext context) {
-    final firstExchangeCard = Observer(
+    final fiatExchangeCard = Observer(
         builder: (_) => ExchangeCard(
               onDispose: disposeBestRateSync,
               hasAllAmount: false,
@@ -372,7 +388,7 @@ class BuySellPage extends BasePage {
               onPushAddressBookButton: (context) async {},
             ));
 
-    final secondExchangeCard = Observer(
+    final cryptoExchangeCard = Observer(
         builder: (_) => ExchangeCard(
               onDispose: disposeBestRateSync,
               amountFocusNode: _cryptoAmountFocus,
@@ -407,16 +423,62 @@ class BuySellPage extends BasePage {
             ));
 
     if (responsiveLayoutUtil.shouldRenderMobileUI) {
-      return MobileExchangeCardsSection(
-        firstExchangeCard: firstExchangeCard,
-        secondExchangeCard: secondExchangeCard,
-        isBuySellOption: true,
+      return Observer(
+        builder: (_) {
+          if (buySellViewModel.isBuyAction) {
+            return MobileExchangeCardsSection(
+              firstExchangeCard: fiatExchangeCard,
+              secondExchangeCard: cryptoExchangeCard,
+              onBuyTap: () =>
+                  !buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
+              onSellTap: () =>
+                  buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
+              isBuySellOption: true,
+            );
+          } else {
+            return MobileExchangeCardsSection(
+              firstExchangeCard: cryptoExchangeCard,
+              secondExchangeCard: fiatExchangeCard,
+              onBuyTap: () =>
+                  !buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
+              onSellTap: () =>
+                  buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
+              isBuySellOption: true,
+            );
+          }
+        },
       );
     }
 
-    return DesktopExchangeCardsSection(
-      firstExchangeCard: firstExchangeCard,
-      secondExchangeCard: secondExchangeCard,
+    return Observer(
+      builder: (_) {
+        if (buySellViewModel.isBuyAction) {
+          return DesktopExchangeCardsSection(
+            firstExchangeCard: cryptoExchangeCard,
+            secondExchangeCard: fiatExchangeCard,
+          );
+        } else {
+          return DesktopExchangeCardsSection(
+            firstExchangeCard: fiatExchangeCard,
+            secondExchangeCard: cryptoExchangeCard,
+          );
+        }
+      },
+    );
+  }
+
+  Widget OptionTilePlaceholder(BuildContext context, Widget child) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+      child: Container(
+        height: 100,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          color: Theme.of(context).cardColor,
+        ),
+        child: child,
+      ),
     );
   }
 }

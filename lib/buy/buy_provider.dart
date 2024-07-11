@@ -40,7 +40,7 @@ abstract class BuyProvider {
       throw UnimplementedError();
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
-          String fiatCurrency, String cryptoCurrency, String type) async =>
+          String fiatCurrency, String cryptoCurrency, bool isBuyAction) async =>
       [];
 
   Future<Quote?> fetchQuote({
@@ -48,7 +48,7 @@ abstract class BuyProvider {
     required String destinationCurrency,
     required int amount,
     required PaymentType paymentType,
-    required String type,
+    required bool isBuyAction,
     required String walletAddress,
   }) async =>
       null;

@@ -114,7 +114,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
-import 'src/screens/buy/buy_sell_page.dart';
+import 'src/screens/buy/new_buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
 late RouteSettings currentRouteSettings;
