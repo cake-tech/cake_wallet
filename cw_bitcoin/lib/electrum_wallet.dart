@@ -1230,9 +1230,16 @@ abstract class ElectrumWalletBase
 
   @action
   Future<List<BitcoinUnspent>> fetchUnspent(BitcoinAddressRecord address) async {
-    final unspents = await electrumClient.getListUnspent(address.getScriptHash(network));
-
+    List<Map<String, dynamic>> unspents = [];
     List<BitcoinUnspent> updatedUnspentCoins = [];
+
+    try {
+      unspents = await electrumClient.getListUnspent(address.getScriptHash(network));
+    } catch (e, s) {
+      print(e);
+      print(s);
+      return [];
+    }
 
     await Future.wait(unspents.map((unspent) async {
       try {

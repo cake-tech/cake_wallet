@@ -216,7 +216,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     transactionHistory.clear();
     mwebUtxosHeight = height;
     await walletInfo.updateRestoreHeight(height);
-    // processMwebUtxos();
     print("STARTING SYNC");
     await startSync();
   }
@@ -268,10 +267,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       final addressRecord = walletAddresses.allAddresses
           .firstWhereOrNull((addressRecord) => addressRecord.address == utxo.address);
       if (addressRecord == null) {
-        print("addressRecord is null! TODO: handle this case 1");
         return;
       }
-      if (!(tx.inputAddresses?.contains(utxo.address) ?? false)) addressRecord.txCount++;
+      if (!(tx.inputAddresses?.contains(utxo.address) ?? false)) {
+        addressRecord.txCount++;
+      }
       addressRecord.balance += utxo.value.toInt();
       addressRecord.setAsUsed();
 
@@ -287,6 +287,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     print("SCANNING FROM HEIGHT: $restoreHeight");
     final req = UtxosRequest(scanSecret: hex.decode(scanSecret), fromHeight: restoreHeight);
     bool initDone = false;
+
+    // reset address balances and tx counts:
+    walletAddresses.allAddresses.forEach((addressRecord) {
+      addressRecord.balance = 0;
+      addressRecord.txCount = 0;
+    });
 
     for (final utxo in mwebUtxosBox.values) {
       if (utxo.address.isEmpty) {
@@ -318,6 +324,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         outputId: sUtxo.outputId,
         value: sUtxo.value.toInt(),
       );
+
+      if (mwebUtxosBox.containsKey(utxo.outputId)) {
+        // we've already stored this utxo, skip it:
+        continue;
+      }
 
       if (utxo.address.isEmpty) {
         await updateUnspent();
@@ -488,6 +499,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     unspentCoins.forEach((coin) {
       if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
         coin.bitcoinAddressRecord.balance = 0;
+      coin.bitcoinAddressRecord.txCount = 0;
     });
 
     unspentCoins.forEach((coin) {
