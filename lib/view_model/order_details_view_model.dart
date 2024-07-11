@@ -19,7 +19,7 @@ class OrderDetailsViewModel = OrderDetailsViewModelBase
 
 abstract class OrderDetailsViewModelBase with Store {
   OrderDetailsViewModelBase({required WalletBase wallet, required Order orderForDetails})
-  : items = ObservableList<StandartListItem>(), 
+  : items = ObservableList<StandartListItem>(),
     order = orderForDetails {
     if (order.provider != null) {
       switch (order.provider) {
@@ -101,13 +101,13 @@ abstract class OrderDetailsViewModelBase with Store {
             TrackTradeListItem(
                 title: S.current.track,
                 value: buildURL,
-                onTap: () {
+                onTap: () async {
                   try {
-                    launch(buildURL);
+                    final uri = Uri.parse(buildURL);
+                    if (await canLaunchUrl(uri))
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
                   } catch (e) {}
-                }
-            )
-        );
+                }));
       }
     }
 

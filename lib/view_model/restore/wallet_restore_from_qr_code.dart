@@ -36,6 +36,9 @@ class WalletRestoreFromQRCode {
     'tron': WalletType.tron,
     'tron-wallet': WalletType.tron,
     'tron_wallet': WalletType.tron,
+    'wownero': WalletType.wownero,
+    'wownero-wallet': WalletType.wownero,
+    'wownero_wallet': WalletType.wownero,
   };
 
   static bool _containsAssetSpecifier(String code) => _extractWalletType(code) != null;
@@ -57,7 +60,9 @@ class WalletRestoreFromQRCode {
     RegExp _getPattern(int wordCount) =>
         RegExp(r'(?<=\W|^)((?:\w+\s+){' + (wordCount - 1).toString() + r'}\w+)(?=\W|$)');
 
-    List<int> patternCounts = walletType == WalletType.monero ? [25, 16, 14, 13] : [24, 18, 12];
+    List<int> patternCounts = walletType == WalletType.monero || walletType == WalletType.wownero
+        ? [25, 16, 14, 13]
+        : [24, 18, 12];
 
     for (final count in patternCounts) {
       final pattern = _getPattern(count);
@@ -132,7 +137,8 @@ class WalletRestoreFromQRCode {
       final seedValue = credentials['seed'] as String;
       final words = SeedValidator.getWordList(type: type, language: 'english');
 
-      if (type == WalletType.monero && Polyseed.isValidSeed(seedValue)) {
+      if ((type == WalletType.monero || type == WalletType.wownero) &&
+          Polyseed.isValidSeed(seedValue)) {
         return WalletRestoreMode.seed;
       }
 

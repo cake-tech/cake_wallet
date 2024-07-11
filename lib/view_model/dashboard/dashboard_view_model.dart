@@ -48,6 +48,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'dashboard_view_model.g.dart';
 
@@ -303,6 +304,7 @@ abstract class DashboardViewModelBase with Store {
   bool get hasRescan =>
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.wownero ||
       wallet.type == WalletType.haven;
 
   @computed
@@ -374,7 +376,8 @@ abstract class DashboardViewModelBase with Store {
         .toList();
   }
 
-  bool get hasSellProviders => ProvidersHelper.getAvailableSellProviderTypes(wallet.type).isNotEmpty;
+  bool get hasSellProviders =>
+      ProvidersHelper.getAvailableSellProviderTypes(wallet.type).isNotEmpty;
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
@@ -532,6 +535,14 @@ abstract class DashboardViewModelBase with Store {
   @action
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
+  Future<List<String>> checkForHavenWallets() async {
+    final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+    return walletInfoSource.values
+        .where((element) => element.type == WalletType.haven)
+        .map((e) => e.name)
+        .toList();
+  }
+
   Future<List<String>> checkAffectedWallets() async {
     try {
       // await load file
@@ -570,29 +581,34 @@ abstract class DashboardViewModelBase with Store {
   Future<ServicesResponse> getServicesStatus() async {
     try {
       if (isEnabledBulletinAction) {
-          final res = await http.get(Uri.parse("https://service-api.cakewallet.com/v1/active-notices"));
+        final uri = Uri.https(
+          "service-api.cakewallet.com",
+          "/v1/active-notices",
+          {'key': secrets.fiatApiKey},
+        );
 
-          if (res.statusCode < 200 || res.statusCode >= 300) {
-            throw res.body;
-          }
+        final res = await http.get(uri);
 
-          final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
-
-          final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
-          final currentSha = bytesToHex(hash.bytes);
-
-          final hasUpdates = oldSha != currentSha;
-
-          return ServicesResponse.fromJson(
-            json.decode(res.body) as Map<String, dynamic>,
-            hasUpdates,
-            currentSha,
-          );
-      }
-      else {
-          return ServicesResponse([], false, '');
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          throw res.body;
         }
-    } catch (_) {
+
+        final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
+
+        final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
+        final currentSha = bytesToHex(hash.bytes);
+
+        final hasUpdates = oldSha != currentSha;
+
+        return ServicesResponse.fromJson(
+          json.decode(res.body) as Map<String, dynamic>,
+          hasUpdates,
+          currentSha,
+        );
+      } else {
+        return ServicesResponse([], false, '');
+      }
+    } catch (e) {
       return ServicesResponse([], false, '');
     }
   }

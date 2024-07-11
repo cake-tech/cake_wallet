@@ -3,13 +3,30 @@ import 'dart:io';
 import 'utils/secret_key.dart';
 import 'utils/utils.dart';
 
-const configPath = 'tool/.secrets-config.json';
+const baseConfigPath = 'tool/.secrets-config.json';
 const evmChainsConfigPath = 'tool/.evm-secrets-config.json';
 const solanaConfigPath = 'tool/.solana-secrets-config.json';
 const nanoConfigPath = 'tool/.nano-secrets-config.json';
 const tronConfigPath = 'tool/.tron-secrets-config.json';
 
 Future<void> main(List<String> args) async => generateSecretsConfig(args);
+
+Future<void> writeConfig(
+  File configFile,
+  List<SecretKey> newSecrets, {
+  Map<String, dynamic>? existingSecrets,
+}) async {
+  final secrets = existingSecrets ?? <String, dynamic>{};
+  newSecrets.forEach((sec) {
+    if (secrets[sec.name] != null) {
+      return;
+    }
+    secrets[sec.name] = sec.generate();
+  });
+  String secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
+  await configFile.writeAsString(secretsJson);
+  secrets.clear();
+}
 
 Future<void> generateSecretsConfig(List<String> args) async {
   final extraInfo = args.fold(<String, dynamic>{}, (Map<String, dynamic> acc, String arg) {
@@ -19,7 +36,7 @@ Future<void> generateSecretsConfig(List<String> args) async {
     return acc;
   });
 
-  final configFile = File(configPath);
+  final baseConfigFile = File(baseConfigPath);
   final evmChainsConfigFile = File(evmChainsConfigPath);
   final solanaConfigFile = File(solanaConfigPath);
   final nanoConfigFile = File(nanoConfigPath);
@@ -32,70 +49,21 @@ Future<void> generateSecretsConfig(List<String> args) async {
     if (key.contains('--')) {
       return true;
     }
-
     return false;
   });
 
-  if (configFile.existsSync()) {
+  if (baseConfigFile.existsSync()) {
     if (extraInfo['--force'] == 1) {
-      await configFile.delete();
+      await baseConfigFile.delete();
     } else {
       return;
     }
   }
-
-  // base:
-  SecretKey.base.forEach((sec) {
-    if (secrets[sec.name] != null) {
-      return;
-    }
-    secrets[sec.name] = sec.generate();
-  });
-  var secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-  await configFile.writeAsString(secretsJson);
-  secrets.clear();
-
-  // evm chains:
-  SecretKey.evmChainsSecrets.forEach((sec) {
-    if (secrets[sec.name] != null) {
-      return;
-    }
-    secrets[sec.name] = sec.generate();
-  });
-  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-  await evmChainsConfigFile.writeAsString(secretsJson);
-  secrets.clear();
-
-  // solana:
-  SecretKey.solanaSecrets.forEach((sec) {
-    if (secrets[sec.name] != null) {
-      return;
-    }
-    secrets[sec.name] = sec.generate();
-  });
-  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-  await solanaConfigFile.writeAsString(secretsJson);
-  secrets.clear();
-
-  // nano:
-  SecretKey.nanoSecrets.forEach((sec) {
-    if (secrets[sec.name] != null) {
-      return;
-    }
-    secrets[sec.name] = sec.generate();
-  });
-  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-  await nanoConfigFile.writeAsString(secretsJson);
-  secrets.clear();
-
-  SecretKey.tronSecrets.forEach((sec) {
-    if (secrets[sec.name] != null) {
-      return;
-    }
-
-    secrets[sec.name] = sec.generate();
-  });
-  secretsJson = JsonEncoder.withIndent(' ').convert(secrets);
-  await tronConfigFile.writeAsString(secretsJson);
-  secrets.clear();
+  
+  await writeConfig(baseConfigFile, SecretKey.base, existingSecrets: secrets);
+  
+  await writeConfig(evmChainsConfigFile, SecretKey.evmChainsSecrets);
+  await writeConfig(solanaConfigFile, SecretKey.solanaSecrets);
+  await writeConfig(nanoConfigFile, SecretKey.nanoSecrets);
+  await writeConfig(tronConfigFile, SecretKey.tronSecrets);
 }

@@ -332,7 +332,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                           width: prefixIconWidth,
                                           height: prefixIconHeight,
                                           child: InkWell(
-                                            onTap: () async => output.setSendAll(),
+                                            onTap: () async {
+                                              output.setSendAll(sendViewModel.balance);
+                                            },
                                             child: Container(
                                               decoration: BoxDecoration(
                                                 color: Theme.of(context)
