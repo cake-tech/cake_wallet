@@ -79,6 +79,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
+    CwMweb.stub().then((value) {
+      _stub = value;
+    });
   }
 
   final bitcoin.HDWallet mwebHd;
@@ -86,6 +89,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Timer? _syncTimer;
   // late int lastMwebUtxosHeight;
   int mwebUtxosHeight = 0;
+  late RpcClient _stub;
 
   static Future<LitecoinWallet> create(
       {required String mnemonic,
@@ -152,12 +156,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> startSync() async {
     await super.startSync();
-    final stub = await CwMweb.stub();
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
       final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
-      final resp = await stub.status(StatusRequest());
+      final resp = await _stub.status(StatusRequest());
       // print("stats:");
       // print("???????????????????");
       // print(resp.blockHeaderHeight);
@@ -279,7 +282,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> processMwebUtxos() async {
-    final stub = await CwMweb.stub();
     final scanSecret = mwebHd.derive(0x80000000).privKey!;
     int restoreHeight = walletInfo.restoreHeight;
     print("SCANNING FROM HEIGHT: $restoreHeight");
@@ -296,7 +298,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         continue;
       }
 
-      await handleIncoming(utxo, stub);
+      await handleIncoming(utxo, _stub);
 
       if (initDone) {
         await updateUnspent();
@@ -308,7 +310,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    await for (Utxo sUtxo in stub.utxos(req)) {
+    await for (Utxo sUtxo in _stub.utxos(req)) {
       final utxo = MwebUtxo(
         address: sUtxo.address,
         blockTime: sUtxo.blockTime,
@@ -331,7 +333,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       await mwebUtxosBox.put(utxo.outputId, utxo);
 
-      await handleIncoming(utxo, stub);
+      await handleIncoming(utxo, _stub);
     }
   }
 
@@ -343,11 +345,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final outputIds =
         mwebUtxosBox.values.where((utxo) => utxo.height > 0).map((utxo) => utxo.outputId).toList();
 
-    final stub = await CwMweb.stub();
-    final resp = await stub.spent(SpentRequest(outputId: outputIds));
+    final resp = await _stub.spent(SpentRequest(outputId: outputIds));
     final spent = resp.outputId;
     if (spent.isEmpty) return;
-    final status = await stub.status(StatusRequest());
+    final status = await _stub.status(StatusRequest());
     final height = await electrumClient.getCurrentBlockChainTip();
     if (height == null || status.blockHeaderHeight != height) return;
     if (status.mwebUtxosHeight != height) return;
@@ -405,11 +406,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         target.add(outputId);
       }
     }
-    if (outputId.isEmpty) return false;
-    final stub = await CwMweb.stub();
-    final resp = await stub.spent(SpentRequest(outputId: outputId));
+    if (outputId.isEmpty) {
+      return false;
+    }
+    final resp = await _stub.spent(SpentRequest(outputId: outputId));
     if (!setEquals(resp.outputId.toSet(), target)) return false;
-    final status = await stub.status(StatusRequest());
+    final status = await _stub.status(StatusRequest());
     if (!tx.isPending) return false;
     tx.height = status.mwebUtxosHeight;
     tx.confirmations = 1;
@@ -422,6 +424,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<void> updateUnspent() async {
     await super.updateUnspent();
     await checkMwebUtxosSpent();
+  }
+
+  @override
+  @action
+  Future<void> updateAllUnspents() async {
+    List<BitcoinUnspent> updatedUnspentCoins = [];
+
+    await Future.wait(walletAddresses.allAddresses.map((address) async {
+      updatedUnspentCoins.addAll(await fetchUnspent(address));
+    }));
+
+    // update mweb unspents:
     final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
     mwebUtxosBox.keys.forEach((dynamic oId) {
       final String outputId = oId as String;
@@ -436,11 +450,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       final addressRecord = walletAddresses.allAddresses
           .firstWhereOrNull((addressRecord) => addressRecord.address == utxo.address);
 
-      // print("^^^^^^^^^^^^^^^^^^");
-      // print(utxo.address);
-      // for (var a in walletAddresses.allAddresses) {
-      //   print(a.address);
-      // }
       if (addressRecord == null) {
         print("addressRecord is null! TODO: handle this case2");
         return;
@@ -454,8 +463,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (unspent.vout == 0) {
         unspent.isChange = true;
       }
-      unspentCoins.add(unspent);
+      updatedUnspentCoins.add(unspent);
     });
+
+    unspentCoins = updatedUnspentCoins;
   }
 
   @override
@@ -524,8 +535,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final fee = utxos.sumOfUtxosValue() - preOutputSum;
     final txb =
         BitcoinTransactionBuilder(utxos: utxos, outputs: outputs, fee: fee, network: network);
-    final stub = await CwMweb.stub();
-    final resp = await stub.create(CreateRequest(
+    final resp = await _stub.create(CreateRequest(
         rawTx: txb.buildTransaction((a, b, c, d) => '').toBytes(),
         scanSecret: hex.decode(mwebHd.derive(0x80000000).privKey!),
         spendSecret: hex.decode(mwebHd.derive(0x80000001).privKey!),
@@ -560,8 +570,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     try {
       final tx = await super.createTransaction(credentials) as PendingBitcoinTransaction;
 
-      final stub = await CwMweb.stub();
-      final resp = await stub.create(CreateRequest(
+      final resp = await _stub.create(CreateRequest(
         rawTx: hex.decode(tx.hex),
         scanSecret: hex.decode(mwebHd.derive(0x80000000).privKey!),
         spendSecret: hex.decode(mwebHd.derive(0x80000001).privKey!),
