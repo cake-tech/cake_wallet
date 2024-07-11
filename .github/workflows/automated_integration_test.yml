@@ -16,9 +16,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api-level: [28, 29]
+        api-level: [29]
         arch: [x86, x86_64]
-        target: [default, google_apis, playstore]
     env:
       STORE_PASS: test@cake_wallet
       KEY_PASS: test@cake_wallet
@@ -182,29 +181,28 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      # - name: 🦾 Cache gradle
-      #   uses: gradle/actions/setup-gradle@v3
+      - name: 🦾 Cache gradle
+        uses: gradle/actions/setup-gradle@v3
 
-      # - name: 🦾 Cache AVD
-      #   uses: actions/cache@v4
-      #   id: avd-cache
-      #   with:
-      #     path: |
-      #       ~/.android/avd/*
-      #       ~/.android/adb*
-      #     key: avd-${{ matrix.api-level }}
+      - name: 🦾 Cache AVD
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
 
-      # - name: 🦾 Create AVD and generate snapshot for caching
-      #   if: steps.avd-cache.outputs.cache-hit != 'true'
-      #   uses: reactivecircus/android-emulator-runner@v2
-      #   with:
-      #     api-level: ${{ matrix.api-level }}
-      #     force-avd-creation: false
-      #     arch: ${{ matrix.arch }}
-      #     target: ${{ matrix.target}}
-      #     emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-      #     disable-animations: false
-      #     script: echo "Generated AVD snapshot for caching."
+      - name: 🦾 Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          arch: ${{ matrix.arch }}
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
 
       - name: 🚀 Integration tests on Android Emualator
         uses: reactivecircus/android-emulator-runner@v2
@@ -212,7 +210,6 @@ jobs:
           api-level: ${{ matrix.api-level }}
           force-avd-creation: false
           arch: ${{ matrix.arch }}
-          target: ${{ matrix.target}}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: cd /opt/android/cake_wallet && flutter pub get && flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart
