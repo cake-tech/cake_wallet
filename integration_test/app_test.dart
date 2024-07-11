@@ -85,7 +85,7 @@ void main() {
 
       // ----------- NewWalletType Page -------------
       // Confirm scroll behaviour works properly
-      await newWalletTypePageRobot.findParticularWalletTypeInScrollableList(WalletType.wownero);
+      await newWalletTypePageRobot.findParticularWalletTypeInScrollableList(WalletType.solana);
 
       // Select a wallet and route to next page
       await newWalletTypePageRobot.selectWalletType(testWalletType);
