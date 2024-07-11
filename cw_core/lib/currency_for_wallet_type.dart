@@ -1,9 +1,12 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 
-CryptoCurrency currencyForWalletType(WalletType type) {
+CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
   switch (type) {
     case WalletType.bitcoin:
+      if (isTestnet == true) {
+        return CryptoCurrency.tbtc;
+      }
       return CryptoCurrency.btc;
     case WalletType.monero:
       return CryptoCurrency.xmr;
@@ -25,7 +28,9 @@ CryptoCurrency currencyForWalletType(WalletType type) {
       return CryptoCurrency.sol;
     case WalletType.tron:
       return CryptoCurrency.trx;
-    default:
+    case WalletType.wownero:
+      return CryptoCurrency.wow;
+    case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
   }

@@ -22,14 +22,14 @@ class DefaultTronTokens {
       symbol: "BTC",
       contractAddress: "TN3W4H6rK2ce4vX9YnFQHwKENnHjoxb3m9",
       decimal: 8,
-      enabled: true,
+      enabled: false,
     ),
     TronToken(
       name: "Ethereum",
       symbol: "ETH",
       contractAddress: "TRFe3hT5oYhjSZ6f3ji5FJ7YCfrkWnHRvh",
       decimal: 18,
-      enabled: true,
+      enabled: false,
     ),
     TronToken(
       name: "Wrapped BTC",

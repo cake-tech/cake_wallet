@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -7,11 +9,15 @@ import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/hardware/device_connection_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -22,6 +28,19 @@ class RestoreOptionsPage extends BasePage {
   String get title => S.current.restore_restore_wallet;
 
   final bool isNewInstall;
+
+  bool get _doesSupportHardwareWallets {
+    if (!DeviceInfo.instance.isMobile) {
+      return false;
+    }
+
+    if (isMoneroOnly) {
+      return DeviceConnectionType.supportedConnectionTypes(WalletType.monero, Platform.isIOS)
+          .isNotEmpty;
+    }
+
+    return true;
+  }
 
   @override
   Widget body(BuildContext context) {
@@ -56,17 +75,18 @@ class RestoreOptionsPage extends BasePage {
                       description: S.of(context).restore_description_from_backup,
                     ),
                   ),
-                Padding(
-                  padding: EdgeInsets.only(top: 24),
-                  child: OptionTile(
-                    onPressed: () => Navigator.pushNamed(
-                        context, Routes.restoreWalletFromHardwareWallet,
-                        arguments: isNewInstall),
-                    image: imageLedger,
-                    title: S.of(context).restore_title_from_hardware_wallet,
-                    description: S.of(context).restore_description_from_hardware_wallet,
+                if (_doesSupportHardwareWallets)
+                  Padding(
+                    padding: EdgeInsets.only(top: 24),
+                    child: OptionTile(
+                      onPressed: () => Navigator.pushNamed(
+                          context, Routes.restoreWalletFromHardwareWallet,
+                          arguments: isNewInstall),
+                      image: imageLedger,
+                      title: S.of(context).restore_title_from_hardware_wallet,
+                      description: S.of(context).restore_description_from_hardware_wallet,
+                    ),
                   ),
-                ),
                 Padding(
                   padding: EdgeInsets.only(top: 24),
                   child: OptionTile(

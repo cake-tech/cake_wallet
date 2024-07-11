@@ -54,7 +54,10 @@ enum WalletType {
   solana,
 
   @HiveField(11)
-  tron
+  tron,
+
+  @HiveField(12)
+  wownero,
 }
 
 int serializeToInt(WalletType type) {
@@ -81,7 +84,9 @@ int serializeToInt(WalletType type) {
       return 9;
     case WalletType.tron:
       return 10;
-    default:
+    case WalletType.wownero:
+      return 11;
+    case WalletType.none:
       return -1;
   }
 }
@@ -110,6 +115,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.solana;
     case 10:
       return WalletType.tron;
+    case 11:
+      return WalletType.wownero;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -139,7 +146,9 @@ String walletTypeToString(WalletType type) {
       return 'Solana';
     case WalletType.tron:
       return 'Tron';
-    default:
+    case WalletType.wownero:
+      return 'Wownero';
+    case WalletType.none:
       return '';
   }
 }
@@ -168,16 +177,21 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Solana (SOL)';
     case WalletType.tron:
       return 'Tron (TRX)';
-    default:
+    case WalletType.wownero:
+      return 'Wownero (WOW)';
+    case WalletType.none:
       return '';
   }
 }
 
-CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
+CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false}) {
   switch (type) {
     case WalletType.monero:
       return CryptoCurrency.xmr;
     case WalletType.bitcoin:
+      if (isTestnet) {
+        return CryptoCurrency.tbtc;
+      }
       return CryptoCurrency.btc;
     case WalletType.litecoin:
       return CryptoCurrency.ltc;
@@ -197,7 +211,9 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.sol;
     case WalletType.tron:
       return CryptoCurrency.trx;
-    default:
+    case WalletType.wownero:
+      return CryptoCurrency.wow;
+    case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }

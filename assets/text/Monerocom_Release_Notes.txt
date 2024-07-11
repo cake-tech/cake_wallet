@@ -1,1 +1,2 @@
-Generic bug fixes and enhancements
+Monero enhancements
+Bug fixes

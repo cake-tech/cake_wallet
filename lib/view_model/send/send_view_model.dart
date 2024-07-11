@@ -16,6 +16,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -139,8 +140,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   String get pendingTransactionFeeFiatAmount {
     try {
       if (pendingTransaction != null) {
-        final currency =
-            isEVMCompatibleChain(walletType) ? wallet.currency : selectedCryptoCurrency;
+        final currency = pendingTransactionFeeCurrency(walletType);
         final fiat = calculateFiatAmount(
             price: _fiatConversationStore.prices[currency]!,
             cryptoAmount: pendingTransaction!.feeFormatted);
@@ -150,6 +150,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
     } catch (_) {
       return '0.00';
+    }
+  }
+
+  CryptoCurrency pendingTransactionFeeCurrency(WalletType type) {
+    switch (type) {
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.tron:
+      case WalletType.solana:
+        return wallet.currency;
+      default:
+        return selectedCryptoCurrency;
     }
   }
 
@@ -218,7 +230,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       isFiatDisabled ? '' : pendingTransactionFeeFiatAmount + ' ' + fiat.title;
 
   @computed
-  bool get isReadyForSend => wallet.syncStatus is SyncedSyncStatus;
+  bool get isReadyForSend =>
+      wallet.syncStatus is SyncedSyncStatus ||
+      // If silent payments scanning, can still send payments
+      (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
 
   @computed
   List<Template> get templates => sendTemplateViewModel.templates
@@ -230,6 +245,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.wownero ||
       wallet.type == WalletType.bitcoinCash;
 
   @computed
@@ -247,7 +263,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type != WalletType.banano &&
       wallet.type != WalletType.solana &&
       wallet.type != WalletType.tron;
-      
+
   @observable
   CryptoCurrency selectedCryptoCurrency;
 
@@ -269,7 +285,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   final SendTemplateViewModel sendTemplateViewModel;
   final BalanceViewModel balanceViewModel;
   final ContactListViewModel contactListViewModel;
-  final LedgerViewModel ledgerViewModel;
+  final LedgerViewModel? ledgerViewModel;
   final FiatConversionStore _fiatConversationStore;
   final Box<TransactionDescription> transactionDescriptionBox;
 
@@ -363,8 +379,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     } catch (e) {
       if (e is LedgerException) {
         final errorCode = e.errorCode.toRadixString(16);
-        final fallbackMsg = e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
-        final errorMsg = ledgerViewModel.interpretErrorCode(errorCode) ?? fallbackMsg;
+        final fallbackMsg =
+            e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
+        final errorMsg = ledgerViewModel!.interpretErrorCode(errorCode) ?? fallbackMsg;
 
         state = FailureState(errorMsg);
       } else {
@@ -444,7 +461,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Object _credentials() {
     final priority = _settingsStore.priority[wallet.type];
 
-    if (priority == null && wallet.type != WalletType.nano && wallet.type != WalletType.banano && wallet.type != WalletType.solana  &&
+    if (priority == null &&
+        wallet.type != WalletType.nano &&
+        wallet.type != WalletType.banano &&
+        wallet.type != WalletType.solana &&
         wallet.type != WalletType.tron) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
@@ -459,6 +479,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.monero:
         return monero!
             .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+
+      case WalletType.wownero:
+        return wownero!
+            .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
       case WalletType.haven:
         return haven!.createHavenTransactionCreationCredentials(
@@ -570,10 +594,24 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return errorMessage;
     }
 
+    if (walletType == WalletType.tron) {
+      if (errorMessage.contains('balance is not sufficient')) {
+        return S.current.do_not_have_enough_gas_asset(currency.toString());
+      }
+
+      if (errorMessage.contains('Transaction expired')) {
+        return 'An error occurred while processing the transaction. Please retry the transaction';
+      }
+    }
+
     if (walletType == WalletType.bitcoin ||
         walletType == WalletType.litecoin ||
         walletType == WalletType.bitcoinCash) {
       if (error is TransactionWrongBalanceException) {
+        if (error.amount != null)
+          return S.current
+              .tx_wrong_balance_with_amount_exception(currency.toString(), error.amount.toString());
+
         return S.current.tx_wrong_balance_exception(currency.toString());
       }
       if (error is TransactionNoInputsException) {
@@ -600,8 +638,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (error is TransactionCommitFailedVoutNegative) {
         return S.current.tx_rejected_vout_negative;
       }
+      if (error is TransactionCommitFailedBIP68Final) {
+        return S.current.tx_rejected_bip68_final;
+      }
       if (error is TransactionNoDustOnChangeException) {
         return S.current.tx_commit_exception_no_dust_on_change(error.min, error.max);
+      }
+      if (error is TransactionInputNotSupported) {
+        return S.current.tx_invalid_input;
       }
     }
 

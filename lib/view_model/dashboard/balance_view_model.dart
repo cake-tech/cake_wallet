@@ -61,6 +61,9 @@ abstract class BalanceViewModelBase with Store {
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
   @computed
+  bool get hasSilentPayments => wallet.type == WalletType.bitcoin;
+
+  @computed
   double get price {
     final price = fiatConvertationStore.prices[appStore.wallet!.currency];
 
@@ -122,6 +125,7 @@ abstract class BalanceViewModelBase with Store {
   String get availableBalanceLabel {
     switch (wallet.type) {
       case WalletType.monero:
+      case WalletType.wownero:
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -139,6 +143,7 @@ abstract class BalanceViewModelBase with Store {
   String get additionalBalanceLabel {
     switch (wallet.type) {
       case WalletType.monero:
+      case WalletType.wownero:
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:

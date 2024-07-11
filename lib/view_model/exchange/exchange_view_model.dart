@@ -30,6 +30,7 @@ import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/quantex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
@@ -153,10 +154,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChangeNowExchangeProvider(settingsStore: _settingsStore),
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
-        TrocadorExchangeProvider(
-            useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
         ThorChainExchangeProvider(tradesStore: trades),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
+        QuantexExchangeProvider(),
+        TrocadorExchangeProvider(
+            useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
       ];
 
   @observable
@@ -285,6 +287,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   bool get isLowFee {
     switch (wallet.type) {
       case WalletType.monero:
+      case WalletType.wownero:
       case WalletType.haven:
         return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
       case WalletType.bitcoin:
@@ -505,7 +508,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         if (limitsState is LimitsLoadedSuccessfully) {
           if (double.tryParse(amount) == null) continue;
 
-          if (limits.max != null && double.parse(amount) < limits.min!)
+          if (limits.min != null && double.parse(amount) < limits.min!)
             continue;
           else if (limits.max != null && double.parse(amount) > limits.max!)
             continue;
@@ -668,6 +671,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.nano;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.banano:
+        depositCurrency = CryptoCurrency.banano;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       case WalletType.polygon:
         depositCurrency = CryptoCurrency.maticpoly;
         receiveCurrency = CryptoCurrency.xmr;
@@ -680,7 +687,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.trx;
         receiveCurrency = CryptoCurrency.xmr;
         break;
-      default:
+      case WalletType.wownero:
+        depositCurrency = CryptoCurrency.wow;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.none:
         break;
     }
   }
@@ -753,6 +764,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.wownero:
         _settingsStore.priority[wallet.type] = monero!.getMoneroTransactionPriorityAutomatic();
         break;
       case WalletType.bitcoin:

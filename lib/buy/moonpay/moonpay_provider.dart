@@ -281,17 +281,19 @@ class MoonPayProvider extends BuyProvider {
         throw Exception('Could not launch URL');
       }
     } catch (e) {
-      await showDialog<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
-            alertTitle: 'MoonPay',
-            alertContent: 'The MoonPay service is currently unavailable: $e',
-            buttonText: S.of(context).ok,
-            buttonAction: () => Navigator.of(context).pop(),
-          );
-        },
-      );
+      if (context.mounted) {
+        await showDialog<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+              alertTitle: 'MoonPay',
+              alertContent: 'The MoonPay service is currently unavailable: $e',
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop(),
+            );
+          },
+        );
+      }
     }
   }
 
