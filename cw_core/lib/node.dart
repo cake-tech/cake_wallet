@@ -227,6 +227,9 @@ class Node extends HiveObject with Keyable {
     }
   }
 
+  // TODO: this will return true most of the time, even if the node has useSSL set to true while
+  // it doesn't support SSL or vice versa, because it will connect normally, but it will fail if
+  // you try to communicate with it
   Future<bool> requestElectrumServer() async {
     try {
       if (useSSL == true) {

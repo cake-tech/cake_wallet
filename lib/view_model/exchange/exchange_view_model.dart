@@ -508,7 +508,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         if (limitsState is LimitsLoadedSuccessfully) {
           if (double.tryParse(amount) == null) continue;
 
-          if (limits.max != null && double.parse(amount) < limits.min!)
+          if (limits.min != null && double.parse(amount) < limits.min!)
             continue;
           else if (limits.max != null && double.parse(amount) > limits.max!)
             continue;

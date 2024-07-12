@@ -17,7 +17,7 @@ String getTxKey(String txId) {
 wownero.TransactionHistory? txhistory;
 
 void refreshTransactions() {
-  txhistory = wownero.Wallet_history(wptr!);
+  txhistory ??= wownero.Wallet_history(wptr!);
   wownero.TransactionHistory_refresh(txhistory!);
 }
 
@@ -26,17 +26,17 @@ int countOfTransactions() => wownero.TransactionHistory_count(txhistory!);
 List<Transaction> getAllTransactions() {
   List<Transaction> dummyTxs = [];
 
-  txhistory = wownero.Wallet_history(wptr!);
+  txhistory ??= wownero.Wallet_history(wptr!);
   wownero.TransactionHistory_refresh(txhistory!);
   int size = countOfTransactions();
-  final list = List.generate(size, (index) => Transaction(txInfo: wownero.TransactionHistory_transaction(txhistory!, index: index)))..addAll(dummyTxs);
+  final list = List.generate(size, (index) => Transaction(txInfo: wownero.TransactionHistory_transaction(txhistory!, index: index)));
 
   final accts = wownero.Wallet_numSubaddressAccounts(wptr!);
   for (var i = 0; i < accts; i++) {  
     final fullBalance = wownero.Wallet_balance(wptr!, accountIndex: i);
     final availBalance = wownero.Wallet_unlockedBalance(wptr!, accountIndex: i);
     if (fullBalance > availBalance) {
-      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).isNotEmpty) {
+      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).isEmpty) {
         dummyTxs.add(
           Transaction.dummy(
             displayLabel: "",

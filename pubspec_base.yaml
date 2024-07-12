@@ -106,6 +106,7 @@ dependencies:
       url: https://github.com/cake-tech/bitcoin_base
       ref: cake-update-v3
   ledger_flutter: ^1.0.1
+  hashlib: 1.12.0
 
 dev_dependencies:
   flutter_test:
@@ -131,7 +132,7 @@ dependency_overrides:
   ledger_flutter:
     git:
       url: https://github.com/cake-tech/ledger-flutter.git
-      ref: cake
+      ref: cake-stax
   web3dart:
     git:
       url: https://github.com/cake-tech/web3dart.git

@@ -563,6 +563,7 @@ abstract class Wownero {
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createWowneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
+  String getLegacySeed(Object wallet, String langName);
 }
 
 abstract class WowneroSubaddressList {

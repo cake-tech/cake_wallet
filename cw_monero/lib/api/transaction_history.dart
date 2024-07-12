@@ -18,7 +18,7 @@ String getTxKey(String txId) {
 monero.TransactionHistory? txhistory;
 
 void refreshTransactions() {
-  txhistory = monero.Wallet_history(wptr!);
+  txhistory ??= monero.Wallet_history(wptr!);
   monero.TransactionHistory_refresh(txhistory!);
 }
 
@@ -27,17 +27,17 @@ int countOfTransactions() => monero.TransactionHistory_count(txhistory!);
 List<Transaction> getAllTransactions() {
   List<Transaction> dummyTxs = [];
 
-  txhistory = monero.Wallet_history(wptr!);
+  txhistory ??= monero.Wallet_history(wptr!);
   monero.TransactionHistory_refresh(txhistory!);
   int size = countOfTransactions();
-  final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)))..addAll(dummyTxs);
+  final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
 
   final accts = monero.Wallet_numSubaddressAccounts(wptr!);
   for (var i = 0; i < accts; i++) {  
     final fullBalance = monero.Wallet_balance(wptr!, accountIndex: i);
     final availBalance = monero.Wallet_unlockedBalance(wptr!, accountIndex: i);
     if (fullBalance > availBalance) {
-      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).isNotEmpty) {
+      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).isEmpty) {
         dummyTxs.add(
           Transaction.dummy(
             displayLabel: "",
@@ -50,7 +50,7 @@ List<Transaction> getAllTransactions() {
             amount: fullBalance - availBalance,
             isSpend: false,
             hash: "pending",
-            key: "pending",
+            key: "",
             txInfo: Pointer.fromAddress(0),
           )..timeStamp = DateTime.now()
         );

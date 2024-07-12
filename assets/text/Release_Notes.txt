@@ -1,2 +1,3 @@
 Monero enhancements
+Improvements for Tron and Nano wallets
 Bug fixes

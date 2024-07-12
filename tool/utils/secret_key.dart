@@ -45,8 +45,6 @@ class SecretKey {
     SecretKey('authorization', () => ''),
   ];
 
-  static final coreSecrets = [];
-
   static final evmChainsSecrets = [
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),

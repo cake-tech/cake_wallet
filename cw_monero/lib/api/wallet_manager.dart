@@ -6,6 +6,7 @@ import 'package:cw_monero/api/exceptions/wallet_creation_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_keys_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart';
+import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:monero/monero.dart' as monero;
 
@@ -29,6 +30,7 @@ void createWalletSync(
     required String password,
     required String language,
     int nettype = 0}) {
+  txhistory = null;
   wptr = monero.WalletManager_createWallet(wmPtr,
       path: path, password: password, language: language, networkType: 0);
 
@@ -53,6 +55,7 @@ void restoreWalletFromSeedSync(
     required String seed,
     int nettype = 0,
     int restoreHeight = 0}) {
+  txhistory = null;
   wptr = monero.WalletManager_recoveryWallet(
     wmPtr,
     path: path,
@@ -82,6 +85,7 @@ void restoreWalletFromKeysSync(
     required String spendKey,
     int nettype = 0,
     int restoreHeight = 0}) {
+  txhistory = null;
   wptr = monero.WalletManager_createWalletFromKeys(
     wmPtr,
     path: path,
@@ -110,6 +114,7 @@ void restoreWalletFromSpendKeySync(
     required String spendKey,
     int nettype = 0,
     int restoreHeight = 0}) {
+  // txhistory = null;
   // wptr = monero.WalletManager_createWalletFromKeys(
   //   wmPtr,
   //   path: path,
@@ -120,7 +125,8 @@ void restoreWalletFromSpendKeySync(
   //   viewKeyString: '',
   //   nettype: 0,
   // );
-
+  
+  txhistory = null;
   wptr = monero.WalletManager_createDeterministicWalletFromSpendKey(
     wmPtr,
     path: path,
@@ -184,6 +190,7 @@ Map<String, monero.wallet> openedWalletsByPath = {};
 void loadWallet(
     {required String path, required String password, int nettype = 0}) {
   if (openedWalletsByPath[path] != null) {
+    txhistory = null;
     wptr = openedWalletsByPath[path]!;
     return;
   }
@@ -195,6 +202,7 @@ void loadWallet(
           monero.Wallet_store(Pointer.fromAddress(addr));
         });
       }
+      txhistory = null;
       wptr = monero.WalletManager_openWallet(wmPtr,
           path: path, password: password);
       openedWalletsByPath[path] = wptr!;
