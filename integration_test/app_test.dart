@@ -49,10 +49,10 @@ void main() {
 
       final pin = [0, 8, 0, 1];
 
-      String testAmount = '0.08';
-      // String testAmount = '8';
-      CryptoCurrency testReceiveCurrency = CryptoCurrency.usdtSol;
-      CryptoCurrency testDepositCurrency = CryptoCurrency.sol;
+      // String testAmount = '0.08';
+      String testAmount = '8';
+      CryptoCurrency testReceiveCurrency = CryptoCurrency.sol;
+      CryptoCurrency testDepositCurrency = CryptoCurrency.usdtSol;
 
       WalletType testWalletType = WalletType.solana;
       String testWalletName = 'Integrated Testing Wallet';
