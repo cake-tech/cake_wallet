@@ -20,6 +20,7 @@ Future<void> main() async {
       final resultString = _encodeJson(data);
       await file.writeAsString(resultString);
     },
+    writeResponseOnFailure: true,
   );
 }
 
