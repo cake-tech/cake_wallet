@@ -67,7 +67,7 @@ jobs:
           ./install_ndk.sh
           source ./app_env.sh cakewallet
           chmod +x pubspec_gen.sh
-          CW_WITH_HAVEN=true ./app_config.sh
+          ./app_config.sh
 
       - name: Cache Externals
         id: cache-externals
