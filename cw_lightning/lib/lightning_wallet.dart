@@ -198,6 +198,9 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     await alertIncomingTxs(txs);
     transactionHistory.addMany(txs);
     _isTransactionUpdating = false;
+    if (txs.isNotEmpty) {
+      await updateBalance();
+    }
   }
 
   Future<void> _handleInvoicePaid(InvoicePaidDetails details) async {
@@ -213,6 +216,9 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     await alertIncomingTxs(txs);
     transactionHistory.addMany(txs);
     _isTransactionUpdating = false;
+    if (txs.isNotEmpty) {
+      await updateBalance();
+    }
   }
 
   @override
@@ -470,7 +476,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       });
 
   Future<void> updateBalance() async {
-    // balance is updated automatically
+    await _handleNodeState(await _sdk.nodeInfo());
   }
 
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
