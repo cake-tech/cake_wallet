@@ -156,7 +156,7 @@ class BuySellPage extends BasePage {
                     children: <Widget>[
                       _exchangeCardsSection(context),
                       _buildPaymentMethodTile(context),
-                      if (buySellViewModel.selectedQuote != null) _quoteTile(context),
+                      _buildQuoteTile(context),
                     ],
                   ),
                 ),
@@ -179,7 +179,7 @@ class BuySellPage extends BasePage {
     if (buySellViewModel.paymentMethodState is PaymentMethodLoading) {
       return OptionTilePlaceholder(context, Center(child: CircularProgressIndicator()));
     } else if (buySellViewModel.paymentMethodState is PaymentMethodFailed) {
-      return OptionTilePlaceholder(context, Center(child: Text('Failed to load payment methods')));
+      return OptionTilePlaceholder(context, Center(child: Text('No payment methods available')));
     } else if (buySellViewModel.paymentMethodState is PaymentMethodLoaded &&
         buySellViewModel.selectedPaymentMethod != null) {
       return Observer(builder: (_) {
@@ -204,10 +204,16 @@ class BuySellPage extends BasePage {
     }
   }
 
-  Widget _quoteTile(BuildContext context) {
-    return Observer(builder: (_) {
-      final selectedQuote = buySellViewModel.selectedQuote!;
-      return Padding(
+  Widget _buildQuoteTile(BuildContext context) {
+    if (buySellViewModel.buySellQuotState is BuySellQuotLoading) {
+      return OptionTilePlaceholder(context, Center(child: CircularProgressIndicator()));
+    } else if (buySellViewModel.buySellQuotState is BuySellQuotFailed) {
+      return OptionTilePlaceholder(context, Center(child: Text('No quotes available')));
+    } else if (buySellViewModel.buySellQuotState is BuySellQuotLoaded &&
+        buySellViewModel.selectedQuote != null) {
+      return Observer(builder: (_) {
+        final selectedQuote = buySellViewModel.selectedQuote!;
+        return Padding(
           padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
           child: OptionTile(
             imagePath: selectedQuote.provider!.lightIcon,
@@ -233,10 +239,15 @@ class BuySellPage extends BasePage {
             borderRadius: 24,
             padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
             titleTextStyle:
-                textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-          ));
-    });
+            textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+          ),
+        );
+      });
+    } else {
+      return OptionTilePlaceholder(context, Container());
+    }
   }
+
 
   void _pickPaymentMethod(BuildContext context) async {
     final currentOption = buySellViewModel.selectedPaymentMethod;
@@ -256,6 +267,18 @@ class BuySellPage extends BasePage {
       await buySellViewModel.calculateBestRate();
     }
   }
+
+  void _pickQuote(BuildContext context) async {
+    await Navigator.of(context).pushNamed(
+      Routes.selectOptions,
+      arguments: [
+        'S.of(context).quotes',
+        buySellViewModel.sortedAvailableQuotes,
+        buySellViewModel.changeOption
+      ],
+    );
+  }
+
 
   void _setReactions(BuildContext context, BuySellViewModel buySellViewModel) {
     if (_isReactionsSet) {

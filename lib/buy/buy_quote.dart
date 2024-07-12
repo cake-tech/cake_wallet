@@ -16,6 +16,7 @@ class Quote extends SelectableOption {
   String destinationCurrency = '';
   bool isSelected = false;
   bool isBestRate = false;
+  bool isBuyAction;
 
   Quote({
     required this.rate,
@@ -25,6 +26,7 @@ class Quote extends SelectableOption {
     required this.payout,
     required this.provider,
     required this.paymentMethod,
+    this.isBuyAction = true,
     this.quoteId,
     this.ramp,
   });
@@ -49,11 +51,15 @@ class Quote extends SelectableOption {
 
   @override
   String? get leftSubTitle => this.rate > 0
-      ? '1 $destinationCurrency = ${(rate).toStringAsFixed(2)} $sourceCurrency\ntotal fee = ${this.feeAmount} $sourceCurrency'
+      ? '1 $destinationCurrency = $formatedRate $sourceCurrency\ntotal fee = $formatedFee'
       : null;
 
   @override
   String? get rightSubTitle => this.ramp;
+
+  String get formatedRate => isBuyAction ? rate.toStringAsFixed(2) : rate.toStringAsFixed(8);
+
+  String get formatedFee => '$feeAmount ${isBuyAction ?  sourceCurrency : destinationCurrency}';
 
   void set setIsSelected(bool isSelected) => this.isSelected = isSelected;
 
@@ -65,11 +71,12 @@ class Quote extends SelectableOption {
       this.destinationCurrency = destinationCurrency;
 
   factory Quote.fromOnramperJson(Map<String, dynamic> json, ProviderType providerType) {
-    final networkFee = json['networkFee'] as double? ?? 0.0;
+    final rate = _toDouble(json['rate']) ?? 0.0;
+    final networkFee = _toDouble(json['networkFee']) ?? 0.0;
     final transactionFee = _toDouble(json['transactionFee']) ?? 0.0;
     final feeAmount = double.parse((networkFee + transactionFee).toStringAsFixed(2));
     return Quote(
-      rate: json['rate'] as double? ?? 0.0,
+      rate: rate,
       feeAmount: feeAmount,
       networkFee: networkFee,
       transactionFee: transactionFee,
@@ -98,7 +105,8 @@ class Quote extends SelectableOption {
     );
   }
 
-  factory Quote.fromDFXJson(Map<String, dynamic> json, ProviderType providerType) {
+  factory Quote.fromDFXJson(
+      Map<String, dynamic> json, ProviderType providerType, bool isBuyAction) {
     final fees = json['fees'] as Map<String, dynamic>;
     return Quote(
       rate: json['exchangeRate'] as double? ?? 0.0,
@@ -108,6 +116,7 @@ class Quote extends SelectableOption {
       payout: json['payout'] as double? ?? 0.0,
       paymentMethod: json['paymentMethod'] as String? ?? '',
       provider: ProvidersHelper.getProviderByType(providerType),
+      isBuyAction: isBuyAction,
     );
   }
 

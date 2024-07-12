@@ -269,8 +269,22 @@ class DFXBuyProvider extends BuyProvider {
         });
       }
     } else {
-      //final assetBuyCredentials = await fetchAssets(assetsName: [fiatCurrency]);
+      final assetCredentials = await fetchAssetCredential(cryptoCurrency);
+      if (assetCredentials.isNotEmpty) {
+        if (assetCredentials['sellable'] == true) {
+          final availablePaymentTypes = [
+            PaymentType.bankTransfer,
+            PaymentType.creditCard,
+            PaymentType.sepa
+          ];
+          availablePaymentTypes.forEach((element) {
+            final paymentMethod = PaymentMethod.fromDFX(normalizePaymentMethod(element)!, element);
+            paymentMethods.add(paymentMethod);
+          });
+        }
+      }
     }
+
     return paymentMethods;
   }
 
@@ -284,16 +298,20 @@ class DFXBuyProvider extends BuyProvider {
     var paymentMethod = normalizePaymentMethod(paymentType);
     if (paymentMethod == null) paymentMethod = paymentType.name;
 
-    final fiatCredentials = await fetchFiatCredentials(sourceCurrency);
+    final action = isBuyAction ? 'buy' : 'sell';
+
+    final fiatCredentials =
+        await fetchFiatCredentials(isBuyAction ? sourceCurrency : destinationCurrency);
     if (fiatCredentials['id'] == null) return null;
 
-    final assetCredentials = await fetchAssetCredential(destinationCurrency);
+    final assetCredentials =
+        await fetchAssetCredential(isBuyAction ? destinationCurrency : sourceCurrency);
     if (assetCredentials['id'] == null) return null;
 
     print(
-        'DFX: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
+        'DFX: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
-    final url = Uri.parse('https://$_baseUrl/v1/buy/quote');
+    final url = Uri.parse('https://$_baseUrl/v1/$action/quote');
     final headers = {
       'accept': 'application/json',
       'Content-Type': 'application/json',
@@ -317,7 +335,7 @@ class DFXBuyProvider extends BuyProvider {
 
       if (response.statusCode == 200) {
         if (responseData is Map<String, dynamic>) {
-          final quote = Quote.fromDFXJson(responseData, ProviderType.dfx);
+          final quote = Quote.fromDFXJson(responseData, ProviderType.dfx, isBuyAction);
           quote.setSourceCurrency = sourceCurrency;
           quote.setDestinationCurrency = destinationCurrency;
           return quote;

@@ -96,7 +96,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   final SharedPreferences sharedPreferences;
 
   List<BuyProvider> get availableBuyProviders {
-    final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(wallet.type);
+   // final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(wallet.type);
+    final providerTypes = [ProviderType.robinhood, ProviderType.dfx, ProviderType.onramper, ProviderType.moonpay, ProviderType.meld];
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
@@ -105,7 +106,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   List<BuyProvider> get availableSellProviders {
-    final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
+    // final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
+    final providerTypes = [ProviderType.robinhood, ProviderType.dfx, ProviderType.onramper, ProviderType.moonpay, ProviderType.meld];
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
@@ -255,6 +257,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   Future<void> _initialize() async {
     _setProviders();
+    paymentMethodState = InitialPaymentMethod();
+    buySellQuotState = InitialBuySellQuotState();
     await _getAvailablePaymentTypes();
     if (selectedPaymentMethod != null) {
       await calculateBestRate();
@@ -263,10 +267,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @action
   Future<void> calculateBestRate() async {
-    print('paymentMethodState: $paymentMethodState');
-    print('calculateBestRate');
     buySellQuotState = BuySellQuotLoading();
-    selectedQuote = null;
     final amount = double.tryParse(isBuyAction ? fiatAmount : cryptoAmount) ?? 100;
     final result = await Future.wait<Quote?>(providerList.map((element) => element.fetchQuote(
           sourceCurrency: isBuyAction ? fiatCurrency.title : cryptoCurrency.title,
