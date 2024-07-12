@@ -1,8 +1,6 @@
-name: Automated Integration Test
+name: Funds Related Automated Integration Test
 
 on:
-  pull_request:
-    branches: [main]
   workflow_dispatch:
     inputs:
       branch:
@@ -11,7 +9,7 @@ on:
         default: "main"
 
 jobs:
-  Automated_integration_test:
+  Funds_related_automated_integration_test:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -21,17 +19,8 @@ jobs:
     env:
       STORE_PASS: test@cake_wallet
       KEY_PASS: test@cake_wallet
-      PR_NUMBER: ${{ github.event.number }}
 
     steps:
-      - name: is pr
-        if: github.event_name == 'pull_request'
-        run: echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
-
-      - name: is not pr
-        if: github.event_name != 'pull_request'
-        run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
-
       - name: Free Disk Space (Ubuntu)
         uses: insightsengineering/disk-space-reclaimer@v1
         with:
@@ -66,7 +55,7 @@ jobs:
           cd /opt/android
           -y curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
           cargo install cargo-ndk
-          git clone https://github.com/cake-tech/cake_wallet.git --branch ${{ env.BRANCH_NAME }}
+          git clone https://github.com/cake-tech/cake_wallet.git --branch main
           cd cake_wallet/scripts/android/
           ./install_ndk.sh
           source ./app_env.sh cakewallet
@@ -171,11 +160,7 @@ jobs:
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
           echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
 
-      - name: Rename app
-        run: |
-          echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
-
-      - name: Enable KVM
+      - name: 🦾 Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules

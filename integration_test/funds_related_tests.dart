@@ -33,8 +33,7 @@ void main() {
   ExchangeTradePageRobot exchangeTradePageRobot;
 
   group('Startup Test', () {
-    testWidgets(
-        'Test for Exchange flow using Restore Wallet, -Up to the point where the sending is to be triggered',
+    testWidgets('Test for Exchange flow using Restore Wallet - Exchanging USDT(Sol) to SOL',
         (tester) async {
       authPageRobot = AuthPageRobot(tester);
       welcomePageRobot = WelcomePageRobot(tester);
@@ -135,6 +134,12 @@ void main() {
       await exchangeTradePageRobot.isExchangeTradePage();
       exchangeTradePageRobot.hasInformationDialog();
       await exchangeTradePageRobot.onGotItButtonPressed();
+
+      await exchangeTradePageRobot.onConfirmSendingButtonPressed();
+
+      await exchangeTradePageRobot.handleSendSuccessOrFailure();
+
+      await exchangeTradePageRobot.onSendButtonOnConfirmSendingDialogPressed();
     });
   });
 }
