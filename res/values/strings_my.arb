@@ -142,7 +142,7 @@
   "confirm_fee_deduction": "အခကြေးငွေကိုနှုတ်ယူခြင်း",
   "confirm_fee_deduction_content": "output မှအခကြေးငွေကိုယူရန်သဘောတူပါသလား။",
   "confirm_sending": "ပေးပို့အတည်ပြုပါ။",
-  "confirm_silent_payments_switch_node": "လောလောဆယ်အသံတိတ်ငွေပေးချေမှုကိုစကင်ဖတ်စစ်ဆေးရန် node များကိုပြောင်းရန်လိုအပ်သည်",
+  "confirm_silent_payments_switch_node": "သင်၏လက်ရှိ node သည်အသံတိတ်ငွေပေးချေမှုကိုမပံ့ပိုးပါဟု \\ t",
   "confirmations": "အတည်ပြုချက်များ",
   "confirmed": "အတည်ပြုထားသော လက်ကျန်ငွေ",
   "confirmed_tx": "အတည်ပြုသည်",

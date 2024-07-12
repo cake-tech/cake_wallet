@@ -142,7 +142,7 @@
   "confirm_fee_deduction": "Confirme dedução da taxa",
   "confirm_fee_deduction_content": "Você concorda em deduzir a taxa da saída?",
   "confirm_sending": "Confirmar o envio",
-  "confirm_silent_payments_switch_node": "Atualmente, é necessário trocar de nós para digitalizar pagamentos silenciosos",
+  "confirm_silent_payments_switch_node": "Seu nó atual não suporta pagamentos silenciosos \\ Ncake Wallet mudará para um nó compatível, apenas para digitalização",
   "confirmations": "Confirmações",
   "confirmed": "Saldo Confirmado",
   "confirmed_tx": "Confirmado",

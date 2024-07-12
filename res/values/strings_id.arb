@@ -142,7 +142,7 @@
   "confirm_fee_deduction": "Konfirmasi pengurangan biaya",
   "confirm_fee_deduction_content": "Apakah Anda setuju untuk mengurangi biaya dari output?",
   "confirm_sending": "Konfirmasi pengiriman",
-  "confirm_silent_payments_switch_node": "Saat ini diminta untuk mengganti node untuk memindai pembayaran diam",
+  "confirm_silent_payments_switch_node": "Node Anda saat ini tidak mendukung pembayaran diam \\ ncake Wallet akan beralih ke simpul yang kompatibel, hanya untuk pemindaian",
   "confirmations": "Konfirmasi",
   "confirmed": "Saldo Terkonfirmasi",
   "confirmed_tx": "Dikonfirmasi",

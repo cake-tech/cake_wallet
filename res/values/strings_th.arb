@@ -142,7 +142,7 @@
   "confirm_fee_deduction": "ยืนยันการหักค่าธรรมเนียม",
   "confirm_fee_deduction_content": "คุณตกลงที่จะหักค่าธรรมเนียมจากผลลัพธ์หรือไม่?",
   "confirm_sending": "ยืนยันการส่ง",
-  "confirm_silent_payments_switch_node": "ขณะนี้จำเป็นต้องเปลี่ยนโหนดเพื่อสแกนการชำระเงินแบบเงียบ",
+  "confirm_silent_payments_switch_node": "โหนดปัจจุบันของคุณไม่รองรับการชำระเงินแบบเงียบ \\ ncake กระเป๋าเงินจะเปลี่ยนเป็นโหนดที่เข้ากันได้เพียงเพื่อการสแกน",
   "confirmations": "การยืนยัน",
   "confirmed": "ยอดคงเหลือที่ยืนยันแล้ว",
   "confirmed_tx": "ซึ่งยืนยันแล้ว",

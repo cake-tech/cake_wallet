@@ -142,7 +142,7 @@
   "confirm_fee_deduction": "Bevestig de aftrek van de kosten",
   "confirm_fee_deduction_content": "Stemt u ermee in om de vergoeding af te trekken van de output?",
   "confirm_sending": "Bevestig verzending",
-  "confirm_silent_payments_switch_node": "Momenteel is het vereist om knooppunten te schakelen om stille betalingen te scannen",
+  "confirm_silent_payments_switch_node": "Uw huidige knooppunt ondersteunt geen stille betalingen \\ ncake -portemonnee schakelt over naar een compatibele knoop",
   "confirmations": "Bevestigingen",
   "confirmed": "Bevestigd saldo",
   "confirmed_tx": "Bevestigd",

@@ -142,7 +142,7 @@
   "confirm_fee_deduction": "Підтвердьте відрахування комісії",
   "confirm_fee_deduction_content": "Чи погоджуєтесь ви вирахувати комісію з сумми одержувача?",
   "confirm_sending": "Підтвердити відправлення",
-  "confirm_silent_payments_switch_node": "В даний час потрібно перемикати вузли на сканування мовчазних платежів",
+  "confirm_silent_payments_switch_node": "Ваш поточний вузол не підтримує мовчазні платежі \\ ncake Wallet перейде на сумісний вузол, лише для сканування",
   "confirmations": "Підтвердження",
   "confirmed": "Підтверджений баланс",
   "confirmed_tx": "Підтверджений",

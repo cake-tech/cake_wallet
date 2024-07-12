@@ -142,7 +142,7 @@
   "confirm_fee_deduction": "料金控除を確認します",
   "confirm_fee_deduction_content": "出力から料金を差し引くことに同意しますか？",
   "confirm_sending": "送信を確認",
-  "confirm_silent_payments_switch_node": "現在、ノードを切り替えてサイレント決済をスキャンする必要があります",
+  "confirm_silent_payments_switch_node": "現在のノードはサイレントペイメントをサポートしていません\\ ncakeウォレットは、スキャン用に互換性のあるノードに切り替えます",
   "confirmations": "確認",
   "confirmed": "確認済み残高",
   "confirmed_tx": "確認済み",
