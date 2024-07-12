@@ -161,11 +161,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (syncStatus is FailedSyncStatus) return;
       final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
       final resp = await _stub.status(StatusRequest());
-      // print("stats:");
-      // print("???????????????????");
-      // print(resp.blockHeaderHeight);
-      // print(resp.mwebUtxosHeight);
-      // print(height);
       if (resp.blockHeaderHeight < height) {
         int h = resp.blockHeaderHeight;
         syncStatus = SyncingSyncStatus(height - h, h / height);
@@ -288,12 +283,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final req = UtxosRequest(scanSecret: hex.decode(scanSecret), fromHeight: restoreHeight);
     bool initDone = false;
 
-    // reset address balances and tx counts:
-    walletAddresses.allAddresses.forEach((addressRecord) {
-      addressRecord.balance = 0;
-      addressRecord.txCount = 0;
-    });
-
     for (final utxo in mwebUtxosBox.values) {
       if (utxo.address.isEmpty) {
         initDone = true;
@@ -338,7 +327,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
 
-      if (!mwebAddrs.contains(utxo.address) && utxo.address.isNotEmpty) {
+      if (utxo.address.isNotEmpty && !mwebAddrs.contains(utxo.address)) {
         continue;
       }
 
@@ -495,7 +484,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     // update unspent balances:
 
-    // reset coin balances to 0:
+    // reset coin balances and txCount to 0:
     unspentCoins.forEach((coin) {
       if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
         coin.bitcoinAddressRecord.balance = 0;
@@ -522,6 +511,20 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         super.addCoinInfo(coin);
       }
     });
+
+    // update the txCount for each address:
+    for (var tx in transactionHistory.transactions.values) {
+      if (tx.isPending) continue;
+      final txAddresses = tx.inputAddresses! + tx.outputAddresses!;
+      for (var address in txAddresses) {
+        final addressRecord = walletAddresses.allAddresses
+            .firstWhereOrNull((addressRecord) => addressRecord.address == address);
+        if (addressRecord == null) {
+          continue;
+        }
+        addressRecord.txCount++;
+      }
+    }
 
     return ElectrumBalance(confirmed: confirmed, unconfirmed: unconfirmed, frozen: balance.frozen);
   }
