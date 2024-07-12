@@ -178,6 +178,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         if (resp.mwebUtxosHeight > mwebUtxosHeight) {
           mwebUtxosHeight = resp.mwebUtxosHeight;
           await checkMwebUtxosSpent();
+          // update the confirmations for each transaction:
           for (final transaction in transactionHistory.transactions.values) {
             if (transaction.isPending) continue;
             final confirmations = mwebUtxosHeight - transaction.height + 1;
@@ -266,6 +267,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
       if (!(tx.inputAddresses?.contains(utxo.address) ?? false)) {
         addressRecord.txCount++;
+        print("COUNT UPDATED HERE 2!!!!! ${addressRecord.txCount}");
       }
       addressRecord.balance += utxo.value.toInt();
       addressRecord.setAsUsed();
@@ -283,6 +285,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final req = UtxosRequest(scanSecret: hex.decode(scanSecret), fromHeight: restoreHeight);
     bool initDone = false;
 
+    // process old utxos:
     for (final utxo in mwebUtxosBox.values) {
       if (utxo.address.isEmpty) {
         initDone = true;
@@ -305,6 +308,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
+    // process new utxos as they come in:
     await for (Utxo sUtxo in _stub.utxos(req)) {
       final utxo = MwebUtxo(
         address: sUtxo.address,
@@ -327,6 +331,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
 
+      // don't process utxos with addresses that are not in the mwebAddrs list:
       if (utxo.address.isNotEmpty && !mwebAddrs.contains(utxo.address)) {
         continue;
       }
@@ -362,7 +367,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (utxo == null) continue;
       final addressRecord = walletAddresses.allAddresses
           .firstWhere((addressRecord) => addressRecord.address == utxo.address);
-      if (!inputAddresses.contains(utxo.address)) addressRecord.txCount++;
+      if (!inputAddresses.contains(utxo.address)) {
+        addressRecord.txCount++;
+        print("COUNT UPDATED HERE 3!!!!! ${addressRecord.address} ${addressRecord.txCount} !!!!!!");
+      }
       addressRecord.balance -= utxo.value.toInt();
       amount += utxo.value.toInt();
       inputAddresses.add(utxo.address);
@@ -471,6 +479,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<ElectrumBalance> fetchBalances() async {
+    print("FETCH BALANCES");
     final balance = await super.fetchBalances();
     var confirmed = balance.confirmed;
     var unconfirmed = balance.unconfirmed;
@@ -523,6 +532,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           continue;
         }
         addressRecord.txCount++;
+        print("COUNT UPDATED HERE 0!!!!! ${addressRecord.address} ${addressRecord.txCount} !!!!!!");
       }
     }
 
@@ -644,23 +654,26 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       tx.outputs = resp.outputId;
       return tx
         ..addListener((transaction) async {
-          final addresses = <String>{};
-          transaction.inputAddresses?.forEach((id) async {
-            final utxo = mwebUtxosBox.get(id);
-            await mwebUtxosBox.delete(id);
-            if (utxo == null) return;
-            final addressRecord = walletAddresses.allAddresses
-                .firstWhere((addressRecord) => addressRecord.address == utxo.address);
-            if (!addresses.contains(utxo.address)) {
-              addressRecord.txCount++;
-              addresses.add(utxo.address);
-            }
-            addressRecord.balance -= utxo.value.toInt();
-          });
-          transaction.inputAddresses?.addAll(addresses);
-          print("BEING ADDED HERE@@@@@@@@@@@@@@@@@@@@@@@3");
+          print("LISTENER CALLED @@@@@@@@@@@@@@@@@@");
+          // final addresses = <String>{};
+          // transaction.inputAddresses?.forEach((id) async {
+          //   final utxo = mwebUtxosBox.get(id);
+          //   await mwebUtxosBox.delete(id);
+          //   if (utxo == null) return;
+          //   final addressRecord = walletAddresses.allAddresses
+          //       .firstWhere((addressRecord) => addressRecord.address == utxo.address);
+          //   if (!addresses.contains(utxo.address)) {
+          //     addressRecord.txCount++;
+          //     print("COUNT UPDATED HERE 1!!!!! ${addressRecord.address} ${addressRecord.txCount} !!!!!!");
+          //     addresses.add(utxo.address);
+          //   }
+          //   addressRecord.balance -= utxo.value.toInt();
+          // });
+          // transaction.inputAddresses?.addAll(addresses);
+          // print("BEING ADDED HERE@@@@@@@@@@@@@@@@@@@@@@@3");
 
-          transactionHistory.addOne(transaction);
+          // transactionHistory.addOne(transaction);
+          // await transactionHistory.save();
           await updateUnspent();
           await updateBalance();
         });
