@@ -327,7 +327,7 @@ class LightningSendConfirmPage extends BasePage {
                 children: <Widget>[
                   Observer(
                     builder: (context) {
-                      if (lightningSendViewModel.maxSats > lightningSendViewModel.minSats) {
+                      if (lightningSendViewModel.maxSats > lightningSendViewModel.minSats && btcAddress != null) {
                         return LoadingPrimaryButton(
                           text: S.of(context).send,
                           onPressed: () async {
