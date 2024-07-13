@@ -2,23 +2,6 @@ PODS:
   - connectivity_plus (0.0.1):
     - FlutterMacOS
     - ReachabilitySwift
-  - cw_monero (0.0.1):
-    - cw_monero/Boost (= 0.0.1)
-    - cw_monero/Monero (= 0.0.1)
-    - cw_monero/OpenSSL (= 0.0.1)
-    - cw_monero/Sodium (= 0.0.1)
-    - cw_monero/Unbound (= 0.0.1)
-    - FlutterMacOS
-  - cw_monero/Boost (0.0.1):
-    - FlutterMacOS
-  - cw_monero/Monero (0.0.1):
-    - FlutterMacOS
-  - cw_monero/OpenSSL (0.0.1):
-    - FlutterMacOS
-  - cw_monero/Sodium (0.0.1):
-    - FlutterMacOS
-  - cw_monero/Unbound (0.0.1):
-    - FlutterMacOS
   - device_info_plus (0.0.1):
     - FlutterMacOS
   - devicelocale (0.0.1):
@@ -56,7 +39,6 @@ PODS:
 
 DEPENDENCIES:
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
-  - cw_monero (from `Flutter/ephemeral/.symlinks/plugins/cw_monero/macos`)
   - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
   - devicelocale (from `Flutter/ephemeral/.symlinks/plugins/devicelocale/macos`)
   - flutter_inappwebview_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_inappwebview_macos/macos`)
@@ -81,8 +63,6 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   connectivity_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos
-  cw_monero:
-    :path: Flutter/ephemeral/.symlinks/plugins/cw_monero/macos
   device_info_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos
   devicelocale:
@@ -116,7 +96,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   connectivity_plus: 18d3c32514c886e046de60e9c13895109866c747
-  cw_monero: f8b7f104508efba2591548e76b5c058d05cba3f0
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
   devicelocale: 9f0f36ac651cabae2c33f32dcff4f32b61c38225
   flutter_inappwebview_macos: 9600c9df9fdb346aaa8933812009f8d94304203d

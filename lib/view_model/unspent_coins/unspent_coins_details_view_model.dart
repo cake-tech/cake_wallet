@@ -56,7 +56,7 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
         onTap: () {
           try {
             final url = Uri.parse(_explorerUrl(_type, unspentCoinsItem.hash));
-            return launchUrl(url);
+            return launchUrl(url, mode: LaunchMode.externalApplication);
           } catch (e) {}
         },
       ));

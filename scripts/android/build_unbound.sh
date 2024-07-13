@@ -14,7 +14,7 @@ PATH="${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
 
 cd $WORKDIR
 rm -rf $EXPAT_SRC_DIR
-git clone https://github.com/libexpat/libexpat.git -b ${EXPAT_VERSION} ${EXPAT_SRC_DIR}
+git clone https://github.com/libexpat/libexpat.git --depth=1 -b ${EXPAT_VERSION} ${EXPAT_SRC_DIR}
 cd $EXPAT_SRC_DIR
 test `git rev-parse HEAD` = ${EXPAT_HASH} || exit 1
 cd $EXPAT_SRC_DIR/expat
@@ -49,7 +49,7 @@ PATH="${TOOLCHAIN_BIN_PATH}:${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
 echo $PATH
 cd $WORKDIR
 rm -rf $UNBOUND_SRC_DIR
-git clone https://github.com/NLnetLabs/unbound.git -b ${UNBOUND_VERSION} ${UNBOUND_SRC_DIR}
+git clone https://github.com/NLnetLabs/unbound.git --depth=1 -b ${UNBOUND_VERSION} ${UNBOUND_SRC_DIR}
 cd $UNBOUND_SRC_DIR
 test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
 

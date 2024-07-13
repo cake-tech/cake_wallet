@@ -341,4 +341,9 @@ class CWMonero extends Monero {
     final moneroWallet = wallet as MoneroWallet;
     await moneroWallet.updateUnspent();
   }
+
+  @override
+  Future<int> getCurrentHeight() async {
+    return monero_wallet_api.getCurrentHeight();
+  }
 }
