@@ -25,51 +25,54 @@ class RescanPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    var child = Padding(
-      padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-      child:
-          Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Observer(
-            builder: (_) => BlockchainHeightWidget(
-                  type: this.type,
-                  key: _blockchainHeightWidgetKey,
-                  onHeightOrDateEntered: (value) =>
-                      _rescanViewModel.isButtonEnabled = value,
-                  isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
-                  isMwebScan: _rescanViewModel.isMwebScan,
-                  doSingleScan: _rescanViewModel.doSingleScan,
-                  hasDatePicker: !_rescanViewModel
-                      .isMwebScan, // disable date picker for mweb for now
-                  toggleSingleScan: () => _rescanViewModel.doSingleScan =
-                      !_rescanViewModel.doSingleScan,
-                  walletType: _rescanViewModel.wallet.type,
-                  bitcoinMempoolAPIEnabled:
-                      _rescanViewModel.isBitcoinMempoolAPIEnabled,
-                )),
-        Observer(
-            builder: (_) => LoadingPrimaryButton(
-                  isLoading:
-                      _rescanViewModel.state == RescanWalletState.rescaning,
-                  text: S.of(context).rescan,
-                  onPressed: () async {
-                    if (_rescanViewModel.isSilentPaymentsScan) {
-                      return _toggleSilentPaymentsScanning(context);
-                    }
-
-                    _rescanViewModel.rescanCurrentWallet(
-                        restoreHeight:
-                            _blockchainHeightWidgetKey.currentState!.height);
-
-                    Navigator.of(context).pop();
-                  },
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
-                  isDisabled: !_rescanViewModel.isButtonEnabled,
-                ))
-      ]),
-    );
-    if (type == WalletType.decred) {
+    var child;
+    if (type != WalletType.decred) {
       child = Padding(
+        padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+        child:
+            Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Observer(
+              builder: (_) => BlockchainHeightWidget(
+                    type: this.type,
+                    key: _blockchainHeightWidgetKey,
+                    onHeightOrDateEntered: (value) =>
+                        _rescanViewModel.isButtonEnabled = value,
+                    isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
+                    isMwebScan: _rescanViewModel.isMwebScan,
+                    doSingleScan: _rescanViewModel.doSingleScan,
+                    hasDatePicker: !_rescanViewModel
+                        .isMwebScan, // disable date picker for mweb for now
+                    toggleSingleScan: () => _rescanViewModel.doSingleScan =
+                        !_rescanViewModel.doSingleScan,
+                    walletType: _rescanViewModel.wallet.type,
+                    bitcoinMempoolAPIEnabled:
+                        _rescanViewModel.isBitcoinMempoolAPIEnabled,
+                  )),
+          Observer(
+              builder: (_) => LoadingPrimaryButton(
+                    isLoading:
+                        _rescanViewModel.state == RescanWalletState.rescaning,
+                    text: S.of(context).rescan,
+                    onPressed: () async {
+                      if (_rescanViewModel.isSilentPaymentsScan) {
+                        return _toggleSilentPaymentsScanning(context);
+                      }
+
+                      _rescanViewModel.rescanCurrentWallet(
+                          restoreHeight:
+                              _blockchainHeightWidgetKey.currentState!.height);
+
+                      Navigator.of(context).pop();
+                    },
+                    color: Theme.of(context).primaryColor,
+                    textColor: Colors.white,
+                    isDisabled: !_rescanViewModel.isButtonEnabled,
+                  ))
+        ]),
+      );
+    } else {
+      child = Center(
+          child: Padding(
         padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
         child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -89,7 +92,7 @@ class RescanPage extends BasePage {
                         textColor: Colors.white,
                       ))
             ]),
-      );
+      ));
     }
     return GestureDetector(
       behavior: HitTestBehavior.opaque,

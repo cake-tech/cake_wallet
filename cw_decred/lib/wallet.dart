@@ -427,18 +427,19 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   Future<void> save() async {}
 
   @override
+  bool get hasRescan => walletBirthdayBlockHeight() != -1;
+
+  @override
   Future<void> rescan({required int height}) async {
     // The required height is not used. A birthday time is recorded in the
     // mnemonic. As long as not private data is imported into the wallet, we
     // can always rescan from there.
     var rescanHeight = 0;
     if (!watchingOnly) {
-      final res = libdcrwallet.birthState(walletInfo.name);
-      final decoded = json.decode(res);
-      if (decoded["setfromheight"] == true || decoded["setfromtime"] == true) {
+      rescanHeight = walletBirthdayBlockHeight();
+      if (rescanHeight == -1) {
         throw "cannot rescan before the birthday block has been set";
       }
-      rescanHeight = decoded["height"] ?? 0;
     }
     libdcrwallet.rescanFromHeight(walletInfo.name, rescanHeight.toString());
   }
@@ -502,7 +503,7 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
       throw "unable to get an address from unsynced wallet";
     }
     return libdcrwallet.signMessageAsync(
-        walletInfo.name, message, addr!, _password);
+        walletInfo.name, message, addr, _password);
   }
 
   List<Unspent> unspents() {
@@ -580,6 +581,17 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
     );
 
     unspentCoinsInfo.add(newInfo);
+  }
+
+  // walletBirthdayBlockHeight checks if the wallet birthday is set and returns
+  // it. Returns -1 if not.
+  int walletBirthdayBlockHeight() {
+    final res = libdcrwallet.birthState(walletInfo.name);
+    final decoded = json.decode(res);
+    if (decoded["setfromheight"] == true || decoded["setfromtime"] == true) {
+      return -1;
+    }
+    return decoded["height"] ?? 0;
   }
 
   @override
