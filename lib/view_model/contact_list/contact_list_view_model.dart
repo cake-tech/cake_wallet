@@ -39,7 +39,7 @@ abstract class ContactListViewModelBase with Store {
             ));
           }
         });
-      } else if (info.addresses?.isNotEmpty == true) {
+      } else if (info.addresses?.isNotEmpty == true && info.addresses!.length > 1) {
         info.addresses!.forEach((address, label) {
           if (label.isEmpty) {
             return;

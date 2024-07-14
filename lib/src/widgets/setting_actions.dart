@@ -29,6 +29,7 @@ class SettingActions {
     connectionSettingAction,
     walletSettingAction,
     addressBookSettingAction,
+    silentPaymentsSettingAction,
     securityBackupSettingAction,
     privacySettingAction,
     displaySettingAction,

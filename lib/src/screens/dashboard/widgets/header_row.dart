@@ -37,7 +37,7 @@ class HeaderRow extends StatelessWidget {
               onTap: () {
                 showPopUp<void>(
                   context: context,
-                  builder: (context) => FilterWidget(dashboardViewModel: dashboardViewModel),
+                  builder: (context) => FilterWidget(filterItems: dashboardViewModel.filterItems),
                 );
               },
               child: Semantics(

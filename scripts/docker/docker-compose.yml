@@ -7,3 +7,5 @@ services:
       MONERO_BRANCH: release-v0.18.2.2-android
     volumes:
       - ./output:/opt/android/output
+      - ./cache/dotcache:/root/.cache
+      - ./cache/dotccache:/root/.ccache

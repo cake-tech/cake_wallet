@@ -67,6 +67,14 @@ class SendPage extends BasePage {
   bool get extendBodyBehindAppBar => true;
 
   @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
+
+  @override
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,

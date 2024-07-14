@@ -183,6 +183,23 @@ Future<List<Node>> loadDefaultTronNodes() async {
   return nodes;
 }
 
+Future<List<Node>> loadDefaultWowneroNodes() async {
+  final nodesRaw = await rootBundle.loadString('assets/wownero_node_list.yml');
+  final loadedNodes = loadYaml(nodesRaw) as YamlList;
+  final nodes = <Node>[];
+
+  for (final raw in loadedNodes) {
+    if (raw is Map) {
+      final node = Node.fromMap(Map<String, Object>.from(raw));
+
+      node.type = WalletType.wownero;
+      nodes.add(node);
+    }
+  }
+
+  return nodes;
+}
+
 Future<void> resetToDefault(Box<Node> nodeSource) async {
   final moneroNodes = await loadDefaultNodes();
   final bitcoinElectrumServerList = await loadBitcoinElectrumServerList();

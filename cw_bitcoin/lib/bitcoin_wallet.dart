@@ -6,6 +6,7 @@ import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:convert/convert.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
@@ -150,7 +151,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
 
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath = snp.derivationPath ?? "m/0'/0";
+    walletInfo.derivationInfo!.derivationPath = snp.derivationPath ?? electrum_path;
     walletInfo.derivationInfo!.derivationType = snp.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;

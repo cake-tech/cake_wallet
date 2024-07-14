@@ -64,7 +64,7 @@ class ElectrumClient {
       await socket?.close();
     } catch (_) {}
 
-    if (useSSL == false) {
+    if (useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum"))) {
       socket = await Socket.connect(host, port, timeout: connectionTimeout);
     } else {
       socket = await SecureSocket.connect(host, port,

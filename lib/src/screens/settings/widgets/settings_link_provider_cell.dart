@@ -31,7 +31,8 @@ class SettingsLinkProviderCell extends StandardListRow {
 
   static void _launchUrl(String url) async {
     try {
-      await launch(url, forceSafariVC: false);
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {}
   }
 }

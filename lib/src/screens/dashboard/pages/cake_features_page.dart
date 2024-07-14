@@ -1,17 +1,18 @@
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CakeFeaturesPage extends StatelessWidget {
-  CakeFeaturesPage({
-    required this.dashboardViewModel,
-    required this.cakeFeaturesViewModel,
-  });
+  CakeFeaturesPage({required this.dashboardViewModel, required this.cakeFeaturesViewModel});
 
   final DashboardViewModel dashboardViewModel;
   final CakeFeaturesViewModel cakeFeaturesViewModel;
@@ -45,20 +46,11 @@ class CakeFeaturesPage extends StatelessWidget {
                 child: ListView(
                   controller: _scrollController,
                   children: <Widget>[
-                    // SizedBox(height: 20),
-                    // DashBoardRoundedCardWidget(
-                    //   onTap: () => launchUrl(
-                    //     Uri.parse("https://cakelabs.com/news/cake-pay-mobile-to-shut-down/"),
-                    //     mode: LaunchMode.externalApplication,
-                    //   ),
-                    //   title: S.of(context).cake_pay_title,
-                    //   subTitle: S.of(context).cake_pay_subtitle,
-                    // ),
                     SizedBox(height: 20),
                     DashBoardRoundedCardWidget(
-                      onTap: () => _launchUrl("buy.cakepay.com"),
-                      title: S.of(context).cake_pay_web_cards_title,
-                      subTitle: S.of(context).cake_pay_web_cards_subtitle,
+                      onTap: () => _navigatorToGiftCardsPage(context),
+                      title: 'Cake Pay',
+                      subTitle: S.of(context).cake_pay_subtitle,
                       svgPicture: SvgPicture.asset(
                         'assets/images/cards.svg',
                         height: 125,
@@ -88,6 +80,28 @@ class CakeFeaturesPage extends StatelessWidget {
         Uri.https(url),
         mode: LaunchMode.externalApplication,
       );
-    } catch (_) {}
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void _navigatorToGiftCardsPage(BuildContext context) {
+    final walletType = dashboardViewModel.type;
+
+    switch (walletType) {
+      case WalletType.haven:
+        showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).error,
+                  alertContent: S.of(context).gift_cards_unavailable,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+        break;
+      default:
+        Navigator.pushNamed(context, Routes.cakePayCardsPage);
+    }
   }
 }

@@ -33,6 +33,14 @@ class SendTemplatePage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
+
+  @override
   Widget trailing(context) => Observer(builder: (_) {
         return sendTemplateViewModel.recipients.length > 1
             ? TrailButton(

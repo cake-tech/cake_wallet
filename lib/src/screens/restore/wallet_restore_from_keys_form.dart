@@ -171,6 +171,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
           hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
           onHeightChange: (_) => null,
           onHeightOrDateEntered: widget.onHeightOrDateEntered,
+          walletType: widget.walletRestoreViewModel.type,
         ),
       ],
     );
