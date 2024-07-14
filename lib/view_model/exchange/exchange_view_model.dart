@@ -154,10 +154,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChangeNowExchangeProvider(settingsStore: _settingsStore),
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
-        TrocadorExchangeProvider(useTorOnly: _useTorOnly),
         ThorChainExchangeProvider(tradesStore: trades),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         QuantexExchangeProvider(),
+        TrocadorExchangeProvider(useTorOnly: _useTorOnly)
       ];
 
   @observable
@@ -515,7 +515,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             try {
               tradeState = TradeIsCreating();
               if (provider is TrocadorExchangeProvider) {
-                await updateAllTrocadorProviderStates(provider);
+                updateAllTrocadorProviderStates(provider);
                 provider.providerStates =
                     Map<String, bool>.from(_settingsStore.trocadorProviderStates);
               }

@@ -1521,12 +1521,7 @@ abstract class SettingsStoreBase with Store {
     String? serializedData = await _sharedPreferences.getString(PreferencesKey.trocadorProviderStatesKey);
     Map<String, bool> regularMap = {};
 
-    if (serializedData != null) {
-      var decodedData = json.decode(serializedData);
-      if (decodedData is Map) {
-        regularMap = decodedData.map<String, bool>((key, value) => MapEntry(key as String, value as bool));
-      }
-    }
+    if (serializedData != null) regularMap = json.decode(serializedData) as Map<String, bool>;
 
     trocadorProviderStates.clear();
 
@@ -1547,8 +1542,7 @@ abstract class SettingsStoreBase with Store {
   }
 
   Future<void> saveMapToString(String key, Map<String, bool> map) async {
-    Map<String, bool> regularMap = Map<String, bool>.from(map);
-    String serializedData = json.encode(regularMap);
+    String serializedData = json.encode(map);
     await _sharedPreferences.setString(key, serializedData);
   }
 
