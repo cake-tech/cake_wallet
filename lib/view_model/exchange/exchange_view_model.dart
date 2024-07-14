@@ -287,6 +287,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   bool get isLowFee {
     switch (wallet.type) {
       case WalletType.monero:
+      case WalletType.wownero:
       case WalletType.haven:
         return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
       case WalletType.bitcoin:
@@ -507,7 +508,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         if (limitsState is LimitsLoadedSuccessfully) {
           if (double.tryParse(amount) == null) continue;
 
-          if (limits.max != null && double.parse(amount) < limits.min!)
+          if (limits.min != null && double.parse(amount) < limits.min!)
             continue;
           else if (limits.max != null && double.parse(amount) > limits.max!)
             continue;
@@ -670,6 +671,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.nano;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.banano:
+        depositCurrency = CryptoCurrency.banano;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       case WalletType.polygon:
         depositCurrency = CryptoCurrency.maticpoly;
         receiveCurrency = CryptoCurrency.xmr;
@@ -682,7 +687,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.trx;
         receiveCurrency = CryptoCurrency.xmr;
         break;
-      default:
+      case WalletType.wownero:
+        depositCurrency = CryptoCurrency.wow;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.none:
         break;
     }
   }
@@ -755,6 +764,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.wownero:
         _settingsStore.priority[wallet.type] = monero!.getMoneroTransactionPriorityAutomatic();
         break;
       case WalletType.bitcoin:

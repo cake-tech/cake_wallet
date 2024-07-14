@@ -1,4 +1,6 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
 part 'rescan_view_model.g.dart';
@@ -8,11 +10,12 @@ class RescanViewModel = RescanViewModelBase with _$RescanViewModel;
 enum RescanWalletState { rescaning, none }
 
 abstract class RescanViewModelBase with Store {
-  RescanViewModelBase(this._wallet)
-    : state = RescanWalletState.none,
-      isButtonEnabled = false;
+  RescanViewModelBase(this.wallet)
+      : state = RescanWalletState.none,
+        isButtonEnabled = false,
+        doSingleScan = false;
 
-  final WalletBase _wallet;
+  final WalletBase wallet;
 
   @observable
   RescanWalletState state;
@@ -20,11 +23,21 @@ abstract class RescanViewModelBase with Store {
   @observable
   bool isButtonEnabled;
 
+  @observable
+  bool doSingleScan;
+
+  @computed
+  bool get isSilentPaymentsScan => wallet.type == WalletType.bitcoin;
+
   @action
   Future<void> rescanCurrentWallet({required int restoreHeight}) async {
     state = RescanWalletState.rescaning;
-    await _wallet.rescan(height: restoreHeight);
-    _wallet.transactionHistory.clear();
+    if (wallet.type != WalletType.bitcoin) {
+      wallet.rescan(height: restoreHeight);
+      wallet.transactionHistory.clear();
+    } else {
+      bitcoin!.rescan(wallet, height: restoreHeight, doSingleScan: doSingleScan);
+    }
     state = RescanWalletState.none;
   }
 }

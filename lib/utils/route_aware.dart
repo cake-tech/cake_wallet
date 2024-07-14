@@ -10,10 +10,10 @@ class RouteAwareWidget extends StatefulWidget {
       this.popNextWidget});
 
   final Widget child;
-  final Function()? pushToWidget;
-  final Function()? pushToNextWidget;
-  final Function()? popWidget;
-  final Function()? popNextWidget;
+  final Function(BuildContext context)? pushToWidget;
+  final Function(BuildContext context)? pushToNextWidget;
+  final Function(BuildContext context)? popWidget;
+  final Function(BuildContext context)? popNextWidget;
 
   @override
   State<RouteAwareWidget> createState() => RouteAwareWidgetState();
@@ -35,28 +35,28 @@ class RouteAwareWidgetState extends State<RouteAwareWidget> with RouteAware {
   @override
   void didPush() {
     if (widget.pushToWidget != null) {
-      widget.pushToWidget!();
+      widget.pushToWidget!(context);
     }
   }
 
   @override
   void didPushNext() {
     if (widget.pushToNextWidget != null) {
-      widget.pushToNextWidget!();
+      widget.pushToNextWidget!(context);
     }
   }
 
   @override
   void didPop() {
     if (widget.popWidget != null) {
-      widget.popWidget!();
+      widget.popWidget!(context);
     }
   }
 
   @override
   void didPopNext() {
     if (widget.popNextWidget != null) {
-      widget.popNextWidget!();
+      widget.popNextWidget!(context);
     }
   }
 

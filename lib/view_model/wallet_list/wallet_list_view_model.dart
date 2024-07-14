@@ -61,6 +61,7 @@ abstract class WalletListViewModelBase with Store {
           key: info.key,
           isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
           isEnabled: availableWalletTypes.contains(info.type),
+          isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
         ),
       ),
     );

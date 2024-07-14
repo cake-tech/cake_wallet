@@ -245,6 +245,12 @@ class CWMonero extends Monero {
   }
 
   @override
+  int? getRestoreHeight(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.restoreHeight;
+  }
+
+  @override
   Object createMoneroTransactionCreationCredentials(
           {required List<Output> outputs, required TransactionPriority priority}) =>
       MoneroTransactionCreationCredentials(
@@ -334,5 +340,10 @@ class CWMonero extends Monero {
   Future<void> updateUnspents(Object wallet) async {
     final moneroWallet = wallet as MoneroWallet;
     await moneroWallet.updateUnspent();
+  }
+
+  @override
+  Future<int> getCurrentHeight() async {
+    return monero_wallet_api.getCurrentHeight();
   }
 }

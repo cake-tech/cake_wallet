@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x -e
 . ./config.sh
 BOOST_SRC_DIR=$WORKDIR/boost_1_72_0
 BOOST_FILENAME=boost_1_72_0.tar.bz2

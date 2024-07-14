@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x -e
 
 ARCH=$1
 PREFIX=$2

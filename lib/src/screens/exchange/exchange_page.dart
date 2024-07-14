@@ -100,6 +100,14 @@ class ExchangePage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
+
+  @override
   Widget middle(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

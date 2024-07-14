@@ -16,6 +16,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -229,7 +230,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       isFiatDisabled ? '' : pendingTransactionFeeFiatAmount + ' ' + fiat.title;
 
   @computed
-  bool get isReadyForSend => wallet.syncStatus is SyncedSyncStatus;
+  bool get isReadyForSend =>
+      wallet.syncStatus is SyncedSyncStatus ||
+      // If silent payments scanning, can still send payments
+      (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
 
   @computed
   List<Template> get templates => sendTemplateViewModel.templates
@@ -241,6 +245,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.wownero ||
       wallet.type == WalletType.bitcoinCash;
 
   @computed
@@ -475,6 +480,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return monero!
             .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
+      case WalletType.wownero:
+        return wownero!
+            .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+
       case WalletType.haven:
         return haven!.createHavenTransactionCreationCredentials(
             outputs: outputs, priority: priority!, assetType: selectedCryptoCurrency.title);
@@ -599,6 +608,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         walletType == WalletType.litecoin ||
         walletType == WalletType.bitcoinCash) {
       if (error is TransactionWrongBalanceException) {
+        if (error.amount != null)
+          return S.current
+              .tx_wrong_balance_with_amount_exception(currency.toString(), error.amount.toString());
+
         return S.current.tx_wrong_balance_exception(currency.toString());
       }
       if (error is TransactionNoInputsException) {
@@ -625,8 +638,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (error is TransactionCommitFailedVoutNegative) {
         return S.current.tx_rejected_vout_negative;
       }
+      if (error is TransactionCommitFailedBIP68Final) {
+        return S.current.tx_rejected_bip68_final;
+      }
       if (error is TransactionNoDustOnChangeException) {
         return S.current.tx_commit_exception_no_dust_on_change(error.min, error.max);
+      }
+      if (error is TransactionInputNotSupported) {
+        return S.current.tx_invalid_input;
       }
     }
 

@@ -31,8 +31,6 @@ void callbackDispatcher() {
 
           final walletLoadingService = getIt.get<WalletLoadingService>();
 
-          final node = getIt.get<SettingsStore>().getCurrentNode(WalletType.monero);
-
           final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType);
 
           WalletBase? wallet;
@@ -42,23 +40,25 @@ void callbackDispatcher() {
             final List<WalletListItem> moneroWallets = getIt
                 .get<WalletListViewModel>()
                 .wallets
-                .where((element) => element.type == WalletType.monero)
+                .where((element) => [WalletType.monero, WalletType.wownero].contains(element.type))
                 .toList();
 
             for (int i = 0; i < moneroWallets.length; i++) {
-              wallet = await walletLoadingService.load(WalletType.monero, moneroWallets[i].name);
-
+              wallet =
+                  await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
+              final node = getIt.get<SettingsStore>().getCurrentNode(moneroWallets[i].type);
               await wallet.connectToNode(node: node);
               await wallet.startSync();
             }
           } else {
             /// if the user chose to sync only active wallet
             /// if the current wallet is monero; sync it only
-            if (typeRaw == WalletType.monero.index) {
+            if (typeRaw == WalletType.monero.index || typeRaw == WalletType.wownero.index) {
               final name =
                   getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
 
-              wallet = await walletLoadingService.load(WalletType.monero, name!);
+              wallet = await walletLoadingService.load(WalletType.values[typeRaw!], name!);
+              final node = getIt.get<SettingsStore>().getCurrentNode(WalletType.values[typeRaw]);
 
               await wallet.connectToNode(node: node);
               await wallet.startSync();
@@ -66,7 +66,7 @@ void callbackDispatcher() {
           }
 
           if (wallet?.syncStatus.progress() == null) {
-            return Future.error("No Monero wallet found");
+            return Future.error("No Monero/Wownero wallet found");
           }
 
           for (int i = 0;; i++) {

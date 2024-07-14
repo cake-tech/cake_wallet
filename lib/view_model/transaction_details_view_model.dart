@@ -1,4 +1,5 @@
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -75,6 +76,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.tron:
         _addTronListItems(tx, dateFormat);
         break;
+      case WalletType.wownero:
+        _addWowneroListItems(tx, dateFormat);
+        break;
       default:
         break;
     }
@@ -99,9 +103,10 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.add(BlockExplorerListItem(
         title: S.current.view_in_block_explorer,
         value: _explorerDescription(type),
-        onTap: () {
+        onTap: () async {
           try {
-            launch(_explorerUrl(type, tx.id));
+            final uri = Uri.parse(_explorerUrl(type, tx.id));
+            if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
           } catch (e) {}
         }));
 
@@ -166,7 +171,9 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://solscan.io/tx/${txId}';
       case WalletType.tron:
         return 'https://tronscan.org/#/transaction/${txId}';
-      default:
+      case WalletType.wownero:
+        return 'https://explore.wownero.com/tx/${txId}';
+      case WalletType.none:
         return '';
     }
   }
@@ -194,7 +201,9 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'solscan.io';
       case WalletType.tron:
         return S.current.view_transaction_on + 'tronscan.org';
-      default:
+      case WalletType.wownero:
+        return S.current.view_transaction_on + 'Wownero.com';
+      case WalletType.none:
         return '';
     }
   }
@@ -439,4 +448,44 @@ abstract class TransactionDetailsViewModelBase with Store {
   String get pendingTransactionFeeFiatAmountFormatted => sendViewModel.isFiatDisabled
       ? ''
       : sendViewModel.pendingTransactionFeeFiatAmount + ' ' + sendViewModel.fiat.title;
+
+  void _addWowneroListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final key = tx.additionalInfo['key'] as String?;
+    final accountIndex = tx.additionalInfo['accountIndex'] as int;
+    final addressIndex = tx.additionalInfo['addressIndex'] as int;
+    final feeFormatted = tx.feeFormatted();
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (feeFormatted != null)
+        StandartListItem(title: S.current.transaction_details_fee, value: feeFormatted),
+      if (key?.isNotEmpty ?? false) StandartListItem(title: S.current.transaction_key, value: key!),
+    ];
+
+    if (tx.direction == TransactionDirection.incoming) {
+      try {
+        final address = wownero!.getTransactionAddress(wallet, accountIndex, addressIndex);
+        final label = wownero!.getSubaddressLabel(wallet, accountIndex, addressIndex);
+
+        if (address.isNotEmpty) {
+          isRecipientAddressShown = true;
+          _items.add(StandartListItem(
+            title: S.current.transaction_details_recipient_address,
+            value: address,
+          ));
+        }
+
+        if (label.isNotEmpty) {
+          _items.add(StandartListItem(title: S.current.address_label, value: label));
+        }
+      } catch (e) {
+        print(e.toString());
+      }
+    }
+
+    items.addAll(_items);
+  }
 }

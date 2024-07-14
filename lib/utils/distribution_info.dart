@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:package_info/package_info.dart';
+import 'package:cake_wallet/utils/package_info.dart';
 
 enum DistributionType { googleplay, github, appstore, fdroid }
 

@@ -144,10 +144,12 @@ abstract class HomeSettingsViewModelBase with Store {
 
     if (_balanceViewModel.wallet.type == WalletType.ethereum) {
       ethereum!.addErc20Token(_balanceViewModel.wallet, token as Erc20Token);
+      if (!value) ethereum!.removeTokenTransactionsInHistory(_balanceViewModel.wallet, token);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.polygon) {
       polygon!.addErc20Token(_balanceViewModel.wallet, token as Erc20Token);
+      if (!value) polygon!.removeTokenTransactionsInHistory(_balanceViewModel.wallet, token);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.solana) {
