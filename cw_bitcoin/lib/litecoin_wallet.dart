@@ -161,6 +161,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (syncStatus is FailedSyncStatus) return;
       final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
       final resp = await _stub.status(StatusRequest());
+      // print("height: $height");
+      // print("resp.blockHeaderHeight: ${resp.blockHeaderHeight}");
+      // print("resp.mwebHeaderHeight: ${resp.mwebHeaderHeight}");
+      // print("resp.mwebUtxosHeight: ${resp.mwebUtxosHeight}");
       if (resp.blockHeaderHeight < height) {
         int h = resp.blockHeaderHeight;
         syncStatus = SyncingSyncStatus(height - h, h / height);
@@ -292,9 +296,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         continue;
       }
 
-      if (walletInfo.restoreHeight > utxo.height) {
-        continue;
-      }
+      // if (walletInfo.restoreHeight > utxo.height) {
+      //   continue;
+      // }
 
       await handleIncoming(utxo, _stub);
 
@@ -318,10 +322,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         value: sUtxo.value.toInt(),
       );
 
-      if (mwebUtxosBox.containsKey(utxo.outputId)) {
-        // we've already stored this utxo, skip it:
-        continue;
-      }
+      // if (mwebUtxosBox.containsKey(utxo.outputId)) {
+      //   // we've already stored this utxo, skip it:
+      //   continue;
+      // }
 
       if (utxo.address.isEmpty) {
         await updateUnspent();
@@ -479,7 +483,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<ElectrumBalance> fetchBalances() async {
-    print("FETCH BALANCES");
     final balance = await super.fetchBalances();
     var confirmed = balance.confirmed;
     var unconfirmed = balance.unconfirmed;
