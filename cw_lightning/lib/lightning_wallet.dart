@@ -325,6 +325,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     }
     await _nodeStateSub?.cancel();
     await _paymentsSub?.cancel();
+    await _invoiceSub?.cancel();
+    await _logStream?.cancel();
   }
 
   @action
