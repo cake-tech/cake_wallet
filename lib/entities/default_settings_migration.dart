@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
+import 'package:cake_wallet/haven/haven.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -268,19 +269,11 @@ Future<void> defaultSettingsMigration(
 }
 
 Future<void> _backupHavenSeeds(Box<HavenSeedStore> havenSeedStore) async {
-  final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
-  final wallets = walletInfoSource.values
-    .where((element) => element.type == WalletType.haven);
-  for (var w in wallets) {
-    final walletService = HavenWalletService(walletInfoSource);
-    final flutterSecureStorage = secureStorageShared;
-    final keyService = KeyService(flutterSecureStorage);
-    final password = await keyService.getWalletPassword(walletName: w.name);
-    final wallet = await walletService.openWallet(w.name, password);
-    await havenSeedStore.add(HavenSeedStore(id: wallet.id, seed: wallet.seed));
-    wallet.close();
+  final future = haven?.backupHavenSeeds(havenSeedStore);
+  if (future != null) {
+    await future;
   }
-  await havenSeedStore.flush();
+  return;
 }
 
 void _fixNodesUseSSLFlag(Box<Node> nodes) {
