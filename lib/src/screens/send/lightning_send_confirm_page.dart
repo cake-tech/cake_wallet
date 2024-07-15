@@ -327,89 +327,91 @@ class LightningSendConfirmPage extends BasePage {
                 children: <Widget>[
                   Observer(
                     builder: (context) {
-                      if (lightningSendViewModel.maxSats > lightningSendViewModel.minSats && btcAddress != null) {
-                        return LoadingPrimaryButton(
-                          text: S.of(context).send,
-                          onPressed: () async {
-                            try {
-                              if (invoice != null) {
-                                await lightningSendViewModel.sendInvoice(
-                                    invoice!, int.parse(_amountController.text));
-                              } else if (btcAddress != null) {
-                                await lightningSendViewModel.sendBtc(
-                                    btcAddress!, int.parse(_amountController.text));
-                              }
-
-                              await showPopUp<void>(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertWithOneAction(
-                                        alertTitle: '',
-                                        alertContent: S
-                                            .of(context)
-                                            .send_success(CryptoCurrency.btc.toString()),
-                                        buttonText: S.of(context).ok,
-                                        buttonAction: () {
-                                          Navigator.of(context).pop();
-                                          // todo: Navigator.popUntil(context, (route) => route.isFirst);
-                                        });
-                                  });
-                              Navigator.of(context).pop();
-                            } catch (e) {
-                              showPopUp<void>(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertWithOneAction(
-                                      alertTitle: S.of(context).error,
-                                      alertContent: e.toString(),
-                                      buttonText: S.of(context).ok,
-                                      buttonAction: () => Navigator.of(context).pop(),
-                                    );
-                                  });
-                            }
-                          },
-                          color: Theme.of(context).primaryColor,
-                          textColor: Colors.white,
-                          isLoading: lightningSendViewModel.loading,
-                        );
-                      }
-                      return Container(
-                        padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
-                        margin: const EdgeInsets.only(left: 24, right: 24, bottom: 48),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                          color: Color.fromARGB(255, 170, 147, 30),
-                          border: Border.all(
-                            color: Color.fromARGB(178, 223, 214, 0),
-                            width: 2,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 48,
-                              height: 48,
-                              margin: EdgeInsets.only(left: 12, bottom: 48, right: 20),
-                              child: Image.asset(
-                                "assets/images/warning.png",
-                                color: Color.fromARGB(128, 255, 255, 255),
-                              ),
+                      if (lightningSendViewModel.maxSats <= lightningSendViewModel.minSats &&
+                          btcAddress != null) {
+                        return Container(
+                          padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
+                          margin: const EdgeInsets.only(left: 24, right: 24, bottom: 48),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
+                            color: Color.fromARGB(255, 170, 147, 30),
+                            border: Border.all(
+                              color: Color.fromARGB(178, 223, 214, 0),
+                              width: 2,
                             ),
-                            Expanded(
-                              child: Text(
-                                S.current.lightning_swap_out_error,
-                                maxLines: 5,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color:
-                                      Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 48,
+                                height: 48,
+                                margin: EdgeInsets.only(left: 12, bottom: 48, right: 20),
+                                child: Image.asset(
+                                  "assets/images/warning.png",
+                                  color: Color.fromARGB(128, 255, 255, 255),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                              Expanded(
+                                child: Text(
+                                  S.current.lightning_swap_out_error,
+                                  maxLines: 5,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context)
+                                        .extension<DashboardPageTheme>()!
+                                        .textColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return LoadingPrimaryButton(
+                        text: S.of(context).send,
+                        onPressed: () async {
+                          try {
+                            if (invoice != null) {
+                              await lightningSendViewModel.sendInvoice(
+                                  invoice!, int.parse(_amountController.text));
+                            } else if (btcAddress != null) {
+                              await lightningSendViewModel.sendBtc(
+                                  btcAddress!, int.parse(_amountController.text));
+                            }
+
+                            await showPopUp<void>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertWithOneAction(
+                                      alertTitle: '',
+                                      alertContent:
+                                          S.of(context).send_success(CryptoCurrency.btc.toString()),
+                                      buttonText: S.of(context).ok,
+                                      buttonAction: () {
+                                        Navigator.of(context).pop();
+                                        // todo: Navigator.popUntil(context, (route) => route.isFirst);
+                                      });
+                                });
+                            Navigator.of(context).pop();
+                          } catch (e) {
+                            showPopUp<void>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertWithOneAction(
+                                    alertTitle: S.of(context).error,
+                                    alertContent: e.toString(),
+                                    buttonText: S.of(context).ok,
+                                    buttonAction: () => Navigator.of(context).pop(),
+                                  );
+                                });
+                          }
+                        },
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        isLoading: lightningSendViewModel.loading,
                       );
                     },
                   ),

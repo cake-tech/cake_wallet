@@ -28,17 +28,22 @@ class LightningSendPage extends BasePage {
     required this.output,
     required this.authService,
     required this.lightningSendViewModel,
-  }) : _formKey = GlobalKey<FormState>();
+    String? address,
+  })  : bolt11Controller = TextEditingController(text: address),
+        address = address ?? '',
+        _formKey = GlobalKey<FormState>();
 
   final Output output;
   final AuthService authService;
   final LightningSendViewModel lightningSendViewModel;
   final GlobalKey<FormState> _formKey;
 
-  final bolt11Controller = TextEditingController();
+  late TextEditingController bolt11Controller;
   final bolt11FocusNode = FocusNode();
 
   bool _effectsInstalled = false;
+
+  late String address;
 
   @override
   String get title => S.current.send;

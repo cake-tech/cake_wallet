@@ -1246,7 +1246,7 @@ Future<void> setup({
     );
   });
 
-  getIt.registerFactory<LightningSendPage>(() {
+  getIt.registerFactoryParam<LightningSendPage, String?, void>((String? address, _) {
     return LightningSendPage(
       output: Output(
         getIt.get<AppStore>().wallet!,
@@ -1256,6 +1256,7 @@ Future<void> setup({
       ),
       authService: getIt.get<AuthService>(),
       lightningSendViewModel: getIt.get<LightningSendViewModel>(),
+      address: address,
     );
   });
 

@@ -7,6 +7,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:rxdart/rxdart.dart';
 
 class LinkViewModel {
   LinkViewModel({
@@ -25,6 +26,9 @@ class LinkViewModel {
   bool get _isValidPaymentUri => currentLink?.path.isNotEmpty ?? false;
   bool get isWalletConnectLink => currentLink?.authority == 'wc';
   bool get isNanoGptLink => currentLink?.scheme == 'nano-gpt';
+  bool get isLightningPayment {
+    return currentLink?.path.startsWith('lnbc') ?? false;
+  }
 
   String? getRouteToGo() {
     if (isWalletConnectLink) {
@@ -50,6 +54,10 @@ class LinkViewModel {
       }
     }
 
+    if (isLightningPayment) {
+      return Routes.lightningSend;
+    }
+
     if (_isValidPaymentUri) {
       return Routes.send;
     }
@@ -70,6 +78,10 @@ class LinkViewModel {
         case "buy":
           return true;
       }
+    }
+
+    if (isLightningPayment) {
+      return currentLink?.path;
     }
 
     if (_isValidPaymentUri) {

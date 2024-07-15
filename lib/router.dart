@@ -659,7 +659,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.lightningSend:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<LightningSendPage>());
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<LightningSendPage>(param1: settings.arguments as String?));
 
     case Routes.lightningSendConfirm:
       final args = settings.arguments as Map<String, dynamic>;
