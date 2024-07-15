@@ -118,7 +118,7 @@ abstract class ElectrumWalletBase
               .derivePath(_hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path));
     }
 
-    return bitcoin.HDWallet.fromBase58(xpub!);
+    return bitcoin.HDWallet.fromBase58(xpub!, network: networkType);
   }
 
   static bitcoin.HDWallet bitcoinCashHDWallet(Uint8List seedBytes) =>

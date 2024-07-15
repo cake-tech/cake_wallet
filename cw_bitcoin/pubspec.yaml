@@ -45,6 +45,8 @@ dependencies:
     git:
       url: https://github.com/cake-tech/sp_scanner
       ref: sp_v2.0.0
+  ledger_litecoin:
+    path: ../../ledger_litecoin
 
 
 dev_dependencies:

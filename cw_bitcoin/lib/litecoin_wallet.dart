@@ -22,11 +22,12 @@ class LitecoinWallet = LitecoinWalletBase with _$LitecoinWallet;
 
 abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   LitecoinWalletBase({
-    required String mnemonic,
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Uint8List seedBytes,
+    Uint8List? seedBytes,
+    String? mnemonic,
+    String? xpub,
     String? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
@@ -35,6 +36,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }) : super(
             mnemonic: mnemonic,
             password: password,
+            xpub: xpub,
             walletInfo: walletInfo,
             unspentCoinsInfo: unspentCoinsInfo,
             networkType: litecoinNetwork,

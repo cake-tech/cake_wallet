@@ -52,7 +52,11 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
       switch (type) {
         case WalletType.bitcoin:
         accounts = await bitcoin!
-            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+            .getHardwareWalletBitcoinAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+        break;
+      case WalletType.litecoin:
+        accounts = await bitcoin!
+            .getHardwareWalletLitecoinAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
         break;
       case WalletType.ethereum:
         accounts = await ethereum!
@@ -83,6 +87,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     WalletCredentials credentials;
     switch (type) {
       case WalletType.bitcoin:
+      case WalletType.litecoin:
         credentials =
             bitcoin!.createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
         break;
