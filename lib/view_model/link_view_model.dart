@@ -5,6 +5,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rxdart/rxdart.dart';
@@ -27,7 +28,16 @@ class LinkViewModel {
   bool get isWalletConnectLink => currentLink?.authority == 'wc';
   bool get isNanoGptLink => currentLink?.scheme == 'nano-gpt';
   bool get isLightningPayment {
-    return currentLink?.path.startsWith('lnbc') ?? false;
+    if (currentLink?.path.startsWith('lnbc') ?? false) {
+      return true;
+    }
+
+    // handle regular bitcoin payment links:
+    if (currentLink?.scheme == 'bitcoin' && appStore.wallet?.type == WalletType.lightning) {
+      return true;
+    }
+    
+    return false;
   }
 
   String? getRouteToGo() {

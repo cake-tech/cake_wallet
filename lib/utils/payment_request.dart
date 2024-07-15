@@ -1,5 +1,3 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/nano/nano.dart';
 
 class PaymentRequest {
@@ -28,9 +26,6 @@ class PaymentRequest {
       scheme = "nano";
     }
 
-    print("scheme: $scheme");
-    print(address);
-
     if (nano != null) {
       if (amount.isNotEmpty) {
         if (address.contains("nano")) {
@@ -40,8 +35,6 @@ class PaymentRequest {
         }
       }
     }
-
-    if (lightning != null) {}
 
     return PaymentRequest(
       address,
