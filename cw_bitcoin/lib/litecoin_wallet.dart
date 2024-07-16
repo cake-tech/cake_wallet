@@ -657,23 +657,16 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       tx.outputs = resp.outputId;
       return tx
         ..addListener((transaction) async {
-          print("LISTENER CALLED @@@@@@@@@@@@@@@@@@");
-          // final addresses = <String>{};
-          // transaction.inputAddresses?.forEach((id) async {
-          //   final utxo = mwebUtxosBox.get(id);
-          //   await mwebUtxosBox.delete(id);
-          //   if (utxo == null) return;
-          //   final addressRecord = walletAddresses.allAddresses
-          //       .firstWhere((addressRecord) => addressRecord.address == utxo.address);
-          //   if (!addresses.contains(utxo.address)) {
-          //     addressRecord.txCount++;
-          //     print("COUNT UPDATED HERE 1!!!!! ${addressRecord.address} ${addressRecord.txCount} !!!!!!");
-          //     addresses.add(utxo.address);
-          //   }
-          //   addressRecord.balance -= utxo.value.toInt();
-          // });
-          // transaction.inputAddresses?.addAll(addresses);
-          // print("BEING ADDED HERE@@@@@@@@@@@@@@@@@@@@@@@3");
+          final addresses = <String>{};
+          transaction.inputAddresses?.forEach((id) async {
+            final utxo = mwebUtxosBox.get(id);
+            await mwebUtxosBox.delete(id);
+            if (utxo == null) return;
+            if (!addresses.contains(utxo.address)) {
+              addresses.add(utxo.address);
+            }
+          });
+          transaction.inputAddresses?.addAll(addresses);
 
           transactionHistory.addOne(transaction);
           await updateUnspent();
