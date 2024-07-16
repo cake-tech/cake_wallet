@@ -408,7 +408,9 @@ abstract class ElectrumWalletBase
   @override
   Future<void> startSync() async {
     try {
-      syncStatus = SyncronizingSyncStatus();
+      if (this is! LitecoinWallet) {
+        syncStatus = SyncronizingSyncStatus();
+      }
 
       if (hasSilentPaymentsScanning) {
         await _setInitialHeight();
@@ -426,10 +428,12 @@ abstract class ElectrumWalletBase
       await updateFeeRates();
       Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
-      if (alwaysScan == true) {
-        _setListeners(walletInfo.restoreHeight);
-      } else {
-        syncStatus = SyncedSyncStatus();
+      if (this is! LitecoinWallet) {
+        if (alwaysScan == true) {
+          _setListeners(walletInfo.restoreHeight);
+        } else {
+          syncStatus = SyncedSyncStatus();
+        }
       }
     } catch (e, stacktrace) {
       print(stacktrace);
