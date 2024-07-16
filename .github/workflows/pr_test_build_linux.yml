@@ -63,9 +63,13 @@ jobs:
           -y curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
           cargo install cargo-ndk
           git clone https://github.com/cake-tech/cake_wallet.git --branch ${{ env.BRANCH_NAME }}
-          cd cake_wallet/scripts/linux/
-          source ./app_env.sh cakewallet
-          ./app_config.sh
+          for i in android linux;
+          do
+            cd cake_wallet/scripts/$i/
+            source ./app_env.sh cakewallet
+            ./app_config.sh
+            cd ../../..
+          done
 
       - name: Cache Externals
         id: cache-externals
