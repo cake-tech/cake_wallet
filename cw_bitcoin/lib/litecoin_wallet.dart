@@ -675,8 +675,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           // transaction.inputAddresses?.addAll(addresses);
           // print("BEING ADDED HERE@@@@@@@@@@@@@@@@@@@@@@@3");
 
-          // transactionHistory.addOne(transaction);
-          // await transactionHistory.save();
+          transactionHistory.addOne(transaction);
           await updateUnspent();
           await updateBalance();
         });
