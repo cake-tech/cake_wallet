@@ -7,9 +7,10 @@ go install golang.org/x/mobile/cmd/gomobile@latest
 gomobile init
 # build mwebd:
 git clone https://github.com/ltcmweb/mwebd
-# go install github.com/ltcmweb/mwebd/cmd/mwebd
+cd mwebd
 gomobile bind -target=ios ./mwebd
-mkdir -p ../../cw_mweb/android/libs/
-mv ./Mwebd.xcframework ../../ios/
+mkdir -p ../../../cw_mweb/android/libs/
+mv ./Mwebd.xcframework ../../../ios/
 # cleanup:
+cd ..
 rm -rf mwebd
