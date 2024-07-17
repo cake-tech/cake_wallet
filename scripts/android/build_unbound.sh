@@ -2,8 +2,8 @@
 
 . ./config.sh
 
-EXPAT_VERSION=R_2_4_8
-EXPAT_HASH="3bab6c09bbe8bf42d84b81563ddbcf4cca4be838"
+EXPAT_VERSION=R_2_6_0
+EXPAT_HASH="849da3e3fe727fccef5e96ef35482d66447f06a2"
 EXPAT_SRC_DIR=$WORKDIR/libexpat
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
@@ -31,9 +31,9 @@ make -j$THREADS
 make -j$THREADS install
 done
 
-UNBOUND_VERSION=release-1.16.2
-UNBOUND_HASH="cbed768b8ff9bfcf11089a5f1699b7e5707f1ea5"
-UNBOUND_SRC_DIR=$WORKDIR/unbound-1.16.2
+UNBOUND_VERSION=release-1.19.1
+UNBOUND_HASH="c6dd1e116df75242a0c032295c152f06c721b3cd"
+UNBOUND_SRC_DIR=$WORKDIR/unbound-1.19.1
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
@@ -59,7 +59,8 @@ case $arch in
 	*)	       HOST="${arch}-linux-android";;
 esac
 
-CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=${HOST} --enable-static --disable-shared --disable-flto --with-ssl=${PREFIX} --with-libexpat=${PREFIX}
+CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=${HOST} --enable-static --disable-shared --disable-flto \
+--with-ssl=${PREFIX} --with-libexpat=${PREFIX} --enable-static-openssl --with-openssl-includes=${PREFIX}  
 make -j$THREADS
 make -j$THREADS install
 done
