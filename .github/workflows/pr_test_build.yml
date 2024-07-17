@@ -113,6 +113,8 @@ jobs:
           gomobile bind -target=android -androidapi 21 .
           mkdir -p /opt/android/cake_wallet/cw_mweb/android/libs/
           mv ./mwebd.aar $_
+          cd ..
+          rm -rf mwebd
 
 
 
