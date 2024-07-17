@@ -65,18 +65,52 @@ abstract class EVMChainClient {
   Future<int> getGasUnitPrice() async {
     try {
       final gasPrice = await _client!.getGasPrice();
+      print('Gas Unit Price in Function: ${gasPrice.getInWei.toInt()}');
+
       return gasPrice.getInWei.toInt();
     } catch (_) {
       return 0;
     }
   }
 
-  Future<int> getEstimatedGas() async {
+  Future<int?> getGasBaseFee() async {
     try {
-      final estimatedGas = await _client!.estimateGas();
-      return estimatedGas.toInt();
+      final blockInfo = await _client!.getBlockInformation(isContainFullObj: false);
+      final baseFee = blockInfo.baseFeePerGas;
+
+      print('Gas BaseFee in Function: ${baseFee?.getInWei.toInt()}');
+
+      return baseFee!.getInWei.toInt();
     } catch (_) {
       return 0;
+    }
+  }
+
+  Future<BigInt> getEstimatedGas({
+    EtherAmount? maxPriorityFeePerGas,
+    EtherAmount? maxFeePerGas,
+    EthereumAddress? sender,
+    EtherAmount? gasPrice,
+    EthereumAddress? toAddress,
+    EtherAmount? value,
+  }) async {
+    try {
+      print('About to start in estimateGas');
+      final estimatedGas = await _client!.estimateGas(
+        // maxPriorityFeePerGas: maxPriorityFeePerGas,
+        // maxFeePerGas: maxFeePerGas,
+        sender: sender,
+        // gasPrice: gasPrice,
+        to: toAddress,
+        value: value,
+      );
+      print('About to end in estimateGas');
+
+      print('Estimated Gas in Function: ${estimatedGas.toInt()}');
+      return estimatedGas;
+    } catch (e, s) {
+      print('Error fetching estimateGas: ${e.toString}, ${s.toString()}');
+      return BigInt.zero;
     }
   }
 
@@ -84,7 +118,7 @@ abstract class EVMChainClient {
     required Credentials privateKey,
     required String toAddress,
     required BigInt amount,
-    required int gas,
+    required BigInt gas,
     required EVMChainTransactionPriority priority,
     required CryptoCurrency currency,
     required int exponent,
@@ -97,7 +131,7 @@ abstract class EVMChainClient {
 
     bool isNativeToken = currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
 
-    final price = _client!.getGasPrice();
+    // final price = _client!.getGasPrice();
 
     final Transaction transaction = createTransaction(
       from: privateKey.address,
@@ -130,11 +164,10 @@ abstract class EVMChainClient {
 
     _sendTransaction = () async => await sendTransaction(signedTransaction);
 
-
     return PendingEVMChainTransaction(
       signedTransaction: signedTransaction,
       amount: amount.toString(),
-      fee: BigInt.from(gas) * (await price).getInWei,
+      fee: gas,
       sendTransaction: _sendTransaction,
       exponent: exponent,
     );
