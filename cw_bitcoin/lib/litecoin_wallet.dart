@@ -32,7 +32,6 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/litecoin_network.dart';
 import 'package:cw_mweb/cw_mweb.dart';
-import 'package:cw_mweb/mwebd.pb.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bip39/bip39.dart' as bip39;
 
@@ -278,7 +277,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
       if (!(tx.inputAddresses?.contains(utxo.address) ?? false)) {
         addressRecord.txCount++;
-        print("COUNT UPDATED HERE 2!!!!! ${addressRecord.txCount}");
+        // print("COUNT UPDATED HERE 2!!!!! ${addressRecord.txCount}");
       }
       addressRecord.balance += utxo.value.toInt();
       addressRecord.setAsUsed();
@@ -380,7 +379,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           .firstWhere((addressRecord) => addressRecord.address == utxo.address);
       if (!inputAddresses.contains(utxo.address)) {
         addressRecord.txCount++;
-        print("COUNT UPDATED HERE 3!!!!! ${addressRecord.address} ${addressRecord.txCount} !!!!!!");
+        // print("COUNT UPDATED HERE 3!!!!! ${addressRecord.address} ${addressRecord.txCount} !!!!!!");
       }
       addressRecord.balance -= utxo.value.toInt();
       amount += utxo.value.toInt();
@@ -542,7 +541,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           continue;
         }
         addressRecord.txCount++;
-        print("COUNT UPDATED HERE 0!!!!! ${addressRecord.address} ${addressRecord.txCount} !!!!!!");
+        // print("COUNT UPDATED HERE 0!!!!! ${addressRecord.address} ${addressRecord.txCount} !!!!!!");
       }
     }
 
@@ -682,6 +681,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     } catch (e, s) {
       print(e);
       print(s);
+      if (e.toString().contains("commit failed")) {
+        throw Exception("Transaction commit failed (no peers responded), please try again.");
+      }
       rethrow;
     }
   }
