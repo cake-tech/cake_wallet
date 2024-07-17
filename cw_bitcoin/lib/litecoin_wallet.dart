@@ -668,9 +668,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             final utxo = mwebUtxosBox.get(id);
             await mwebUtxosBox.delete(id);
             if (utxo == null) return;
+            final addressRecord = walletAddresses.allAddresses
+                .firstWhere((addressRecord) => addressRecord.address == utxo.address);
             if (!addresses.contains(utxo.address)) {
               addresses.add(utxo.address);
             }
+            addressRecord.balance -= utxo.value.toInt();
           });
           transaction.inputAddresses?.addAll(addresses);
 
