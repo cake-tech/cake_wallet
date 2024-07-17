@@ -42,6 +42,7 @@ import 'package:cw_core/get_height_by_date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
+import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
@@ -974,6 +975,8 @@ abstract class ElectrumWalletBase
       throw e;
     }
   }
+
+  void setLedger(Ledger setLedger, LedgerDevice setLedgerDevice) => throw UnimplementedError();
 
   Future<BtcTransaction> buildHardwareWalletTransaction({
     required List<BitcoinBaseOutput> outputs,

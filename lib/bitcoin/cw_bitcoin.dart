@@ -443,7 +443,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
-    (wallet as BitcoinWallet).setLedger(ledger, device);
+    (wallet as ElectrumWallet).setLedger(ledger, device);
   }
 
   @override

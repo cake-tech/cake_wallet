@@ -7,6 +7,8 @@ import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_litecoin/ledger_litecoin.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
@@ -106,13 +108,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final snp =
         await ElectrumWalletSnapshot.load(name, walletInfo.type, password, LitecoinNetwork.mainnet);
     return LitecoinWallet(
-      mnemonic: snp.mnemonic!,
+      mnemonic: snp.mnemonic,
+      xpub: snp.xpub,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp.addresses,
       initialBalance: snp.balance,
-      seedBytes: await mnemonicToSeedBytes(snp.mnemonic!),
+      seedBytes: snp.mnemonic != null ? await mnemonicToSeedBytes(snp.mnemonic!) : null,
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,
@@ -133,5 +136,38 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     return 0;
+  }
+
+  Ledger? _ledger;
+  LedgerDevice? _ledgerDevice;
+  LitecoinLedgerApp? _litecoinLedgerApp;
+
+  @override
+  void setLedger(Ledger setLedger, LedgerDevice setLedgerDevice) {
+    _ledger = setLedger;
+    _ledgerDevice = setLedgerDevice;
+    _litecoinLedgerApp =
+        LitecoinLedgerApp(_ledger!, derivationPath: walletInfo.derivationInfo!.derivationPath!);
+  }
+
+  @override
+  Future<BtcTransaction> buildHardwareWalletTransaction({
+    required List<BitcoinBaseOutput> outputs,
+    required BigInt fee,
+    required BasedUtxoNetwork network,
+    required List<UtxoWithAddress> utxos,
+    required Map<String, PublicKeyWithDerivationPath> publicKeys,
+    String? memo,
+    bool enableRBF = false,
+    BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
+    BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
+  }) async {
+    for (final utxo in utxos) {
+      final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+
+      print(rawTx);
+    }
+
+    throw UnimplementedError();
   }
 }
