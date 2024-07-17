@@ -179,19 +179,19 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           syncStatus = SyncedSyncStatus();
         }
 
-        // if (resp.mwebUtxosHeight > mwebUtxosHeight) {
-        //   mwebUtxosHeight = resp.mwebUtxosHeight;
-        //   await checkMwebUtxosSpent();
-        //   // update the confirmations for each transaction:
-        //   for (final transaction in transactionHistory.transactions.values) {
-        //     if (transaction.isPending) continue;
-        //     final confirmations = mwebUtxosHeight - transaction.height + 1;
-        //     if (transaction.confirmations == confirmations) continue;
-        //     transaction.confirmations = confirmations;
-        //     transactionHistory.addOne(transaction);
-        //   }
-        //   await transactionHistory.save();
-        // }
+        if (resp.mwebUtxosHeight > mwebUtxosHeight) {
+          mwebUtxosHeight = resp.mwebUtxosHeight;
+          await checkMwebUtxosSpent();
+          // update the confirmations for each transaction:
+          for (final transaction in transactionHistory.transactions.values) {
+            if (transaction.isPending) continue;
+            final confirmations = mwebUtxosHeight - transaction.height + 1;
+            if (transaction.confirmations == confirmations) continue;
+            transaction.confirmations = confirmations;
+            transactionHistory.addOne(transaction);
+          }
+          await transactionHistory.save();
+        }
       }
     });
     processMwebUtxos();
