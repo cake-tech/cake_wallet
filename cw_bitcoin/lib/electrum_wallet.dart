@@ -416,11 +416,10 @@ abstract class ElectrumWalletBase
         await _setInitialHeight();
       }
 
-      await _subscribeForUpdates();
-
-      await updateTransactions();
-
       if (this is! LitecoinWallet) {
+        await _subscribeForUpdates();
+        await updateTransactions();
+
         await updateAllUnspents();
         await updateBalance();
       }
