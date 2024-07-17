@@ -3,8 +3,8 @@ set -x -e
 
 . ./config.sh
 ZMQ_SRC_DIR=$WORKDIR/libzmq
-ZMQ_BRANCH=v4.3.3
-ZMQ_COMMIT_HASH=04f5bbedee58c538934374dc45182d8fc5926fa3
+ZMQ_BRANCH=v4.3.5
+ZMQ_COMMIT_HASH=622fc6dde99ee172ebaa9c8628d85a7a1995a21d
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
