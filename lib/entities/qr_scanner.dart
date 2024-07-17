@@ -1,5 +1,6 @@
 import 'package:fast_scanner/fast_scanner.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 var isQrScannerShown = false;
 
@@ -31,14 +32,19 @@ class BarcodeScannerSimple extends StatefulWidget {
 
 class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
   Barcode? _barcode;
-
+  bool popped = false;
   void _handleBarcode(BarcodeCapture barcodes) {
     if (mounted) {
       setState(() {
         _barcode = barcodes.barcodes.firstOrNull;
       });
-      if (_barcode != null) {
-        Navigator.of(context).pop(_barcode);
+      if (_barcode != null && popped != true) {
+        setState(() {
+          popped = true;
+        });
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pop(_barcode);
+        });
       }
     }
   }
