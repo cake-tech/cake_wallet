@@ -690,4 +690,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<void> save() async {
     await super.save();
   }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+    await mwebUtxosBox.close();
+    _syncTimer?.cancel();
+  }
 }
