@@ -36,6 +36,12 @@ case $arch in
 	*)	   X_ARCH="android-${arch}";;
 esac 	
 
+#Disable multithreading for i686, due to issues with atomic operations
+case $arch in
+	"i686")    THREADS_DISABLE_FLAG \="-no-threads";;
+	*)	       THREADS_DISABLE_FLAG="";;
+esac
+
 cd $WORKDIR
 rm -rf $OPENSSL_SRC_DIR
 tar -xzf $OPENSSL_FILE_PATH -C $WORKDIR
@@ -43,6 +49,7 @@ cd $OPENSSL_SRC_DIR
 
 CC=clang ANDROID_NDK=$TOOLCHAIN \
 	./Configure ${X_ARCH} \
+ 	${THREADS_DISABLE_FLAG} \
 	no-shared no-tests \
 	--with-zlib-include=${PREFIX}/include \
 	--with-zlib-lib=${PREFIX}/lib \
