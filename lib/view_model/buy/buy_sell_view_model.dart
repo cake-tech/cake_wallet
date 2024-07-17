@@ -20,6 +20,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -43,8 +44,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         isCryptoAmountEntered = false,
         cryptoAmount = '',
         fiatAmount = '',
-        receiveAddress = '',
-        depositAddress = '',
+        cryptoCurrencyAddress = '',
         isDepositAddressEnabled = false,
         isReceiveAmountEditable = false,
         _useTorOnly = false,
@@ -96,8 +96,14 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   final SharedPreferences sharedPreferences;
 
   List<BuyProvider> get availableBuyProviders {
-   // final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(wallet.type);
-    final providerTypes = [ProviderType.robinhood, ProviderType.dfx, ProviderType.onramper, ProviderType.moonpay, ProviderType.meld];
+    // final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(wallet.type);
+    final providerTypes = [
+      ProviderType.robinhood,
+      ProviderType.dfx,
+      ProviderType.onramper,
+      ProviderType.moonpay,
+      ProviderType.meld
+    ];
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
@@ -107,7 +113,13 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   List<BuyProvider> get availableSellProviders {
     // final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
-    final providerTypes = [ProviderType.robinhood, ProviderType.dfx, ProviderType.onramper, ProviderType.moonpay, ProviderType.meld];
+    final providerTypes = [
+      ProviderType.robinhood,
+      ProviderType.dfx,
+      ProviderType.onramper,
+      ProviderType.moonpay,
+      ProviderType.meld
+    ];
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
@@ -146,10 +158,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   String fiatAmount;
 
   @observable
-  String depositAddress;
-
-  @observable
-  String receiveAddress;
+  String cryptoCurrencyAddress;
 
   @observable
   bool isDepositAddressEnabled;
@@ -266,6 +275,32 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   @action
+  Future<void> _getAvailablePaymentTypes() async {
+    paymentMethodState = PaymentMethodLoading();
+    selectedPaymentMethod = null;
+    final result = await Future.wait(providerList.map((element) =>
+        element.getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency.title, isBuyAction)));
+
+    final Map<PaymentType, PaymentMethod> uniquePaymentMethods = {};
+    for (var methods in result) {
+      for (var method in methods) {
+        uniquePaymentMethods[method.paymentMethodType] = method;
+      }
+    }
+
+    paymentMethods = ObservableList<PaymentMethod>.of(uniquePaymentMethods.values);
+    if (paymentMethods.isNotEmpty) {
+      selectedPaymentMethod = selectedPaymentMethod = paymentMethods.firstWhere(
+          (element) => element.paymentMethodType == PaymentType.creditCard,
+          orElse: () => paymentMethods.first);
+      selectedPaymentMethod!.isSelected = true;
+      paymentMethodState = PaymentMethodLoaded();
+    } else {
+      paymentMethodState = PaymentMethodFailed();
+    }
+  }
+
+  @action
   Future<void> calculateBestRate() async {
     buySellQuotState = BuySellQuotLoading();
     final amount = double.tryParse(isBuyAction ? fiatAmount : cryptoAmount) ?? 100;
@@ -296,28 +331,12 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   @action
-  Future<void> _getAvailablePaymentTypes() async {
-    paymentMethodState = PaymentMethodLoading();
-    selectedPaymentMethod = null;
-    final result = await Future.wait(providerList.map((element) =>
-        element.getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency.title, isBuyAction)));
+  Future<void> launchTrade(BuildContext context) async {
+    if (selectedQuote!.provider == null) return;
 
-    final Map<PaymentType, PaymentMethod> uniquePaymentMethods = {};
-    for (var methods in result) {
-      for (var method in methods) {
-        uniquePaymentMethods[method.paymentMethodType] = method;
-      }
-    }
+    final provider = selectedQuote!.provider!;
+    final amount = double.tryParse(isBuyAction ? fiatAmount : cryptoAmount) ?? 100;
 
-    paymentMethods = ObservableList<PaymentMethod>.of(uniquePaymentMethods.values);
-    if (paymentMethods.isNotEmpty) {
-      selectedPaymentMethod = selectedPaymentMethod = paymentMethods.firstWhere(
-          (element) => element.paymentMethodType == PaymentType.creditCard,
-          orElse: () => paymentMethods.first);
-      selectedPaymentMethod!.isSelected = true;
-      paymentMethodState = PaymentMethodLoaded();
-    } else {
-      paymentMethodState = PaymentMethodFailed();
-    }
+    provider.launchTrade(context,selectedQuote!, selectedPaymentMethod!, amount, isBuyAction, cryptoCurrencyAddress);
   }
 }

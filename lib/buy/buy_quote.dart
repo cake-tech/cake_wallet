@@ -59,7 +59,7 @@ class Quote extends SelectableOption {
 
   String get formatedRate => isBuyAction ? rate.toStringAsFixed(2) : rate.toStringAsFixed(8);
 
-  String get formatedFee => '$feeAmount ${isBuyAction ?  sourceCurrency : destinationCurrency}';
+  String get formatedFee => '$feeAmount ${isBuyAction ? sourceCurrency : destinationCurrency}';
 
   void set setIsSelected(bool isSelected) => this.isSelected = isSelected;
 
@@ -88,20 +88,25 @@ class Quote extends SelectableOption {
     );
   }
 
-  factory Quote.fromMoonPayJson(Map<String, dynamic> json, ProviderType providerType) {
-    final fee = json['feeAmount'] as double? ?? 0.0;
-    final networkFee = json['networkFeeAmount'] as double? ?? 0.0;
-    final transactionFee = (json['extraFeeAmount'] as int?)?.toDouble() ?? 0.0;
+  factory Quote.fromMoonPayJson(
+      Map<String, dynamic> json, ProviderType providerType, bool isBuyAction) {
+    final rate = isBuyAction
+        ? json['quoteCurrencyPrice'] as double? ?? 0.0
+        : json['baseCurrencyPrice'] as double? ?? 0.0;
+    final fee = _toDouble(json['feeAmount']) ?? 0.0;
+    final networkFee = _toDouble(json['networkFeeAmount']) ?? 0.0;
+    final transactionFee = _toDouble(json['extraFeeAmount']) ?? 0.0;
     final feeAmount = double.parse((fee + networkFee + transactionFee).toStringAsFixed(2));
     return Quote(
-      rate: json['quoteCurrencyPrice'] as double? ?? 0.0,
+      rate: rate,
       feeAmount: feeAmount,
       networkFee: networkFee,
       transactionFee: transactionFee,
-      payout: json['quoteCurrencyAmount'] as double? ?? 0.0,
+      payout: _toDouble(json['quoteCurrencyAmount']) ?? 0.0,
       paymentMethod: json['paymentMethod'] as String? ?? '',
       quoteId: json['signature'] as String? ?? '',
       provider: ProvidersHelper.getProviderByType(providerType),
+      isBuyAction: isBuyAction,
     );
   }
 

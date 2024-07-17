@@ -7,6 +7,7 @@ import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 
 class MeldBuyProvider extends BuyProvider {
@@ -81,7 +82,7 @@ class MeldBuyProvider extends BuyProvider {
     var paymentMethod = normalizePaymentMethod(paymentType);
     if (paymentMethod == null) paymentMethod = paymentType.name;
 
-    print(
+    log(
         'Meld: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
     final url = Uri.https(_basTestUrl, _quotePath);

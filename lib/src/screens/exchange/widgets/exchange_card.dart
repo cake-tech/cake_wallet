@@ -38,6 +38,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
       this.borderColor = Colors.transparent,
       this.hasAllAmount = false,
       this.isAllAmountEnabled = false,
+      this.showAddressField = true,
       this.amountFocusNode,
       this.addressFocusNode,
       this.allAmount,
@@ -69,6 +70,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
   final FocusNode? amountFocusNode;
   final FocusNode? addressFocusNode;
   final bool hasAllAmount;
+  final bool showAddressField;
   final bool isAllAmountEnabled;
   final VoidCallback? allAmount;
   final EdgeInsets? currencyRowPadding;
@@ -274,9 +276,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                                   color: Theme.of(context)
                                       .extension<ExchangePageTheme>()!
                                       .hintTextColor),
-                              validator: _isAmountEditable
-                                      ? widget.currencyValueValidator
-                                      : null),
+                              validator: _isAmountEditable ? widget.currencyValueValidator : null),
                         ),
                       ),
                       if (widget.hasAllAmount)
@@ -344,44 +344,48 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                 ))
             : Offstage(),
         _isAddressEditable
-            ? FocusTraversalOrder(
-                order: NumericFocusOrder(2),
-                child: Padding(
-                  padding: widget.addressRowPadding ?? EdgeInsets.only(top: 20),
-                  child: AddressTextField(
-                      focusNode: widget.addressFocusNode,
-                      controller: addressController,
-                      onURIScanned: (uri) {
-                        final paymentRequest = PaymentRequest.fromUri(uri);
-                        addressController.text = paymentRequest.address;
+            ? widget.showAddressField
+                ? FocusTraversalOrder(
+                    order: NumericFocusOrder(2),
+                    child: Padding(
+                      padding: widget.addressRowPadding ?? EdgeInsets.only(top: 20),
+                      child: AddressTextField(
+                          focusNode: widget.addressFocusNode,
+                          controller: addressController,
+                          onURIScanned: (uri) {
+                            final paymentRequest = PaymentRequest.fromUri(uri);
+                            addressController.text = paymentRequest.address;
 
-                        if (amountController.text.isNotEmpty) {
-                          _showAmountPopup(context, paymentRequest);
-                          return;
-                        }
-                        widget.amountFocusNode?.requestFocus();
-                        amountController.text = paymentRequest.amount;
-                      },
-                      placeholder: widget.hasRefundAddress ? S.of(context).refund_address : null,
-                      options: [
-                        AddressTextFieldOption.paste,
-                        AddressTextFieldOption.qrCode,
-                        AddressTextFieldOption.addressBook,
-                      ],
-                      isBorderExist: false,
-                      textStyle:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                      hintStyle: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
-                      buttonColor: widget.addressButtonsColor,
-                      validator: widget.addressTextFieldValidator,
-                      onPushPasteButton: widget.onPushPasteButton,
-                      onPushAddressBookButton: widget.onPushAddressBookButton,
-                      selectedCurrency: _selectedCurrency),
-                ),
-              )
+                            if (amountController.text.isNotEmpty) {
+                              _showAmountPopup(context, paymentRequest);
+                              return;
+                            }
+                            widget.amountFocusNode?.requestFocus();
+                            amountController.text = paymentRequest.amount;
+                          },
+                          placeholder:
+                              widget.hasRefundAddress ? S.of(context).refund_address : null,
+                          options: [
+                            AddressTextFieldOption.paste,
+                            AddressTextFieldOption.qrCode,
+                            AddressTextFieldOption.addressBook,
+                          ],
+                          isBorderExist: false,
+                          textStyle: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                          hintStyle: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color:
+                                  Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
+                          buttonColor: widget.addressButtonsColor,
+                          validator: widget.addressTextFieldValidator,
+                          onPushPasteButton: widget.onPushPasteButton,
+                          onPushAddressBookButton: widget.onPushAddressBookButton,
+                          selectedCurrency: _selectedCurrency),
+                    ),
+                  )
+                : Container()
             : Padding(
                 padding: EdgeInsets.only(top: 10),
                 child: Builder(

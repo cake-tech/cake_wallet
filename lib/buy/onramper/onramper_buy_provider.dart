@@ -21,9 +21,9 @@ class OnRamperBuyProvider extends BuyProvider {
       {required WalletBase wallet, bool isTestEnvironment = false})
       : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
 
-  //static const _baseUrl = 'buy.onramper.com';
+  static const _baseUrl = 'buy.onramper.com';
 
-  static const _baseUrl = 'api.onramper.com';
+  static const _baseApiUrl = 'api.onramper.com';
 
   static const authorization = 'pk_prod_01HETEQF46GSK6BS5JWKDF31BT';
 
@@ -128,7 +128,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
     final path = '$supported$paymentTypes/$fiatCurrency';
 
-    final url = Uri.https(_baseUrl, path, params);
+    final url = Uri.https(_baseApiUrl, path, params);
 
     try {
       final response = await http.get(
@@ -180,7 +180,7 @@ class OnRamperBuyProvider extends BuyProvider {
         'Onramper: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
     final path = '$quotes/$sourceCurrency/$destinationCurrency';
-    final url = Uri.https(_baseUrl, path, params);
+    final url = Uri.https(_baseApiUrl, path, params);
     final headers = {'Authorization': authorization, 'accept': 'application/json'};
 
     try {
@@ -212,6 +212,27 @@ class OnRamperBuyProvider extends BuyProvider {
     } catch (e) {
       print('Onramper: Failed to fetch rate $e');
       return null;
+    }
+  }
+
+  @override
+  Future<void>? launchTrade(BuildContext context, Quote quote, PaymentMethod paymentMethod,
+      double amount, bool isBuyAction, String cryptoCurrencyAddress) async {
+    final uri = Uri.https(_baseUrl, '', {
+      'apiKey': _apiKey,
+      'mode': isBuyAction ? 'buy' : 'sell',
+      'defaultFiat': isBuyAction ? quote.sourceCurrency : quote.destinationCurrency,
+      'defaultCrypto': isBuyAction ? quote.destinationCurrency : quote.sourceCurrency,
+      'defaultAmount': amount.toString(),
+      'defaultPaymentMethod': normalizePaymentMethod(paymentMethod.paymentMethodType) ??
+          paymentMethod.paymentMethodType.title ??
+          'creditcard',
+    });
+
+    if (DeviceInfo.instance.isMobile) {
+      Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
+    } else {
+      await launchUrl(uri);
     }
   }
 

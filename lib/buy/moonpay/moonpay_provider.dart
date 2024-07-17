@@ -23,6 +23,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:developer';
 
 class MoonPayProvider extends BuyProvider {
   MoonPayProvider({
@@ -45,6 +46,7 @@ class MoonPayProvider extends BuyProvider {
   static const _baseUrl = 'api.moonpay.com';
   static const _buyPath = '/v3/currencies';
   static const _buyQuote = '/buy_quote';
+  static const _sellQuote = '/sell_quote';
 
   @override
   String get providerDescription =>
@@ -107,16 +109,18 @@ class MoonPayProvider extends BuyProvider {
     required CryptoCurrency currency,
     required String refundWalletAddress,
     required SettingsStore settingsStore,
+    Map<String, String>? extraParams,
   }) async {
-    final params = {
-      'theme': themeToMoonPayTheme(settingsStore.currentTheme),
-      'language': settingsStore.languageCode,
-      'colorCode': settingsStore.currentTheme.type == ThemeType.dark
-          ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
-          : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
-      'defaultCurrencyCode': _normalizeCurrency(currency),
-      'refundWalletAddress': refundWalletAddress,
-    };
+    final params = extraParams ??
+        {
+          'theme': themeToMoonPayTheme(settingsStore.currentTheme),
+          'language': settingsStore.languageCode,
+          'colorCode': settingsStore.currentTheme.type == ThemeType.dark
+              ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
+              : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
+          'defaultCurrencyCode': _normalizeCurrency(currency),
+          'refundWalletAddress': refundWalletAddress,
+        };
 
     if (_apiKey.isNotEmpty) {
       params['apiKey'] = _apiKey;
@@ -151,24 +155,26 @@ class MoonPayProvider extends BuyProvider {
     required SettingsStore settingsStore,
     required String walletAddress,
     String? amount,
+    Map<String, String>? extraParams,
   }) async {
-    final params = {
-      'theme': themeToMoonPayTheme(settingsStore.currentTheme),
-      'language': settingsStore.languageCode,
-      'colorCode': settingsStore.currentTheme.type == ThemeType.dark
-          ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
-          : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
-      'defaultCurrencyCode': _normalizeCurrency(currency),
-      'baseCurrencyCode': _normalizeCurrency(currency),
-      'baseCurrencyAmount': amount ?? '0',
-      'currencyCode': currencyCode,
-      'walletAddress': walletAddress,
-      'lockAmount': 'false',
-      'showAllCurrencies': 'false',
-      'showWalletAddressForm': 'false',
-      'enabledPaymentMethods':
-          'credit_debit_card,apple_pay,google_pay,samsung_pay,sepa_bank_transfer,gbp_bank_transfer,gbp_open_banking_payment',
-    };
+    final params = extraParams ??
+        {
+          'theme': themeToMoonPayTheme(settingsStore.currentTheme),
+          'language': settingsStore.languageCode,
+          'colorCode': settingsStore.currentTheme.type == ThemeType.dark
+              ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
+              : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
+          'defaultCurrencyCode': _normalizeCurrency(currency),
+          'baseCurrencyCode': _normalizeCurrency(currency),
+          'baseCurrencyAmount': amount ?? '0',
+          'currencyCode': currencyCode,
+          'walletAddress': walletAddress,
+          'lockAmount': 'false',
+          'showAllCurrencies': 'false',
+          'showWalletAddressForm': 'false',
+          'enabledPaymentMethods':
+              'credit_debit_card,apple_pay,google_pay,samsung_pay,sepa_bank_transfer,gbp_bank_transfer,gbp_open_banking_payment',
+        };
 
     if (_apiKey.isNotEmpty) {
       params['apiKey'] = _apiKey;
@@ -368,6 +374,8 @@ class MoonPayProvider extends BuyProvider {
     var paymentMethod = normalizePaymentMethod(paymentType);
     if (paymentMethod == null) paymentMethod = paymentType.name;
 
+    final action = isBuyAction ? 'buy' : 'sell';
+
     final params = {
       'baseCurrencyCode': sourceCurrency.toLowerCase(),
       'baseCurrencyAmount': amount.toString(),
@@ -377,10 +385,12 @@ class MoonPayProvider extends BuyProvider {
       'apiKey': _apiKey,
     };
 
-    print(
-        'MoonPay: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
+    log('MoonPay: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
-    final path = '$_buyPath/${destinationCurrency.toLowerCase()}$_buyQuote';
+    final quotePath = isBuyAction ? _buyQuote : _sellQuote;
+    final currency = (isBuyAction ? destinationCurrency : sourceCurrency).toLowerCase();
+
+    final path = '$_buyPath/$currency$quotePath';
     final url = Uri.https(_baseUrl, path, params);
 
     try {
@@ -388,7 +398,7 @@ class MoonPayProvider extends BuyProvider {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final quote = Quote.fromMoonPayJson(data, ProviderType.moonpay);
+        final quote = Quote.fromMoonPayJson(data, ProviderType.moonpay, isBuyAction);
 
         quote.setSourceCurrency = sourceCurrency;
         quote.setDestinationCurrency = destinationCurrency;
@@ -401,6 +411,76 @@ class MoonPayProvider extends BuyProvider {
     } catch (e) {
       print('Moon Pay: Error fetching buy quote: $e');
       return null;
+    }
+  }
+
+  @override
+  Future<void>? launchTrade(BuildContext context, Quote quote, PaymentMethod paymentMethod,
+      double amount, bool isBuyAction, String cryptoCurrencyAddress) async {
+    final currency =
+        CryptoCurrency.fromString(isBuyAction ? quote.destinationCurrency : quote.sourceCurrency);
+
+    final Map<String, String> extraParams = {
+      'theme': themeToMoonPayTheme(_settingsStore.currentTheme),
+      'language': _settingsStore.languageCode,
+      'colorCode': _settingsStore.currentTheme.type == ThemeType.dark
+          ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
+          : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
+      'baseCurrencyCode': isBuyAction ? quote.sourceCurrency : quote.sourceCurrency,
+      'baseCurrencyAmount': amount.toString(),
+      'walletAddress': cryptoCurrencyAddress,
+      'lockAmount': 'false',
+      'showAllCurrencies': 'false',
+      'showWalletAddressForm': 'false',
+      'enabledPaymentMethods': normalizePaymentMethod(paymentMethod.paymentMethodType) ??
+          paymentMethod.paymentMethodType.title ??
+          'credit_debit_card',
+    };
+
+    if (isBuyAction) extraParams['currencyCode'] = quote.destinationCurrency;
+    if (!isBuyAction) extraParams['quoteCurrencyCode'] = quote.destinationCurrency;
+
+    try {
+      late final Uri uri;
+      if (isBuyAction) {
+        uri = await requestBuyMoonPayUrl(
+          currency: currency,
+          walletAddress: cryptoCurrencyAddress,
+          settingsStore: _settingsStore,
+          extraParams: extraParams,
+        );
+      } else {
+        uri = await requestSellMoonPayUrl(
+          currency: currency,
+          refundWalletAddress: cryptoCurrencyAddress,
+          settingsStore: _settingsStore,
+          extraParams: extraParams,
+        );
+      }
+
+      if (await canLaunchUrl(uri)) {
+        if (DeviceInfo.instance.isMobile) {
+          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: ['MoonPay', uri]);
+        } else {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      } else {
+        throw Exception('Could not launch URL');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        await showDialog<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+              alertTitle: 'MoonPay',
+              alertContent: 'The MoonPay service is currently unavailable: $e',
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop(),
+            );
+          },
+        );
+      }
     }
   }
 

@@ -16,6 +16,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:developer';
 
 class DFXBuyProvider extends BuyProvider {
   DFXBuyProvider(
@@ -207,7 +208,7 @@ class DFXBuyProvider extends BuyProvider {
         for (final item in data) {
           if (item['name'] == fiatCurrency) return item as Map<String, dynamic>;
         }
-        print('DFX does not support fiat: $fiatCurrency');
+        log('DFX does not support fiat: $fiatCurrency');
         return {};
       } else {
         print('DFX Failed to fetch fiat currencies: ${response.statusCode}');
@@ -235,7 +236,7 @@ class DFXBuyProvider extends BuyProvider {
         } else if (responseData is Map<String, dynamic>) {
           return responseData;
         } else {
-          print('DFX: Does not support this asset name : ${blockchain.fullName}');
+          log('DFX: Does not support this asset name : ${blockchain.fullName}');
         }
       } else {
         print('DFX: Failed to fetch assets: ${response.statusCode}');
@@ -308,7 +309,7 @@ class DFXBuyProvider extends BuyProvider {
         await fetchAssetCredential(isBuyAction ? destinationCurrency : sourceCurrency);
     if (assetCredentials['id'] == null) return null;
 
-    print(
+    log(
         'DFX: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
     final url = Uri.parse('https://$_baseUrl/v1/$action/quote');
@@ -354,6 +355,61 @@ class DFXBuyProvider extends BuyProvider {
     } catch (e) {
       print('DFX Error fetching buy quote: $e');
       return null;
+    }
+  }
+
+  @override
+  Future<void> launchTrade(BuildContext context, Quote quote,PaymentMethod paymentMethod, double amount, bool isBuyAction,
+      String cryptoCurrencyAddress) async {
+    if (wallet.isHardwareWallet) {
+      if (!ledgerVM!.isConnected) {
+        await Navigator.of(context).pushNamed(Routes.connectDevices,
+            arguments: ConnectDevicePageParams(
+                walletType: wallet.walletInfo.type,
+                onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
+                  ledgerVM.setLedger(wallet);
+                  Navigator.of(context).pop();
+                }));
+      } else {
+        ledgerVM!.setLedger(wallet);
+      }
+    }
+
+    try {
+      final actionType = isBuyAction ? '/buy' : '/sell';
+      final blockchain =
+          CryptoCurrency.fromString(isBuyAction ? quote.destinationCurrency : quote.sourceCurrency)
+              .fullName;
+
+      final accessToken = await auth();
+
+      final uri = Uri.https('services.dfx.swiss', actionType, {
+        'session': accessToken,
+        'lang': 'en',
+        'asset-out': quote.destinationCurrency,
+        'blockchain': blockchain,
+        'asset-in': quote.sourceCurrency,
+      });
+
+      if (await canLaunchUrl(uri)) {
+        if (DeviceInfo.instance.isMobile) {
+          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
+        } else {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      } else {
+        throw Exception('Could not launch URL');
+      }
+    } catch (e) {
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: "DFX.swiss",
+                alertContent: S.of(context).buy_provider_unavailable + ': $e',
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
     }
   }
 

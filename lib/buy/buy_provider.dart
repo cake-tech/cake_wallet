@@ -52,4 +52,8 @@ abstract class BuyProvider {
     required String walletAddress,
   }) async =>
       null;
+
+  Future<void>? launchTrade(BuildContext context, Quote quote, PaymentMethod paymentMethod,
+          double amount, bool isBuyAction, String cryptoCurrencyAddress) =>
+      null;
 }
