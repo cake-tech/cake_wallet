@@ -86,6 +86,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   final bitcoin.HDWallet mwebHd;
   late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;
+  StreamSubscription<Utxo>? _utxoStream;
   int mwebUtxosHeight = 0;
   late RpcClient _stub;
 
@@ -200,6 +201,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> stopSync() async {
     _syncTimer?.cancel();
+    _utxoStream?.cancel();
     await CwMweb.stop();
   }
 
@@ -308,10 +310,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       await handleIncoming(utxo, _stub);
 
-      if (initDone) {
-        await updateUnspent();
-        await updateBalance();
-      }
+      // if (initDone) {
+      //   await updateUnspent();
+      //   await updateBalance();
+      // }
 
       if (utxo.height > walletInfo.restoreHeight) {
         walletInfo.updateRestoreHeight(utxo.height);
@@ -319,7 +321,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     // process new utxos as they come in:
-    await for (Utxo sUtxo in _stub.utxos(req)) {
+    _utxoStream?.cancel();
+    _utxoStream = _stub.utxos(req).listen((Utxo sUtxo) async {
       final utxo = MwebUtxo(
         address: sUtxo.address,
         blockTime: sUtxo.blockTime,
@@ -328,28 +331,31 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         value: sUtxo.value.toInt(),
       );
 
-      // if (mwebUtxosBox.containsKey(utxo.outputId)) {
-      //   // we've already stored this utxo, skip it:
-      //   continue;
+      if (mwebUtxosBox.containsKey(utxo.outputId)) {
+        // we've already stored this utxo, skip it:
+        return;
+      }
+
+      // if (utxo.address.isEmpty) {
+      //   await updateUnspent();
+      //   await updateBalance();
+      //   initDone = true;
       // }
 
-      if (utxo.address.isEmpty) {
-        await updateUnspent();
-        await updateBalance();
-        initDone = true;
-      }
+      await updateUnspent();
+      await updateBalance();
 
       final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
 
       // don't process utxos with addresses that are not in the mwebAddrs list:
       if (utxo.address.isNotEmpty && !mwebAddrs.contains(utxo.address)) {
-        continue;
+        return;
       }
 
       await mwebUtxosBox.put(utxo.outputId, utxo);
 
       await handleIncoming(utxo, _stub);
-    }
+    });
   }
 
   Future<void> checkMwebUtxosSpent() async {
