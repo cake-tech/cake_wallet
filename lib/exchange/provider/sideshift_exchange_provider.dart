@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -137,8 +138,20 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       final response = await get(uri);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
+      if (response.statusCode == 500) {
+        final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+        final error = responseJSON['error']['message'] as String;
+
+        throw Exception('SideShift Internal Server Error: $error');
+      }
+
+      if (response.statusCode != 200) {
+        throw Exception('Unexpected http status: ${response.statusCode}');
+      }
+
       return double.parse(responseJSON['rate'] as String);
-    } catch (_) {
+    } catch (e) {
+      log('Error fetching rate in SideShift Provider: ${e.toString()}');
       return 0.00;
     }
   }

@@ -405,13 +405,22 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         .where((element) => !isFixedRateMode || element.supportsFixedRate)
         .toList();
 
-    final result = await Future.wait<double>(_providers.map((element) => element.fetchRate(
-        from: depositCurrency,
-        to: receiveCurrency,
-        amount: amount,
-        isFixedRateMode: isFixedRateMode,
-        isReceiveAmount: isFixedRateMode)));
-
+    final result = await Future.wait<double>(
+      _providers.map(
+        (element) => element
+            .fetchRate(
+              from: depositCurrency,
+              to: receiveCurrency,
+              amount: amount,
+              isFixedRateMode: isFixedRateMode,
+              isReceiveAmount: isFixedRateMode,
+            )
+            .timeout(
+              Duration(seconds: 5),
+              onTimeout: () => 0.0,
+            ),
+      ),
+    );
     _sortedAvailableProviders.clear();
 
     for (int i = 0; i < result.length; i++) {
