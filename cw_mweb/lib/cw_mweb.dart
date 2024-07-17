@@ -6,9 +6,21 @@ import 'mwebd.pbgrpc.dart';
 class CwMweb {
   static Future<RpcClient> stub() async {
     final appDir = await getApplicationSupportDirectory();
-    return RpcClient(ClientChannel('127.0.0.1',
-      port: await CwMwebPlatform.instance.start(appDir.path) ?? 0,
-      options: const ChannelOptions(
-        credentials: ChannelCredentials.insecure())));
+    int port = await CwMwebPlatform.instance.start(appDir.path) ?? 0;
+    return RpcClient(
+      ClientChannel('127.0.0.1',
+          port: port,
+          options: const ChannelOptions(
+            credentials: ChannelCredentials.insecure(),
+            keepAlive: ClientKeepAliveOptions(permitWithoutCalls: true),
+          ), channelShutdownHandler: () {
+        print("CHANNEL IS BEING SHUT DOWN");
+        // CwMwebPlatform.instance.stop();
+      }),
+    );
+  }
+
+  static Future<void> stop() async {
+    await CwMwebPlatform.instance.start("stop");
   }
 }

@@ -87,7 +87,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   final bitcoin.HDWallet mwebHd;
   late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;
-  // late int lastMwebUtxosHeight;
   int mwebUtxosHeight = 0;
   late RpcClient _stub;
 
@@ -156,6 +155,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> startSync() async {
     await super.startSync();
+    _stub = await CwMweb.stub();
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
@@ -195,6 +195,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     });
     processMwebUtxos();
+  }
+
+  @action
+  @override
+  Future<void> stopSync() async {
+    _syncTimer?.cancel();
+    await CwMweb.stop();
   }
 
   Future<void> initMwebUtxosBox() async {

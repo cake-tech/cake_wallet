@@ -65,10 +65,11 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> startSync();
 
+  Future<void> stopSync() async {}
+
   Future<PendingTransaction> createTransaction(Object credentials);
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);
-
 
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,
@@ -90,7 +91,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> renameWalletFiles(String newWalletName);
 
-  Future<String> signMessage(String message, {String? address = null}) => throw UnimplementedError();
+  Future<String> signMessage(String message, {String? address = null}) =>
+      throw UnimplementedError();
 
   bool? isTestnet;
 }

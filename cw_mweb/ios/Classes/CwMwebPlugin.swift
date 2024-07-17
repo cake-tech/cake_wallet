@@ -21,13 +21,21 @@ public class CwMwebPlugin: NSObject, FlutterPlugin {
         //   print("args: \(args)")
           let dataDir = args?["dataDir"]
           var error: NSError?
+
+          if dataDir == "stop" && CwMwebPlugin.server != nil {
+              print("Stopping server")
+              CwMwebPlugin.server?.stop()
+              CwMwebPlugin.server = nil
+              result(0)
+              return
+          }
           
           if CwMwebPlugin.server == nil {
               CwMwebPlugin.server = MwebdNewServer("", dataDir, "", &error)
               
               if let server = CwMwebPlugin.server {
                   do {
-                      print("starting server2 \(CwMwebPlugin.port)")
+                      print("starting server \(CwMwebPlugin.port)")
                       try server.start(0, ret0_: &CwMwebPlugin.port)
                       result(CwMwebPlugin.port)
                   } catch let startError as NSError {
