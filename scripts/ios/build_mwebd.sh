@@ -8,8 +8,8 @@ gomobile init
 # build mwebd:
 git clone https://github.com/ltcmweb/mwebd
 # go install github.com/ltcmweb/mwebd/cmd/mwebd
-gomobile bind -target=android -androidapi 21 .
+gomobile bind -target=ios ./mwebd
 mkdir -p ../../cw_mweb/android/libs/
-mv ./mwebd.aar $_
+mv ./Mwebd.xcframework ../../ios/
 # cleanup:
 rm -rf mwebd

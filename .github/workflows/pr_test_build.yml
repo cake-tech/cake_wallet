@@ -109,10 +109,7 @@ jobs:
           # build mwebd:
           cd /opt/android/cake_wallet
           git clone https://github.com/ltcmweb/mwebd
-          cd /opt/android/cake_wallet/mwebd
-          go get github.com/ltcmweb/mwebd/cmd/mwebd
-          go install github.com/ltcmweb/mwebd/cmd/mwebd
-          gomobile bind -target=android -androidapi 21 github.com/ltcmweb/mwebd
+          gomobile bind -target=android -androidapi 21 ./mwebd
           mkdir -p /opt/android/cake_wallet/cw_mweb/android/libs/
           mv ./mwebd.aar $_
 
