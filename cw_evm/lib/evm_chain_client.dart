@@ -65,7 +65,8 @@ abstract class EVMChainClient {
   Future<int> getGasUnitPrice() async {
     try {
       final gasPrice = await _client!.getGasPrice();
-      print('Gas Unit Price in Function: ${gasPrice.getInWei.toInt()}');
+      print('Gas Unit Price in Function: ${gasPrice.getInWei.toInt()} Wei');
+      print('Gas Unit Price in Function: ${gasPrice.getValueInUnit(EtherUnit.gwei).toInt()} Gwei');
 
       return gasPrice.getInWei.toInt();
     } catch (_) {
@@ -78,7 +79,8 @@ abstract class EVMChainClient {
       final blockInfo = await _client!.getBlockInformation(isContainFullObj: false);
       final baseFee = blockInfo.baseFeePerGas;
 
-      print('Gas BaseFee in Function: ${baseFee?.getInWei.toInt()}');
+      print('Gas BaseFee in Function: ${baseFee?.getInWei.toInt()} Wei');
+      print('Gas BaseFee in Function: ${baseFee?.getValueInUnit(EtherUnit.gwei).toInt()} Gwei');
 
       return baseFee!.getInWei.toInt();
     } catch (_) {
@@ -87,27 +89,49 @@ abstract class EVMChainClient {
   }
 
   Future<BigInt> getEstimatedGas({
-    EtherAmount? maxPriorityFeePerGas,
-    EtherAmount? maxFeePerGas,
-    EthereumAddress? sender,
+    String? contractAddress,
+    required EthereumAddress toAddress,
+    required EthereumAddress senderAddress,
+    required EtherAmount value,
     EtherAmount? gasPrice,
-    EthereumAddress? toAddress,
-    EtherAmount? value,
+    EtherAmount? maxFeePerGas,
+    EtherAmount? maxPriorityFeePerGas,
   }) async {
     try {
-      print('About to start in estimateGas');
-      final estimatedGas = await _client!.estimateGas(
-        // maxPriorityFeePerGas: maxPriorityFeePerGas,
-        // maxFeePerGas: maxFeePerGas,
-        sender: sender,
-        // gasPrice: gasPrice,
-        to: toAddress,
-        value: value,
-      );
-      print('About to end in estimateGas');
+      if (contractAddress == null) {
+        print('fetching gas estimate for non ERC20');
+        final estimatedGas = await _client!.estimateGas(
+          // maxPriorityFeePerGas: maxPriorityFeePerGas,
+          // maxFeePerGas: maxFeePerGas,
+          sender: senderAddress,
+          gasPrice: gasPrice,
+          to: toAddress,
+          value: value,
+        );
 
-      print('Estimated Gas in Function: ${estimatedGas.toInt()}');
-      return estimatedGas;
+        print('Estimated Gas in Function (Non ERC20): ${estimatedGas.toInt()}');
+        return estimatedGas;
+      } else {
+        final contract = DeployedContract(
+          ethereumContractAbi,
+          EthereumAddress.fromHex(contractAddress),
+        );
+
+        final transferFunction = contract.function('transferFrom');
+
+        final estimatedGas = await _client!.estimateGas(
+          sender: senderAddress,
+          to: toAddress,
+          value: value,
+          data: transferFunction.encodeCall([
+            senderAddress,
+            toAddress,
+            value.getInWei,
+          ]),
+        );
+        print('Estimated Gas in Function (ERC20): ${estimatedGas.toInt()} Wei');
+        return estimatedGas;
+      }
     } catch (e, s) {
       print('Error fetching estimateGas: ${e.toString}, ${s.toString()}');
       return BigInt.zero;
@@ -265,7 +289,6 @@ abstract class EVMChainClient {
       );
 
       final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
-
 
       final symbol = (decodedResponse['symbol'] ?? '') as String;
       String filteredSymbol = symbol.replaceFirst(RegExp('^\\\$'), '');

@@ -196,22 +196,20 @@ abstract class EVMChainWalletBase
 
   Future<BigInt> calculateActualEstimatedFee({
     BigInt? amount,
+    required String? contractAddress,
     required String receivingAddressHex,
     required TransactionPriority priority,
   }) async {
     try {
       if (priority is EVMChainTransactionPriority) {
-        final priorityFeeInEther = EtherAmount.fromInt(EtherUnit.gwei, priority.tip);
-        final priorityFee = priorityFeeInEther.getInWei.toInt();
-        debugPrint('Priority Fee: $priorityFee');
+        final priorityFee = EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();
+        debugPrint('Priority Fee: $priorityFee Wei');
         debugPrint('Priority Tip: ${priority.tip}');
         debugPrint('Priority Title: ${priority.title}');
 
         final gasBaseFee = await _client.getGasBaseFee();
-        debugPrint('Base Fee: $gasBaseFee');
 
         final gasPrice = await _client.getGasUnitPrice();
-        debugPrint('Gas Price: $gasPrice');
 
         int maxFeePerGas;
         if (gasBaseFee != null) {
@@ -223,13 +221,15 @@ abstract class EVMChainWalletBase
         }
 
         final estimatedGas = await _client.getEstimatedGas(
-          maxPriorityFeePerGas: priorityFeeInEther,
+          maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
           maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
-          sender: _evmChainPrivateKey.address,
+          senderAddress: _evmChainPrivateKey.address,
           gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasPrice),
           toAddress: EthereumAddress.fromHex(receivingAddressHex),
           value: EtherAmount.fromBigInt(EtherUnit.wei, amount!),
+          contractAddress: contractAddress,
         );
+
         debugPrint('Estimated Gas: ${estimatedGas.toInt()}');
 
         final totalGasFee = estimatedGas * BigInt.from(maxFeePerGas);
@@ -326,9 +326,14 @@ abstract class EVMChainWalletBase
     BigInt estimatedFeesForTransaction = BigInt.zero;
     int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
     num amountToEVMChainMultiplier = pow(10, exponent);
+    String? contractAddress;
     String toAddress = _credentials.outputs.first.isParsedAddress
         ? _credentials.outputs.first.extractedAddress!
         : _credentials.outputs.first.address;
+
+    if (transactionCurrency is Erc20Token) {
+      contractAddress = transactionCurrency.contractAddress;
+    }
 
     // so far this can not be made with Ethereum as Ethereum does not support multiple recipients
     if (hasMultiDestination) {
@@ -344,6 +349,7 @@ abstract class EVMChainWalletBase
         amount: totalAmount,
         receivingAddressHex: toAddress,
         priority: _credentials.priority!,
+        contractAddress: contractAddress,
       );
       debugPrint('Estimated Fees for Transaction: $estimatedFeesForTransaction');
 
@@ -381,6 +387,7 @@ abstract class EVMChainWalletBase
         amount: totalAmount,
         receivingAddressHex: toAddress,
         priority: _credentials.priority!,
+        contractAddress: contractAddress,
       );
       debugPrint('Estimated Fees for Transaction: $estimatedFeesForTransaction');
 
@@ -495,7 +502,7 @@ abstract class EVMChainWalletBase
     }
 
     final methodSignature =
-    transactionInput.length >= 10 ? transactionInput.substring(0, 10) : null;
+        transactionInput.length >= 10 ? transactionInput.substring(0, 10) : null;
 
     return methodSignatureToType[methodSignature];
   }
