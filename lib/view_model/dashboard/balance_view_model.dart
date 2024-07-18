@@ -88,7 +88,7 @@ abstract class BalanceViewModelBase with Store {
       wallet.type == WalletType.tron;
 
   @computed
-  bool get hasAccounts => wallet.type == WalletType.monero;
+  bool get hasAccounts => wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
 
   @computed
   SortBalanceBy get sortBalanceBy => settingsStore.sortBalanceBy;
