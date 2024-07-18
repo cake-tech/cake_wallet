@@ -416,7 +416,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               isReceiveAmount: isFixedRateMode,
             )
             .timeout(
-              Duration(seconds: 5),
+              Duration(seconds: 7),
               onTimeout: () => 0.0,
             ),
       ),
@@ -455,8 +455,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         if (!providersForCurrentPair().contains(provider)) continue;
 
         try {
-          final tempLimits =
-              await provider.fetchLimits(from: from, to: to, isFixedRateMode: isFixedRateMode);
+          final tempLimits = await provider
+              .fetchLimits(from: from, to: to, isFixedRateMode: isFixedRateMode)
+              .timeout(
+                Duration(seconds: 7),
+                onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
+              );
 
           if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin) lowestMin = tempLimits.min;
 

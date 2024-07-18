@@ -30,6 +30,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     CryptoCurrency.bttc,
     CryptoCurrency.usdt,
     CryptoCurrency.eos,
+    CryptoCurrency.xmr,
   ];
 
   static const affiliateId = secrets.sideShiftAffiliateId;
