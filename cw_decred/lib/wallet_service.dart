@@ -66,6 +66,12 @@ class DecredWalletService extends WalletService<
             walletInfo.derivationPath == pubkeyRestorePathTestnet
         ? testnet
         : mainnet;
+
+    final walletDirExists = Directory(walletInfo.dirPath).existsSync();
+    if (!walletDirExists) {
+      walletInfo.dirPath = await pathForWalletDir(name: name, type: getType());
+    }
+
     await loadWalletAsync(
       name: walletInfo.name,
       dataDir: walletInfo.dirPath,
@@ -106,6 +112,7 @@ class DecredWalletService extends WalletService<
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
     newWalletInfo.dirPath = newDirPath;
+    newWalletInfo.network = network;
 
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
   }

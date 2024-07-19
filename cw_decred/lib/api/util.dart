@@ -10,7 +10,7 @@ class PayloadResult {
   const PayloadResult(this.payload, this.err, this.errCode);
 }
 
-// Executes the provided fn and converts the string response to a PayloadReult.
+// Executes the provided fn and converts the string response to a PayloadResult.
 // Returns payload, error code, and error.
 PayloadResult executePayloadFn({
   required Pointer<Char> fn(),
