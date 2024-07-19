@@ -13,10 +13,7 @@ class CwMweb {
           options: const ChannelOptions(
             credentials: ChannelCredentials.insecure(),
             keepAlive: ClientKeepAliveOptions(permitWithoutCalls: true),
-          ), channelShutdownHandler: () {
-        print("CHANNEL IS BEING SHUT DOWN");
-        // CwMwebPlatform.instance.stop();
-      }),
+          )),
     );
   }
 

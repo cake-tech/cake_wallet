@@ -204,8 +204,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         }
       }
     });
-    processMwebUtxos();
     updateUnspent();
+    // this runs in the background and processes new utxos as they come in:
+    processMwebUtxos();
   }
 
   @action
@@ -515,9 +516,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       });
     }
 
-    print(unspentCoins);
-    print(updatedUnspentCoins);
-    print(updatedUnspentCoins.length);
+    // print(unspentCoins);
+    // print(updatedUnspentCoins);
+    // print(updatedUnspentCoins.length);
 
     // print(updatedUnspentCoins[2].address);
 
@@ -745,6 +746,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await super.close();
     await mwebUtxosBox.close();
     _syncTimer?.cancel();
+    _utxoStream?.cancel();
   }
 
   void setMwebEnabled(bool enabled) {
