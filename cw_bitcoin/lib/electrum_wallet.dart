@@ -1168,7 +1168,7 @@ abstract class ElectrumWalletBase
   Future<void> updateUnspent() async {
     await updateAllUnspents();
 
-    if (unspentCoinsInfo.isEmpty) {
+    if (unspentCoinsInfo.length != unspentCoins.length) {
       unspentCoins.forEach((coin) => addCoinInfo(coin));
       return;
     }

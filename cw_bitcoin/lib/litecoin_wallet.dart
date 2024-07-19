@@ -205,6 +205,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     });
     processMwebUtxos();
+    updateUnspent();
   }
 
   @action
@@ -514,6 +515,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       });
     }
 
+    print(unspentCoins);
+    print(updatedUnspentCoins);
+    print(updatedUnspentCoins.length);
+
+    // print(updatedUnspentCoins[2].address);
+
     unspentCoins = updatedUnspentCoins;
   }
 
@@ -574,6 +581,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         // print("COUNT UPDATED HERE 0!!!!! ${addressRecord.address} ${addressRecord.txCount} !!!!!!");
       }
     }
+
+    await updateUnspent();
 
     return ElectrumBalance(confirmed: confirmed, unconfirmed: unconfirmed, frozen: balance.frozen);
   }
