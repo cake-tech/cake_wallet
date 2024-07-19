@@ -48,7 +48,7 @@ To use Monero in Cake Wallet, you must build the Monero_C wrapper which will be 
 
 For that you need to run the shell (bash - typically same named utility should be available after WSL is enabled in your system) with the previously installed WSL install, then change current directory to the application project directory with your shell then change current directory to `scripts/windows`: `$ cd scripts/windows`. Run build script: `$ ./build_all.sh`.
 
-### 7. Configure and build Cak eWallet application
+### 7. Configure and build Cake Wallet application
 
 To configure the application, open the directory where you have downloaded or unarchived Cake Wallet sources and run `cakewallet.bat`.
 Or if you used WSL and have active shell session you can run `$ ./cakewallet.sh` script in `scripts/windows` which will run `cakewallet.bat` in WSL.
