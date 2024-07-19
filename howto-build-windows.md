@@ -6,7 +6,7 @@ The following are the system requirements to build CakeWallet for your Windows P
 
 ```
 Windows 10 or later (64-bit), x86-64 based
-Flutter 3 or above
+Flutter 3.19.x
 ```
 
 ### 1. Installing Flutter
