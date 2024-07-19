@@ -582,4 +582,16 @@ class CWBitcoin extends Bitcoin {
     final bitcoinWallet = wallet as ElectrumWallet;
     await bitcoinWallet.updateFeeRates();
   }
+
+  @override
+  void setMwebEnabled(Object wallet, bool enabled) {
+    final litecoinWallet = wallet as LitecoinWallet;
+    litecoinWallet.setMwebEnabled(enabled);
+  }
+
+  @override
+  bool getMwebEnabled(Object wallet) {
+    final litecoinWallet = wallet as LitecoinWallet;
+    return litecoinWallet.isMwebEnabled;
+  }
 }

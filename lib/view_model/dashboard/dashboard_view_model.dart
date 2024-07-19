@@ -329,6 +329,24 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
+  @computed
+  bool get hasMweb => wallet.type == WalletType.litecoin;
+
+  @computed
+  bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay;
+
+  @observable
+  bool mwebEnabled = false;
+
+  @action
+  void setMwebEnabled(bool active) {
+    mwebEnabled = active;
+
+    if (hasMweb) {
+      bitcoin!.setMwebEnabled(wallet, active);
+    }
+  }
+
   BalanceViewModel balanceViewModel;
 
   AppStore appStore;

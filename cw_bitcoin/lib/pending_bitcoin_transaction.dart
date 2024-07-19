@@ -23,6 +23,7 @@ class PendingBitcoinTransaction with PendingTransaction {
     required this.hasChange,
     this.isSendAll = false,
     this.hasTaprootInputs = false,
+    this.isMweb = false,
   }) : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
@@ -35,6 +36,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   final bool isSendAll;
   final bool hasChange;
   final bool hasTaprootInputs;
+  bool isMweb;
   String? idOverride;
   String? hexOverride;
   List<String>? outputs;
@@ -103,7 +105,7 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    if (network is LitecoinNetwork) {
+    if (isMweb) {
       await _ltcCommit();
     } else {
       await _commit();

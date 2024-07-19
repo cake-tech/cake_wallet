@@ -416,23 +416,19 @@ abstract class ElectrumWalletBase
         await _setInitialHeight();
       }
 
-      if (this is! LitecoinWallet) {
-        await _subscribeForUpdates();
-        await updateTransactions();
+      await subscribeForUpdates();
+      await updateTransactions();
 
-        await updateAllUnspents();
-        await updateBalance();
-      }
+      await updateAllUnspents();
+      await updateBalance();
 
       await updateFeeRates();
       Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
-      if (this is! LitecoinWallet) {
-        if (alwaysScan == true) {
-          _setListeners(walletInfo.restoreHeight);
-        } else {
-          syncStatus = SyncedSyncStatus();
-        }
+      if (alwaysScan == true) {
+        _setListeners(walletInfo.restoreHeight);
+      } else {
+        syncStatus = SyncedSyncStatus();
       }
     } catch (e, stacktrace) {
       print(stacktrace);
@@ -1595,7 +1591,7 @@ abstract class ElectrumWalletBase
             matchedAddresses.toList(),
             addressRecord.isHidden,
             (address) async {
-              await _subscribeForUpdates();
+              await subscribeForUpdates();
               return _fetchAddressHistory(address, await getCurrentChainTip())
                   .then((history) => history.isNotEmpty ? address.address : null);
             },
@@ -1684,7 +1680,7 @@ abstract class ElectrumWalletBase
     }
   }
 
-  Future<void> _subscribeForUpdates() async {
+  Future<void> subscribeForUpdates() async {
     final unsubscribedScriptHashes = walletAddresses.allAddresses.where(
       (address) => !_scripthashesUpdateSubject.containsKey(address.getScriptHash(network)),
     );

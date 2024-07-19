@@ -315,7 +315,73 @@ class CryptoBalanceWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ]
+                  ],
+                  if (dashboardViewModel.showMwebCard) ...[
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: DashBoardRoundedCardWidget(
+                        customBorder: 30,
+                        title: "T: MWEB",
+                        subTitle: "T: Enable MWEB",
+                        hint: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => launchUrl(
+                                    Uri.parse(
+                                        "https://guides.cakewallet.com/docs/cryptos/bitcoin/#silent-payments"),
+                                    mode: LaunchMode.externalApplication,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "T: What is MWEB?",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context)
+                                              .extension<BalancePageTheme>()!
+                                              .labelTextColor,
+                                          height: 1,
+                                        ),
+                                        softWrap: true,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                                        child: Icon(Icons.help_outline,
+                                            size: 16,
+                                            color: Theme.of(context)
+                                                .extension<BalancePageTheme>()!
+                                                .labelTextColor),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Observer(
+                                  builder: (_) => StandardSwitch(
+                                    value: dashboardViewModel.mwebEnabled,
+                                    onTaped: () => _toggleMweb(context),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                        onTap: () => _toggleMweb(context),
+                        icon: Icon(
+                          Icons.lock,
+                          color:
+                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                          size: 50,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               );
             }),
@@ -354,6 +420,13 @@ class CryptoBalanceWidget extends StatelessWidget {
     }
 
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
+  }
+
+
+  Future<void> _toggleMweb(BuildContext context) async {
+    final isMwebEnabled = dashboardViewModel.mwebEnabled;
+    final newValue = !isMwebEnabled;
+    return dashboardViewModel.setMwebEnabled(newValue);
   }
 }
 
