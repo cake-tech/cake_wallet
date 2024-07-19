@@ -2,7 +2,7 @@
 
 ## Requirements and Setup
 
-The following are the system requirements to build CakeWallet for your Android device.
+The following are the system requirements to build Cake Wallet for your Android device.
 
 ```
 Ubuntu >= 20.04 
@@ -146,4 +146,4 @@ Finally build mobx models for the app:
 
 `$ flutter build apk --release`
 
-Copyright (c) 2024 Cake Labs LLC.
+Copyright (c) 2024 Cake Labs LLC
