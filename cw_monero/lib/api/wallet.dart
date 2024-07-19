@@ -104,6 +104,10 @@ Future<bool> setupNodeSync(
     throw SetupWalletException(message: error);
   }
 
+  if (status == 0) {
+    monero.Wallet_setTrustedDaemon(wptr!, arg: true);
+  }
+
   return status == 0;
 }
 
@@ -121,6 +125,7 @@ void setRecoveringFromSeed({required bool isRecovery}) =>
     monero.Wallet_setRecoveringFromSeed(wptr!, recoveringFromSeed: isRecovery);
 
 final storeMutex = Mutex();
+
 void storeSync() async {
   await storeMutex.acquire();
   final addr = wptr!.address;
