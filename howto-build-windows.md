@@ -26,7 +26,7 @@ Then install `Desktop development with C++` packages via Visual Studio 2022, or 
 - `Testing tools core features - Build Tools`
 - `C++ AddressSanitizer`.
 
-### 3. Install rustup
+### 3. Installing rustup
 
 Install rustup from the [rustup.rs](https://rustup.rs/#) website. Download and run the 64-bit rustup-init.exe
 
