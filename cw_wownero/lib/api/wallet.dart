@@ -131,7 +131,19 @@ void setRecoveringFromSeed({required bool isRecovery}) =>
 
 final storeMutex = Mutex();
 
+int lastStorePointer = 0;
+int lastStoreHeight = 0;
 void storeSync() async {
+  final synchronized = await Isolate.run(() {
+    return wownero.Wallet_synchronized(Pointer.fromAddress(addr));
+  });
+  if (lastStorePointer == wptr!.address &&
+      lastStoreHeight + 5000 < wownero.Wallet_blockChainHeight(wptr!) &&
+      !synchronized) {
+    return;
+  }
+  lastStorePointer = wptr!.address;
+  lastStoreHeight = wownero.Wallet_blockChainHeight(wptr!);
   await storeMutex.acquire();
   final addr = wptr!.address;
   Isolate.run(() {
