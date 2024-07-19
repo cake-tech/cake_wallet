@@ -53,3 +53,5 @@ For that you need to run the shell (bash - typically same named utility should b
 To configure the application, open the directory where you have downloaded or unarchived Cake Wallet sources and run `cakewallet.bat`.
 Or if you used WSL and have active shell session you can run `$ ./cakewallet.sh` script in `scripts/windows` which will run `cakewallet.bat` in WSL.
 After execution of `cakewallet.bat` you should to get `Cake Wallet.zip` in project root directory which will contains `CakeWallet.exe` file and another needed files for run the application. Now you can extract files from `Cake Wallet.zip` archive and run the application.
+
+Copyright (c) 2024 Cake Labs LLC.
