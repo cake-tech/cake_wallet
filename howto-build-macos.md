@@ -34,7 +34,11 @@ You may download and install the latest version of [Xcode](https://developer.app
 
 Need to install flutter with version `3.19.x`. For this please check section [Install Flutter](https://docs.flutter.dev/get-started/install/macos/desktop?tab=download).
 
-### 4. Verify Installations
+### 4. Installing rustup
+
+Install rustup from the [rustup.rs](https://rustup.rs/) website.
+
+### 5. Verify Installations
 
 Verify that Flutter and Xcode have been correctly installed on your system with the following command:
 
@@ -47,7 +51,7 @@ Doctor summary (to see all details, run flutter doctor -v):
 [✓] Xcode - develop for iOS and macOS (Xcode 15.3)
 ```
 
-### 5. Acquiring the CakeWallet source code
+### 6. Acquiring the CakeWallet source code
 
 Download the source code.
 
@@ -57,7 +61,7 @@ Proceed into the source code before proceeding with the next steps:
 
 `$ cd cake_wallet/scripts/macos/`
 
-### 6. Execute Build & Setup Commands for CakeWallet
+### 7. Execute Build & Setup Commands for CakeWallet
 
 We need to generate project settings like app name, app icon, package name, etc. For this need to setup environment variables and configure project files. 
 
@@ -99,7 +103,7 @@ Then we need to generate localization files and mobx models.
 
 `$ ./configure_cake_wallet.sh macos`
 
-### 7. Build!
+### 8. Build!
 
 `$ flutter build macos --release`
 
@@ -109,4 +113,4 @@ Or if you want to run to connected device:
 
 `$ flutter run --release`
 
-Copyright (c) 2024 Cake Technologies LLC.
+Copyright (c) 2024 Cake Labs LLC
