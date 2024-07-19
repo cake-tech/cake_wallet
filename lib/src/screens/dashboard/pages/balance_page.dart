@@ -322,8 +322,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: DashBoardRoundedCardWidget(
                         customBorder: 30,
-                        title: "T: MWEB",
-                        subTitle: "T: Enable MWEB",
+                        title: S.current.litecoin_mweb,
+                        subTitle: S.current.litecoin_enable_mweb_sync,
                         hint: Column(
                           children: [
                             Row(
@@ -339,7 +339,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                   child: Row(
                                     children: [
                                       Text(
-                                        "T: What is MWEB?",
+                                        S.current.litecoin_what_is_mweb,
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontFamily: 'Lato',
