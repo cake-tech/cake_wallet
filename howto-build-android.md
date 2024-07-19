@@ -8,7 +8,7 @@ The following are the system requirements to build Cake Wallet for your Android 
 Ubuntu >= 20.04 
 Android SDK 29 or higher (better to have the latest one 33)
 Android NDK 17c
-Flutter 3.19.x or earlier
+Flutter 3.19.x
 ```
 
 ### 1. Installing Package Dependencies
