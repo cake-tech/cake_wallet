@@ -1,8 +1,8 @@
-# Building CakeWallet for macOS
+# Building Cake Wallet for macOS
 
 ## Requirements and Setup
 
-The following are the system requirements to build CakeWallet for your macOS device.
+The following are the system requirements to build Cake Wallet for your macOS device.
 
 ```
 macOS >= 14.0 
@@ -10,13 +10,9 @@ Xcode 15.3
 Flutter 3.19.x
 ```
 
-## Building CakeWallet on macOS
-
-These steps will help you configure and execute a build of CakeWallet from its source code.
-
 ### 1. Installing Package Dependencies
 
-CakeWallet cannot be built without the following packages installed on your build system.
+Cake Wallet cannot be built without the following packages installed on your build system.
 
 For installing dependency tools you can use brew [Install brew](https://brew.sh).
 
@@ -51,7 +47,7 @@ Doctor summary (to see all details, run flutter doctor -v):
 [✓] Xcode - develop for iOS and macOS (Xcode 15.3)
 ```
 
-### 6. Acquiring the CakeWallet source code
+### 6. Acquiring the Cake Wallet source code
 
 Download the source code.
 
@@ -61,7 +57,7 @@ Proceed into the source code before proceeding with the next steps:
 
 `$ cd cake_wallet/scripts/macos/`
 
-### 7. Execute Build & Setup Commands for CakeWallet
+### 7. Execute Build & Setup Commands for Cake Wallet
 
 We need to generate project settings like app name, app icon, package name, etc. For this need to setup environment variables and configure project files. 
 
@@ -87,7 +83,7 @@ If you be needed to build universal monero lib, then it will require additional 
 
 If you will be needed to build monero wallet lib only for x86_64 on arm64 mac, then you need use steps above, but run build script with rosetta without arguments: `$ arch -x86_64 ./build_monero_all.sh`.
 
-It is now time to change back to the base directory of the CakeWallet source code:
+It is now time to change back to the base directory of the Cake Wallet source code:
 
 `$ cd ../../`
 
@@ -95,7 +91,7 @@ Install Flutter package dependencies with this command:
 
 `$ flutter pub get`
 
-Your CakeWallet binary will be built with cryptographic salts, which are used for secure encryption of your data. You may generate these secret salts with the following command:
+Your Cake Wallet binary will be built with cryptographic salts, which are used for secure encryption of your data. You may generate these secret salts with the following command:
 
 `$ flutter packages pub run tool/generate_new_secrets.dart`
 
