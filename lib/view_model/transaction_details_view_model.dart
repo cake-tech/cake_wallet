@@ -214,7 +214,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final addressIndex = tx.additionalInfo['addressIndex'] as int;
     final feeFormatted = tx.feeFormatted();
     final _items = [
-      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.txhash),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
@@ -455,7 +455,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final addressIndex = tx.additionalInfo['addressIndex'] as int;
     final feeFormatted = tx.feeFormatted();
     final _items = [
-      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.txhash),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
