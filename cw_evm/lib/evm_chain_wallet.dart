@@ -105,14 +105,11 @@ abstract class EVMChainWalletBase
 
   late EVMChainClient _client;
 
-  // int estimatedGasFee = 0;
   int gasPrice = 0;
   int? gasBaseFee = 0;
   int estimatedGasUnits = 0;
 
   bool _isTransactionUpdating;
-
-  TransactionPriority? _priority;
 
   // TODO: remove after integrating our own node and having eth_newPendingTransactionFilter
   Timer? _transactionsUpdateTimer;
@@ -179,7 +176,6 @@ abstract class EVMChainWalletBase
 
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    _priority = priority;
     {
       try {
         if (priority is EVMChainTransactionPriority) {
@@ -357,14 +353,14 @@ abstract class EVMChainWalletBase
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
       totalAmount = BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
 
-      final feesInBigInt = await calculateActualEstimatedFeeForCreateTransaction(
+      final estimateFees = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
         receivingAddressHex: toAddress,
         priority: _credentials.priority!,
         contractAddress: contractAddress,
       );
 
-      estimatedFeesForTransaction = BigInt.from(feesInBigInt);
+      estimatedFeesForTransaction = BigInt.from(estimateFees);
 
       if (erc20Balance.balance < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
@@ -382,14 +378,14 @@ abstract class EVMChainWalletBase
         totalAmount = erc20Balance.balance;
       }
 
-      final feesInBigInt = await calculateActualEstimatedFeeForCreateTransaction(
+      final estimateFees = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
         receivingAddressHex: toAddress,
         priority: _credentials.priority!,
         contractAddress: contractAddress,
       );
 
-      estimatedFeesForTransaction = BigInt.from(feesInBigInt);
+      estimatedFeesForTransaction = BigInt.from(estimateFees);
 
       debugPrint('Estimated Fees for Transaction: $estimatedFeesForTransaction');
 
@@ -499,7 +495,7 @@ abstract class EVMChainWalletBase
     }
 
     final methodSignature =
-        transactionInput.length >= 10 ? transactionInput.substring(0, 10) : null;
+    transactionInput.length >= 10 ? transactionInput.substring(0, 10) : null;
 
     return methodSignatureToType[methodSignature];
   }
