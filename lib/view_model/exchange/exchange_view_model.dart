@@ -450,26 +450,29 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     double? highestMax = 0.0;
 
     try {
-      for (var provider in selectedProviders) {
-        /// if this provider is not valid for the current pair, skip it
-        if (!providersForCurrentPair().contains(provider)) continue;
-
-        try {
-          final tempLimits = await provider
-              .fetchLimits(from: from, to: to, isFixedRateMode: isFixedRateMode)
+      final result = await Future.wait(selectedProviders
+          .where((element) => providersForCurrentPair().contains(provider))
+          .map((provider) => provider
+              .fetchLimits(
+                from: from,
+                to: to,
+                isFixedRateMode: isFixedRateMode,
+              )
+              .onError((error, stackTrace) => Limits(max: 0.0, min: double.maxFinite))
               .timeout(
                 Duration(seconds: 7),
                 onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
-              );
+              )));
 
-          if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin) lowestMin = tempLimits.min;
-
-          if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax)
-            highestMax = tempLimits.max;
-        } catch (e) {
-          continue;
+      result.forEach((tempLimits) {
+        if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin!) {
+          lowestMin = tempLimits.min;
         }
-      }
+
+        if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax!) {
+          highestMax = tempLimits.max;
+        }
+      });
     } on ConcurrentModificationError {
       /// if user changed the selected providers while fetching limits
       /// then delay the fetching limits a bit and try again
