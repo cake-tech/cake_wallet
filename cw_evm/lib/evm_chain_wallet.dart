@@ -103,7 +103,7 @@ abstract class EVMChainWalletBase
 
   Credentials get evmChainPrivateKey => _evmChainPrivateKey;
 
-  late EVMChainClient _client;
+  late final EVMChainClient _client;
 
   int gasPrice = 0;
   int? gasBaseFee = 0;
@@ -209,7 +209,7 @@ abstract class EVMChainWalletBase
   /// - The addressHex for the receiving wallet,
   /// - A contract address which would be essential in determining if to calcualate the estimate for ERC20 or native ETH
   Future<int> calculateActualEstimatedFeeForCreateTransaction({
-    BigInt? amount,
+    required amount,
     required String? contractAddress,
     required String receivingAddressHex,
     required TransactionPriority priority,
@@ -578,6 +578,7 @@ abstract class EVMChainWalletBase
     return EthPrivateKey.fromHex(HEX.encode(addressAtIndex.privateKey as List<int>));
   }
 
+  @override
   Future<void>? updateBalance() async => await _updateBalance();
 
   List<Erc20Token> get erc20Currencies => evmChainErc20TokensBox.values.toList();

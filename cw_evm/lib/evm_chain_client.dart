@@ -72,7 +72,7 @@ abstract class EVMChainClient {
     }
   }
 
-  Future<int?> getGasBaseFee() async {
+  Future<int> getGasBaseFee() async {
     try {
       final blockInfo = await _client!.getBlockInformation(isContainFullObj: false);
       final baseFee = blockInfo.baseFeePerGas;
