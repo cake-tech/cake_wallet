@@ -39,6 +39,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
       this.hasAllAmount = false,
       this.isAllAmountEnabled = false,
       this.showAddressField = true,
+      this.showLimitsField = true,
       this.amountFocusNode,
       this.addressFocusNode,
       this.allAmount,
@@ -71,6 +72,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
   final FocusNode? addressFocusNode;
   final bool hasAllAmount;
   final bool showAddressField;
+  final bool showLimitsField;
   final bool isAllAmountEnabled;
   final VoidCallback? allAmount;
   final EdgeInsets? currencyRowPadding;
@@ -309,29 +311,34 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
             )),
         Divider(height: 1, color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
         Padding(
-          padding: EdgeInsets.only(top: 5),
-          child: Container(
-              height: 15,
-              child: Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-                _min != null
-                    ? Text(
-                        S.of(context).min_value(_min ?? '', _selectedCurrency.toString()),
-                        style: TextStyle(
-                            fontSize: 10,
-                            height: 1.2,
-                            color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
-                      )
-                    : Offstage(),
-                _min != null ? SizedBox(width: 10) : Offstage(),
-                _max != null
-                    ? Text(S.of(context).max_value(_max ?? '', _selectedCurrency.toString()),
-                        style: TextStyle(
-                            fontSize: 10,
-                            height: 1.2,
-                            color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor))
-                    : Offstage(),
-              ])),
-        ),
+            padding: EdgeInsets.only(top: 5),
+            child: widget.showLimitsField
+                ? Container(
+                    height: 15,
+                    child: Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+                      _min != null
+                          ? Text(
+                              S.of(context).min_value(_min ?? '', _selectedCurrency.toString()),
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  height: 1.2,
+                                  color: Theme.of(context)
+                                      .extension<ExchangePageTheme>()!
+                                      .hintTextColor),
+                            )
+                          : Offstage(),
+                      _min != null ? SizedBox(width: 10) : Offstage(),
+                      _max != null
+                          ? Text(S.of(context).max_value(_max ?? '', _selectedCurrency.toString()),
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  height: 1.2,
+                                  color: Theme.of(context)
+                                      .extension<ExchangePageTheme>()!
+                                      .hintTextColor))
+                          : Offstage()
+                    ]))
+                : Container()),
         !_isAddressEditable && widget.hasRefundAddress
             ? Padding(
                 padding: EdgeInsets.only(top: 20),

@@ -125,6 +125,25 @@ class Quote extends SelectableOption {
     );
   }
 
+  factory Quote.fromRobinhoodJson(Map<String, dynamic> json, ProviderType providerType, bool isBuyAction) {
+    final networkFee = json['networkFee'] as Map<String, dynamic>;
+    final processingFee = json['processingFee'] as Map<String, dynamic>;
+    final networkFeeAmount = _toDouble(networkFee['fiatAmount']) ?? 0.0;
+    final transactionFeeAmount = _toDouble(processingFee['fiatAmount']) ?? 0.0;
+    final feeAmount = double.parse((networkFeeAmount + transactionFeeAmount).toStringAsFixed(2));
+
+    return Quote(
+      rate: _toDouble(json['price']) ?? 0.0,
+      feeAmount: feeAmount,
+      networkFee: _toDouble(networkFee['fiatAmount']) ?? 0.0,
+      transactionFee: _toDouble(processingFee['fiatAmount']) ?? 0.0,
+      payout: _toDouble(json['cryptoAmount']) ?? 0.0,
+      paymentMethod: json['paymentMethod'] as String? ?? '',
+      provider: ProvidersHelper.getProviderByType(providerType),
+      isBuyAction: isBuyAction,
+    );
+  }
+
   factory Quote.fromMeldJson(Map<String, dynamic> json, ProviderType providerType) {
     final quotes = json['quotes'][0] as Map<String, dynamic>;
     return Quote(
@@ -143,6 +162,8 @@ class Quote extends SelectableOption {
       return value.toDouble();
     } else if (value is double) {
       return value;
+    } else if (value is String) {
+      return double.tryParse(value);
     }
     return null;
   }

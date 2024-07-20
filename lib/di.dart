@@ -1023,14 +1023,7 @@ Future<void> setup({
   // getIt.registerFactoryParam<BuySellOptionsPage, bool, void>(
   //     (isBuyOption, _) => BuySellOptionsPage(getIt.get<DashboardViewModel>(), isBuyOption));
 
-  getIt.registerFactory(() => BuySellViewModel(
-      getIt.get<AppStore>(),
-      _tradesSource,
-      getIt.get<ExchangeTemplateStore>(),
-      getIt.get<TradesStore>(),
-      getIt.get<AppStore>().settingsStore,
-      getIt.get<SharedPreferences>(),
-      getIt.get<ContactListViewModel>()));
+  getIt.registerFactory(() => BuySellViewModel(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => BuySellPage(getIt.get<BuySellViewModel>()));
 

@@ -67,14 +67,14 @@ class OptionTile extends StatelessWidget {
                 getImage(imagePath),
                 SizedBox(width: 8),
                 Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(
+                        height: 35,
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Flexible(
@@ -90,28 +90,33 @@ class OptionTile extends StatelessWidget {
                                 maxLines: 2,
                               ),
                             ),
-                            if (firstBadgeName != null)
-                              Badge(
-                                title: firstBadgeName!,
-                                textColor: backgroundColor,
-                                backgroundColor: titleColor,
-                              ),
-                            if (secondBadgeName != null)
-                              Badge(
-                                title: secondBadgeName!,
-                                textColor: backgroundColor,
-                                backgroundColor: titleColor,
-                              ),
-                            if (leadingIcon != null)
-                              Icon(
-                                leadingIcon,
-                                size: 16,
-                                color: titleColor,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                if (firstBadgeName != null)
+                                  Badge(
+                                    title: firstBadgeName!,
+                                    textColor: backgroundColor,
+                                    backgroundColor: titleColor,
+                                  ),
+                                if (secondBadgeName != null)
+                                  Badge(
+                                    title: secondBadgeName!,
+                                    textColor: backgroundColor,
+                                    backgroundColor: titleColor,
+                                  ),
+                                if (leadingIcon != null)
+                                  Icon(
+                                    leadingIcon,
+                                    size: 16,
+                                    color: titleColor,
+                                  ),
+                              ],
+                            )
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -181,19 +186,21 @@ class Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Container(
-        height: 30,
-        padding: EdgeInsets.all(4),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(8.5)), color: backgroundColor),
-        alignment: Alignment.center,
-        child: Text(
-          title,
-          style: TextStyle(
-            color: textColor,
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: FittedBox(
+        fit: BoxFit.fitHeight,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(24)), color: backgroundColor),
+          alignment: Alignment.center,
+          child: Text(
+            title,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),

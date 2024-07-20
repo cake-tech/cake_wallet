@@ -44,7 +44,7 @@ class BuySellPage extends BasePage {
   final _cryptoAmountFocus = FocusNode();
   final _receiveAddressFocus = FocusNode();
   final _cryptoAmountDebounce = Debounce(Duration(milliseconds: 500));
-  Debounce _depositAmountDebounce = Debounce(Duration(milliseconds: 500));
+  final _fiatAmountDebounce = Debounce(Duration(milliseconds: 500));
   var _isReactionsSet = false;
 
   final arrowBottomPurple = Image.asset(
@@ -150,22 +150,22 @@ class BuySellPage extends BasePage {
               child: ScrollableWithBottomSection(
                 contentPadding: EdgeInsets.only(bottom: 24),
                 content: Observer(
-                    builder: (_) => Column(children: <Widget>[
+                    builder: (_) => Column(children: [
                           _exchangeCardsSection(context),
+                          SizedBox(height: 36),
                           _buildPaymentMethodTile(context),
+                          SizedBox(height: 18),
                           _buildQuoteTile(context)
                         ])),
                 bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-                bottomSection: Column(children: <Widget>[
+                bottomSection: Column(children: [
                   Observer(
                       builder: (_) => LoadingPrimaryButton(
                           text: 'Next',
-                          onPressed: () async {
-                            await buySellViewModel.launchTrade(context);
-                          },
+                          onPressed: () async => await buySellViewModel.launchTrade(context),
                           color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
-                          isDisabled: false,
+                          isDisabled: !buySellViewModel.isReadyToTrade,
                           isLoading: false)),
                 ]),
               )),
@@ -182,7 +182,7 @@ class BuySellPage extends BasePage {
       return Observer(builder: (_) {
         final selectedPaymentMethod = buySellViewModel.selectedPaymentMethod!;
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: 24),
           child: OptionTile(
             imagePath: selectedPaymentMethod.iconPath,
             title: selectedPaymentMethod.title,
@@ -211,7 +211,7 @@ class BuySellPage extends BasePage {
       return Observer(builder: (_) {
         final selectedQuote = buySellViewModel.selectedQuote!;
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: 24),
           child: OptionTile(
             imagePath: selectedQuote.provider!.lightIcon,
             title: selectedQuote.provider!.title,
@@ -244,9 +244,9 @@ class BuySellPage extends BasePage {
     await Navigator.of(context).pushNamed(
       Routes.selectOptions,
       arguments: [
-        'S.of(context).payment_methods',
+        'Choose a payment method',
         buySellViewModel.paymentMethods,
-        buySellViewModel.changeOption
+        buySellViewModel.changeOption,
       ],
     );
 
@@ -262,7 +262,7 @@ class BuySellPage extends BasePage {
     await Navigator.of(context).pushNamed(
       Routes.selectOptions,
       arguments: [
-        'S.of(context).quotes',
+        'Choose a provider',
         buySellViewModel.sortedAvailableQuotes,
         buySellViewModel.changeOption
       ],
@@ -275,18 +275,19 @@ class BuySellPage extends BasePage {
     }
 
     final fiatAmountController = fiatCurrencyKey.currentState!.amountController;
+    final cryptoAmountController = cryptoCurrencyKey.currentState!.amountController;
 
     _onCryptoCurrencyChange(buySellViewModel.cryptoCurrency, buySellViewModel, cryptoCurrencyKey);
     _onFiatCurrencyChange(buySellViewModel.fiatCurrency, buySellViewModel, fiatCurrencyKey);
 
     reaction(
-        (_) => buySellViewModel.cryptoCurrency,
-        (CryptoCurrency currency) =>
+            (_) => buySellViewModel.cryptoCurrency,
+            (CryptoCurrency currency) =>
             _onCryptoCurrencyChange(currency, buySellViewModel, cryptoCurrencyKey));
 
     reaction(
-        (_) => buySellViewModel.fiatCurrency,
-        (FiatCurrency currency) =>
+            (_) => buySellViewModel.fiatCurrency,
+            (FiatCurrency currency) =>
             _onFiatCurrencyChange(currency, buySellViewModel, fiatCurrencyKey));
 
     reaction((_) => buySellViewModel.fiatAmount, (String amount) {
@@ -303,9 +304,16 @@ class BuySellPage extends BasePage {
 
     fiatAmountController.addListener(() {
       if (fiatAmountController.text != buySellViewModel.fiatAmount) {
-        _cryptoAmountDebounce.run(() {
+        _fiatAmountDebounce.run(() {
           buySellViewModel.changeFiatAmount(amount: fiatAmountController.text);
-          buySellViewModel.isCryptoAmountEntered = true;
+        });
+      }
+    });
+
+    cryptoAmountController.addListener(() {
+      if (cryptoAmountController.text != buySellViewModel.cryptoAmount) {
+        _cryptoAmountDebounce.run(() {
+          buySellViewModel.changeCryptoAmount(amount: cryptoAmountController.text);
         });
       }
     });
@@ -313,12 +321,12 @@ class BuySellPage extends BasePage {
     _isReactionsSet = true;
   }
 
+
   void _onCryptoCurrencyChange(CryptoCurrency currency, BuySellViewModel buySellViewModel,
       GlobalKey<ExchangeCardState> key) {
     final isCurrentTypeWallet = currency == buySellViewModel.wallet.currency;
 
     key.currentState!.changeSelectedCurrency(currency);
-    key.currentState!.changeWalletName(isCurrentTypeWallet ? buySellViewModel.wallet.name : '');
 
     key.currentState!.changeAddress(
         address: isCurrentTypeWallet ? buySellViewModel.wallet.walletAddresses.address : '');
@@ -330,27 +338,6 @@ class BuySellPage extends BasePage {
       FiatCurrency currency, BuySellViewModel buySellViewModel, GlobalKey<ExchangeCardState> key) {
     key.currentState!.changeSelectedCurrency(currency);
     key.currentState!.changeAmount(amount: '');
-  }
-
-  void _onWalletNameChange(ExchangeViewModel exchangeViewModel, CryptoCurrency currency,
-      GlobalKey<ExchangeCardState> key) {
-    final isCurrentTypeWallet = currency == exchangeViewModel.wallet.currency;
-
-    if (isCurrentTypeWallet) {
-      key.currentState!.changeWalletName(exchangeViewModel.wallet.name);
-      key.currentState!.addressController.text = exchangeViewModel.wallet.walletAddresses.address;
-    } else if (key.currentState!.addressController.text ==
-        exchangeViewModel.wallet.walletAddresses.address) {
-      key.currentState!.changeWalletName('');
-      key.currentState!.addressController.text = '';
-    }
-  }
-
-  Future<String> fetchParsedAddress(
-      BuildContext context, String domain, CryptoCurrency currency) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    final address = await extractAddressFromParsed(context, parsedAddress);
-    return address;
   }
 
   void disposeBestRateSync() => {};
@@ -372,6 +359,7 @@ class BuySellPage extends BasePage {
               addressRowPadding: EdgeInsets.zero,
               isMoneroWallet: buySellViewModel.wallet == WalletType.monero,
               showAddressField: false,
+              showLimitsField: false,
               currencies: buySellViewModel.fiatCurrencies,
               onCurrencySelected: (currency) =>
                   buySellViewModel.changeFiatCurrency(currency: currency),
@@ -403,6 +391,7 @@ class BuySellPage extends BasePage {
                   : '',
               initialIsAmountEditable: true,
               isAmountEstimated: true,
+              showLimitsField: false,
               currencyRowPadding: EdgeInsets.zero,
               addressRowPadding: EdgeInsets.zero,
               isMoneroWallet: buySellViewModel.wallet == WalletType.monero,
