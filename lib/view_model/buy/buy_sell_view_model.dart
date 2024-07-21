@@ -6,6 +6,7 @@ import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/buy/sell_buy_states.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
+import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
@@ -37,6 +38,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         cryptoAmount = '',
         fiatAmount = '',
         cryptoCurrencyAddress = '',
+        country = Country.usa,
         cryptoCurrencies = <CryptoCurrency>[],
         fiatCurrencies = <FiatCurrency>[],
         paymentMethodState = InitialPaymentMethod(),
@@ -120,6 +122,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @observable
   ObservableList<PaymentMethod> paymentMethods;
+
+  @observable
+  Country country;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -255,6 +260,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   void _setProviders() =>
       providerList = isBuyAction ? availableBuyProviders : availableSellProviders;
+
+  @action
+  void setCountry(Country country) => this.country = country;
 
   Future<void> _initialize() async {
     _setProviders();

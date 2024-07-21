@@ -1,6 +1,7 @@
 import 'package:cake_wallet/buy/sell_buy_states.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -9,9 +10,11 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/exchange_card.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
+import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
@@ -23,6 +26,7 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -152,10 +156,19 @@ class BuySellPage extends BasePage {
                 content: Observer(
                     builder: (_) => Column(children: [
                           _exchangeCardsSection(context),
-                          SizedBox(height: 36),
-                          _buildPaymentMethodTile(context),
-                          SizedBox(height: 18),
-                          _buildQuoteTile(context)
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24),
+                            child: Column(
+                              children: [
+                                SizedBox(height: 12),
+                                _countryPicker(context),
+                                SizedBox(height: 12),
+                                _buildPaymentMethodTile(context),
+                                SizedBox(height: 12),
+                                _buildQuoteTile(context)
+                              ],
+                            ),
+                          ),
                         ])),
                 bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
                 bottomSection: Column(children: [
@@ -172,6 +185,29 @@ class BuySellPage extends BasePage {
         ));
   }
 
+  Widget _countryPicker(BuildContext context) => Observer(
+      builder: (BuildContext build) => OptionTile(
+          imagePath: buySellViewModel.country.iconPath,
+          title: buySellViewModel.country.fullName,
+          leadingIcon: Icons.arrow_forward_ios,
+          padding: EdgeInsets.fromLTRB(8, 12, 24, 12),
+          titleTextStyle:
+          textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+          borderRadius: 30,
+          onPressed: () async {
+            await showPopUp<void>(
+                context: context,
+                builder: (_) => Picker(
+                    items: Country.all,
+                    images: Country.all.map((e) => Image.asset(e.iconPath)).toList(),
+                    selectedAtIndex: Country.all.indexOf(buySellViewModel.country),
+                    onItemSelected: (Country country) => buySellViewModel.setCountry(country),
+                    isSeparated: false,
+                    hintText: 'S.of(context).search_country',
+                    matchingCriteria: (Country country, String searchText) =>
+                        country.fullName.toLowerCase().contains(searchText)));
+          }));
+
   Widget _buildPaymentMethodTile(BuildContext context) {
     if (buySellViewModel.paymentMethodState is PaymentMethodLoading) {
       return OptionTilePlaceholder(context, Center(child: CircularProgressIndicator()));
@@ -181,19 +217,16 @@ class BuySellPage extends BasePage {
         buySellViewModel.selectedPaymentMethod != null) {
       return Observer(builder: (_) {
         final selectedPaymentMethod = buySellViewModel.selectedPaymentMethod!;
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24),
-          child: OptionTile(
-            imagePath: selectedPaymentMethod.iconPath,
-            title: selectedPaymentMethod.title,
-            leftSubTitle: selectedPaymentMethod.description,
-            onPressed: () => _pickPaymentMethod(context),
-            leadingIcon: Icons.arrow_forward_ios,
-            borderRadius: 24,
-            padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
-            titleTextStyle:
-                textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-          ),
+        return OptionTile(
+          imagePath: selectedPaymentMethod.iconPath,
+          title: selectedPaymentMethod.title,
+          leftSubTitle: selectedPaymentMethod.description,
+          onPressed: () => _pickPaymentMethod(context),
+          leadingIcon: Icons.arrow_forward_ios,
+          borderRadius: 30,
+          padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
+          titleTextStyle:
+              textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
         );
       });
     } else {
@@ -210,28 +243,25 @@ class BuySellPage extends BasePage {
         buySellViewModel.selectedQuote != null) {
       return Observer(builder: (_) {
         final selectedQuote = buySellViewModel.selectedQuote!;
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24),
-          child: OptionTile(
-            imagePath: selectedQuote.provider!.lightIcon,
-            title: selectedQuote.provider!.title,
-            firstBadgeName: selectedQuote.firstBadgeName,
-            secondBadgeName: selectedQuote.secondBadgeName,
-            leftSubTitle: selectedQuote.leftSubTitle,
-            leftSubTitleMaxLines: 1,
-            leftSubTitleTextStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-            ),
-            rightSubTitle: selectedQuote.rightSubTitle,
-            onPressed: () => _pickQuote(context),
-            leadingIcon: Icons.arrow_forward_ios,
-            borderRadius: 24,
-            padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
-            titleTextStyle:
-                textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+        return OptionTile(
+          imagePath: selectedQuote.provider!.lightIcon,
+          title: selectedQuote.provider!.title,
+          firstBadgeName: selectedQuote.firstBadgeName,
+          secondBadgeName: selectedQuote.secondBadgeName,
+          leftSubTitle: selectedQuote.leftSubTitle,
+          leftSubTitleMaxLines: 1,
+          leftSubTitleTextStyle: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
           ),
+          rightSubTitle: selectedQuote.rightSubTitle,
+          onPressed: () => _pickQuote(context),
+          leadingIcon: Icons.arrow_forward_ios,
+          borderRadius: 30,
+          padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
+          titleTextStyle:
+              textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
         );
       });
     } else {
@@ -281,13 +311,13 @@ class BuySellPage extends BasePage {
     _onFiatCurrencyChange(buySellViewModel.fiatCurrency, buySellViewModel, fiatCurrencyKey);
 
     reaction(
-            (_) => buySellViewModel.cryptoCurrency,
-            (CryptoCurrency currency) =>
+        (_) => buySellViewModel.cryptoCurrency,
+        (CryptoCurrency currency) =>
             _onCryptoCurrencyChange(currency, buySellViewModel, cryptoCurrencyKey));
 
     reaction(
-            (_) => buySellViewModel.fiatCurrency,
-            (FiatCurrency currency) =>
+        (_) => buySellViewModel.fiatCurrency,
+        (FiatCurrency currency) =>
             _onFiatCurrencyChange(currency, buySellViewModel, fiatCurrencyKey));
 
     reaction((_) => buySellViewModel.fiatAmount, (String amount) {
@@ -320,7 +350,6 @@ class BuySellPage extends BasePage {
 
     _isReactionsSet = true;
   }
-
 
   void _onCryptoCurrencyChange(CryptoCurrency currency, BuySellViewModel buySellViewModel,
       GlobalKey<ExchangeCardState> key) {
