@@ -9,14 +9,14 @@ import 'package:cw_core/format_amount.dart';
 import 'package:cw_monero/api/transaction_history.dart';
 
 class MoneroTransactionInfo extends TransactionInfo {
-  MoneroTransactionInfo(this.txhash, this.height, this.direction, this.date,
+  MoneroTransactionInfo(this.txHash, this.height, this.direction, this.date,
       this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee,
       this.confirmations) :
-      id = "${txhash}_${amount}_${accountIndex}_${addressIndex}";
+      id = "${txHash}_${amount}_${accountIndex}_${addressIndex}";
 
   MoneroTransactionInfo.fromMap(Map<String, Object?> map)
       : id = "${map['hash']}_${map['amount']}_${map['accountIndex']}_${map['addressIndex']}",
-        txhash = map['hash'] as String,
+        txHash = map['hash'] as String,
         height = (map['height'] ?? 0) as int,
         direction = map['direction'] != null
             ? parseTransactionDirectionFromNumber(map['direction'] as String)
@@ -39,7 +39,7 @@ class MoneroTransactionInfo extends TransactionInfo {
 
   MoneroTransactionInfo.fromRow(TransactionInfoRow row)
       : id = "${row.getHash()}_${row.getAmount()}_${row.subaddrAccount}_${row.subaddrIndex}",
-        txhash = row.getHash(),
+        txHash = row.getHash(),
         height = row.blockHeight,
         direction = parseTransactionDirectionFromInt(row.direction),
         date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime() * 1000),
@@ -58,7 +58,7 @@ class MoneroTransactionInfo extends TransactionInfo {
         }
 
   final String id;
-  final String txhash;
+  final String txHash;
   final int height;
   final TransactionDirection direction;
   final DateTime date;

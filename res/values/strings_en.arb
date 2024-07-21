@@ -143,7 +143,7 @@
   "confirm_fee_deduction": "Confirm Fee Deduction",
   "confirm_fee_deduction_content": "Do you agree to deduct the fee from the output?",
   "confirm_sending": "Confirm sending",
-  "confirm_silent_payments_switch_node": "Currently it is required to switch nodes to scan silent payments",
+  "confirm_silent_payments_switch_node": "Your current node does not support silent payments\\nCake Wallet will switch to a compatible node, just for scanning",
   "confirmations": "Confirmations",
   "confirmed": "Confirmed Balance",
   "confirmed_tx": "Confirmed",
