@@ -143,7 +143,7 @@
   "confirm_fee_deduction": "Ücret kesintisini onaylayın",
   "confirm_fee_deduction_content": "Ücreti çıktıdan düşürmeyi kabul ediyor musunuz?",
   "confirm_sending": "Göndermeyi onayla",
-  "confirm_silent_payments_switch_node": "Şu anda sessiz ödemeleri taramak için düğümleri değiştirmek gerekiyor",
+  "confirm_silent_payments_switch_node": "Mevcut düğümünüz sessiz ödemeleri desteklemiyor \\ nCake cüzdanı, sadece tarama için uyumlu bir düğüme geçecektir",
   "confirmations": "Onay",
   "confirmed": "Onaylanmış Bakiye",
   "confirmed_tx": "Onaylanmış",

@@ -61,7 +61,7 @@ abstract class BalanceViewModelBase with Store {
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
   @computed
-  bool get hasSilentPayments => wallet.type == WalletType.bitcoin;
+  bool get hasSilentPayments => wallet.type == WalletType.bitcoin && !wallet.isHardwareWallet;
 
   @computed
   double get price {

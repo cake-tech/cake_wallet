@@ -143,7 +143,7 @@
   "confirm_fee_deduction": "शुल्क कटौती की पुष्टि करें",
   "confirm_fee_deduction_content": "क्या आप आउटपुट से शुल्क में कटौती करने के लिए सहमत हैं?",
   "confirm_sending": "भेजने की पुष्टि करें",
-  "confirm_silent_payments_switch_node": "वर्तमान में मूक भुगतान को स्कैन करने के लिए नोड्स को स्विच करना आवश्यक है",
+  "confirm_silent_payments_switch_node": "आपका वर्तमान नोड मूक भुगतान का समर्थन नहीं करता है \\ ncake वॉलेट एक संगत नोड पर स्विच करेगा, बस स्कैनिंग के लिए",
   "confirmations": "पुष्टिकरण",
   "confirmed": "पुष्टि की गई शेष राशिी",
   "confirmed_tx": "की पुष्टि",

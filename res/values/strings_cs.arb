@@ -143,7 +143,7 @@
   "confirm_fee_deduction": "Potvrďte odpočet poplatků",
   "confirm_fee_deduction_content": "Souhlasíte s odečtením poplatku z výstupu?",
   "confirm_sending": "Potvrdit odeslání",
-  "confirm_silent_payments_switch_node": "V současné době je nutné přepínat uzly pro skenování tichých plateb",
+  "confirm_silent_payments_switch_node": "Váš aktuální uzel nepodporuje tiché platby \\ Ncake peněženka se přepne na kompatibilní uzel, pouze pro skenování",
   "confirmations": "Potvrzení",
   "confirmed": "Potvrzený zůstatek",
   "confirmed_tx": "Potvrzeno",
