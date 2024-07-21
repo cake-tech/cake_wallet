@@ -260,3 +260,209 @@ Widget getImage(String imagePath) {
         : Image.asset(imagePath, height: 35, width: 35);
   }
 }
+
+class OptionTilePlaceholder extends StatefulWidget {
+  OptionTilePlaceholder({
+    this.borderRadius,
+    this.padding,
+    this.leadingIcon,
+    this.withBadge = true,
+    this.withSubtitle = true,
+    this.isDarkTheme = false,
+    this.errorText,
+  });
+
+  final double? borderRadius;
+  final EdgeInsets? padding;
+  final IconData? leadingIcon;
+  final bool withBadge;
+  final bool withSubtitle;
+  final bool isDarkTheme;
+  final String? errorText;
+
+  @override
+  _OptionTilePlaceholderState createState() => _OptionTilePlaceholderState();
+}
+
+class _OptionTilePlaceholderState extends State<OptionTilePlaceholder>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat();
+
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.linear,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final backgroundColor = Theme.of(context).cardColor;
+    final titleColor = Theme.of(context).extension<OptionTileTheme>()!.titleColor.withOpacity(0.4);
+
+    return widget.errorText != null
+        ? Container(
+            width: double.infinity,
+            padding: widget.padding ?? EdgeInsets.all(24),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius ?? 12)),
+              color: backgroundColor,
+            ),
+            child: Column(
+              children: [
+                Text(
+                  widget.errorText!,
+                  style: TextStyle(
+                    color: titleColor,
+                    fontSize: 16,
+                  ),
+                ),
+                if (widget.withSubtitle)
+                  Text(
+                    '',
+                    style: TextStyle(
+                      color: titleColor,
+                      fontSize: 16,
+                    ),
+                  ),
+              ],
+            ),
+          )
+        : AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: widget.padding ?? EdgeInsets.all(24),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius ?? 12)),
+                        color: backgroundColor),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Container(
+                              height: 35,
+                              width: 35,
+                              decoration: BoxDecoration(
+                                color: titleColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Container(
+                                    height: 35,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Container(
+                                            height: 20,
+                                            width: 100,
+                                            decoration: BoxDecoration(
+                                              color: titleColor,
+                                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                                            ),
+                                          ),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            if (widget.withBadge)
+                                              Container(
+                                                height: 20,
+                                                width: 70,
+                                                decoration: BoxDecoration(
+                                                  color: titleColor,
+                                                  borderRadius:
+                                                      BorderRadius.all(Radius.circular(8)),
+                                                ),
+                                              ),
+                                            if (widget.leadingIcon != null)
+                                              Icon(widget.leadingIcon, size: 16, color: titleColor),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if (widget.withSubtitle)
+                              Padding(
+                                padding: EdgeInsets.only(top: 5),
+                                child: Container(
+                                  height: 20,
+                                  width: 170,
+                                  decoration: BoxDecoration(
+                                    color: titleColor,
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius ?? 12)),
+                        gradient: LinearGradient(
+                          begin: Alignment(-2, -4),
+                          end: Alignment(2, 4),
+                          stops: [
+                            _animation.value - 0.2,
+                            _animation.value,
+                            _animation.value + 0.2,
+                          ],
+                          colors: [
+                            backgroundColor.withOpacity(widget.isDarkTheme ? 0.4 : 0.7),
+                            backgroundColor.withOpacity(widget.isDarkTheme ? 0.7 : 0.4),
+                            backgroundColor.withOpacity(widget.isDarkTheme ? 0.4 : 0.7),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+  }
+}

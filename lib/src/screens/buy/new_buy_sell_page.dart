@@ -192,7 +192,7 @@ class BuySellPage extends BasePage {
           leadingIcon: Icons.arrow_forward_ios,
           padding: EdgeInsets.fromLTRB(8, 12, 24, 12),
           titleTextStyle:
-          textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+              textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
           borderRadius: 30,
           onPressed: () async {
             await showPopUp<void>(
@@ -209,64 +209,73 @@ class BuySellPage extends BasePage {
           }));
 
   Widget _buildPaymentMethodTile(BuildContext context) {
-    if (buySellViewModel.paymentMethodState is PaymentMethodLoading) {
-      return OptionTilePlaceholder(context, Center(child: CircularProgressIndicator()));
-    } else if (buySellViewModel.paymentMethodState is PaymentMethodFailed) {
-      return OptionTilePlaceholder(context, Center(child: Text('No payment methods available')));
-    } else if (buySellViewModel.paymentMethodState is PaymentMethodLoaded &&
+    if (buySellViewModel.paymentMethodState is PaymentMethodLoading ||
+        buySellViewModel.paymentMethodState is InitialPaymentMethod) {
+      return OptionTilePlaceholder(
+          withBadge: false,
+          withSubtitle: false,
+          borderRadius: 30,
+          padding: EdgeInsets.fromLTRB(8, 12, 24, 12),
+          leadingIcon: Icons.arrow_forward_ios,
+          isDarkTheme: buySellViewModel.isDarkTheme);
+    }
+    if (buySellViewModel.paymentMethodState is PaymentMethodFailed) {
+      return OptionTilePlaceholder(errorText: 'No payment methods available', borderRadius: 30);
+    }
+    if (buySellViewModel.paymentMethodState is PaymentMethodLoaded &&
         buySellViewModel.selectedPaymentMethod != null) {
       return Observer(builder: (_) {
         final selectedPaymentMethod = buySellViewModel.selectedPaymentMethod!;
         return OptionTile(
           imagePath: selectedPaymentMethod.iconPath,
           title: selectedPaymentMethod.title,
-          leftSubTitle: selectedPaymentMethod.description,
           onPressed: () => _pickPaymentMethod(context),
           leadingIcon: Icons.arrow_forward_ios,
           borderRadius: 30,
-          padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
+          padding: EdgeInsets.fromLTRB(8, 12, 24, 12),
           titleTextStyle:
               textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
         );
       });
-    } else {
-      return OptionTilePlaceholder(context, Container());
     }
+    return OptionTilePlaceholder(errorText: 'No payment methods available', borderRadius: 30);
   }
 
   Widget _buildQuoteTile(BuildContext context) {
-    if (buySellViewModel.buySellQuotState is BuySellQuotLoading) {
-      return OptionTilePlaceholder(context, Center(child: CircularProgressIndicator()));
-    } else if (buySellViewModel.buySellQuotState is BuySellQuotFailed) {
-      return OptionTilePlaceholder(context, Center(child: Text('No quotes available')));
-    } else if (buySellViewModel.buySellQuotState is BuySellQuotLoaded &&
+    if (buySellViewModel.buySellQuotState is BuySellQuotLoading ||
+        buySellViewModel.buySellQuotState is InitialBuySellQuotState) {
+      return OptionTilePlaceholder(
+          leadingIcon: Icons.arrow_forward_ios,
+          borderRadius: 30,
+          padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
+          isDarkTheme: buySellViewModel.isDarkTheme);
+    }
+    if (buySellViewModel.buySellQuotState is BuySellQuotLoaded &&
         buySellViewModel.selectedQuote != null) {
       return Observer(builder: (_) {
         final selectedQuote = buySellViewModel.selectedQuote!;
         return OptionTile(
-          imagePath: selectedQuote.provider!.lightIcon,
-          title: selectedQuote.provider!.title,
-          firstBadgeName: selectedQuote.firstBadgeName,
-          secondBadgeName: selectedQuote.secondBadgeName,
-          leftSubTitle: selectedQuote.leftSubTitle,
-          leftSubTitleMaxLines: 1,
-          leftSubTitleTextStyle: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-          ),
-          rightSubTitle: selectedQuote.rightSubTitle,
-          onPressed: () => _pickQuote(context),
-          leadingIcon: Icons.arrow_forward_ios,
-          borderRadius: 30,
-          padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
-          titleTextStyle:
-              textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-        );
+            imagePath: selectedQuote.provider!.lightIcon,
+            title: selectedQuote.provider!.title,
+            firstBadgeName: selectedQuote.firstBadgeName,
+            secondBadgeName: selectedQuote.secondBadgeName,
+            leftSubTitle: selectedQuote.leftSubTitle,
+            leftSubTitleMaxLines: 1,
+            leftSubTitleTextStyle: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+            ),
+            rightSubTitle: selectedQuote.rightSubTitle,
+            onPressed: () => _pickQuote(context),
+            leadingIcon: Icons.arrow_forward_ios,
+            borderRadius: 30,
+            padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
+            titleTextStyle:
+                textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor));
       });
-    } else {
-      return OptionTilePlaceholder(context, Container());
     }
+    return OptionTilePlaceholder(errorText: 'No quotes available', borderRadius: 30);
   }
 
   void _pickPaymentMethod(BuildContext context) async {
@@ -483,21 +492,6 @@ class BuySellPage extends BasePage {
           );
         }
       },
-    );
-  }
-
-  Widget OptionTilePlaceholder(BuildContext context, Widget child) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-      child: Container(
-        height: 100,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          color: Theme.of(context).cardColor,
-        ),
-        child: child,
-      ),
     );
   }
 }

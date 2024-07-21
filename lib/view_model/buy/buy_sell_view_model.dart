@@ -19,6 +19,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/cupertino.dart';
@@ -48,6 +49,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         providerList = [],
         sortedAvailableQuotes = ObservableList<Quote>(),
         paymentMethods = ObservableList<PaymentMethod>(),
+        settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
     const excludeFiatCurrencies = [];
     const excludeCryptoCurrencies = [
@@ -110,6 +112,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   void onWalletChange(wallet) {
     cryptoCurrency = wallet.currency;
   }
+
+  bool get isDarkTheme => settingsStore.currentTheme.type == ThemeType.dark;
+
+  SettingsStore settingsStore;
 
   @observable
   bool isBuyAction = true;
