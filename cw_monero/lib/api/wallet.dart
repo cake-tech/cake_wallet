@@ -104,10 +104,6 @@ Future<bool> setupNodeSync(
     throw SetupWalletException(message: error);
   }
 
-  if (status == 0) {
-    monero.Wallet_setTrustedDaemon(wptr!, arg: true);
-  }
-
   return status == 0;
 }
 
