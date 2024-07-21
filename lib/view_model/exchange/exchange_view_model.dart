@@ -8,6 +8,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -449,26 +450,33 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     double? lowestMin = double.maxFinite;
     double? highestMax = 0.0;
 
+    /// Filter out providers not valid for the current pair
+    final filteredProviders = selectedProviders
+        .where((provider) => providersForCurrentPair().contains(provider))
+        .toList();
+
     try {
-      for (var provider in selectedProviders) {
-        /// if this provider is not valid for the current pair, skip it
-        if (!providersForCurrentPair().contains(provider)) continue;
+      final tempLimitsList = await Future.wait<Limits>(
+        filteredProviders.map(
+          (provider) {
+            return provider
+                .fetchLimits(from: from, to: to, isFixedRateMode: isFixedRateMode)
+                .timeout(
+                  Duration(seconds: 7),
+                  onTimeout: () => Limits(
+                    max: 0.0,
+                    min: double.maxFinite,
+                  ),
+                );
+          },
+        ),
+      );
 
-        try {
-          final tempLimits = await provider
-              .fetchLimits(from: from, to: to, isFixedRateMode: isFixedRateMode)
-              .timeout(
-                Duration(seconds: 7),
-                onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
-              );
+      for (var tempLimits in tempLimitsList) {
+        if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin) lowestMin = tempLimits.min;
 
-          if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin) lowestMin = tempLimits.min;
-
-          if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax)
-            highestMax = tempLimits.max;
-        } catch (e) {
-          continue;
-        }
+        if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax)
+          highestMax = tempLimits.max;
       }
     } on ConcurrentModificationError {
       /// if user changed the selected providers while fetching limits

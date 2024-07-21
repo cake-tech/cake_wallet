@@ -3,4 +3,7 @@ class Limits {
 
   final double? min;
   final double? max;
+
+  @override
+  String toString() => 'Limits(min: $min, max: $max)';
 }
