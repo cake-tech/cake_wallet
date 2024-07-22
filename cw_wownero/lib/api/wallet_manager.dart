@@ -21,6 +21,7 @@ final wownero.WalletManager wmPtr = Pointer.fromAddress((() {
     print("ptr: $_wmPtr");
   } catch (e) {
     print(e);
+    rethrow;
   }
   return _wmPtr!.address;
 })());
