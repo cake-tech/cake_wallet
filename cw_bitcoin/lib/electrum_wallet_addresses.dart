@@ -1,5 +1,4 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_core/wallet_addresses.dart';
@@ -22,15 +21,13 @@ const List<BitcoinAddressType> ADDRESS_TYPES = [
 abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   ElectrumWalletAddressesBase(
     WalletInfo walletInfo, {
-    required this.mainHd,
-    required this.sideHd,
+    required Bip32Slip10Secp256k1 accountHD,
     required this.network,
     List<BitcoinAddressRecord>? initialAddresses,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     int initialSilentAddressIndex = 0,
-    bitcoin.HDWallet? masterHd,
     BitcoinAddressType? initialAddressPageType,
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         addressesByReceiveType =
@@ -51,32 +48,36 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
             (initialSilentAddresses ?? []).toSet()),
         currentSilentAddressIndex = initialSilentAddressIndex,
         super(walletInfo) {
-    if (masterHd != null) {
-      silentAddress = SilentPaymentOwner.fromPrivateKeys(
-          b_scan: ECPrivate.fromHex(masterHd.derivePath(SCAN_PATH).privKey!),
-          b_spend: ECPrivate.fromHex(masterHd.derivePath(SPEND_PATH).privKey!),
-          hrp: network == BitcoinNetwork.testnet ? 'tsp' : 'sp');
+    // m / purpose' / coin_type' / account' / change (0) is Main HD
+    mainHd = accountHD.childKey(Bip32KeyIndex(0));
+    // m / purpose' / coin_type' / account' / change (1) is Side HD (change addresses)
+    sideHd = accountHD.childKey(Bip32KeyIndex(1));
 
-      if (silentAddresses.length == 0) {
-        silentAddresses.add(BitcoinSilentPaymentAddressRecord(
-          silentAddress.toString(),
-          index: 0,
-          isHidden: false,
-          name: "",
-          silentPaymentTweak: null,
-          network: network,
-          type: SilentPaymentsAddresType.p2sp,
-        ));
-        silentAddresses.add(BitcoinSilentPaymentAddressRecord(
-          silentAddress!.toLabeledSilentPaymentAddress(0).toString(),
-          index: 0,
-          isHidden: true,
-          name: "",
-          silentPaymentTweak: BytesUtils.toHexString(silentAddress!.generateLabel(0)),
-          network: network,
-          type: SilentPaymentsAddresType.p2sp,
-        ));
-      }
+    silentAddress = SilentPaymentOwner.fromPrivateKeys(
+      b_scan: ECPrivate(accountHD.derivePath(SCAN_PATH).privateKey),
+      b_spend: ECPrivate(accountHD.derivePath(SPEND_PATH).privateKey),
+      network: network,
+    );
+
+    if (silentAddresses.length == 0) {
+      silentAddresses.add(BitcoinSilentPaymentAddressRecord(
+        silentAddress.toString(),
+        index: 0,
+        isHidden: false,
+        name: "",
+        silentPaymentTweak: null,
+        network: network,
+        type: SilentPaymentsAddresType.p2sp,
+      ));
+      silentAddresses.add(BitcoinSilentPaymentAddressRecord(
+        silentAddress!.toLabeledSilentPaymentAddress(0).toString(),
+        index: 0,
+        isHidden: true,
+        name: "",
+        silentPaymentTweak: BytesUtils.toHexString(silentAddress!.generateLabel(0)),
+        network: network,
+        type: SilentPaymentsAddresType.p2sp,
+      ));
     }
 
     updateAddressesByMatch();
@@ -92,8 +93,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final ObservableList<BitcoinAddressRecord> changeAddresses;
   final ObservableList<BitcoinSilentPaymentAddressRecord> silentAddresses;
   final BasedUtxoNetwork network;
-  final bitcoin.HDWallet mainHd;
-  final bitcoin.HDWallet sideHd;
+  late final Bip32Slip10Secp256k1 mainHd;
+  late final Bip32Slip10Secp256k1 sideHd;
 
   @observable
   SilentPaymentOwner? silentAddress;
@@ -109,6 +110,16 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @computed
   List<BitcoinAddressRecord> get allAddresses => _addresses;
+
+  @observable
+  late Set<String> _addressesSet;
+  @computed
+  Set<String> get addressesSet => _addressesSet;
+
+  @observable
+  late Map<String, BitcoinAddressRecord> _scriptHashesMap;
+  @computed
+  Map<String, BitcoinAddressRecord> get scriptHashesMap => _scriptHashesMap;
 
   @override
   @computed
@@ -316,8 +327,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return address;
   }
 
-  String getAddress(
-          {required int index, required bitcoin.HDWallet hd, BitcoinAddressType? addressType}) =>
+  String getAddress({
+    required int index,
+    required Bip32Slip10Secp256k1 hd,
+    BitcoinAddressType? addressType,
+  }) =>
       '';
 
   @override
@@ -433,6 +447,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     addressesByReceiveType.clear();
     addressesByReceiveType.addAll(_addresses.where(_isAddressPageTypeMatch).toList());
+
+    _addressesSet = _addresses.map((addr) => addr.address).toSet();
+    _scriptHashesMap = Map.fromEntries(_addresses.map(
+      (addr) => MapEntry(addr.getScriptHash(network), addr),
+    ));
   }
 
   @action
@@ -561,7 +580,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return _isAddressByType(addressRecord, addressPageType);
   }
 
-  bitcoin.HDWallet _getHd(bool isHidden) => isHidden ? sideHd : mainHd;
+  Bip32Slip10Secp256k1 _getHd(bool isHidden) => isHidden ? sideHd : mainHd;
   bool _isAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) => addr.type == type;
   bool _isUnusedReceiveAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) =>
       !addr.isHidden && !addr.isUsed && addr.type == type;
@@ -573,5 +592,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     silentAddresses.remove(addressRecord);
     updateAddressesByMatch();
+  }
+
+  Future<String> signMessage(String message, {String? address = null}) async {
+    final index = address != null
+        ? _addresses.firstWhere((element) => element.address == address).index
+        : null;
+    final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
+    return ECPrivate(HD.privateKey).signMessage(StringUtils.encode(message));
   }
 }

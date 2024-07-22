@@ -35,15 +35,16 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            networkType: bitcoin.bitcoin,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.bch) {
+          mnemonic: mnemonic,
+          password: password,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          networkType: bitcoin.bitcoin,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          currency: CryptoCurrency.bch,
+          accountHD: bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'"),
+        ) {
     walletAddresses = BitcoinCashWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,

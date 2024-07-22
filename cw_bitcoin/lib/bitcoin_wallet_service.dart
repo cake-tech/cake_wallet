@@ -60,7 +60,7 @@ class BitcoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        alwaysScan: alwaysScan,
+        silentPaymentsAlwaysScanning: alwaysScan,
       );
       await wallet.init();
       saveBackup(name);
@@ -72,7 +72,7 @@ class BitcoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        alwaysScan: alwaysScan,
+        silentPaymentsAlwaysScanning: alwaysScan,
       );
       await wallet.init();
       return wallet;
@@ -96,7 +96,7 @@ class BitcoinWalletService extends WalletService<
       name: currentName,
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      alwaysScan: alwaysScan,
+      silentPaymentsAlwaysScanning: alwaysScan,
     );
 
     await currentWallet.renameWalletFiles(newName);

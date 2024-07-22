@@ -78,12 +78,10 @@ packages:
   bitcoin_base:
     dependency: "direct main"
     description:
-      path: "."
-      ref: cake-update-v3
-      resolved-ref: cc99eedb1d28ee9376dda0465ef72aa627ac6149
-      url: "https://github.com/cake-tech/bitcoin_base"
-    source: git
-    version: "4.2.1"
+      path: "/home/rafael/Working/bitcoin_base/"
+      relative: false
+    source: path
+    version: "4.6.0"
   bitcoin_flutter:
     dependency: "direct main"
     description:
@@ -96,12 +94,10 @@ packages:
   blockchain_utils:
     dependency: "direct main"
     description:
-      path: "."
-      ref: cake-update-v1
-      resolved-ref: cabd7e0e16c4da9920338c76eff3aeb8af0211f3
-      url: "https://github.com/cake-tech/blockchain_utils"
-    source: git
-    version: "2.1.2"
+      path: "/home/rafael/Working/blockchain_utils/"
+      relative: false
+    source: path
+    version: "3.2.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -792,11 +788,9 @@ packages:
   sp_scanner:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "sp_v2.0.0"
-      resolved-ref: "62c152b9086cd968019128845371072f7e1168de"
-      url: "https://github.com/cake-tech/sp_scanner"
-    source: git
+      path: "/home/rafael/Working/sp_scanner/"
+      relative: false
+    source: path
     version: "0.0.1"
   stack_trace:
     dependency: transitive

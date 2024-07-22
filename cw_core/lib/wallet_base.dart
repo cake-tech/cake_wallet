@@ -15,12 +15,12 @@ import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletBase<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
     TransactionType extends TransactionInfo> {
-  WalletBase(this.walletInfo);
+  WalletBase({required this.walletInfo});
+
+  WalletInfo walletInfo;
 
   static String idFor(String name, WalletType type) =>
       walletTypeToString(type).toLowerCase() + '_' + name;
-
-  WalletInfo walletInfo;
 
   WalletType get type => walletInfo.type;
 
@@ -69,7 +69,6 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);
 
-
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,
   //     {void Function() onFinished});
@@ -86,11 +85,13 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void>? updateBalance();
 
-  void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;
+  void Function(FlutterErrorDetails)? onError;
+  void setExceptionHandler(void Function(FlutterErrorDetails) onError) => onError = onError;
 
   Future<void> renameWalletFiles(String newWalletName);
 
-  Future<String> signMessage(String message, {String? address = null}) => throw UnimplementedError();
+  Future<String> signMessage(String message, {String? address = null}) =>
+      throw UnimplementedError();
 
-  bool? isTestnet;
+  bool isTestnet = false;
 }

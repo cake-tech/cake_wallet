@@ -49,10 +49,9 @@ class CWBitcoin extends Bitcoin {
   @override
   Map<String, String> getWalletKeys(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    final keys = bitcoinWallet.keys;
 
     return <String, String>{
-      'wif': keys.wif,
+      'wif': bitcoinWallet.accountHD.wif,
       'privateKey': keys.privateKey,
       'publicKey': keys.publicKey
     };
@@ -302,16 +301,13 @@ class CWBitcoin extends Bitcoin {
     await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
 
     late BasedUtxoNetwork network;
-    btc.NetworkType networkType;
     switch (node.type) {
       case WalletType.litecoin:
         network = LitecoinNetwork.mainnet;
-        networkType = litecoinNetwork;
         break;
       case WalletType.bitcoin:
       default:
         network = BitcoinNetwork.mainnet;
-        networkType = btc.bitcoin;
         break;
     }
 
@@ -341,25 +337,27 @@ class CWBitcoin extends Bitcoin {
             balancePath += "/0";
           }
 
-          final hd = btc.HDWallet.fromSeed(
+          final hd = Bip32Slip10Secp256k1.fromSeed(
             seedBytes,
-            network: networkType,
-          ).derivePath(balancePath);
+            network.isMainnet ? Bip32Const.mainNetKeyNetVersions : Bip32Const.testNetKeyNetVersions,
+          ).derivePath(balancePath) as Bip32Slip10Secp256k1;
 
           // derive address at index 0:
           String? address;
-          switch (dInfoCopy.scriptType) {
-            case "p2wpkh":
-              address = generateP2WPKHAddress(hd: hd, network: network, index: 0);
+          final publicKey = generateECPublic(hd, 0);
+
+          switch (BitcoinAddressType.fromValue(dInfoCopy.scriptType!)) {
+            case SegwitAddresType.p2wpkh:
+              address = publicKey.toP2wpkhAddress().toAddress(network);
               break;
-            case "p2pkh":
-              address = generateP2PKHAddress(hd: hd, network: network, index: 0);
+            case P2pkhAddressType.p2pkh:
+              address = publicKey.toP2wpkhAddress().toAddress(network);
               break;
-            case "p2wpkh-p2sh":
-              address = generateP2SHAddress(hd: hd, network: network, index: 0);
+            case P2shAddressType.p2wpkhInP2sh:
+              address = publicKey.toP2wpkhAddress().toAddress(network);
               break;
-            case "p2tr":
-              address = generateP2TRAddress(hd: hd, network: network, index: 0);
+            case SegwitAddresType.p2tr:
+              address = publicKey.toP2wpkhAddress().toAddress(network);
               break;
             default:
               continue;
@@ -398,41 +396,20 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<PendingBitcoinTransaction> replaceByFee(
       Object wallet, String transactionHash, String fee) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
+    final bitcoinWallet = wallet as BitcoinWallet;
     return await bitcoinWallet.replaceByFee(transactionHash, int.parse(fee));
   }
 
   @override
   Future<bool> canReplaceByFee(Object wallet, String transactionHash) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
+    final bitcoinWallet = wallet as BitcoinWallet;
     return bitcoinWallet.canReplaceByFee(transactionHash);
   }
 
   @override
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
+    final bitcoinWallet = wallet as BitcoinWallet;
     return bitcoinWallet.isChangeSufficientForFee(txId, int.parse(newFee));
-  }
-
-  @override
-  int getFeeAmountForPriority(
-      Object wallet, TransactionPriority priority, int inputsCount, int outputsCount,
-      {int? size}) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.feeAmountForPriority(
-        priority as BitcoinTransactionPriority, inputsCount, outputsCount);
-  }
-
-  @override
-  int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
-      {int? outputsCount, int? size}) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.calculateEstimatedFeeWithFeeRate(
-      feeRate,
-      amount,
-      outputsCount: outputsCount,
-      size: size,
-    );
   }
 
   @override
@@ -512,12 +489,6 @@ class CWBitcoin extends Bitcoin {
       active,
       active && (await getNodeIsElectrsSPEnabled(wallet)),
     );
-  }
-
-  @override
-  bool isTestnet(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.isTestnet ?? false;
   }
 
   @override

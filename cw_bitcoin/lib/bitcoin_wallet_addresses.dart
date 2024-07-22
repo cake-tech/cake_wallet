@@ -1,6 +1,6 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/silent_payments_wallet_addresses.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
@@ -9,34 +9,37 @@ part 'bitcoin_wallet_addresses.g.dart';
 
 class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAddresses;
 
-abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
+abstract class BitcoinWalletAddressesBase extends SilentPaymentsWalletAddresses {
   BitcoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHd,
-    required super.sideHd,
     required super.network,
     super.initialAddresses,
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
     super.initialSilentAddresses,
     super.initialSilentAddressIndex = 0,
-    super.masterHd,
+    required super.accountHD,
   }) : super(walletInfo);
 
   @override
-  String getAddress({required int index, required HDWallet hd, BitcoinAddressType? addressType}) {
-    if (addressType == P2pkhAddressType.p2pkh)
-      return generateP2PKHAddress(hd: hd, index: index, network: network);
+  String getAddress({
+    required int index,
+    required Bip32Slip10Secp256k1 hd,
+    BitcoinAddressType? addressType,
+  }) {
+    final publicKey = generateECPublic(hd, index);
 
-    if (addressType == SegwitAddresType.p2tr)
-      return generateP2TRAddress(hd: hd, index: index, network: network);
-
-    if (addressType == SegwitAddresType.p2wsh)
-      return generateP2WSHAddress(hd: hd, index: index, network: network);
-
-    if (addressType == P2shAddressType.p2wpkhInP2sh)
-      return generateP2SHAddress(hd: hd, index: index, network: network);
-
-    return generateP2WPKHAddress(hd: hd, index: index, network: network);
+    switch (addressType) {
+      case P2pkhAddressType.p2pkh:
+        return publicKey.toP2pkhAddress().toAddress(network);
+      case SegwitAddresType.p2tr:
+        return publicKey.toTaprootAddress().toAddress(network);
+      case SegwitAddresType.p2wsh:
+        return publicKey.toP2wshAddress().toAddress(network);
+      case P2shAddressType.p2wpkhInP2sh:
+        return publicKey.toP2wpkhInP2sh().toAddress(network);
+      default:
+        return publicKey.toP2wpkhAddress().toAddress(network);
+    }
   }
 }

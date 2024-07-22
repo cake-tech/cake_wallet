@@ -1,6 +1,8 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/exceptions.dart';
 
+class BitcoinKeysWrongDerivation implements Exception {}
+
 class BitcoinTransactionWrongBalanceException extends TransactionWrongBalanceException {
   BitcoinTransactionWrongBalanceException({super.amount}) : super(CryptoCurrency.btc);
 }
