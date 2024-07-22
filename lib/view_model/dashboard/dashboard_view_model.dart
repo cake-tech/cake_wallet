@@ -372,7 +372,7 @@ abstract class DashboardViewModelBase with Store {
   bool mwebScanningActive = false;
 
   @computed
-  bool get hasEnabledMwebBefore => !settingsStore.hasEnabledMwebBefore;
+  bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
 
   @action
   void setMwebScanningActive(bool active) {
