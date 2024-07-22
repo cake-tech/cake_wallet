@@ -77,7 +77,7 @@ abstract class EVMChainClient {
       final blockInfo = await _client!.getBlockInformation(isContainFullObj: false);
       final baseFee = blockInfo.baseFeePerGas;
 
-      return baseFee!.getInWei.toInt();
+      return baseFee?.getInWei.toInt();
     } catch (_) {
       return 0;
     }
