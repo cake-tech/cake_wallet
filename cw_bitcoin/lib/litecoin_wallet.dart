@@ -754,11 +754,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   void setMwebEnabled(bool enabled) {
-    if (!mwebEnabled && enabled) {
-      mwebEnabled = enabled;
-      startSync();
+    if (mwebEnabled == enabled) {
+      return;
     }
-    mwebEnabled = enabled;
-  }
 
+    mwebEnabled = enabled;
+    stopSync();
+    startSync();
+  }
 }
