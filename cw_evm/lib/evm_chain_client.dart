@@ -105,18 +105,21 @@ abstract class EVMChainClient {
 
         return estimatedGas.toInt();
       } else {
-        // This is the function signature for the transferFunction for the erc20 contractAbi, it's a constant
-        const functionSignature = 'a9059cbb';
+        final contract = DeployedContract(
+          ethereumContractAbi,
+          EthereumAddress.fromHex(contractAddress),
+        );
 
-        final recipientAddress = toAddress.hex.substring(2).padLeft(64, '0');
-        final amountHex = value.getInWei.toRadixString(16).padLeft(64, '0');
-        final data = functionSignature + recipientAddress + amountHex;
+        final transfer = contract.function('transfer');
 
         // Estimate gas units
         final gasEstimate = await _client!.estimateGas(
           sender: senderAddress,
           to: EthereumAddress.fromHex(contractAddress),
-          data: hexToBytes(data),
+          data: transfer.encodeCall([
+            toAddress,
+            value.getInWei,
+          ]),
         );
 
         return gasEstimate.toInt();
