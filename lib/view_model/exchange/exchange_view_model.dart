@@ -8,7 +8,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -450,29 +449,24 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     double? lowestMin = double.maxFinite;
     double? highestMax = 0.0;
 
-    /// Filter out providers not valid for the current pair
-    final filteredProviders = selectedProviders
-        .where((provider) => providersForCurrentPair().contains(provider))
-        .toList();
-
     try {
-      final limitsFutureList = await Future.wait(
-        filteredProviders.map(
-          (provider) => provider
-              .fetchLimits(
-                from: from,
-                to: to,
-                isFixedRateMode: isFixedRateMode,
-              )
-              .onError((error, stackTrace) => Limits(max: 0.0, min: double.maxFinite))
-              .timeout(
-                Duration(seconds: 7),
-                onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
-              ),
-        ),
+      final result = await Future.wait(
+        selectedProviders.where((provider) => providersForCurrentPair().contains(provider)).map(
+              (provider) => provider
+                  .fetchLimits(
+                    from: from,
+                    to: to,
+                    isFixedRateMode: isFixedRateMode,
+                  )
+                  .onError((error, stackTrace) => Limits(max: 0.0, min: double.maxFinite))
+                  .timeout(
+                    Duration(seconds: 7),
+                    onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
+                  ),
+            ),
       );
 
-      limitsFutureList.forEach((tempLimits) {
+      result.forEach((tempLimits) {
         if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin!) {
           lowestMin = tempLimits.min;
         }
