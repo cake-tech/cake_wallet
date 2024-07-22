@@ -105,24 +105,21 @@ abstract class EVMChainClient {
 
         return estimatedGas.toInt();
       } else {
-        final contract = DeployedContract(
-          ethereumContractAbi,
-          EthereumAddress.fromHex(contractAddress),
-        );
+        // This is the function signature for the contractAbi, it's a constant
+        const functionSignature = 'a9059cbb';
 
-        final transferFunction = contract.function('transferFrom');
+        final recipientAddress = toAddress.hex.substring(2).padLeft(64, '0');
+        final amountHex = value.getInWei.toRadixString(16).padLeft(64, '0');
+        final data = functionSignature + recipientAddress + amountHex;
 
-        final estimatedGas = await _client!.estimateGas(
+        // Estimate gas units
+        final gasEstimate = await _client!.estimateGas(
           sender: senderAddress,
-          to: toAddress,
-          value: value,
-          data: transferFunction.encodeCall([
-            senderAddress,
-            toAddress,
-            value.getInWei,
-          ]),
+          to: EthereumAddress.fromHex(contractAddress),
+          data: hexToBytes(data),
         );
-        return estimatedGas.toInt();
+
+        return gasEstimate.toInt();
       }
     } catch (_) {
       return 0;
