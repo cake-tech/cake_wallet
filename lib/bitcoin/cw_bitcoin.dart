@@ -208,8 +208,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   WalletService createLitecoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-    return LitecoinWalletService(walletInfoSource, unspentCoinSource);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan) {
+    return LitecoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan);
   }
 
   @override
@@ -592,6 +592,6 @@ class CWBitcoin extends Bitcoin {
   @override
   bool getMwebEnabled(Object wallet) {
     final litecoinWallet = wallet as LitecoinWallet;
-    return litecoinWallet.isMwebEnabled;
+    return litecoinWallet.mwebEnabled;
   }
 }

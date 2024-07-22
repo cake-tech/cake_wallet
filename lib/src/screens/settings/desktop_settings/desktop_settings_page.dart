@@ -60,6 +60,11 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                           return Container();
                         }
 
+                        if (!widget.dashboardViewModel.hasMweb &&
+                            item.name(context) == S.of(context).litecoin_mweb_settings) {
+                          return const SizedBox();
+                        }
+
                         final isLastTile = index == itemCount - 1;
                         return SettingActionButton(
                           isLastTile: isLastTile,

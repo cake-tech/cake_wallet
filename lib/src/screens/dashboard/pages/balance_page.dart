@@ -333,7 +333,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () => launchUrl(
                                     Uri.parse(
-                                        "https://guides.cakewallet.com/docs/cryptos/bitcoin/#silent-payments"),
+                                        "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
                                     mode: LaunchMode.externalApplication,
                                   ),
                                   child: Row(
@@ -373,8 +373,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                           ],
                         ),
                         onTap: () => _toggleMweb(context),
-                        icon: Icon(
-                          Icons.lock,
+                        icon: ImageIcon(
+                          AssetImage('assets/images/mweb_logo.png'),
                           color:
                               Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                           size: 50,
@@ -422,11 +422,8 @@ class CryptoBalanceWidget extends StatelessWidget {
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
   }
 
-
   Future<void> _toggleMweb(BuildContext context) async {
-    final isMwebEnabled = dashboardViewModel.mwebEnabled;
-    final newValue = !isMwebEnabled;
-    return dashboardViewModel.setMwebEnabled(newValue);
+    return dashboardViewModel.setMwebEnabled(!dashboardViewModel.mwebEnabled);
   }
 }
 

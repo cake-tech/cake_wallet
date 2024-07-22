@@ -22,7 +22,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
   final String subTitle;
   final Widget? hint;
   final SvgPicture? svgPicture;
-  final Icon? icon;
+  final Widget? icon;
   final double? customBorder;
 
   @override

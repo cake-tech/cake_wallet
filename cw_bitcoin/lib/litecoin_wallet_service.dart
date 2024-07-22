@@ -19,10 +19,11 @@ class LitecoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials,
     BitcoinNewWalletCredentials> {
-  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
+  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+  final bool alwaysScan;
 
   @override
   WalletType getType() => WalletType.litecoin;
@@ -30,11 +31,12 @@ class LitecoinWalletService extends WalletService<
   @override
   Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
     final wallet = await LitecoinWalletBase.create(
-        mnemonic: await generateElectrumMnemonic(),
-        password: credentials.password!,
-        passphrase: credentials.passphrase,
-        walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      mnemonic: await generateElectrumMnemonic(),
+      password: credentials.password!,
+      passphrase: credentials.passphrase,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+    );
     await wallet.save();
     await wallet.init();
 
@@ -52,20 +54,24 @@ class LitecoinWalletService extends WalletService<
 
     try {
       final wallet = await LitecoinWalletBase.open(
-          password: password,
-          name: name,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource);
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        alwaysScan: alwaysScan,
+      );
       await wallet.init();
       saveBackup(name);
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
       final wallet = await LitecoinWalletBase.open(
-          password: password,
-          name: name,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource);
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        alwaysScan: alwaysScan,
+      );
       await wallet.init();
       return wallet;
     }
@@ -93,10 +99,12 @@ class LitecoinWalletService extends WalletService<
     final currentWalletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
     final currentWallet = await LitecoinWalletBase.open(
-        password: password,
-        name: currentName,
-        walletInfo: currentWalletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      alwaysScan: alwaysScan,
+    );
 
     await currentWallet.renameWalletFiles(newName);
     await saveBackup(newName);

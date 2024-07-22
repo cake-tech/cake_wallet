@@ -52,6 +52,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     int? initialMwebHeight,
+    bool? alwaysScan,
   })  : mwebHd =
             bitcoin.HDWallet.fromSeed(seedBytes, network: litecoinNetwork).derivePath("m/1000'"),
         super(
@@ -65,6 +66,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           seedBytes: seedBytes,
           currency: CryptoCurrency.ltc,
         ) {
+    mwebEnabled = alwaysScan ?? false;
     walletAddresses = LitecoinWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
@@ -89,7 +91,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   StreamSubscription<Utxo>? _utxoStream;
   int mwebUtxosHeight = 0;
   late RpcClient _stub;
-  late bool mwebEnabled = true;
+  late bool mwebEnabled;
 
   static Future<LitecoinWallet> create(
       {required String mnemonic,
@@ -135,6 +137,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
+    required bool alwaysScan,
   }) async {
     final snp =
         await ElectrumWalletSnapshot.load(name, walletInfo.type, password, LitecoinNetwork.mainnet);
@@ -149,6 +152,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,
+      alwaysScan: alwaysScan,
     );
   }
 
@@ -757,5 +761,4 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebEnabled = enabled;
   }
 
-  bool get isMwebEnabled => mwebEnabled;
 }
