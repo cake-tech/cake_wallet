@@ -174,18 +174,20 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final amount = responseJSON['amount'].toString();
 
     return Trade(
-        id: id,
-        from: request.fromCurrency,
-        to: request.toCurrency,
-        provider: description,
-        inputAddress: inputAddress,
-        refundAddress: refundAddress,
-        extraId: extraId,
-        createdAt: DateTime.now(),
-        amount: amount,
-        state: TradeState.created,
-        payoutAddress: payoutAddress,
-        isSendAll: isSendAll);
+      id: id,
+      from: request.fromCurrency,
+      to: request.toCurrency,
+      provider: description,
+      inputAddress: inputAddress,
+      refundAddress: refundAddress,
+      extraId: extraId,
+      createdAt: DateTime.now(),
+      amount: amount,
+      receiveAmount: request.toAmount,
+      state: TradeState.created,
+      payoutAddress: payoutAddress,
+      isSendAll: isSendAll,
+    );
   }
 
   @override

@@ -139,17 +139,19 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final memo = responseJSON['memo'] as String?;
 
     return Trade(
-        id: '',
-        from: request.fromCurrency,
-        to: request.toCurrency,
-        provider: description,
-        inputAddress: inputAddress,
-        createdAt: DateTime.now(),
-        amount: request.fromAmount,
-        state: TradeState.notFound,
-        payoutAddress: request.toAddress,
-        memo: memo,
-        isSendAll: isSendAll);
+      id: '',
+      from: request.fromCurrency,
+      to: request.toCurrency,
+      provider: description,
+      inputAddress: inputAddress,
+      createdAt: DateTime.now(),
+      amount: request.fromAmount,
+      receiveAmount: request.toAmount,
+      state: TradeState.notFound,
+      payoutAddress: request.toAddress,
+      memo: memo,
+      isSendAll: isSendAll,
+    );
   }
 
   @override

@@ -167,6 +167,7 @@ class QuantexExchangeProvider extends ExchangeProvider {
         id: responseData["order_id"] as String,
         inputAddress: responseData["server_address"] as String,
         amount: request.fromAmount,
+        receiveAmount: request.toAmount,
         from: request.fromCurrency,
         to: request.toCurrency,
         provider: description,

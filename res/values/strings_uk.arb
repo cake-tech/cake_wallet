@@ -267,6 +267,7 @@
   "errorSigningTransaction": "Під час підписання транзакції сталася помилка",
   "estimated": "Приблизно ",
   "estimated_new_fee": "Орієнтовна нова комісія",
+  "estimated_receive_amount": "Орієнтовна сума отримує",
   "etherscan_history": "Історія Etherscan",
   "event": "Подія",
   "events": "Події",

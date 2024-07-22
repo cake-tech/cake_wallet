@@ -226,20 +226,22 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final providerName = responseJSON['provider'] as String;
 
     return Trade(
-        id: id,
-        from: request.fromCurrency,
-        to: request.toCurrency,
-        provider: description,
-        inputAddress: inputAddress,
-        refundAddress: refundAddress,
-        state: TradeState.deserialize(raw: status),
-        password: password,
-        providerId: providerId,
-        providerName: providerName,
-        createdAt: DateTime.tryParse(date)?.toLocal(),
-        amount: responseJSON['amount_from']?.toString() ?? request.fromAmount,
-        payoutAddress: payoutAddress,
-        isSendAll: isSendAll);
+      id: id,
+      from: request.fromCurrency,
+      to: request.toCurrency,
+      provider: description,
+      inputAddress: inputAddress,
+      refundAddress: refundAddress,
+      state: TradeState.deserialize(raw: status),
+      password: password,
+      providerId: providerId,
+      providerName: providerName,
+      createdAt: DateTime.tryParse(date)?.toLocal(),
+      amount: responseJSON['amount_from']?.toString() ?? request.fromAmount,
+      receiveAmount: request.toAmount,
+      payoutAddress: payoutAddress,
+      isSendAll: isSendAll,
+    );
   }
 
   @override

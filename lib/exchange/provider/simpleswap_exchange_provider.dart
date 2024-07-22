@@ -164,6 +164,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       extraId: extraId,
       state: TradeState.created,
       amount: request.fromAmount,
+      receiveAmount: request.toAmount,
       payoutAddress: payoutAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
