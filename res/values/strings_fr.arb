@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "Veuillez vous assurer d'ouvrir la bonne application sur votre grand livre",
   "ledger_please_enable_bluetooth": "Veuillez activer Bluetooth pour détecter votre grand livre",
   "light_theme": "Clair",
-  "litecoin_enable_mweb_sync": "Activer la synchronisation MWEB",
+  "litecoin_enable_mweb_sync": "Activer la numérisation MWEB",
   "litecoin_mweb": "Mweb",
   "litecoin_mweb_always_scan": "Définir MWEB Score Scanning",
   "litecoin_mweb_display_card": "Afficher la carte MWeb",

@@ -349,7 +349,7 @@
   "ledger_error_wrong_app": "元帳に適切なアプリを開始するようにしてください",
   "ledger_please_enable_bluetooth": "Bluetoothが元帳を検出できるようにしてください",
   "light_theme": "光",
-  "litecoin_enable_mweb_sync": "MWEB同期を有効にします",
+  "litecoin_enable_mweb_sync": "MWEBスキャンを有効にします",
   "litecoin_mweb": "mweb",
   "litecoin_mweb_always_scan": "MWEBを常にスキャンします",
   "litecoin_mweb_display_card": "MWEBカードを表示します",

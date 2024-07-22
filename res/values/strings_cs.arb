@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "Ujistěte se, že se na své knize otevřete správnou aplikaci",
   "ledger_please_enable_bluetooth": "Umožněte prosím Bluetooth detekovat vaši knihu",
   "light_theme": "Světlý",
-  "litecoin_enable_mweb_sync": "Povolit synchronizaci MWeb",
+  "litecoin_enable_mweb_sync": "Povolit skenování MWeb",
   "litecoin_mweb": "MWeb",
   "litecoin_mweb_always_scan": "Nastavit MWeb vždy skenování",
   "litecoin_mweb_display_card": "Zobrazit kartu MWeb",

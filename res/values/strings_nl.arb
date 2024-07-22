@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "Zorg ervoor dat u de juiste app op uw grootboek opent",
   "ledger_please_enable_bluetooth": "Schakel Bluetooth in staat om uw grootboek te detecteren",
   "light_theme": "Licht",
-  "litecoin_enable_mweb_sync": "MWEB SYNC inschakelen",
+  "litecoin_enable_mweb_sync": "MWEB -scanning inschakelen",
   "litecoin_mweb": "Mweb",
   "litecoin_mweb_always_scan": "Stel mweb altijd op scannen",
   "litecoin_mweb_display_card": "Toon MWEB -kaart",

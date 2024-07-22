@@ -349,7 +349,7 @@
   "ledger_error_wrong_app": "Assicurati di aprire l'app giusta sul libro mastro",
   "ledger_please_enable_bluetooth": "Si prega di consentire al Bluetooth di rilevare il libro mastro",
   "light_theme": "Bianco",
-  "litecoin_enable_mweb_sync": "Abilita MWeb Sync",
+  "litecoin_enable_mweb_sync": "Abilita la scansione MWeb",
   "litecoin_mweb": "MWeb",
   "litecoin_mweb_always_scan": "Imposta MWeb per scansionare sempre",
   "litecoin_mweb_display_card": "Mostra la scheda MWeb",

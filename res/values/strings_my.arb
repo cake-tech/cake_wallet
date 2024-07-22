@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "ကျေးဇူးပြု. သင့်လက်ျာအက်ပ်ကိုသင်၏ Ledger တွင်ဖွင့်ရန်သေချာစေပါ",
   "ledger_please_enable_bluetooth": "သင်၏ Ledger ကိုရှာဖွေရန် Bluetooth ကိုဖွင့်ပါ",
   "light_theme": "အလင်း",
-  "litecoin_enable_mweb_sync": "mweb စည်းညှိမှုကို enable",
+  "litecoin_enable_mweb_sync": "mweb scanning ဖွင့်ပါ",
   "litecoin_mweb": "မင်္ဂလာပါ",
   "litecoin_mweb_always_scan": "Mweb အမြဲစကင်ဖတ်စစ်ဆေးပါ",
   "litecoin_mweb_display_card": "MweB ကဒ်ကိုပြပါ",

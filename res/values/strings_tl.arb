@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "Mangyaring tiyaking pinipili mo ang tamang app sa iyong ledger",
   "ledger_please_enable_bluetooth": "Mangyaring paganahin ang Bluetooth upang makita ang iyong ledger",
   "light_theme": "Ilaw",
-  "litecoin_enable_mweb_sync": "Paganahin ang MWEB Sync",
+  "litecoin_enable_mweb_sync": "Paganahin ang pag -scan ng MWeb",
   "litecoin_mweb": "Mweb",
   "litecoin_mweb_always_scan": "Itakda ang MWeb na laging nag -scan",
   "litecoin_mweb_display_card": "Ipakita ang MWEB Card",

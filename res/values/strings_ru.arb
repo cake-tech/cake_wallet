@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "Пожалуйста, убедитесь, что вы предлагаете правильное приложение в своей бухгалтерской книге",
   "ledger_please_enable_bluetooth": "Пожалуйста, включите Bluetooth обнаружить вашу бухгалтерскую книгу",
   "light_theme": "Светлая",
-  "litecoin_enable_mweb_sync": "Включить MWEB Sync",
+  "litecoin_enable_mweb_sync": "Включить MWEB сканирование",
   "litecoin_mweb": "Мвеб",
   "litecoin_mweb_always_scan": "Установить MWEB всегда сканирование",
   "litecoin_mweb_display_card": "Показать карту MWEB",

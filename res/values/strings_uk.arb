@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "Будь ласка, переконайтеся, що ви відкриваєте потрібну програму на своїй книзі",
   "ledger_please_enable_bluetooth": "Будь ласка, ввімкніть Bluetooth виявити свою книгу",
   "light_theme": "Світла",
-  "litecoin_enable_mweb_sync": "Увімкнути MWEB SYNC",
+  "litecoin_enable_mweb_sync": "Увімкнути сканування MWEB",
   "litecoin_mweb": "Мвеб",
   "litecoin_mweb_always_scan": "Встановити mweb завжди сканувати",
   "litecoin_mweb_display_card": "Показати карту MWeb",

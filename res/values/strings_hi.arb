@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "कृपया सुनिश्चित करें कि आप अपने लेजर पर सही ऐप को खोलते हैं",
   "ledger_please_enable_bluetooth": "कृपया अपने बहीखाने का पता लगाने के लिए ब्लूटूथ को सक्षम करें",
   "light_theme": "रोशनी",
-  "litecoin_enable_mweb_sync": "MWEB सिंक सक्षम करें",
+  "litecoin_enable_mweb_sync": "MWEB स्कैनिंग सक्षम करें",
   "litecoin_mweb": "मावली",
   "litecoin_mweb_always_scan": "MWEB हमेशा स्कैनिंग सेट करें",
   "litecoin_mweb_display_card": "MWEB कार्ड दिखाएं",

@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "โปรดตรวจสอบให้แน่ใจว่าคุณเปิดแอพที่เหมาะสมในบัญชีแยกประเภทของคุณ",
   "ledger_please_enable_bluetooth": "โปรดเปิดใช้งานบลูทู ธ ในการตรวจจับบัญชีแยกประเภทของคุณ",
   "light_theme": "สว่าง",
-  "litecoin_enable_mweb_sync": "เปิดใช้งานการซิงค์ MWEB",
+  "litecoin_enable_mweb_sync": "เปิดใช้งานการสแกน MWEB",
   "litecoin_mweb": "mweb",
   "litecoin_mweb_always_scan": "ตั้งค่าการสแกน MWEB เสมอ",
   "litecoin_mweb_display_card": "แสดงการ์ด mweb",

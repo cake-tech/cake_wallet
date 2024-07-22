@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "يرجى التأكد",
   "ledger_please_enable_bluetooth": "يرجى تمكين البلوتوث للكشف عن دفتر الأستاذ الخاص بك",
   "light_theme": "فاتح",
-  "litecoin_enable_mweb_sync": "تمكين MWEB المزامنة",
+  "litecoin_enable_mweb_sync": "تمكين MWEB المسح الضوئي",
   "litecoin_mweb": "mweb",
   "litecoin_mweb_always_scan": "اضبط MWEB دائمًا على المسح الضوئي",
   "litecoin_mweb_display_card": "عرض بطاقة mweb",

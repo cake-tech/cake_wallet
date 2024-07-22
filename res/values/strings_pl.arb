@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "Upewnij się, że opisz odpowiednią aplikację na swojej księdze",
   "ledger_please_enable_bluetooth": "Włącz Bluetooth wykrywanie księgi",
   "light_theme": "Jasny",
-  "litecoin_enable_mweb_sync": "Włącz synchronizację MWEB",
+  "litecoin_enable_mweb_sync": "Włącz skanowanie MWEB",
   "litecoin_mweb": "MWEB",
   "litecoin_mweb_always_scan": "Ustaw MWEB zawsze skanowanie",
   "litecoin_mweb_display_card": "Pokaż kartę MWEB",

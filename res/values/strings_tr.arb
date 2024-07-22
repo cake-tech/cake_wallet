@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "Lütfen defterinizde doğru uygulamayı açtığınızdan emin olun",
   "ledger_please_enable_bluetooth": "Defterinizi algılamak için lütfen Bluetooth'u etkinleştirin",
   "light_theme": "Aydınlık",
-  "litecoin_enable_mweb_sync": "MWEB senkronizasyonunu etkinleştir",
+  "litecoin_enable_mweb_sync": "MWEB taramasını etkinleştir",
   "litecoin_mweb": "Mweb",
   "litecoin_mweb_always_scan": "MWEB'i her zaman taramayı ayarlayın",
   "litecoin_mweb_display_card": "MWEB kartını göster",

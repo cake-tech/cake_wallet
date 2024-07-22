@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "请确保您在分类帐中操作正确的应用程序",
   "ledger_please_enable_bluetooth": "请启用蓝牙来检测您的分类帐",
   "light_theme": "艳丽",
-  "litecoin_enable_mweb_sync": "启用MWEB同步",
+  "litecoin_enable_mweb_sync": "启用MWEB扫描",
   "litecoin_mweb": "MWEB",
   "litecoin_mweb_always_scan": "设置MWEB总是扫描",
   "litecoin_mweb_display_card": "显示MWEB卡",

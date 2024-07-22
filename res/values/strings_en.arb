@@ -348,7 +348,7 @@
   "ledger_error_wrong_app": "Please make sure you opend the right app on your ledger",
   "ledger_please_enable_bluetooth": "Please enable Bluetooth to detect your Ledger",
   "light_theme": "Light",
-  "litecoin_enable_mweb_sync": "Enable MWEB sync",
+  "litecoin_enable_mweb_sync": "Enable MWEB scanning",
   "litecoin_mweb": "MWEB",
   "litecoin_mweb_always_scan": "Set MWEB always scanning",
   "litecoin_mweb_display_card": "Show MWEB card",
