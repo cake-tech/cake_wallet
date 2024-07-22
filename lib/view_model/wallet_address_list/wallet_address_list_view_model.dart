@@ -227,7 +227,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
         hasAccounts =
-            appStore.wallet!.type == WalletType.monero || appStore.wallet!.type == WalletType.haven,
+            appStore.wallet!.type == WalletType.monero || appStore.wallet!.type ==  WalletType.wownero || appStore.wallet!.type == WalletType.haven,
         amount = '',
         _settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
@@ -239,7 +239,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _init();
 
     selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
-    hasAccounts = wallet.type == WalletType.monero || wallet.type == WalletType.haven;
+    hasAccounts = wallet.type == WalletType.monero || wallet.type == WalletType.wownero || wallet.type == WalletType.haven;
   }
 
   static const String _cryptoNumberPattern = '0.00000000';
@@ -354,6 +354,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.addAll(addressItems);
     }
 
+    if (wallet.type == WalletType.wownero) {
+      final primaryAddress = wownero!.getSubaddressList(wallet).subaddresses.first;
+      final addressItems = wownero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
+        final isPrimary = subaddress == primaryAddress;
+
+        return WalletAddressListItem(
+            id: subaddress.id,
+            isPrimary: isPrimary,
+            name: subaddress.label,
+            address: subaddress.address);
+      });
+      addressList.addAll(addressItems);
+    }
+
     if (wallet.type == WalletType.haven) {
       final primaryAddress = haven!.getSubaddressList(wallet).subaddresses.first;
       final addressItems = haven!.getSubaddressList(wallet).subaddresses.map((subaddress) {
@@ -444,20 +458,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
 
-    if (wallet.type == WalletType.wownero) {
-      final primaryAddress = wownero!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = wownero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
-        final isPrimary = subaddress == primaryAddress;
-
-        return WalletAddressListItem(
-            id: subaddress.id,
-            isPrimary: isPrimary,
-            name: subaddress.label,
-            address: subaddress.address);
-      });
-      addressList.addAll(addressItems);
-    }
-
     if (searchText.isNotEmpty) {
       return ObservableList.of(addressList.where((item) {
         if (item is WalletAddressListItem) {
@@ -479,6 +479,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       return monero!.getCurrentAccount(wallet).label;
     }
 
+    if (wallet.type == WalletType.wownero) {
+      return wownero!.getCurrentAccount(wallet).label;
+    }
+
     if (wallet.type == WalletType.haven) {
       return haven!.getCurrentAccount(wallet).label;
     }
@@ -489,6 +493,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   bool get hasAddressList =>
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.wownero ||
       wallet.type == WalletType.haven ||
       wallet.type == WalletType.bitcoinCash ||
       wallet.type == WalletType.bitcoin ||
@@ -527,7 +532,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void _init() {
     _baseItems = [];
 
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
+    if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero || wallet.type == WalletType.haven) {
       _baseItems.add(WalletAccountListHeader());
     }
 

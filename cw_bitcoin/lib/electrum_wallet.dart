@@ -519,17 +519,20 @@ abstract class ElectrumWalletBase
         );
         spendsSilentPayment = true;
         isSilentPayment = true;
-      } else {
+      } else if (!isHardwareWallet) {
         privkey =
             generateECPrivate(hd: hd, index: utx.bitcoinAddressRecord.index, network: network);
       }
 
       vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
-      inputPrivKeyInfos.add(ECPrivateInfo(
-        privkey,
-        address.type == SegwitAddresType.p2tr,
-        tweak: !isSilentPayment,
-      ));
+
+      if (privkey != null) {
+        inputPrivKeyInfos.add(ECPrivateInfo(
+          privkey,
+          address.type == SegwitAddresType.p2tr,
+          tweak: !isSilentPayment,
+        ));
+      }
 
       utxos.add(
         UtxoWithAddress(
@@ -541,7 +544,7 @@ abstract class ElectrumWalletBase
             isSilentPayment: isSilentPayment,
           ),
           ownerDetails: UtxoAddressDetails(
-            publicKey: privkey.getPublic().toHex(),
+            publicKey: pubKeyHex,
             address: address,
           ),
         ),

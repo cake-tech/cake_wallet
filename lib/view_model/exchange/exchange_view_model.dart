@@ -409,13 +409,22 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         .where((element) => !isFixedRateMode || element.supportsFixedRate)
         .toList();
 
-    final result = await Future.wait<double>(_providers.map((element) => element.fetchRate(
-        from: depositCurrency,
-        to: receiveCurrency,
-        amount: amount,
-        isFixedRateMode: isFixedRateMode,
-        isReceiveAmount: isFixedRateMode)));
-
+    final result = await Future.wait<double>(
+      _providers.map(
+        (element) => element
+            .fetchRate(
+              from: depositCurrency,
+              to: receiveCurrency,
+              amount: amount,
+              isFixedRateMode: isFixedRateMode,
+              isReceiveAmount: isFixedRateMode,
+            )
+            .timeout(
+              Duration(seconds: 7),
+              onTimeout: () => 0.0,
+            ),
+      ),
+    );
     _sortedAvailableProviders.clear();
 
     for (int i = 0; i < result.length; i++) {
@@ -445,22 +454,29 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     double? highestMax = 0.0;
 
     try {
-      for (var provider in selectedProviders) {
-        /// if this provider is not valid for the current pair, skip it
-        if (!providersForCurrentPair().contains(provider)) continue;
+      final result = await Future.wait(selectedProviders
+          .where((element) => providersForCurrentPair().contains(provider))
+          .map((provider) => provider
+              .fetchLimits(
+                from: from,
+                to: to,
+                isFixedRateMode: isFixedRateMode,
+              )
+              .onError((error, stackTrace) => Limits(max: 0.0, min: double.maxFinite))
+              .timeout(
+                Duration(seconds: 7),
+                onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
+              )));
 
-        try {
-          final tempLimits =
-              await provider.fetchLimits(from: from, to: to, isFixedRateMode: isFixedRateMode);
-
-          if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin) lowestMin = tempLimits.min;
-
-          if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax)
-            highestMax = tempLimits.max;
-        } catch (e) {
-          continue;
+      result.forEach((tempLimits) {
+        if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin!) {
+          lowestMin = tempLimits.min;
         }
-      }
+
+        if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax!) {
+          highestMax = tempLimits.max;
+        }
+      });
     } on ConcurrentModificationError {
       /// if user changed the selected providers while fetching limits
       /// then delay the fetching limits a bit and try again
