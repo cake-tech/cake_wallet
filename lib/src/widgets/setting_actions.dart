@@ -50,7 +50,7 @@ class SettingActions {
 
   static SettingActions litecoinMwebSettingAction = SettingActions._(
     name: (context) => S.current.litecoin_mweb_settings,
-    image: 'assets/images/mweb_logo.png',
+    image: 'assets/images/bitcoin_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.mwebSettings);

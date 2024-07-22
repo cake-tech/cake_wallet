@@ -50,6 +50,7 @@ class PreferencesKey {
   static const silentPaymentsAlwaysScan = 'silentPaymentsAlwaysScan';
   static const mwebCardDisplay = 'mwebCardDisplay';
   static const mwebEnabled = 'mwebEnabled';
+  static const hasEnabledMwebBefore = 'hasEnabledMwebBefore';
   static const mwebAlwaysScan = 'mwebAlwaysScan';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';

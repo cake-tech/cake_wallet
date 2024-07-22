@@ -7,6 +7,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
@@ -24,6 +25,7 @@ import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BalancePage extends StatelessWidget {
@@ -423,7 +425,19 @@ class CryptoBalanceWidget extends StatelessWidget {
   }
 
   Future<void> _toggleMweb(BuildContext context) async {
-    return dashboardViewModel.setMwebScanningActive(!dashboardViewModel.mwebScanningActive);
+    if (!dashboardViewModel.hasEnabledMwebBefore) {
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) => AlertWithOneAction(
+                alertTitle: S.of(context).warning,
+                alertContent: S.current.litecoin_mweb_warning,
+                buttonText: S.of(context).ok,
+                buttonAction: () {
+                  Navigator.of(context).pop();
+                },
+              ));
+    }
+    dashboardViewModel.setMwebScanningActive(!dashboardViewModel.mwebScanningActive);
   }
 }
 
