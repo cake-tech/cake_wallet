@@ -324,7 +324,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       '';
 
   Future<String> getAddressAsync(
-          {required int index, required bitcoin.HDWallet hd, BitcoinAddressType? addressType}) async =>
+          {required int index,
+          required bitcoin.HDWallet hd,
+          BitcoinAddressType? addressType}) async =>
       getAddress(index: index, hd: hd, addressType: addressType);
 
   @override
@@ -379,6 +381,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         addressesMap[lastP2wsh.address] = 'P2WSH';
       } else {
         addressesMap[address] = 'Active - P2WSH';
+      }
+
+      final lastMweb = _addresses.firstWhere(
+          (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
+      if (lastMweb.address != address) {
+        addressesMap[lastP2wsh.address] = 'MWEB';
+      } else {
+        addressesMap[address] = 'Active - MWEB';
       }
 
       silentAddresses.forEach((addressRecord) {
@@ -546,11 +556,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   void _validateAddresses() {
     allAddresses.forEach((element) {
-      if (!element.isHidden && element.address !=
-          getAddress(index: element.index, hd: mainHd, addressType: element.type)) {
+      if (!element.isHidden &&
+          element.address !=
+              getAddress(index: element.index, hd: mainHd, addressType: element.type)) {
         element.isHidden = true;
-      } else if (element.isHidden && element.address !=
-          getAddress(index: element.index, hd: sideHd, addressType: element.type)) {
+      } else if (element.isHidden &&
+          element.address !=
+              getAddress(index: element.index, hd: sideHd, addressType: element.type)) {
         element.isHidden = false;
       }
     });
