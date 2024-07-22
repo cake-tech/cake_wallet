@@ -105,7 +105,7 @@ abstract class EVMChainClient {
 
         return estimatedGas.toInt();
       } else {
-        // This is the function signature for the contractAbi, it's a constant
+        // This is the function signature for the transferFunction for the erc20 contractAbi, it's a constant
         const functionSignature = 'a9059cbb';
 
         final recipientAddress = toAddress.hex.substring(2).padLeft(64, '0');
