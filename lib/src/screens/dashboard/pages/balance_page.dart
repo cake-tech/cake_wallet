@@ -364,7 +364,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                 ),
                                 Observer(
                                   builder: (_) => StandardSwitch(
-                                    value: dashboardViewModel.mwebEnabled,
+                                    value: dashboardViewModel.mwebScanningActive,
                                     onTaped: () => _toggleMweb(context),
                                   ),
                                 )
@@ -423,7 +423,7 @@ class CryptoBalanceWidget extends StatelessWidget {
   }
 
   Future<void> _toggleMweb(BuildContext context) async {
-    return dashboardViewModel.setMwebEnabled(!dashboardViewModel.mwebEnabled);
+    return dashboardViewModel.setMwebScanningActive(!dashboardViewModel.mwebScanningActive);
   }
 }
 

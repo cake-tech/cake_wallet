@@ -372,11 +372,12 @@ abstract class DashboardViewModelBase with Store {
   bool mwebScanningActive = false;
 
   @action
-  void setMwebEnabled(bool active) {
+  void setMwebScanningActive(bool active) {
     if (!hasMweb) {
       return;
     }
 
+    mwebScanningActive = active;
     bitcoin!.setMwebEnabled(wallet, active);
   }
 
