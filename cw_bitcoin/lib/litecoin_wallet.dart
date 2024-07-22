@@ -209,6 +209,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     });
     updateUnspent();
+    fetchBalances();
     // this runs in the background and processes new utxos as they come in:
     processMwebUtxos();
   }
@@ -255,6 +256,19 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     transactionHistory.clear();
     mwebUtxosHeight = height;
     await walletInfo.updateRestoreHeight(height);
+
+    // reset coin balances and txCount to 0:
+    unspentCoins.forEach((coin) {
+      if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
+        coin.bitcoinAddressRecord.balance = 0;
+      coin.bitcoinAddressRecord.txCount = 0;
+    });
+
+    for (var addressRecord in walletAddresses.allAddresses) {
+      addressRecord.balance = 0;
+      addressRecord.txCount = 0;
+    }
+
     print("STARTING SYNC");
     await startSync();
   }
@@ -312,17 +326,25 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (addressRecord == null) {
         return;
       }
-      if (!(tx.inputAddresses?.contains(utxo.address) ?? false)) {
+
+      // if our address isn't in the inputs, update the txCount:
+      final inputAddresses = tx.inputAddresses ?? [];
+      if (!inputAddresses.contains(utxo.address)) {
         addressRecord.txCount++;
-        // print("COUNT UPDATED HERE 2!!!!! ${addressRecord.txCount}");
       }
+
       addressRecord.balance += utxo.value.toInt();
       addressRecord.setAsUsed();
+    }
 
+    transactionHistory.addOne(tx);
+
+    if (isNew) {
       // update the unconfirmed balance when a new tx is added:
+      // we do this after adding the tx to the history so that sub address balances are updated correctly
+      // (since that calculation is based on the tx history)
       await updateBalance();
     }
-    transactionHistory.addOne(tx);
   }
 
   Future<void> processMwebUtxos() async {
@@ -344,7 +366,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       await handleIncoming(utxo, _stub);
 
       if (utxo.height > walletInfo.restoreHeight) {
-        walletInfo.updateRestoreHeight(utxo.height);
+        await walletInfo.updateRestoreHeight(utxo.height);
       }
     }
 
@@ -519,13 +541,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         updatedUnspentCoins.add(unspent);
       });
     }
-
-    // print(unspentCoins);
-    // print(updatedUnspentCoins);
-    // print(updatedUnspentCoins.length);
-
-    // print(updatedUnspentCoins[2].address);
-
+    
     unspentCoins = updatedUnspentCoins;
   }
 
@@ -545,11 +561,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // update unspent balances:
 
     // reset coin balances and txCount to 0:
-    unspentCoins.forEach((coin) {
-      if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
-        coin.bitcoinAddressRecord.balance = 0;
-      coin.bitcoinAddressRecord.txCount = 0;
-    });
+    // unspentCoins.forEach((coin) {
+    //   if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
+    //     coin.bitcoinAddressRecord.balance = 0;
+    //   coin.bitcoinAddressRecord.txCount = 0;
+    // });
+    for (var addressRecord in walletAddresses.allAddresses) {
+      addressRecord.balance = 0;
+      addressRecord.txCount = 0;
+    }
 
     unspentCoins.forEach((coin) {
       final coinInfoList = unspentCoinsInfo.values.where(
@@ -572,7 +592,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     });
 
-    // update the txCount for each address:
+    // update the txCount for each address using the tx history, since we can't rely on mwebd
+    // to have an accurate count, we should just keep it in sync with what we know from the tx history:
     for (var tx in transactionHistory.transactions.values) {
       if (tx.isPending) continue;
       final txAddresses = tx.inputAddresses! + tx.outputAddresses!;
@@ -583,7 +604,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           continue;
         }
         addressRecord.txCount++;
-        // print("COUNT UPDATED HERE 0!!!!! ${addressRecord.address} ${addressRecord.txCount} !!!!!!");
       }
     }
 
