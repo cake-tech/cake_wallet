@@ -139,6 +139,7 @@ class ReceivePage extends BasePage {
                               walletAddressListViewModel: addressListViewModel,
                               trailingButtonTap: () async {
                                 if (addressListViewModel.type == WalletType.monero ||
+                                    addressListViewModel.type == WalletType.wownero ||
                                     addressListViewModel.type == WalletType.haven) {
                                   await showPopUp<void>(
                                       context: context,
