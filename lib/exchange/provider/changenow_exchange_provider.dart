@@ -194,6 +194,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final refundAddress = responseJSON['refundAddress'] as String;
     final extraId = responseJSON['payinExtraId'] as String?;
     final payoutAddress = responseJSON['payoutAddress'] as String;
+    final fromAmount = responseJSON['fromAmount']?.toString();
+    final toAmount = responseJSON['toAmount']?.toString();
 
     return Trade(
       id: id,
@@ -204,8 +206,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       refundAddress: refundAddress,
       extraId: extraId,
       createdAt: DateTime.now(),
-      amount: responseJSON['fromAmount']?.toString() ?? request.fromAmount,
-      receiveAmount: request.toAmount,
+      amount: fromAmount ?? request.fromAmount,
+      receiveAmount: toAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,

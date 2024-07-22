@@ -508,17 +508,24 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     try {
-      for (var provider in _sortedAvailableProviders.values) {
+      for (var i = 0; i < _sortedAvailableProviders.values.length; i++) {
+        final provider = _sortedAvailableProviders.values.toList()[i];
+        final providerRate = _sortedAvailableProviders.keys.toList()[i];
+
         if (!(await provider.checkIsAvailable())) continue;
 
+        _bestRate = providerRate;
+        await changeDepositAmount(amount: depositAmount);
+
         final request = TradeRequest(
-            fromCurrency: depositCurrency,
-            toCurrency: receiveCurrency,
-            fromAmount: depositAmount.replaceAll(',', '.'),
-            toAmount: receiveAmount.replaceAll(',', '.'),
-            refundAddress: depositAddress,
-            toAddress: receiveAddress,
-            isFixedRate: isFixedRateMode);
+          fromCurrency: depositCurrency,
+          toCurrency: receiveCurrency,
+          fromAmount: depositAmount.replaceAll(',', '.'),
+          toAmount: receiveAmount.replaceAll(',', '.'),
+          refundAddress: depositAddress,
+          toAddress: receiveAddress,
+          isFixedRate: isFixedRateMode,
+        );
 
         var amount = isFixedRateMode ? receiveAmount : depositAmount;
         amount = amount.replaceAll(',', '.');

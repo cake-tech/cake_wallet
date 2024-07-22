@@ -172,6 +172,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final extraId = responseJSON['depositExtraId'] as String?;
     final payoutAddress = responseJSON['withdrawalAddress'] as String;
     final amount = responseJSON['amount'].toString();
+    final receiveAmount = responseJSON['amountTo']?.toString();
 
     return Trade(
       id: id,
@@ -183,7 +184,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
       extraId: extraId,
       createdAt: DateTime.now(),
       amount: amount,
-      receiveAmount: request.toAmount,
+      receiveAmount:receiveAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,
