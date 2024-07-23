@@ -560,7 +560,7 @@ class CWBitcoin extends Bitcoin {
       if (tweaksResponse != null) {
         return true;
       }
-    } on RequestFailedTimeoutException {
+    } on RequestFailedTimeoutException catch (_) {
       return false;
     } catch (_) {
       rethrow;
