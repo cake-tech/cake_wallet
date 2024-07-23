@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_currency_input_field.dart';
+import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -444,22 +445,56 @@ class LightningSendPage extends BasePage {
                           try {
                             bool cancel = await showPopUp<bool>(
                                     context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertWithTwoActions(
-                                        alertTitle: '',
-                                        alertContent:
-                                            "Confirm sending ${_amountController.text} sats?",
-                                        rightButtonText: S.of(context).ok,
-                                        leftButtonText: S.of(context).cancel,
+                                    builder: (BuildContext _dialogContext) {
+                                      final output = Output(
+                                        lightningSendViewModel.wallet,
+                                        lightningSendViewModel.settingsStore,
+                                        lightningSendViewModel.fiatConversionStore,
+                                        () {
+                                          return CryptoCurrency.btcln;
+                                        },
+                                      );
+                                      String feeValue = '';
+                                      String feeFiatAmount = '';
+                                      if (lightningSendViewModel.invoice != null) {
+                                        output.address = lightningSendViewModel.invoice!.bolt11;
+                                        output.cryptoAmount =
+                                            "${lightningSendViewModel.satAmount.toString()} sats";
+                                      } else if (lightningSendViewModel.btcAddress.isNotEmpty) {
+                                        output.address = lightningSendViewModel.btcAddress;
+                                        feeValue =
+                                            lightningSendViewModel.estimatedFeeSats.toString();
+                                        feeFiatAmount = lightningSendViewModel.formattedFiatAmount(
+                                            lightningSendViewModel.estimatedFeeSats);
+                                        output.cryptoAmount = "${_amountController.text} sats";
+                                      } else {
+                                        throw Exception("Input cannot be empty");
+                                      }
+                                      output.fiatAmount = lightningSendViewModel
+                                          .formattedFiatAmount(int.parse(_amountController.text));
+
+                                      return ConfirmSendingAlert(
+                                        alertTitle: S.current.confirm_sending,
+                                        amount: S.current.send_amount,
+                                        amountValue: output.cryptoAmount,
+                                        fiatAmountValue:
+                                            "${_fiatAmountController.text} ${lightningSendViewModel.fiat.title}",
+                                        fee: S.current.send_fee,
+                                        feeValue: feeValue,
+                                        feeFiatAmount: feeFiatAmount,
+                                        outputs: [output],
+                                        leftButtonText: S.current.cancel,
+                                        rightButtonText: S.current.ok,
                                         actionRightButton: () {
-                                          Navigator.of(context).pop(false);
+                                          Navigator.of(_dialogContext).pop(false);
                                         },
                                         actionLeftButton: () {
-                                          Navigator.of(context).pop(true);
+                                          Navigator.of(_dialogContext).pop(true);
                                         },
                                       );
                                     }) ??
                                 true;
+
                             if (cancel) {
                               return;
                             }
