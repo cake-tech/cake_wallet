@@ -1,3 +1,5 @@
-Monero enhancements
-Improvements for Tron and Nano wallets
+Monero and Ethereum enhancements
+Synchronization improvements
+Exchange flow enhancements
+Ledger improvements
 Bug fixes
