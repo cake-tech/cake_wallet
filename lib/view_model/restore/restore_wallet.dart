@@ -14,7 +14,8 @@ class RestoredWallet {
       this.txDescription,
       this.recipientName,
       this.height,
-      this.privateKey});
+      this.privateKey,
+      this.passphrase});
 
   final WalletRestoreMode restoreMode;
   final WalletType type;
@@ -28,6 +29,7 @@ class RestoredWallet {
   final String? recipientName;
   final int? height;
   final String? privateKey;
+  final String? passphrase;
 
   factory RestoredWallet.fromKey(Map<String, dynamic> json) {
     final height = json['height'] as String?;

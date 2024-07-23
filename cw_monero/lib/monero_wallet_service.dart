@@ -29,10 +29,11 @@ class MoneroNewWalletCredentials extends WalletCredentials {
 
 class MoneroRestoreWalletFromSeedCredentials extends WalletCredentials {
   MoneroRestoreWalletFromSeedCredentials(
-      {required String name, required this.mnemonic, int height = 0, String? password})
+      {required String name, required this.mnemonic, required this.passphrase, int height = 0, String? password})
       : super(name: name, password: password, height: height);
 
   final String mnemonic;
+  final String passphrase;
 }
 
 class MoneroWalletLoadingException implements Exception {
@@ -264,6 +265,7 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
       await monero_wallet_manager.restoreFromSeed(
           path: path,
           password: credentials.password!,
+          passphrase: credentials.passphrase,
           seed: credentials.mnemonic,
           restoreHeight: credentials.height!);
       final wallet = MoneroWallet(

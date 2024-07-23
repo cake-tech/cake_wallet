@@ -52,6 +52,7 @@ bool isWalletExistSync({required String path}) {
 void restoreWalletFromSeedSync(
     {required String path,
     required String password,
+    required String passphrase,
     required String seed,
     int nettype = 0,
     int restoreHeight = 0}) {
@@ -75,7 +76,7 @@ void restoreWalletFromSeedSync(
       password: password,
       mnemonic: seed,
       restoreHeight: restoreHeight,
-      seedOffset: '',
+      seedOffset: passphrase,
       networkType: 0,
     );
   }
@@ -86,6 +87,8 @@ void restoreWalletFromSeedSync(
     final error = wownero.Wallet_errorString(wptr!);
     throw WalletRestoreFromSeedException(message: error);
   }
+
+  wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase);
 
   openedWalletsByPath[path] = wptr!;
 }
@@ -240,11 +243,12 @@ void _createWallet(Map<String, dynamic> args) {
 void _restoreFromSeed(Map<String, dynamic> args) {
   final path = args['path'] as String;
   final password = args['password'] as String;
+  final passphrase = args['passphrase'] as String;
   final seed = args['seed'] as String;
   final restoreHeight = args['restoreHeight'] as int;
 
   restoreWalletFromSeedSync(
-      path: path, password: password, seed: seed, restoreHeight: restoreHeight);
+      path: path, password: password, passphrase: passphrase, seed: seed, restoreHeight: restoreHeight);
 }
 
 void _restoreFromKeys(Map<String, dynamic> args) {
@@ -312,12 +316,14 @@ Future<void> createWallet(
 Future<void> restoreFromSeed(
         {required String path,
         required String password,
+        required String passphrase,
         required String seed,
         int nettype = 0,
         int restoreHeight = 0}) async =>
     _restoreFromSeed({
       'path': path,
       'password': password,
+      'passphrase': passphrase,
       'seed': seed,
       'nettype': nettype,
       'restoreHeight': restoreHeight

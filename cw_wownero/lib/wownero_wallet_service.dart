@@ -29,10 +29,11 @@ class WowneroNewWalletCredentials extends WalletCredentials {
 
 class WowneroRestoreWalletFromSeedCredentials extends WalletCredentials {
   WowneroRestoreWalletFromSeedCredentials(
-      {required String name, required this.mnemonic, int height = 0, String? password})
+      {required String name, required this.mnemonic, required this.passphrase, int height = 0, String? password})
       : super(name: name, password: password, height: height);
 
   final String mnemonic;
+  final String passphrase;
 }
 
 class WowneroWalletLoadingException implements Exception {
@@ -265,6 +266,7 @@ class WowneroWalletService extends WalletService<
       await wownero_wallet_manager.restoreFromSeed(
           path: path,
           password: credentials.password!,
+          passphrase: credentials.passphrase,
           seed: credentials.mnemonic,
           restoreHeight: credentials.height!);
       final wallet = WowneroWallet(

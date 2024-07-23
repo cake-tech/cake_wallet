@@ -32,24 +32,35 @@ String getSeed() {
   // monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   final cakepolyseed =
       monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
+  final cakepassphrase =
+      monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
   if (cakepolyseed != "") {
     return cakepolyseed;
   }
-  final polyseed = monero.Wallet_getPolyseed(wptr!, passphrase: '');
+  final polyseed = monero.Wallet_getPolyseed(wptr!, passphrase: cakepassphrase);
   if (polyseed != "") {
     return polyseed;
   }
-  final legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  final legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   return legacy;
 }
 
 String getSeedLegacy(String? language) {
-  var legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  final cakepassphrase =
+      monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
+  var legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   if (monero.Wallet_status(wptr!) != 0) {
     monero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
-    legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+    legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   }
   return legacy;
+}
+
+String? getPassphrase() {
+  final cakepassphrase =
+      monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
+  if (cakepassphrase == "") return null;
+  return cakepassphrase;
 }
 
 String getAddress({int accountIndex = 0, int addressIndex = 0}) =>
