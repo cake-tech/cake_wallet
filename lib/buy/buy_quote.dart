@@ -41,7 +41,7 @@ class Quote extends SelectableOption {
   String get iconPath => provider?.lightIcon ?? '';
 
   @override
-  String get description => provider?.providerDescription ?? '';
+  String? get description => provider?.providerDescription;
 
   @override
   String? get firstBadgeName => isBestRate ? 'BEST RATE' : null;
@@ -56,6 +56,9 @@ class Quote extends SelectableOption {
 
   @override
   String? get rightSubTitle => this.ramp;
+
+  @override
+  double? get borderRadius => 30.0;
 
   String get formatedFee => '$feeAmount ${isBuyAction ? sourceCurrency : destinationCurrency}';
 

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cake_wallet/core/selectable_option.dart';
 
 enum PaymentType {
@@ -118,24 +120,24 @@ extension PaymentTypeTitle on PaymentType {
 }
 
 class PaymentMethod extends SelectableOption {
-  final PaymentType paymentMethodType;
-  final String customTitle;
-  final String customIconPath;
-  final String customDescription;
-  bool isSelected = false;
-
   PaymentMethod({
     required this.paymentMethodType,
     required this.customTitle,
     required this.customIconPath,
-    required this.customDescription,
+    this.customDescription,
   });
+
+  final PaymentType paymentMethodType;
+  final String customTitle;
+  final String customIconPath;
+  final String? customDescription;
+  bool isSelected = false;
 
   @override
   String get title => paymentMethodType.title ?? customTitle;
 
   @override
-  String get description => paymentMethodType.description ?? customDescription;
+  String? get description => paymentMethodType.description ?? customDescription;
 
   @override
   String get iconPath => paymentMethodType.iconPath ?? customIconPath;
@@ -143,29 +145,36 @@ class PaymentMethod extends SelectableOption {
   @override
   bool get isOptionSelected => isSelected;
 
+  @override
+  double get borderRadius => 30.0;
+
+  @override
+  TextStyle? get titleTextStyle => null;
+
+  @override
+  TextStyle? get leftSubTitleTextStyle => null;
+
   factory PaymentMethod.fromOnramperJson(Map<String, dynamic> json) {
     final type = PaymentMethod.getPaymentTypeId(json['paymentTypeId'] as String?);
     return PaymentMethod(
         paymentMethodType: type,
         customTitle: json['name'] as String? ?? 'Unknown',
         customIconPath: json['icon'] as String? ?? 'assets/images/card.png',
-        customDescription: json['description'] as String? ?? '');
+        customDescription: json['description'] as String?);
   }
 
   factory PaymentMethod.fromDFX(String paymentMethod, PaymentType paymentType) {
     return PaymentMethod(
         paymentMethodType: paymentType,
         customTitle: paymentMethod,
-        customIconPath: 'assets/images/card.png',
-        customDescription: '');
+        customIconPath: 'assets/images/card.png');
   }
 
   factory PaymentMethod.fromMoonPayJson(Map<String, dynamic> json, PaymentType paymentType) {
     return PaymentMethod(
         paymentMethodType: paymentType,
         customTitle: json['paymentMethod'] as String,
-        customIconPath: 'assets/images/card.png',
-        customDescription: '');
+        customIconPath: 'assets/images/card.png');
   }
 
   factory PaymentMethod.fromMeldJson(Map<String, dynamic> json) {
@@ -175,7 +184,7 @@ class PaymentMethod extends SelectableOption {
         paymentMethodType: type,
         customTitle: json['name'] as String? ?? 'Unknown',
         customIconPath: logos['dark'] as String? ?? 'assets/images/card.png',
-        customDescription: json['description'] as String? ?? '');
+        customDescription: json['description'] as String?);
   }
 
   static PaymentType getPaymentTypeId(String? type) {

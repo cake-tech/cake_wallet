@@ -30,7 +30,7 @@ class SelectOptionsPage<T extends SelectableOption> extends BasePage {
       bottomSection: Padding(
         padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
         child: Text(
-          'S.of(context).select_provider_notice',
+          '',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
@@ -93,10 +93,12 @@ class _BodySelectOptionsPageState<T extends SelectableOption>
                       title: option.title.toString(),
                       leftSubTitle: option.leftSubTitle,
                       rightSubTitle: option.rightSubTitle,
-                      description: option.description ?? '',
+                      description: option.description,
                       firstBadgeName: option.firstBadgeName,
                       secondBadgeName: option.secondBadgeName,
                       isSelected: option.isOptionSelected,
+                      isLightMode: isLightMode,
+                      borderRadius: option.borderRadius,
                       onPressed: () => _handleOptionTap(option),
                     )))
                 .toList(),

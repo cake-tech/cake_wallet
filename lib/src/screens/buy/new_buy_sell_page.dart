@@ -204,7 +204,7 @@ class BuySellPage extends BasePage {
                     selectedAtIndex: Country.all.indexOf(buySellViewModel.country),
                     onItemSelected: (Country country) => buySellViewModel.setCountry(country),
                     isSeparated: false,
-                    hintText: 'S.of(context).search_country',
+                    hintText: 'Search_country',
                     matchingCriteria: (Country country, String searchText) =>
                         country.fullName.toLowerCase().contains(searchText)));
           }));

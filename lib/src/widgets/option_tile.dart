@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -18,7 +19,9 @@ class OptionTile extends StatelessWidget {
     this.leftSubTitleMaxLines,
     this.leftSubTitleTextStyle,
     this.leadingIcon,
+    this.selectedBackgroundColor,
     this.isSelected = false,
+    this.isLightMode = true,
   });
 
   final VoidCallback onPressed;
@@ -35,12 +38,16 @@ class OptionTile extends StatelessWidget {
   final int? leftSubTitleMaxLines;
   final TextStyle? leftSubTitleTextStyle;
   final IconData? leadingIcon;
+  final Color? selectedBackgroundColor;
   final bool isSelected;
+  final bool isLightMode;
 
   @override
   Widget build(BuildContext context) {
     final backgroundColor = isSelected
-        ? Theme.of(context).extension<OptionTileTheme>()!.titleColor
+        ? isLightMode
+            ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor
+            : Theme.of(context).extension<OptionTileTheme>()!.titleColor
         : Theme.of(context).cardColor;
 
     final titleColor = isSelected

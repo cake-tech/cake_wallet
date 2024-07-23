@@ -6,7 +6,9 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +22,7 @@ class MeldBuyProvider extends BuyProvider {
 
   static const _isProduction = false;
 
-  static const _baseTestUrl = 'api-sb.meld.io';
+  static const _baseUrl = _isProduction ? 'api.meld.io' : 'api-sb.meld.io';
   static const _providersProperties = '/service-providers/properties';
   static const _paymentMethodsPath = '/payment-methods';
   static const _quotePath = '/payments/crypto/quote';
@@ -28,9 +30,11 @@ class MeldBuyProvider extends BuyProvider {
   static const String sandboxUrl = 'sb.fluidmoney.xyz';
   static const String productionUrl = 'fluidmoney.xyz';
 
+  static const String _baseWidgetUrl = _isProduction ? productionUrl : sandboxUrl;
+
   static String get _testApiKey => secrets.meldTestApiKey;
 
-  static String get _apiKey => 'secrets.meldApiKey';
+  static String get _testPublicKey => secrets.meldTestPublicKey;
 
   @override
   String get title => 'Meld';
@@ -53,13 +57,13 @@ class MeldBuyProvider extends BuyProvider {
     final params = {'fiatCurrencies': fiatCurrency, 'statuses': 'LIVE,RECENTLY_ADDED,BUILDING'};
 
     final path = '$_providersProperties$_paymentMethodsPath';
-    final url = Uri.https(_baseTestUrl, path, params);
+    final url = Uri.https(_baseUrl, path, params);
 
     try {
       final response = await http.get(
         url,
         headers: {
-          'Authorization': _testApiKey,
+          'Authorization': _isProduction ? '' : _testApiKey,
           'Meld-Version': '2023-12-19',
           'accept': 'application/json',
           'content-type': 'application/json',
@@ -95,7 +99,7 @@ class MeldBuyProvider extends BuyProvider {
 
     log('Meld: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
-    final url = Uri.https(_baseTestUrl, _quotePath);
+    final url = Uri.https(_baseUrl, _quotePath);
     final headers = {
       'Authorization': _testApiKey,
       'Meld-Version': '2023-12-19',
@@ -132,47 +136,47 @@ class MeldBuyProvider extends BuyProvider {
 
   Future<void>? launchTrade(
       {required BuildContext context,
-        required Quote quote,
-        required PaymentMethod paymentMethod,
-        required double amount,
-        required bool isBuyAction,
-        required String cryptoCurrencyAddress,
-        String? countryCode})  async {
-    final baseUrl = sandboxUrl;
-    final publicKey = _testApiKey;
-
+      required Quote quote,
+      required PaymentMethod paymentMethod,
+      required double amount,
+      required bool isBuyAction,
+      required String cryptoCurrencyAddress,
+      String? countryCode}) async {
     final actionType = isBuyAction ? 'BUY' : 'SELL';
 
-    print('cryptoCurrencyAddress $cryptoCurrencyAddress');
-    print('isBuyAction $isBuyAction');
-
     final params = {
-      'publicKey': 'WQ5SoBw65xgV3CCpCtrJZM:7Th25ujsz6s7UZQLrQmkGdb1LVPZ6FZCN5',
-      'countryCode': 'US',
+      'publicKey': _isProduction ? '' : _testPublicKey,
+      'countryCode': countryCode,
       'paymentMethodType': normalizePaymentMethod(paymentMethod.paymentMethodType),
       'sourceAmount': amount.toString(),
       'sourceCurrencyCode': quote.sourceCurrency,
       'destinationCurrencyCode': quote.destinationCurrency,
-      'walletAddress': '0x1400e09576B4F4EBa563c659f70207Dc99eD6864',
-      'transactionType': actionType,
+      'walletAddress': cryptoCurrencyAddress,
+      'transactionType': actionType
     };
 
-    final uri = Uri.https(baseUrl, '', params);
+    final uri = Uri.https(_baseWidgetUrl, '', params);
 
     try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {
+      if (await canLaunchUrl(uri)) {
+        if (DeviceInfo.instance.isMobile) {
+          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
+        } else {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      } else {
+        throw Exception('Could not launch URL');
+      }
+    } catch (e) {
       await showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
-            alertTitle: "Robinhood Connect",
-            alertContent: S.of(context).buy_provider_unavailable,
-            buttonText: S.of(context).ok,
-            buttonAction: () => Navigator.of(context).pop(),
-          );
-        },
-      );
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: "Meld",
+                alertContent: S.of(context).buy_provider_unavailable + ': $e',
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
     }
   }
 
