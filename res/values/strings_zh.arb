@@ -269,6 +269,7 @@
   "errorSigningTransaction": "签署交易时发生错误",
   "estimated": "估计值",
   "estimated_new_fee": "估计新费用",
+  "estimated_receive_amount": "估计接收金额",
   "etherscan_history": "以太扫描历史",
   "event": "事件",
   "events": "活动",

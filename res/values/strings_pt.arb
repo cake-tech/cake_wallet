@@ -269,6 +269,7 @@
   "errorSigningTransaction": "Ocorreu um erro ao assinar a transação",
   "estimated": "Estimado",
   "estimated_new_fee": "Nova taxa estimada",
+  "estimated_receive_amount": "Valor estimado de recebimento",
   "etherscan_history": "história Etherscan",
   "event": "Evento",
   "events": "Eventos",

@@ -269,6 +269,7 @@
   "errorSigningTransaction": "Beim Signieren der Transaktion ist ein Fehler aufgetreten",
   "estimated": "Geschätzt",
   "estimated_new_fee": "Geschätzte neue Gebühr",
+  "estimated_receive_amount": "Geschätzter Empfangsbetrag",
   "etherscan_history": "Etherscan-Geschichte",
   "event": "Ereignis",
   "events": "Veranstaltungen",

@@ -269,6 +269,7 @@
   "errorSigningTransaction": "Произошла ошибка при подписании транзакции",
   "estimated": "Примерно",
   "estimated_new_fee": "Расчетная новая плата",
+  "estimated_receive_amount": "Расчетная сумма получения",
   "etherscan_history": "История Эфириума",
   "event": "Событие",
   "events": "События",

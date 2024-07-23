@@ -269,6 +269,7 @@
   "errorSigningTransaction": "May naganap na error habang pinipirmahan ang transaksyon",
   "estimated": "Tinatayang",
   "estimated_new_fee": "Tinatayang bagong bayad",
+  "estimated_receive_amount": "Tinatayang natanggap na halaga",
   "etherscan_history": "Kasaysayan ng Etherscan",
   "event": "Kaganapan",
   "events": "Mga kaganapan",

@@ -269,6 +269,7 @@
   "errorSigningTransaction": "Er is een fout opgetreden tijdens het ondertekenen van de transactie",
   "estimated": "Geschatte",
   "estimated_new_fee": "Geschatte nieuwe vergoeding",
+  "estimated_receive_amount": "Geschat ontvangen bedrag",
   "etherscan_history": "Etherscan-geschiedenis",
   "event": "Evenement",
   "events": "Evenementen",

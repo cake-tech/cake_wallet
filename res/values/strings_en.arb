@@ -269,6 +269,7 @@
   "errorSigningTransaction": "An error has occured while signing transaction",
   "estimated": "Estimated",
   "estimated_new_fee": "Estimated new fee",
+  "estimated_receive_amount": "Estimated receive amount",
   "etherscan_history": "Etherscan history",
   "event": "Event",
   "events": "Events",

@@ -269,6 +269,7 @@
   "errorSigningTransaction": "Při podepisování transakce došlo k chybě",
   "estimated": "Odhadováno",
   "estimated_new_fee": "Odhadovaný nový poplatek",
+  "estimated_receive_amount": "Odhadovaná částka přijímání",
   "etherscan_history": "Historie Etherscanu",
   "event": "událost",
   "events": "Události",

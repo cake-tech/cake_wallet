@@ -387,8 +387,6 @@ abstract class EVMChainWalletBase
 
       estimatedFeesForTransaction = BigInt.from(estimateFees);
 
-      debugPrint('Estimated Fees for Transaction: $estimatedFeesForTransaction');
-
       if (output.sendAll && transactionCurrency is! Erc20Token) {
         totalAmount = (erc20Balance.balance - estimatedFeesForTransaction);
 

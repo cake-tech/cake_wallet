@@ -72,12 +72,12 @@ abstract class EVMChainClient {
     }
   }
 
-  Future<int> getGasBaseFee() async {
+  Future<int?> getGasBaseFee() async {
     try {
       final blockInfo = await _client!.getBlockInformation(isContainFullObj: false);
       final baseFee = blockInfo.baseFeePerGas;
 
-      return baseFee!.getInWei.toInt();
+      return baseFee?.getInWei.toInt();
     } catch (_) {
       return 0;
     }
@@ -110,19 +110,19 @@ abstract class EVMChainClient {
           EthereumAddress.fromHex(contractAddress),
         );
 
-        final transferFunction = contract.function('transferFrom');
+        final transfer = contract.function('transfer');
 
-        final estimatedGas = await _client!.estimateGas(
+        // Estimate gas units
+        final gasEstimate = await _client!.estimateGas(
           sender: senderAddress,
-          to: toAddress,
-          value: value,
-          data: transferFunction.encodeCall([
-            senderAddress,
+          to: EthereumAddress.fromHex(contractAddress),
+          data: transfer.encodeCall([
             toAddress,
             value.getInWei,
           ]),
         );
-        return estimatedGas.toInt();
+
+        return gasEstimate.toInt();
       }
     } catch (_) {
       return 0;

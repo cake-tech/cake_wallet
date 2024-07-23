@@ -269,6 +269,7 @@
   "errorSigningTransaction": "ﺔﻠﻣﺎﻌﻤﻟﺍ ﻊﻴﻗﻮﺗ ءﺎﻨﺛﺃ ﺄﻄﺧ ﺙﺪﺣ",
   "estimated": "مُقدَّر",
   "estimated_new_fee": "رسوم جديدة مقدرة",
+  "estimated_receive_amount": "مقدرة المبلغ الاستقبال",
   "etherscan_history": "Etherscan تاريخ",
   "event": "ﺙﺪﺣ",
   "events": "ﺙﺍﺪﺣﻷ﻿ﺍ",

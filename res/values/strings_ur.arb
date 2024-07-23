@@ -269,6 +269,7 @@
   "errorSigningTransaction": "۔ﮯﮨ ﯽﺌﮔﺁ ﺶﯿﭘ ﯽﺑﺍﺮﺧ ﮏﯾﺍ ﺖﻗﻭ ﮯﺗﺮﮐ ﻂﺨﺘﺳﺩ ﺮﭘ ﻦﯾﺩ ﻦﯿﻟ",
   "estimated": "تخمینہ لگایا",
   "estimated_new_fee": "تخمینہ شدہ نئی فیس",
+  "estimated_receive_amount": "تخمینہ وصول کی رقم",
   "etherscan_history": "ﺦﯾﺭﺎﺗ ﯽﮐ ﻦﯿﮑﺳﺍ ﺮﮭﺘﯾﺍ",
   "event": "ﺐﯾﺮﻘﺗ",
   "events": "ﺕﺎﺒﯾﺮﻘﺗ",

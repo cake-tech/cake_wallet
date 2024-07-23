@@ -269,6 +269,7 @@
   "errorSigningTransaction": "ငွေပေးငွေယူ လက်မှတ်ထိုးစဉ် အမှားအယွင်းတစ်ခု ဖြစ်ပေါ်ခဲ့သည်။",
   "estimated": "ခန့်မှန်း",
   "estimated_new_fee": "ခန့်မှန်းသစ်ခန့်မှန်း",
+  "estimated_receive_amount": "ခန့်မှန်းရရှိသောပမာဏ",
   "etherscan_history": "Etherscan သမိုင်း",
   "event": "ပွဲ",
   "events": "အဲ့ဒါနဲ့",
