@@ -474,7 +474,7 @@ class SendPage extends BasePage {
                       leftButtonText: S.of(_dialogContext).cancel,
                       actionRightButton: () async {
                         Navigator.of(_dialogContext).pop();
-                        sendViewModel.commitTransaction();
+                        sendViewModel.commitTransaction(context);
                         await showPopUp<void>(
                             context: context,
                             builder: (BuildContext _dialogContext) {

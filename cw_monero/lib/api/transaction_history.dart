@@ -12,7 +12,13 @@ import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
 
 
 String getTxKey(String txId) {
-  return monero.Wallet_getTxKey(wptr!, txid: txId);
+  final txKey = monero.Wallet_getTxKey(wptr!, txid: txId);
+  final status = monero.Wallet_status(wptr!);
+  if (status != 0) {
+    final error = monero.Wallet_errorString(wptr!);
+    return txId+"_"+error;
+  }
+  return txKey;
 }
 
 monero.TransactionHistory? txhistory;
@@ -158,12 +164,13 @@ PendingTransactionDescription createTransactionMultDestSync(
   );
 }
 
-void commitTransactionFromPointerAddress({required int address}) =>
-    commitTransaction(transactionPointer: monero.PendingTransaction.fromAddress(address));
+String? commitTransactionFromPointerAddress({required int address, required bool useUR}) =>
+    commitTransaction(transactionPointer: monero.PendingTransaction.fromAddress(address), useUR: useUR);
 
-void commitTransaction({required monero.PendingTransaction transactionPointer}) {
-  
-  final txCommit = monero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
+String? commitTransaction({required monero.PendingTransaction transactionPointer, required bool useUR}) {
+  final txCommit = useUR
+    ? monero.PendingTransaction_commitUR(transactionPointer, 120)
+    : monero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
 
   final String? error = (() {
     final status = monero.PendingTransaction_status(transactionPointer.cast());
@@ -175,6 +182,11 @@ void commitTransaction({required monero.PendingTransaction transactionPointer}) 
   
   if (error != null) {
     throw CreationTransactionException(message: error);
+  }
+  if (useUR) {
+    return txCommit as String?;
+  } else {
+    return null;
   }
 }
 
@@ -305,7 +317,11 @@ class Transaction {
         confirmations = monero.TransactionInfo_confirmations(txInfo),
         fee = monero.TransactionInfo_fee(txInfo),
         description = monero.TransactionInfo_description(txInfo),
-        key = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo));
+        key = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo)) {
+          // clean the errors for view-only wallets
+          monero.Wallet_status(wptr!);
+          monero.Wallet_errorString(wptr!);
+        }
 
   Transaction.dummy({
     required this.displayLabel,

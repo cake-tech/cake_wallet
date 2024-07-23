@@ -6,5 +6,8 @@ mixin PendingTransaction {
   String get hex;
   int? get outputCount => null;
 
+  bool shouldCommitUR() => false;
+
   Future<void> commit();
+  Future<String?> commitUR();
 }

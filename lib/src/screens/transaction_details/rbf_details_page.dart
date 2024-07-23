@@ -165,7 +165,7 @@ class RBFDetailsPage extends BasePage {
                     leftButtonText: S.of(popupContext).cancel,
                     actionRightButton: () async {
                       Navigator.of(popupContext).pop();
-                      await transactionDetailsViewModel.sendViewModel.commitTransaction();
+                      await transactionDetailsViewModel.sendViewModel.commitTransaction(popupContext);
                       // transactionStatePopup();
                     },
                     actionLeftButton: () => Navigator.of(popupContext).pop(),

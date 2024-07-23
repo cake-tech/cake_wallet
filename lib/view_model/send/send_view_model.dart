@@ -1,3 +1,4 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -11,6 +12,7 @@ import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
@@ -21,6 +23,7 @@ import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
@@ -415,7 +418,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @action
-  Future<void> commitTransaction() async {
+  Future<void> commitTransaction(BuildContext context) async {
     if (pendingTransaction == null) {
       throw Exception("Pending transaction doesn't exist. It should not be happened.");
     }
@@ -434,7 +437,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     try {
       state = TransactionCommitting();
-      await pendingTransaction!.commit();
+      
+      if (pendingTransaction!.shouldCommitUR()) {
+        final urstr = await pendingTransaction!.commitUR();
+        await Navigator.of(context).push(MaterialPageRoute(builder:(context) {
+          return AnimatedURPage(urQr: urstr??'', wallet: wallet);
+        },));
+        state = TransactionCommitted();
+        return;
+      } else {
+        await pendingTransaction!.commit();
+      }
 
       if (walletType == WalletType.nano) {
         nano!.updateTransactions(wallet);

@@ -344,7 +344,7 @@ class CakePayBuyCardDetailPage extends BasePage {
                 leftButtonText: S.of(context).cancel,
                 actionRightButton: () async {
                   Navigator.of(context).pop();
-                  await cakePayPurchaseViewModel.sendViewModel.commitTransaction();
+                  await cakePayPurchaseViewModel.sendViewModel.commitTransaction(context);
                 },
                 actionLeftButton: () => Navigator.of(context).pop()));
       },
