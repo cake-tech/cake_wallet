@@ -19,6 +19,7 @@ NPROC="-j$(sysctl -n hw.logicalcpu)"
 for COIN in monero wownero;
 do
     pushd ../monero_c
+        rm -rf external/ios/build
         ./build_single.sh ${COIN} host-apple-ios $NPROC
     popd
 done

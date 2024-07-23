@@ -7,12 +7,14 @@ import 'package:cw_core/format_amount.dart';
 import 'package:cw_wownero/api/transaction_history.dart';
 
 class WowneroTransactionInfo extends TransactionInfo {
-  WowneroTransactionInfo(this.id, this.height, this.direction, this.date,
+  WowneroTransactionInfo(this.txHash, this.height, this.direction, this.date,
       this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee,
-      this.confirmations);
+      this.confirmations) :
+      id = "${txHash}_${amount}_${accountIndex}_${addressIndex}";
 
   WowneroTransactionInfo.fromMap(Map<String, Object?> map)
-      : id = (map['hash'] ?? '') as String,
+      : id = "${map['hash']}_${map['amount']}_${map['accountIndex']}_${map['addressIndex']}",
+        txHash = map['hash'] as String,
         height = (map['height'] ?? 0) as int,
         direction = map['direction'] != null
             ? parseTransactionDirectionFromNumber(map['direction'] as String)
@@ -34,7 +36,8 @@ class WowneroTransactionInfo extends TransactionInfo {
         }
 
   WowneroTransactionInfo.fromRow(TransactionInfoRow row)
-      : id = row.getHash(),
+      : id = "${row.getHash()}_${row.getAmount()}_${row.subaddrAccount}_${row.subaddrIndex}",
+        txHash = row.getHash(),
         height = row.blockHeight,
         direction = parseTransactionDirectionFromInt(row.direction),
         date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime() * 1000),
@@ -53,6 +56,7 @@ class WowneroTransactionInfo extends TransactionInfo {
         }
 
   final String id;
+  final String txHash;
   final int height;
   final TransactionDirection direction;
   final DateTime date;
