@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart' as BZG;
+import 'package:breez_sdk/sdk.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -66,6 +67,12 @@ abstract class LightningSendViewModelBase with Store {
 
   @observable
   int maxSats = 0;
+
+  @observable
+  String btcAddress = "";
+
+  @observable
+  LNInvoice? invoice;
 
   @action
   void setLoading(bool value) {
@@ -159,10 +166,6 @@ abstract class LightningSendViewModelBase with Store {
     return amount;
   }
 
-  // String estimatedFeeFiatAmount async {
-  //   return formattedFiatAmount(await estimatedFeeSats);
-  // }
-
   @action
   Future<void> sendInvoice(BZG.LNInvoice invoice, int satAmount) async {
     try {
@@ -242,8 +245,10 @@ abstract class LightningSendViewModelBase with Store {
   }
 
   @action
-  Future<void> processInput(BuildContext context, String input) async {
-    FocusScope.of(context).unfocus();
+  Future<void> processInput(String input, {BuildContext? context}) async {
+    if (context != null) {
+      FocusScope.of(context).unfocus();
+    }
 
     late BZG.InputType inputType;
 
@@ -255,15 +260,42 @@ abstract class LightningSendViewModelBase with Store {
 
     if (inputType is BZG.InputType_Bolt11) {
       final bolt11 = await _sdk.parseInvoice(input);
-      Navigator.of(context).pushNamed(Routes.lightningSendConfirm, arguments: {'invoice': bolt11});
+      invoice = bolt11;
+      if (invoice?.amountMsat != null) {
+        setCryptoAmount(invoice!.amountMsat! ~/ 1000);
+      }
+      btcAddress = '';
     } else if (inputType is BZG.InputType_BitcoinAddress) {
       final address = inputType.address.address;
-      Navigator.of(context)
-          .pushNamed(Routes.lightningSendConfirm, arguments: {'btcAddress': address});
+      btcAddress = address;
+      invoice = null;
     } else if (inputType is BZG.InputType_LnUrlPay) {
       throw Exception("Unsupported input type");
     } else {
       throw Exception("Unknown input type");
+    }
+  }
+
+  @action
+  Future<void> processSilently(String input) async {
+    try {
+      await processInput(input);
+    } catch (_) {
+      btcAddress = '';
+      invoice = null;
+      setCryptoAmount(0);
+    }
+  }
+
+  Future<bool> checkIfInputIsAddress(String input) async {
+    try {
+      final inputType = await _sdk.parseInput(input: input);
+      if (inputType is BZG.InputType_BitcoinAddress) {
+        return true;
+      }
+      return false;
+    } catch (_) {
+      return false;
     }
   }
 }
