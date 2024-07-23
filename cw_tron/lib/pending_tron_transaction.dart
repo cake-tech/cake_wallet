@@ -30,4 +30,9 @@ class PendingTronTransaction with PendingTransaction {
 
   @override
   String get id => '';
+  
+  @override
+  Future<String?> commitUR() {
+    throw UnimplementedError();
+  }
 }

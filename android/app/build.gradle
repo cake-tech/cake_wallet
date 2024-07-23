@@ -93,3 +93,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.unstoppabledomains:resolution:5.0.0'
 }
+configurations {
+    implementation.exclude module:'proto-google-common-protos'
+    implementation.exclude module:'protolite-well-known-types'
+    implementation.exclude module:'protobuf-javalite'
+}

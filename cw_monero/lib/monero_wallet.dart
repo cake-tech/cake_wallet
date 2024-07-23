@@ -87,7 +87,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     });
   }
 
-  static const int _autoSaveInterval = 30;
+  static const int _autoSaveInterval = 60;
 
   Box<UnspentCoinsInfo> unspentCoinsInfo;
 
@@ -218,6 +218,17 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       print(e);
       rethrow;
     }
+  }
+
+  @override
+  Future<bool> submitTransactionUR(String ur) async {
+    final bool = monero.Wallet_submitTransactionUR(wptr!, ur);
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(wptr!);
+      throw MoneroTransactionCreationException("unable to broadcast signed transaction: $err");
+    }
+    return bool;
   }
 
   @override

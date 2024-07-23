@@ -47,4 +47,9 @@ class PendingEVMChainTransaction with PendingTransaction {
 
     return '0x${Hex.HEX.encode(txid)}';
   }
+  
+  @override
+  Future<String?> commitUR() {
+    throw UnimplementedError();
+  }
 }

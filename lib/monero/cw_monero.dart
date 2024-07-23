@@ -346,4 +346,10 @@ class CWMonero extends Monero {
   Future<int> getCurrentHeight() async {
     return monero_wallet_api.getCurrentHeight();
   }
+  
+  @override
+  Future<bool> commitTransactionUR(Object wallet, String ur) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.submitTransactionUR(ur);
+  }
 }
