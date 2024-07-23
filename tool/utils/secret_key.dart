@@ -43,6 +43,8 @@ class SecretKey {
     SecretKey('cakePayApiKey', () => ''),
     SecretKey('CSRFToken', () => ''),
     SecretKey('authorization', () => ''),
+    SecretKey('meldTestApiKey', () => ''),
+    SecretKey('meldTestPublicKey', () => ''),
   ];
 
   static final evmChainsSecrets = [
