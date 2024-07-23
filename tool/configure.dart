@@ -359,6 +359,8 @@ abstract class Monero {
 
   Future<int> getCurrentHeight();
 
+  Future<bool> commitTransactionUR(Object wallet, String ur);
+
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials({
     required String name,
     required String spendKey,
