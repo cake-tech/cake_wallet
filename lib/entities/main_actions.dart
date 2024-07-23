@@ -23,7 +23,7 @@ class MainActions {
   });
 
   static List<MainActions> all = [
-    buyAction,
+   // buyAction, //TODO: remove buyAction
     receiveAction,
     exchangeAction,
     sendAction,
@@ -80,8 +80,8 @@ class MainActions {
   );
 
   static MainActions sellAction = MainActions._(
-    name: (context) => S.of(context).sell,
-    image: 'assets/images/sell.png',
+    name: (context) => '${S.of(context).sell} / ${S.of(context).buy}',
+    image: 'assets/images/buy_sell.png',
     isEnabled: (viewModel) => viewModel.isEnabledSellAction,
     canShow: (viewModel) => viewModel.hasSellAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {

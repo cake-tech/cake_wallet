@@ -14,6 +14,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 
 class OnRamperBuyProvider extends BuyProvider {
@@ -158,26 +159,28 @@ class OnRamperBuyProvider extends BuyProvider {
   Future<Quote?> fetchQuote({
     required String sourceCurrency,
     required String destinationCurrency,
-    required int amount,
+    required double amount,
     required PaymentType paymentType,
     required bool isBuyAction,
     required String walletAddress,
+    String? countryCode
   }) async {
     var paymentMethod = normalizePaymentMethod(paymentType);
     if (paymentMethod == null) paymentMethod = paymentType.name;
+
+    final actionType = isBuyAction ? 'buy' : 'sell';
 
     final params = {
       'amount': amount.toString(),
       'paymentMethod': paymentMethod,
       'uuid': 'acad3928-556f-48a1-a478-4e2ec76700cd',
       'clientName': 'CakeWallet',
-      'type': isBuyAction ? 'buy' : 'sell',
+      'type': actionType,
       'walletAddress': walletAddress,
       'isRecurringPayment': 'false',
       'input': 'source',
     };
-    print(
-        'Onramper: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
+    log('Onramper: Fetching $actionType quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
     final path = '$quotes/$sourceCurrency/$destinationCurrency';
     final url = Uri.https(_baseApiUrl, path, params);
@@ -194,15 +197,13 @@ class OnRamperBuyProvider extends BuyProvider {
 
         for (var item in data) {
           if (item['errors'] != null) break;
-          final quote = Quote.fromOnramperJson(item as Map<String, dynamic>, ProviderType.onramper);
+          final quote = Quote.fromOnramperJson(item as Map<String, dynamic>, ProviderType.onramper, isBuyAction);
           quote.setSourceCurrency = sourceCurrency;
           quote.setDestinationCurrency = destinationCurrency;
           validQuotes.add(quote);
         }
 
         if (validQuotes.isEmpty) return null;
-
-        validQuotes.sort((a, b) => a.rate.compareTo(b.rate));
 
         return validQuotes.first;
       } else {
@@ -215,16 +216,24 @@ class OnRamperBuyProvider extends BuyProvider {
     }
   }
 
-  @override
-  Future<void>? launchTrade(BuildContext context, Quote quote, PaymentMethod paymentMethod,
-      double amount, bool isBuyAction, String cryptoCurrencyAddress) async {
+  Future<void>? launchTrade(
+      {required BuildContext context,
+        required Quote quote,
+        required PaymentMethod paymentMethod,
+        required double amount,
+        required bool isBuyAction,
+        required String cryptoCurrencyAddress,
+        String? countryCode})  async {
+    final actionType = isBuyAction ? 'buy' : 'sell';
+    final prefix = actionType == 'sell' ? actionType + '_' : '';
+
     final uri = Uri.https(_baseUrl, '', {
       'apiKey': _apiKey,
-      'mode': isBuyAction ? 'buy' : 'sell',
-      'defaultFiat': isBuyAction ? quote.sourceCurrency : quote.destinationCurrency,
-      'defaultCrypto': isBuyAction ? quote.destinationCurrency : quote.sourceCurrency,
-      'defaultAmount': amount.toString(),
-      'defaultPaymentMethod': normalizePaymentMethod(paymentMethod.paymentMethodType) ??
+      'mode': actionType,
+      '${prefix}defaultFiat': isBuyAction ? quote.sourceCurrency : quote.destinationCurrency,
+      '${prefix}defaultCrypto': isBuyAction ? quote.destinationCurrency : quote.sourceCurrency,
+      '${prefix}defaultAmount': amount.toString(),
+      '${prefix}defaultPaymentMethod': normalizePaymentMethod(paymentMethod.paymentMethodType) ??
           paymentMethod.paymentMethodType.title ??
           'creditcard',
     });

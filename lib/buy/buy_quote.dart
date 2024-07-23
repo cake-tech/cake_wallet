@@ -51,13 +51,11 @@ class Quote extends SelectableOption {
 
   @override
   String? get leftSubTitle => this.rate > 0
-      ? '1 $destinationCurrency = $formatedRate $sourceCurrency\ntotal fee = $formatedFee'
-      : null;
+      ? '1 ${isBuyAction ? destinationCurrency : sourceCurrency} = ${rate.toStringAsFixed(2)} ${isBuyAction ? sourceCurrency : destinationCurrency }'
+      : null; //total fee = $formatedFee
 
   @override
   String? get rightSubTitle => this.ramp;
-
-  String get formatedRate => isBuyAction ? rate.toStringAsFixed(2) : rate.toStringAsFixed(8);
 
   String get formatedFee => '$feeAmount ${isBuyAction ? sourceCurrency : destinationCurrency}';
 
@@ -70,7 +68,7 @@ class Quote extends SelectableOption {
   void set setDestinationCurrency(String destinationCurrency) =>
       this.destinationCurrency = destinationCurrency;
 
-  factory Quote.fromOnramperJson(Map<String, dynamic> json, ProviderType providerType) {
+  factory Quote.fromOnramperJson(Map<String, dynamic> json, ProviderType providerType, bool isBuyAction) {
     final rate = _toDouble(json['rate']) ?? 0.0;
     final networkFee = _toDouble(json['networkFee']) ?? 0.0;
     final transactionFee = _toDouble(json['transactionFee']) ?? 0.0;
@@ -85,6 +83,7 @@ class Quote extends SelectableOption {
       paymentMethod: json['paymentMethod'] as String? ?? '',
       quoteId: json['quoteId'] as String? ?? '',
       provider: ProvidersHelper.getProviderByType(providerType),
+      isBuyAction: isBuyAction,
     );
   }
 
@@ -112,9 +111,10 @@ class Quote extends SelectableOption {
 
   factory Quote.fromDFXJson(
       Map<String, dynamic> json, ProviderType providerType, bool isBuyAction) {
+    final rate = _toDouble(json['exchangeRate']) ?? 0.0;
     final fees = json['fees'] as Map<String, dynamic>;
     return Quote(
-      rate: json['exchangeRate'] as double? ?? 0.0,
+      rate: isBuyAction ? rate : 1 / rate,
       feeAmount: json['feeAmount'] as double? ?? 0.0,
       networkFee: fees['network'] as double? ?? 0.0,
       transactionFee: fees['rate'] as double? ?? 0.0,
@@ -144,7 +144,7 @@ class Quote extends SelectableOption {
     );
   }
 
-  factory Quote.fromMeldJson(Map<String, dynamic> json, ProviderType providerType) {
+  factory Quote.fromMeldJson(Map<String, dynamic> json, ProviderType providerType, bool isBuyAction) {
     final quotes = json['quotes'][0] as Map<String, dynamic>;
     return Quote(
       rate: quotes['exchangeRate'] as double? ?? 0.0,
@@ -154,6 +154,7 @@ class Quote extends SelectableOption {
       payout: quotes['payout'] as double? ?? 0.0,
       paymentMethod: quotes['paymentMethodType'] as String? ?? '',
       provider: ProvidersHelper.getProviderByType(providerType),
+      isBuyAction: isBuyAction,
     );
   }
 

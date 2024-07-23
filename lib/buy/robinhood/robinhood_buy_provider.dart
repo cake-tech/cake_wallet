@@ -131,10 +131,11 @@ class RobinhoodBuyProvider extends BuyProvider {
   Future<Quote?> fetchQuote(
       {required String sourceCurrency,
       required String destinationCurrency,
-      required int amount,
+      required double amount,
       required PaymentType paymentType,
       required bool isBuyAction,
-      required String walletAddress}) async {
+      required String walletAddress,
+      String? countryCode}) async {
     var paymentMethod = _normalizePaymentMethod(paymentType);
     if (paymentMethod == null) paymentMethod = paymentType.name;
 
@@ -179,9 +180,14 @@ class RobinhoodBuyProvider extends BuyProvider {
     // ● bank_transfer
   }
 
-  @override
-  Future<void> launchTrade(BuildContext context, Quote quote, PaymentMethod paymentMethod,
-          double amount, bool isBuyAction, String cryptoCurrencyAddress) async =>
+  Future<void>? launchTrade(
+          {required BuildContext context,
+          required Quote quote,
+          required PaymentMethod paymentMethod,
+          required double amount,
+          required bool isBuyAction,
+          required String cryptoCurrencyAddress,
+          String? countryCode}) async =>
       launchProvider(context, isBuyAction);
 
   String? _normalizePaymentMethod(PaymentType paymentMethod) {

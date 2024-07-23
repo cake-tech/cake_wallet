@@ -96,6 +96,7 @@ class BuySellPage extends BasePage {
       caption: S.of(context).clear,
       onPressed: () {
         _formKey.currentState?.reset();
+        buySellViewModel.reset();
       });
 
   @override

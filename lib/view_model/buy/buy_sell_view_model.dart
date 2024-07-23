@@ -115,6 +115,14 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   bool get isDarkTheme => settingsStore.currentTheme.type == ThemeType.dark;
 
+  double get amount {
+    final formattedFiatAmount = double.tryParse(fiatAmount) ?? 200.0;
+    final formattedCryptoAmount =
+        double.tryParse(cryptoAmount) ?? (cryptoCurrency == CryptoCurrency.btc ? 0.001 : 1);
+
+    return isBuyAction ? formattedFiatAmount : formattedCryptoAmount;
+  }
+
   SettingsStore settingsStore;
 
   @observable
@@ -170,10 +178,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       buySellQuotState is BuySellQuotLoaded;
 
   @action
+  void reset() {
+    cryptoCurrency = wallet.currency;
+    fiatCurrency = settingsStore.fiatCurrency;
+    _initialize();
+  }
+
+  @action
   void changeBuySellAction() {
     isBuyAction = !isBuyAction;
-    cryptoAmount = '';
-    fiatAmount = '';
     _initialize();
   }
 
@@ -253,14 +266,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     } else {
       throw ArgumentError('Unknown option type');
     }
-
-    cryptoAmount = '';
-    fiatAmount = '';
   }
 
   void _onPairChange() {
-    cryptoAmount = '';
-    fiatAmount = '';
     _initialize();
   }
 
@@ -268,10 +276,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       providerList = isBuyAction ? availableBuyProviders : availableSellProviders;
 
   @action
-  void setCountry(Country country) => this.country = country;
+  void setCountry(Country country) {
+    this.country = country;
+    _initialize();
+  }
 
   Future<void> _initialize() async {
     _setProviders();
+    cryptoAmount = '';
+    fiatAmount = '';
     paymentMethodState = InitialPaymentMethod();
     buySellQuotState = InitialBuySellQuotState();
     await _getAvailablePaymentTypes();
@@ -309,14 +322,14 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @action
   Future<void> calculateBestRate() async {
     buySellQuotState = BuySellQuotLoading();
-    final amount = double.tryParse(isBuyAction ? fiatAmount : cryptoAmount) ?? 100;
     final result = await Future.wait<Quote?>(providerList.map((element) => element.fetchQuote(
           sourceCurrency: isBuyAction ? fiatCurrency.title : cryptoCurrency.title,
           destinationCurrency: isBuyAction ? cryptoCurrency.title : fiatCurrency.title,
-          amount: amount.toInt(),
+          amount: amount,
           paymentType: selectedPaymentMethod!.paymentMethodType,
           isBuyAction: isBuyAction,
           walletAddress: wallet.walletAddresses.address,
+          countryCode: country.countryCode,
         )));
 
     final validQuotes = result.where((quote) => quote != null).cast<Quote>().toList();
@@ -341,9 +354,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     if (selectedQuote!.provider == null) return;
 
     final provider = selectedQuote!.provider!;
-    final amount = double.tryParse(isBuyAction ? fiatAmount : cryptoAmount) ?? 100;
 
-    provider.launchTrade(context, selectedQuote!, selectedPaymentMethod!, amount, isBuyAction,
-        cryptoCurrencyAddress);
+    provider.launchTrade(
+      context: context,
+      quote: selectedQuote!,
+      paymentMethod: selectedPaymentMethod!,
+      amount: amount,
+      isBuyAction: isBuyAction,
+      cryptoCurrencyAddress: cryptoCurrencyAddress,
+      countryCode: country.countryCode,
+    );
   }
 }

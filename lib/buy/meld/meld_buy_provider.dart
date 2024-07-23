@@ -84,10 +84,11 @@ class MeldBuyProvider extends BuyProvider {
   Future<Quote?> fetchQuote({
     required String sourceCurrency,
     required String destinationCurrency,
-    required int amount,
+    required double amount,
     required PaymentType paymentType,
     required bool isBuyAction,
     required String walletAddress,
+    String? countryCode = 'US',
   }) async {
     var paymentMethod = normalizePaymentMethod(paymentType);
     if (paymentMethod == null) paymentMethod = paymentType.name;
@@ -102,7 +103,7 @@ class MeldBuyProvider extends BuyProvider {
       'content-type': 'application/json',
     };
     final body = jsonEncode({
-      'countryCode': 'US', //TODO: get from user
+      'countryCode': countryCode,
       'destinationCurrencyCode': destinationCurrency,
       'sourceAmount': amount,
       'sourceCurrencyCode': sourceCurrency,
@@ -114,7 +115,7 @@ class MeldBuyProvider extends BuyProvider {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final quote = Quote.fromMeldJson(data, ProviderType.meld);
+        final quote = Quote.fromMeldJson(data, ProviderType.meld, isBuyAction);
 
         quote.setSourceCurrency = sourceCurrency;
         quote.setDestinationCurrency = destinationCurrency;
@@ -129,15 +130,14 @@ class MeldBuyProvider extends BuyProvider {
     }
   }
 
-  @override
-  Future<void> launchTrade(
-      BuildContext context,
-      Quote quote,
-      PaymentMethod paymentMethod,
-      double amount,
-      bool isBuyAction,
-      String cryptoCurrencyAddress,
-      ) async {
+  Future<void>? launchTrade(
+      {required BuildContext context,
+        required Quote quote,
+        required PaymentMethod paymentMethod,
+        required double amount,
+        required bool isBuyAction,
+        required String cryptoCurrencyAddress,
+        String? countryCode})  async {
     final baseUrl = sandboxUrl;
     final publicKey = _testApiKey;
 

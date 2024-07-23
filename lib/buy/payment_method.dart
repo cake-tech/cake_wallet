@@ -104,22 +104,6 @@ extension PaymentTypeTitle on PaymentType {
       case PaymentType.creditCard:
       case PaymentType.debitCard:
         return 'assets/images/card.png';
-      case PaymentType.debitCard:
-        return 'assets/images/card.png';
-      case PaymentType.skrill:
-        return 'assets/images/card.png';
-      case PaymentType.sepa:
-        return 'assets/images/card.png';
-      case PaymentType.revolutPay:
-        return 'assets/images/card.png';
-      case PaymentType.googlePay:
-        return 'assets/images/card.png';
-      case PaymentType.applePay:
-        return 'assets/images/card.png';
-      case PaymentType.neteller:
-        return 'assets/images/card.png';
-      case PaymentType.paypal:
-        return 'assets/images/card.png';
       default:
         return null;
     }
