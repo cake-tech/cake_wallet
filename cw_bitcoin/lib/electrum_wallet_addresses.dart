@@ -224,6 +224,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
     updateReceiveAddresses();
     updateChangeAddresses();
+    _validateAddresses();
     await updateAddressesInBox();
 
     if (currentReceiveAddressIndex >= receiveAddresses.length) {
@@ -458,10 +459,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Future<void> discoverAddresses(List<BitcoinAddressRecord> addressList, bool isHidden,
       Future<String?> Function(BitcoinAddressRecord) getAddressHistory,
       {BitcoinAddressType type = SegwitAddresType.p2wpkh}) async {
-    if (!isHidden) {
-      _validateSideHdAddresses(addressList.toList());
-    }
-
     final newAddresses = await _createNewAddresses(gap,
         startIndex: addressList.length, isHidden: isHidden, type: type);
     addAddresses(newAddresses);
@@ -541,11 +538,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
   }
 
-  void _validateSideHdAddresses(List<BitcoinAddressRecord> addrWithTransactions) {
-    addrWithTransactions.forEach((element) {
-      if (element.address !=
-          getAddress(index: element.index, hd: mainHd, addressType: element.type))
+  void _validateAddresses() {
+    _addresses.forEach((element) {
+      if (!element.isHidden && element.address !=
+          getAddress(index: element.index, hd: mainHd, addressType: element.type)) {
         element.isHidden = true;
+      } else if (element.isHidden && element.address !=
+          getAddress(index: element.index, hd: sideHd, addressType: element.type)) {
+        element.isHidden = false;
+      }
     });
   }
 

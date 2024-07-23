@@ -340,7 +340,7 @@ class CryptoBalanceWidget extends StatelessWidget {
           builder: (BuildContext context) => AlertWithTwoActions(
                 alertTitle: S.of(context).change_current_node_title,
                 alertContent: S.of(context).confirm_silent_payments_switch_node,
-                rightButtonText: S.of(context).ok,
+                rightButtonText: S.of(context).confirm,
                 leftButtonText: S.of(context).cancel,
                 actionRightButton: () {
                   dashboardViewModel.setSilentPaymentsScanning(newValue);
