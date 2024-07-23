@@ -267,6 +267,7 @@
   "errorSigningTransaction": "거래에 서명하는 동안 오류가 발생했습니다.",
   "estimated": "예상",
   "estimated_new_fee": "예상 새로운 수수료",
+  "estimated_receive_amount": "예상 수신 금액",
   "etherscan_history": "이더스캔 역사",
   "event": "이벤트",
   "events": "이벤트",
