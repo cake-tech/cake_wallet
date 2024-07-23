@@ -21,6 +21,7 @@ final wownero.WalletManager wmPtr = Pointer.fromAddress((() {
     print("ptr: $_wmPtr");
   } catch (e) {
     print(e);
+    rethrow;
   }
   return _wmPtr!.address;
 })());
@@ -208,28 +209,24 @@ void loadWallet(
     wptr = openedWalletsByPath[path]!;
     return;
   }
-  try {
-    if (wptr == null || path != _lastOpenedWallet) {
-      if (wptr != null) {
-        final addr = wptr!.address;
-        Isolate.run(() {
-          wownero.Wallet_store(Pointer.fromAddress(addr));
-        });
-      }
-      txhistory = null;
-      wptr = wownero.WalletManager_openWallet(wmPtr,
-          path: path, password: password);
-      openedWalletsByPath[path] = wptr!;
-      _lastOpenedWallet = path;
+  if (wptr == null || path != _lastOpenedWallet) {
+    if (wptr != null) {
+      final addr = wptr!.address;
+      Isolate.run(() {
+        wownero.Wallet_store(Pointer.fromAddress(addr));
+      });
     }
-  } catch (e) {
-    print(e);
-  }
-  final status = wownero.Wallet_status(wptr!);
-  if (status != 0) {
-    final err = wownero.Wallet_errorString(wptr!);
-    print(err);
-    throw WalletOpeningException(message: err);
+    txhistory = null;
+    wptr = wownero.WalletManager_openWallet(wmPtr,
+        path: path, password: password);
+    _lastOpenedWallet = path;
+    final status = wownero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = wownero.Wallet_errorString(wptr!);
+      print(err);
+      throw WalletOpeningException(message: err);
+    }
+    openedWalletsByPath[path] = wptr!;
   }
 }
 

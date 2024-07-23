@@ -683,7 +683,7 @@ Future<void> setup({
 
   getIt.registerFactory<MoneroAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
+    if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero || wallet.type == WalletType.haven) {
       return MoneroAccountListViewModel(wallet);
     }
     throw Exception(
@@ -714,6 +714,7 @@ Future<void> setup({
   getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel, AccountListItem?, void>(
       (AccountListItem? account, _) => MoneroAccountEditOrCreateViewModel(
           monero!.getAccountList(getIt.get<AppStore>().wallet!),
+          wownero?.getAccountList(getIt.get<AppStore>().wallet!),
           haven?.getAccountList(getIt.get<AppStore>().wallet!),
           wallet: getIt.get<AppStore>().wallet!,
           accountListItem: account));

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -80,6 +81,16 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       await wallet.save();
     }
 
+    if (wallet.type == WalletType.wownero) {
+      await wownero
+          !.getSubaddressList(wallet)
+          .addSubaddress(
+            wallet,
+            accountIndex: wownero!.getCurrentAccount(wallet).id,
+            label: label);
+      await wallet.save();
+    }
+
     if (wallet.type == WalletType.haven) {
       await haven
           !.getSubaddressList(wallet)
@@ -101,6 +112,11 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       if (wallet.type == WalletType.monero) {
         await monero!.getSubaddressList(wallet).setLabelSubaddress(wallet,
             accountIndex: monero!.getCurrentAccount(wallet).id, addressIndex: index, label: label);
+        await wallet.save();
+      }
+      if (wallet.type == WalletType.wownero) {
+        await wownero!.getSubaddressList(wallet).setLabelSubaddress(wallet,
+            accountIndex: wownero!.getCurrentAccount(wallet).id, addressIndex: index, label: label);
         await wallet.save();
       }
       if (wallet.type == WalletType.haven) {

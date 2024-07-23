@@ -124,8 +124,7 @@ abstract class MoneroSubaddressListBase with Store {
   Future<List<Subaddress>> _getAllUnusedAddresses(
       {required int accountIndex, required String label}) async {
     final allAddresses = subaddress_list.getAllSubaddresses();
-    final lastAddress = allAddresses.last.address;
-    if (allAddresses.isEmpty || _usedAddresses.contains(lastAddress)) {
+    if (allAddresses.isEmpty || _usedAddresses.contains(allAddresses.last)) {
       final isAddressUnused = await _newSubaddress(accountIndex: accountIndex, label: label);
       if (!isAddressUnused) {
         return await _getAllUnusedAddresses(accountIndex: accountIndex, label: label);

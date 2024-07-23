@@ -3,6 +3,7 @@ import 'package:cw_core/keyable.dart';
 
 abstract class TransactionInfo extends Object with Keyable {
   late String id;
+  late String txHash = id;
   late int amount;
   int? fee;
   late TransactionDirection direction;

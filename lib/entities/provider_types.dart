@@ -75,9 +75,8 @@ class ProvidersHelper {
         ];
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.robinhood, ProviderType.moonpay];
       case WalletType.solana:
-        return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.robinhood];
+        return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.robinhood, ProviderType.moonpay];
       case WalletType.tron:
         return [
           ProviderType.askEachTime,
