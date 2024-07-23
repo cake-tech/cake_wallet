@@ -27,8 +27,6 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return bitcoinCash!.getTransactionPriorities();
     case WalletType.polygon:
       return polygon!.getTransactionPriorities();
-    case WalletType.lightning:
-      return lightning!.getTransactionPriorities();
     // no such thing for nano/banano/solana/tron:
     case WalletType.nano:
     case WalletType.banano:

@@ -190,7 +190,6 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return S.current.view_transaction_on + 'Monero.com';
       case WalletType.bitcoin:
-      case WalletType.lightning:
         return S.current.view_transaction_on + 'mempool.space';
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
@@ -211,6 +210,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'tronscan.org';
       case WalletType.wownero:
         return S.current.view_transaction_on + 'Wownero.com';
+      case WalletType.lightning:
       case WalletType.none:
         return '';
     }

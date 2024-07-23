@@ -1004,7 +1004,6 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/crypto_amount_format.dart';
-import 'package:cw_lightning/lightning_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:intl/intl.dart';
@@ -1014,6 +1013,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_lightning/lightning_wallet_service.dart';
 import 'package:cw_lightning/lightning_receive_page_option.dart';
 import 'package:cw_lightning/lightning_transaction_priority.dart';
+import 'package:cw_lightning/lightning_wallet.dart';
 """;
   const lightningCwPart = "part 'cw_lightning.dart';";
   const lightningContent = """
