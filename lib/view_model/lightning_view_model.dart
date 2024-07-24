@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:breez_sdk/breez_sdk.dart';
 import 'package:breez_sdk/bridge_generated.dart' as BZG;
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_lightning/.secrets.g.dart' as secrets;
 
 part 'lightning_view_model.g.dart';
 
@@ -92,7 +92,7 @@ abstract class LightningViewModelBase with Store {
   Future<BZG.HealthCheckStatus> serviceHealthCheck() async {
     try {
       BZG.ServiceHealthCheckResponse response =
-          await _sdk.serviceHealthCheck(apiKey: secrets.breezApiKey);
+          await _sdk.serviceHealthCheck(apiKey: lightning!.getBreezApiKey());
       return response.status;
     } catch (_) {
       return BZG.HealthCheckStatus.ServiceDisruption;

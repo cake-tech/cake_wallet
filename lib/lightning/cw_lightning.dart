@@ -122,4 +122,6 @@ class CWLightning extends Lightning {
   @override
   TransactionPriority deserializeLightningTransactionPriority({required int raw}) =>
       LightningTransactionPriority.deserialize(raw: raw);
+
+  String getBreezApiKey() => secrets.breezApiKey;
 }

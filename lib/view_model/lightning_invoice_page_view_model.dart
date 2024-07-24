@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -8,11 +6,8 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
-import 'package:cw_core/receive_page_option.dart';
-import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_lightning/lightning_transaction_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

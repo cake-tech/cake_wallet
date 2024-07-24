@@ -1014,6 +1014,7 @@ import 'package:cw_lightning/lightning_wallet_service.dart';
 import 'package:cw_lightning/lightning_receive_page_option.dart';
 import 'package:cw_lightning/lightning_transaction_priority.dart';
 import 'package:cw_lightning/lightning_wallet.dart';
+import 'package:cw_lightning/.secrets.g.dart' as secrets;
 """;
   const lightningCwPart = "part 'cw_lightning.dart';";
   const lightningContent = """
@@ -1043,6 +1044,7 @@ abstract class Lightning {
   Future<int> getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount);
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority deserializeLightningTransactionPriority({required int raw});
+  String getBreezApiKey();
 }
   """;
 
