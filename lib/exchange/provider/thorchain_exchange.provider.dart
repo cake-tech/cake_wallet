@@ -154,6 +154,12 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final inputAddress = responseJSON['inbound_address'] as String?;
     final memo = responseJSON['memo'] as String?;
     final router = responseJSON['router'] as String?;
+    final directAmountOutResponse = responseJSON['expected_amount_out'] as String?;
+
+    String? receiveAmount;
+    if (directAmountOutResponse != null) {
+      receiveAmount = _thorChainAmountToDouble(directAmountOutResponse).toString();
+    }
 
     return Trade(
       id: '',
@@ -163,6 +169,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       inputAddress: inputAddress,
       createdAt: DateTime.now(),
       amount: request.fromAmount,
+      receiveAmount: receiveAmount ?? request.toAmount,
       state: TradeState.notFound,
       payoutAddress: request.toAddress,
       memo: memo,

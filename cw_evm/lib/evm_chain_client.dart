@@ -65,16 +65,65 @@ abstract class EVMChainClient {
   Future<int> getGasUnitPrice() async {
     try {
       final gasPrice = await _client!.getGasPrice();
+    
       return gasPrice.getInWei.toInt();
     } catch (_) {
       return 0;
     }
   }
 
-  Future<int> getEstimatedGas() async {
+  Future<int?> getGasBaseFee() async {
     try {
-      final estimatedGas = await _client!.estimateGas();
-      return estimatedGas.toInt();
+      final blockInfo = await _client!.getBlockInformation(isContainFullObj: false);
+      final baseFee = blockInfo.baseFeePerGas;
+
+      return baseFee?.getInWei.toInt();
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  Future<int> getEstimatedGas({
+    String? contractAddress,
+    required EthereumAddress toAddress,
+    required EthereumAddress senderAddress,
+    required EtherAmount value,
+    EtherAmount? gasPrice,
+    // EtherAmount? maxFeePerGas,
+    // EtherAmount? maxPriorityFeePerGas,
+  }) async {
+    try {
+      if (contractAddress == null) {
+        final estimatedGas = await _client!.estimateGas(
+          sender: senderAddress,
+          gasPrice: gasPrice,
+          to: toAddress,
+          value: value,
+          // maxPriorityFeePerGas: maxPriorityFeePerGas,
+          // maxFeePerGas: maxFeePerGas,
+        );
+
+        return estimatedGas.toInt();
+      } else {
+        final contract = DeployedContract(
+          ethereumContractAbi,
+          EthereumAddress.fromHex(contractAddress),
+        );
+
+        final transfer = contract.function('transfer');
+
+        // Estimate gas units
+        final gasEstimate = await _client!.estimateGas(
+          sender: senderAddress,
+          to: EthereumAddress.fromHex(contractAddress),
+          data: transfer.encodeCall([
+            toAddress,
+            value.getInWei,
+          ]),
+        );
+
+        return gasEstimate.toInt();
+      }
     } catch (_) {
       return 0;
     }
@@ -84,7 +133,7 @@ abstract class EVMChainClient {
     required Credentials privateKey,
     required String toAddress,
     required BigInt amount,
-    required int gas,
+    required BigInt gas,
     required EVMChainTransactionPriority priority,
     required CryptoCurrency currency,
     required int exponent,
@@ -169,7 +218,7 @@ abstract class EVMChainClient {
     return PendingEVMChainTransaction(
       signedTransaction: signedTransaction,
       amount: amount.toString(),
-      fee: BigInt.from(gas) * (await gasPrice).getInWei,
+      fee: gas * (await gasPrice).getInWei,
       sendTransaction: sendTransactionCallback,
       exponent: exponent,
     );

@@ -1,2 +1,3 @@
 Monero enhancements
+Synchronization improvements
 Bug fixes
