@@ -12,7 +12,7 @@ on:
 
 jobs:
   PR_test_build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     env:
       STORE_PASS: test@cake_wallet
       KEY_PASS: test@cake_wallet
@@ -55,7 +55,12 @@ jobs:
       - name: Install package dependencies
         run: |
           sudo apt update
-          sudo apt-get install -y curl unzip automake build-essential file pkg-config git python3 libtool libtinfo5 cmake clang build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-10-dev
+          sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
+
+      - name: Install desktop dependencies
+        run: |
+          sudo apt update
+          sudo apt install ninja-build libgtk-3-dev -y
 
       - name: Execute Build and Setup Commands
         run: |
@@ -78,7 +83,7 @@ jobs:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
-          key: linux-22.04-${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
+          key: linux-${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
