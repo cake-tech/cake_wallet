@@ -53,7 +53,9 @@ jobs:
           channel: stable
 
       - name: Install package dependencies
-        run: sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-10-dev
+        run: |
+          sudo apt update
+          sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-10-dev
 
       - name: Execute Build and Setup Commands
         run: |
