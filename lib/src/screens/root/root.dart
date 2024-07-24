@@ -134,9 +134,9 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           setState(() => _setInactive(true));
         }
 
-        // if (widget.appStore.wallet?.type == WalletType.litecoin) {
-        //   widget.appStore.wallet?.stopSync();
-        // }
+        if (widget.appStore.wallet?.type == WalletType.litecoin) {
+          widget.appStore.wallet?.stopSync();
+        }
 
         break;
       case AppLifecycleState.resumed:
