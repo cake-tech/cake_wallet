@@ -27,7 +27,6 @@ import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet_addresses.dart';
 import 'package:cw_evm/evm_ledger_credentials.dart';
-import 'package:cw_evm/file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
