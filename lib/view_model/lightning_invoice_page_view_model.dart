@@ -28,7 +28,7 @@ abstract class LightningInvoicePageViewModelBase with Store {
         state = InitialExecutionState(),
         selectedCurrency = walletTypeToCryptoCurrency(_wallet.type),
         cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type) {
-    _fetchLimits();
+    fetchLimits();
   }
 
   List<Currency> get currencies => [walletTypeToCryptoCurrency(_wallet.type), ...FiatCurrency.all];
@@ -76,7 +76,7 @@ abstract class LightningInvoicePageViewModelBase with Store {
       cryptoCurrency = walletTypeToCryptoCurrency(_wallet.type);
     }
 
-    await _fetchLimits();
+    await fetchLimits();
   }
 
   @computed
@@ -136,7 +136,17 @@ abstract class LightningInvoicePageViewModelBase with Store {
   }
 
   @action
-  Future<void> _fetchLimits() async {
+  Future<void> fetchFiatRate() async {
+    fiatRate = await FiatConversionService.fetchPrice(
+          crypto: CryptoCurrency.btc,
+          fiat: selectedCurrency as FiatCurrency,
+          torOnly: useTorOnly,
+        ) /
+        100000000;
+  }
+
+  @action
+  Future<void> fetchLimits() async {
     final limits = await lightningViewModel.invoiceSoftLimitsSats();
     // we definitely already have an open channel:
     if (limits.balance > 0 || limits.inboundLiquidity > 0) {
@@ -146,19 +156,13 @@ abstract class LightningInvoicePageViewModelBase with Store {
     }
     maximum = limits.inboundLiquidity.toDouble();
 
-    // we don't need to fetch the price if we know it's 0
     if (minimum == 0) {
       minimumCurrency = '';
       return;
     }
 
     if (selectedCurrency is FiatCurrency) {
-      fiatRate = await FiatConversionService.fetchPrice(
-            crypto: CryptoCurrency.btc,
-            fiat: selectedCurrency as FiatCurrency,
-            torOnly: useTorOnly,
-          ) /
-          100000000;
+      await fetchFiatRate();
       minimumCurrency = (minimum * fiatRate).toStringAsFixed(2);
     } else {
       minimumCurrency = lightning!.satsToLightningString(minimum.round());
@@ -172,7 +176,7 @@ abstract class LightningInvoicePageViewModelBase with Store {
     description = '';
     amount = '';
     try {
-      _fetchLimits();
+      fetchLimits();
     } catch (_) {}
   }
 

@@ -49,12 +49,13 @@ class LightningInvoiceForm extends StatelessWidget {
                 maxAmount: '',
                 minAmount: lightningInvoicePageViewModel.minimumCurrency,
                 selectedCurrency: lightningInvoicePageViewModel.selectedCurrency,
-                // onTapPicker: () => _presentPicker(context),
+                onTapPicker: () => _presentPicker(context),
               );
             }),
             Observer(builder: (context) {
               if (lightningInvoicePageViewModel.selectedCurrency is FiatCurrency) {
-                String satString = "${lightning!.satsToLightningString(lightningInvoicePageViewModel.satAmount ?? 0)} sats";
+                String satString =
+                    "${lightning!.satsToLightningString(lightningInvoicePageViewModel.satAmount ?? 0)} sats";
                 return BaseTextFormField(
                   enabled: false,
                   borderColor: Theme.of(context)
@@ -106,5 +107,6 @@ class LightningInvoiceForm extends StatelessWidget {
       ),
       context: context,
     );
+    lightningInvoicePageViewModel.fetchFiatRate();
   }
 }
