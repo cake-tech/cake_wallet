@@ -77,15 +77,10 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     try {
       if (amount == 0) return 0.0;
 
-      final formattedAmount =
-          (from == CryptoCurrency.usdterc20 || from == CryptoCurrency.usdc) && amount < 200
-              ? 200.00
-              : amount;
-
       final params = {
         'from_asset': _normalizeCurrency(from),
         'to_asset': _normalizeCurrency(to),
-        'amount': _doubleToThorChainString(formattedAmount),
+        'amount': _doubleToThorChainString(amount),
         'affiliate': _affiliateName,
         'affiliate_bps': _affiliateBps
       };

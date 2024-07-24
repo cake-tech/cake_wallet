@@ -151,7 +151,7 @@ abstract class EVMChainClient {
     final gasPrice = await _client!.getGasPrice();
     final adjustedGasPrice = gasPrice.getInWei * BigInt.from(15) ~/ BigInt.from(10);
 
-    if (!isNativeToken && router != null && memo != null) {
+    if (!isNativeToken && router != null) {
       await _approveTokensIfNeeded(
         privateKey: privateKey,
         contractAddress: contractAddress!,
@@ -218,7 +218,7 @@ abstract class EVMChainClient {
     return PendingEVMChainTransaction(
       signedTransaction: signedTransaction,
       amount: amount.toString(),
-      fee: gas * (await gasPrice).getInWei,
+      fee: gas,
       sendTransaction: sendTransactionCallback,
       exponent: exponent,
     );
@@ -394,21 +394,13 @@ abstract class EVMChainClient {
 
       final txHash = await _client!.sendRawTransaction(approvalTransaction);
 
-      TransactionReceipt? receipt;
-      while (receipt == null) {
-        receipt = await _client!.getTransactionReceipt(txHash);
-        await Future.delayed(const Duration(seconds: 1));
-      }
+      var receipt = await getTransactionReceiptWithTimeout(txHash);
 
-      if (receipt.status == false) {
+      if (receipt == null || receipt.status == false) {
         log('Approval transaction failed');
         throw Exception('Approval transaction failed');
       }
     }
-
-    final currentAllowanceNew =
-        await erc20.allowance(privateKey.address, EthereumAddress.fromHex(router));
-    log('New Allowance: $currentAllowanceNew');
   }
 
   Future<void> sendThorChainERC20TransactionCallback({
@@ -509,5 +501,21 @@ abstract class EVMChainClient {
       contractAbi,
       EthereumAddress.fromHex(contractAddress),
     );
+  }
+
+  Future<TransactionReceipt?> getTransactionReceiptWithTimeout(String txHash, {int timeoutSeconds = 60}) async {
+    TransactionReceipt? receipt;
+    final endTime = DateTime.now().add(Duration(seconds: timeoutSeconds));
+
+    while (receipt == null && DateTime.now().isBefore(endTime)) {
+      receipt = await _client!.getTransactionReceipt(txHash);
+      await Future.delayed(const Duration(seconds: 1));
+    }
+
+    if (receipt == null) {
+      throw TimeoutException("Transaction receipt not found");
+    }
+
+    return receipt;
   }
 }

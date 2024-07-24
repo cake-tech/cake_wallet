@@ -126,14 +126,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return '0.00';
     }
 
-    final pricesKeys = fiatConversionStore.prices.keys.toList();
-
-    final selectedCurr = pricesKeys.firstWhereOrNull((element) =>
-    element.title == selectedCryptoCurrency.title && element.tag == selectedCryptoCurrency.tag);
-
     try {
       final fiat = calculateFiatAmount(
-          price: fiatConversionStore.prices[selectedCurr]!,
+          price: fiatConversionStore.prices[selectedCryptoCurrency]!,
           cryptoAmount: pendingTransaction!.amountFormatted);
       return fiat;
     } catch (_) {
