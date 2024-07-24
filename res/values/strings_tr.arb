@@ -267,6 +267,7 @@
   "errorSigningTransaction": "İşlem imzalanırken bir hata oluştu",
   "estimated": "Tahmini",
   "estimated_new_fee": "Tahmini yeni ücret",
+  "estimated_receive_amount": "Tahmini alma miktarı",
   "etherscan_history": "Etherscan geçmişi",
   "event": "Etkinlik",
   "events": "Olaylar",

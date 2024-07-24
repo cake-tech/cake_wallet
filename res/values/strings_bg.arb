@@ -267,6 +267,7 @@
   "errorSigningTransaction": "Възникна грешка при подписване на транзакция",
   "estimated": "Изчислено",
   "estimated_new_fee": "Прогнозна нова такса",
+  "estimated_receive_amount": "Прогнозна сума за получаване",
   "etherscan_history": "История на Etherscan",
   "event": "Събитие",
   "events": "събития",

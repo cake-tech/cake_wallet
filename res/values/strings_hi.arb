@@ -267,6 +267,7 @@
   "errorSigningTransaction": "लेन-देन पर हस्ताक्षर करते समय एक त्रुटि उत्पन्न हुई है",
   "estimated": "अनुमानित",
   "estimated_new_fee": "अनुमानित नया शुल्क",
+  "estimated_receive_amount": "अनुमानित राशि",
   "etherscan_history": "इथरस्कैन इतिहास",
   "event": "आयोजन",
   "events": "आयोजन",

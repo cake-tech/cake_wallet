@@ -574,10 +574,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   void _validateAddresses() {
-    allAddresses.forEach((element) {
-      if (!element.isHidden &&
-          element.address !=
-              getAddress(index: element.index, hd: mainHd, addressType: element.type)) {
+    _addresses.forEach((element) {
+      if (!element.isHidden && element.address !=
+          getAddress(index: element.index, hd: mainHd, addressType: element.type)) {
         element.isHidden = true;
       } else if (element.isHidden &&
           element.address !=

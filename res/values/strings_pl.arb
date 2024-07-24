@@ -267,6 +267,7 @@
   "errorSigningTransaction": "Wystąpił błąd podczas podpisywania transakcji",
   "estimated": "Oszacowano",
   "estimated_new_fee": "Szacowana nowa opłata",
+  "estimated_receive_amount": "Szacowana kwota otrzymania",
   "etherscan_history": "Historia Etherscanu",
   "event": "Wydarzenie",
   "events": "Wydarzenia",

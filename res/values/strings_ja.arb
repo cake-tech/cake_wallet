@@ -267,6 +267,7 @@
   "errorSigningTransaction": "トランザクションの署名中にエラーが発生しました",
   "estimated": "推定",
   "estimated_new_fee": "推定新しい料金",
+  "estimated_receive_amount": "推定受信金額",
   "etherscan_history": "イーサスキャンの歴史",
   "event": "イベント",
   "events": "イベント",
