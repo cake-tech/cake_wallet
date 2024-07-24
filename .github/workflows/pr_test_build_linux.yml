@@ -12,7 +12,7 @@ on:
 
 jobs:
   PR_test_build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       STORE_PASS: test@cake_wallet
       KEY_PASS: test@cake_wallet
@@ -78,7 +78,7 @@ jobs:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
-          key: linux-${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
+          key: linux-22.04-${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
