@@ -47,7 +47,7 @@ dependencies:
   sp_scanner:
     git:
       url: https://github.com/cake-tech/sp_scanner
-      ref: sp_v2.0.0
+      ref: sp_v3.0.0
 
 
 dev_dependencies:

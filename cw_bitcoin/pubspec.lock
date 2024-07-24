@@ -87,8 +87,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v3
-      resolved-ref: cc99eedb1d28ee9376dda0465ef72aa627ac6149
+      ref: cake-mweb
+      resolved-ref: "52afd84e5f37b89571e5eac4fe0480c36546ff53"
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "4.2.1"
@@ -320,18 +320,18 @@ packages:
     dependency: transitive
     description:
       name: ffigen
-      sha256: d3e76c2ad48a4e7f93a29a162006f00eba46ce7c08194a77bb5c5e97d1b5ff0a
+      sha256: "3e12e80ccb6539bb3917217bb6f32709220efb737de0d0fa8736da0b7cb507da"
       url: "https://pub.dev"
     source: hosted
-    version: "8.0.2"
+    version: "12.0.0"
   file:
     dependency: transitive
     description:
       name: file
-      sha256: "1b92bec4fc2a72f59a8e15af5f52cd441e4a7860b49499d69dfa817af20e925d"
+      sha256: "5fc22d7c25582e38ad9a8515372cd9a93834027aacf1801cf01164dac0ffa08c"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.4"
+    version: "7.0.0"
   fixnum:
     dependency: transitive
     description:
@@ -446,6 +446,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"
+  http2:
+    dependency: transitive
+    description:
+      name: http2
+      sha256: "9ced024a160b77aba8fb8674e38f70875e321d319e6f303ec18e87bd5a4b0c1d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.0"
   http_multi_server:
     dependency: transitive
     description:
@@ -704,13 +712,13 @@ packages:
     source: hosted
     version: "1.5.1"
   protobuf:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: protobuf
-      sha256: "01dd9bd0fa02548bf2ceee13545d4a0ec6046459d847b6b061d8a27237108a08"
+      sha256: "68645b24e0716782e58948f8467fd42a880f255096a821f9e7d0ec625b00c84d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.0"
+    version: "3.1.0"
   provider:
     dependency: transitive
     description:
@@ -824,8 +832,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "sp_v2.0.0"
-      resolved-ref: "62c152b9086cd968019128845371072f7e1168de"
+      ref: "sp_v3.0.0"
+      resolved-ref: eae38b14a44cd00de874ef999de741152bf438b5
       url: "https://github.com/cake-tech/sp_scanner"
     source: git
     version: "0.0.1"
