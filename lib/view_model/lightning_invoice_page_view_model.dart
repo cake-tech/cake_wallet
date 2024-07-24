@@ -137,12 +137,15 @@ abstract class LightningInvoicePageViewModelBase with Store {
 
   @action
   Future<void> fetchFiatRate() async {
-    if (selectedCurrency is! FiatCurrency) {
-      return;
+    late FiatCurrency fiatCurrency;
+    if (selectedCurrency is FiatCurrency) {
+      fiatCurrency = selectedCurrency as FiatCurrency;
+    } else {
+      fiatCurrency = settingsStore.fiatCurrency;
     }
     fiatRate = await FiatConversionService.fetchPrice(
           crypto: CryptoCurrency.btc,
-          fiat: selectedCurrency as FiatCurrency,
+          fiat: fiatCurrency,
           torOnly: useTorOnly,
         ) /
         100000000;
