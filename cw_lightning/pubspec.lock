@@ -87,11 +87,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "3fd81d238b990bb767fc7a4fdd5053a22a142e2e"
-      url: "https://github.com/cake-tech/bitcoin_base.git"
+      ref: cake-update-v3
+      resolved-ref: cc99eedb1d28ee9376dda0465ef72aa627ac6149
+      url: "https://github.com/cake-tech/bitcoin_base"
     source: git
-    version: "4.2.0"
+    version: "4.2.1"
   bitcoin_flutter:
     dependency: "direct main"
     description:
@@ -104,11 +104,12 @@ packages:
   blockchain_utils:
     dependency: transitive
     description:
-      name: blockchain_utils
-      sha256: "38ef5f4a22441ac4370aed9071dc71c460acffc37c79b344533f67d15f24c13c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.1"
+      path: "."
+      ref: cake-update-v1
+      resolved-ref: cabd7e0e16c4da9920338c76eff3aeb8af0211f3
+      url: "https://github.com/cake-tech/blockchain_utils"
+    source: git
+    version: "2.1.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -121,11 +122,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.4.0-rc2"
-      resolved-ref: "8762a59b1f823d3c37ee04b95bfe4eb88ea4eb6c"
+      ref: "v0.5.0"
+      resolved-ref: a75433eb5a148ed84a57d40038fe0c946ac7c959
       url: "https://github.com/breez/breez-sdk-flutter.git"
     source: git
-    version: "0.4.0-rc2"
+    version: "0.5.0"
   bs58check:
     dependency: transitive
     description:
@@ -222,6 +223,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
+  cli_util:
+    dependency: transitive
+    description:
+      name: cli_util
+      sha256: c05b7406fdabc7a49a3929d4af76bcaccbbffcbcdcf185b082e1ae07da323d19
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.1"
   clock:
     dependency: transitive
     description:
@@ -258,10 +267,10 @@ packages:
     dependency: transitive
     description:
       name: crypto
-      sha256: aa274aa7774f8964e4f4f38cc994db7b6158dd36e9187aaceaddc994b35c6c67
+      sha256: ff625774173754681d66daaf4a448684fb04b78f902da9cb3d308c19cc5e8bab
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.2"
+    version: "3.0.3"
   cryptography:
     dependency: "direct main"
     description:
@@ -292,6 +301,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.4"
+  dart_varuint_bitcoin:
+    dependency: transitive
+    description:
+      name: dart_varuint_bitcoin
+      sha256: "4f0ccc9733fb54148b9d3688eea822b7aaabf5cc00025998f8c09a1d45b31b4b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   encrypt:
     dependency: transitive
     description:
@@ -316,6 +333,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
+  ffigen:
+    dependency: transitive
+    description:
+      name: ffigen
+      sha256: d3e76c2ad48a4e7f93a29a162006f00eba46ce7c08194a77bb5c5e97d1b5ff0a
+      url: "https://pub.dev"
+    source: hosted
+    version: "8.0.2"
   file:
     dependency: transitive
     description:
@@ -345,6 +370,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.6+5"
+  flutter_reactive_ble:
+    dependency: transitive
+    description:
+      name: flutter_reactive_ble
+      sha256: "247e2efa76de203d1ba11335c13754b5b9d0504b5423e5b0c93a600f016b24e0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.1"
   flutter_rust_bridge:
     dependency: transitive
     description:
@@ -358,6 +391,19 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_web_plugins:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
+  fluttertoast:
+    dependency: "direct main"
+    description:
+      name: fluttertoast
+      sha256: "4215b0085ebf737120ab6b06fefeadfae709c74f880a351a73d6d007f74e7631"
+      url: "https://pub.dev"
+    source: hosted
+    version: "8.1.4"
   freezed:
     dependency: transitive
     description:
@@ -382,6 +428,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
+  functional_data:
+    dependency: transitive
+    description:
+      name: functional_data
+      sha256: "76d17dc707c40e552014f5a49c0afcc3f1e3f05e800cd6b7872940bfe41a5039"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   glob:
     dependency: transitive
     description:
@@ -502,6 +556,31 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  ledger_bitcoin:
+    dependency: transitive
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: f819d37e235e239c315e93856abbf5e5d3b71dab
+      url: "https://github.com/cake-tech/ledger-bitcoin"
+    source: git
+    version: "0.0.2"
+  ledger_flutter:
+    dependency: transitive
+    description:
+      name: ledger_flutter
+      sha256: f1680060ed6ff78f275837e0024ccaf667715a59ba7aa29fa7354bc7752e71c8
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
+  ledger_usb:
+    dependency: transitive
+    description:
+      name: ledger_usb
+      sha256: "52c92d03a4cffe06c82921c8e2f79f3cdad6e1cf78e1e9ca35444196ff8f14c2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   logging:
     dependency: transitive
     description:
@@ -642,18 +721,18 @@ packages:
     dependency: transitive
     description:
       name: plugin_platform_interface
-      sha256: dbf0f707c78beedc9200146ad3cb0ab4d5da13c246336987be6940f026500d3a
+      sha256: "4820fbfdb9478b1ebae27888254d445073732dae3d6ea81f0b7e06d5dedc3f02"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.3"
+    version: "2.1.8"
   pointycastle:
     dependency: transitive
     description:
       name: pointycastle
-      sha256: db7306cf0249f838d1a24af52b5a5887c5bf7f31d8bb4e827d071dc0939ad346
+      sha256: "4be0097fcf3fd3e8449e53730c631200ebc7b88016acecab2b0da2f0149222fe"
       url: "https://pub.dev"
     source: hosted
-    version: "3.6.2"
+    version: "3.9.1"
   pool:
     dependency: transitive
     description:
@@ -670,6 +749,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.4"
+  protobuf:
+    dependency: transitive
+    description:
+      name: protobuf
+      sha256: "01dd9bd0fa02548bf2ceee13545d4a0ec6046459d847b6b061d8a27237108a08"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   pub_semver:
     dependency: transitive
     description:
@@ -694,14 +781,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
-  rxdart:
-    dependency: "direct main"
+  quiver:
+    dependency: transitive
     description:
-      name: rxdart
-      sha256: "0c7c0cedd93788d996e33041ffecda924cc54389199cde4e6a34b440f50044cb"
+      name: quiver
+      sha256: b1c1ac5ce6688d77f65f3375a9abb9319b3cb32486bdc7a1e0fdf004d7ba4e47
       url: "https://pub.dev"
     source: hosted
-    version: "0.27.7"
+    version: "3.2.1"
+  reactive_ble_mobile:
+    dependency: transitive
+    description:
+      name: reactive_ble_mobile
+      sha256: "9ec2b4c9c725e439950838d551579750060258fbccd5536d0543b4d07d225798"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.1"
+  reactive_ble_platform_interface:
+    dependency: transitive
+    description:
+      name: reactive_ble_platform_interface
+      sha256: "632c92401a2d69c9b94bd48f8fd47488a7013f3d1f9b291884350291a4a81813"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.1"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      sha256: "5c3004a4a8dbb94bd4bf5412a4def4acdaa12e12f269737a5751369e12d1a962"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.28.0"
   shelf:
     dependency: transitive
     description:
@@ -763,6 +874,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
+  sp_scanner:
+    dependency: transitive
+    description:
+      path: "."
+      ref: "sp_v2.0.0"
+      resolved-ref: "62c152b9086cd968019128845371072f7e1168de"
+      url: "https://github.com/cake-tech/sp_scanner"
+    source: git
+    version: "0.0.1"
   sprintf:
     dependency: transitive
     description:
@@ -844,13 +964,13 @@ packages:
     source: hosted
     version: "1.3.1"
   unorm_dart:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: unorm_dart
-      sha256: "5b35bff83fce4d76467641438f9e867dc9bcfdb8c1694854f230579d68cd8f4b"
+      sha256: "23d8bf65605401a6a32cff99435fed66ef3dab3ddcad3454059165df46496a3b"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0"
+    version: "0.3.0"
   uuid:
     dependency: transitive
     description:
@@ -876,13 +996,13 @@ packages:
     source: hosted
     version: "13.0.0"
   watcher:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: watcher
-      sha256: "6a7f46926b01ce81bfc339da6a7f20afbe7733eff9846f6d6a5466aa4c6667c0"
+      sha256: "3d2ad6751b3c16cf07c7fca317a1413b3f26530319181b37e3b9039b84fc01d8"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "1.1.0"
   web_socket_channel:
     dependency: transitive
     description:
@@ -915,6 +1035,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  yaml_edit:
+    dependency: transitive
+    description:
+      name: yaml_edit
+      sha256: e9c1a3543d2da0db3e90270dbb1e4eebc985ee5e3ffe468d83224472b2194a5f
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
 sdks:
   dart: ">=3.3.0 <4.0.0"
   flutter: ">=3.19.0"

@@ -1,5 +1,3 @@
-import 'package:breez_sdk/breez_sdk.dart';
-import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/lightning/lightning.dart';
@@ -7,7 +5,6 @@ import 'package:cake_wallet/src/screens/receive/widgets/anonpay_currency_input_f
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -27,13 +24,11 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:breez_sdk/bridge_generated.dart' as BZG;
 
 class LightningSendPage extends BasePage {
   LightningSendPage({
@@ -47,7 +42,6 @@ class LightningSendPage extends BasePage {
     _amountController = TextEditingController();
     _fiatAmountController = TextEditingController();
     _amountFocus = FocusNode();
-    _amountController.text = "0";
     _fiatAmountController.text = lightningSendViewModel.formattedFiatAmount(0);
     _invoiceFocusNode = FocusNode();
   }
@@ -125,7 +119,7 @@ class LightningSendPage extends BasePage {
       caption: S.of(context).clear,
       onPressed: () {
         _formKey.currentState?.reset();
-        _amountController.text = "0";
+        _amountController.text = "";
         _fiatAmountController.text = lightningSendViewModel.formattedFiatAmount(0);
         _invoiceController.text = '';
         lightningSendViewModel.processSilently('');
@@ -214,6 +208,10 @@ class LightningSendPage extends BasePage {
                     SizedBox(height: 24),
                     Observer(builder: (_) {
                       final invoiceSats = lightningSendViewModel.invoice?.amountMsat ?? null;
+                      if (invoiceSats != null) {
+                        _amountController.text =
+                            lightning!.bitcoinAmountToLightningString(amount: invoiceSats ~/ 1000);
+                      }
                       return Column(
                         children: [
                           if (invoiceSats == null)
@@ -622,6 +620,8 @@ class LightningSendPage extends BasePage {
     lightningSendViewModel.estimateFeeSats();
 
     _amountController.addListener(() {
+      print("@@@@@@@@@@@@");
+      print(_amountController.text);
       final amount = _amountController.text;
       if (amount.isNotEmpty) {
         _fiatAmountController.text = lightningSendViewModel.formattedFiatAmount(int.parse(amount));
