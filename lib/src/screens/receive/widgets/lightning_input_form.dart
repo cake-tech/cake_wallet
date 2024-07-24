@@ -97,8 +97,8 @@ class LightningInvoiceForm extends StatelessWidget {
         ));
   }
 
-  void _presentPicker(BuildContext context) {
-    showPopUp<void>(
+  void _presentPicker(BuildContext context) async {
+    await showPopUp<void>(
       builder: (_) => CurrencyPicker(
         selectedAtIndex: lightningInvoicePageViewModel.selectedCurrencyIndex,
         items: lightningInvoicePageViewModel.currencies,
