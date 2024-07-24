@@ -1,3 +1,4 @@
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -13,7 +14,7 @@ class MoneroAccountEditOrCreateViewModel = MoneroAccountEditOrCreateViewModelBas
     with _$MoneroAccountEditOrCreateViewModel;
 
 abstract class MoneroAccountEditOrCreateViewModelBase with Store {
-  MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList, this._havenAccountList,
+  MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList, this._wowneroAccountList, this._havenAccountList,
       {required WalletBase wallet, AccountListItem? accountListItem})
       : state = InitialExecutionState(),
         isEdit = accountListItem != null,
@@ -30,6 +31,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   String label;
 
   final MoneroAccountList _moneroAccountList;
+  final WowneroAccountList? _wowneroAccountList;
   final HavenAccountList? _havenAccountList;
   final AccountListItem? _accountListItem;
   final WalletBase _wallet;
@@ -41,6 +43,10 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
 
     if (_wallet.type == WalletType.haven) {
       await saveHaven();
+    }
+
+    if (_wallet.type == WalletType.wownero) {
+      await saveWownero();
     }
   }
 
@@ -91,4 +97,27 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       state = FailureState(e.toString());
     }
   }
+
+  Future<void> saveWownero() async {
+    try {
+      state = IsExecutingState();
+
+      if (_accountListItem != null) {
+        await _wowneroAccountList?.setLabelAccount(
+            _wallet,
+            accountIndex: _accountListItem!.id,
+            label: label);
+      } else {
+        await _wowneroAccountList?.addAccount(
+          _wallet,
+          label: label);
+      }
+
+      await _wallet.save();
+      state = ExecutedSuccessfullyState();
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
+  }
+
 }
