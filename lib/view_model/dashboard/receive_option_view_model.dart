@@ -1,5 +1,4 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -17,7 +16,8 @@ abstract class ReceiveOptionViewModelBase with Store {
                 ? bitcoin!.getSelectedAddressType(_wallet)
                 : ReceivePageOption.mainnet),
         _options = [] {
-    switch (_wallet.type) {
+    final walletType = _wallet.type;
+    switch (walletType) {
       case WalletType.bitcoin:
         _options = [
           ...bitcoin!.getBitcoinReceivePageOptions(),
@@ -26,7 +26,7 @@ abstract class ReceiveOptionViewModelBase with Store {
         break;
       case WalletType.litecoin:
         _options = [
-          ...BitcoinReceivePageOption.allLitecoin,
+          ...bitcoin!.getLitecoinReceivePageOptions()
           ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
         ];
         break;

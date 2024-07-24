@@ -249,6 +249,9 @@ class CWBitcoin extends Bitcoin {
   List<ReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
 
   @override
+  List<ReceivePageOption> getLitecoinReceivePageOptions() => BitcoinReceivePageOption.allLitecoin;
+
+  @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
     switch (option) {
       case BitcoinReceivePageOption.p2pkh:
