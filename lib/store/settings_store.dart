@@ -111,6 +111,10 @@ abstract class SettingsStoreBase with Store {
       required this.customBitcoinFeeRate,
       required this.silentPaymentsCardDisplay,
       required this.silentPaymentsAlwaysScan,
+      required this.mwebAlwaysScan,
+      required this.mwebCardDisplay,
+      required this.mwebEnabled,
+      required this.hasEnabledMwebBefore,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialWowneroTransactionPriority,
@@ -542,6 +546,24 @@ abstract class SettingsStoreBase with Store {
         (bool silentPaymentsAlwaysScan) => _sharedPreferences.setBool(
             PreferencesKey.silentPaymentsAlwaysScan, silentPaymentsAlwaysScan));
 
+    reaction(
+        (_) => mwebAlwaysScan,
+        (bool mwebAlwaysScan) =>
+            _sharedPreferences.setBool(PreferencesKey.mwebAlwaysScan, mwebAlwaysScan));
+
+    reaction(
+        (_) => mwebCardDisplay,
+        (bool mwebCardDisplay) =>
+            _sharedPreferences.setBool(PreferencesKey.mwebCardDisplay, mwebCardDisplay));
+
+    reaction((_) => mwebEnabled,
+        (bool mwebEnabled) => _sharedPreferences.setBool(PreferencesKey.mwebEnabled, mwebEnabled));
+
+    reaction(
+        (_) => hasEnabledMwebBefore,
+        (bool hasEnabledMwebBefore) =>
+            _sharedPreferences.setBool(PreferencesKey.hasEnabledMwebBefore, hasEnabledMwebBefore));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -743,6 +765,18 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool silentPaymentsAlwaysScan;
 
+  @observable
+  bool mwebAlwaysScan;
+
+  @observable
+  bool mwebCardDisplay;
+
+  @observable
+  bool mwebEnabled;
+
+  @observable
+  bool hasEnabledMwebBefore;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
   final BackgroundTasks _backgroundTasks;
@@ -905,6 +939,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     final silentPaymentsAlwaysScan =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
+    final mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
+    final mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
+    final mwebEnabled = sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
+    final hasEnabledMwebBefore =
+        sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1158,6 +1197,10 @@ abstract class SettingsStoreBase with Store {
       customBitcoinFeeRate: customBitcoinFeeRate,
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
       silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,
+      mwebAlwaysScan: mwebAlwaysScan,
+      mwebCardDisplay: mwebCardDisplay,
+      mwebEnabled: mwebEnabled,
+      hasEnabledMwebBefore: hasEnabledMwebBefore,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialWowneroTransactionPriority: wowneroTransactionPriority,
       initialLightningTransactionPriority: lightningTransactionPriority,
@@ -1315,6 +1358,10 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     silentPaymentsAlwaysScan =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
+    mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
+    mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
+    mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
+    hasEnabledMwebBefore = sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =
         sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);

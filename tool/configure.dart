@@ -120,6 +120,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
+import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_bitcoin/bitcoin_hardware_wallet_service.dart';
@@ -186,7 +187,7 @@ abstract class Bitcoin {
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan);
-  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan);
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPriorityCustom();
   TransactionPriority getLitecoinTransactionPriorityMedium();
@@ -224,6 +225,9 @@ abstract class Bitcoin {
 
   void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
+
+  void setMwebEnabled(Object wallet, bool enabled);
+  bool getMwebEnabled(Object wallet);
 }
   """;
 

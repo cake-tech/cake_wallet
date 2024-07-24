@@ -16,6 +16,7 @@ const List<BitcoinAddressType> ADDRESS_TYPES = [
   P2pkhAddressType.p2pkh,
   SegwitAddresType.p2tr,
   SegwitAddresType.p2wsh,
+  SegwitAddresType.mweb,
   P2shAddressType.p2wpkhInP2sh,
 ];
 
@@ -214,6 +215,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.litecoin) {
       await _generateInitialAddresses();
+      await _generateInitialAddresses(type: SegwitAddresType.mweb);
     } else if (walletInfo.type == WalletType.bitcoin) {
       await _generateInitialAddresses();
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
@@ -321,6 +323,71 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           {required int index, required bitcoin.HDWallet hd, BitcoinAddressType? addressType}) =>
       '';
 
+  Future<String> getAddressAsync(
+          {required int index,
+          required bitcoin.HDWallet hd,
+          BitcoinAddressType? addressType}) async =>
+      getAddress(index: index, hd: hd, addressType: addressType);
+
+  void addBitcoinAddressTypes() {
+    final lastP2wpkh = _addresses
+        .where((addressRecord) =>
+            _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
+        .toList()
+        .last;
+    if (lastP2wpkh.address != address) {
+      addressesMap[lastP2wpkh.address] = 'P2WPKH';
+    } else {
+      addressesMap[address] = 'Active - P2WPKH';
+    }
+
+    final lastP2pkh = _addresses.firstWhere(
+        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
+    if (lastP2pkh.address != address) {
+      addressesMap[lastP2pkh.address] = 'P2PKH';
+    } else {
+      addressesMap[address] = 'Active - P2PKH';
+    }
+
+    final lastP2sh = _addresses.firstWhere((addressRecord) =>
+        _isUnusedReceiveAddressByType(addressRecord, P2shAddressType.p2wpkhInP2sh));
+    if (lastP2sh.address != address) {
+      addressesMap[lastP2sh.address] = 'P2SH';
+    } else {
+      addressesMap[address] = 'Active - P2SH';
+    }
+
+    final lastP2tr = _addresses.firstWhere(
+        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2tr));
+    if (lastP2tr.address != address) {
+      addressesMap[lastP2tr.address] = 'P2TR';
+    } else {
+      addressesMap[address] = 'Active - P2TR';
+    }
+
+    final lastP2wsh = _addresses.firstWhere(
+        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wsh));
+    if (lastP2wsh.address != address) {
+      addressesMap[lastP2wsh.address] = 'P2WSH';
+    } else {
+      addressesMap[address] = 'Active - P2WSH';
+    }
+
+    silentAddresses.forEach((addressRecord) {
+      if (addressRecord.type != SilentPaymentsAddresType.p2sp || addressRecord.isHidden) {
+        return;
+      }
+
+      if (addressRecord.address != address) {
+        addressesMap[addressRecord.address] = addressRecord.name.isEmpty
+            ? "Silent Payments"
+            : "Silent Payments - " + addressRecord.name;
+      } else {
+        addressesMap[address] = 'Active - Silent Payments';
+      }
+    });
+  }
+
   @override
   Future<void> updateAddressesInBox() async {
     try {
@@ -332,62 +399,30 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         allAddressesMap[addressRecord.address] = addressRecord.name;
       });
 
-      final lastP2wpkh = _addresses
-          .where((addressRecord) =>
-              _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
-          .toList()
-          .last;
-      if (lastP2wpkh.address != address) {
-        addressesMap[lastP2wpkh.address] = 'P2WPKH';
-      } else {
-        addressesMap[address] = 'Active - P2WPKH';
+      if (walletInfo.type == WalletType.bitcoin) {
+        addBitcoinAddressTypes();
       }
 
-      final lastP2pkh = _addresses.firstWhere(
-          (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
-      if (lastP2pkh.address != address) {
-        addressesMap[lastP2pkh.address] = 'P2PKH';
-      } else {
-        addressesMap[address] = 'Active - P2PKH';
-      }
-
-      final lastP2sh = _addresses.firstWhere((addressRecord) =>
-          _isUnusedReceiveAddressByType(addressRecord, P2shAddressType.p2wpkhInP2sh));
-      if (lastP2sh.address != address) {
-        addressesMap[lastP2sh.address] = 'P2SH';
-      } else {
-        addressesMap[address] = 'Active - P2SH';
-      }
-
-      final lastP2tr = _addresses.firstWhere(
-          (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2tr));
-      if (lastP2tr.address != address) {
-        addressesMap[lastP2tr.address] = 'P2TR';
-      } else {
-        addressesMap[address] = 'Active - P2TR';
-      }
-
-      final lastP2wsh = _addresses.firstWhere(
-          (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wsh));
-      if (lastP2wsh.address != address) {
-        addressesMap[lastP2wsh.address] = 'P2WSH';
-      } else {
-        addressesMap[address] = 'Active - P2WSH';
-      }
-
-      silentAddresses.forEach((addressRecord) {
-        if (addressRecord.type != SilentPaymentsAddresType.p2sp || addressRecord.isHidden) {
-          return;
-        }
-
-        if (addressRecord.address != address) {
-          addressesMap[addressRecord.address] = addressRecord.name.isEmpty
-              ? "Silent Payments"
-              : "Silent Payments - " + addressRecord.name;
+      if (walletInfo.type == WalletType.litecoin) {
+        final lastP2wpkh = _addresses
+            .where((addressRecord) =>
+                _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
+            .toList()
+            .last;
+        if (lastP2wpkh.address != address) {
+          addressesMap[lastP2wpkh.address] = 'P2WPKH';
         } else {
-          addressesMap[address] = 'Active - Silent Payments';
+          addressesMap[address] = 'Active - P2WPKH';
         }
-      });
+        
+        final lastMweb = _addresses.firstWhere(
+            (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
+        if (lastMweb.address != address) {
+          addressesMap[lastMweb.address] = 'MWEB';
+        } else {
+          addressesMap[address] = 'Active - MWEB';
+        }
+      }
 
       await saveAddressesInBox();
     } catch (e) {
@@ -508,7 +543,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     for (var i = startIndex; i < count + startIndex; i++) {
       final address = BitcoinAddressRecord(
-        getAddress(index: i, hd: _getHd(isHidden), addressType: type ?? addressPageType),
+        await getAddressAsync(index: i, hd: _getHd(isHidden), addressType: type ?? addressPageType),
         index: i,
         isHidden: isHidden,
         type: type ?? addressPageType,
@@ -543,8 +578,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       if (!element.isHidden && element.address !=
           getAddress(index: element.index, hd: mainHd, addressType: element.type)) {
         element.isHidden = true;
-      } else if (element.isHidden && element.address !=
-          getAddress(index: element.index, hd: sideHd, addressType: element.type)) {
+      } else if (element.isHidden &&
+          element.address !=
+              getAddress(index: element.index, hd: sideHd, addressType: element.type)) {
         element.isHidden = false;
       }
     });

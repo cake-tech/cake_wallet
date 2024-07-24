@@ -191,6 +191,11 @@ class MenuWidgetState extends State<MenuWidget> {
                     return Container();
                   }
 
+                  if (!widget.dashboardViewModel.hasMweb &&
+                      item.name(context) == S.current.litecoin_mweb_settings) {
+                    return const SizedBox();
+                  }
+
                   final isLastTile = index == itemCount - 1;
 
                   return SettingActionButton(

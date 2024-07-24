@@ -52,7 +52,7 @@ class TransactionsPage extends StatelessWidget {
                       try {
                         final uri = Uri.parse(
                             "https://guides.cakewallet.com/docs/FAQ/why_are_my_funds_not_appearing/");
-                          launchUrl(uri, mode: LaunchMode.externalApplication);
+                        launchUrl(uri, mode: LaunchMode.externalApplication);
                       } catch (_) {}
                     },
                     title: S.of(context).syncing_wallet_alert_title,
@@ -83,10 +83,6 @@ class TransactionsPage extends StatelessWidget {
                           }
 
                           final transaction = item.transaction;
-                          final transactionType = dashboardViewModel.type == WalletType.ethereum &&
-                              transaction.evmSignatureName == 'approval'
-                              ? ' (${transaction.evmSignatureName})'
-                              : '';
 
                           return Observer(
                             builder: (_) => TransactionRow(
@@ -101,7 +97,9 @@ class TransactionsPage extends StatelessWidget {
                                       : item.formattedFiatAmount,
                               isPending: transaction.isPending,
                               title: item.formattedTitle +
-                                  item.formattedStatus + ' $transactionType',
+                                  item.formattedStatus +
+                                  ' ${item.formattedType}',
+                              tag: item.tag,
                             ),
                           );
                         }
