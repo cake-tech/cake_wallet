@@ -49,7 +49,7 @@ class LightningInvoiceForm extends StatelessWidget {
                 maxAmount: '',
                 minAmount: lightningInvoicePageViewModel.minimumCurrency,
                 selectedCurrency: lightningInvoicePageViewModel.selectedCurrency,
-                onTapPicker: () => _presentPicker(context),
+                // onTapPicker: () => _presentPicker(context),
               );
             }),
             Observer(builder: (context) {
