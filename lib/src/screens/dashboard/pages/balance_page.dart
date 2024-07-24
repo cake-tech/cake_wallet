@@ -7,6 +7,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
@@ -24,6 +25,7 @@ import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BalancePage extends StatelessWidget {
@@ -329,7 +331,73 @@ class CryptoBalanceWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ]
+                  ],
+                  if (dashboardViewModel.showMwebCard) ...[
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: DashBoardRoundedCardWidget(
+                        customBorder: 30,
+                        title: S.current.litecoin_mweb,
+                        subTitle: S.current.litecoin_enable_mweb_sync,
+                        hint: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => launchUrl(
+                                    Uri.parse(
+                                        "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
+                                    mode: LaunchMode.externalApplication,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        S.current.litecoin_what_is_mweb,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context)
+                                              .extension<BalancePageTheme>()!
+                                              .labelTextColor,
+                                          height: 1,
+                                        ),
+                                        softWrap: true,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                                        child: Icon(Icons.help_outline,
+                                            size: 16,
+                                            color: Theme.of(context)
+                                                .extension<BalancePageTheme>()!
+                                                .labelTextColor),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Observer(
+                                  builder: (_) => StandardSwitch(
+                                    value: dashboardViewModel.mwebScanningActive,
+                                    onTaped: () => _toggleMweb(context),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                        onTap: () => _toggleMweb(context),
+                        icon: ImageIcon(
+                          AssetImage('assets/images/mweb_logo.png'),
+                          color:
+                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                          size: 50,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               );
             }),
@@ -368,6 +436,22 @@ class CryptoBalanceWidget extends StatelessWidget {
     }
 
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
+  }
+
+  Future<void> _toggleMweb(BuildContext context) async {
+    if (!dashboardViewModel.hasEnabledMwebBefore) {
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) => AlertWithOneAction(
+                alertTitle: S.of(context).warning,
+                alertContent: S.current.litecoin_mweb_warning,
+                buttonText: S.of(context).ok,
+                buttonAction: () {
+                  Navigator.of(context).pop();
+                },
+              ));
+    }
+    dashboardViewModel.setMwebScanningActive(!dashboardViewModel.mwebScanningActive);
   }
 }
 

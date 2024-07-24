@@ -83,6 +83,7 @@
 		9F46EE5D2BC11178009318F5 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		ABD6FCBB0F4244B090459128 /* BreezSDK.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BreezSDK.swift; path = "../.symlinks/plugins/breez_sdk/ios/bindings-swift/Sources/BreezSDK/BreezSDK.swift"; sourceTree = "<group>"; };
 		AD0937B0140D5A4C24E73BEA /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
+		C58D93382C00FAC6004BCF69 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
 		B3D5E78267F5F18D882FDC3B /* ServiceConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ServiceConfig.swift; path = "../.symlinks/plugins/breez_sdk/ios/bindings-swift/Sources/BreezSDK/ServiceConfig.swift"; sourceTree = "<group>"; };
 		CE291CFD2C15DB9A00B9F709 /* WowneroWallet.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WowneroWallet.framework; sourceTree = "<group>"; };
 		DCEA540E3586164FB47AD13E /* LnurlPayInvoice.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LnurlPayInvoice.swift; path = "../.symlinks/plugins/breez_sdk/ios/bindings-swift/Sources/BreezSDK/Task/LnurlPayInvoice.swift"; sourceTree = "<group>"; };
@@ -104,6 +105,7 @@
 		06957875428D0F5AAE053765 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C58D93382C00FAC6004BCF69 /* libresolv.tbd */,
 				0C9986A3251A932F00D566FD /* CryptoSwift.framework */,
 				3C663361C56EBB242598F609 /* Pods_Runner.framework */,
 			);

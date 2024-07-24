@@ -524,7 +524,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   Future<void> setAddressType(dynamic option) async {
-    if (wallet.type == WalletType.bitcoin) {
+    if (wallet.type == WalletType.bitcoin ||
+        wallet.type == WalletType.litecoin) {
       await bitcoin!.setAddressType(wallet, option);
     }
   }

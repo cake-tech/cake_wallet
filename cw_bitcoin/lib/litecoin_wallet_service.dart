@@ -12,15 +12,18 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:collection/collection.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:path_provider/path_provider.dart';
 
 class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
-    BitcoinRestoreWalletFromWIFCredentials,BitcoinNewWalletCredentials> {
-  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
+    BitcoinRestoreWalletFromWIFCredentials,
+    BitcoinNewWalletCredentials> {
+  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+  final bool alwaysScan;
 
   @override
   WalletType getType() => WalletType.litecoin;
@@ -28,11 +31,12 @@ class LitecoinWalletService extends WalletService<
   @override
   Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
     final wallet = await LitecoinWalletBase.create(
-        mnemonic: await generateElectrumMnemonic(),
-        password: credentials.password!,
-        passphrase: credentials.passphrase,
-        walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      mnemonic: await generateElectrumMnemonic(),
+      password: credentials.password!,
+      passphrase: credentials.passphrase,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+    );
     await wallet.save();
     await wallet.init();
 
@@ -45,21 +49,29 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values.firstWhereOrNull(
-        (info) => info.id == WalletBase.idFor(name, getType()))!;
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
 
     try {
       final wallet = await LitecoinWalletBase.open(
-          password: password, name: name, walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource);
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        alwaysScan: alwaysScan,
+      );
       await wallet.init();
       saveBackup(name);
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
       final wallet = await LitecoinWalletBase.open(
-          password: password, name: name, walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource);
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        alwaysScan: alwaysScan,
+      );
       await wallet.init();
       return wallet;
     }
@@ -67,22 +79,32 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType()))
-        .delete(recursive: true);
-    final walletInfo = walletInfoSource.values.firstWhereOrNull(
-        (info) => info.id == WalletBase.idFor(wallet, getType()))!;
+    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
+
+    // if there are no more litecoin wallets left, delete the neutrino db:
+    if (walletInfoSource.values.where((info) => info.type == WalletType.litecoin).isEmpty) {
+      final appDir = await getApplicationSupportDirectory();
+      File neturinoDb = File('${appDir.path}/neutrino.db');
+      if (neturinoDb.existsSync()) {
+        neturinoDb.deleteSync();
+      }
+    }
   }
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values.firstWhereOrNull(
-        (info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final currentWalletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
     final currentWallet = await LitecoinWalletBase.open(
-        password: password,
-        name: currentName,
-        walletInfo: currentWalletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      alwaysScan: alwaysScan,
+    );
 
     await currentWallet.renameWalletFiles(newName);
     await saveBackup(newName);
@@ -96,17 +118,18 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> restoreFromHardwareWallet(BitcoinNewWalletCredentials credentials) {
-    throw UnimplementedError("Restoring a Litecoin wallet from a hardware wallet is not yet supported!");
+    throw UnimplementedError(
+        "Restoring a Litecoin wallet from a hardware wallet is not yet supported!");
   }
 
   @override
-  Future<LitecoinWallet> restoreFromKeys(
-          BitcoinRestoreWalletFromWIFCredentials credentials, {bool? isTestnet}) async =>
+  Future<LitecoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials,
+          {bool? isTestnet}) async =>
       throw UnimplementedError();
 
   @override
-  Future<LitecoinWallet> restoreFromSeed(
-      BitcoinRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
+  Future<LitecoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
       throw LitecoinMnemonicIsIncorrectException();
     }

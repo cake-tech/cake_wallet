@@ -187,7 +187,8 @@ abstract class DashboardViewModelBase with Store {
 
       final _accountTransactions = _wallet.transactionHistory.transactions.values
           .where((tx) =>
-              wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+              wow.wownero!.getTransactionInfoAccountId(tx) ==
+              wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
       final sortedTransactions = [..._accountTransactions];
@@ -270,6 +271,10 @@ abstract class DashboardViewModelBase with Store {
       reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
         silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
       });
+    }
+
+    if (hasMweb) {
+      mwebScanningActive = bitcoin!.getMwebEnabled(wallet);
     }
   }
 
@@ -364,6 +369,7 @@ abstract class DashboardViewModelBase with Store {
   bool get hasRescan =>
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.wownero ||
       wallet.type == WalletType.haven;
 
@@ -386,6 +392,32 @@ abstract class DashboardViewModelBase with Store {
     if (hasSilentPayments) {
       bitcoin!.setScanningActive(wallet, active);
     }
+  }
+
+  @computed
+  bool get hasMweb => wallet.type == WalletType.litecoin;
+
+  @computed
+  bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay;
+
+  @observable
+  bool mwebScanningActive = false;
+
+  @computed
+  bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
+
+  @action
+  void setMwebScanningActive(bool active) {
+    if (!hasMweb) {
+      return;
+    }
+
+    if (active) {
+      settingsStore.hasEnabledMwebBefore = true;
+    }
+
+    mwebScanningActive = active;
+    bitcoin!.setMwebEnabled(wallet, active);
   }
 
   BalanceViewModel balanceViewModel;
@@ -591,7 +623,8 @@ abstract class DashboardViewModelBase with Store {
       }
 
       if (wallet.type == WalletType.wownero) {
-        return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
+        return wow.wownero!.getTransactionInfoAccountId(tx) ==
+            wow.wownero!.getCurrentAccount(wallet).id;
       }
 
       return true;
@@ -616,8 +649,8 @@ abstract class DashboardViewModelBase with Store {
           .getTransactionHistory(wallet)
           .transactions
           .values
-          .where(
-              (tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
+          .where((tx) =>
+              monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
@@ -629,8 +662,9 @@ abstract class DashboardViewModelBase with Store {
           .getTransactionHistory(wallet)
           .transactions
           .values
-          .where(
-              (tx) => wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+          .where((tx) =>
+              wow.wownero!.getTransactionInfoAccountId(tx) ==
+              wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(

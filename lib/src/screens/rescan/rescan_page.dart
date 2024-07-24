@@ -33,6 +33,7 @@ class RescanPage extends BasePage {
                     key: _blockchainHeightWidgetKey,
                     onHeightOrDateEntered: (value) => _rescanViewModel.isButtonEnabled = value,
                     isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
+                    isMwebScan: _rescanViewModel.isMwebScan,
                     doSingleScan: _rescanViewModel.doSingleScan,
                     toggleSingleScan: () =>
                         _rescanViewModel.doSingleScan = !_rescanViewModel.doSingleScan,

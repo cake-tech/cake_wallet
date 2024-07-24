@@ -57,7 +57,8 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedPendingStatus {
-    if (balanceViewModel.wallet.type == WalletType.monero || balanceViewModel.wallet.type == WalletType.haven) {
+    if (balanceViewModel.wallet.type == WalletType.monero ||
+        balanceViewModel.wallet.type == WalletType.haven) {
       if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
         return ' (${transaction.confirmations}/10)';
       }
@@ -78,6 +79,25 @@ class TransactionListItem extends ActionListItem with Keyable {
       }
     }
     return transaction.isPending ? S.current.pending : '';
+  }
+
+  String get formattedType {
+    if (transaction.evmSignatureName == 'approval') {
+      return ' (${transaction.evmSignatureName})';
+    }
+    return '';
+  }
+
+  String get tag {
+    List<String> addresses =
+        (transaction.inputAddresses ?? []) + (transaction.outputAddresses ?? []);
+    for (var address in addresses) {
+      if (address.toLowerCase().contains('mweb')) {
+        return 'MWEB';
+      }
+    }
+
+    return '';
   }
 
   CryptoCurrency? get assetOfTransaction {
