@@ -13,7 +13,9 @@ class CwMweb {
           options: const ChannelOptions(
             credentials: ChannelCredentials.insecure(),
             keepAlive: ClientKeepAliveOptions(permitWithoutCalls: true),
-          )),
+          ), channelShutdownHandler: () {
+        print("SHUTDOWN HANDLER CALLED @@@@@@@@@@@@@@@@@");
+      }),
     );
   }
 

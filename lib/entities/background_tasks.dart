@@ -17,12 +17,42 @@ import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/di.dart';
 
 const moneroSyncTaskKey = "com.fotolockr.cakewallet.monero_sync_task";
+const mwebSyncTaskKey = "com.fotolockr.cakewallet.mweb_sync_task";
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     try {
       switch (task) {
+        case mwebSyncTaskKey:
+          final List<WalletListItem> ltcWallets = getIt
+              .get<WalletListViewModel>()
+              .wallets
+              .where((element) => [WalletType.litecoin].contains(element.type))
+              .toList();
+
+          if (ltcWallets.isEmpty) {
+            return Future.error("No ltc wallets found");
+          }
+
+          final walletLoadingService = getIt.get<WalletLoadingService>();
+
+          var wallet =
+              await walletLoadingService.load(ltcWallets.first.type, ltcWallets.first.name);
+          await wallet.startSync();
+
+          for (int i = 0;; i++) {
+            await Future<void>.delayed(const Duration(seconds: 1));
+            if (wallet.syncStatus.progress() == 1.0) {
+              break;
+            }
+            if (i > 600) {
+              return Future.error("Synchronization Timed out");
+            }
+          }
+
+          break;
+
         case moneroSyncTaskKey:
 
           /// The work manager runs on a separate isolate from the main flutter isolate.
@@ -98,8 +128,13 @@ class BackgroundTasks {
           .wallets
           .any((element) => element.type == WalletType.monero);
 
+      bool hasLitecoin = getIt
+          .get<WalletListViewModel>()
+          .wallets
+          .any((element) => element.type == WalletType.litecoin);
+
       /// if its not android nor ios, or the user has no monero wallets; exit
-      if (!DeviceInfo.instance.isMobile || !hasMonero) {
+      if (!DeviceInfo.instance.isMobile || (!hasMonero && !hasLitecoin)) {
         return;
       }
 
@@ -128,10 +163,18 @@ class BackgroundTasks {
       );
 
       if (Platform.isIOS) {
+        // await Workmanager().registerOneOffTask(
+        //   moneroSyncTaskKey,
+        //   moneroSyncTaskKey,
+        //   initialDelay: syncMode.frequency,
+        //   existingWorkPolicy: ExistingWorkPolicy.replace,
+        //   inputData: inputData,
+        //   constraints: constraints,
+        // );
         await Workmanager().registerOneOffTask(
-          moneroSyncTaskKey,
-          moneroSyncTaskKey,
-          initialDelay: syncMode.frequency,
+          mwebSyncTaskKey,
+          mwebSyncTaskKey,
+          initialDelay: Duration(seconds: 10),
           existingWorkPolicy: ExistingWorkPolicy.replace,
           inputData: inputData,
           constraints: constraints,
@@ -139,9 +182,18 @@ class BackgroundTasks {
         return;
       }
 
+      // await Workmanager().registerPeriodicTask(
+      //   moneroSyncTaskKey,
+      //   moneroSyncTaskKey,
+      //   initialDelay: syncMode.frequency,
+      //   frequency: syncMode.frequency,
+      //   existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
+      //   inputData: inputData,
+      //   constraints: constraints,
+      // );
       await Workmanager().registerPeriodicTask(
-        moneroSyncTaskKey,
-        moneroSyncTaskKey,
+        mwebSyncTaskKey,
+        mwebSyncTaskKey,
         initialDelay: syncMode.frequency,
         frequency: syncMode.frequency,
         existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
