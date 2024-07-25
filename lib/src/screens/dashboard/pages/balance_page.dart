@@ -237,10 +237,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                         additionalFiatBalance: balance.fiatAdditionalBalance,
                          hasAdditionalBalance:
                             dashboardViewModel.balanceViewModel.hasAdditionalBalance,
-                        // hasFullBalance: dashboardViewModel.balanceViewModel.hasFullBalance,
-                        // fullBalanceLabel: '${dashboardViewModel.balanceViewModel.fullBalanceLabel}',
-                        // fullBalance: balance.fullBalance,
-                        // fullFiatBalance: balance.fiatFullBalance,
                         frozenBalance: balance.frozenBalance,
                         frozenFiatBalance: balance.fiatFrozenBalance,
                         currency: balance.asset,
@@ -372,10 +368,6 @@ class BalanceRowWidget extends StatelessWidget {
     required this.additionalFiatBalance,
     required this.frozenBalance,
     required this.frozenFiatBalance,
-    // required this.fullBalanceLabel,
-    // required this.fullBalance,
-    // required this.fullFiatBalance,
-    // required this.hasFullBalance,
     required this.currency,
     required this.hasAdditionalBalance,
     required this.isTestnet,
@@ -390,10 +382,6 @@ class BalanceRowWidget extends StatelessWidget {
   final String additionalFiatBalance;
   final String frozenBalance;
   final String frozenFiatBalance;
-  // final String fullBalanceLabel;
-  // final String fullBalance;
-  // final String fullFiatBalance;
-  // final bool hasFullBalance;
   final CryptoCurrency currency;
   final bool hasAdditionalBalance;
   final bool isTestnet;
