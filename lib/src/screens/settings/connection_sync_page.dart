@@ -44,43 +44,44 @@ class ConnectionSyncPage extends BasePage {
                   : S.current.rescan,
               handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
             ),
-            // if (DeviceInfo.instance.isMobile && FeatureFlag.isBackgroundSyncEnabled) ...[
-            Observer(builder: (context) {
-              return SettingsPickerCell<SyncMode>(
-                  title: S.current.background_sync_mode,
-                  items: SyncMode.all,
-                  displayItem: (SyncMode syncMode) => syncMode.name,
-                  selectedItem: dashboardViewModel.syncMode,
-                  onItemSelected: (syncMode) async {
-                    dashboardViewModel.setSyncMode(syncMode);
+            if (DeviceInfo.instance.isMobile && FeatureFlag.isBackgroundSyncEnabled) ...[
+              Observer(builder: (context) {
+                return SettingsPickerCell<SyncMode>(
+                    title: S.current.background_sync_mode,
+                    items: SyncMode.all,
+                    displayItem: (SyncMode syncMode) => syncMode.name,
+                    selectedItem: dashboardViewModel.syncMode,
+                    onItemSelected: (syncMode) async {
+                      dashboardViewModel.setSyncMode(syncMode);
 
-                    if (Platform.isIOS) return;
+                      if (Platform.isIOS) return;
 
-                    if (syncMode.type != SyncType.disabled) {
-                      final isDisabled = await isBatteryOptimizationDisabled();
+                      if (syncMode.type != SyncType.disabled) {
+                        final isDisabled = await isBatteryOptimizationDisabled();
 
-                      if (isDisabled) return;
+                        if (isDisabled) return;
 
-                      await showPopUp<void>(
-                        context: context,
-                        builder: (BuildContext dialogContext) {
-                          return AlertWithTwoActions(
-                            alertTitle: S.current.disableBatteryOptimization,
-                            alertContent: S.current.disableBatteryOptimizationDescription,
-                            leftButtonText: S.of(context).cancel,
-                            rightButtonText: S.of(context).ok,
-                            actionLeftButton: () => Navigator.of(dialogContext).pop(),
-                            actionRightButton: () async {
-                              await requestDisableBatteryOptimization();
+                        await showPopUp<void>(
+                          context: context,
+                          builder: (BuildContext dialogContext) {
+                            return AlertWithTwoActions(
+                              alertTitle: S.current.disableBatteryOptimization,
+                              alertContent: S.current.disableBatteryOptimizationDescription,
+                              leftButtonText: S.of(context).cancel,
+                              rightButtonText: S.of(context).ok,
+                              actionLeftButton: () => Navigator.of(dialogContext).pop(),
+                              actionRightButton: () async {
+                                await requestDisableBatteryOptimization();
 
-                              Navigator.of(dialogContext).pop();
-                            },
-                          );
-                        },
-                      );
-                    }
-                  });
-            }),
+                                Navigator.of(dialogContext).pop();
+                              },
+                            );
+                          },
+                        );
+                      }
+                    });
+              }),
+            ],
             Observer(builder: (context) {
               return SettingsSwitcherCell(
                 title: S.current.sync_all_wallets,
