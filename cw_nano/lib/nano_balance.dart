@@ -11,8 +11,8 @@ class NanoBalance extends Balance {
 
   NanoBalance({required this.currentBalance, required this.receivableBalance}) : super(0, 0);
 
-  NanoBalance.fromFormattedString(
-      {required String formattedCurrentBalance, required String formattedReceivableBalance})
+NanoBalance.fromFormattedString(
+    {required String formattedCurrentBalance, required String formattedReceivableBalance})
       : currentBalance = stringAmountToBigIntNano(formattedCurrentBalance),
         receivableBalance = stringAmountToBigIntNano(formattedReceivableBalance),
         super(0, 0);
