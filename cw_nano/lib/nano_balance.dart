@@ -17,7 +17,8 @@ class NanoBalance extends Balance {
         receivableBalance = stringAmountToBigIntNano(formattedReceivableBalance),
         super(0, 0);
 
-  NanoBalance.fromRawString({required String currentBalance, required String receivableBalance})
+    NanoBalance.fromRawString(
+       {required String currentBalance, required String receivableBalance})
       : currentBalance = BigInt.parse(currentBalance),
         receivableBalance = BigInt.parse(receivableBalance),
         super(0, 0);
