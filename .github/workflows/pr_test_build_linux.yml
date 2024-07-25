@@ -25,18 +25,7 @@ jobs:
 
       - name: is not pr
         if: github.event_name != 'pull_request'
-        run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
-
-      - name: Free Disk Space (Ubuntu)
-        uses: insightsengineering/disk-space-reclaimer@v1
-        with:
-          tools-cache: true
-          android: false
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
-          docker-images: true
+        run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENVg
 
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
@@ -55,13 +44,12 @@ jobs:
       - name: Install package dependencies
         run: |
           sudo apt update
-          sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
+          sudo apt-get install -y curl unzip automake build-essential file pkg-config git python-is-python3 libtool libtinfo5 cmake clang
 
       - name: Install desktop dependencies
         run: |
           sudo apt update
-          sudo apt install ninja-build libgtk-3-dev -y
-
+          sudo apt install -y ninja-build libgtk-3-dev gperf
       - name: Execute Build and Setup Commands
         run: |
           sudo mkdir -p /opt/android
@@ -71,6 +59,10 @@ jobs:
           cargo install cargo-ndk
           git clone https://github.com/cake-tech/cake_wallet.git --branch ${{ env.BRANCH_NAME }}
           cd scripts && ./gen_android_manifest.sh && cd ..
+          cd cake_wallet/scripts/android/
+          source ./app_env.sh cakewallet
+          ./app_config.sh
+          cd ../../..
           cd cake_wallet/scripts/linux/
           source ./app_env.sh cakewallet
           ./app_config.sh
