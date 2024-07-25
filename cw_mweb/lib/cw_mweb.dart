@@ -29,6 +29,5 @@ class CwMweb {
     await _clientChannel?.terminate();
     _rpcClient = null;
     _clientChannel = null;
-    print("rpc has been shut down");
   }
 }
