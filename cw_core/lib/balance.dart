@@ -7,7 +7,7 @@ abstract class Balance {
 
   String get formattedAvailableBalance;
 
-  String get formattedAdditionalBalance => '';
+  String get formattedAdditionalBalance;
 
   String get formattedUnAvailableBalance => '';
 }

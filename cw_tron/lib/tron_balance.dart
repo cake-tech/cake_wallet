@@ -31,7 +31,4 @@ class TronBalance extends Balance {
       return TronBalance(BigInt.zero);
     }
   }
-
-  @override
-  String get formattedFullBalance => TronHelper.fromSun(balance);
 }

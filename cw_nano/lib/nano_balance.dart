@@ -31,14 +31,4 @@ class NanoBalance extends Balance {
   String get formattedAdditionalBalance {
     return NanoAmounts.getRawAsUsableString(receivableBalance.toString(), NanoAmounts.rawPerNano);
   }
-
-  @override
-  String get formattedFullBalance {
-    final totalBalanceInDouble = currentBalance.toDouble() + receivableBalance.toDouble();
-
-    return NanoAmounts.getRawAsUsableString(
-      (totalBalanceInDouble).toString(),
-      NanoAmounts.rawPerNano,
-    );
-  }
 }

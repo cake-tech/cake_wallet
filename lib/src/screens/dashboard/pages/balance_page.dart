@@ -235,12 +235,11 @@ class CryptoBalanceWidget extends StatelessWidget {
                             '${dashboardViewModel.balanceViewModel.additionalBalanceLabel}',
                         additionalBalance: balance.additionalBalance,
                         additionalFiatBalance: balance.fiatAdditionalBalance,
-                         hasAdditionalBalance:
-                            dashboardViewModel.balanceViewModel.hasAdditionalBalance,
                         frozenBalance: balance.frozenBalance,
                         frozenFiatBalance: balance.fiatFrozenBalance,
                         currency: balance.asset,
-                       
+                        hasAdditionalBalance:
+                            dashboardViewModel.balanceViewModel.hasAdditionalBalance,
                         isTestnet: dashboardViewModel.isTestnet,
                       );
                     });
