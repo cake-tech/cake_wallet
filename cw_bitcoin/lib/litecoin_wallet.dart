@@ -177,8 +177,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
-      // final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
-      final height = 0;
+      final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
       final resp = await _stub.status(StatusRequest());
       if (resp.blockHeaderHeight < height) {
         int h = resp.blockHeaderHeight;
@@ -220,7 +219,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<void> stopSync() async {
     _syncTimer?.cancel();
     _utxoStream?.cancel();
-    await CwMweb.stop();
+    // await CwMweb.stop();
   }
 
   Future<void> initMwebUtxosBox() async {

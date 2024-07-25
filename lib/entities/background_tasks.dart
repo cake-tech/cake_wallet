@@ -10,6 +10,7 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -60,12 +61,19 @@ void callbackDispatcher() {
 
           _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
             // if (syncStatus is FailedSyncStatus) return;
-            // final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
-            final height = 0;
+            // TODO: use the proxy layer:
+            // final height = await (wallet as ElectrumWallet).electrumClient.getCurrentBlockChainTip() ?? 0;
+            final height = 2726590;
+            // final height = 0;
             dynamic resp = await bitcoin!.getStatusRequest(wallet);
             int blockHeaderHeight = resp.blockHeaderHeight as int;
             int mwebHeaderHeight = resp.mwebHeaderHeight as int;
             int mwebUtxosHeight = resp.mwebUtxosHeight as int;
+
+            print("blockHeaderHeight: $blockHeaderHeight");
+            print("mwebHeaderHeight: $mwebHeaderHeight");
+            print("mwebUtxosHeight: $mwebUtxosHeight");
+
 
             if (blockHeaderHeight < height) {
               syncStatus = blockHeaderHeight / height;
