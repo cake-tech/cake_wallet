@@ -142,8 +142,6 @@ abstract class BalanceViewModelBase with Store {
   @computed
   String get additionalBalanceLabel {
     switch (wallet.type) {
-      case WalletType.monero:
-      case WalletType.wownero:
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -289,7 +287,12 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  bool get hasAdditionalBalance => _hasAdditionBalanceForWalletType(wallet.type);
+  bool get hasAdditionalBalance {
+    bool isWalletTypeActivated = _hasAdditionBalanceForWalletType(wallet.type);
+    bool isNotZeroAmount = additionalBalance != "0.0";
+
+    return isWalletTypeActivated && isNotZeroAmount;
+  }
 
   bool _hasAdditionBalanceForWalletType(WalletType type) {
     switch (type) {
@@ -297,6 +300,8 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.monero:
+      case WalletType.wownero:
         return false;
       default:
         return true;
