@@ -24,5 +24,5 @@ Future<void> loadCurrentWallet() async {
   final wallet = await walletLoadingService.load(type, name);
   await appStore.changeCurrentWallet(wallet);
 
-  getIt.get<BackgroundTasks>().registerSyncTask();
+  // getIt.get<BackgroundTasks>().registerSyncTask();
 }

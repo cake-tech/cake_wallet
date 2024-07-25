@@ -167,9 +167,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return;
     }
 
-    await subscribeForUpdates();
-    await updateTransactions();
-    await updateFeeRates();
+    // await subscribeForUpdates();
+    // await updateTransactions();
+    // await updateFeeRates();
 
     Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
@@ -177,7 +177,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
-      final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
+      // final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
+      final height = 0;
       final resp = await _stub.status(StatusRequest());
       if (resp.blockHeaderHeight < height) {
         int h = resp.blockHeaderHeight;
@@ -208,8 +209,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         }
       }
     });
-    updateUnspent();
-    fetchBalances();
+    // updateUnspent();
+    // fetchBalances();
     // this runs in the background and processes new utxos as they come in:
     processMwebUtxos();
   }
@@ -541,7 +542,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         updatedUnspentCoins.add(unspent);
       });
     }
-    
+
     unspentCoins = updatedUnspentCoins;
   }
 
@@ -781,5 +782,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebEnabled = enabled;
     stopSync();
     startSync();
+  }
+
+  Future<RpcClient> getStub() async {
+    return CwMweb.stub();
+  }
+
+  Future<StatusResponse> getStatusRequest() async {
+    final resp = await _stub.status(StatusRequest());
+    return resp;
   }
 }

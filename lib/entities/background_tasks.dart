@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -25,6 +27,11 @@ void callbackDispatcher() {
     try {
       switch (task) {
         case mwebSyncTaskKey:
+
+          /// The work manager runs on a separate isolate from the main flutter isolate.
+          /// thus we initialize app configs first; hive, getIt, etc...
+          await initializeAppConfigs();
+
           final List<WalletListItem> ltcWallets = getIt
               .get<WalletListViewModel>()
               .wallets
@@ -39,17 +46,51 @@ void callbackDispatcher() {
 
           var wallet =
               await walletLoadingService.load(ltcWallets.first.type, ltcWallets.first.name);
-          await wallet.startSync();
+
+          print("STARTING SYNC FROM BG!!");
+          // await wallet.startSync();
+
+          // RpcClient _stub = bitcoin!.getMwebStub();
+
+          double syncStatus = 0.0;
+
+          Timer? _syncTimer;
+
+          dynamic _stub = await bitcoin!.getMwebStub(wallet);
+
+          _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
+            // if (syncStatus is FailedSyncStatus) return;
+            // final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
+            final height = 0;
+            dynamic resp = await bitcoin!.getStatusRequest(wallet);
+            int blockHeaderHeight = resp.blockHeaderHeight as int;
+            int mwebHeaderHeight = resp.mwebHeaderHeight as int;
+            int mwebUtxosHeight = resp.mwebUtxosHeight as int;
+
+            if (blockHeaderHeight < height) {
+              syncStatus = blockHeaderHeight / height;
+            } else if (mwebHeaderHeight < height) {
+              syncStatus = mwebHeaderHeight / height;
+            } else if (mwebUtxosHeight < height) {
+              syncStatus = 0.999;
+            } else {
+              syncStatus = 1;
+            }
+          });
 
           for (int i = 0;; i++) {
             await Future<void>.delayed(const Duration(seconds: 1));
-            if (wallet.syncStatus.progress() == 1.0) {
+            if (syncStatus == 1) {
+              print("sync done!");
               break;
+            } else {
+              print("Sync status ${syncStatus}");
             }
             if (i > 600) {
               return Future.error("Synchronization Timed out");
             }
           }
+          _syncTimer?.cancel();
 
           break;
 
@@ -162,7 +203,7 @@ class BackgroundTasks {
         requiresDeviceIdle: syncMode.type == SyncType.unobtrusive,
       );
 
-      if (Platform.isIOS) {
+      if (Platform.isIOS && syncMode.type == SyncType.unobtrusive) {
         // await Workmanager().registerOneOffTask(
         //   moneroSyncTaskKey,
         //   moneroSyncTaskKey,
@@ -174,7 +215,7 @@ class BackgroundTasks {
         await Workmanager().registerOneOffTask(
           mwebSyncTaskKey,
           mwebSyncTaskKey,
-          initialDelay: Duration(seconds: 10),
+          initialDelay: Duration(seconds: 30),
           existingWorkPolicy: ExistingWorkPolicy.replace,
           inputData: inputData,
           constraints: constraints,

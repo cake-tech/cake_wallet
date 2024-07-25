@@ -597,4 +597,16 @@ class CWBitcoin extends Bitcoin {
     final litecoinWallet = wallet as LitecoinWallet;
     return litecoinWallet.mwebEnabled;
   }
+
+  @override
+  dynamic getMwebStub(Object wallet) {
+    final litecoinWallet = wallet as LitecoinWallet;
+    return litecoinWallet.getStub();
+  }
+
+  @override
+  dynamic getStatusRequest(Object wallet) {
+    final litecoinWallet = wallet as LitecoinWallet;
+    return litecoinWallet.getStatusRequest();
+  }
 }
