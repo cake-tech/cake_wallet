@@ -84,6 +84,7 @@ void callbackDispatcher() {
             } else {
               syncStatus = 1;
             }
+            print("Sync status ${syncStatus}");
           });
 
           for (int i = 0;; i++) {
@@ -91,8 +92,6 @@ void callbackDispatcher() {
             if (syncStatus == 1) {
               print("sync done!");
               break;
-            } else {
-              print("Sync status ${syncStatus}");
             }
             if (i > 600) {
               return Future.error("Synchronization Timed out");
@@ -199,7 +198,7 @@ class BackgroundTasks {
 
       await Workmanager().initialize(
         callbackDispatcher,
-        isInDebugMode: kDebugMode,
+        isInDebugMode: true,
       );
 
       final inputData = <String, dynamic>{"sync_all": syncAll};
@@ -258,6 +257,12 @@ class BackgroundTasks {
   void cancelSyncTask() {
     try {
       Workmanager().cancelByUniqueName(moneroSyncTaskKey);
+    } catch (error, stackTrace) {
+      print(error);
+      print(stackTrace);
+    }
+    try {
+      Workmanager().cancelByUniqueName(mwebSyncTaskKey);
     } catch (error, stackTrace) {
       print(error);
       print(stackTrace);

@@ -144,4 +144,11 @@ import workmanager
         }
     }
 
+
+  @objc func applicationWillTerminate(_ notification: Notification) {
+    // Call the stop method on your plugin
+    if let plugin = self.registrar(forPlugin: "CwMwebPlugin")?.valuePublished(byPlugin: "CwMwebPlugin") as? CwMwebPlugin {
+      plugin.stop()
+    }
+  }
 }

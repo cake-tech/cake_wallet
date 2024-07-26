@@ -789,6 +789,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<StatusResponse> getStatusRequest() async {
+    await getStub();
     final resp = await _stub.status(StatusRequest());
     return resp;
   }
