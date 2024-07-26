@@ -82,10 +82,10 @@ class MainActions {
   static MainActions sellAction = MainActions._(
     name: (context) => '${S.of(context).sell} / ${S.of(context).buy}',
     image: 'assets/images/buy_sell.png',
-    isEnabled: (viewModel) => viewModel.isEnabledSellAction,
-    canShow: (viewModel) => viewModel.hasSellAction,
+    isEnabled: (viewModel) => viewModel.isEnabledSellAction || viewModel.isEnabledBuyAction,
+    canShow: (viewModel) => viewModel.hasSellAction || viewModel.hasBuyAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
-      if (!viewModel.isEnabledSellAction) {
+      if (!viewModel.isEnabledSellAction && !viewModel.isEnabledBuyAction) {
         return;
       }
 

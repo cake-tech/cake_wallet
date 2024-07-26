@@ -57,7 +57,12 @@ class MobileExchangeCardsSection extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(24, 90, 24, isBuySellOption ? 8 : 32),
             child: Column(
               children: [
-                if (isBuySellOption) BuySellOptionButtons(onBuyTap: onBuyTap, onSellTap: onSellTap),
+                if (isBuySellOption) Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    BuySellOptionButtons(onBuyTap: onBuyTap, onSellTap: onSellTap),
+                  ],
+                ),
                 firstExchangeCard,
               ],
             ),
