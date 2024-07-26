@@ -219,7 +219,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<void> stopSync() async {
     _syncTimer?.cancel();
     _utxoStream?.cancel();
-    // await CwMweb.stop();
+    await CwMweb.stop();
   }
 
   Future<void> initMwebUtxosBox() async {
@@ -784,7 +784,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<RpcClient> getStub() async {
-    return CwMweb.stub();
+    _stub = await CwMweb.stub();
+    return _stub;
   }
 
   Future<StatusResponse> getStatusRequest() async {
