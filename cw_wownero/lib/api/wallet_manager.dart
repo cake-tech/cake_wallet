@@ -32,13 +32,14 @@ void createWalletSync(
     required String language,
     int nettype = 0}) {
   txhistory = null;
-  wptr = wownero.WalletManager_createWallet(wmPtr,
+  final newWptr = wownero.WalletManager_createWallet(wmPtr,
       path: path, password: password, language: language, networkType: 0);
 
-  final status = wownero.Wallet_status(wptr!);
+  final status = wownero.Wallet_status(newWptr);
   if (status != 0) {
-    throw WalletCreationException(message: wownero.Wallet_errorString(wptr!));
+    throw WalletCreationException(message: wownero.Wallet_errorString(newWptr));
   }
+  wptr = newWptr;
   wownero.Wallet_store(wptr!, path: path);
   openedWalletsByPath[path] = wptr!;
 
@@ -56,9 +57,10 @@ void restoreWalletFromSeedSync(
     required String seed,
     int nettype = 0,
     int restoreHeight = 0}) {
+  var newWptr;
   if (seed.split(" ").length == 14) {
     txhistory = null;
-    wptr = wownero.WOWNERO_deprecated_restore14WordSeed(
+    newWptr = wownero.WOWNERO_deprecated_restore14WordSeed(
       path: path,
       password: password,
       language: seed, // I KNOW - this is supposed to be called seed
@@ -70,7 +72,7 @@ void restoreWalletFromSeedSync(
     );
   } else {
     txhistory = null;
-    wptr = wownero.WalletManager_recoveryWallet(
+    newWptr = wownero.WalletManager_recoveryWallet(
       wmPtr,
       path: path,
       password: password,
@@ -81,12 +83,14 @@ void restoreWalletFromSeedSync(
     );
   }
 
-  final status = wownero.Wallet_status(wptr!);
+  final status = wownero.Wallet_status(newWptr);
 
   if (status != 0) {
-    final error = wownero.Wallet_errorString(wptr!);
+    final error = wownero.Wallet_errorString(newWptr);
     throw WalletRestoreFromSeedException(message: error);
   }
+
+  wptr = newWptr;
 
   openedWalletsByPath[path] = wptr!;
 }
@@ -101,7 +105,7 @@ void restoreWalletFromKeysSync(
     int nettype = 0,
     int restoreHeight = 0}) {
   txhistory = null;
-  wptr = wownero.WalletManager_createWalletFromKeys(
+  final newWptr = wownero.WalletManager_createWalletFromKeys(
     wmPtr,
     path: path,
     password: password,
@@ -112,11 +116,13 @@ void restoreWalletFromKeysSync(
     nettype: 0,
   );
 
-  final status = wownero.Wallet_status(wptr!);
+  final status = wownero.Wallet_status(newWptr);
   if (status != 0) {
     throw WalletRestoreFromKeysException(
-        message: wownero.Wallet_errorString(wptr!));
+        message: wownero.Wallet_errorString(newWptr));
   }
+
+  wptr = newWptr;
 
   openedWalletsByPath[path] = wptr!;
 }
@@ -142,7 +148,7 @@ void restoreWalletFromSpendKeySync(
   // );
 
   txhistory = null;
-  wptr = wownero.WalletManager_createDeterministicWalletFromSpendKey(
+  final newWptr = wownero.WalletManager_createDeterministicWalletFromSpendKey(
     wmPtr,
     path: path,
     password: password,
@@ -152,13 +158,15 @@ void restoreWalletFromSpendKeySync(
     restoreHeight: restoreHeight,
   );
 
-  final status = wownero.Wallet_status(wptr!);
+  final status = wownero.Wallet_status(newWptr);
 
   if (status != 0) {
-    final err = wownero.Wallet_errorString(wptr!);
+    final err = wownero.Wallet_errorString(newWptr);
     print("err: $err");
     throw WalletRestoreFromKeysException(message: err);
   }
+
+  wptr = newWptr;
 
   wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
 
@@ -217,15 +225,16 @@ void loadWallet(
       });
     }
     txhistory = null;
-    wptr = wownero.WalletManager_openWallet(wmPtr,
+    final newWptr = wownero.WalletManager_openWallet(wmPtr,
         path: path, password: password);
     _lastOpenedWallet = path;
-    final status = wownero.Wallet_status(wptr!);
+    final status = wownero.Wallet_status(newWptr);
     if (status != 0) {
-      final err = wownero.Wallet_errorString(wptr!);
+      final err = wownero.Wallet_errorString(newWptr);
       print(err);
       throw WalletOpeningException(message: err);
     }
+    wptr = newWptr;
     openedWalletsByPath[path] = wptr!;
   }
 }
