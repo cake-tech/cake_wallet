@@ -28,20 +28,28 @@ class CwMweb {
   static Future<RpcClient> stub({int maxRetries = 3}) async {
     for (int i = 0; i < maxRetries; i++) {
       try {
-        if (_rpcClient == null || _clientChannel == null) {
-          await _initializeClient();
-        } else {
+        if (_rpcClient != null) {
           // Try to use the existing connection
-          var status = await _rpcClient!
-              .status(StatusRequest(), options: CallOptions(timeout: const Duration(seconds: 10)));
-          if (status != null) {
-            return _rpcClient!;
+          final status = await _rpcClient!
+              .status(StatusRequest(), options: CallOptions(timeout: const Duration(seconds: 3)));
+          if (status.blockTime == 0) {
+            throw Exception("blockTime shouldn't be 0! (1)");
           }
+          return _rpcClient!;
+        } else {
+          await _initializeClient();
+          // make sure the connection works:
+          final status = await _rpcClient!
+              .status(StatusRequest(), options: CallOptions(timeout: const Duration(seconds: 3)));
+          if (status.blockTime == 0) {
+            throw Exception("blockTime shouldn't be 0! (2)");
+          }
+          return _rpcClient!;
         }
       } catch (e) {
         print("Attempt $i failed: $e");
         if (i == maxRetries - 1) rethrow;
-        await stop();// call stop so we create a new instance before retrying
+        await stop(); // call stop so we create a new instance before retrying
         await Future.delayed(Duration(seconds: 2)); // Wait before retrying
       }
     }
