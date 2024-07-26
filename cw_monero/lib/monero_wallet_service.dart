@@ -79,6 +79,7 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
       if (credentials.isPolyseed) {
         final polyseed = Polyseed.create();
         final lang = PolyseedLang.getByEnglishName(credentials.language);
+        polyseed.crypt(credentials.passphrase??'');
 
         final heightOverride =
             getMoneroHeigthByDate(date: DateTime.now().subtract(Duration(days: 2)));
