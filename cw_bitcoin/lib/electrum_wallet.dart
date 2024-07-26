@@ -261,6 +261,7 @@ abstract class ElectrumWalletBase
   void Function(FlutterErrorDetails)? _onError;
   Timer? _autoSaveTimer;
   static const int _autoSaveInterval = 30;
+  StreamSubscription<dynamic>? _receiveStream;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -312,7 +313,8 @@ abstract class ElectrumWalletBase
           isSingleScan: doSingleScan ?? false,
         ));
 
-    await for (var message in receivePort) {
+    _receiveStream?.cancel();
+    _receiveStream = receivePort.listen((var message) async {
       if (message is Map<String, ElectrumTransactionInfo>) {
         for (final map in message.entries) {
           final txid = map.key;
@@ -378,7 +380,7 @@ abstract class ElectrumWalletBase
         syncStatus = message.syncStatus;
         await walletInfo.updateRestoreHeight(message.height);
       }
-    }
+    });
   }
 
   void _updateSilentAddressRecord(BitcoinSilentPaymentsUnspent unspent) {
@@ -455,6 +457,7 @@ abstract class ElectrumWalletBase
     try {
       syncStatus = ConnectingSyncStatus();
 
+      await _receiveStream?.cancel();
       await electrumClient.close();
 
       electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
@@ -1141,6 +1144,7 @@ abstract class ElectrumWalletBase
   @override
   Future<void> close() async {
     try {
+      await _receiveStream?.cancel();
       await electrumClient.close();
     } catch (_) {}
     _autoSaveTimer?.cancel();
