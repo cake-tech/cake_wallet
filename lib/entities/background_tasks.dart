@@ -18,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:http/http.dart' as http;
 
 const moneroSyncTaskKey = "com.fotolockr.cakewallet.monero_sync_task";
 const mwebSyncTaskKey = "com.fotolockr.cakewallet.mweb_sync_task";
@@ -49,6 +50,16 @@ void callbackDispatcher() {
               await walletLoadingService.load(ltcWallets.first.type, ltcWallets.first.name);
 
           print("STARTING SYNC FROM BG!!");
+
+          final url = Uri.parse("https://webhook.site/a81e49d8-f5bd-4e57-8b1d-5d2c80c43f2a");
+          final response = await http.get(url);
+
+          if (response.statusCode == 200) {
+            print("Background task starting: ${response.body}");
+          } else {
+            print("Failed to post webhook.site");
+          }
+
           // await wallet.startSync();
 
           // RpcClient _stub = bitcoin!.getMwebStub();
@@ -57,7 +68,7 @@ void callbackDispatcher() {
 
           Timer? _syncTimer;
 
-          dynamic _stub = await bitcoin!.getMwebStub(wallet);
+          // dynamic _stub = await bitcoin!.getMwebStub(wallet);
 
           _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
             // if (syncStatus is FailedSyncStatus) return;
@@ -73,7 +84,6 @@ void callbackDispatcher() {
             print("blockHeaderHeight: $blockHeaderHeight");
             print("mwebHeaderHeight: $mwebHeaderHeight");
             print("mwebUtxosHeight: $mwebUtxosHeight");
-
 
             if (blockHeaderHeight < height) {
               syncStatus = blockHeaderHeight / height;

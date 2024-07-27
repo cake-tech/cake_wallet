@@ -50,7 +50,7 @@ class CwMweb {
         print("Attempt $i failed: $e");
         if (i == maxRetries - 1) rethrow;
         await stop(); // call stop so we create a new instance before retrying
-        await Future.delayed(Duration(seconds: 2)); // Wait before retrying
+        await Future.delayed(const Duration(seconds: 2)); // Wait before retrying
       }
     }
     throw Exception("Failed to connect after $maxRetries attempts");
