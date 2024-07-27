@@ -25,6 +25,7 @@ import workmanager
         }
 
         WorkmanagerPlugin.registerTask(withIdentifier: "com.fotolockr.cakewallet.monero_sync_task")
+        WorkmanagerPlugin.registerTask(withIdentifier: "com.fotolockr.cakewallet.mweb_sync_task")
 
         makeSecure()
         
@@ -142,5 +143,15 @@ import workmanager
             textField.layer.sublayers?.first?.addSublayer(self.window.layer)
         }
     }
+
+
+//   @objc override func applicationWillTerminate(_ notification: Notification) {
+//     super.applicationWillTerminate(application)
+
+//     // Call the stop method on your plugin
+//     if let plugin = self.registrar(forPlugin: "CwMwebPlugin")?.valuePublished(byPlugin: "CwMwebPlugin") as? CwMwebPlugin {
+//       plugin.stop()
+//     }
+//   }
 
 }

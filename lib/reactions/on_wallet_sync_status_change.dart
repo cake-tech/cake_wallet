@@ -31,7 +31,7 @@ void startWalletSyncStatusChangeReaction(
         await WakelockPlus.disable();
       }
     } catch (e) {
-      print(e.toString());
+      // print(e.toString());
     }
   });
 }

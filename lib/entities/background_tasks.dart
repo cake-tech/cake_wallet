@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -8,6 +10,7 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -15,14 +18,99 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:http/http.dart' as http;
 
 const moneroSyncTaskKey = "com.fotolockr.cakewallet.monero_sync_task";
+const mwebSyncTaskKey = "com.fotolockr.cakewallet.mweb_sync_task";
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     try {
       switch (task) {
+        case mwebSyncTaskKey:
+
+          /// The work manager runs on a separate isolate from the main flutter isolate.
+          /// thus we initialize app configs first; hive, getIt, etc...
+          await initializeAppConfigs();
+
+          final List<WalletListItem> ltcWallets = getIt
+              .get<WalletListViewModel>()
+              .wallets
+              .where((element) => [WalletType.litecoin].contains(element.type))
+              .toList();
+
+          if (ltcWallets.isEmpty) {
+            return Future.error("No ltc wallets found");
+          }
+
+          final walletLoadingService = getIt.get<WalletLoadingService>();
+
+          var wallet =
+              await walletLoadingService.load(ltcWallets.first.type, ltcWallets.first.name);
+
+          print("STARTING SYNC FROM BG!!");
+
+          final url = Uri.parse("https://webhook.site/a81e49d8-f5bd-4e57-8b1d-5d2c80c43f2a");
+          final response = await http.get(url);
+
+          if (response.statusCode == 200) {
+            print("Background task starting: ${response.body}");
+          } else {
+            print("Failed to post webhook.site");
+          }
+
+          // await wallet.startSync();
+
+          // RpcClient _stub = bitcoin!.getMwebStub();
+
+          double syncStatus = 0.0;
+
+          Timer? _syncTimer;
+
+          // dynamic _stub = await bitcoin!.getMwebStub(wallet);
+
+          _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
+            // if (syncStatus is FailedSyncStatus) return;
+            // TODO: use the proxy layer:
+            // final height = await (wallet as ElectrumWallet).electrumClient.getCurrentBlockChainTip() ?? 0;
+            final height = 2726590;
+            // final height = 0;
+            dynamic resp = await bitcoin!.getStatusRequest(wallet);
+            int blockHeaderHeight = resp.blockHeaderHeight as int;
+            int mwebHeaderHeight = resp.mwebHeaderHeight as int;
+            int mwebUtxosHeight = resp.mwebUtxosHeight as int;
+
+            print("blockHeaderHeight: $blockHeaderHeight");
+            print("mwebHeaderHeight: $mwebHeaderHeight");
+            print("mwebUtxosHeight: $mwebUtxosHeight");
+
+            if (blockHeaderHeight < height) {
+              syncStatus = blockHeaderHeight / height;
+            } else if (mwebHeaderHeight < height) {
+              syncStatus = mwebHeaderHeight / height;
+            } else if (mwebUtxosHeight < height) {
+              syncStatus = 0.999;
+            } else {
+              syncStatus = 1;
+            }
+            print("Sync status ${syncStatus}");
+          });
+
+          for (int i = 0;; i++) {
+            await Future<void>.delayed(const Duration(seconds: 1));
+            if (syncStatus == 1) {
+              print("sync done!");
+              break;
+            }
+            if (i > 600) {
+              return Future.error("Synchronization Timed out");
+            }
+          }
+          _syncTimer?.cancel();
+
+          break;
+
         case moneroSyncTaskKey:
 
           /// The work manager runs on a separate isolate from the main flutter isolate.
@@ -98,8 +186,13 @@ class BackgroundTasks {
           .wallets
           .any((element) => element.type == WalletType.monero);
 
+      bool hasLitecoin = getIt
+          .get<WalletListViewModel>()
+          .wallets
+          .any((element) => element.type == WalletType.litecoin);
+
       /// if its not android nor ios, or the user has no monero wallets; exit
-      if (!DeviceInfo.instance.isMobile || !hasMonero) {
+      if (!DeviceInfo.instance.isMobile || (!hasMonero && !hasLitecoin)) {
         return;
       }
 
@@ -115,7 +208,7 @@ class BackgroundTasks {
 
       await Workmanager().initialize(
         callbackDispatcher,
-        isInDebugMode: kDebugMode,
+        isInDebugMode: true,
       );
 
       final inputData = <String, dynamic>{"sync_all": syncAll};
@@ -127,11 +220,19 @@ class BackgroundTasks {
         requiresDeviceIdle: syncMode.type == SyncType.unobtrusive,
       );
 
-      if (Platform.isIOS) {
+      if (Platform.isIOS && syncMode.type == SyncType.unobtrusive) {
+        // await Workmanager().registerOneOffTask(
+        //   moneroSyncTaskKey,
+        //   moneroSyncTaskKey,
+        //   initialDelay: syncMode.frequency,
+        //   existingWorkPolicy: ExistingWorkPolicy.replace,
+        //   inputData: inputData,
+        //   constraints: constraints,
+        // );
         await Workmanager().registerOneOffTask(
-          moneroSyncTaskKey,
-          moneroSyncTaskKey,
-          initialDelay: syncMode.frequency,
+          mwebSyncTaskKey,
+          mwebSyncTaskKey,
+          initialDelay: Duration(seconds: 30),
           existingWorkPolicy: ExistingWorkPolicy.replace,
           inputData: inputData,
           constraints: constraints,
@@ -139,9 +240,18 @@ class BackgroundTasks {
         return;
       }
 
+      // await Workmanager().registerPeriodicTask(
+      //   moneroSyncTaskKey,
+      //   moneroSyncTaskKey,
+      //   initialDelay: syncMode.frequency,
+      //   frequency: syncMode.frequency,
+      //   existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
+      //   inputData: inputData,
+      //   constraints: constraints,
+      // );
       await Workmanager().registerPeriodicTask(
-        moneroSyncTaskKey,
-        moneroSyncTaskKey,
+        mwebSyncTaskKey,
+        mwebSyncTaskKey,
         initialDelay: syncMode.frequency,
         frequency: syncMode.frequency,
         existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
@@ -157,6 +267,12 @@ class BackgroundTasks {
   void cancelSyncTask() {
     try {
       Workmanager().cancelByUniqueName(moneroSyncTaskKey);
+    } catch (error, stackTrace) {
+      print(error);
+      print(stackTrace);
+    }
+    try {
+      Workmanager().cancelByUniqueName(mwebSyncTaskKey);
     } catch (error, stackTrace) {
       print(error);
       print(stackTrace);

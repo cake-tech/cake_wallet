@@ -14,4 +14,9 @@ class MethodChannelCwMweb extends CwMwebPlatform {
     final result = await methodChannel.invokeMethod<int>('start', {'dataDir': dataDir});
     return result;
   }
+
+  @override
+  Future<void> stop() async {
+    await methodChannel.invokeMethod<void>('stop');
+  }
 }
