@@ -156,7 +156,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                           items: _getItems(),
                           selectedAtIndex: isPolyseed
                               ? 1
-                              : seedTypeController.value.text.contains("14")
+                              : seedTypeController.value.text.contains("14") && widget.type == WalletType.wownero
                                   ? 2
                                   : 0,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -209,7 +209,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               hasDatePicker: widget.type == WalletType.monero || widget.type == WalletType.wownero,
               walletType: widget.type,
             ),
-          if (widget.displayPassphrase) ...[
+          if (widget.displayPassphrase && !seedTypeController.value.text.contains("14")) ...[
             const SizedBox(height: 10),
             BaseTextFormField(
               hintText: S.current.passphrase,
