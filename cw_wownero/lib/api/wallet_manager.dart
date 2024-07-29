@@ -67,10 +67,12 @@ void restoreWalletFromSeedSync(
       language: seed, // I KNOW - this is supposed to be called seed
       networkType: 0,
     );
-
+    final oldwptr = wptr;
+    wptr = newWptr;
     setRefreshFromBlockHeight(
       height: wownero.WOWNERO_deprecated_14WordSeedHeight(seed: seed),
     );
+    wptr = oldwptr;
   } else {
     txhistory = null;
     newWptr = wownero.WalletManager_recoveryWallet(
