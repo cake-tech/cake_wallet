@@ -32,6 +32,11 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
       server = server ?: Mwebd.newServer("", dataDir, "")
       port = port ?: server?.start(0)
       result.success(port)
+    } else if (call.method == "stop") {
+      server?.stop()
+      server = null
+      port = null
+      result.success(null)
     } else {
       result.notImplemented()
     }
@@ -41,5 +46,6 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
     channel.setMethodCallHandler(null)
     server?.stop()
     server = null
+    port = null
   }
 }

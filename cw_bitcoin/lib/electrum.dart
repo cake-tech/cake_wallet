@@ -356,14 +356,19 @@ class ElectrumClient {
   BehaviorSubject<Map<String, dynamic>>? tipListener;
   int? currentTip;
   Future<int?> getCurrentBlockChainTip() async {
-    final method = 'blockchain.headers.subscribe';
-    final cb = (result) => currentTip = result['height'] as int;
-    if (tipListener == null) {
-      tipListener = subscribe(id: method, method: method);
-      tipListener?.listen(cb);
-      callWithTimeout(method: method).then(cb);
+    try {
+      final method = 'blockchain.headers.subscribe';
+      final cb = (result) => currentTip = result['height'] as int;
+      if (tipListener == null) {
+        tipListener = subscribe(id: method, method: method);
+        tipListener?.listen(cb);
+        callWithTimeout(method: method).then(cb);
+      }
+      return currentTip;
+    } catch (_) {
+      // our websocket connection was likely terminated ungracefully :/
+      return null;
     }
-    return currentTip;
   }
 
   BehaviorSubject<Object>? chainTipSubscribe() {
