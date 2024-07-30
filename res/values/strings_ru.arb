@@ -124,6 +124,7 @@
   "change_rep_successful": "Успешно изменил представитель",
   "change_wallet_alert_content": "Вы хотите изменить текущий кошелек на ${wallet_name}?",
   "change_wallet_alert_title": "Изменить текущий кошелек",
+  "channel_closed": "(Канал закрыт)",
   "choose_account": "Выберите аккаунт",
   "choose_address": "\n\nПожалуйста, выберите адрес:",
   "choose_card_value": "Выберите значение карты",

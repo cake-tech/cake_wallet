@@ -124,6 +124,7 @@
   "change_rep_successful": "Pomyślnie zmienił przedstawiciela",
   "change_wallet_alert_content": "Czy chcesz zmienić obecny portfel na ${wallet_name}?",
   "change_wallet_alert_title": "Zmień obecny portfel",
+  "channel_closed": "(Kanał zamknięty)",
   "choose_account": "Wybierz konto",
   "choose_address": "\n\nWybierz adres:",
   "choose_card_value": "Wybierz wartość karty",

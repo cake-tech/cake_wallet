@@ -124,6 +124,7 @@
   "change_rep_successful": "An samu nasarar canzawa wakilin",
   "change_wallet_alert_content": "Kana so ka canja walat yanzu zuwa ${wallet_name}?",
   "change_wallet_alert_title": "Canja walat yanzu",
+  "channel_closed": "(An rufe tashar)",
   "choose_account": "Zaɓi asusu",
   "choose_address": "\n\n Da fatan za a zaɓi adireshin:",
   "choose_card_value": "Zabi darajar katin",

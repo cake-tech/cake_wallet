@@ -124,6 +124,7 @@
   "change_rep_successful": "Berhasil mengubah perwakilan",
   "change_wallet_alert_content": "Apakah Anda ingin mengganti dompet saat ini ke ${wallet_name}?",
   "change_wallet_alert_title": "Ganti dompet saat ini",
+  "channel_closed": "(Saluran tertutup)",
   "choose_account": "Pilih akun",
   "choose_address": "\n\nSilakan pilih alamat:",
   "choose_card_value": "Pilih nilai kartu",

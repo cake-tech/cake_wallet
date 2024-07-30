@@ -124,6 +124,7 @@
   "change_rep_successful": "تم تغيير ممثل بنجاح",
   "change_wallet_alert_content": "هل تريد تغيير المحفظة الحالية إلى ${wallet_name}؟",
   "change_wallet_alert_title": "تغيير المحفظة الحالية",
+  "channel_closed": "(قناة مغلقة)",
   "choose_account": "اختر حساب",
   "choose_address": "\n\nالرجاء اختيار عنوان:",
   "choose_card_value": "اختر قيمة بطاقة",

@@ -124,6 +124,7 @@
   "change_rep_successful": "Uspješno promijenjena reprezentativna",
   "change_wallet_alert_content": "Želite li promijeniti trenutni novčanik u ${wallet_name}?",
   "change_wallet_alert_title": "Izmijeni trenutni novčanik",
+  "channel_closed": "(Kanal zatvoren)",
   "choose_account": "Odaberi račun",
   "choose_address": "\n\nOdaberite adresu:",
   "choose_card_value": "Odaberite vrijednost kartice",

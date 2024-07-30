@@ -77,6 +77,11 @@ class TransactionListItem extends ActionListItem with Keyable {
         return formattedPendingStatus;
       }
     }
+    if (balanceViewModel.wallet.type == WalletType.lightning) {
+      if (transaction.additionalInfo['isChannelClose'] == true) {
+        return " ${S.current.channel_closed}";
+      }
+    }
     return transaction.isPending ? S.current.pending : '';
   }
 

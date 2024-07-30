@@ -124,6 +124,7 @@
   "change_rep_successful": "सफलतापूर्वक बदलकर प्रतिनिधि",
   "change_wallet_alert_content": "क्या आप करंट वॉलेट को बदलना चाहते हैं ${wallet_name}?",
   "change_wallet_alert_title": "वर्तमान बटुआ बदलें",
+  "channel_closed": "(चैनल बंद)",
   "choose_account": "खाता चुनें",
   "choose_address": "\n\nकृपया पता चुनें:",
   "choose_card_value": "एक कार्ड मूल्य चुनें",

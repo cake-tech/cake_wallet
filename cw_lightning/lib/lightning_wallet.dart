@@ -28,8 +28,6 @@ import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_lightning/.secrets.g.dart' as secrets;
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 part 'lightning_wallet.g.dart';
 
@@ -82,8 +80,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       sideHd: hd.derivePath(sideDerivationPath),
       network: network,
     );
-
-    // transactionHistory = LightningTransactionHistory(walletInfo: walletInfo, password: password);
 
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
@@ -186,6 +182,10 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       unconfirmed: nodeState.maxReceivableMsat ~/ 1000,
       frozen: 0,
     );
+    var refundables = await _sdk.listRefundables();
+    if (refundables.isNotEmpty) {
+      print("Refundables: $refundables");
+    }
   }
 
   Future<void> _handlePayments(List<Payment> payments) async {
@@ -409,16 +409,17 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     Map<String, LightningTransactionInfo> transactions = {};
 
     for (Payment tx in payments) {
-      if (tx.paymentType == PaymentType.ClosedChannel) {
-        continue;
-      }
+      // if (tx.paymentType == PaymentType.ClosedChannel) {
+      //   continue;
+      // }
 
       bool pending = tx.status == PaymentStatus.Pending;
       if (tx.status == PaymentStatus.Complete) {
         pending = false;
       }
 
-      bool isSend = tx.paymentType == PaymentType.Sent;
+      bool isSend =
+          tx.paymentType == PaymentType.Sent || tx.paymentType == PaymentType.ClosedChannel;
       transactions[tx.id] = LightningTransactionInfo(
         isPending: pending,
         id: tx.id,
@@ -426,6 +427,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         fee: tx.feeMsat ~/ 1000,
         date: DateTime.fromMillisecondsSinceEpoch(tx.paymentTime * 1000),
         direction: isSend ? TransactionDirection.outgoing : TransactionDirection.incoming,
+        isChannelClose: tx.paymentType == PaymentType.ClosedChannel,
       );
     }
     return transactions;

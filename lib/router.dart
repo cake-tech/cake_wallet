@@ -55,9 +55,8 @@ import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
-import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
-import 'package:cake_wallet/src/screens/send/lightning_send_confirm_page.dart';
+import 'package:cake_wallet/src/screens/send/lightning_refund_page.dart';
 import 'package:cake_wallet/src/screens/send/lightning_send_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
@@ -662,15 +661,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true,
           builder: (_) => getIt.get<LightningSendPage>(param1: settings.arguments as String?));
 
-    case Routes.lightningSendConfirm:
-      final args = settings.arguments as Map<String, dynamic>;
+    case Routes.lightningRefund:
       return CupertinoPageRoute<void>(
-        fullscreenDialog: true,
-        builder: (_) => getIt.get<LightningSendConfirmPage>(
-          param1: args['invoice'] as LNInvoice?,
-          param2: args['btcAddress'] as String?,
-        ),
-      );
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<LightningRefundPage>(param1: settings.arguments as String?));
 
     case Routes.lightningReceiveOnchain:
       final args = settings.arguments as List;

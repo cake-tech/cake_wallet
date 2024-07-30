@@ -124,6 +124,7 @@
   "change_rep_successful": "代表者の変更に成功しました",
   "change_wallet_alert_content": "現在のウォレットをに変更しますか ${wallet_name}?",
   "change_wallet_alert_title": "現在のウォレットを変更する",
+  "channel_closed": "（チャネル閉じて）",
   "choose_account": "アカウントを選択",
   "choose_address": "\n\n住所を選択してください：",
   "choose_card_value": "カード値を選択します",

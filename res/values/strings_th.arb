@@ -124,6 +124,7 @@
   "change_rep_successful": "เปลี่ยนตัวแทนสำเร็จ",
   "change_wallet_alert_content": "คุณต้องการเปลี่ยนกระเป๋าปัจจุบันเป็น ${wallet_name} หรือไม่?",
   "change_wallet_alert_title": "เปลี่ยนกระเป๋าปัจจุบัน",
+  "channel_closed": "(ปิดช่อง)",
   "choose_account": "เลือกบัญชี",
   "choose_address": "\n\nโปรดเลือกที่อยู่:",
   "choose_card_value": "เลือกค่าบัตร",

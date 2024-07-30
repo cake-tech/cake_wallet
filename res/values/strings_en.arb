@@ -124,6 +124,7 @@
   "change_rep_successful": "Successfully changed representative",
   "change_wallet_alert_content": "Do you want to change current wallet to ${wallet_name}?",
   "change_wallet_alert_title": "Change current wallet",
+  "channel_closed": "(Channel Closed)",
   "choose_account": "Choose account",
   "choose_address": "\n\nPlease choose the address:",
   "choose_card_value": "Choose a card value",

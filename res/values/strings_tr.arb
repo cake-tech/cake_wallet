@@ -124,6 +124,7 @@
   "change_rep_successful": "Temsilciyi başarıyla değiştirdi",
   "change_wallet_alert_content": "Şimdiki cüzdanı ${wallet_name} cüzdanı ile değiştirmek istediğinden emin misin?",
   "change_wallet_alert_title": "Şimdiki cüzdanı değiştir",
+  "channel_closed": "(Kanal kapalı)",
   "choose_account": "Hesabı seç",
   "choose_address": "\n\nLütfen adresi seçin:",
   "choose_card_value": "Bir kart değeri seçin",

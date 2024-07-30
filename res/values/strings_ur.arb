@@ -124,6 +124,7 @@
   "change_rep_successful": "نمائندہ کو کامیابی کے ساتھ تبدیل کیا",
   "change_wallet_alert_content": "کیا آپ موجودہ والیٹ کو ${wallet_name} میں تبدیل کرنا چاہتے ہیں؟",
   "change_wallet_alert_title": "موجودہ پرس تبدیل کریں۔",
+  "channel_closed": "(چینل بند)",
   "choose_account": "اکاؤنٹ کا انتخاب کریں۔",
   "choose_address": "\\n\\nبراہ کرم پتہ منتخب کریں:",
   "choose_card_value": "کارڈ کی قیمت کا انتخاب کریں",

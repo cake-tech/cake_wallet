@@ -12,6 +12,7 @@ class LightningTransactionInfo extends ElectrumTransactionInfo {
     required TransactionDirection direction,
     required bool isPending,
     required DateTime date,
+    required bool isChannelClose,
   }) : super(
           WalletType.lightning,
           amount: amount,
@@ -22,7 +23,9 @@ class LightningTransactionInfo extends ElectrumTransactionInfo {
           id: id,
           confirmations: 0,
           height: 0,
-        ) {}
+        ) {
+          additionalInfo['isChannelClose'] = isChannelClose;
+        }
 
   @override
   String amountFormatted() =>
@@ -41,6 +44,7 @@ class LightningTransactionInfo extends ElectrumTransactionInfo {
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       isPending: data['isPending'] as bool,
+      isChannelClose: data['isChannelClose'] as bool,
     );
   }
 
@@ -55,6 +59,7 @@ class LightningTransactionInfo extends ElectrumTransactionInfo {
     // to remain compatible with electrumTx's when loaded from a file:
     m['height'] = super.height;
     m['confirmations'] = super.confirmations;
+    m['isChannelClose'] = additionalInfo['isChannelClose'];
     return m;
   }
 }

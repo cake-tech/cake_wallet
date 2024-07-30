@@ -30,6 +30,7 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
+import 'package:cake_wallet/src/screens/send/lightning_refund_page.dart';
 import 'package:cake_wallet/view_model/lightning_send_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
@@ -89,7 +90,6 @@ import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/receive/lightning_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/lightning_receive_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
-import 'package:cake_wallet/src/screens/send/lightning_send_confirm_page.dart';
 import 'package:cake_wallet/src/screens/send/lightning_send_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/src/screens/receive/receive_page.dart';
@@ -1261,12 +1261,17 @@ Future<void> setup({
     );
   });
 
-  getIt.registerFactoryParam<LightningSendConfirmPage, LNInvoice?, String?>(
-      (LNInvoice? invoice, String? btcAddress) {
-    return LightningSendConfirmPage(
-      invoice: invoice,
-      btcAddress: btcAddress,
+  getIt.registerFactoryParam<LightningRefundPage, String?, void>((String? address, _) {
+    return LightningRefundPage(
+      output: Output(
+        getIt.get<AppStore>().wallet!,
+        getIt.get<SettingsStore>(),
+        getIt.get<FiatConversionStore>(),
+        () => CryptoCurrency.btcln,
+      ),
+      authService: getIt.get<AuthService>(),
       lightningSendViewModel: getIt.get<LightningSendViewModel>(),
+      address: address,
     );
   });
 
