@@ -52,6 +52,12 @@ class WalletLoadingService {
     } catch (error, stack) {
       ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
 
+      // try fetching the seeds of the corrupted wallet to show it to the user
+      String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
+      try {
+        corruptedWalletsSeeds += await _getCorruptedWalletSeeds(name, type);
+      } catch (_) {}
+
       // try opening another wallet that is not corrupted to give user access to the app
       final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
 
@@ -69,12 +75,23 @@ class WalletLoadingService {
           await sharedPreferences.setInt(
               PreferencesKey.currentWalletType, serializeToInt(wallet.type));
 
+          // if found a wallet that is not corrupted, then still display the seeds of the corrupted ones
+          ExceptionHandler.showError(corruptedWalletsSeeds, delayInSeconds: 3);
+
           return wallet;
-        } catch (_) {}
+        } catch (_) {
+          // save seeds and show corrupted wallets' seeds to the user
+          try {
+            final seeds = await _getCorruptedWalletSeeds(walletInfo.name, walletInfo.type);
+            if (!corruptedWalletsSeeds.contains(seeds)) {
+              corruptedWalletsSeeds += seeds;
+            }
+          } catch (_) {}
+        }
       }
 
       // if all user's wallets are corrupted throw exception
-      throw error;
+      throw error.toString() + "\n\n" + corruptedWalletsSeeds;
     }
   }
 
@@ -95,5 +112,12 @@ class WalletLoadingService {
     await keyService.saveWalletPassword(walletName: wallet.name, password: password);
     isPasswordUpdated = true;
     await sharedPreferences.setBool(key, isPasswordUpdated);
+  }
+
+  Future<String> _getCorruptedWalletSeeds(String name, WalletType type) async {
+    final walletService = walletServiceFactory.call(type);
+    final password = await keyService.getWalletPassword(walletName: name);
+
+    return "\n\n$type ($name): ${await walletService.getSeeds(name, password, type)}";
   }
 }
