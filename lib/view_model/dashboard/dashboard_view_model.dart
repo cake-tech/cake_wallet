@@ -187,7 +187,8 @@ abstract class DashboardViewModelBase with Store {
 
       final _accountTransactions = _wallet.transactionHistory.transactions.values
           .where((tx) =>
-              wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+              wow.wownero!.getTransactionInfoAccountId(tx) ==
+              wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
       final sortedTransactions = [..._accountTransactions];
@@ -209,6 +210,7 @@ abstract class DashboardViewModelBase with Store {
 
     if (wallet.type == WalletType.lightning) {
       _onLightningBalanceChangeReaction?.reaction.dispose();
+      // trigger reaction when transactionHistory is updated:
       _onLightningBalanceChangeReaction = autorun((_) {
         // intentionally unused variable to get the reaction to trigger:
         var transactions = appStore.wallet!.transactionHistory.transactions;
@@ -231,6 +233,14 @@ abstract class DashboardViewModelBase with Store {
         }
         lightning!.clearIncomingPayments(wallet);
       });
+
+      // these do not work and I'm not sure why :/
+      // reaction((_) => appStore.wallet!.transactionHistory.transactions.length, (_) {
+      //   print("TRANSACTION HISTORY UPDATED 1111111111");
+      // });
+      // reaction((_) => appStore.wallet!.transactionHistory, (_) {
+      //   print("TRANSACTION HISTORY UPDATED 2222222222");
+      // });
     }
 
     // TODO: nano sub-account generation is disabled:
@@ -591,7 +601,8 @@ abstract class DashboardViewModelBase with Store {
       }
 
       if (wallet.type == WalletType.wownero) {
-        return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
+        return wow.wownero!.getTransactionInfoAccountId(tx) ==
+            wow.wownero!.getCurrentAccount(wallet).id;
       }
 
       return true;
@@ -616,8 +627,8 @@ abstract class DashboardViewModelBase with Store {
           .getTransactionHistory(wallet)
           .transactions
           .values
-          .where(
-              (tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
+          .where((tx) =>
+              monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
@@ -629,8 +640,9 @@ abstract class DashboardViewModelBase with Store {
           .getTransactionHistory(wallet)
           .transactions
           .values
-          .where(
-              (tx) => wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+          .where((tx) =>
+              wow.wownero!.getTransactionInfoAccountId(tx) ==
+              wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(

@@ -117,10 +117,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   ObservableMap<CryptoCurrency, LightningBalance> get balance => _balance;
 
   static Future<Uint8List> toSeedBytes(String mnemonic) async {
-    // // force bip39:
-    // var seedBytes = await bip39.mnemonicToSeed(mnemonic);
-    // print(seedBytes);
-    // return seedBytes;
     // electrum:
     if (validateMnemonic(mnemonic)) {
       return await mnemonicToSeedBytes(mnemonic);
