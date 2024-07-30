@@ -123,5 +123,11 @@ class CWLightning extends Lightning {
   TransactionPriority deserializeLightningTransactionPriority({required int raw}) =>
       LightningTransactionPriority.deserialize(raw: raw);
 
+  @override
   String getBreezApiKey() => secrets.breezApiKey;
+
+  @override
+  int getOnchainBalance(Object wallet) {
+    return (wallet as LightningWallet).balance[CryptoCurrency.btcln]?.frozen ?? 0;
+  }
 }

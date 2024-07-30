@@ -629,8 +629,6 @@ class LightningSendPage extends BasePage {
     lightningSendViewModel.estimateFeeSats();
 
     _amountController.addListener(() {
-      print("@@@@@@@@@@@@");
-      print(_amountController.text);
       final amount = _amountController.text;
       if (amount.isNotEmpty) {
         _fiatAmountController.text = lightningSendViewModel.formattedFiatAmount(int.parse(amount));

@@ -998,6 +998,7 @@ abstract class Polygon {
 Future<void> generateLightning(bool hasImplementation) async {
   final outputFile = File(lightningOutputPath);
   const lightningCommonHeaders = """
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -1045,6 +1046,7 @@ abstract class Lightning {
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority deserializeLightningTransactionPriority({required int raw});
   String getBreezApiKey();
+  int getOnchainBalance(Object wallet);
 }
   """;
 

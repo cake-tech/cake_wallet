@@ -180,12 +180,11 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     _balance[CryptoCurrency.btcln] = LightningBalance(
       confirmed: nodeState.maxPayableMsat ~/ 1000,
       unconfirmed: nodeState.maxReceivableMsat ~/ 1000,
-      frozen: 0,
+      frozen: nodeState.onchainBalanceMsat ~/ 1000,
     );
-    var refundables = await _sdk.listRefundables();
-    if (refundables.isNotEmpty) {
-      print("Refundables: $refundables");
-    }
+    // var refundables = await _sdk.listRefundables();
+    // print("Refundables @@@@@@@@@@@@@@@@@@@: $refundables");
+    // print(refundables.length);
   }
 
   Future<void> _handlePayments(List<Payment> payments) async {
@@ -409,10 +408,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     Map<String, LightningTransactionInfo> transactions = {};
 
     for (Payment tx in payments) {
-      // if (tx.paymentType == PaymentType.ClosedChannel) {
-      //   continue;
-      // }
-
       bool pending = tx.status == PaymentStatus.Pending;
       if (tx.status == PaymentStatus.Complete) {
         pending = false;

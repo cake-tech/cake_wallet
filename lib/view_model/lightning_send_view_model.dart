@@ -205,15 +205,6 @@ abstract class LightningSendViewModelBase with Store {
         throw Exception("Amount is outside of liquidity limits!");
       }
 
-      late int feeRate;
-
-      if (settingsStore.priority[WalletType.lightning] ==
-          lightning!.getLightningTransactionPriorityCustom()) {
-        feeRate = settingsStore.customBitcoinFeeRate;
-      } else {
-        feeRate = lightning!.getFeeRate(wallet, settingsStore.priority[WalletType.lightning]!);
-      }
-
       BZG.PrepareOnchainPaymentResponse prepareRes = await _sdk.prepareOnchainPayment(
         req: BZG.PrepareOnchainPaymentRequest(
           amountSat: satAmount,
@@ -236,6 +227,44 @@ abstract class LightningSendViewModelBase with Store {
         throw Exception("Payment cancelled / error");
       }
 
+      setLoading(false);
+    } catch (e) {
+      setLoading(false);
+      rethrow;
+    }
+  }
+
+  int get feeRate {
+    late int feeRate;
+    if (settingsStore.priority[WalletType.lightning] ==
+        lightning!.getLightningTransactionPriorityCustom()) {
+      feeRate = settingsStore.customBitcoinFeeRate;
+    } else {
+      feeRate = lightning!.getFeeRate(wallet, settingsStore.priority[WalletType.lightning]!);
+    }
+    return feeRate;
+  }
+
+  @action
+  Future<void> prepareRefundBtc(String address) async {
+    BZG.PrepareRedeemOnchainFundsRequest req = BZG.PrepareRedeemOnchainFundsRequest(
+      toAddress: address,
+      satPerVbyte: feeRate,
+    );
+    final res = await _sdk.prepareRedeemOnchainFunds(req: req);
+    estimatedFeeSats = res.txFeeSat;
+  }
+
+  @action
+  Future<void> refundBtc(String address) async {
+    try {
+      setLoading(true);
+      BZG.RedeemOnchainFundsRequest req = BZG.RedeemOnchainFundsRequest(
+        toAddress: address,
+        satPerVbyte: feeRate,
+      );
+      final res = await _sdk.redeemOnchainFunds(req: req);
+      print(res.txid);
       setLoading(false);
     } catch (e) {
       setLoading(false);

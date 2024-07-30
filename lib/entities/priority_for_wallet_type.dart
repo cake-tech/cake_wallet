@@ -17,6 +17,8 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return wownero!.getTransactionPriorities();
     case WalletType.bitcoin:
       return bitcoin!.getTransactionPriorities();
+    case WalletType.lightning:
+      return lightning!.getTransactionPriorities();
     case WalletType.litecoin:
       return bitcoin!.getLitecoinTransactionPriorities();
     case WalletType.haven:
@@ -32,8 +34,7 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
     case WalletType.banano:
     case WalletType.solana:
     case WalletType.tron:
-      return [];
-    default:
+    case WalletType.none:
       return [];
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
-import 'package:cw_core/balance.dart';
 
 class LightningBalance extends ElectrumBalance {
   LightningBalance({required this.confirmed, required this.unconfirmed, required this.frozen})
@@ -19,9 +18,10 @@ class LightningBalance extends ElectrumBalance {
     final decoded = json.decode(jsonSource) as Map;
 
     return LightningBalance(
-        confirmed: decoded['confirmed'] as int? ?? 0,
-        unconfirmed: decoded['unconfirmed'] as int? ?? 0,
-        frozen: decoded['frozen'] as int? ?? 0);
+      confirmed: decoded['confirmed'] as int? ?? 0,
+      unconfirmed: decoded['unconfirmed'] as int? ?? 0,
+      frozen: decoded['frozen'] as int? ?? 0,
+    );
   }
 
   final int confirmed;

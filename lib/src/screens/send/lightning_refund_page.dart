@@ -209,187 +209,73 @@ class LightningRefundPage extends BasePage {
                         },
                         selectedCurrency: CryptoCurrency.btc,
                       ),
-                      SizedBox(height: 24),
-                      Observer(builder: (_) {
-                        final invoiceSats = lightningSendViewModel.invoice?.amountMsat ?? null;
-                        if (invoiceSats != null) {
-                          _amountController.text = lightning!
-                              .bitcoinAmountToLightningString(amount: invoiceSats ~/ 1000)
-                              .replaceAll(",", "");
-                        }
-                        return Column(
-                          children: [
-                            if (invoiceSats == null)
-                              Observer(builder: (_) {
-                                return AnonpayCurrencyInputField(
-                                  controller: _amountController,
-                                  focusNode: _amountFocus,
-                                  minAmount: lightningSendViewModel.btcAddress.isNotEmpty
-                                      ? lightningSendViewModel.minSats.toString()
-                                      : '',
-                                  maxAmount: lightningSendViewModel.btcAddress.isNotEmpty
-                                      ? lightningSendViewModel.maxSats.toString()
-                                      : '',
-                                  selectedCurrency: CryptoCurrency.btcln,
-                                );
-                              })
-                            else
-                              BaseTextFormField(
-                                enabled: false,
-                                borderColor: Theme.of(context)
-                                    .extension<ExchangePageTheme>()!
-                                    .textFieldBorderTopPanelColor,
-                                suffixIcon: SizedBox(width: 36),
-                                initialValue:
-                                    "sats: ${lightning!.bitcoinAmountToLightningString(amount: invoiceSats ~/ 1000)}",
-                                placeholderTextStyle: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context)
-                                      .extension<ExchangePageTheme>()!
-                                      .hintTextColor,
-                                ),
-                                textStyle: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                                validator: null,
-                              ),
-                            SizedBox(height: 12),
-                            BaseTextFormField(
-                              enabled: false,
-                              controller: _fiatAmountController,
-                              prefixIcon: Padding(
-                                padding: EdgeInsets.only(top: 13),
-                                child: Text(
-                                  lightningSendViewModel.fiat.title + ':',
+                      SizedBox(height: 12),
+                      Observer(
+                        builder: (_) => GestureDetector(
+                          onTap: () => pickTransactionPriority(context),
+                          child: Container(
+                            padding: EdgeInsets.only(top: 24),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  S.of(context).send_estimated_fee,
                                   style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white.withAlpha(160),
-                                  ),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white),
                                 ),
-                              ),
-                              borderColor: Theme.of(context)
-                                  .extension<ExchangePageTheme>()!
-                                  .textFieldBorderTopPanelColor,
-                              suffixIcon: SizedBox(width: 36),
-                              placeholderTextStyle: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color:
-                                    Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
-                              ),
-                              textStyle: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white.withAlpha(160),
-                              ),
-                              validator: null,
-                            ),
-                            SizedBox(height: 12),
-                            Observer(builder: (_) {
-                              if (lightningSendViewModel.invoice?.description?.isEmpty ?? true) {
-                                return SizedBox();
-                              }
-
-                              return Column(
-                                children: [
-                                  BaseTextFormField(
-                                    enabled: false,
-                                    initialValue:
-                                        "${S.of(context).description}: ${lightningSendViewModel.invoice?.description}",
-                                    textInputAction: TextInputAction.next,
-                                    borderColor: Theme.of(context)
-                                        .extension<ExchangePageTheme>()!
-                                        .textFieldBorderTopPanelColor,
-                                    suffixIcon: SizedBox(width: 36),
-                                    placeholderTextStyle: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context)
-                                          .extension<ExchangePageTheme>()!
-                                          .hintTextColor,
-                                    ),
-                                    textStyle: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white),
-                                    validator: null,
-                                  ),
-                                  SizedBox(height: 12),
-                                ],
-                              );
-                            }),
-                            if (lightningSendViewModel.btcAddress.isNotEmpty) ...[
-                              Observer(
-                                builder: (_) => GestureDetector(
-                                  onTap: () => pickTransactionPriority(context),
-                                  child: Container(
-                                    padding: EdgeInsets.only(top: 24),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Text(
-                                          S.of(context).send_estimated_fee,
-                                          style: TextStyle(
+                                Container(
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            "${lightningSendViewModel.estimatedFeeSats} ${lightningSendViewModel.currency.toString()}",
+                                            style: TextStyle(
                                               fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.white),
-                                        ),
-                                        Container(
-                                          child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Column(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.end,
-                                                children: [
-                                                  Text(
-                                                    "${lightningSendViewModel.estimatedFeeSats} ${lightningSendViewModel.currency.toString()}",
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 5),
+                                            child: lightningSendViewModel.isFiatDisabled
+                                                ? const SizedBox(height: 14)
+                                                : Text(
+                                                    "${lightningSendViewModel.estimatedFeeFiatAmount} ${lightningSendViewModel.fiat.title}",
                                                     style: TextStyle(
                                                       fontSize: 12,
                                                       fontWeight: FontWeight.w600,
-                                                      color: Colors.white,
+                                                      color: Theme.of(context)
+                                                          .extension<SendPageTheme>()!
+                                                          .textFieldHintColor,
                                                     ),
                                                   ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(top: 5),
-                                                    child: lightningSendViewModel.isFiatDisabled
-                                                        ? const SizedBox(height: 14)
-                                                        : Text(
-                                                            "${lightningSendViewModel.estimatedFeeFiatAmount} ${lightningSendViewModel.fiat.title}",
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                              fontWeight: FontWeight.w600,
-                                                              color: Theme.of(context)
-                                                                  .extension<SendPageTheme>()!
-                                                                  .textFieldHintColor,
-                                                            ),
-                                                          ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.only(top: 2, left: 5),
-                                                child: Icon(
-                                                  Icons.arrow_forward_ios,
-                                                  size: 12,
-                                                  color: Colors.white,
-                                                ),
-                                              )
-                                            ],
                                           ),
-                                        )
-                                      ],
-                                    ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 2, left: 5),
+                                        child: Icon(
+                                          Icons.arrow_forward_ios,
+                                          size: 12,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    ],
                                   ),
-                                ),
-                              ),
-                              SizedBox(height: 24),
-                            ],
-                          ],
-                        );
-                      }),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 12),
                     ],
                   ),
                 ),
@@ -400,53 +286,13 @@ class LightningRefundPage extends BasePage {
                   children: <Widget>[
                     Observer(
                       builder: (context) {
-                        if (lightningSendViewModel.maxSats <= lightningSendViewModel.minSats &&
-                            lightningSendViewModel.btcAddress.isNotEmpty) {
-                          return Container(
-                            padding: const EdgeInsets.only(top: 12, bottom: 12, right: 6),
-                            margin: const EdgeInsets.only(left: 24, right: 24, bottom: 48),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(15)),
-                              color: Color.fromARGB(255, 170, 147, 30),
-                              border: Border.all(
-                                color: Color.fromARGB(178, 223, 214, 0),
-                                width: 2,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Container(
-                                  width: 48,
-                                  height: 48,
-                                  margin: EdgeInsets.only(left: 12, bottom: 48, right: 20),
-                                  child: Image.asset(
-                                    "assets/images/warning.png",
-                                    color: Color.fromARGB(128, 255, 255, 255),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    S.current.lightning_swap_out_error,
-                                    maxLines: 5,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Theme.of(context)
-                                          .extension<DashboardPageTheme>()!
-                                          .textColor,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-
                         return LoadingPrimaryButton(
-                          text: S.of(context).send,
+                          text: S.current.send,
                           onPressed: () async {
                             try {
+                              await lightningSendViewModel
+                                  .prepareRefundBtc(lightningSendViewModel.btcAddress);
+
                               bool cancel = await showPopUp<bool>(
                                       context: context,
                                       builder: (BuildContext _dialogContext) {
@@ -460,21 +306,13 @@ class LightningRefundPage extends BasePage {
                                         );
                                         String feeValue = '';
                                         String feeFiatAmount = '';
-                                        if (lightningSendViewModel.invoice != null) {
-                                          output.address = lightningSendViewModel.invoice!.bolt11;
-                                          output.cryptoAmount =
-                                              "${lightningSendViewModel.satAmount.toString()} sats";
-                                        } else if (lightningSendViewModel.btcAddress.isNotEmpty) {
-                                          output.address = lightningSendViewModel.btcAddress;
-                                          feeValue =
-                                              lightningSendViewModel.estimatedFeeSats.toString();
-                                          feeFiatAmount =
-                                              lightningSendViewModel.formattedFiatAmount(
-                                                  lightningSendViewModel.estimatedFeeSats);
-                                          output.cryptoAmount = "${_amountController.text} sats";
-                                        } else {
-                                          throw Exception("Input cannot be empty");
-                                        }
+
+                                        output.address = lightningSendViewModel.btcAddress;
+                                        feeValue =
+                                            lightningSendViewModel.estimatedFeeSats.toString();
+                                        feeFiatAmount = lightningSendViewModel.formattedFiatAmount(
+                                            lightningSendViewModel.estimatedFeeSats);
+                                        output.cryptoAmount = "${_amountController.text} sats";
                                         output.fiatAmount = lightningSendViewModel
                                             .formattedFiatAmount(int.parse(_amountController.text));
 
@@ -504,15 +342,8 @@ class LightningRefundPage extends BasePage {
                                 return;
                               }
 
-                              if (lightningSendViewModel.invoice != null) {
-                                await lightningSendViewModel.sendInvoice(
-                                    lightningSendViewModel.invoice!,
-                                    int.parse(_amountController.text));
-                              } else if (lightningSendViewModel.btcAddress.isNotEmpty) {
-                                await lightningSendViewModel.sendBtc(
-                                    lightningSendViewModel.btcAddress,
-                                    int.parse(_amountController.text));
-                              }
+                              await lightningSendViewModel
+                                  .refundBtc(lightningSendViewModel.btcAddress);
 
                               await showPopUp<void>(
                                   context: context,
@@ -628,18 +459,17 @@ class LightningRefundPage extends BasePage {
     lightningSendViewModel.fetchFees();
     lightningSendViewModel.estimateFeeSats();
 
-    _amountController.addListener(() {
-      print("@@@@@@@@@@@@");
-      print(_amountController.text);
-      final amount = _amountController.text;
-      if (amount.isNotEmpty) {
-        _fiatAmountController.text = lightningSendViewModel.formattedFiatAmount(int.parse(amount));
-        lightningSendViewModel.setCryptoAmount(int.parse(amount));
-      }
-    });
+    int redeemableBalance = lightning!.getOnchainBalance(lightningSendViewModel.wallet);
+    // ensure we can calculate the fee because the breez api thinks we're doing a swap-out:
+    // 60k is arbitrary but we don't have any way of knowing the actual minimum
+    if (redeemableBalance < 60000) {
+      redeemableBalance = 60000;
+    }
+    lightningSendViewModel.setCryptoAmount(redeemableBalance);
 
     _invoiceController.addListener(() async {
-      lightningSendViewModel.processSilently(_invoiceController.text);
+      await lightningSendViewModel.processSilently(_invoiceController.text);
+      await lightningSendViewModel.prepareRefundBtc(lightningSendViewModel.btcAddress);
     });
 
     _effectsInstalled = true;

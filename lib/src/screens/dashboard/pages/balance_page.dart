@@ -250,6 +250,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                         additionalBalance: balance.additionalBalance,
                         additionalFiatBalance: balance.fiatAdditionalBalance,
                         frozenBalance: balance.frozenBalance,
+                        frozenBalanceLabel: 
+                            '${dashboardViewModel.balanceViewModel.frozenBalanceLabel}',
                         frozenFiatBalance: balance.fiatFrozenBalance,
                         currency: balance.asset,
                         hasAdditionalBalance:
@@ -373,13 +375,14 @@ class CryptoBalanceWidget extends StatelessWidget {
 
 class BalanceRowWidget extends StatelessWidget {
   BalanceRowWidget({
-    required this.availableBalanceLabel,
     required this.availableBalance,
+    required this.availableBalanceLabel,
     required this.availableFiatBalance,
-    required this.additionalBalanceLabel,
     required this.additionalBalance,
+    required this.additionalBalanceLabel,
     required this.additionalFiatBalance,
     required this.frozenBalance,
+    required this.frozenBalanceLabel,
     required this.frozenFiatBalance,
     required this.currency,
     required this.hasAdditionalBalance,
@@ -387,13 +390,14 @@ class BalanceRowWidget extends StatelessWidget {
     super.key,
   });
 
-  final String availableBalanceLabel;
   final String availableBalance;
+  final String availableBalanceLabel;
   final String availableFiatBalance;
-  final String additionalBalanceLabel;
   final String additionalBalance;
+  final String additionalBalanceLabel;
   final String additionalFiatBalance;
   final String frozenBalance;
+  final String frozenBalanceLabel;
   final String frozenFiatBalance;
   final CryptoCurrency currency;
   final bool hasAdditionalBalance;
@@ -548,7 +552,7 @@ class BalanceRowWidget extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          S.current.unavailable_balance,
+                          frozenBalanceLabel,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 12,
