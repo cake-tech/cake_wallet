@@ -211,14 +211,8 @@ abstract class DashboardViewModelBase with Store {
     if (wallet.type == WalletType.lightning) {
       _onLightningBalanceChangeReaction?.reaction.dispose();
       // trigger reaction when transactionHistory is updated:
-      _onLightningBalanceChangeReaction = autorun((_) {
-        // intentionally unused variable to get the reaction to trigger:
-        var transactions = appStore.wallet!.transactionHistory.transactions;
-        if (transactions.isEmpty) {
-          // this intentionally does nothing but we need to use the variable
-          // to get the reaction to trigger
-        }
-
+      _onLightningBalanceChangeReaction =
+          reaction((_) => appStore.wallet!.transactionHistory.transactions.length, (_) {
         Map<String, int> payments = lightning!.getIncomingPayments(wallet);
 
         for (int amount in payments.values) {
@@ -233,14 +227,6 @@ abstract class DashboardViewModelBase with Store {
         }
         lightning!.clearIncomingPayments(wallet);
       });
-
-      // these do not work and I'm not sure why :/
-      // reaction((_) => appStore.wallet!.transactionHistory.transactions.length, (_) {
-      //   print("TRANSACTION HISTORY UPDATED 1111111111");
-      // });
-      // reaction((_) => appStore.wallet!.transactionHistory, (_) {
-      //   print("TRANSACTION HISTORY UPDATED 2222222222");
-      // });
     }
 
     // TODO: nano sub-account generation is disabled:

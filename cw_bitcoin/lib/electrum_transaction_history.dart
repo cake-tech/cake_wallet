@@ -86,5 +86,7 @@ abstract class ElectrumTransactionHistoryBase
   }
 
   @action
-  void _update(ElectrumTransactionInfo transaction) => transactions[transaction.id] = transaction;
+  void _update(ElectrumTransactionInfo transaction) {
+    transactions.update(transaction.id, (_) => transaction, ifAbsent: () => transaction);
+  }
 }
