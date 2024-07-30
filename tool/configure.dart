@@ -262,6 +262,7 @@ import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
+import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
@@ -377,6 +378,7 @@ abstract class Monero {
   double formatterMoneroAmountToDouble({required int amount});
   int formatterMoneroParseAmount({required String amount});
   Account getCurrentAccount(Object wallet);
+  void monerocCheck();
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
@@ -449,6 +451,7 @@ import 'package:cw_wownero/wownero_transaction_info.dart';
 import 'package:cw_wownero/wownero_transaction_creation_credentials.dart';
 import 'package:cw_core/account.dart' as wownero_account;
 import 'package:cw_wownero/api/wallet.dart' as wownero_wallet_api;
+import 'package:cw_wownero/api/wallet_manager.dart';
 import 'package:cw_wownero/mnemonics/english.dart';
 import 'package:cw_wownero/mnemonics/chinese_simplified.dart';
 import 'package:cw_wownero/mnemonics/dutch.dart';
@@ -540,6 +543,7 @@ abstract class Wownero {
   Future<void> updateUnspents(Object wallet);
 
   Future<int> getCurrentHeight();
+  void wownerocCheck();
 
   WalletCredentials createWowneroRestoreWalletFromKeysCredentials({
     required String name,

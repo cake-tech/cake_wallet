@@ -11,6 +11,7 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -334,6 +335,28 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.monero ||
       wallet.type == WalletType.wownero ||
       wallet.type == WalletType.haven;
+
+  @computed
+  String? get getMoneroError {
+    if (wallet.type != WalletType.monero) return null;
+    try {
+      monero!.monerocCheck();
+    } catch (e) {
+      return e.toString();
+    }
+    return null;
+  }
+
+  @computed
+  String? get getWowneroError {
+    if (wallet.type != WalletType.wownero) return null;
+    try {
+      wow.wownero!.wownerocCheck();
+    } catch (e) {
+      return e.toString();
+    }
+    return null;
+  }
 
   @computed
   bool get hasSilentPayments => wallet.type == WalletType.bitcoin && !wallet.isHardwareWallet;
