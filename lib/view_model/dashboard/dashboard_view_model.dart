@@ -31,6 +31,7 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -167,6 +168,29 @@ abstract class DashboardViewModelBase with Store {
           transaction: transaction,
           balanceViewModel: balanceViewModel,
           settingsStore: appStore.settingsStore)));
+    } else if (_wallet.type == WalletType.wownero) {
+      subname = wow.wownero!.getCurrentAccount(_wallet).label;
+
+      _onMoneroAccountChangeReaction = reaction(
+          (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
+          (wow.Account account) => _onMoneroAccountChange(_wallet));
+
+      _onMoneroBalanceChangeReaction = reaction(
+          (_) => wow.wownero!.getWowneroWalletDetails(wallet).balance,
+          (wow.WowneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
+
+      final _accountTransactions = _wallet.transactionHistory.transactions.values
+          .where((tx) =>
+              wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+          .toList();
+
+      final sortedTransactions = [..._accountTransactions];
+      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
+
+      transactions = ObservableList.of(sortedTransactions.map((transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore)));
     } else {
       final sortedTransactions = [...wallet.transactionHistory.transactions.values];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
@@ -199,6 +223,10 @@ abstract class DashboardViewModelBase with Store {
       if (wallet.type == WalletType.monero) {
         return monero!.getTransactionInfoAccountId(transaction) ==
             monero!.getCurrentAccount(wallet).id;
+      }
+      if (wallet.type == WalletType.wownero) {
+        return wow.wownero!.getTransactionInfoAccountId(transaction) ==
+            wow.wownero!.getCurrentAccount(wallet).id;
       }
 
       return true;
@@ -308,7 +336,7 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.haven;
 
   @computed
-  bool get hasSilentPayments => wallet.type == WalletType.bitcoin;
+  bool get hasSilentPayments => wallet.type == WalletType.bitcoin && !wallet.isHardwareWallet;
 
   @computed
   bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
@@ -460,6 +488,21 @@ abstract class DashboardViewModelBase with Store {
           (MoneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
 
       _onMoneroTransactionsUpdate(wallet);
+    } else if (wallet.type == WalletType.wownero) {
+      subname = wow.wownero!.getCurrentAccount(wallet).label;
+
+      _onMoneroAccountChangeReaction?.reaction.dispose();
+      _onMoneroBalanceChangeReaction?.reaction.dispose();
+
+      _onMoneroAccountChangeReaction = reaction(
+          (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
+          (wow.Account account) => _onMoneroAccountChange(wallet));
+
+      _onMoneroBalanceChangeReaction = reaction(
+          (_) => wow.wownero!.getWowneroWalletDetails(wallet).balance,
+          (wow.WowneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
+
+      _onMoneroTransactionsUpdate(wallet);
     } else {
       // FIX-ME: Check for side effects
       // subname = null;
@@ -489,32 +532,54 @@ abstract class DashboardViewModelBase with Store {
         return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
       }
 
+      if (wallet.type == WalletType.wownero) {
+        return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
+      }
+
       return true;
     });
   }
 
   @action
   void _onMoneroAccountChange(WalletBase wallet) {
-    subname = monero!.getCurrentAccount(wallet).label;
+    if (wallet.type == WalletType.monero) {
+      subname = monero!.getCurrentAccount(wallet).label;
+    } else if (wallet.type == WalletType.wownero) {
+      subname = wow.wownero!.getCurrentAccount(wallet).label;
+    }
     _onMoneroTransactionsUpdate(wallet);
   }
 
   @action
   void _onMoneroTransactionsUpdate(WalletBase wallet) {
     transactions.clear();
+    if (wallet.type == WalletType.monero) {
+      final _accountTransactions = monero!
+          .getTransactionHistory(wallet)
+          .transactions
+          .values
+          .where(
+              (tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
+          .toList();
 
-    final _accountTransactions = monero!
-        .getTransactionHistory(wallet)
-        .transactions
-        .values
-        .where(
-            (tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
-        .toList();
+      transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore)));
+    } else if (wallet.type == WalletType.wownero) {
+      final _accountTransactions = wow.wownero!
+          .getTransactionHistory(wallet)
+          .transactions
+          .values
+          .where(
+              (tx) => wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+          .toList();
 
-    transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
-        transaction: transaction,
-        balanceViewModel: balanceViewModel,
-        settingsStore: appStore.settingsStore)));
+      transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore)));
+    }
   }
 
   void updateActions() {

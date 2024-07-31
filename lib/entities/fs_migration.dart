@@ -391,7 +391,14 @@ Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
       }
 
       return Trade(
-          id: tradeId, provider: provider!, from: from, to: to, createdAt: date, amount: '');
+        id: tradeId,
+        provider: provider!,
+        from: from,
+        to: to,
+        createdAt: date,
+        amount: '',
+        receiveAmount: '',
+      );
     });
     await tradeSource.addAll(trades);
     await prefs.setBool('ios_migration_trade_list_completed', true);

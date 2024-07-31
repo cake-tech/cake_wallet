@@ -162,11 +162,13 @@ class QuantexExchangeProvider extends ExchangeProvider {
         throw Exception('Unexpected http status: ${response.statusCode}');
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
+      final receiveAmount = responseData["amount_receive"]?.toString();
 
       return Trade(
         id: responseData["order_id"] as String,
         inputAddress: responseData["server_address"] as String,
         amount: request.fromAmount,
+        receiveAmount: receiveAmount ?? request.toAmount,
         from: request.fromCurrency,
         to: request.toCurrency,
         provider: description,

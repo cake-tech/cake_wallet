@@ -13,6 +13,7 @@ class Trade extends HiveObject {
     CryptoCurrency? from,
     CryptoCurrency? to,
     TradeState? state,
+    this.receiveAmount,
     this.createdAt,
     this.expiredAt,
     this.inputAddress,
@@ -122,6 +123,9 @@ class Trade extends HiveObject {
   @HiveField(22)
   String? router;
 
+  @HiveField(23, defaultValue: '')
+  String? receiveAmount;
+
   static Trade fromMap(Map<String, Object?> map) {
     return Trade(
       id: map['id'] as String,
@@ -131,6 +135,7 @@ class Trade extends HiveObject {
       createdAt:
           map['date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int) : null,
       amount: map['amount'] as String,
+      receiveAmount: map['receive_amount'] as String?,
       walletId: map['wallet_id'] as String,
       fromWalletAddress: map['from_wallet_address'] as String?,
       memo: map['memo'] as String?,
@@ -149,6 +154,7 @@ class Trade extends HiveObject {
       'output': to.serialize(),
       'date': createdAt != null ? createdAt!.millisecondsSinceEpoch : null,
       'amount': amount,
+      'receive_amount': receiveAmount,
       'wallet_id': walletId,
       'from_wallet_address': fromWalletAddress,
       'memo': memo,
@@ -179,6 +185,7 @@ class TradeAdapter extends TypeAdapter<Trade> {
     return Trade(
       id: fields[0] == null ? '' : fields[0] as String,
       amount: fields[7] == null ? '' : fields[7] as String,
+      receiveAmount: fields[23] as String?,
       createdAt: fields[5] as DateTime?,
       expiredAt: fields[6] as DateTime?,
       inputAddress: fields[8] as String?,
@@ -206,7 +213,7 @@ class TradeAdapter extends TypeAdapter<Trade> {
   @override
   void write(BinaryWriter writer, Trade obj) {
     writer
-      ..writeByte(23)
+      ..writeByte(24)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -252,7 +259,9 @@ class TradeAdapter extends TypeAdapter<Trade> {
       ..writeByte(21)
       ..write(obj.isSendAll)
       ..writeByte(22)
-      ..write(obj.router);
+      ..write(obj.router)
+      ..writeByte(23)
+      ..write(obj.receiveAmount);
   }
 
   @override

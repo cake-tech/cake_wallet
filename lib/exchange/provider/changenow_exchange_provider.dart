@@ -194,20 +194,24 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final refundAddress = responseJSON['refundAddress'] as String;
     final extraId = responseJSON['payinExtraId'] as String?;
     final payoutAddress = responseJSON['payoutAddress'] as String;
+    final fromAmount = responseJSON['fromAmount']?.toString();
+    final toAmount = responseJSON['toAmount']?.toString();
 
     return Trade(
-        id: id,
-        from: request.fromCurrency,
-        to: request.toCurrency,
-        provider: description,
-        inputAddress: inputAddress,
-        refundAddress: refundAddress,
-        extraId: extraId,
-        createdAt: DateTime.now(),
-        amount: responseJSON['fromAmount']?.toString() ?? request.fromAmount,
-        state: TradeState.created,
-        payoutAddress: payoutAddress,
-        isSendAll: isSendAll);
+      id: id,
+      from: request.fromCurrency,
+      to: request.toCurrency,
+      provider: description,
+      inputAddress: inputAddress,
+      refundAddress: refundAddress,
+      extraId: extraId,
+      createdAt: DateTime.now(),
+      amount: fromAmount ?? request.fromAmount,
+      receiveAmount: toAmount ?? request.toAmount,
+      state: TradeState.created,
+      payoutAddress: payoutAddress,
+      isSendAll: isSendAll,
+    );
   }
 
   @override
