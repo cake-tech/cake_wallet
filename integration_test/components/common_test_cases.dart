@@ -10,15 +10,15 @@ class CommonTestCases {
     hasType<T>();
   }
 
-  Future<void> tapItemByKey(String key) async {
+  Future<void> tapItemByKey(String key, {bool shouldPumpAndSettle = true}) async {
     final widget = find.byKey(ValueKey(key));
     await tester.tap(widget);
-    await tester.pumpAndSettle();
+    shouldPumpAndSettle ? await tester.pumpAndSettle() : await tester.pump();
   }
 
-  Future<void> tapItemByFinder(Finder finder) async {
+  Future<void> tapItemByFinder(Finder finder, {bool shouldPumpAndSettle = true}) async {
     await tester.tap(finder);
-    await tester.pumpAndSettle();
+    shouldPumpAndSettle ? await tester.pumpAndSettle() : await tester.pump();
   }
 
   void hasText(String text, {bool hasWidget = true}) {

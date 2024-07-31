@@ -37,6 +37,8 @@ class BaseAlertDialog extends StatelessWidget {
 
   Key? rightActionButtonKey;
 
+  Key? dialogKey;
+
   Widget title(BuildContext context) {
     return Text(
       titleText,
@@ -158,6 +160,7 @@ class BaseAlertDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      key: key,
       onTap: () => barrierDismissible ? Navigator.of(context).pop() : null,
       child: Container(
         color: Colors.transparent,

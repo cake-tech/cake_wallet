@@ -5,7 +5,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../components/common_checks.dart';
+import '../components/common_test_cases.dart';
 
 class ExchangePageRobot {
   ExchangePageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -317,6 +317,8 @@ class ExchangePageRobot {
   }
 
   Future<void> handleErrors(String initialAmount) async {
+    await tester.pumpAndSettle();
+    
     await _handleMinLimitError(initialAmount);
 
     await _handleMaxLimitError(initialAmount);

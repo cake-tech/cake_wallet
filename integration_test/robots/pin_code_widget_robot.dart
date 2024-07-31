@@ -1,7 +1,7 @@
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../components/common_checks.dart';
+import '../components/common_test_cases.dart';
 
 class PinCodeWidgetRobot {
   PinCodeWidgetRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -29,7 +29,6 @@ class PinCodeWidgetRobot {
   }
 
   Future<void> enterPinCode(List<int> pinCode, bool isFirstEntry) async {
-
     for (int pin in pinCode) {
       await pushPinButton(pin);
     }

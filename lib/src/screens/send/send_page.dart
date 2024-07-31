@@ -68,11 +68,11 @@ class SendPage extends BasePage {
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.focusedChild?.unfocus();
-    }
-  };
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
 
   @override
   Widget? leading(BuildContext context) {
@@ -246,6 +246,7 @@ class SendPage extends BasePage {
                           return Row(
                             children: <Widget>[
                               AddTemplateButton(
+                                key: ValueKey('send_page_add_template_button_key'),
                                 onTap: () => Navigator.of(context).pushNamed(Routes.sendTemplate),
                                 currentTemplatesLength: templates.length,
                               ),
@@ -333,19 +334,22 @@ class SendPage extends BasePage {
               children: [
                 if (sendViewModel.hasCurrecyChanger)
                   Observer(
-                      builder: (_) => Padding(
-                          padding: EdgeInsets.only(bottom: 12),
-                          child: PrimaryButton(
-                            onPressed: () => presentCurrencyPicker(context),
-                            text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
-                            color: Colors.transparent,
-                            textColor:
-                                Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
-                          ))),
+                    builder: (_) => Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: PrimaryButton(
+                        key: ValueKey('send_page_change_asset_button_key'),
+                        onPressed: () => presentCurrencyPicker(context),
+                        text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
+                        color: Colors.transparent,
+                        textColor: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
+                      ),
+                    ),
+                  ),
                 if (sendViewModel.sendTemplateViewModel.hasMultiRecipient)
                   Padding(
                       padding: EdgeInsets.only(bottom: 12),
                       child: PrimaryButton(
+                        key: ValueKey('send_page_add_receiver_button_key'),
                         onPressed: () {
                           sendViewModel.addOutput();
                           Future.delayed(const Duration(milliseconds: 250), () {
@@ -362,6 +366,7 @@ class SendPage extends BasePage {
                 Observer(
                   builder: (_) {
                     return LoadingPrimaryButton(
+                      key: ValueKey('send_page_send_button_key'),
                       onPressed: () async {
                         if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                           if (sendViewModel.outputs.length > 1) {
@@ -444,6 +449,8 @@ class SendPage extends BasePage {
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
+                    key: ValueKey('send_page_send_failure_dialog_key'),
+                    buttonKey: ValueKey('send_page_send_failure_dialog_button_key'),
                     alertTitle: S.of(context).error,
                     alertContent: state.error,
                     buttonText: S.of(context).ok,
@@ -459,6 +466,7 @@ class SendPage extends BasePage {
                 context: context,
                 builder: (BuildContext _dialogContext) {
                   return ConfirmSendingAlert(
+                      key: ValueKey('send_page_confirm_sending_dialog_key'),
                       alertTitle: S.of(_dialogContext).confirm_sending,
                       amount: S.of(_dialogContext).send_amount,
                       amountValue: sendViewModel.pendingTransaction!.amountFormatted,
@@ -472,6 +480,10 @@ class SendPage extends BasePage {
                       outputs: sendViewModel.outputs,
                       rightButtonText: S.of(_dialogContext).send,
                       leftButtonText: S.of(_dialogContext).cancel,
+                      alertRightActionButtonKey:
+                          ValueKey('send_page_confirm_sending_dialog_send_button_key'),
+                      alertLeftActionButtonKey:
+                          ValueKey('send_page_confirm_sending_dialog_cancel_button_key'),
                       actionRightButton: () async {
                         Navigator.of(_dialogContext).pop();
                         sendViewModel.commitTransaction();
@@ -505,10 +517,15 @@ class SendPage extends BasePage {
 
                                   if (newContactAddress != null) {
                                     return AlertWithTwoActions(
+                                        alertDialogKey: ValueKey('send_page_sent_dialog_key'),
                                         alertTitle: '',
                                         alertContent: alertContent,
                                         rightButtonText: S.of(_dialogContext).add_contact,
                                         leftButtonText: S.of(_dialogContext).ignor,
+                                        alertLeftActionButtonKey:
+                                            ValueKey('send_page_sent_dialog_ignore_button_key'),
+                                        alertRightActionButtonKey: ValueKey(
+                                            'send_page_sent_dialog_add_contact_button_key'),
                                         actionRightButton: () {
                                           Navigator.of(_dialogContext).pop();
                                           RequestReviewHandler.requestReview();

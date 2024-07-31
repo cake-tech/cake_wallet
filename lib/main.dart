@@ -46,7 +46,7 @@ final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
-Future<void> main() async {
+Future<void> main({Key? topLevelKey}) async {
   bool isAppRunning = false;
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -67,7 +67,7 @@ Future<void> main() async {
 
     await initializeAppConfigs();
 
-    runApp(App());
+    runApp(App(key: topLevelKey));
 
     isAppRunning = true;
   }, (error, stackTrace) async {
@@ -253,6 +253,9 @@ Future<void> initialSetup(
 }
 
 class App extends StatefulWidget {
+  App({this.key});
+
+  final Key? key;
   @override
   AppState createState() => AppState();
 }
@@ -281,7 +284,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           statusBarIconBrightness: statusBarIconBrightness));
 
       return Root(
-          key: rootKey,
+          key: widget.key ?? rootKey,
           appStore: appStore,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,

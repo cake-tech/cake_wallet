@@ -112,7 +112,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                     controller: nameTextEditingController,
                     hintText: S.of(context).wallet_name,
                     suffixIcon: IconButton(
-                    key: ValueKey('wallet_restore_from_seed_wallet_name_refresh_button_key'),
+                      key: ValueKey('wallet_restore_from_seed_wallet_name_refresh_button_key'),
                       onPressed: () async {
                         final rName = await generateName();
                         FocusManager.instance.primaryFocus?.unfocus();
@@ -145,10 +145,13 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               )),
           Container(height: 20),
           SeedWidget(
-              key: seedWidgetStateKey,
-              language: language,
-              type: widget.type,
-              onSeedChange: onSeedChange),
+            key: seedWidgetStateKey,
+            language: language,
+            type: widget.type,
+            onSeedChange: onSeedChange,
+            seedTextFieldKey: ValueKey('wallet_restore_from_seed_wallet_seeds_textfield_key'),
+            pasteButtonKey: ValueKey('wallet_restore_from_seed_wallet_seeds_paste_button_key'),
+          ),
           if (widget.type == WalletType.monero || widget.type == WalletType.wownero)
             GestureDetector(
               onTap: () async {

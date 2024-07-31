@@ -6,7 +6,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart'
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../components/common_checks.dart';
+import '../components/common_test_cases.dart';
 
 class ExchangeTradePageRobot {
   ExchangeTradePageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -30,9 +30,10 @@ class ExchangeTradePageRobot {
   Future<void> onConfirmSendingButtonPressed() async {
     tester.printToConsole('Now confirming sending');
 
-    final widget = find.byKey(ValueKey('exchange_trade_page_confirm_sending_button_key'));
-    await tester.tap(widget);
-    await tester.pump();
+    await commonTestCases.tapItemByKey(
+      'exchange_trade_page_confirm_sending_button_key',
+      shouldPumpAndSettle: false,
+    );
 
     final Completer<void> completer = Completer<void>();
 
@@ -116,7 +117,7 @@ class ExchangeTradePageRobot {
     return hasError;
   }
 
-  Future<void> handleSendSuccessOrFailure() async {
+  Future<void> handleConfirmSendResult() async {
     bool hasError = false;
 
     hasError = await hasErrorWhileSending();

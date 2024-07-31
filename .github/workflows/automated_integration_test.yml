@@ -1,3 +1,4 @@
+# Commenting out for now, will bring back after I get the CI flow for Automated Testing stable
 name: Automated Integration Test
 
 on:
@@ -215,7 +216,7 @@ jobs:
           script: |
             cd /opt/android/cake_wallet 
             flutter pub get 
-            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart
+            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites
             if [ $? -ne 0 ]; then
               echo "Tests failed"
               exit 1

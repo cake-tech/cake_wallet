@@ -5,7 +5,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../components/common_checks.dart';
+import '../components/common_test_cases.dart';
 
 class NewWalletTypePageRobot {
   NewWalletTypePageRobot(this.tester) : commonTestCases = CommonTestCases(tester);

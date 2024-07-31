@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/widgets/validable_annotated_editable_text.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../components/common_checks.dart';
+import '../components/common_test_cases.dart';
 
 class RestoreFromSeedOrKeysPageRobot {
   RestoreFromSeedOrKeysPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -49,13 +49,17 @@ class RestoreFromSeedOrKeysPageRobot {
     commonTestCases.hasValueKey('wallet_restore_advanced_settings_button_key');
   }
 
-  Future<void> enterWalletNameText(String walletName) async {
+  Future<void> enterWalletNameText(String walletName, {bool isSeedFormEntry = true}) async {
     await commonTestCases.enterText(
-        walletName, 'wallet_restore_from_seed_wallet_name_textfield_key');
+      walletName,
+      'wallet_restore_from_${isSeedFormEntry ? 'seed' : 'keys'}_wallet_name_textfield_key',
+    );
   }
 
-  Future<void> selectWalletNameFromAvailableOptions() async {
-    await commonTestCases.tapItemByKey('wallet_restore_from_seed_wallet_name_refresh_button_key');
+  Future<void> selectWalletNameFromAvailableOptions({bool isSeedFormEntry = true}) async {
+    await commonTestCases.tapItemByKey(
+      'wallet_restore_from_${isSeedFormEntry ? 'seed' : 'keys'}_wallet_name_refresh_button_key',
+    );
   }
 
   Future<void> enterSeedPhraseForWalletRestore(String text) async {
@@ -68,6 +72,14 @@ class RestoreFromSeedOrKeysPageRobot {
 
   Future<void> onPasteSeedPhraseButtonPressed() async {
     await commonTestCases.tapItemByKey('wallet_restore_from_seed_wallet_seeds_paste_button_key');
+  }
+
+  Future<void> enterPrivateKeyForWalletRestore(String privateKey) async {
+    await commonTestCases.enterText(
+      privateKey,
+      'wallet_restore_from_key_private_key_textfield_key',
+    );
+    await tester.pumpAndSettle();
   }
 
   Future<void> onRestoreWalletButtonPressed() async {

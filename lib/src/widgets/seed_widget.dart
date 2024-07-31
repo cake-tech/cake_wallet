@@ -12,9 +12,12 @@ class SeedWidget extends StatefulWidget {
     required this.language,
     required this.type,
     this.onSeedChange,
+    this.pasteButtonKey,
+    this.seedTextFieldKey,
     super.key,
   });
-
+  final Key? seedTextFieldKey;
+  final Key? pasteButtonKey;
   final String language;
   final WalletType type;
   final void Function(String)? onSeedChange;
@@ -79,12 +82,11 @@ class SeedWidgetState extends State<SeedWidget> {
                   top: 10,
                   left: 0,
                   child: Text(S.of(context).enter_seed_phrase,
-                      style: TextStyle(
-                          fontSize: 16.0, color: Theme.of(context).hintColor))),
+                      style: TextStyle(fontSize: 16.0, color: Theme.of(context).hintColor))),
             Padding(
                 padding: EdgeInsets.only(right: 40, top: 10),
                 child: ValidatableAnnotatedEditableText(
-                  key: ValueKey('wallet_restore_from_seed_wallet_seeds_textfield_key'),
+                  key: widget.seedTextFieldKey,
                   cursorColor: Colors.blue,
                   backgroundCursorColor: Colors.blue,
                   validStyle: TextStyle(
@@ -114,16 +116,17 @@ class SeedWidgetState extends State<SeedWidget> {
                     width: 32,
                     height: 32,
                     child: InkWell(
-                      key: ValueKey('wallet_restore_from_seed_wallet_seeds_paste_button_key'),
+                      key: widget.pasteButtonKey,
                       onTap: () async => _pasteText(),
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
                               color: Theme.of(context).hintColor,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(6))),
+                              borderRadius: BorderRadius.all(Radius.circular(6))),
                           child: Image.asset('assets/images/paste_ios.png',
-                              color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor)),
+                              color: Theme.of(context)
+                                  .extension<SendPageTheme>()!
+                                  .textFieldButtonIconColor)),
                     )))
           ]),
           Container(

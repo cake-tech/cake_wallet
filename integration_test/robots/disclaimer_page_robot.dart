@@ -2,7 +2,7 @@ import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../components/common_checks.dart';
+import '../components/common_test_cases.dart';
 
 class DisclaimerPageRobot {
   DisclaimerPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -26,15 +26,14 @@ class DisclaimerPageRobot {
   }
 
   Future<void> tapDisclaimerCheckbox() async {
-    final checkBox = find.byKey(ValueKey('disclaimer_check_key'));
-    await tester.tap(checkBox);
-    await tester.pumpAndSettle();
+    await commonTestCases.tapItemByKey('disclaimer_check_key');
+
     await commonTestCases.defaultSleepTime();
   }
 
   Future<void> tapAcceptButton() async {
-    final checkBox = find.byKey(ValueKey('disclaimer_accept_button_key'));
-    await tester.tap(checkBox);
-    await tester.pumpAndSettle();
+    await commonTestCases.tapItemByKey('disclaimer_accept_button_key');
+    
+    await commonTestCases.defaultSleepTime();
   }
 }

@@ -1,7 +1,7 @@
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../components/common_checks.dart';
+import '../components/common_test_cases.dart';
 
 class RestoreOptionsPageRobot {
   RestoreOptionsPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -21,19 +21,16 @@ class RestoreOptionsPageRobot {
   }
 
   Future<void> navigateToRestoreFromSeedsPage() async {
-    tester.printToConsole('Routing to restore from seeds page');
     await commonTestCases.tapItemByKey('restore_options_from_seeds_button_key');
     await commonTestCases.defaultSleepTime();
   }
 
   Future<void> navigateToRestoreFromBackupPage() async {
-    tester.printToConsole('Routing to restore from backup page');
     await commonTestCases.tapItemByKey('restore_options_from_backup_button_key');
     await commonTestCases.defaultSleepTime();
   }
 
   Future<void> navigateToRestoreFromHardwareWalletPage() async {
-    tester.printToConsole('Routing to restore from hardware wallet page');
     await commonTestCases.tapItemByKey('restore_options_from_hardware_wallet_button_key');
     await commonTestCases.defaultSleepTime();
   }

@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../components/common_checks.dart';
+import '../components/common_test_cases.dart';
 
 class DashboardPageRobot {
   DashboardPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -58,7 +58,7 @@ class DashboardPageRobot {
   }
 
   Future<void> navigateToSendPage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.buy}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_${S.current.send}_action_button_key');
   }
 
   Future<void> navigateToSellPage() async {

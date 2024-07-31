@@ -1,100 +1,38 @@
-import 'package:cake_wallet/main.dart' as app;
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'components/common_test_constants.dart';
+import 'components/common_test_flows.dart';
 import 'robots/auth_page_robot.dart';
 import 'robots/dashboard_page_robot.dart';
-import 'robots/disclaimer_page_robot.dart';
 import 'robots/exchange_confirm_page_robot.dart';
 import 'robots/exchange_page_robot.dart';
 import 'robots/exchange_trade_page_robot.dart';
-import 'robots/new_wallet_type_page_robot.dart';
-import 'robots/restore_from_seed_or_key_robot.dart';
-import 'robots/restore_options_page_robot.dart';
-import 'robots/setup_pin_code_robot.dart';
-import 'robots/welcome_page_robot.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  DisclaimerPageRobot disclaimerPageRobot;
-  WelcomePageRobot welcomePageRobot;
-  SetupPinCodeRobot setupPinCodeRobot;
-  RestoreOptionsPageRobot restoreOptionsPageRobot;
-  NewWalletTypePageRobot newWalletTypePageRobot;
-  RestoreFromSeedOrKeysPageRobot restoreFromSeedOrKeysPageRobot;
   DashboardPageRobot dashboardPageRobot;
   ExchangePageRobot exchangePageRobot;
   ExchangeConfirmPageRobot exchangeConfirmPageRobot;
   AuthPageRobot authPageRobot;
   ExchangeTradePageRobot exchangeTradePageRobot;
+  CommonTestFlows commonTestFlows;
 
   group('Startup Test', () {
     testWidgets('Test for Exchange flow using Restore Wallet - Exchanging USDT(Sol) to SOL',
         (tester) async {
       authPageRobot = AuthPageRobot(tester);
-      welcomePageRobot = WelcomePageRobot(tester);
       exchangePageRobot = ExchangePageRobot(tester);
-      setupPinCodeRobot = SetupPinCodeRobot(tester);
       dashboardPageRobot = DashboardPageRobot(tester);
-      disclaimerPageRobot = DisclaimerPageRobot(tester);
       exchangeTradePageRobot = ExchangeTradePageRobot(tester);
-      newWalletTypePageRobot = NewWalletTypePageRobot(tester);
-      restoreOptionsPageRobot = RestoreOptionsPageRobot(tester);
       exchangeConfirmPageRobot = ExchangeConfirmPageRobot(tester);
-      restoreFromSeedOrKeysPageRobot = RestoreFromSeedOrKeysPageRobot(tester);
+      commonTestFlows = CommonTestFlows(tester);
 
-      final pin = [0, 8, 0, 1];
+      await commonTestFlows.startAppFlow(ValueKey('funds_exchange_test_app_key'));
 
-      // String testAmount = '0.08';
-      String testAmount = '8';
-      CryptoCurrency testReceiveCurrency = CryptoCurrency.sol;
-      CryptoCurrency testDepositCurrency = CryptoCurrency.usdtSol;
-
-      WalletType testWalletType = WalletType.solana;
-      String testWalletName = 'Integrated Testing Wallet';
-      String testWalletAddress = 'An2Y2fsUYKfYvN1zF89GAqR1e6GUMBg3qA83Y5ZWDf8L';
-
-      await app.main();
-      await tester.pumpAndSettle();
-
-      // --------- Disclaimer Page ------------
-      // Tap checkbox to accept disclaimer
-      await disclaimerPageRobot.tapDisclaimerCheckbox();
-
-      // Tap accept button
-      await disclaimerPageRobot.tapAcceptButton();
-
-      // --------- Welcome Page ---------------
-      await welcomePageRobot.navigateToRestoreWalletPage();
-
-      // ----------- Restore Options Page -----------
-      // Route to restore from seeds page to continue flow
-      await restoreOptionsPageRobot.navigateToRestoreFromSeedsPage();
-
-      // ----------- SetupPinCode Page -------------
-      // Confirm initial defaults - Widgets to be displayed etc
-      await setupPinCodeRobot.isSetupPinCodePage();
-
-      await setupPinCodeRobot.enterPinCode(pin, true);
-      await setupPinCodeRobot.enterPinCode(pin, false);
-      await setupPinCodeRobot.tapSuccessButton();
-
-      // ----------- NewWalletType Page -------------
-      // Confirm scroll behaviour works properly
-      await newWalletTypePageRobot.findParticularWalletTypeInScrollableList(WalletType.solana);
-
-      // Select a wallet and route to next page
-      await newWalletTypePageRobot.selectWalletType(testWalletType);
-      await newWalletTypePageRobot.onNextButtonPressed();
-
-      // ----------- RestoreFromSeedOrKeys Page -------------
-      await restoreFromSeedOrKeysPageRobot.enterWalletNameText(testWalletName);
-      await restoreFromSeedOrKeysPageRobot.enterSeedPhraseForWalletRestore(secrets.seeds);
-      await restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonPressed();
+      await commonTestFlows.restoreWalletThroughSeedsFlow();
 
       // ----------- RestoreFromSeedOrKeys Page -------------
       await dashboardPageRobot.navigateToExchangePage();
@@ -106,21 +44,22 @@ void main() {
       exchangePageRobot.confirmRightComponentsDisplayOnDepositExchangeCards();
       exchangePageRobot.confirmRightComponentsDisplayOnReceiveExchangeCards();
 
-      await exchangePageRobot.selectDepositCurrency(testDepositCurrency);
-      await exchangePageRobot.selectReceiveCurrency(testReceiveCurrency);
+      await exchangePageRobot.selectDepositCurrency(CommonTestConstants.testDepositCurrency);
+      await exchangePageRobot.selectReceiveCurrency(CommonTestConstants.testReceiveCurrency);
 
-      await exchangePageRobot.enterDepositAmount(testAmount);
-      await exchangePageRobot.enterDepositRefundAddress(depositAddress: testWalletAddress);
+      await exchangePageRobot.enterDepositAmount(CommonTestConstants.exchangeTestAmount);
+      await exchangePageRobot.enterDepositRefundAddress(
+          depositAddress: CommonTestConstants.testWalletAddress);
 
-      await exchangePageRobot.enterReceiveAddress(testWalletAddress);
+      await exchangePageRobot.enterReceiveAddress(CommonTestConstants.testWalletAddress);
 
       await exchangePageRobot.onExchangeButtonPressed();
 
-      await exchangePageRobot.handleErrors(testAmount);
+      await exchangePageRobot.handleErrors(CommonTestConstants.exchangeTestAmount);
 
       final onAuthPage = authPageRobot.onAuthPage();
       if (onAuthPage) {
-        await authPageRobot.enterPinCode(pin, false);
+        await authPageRobot.enterPinCode(CommonTestConstants.pin, false);
       }
 
       // ----------- Exchange Confirm Page -------------
@@ -137,7 +76,7 @@ void main() {
 
       await exchangeTradePageRobot.onConfirmSendingButtonPressed();
 
-      await exchangeTradePageRobot.handleSendSuccessOrFailure();
+      await exchangeTradePageRobot.handleConfirmSendResult();
 
       await exchangeTradePageRobot.onSendButtonOnConfirmSendingDialogPressed();
     });

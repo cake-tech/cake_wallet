@@ -365,7 +365,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                 child: Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: AddressTextField(
-                      key: ValueKey('${_cardInstanceName}_editable_address_textfield_key'),
+                      addressKey: ValueKey('${_cardInstanceName}_editable_address_textfield_key'),
                       focusNode: widget.addressFocusNode,
                       controller: addressController,
                       onURIScanned: (uri) {

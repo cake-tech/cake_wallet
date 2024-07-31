@@ -2,7 +2,7 @@ import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../components/common_checks.dart';
+import '../components/common_test_cases.dart';
 
 class WelcomePageRobot {
   WelcomePageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -24,13 +24,11 @@ class WelcomePageRobot {
   }
 
   Future<void> navigateToCreateNewWalletPage() async {
-    tester.printToConsole('Routing to create new wallet page');
     await commonTestCases.tapItemByKey('welcome_page_create_new_wallet_button_key');
     await commonTestCases.defaultSleepTime();
   }
 
   Future<void> navigateToRestoreWalletPage() async {
-    tester.printToConsole('Routing to restore wallet page');
     await commonTestCases.tapItemByKey('welcome_page_restore_wallet_button_key');
     await commonTestCases.defaultSleepTime();
   }

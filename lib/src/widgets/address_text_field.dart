@@ -15,24 +15,26 @@ import 'package:permission_handler/permission_handler.dart';
 enum AddressTextFieldOption { paste, qrCode, addressBook }
 
 class AddressTextField extends StatelessWidget {
-  AddressTextField(
-      {required this.controller,
-      this.isActive = true,
-      this.placeholder,
-      this.options = const [AddressTextFieldOption.qrCode, AddressTextFieldOption.addressBook],
-      this.onURIScanned,
-      this.focusNode,
-      this.isBorderExist = true,
-      this.buttonColor,
-      this.borderColor,
-      this.iconColor,
-      this.textStyle,
-      this.hintStyle,
-      this.validator,
-      this.onPushPasteButton,
-      this.onPushAddressBookButton,
-      this.onSelectedContact,
-      this.selectedCurrency, super.key});
+  AddressTextField({
+    required this.controller,
+    this.isActive = true,
+    this.placeholder,
+    this.options = const [AddressTextFieldOption.qrCode, AddressTextFieldOption.addressBook],
+    this.onURIScanned,
+    this.focusNode,
+    this.isBorderExist = true,
+    this.buttonColor,
+    this.borderColor,
+    this.iconColor,
+    this.textStyle,
+    this.hintStyle,
+    this.validator,
+    this.onPushPasteButton,
+    this.onPushAddressBookButton,
+    this.onSelectedContact,
+    this.selectedCurrency,
+    this.addressKey,
+  });
 
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;
@@ -55,28 +57,27 @@ class AddressTextField extends StatelessWidget {
   final Function(BuildContext context)? onPushAddressBookButton;
   final Function(ContactBase contact)? onSelectedContact;
   final CryptoCurrency? selectedCurrency;
+  final Key? addressKey;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
         TextFormField(
+          key: addressKey,
           enableIMEPersonalizedLearning: false,
           keyboardType: TextInputType.visiblePassword,
           onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
           enabled: isActive,
           controller: controller,
           focusNode: focusNode,
-        
           style: textStyle ??
               TextStyle(
                   fontSize: 16, color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
           decoration: InputDecoration(
-          
             suffixIcon: SizedBox(
               width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
             ),
-         
             hintStyle: hintStyle ?? TextStyle(fontSize: 16, color: Theme.of(context).hintColor),
             hintText: placeholder ?? S.current.widgets_address,
             focusedBorder: isBorderExist
@@ -194,7 +195,7 @@ class AddressTextField extends StatelessWidget {
 
   Future<void> _presentQRScanner(BuildContext context) async {
     bool isCameraPermissionGranted =
-    await PermissionHandler.checkPermission(Permission.camera, context);
+        await PermissionHandler.checkPermission(Permission.camera, context);
     if (!isCameraPermissionGranted) return;
     final code = await presentQRScanner();
     if (code.isEmpty) {

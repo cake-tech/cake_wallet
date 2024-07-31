@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../components/common_checks.dart';
+import '../components/common_test_cases.dart';
 import 'pin_code_widget_robot.dart';
 
 class AuthPageRobot extends PinCodeWidgetRobot {

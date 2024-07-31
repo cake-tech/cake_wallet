@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
@@ -303,11 +304,25 @@ class _PickerState<Item> extends State<Picker<Item>> {
     );
   }
 
+  String _getItemName(Item item) {
+    String itemName;
+    if (item is Currency) {
+      itemName = item.name;
+    } else if (item is TransactionPriority) {
+      itemName = item.title;
+    } else {
+      itemName = '';
+    }
+
+    return itemName;
+  }
+
   Widget buildItem(int index) {
     final item = widget.headerEnabled ? filteredItems[index] : items[index];
 
     final tag = item is Currency ? item.tag : null;
-    final currencyName = item is Currency ? item.name : '';
+    final itemName = _getItemName(item);
+
     final icon = _getItemIcon(item);
 
     final image = images.isNotEmpty ? filteredImages[index] : icon;
@@ -327,7 +342,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               children: [
                 Flexible(
                   child: Text(
-                    key: ValueKey('picker_items_index_${currencyName}_text_key'),
+                    key: ValueKey('picker_items_index_${itemName}_text_key'),
                     widget.displayItem?.call(item) ?? item.toString(),
                     softWrap: true,
                     style: TextStyle(
@@ -371,7 +386,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
     );
 
     return GestureDetector(
-      key: ValueKey('picker_items_index_${currencyName}_button_key'),
+      key: ValueKey('picker_items_index_${itemName}_button_key'),
       onTap: () {
         if (widget.closeOnItemSelected) Navigator.of(context).pop();
         onItemSelected(item!);
@@ -397,7 +412,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
     final item = items[index];
 
     final tag = item is Currency ? item.tag : null;
-    final currencyName = item is Currency ? item.name : '';
+    final itemName = _getItemName(item);
     final icon = _getItemIcon(item);
 
     final image = images.isNotEmpty ? images[index] : icon;
@@ -418,7 +433,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               children: [
                 Flexible(
                   child: Text(
-                    key: ValueKey('picker_items_index_${currencyName}_selected_item_text_key'),
+                    key: ValueKey('picker_items_index_${itemName}_selected_item_text_key'),
                     widget.displayItem?.call(item) ?? item.toString(),
                     softWrap: true,
                     style: TextStyle(
@@ -462,7 +477,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
     );
 
     return GestureDetector(
-      key: ValueKey('picker_items_index_${currencyName}_selected_item_button_key'),
+      key: ValueKey('picker_items_index_${itemName}_selected_item_button_key'),
       onTap: () {
         if (widget.closeOnItemSelected) Navigator.of(context).pop();
       },

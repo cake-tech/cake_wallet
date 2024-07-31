@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dar
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../components/common_checks.dart';
+import '../components/common_test_cases.dart';
 
 class ExchangeConfirmPageRobot {
   ExchangeConfirmPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
@@ -38,6 +38,8 @@ class ExchangeConfirmPageRobot {
   }
 
   Future<void> onSavedTradeIdButtonPressed() async {
+    await tester.pumpAndSettle();
+    await commonTestCases.defaultSleepTime();
     await commonTestCases.tapItemByKey('exchange_confirm_page_saved_id_button_key');
   }
 }
