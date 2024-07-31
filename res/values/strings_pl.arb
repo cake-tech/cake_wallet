@@ -359,6 +359,8 @@
   "lightning_invoice_warning": "Musisz utrzymać aplikację otwartą do momentu zakończenia płatności lub transakcji ulegnie awarii",
   "lightning_receive_limits": "Wyślij więcej niż ${min} SAT i do ${max} SATS na ten adres. Opłata konfiguracyjna w wysokości ${feePercent}% przy minimum ${fee} SAT zostanie zastosowana po otrzymaniu tej faktury. To przekonwertuje każdy otrzymany bitcoin w błyskawicę. Zostanie zastosowana opłata w łańcuchu. Ten adres można użyć tylko raz.",
   "lightning_received_sats": "Otrzymałem ${num} sats",
+  "lightning_redeemable_description": "Stuknij tutaj, aby wybrać adres, aby wymienić fundusze onchain",
+  "lightning_redeemable_funds": "Masz możliwe do wykupienia fundusze onchain",
   "lightning_swap_out_error": "Odwrotna wymiana maks. <Min, odwrotna wymiana (wymiana) nie jest możliwa",
   "load_more": "Załaduj więcej",
   "loading_your_wallet": "Ładowanie portfela",

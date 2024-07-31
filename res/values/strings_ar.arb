@@ -359,6 +359,8 @@
   "lightning_invoice_warning": "يجب أن تبقي التطبيق مفتوحًا حتى يتم الانتهاء من الدفع أو تفشل المعاملة",
   "lightning_receive_limits": "أرسل أكثر من ${min} SATs وحتى ${max} SATs إلى هذا العنوان. سيتم تطبيق رسوم إعداد ${feePercent} ٪ مع ما لا يقل عن ${fee} SATs عند تلقي هذه الفاتورة. سيؤدي ذلك إلى تحويل أي Bitcoin المستلم إلى Lightning. سيتم تطبيق رسوم على السلسلة. لا يمكن استخدام هذا العنوان إلا مرة واحدة.",
   "lightning_received_sats": "تلقيت ${num} sats",
+  "lightning_redeemable_description": "اضغط هنا لاختيار عنوان لاسترداد أموال Onchain",
+  "lightning_redeemable_funds": "لديك أموال Onchain القابلة للاسترداد",
   "lightning_swap_out_error": "عكس المبادلة كحد أقصى <دقيقة ، مقايضة عكسية (مبادلة) غير ممكن",
   "load_more": "تحميل المزيد",
   "loading_your_wallet": "يتم تحميل محفظتك",

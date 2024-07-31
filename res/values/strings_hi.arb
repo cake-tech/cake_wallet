@@ -359,6 +359,8 @@
   "lightning_invoice_warning": "भुगतान पूरा होने तक आपको ऐप को खुला रखना चाहिए या लेनदेन विफल हो जाएगा",
   "lightning_receive_limits": "इस पते पर ${min} से अधिक और ${max} से अधिक सीटें भेजें। यह चालान प्राप्त होने पर न्यूनतम ${fee} सैट के साथ ${feePercent}% का सेटअप शुल्क लागू किया जाएगा। यह किसी भी प्राप्त बिटकॉइन को लाइटनिंग में बदल देगा। ऑन-चेन शुल्क लागू किया जाएगा. इस पते का उपयोग केवल एक बार किया जा सकता है.",
   "lightning_received_sats": "${num} sats प्राप्त किया",
+  "lightning_redeemable_description": "Onchain फंड को भुनाने के लिए एक पता चुनने के लिए यहां टैप करें",
+  "lightning_redeemable_funds": "आपके पास Redemable onchain फंड हैं",
   "lightning_swap_out_error": "रिवर्स स्वैप मैक्स <मिनट, एक रिवर्स स्वैप (स्वैप आउट) संभव नहीं है",
   "load_more": "और लोड करें",
   "loading_your_wallet": "अपना बटुआ लोड कर रहा है",

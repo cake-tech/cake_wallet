@@ -180,7 +180,9 @@ abstract class BalanceViewModelBase with Store {
     if (wallet.type != WalletType.lightning) {
       return false;
     }
-    if (frozenBalance.isNotEmpty) {
+    // 1000 sats is arbitrary but we don't have a better way to check
+    // what the actual minimum is
+    if (frozenBalance.isNotEmpty && int.parse(frozenBalance) > 1000) {
       return true;
     }
     return false;

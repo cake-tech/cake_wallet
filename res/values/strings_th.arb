@@ -359,6 +359,8 @@
   "lightning_invoice_warning": "คุณต้องเปิดแอปไว้จนกว่าการชำระเงินจะเสร็จสมบูรณ์หรือการทำธุรกรรมจะล้มเหลว",
   "lightning_receive_limits": "ส่งมากกว่า ${min} sats และสูงสุด ${max} sats ไปยังที่อยู่นี้ ค่าธรรมเนียมการตั้งค่า ${feePercent}% ที่มีค่าน้อยที่สุด ${fee} SAT จะถูกนำไปใช้เมื่อได้รับใบแจ้งหนี้นี้ สิ่งนี้จะแปลง bitcoin ที่ได้รับเป็นฟ้าผ่า จะมีการใช้ค่าธรรมเนียมในห่วงโซ่ ที่อยู่นี้สามารถใช้ได้เพียงครั้งเดียว",
   "lightning_received_sats": "ได้รับ ${num} sats",
+  "lightning_redeemable_description": "แตะที่นี่เพื่อเลือกที่อยู่เพื่อแลกเงินทุนสำหรับ",
+  "lightning_redeemable_funds": "คุณมีกองทุน onchain ที่แลกได้",
   "lightning_swap_out_error": "ย้อนกลับ Swap Max <min, การแลกเปลี่ยนย้อนกลับ (swap out) เป็นไปไม่ได้",
   "load_more": "โหลดมากขึ้น",
   "loading_your_wallet": "กำลังโหลดกระเป๋าของคุณ",

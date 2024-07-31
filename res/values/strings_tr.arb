@@ -359,6 +359,8 @@
   "lightning_invoice_warning": "Ödeme tamamlanana veya işlem başarısız olana kadar uygulamayı açık tutmalısınız",
   "lightning_receive_limits": "Bu adrese ${min} SATS'den fazla ve ${max} SAT'ları gönderin. Bu faturayı aldıktan sonra en az ${fee} SAT ile% ${feePercent} kurulum ücreti uygulanacaktır. Bu, alınan bitcoin'i yıldırım haline getirecektir. Zincir üstü bir ücret uygulanacaktır. Bu adres yalnızca bir kez kullanılabilir.",
   "lightning_received_sats": "${num} sats aldı",
+  "lightning_redeemable_description": "Onchain fonlarını kullanmak için bir adres seçmek için buraya dokunun.",
+  "lightning_redeemable_funds": "Kullanılabilir onchain fonlarınız var",
   "lightning_swap_out_error": "Ters takas maksimum <min, ters takas (takas) mümkün değil",
   "load_more": "Daha fazla yükle",
   "loading_your_wallet": "Cüzdanın yükleniyor",

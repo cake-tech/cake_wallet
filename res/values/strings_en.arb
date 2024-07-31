@@ -359,6 +359,8 @@
   "lightning_invoice_warning": "You must keep the app open until the payment is completed or the transaction will fail",
   "lightning_receive_limits": "Send more than ${min} sats and up to ${max} sats to this address. A setup fee of ${feePercent}% with a minimum of ${fee} sats will be applied upon receiving this invoice. This will convert any received Bitcoin into Lightning. An on-chain fee will be applied. This address can only be used once.",
   "lightning_received_sats": "Received ${num} sats",
+  "lightning_redeemable_description": "Tap here to choose an address to redeem onchain funds to",
+  "lightning_redeemable_funds": "You have redeemable onchain funds",
   "lightning_swap_out_error": "Reverse swap max < min, a reverse swap (swap out) is not possible",
   "load_more": "Load more",
   "loading_your_wallet": "Loading your wallet",

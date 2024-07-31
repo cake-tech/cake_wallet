@@ -359,6 +359,8 @@
   "lightning_invoice_warning": "결제가 완료되거나 거래가 실패 할 때까지 앱을 열어야합니다.",
   "lightning_receive_limits": "${min} sats 이상을 보내고이 주소로 ${max} SATS를 보내십시오. 이 송장을 받으면 최소 ${fee} SAT의 ${feePercent}%의 설정 수수료가 적용됩니다. 이것은 수신 된 비트 코인을 번개로 변환합니다. 온쇄 수수료가 적용됩니다. 이 주소는 한 번만 사용할 수 있습니다.",
   "lightning_received_sats": "${num} sat을 받았습니다",
+  "lightning_redeemable_description": "여기에서 탭하여 Onchain 자금을 사용할 수있는 주소를 선택하십시오.",
+  "lightning_redeemable_funds": "당신은 상환 할 수있는 Onchain 자금이 있습니다",
   "lightning_swap_out_error": "리버스 스왑 max <min, 리버스 스왑 (스왑 아웃)이 불가능합니다.",
   "load_more": "더로드하십시오",
   "loading_your_wallet": "지갑 넣기",

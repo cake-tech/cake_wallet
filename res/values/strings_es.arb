@@ -359,6 +359,8 @@
   "lightning_invoice_warning": "Debe mantener la aplicación abierta hasta que se complete el pago o la transacción fallará",
   "lightning_receive_limits": "Envíe más de ${min} SATS y hasta ${max} SATS a esta dirección. Se aplicará una tarifa de configuración de ${feePercent}% con un mínimo de ${fee} SATS al recibir esta factura. Esto convertirá cualquier bitcoin recibido en rayos. Se aplicará una tarifa en la cadena. Esta dirección solo se puede usar una vez.",
   "lightning_received_sats": "Recibió ${num} sats",
+  "lightning_redeemable_description": "Toque aquí para elegir una dirección para redimir los fondos de OnChain a",
+  "lightning_redeemable_funds": "Tienes fondos de Onchain redimibles",
   "lightning_swap_out_error": "Inverso de intercambio max <min, un intercambio inverso (intercambio) no es posible",
   "load_more": "Carga más",
   "loading_your_wallet": "Cargando tu billetera",

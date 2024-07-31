@@ -360,6 +360,8 @@
   "lightning_invoice_warning": "O gbọdọ pa app naa titi ti isanwo ti pari tabi idunadura naa yoo kuna",
   "lightning_receive_limits": "Firanṣẹ diẹ sii ju ${min} osù ati si to ${max} O si só si adirẹsi yii. Owo oso kan ti ${feePercent}% pẹlu o kere ju ${fee} Sahs yoo wa ni lilo lori gbigba ikowe yii. Eyi yoo ṣe iyipada eyikeyi ti o gba bitcoin sinu monomono. Owo lori-pq yoo lo. Adirẹsi yii le ṣee lo lẹẹkan.",
   "lightning_received_sats": "Gba ${num} Satani",
+  "lightning_redeemable_description": "Fọwọ ba ibi lati yan adirẹsi kan lati rapada awọn owo lori",
+  "lightning_redeemable_funds": "O ti ṣe irapada awọn owo Onchain",
   "lightning_swap_out_error": "Yiyipada spap max <min, snap yiyipada (swap jade) ko ṣeeṣe",
   "load_more": "Ẹru diẹ sii",
   "loading_your_wallet": "A ń ṣí àpamọ́wọ́ yín",

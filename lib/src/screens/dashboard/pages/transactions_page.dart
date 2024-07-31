@@ -74,8 +74,8 @@ class TransactionsPage extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).pushNamed(Routes.lightningRefund);
                   },
-                  title: "T: You have redeemable onchain funds",
-                  subTitle: "T: Tap here to redeem onchain funds to a bitcoin address",
+                  title: S.current.lightning_redeemable_funds,
+                  subTitle: S.current.lightning_redeemable_description,
                 ),
               );
             }),

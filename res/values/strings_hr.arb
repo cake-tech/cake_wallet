@@ -359,6 +359,8 @@
   "lightning_invoice_warning": "Aplikaciju morate držati otvorenom dok se plaćanje ne dovrši ili transakcija neće uspjeti",
   "lightning_receive_limits": "Na ovu adresu pošaljite više od ${min} SAT -a i do ${max} SAT -a. Naknada za postavljanje ${feePercent}% s najmanje ${fee} SAT -om primijenit će se nakon primanja ove fakture. To će pretvoriti bilo koji primljeni bitcoin u munje. Primjenjivat će se naknada na lancu. Ova se adresa može koristiti samo jednom.",
   "lightning_received_sats": "Primljeni ${num} sats",
+  "lightning_redeemable_description": "Dodirnite ovdje da biste odabrali adresu kako biste otkupili fondove Onchain",
+  "lightning_redeemable_funds": "Imate otkupljive onchain fondove",
   "lightning_swap_out_error": "Obrnuto zamijenite max <min, obrnuta zamjena (zamjena) nije moguća",
   "load_more": "Učitaj više",
   "loading_your_wallet": "Novčanik se učitava",

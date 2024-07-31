@@ -359,6 +359,8 @@
   "lightning_invoice_warning": "Anda harus menjaga aplikasi tetap terbuka sampai pembayaran selesai atau transaksi akan gagal",
   "lightning_receive_limits": "Kirim lebih dari ${min} sat dan hingga ${max} SAT ke alamat ini. Biaya pengaturan ${feePercent}% dengan minimum ${fee} SAT akan diterapkan setelah menerima faktur ini. Ini akan mengubah bitcoin yang diterima menjadi kilat. Biaya rantai akan diterapkan. Alamat ini hanya dapat digunakan sekali.",
   "lightning_received_sats": "Menerima ${num} sats",
+  "lightning_redeemable_description": "Ketuk di sini untuk memilih alamat untuk menebus dana Onchain",
+  "lightning_redeemable_funds": "Anda memiliki dana Onchain yang dapat ditukarkan",
   "lightning_swap_out_error": "Reverse Swap Max <min, swap terbalik (swap out) tidak mungkin",
   "load_more": "Muat lebih banyak",
   "loading_your_wallet": "Memuat dompet Anda",

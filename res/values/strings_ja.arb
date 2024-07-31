@@ -360,6 +360,8 @@
   "lightning_invoice_warning": "支払いが完了するか、トランザクションが失敗するまでアプリを開いたままにしておく必要があります",
   "lightning_receive_limits": "このアドレスに ${min} 個以上、最大 ${max} 個のSat を送信します。 この請求書の受け取り時に、${feePercent}% のセットアップ料金 (最低 ${fee} サット) が適用されます。 これにより、受け取ったビットコインがライトニングに変換されます。 オンチェーン料金が適用されます。 このアドレスは 1 回のみ使用できます。",
   "lightning_received_sats": "${num} satを受信しました",
+  "lightning_redeemable_description": "ここをタップしてアドレスを選択してオンチェーンファンドを引き換えます",
+  "lightning_redeemable_funds": "償還可能なオンチェーンファンドがあります",
   "lightning_swap_out_error": "逆スワップmax <min、リバーススワップ（スワップアウト）は不可能です",
   "load_more": "もっと読み込む",
   "loading_your_wallet": "ウォレットをロードしています",

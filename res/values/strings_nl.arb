@@ -359,6 +359,8 @@
   "lightning_invoice_warning": "U moet de app open houden totdat de betaling is voltooid of de transactie mislukt",
   "lightning_receive_limits": "Stuur meer dan ${min} sats en tot ${max} sats naar dit adres. Een installatiekosten van ${feePercent}% met een minimum van ${fee} SAT's wordt toegepast bij het ontvangen van deze factuur. Dit zal elke ontvangen bitcoin omzetten in bliksem. Een on-chain-vergoeding wordt toegepast. Dit adres kan slechts eenmaal worden gebruikt.",
   "lightning_received_sats": "Ontving ${num} sats",
+  "lightning_redeemable_description": "Tik hier om een ​​adres te kiezen om onchain -fondsen in te wisselen",
+  "lightning_redeemable_funds": "Je hebt aflosbare onchain -fondsen",
   "lightning_swap_out_error": "Reverse Swap Max <min, een omgekeerde swap (ruilen) is niet mogelijk",
   "load_more": "Meer laden",
   "loading_your_wallet": "Uw portemonnee laden",

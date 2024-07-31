@@ -359,6 +359,8 @@
   "lightning_invoice_warning": "Dapat mong panatilihing bukas ang app hanggang makumpleto ang pagbabayad o mabibigo ang transaksyon",
   "lightning_receive_limits": "Magpadala ng higit sa ${min} sats at hanggang sa ${max} sats sa address na ito. Ang isang setup fee ng ${feePercent}% na may isang minimum na ${fee} sats ay ilalapat sa pagtanggap ng invoice na ito. Ito ay i -convert ang anumang natanggap na Bitcoin sa kidlat. Ang isang on-chain fee ay ilalapat. Ang address na ito ay maaari lamang magamit nang isang beses.",
   "lightning_received_sats": "Nakatanggap ng ${num} sats",
+  "lightning_redeemable_description": "Tapikin dito upang pumili ng isang address upang tubusin ang mga pondo ng onchain sa",
+  "lightning_redeemable_funds": "Mayroon kang matubos na pondo ng onchain",
   "lightning_swap_out_error": "Ang reverse swap max <min, isang reverse swap (swap out) ay hindi posible",
   "load_more": "Mag -load pa",
   "loading_your_wallet": "Naglo -load ng iyong pitaka",

@@ -182,9 +182,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       unconfirmed: nodeState.maxReceivableMsat ~/ 1000,
       frozen: nodeState.onchainBalanceMsat ~/ 1000,
     );
-    // var refundables = await _sdk.listRefundables();
-    // print("Refundables @@@@@@@@@@@@@@@@@@@: $refundables");
-    // print(refundables.length);
   }
 
   Future<void> _handlePayments(List<Payment> payments) async {
@@ -199,8 +196,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> _handleInvoicePaid(InvoicePaidDetails details) async {
-    print("HANDLING INVOICE PAID");
-    print(details);
     _isTransactionUpdating = true;
 
     if (details.payment == null) {

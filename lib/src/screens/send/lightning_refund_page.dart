@@ -312,9 +312,8 @@ class LightningRefundPage extends BasePage {
                                             lightningSendViewModel.estimatedFeeSats.toString();
                                         feeFiatAmount = lightningSendViewModel.formattedFiatAmount(
                                             lightningSendViewModel.estimatedFeeSats);
-                                        output.cryptoAmount = "${_amountController.text} sats";
-                                        output.fiatAmount = lightningSendViewModel
-                                            .formattedFiatAmount(int.parse(_amountController.text));
+                                        output.cryptoAmount =
+                                            "${lightning!.getOnchainBalance(lightningSendViewModel.wallet)} sats";
 
                                         return ConfirmSendingAlert(
                                           alertTitle: S.current.confirm_sending,
