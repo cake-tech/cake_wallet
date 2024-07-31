@@ -140,28 +140,27 @@ class SendPageRobot {
   }
 
   Future<void> _waitForSendTransactionCompletion() async {
-    
     final Completer<void> completer = Completer<void>();
-    
+
     // Loop to wait for the async operation to complete
     while (true) {
       await Future.delayed(Duration(seconds: 1));
-    
+
       tester.printToConsole('Before in auth');
-    
+
       await _handleAuthPage();
-    
+
       tester.printToConsole('After in auth');
-    
+
       final sendPage = tester.widget<SendPage>(find.byType(SendPage));
       final state = sendPage.sendViewModel.state;
-    
+
       bool isDone = state is ExecutedSuccessfullyState;
       bool isFailed = state is FailureState;
-    
+
       tester.printToConsole('isDone: $isDone');
       tester.printToConsole('isFailed: $isFailed');
-    
+
       if (isDone || isFailed) {
         tester.printToConsole(
           isDone ? 'Completer is done' : 'Completer is done though operation failed',
@@ -174,9 +173,9 @@ class SendPageRobot {
         await tester.pump();
       }
     }
-    
+
     await expectLater(completer.future, completes);
-    
+
     tester.printToConsole('Done confirming sending operation');
   }
 
@@ -185,13 +184,18 @@ class SendPageRobot {
     if (authPage) {
       tester.printToConsole('Auth');
       await tester.pump();
+      try {
+        await authPageRobot.enterPinCode(CommonTestConstants.pin, false);
+        tester.printToConsole('Auth done');
 
-      await authPageRobot.enterPinCode(CommonTestConstants.pin, false);
-      tester.printToConsole('Auth done');
+        await tester.pump();
 
-      await tester.pump();
-
-      tester.printToConsole('Auth pump done');
+        tester.printToConsole('Auth pump done');
+      } catch (e) {
+        tester.printToConsole('Auth failed, retrying');
+        await tester.pump();
+        _handleAuthPage();
+      }
     }
   }
 
