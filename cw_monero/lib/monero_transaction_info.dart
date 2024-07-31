@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_monero/api/structs/transaction_info_row.dart';
