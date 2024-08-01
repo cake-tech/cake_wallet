@@ -30,7 +30,11 @@ class LightningWalletService extends WalletService<
   @override
   Future<LightningWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
-    final mnemonic = bip39.generateMnemonic(strength: strength);
+    late String mnemonic;
+    // keep generating bip39 mnemonics until it is NOT a valid electrum mnemonic
+    do {
+      mnemonic = bip39.generateMnemonic(strength: strength);
+    } while (validateElectrumMnemonic(mnemonic));
 
     final wallet = await LightningWalletBase.create(
       mnemonic: mnemonic,
@@ -117,7 +121,8 @@ class LightningWalletService extends WalletService<
   @override
   Future<LightningWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    if (!bip39.validateMnemonic(credentials.mnemonic) && !validateMnemonic(credentials.mnemonic)) {
+    if (!bip39.validateMnemonic(credentials.mnemonic) &&
+        !validateElectrumMnemonic(credentials.mnemonic)) {
       throw BitcoinMnemonicIsIncorrectException();
     }
 
