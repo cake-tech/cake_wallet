@@ -1,28 +1,28 @@
-# # Commenting out for now, will bring back after I get the CI flow for Automated Testing stable
-# name: Automated Integration Test
+# Commenting out for now, will bring back after I get the CI flow for Automated Testing stable
+name: Automated Integration Test
 
-# on:
-#   pull_request:
-#     branches: [main]
-#   workflow_dispatch:
-#     inputs:
-#       branch:
-#         description: "Branch name to build"
-#         required: true
-#         default: "main"
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch name to build"
+        required: true
+        default: "main"
 
-# jobs:
-#   Automated_integration_test:
-#     runs-on: ubuntu-20.04
-#     strategy:
-#       fail-fast: false
-#       matrix:
-#         api-level: [29]
-#         arch: [x86, x86_64]
-#     env:
-#       STORE_PASS: test@cake_wallet
-#       KEY_PASS: test@cake_wallet
-#       PR_NUMBER: ${{ github.event.number }}
+jobs:
+  Automated_integration_test:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [29]
+        arch: [x86, x86_64]
+    env:
+      STORE_PASS: test@cake_wallet
+      KEY_PASS: test@cake_wallet
+      PR_NUMBER: ${{ github.event.number }}
 
 #     steps:
 #       - name: is pr
