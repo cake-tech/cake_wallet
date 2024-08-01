@@ -193,7 +193,7 @@ abstract class HavenWalletBase
       final address = output.isParsedAddress && (output.extractedAddress?.isNotEmpty ?? false)
           ? output.extractedAddress!
           : output.address;
-      final amount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
+      final String? amount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
       final int? formattedAmount = output.sendAll ? null : output.formattedCryptoAmount;
 
       if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
