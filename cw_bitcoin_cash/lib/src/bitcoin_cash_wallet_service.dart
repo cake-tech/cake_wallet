@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:bip39/bip39.dart';
+import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -107,7 +107,7 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
   @override
   Future<BitcoinCashWallet> restoreFromSeed(BitcoinCashRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    if (!validateMnemonic(credentials.mnemonic)) {
+    if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw BitcoinCashMnemonicIsIncorrectException();
     }
 

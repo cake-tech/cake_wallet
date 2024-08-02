@@ -106,6 +106,7 @@ abstract class WalletCreationVMBase with Store {
         );
       case WalletType.bitcoin:
       case WalletType.lightning:
+        return bitcoin!.getElectrumDerivations()[DerivationType.bip39]!.first;
       case WalletType.litecoin:
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       default:

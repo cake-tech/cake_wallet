@@ -201,10 +201,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
         case WalletType.nano:
           return nano!.createNanoRestoreWalletFromKeysCredentials(
-              name: name,
-              password: password,
-              seedKey: options['private_key'] as String,
-              derivationType: options["derivationType"] as DerivationType);
+            name: name,
+            password: password,
+            seedKey: options['private_key'] as String,
+            derivationType: options["derivationType"] as DerivationType,
+          );
         case WalletType.polygon:
           return polygon!.createPolygonRestoreWalletFromPrivateKey(
             name: name,
@@ -264,6 +265,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           mnemonic: mnemonic,
           seedKey: seedKey,
           node: node,
+        );
+      case WalletType.lightning:
+        String? mnemonic = credentials['seed'] as String?;
+        String? passphrase = credentials['passphrase'] as String?;
+        return bitcoin!.getDerivationsFromMnemonic(
+          mnemonic: mnemonic!,
+          node: node,
+          passphrase: passphrase,
         );
       default:
         break;

@@ -157,6 +157,20 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                       widget.toggleUseTestnet!.call(testnetValue);
                     });
               }),
+            if ([WalletType.lightning, WalletType.bitcoin]
+                .contains(widget.privacySettingsViewModel.type))
+              Builder(builder: (_) {
+                final val = testnetValue!;
+                return SettingsSwitcherCell(
+                    title: "T: treat electrum seeds as bip39",
+                    value: val,
+                    onValueChange: (_, __) {
+                      setState(() {
+                        testnetValue = !val;
+                      });
+                      widget.toggleUseTestnet!.call(testnetValue);
+                    });
+              }),
           ],
         ),
         bottomSectionPadding: EdgeInsets.all(24),

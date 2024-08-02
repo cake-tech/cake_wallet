@@ -290,11 +290,15 @@ class CWBitcoin extends Bitcoin {
     required String mnemonic,
     required Node node,
     String? passphrase,
+    bool restoreElectrumAsBip39 = false,
   }) async {
     List<DerivationInfo> list = [];
 
     List<DerivationType> types = await compareDerivationMethods(mnemonic: mnemonic, node: node);
     if (types.length == 1 && types.first == DerivationType.electrum) {
+      if (restoreElectrumAsBip39) {
+        return [getElectrumDerivations()[DerivationType.bip39]!.first];
+      }
       return [getElectrumDerivations()[DerivationType.electrum]!.first];
     }
 

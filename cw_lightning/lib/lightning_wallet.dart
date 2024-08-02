@@ -129,7 +129,10 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
-      seedBytes: await universalMnemonictoSeedBytes(mnemonic),
+      seedBytes: await universalMnemonictoSeedBytes(
+        mnemonic,
+        derivationType: walletInfo.derivationInfo?.derivationType,
+      ),
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
@@ -156,7 +159,10 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         unconfirmed: snp.balance.unconfirmed,
         frozen: snp.balance.frozen,
       ),
-      seedBytes: await universalMnemonictoSeedBytes(snp.mnemonic!),
+      seedBytes: await universalMnemonictoSeedBytes(
+        snp.mnemonic!,
+        derivationType: walletInfo.derivationInfo?.derivationType,
+      ),
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,

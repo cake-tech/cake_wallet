@@ -6,6 +6,7 @@ import 'package:cryptography/cryptography.dart' as cryptography;
 import 'package:cw_core/sec_random_native.dart';
 import 'package:cw_core/utils/text_normalizer.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/wallet_info.dart';
 
 const segwit = '100';
 final wordlist = englishWordlist;
@@ -131,16 +132,44 @@ bool validateElectrumMnemonic(String mnemonic, {String prefix = segwit}) {
   }
 }
 
-Future<Uint8List> universalMnemonictoSeedBytes(String mnemonic) async {
+Future<Uint8List> universalMnemonictoSeedBytes(
+  String mnemonic, {
+  DerivationType? derivationType,
+  String passphrase = "",
+}) async {
   bool isValidElectrum = validateElectrumMnemonic(mnemonic);
   bool isValidBip39 = bip39.validateMnemonic(mnemonic);
 
+  Uint8List? seedBytes;
+
+  // override the default:
+  if (derivationType != null) {
+    switch (derivationType) {
+      case DerivationType.bip39:
+        seedBytes = await bip39.mnemonicToSeed(
+          mnemonic,
+          passphrase: passphrase,
+        );
+        break;
+      case DerivationType.electrum:
+        seedBytes = await electrumMnemonicToSeedBytes(mnemonic);
+        break;
+      default:
+        throw Exception("Invalid derivation type for bitcoin!");
+    }
+    return seedBytes;
+  }
+
   if (isValidElectrum) {
-    return await electrumMnemonicToSeedBytes(mnemonic);
+    seedBytes = await electrumMnemonicToSeedBytes(mnemonic);
   }
 
   if (isValidBip39) {
-    return await bip39.mnemonicToSeed(mnemonic);
+    seedBytes = await bip39.mnemonicToSeed(mnemonic);
+  }
+
+  if (seedBytes != null) {
+    return seedBytes;
   }
 
   throw Exception("Invalid mnemonic!");
