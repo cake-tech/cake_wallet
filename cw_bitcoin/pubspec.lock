@@ -41,15 +41,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
-  bech32:
-    dependency: transitive
-    description:
-      path: "."
-      ref: "cake-0.2.2"
-      resolved-ref: "05755063b593aa6cca0a4820a318e0ce17de6192"
-      url: "https://github.com/cake-tech/bech32.git"
-    source: git
-    version: "0.2.2"
   bip32:
     dependency: transitive
     description:
@@ -79,29 +70,20 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v3
-      resolved-ref: cc99eedb1d28ee9376dda0465ef72aa627ac6149
+      ref: cake-update-v4
+      resolved-ref: "593d9cebc0c132d96e4df7a183ded585203361f5"
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
-    version: "4.2.1"
-  bitcoin_flutter:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: cake-update-v4
-      resolved-ref: e19ffb7e7977278a75b27e0479b3c6f4034223b3
-      url: "https://github.com/cake-tech/bitcoin_flutter.git"
-    source: git
-    version: "2.1.0"
+    version: "4.7.0"
   blockchain_utils:
     dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v1
-      resolved-ref: cabd7e0e16c4da9920338c76eff3aeb8af0211f3
+      ref: cake-update-v2
+      resolved-ref: "2767a54ed2b0a23494e4e96a3fe5b5022b834b70"
       url: "https://github.com/cake-tech/blockchain_utils"
     source: git
-    version: "2.1.2"
+    version: "3.3.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -792,11 +774,9 @@ packages:
   sp_scanner:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "sp_v2.0.0"
-      resolved-ref: "62c152b9086cd968019128845371072f7e1168de"
-      url: "https://github.com/cake-tech/sp_scanner"
-    source: git
+      path: "/home/rafael/Working/sp_scanner"
+      relative: false
+    source: path
     version: "0.0.1"
   stack_trace:
     dependency: transitive

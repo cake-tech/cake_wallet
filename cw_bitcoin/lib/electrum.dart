@@ -236,9 +236,12 @@ class ElectrumClient {
         return [];
       });
 
-  Future<Map<String, dynamic>> getTransactionRaw({required String hash}) async =>
-      callWithTimeout(method: 'blockchain.transaction.get', params: [hash, true], timeout: 10000)
-          .then((dynamic result) {
+  Future<dynamic> getTransaction({required String hash, required bool verbose}) async =>
+      callWithTimeout(
+          method: 'blockchain.transaction.get', params: [hash, verbose], timeout: 10000);
+
+  Future<Map<String, dynamic>> getTransactionVerbose({required String hash}) =>
+      getTransaction(hash: hash, verbose: true).then((dynamic result) {
         if (result is Map<String, dynamic>) {
           return result;
         }
@@ -246,9 +249,8 @@ class ElectrumClient {
         return <String, dynamic>{};
       });
 
-  Future<String> getTransactionHex({required String hash}) async =>
-      callWithTimeout(method: 'blockchain.transaction.get', params: [hash, false], timeout: 10000)
-          .then((dynamic result) {
+  Future<String> getTransactionHex({required String hash}) =>
+      getTransaction(hash: hash, verbose: false).then((dynamic result) {
         if (result is String) {
           return result;
         }
@@ -336,7 +338,7 @@ class ElectrumClient {
     try {
       final topDoubleString = await estimatefee(p: 1);
       final middleDoubleString = await estimatefee(p: 5);
-      final bottomDoubleString = await estimatefee(p: 100);
+      final bottomDoubleString = await estimatefee(p: 10);
       final top = (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000).round();
       final middle = (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000).round();
       final bottom = (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000).round();
