@@ -182,7 +182,8 @@ abstract class BalanceViewModelBase with Store {
     }
     // 1000 sats is arbitrary but we don't have a better way to check
     // what the actual minimum is
-    if (frozenBalance.isNotEmpty && int.parse(frozenBalance) > 1000) {
+    int? bal = int.tryParse(frozenBalance.replaceAll(',', '')) ?? 0;
+    if (bal > 1000) {
       return true;
     }
     return false;
