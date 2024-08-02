@@ -23,6 +23,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -425,15 +426,19 @@ class BalanceRowWidget extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Text('${availableBalanceLabel}',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w400,
-                                  color: Theme.of(context)
-                                      .extension<BalancePageTheme>()!
-                                      .labelTextColor,
-                                  height: 1)),
+                          Semantics(
+                            hint: 'Double tap to see more information',
+                            container: true,
+                            child: Text('${availableBalanceLabel}',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w400,
+                                    color: Theme.of(context)
+                                        .extension<BalancePageTheme>()!
+                                        .labelTextColor,
+                                    height: 1)),
+                          ),
                           if (hasAdditionalBalance)
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 4),

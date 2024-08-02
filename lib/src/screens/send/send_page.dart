@@ -212,7 +212,12 @@ class SendPage extends BasePage {
                           final count = sendViewModel.outputs.length;
 
                           return count > 1
-                              ? SmoothPageIndicator(
+                              ? Semantics (
+                          label: 'Page Indicator',
+                          hint: 'Swipe to change receiver',
+                              excludeSemantics: true,
+                                child:
+                          SmoothPageIndicator(
                                   controller: controller,
                                   count: count,
                                   effect: ScrollingDotsEffect(
@@ -226,7 +231,7 @@ class SendPage extends BasePage {
                                       activeDotColor: Theme.of(context)
                                           .extension<SendPageTheme>()!
                                           .templateBackgroundColor),
-                                )
+                                ))
                               : Offstage();
                         },
                       ),

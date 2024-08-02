@@ -177,16 +177,22 @@ class WalletRestorePage extends BasePage {
                 if (_pages.length > 1)
                   Padding(
                     padding: EdgeInsets.only(top: 10),
-                    child: SmoothPageIndicator(
-                      controller: _controller,
-                      count: _pages.length,
-                      effect: ColorTransitionEffect(
-                        spacing: 6.0,
-                        radius: 6.0,
-                        dotWidth: 6.0,
-                        dotHeight: 6.0,
-                        dotColor: Theme.of(context).hintColor.withOpacity(0.5),
-                        activeDotColor: Theme.of(context).hintColor,
+                    child: Semantics(
+                      button: false,
+                      label: 'Page Indicator',
+                      hint: 'Swipe to change restore mode',
+                      excludeSemantics: true,
+                      child: SmoothPageIndicator(
+                        controller: _controller,
+                        count: _pages.length,
+                        effect: ColorTransitionEffect(
+                          spacing: 6.0,
+                          radius: 6.0,
+                          dotWidth: 6.0,
+                          dotHeight: 6.0,
+                          dotColor: Theme.of(context).hintColor.withOpacity(0.5),
+                          activeDotColor: Theme.of(context).hintColor,
+                        ),
                       ),
                     ),
                   ),

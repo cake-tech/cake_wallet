@@ -94,21 +94,27 @@ class SendTemplatePage extends BasePage {
                           final count = sendTemplateViewModel.recipients.length;
 
                           return count > 1
-                              ? SmoothPageIndicator(
-                                  controller: controller,
-                                  count: count,
-                                  effect: ScrollingDotsEffect(
-                                      spacing: 6.0,
-                                      radius: 6.0,
-                                      dotWidth: 6.0,
-                                      dotHeight: 6.0,
-                                      dotColor: Theme.of(context)
-                                          .extension<SendPageTheme>()!
-                                          .indicatorDotColor,
-                                      activeDotColor: Theme.of(context)
-                                          .extension<DashboardPageTheme>()!
-                                          .indicatorDotTheme
-                                          .activeIndicatorColor))
+                              ? Semantics(
+                            button: false,
+                            label: 'Page Indicator',
+                            hint: 'Swipe to change receiver',
+                            excludeSemantics: true,
+                                child: SmoothPageIndicator(
+                                    controller: controller,
+                                    count: count,
+                                    effect: ScrollingDotsEffect(
+                                        spacing: 6.0,
+                                        radius: 6.0,
+                                        dotWidth: 6.0,
+                                        dotHeight: 6.0,
+                                        dotColor: Theme.of(context)
+                                            .extension<SendPageTheme>()!
+                                            .indicatorDotColor,
+                                        activeDotColor: Theme.of(context)
+                                            .extension<DashboardPageTheme>()!
+                                            .indicatorDotTheme
+                                            .activeIndicatorColor)),
+                              )
                               : Offstage();
                         },
                       ),
