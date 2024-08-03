@@ -14,8 +14,8 @@ cd $LIBWALLET_PATH
 git checkout $LIBWALLET_VERSION
 
 SYSROOT=`xcrun --sdk iphoneos --show-sdk-path`
-CLANG="clang -isysroot ${SYSROOT}"
-CLANGXX="clang++ -isysroot ${SYSROOT}"
+CLANG="clang -target arm64-apple-ios -isysroot ${SYSROOT}"
+CLANGXX="clang++ -target arm64-apple-ios -isysroot ${SYSROOT}"
 
 if [ -e ./build ]; then
        rm -fr ./build

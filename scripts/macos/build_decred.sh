@@ -3,7 +3,7 @@
 . ./config.sh
 
 LIBWALLET_PATH="${EXTERNAL_MACOS_SOURCE_DIR}/libwallet"
-LIBWALLET_URL="https://github.com/itswisdomagain/libwallet.git"
+LIBWALLET_URL="https://github.com/decred/libwallet.git"
 LIBWALLET_VERSION="v1.0.4"
 
 echo "======================= DECRED LIBWALLET ========================="
@@ -13,7 +13,7 @@ if [ -e $LIBWALLET_PATH ]; then
        rm -fr $LIBWALLET_PATH
 fi
 mkdir -p $LIBWALLET_PATH
-git clone $LIBWALLET_URL $LIBWALLET_PATH --branch cgo
+git clone $LIBWALLET_URL $LIBWALLET_PATH
 cd $LIBWALLET_PATH
 git checkout $LIBWALLET_VERSION
 
