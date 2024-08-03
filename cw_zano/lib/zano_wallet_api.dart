@@ -27,7 +27,7 @@ mixin ZanoWalletApi {
   static const _maxInvokeAttempts = 10;
   static const _logInfo = true;
   static const _logError = true;
-  static const _logJson = false;
+  static const _logJson = true;
   static const int _zanoMixinValue = 10;
 
   int _hWallet = 0;

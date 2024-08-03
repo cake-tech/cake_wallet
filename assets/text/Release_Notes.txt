@@ -1,6 +1,5 @@
-Add Solana wallet
-Support ALL Bitcoin address types (Legacy, Segwit (both variants), Taproot)
-Enhance Sending/Receiving flow for Bitcoin
-Improve fee calculations in Bitcoin
-New themes
-Bug fixes and enhancements
+Monero and Ethereum enhancements
+Synchronization improvements
+Exchange flow enhancements
+Ledger improvements
+Bug fixes

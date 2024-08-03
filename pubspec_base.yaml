@@ -11,12 +11,6 @@ dependencies:
       ref: cake-4.0.2
       version: 4.0.2
   shared_preferences: ^2.0.15
-  flutter_secure_storage:
-    git:
-      url: https://github.com/cake-tech/flutter_secure_storage.git
-      path: flutter_secure_storage
-      ref: cake-8.0.0
-      version: 8.0.0
   # provider: ^6.0.3
   rxdart: ^0.27.4
   yaml: ^3.1.1
@@ -26,15 +20,17 @@ dependencies:
   path_provider: ^2.0.11
   mobx: ^2.1.4
   flutter_mobx: ^2.0.6+5
-  flutter_slidable: ^2.0.0
+  flutter_slidable: ^3.0.1
   share_plus: ^4.0.10
   # date_range_picker: ^1.0.6
   #https://api.flutter.dev/flutter/material/showDateRangePicker.html
   dio: ^4.0.6
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  local_auth: ^2.1.0
   local_auth_android: 1.0.21
+  flutter_local_authentication:
+    git:
+      url: https://github.com/cake-tech/flutter_local_authentication
   package_info: ^2.0.0
   #package_info_plus: ^1.4.2
   devicelocale:
@@ -64,8 +60,6 @@ dependencies:
     git:
       url: https://github.com/cake-tech/flutter_file_picker.git
       ref: master
-  unorm_dart: ^0.2.0
-  # check unorm_dart for usage and for replace
   permission_handler: ^10.0.0
   device_display_brightness:
     git:
@@ -104,13 +98,15 @@ dependencies:
 #      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
-  polyseed: ^0.0.2
+  polyseed: ^0.0.5
   nostr_tools: ^1.0.9
   solana: ^0.30.1
   bitcoin_base:
     git:
-      url: https://github.com/cake-tech/bitcoin_base.git
-      ref: cake-update-v1
+      url: https://github.com/cake-tech/bitcoin_base
+      ref: cake-update-v3
+  ledger_flutter: ^1.0.1
+  hashlib: 1.12.0
 
 dev_dependencies:
   flutter_test:
@@ -120,7 +116,7 @@ dev_dependencies:
   mobx_codegen: ^2.1.1
   build_resolvers: ^2.0.9
   hive_generator: ^1.1.3
-  flutter_launcher_icons: ^0.11.0
+  # flutter_launcher_icons: ^0.11.0
   # check flutter_launcher_icons for usage
   pedantic: ^1.8.0
   # replace https://github.com/dart-lang/lints#migrating-from-packagepedantic
@@ -128,11 +124,21 @@ dev_dependencies:
     git:
       url: https://github.com/cake-tech/google-translator.git
       version: 1.0.0
+  archive: ^3.6.1
 
 dependency_overrides:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
+  ledger_flutter:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter.git
+      ref: cake-stax
+  web3dart:
+    git:
+      url: https://github.com/cake-tech/web3dart.git
+      ref: cake
+  flutter_secure_storage_platform_interface: 1.0.2
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
@@ -158,6 +164,9 @@ flutter:
     - assets/nano_pow_node_list.yml
     - assets/polygon_node_list.yml
     - assets/solana_node_list.yml
+    - assets/tron_node_list.yml
+    - assets/wownero_node_list.yml
+    - assets/zano_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

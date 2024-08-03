@@ -11,7 +11,8 @@ enum ParseFrom {
   ens,
   contact,
   mastodon,
-  nostr
+  nostr,
+  thorChain
 }
 
 class ParsedAddress {
@@ -130,6 +131,14 @@ class ParsedAddress {
       parseFrom: ParseFrom.nostr,
       profileImageUrl: profileImageUrl,
       profileName: profileName,
+    );
+  }
+
+  factory ParsedAddress.thorChainAddress({required String address, required String name}) {
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.thorChain,
     );
   }
 

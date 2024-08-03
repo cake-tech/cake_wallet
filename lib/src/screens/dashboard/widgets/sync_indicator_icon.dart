@@ -20,6 +20,7 @@ class SyncIndicatorIcon extends StatelessWidget {
   static const String created = 'created';
   static const String fetching = 'fetching';
   static const String finished = 'finished';
+  static const String success = 'success';
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +46,7 @@ class SyncIndicatorIcon extends StatelessWidget {
           indicatorColor = Colors.red;
           break;
         case finished:
+        case success:
           indicatorColor = PaletteDark.brightGreen;
           break;
         default:

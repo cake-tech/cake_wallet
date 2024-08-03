@@ -67,8 +67,7 @@ class ReceivePage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) =>
-          GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   Widget trailing(BuildContext context) {
@@ -99,146 +98,145 @@ class ReceivePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final isElectrumWallet = addressListViewModel.isElectrumWallet;
-    return (addressListViewModel.type == WalletType.monero ||
-            addressListViewModel.type == WalletType.haven ||
-            addressListViewModel.type == WalletType.nano ||
-        isElectrumWallet)
-        ? KeyboardActions(
-            config: KeyboardActionsConfig(
-                keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-                keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
-                nextFocus: false,
-                actions: [
-                  KeyboardActionsItem(
-                    focusNode: _cryptoAmountFocus,
-                    toolbarButtons: [(_) => KeyboardDoneButton()],
-                  )
-                ]),
-            child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(24, 50, 24, 24),
-                    child: QRWidget(
-                        addressListViewModel: addressListViewModel,
-                        formKey: _formKey,
-                        heroTag: _heroTag,
-                        amountTextFieldFocusNode: _cryptoAmountFocus,
-                        amountController: _amountController,
-                        isLight: currentTheme.type == ThemeType.light),
-                  ),
-                  Observer(
-                      builder: (_) => ListView.separated(
-                          padding: EdgeInsets.all(0),
-                          separatorBuilder: (context, _) => const HorizontalSectionDivider(),
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: addressListViewModel.items.length,
-                          itemBuilder: (context, index) {
-                            final item = addressListViewModel.items[index];
-                            Widget cell = Container();
-
-                            if (item is WalletAccountListHeader) {
-                              cell = HeaderTile(
-                                  showTrailingButton: true,
-                                  walletAddressListViewModel: addressListViewModel,
-                                  trailingButtonTap: () async {
-                                    if (addressListViewModel.type == WalletType.monero ||
-                                        addressListViewModel.type == WalletType.haven) {
-                                      await showPopUp<void>(
-                                          context: context,
-                                          builder: (_) => getIt.get<MoneroAccountListPage>());
-                                    } else {
-                                      await showPopUp<void>(
-                                          context: context,
-                                          builder: (_) => getIt.get<NanoAccountListPage>());
-                                    }
-                                  },
-                                  title: S.of(context).accounts,
-                                  trailingIcon: Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 14,
-                                    color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
-                                  ));
-                            }
-
-                            if (item is WalletAddressListHeader) {
-                                cell = HeaderTile(
-                                    title: S.of(context).addresses,
-                                    walletAddressListViewModel: addressListViewModel,
-                                    showTrailingButton: !addressListViewModel.isAutoGenerateSubaddressEnabled,
-                                    showSearchButton: true,
-                                    trailingButtonTap: () =>
-                                        Navigator.of(context).pushNamed(Routes.newSubaddress),
-                                    trailingIcon: Icon(
-                                      Icons.add,
-                                      size: 20,
-                                      color: Theme.of(context)
-                                          .extension<ReceivePageTheme>()!
-                                          .iconsColor,
-                                    ));
-                              }
-
-                            if (item is WalletAddressListItem) {
-                              cell = Observer(builder: (_) {
-                                final isCurrent =
-                                    item.address == addressListViewModel.address.address;
-                                final backgroundColor = isCurrent
-                                    ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor
-                                    : Theme.of(context).extension<ReceivePageTheme>()!.tilesBackgroundColor;
-                                final textColor = isCurrent
-                                    ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileTextColor
-                                    : Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor;
-
-                                return AddressCell.fromItem(item,
-                                    isCurrent: isCurrent,
-                                    hasBalance: addressListViewModel.isElectrumWallet,
-                                    backgroundColor: backgroundColor,
-                                    textColor: textColor,
-                                    onTap: (_) => addressListViewModel.setAddress(item),
-                                    onEdit: () => Navigator.of(context)
-                                        .pushNamed(Routes.newSubaddress, arguments: item));
-                              });
-                            }
-
-                            return index != 0
-                                ? cell
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(30),
-                                        topRight: Radius.circular(30)),
-                                    child: cell,
-                                  );
-                          })),
-                ],
+    return KeyboardActions(
+        config: KeyboardActionsConfig(
+            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+            nextFocus: false,
+            actions: [
+              KeyboardActionsItem(
+                focusNode: _cryptoAmountFocus,
+                toolbarButtons: [(_) => KeyboardDoneButton()],
+              )
+            ]),
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.fromLTRB(24, 50, 24, 24),
+                child: QRWidget(
+                    addressListViewModel: addressListViewModel,
+                    formKey: _formKey,
+                    heroTag: _heroTag,
+                    amountTextFieldFocusNode: _cryptoAmountFocus,
+                    amountController: _amountController,
+                    isLight: currentTheme.type == ThemeType.light),
               ),
-            ))
-        : Padding(
-            padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
-            child: Column(
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: QRWidget(
-                      formKey: _formKey,
-                      heroTag: _heroTag,
-                      addressListViewModel: addressListViewModel,
-                      amountTextFieldFocusNode: _cryptoAmountFocus,
-                      amountController: _amountController,
-                      isLight: currentTheme.type == ThemeType.light),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: SizedBox(),
-                ),
-                Text(S.of(context).electrum_address_disclaimer,
+              Observer(
+                  builder: (_) => ListView.separated(
+                      padding: EdgeInsets.all(0),
+                      separatorBuilder: (context, _) => const HorizontalSectionDivider(),
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: addressListViewModel.items.length,
+                      itemBuilder: (context, index) {
+                        final item = addressListViewModel.items[index];
+                        Widget cell = Container();
+
+                        if (item is WalletAccountListHeader) {
+                          cell = HeaderTile(
+                              showTrailingButton: true,
+                              walletAddressListViewModel: addressListViewModel,
+                              trailingButtonTap: () async {
+                                if (addressListViewModel.type == WalletType.monero ||
+                                    addressListViewModel.type == WalletType.wownero ||
+                                    addressListViewModel.type == WalletType.haven) {
+                                  await showPopUp<void>(
+                                      context: context,
+                                      builder: (_) => getIt.get<MoneroAccountListPage>());
+                                } else {
+                                  await showPopUp<void>(
+                                      context: context,
+                                      builder: (_) => getIt.get<NanoAccountListPage>());
+                                }
+                              },
+                              title: S.of(context).accounts,
+                              trailingIcon: Icon(
+                                Icons.arrow_forward_ios,
+                                size: 14,
+                                color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+                              ));
+                        }
+
+                        if (item is WalletAddressListHeader) {
+                          final hasTitle = item.title != null;
+
+                          cell = HeaderTile(
+                            title: hasTitle ? item.title! : S.of(context).addresses,
+                            walletAddressListViewModel: addressListViewModel,
+                            showTrailingButton:
+                                !addressListViewModel.isAutoGenerateSubaddressEnabled && !hasTitle,
+                            showSearchButton: true,
+                            trailingButtonTap: () =>
+                                Navigator.of(context).pushNamed(Routes.newSubaddress),
+                            trailingIcon: hasTitle
+                                ? null
+                                : Icon(
+                                    Icons.add,
+                                    size: 20,
+                                    color:
+                                        Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+                                  ),
+                          );
+                        }
+
+                        if (item is WalletAddressListItem) {
+                          cell = Observer(builder: (_) {
+                            final isCurrent = item.address == addressListViewModel.address.address;
+                            final backgroundColor = isCurrent
+                                ? Theme.of(context)
+                                    .extension<ReceivePageTheme>()!
+                                    .currentTileBackgroundColor
+                                : Theme.of(context)
+                                    .extension<ReceivePageTheme>()!
+                                    .tilesBackgroundColor;
+                            final textColor = isCurrent
+                                ? Theme.of(context)
+                                    .extension<ReceivePageTheme>()!
+                                    .currentTileTextColor
+                                : Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor;
+
+                            return AddressCell.fromItem(
+                              item,
+                              isCurrent: isCurrent,
+                              hasBalance: addressListViewModel.isElectrumWallet,
+                              backgroundColor: backgroundColor,
+                              textColor: textColor,
+                              onTap: item.isOneTimeReceiveAddress == true
+                                  ? null
+                                  : (_) => addressListViewModel.setAddress(item),
+                              onEdit: item.isOneTimeReceiveAddress == true || item.isPrimary
+                                  ? null
+                                  : () => Navigator.of(context)
+                                      .pushNamed(Routes.newSubaddress, arguments: item),
+                              onDelete: !addressListViewModel.isSilentPayments || item.isPrimary
+                                  ? null
+                                  : () => addressListViewModel.deleteAddress(item),
+                            );
+                          });
+                        }
+
+                        return index != 0
+                            ? cell
+                            : ClipRRect(
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+                                child: cell,
+                              );
+                      })),
+              Padding(
+                padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
+                child: Text(
+                    addressListViewModel.isSilentPayments
+                        ? S.of(context).silent_payments_disclaimer
+                        : S.of(context).electrum_address_disclaimer,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 15,
                         color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor)),
-              ],
-            ),
-          );
+              ),
+            ],
+          ),
+        ));
   }
 }

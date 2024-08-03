@@ -1,52 +1,53 @@
 import 'dart:async';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
-import 'package:cake_wallet/core/auth_service.dart';
-import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/default_settings_migration.dart';
+import 'package:cake_wallet/entities/get_encryption_key.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/language_service.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/locales/locale.dart';
-import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/reactions/bootstrap.dart';
+import 'package:cake_wallet/router.dart' as Router;
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/root/root.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
-import 'package:cw_core/address_info.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/address_info.dart';
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/router.dart' as Router;
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/bootstrap.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/entities/get_encryption_key.dart';
-import 'package:cake_wallet/entities/contact.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cake_wallet/entities/default_settings_migration.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/entities/template.dart';
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/exchange_template.dart';
-import 'package:cake_wallet/src/screens/root/root.dart';
-import 'package:uni_links/uni_links.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cw_core/cake_hive.dart';
+import 'package:hive/hive.dart';
+import 'package:cw_core/root_dir.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cw_core/window_size.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
-final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
 Future<void> main() async {
+  bool isAppRunning = false;
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
@@ -60,18 +61,50 @@ Future<void> main() async {
       return true;
     };
 
+    await setDefaultMinimumWindowSize();
+
     await CakeHive.close();
 
     await initializeAppConfigs();
 
     runApp(App());
+
+    isAppRunning = true;
   }, (error, stackTrace) async {
+    if (!isAppRunning) {
+      runApp(
+        MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: Container(
+                margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
+                child: Column(
+                  children: [
+                    Text(
+                      'Error:\n${error.toString()}',
+                      style: TextStyle(fontSize: 22),
+                    ),
+                    Text(
+                      'Stack trace:\n${stackTrace.toString()}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
 
 Future<void> initializeAppConfigs() async {
-  final appDir = await getApplicationDocumentsDirectory();
+  setRootDirFromEnv();
+  final appDir = await getAppDir();
   CakeHive.init(appDir.path);
 
   if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
@@ -102,6 +135,14 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(DerivationTypeAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(DERIVATION_INFO_TYPE_ID)) {
+    CakeHive.registerAdapter(DerivationInfoAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(HARDWARE_WALLET_TYPE_TYPE_ID)) {
+    CakeHive.registerAdapter(HardwareWalletTypeAdapter());
+  }
+
   if (!CakeHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
     CakeHive.registerAdapter(WalletTypeAdapter());
   }
@@ -126,9 +167,8 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
   }
 
-  final secureStorage = FlutterSecureStorage(
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-  );
+  final secureStorage = secureStorageShared;
+
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
@@ -149,25 +189,26 @@ Future<void> initializeAppConfigs() async {
   final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
 
   await initialSetup(
-      sharedPreferences: await SharedPreferences.getInstance(),
-      nodes: nodes,
-      powNodes: powNodes,
-      walletInfoSource: walletInfoSource,
-      contactSource: contacts,
-      tradesSource: trades,
-      ordersSource: orders,
-      unspentCoinsInfoSource: unspentCoinsInfoSource,
-      // fiatConvertationService: fiatConvertationService,
-      templates: templates,
-      exchangeTemplates: exchangeTemplates,
-      transactionDescriptions: transactionDescriptions,
-      secureStorage: secureStorage,
-      anonpayInvoiceInfo: anonpayInvoiceInfo,
-      initialMigrationVersion: 27);
+    sharedPreferences: await SharedPreferences.getInstance(),
+    nodes: nodes,
+    powNodes: powNodes,
+    walletInfoSource: walletInfoSource,
+    contactSource: contacts,
+    tradesSource: trades,
+    ordersSource: orders,
+    unspentCoinsInfoSource: unspentCoinsInfoSource,
+    // fiatConvertationService: fiatConvertationService,
+    templates: templates,
+    exchangeTemplates: exchangeTemplates,
+    transactionDescriptions: transactionDescriptions,
+    secureStorage: secureStorage,
+    anonpayInvoiceInfo: anonpayInvoiceInfo,
+    initialMigrationVersion: 40,
+  );
 }
 
 Future<void> initialSetup(
-    {required SharedPreferences sharedPreferences, 
+    {required SharedPreferences sharedPreferences,
     required Box<Node> nodes,
     required Box<Node> powNodes,
     required Box<WalletInfo> walletInfoSource,
@@ -178,7 +219,7 @@ Future<void> initialSetup(
     required Box<Template> templates,
     required Box<ExchangeTemplate> exchangeTemplates,
     required Box<TransactionDescription> transactionDescriptions,
-    required FlutterSecureStorage secureStorage,
+    required SecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
@@ -193,18 +234,20 @@ Future<void> initialSetup(
       nodes: nodes,
       powNodes: powNodes);
   await setup(
-      walletInfoSource: walletInfoSource,
-      nodeSource: nodes,
-      powNodeSource: powNodes,
-      contactSource: contactSource,
-      tradesSource: tradesSource,
-      templates: templates,
-      exchangeTemplates: exchangeTemplates,
-      transactionDescriptionBox: transactionDescriptions,
-      ordersSource: ordersSource,
-      anonpayInvoiceInfoSource: anonpayInvoiceInfo,
-      unspentCoinsInfoSource: unspentCoinsInfoSource,
-      secureStorage: secureStorage);
+    walletInfoSource: walletInfoSource,
+    nodeSource: nodes,
+    powNodeSource: powNodes,
+    contactSource: contactSource,
+    tradesSource: tradesSource,
+    templates: templates,
+    exchangeTemplates: exchangeTemplates,
+    transactionDescriptionBox: transactionDescriptions,
+    ordersSource: ordersSource,
+    anonpayInvoiceInfoSource: anonpayInvoiceInfo,
+    unspentCoinsInfoSource: unspentCoinsInfoSource,
+    secureStorage: secureStorage,
+    navigatorKey: navigatorKey,
+  );
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }
@@ -215,66 +258,12 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> with SingleTickerProviderStateMixin {
-  AppState() : yatStore = getIt.get<YatStore>();
-
-  YatStore yatStore;
-  StreamSubscription? stream;
-
-  @override
-  void initState() {
-    super.initState();
-    //_handleIncomingLinks();
-    //_handleInitialUri();
-  }
-
-  Future<void> _handleInitialUri() async {
-    try {
-      final uri = await getInitialUri();
-      print('uri: $uri');
-      if (uri == null) {
-        return;
-      }
-      if (!mounted) return;
-      //_fetchEmojiFromUri(uri);
-    } catch (e) {
-      if (!mounted) return;
-      print(e.toString());
-    }
-  }
-
-  void _handleIncomingLinks() {
-    if (!kIsWeb) {
-      stream = getUriLinksStream().listen((Uri? uri) {
-        print('uri: $uri');
-        if (!mounted) return;
-        //_fetchEmojiFromUri(uri);
-      }, onError: (Object error) {
-        if (!mounted) return;
-        print('Error: $error');
-      });
-    }
-  }
-
-  void _fetchEmojiFromUri(Uri uri) {
-    //final queryParameters = uri.queryParameters;
-    //if (queryParameters?.isEmpty ?? true) {
-    //  return;
-    //}
-    //final emoji = queryParameters['eid'];
-    //final refreshToken = queryParameters['refresh_token'];
-    //if ((emoji?.isEmpty ?? true)||(refreshToken?.isEmpty ?? true)) {
-    //  return;
-    //}
-    //yatStore.emoji = emoji;
-    //yatStore.refreshToken = refreshToken;
-    //yatStore.emojiIncommingSC.add(emoji);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (BuildContext context) {
       final appStore = getIt.get<AppStore>();
       final authService = getIt.get<AuthService>();
+      final linkViewModel = getIt.get<LinkViewModel>();
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
@@ -297,6 +286,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           authService: authService,
+          linkViewModel: linkViewModel,
           child: MaterialApp(
             navigatorObservers: [routeObserver],
             navigatorKey: navigatorKey,

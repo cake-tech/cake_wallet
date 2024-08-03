@@ -28,7 +28,8 @@ abstract class ExchangeProvider {
   Future<Limits> fetchLimits(
       {required CryptoCurrency from, required CryptoCurrency to, required bool isFixedRateMode});
 
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode});
+  Future<Trade> createTrade(
+      {required TradeRequest request, required bool isFixedRateMode, required bool isSendAll});
 
   Future<Trade> findTradeById({required String id});
 

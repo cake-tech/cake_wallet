@@ -1,7 +1,7 @@
 import 'package:cw_core/balance.dart';
 import 'package:nanoutil/nanoutil.dart';
 
-BigInt stringAmountToBigInt(String amount) {
+BigInt stringAmountToBigIntNano(String amount) {
   return BigInt.parse(NanoAmounts.getAmountAsRaw(amount, NanoAmounts.rawPerNano));
 }
 
@@ -13,8 +13,8 @@ class NanoBalance extends Balance {
 
   NanoBalance.fromFormattedString(
       {required String formattedCurrentBalance, required String formattedReceivableBalance})
-      : currentBalance = stringAmountToBigInt(formattedCurrentBalance),
-        receivableBalance = stringAmountToBigInt(formattedReceivableBalance),
+      : currentBalance = stringAmountToBigIntNano(formattedCurrentBalance),
+        receivableBalance = stringAmountToBigIntNano(formattedReceivableBalance),
         super(0, 0);
 
   NanoBalance.fromRawString(

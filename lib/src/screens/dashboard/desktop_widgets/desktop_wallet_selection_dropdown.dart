@@ -30,6 +30,7 @@ class DesktopWalletSelectionDropDown extends StatefulWidget {
 class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionDropDown> {
   final moneroIcon = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
   final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
+  final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
   final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
@@ -38,6 +39,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final nanoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final bananoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
+  final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
+  final wowneroIcon = Image.asset('assets/images/wownero_icon.png', height: 24, width: 24);
   final zanoIcon = Image.asset('assets/images/zano_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
@@ -68,8 +71,11 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: 500),
                     child: DropDownItemWidget(
-                        title: wallet.name,
-                        image: wallet.isEnabled ? _imageFor(type: wallet.type) : nonWalletTypeIcon),
+                      title: wallet.name,
+                      image: wallet.isEnabled
+                          ? _imageFor(type: wallet.type, isTestnet: wallet.isTestnet)
+                          : nonWalletTypeIcon,
+                    ),
                   ),
                   onSelected: () => _onSelectedWallet(wallet),
                 ))
@@ -117,27 +123,33 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
     if (selectedWallet.isCurrent || !selectedWallet.isEnabled) {
       return;
     }
-    final confirmed = await showPopUp<bool>(
-            context: context,
-            builder: (dialogContext) {
-              return AlertWithTwoActions(
-                  alertTitle: S.of(context).change_wallet_alert_title,
-                  alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
-                  leftButtonText: S.of(context).cancel,
-                  rightButtonText: S.of(context).change,
-                  actionLeftButton: () => Navigator.of(dialogContext).pop(false),
-                  actionRightButton: () => Navigator.of(dialogContext).pop(true));
-            }) ??
-        false;
 
-    if (confirmed) {
-      await _loadWallet(selectedWallet);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final confirmed = await showPopUp<bool>(
+              context: context,
+              builder: (dialogContext) {
+                return AlertWithTwoActions(
+                    alertTitle: S.of(context).change_wallet_alert_title,
+                    alertContent: S.of(context).change_wallet_alert_content(selectedWallet.name),
+                    leftButtonText: S.of(context).cancel,
+                    rightButtonText: S.of(context).change,
+                    actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                    actionRightButton: () => Navigator.of(dialogContext).pop(true));
+              }) ??
+          false;
+
+      if (confirmed) {
+        await _loadWallet(selectedWallet);
+      }
+    });
   }
 
-  Image _imageFor({required WalletType type}) {
+  Image _imageFor({required WalletType type, bool? isTestnet}) {
     switch (type) {
       case WalletType.bitcoin:
+        if (isTestnet == true) {
+          return tBitcoinIcon;
+        }
         return bitcoinIcon;
       case WalletType.monero:
         return moneroIcon;
@@ -157,6 +169,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return polygonIcon;
       case WalletType.solana:
         return solanaIcon;
+      case WalletType.tron:
+        return tronIcon;
       case WalletType.zano:
         return zanoIcon;
       default:
@@ -165,24 +179,25 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
-    widget._authService.authenticateAction(context,
-        onAuthSuccess: (isAuthenticatedSuccessfully) async {
-      if (!isAuthenticatedSuccessfully) {
-        return;
-      }
+    widget._authService.authenticateAction(
+      context,
+      onAuthSuccess: (isAuthenticatedSuccessfully) async {
+        if (!isAuthenticatedSuccessfully) {
+          return;
+        }
 
-      try {
-        if (context.mounted) {
-          changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+        try {
+          if (context.mounted) {
+            changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+          }
+          await widget.walletListViewModel.loadWallet(wallet);
+          hideProgressText();
+          setState(() {});
+        } catch (e) {
+          if (context.mounted) {
+            changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+          }
         }
-        await widget.walletListViewModel.loadWallet(wallet);
-        hideProgressText();
-        setState(() {});
-      } catch (e) {
-        if (context.mounted) {
-          changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
-        }
-      }
       },
       conditionToDetermineIfToUse2FA:
           widget.walletListViewModel.shouldRequireTOTP2FAForAccessingWallet,
@@ -195,17 +210,16 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         context,
         route: Routes.newWallet,
         arguments: widget.walletListViewModel.currentWalletType,
-        conditionToDetermineIfToUse2FA: widget
-            .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+        conditionToDetermineIfToUse2FA:
+            widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
       );
     } else {
       widget._authService.authenticateAction(
         context,
         route: Routes.newWalletType,
-        conditionToDetermineIfToUse2FA: widget
-            .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+        conditionToDetermineIfToUse2FA:
+            widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
       );
-     
     }
   }
 

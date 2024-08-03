@@ -22,7 +22,7 @@ class DropDownItemWidget extends StatelessWidget {
             child: Text(
               title,
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 18,
                 fontWeight: FontWeight.w500,
                 color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
               ),

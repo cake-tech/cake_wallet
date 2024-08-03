@@ -146,7 +146,7 @@ class ConnectScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: connect,
             style: ElevatedButton.styleFrom(
-              primary: Colors.blue,
+              // primary: Colors.blue,
               padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -211,7 +211,7 @@ class DisconnectScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: disconnect,
             style: ElevatedButton.styleFrom(
-              primary: Colors.red,
+              // primary: Colors.red,
               padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),

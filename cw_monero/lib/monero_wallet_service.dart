@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -10,10 +11,12 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
+import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:polyseed/polyseed.dart';
+import 'package:monero/monero.dart' as monero;
 
 class MoneroNewWalletCredentials extends WalletCredentials {
   MoneroNewWalletCredentials(
@@ -55,7 +58,7 @@ class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
 }
 
 class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
-    MoneroRestoreWalletFromSeedCredentials, MoneroRestoreWalletFromKeysCredentials> {
+    MoneroRestoreWalletFromSeedCredentials, MoneroRestoreWalletFromKeysCredentials, MoneroNewWalletCredentials> {
   MoneroWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -174,6 +177,22 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
   @override
   Future<void> remove(String wallet) async {
     final path = await pathForWalletDir(name: wallet, type: getType());
+    if (openedWalletsByPath["$path/$wallet"] != null) {
+      // NOTE: this is realistically only required on windows.
+      print("closing wallet");
+      final wmaddr = wmPtr.address;
+      final waddr = openedWalletsByPath["$path/$wallet"]!.address;
+      // await Isolate.run(() {
+        monero.WalletManager_closeWallet(
+            Pointer.fromAddress(wmaddr),
+            Pointer.fromAddress(waddr),
+            false
+        );
+      // });
+      openedWalletsByPath.remove("$path/$wallet");
+      print("wallet closed");
+    }
+
     final file = Directory(path);
     final isExist = file.existsSync();
 
@@ -225,6 +244,11 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
       print('MoneroWalletsManager Error: $e');
       rethrow;
     }
+  }
+
+  @override
+  Future<MoneroWallet> restoreFromHardwareWallet(MoneroNewWalletCredentials credentials) {
+    throw UnimplementedError("Restoring a Monero wallet from a hardware wallet is not yet supported!");
   }
 
   @override

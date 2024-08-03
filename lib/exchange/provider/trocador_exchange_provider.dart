@@ -13,7 +13,8 @@ import 'package:http/http.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
   TrocadorExchangeProvider({this.useTorOnly = false, this.providerStates = const {}})
-      : _lastUsedRateId = '', _provider = [],
+      : _lastUsedRateId = '',
+        _provider = [],
         super(pairList: supportedPairs(_notSupported));
 
   bool useTorOnly;
@@ -23,7 +24,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     'Swapter',
     'StealthEx',
     'Simpleswap',
-    'Swapuz'
+    'Swapuz',
     'ChangeNow',
     'Changehero',
     'FixedFloat',
@@ -31,7 +32,17 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     'Exolix',
     'Godex',
     'Exch',
-    'CoinCraddle'
+    'CoinCraddle',
+    'Alfacash',
+    'LocalMonero',
+    'XChange',
+    'NeroSwap',
+    'Changee',
+    'BitcoinVN',
+    'EasyBit',
+    'WizardSwap',
+    'Quantex',
+    'SwapSpace',
   ];
 
   static const List<CryptoCurrency> _notSupported = [
@@ -144,8 +155,11 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
-
+  Future<Trade> createTrade({
+    required TradeRequest request,
+    required bool isFixedRateMode,
+    required bool isSendAll,
+  }) async {
     final params = {
       'api_key': apiKey,
       'ticker_from': _normalizeCurrency(request.fromCurrency),
@@ -171,7 +185,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       );
       params['id'] = _lastUsedRateId;
     }
-
 
     String firstAvailableProvider = '';
 
@@ -211,21 +224,26 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final password = responseJSON['password'] as String;
     final providerId = responseJSON['id_provider'] as String;
     final providerName = responseJSON['provider'] as String;
+    final amount = responseJSON['amount_from']?.toString();
+    final receiveAmount = responseJSON['amount_to']?.toString();
 
     return Trade(
-        id: id,
-        from: request.fromCurrency,
-        to: request.toCurrency,
-        provider: description,
-        inputAddress: inputAddress,
-        refundAddress: refundAddress,
-        state: TradeState.deserialize(raw: status),
-        password: password,
-        providerId: providerId,
-        providerName: providerName,
-        createdAt: DateTime.tryParse(date)?.toLocal(),
-        amount: responseJSON['amount_from']?.toString() ?? request.fromAmount,
-        payoutAddress: payoutAddress);
+      id: id,
+      from: request.fromCurrency,
+      to: request.toCurrency,
+      provider: description,
+      inputAddress: inputAddress,
+      refundAddress: refundAddress,
+      state: TradeState.deserialize(raw: status),
+      password: password,
+      providerId: providerId,
+      providerName: providerName,
+      createdAt: DateTime.tryParse(date)?.toLocal(),
+      amount: amount ?? request.fromAmount,
+      receiveAmount: receiveAmount ?? request.toAmount,
+      payoutAddress: payoutAddress,
+      isSendAll: isSendAll,
+    );
   }
 
   @override

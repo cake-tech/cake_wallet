@@ -1,2 +1,3 @@
-New themes
-Bug fixes and enhancements
+Monero enhancements
+Synchronization improvements
+Bug fixes

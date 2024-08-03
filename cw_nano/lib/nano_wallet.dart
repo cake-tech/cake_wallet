@@ -13,6 +13,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_nano/file.dart';
 import 'package:cw_core/nano_account.dart';
+import 'package:cw_core/n2_node.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
@@ -42,7 +43,7 @@ abstract class NanoWalletBase
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
-        _derivationType = walletInfo.derivationType!,
+        _derivationType = walletInfo.derivationInfo!.derivationType!,
         _isTransactionUpdating = false,
         _client = NanoClient(),
         walletAddresses = NanoWalletAddresses(walletInfo),
@@ -65,9 +66,11 @@ abstract class NanoWalletBase
   String? _privateKey;
   String? _publicAddress;
   String? _hexSeed;
+  Timer? _receiveTimer;
 
   String? _representativeAddress;
-  Timer? _receiveTimer;
+  int repScore = 100;
+  bool get isRepOk => repScore >= 90;
 
   late final NanoClient _client;
   bool _isTransactionUpdating;
@@ -375,7 +378,7 @@ abstract class NanoWalletBase
 
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
-    
+
     final balance = NanoBalance.fromRawString(
       currentBalance: data['currentBalance'] as String? ?? "0",
       receivableBalance: data['receivableBalance'] as String? ?? "0",
@@ -386,7 +389,10 @@ abstract class NanoWalletBase
       derivationType = DerivationType.bip39;
     }
 
-    walletInfo.derivationType = derivationType;
+    walletInfo.derivationInfo ??= DerivationInfo(derivationType: derivationType);
+    if (walletInfo.derivationInfo!.derivationType == null) {
+      walletInfo.derivationInfo!.derivationType = derivationType;
+    }
 
     return NanoWallet(
       walletInfo: walletInfo,
@@ -429,6 +435,8 @@ abstract class NanoWalletBase
       _representativeAddress = await _client.getRepFromPrefs();
       throw Exception("Failed to get representative address $e");
     }
+    
+    repScore = await _client.getRepScore(_representativeAddress!);
   }
 
   Future<void> regenerateAddress() async {
@@ -463,6 +471,10 @@ abstract class NanoWalletBase
     } catch (e) {
       throw Exception("Failed to change representative address $e");
     }
+  }
+
+  Future<List<N2Node>> getN2Reps() async {
+    return _client.getN2Reps();
   }
 
   Future<void>? updateBalance() async => await _updateBalance();

@@ -16,6 +16,7 @@ bool isWalletConnectCompatibleChain(WalletType walletType) {
   switch (walletType) {
     case WalletType.polygon:
     case WalletType.ethereum:
+    case WalletType.solana:
       return true;
     default:
       return false;

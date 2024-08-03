@@ -12,6 +12,8 @@ class EVMChainTransactionModel {
   final String? tokenSymbol;
   final int? tokenDecimal;
   final bool isError;
+  final String input;
+  String? evmSignatureName;
 
   EVMChainTransactionModel({
     required this.date,
@@ -27,22 +29,26 @@ class EVMChainTransactionModel {
     required this.tokenSymbol,
     required this.tokenDecimal,
     required this.isError,
+    required this.input,
+    this.evmSignatureName,
   });
 
   factory EVMChainTransactionModel.fromJson(Map<String, dynamic> json, String defaultSymbol) =>
       EVMChainTransactionModel(
         date: DateTime.fromMillisecondsSinceEpoch(int.parse(json["timeStamp"]) * 1000),
-        hash: json["hash"],
-        from: json["from"],
-        to: json["to"],
-        amount: BigInt.parse(json["value"]),
-        gasUsed: int.parse(json["gasUsed"]),
-        gasPrice: BigInt.parse(json["gasPrice"]),
-        contractAddress: json["contractAddress"],
-        confirmations: int.parse(json["confirmations"]),
-        blockNumber: int.parse(json["blockNumber"]),
+        hash: json["hash"] ?? "",
+        from: json["from"] ?? "",
+        to: json["to"] ?? "",
+        amount: BigInt.parse(json["value"] ?? "0"),
+        gasUsed: int.parse(json["gasUsed"] ?? "0"),
+        gasPrice: BigInt.parse(json["gasPrice"] ?? "0"),
+        contractAddress: json["contractAddress"] ?? "",
+        confirmations: int.parse(json["confirmations"] ?? "0"),
+        blockNumber: int.parse(json["blockNumber"] ?? "0"),
         tokenSymbol: json["tokenSymbol"] ?? defaultSymbol,
         tokenDecimal: int.tryParse(json["tokenDecimal"] ?? ""),
         isError: json["isError"] == "1",
+        input: json["input"] ?? "",
+        evmSignatureName: json["evmSignatureName"],
       );
 }

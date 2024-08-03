@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:cake_wallet/core/wallet_connect/chain_service/eth/evm_chain_id.dart';
 import 'package:cake_wallet/core/wallet_connect/chain_service/eth/evm_chain_service.dart';
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/wallet_connect/models/auth_request_model.dart';
 import 'package:cake_wallet/core/wallet_connect/models/chain_key_model.dart';
@@ -19,6 +21,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
 import 'chain_service/solana/solana_chain_id.dart';
@@ -32,6 +35,7 @@ class Web3WalletService = Web3WalletServiceBase with _$Web3WalletService;
 
 abstract class Web3WalletServiceBase with Store {
   final AppStore appStore;
+  final SharedPreferences sharedPreferences;
   final BottomSheetService _bottomSheetHandler;
   final WalletConnectKeyService walletKeyService;
 
@@ -52,7 +56,8 @@ abstract class Web3WalletServiceBase with Store {
   @observable
   ObservableList<StoredCacao> auth;
 
-  Web3WalletServiceBase(this._bottomSheetHandler, this.walletKeyService, this.appStore)
+  Web3WalletServiceBase(
+      this._bottomSheetHandler, this.walletKeyService, this.appStore, this.sharedPreferences)
       : pairings = ObservableList<PairingInfo>(),
         sessions = ObservableList<SessionData>(),
         auth = ObservableList<StoredCacao>(),
@@ -133,13 +138,27 @@ abstract class Web3WalletServiceBase with Store {
     if (appStore.wallet!.type == WalletType.solana) {
       for (final cId in SolanaChainId.values) {
         final node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
-        final rpcUri = node.uri;
-        final webSocketUri = 'wss://${node.uriRaw}/ws${node.uri.path}';
+
+        Uri? rpcUri;
+        String webSocketUrl;
+        bool isModifiedNodeUri = false;
+
+        if (node.uriRaw == 'rpc.ankr.com') {
+          isModifiedNodeUri = true;
+          
+          //A better way to handle this instead of adding this to the general secrets?
+          String ankrApiKey = secrets.ankrApiKey;
+
+          rpcUri = Uri.https(node.uriRaw, '/solana/$ankrApiKey');
+          webSocketUrl = 'wss://${node.uriRaw}/solana/ws/$ankrApiKey';
+        } else {
+          webSocketUrl = 'wss://${node.uriRaw}';
+        }
 
         SolanaChainServiceImpl(
           reference: cId,
-          rpcUrl: rpcUri,
-          webSocketUrl: webSocketUri,
+          rpcUrl: isModifiedNodeUri ? rpcUri! : node.uri,
+          webSocketUrl: webSocketUrl,
           wcKeyService: walletKeyService,
           bottomSheetService: _bottomSheetHandler,
           wallet: _web3Wallet,
@@ -175,13 +194,6 @@ abstract class Web3WalletServiceBase with Store {
 
   void _onPairingDelete(PairingEvent? event) {
     _refreshPairings();
-  }
-
-  @action
-  void _refreshPairings() {
-    pairings.clear();
-    final allPairings = _web3Wallet.pairings.getAll();
-    pairings.addAll(allPairings);
   }
 
   Future<void> _onSessionProposalError(SessionProposalErrorEvent? args) async {
@@ -246,14 +258,37 @@ abstract class Web3WalletServiceBase with Store {
     }
   }
 
+  @action
+  void _refreshPairings() {
+    print('Refreshing pairings');
+    pairings.clear();
+
+    final allPairings = _web3Wallet.pairings.getAll();
+
+    final keyForWallet = getKeyForStoringTopicsForWallet();
+
+    final currentTopicsForWallet = getPairingTopicsForWallet(keyForWallet);
+
+    final filteredPairings =
+        allPairings.where((pairing) => currentTopicsForWallet.contains(pairing.topic)).toList();
+
+    pairings.addAll(filteredPairings);
+  }
+
   void _onPairingCreate(PairingEvent? args) {
     log('Pairing Create Event: $args');
   }
 
   @action
-  void _onSessionConnect(SessionConnect? args) {
+  Future<void> _onSessionConnect(SessionConnect? args) async {
     if (args != null) {
+      log('Session Connected $args');
+
+      await savePairingTopicToLocalStorage(args.session.pairingTopic);
+
       sessions.add(args.session);
+
+      _refreshPairings();
     }
   }
 
@@ -320,5 +355,54 @@ abstract class Web3WalletServiceBase with Store {
   @action
   List<SessionData> getSessionsForPairingInfo(PairingInfo pairing) {
     return sessions.where((element) => element.pairingTopic == pairing.topic).toList();
+  }
+
+  String getKeyForStoringTopicsForWallet() {
+    List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
+
+    final keyForPairingTopic =
+        PreferencesKey.walletConnectPairingTopicsListForWallet(chainKeys.first.publicKey);
+
+    return keyForPairingTopic;
+  }
+
+  List<String> getPairingTopicsForWallet(String key) {
+    // Get the JSON-encoded string from shared preferences
+    final jsonString = sharedPreferences.getString(key);
+
+    // If the string is null, return an empty list
+    if (jsonString == null) {
+      return [];
+    }
+
+    // Decode the JSON string to a list of strings
+    final List<dynamic> jsonList = jsonDecode(jsonString) as List<dynamic>;
+
+    // Cast each item to a string
+    return jsonList.map((item) => item as String).toList();
+  }
+
+  Future<void> savePairingTopicToLocalStorage(String pairingTopic) async {
+    // Get key specific to the current wallet
+    final key = getKeyForStoringTopicsForWallet();
+
+    // Get all pairing topics attached to this key
+    final pairingTopicsForWallet = getPairingTopicsForWallet(key);
+
+    print(pairingTopicsForWallet);
+
+    bool isPairingTopicAlreadySaved = pairingTopicsForWallet.contains(pairingTopic);
+    print('Is Pairing Topic Saved: $isPairingTopicAlreadySaved');
+
+    if (!isPairingTopicAlreadySaved) {
+      // Update the list with the most recent pairing topic
+      pairingTopicsForWallet.add(pairingTopic);
+
+      // Convert the list of updated pairing topics to a JSON-encoded string
+      final jsonString = jsonEncode(pairingTopicsForWallet);
+
+      // Save the encoded string to shared preferences
+      await sharedPreferences.setString(key, jsonString);
+    }
   }
 }

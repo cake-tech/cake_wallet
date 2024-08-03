@@ -3,7 +3,6 @@ import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/receive_page_option.dart';
@@ -14,7 +13,6 @@ import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -163,12 +161,7 @@ class AddressPage extends BasePage {
                 if (addressListViewModel.hasAddressList) {
                   return SelectButton(
                     text: addressListViewModel.buttonTitle,
-                    onTap: () async => dashboardViewModel.isAutoGenerateSubaddressesEnabled &&
-                            (WalletType.monero == addressListViewModel.wallet.type ||
-                                WalletType.haven == addressListViewModel.wallet.type)
-                        ? await showPopUp<void>(
-                            context: context, builder: (_) => getIt.get<MoneroAccountListPage>())
-                        : Navigator.of(context).pushNamed(Routes.receive),
+                    onTap: () async => Navigator.of(context).pushNamed(Routes.receive),
                     textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
                     color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                     borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
@@ -176,17 +169,10 @@ class AddressPage extends BasePage {
                     textSize: 14,
                     height: 50,
                   );
-                } else if (dashboardViewModel.isAutoGenerateSubaddressesEnabled ||
-                    addressListViewModel.isElectrumWallet) {
-                  return Text(S.of(context).electrum_address_disclaimer,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 15,
-                          color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor));
                 } else {
                   return const SizedBox();
                 }
-              })
+              }),
             ],
           ),
         ));
@@ -198,6 +184,11 @@ class AddressPage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
+      if (bitcoin!.isBitcoinReceivePageOption(option)) {
+        addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
+        return;
+      }
+
       switch (option) {
         case ReceivePageOption.anonPayInvoice:
           Navigator.pushNamed(
@@ -210,8 +201,12 @@ class AddressPage extends BasePage {
           final sharedPreferences = getIt.get<SharedPreferences>();
           final clearnetUrl = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
           final onionUrl = sharedPreferences.getString(PreferencesKey.onionDonationLink);
+          final donationWalletName =
+              sharedPreferences.getString(PreferencesKey.donationLinkWalletName);
 
-          if (clearnetUrl != null && onionUrl != null) {
+          if (clearnetUrl != null &&
+              onionUrl != null &&
+              addressListViewModel.wallet.name == donationWalletName) {
             Navigator.pushNamed(
               context,
               Routes.anonPayReceivePage,

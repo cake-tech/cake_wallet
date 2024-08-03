@@ -2,11 +2,12 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/setting_priority_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
-import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -27,13 +28,24 @@ class OtherSettingsPage extends BasePage {
           child: Column(
             children: [
               if (_otherSettingsViewModel.displayTransactionPriority)
-                SettingsPickerCell(
-                  title: S.current.settings_fee_priority,
-                  items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                  displayItem: _otherSettingsViewModel.getDisplayPriority,
-                  selectedItem: _otherSettingsViewModel.transactionPriority,
-                  onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
-                ),
+                _otherSettingsViewModel.walletType == WalletType.bitcoin ?
+                  SettingsPriorityPickerCell(
+                    title: S.current.settings_fee_priority,
+                    items: priorityForWalletType(_otherSettingsViewModel.walletType),
+                    displayItem: _otherSettingsViewModel.getDisplayBitcoinPriority,
+                    selectedItem: _otherSettingsViewModel.transactionPriority,
+                    customItemIndex: _otherSettingsViewModel.customPriorityItemIndex,
+                    onItemSelected: _otherSettingsViewModel.onDisplayBitcoinPrioritySelected,
+                    customValue: _otherSettingsViewModel.customBitcoinFeeRate,
+                    maxValue: _otherSettingsViewModel.maxCustomFeeRate?.toDouble(),
+                  ) :
+                  SettingsPickerCell(
+                    title: S.current.settings_fee_priority,
+                    items: priorityForWalletType(_otherSettingsViewModel.walletType),
+                    displayItem: _otherSettingsViewModel.getDisplayPriority,
+                    selectedItem: _otherSettingsViewModel.transactionPriority,
+                    onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
+                  ),
               if (_otherSettingsViewModel.changeRepresentativeEnabled)
                 SettingsCellWithArrow(
                   title: S.current.change_rep,

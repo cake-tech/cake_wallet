@@ -6,11 +6,12 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
+
 // import 'package:tor/tor.dart';
 
 part 'node.g.dart';
 
-Uri createUriFromElectrumAddress(String address) => Uri.tryParse('tcp://$address')!;
+Uri createUriFromElectrumAddress(String address, String path) => Uri.tryParse('tcp://$address$path')!;
 
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
@@ -21,6 +22,7 @@ class Node extends HiveObject with Keyable {
     this.trusted = false,
     this.socksProxyAddress,
     String? uri,
+    String? path,
     WalletType? type,
   }) {
     if (uri != null) {
@@ -29,10 +31,14 @@ class Node extends HiveObject with Keyable {
     if (type != null) {
       this.type = type;
     }
+    if (path != null) {
+      this.path = path;
+    }
   }
 
   Node.fromMap(Map<String, Object?> map)
       : uriRaw = map['uri'] as String? ?? '',
+        path = map['path'] as String? ?? '',
         login = map['login'] as String?,
         password = map['password'] as String?,
         useSSL = map['useSSL'] as bool?,
@@ -63,6 +69,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(6)
   String? socksProxyAddress;
 
+  @HiveField(7, defaultValue: '')
+  String? path;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -71,24 +80,27 @@ class Node extends HiveObject with Keyable {
     switch (type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.wownero:
         return Uri.http(uriRaw, '');
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return createUriFromElectrumAddress(uriRaw);
+        return createUriFromElectrumAddress(uriRaw, path ?? '');
       case WalletType.nano:
       case WalletType.banano:
         if (isSSL) {
-          return Uri.https(uriRaw, '');
+          return Uri.https(uriRaw, path ?? '');
         } else {
-          return Uri.http(uriRaw, '');
+          return Uri.http(uriRaw, path ?? '');
         }
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.solana:
+      case WalletType.tron:
+        return Uri.https(uriRaw, path ?? '');
       case WalletType.zano:
         return Uri.https(uriRaw, '');
-      default:
+      case WalletType.none:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
   }
@@ -104,7 +116,8 @@ class Node extends HiveObject with Keyable {
           other.typeRaw == typeRaw &&
           other.useSSL == useSSL &&
           other.trusted == trusted &&
-          other.socksProxyAddress == socksProxyAddress);
+          other.socksProxyAddress == socksProxyAddress &&
+          other.path == path);
 
   @override
   int get hashCode =>
@@ -114,7 +127,8 @@ class Node extends HiveObject with Keyable {
       typeRaw.hashCode ^
       useSSL.hashCode ^
       trusted.hashCode ^
-      socksProxyAddress.hashCode;
+      socksProxyAddress.hashCode ^
+      path.hashCode;
 
   @override
   dynamic get keyIndex {
@@ -133,20 +147,21 @@ class Node extends HiveObject with Keyable {
       switch (type) {
         case WalletType.monero:
         case WalletType.haven:
+        case WalletType.wownero:
           return requestMoneroNode();
         case WalletType.nano:
         case WalletType.banano:
-          return requestNanoNode();
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.bitcoinCash:
         case WalletType.ethereum:
         case WalletType.polygon:
         case WalletType.solana:
+        case WalletType.tron:
           return requestElectrumServer();
         case WalletType.zano:
           return requestZanoNode();
-        default:
+        case WalletType.none:
           return false;
       }
     } catch (_) {
@@ -197,23 +212,6 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestNanoNode() async {
-    http.Response response = await http.post(
-      uri,
-      headers: {'Content-type': 'application/json'},
-      body: json.encode(
-        {
-          "action": "block_count",
-        },
-      ),
-    );
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   Future<bool> requestNodeWithProxy() async {
     if (!isValidProxyAddress /* && !Tor.instance.enabled*/) {
       return false;
@@ -238,10 +236,17 @@ class Node extends HiveObject with Keyable {
     }
   }
 
+  // TODO: this will return true most of the time, even if the node has useSSL set to true while
+  // it doesn't support SSL or vice versa, because it will connect normally, but it will fail if
+  // you try to communicate with it
   Future<bool> requestElectrumServer() async {
     try {
-      await SecureSocket.connect(uri.host, uri.port,
-          timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
+      if (useSSL == true) {
+        await SecureSocket.connect(uri.host, uri.port,
+            timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
+      } else {
+        await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+      }
       return true;
     } catch (_) {
       return false;

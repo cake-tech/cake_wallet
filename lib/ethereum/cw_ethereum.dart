@@ -31,13 +31,22 @@ class CWEthereum extends Ethereum {
       EVMChainRestoreWalletFromPrivateKey(name: name, password: password, privateKey: privateKey);
 
   @override
+  WalletCredentials createEthereumHardwareWalletCredentials({
+    required String name,
+    required HardwareAccountData hwAccountData,
+    WalletInfo? walletInfo,
+  }) =>
+      EVMChainRestoreWalletFromHardware(
+          name: name, hwAccountData: hwAccountData, walletInfo: walletInfo);
+
+  @override
   String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
 
   @override
   String getPrivateKey(WalletBase wallet) {
     final privateKeyHolder = (wallet as EthereumWallet).evmChainPrivateKey;
-    String stringKey = bytesToHex(privateKeyHolder.privateKey);
-    return stringKey;
+    if (privateKeyHolder is EthPrivateKey) return bytesToHex(privateKeyHolder.privateKey);
+    return "";
   }
 
   @override
@@ -76,7 +85,8 @@ class CWEthereum extends Ethereum {
                 sendAll: out.sendAll,
                 extractedAddress: out.extractedAddress,
                 isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount))
+                formattedCryptoAmount: out.formattedCryptoAmount,
+                memo: out.memo))
             .toList(),
         priority: priority as EVMChainTransactionPriority,
         currency: currency,
@@ -128,9 +138,13 @@ class CWEthereum extends Ethereum {
       await (wallet as EthereumWallet).deleteErc20Token(token as Erc20Token);
 
   @override
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as EthereumWallet).removeTokenTransactionsInHistory(token as Erc20Token);
+
+  @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {
     final ethereumWallet = wallet as EthereumWallet;
-    return await ethereumWallet.getErc20Token(contractAddress);
+    return await ethereumWallet.getErc20Token(contractAddress, 'eth');
   }
 
   @override
@@ -141,8 +155,10 @@ class CWEthereum extends Ethereum {
     }
 
     wallet as EthereumWallet;
-    return wallet.erc20Currencies
-        .firstWhere((element) => transaction.tokenSymbol == element.symbol);
+
+    return wallet.erc20Currencies.firstWhere(
+      (element) => transaction.tokenSymbol == element.symbol,
+    );
   }
 
   @override
@@ -156,4 +172,24 @@ class CWEthereum extends Ethereum {
   }
 
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
+
+  @override
+  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
+    ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedger(
+        ledger,
+        device.connectionType == ConnectionType.usb ? device : null,
+        wallet.walletInfo.derivationInfo?.derivationPath);
+  }
+
+  @override
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
+      {int index = 0, int limit = 5}) async {
+    final hardwareWalletService = EVMChainHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+    try {
+      return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+    } on LedgerException catch (err) {
+      print(err.message);
+      throw err;
+    }
+  }
 }

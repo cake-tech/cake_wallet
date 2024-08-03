@@ -43,6 +43,5 @@ mkdir -p ${CW_HAVEN_EXTERNAL_DIR}/include
 mkdir -p ${CW_MONERO_EXTERNAL_DIR}/include
 mkdir -p ${CW_ZANO_EXTERNAL_DIR}/include
 
-cp $CW_EXRTERNAL_DIR/x86/include/monero/wallet2_api.h ${CW_MONERO_EXTERNAL_DIR}/include
 cp $CW_EXRTERNAL_DIR/x86/include/haven/wallet2_api.h ${CW_HAVEN_EXTERNAL_DIR}/include
 # cp $CW_EXRTERNAL_DIR/x86/include/zano/wallet2_api.h ${CW_ZANO_EXTERNAL_DIR}/include

@@ -30,7 +30,7 @@ class PairingItemWidget extends StatelessWidget {
       leading: CakeImageWidget(
         imageUrl: metadata.icons.isNotEmpty ?  metadata.icons[0]: null,
         displayOnError: CircleAvatar(
-          backgroundImage: AssetImage('assets/images/default_icon.png'),
+          backgroundImage: AssetImage('assets/images/walletconnect_logo.png'),
         ),
       ),
       title: Text(

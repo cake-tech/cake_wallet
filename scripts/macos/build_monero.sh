@@ -4,7 +4,7 @@
 
 MONERO_URL="https://github.com/cake-tech/monero.git"
 MONERO_DIR_PATH="${EXTERNAL_MACOS_SOURCE_DIR}/monero"
-MONERO_VERSION=release-v0.18.2.2_tx_priority_fix
+MONERO_VERSION=release-v0.18.3.2
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_MACOS_DIR}
 DEST_LIB_DIR=${EXTERNAL_MACOS_LIB_DIR}/monero
@@ -46,6 +46,7 @@ cmake -DARCH=${ARCH} \
 	-DUNBOUND_INCLUDE_DIR=${EXTERNAL_MACOS_INCLUDE_DIR} \
 	-DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX}  \
     -DUSE_DEVICE_TREZOR=OFF \
+    -DMANUAL_SUBMODULES=1 \
 	../..
 make wallet_api -j4
 find . -path ./lib -prune -o -name '*.a' -exec cp '{}' lib \;

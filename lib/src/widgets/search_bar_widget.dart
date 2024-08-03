@@ -19,7 +19,7 @@ class SearchBarWidget extends StatelessWidget {
       controller: searchController,
       style: TextStyle(color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
       decoration: InputDecoration(
-        hintText: hintText ?? S.of(context).search_currency,
+        hintText: hintText ?? S.of(context).search,
         hintStyle: TextStyle(color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
         prefixIcon: Image.asset("assets/images/search_icon.png",
             color: Theme.of(context).extension<PickerTheme>()!.searchIconColor),

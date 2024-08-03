@@ -1,25 +1,58 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/service_status.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/service_status_tile.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ServicesUpdatesWidget extends StatelessWidget {
+class ServicesUpdatesWidget extends StatefulWidget {
   final Future<ServicesResponse> servicesResponse;
+  final bool enabled;
 
-  const ServicesUpdatesWidget(this.servicesResponse, {super.key});
+  const ServicesUpdatesWidget(this.servicesResponse, {super.key, required this.enabled});
+
+  @override
+  State<ServicesUpdatesWidget> createState() => _ServicesUpdatesWidgetState();
+}
+
+class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
+  bool wasOpened = false;
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.enabled) {
+      return InkWell(
+        onTap: () async {
+          await showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                  alertTitle: S.current.service_health_disabled,
+                  alertContent: S.current.service_health_disabled_message,
+                  buttonText: S.current.ok,
+                  buttonAction: () => Navigator.of(context).pop(),
+                );
+              });
+        },
+        child: SvgPicture.asset(
+          "assets/images/notification_icon.svg",
+          color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+          width: 30,
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: FutureBuilder<ServicesResponse>(
-        future: servicesResponse,
+        future: widget.servicesResponse,
         builder: (context, state) {
           return InkWell(
             onTap: state.hasData
@@ -28,6 +61,8 @@ class ServicesUpdatesWidget extends StatelessWidget {
                     getIt
                         .get<SharedPreferences>()
                         .setString(PreferencesKey.serviceStatusShaKey, state.data!.currentSha);
+
+                    setState(() => wasOpened = true);
 
                     showModalBottomSheet(
                       context: context,
@@ -68,7 +103,8 @@ class ServicesUpdatesWidget extends StatelessWidget {
                                   child: PrimaryImageButton(
                                     onPressed: () {
                                       try {
-                                        launchUrl(Uri.parse("https://status.cakewallet.com/"));
+                                        launchUrl(Uri.parse("https://status.cakewallet.com/"),
+                                            mode: LaunchMode.externalApplication);
                                       } catch (_) {}
                                     },
                                     image: Image.asset(
@@ -96,15 +132,16 @@ class ServicesUpdatesWidget extends StatelessWidget {
                 : null,
             child: Stack(
               children: [
-                Image.asset(
-                  "assets/images/notification_icon.png",
+                SvgPicture.asset(
+                  "assets/images/notification_icon.svg",
                   color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                  width: 30,
                 ),
-                if (state.hasData && state.data!.hasUpdates)
+                if (state.hasData && state.data!.hasUpdates && !wasOpened)
                   Container(
                     height: 7,
                     width: 7,
-                    margin: EdgeInsetsDirectional.only(start: 8),
+                    margin: EdgeInsetsDirectional.only(start: 15),
                     decoration: BoxDecoration(
                       color: Colors.red,
                       shape: BoxShape.circle,

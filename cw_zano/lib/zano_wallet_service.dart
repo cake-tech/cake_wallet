@@ -39,7 +39,8 @@ class ZanoRestoreWalletFromKeysCredentials extends WalletCredentials {
   final String spendKey;
 }
 
-class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRestoreWalletFromSeedCredentials, ZanoRestoreWalletFromKeysCredentials> {
+class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, 
+    ZanoRestoreWalletFromSeedCredentials, ZanoRestoreWalletFromKeysCredentials, ZanoNewWalletCredentials> {
   ZanoWalletService(this.walletInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -112,5 +113,10 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, ZanoRest
   @override
   Future<ZanoWallet> restoreFromSeed(ZanoRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
     return ZanoWalletBase.restore(credentials: credentials);
+  }
+
+  @override
+  Future<ZanoWallet> restoreFromHardwareWallet(ZanoNewWalletCredentials credentials) {
+    throw UnimplementedError("Restoring a Zano wallet from a hardware wallet is not yet supported!");
   }
 }

@@ -27,22 +27,29 @@ jobs:
         if: github.event_name != 'pull_request'
         run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
 
-      - name: Free Up GitHub Actions Ubuntu Runner Disk Space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      - name: Free Disk Space (Ubuntu)
+        uses: insightsengineering/disk-space-reclaimer@v1
+        with:
+          tools-cache: true
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
+          docker-images: true
 
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
         with:
           java-version: "11.x"
-
+      - name: Configure placeholder git details
+        run: |
+          git config --global user.email "CI@cakewallet.com"
+          git config --global user.name "Cake Github Actions"
       - name: Flutter action
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: "3.10.x"
+          flutter-version: "3.19.6"
           channel: stable
 
       - name: Install package dependencies
@@ -68,19 +75,15 @@ jobs:
         with:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
-            /opt/android/cake_wallet/cw_haven/ios/External
-            /opt/android/cake_wallet/cw_monero/android/.cxx
-            /opt/android/cake_wallet/cw_monero/ios/External
-            /opt/android/cake_wallet/cw_shared_external/ios/External
-          key: ${{ hashFiles('**/build_monero.sh', '**/build_haven.sh', '**/monero_api.cpp') }}
+            /opt/android/cake_wallet/scripts/monero_c/release
+          key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
         run: |
           cd /opt/android/cake_wallet/scripts/android/
           source ./app_env.sh cakewallet
-          ./build_all.sh
-          ./copy_monero_deps.sh
+          ./build_monero_all.sh
 
       - name: Install Flutter dependencies
         run: |
@@ -113,6 +116,9 @@ jobs:
           touch lib/.secrets.g.dart
           touch cw_evm/lib/.secrets.g.dart
           touch cw_solana/lib/.secrets.g.dart
+          touch cw_core/lib/.secrets.g.dart
+          touch cw_nano/lib/.secrets.g.dart
+          touch cw_tron/lib/.secrets.g.dart
           echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
           echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
           echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
@@ -139,15 +145,26 @@ jobs:
           echo "const anonPayReferralCode = '${{ secrets.ANON_PAY_REFERRAL_CODE }}';" >> lib/.secrets.g.dart
           echo "const fiatApiKey = '${{ secrets.FIAT_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const payfuraApiKey = '${{ secrets.PAYFURA_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const chatwootWebsiteToken = '${{ secrets.CHATWOOT_WEBSITE_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const exolixApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const robinhoodApplicationId = '${{ secrets.ROBINHOOD_APPLICATION_ID }}';" >> lib/.secrets.g.dart
-          echo "const robinhoodCIdApiSecret = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
+          echo "const exchangeHelperApiKey = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
+          echo "const CSRFToken = '${{ secrets.CSRF_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const quantexExchangeMarkup = '${{ secrets.QUANTEX_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
+          echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+          echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+          echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
 
       - name: Rename app
         run: |

@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sideba
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
+import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -81,7 +82,8 @@ class DesktopSidebarWrapper extends BasePage {
               width: sideMenuWidth,
               topItems: [
                 SideMenuItem(
-                  imagePath: 'assets/images/wallet_outline.png',
+                  // imagePath: 'assets/images/wallet_outline.png',
+                  icon: Icons.home,
                   isSelected: desktopSidebarViewModel.currentPage == SidebarItem.dashboard,
                   onTap: () {
                     desktopSidebarViewModel.onPageChange(SidebarItem.dashboard);
@@ -105,12 +107,21 @@ class DesktopSidebarWrapper extends BasePage {
                       ? selectedIconPath
                       : unselectedIconPath,
                 ),
+                SideMenuItem(
+                  widget: ServicesUpdatesWidget(
+                    dashboardViewModel.getServicesStatus(),
+                    enabled: dashboardViewModel.isEnabledBulletinAction,
+                  ),
+                  isSelected: desktopSidebarViewModel.currentPage == SidebarItem.status,
+                  onTap: () {},
+                ),
               ],
               bottomItems: [
                 SideMenuItem(
-                    imagePath: 'assets/images/support_icon.png',
-                    isSelected: desktopSidebarViewModel.currentPage == SidebarItem.support,
-                    onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.support)),
+                  imagePath: 'assets/images/support_icon.png',
+                  isSelected: desktopSidebarViewModel.currentPage == SidebarItem.support,
+                  onTap: () => desktopSidebarViewModel.onPageChange(SidebarItem.support),
+                ),
                 SideMenuItem(
                   imagePath: 'assets/images/settings_outline.png',
                   isSelected: desktopSidebarViewModel.currentPage == SidebarItem.settings,

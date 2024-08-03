@@ -1,4 +1,8 @@
 class BitcoinCommitTransactionException implements Exception {
+  String errorMessage;
+  BitcoinCommitTransactionException(this.errorMessage);
+
   @override
-  String toString() => 'Transaction commit is failed.';
+  String toString() => errorMessage;
 }
+

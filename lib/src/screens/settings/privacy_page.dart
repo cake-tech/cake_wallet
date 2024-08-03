@@ -55,7 +55,9 @@ class PrivacyPage extends BasePage {
                   }),
               if (_privacySettingsViewModel.isAutoGenerateSubaddressesVisible)
                 SettingsSwitcherCell(
-                  title: S.current.auto_generate_subaddresses,
+                  title: _privacySettingsViewModel.isMoneroWallet
+                    ? S.current.auto_generate_subaddresses
+                    : S.current.auto_generate_addresses,
                   value: _privacySettingsViewModel.isAutoGenerateSubaddressesEnabled,
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setAutoGenerateSubaddresses(value);
@@ -80,6 +82,12 @@ class PrivacyPage extends BasePage {
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setDisableSell(value);
                   }),
+              SettingsSwitcherCell(
+                  title: S.current.disable_bulletin,
+                  value: _privacySettingsViewModel.disableBulletin,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setDisableBulletin(value);
+                  }),
               if (_privacySettingsViewModel.canUseEtherscan)
                 SettingsSwitcherCell(
                     title: S.current.etherscan_history,
@@ -93,6 +101,14 @@ class PrivacyPage extends BasePage {
                   value: _privacySettingsViewModel.usePolygonScan,
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setUsePolygonScan(value);
+                  },
+                ),
+              if (_privacySettingsViewModel.canUseTronGrid)
+                SettingsSwitcherCell(
+                  title: S.current.trongrid_history,
+                  value: _privacySettingsViewModel.useTronGrid,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUseTronGrid(value);
                   },
                 ),
               SettingsCellWithArrow(

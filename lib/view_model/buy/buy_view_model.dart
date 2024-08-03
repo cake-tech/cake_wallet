@@ -93,18 +93,6 @@ abstract class BuyViewModelBase with Store {
       _providerList.add(WyreBuyProvider(wallet: wallet));
     }
 
-    var isMoonPayEnabled = false;
-    try {
-      isMoonPayEnabled = await MoonPayBuyProvider.onEnabled();
-    } catch (e) {
-      isMoonPayEnabled = false;
-      print(e.toString());
-    }
-
-    if (isMoonPayEnabled) {
-      _providerList.add(MoonPayBuyProvider(wallet: wallet));
-    }
-
     items = _providerList.map((provider) =>
         BuyItem(provider: provider, buyAmountViewModel: buyAmountViewModel))
         .toList();

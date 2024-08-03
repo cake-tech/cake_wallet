@@ -7,6 +7,7 @@ class WalletListItem {
     required this.key,
     this.isCurrent = false,
     this.isEnabled = true,
+    this.isTestnet = false,
   });
 
   final String name;
@@ -14,4 +15,5 @@ class WalletListItem {
   final bool isCurrent;
   final dynamic key;
   final bool isEnabled;
+  final bool isTestnet;
 }

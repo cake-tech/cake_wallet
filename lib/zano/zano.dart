@@ -11,6 +11,8 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+
 import 'package:cw_zano/mnemonics/english.dart';
 import 'package:cw_zano/model/zano_asset.dart';
 import 'package:cw_zano/model/zano_transaction_credentials.dart';
@@ -18,14 +20,12 @@ import 'package:cw_zano/model/zano_transaction_info.dart';
 import 'package:cw_zano/zano_formatter.dart';
 import 'package:cw_zano/zano_wallet.dart';
 import 'package:cw_zano/zano_wallet_service.dart';
-import 'package:hive/hive.dart';
 
 part 'cw_zano.dart';
 
 Zano? zano = CWZano();
 
 abstract class Zano {
-  //TransactionHistoryBase getTransactionHistory(Object wallet);
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority deserializeMoneroTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
@@ -41,11 +41,9 @@ abstract class Zano {
       required int height});
   WalletCredentials createZanoRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
   WalletCredentials createZanoNewWalletCredentials({required String name, String password});
-  //Map<String, String> getKeys(Object wallet);
   Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency});
   double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency});
   int formatterParseAmount({required String amount, required CryptoCurrency currency});
-  //int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createZanoWalletService(Box<WalletInfo> walletInfoSource);
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo tx);
   List<ZanoAsset> getZanoAssets(WalletBase wallet);

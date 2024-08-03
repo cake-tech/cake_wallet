@@ -1,3 +1,4 @@
+import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 
@@ -26,4 +27,14 @@ class EVMChainRestoreWalletFromPrivateKey extends WalletCredentials {
   }) : super(name: name, password: password, walletInfo: walletInfo);
 
   final String privateKey;
+}
+
+class EVMChainRestoreWalletFromHardware extends WalletCredentials {
+  EVMChainRestoreWalletFromHardware({
+    required String name,
+    required this.hwAccountData,
+    WalletInfo? walletInfo,
+  }) : super(name: name, walletInfo: walletInfo);
+
+  final HardwareAccountData hwAccountData;
 }

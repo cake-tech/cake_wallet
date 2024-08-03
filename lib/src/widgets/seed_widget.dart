@@ -1,11 +1,11 @@
+import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/widgets/validable_annotated_editable_text.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cake_wallet/core/seed_validator.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class SeedWidget extends StatefulWidget {
   SeedWidget({
@@ -23,7 +23,6 @@ class SeedWidget extends StatefulWidget {
 }
 
 class SeedWidgetState extends State<SeedWidget> {
-
   SeedWidgetState(String language, this.type)
       : controller = TextEditingController(),
         focusNode = FocusNode(),
@@ -46,6 +45,7 @@ class SeedWidgetState extends State<SeedWidget> {
   final FocusNode focusNode;
   final WalletType type;
   List<String> words;
+  bool normalizeSeed = false;
   bool _showPlaceholder;
 
   String get text => controller.text;
@@ -60,6 +60,7 @@ class SeedWidgetState extends State<SeedWidget> {
   void changeSeedLanguage(String language) {
     setState(() {
       words = SeedValidator.getWordList(type: type, language: language);
+      normalizeSeed = SeedValidator.needsNormalization(language);
     });
   }
 
@@ -97,6 +98,7 @@ class SeedWidgetState extends State<SeedWidget> {
                   focusNode: focusNode,
                   controller: controller,
                   words: words,
+                  normalizeSeed: normalizeSeed,
                   textStyle: TextStyle(
                       color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       backgroundColor: Colors.transparent,

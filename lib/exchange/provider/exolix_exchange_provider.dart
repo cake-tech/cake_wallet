@@ -66,6 +66,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final params = <String, String>{
       'rateType': _getRateType(isFixedRateMode),
       'amount': '1',
+      'apiToken': apiKey,
     };
     if (isFixedRateMode) {
       params['coinFrom'] = _normalizeCurrency(to);
@@ -129,7 +130,11 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
+  Future<Trade> createTrade({
+    required TradeRequest request,
+    required bool isFixedRateMode,
+    required bool isSendAll,
+  }) async {
     final headers = {'Content-Type': 'application/json'};
     final body = {
       'coinFrom': _normalizeCurrency(request.fromCurrency),
@@ -167,19 +172,23 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final extraId = responseJSON['depositExtraId'] as String?;
     final payoutAddress = responseJSON['withdrawalAddress'] as String;
     final amount = responseJSON['amount'].toString();
+    final receiveAmount = responseJSON['amountTo']?.toString();
 
     return Trade(
-        id: id,
-        from: request.fromCurrency,
-        to: request.toCurrency,
-        provider: description,
-        inputAddress: inputAddress,
-        refundAddress: refundAddress,
-        extraId: extraId,
-        createdAt: DateTime.now(),
-        amount: amount,
-        state: TradeState.created,
-        payoutAddress: payoutAddress);
+      id: id,
+      from: request.fromCurrency,
+      to: request.toCurrency,
+      provider: description,
+      inputAddress: inputAddress,
+      refundAddress: refundAddress,
+      extraId: extraId,
+      createdAt: DateTime.now(),
+      amount: amount,
+      receiveAmount:receiveAmount ?? request.toAmount,
+      state: TradeState.created,
+      payoutAddress: payoutAddress,
+      isSendAll: isSendAll,
+    );
   }
 
   @override

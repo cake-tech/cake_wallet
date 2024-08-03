@@ -15,12 +15,15 @@ class PreferencesKey {
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentBitcoinCashNodeIdKey = 'current_node_id_bch';
   static const currentSolanaNodeIdKey = 'current_node_id_sol';
+  static const currentTronNodeIdKey = 'current_node_id_trx';
+  static const currentWowneroNodeIdKey = 'current_node_id_wow';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const isAppSecureKey = 'is_app_secure';
   static const disableBuyKey = 'disable_buy';
   static const disableSellKey = 'disable_sell';
+  static const disableBulletinKey = 'disable_bulletin';
   static const defaultBuyProvider = 'default_buy_provider';
   static const walletListOrder = 'wallet_list_order';
   static const walletListAscending = 'wallet_list_ascending';
@@ -43,8 +46,13 @@ class PreferencesKey {
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const zanoTransactionPriority = 'current_fee_priority_zano';
+  static const wowneroTransactionPriority = 'current_fee_priority_wownero';
+  static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
+  static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
+  static const silentPaymentsAlwaysScan = 'silentPaymentsAlwaysScan';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
+  static const shouldShowRepWarning = 'should_show_rep_warning';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
   static const syncModeKey = 'sync_mode';
   static const syncAllKey = 'sync_all';
@@ -54,14 +62,16 @@ class PreferencesKey {
   static const pinNativeTokenAtTop = 'pin_native_token_at_top';
   static const useEtherscan = 'use_etherscan';
   static const usePolygonScan = 'use_polygonscan';
+  static const useTronGrid = 'use_trongrid';
   static const defaultNanoRep = 'default_nano_representative';
   static const defaultBananoRep = 'default_banano_representative';
   static const lookupsTwitter = 'looks_up_twitter';
   static const lookupsMastodon = 'looks_up_mastodon';
-  static const lookupsYatService = 'looks_up_mastodon';
-  static const lookupsUnstoppableDomains = 'looks_up_mastodon';
-  static const lookupsOpenAlias = 'looks_up_mastodon';
+  static const lookupsYatService = 'looks_up_yat';
+  static const lookupsUnstoppableDomains = 'looks_up_unstoppable_domain';
+  static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
+  static const showCameraConsent = 'show_camera_consent';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
@@ -71,8 +81,12 @@ class PreferencesKey {
   static const moneroSeedType = 'monero_seed_type';
   static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
+  static const donationLinkWalletName = 'donation_link_wallet_name';
   static const lastSeenAppVersion = 'last_seen_app_version';
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';
   static const serviceStatusShaKey = 'service_status_sha_key';
+  static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
+  static String walletConnectPairingTopicsListForWallet(String publicKey) =>
+      '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
 }

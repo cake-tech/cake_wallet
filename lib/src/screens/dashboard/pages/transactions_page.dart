@@ -7,6 +7,7 @@ import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.d
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -20,6 +21,7 @@ import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TransactionsPage extends StatelessWidget {
   TransactionsPage({required this.dashboardViewModel});
@@ -46,11 +48,13 @@ class TransactionsPage extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
                   child: DashBoardRoundedCardWidget(
-                    onTap: () => Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [
-                      '',
-                      Uri.parse(
-                          'https://guides.cakewallet.com/docs/FAQ/why_are_my_funds_not_appearing/')
-                    ]),
+                    onTap: () {
+                      try {
+                        final uri = Uri.parse(
+                            "https://guides.cakewallet.com/docs/FAQ/why_are_my_funds_not_appearing/");
+                          launchUrl(uri, mode: LaunchMode.externalApplication);
+                      } catch (_) {}
+                    },
                     title: S.of(context).syncing_wallet_alert_title,
                     subTitle: S.of(context).syncing_wallet_alert_content,
                   ),
@@ -74,21 +78,32 @@ class TransactionsPage extends StatelessWidget {
                         }
 
                         if (item is TransactionListItem) {
+                          if (item.hasTokens && item.assetOfTransaction == null) {
+                            return Container();
+                          }
+
                           final transaction = item.transaction;
+                          final transactionType = dashboardViewModel.type == WalletType.ethereum &&
+                              transaction.evmSignatureName == 'approval'
+                              ? ' (${transaction.evmSignatureName})'
+                              : '';
 
                           return Observer(
-                              builder: (_) => TransactionRow(
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.transactionDetails, arguments: transaction),
-                                  direction: transaction.direction,
-                                  formattedDate: DateFormat('HH:mm').format(transaction.date),
-                                  formattedAmount: item.formattedCryptoAmount,
-                                  formattedFiatAmount:
-                                      dashboardViewModel.balanceViewModel.isFiatDisabled
-                                          ? ''
-                                          : item.formattedFiatAmount,
-                                  isPending: transaction.isPending,
-                                  title: item.formattedTitle + item.formattedStatus));
+                            builder: (_) => TransactionRow(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed(Routes.transactionDetails, arguments: transaction),
+                              direction: transaction.direction,
+                              formattedDate: DateFormat('HH:mm').format(transaction.date),
+                              formattedAmount: item.formattedCryptoAmount,
+                              formattedFiatAmount:
+                                  dashboardViewModel.balanceViewModel.isFiatDisabled
+                                      ? ''
+                                      : item.formattedFiatAmount,
+                              isPending: transaction.isPending,
+                              title: item.formattedTitle +
+                                  item.formattedStatus + ' $transactionType',
+                            ),
+                          );
                         }
 
                         if (item is AnonpayTransactionListItem) {

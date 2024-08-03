@@ -6,12 +6,15 @@ class Routes {
   static const seed = '/seed';
   static const restoreOptions = '/restore_options';
   static const restoreWalletFromSeedKeys = '/restore_wallet_from_seeds_keys';
+  static const restoreWalletFromHardwareWallet = '/restore/hardware_wallet';
   static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
   static const restoreWalletChooseDerivation =
       '/restore_wallet_choose_derivation';
+  static const chooseHardwareWalletAccount = '/restore/hardware_wallet/accounts';
   static const dashboard = '/dashboard';
   static const send = '/send';
   static const transactionDetails = '/transaction_info';
+  static const bumpFeePage = '/bump_fee_page';
   static const receive = '/receive';
   static const newSubaddress = '/new_subaddress';
   static const walletEdit = '/walletEdit';
@@ -61,23 +64,15 @@ class Routes {
   static const unspentCoinsDetails = '/unspent_coins_details';
   static const addressPage = '/address_page';
   static const fullscreenQR = '/fullscreen_qr';
-  static const ioniaWelcomePage = '/cake_pay_welcome_page';
-  static const ioniaCreateAccountPage = '/cake_pay_create_account_page';
-  static const ioniaLoginPage = '/cake_pay_login_page';
-  static const ioniaManageCardsPage = '/manage_cards_page';
-  static const ioniaBuyGiftCardPage = '/buy_gift_card_page';
-  static const ioniaBuyGiftCardDetailPage = '/buy_gift_card_detail_page';
-  static const ioniaVerifyIoniaOtpPage = '/cake_pay_verify_otp_page';
-  static const ioniaDebitCardPage = '/debit_card_page';
-  static const ioniaActivateDebitCardPage = '/activate_debit_card_page';
-  static const ioniaAccountPage = 'ionia_account_page';
-  static const ioniaAccountCardsPage = 'ionia_account_cards_page';
-  static const ioniaCustomTipPage = 'ionia_custom_tip_page';
-  static const ioniaGiftCardDetailPage = '/ionia_gift_card_detail_page';
-  static const ioniaPaymentStatusPage = '/ionia_payment_status_page';
-  static const ioniaMoreOptionsPage = '/ionia_more_options_page';
-  static const ioniaCustomRedeemPage = '/ionia_custom_redeem_page';
+  static const cakePayWelcomePage = '/cake_pay_welcome_page';
+  static const cakePayLoginPage = '/cake_pay_login_page';
+  static const cakePayCardsPage = '/cake_pay_cards_page';
+  static const cakePayBuyCardPage = '/cake_pay_buy_card_page';
+  static const cakePayBuyCardDetailPage = '/cake_pay_buy_card_detail_page';
+  static const cakePayVerifyOtpPage = '/cake_pay_verify_otp_page';
+  static const cakePayAccountPage = '/cake_pay_account_page';
   static const webViewPage = '/web_view_page';
+  static const silentPaymentsSettings = '/silent_payments_settings';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';
@@ -106,4 +101,5 @@ class Routes {
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
   static const torPage = '/tor_page';
+  static const connectDevices = '/device/connect';
 }

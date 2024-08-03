@@ -1,38 +1,42 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
+import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
+import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/src/widgets/trail_button.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:cw_core/crypto_currency.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SendPage extends BasePage {
   SendPage({
@@ -48,6 +52,7 @@ class SendPage extends BasePage {
   final PaymentRequest? initialPaymentRequest;
 
   bool _effectsInstalled = false;
+  ContactRecord? newContactAddress;
 
   @override
   String get title => S.current.send;
@@ -60,6 +65,14 @@ class SendPage extends BasePage {
 
   @override
   bool get extendBodyBehindAppBar => true;
+
+  @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
 
   @override
   Widget? leading(BuildContext context) {
@@ -98,7 +111,10 @@ class SendPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   double _sendCardHeight(BuildContext context) {
-    final double initialHeight = sendViewModel.hasCoinControl ? 500 : 465;
+    double initialHeight = 480;
+    if (sendViewModel.hasCoinControl) {
+      initialHeight += 55;
+    }
 
     if (!responsiveLayoutUtil.shouldRenderMobileUI) {
       return initialHeight - 66;
@@ -188,7 +204,7 @@ class SendPage extends BasePage {
                         },
                       )),
                   Padding(
-                    padding: EdgeInsets.only(top: 10, left: 24, right: 24, bottom: 10),
+                    padding: EdgeInsets.only(left: 24, right: 24, bottom: 10),
                     child: Container(
                       height: 10,
                       child: Observer(
@@ -364,6 +380,21 @@ class SendPage extends BasePage {
                           return;
                         }
 
+                        if (sendViewModel.wallet.isHardwareWallet) {
+                          if (!sendViewModel.ledgerViewModel!.isConnected) {
+                            await Navigator.of(context).pushNamed(Routes.connectDevices,
+                                arguments: ConnectDevicePageParams(
+                                  walletType: sendViewModel.walletType,
+                                  onConnectDevice: (BuildContext context, _) {
+                                    sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
+                                    Navigator.of(context).pop();
+                                  },
+                                ));
+                          } else {
+                            sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
+                          }
+                        }
+
                         final check = sendViewModel.shouldDisplayTotp();
                         authService.authenticateAction(
                           context,
@@ -379,7 +410,8 @@ class SendPage extends BasePage {
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       isLoading: sendViewModel.state is IsExecutingState ||
-                          sendViewModel.state is TransactionCommitting,
+                          sendViewModel.state is TransactionCommitting ||
+                          sendViewModel.state is IsAwaitingDeviceResponseState,
                       isDisabled: !sendViewModel.isReadyForSend,
                     );
                   },
@@ -390,12 +422,22 @@ class SendPage extends BasePage {
     );
   }
 
+  BuildContext? dialogContext;
+
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
       return;
     }
 
+    if (sendViewModel.isElectrumWallet) {
+      bitcoin!.updateFeeRates(sendViewModel.wallet);
+    }
+
     reaction((_) => sendViewModel.state, (ExecutionState state) {
+      if (dialogContext != null && dialogContext?.mounted == true) {
+        Navigator.of(dialogContext!).pop();
+      }
+
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
@@ -424,15 +466,16 @@ class SendPage extends BasePage {
                       fee: isEVMCompatibleChain(sendViewModel.walletType)
                           ? S.of(_dialogContext).send_estimated_fee
                           : S.of(_dialogContext).send_fee,
+                      feeRate: sendViewModel.pendingTransaction!.feeRate,
                       feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                       feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                       outputs: sendViewModel.outputs,
                       rightButtonText: S.of(_dialogContext).send,
                       leftButtonText: S.of(_dialogContext).cancel,
-                      actionRightButton: () {
+                      actionRightButton: () async {
                         Navigator.of(_dialogContext).pop();
                         sendViewModel.commitTransaction();
-                        showPopUp<void>(
+                        await showPopUp<void>(
                             context: context,
                             builder: (BuildContext _dialogContext) {
                               return Observer(builder: (_) {
@@ -443,27 +486,75 @@ class SendPage extends BasePage {
                                 }
 
                                 if (state is TransactionCommitted) {
-                                  String alertContent;
-                                  if (sendViewModel.walletType == WalletType.solana) {
-                                    alertContent =
-                                        '${S.of(_dialogContext).send_success(sendViewModel.selectedCryptoCurrency.toString())}. ${S.of(_dialogContext).waitFewSecondForTxUpdate}';
+                                  newContactAddress =
+                                      newContactAddress ?? sendViewModel.newContactAddress();
+
+                                  final successMessage = S.of(_dialogContext).send_success(
+                                      sendViewModel.selectedCryptoCurrency.toString());
+
+                                  final waitMessage = sendViewModel.walletType == WalletType.solana
+                                      ? '. ${S.of(_dialogContext).waitFewSecondForTxUpdate}'
+                                      : '';
+
+                                  final newContactMessage = newContactAddress != null
+                                      ? '\n${S.of(_dialogContext).add_contact_to_address_book}'
+                                      : '';
+
+                                  String alertContent =
+                                      "$successMessage$waitMessage$newContactMessage";
+
+                                  if (newContactAddress != null) {
+                                    return AlertWithTwoActions(
+                                        alertTitle: '',
+                                        alertContent: alertContent,
+                                        rightButtonText: S.of(_dialogContext).add_contact,
+                                        leftButtonText: S.of(_dialogContext).ignor,
+                                        actionRightButton: () {
+                                          Navigator.of(_dialogContext).pop();
+                                          RequestReviewHandler.requestReview();
+                                          Navigator.of(context).pushNamed(
+                                              Routes.addressBookAddContact,
+                                              arguments: newContactAddress);
+                                          newContactAddress = null;
+                                        },
+                                        actionLeftButton: () {
+                                          Navigator.of(_dialogContext).pop();
+                                          RequestReviewHandler.requestReview();
+                                          newContactAddress = null;
+                                        });
                                   } else {
-                                    alertContent = S.of(_dialogContext).send_success(
-                                        sendViewModel.selectedCryptoCurrency.toString());
+                                    if (initialPaymentRequest?.callbackMessage?.isNotEmpty ??
+                                        false) {
+                                      alertContent = initialPaymentRequest!.callbackMessage!;
+                                    }
+                                    return AlertWithOneAction(
+                                        alertTitle: '',
+                                        alertContent: alertContent,
+                                        buttonText: S.of(_dialogContext).ok,
+                                        buttonAction: () {
+                                          Navigator.of(_dialogContext).pop();
+                                          RequestReviewHandler.requestReview();
+                                        });
                                   }
-                                  return AlertWithOneAction(
-                                      alertTitle: '',
-                                      alertContent: alertContent,
-                                      buttonText: S.of(_dialogContext).ok,
-                                      buttonAction: () {
-                                        Navigator.of(_dialogContext).pop();
-                                        RequestReviewHandler.requestReview();
-                                      });
                                 }
 
                                 return Offstage();
                               });
                             });
+                        if (state is TransactionCommitted) {
+                          if (initialPaymentRequest?.callbackUrl?.isNotEmpty ?? false) {
+                            // wait a second so it's not as jarring:
+                            await Future.delayed(Duration(seconds: 1));
+                            try {
+                              launchUrl(
+                                Uri.parse(initialPaymentRequest!.callbackUrl!),
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } catch (e) {
+                              print(e);
+                            }
+                          }
+                        }
                       },
                       actionLeftButton: () => Navigator.of(_dialogContext).pop());
                 });
@@ -474,6 +565,21 @@ class SendPage extends BasePage {
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           sendViewModel.clearOutputs();
+        });
+      }
+
+      if (state is IsAwaitingDeviceResponseState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                dialogContext = context;
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).proceed_on_device,
+                    alertContent: S.of(context).proceed_on_device_description,
+                    buttonText: S.of(context).cancel,
+                    buttonAction: () => Navigator.of(context).pop());
+              });
         });
       }
     });

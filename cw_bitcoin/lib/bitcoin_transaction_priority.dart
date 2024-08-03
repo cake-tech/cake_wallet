@@ -4,13 +4,15 @@ class BitcoinTransactionPriority extends TransactionPriority {
   const BitcoinTransactionPriority({required String title, required int raw})
       : super(title: title, raw: raw);
 
-  static const List<BitcoinTransactionPriority> all = [fast, medium, slow];
+  static const List<BitcoinTransactionPriority> all = [fast, medium, slow, custom];
   static const BitcoinTransactionPriority slow =
       BitcoinTransactionPriority(title: 'Slow', raw: 0);
   static const BitcoinTransactionPriority medium =
       BitcoinTransactionPriority(title: 'Medium', raw: 1);
   static const BitcoinTransactionPriority fast =
       BitcoinTransactionPriority(title: 'Fast', raw: 2);
+  static const BitcoinTransactionPriority custom =
+  BitcoinTransactionPriority(title: 'Custom', raw: 3);
 
   static BitcoinTransactionPriority deserialize({required int raw}) {
     switch (raw) {
@@ -20,6 +22,8 @@ class BitcoinTransactionPriority extends TransactionPriority {
         return medium;
       case 2:
         return fast;
+      case 3:
+        return custom;
       default:
         throw Exception('Unexpected token: $raw for BitcoinTransactionPriority deserialize');
     }
@@ -33,13 +37,16 @@ class BitcoinTransactionPriority extends TransactionPriority {
 
     switch (this) {
       case BitcoinTransactionPriority.slow:
-        label = 'Slow ~24hrs'; // '${S.current.transaction_priority_slow} ~24hrs';
+        label = 'Slow ~24hrs+'; // '${S.current.transaction_priority_slow} ~24hrs';
         break;
       case BitcoinTransactionPriority.medium:
         label = 'Medium'; // S.current.transaction_priority_medium;
         break;
       case BitcoinTransactionPriority.fast:
-        label = 'Fast'; // S.current.transaction_priority_fast;
+        label = 'Fast';
+        break; // S.current.transaction_priority_fast;
+      case BitcoinTransactionPriority.custom:
+        label = 'Custom';
         break;
       default:
         break;
@@ -48,7 +55,10 @@ class BitcoinTransactionPriority extends TransactionPriority {
     return label;
   }
 
-  String labelWithRate(int rate) => '${toString()} ($rate ${units}/byte)';
+  String labelWithRate(int rate, int? customRate) {
+    final rateValue = this == custom ? customRate ??= 0 : rate;
+    return '${toString()} ($rateValue ${units}/byte)';
+  }
 }
 
 class LitecoinTransactionPriority extends BitcoinTransactionPriority {

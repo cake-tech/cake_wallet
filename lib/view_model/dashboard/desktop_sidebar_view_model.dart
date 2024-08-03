@@ -5,6 +5,7 @@ part 'desktop_sidebar_view_model.g.dart';
 enum SidebarItem {
   dashboard,
   transactions,
+  status,
   support,
   settings,
 }

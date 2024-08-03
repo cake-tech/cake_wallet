@@ -129,25 +129,29 @@ class HomeSettingsPage extends BasePage {
                               'token': token,
                             });
                           },
-                          leading: CakeImageWidget(
-                            imageUrl: token.iconPath,
-                            height: 40,
-                            width: 40,
-                            displayOnError: Container(
-                                  height: 30.0,
-                                  width: 30.0,
-                                  child: Center(
-                                    child: Text(
-                                      token.title.substring(0, min(token.title.length, 2)),
-                                      style: TextStyle(fontSize: 11),
-                                    ),
+                          leading: Container(
+                            clipBehavior: Clip.hardEdge,
+                            decoration: BoxDecoration(shape: BoxShape.circle),
+                            child: CakeImageWidget(
+                              imageUrl: token.iconPath,
+                              height: 40,
+                              width: 40,
+                              displayOnError: Container(
+                                height: 30.0,
+                                width: 30.0,
+                                child: Center(
+                                  child: Text(
+                                    token.title.substring(0, min(token.title.length, 2)),
+                                    style: TextStyle(fontSize: 11),
                                   ),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.grey.shade400,
-                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey.shade400,
+                                ),
+                              ),
                             ),
-                          ),        
+                          ),
                           decoration: BoxDecoration(
                             color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(30),

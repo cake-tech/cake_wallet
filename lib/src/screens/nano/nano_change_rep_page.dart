@@ -5,10 +5,12 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/n2_node.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -21,9 +23,7 @@ class NanoChangeRepPage extends BasePage {
       : _wallet = wallet,
         _settingsStore = settingsStore,
         _addressController = TextEditingController(),
-        _formKey = GlobalKey<FormState>() {
-    _addressController.text = nano!.getRepresentative(wallet);
-  }
+        _formKey = GlobalKey<FormState>() {}
 
   final TextEditingController _addressController;
   final WalletBase _wallet;
@@ -34,105 +34,314 @@ class NanoChangeRepPage extends BasePage {
   @override
   String get title => S.current.change_rep;
 
+  N2Node getCurrentRepNode(List<N2Node> nodes) {
+    final currentRepAccount = nano!.getRepresentative(_wallet);
+    final currentNode = nodes.firstWhere(
+      (node) => node.account == currentRepAccount,
+      orElse: () => N2Node(
+        account: currentRepAccount,
+        alias: currentRepAccount,
+        score: 0,
+        uptime: "???",
+        weight: 0,
+      ),
+    );
+
+    return currentNode;
+  }
+
   @override
   Widget body(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Container(
-        padding: EdgeInsets.only(left: 24, right: 24),
-        child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(bottom: 24.0),
-          content: Container(
-            child: Column(
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: AddressTextField(
-                        controller: _addressController,
-                        onURIScanned: (uri) {
-                          final paymentRequest = PaymentRequest.fromUri(uri);
-                          _addressController.text = paymentRequest.address;
-                        },
-                        options: [
-                          AddressTextFieldOption.paste,
-                          AddressTextFieldOption.qrCode,
-                        ],
-                        buttonColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
-                        validator: AddressValidator(type: CryptoCurrency.nano),
+      child: FutureBuilder(
+        future: nano!.getN2Reps(_wallet),
+        builder: (context, snapshot) {
+          if (snapshot.data == null) {
+            return SizedBox();
+          }
+
+          return Container(
+            padding: EdgeInsets.only(left: 24, right: 24),
+            child: ScrollableWithBottomSection(
+              topSectionPadding: EdgeInsets.only(bottom: 24),
+              topSection: Column(
+                children: [
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: AddressTextField(
+                          controller: _addressController,
+                          onURIScanned: (uri) {
+                            final paymentRequest = PaymentRequest.fromUri(uri);
+                            _addressController.text = paymentRequest.address;
+                          },
+                          options: [
+                            AddressTextFieldOption.paste,
+                            AddressTextFieldOption.qrCode,
+                          ],
+                          buttonColor:
+                              Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
+                          validator: AddressValidator(type: CryptoCurrency.nano),
+                        ),
+                      )
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 12),
+                        child: Text(
+                          S.current.nano_current_rep,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
-                    )
-                  ],
+                      _buildSingleRepresentative(
+                        context,
+                        getCurrentRepNode(snapshot.data as List<N2Node>),
+                        isList: false,
+                      ),
+                      Divider(height: 20),
+                      Container(
+                        margin: EdgeInsets.only(top: 12),
+                        child: Text(
+                          S.current.nano_pick_new_rep,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              contentPadding: EdgeInsets.only(bottom: 24),
+              content: Container(
+                child: Column(
+                  children: _getRepresentativeWidgets(context, snapshot.data as List<N2Node>),
+                ),
+              ),
+              bottomSectionPadding: EdgeInsets.only(bottom: 24),
+              bottomSection: Observer(
+                  builder: (_) => Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Flexible(
+                              child: Container(
+                            padding: EdgeInsets.only(right: 8.0),
+                            child: LoadingPrimaryButton(
+                              onPressed: () => _onSubmit(context),
+                              text: S.of(context).change,
+                              color: Theme.of(context).primaryColor,
+                              textColor: Colors.white,
+                            ),
+                          )),
+                        ],
+                      )),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _onSubmit(BuildContext context) async {
+    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final confirmed = await showPopUp<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithTwoActions(
+                  alertTitle: S.of(context).change_rep,
+                  alertContent: S.of(context).change_rep_message,
+                  rightButtonText: S.of(context).change,
+                  leftButtonText: S.of(context).cancel,
+                  actionRightButton: () => Navigator.pop(context, true),
+                  actionLeftButton: () => Navigator.pop(context, false));
+            }) ??
+        false;
+
+    if (confirmed) {
+      try {
+        _settingsStore.defaultNanoRep = _addressController.text;
+
+        await nano!.changeRep(_wallet, _addressController.text);
+
+        // reset this flag whenever we successfully change reps:
+        _settingsStore.shouldShowRepWarning = true;
+
+        await showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).successful,
+                  alertContent: S.of(context).change_rep_successful,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.pop(context));
+            });
+      } catch (e) {
+        await showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).error,
+                  alertContent: e.toString(),
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.pop(context));
+            });
+        throw e;
+      }
+    }
+  }
+
+  List<Widget> _getRepresentativeWidgets(BuildContext context, List<N2Node>? list) {
+    if (list == null) {
+      return [];
+    }
+    final List<Widget> ret = [];
+    for (final N2Node node in list) {
+      if (node.alias != null && node.alias!.trim().isNotEmpty) {
+        ret.add(_buildSingleRepresentative(context, node));
+      }
+    }
+    return ret;
+  }
+
+  Widget _buildSingleRepresentative(BuildContext context, N2Node rep, {bool isList = true}) {
+    return Column(
+      children: <Widget>[
+        if (isList)
+          Divider(
+            height: 2,
+          ),
+        TextButton(
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+          ),
+          onPressed: () async {
+            if (!isList) {
+              return;
+            }
+            _addressController.text = rep.account!;
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  margin: const EdgeInsetsDirectional.only(start: 24),
+                  width: MediaQuery.of(context).size.width * 0.50,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        _sanitizeAlias(rep.alias),
+                        style: TextStyle(
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 7),
+                        child: RichText(
+                          text: TextSpan(
+                            text: "${S.current.voting_weight}: ${rep.weight.toString()}%",
+                            style: TextStyle(
+                              color:
+                                  Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 4),
+                        child: RichText(
+                          text: TextSpan(
+                            text: '',
+                            children: [
+                              TextSpan(
+                                text: "${S.current.uptime}: ",
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .extension<CakeTextTheme>()!
+                                      .secondaryTextColor,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              TextSpan(
+                                text: rep.uptime,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .extension<CakeTextTheme>()!
+                                      .secondaryTextColor,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsetsDirectional.only(end: 24, start: 14),
+                  child: Stack(
+                    children: <Widget>[
+                      Icon(
+                        Icons.verified,
+                        color: Theme.of(context).primaryColor,
+                        size: 50,
+                      ),
+                      Positioned.fill(
+                        child: Container(
+                          margin: EdgeInsets.all(13),
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      Container(
+                        alignment: const AlignmentDirectional(-0.03, 0.03),
+                        width: 50,
+                        height: 50,
+                        child: Text(
+                          (rep.score).toString(),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-          bottomSectionPadding: EdgeInsets.only(bottom: 24),
-          bottomSection: Observer(
-              builder: (_) => Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Flexible(
-                          child: Container(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: LoadingPrimaryButton(
-                          onPressed: () async {
-                            if (_formKey.currentState != null &&
-                                !_formKey.currentState!.validate()) {
-                              return;
-                            }
-
-                            final confirmed = await showPopUp<bool>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertWithTwoActions(
-                                          alertTitle: S.of(context).change_rep,
-                                          alertContent: S.of(context).change_rep_message,
-                                          rightButtonText: S.of(context).change,
-                                          leftButtonText: S.of(context).cancel,
-                                          actionRightButton: () => Navigator.pop(context, true),
-                                          actionLeftButton: () => Navigator.pop(context, false));
-                                    }) ??
-                                false;
-
-                            if (confirmed) {
-                              try {
-                                _settingsStore.defaultNanoRep = _addressController.text;
-
-                                await nano!.changeRep(_wallet, _addressController.text);
-
-                                await showPopUp<void>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertWithOneAction(
-                                          alertTitle: S.of(context).successful,
-                                          alertContent: S.of(context).change_rep_successful,
-                                          buttonText: S.of(context).ok,
-                                          buttonAction: () => Navigator.pop(context));
-                                    });
-                              } catch (e) {
-                                await showPopUp<void>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertWithOneAction(
-                                          alertTitle: S.of(context).error,
-                                          alertContent: e.toString(),
-                                          buttonText: S.of(context).ok,
-                                          buttonAction: () => Navigator.pop(context));
-                                    });
-                                throw e;
-                              }
-                            }
-                          },
-                          text: S.of(context).change,
-                          color: Theme.of(context).primaryColor,
-                          textColor: Colors.white,
-                        ),
-                      )),
-                    ],
-                  )),
         ),
-      ),
+      ],
     );
+  }
+
+  String _sanitizeAlias(String? alias) {
+    if (alias != null) {
+      return alias.replaceAll(RegExp(r'[^a-zA-Z_.!?_;:-]'), '');
+    }
+    return '';
   }
 }

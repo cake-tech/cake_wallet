@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
@@ -35,6 +36,8 @@ class MenuWidgetState extends State<MenuWidget> {
         this.bitcoinCashIcon = Image.asset('assets/images/bch_icon.png'),
         this.polygonIcon = Image.asset('assets/images/matic_icon.png'),
         this.solanaIcon = Image.asset('assets/images/sol_icon.png'),
+        this.tronIcon = Image.asset('assets/images/trx_icon.png'),
+        this.wowneroIcon = Image.asset('assets/images/wownero_icon.png'),
         this.zanoIcon = Image.asset('assets/images/zano_icon.png');
 
   final largeScreen = 731;
@@ -58,6 +61,8 @@ class MenuWidgetState extends State<MenuWidget> {
   Image bananoIcon;
   Image polygonIcon;
   Image solanaIcon;
+  Image tronIcon;
+  Image wowneroIcon;
   Image zanoIcon;
 
   @override
@@ -180,6 +185,11 @@ class MenuWidgetState extends State<MenuWidget> {
 
                   final item = SettingActions.all[index];
 
+                  if (!widget.dashboardViewModel.hasSilentPayments &&
+                      item.name(context) == S.of(context).silent_payments_settings) {
+                    return Container();
+                  }
+
                   final isLastTile = index == itemCount - 1;
 
                   return SettingActionButton(
@@ -228,6 +238,10 @@ class MenuWidgetState extends State<MenuWidget> {
         return polygonIcon;
       case WalletType.solana:
         return solanaIcon;
+      case WalletType.tron:
+        return tronIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
       case WalletType.zano:
         return zanoIcon;
       default:

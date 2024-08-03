@@ -15,6 +15,7 @@ const walletTypes = [
   WalletType.banano,
   WalletType.polygon,
   WalletType.solana,
+  WalletType.tron,
   WalletType.zano,
 ];
 
@@ -54,7 +55,14 @@ enum WalletType {
   solana,
 
   @HiveField(11)
+  tron,
+
+  @HiveField(12)
+  wownero,
+
+  @HiveField(13) 
   zano,
+
 }
 
 int serializeToInt(WalletType type) {
@@ -79,9 +87,13 @@ int serializeToInt(WalletType type) {
       return 8;
     case WalletType.solana:
       return 9;
-    case WalletType.zano:
+    case WalletType.tron:
       return 10;
-    default:
+    case WalletType.wownero:
+      return 11;
+    case WalletType.zano:
+      return 12;
+    case WalletType.none:
       return -1;
   }
 }
@@ -109,6 +121,10 @@ WalletType deserializeFromInt(int raw) {
     case 9:
       return WalletType.solana;
     case 10:
+      return WalletType.tron;
+    case 11:
+      return WalletType.wownero;
+    case 12:
       return WalletType.zano;
     default:
       throw Exception(
@@ -138,9 +154,13 @@ String walletTypeToString(WalletType type) {
       return 'Polygon';
     case WalletType.solana:
       return 'Solana';
+    case WalletType.tron:
+      return 'Tron';
+    case WalletType.wownero:
+      return 'Wownero';
     case WalletType.zano:
       return 'Zano';
-    default:
+    case WalletType.none:
       return '';
   }
 }
@@ -167,18 +187,25 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Polygon (MATIC)';
     case WalletType.solana:
       return 'Solana (SOL)';
+    case WalletType.tron:
+      return 'Tron (TRX)';
+    case WalletType.wownero:
+      return 'Wownero (WOW)';
     case WalletType.zano:
       return 'Zano (ZANO)';
-    default:
+    case WalletType.none:
       return '';
   }
 }
 
-CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
+CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false}) {
   switch (type) {
     case WalletType.monero:
       return CryptoCurrency.xmr;
     case WalletType.bitcoin:
+      if (isTestnet) {
+        return CryptoCurrency.tbtc;
+      }
       return CryptoCurrency.btc;
     case WalletType.litecoin:
       return CryptoCurrency.ltc;
@@ -196,9 +223,13 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.maticpoly;
     case WalletType.solana:
       return CryptoCurrency.sol;
+    case WalletType.tron:
+      return CryptoCurrency.trx;
+    case WalletType.wownero:
+      return CryptoCurrency.wow;
     case WalletType.zano:
       return CryptoCurrency.zano;
-    default:
+    case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }

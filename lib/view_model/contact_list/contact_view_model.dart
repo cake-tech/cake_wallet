@@ -48,11 +48,11 @@ abstract class ContactViewModelBase with Store {
     currency = null;
   }
 
-  Future save() async {
+  Future<void> save() async {
     try {
       state = IsExecutingState();
 
-      if (_contact != null) {
+      if (_contact != null && _contact!.original.isInBox) {
         _contact?.name = name;
         _contact?.address = address;
         _contact?.type = currency!;

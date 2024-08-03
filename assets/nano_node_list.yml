@@ -1,6 +1,31 @@
 -
-  uri: rpc.nano.to
+  uri: nano.nownodes.io
   useSSL: true
   is_default: true
 -
-  uri: node.perish.co:9076
+  uri: rpc.nano.to
+  useSSL: true
+-
+  uri: node.nautilus.io
+  path: /api
+  useSSL: true
+-
+  uri: app.natrium.io
+  path: /api
+  useSSL: true
+-
+  uri: rainstorm.city
+  path: /api
+  useSSL: true
+-
+  uri: node.somenano.com
+  path: /proxy
+  useSSL: true
+-
+  uri: nanoslo.0x.no
+  path: /proxy
+  useSSL: true
+-
+  uri: www.bitrequest.app
+  port: 8020
+  useSSL: true

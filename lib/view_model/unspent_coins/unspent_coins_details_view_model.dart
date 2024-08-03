@@ -56,7 +56,7 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
         onTap: () {
           try {
             final url = Uri.parse(_explorerUrl(_type, unspentCoinsItem.hash));
-            return launchUrl(url);
+            return launchUrl(url, mode: LaunchMode.externalApplication);
           } catch (e) {}
         },
       ));
@@ -100,7 +100,5 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
   final WalletType _type;
   List<TransactionDetailsListItem> items;
 
-  String get formattedAddress => WalletType.bitcoinCash == _type
-      ? bitcoinCash!.getCashAddrFormat(unspentCoinsItem.address)
-      : unspentCoinsItem.address;
+  String get formattedAddress => unspentCoinsItem.address;
 }

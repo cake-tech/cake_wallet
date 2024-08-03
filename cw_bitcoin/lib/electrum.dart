@@ -7,10 +7,9 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:http/http.dart' as http;
 
 String jsonrpcparams(List<Object> params) {
-  final _params = params?.map((val) => '"${val.toString()}"')?.join(',');
+  final _params = params.map((val) => '"${val.toString()}"').join(',');
   return '[$_params]';
 }
 
@@ -34,6 +33,7 @@ class ElectrumClient {
       : _id = 0,
         _isConnected = false,
         _tasks = {},
+        _errors = {},
         unterminatedString = '';
 
   static const connectionTimeout = Duration(seconds: 5);
@@ -41,22 +41,35 @@ class ElectrumClient {
 
   bool get isConnected => _isConnected;
   Socket? socket;
-  void Function(bool)? onConnectionStatusChange;
+  void Function(bool?)? onConnectionStatusChange;
   int _id;
   final Map<String, SocketTask> _tasks;
+  Map<String, SocketTask> get tasks => _tasks;
+  final Map<String, String> _errors;
   bool _isConnected;
   Timer? _aliveTimer;
   String unterminatedString;
 
-  Future<void> connectToUri(Uri uri) async => await connect(host: uri.host, port: uri.port);
+  Uri? uri;
+  bool? useSSL;
 
-  Future<void> connect({required String host, required int port}) async {
+  Future<void> connectToUri(Uri uri, {bool? useSSL}) async {
+    this.uri = uri;
+    this.useSSL = useSSL;
+    await connect(host: uri.host, port: uri.port, useSSL: useSSL);
+  }
+
+  Future<void> connect({required String host, required int port, bool? useSSL}) async {
     try {
       await socket?.close();
     } catch (_) {}
 
-    socket = await SecureSocket.connect(host, port,
-        timeout: connectionTimeout, onBadCertificate: (_) => true);
+    if (useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum"))) {
+      socket = await Socket.connect(host, port, timeout: connectionTimeout);
+    } else {
+      socket = await SecureSocket.connect(host, port,
+          timeout: connectionTimeout, onBadCertificate: (_) => true);
+    }
     _setIsConnected(true);
 
     socket!.listen((Uint8List event) {
@@ -78,7 +91,7 @@ class ElectrumClient {
       _setIsConnected(false);
     }, onDone: () {
       unterminatedString = '';
-      _setIsConnected(false);
+      _setIsConnected(null);
     });
     keepAlive();
   }
@@ -133,11 +146,12 @@ class ElectrumClient {
       await callWithTimeout(method: 'server.ping');
       _setIsConnected(true);
     } on RequestFailedTimeoutException catch (_) {
-      _setIsConnected(false);
+      _setIsConnected(null);
     }
   }
 
-  Future<List<String>> version() => call(method: 'server.version').then((dynamic result) {
+  Future<List<String>> version() =>
+      call(method: 'server.version', params: ["", "1.4"]).then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) => val.toString()).toList();
         }
@@ -243,30 +257,20 @@ class ElectrumClient {
       });
 
   Future<String> broadcastTransaction(
-      {required String transactionRaw, BasedUtxoNetwork? network}) async {
-    if (network == BitcoinNetwork.testnet) {
-      return http
-          .post(Uri(scheme: 'https', host: 'blockstream.info', path: '/testnet/api/tx'),
-              headers: <String, String>{'Content-Type': 'application/json; charset=utf-8'},
-              body: transactionRaw)
-          .then((http.Response response) {
-        if (response.statusCode == 200) {
-          return response.body;
+          {required String transactionRaw,
+          BasedUtxoNetwork? network,
+          Function(int)? idCallback}) async =>
+      call(
+              method: 'blockchain.transaction.broadcast',
+              params: [transactionRaw],
+              idCallback: idCallback)
+          .then((dynamic result) {
+        if (result is String) {
+          return result;
         }
 
-        throw Exception('Failed to broadcast transaction: ${response.body}');
+        return '';
       });
-    }
-
-    return call(method: 'blockchain.transaction.broadcast', params: [transactionRaw])
-        .then((dynamic result) {
-      if (result is String) {
-        return result;
-      }
-
-      return '';
-    });
-  }
 
   Future<Map<String, dynamic>> getMerkle({required String hash, required int height}) async =>
       await call(method: 'blockchain.transaction.get_merkle', params: [hash, height])
@@ -274,6 +278,18 @@ class ElectrumClient {
 
   Future<Map<String, dynamic>> getHeader({required int height}) async =>
       await call(method: 'blockchain.block.get_header', params: [height]) as Map<String, dynamic>;
+
+  BehaviorSubject<Object>? tweaksSubscribe({required int height, required int count}) {
+    _id += 1;
+    return subscribe<Object>(
+      id: 'blockchain.tweaks.subscribe:${height + count}',
+      method: 'blockchain.tweaks.subscribe',
+      params: [height, count, false],
+    );
+  }
+
+  Future<dynamic> getTweaks({required int height}) async =>
+      await callWithTimeout(method: 'blockchain.tweaks.subscribe', params: [height, 1, false]);
 
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
@@ -317,9 +333,6 @@ class ElectrumClient {
       });
 
   Future<List<int>> feeRates({BasedUtxoNetwork? network}) async {
-    if (network == BitcoinNetwork.testnet) {
-      return [1, 1, 1];
-    }
     try {
       final topDoubleString = await estimatefee(p: 1);
       final middleDoubleString = await estimatefee(p: 5);
@@ -341,13 +354,19 @@ class ElectrumClient {
   //   "hex": "00000020890208a0ae3a3892aa047c5468725846577cfcd9b512b50000000000000000005dc2b02f2d297a9064ee103036c14d678f9afc7e3d9409cf53fd58b82e938e8ecbeca05a2d2103188ce804c4"
   // }
   Future<int?> getCurrentBlockChainTip() =>
-      call(method: 'blockchain.headers.subscribe').then((result) {
+      callWithTimeout(method: 'blockchain.headers.subscribe').then((result) {
         if (result is Map<String, dynamic>) {
           return result["height"] as int;
         }
 
         return null;
       });
+
+  BehaviorSubject<Object>? chainTipSubscribe() {
+    _id += 1;
+    return subscribe<Object>(
+        id: 'blockchain.headers.subscribe', method: 'blockchain.headers.subscribe');
+  }
 
   BehaviorSubject<Object>? scripthashUpdate(String scripthash) {
     _id += 1;
@@ -371,10 +390,12 @@ class ElectrumClient {
     }
   }
 
-  Future<dynamic> call({required String method, List<Object> params = const []}) async {
+  Future<dynamic> call(
+      {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
     final completer = Completer<dynamic>();
     _id += 1;
     final id = _id;
+    idCallback?.call(id);
     _registryTask(id, completer);
     socket!.write(jsonrpc(method: method, id: id, params: params));
 
@@ -403,7 +424,9 @@ class ElectrumClient {
 
   Future<void> close() async {
     _aliveTimer?.cancel();
-    await socket?.close();
+    try {
+      await socket?.close();
+    } catch (_) {}
     onConnectionStatusChange = null;
   }
 
@@ -438,23 +461,48 @@ class ElectrumClient {
 
         _tasks[id]?.subject?.add(params.last);
         break;
+      case 'blockchain.headers.subscribe':
+        final params = request['params'] as List<dynamic>;
+        _tasks[method]?.subject?.add(params.last);
+        break;
+      case 'blockchain.tweaks.subscribe':
+        final params = request['params'] as List<dynamic>;
+        _tasks[_tasks.keys.first]?.subject?.add(params.last);
+        break;
       default:
         break;
     }
   }
 
-  void _setIsConnected(bool isConnected) {
+  void _setIsConnected(bool? isConnected) {
     if (_isConnected != isConnected) {
       onConnectionStatusChange?.call(isConnected);
     }
 
-    _isConnected = isConnected;
+    _isConnected = isConnected ?? false;
   }
 
   void _handleResponse(Map<String, dynamic> response) {
     final method = response['method'];
     final id = response['id'] as String?;
     final result = response['result'];
+
+    try {
+      final error = response['error'] as Map<String, dynamic>?;
+      if (error != null) {
+        final errorMessage = error['message'] as String?;
+        if (errorMessage != null) {
+          _errors[id!] = errorMessage;
+        }
+      }
+    } catch (_) {}
+
+    try {
+      final error = response['error'] as String?;
+      if (error != null) {
+        _errors[id!] = error;
+      }
+    } catch (_) {}
 
     if (method is String) {
       _methodHandler(method: method, request: response);
@@ -465,6 +513,8 @@ class ElectrumClient {
       _finish(id, result);
     }
   }
+
+  String getErrorMessage(int id) => _errors[id.toString()] ?? '';
 }
 
 // FIXME: move me

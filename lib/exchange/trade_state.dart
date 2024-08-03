@@ -28,6 +28,7 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       TradeState(raw: 'waitingAuthorization', title: 'Waiting authorization');
   static const failed = TradeState(raw: 'failed', title: 'Failed');
   static const completed = TradeState(raw: 'completed', title: 'Completed');
+  static const expired = TradeState(raw: 'expired', title: 'Expired');
   static const settling = TradeState(raw: 'settling', title: 'Settlement in progress');
   static const settled = TradeState(raw: 'settled', title: 'Settlement completed');
   static const wait = TradeState(raw: 'wait', title: 'Waiting');
@@ -39,8 +40,36 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
   static const exchanging = TradeState(raw: 'exchanging', title: 'Exchanging');
   static const sending = TradeState(raw: 'sending', title: 'Sending');
   static const success = TradeState(raw: 'success', title: 'Success');
+  
   static TradeState deserialize({required String raw}) {
+
     switch (raw) {
+      case '1':
+        return unpaid;
+      case '2':
+        return paidUnconfirmed;
+      case '3':
+        return sending;
+      case '4':
+        return confirmed;
+      case '5':
+      case '6':
+        return exchanging;
+      case '7':
+        return sending;
+      case '8':
+        return complete;
+      case '9':
+        return expired;
+      case '10':
+        return underpaid;
+      case '11':
+        return failed;
+    }
+
+    switch (raw) {
+      case 'NOT_FOUND':
+        return notFound;
       case 'pending':
         return pending;
       case 'confirming':
@@ -98,6 +127,7 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'sending':
         return sending;
       case 'success':
+      case 'done':
         return success;
       default:
         throw Exception('Unexpected token: $raw in TradeState deserialize');

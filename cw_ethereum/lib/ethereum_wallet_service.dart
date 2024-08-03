@@ -1,11 +1,12 @@
+import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_mnemonics_exception.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:cw_evm/evm_chain_wallet_service.dart';
-import 'package:bip39/bip39.dart' as bip39;
 
 class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
   EthereumWalletService(super.walletInfoSource, {required this.client});
@@ -80,6 +81,29 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
     newWalletInfo.name = newName;
 
     await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
+
+  @override
+  Future<EthereumWallet> restoreFromHardwareWallet(
+      EVMChainRestoreWalletFromHardware credentials) async {
+    credentials.walletInfo!.derivationInfo = DerivationInfo(
+      derivationType: DerivationType.bip39,
+      derivationPath: "m/44'/60'/${credentials.hwAccountData.accountIndex}'/0/0"
+    );
+    credentials.walletInfo!.hardwareWalletType = credentials.hardwareWalletType;
+    credentials.walletInfo!.address = credentials.hwAccountData.address;
+
+    final wallet = EthereumWallet(
+      walletInfo: credentials.walletInfo!,
+      password: credentials.password!,
+      client: client,
+    );
+
+    await wallet.init();
+    wallet.addInitialTokens();
+    await wallet.save();
+
+    return wallet;
   }
 
   @override

@@ -1,9 +1,8 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/format_amount.dart';
@@ -11,32 +10,40 @@ import 'package:cw_core/wallet_type.dart';
 
 class ElectrumTransactionBundle {
   ElectrumTransactionBundle(this.originalTransaction,
-      {required this.ins, required this.confirmations, this.time, required this.height});
+      {required this.ins, required this.confirmations, this.time});
   final BtcTransaction originalTransaction;
   final List<BtcTransaction> ins;
   final int? time;
   final int confirmations;
-  final int height;
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {
+  List<BitcoinSilentPaymentsUnspent>? unspents;
+
   ElectrumTransactionInfo(this.type,
       {required String id,
       required int height,
       required int amount,
       int? fee,
+      List<String>? inputAddresses,
+      List<String>? outputAddresses,
       required TransactionDirection direction,
       required bool isPending,
       required DateTime date,
-      required int confirmations}) {
+      required int confirmations,
+      String? to,
+      this.unspents}) {
     this.id = id;
     this.height = height;
     this.amount = amount;
+    this.inputAddresses = inputAddresses;
+    this.outputAddresses = outputAddresses;
     this.fee = fee;
     this.direction = direction;
     this.date = date;
     this.isPending = isPending;
     this.confirmations = confirmations;
+    this.to = to;
   }
 
   factory ElectrumTransactionInfo.fromElectrumVerbose(Map<String, Object> obj, WalletType type,
@@ -100,6 +107,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     var amount = 0;
     var inputAmount = 0;
     var totalOutAmount = 0;
+    List<String> inputAddresses = [];
+    List<String> outputAddresses = [];
 
     for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
       final input = bundle.originalTransaction.inputs[i];
@@ -108,6 +117,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       inputAmount += outTransaction.amount.toInt();
       if (addresses.contains(addressFromOutputScript(outTransaction.scriptPubKey, network))) {
         direction = TransactionDirection.outgoing;
+        inputAddresses.add(addressFromOutputScript(outTransaction.scriptPubKey, network));
       }
     }
 
@@ -115,6 +125,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     for (final out in bundle.originalTransaction.outputs) {
       totalOutAmount += out.amount.toInt();
       final addressExists = addresses.contains(addressFromOutputScript(out.scriptPubKey, network));
+      outputAddresses.add(addressFromOutputScript(out.scriptPubKey, network));
 
       if (addressExists) {
         receivedAmounts.add(out.amount.toInt());
@@ -137,6 +148,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
         id: bundle.originalTransaction.txId(),
         height: height,
         isPending: bundle.confirmations == 0,
+        inputAddresses: inputAddresses,
+        outputAddresses: outputAddresses,
         fee: fee,
         direction: direction,
         amount: amount,
@@ -144,50 +157,31 @@ class ElectrumTransactionInfo extends TransactionInfo {
         confirmations: bundle.confirmations);
   }
 
-  factory ElectrumTransactionInfo.fromHexAndHeader(WalletType type, String hex,
-      {List<String>? addresses, required int height, int? timestamp, required int confirmations}) {
-    final tx = bitcoin.Transaction.fromHex(hex);
-    var exist = false;
-    var amount = 0;
-
-    if (addresses != null) {
-      tx.outs.forEach((out) {
-        try {
-          final p2pkh =
-              bitcoin.P2PKH(data: PaymentData(output: out.script), network: bitcoin.bitcoin);
-          exist = addresses.contains(p2pkh.data.address);
-
-          if (exist) {
-            amount += out.value!;
-          }
-        } catch (_) {}
-      });
-    }
-
-    final date =
-        timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000) : DateTime.now();
-
-    return ElectrumTransactionInfo(type,
-        id: tx.getId(),
-        height: height,
-        isPending: false,
-        fee: null,
-        direction: TransactionDirection.incoming,
-        amount: amount,
-        date: date,
-        confirmations: confirmations);
-  }
-
   factory ElectrumTransactionInfo.fromJson(Map<String, dynamic> data, WalletType type) {
-    return ElectrumTransactionInfo(type,
-        id: data['id'] as String,
-        height: data['height'] as int,
-        amount: data['amount'] as int,
-        fee: data['fee'] as int,
-        direction: parseTransactionDirectionFromInt(data['direction'] as int),
-        date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
-        isPending: data['isPending'] as bool,
-        confirmations: data['confirmations'] as int);
+    final inputAddresses = data['inputAddresses'] as List<dynamic>? ?? [];
+    final outputAddresses = data['outputAddresses'] as List<dynamic>? ?? [];
+    final unspents = data['unspents'] as List<dynamic>? ?? [];
+
+    return ElectrumTransactionInfo(
+      type,
+      id: data['id'] as String,
+      height: data['height'] as int,
+      amount: data['amount'] as int,
+      fee: data['fee'] as int,
+      direction: parseTransactionDirectionFromInt(data['direction'] as int),
+      date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
+      isPending: data['isPending'] as bool,
+      confirmations: data['confirmations'] as int,
+      inputAddresses:
+          inputAddresses.isEmpty ? [] : inputAddresses.map((e) => e.toString()).toList(),
+      outputAddresses:
+          outputAddresses.isEmpty ? [] : outputAddresses.map((e) => e.toString()).toList(),
+      to: data['to'] as String?,
+      unspents: unspents
+          .map((unspent) =>
+              BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
+          .toList(),
+    );
   }
 
   final WalletType type;
@@ -218,6 +212,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
         direction: direction,
         date: date,
         isPending: isPending,
+        inputAddresses: inputAddresses,
+        outputAddresses: outputAddresses,
         confirmations: info.confirmations);
   }
 
@@ -231,6 +227,14 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['isPending'] = isPending;
     m['confirmations'] = confirmations;
     m['fee'] = fee;
+    m['to'] = to;
+    m['unspents'] = unspents?.map((e) => e.toJson()).toList() ?? [];
+    m['inputAddresses'] = inputAddresses;
+    m['outputAddresses'] = outputAddresses;
     return m;
+  }
+
+  String toString() {
+    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, confirmations: $confirmations, to: $to, unspent: $unspents)';
   }
 }

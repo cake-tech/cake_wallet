@@ -12,10 +12,12 @@ class ConfirmSendingAlert extends BaseAlertDialog {
       {required this.alertTitle,
       this.paymentId,
       this.paymentIdValue,
+      this.expirationTime,
       required this.amount,
       required this.amountValue,
       required this.fiatAmountValue,
       required this.fee,
+      this.feeRate,
       required this.feeValue,
       required this.feeFiatAmount,
       required this.outputs,
@@ -27,15 +29,18 @@ class ConfirmSendingAlert extends BaseAlertDialog {
       this.alertLeftActionButtonTextColor,
       this.alertRightActionButtonTextColor,
       this.alertLeftActionButtonColor,
-      this.alertRightActionButtonColor});
+      this.alertRightActionButtonColor,
+      this.onDispose});
 
   final String alertTitle;
   final String? paymentId;
   final String? paymentIdValue;
+  final String? expirationTime;
   final String amount;
   final String amountValue;
   final String fiatAmountValue;
   final String fee;
+  final String? feeRate;
   final String feeValue;
   final String feeFiatAmount;
   final List<Output> outputs;
@@ -48,6 +53,7 @@ class ConfirmSendingAlert extends BaseAlertDialog {
   final Color? alertRightActionButtonTextColor;
   final Color? alertLeftActionButtonColor;
   final Color? alertRightActionButtonColor;
+  final Function? onDispose;
 
   @override
   String get titleText => alertTitle;
@@ -86,61 +92,76 @@ class ConfirmSendingAlert extends BaseAlertDialog {
   Widget content(BuildContext context) => ConfirmSendingAlertContent(
       paymentId: paymentId,
       paymentIdValue: paymentIdValue,
+      expirationTime: expirationTime,
       amount: amount,
       amountValue: amountValue,
       fiatAmountValue: fiatAmountValue,
       fee: fee,
+      feeRate: feeRate,
       feeValue: feeValue,
       feeFiatAmount: feeFiatAmount,
-      outputs: outputs);
+      outputs: outputs,
+      onDispose: onDispose);
 }
 
 class ConfirmSendingAlertContent extends StatefulWidget {
   ConfirmSendingAlertContent(
       {this.paymentId,
       this.paymentIdValue,
+      this.expirationTime,
       required this.amount,
       required this.amountValue,
       required this.fiatAmountValue,
       required this.fee,
+      this.feeRate,
       required this.feeValue,
       required this.feeFiatAmount,
-      required this.outputs});
+      required this.outputs,
+      required this.onDispose}) {}
 
   final String? paymentId;
   final String? paymentIdValue;
+  final String? expirationTime;
   final String amount;
   final String amountValue;
   final String fiatAmountValue;
   final String fee;
+  final String? feeRate;
   final String feeValue;
   final String feeFiatAmount;
   final List<Output> outputs;
+  final Function? onDispose;
 
   @override
   ConfirmSendingAlertContentState createState() => ConfirmSendingAlertContentState(
       paymentId: paymentId,
       paymentIdValue: paymentIdValue,
+      expirationTime: expirationTime,
       amount: amount,
       amountValue: amountValue,
       fiatAmountValue: fiatAmountValue,
       fee: fee,
+      feeRate: feeRate,
       feeValue: feeValue,
       feeFiatAmount: feeFiatAmount,
-      outputs: outputs);
+      outputs: outputs,
+      onDispose: onDispose);
 }
 
 class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> {
   ConfirmSendingAlertContentState(
       {this.paymentId,
       this.paymentIdValue,
+      this.expirationTime,
       required this.amount,
       required this.amountValue,
       required this.fiatAmountValue,
       required this.fee,
+      this.feeRate,
       required this.feeValue,
       required this.feeFiatAmount,
-      required this.outputs})
+      required this.outputs,
+      this.onDispose})
       : recipientTitle = '' {
     recipientTitle = outputs.length > 1
         ? S.current.transaction_details_recipient_address
@@ -149,13 +170,16 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
 
   final String? paymentId;
   final String? paymentIdValue;
+  final String? expirationTime;
   final String amount;
   final String amountValue;
   final String fiatAmountValue;
   final String fee;
+  final String? feeRate;
   final String feeValue;
   final String feeFiatAmount;
   final List<Output> outputs;
+  final Function? onDispose;
 
   final double backgroundHeight = 160;
   final double thumbHeight = 72;
@@ -163,6 +187,12 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
   double fromTop = 0;
   String recipientTitle;
   bool showScrollbar = false;
+
+  @override
+  void dispose() {
+    if (onDispose != null) onDispose!();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +213,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
 
     return Stack(alignment: Alignment.center, clipBehavior: Clip.none, children: [
       Container(
-          height: 200,
+          height: feeRate != null ? 250 : 200,
           child: SingleChildScrollView(
               controller: controller,
               child: Column(
@@ -209,14 +239,18 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text(
-                                paymentIdValue!,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: 'Lato',
-                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                                  decoration: TextDecoration.none,
+                              Container(
+                                width: 160,
+                                child: Text(
+                                  paymentIdValue!,
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Lato',
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                    decoration: TextDecoration.none,
+                                  ),
                                 ),
                               ),
                             ],
@@ -224,6 +258,8 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                         ],
                       ),
                     ),
+                  if (widget.expirationTime != null)
+                    ExpirationTimeWidget(expirationTime: widget.expirationTime!),
                   Row(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -308,6 +344,36 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                   ),
                                 )
                               ],
+                            )
+                          ],
+                        )),
+                  if (feeRate != null && feeRate!.isNotEmpty)
+                    Padding(
+                        padding: EdgeInsets.only(top: 16),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              S.current.send_estimated_fee,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                                fontFamily: 'Lato',
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                            Text(
+                              "$feeRate sat/byte",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Lato',
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                decoration: TextDecoration.none,
+                              ),
                             )
                           ],
                         )),
@@ -428,5 +494,48 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
             fromTop: fromTop,
             rightOffset: -15)
     ]);
+  }
+}
+
+class ExpirationTimeWidget extends StatelessWidget {
+  const ExpirationTimeWidget({
+    required this.expirationTime,
+  });
+
+  final String expirationTime;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 32),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            S.current.offer_expires_in,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+              fontFamily: 'Lato',
+              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              decoration: TextDecoration.none,
+            ),
+          ),
+          Text(
+            expirationTime,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Lato',
+              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              decoration: TextDecoration.none,
+            ),
+          )
+        ],
+      ),
+    );
   }
 }

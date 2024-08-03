@@ -142,6 +142,16 @@
         </dict>
         <dict>
             <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>nano-gpt</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>nano-gpt</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
             <string>Editor</string>
             <key>CFBundleURLName</key>
             <string>bitcoincash</string>
@@ -190,6 +200,46 @@
                 <string>solana-wallet</string>
             </array>
         </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>tron</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>tron</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>tron-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>tron-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>wownero</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>wownero</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>wownero-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>wownero-wallet</string>
+            </array>
+        </dict>
     </array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
@@ -208,6 +258,10 @@
 	<string>Enable Face ID for fast and secure access to wallets and private keys</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to documents folder for getting access to open/save backup file</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>We need access to Bluetooth in order to connect to your hardware wallet when needed</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>We need access to Bluetooth in order to connect to your hardware wallet when needed</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
