@@ -106,7 +106,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.zec:
         return '^t1[0-9a-zA-Z]{33}\$|^t3[0-9a-zA-Z]{33}\$';
       case CryptoCurrency.dcr:
-        return 'D[ksecS]([0-9a-zA-Z])+';
+        return '(D|T|S)[ksecS]([0-9a-zA-Z])+';
       case CryptoCurrency.rvn:
         return '[Rr]([1-9a-km-zA-HJ-NP-Z]){33}';
       case CryptoCurrency.near:

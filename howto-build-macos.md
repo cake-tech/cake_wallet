@@ -70,9 +70,9 @@ Then run configuration script for setup app name, app icon and etc:
 
 `$ ./app_config.sh`
 
-Build the Monero libraries and their dependencies:
+Build the required libraries and their dependencies:
 
-`$ ./build_monero_all.sh`
+`$ ./build_all.sh`
 
 If you be needed to build universal monero lib, then it will require additional steps. Steps for build universal monero lib on mac with Apple Silicon (arm64):
 
@@ -93,11 +93,20 @@ Install Flutter package dependencies with this command:
 
 Your CakeWallet binary will be built with cryptographic salts, which are used for secure encryption of your data. You may generate these secret salts with the following command:
 
+*Note*: You should skip this step if you've already done this once. Else, you
+will not be able to log into your existing wallet with the new secrets.
+
 `$ flutter packages pub run tool/generate_new_secrets.dart`
 
-Then we need to generate localization files and mobx models.
+If the command above fails, add `--force` flag and run it again.
 
-`$ ./configure_cake_wallet.sh macos`
+Then we need to generate localization files. If this command fails, add `--force` flag and run it again.
+
+`$ flutter packages pub run tool/generate_localization.dart`
+
+Finally build mobx models for the app:
+
+`$ ./model_generator.sh`
 
 ### 7. Build!
 

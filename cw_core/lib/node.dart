@@ -98,6 +98,8 @@ class Node extends HiveObject with Keyable {
       case WalletType.solana:
       case WalletType.tron:
         return Uri.https(uriRaw, path ?? '');
+      case WalletType.decred:
+        return Uri.http(uriRaw, '');
       case WalletType.none:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -157,6 +159,8 @@ class Node extends HiveObject with Keyable {
         case WalletType.solana:
         case WalletType.tron:
           return requestElectrumServer();
+        case WalletType.decred:
+          return requestDecredNode();
         case WalletType.none:
           return false;
       }
@@ -252,6 +256,22 @@ class Node extends HiveObject with Keyable {
       );
 
       return response.statusCode >= 200 && response.statusCode < 300;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> requestDecredNode() async {
+  final decredMainnetPort = 9108;
+  if (uri.host == "" && uri.port == decredMainnetPort) {
+    // Just show default port as ok. The wallet will connect to a list of known
+    // nodes automatically.
+    return true;
+  }
+  try {
+    final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+      socket.destroy();
+      return true;
     } catch (_) {
       return false;
     }
