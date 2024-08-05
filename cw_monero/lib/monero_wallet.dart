@@ -114,6 +114,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return monero_wallet.getSeedLegacy(language);
   }
 
+  String? passphrase() {
+    return monero_wallet.getPassphrase();
+  }
+
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
       privateSpendKey: monero_wallet.getSecretSpendKey(),

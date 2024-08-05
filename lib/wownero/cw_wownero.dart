@@ -222,10 +222,11 @@ class CWWownero extends Wownero {
   WalletCredentials createWowneroRestoreWalletFromSeedCredentials(
           {required String name,
           required String password,
+          required String passphrase,
           required int height,
           required String mnemonic}) =>
       WowneroRestoreWalletFromSeedCredentials(
-          name: name, password: password, height: height, mnemonic: mnemonic);
+          name: name, password: password, passphrase: passphrase, height: height, mnemonic: mnemonic);
 
   @override
   WalletCredentials createWowneroNewWalletCredentials(

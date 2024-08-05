@@ -367,7 +367,7 @@ abstract class Monero {
     required String password,
     required String language,
     required int height});
-  WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
+  WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
   WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, String password});
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
@@ -549,7 +549,7 @@ abstract class Wownero {
     required String password,
     required String language,
     required int height});
-  WalletCredentials createWowneroRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
+  WalletCredentials createWowneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
   WalletCredentials createWowneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, String password});
   Map<String, String> getKeys(Object wallet);
   Object createWowneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});

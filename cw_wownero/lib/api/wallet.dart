@@ -34,24 +34,35 @@ String getSeed() {
   // wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   final cakepolyseed =
       wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
+  final cakepassphrase =
+      wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
   if (cakepolyseed != "") {
     return cakepolyseed;
   }
-  final polyseed = wownero.Wallet_getPolyseed(wptr!, passphrase: '');
+  final polyseed = wownero.Wallet_getPolyseed(wptr!, passphrase: cakepassphrase);
   if (polyseed != "") {
     return polyseed;
   }
-  final legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
+  final legacy = wownero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   return legacy;
 }
 
 String getSeedLegacy(String? language) {
-  var legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
+  final cakepassphrase =
+      wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
+  var legacy = wownero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   if (wownero.Wallet_status(wptr!) != 0) {
     wownero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
-    legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
+    legacy = wownero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   }
   return legacy;
+}
+
+String? getPassphrase() {
+  final cakepassphrase =
+      wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
+  if (cakepassphrase == "") return null;
+  return cakepassphrase;
 }
 
 String getAddress({int accountIndex = 0, int addressIndex = 1}) =>
