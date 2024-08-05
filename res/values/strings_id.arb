@@ -267,6 +267,7 @@
   "errorSigningTransaction": "Terjadi kesalahan saat menandatangani transaksi",
   "estimated": "Diperkirakan",
   "estimated_new_fee": "Perkiraan biaya baru",
+  "estimated_receive_amount": "Diperkirakan jumlah menerima",
   "etherscan_history": "Sejarah Etherscan",
   "event": "Peristiwa",
   "events": "Acara",

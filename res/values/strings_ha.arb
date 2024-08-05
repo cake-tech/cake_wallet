@@ -267,6 +267,7 @@
   "errorSigningTransaction": "An sami kuskure yayin sanya hannu kan ciniki",
   "estimated": "Kiyasta",
   "estimated_new_fee": "An kiyasta sabon kudin",
+  "estimated_receive_amount": "Kiyasta samun adadin",
   "etherscan_history": "Etherscan tarihin kowane zamani",
   "event": "Lamarin",
   "events": "Abubuwan da suka faru",

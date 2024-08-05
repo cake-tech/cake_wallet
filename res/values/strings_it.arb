@@ -268,6 +268,7 @@
   "errorSigningTransaction": "Si è verificato un errore durante la firma della transazione",
   "estimated": "Stimato",
   "estimated_new_fee": "Nuova commissione stimata",
+  "estimated_receive_amount": "Importo di ricezione stimato",
   "etherscan_history": "Storia Etherscan",
   "event": "Evento",
   "events": "Eventi",

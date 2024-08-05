@@ -213,6 +213,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       refundAddress: settleAddress,
       state: TradeState.created,
       amount: depositAmount ?? request.fromAmount,
+      receiveAmount: request.toAmount,
       payoutAddress: settleAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,

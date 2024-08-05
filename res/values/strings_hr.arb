@@ -267,6 +267,7 @@
   "errorSigningTransaction": "Došlo je do pogreške prilikom potpisivanja transakcije",
   "estimated": "procijenjen",
   "estimated_new_fee": "Procijenjena nova naknada",
+  "estimated_receive_amount": "Procijenjeni iznos primanja",
   "etherscan_history": "Etherscan povijest",
   "event": "Događaj",
   "events": "Događaji",
