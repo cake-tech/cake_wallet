@@ -149,7 +149,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
       final createdAt = DateTime.parse(createdAtString);
       final expiredAt = validUntil != null
           ? DateTime.parse(validUntil)
-          : DateTime.now().add(Duration(minutes: 10));
+          : DateTime.now().add(Duration(minutes: 5));
 
       return Trade(
         id: id,
@@ -209,7 +209,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
       receiveAmount: receiveAmount.toString(),
       state: TradeState.deserialize(raw: status),
       createdAt: createdAt,
-      isRefund: status == 'refund',
+      isRefund: status == 'refunded',
     );
   }
 
