@@ -177,11 +177,11 @@ abstract class ElectrumWalletBase
   bool _isTryingToConnect = false;
 
   @action
-  Future<void> setSilentPaymentsScanning(bool active, bool usingElectrs) async {
+  Future<void> setSilentPaymentsScanning(bool active) async {
     silentPaymentsScanningActive = active;
 
     if (active) {
-      syncStatus = AttemptingSyncStatus();
+      syncStatus = StartingScanSyncStatus();
 
       final tip = await getUpdatedChainTip();
 
@@ -191,11 +191,7 @@ abstract class ElectrumWalletBase
       }
 
       if (tip > walletInfo.restoreHeight) {
-        _setListeners(
-          walletInfo.restoreHeight,
-          chainTipParam: _currentChainTip,
-          usingElectrs: usingElectrs,
-        );
+        _setListeners(walletInfo.restoreHeight, chainTipParam: _currentChainTip);
       }
     } else {
       alwaysScan = false;
@@ -269,7 +265,7 @@ abstract class ElectrumWalletBase
     int height, {
     int? chainTipParam,
     bool? doSingleScan,
-    bool? usingElectrs,
+    bool? usingSupportedNode,
   }) async {
     final chainTip = chainTipParam ?? await getUpdatedChainTip();
 
@@ -278,7 +274,7 @@ abstract class ElectrumWalletBase
       return;
     }
 
-    syncStatus = AttemptingSyncStatus();
+    syncStatus = StartingScanSyncStatus();
 
     if (_isolate != null) {
       final runningIsolate = await _isolate!;
@@ -296,7 +292,9 @@ abstract class ElectrumWalletBase
           chainTip: chainTip,
           electrumClient: ElectrumClient(),
           transactionHistoryIds: transactionHistory.transactions.keys.toList(),
-          node: usingElectrs == true ? ScanNode(node!.uri, node!.useSSL) : null,
+          node: (await getNodeSupportsSilentPayments()) == true
+              ? ScanNode(node!.uri, node!.useSSL)
+              : null,
           labels: walletAddresses.labels,
           labelIndexes: walletAddresses.silentAddresses
               .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.index >= 1)
@@ -1170,10 +1168,9 @@ abstract class ElectrumWalletBase
     int? chainTip,
     ScanData? scanData,
     bool? doSingleScan,
-    bool? usingElectrs,
   }) async {
     silentPaymentsScanningActive = true;
-    _setListeners(height, doSingleScan: doSingleScan, usingElectrs: usingElectrs);
+    _setListeners(height, doSingleScan: doSingleScan);
   }
 
   @override
@@ -1857,24 +1854,32 @@ abstract class ElectrumWalletBase
       derivationPath.substring(0, derivationPath.lastIndexOf("'") + 1);
 
   @action
-  void _onConnectionStatusChange(bool? isConnected) {
-    if (syncStatus is SyncingSyncStatus) return;
+  void _onConnectionStatusChange(ConnectionStatus status) {
+    print(status);
+    switch (status) {
+      case ConnectionStatus.connected:
+        if (syncStatus is NotConnectedSyncStatus ||
+            syncStatus is LostConnectionSyncStatus ||
+            syncStatus is ConnectingSyncStatus) {
+          syncStatus = AttemptingSyncStatus();
+          startSync();
+        }
 
-    if (isConnected == true && syncStatus is! SyncedSyncStatus) {
-      syncStatus = ConnectedSyncStatus();
-    } else if (isConnected == false) {
-      syncStatus = LostConnectionSyncStatus();
-    } else if (isConnected != true && syncStatus is! ConnectingSyncStatus) {
-      // TODO: fix this
-      syncStatus = NotConnectedSyncStatus();
+        break;
+      case ConnectionStatus.disconnected:
+        syncStatus = NotConnectedSyncStatus();
+        break;
+      case ConnectionStatus.failed:
+        syncStatus = LostConnectionSyncStatus();
+        break;
+      case ConnectionStatus.connecting:
+        syncStatus = ConnectingSyncStatus();
+        break;
+      default:
     }
   }
 
   void _syncStatusReaction(SyncStatus syncStatus) async {
-    if (syncStatus is! AttemptingSyncStatus && syncStatus is! SyncedTipSyncStatus) {
-      silentPaymentsScanningActive = syncStatus is SyncingSyncStatus;
-    }
-
     if (syncStatus is NotConnectedSyncStatus) {
       // Needs to re-subscribe to all scripthashes when reconnected
       _scripthashesUpdateSubject = {};
@@ -2225,3 +2230,4 @@ class UtxoDetails {
     required this.spendsUnconfirmedTX,
   });
 }
+

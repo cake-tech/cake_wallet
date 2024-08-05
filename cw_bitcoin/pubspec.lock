@@ -774,9 +774,11 @@ packages:
   sp_scanner:
     dependency: "direct main"
     description:
-      path: "/home/rafael/Working/sp_scanner"
-      relative: false
-    source: path
+      path: "."
+      ref: "sp_v4.0.0"
+      resolved-ref: "3b8ae38592c0584f53560071dc18bc570758fe13"
+      url: "https://github.com/rafael-xmr/sp_scanner"
+    source: git
     version: "0.0.1"
   stack_trace:
     dependency: transitive

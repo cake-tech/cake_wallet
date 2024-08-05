@@ -503,10 +503,7 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<void> setScanningActive(Object wallet, bool active) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    bitcoinWallet.setSilentPaymentsScanning(
-      active,
-      active && (await bitcoinWallet.getNodeSupportsSilentPayments()),
-    );
+    bitcoinWallet.setSilentPaymentsScanning(active);
   }
 
   @override
