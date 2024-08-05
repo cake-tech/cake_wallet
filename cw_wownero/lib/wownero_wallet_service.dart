@@ -82,14 +82,15 @@ class WowneroWalletService extends WalletService<
       if (credentials.isPolyseed) {
         final polyseed = Polyseed.create();
         final lang = PolyseedLang.getByEnglishName(credentials.language);
-        polyseed.crypt(credentials.passphrase??'');
+
+        if (credentials.passphrase != null) polyseed.crypt(credentials.passphrase!);
 
         final heightOverride =
             getWowneroHeightByDate(date: DateTime.now().subtract(Duration(days: 2)));
 
         return _restoreFromPolyseed(
             path, credentials.password!, polyseed, credentials.walletInfo!, lang,
-            overrideHeight: heightOverride);
+            overrideHeight: heightOverride, passphrase: credentials.passphrase);
       }
 
       await wownero_wallet_manager.createWallet(
@@ -291,7 +292,7 @@ class WowneroWalletService extends WalletService<
       final polyseed = Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
 
       return _restoreFromPolyseed(
-          path, credentials.password!, polyseed, credentials.walletInfo!, lang);
+          path, credentials.password!, polyseed, credentials.walletInfo!, lang, passphrase: credentials.passphrase);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
       print('WowneroWalletsManager Error: $e');
@@ -301,7 +302,9 @@ class WowneroWalletService extends WalletService<
 
   Future<WowneroWallet> _restoreFromPolyseed(
       String path, String password, Polyseed polyseed, WalletInfo walletInfo, PolyseedLang lang,
-      {PolyseedCoin coin = PolyseedCoin.POLYSEED_WOWNERO, int? overrideHeight}) async {
+      {PolyseedCoin coin = PolyseedCoin.POLYSEED_WOWNERO, int? overrideHeight, String? passphrase}) async {
+    if (polyseed.isEncrypted) polyseed.crypt(passphrase ?? '');
+
     final height = overrideHeight ??
         getWowneroHeightByDate(date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
     final spendKey = polyseed.generateKey(coin, 32).toHexString();
