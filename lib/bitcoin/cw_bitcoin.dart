@@ -438,7 +438,7 @@ class CWBitcoin extends Bitcoin {
   @override
   int getMaxCustomFeeRate(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return (bitcoinWallet.feeRate(BitcoinTransactionPriority.fast) * 1.1).round();
+    return (bitcoinWallet.feeRate(BitcoinTransactionPriority.fast) * 10).round();
   }
 
   @override
@@ -560,7 +560,7 @@ class CWBitcoin extends Bitcoin {
       if (tweaksResponse != null) {
         return true;
       }
-    } on RequestFailedTimeoutException {
+    } on RequestFailedTimeoutException catch (_) {
       return false;
     } catch (_) {
       rethrow;

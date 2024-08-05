@@ -1,3 +1,5 @@
-In-app Cake Pay is Back
-Bitcoin nodes stability enhancements
-Bug fixes and generic enhancements
+Monero and Ethereum enhancements
+Synchronization improvements
+Exchange flow enhancements
+Ledger improvements
+Bug fixes

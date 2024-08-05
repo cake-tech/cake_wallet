@@ -71,6 +71,7 @@ void startCurrentWalletChangeReaction(
           .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
 
       if (wallet.type == WalletType.monero ||
+          wallet.type == WalletType.wownero ||
           wallet.type == WalletType.bitcoin ||
           wallet.type == WalletType.litecoin ||
           wallet.type == WalletType.bitcoinCash) {

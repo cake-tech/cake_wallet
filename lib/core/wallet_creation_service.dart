@@ -81,6 +81,7 @@ class WalletCreationService {
       case WalletType.tron:
         return true;
       case WalletType.monero:
+      case WalletType.wownero:
       case WalletType.none:
       case WalletType.bitcoin:
       case WalletType.litecoin:

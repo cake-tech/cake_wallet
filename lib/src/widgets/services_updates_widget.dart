@@ -103,7 +103,8 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                                   child: PrimaryImageButton(
                                     onPressed: () {
                                       try {
-                                        launchUrl(Uri.parse("https://status.cakewallet.com/"));
+                                        launchUrl(Uri.parse("https://status.cakewallet.com/"),
+                                            mode: LaunchMode.externalApplication);
                                       } catch (_) {}
                                     },
                                     image: Image.asset(

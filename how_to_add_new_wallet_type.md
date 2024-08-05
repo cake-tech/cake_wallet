@@ -7,7 +7,7 @@
 **Core Folder/Files Setup**
 - Idenitify your core component/package (major project component), which would power the integration e.g web3dart, solana, onchain etc
 - Add a new entry to `WalletType` class in `cw_core/wallet_type.dart`. 
-- Fill out the necessary information int he various functions in the files, concerning the wallet name, the native currency type, symbol etc.
+- Fill out the necessary information in the various functions in the files, concerning the wallet name, the native currency type, symbol etc.
 - Go to `cw_core/lib/currency_for_wallet_type.dart`, in the `currencyForWalletType` function, add a case for `walletx`, returning the native cryptocurrency for `walletx`. 
 - If the cryptocurrency for walletx is not available among the default cryptocurrencies, add a new cryptocurrency entry in `cw_core/lib/cryptocurrency.dart`. 
 - Add the newly created cryptocurrency name to the list named `all` in this file.
@@ -70,7 +70,7 @@ A `Proxy` class is used to communicate with the specific wallet package we have.
     				outputContent += '\tWalletType.walletx,\n’;
  			  }
               
-- Head over to `scripts/android/pubspec.sh` script, and modify the `CONFIG_ARGS` under `$CAKEWALLET`. Add `"—walletx”` to the end of the passed in params.
+- Head over to `scripts/android/pubspec_gen.sh` script, and modify the `CONFIG_ARGS` under `$CAKEWALLET`. Add `"—walletx”` to the end of the passed in params.
 - Repeat this in `scripts/ios/app_config.sh` and `scripts/macos/app_config.sh`
 - Open a terminal and cd into `scripts/android/`. Run the following commands to run setup configuration scripts(proxy class, add walletx to list of wallet types and add cw_walletx to pubspec).
 
@@ -214,7 +214,7 @@ Now you can run the codebase and successfully create a wallet for type walletX s
 **Restore Wallet**
 - Go to `lib/core/seed_validator.dart`
 - In the `getWordList` method, add a case to handle `WalletType.walletx` which would return the word list to be used to validate the passed in seeds.
-- Next, go to `lib/restore_view_model.dart`
+- Next, go to `lib/wallet_restore_view_model.dart`
 - Modify the `hasRestoreFromPrivateKey` to reflect if walletx supports restore from Key
 - Add a switch case to handle the various restore modes that walletX supports 
 - Modify the `getCredential` method to handle the restore flows for `WalletType.walletx`

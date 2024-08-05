@@ -222,6 +222,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -684,7 +685,7 @@ Future<void> setup({
 
   getIt.registerFactory<MoneroAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
+    if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero || wallet.type == WalletType.haven) {
       return MoneroAccountListViewModel(wallet);
     }
     throw Exception(
@@ -715,6 +716,7 @@ Future<void> setup({
   getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel, AccountListItem?, void>(
       (AccountListItem? account, _) => MoneroAccountEditOrCreateViewModel(
           monero!.getAccountList(getIt.get<AppStore>().wallet!),
+          wownero?.getAccountList(getIt.get<AppStore>().wallet!),
           haven?.getAccountList(getIt.get<AppStore>().wallet!),
           wallet: getIt.get<AppStore>().wallet!,
           accountListItem: account));
@@ -909,6 +911,7 @@ Future<void> setup({
         return bitcoinCash!
             .createBitcoinCashWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.nano:
+      case WalletType.banano:
         return nano!.createNanoWalletService(_walletInfoSource);
       case WalletType.polygon:
         return polygon!.createPolygonWalletService(_walletInfoSource);
@@ -916,7 +919,9 @@ Future<void> setup({
         return solana!.createSolanaWalletService(_walletInfoSource);
       case WalletType.tron:
         return tron!.createTronWalletService(_walletInfoSource);
-      default:
+      case WalletType.wownero:
+        return wownero!.createWowneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+      case WalletType.none:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
   });

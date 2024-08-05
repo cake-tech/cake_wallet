@@ -31,6 +31,7 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -48,6 +49,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'dashboard_view_model.g.dart';
 
@@ -166,6 +168,29 @@ abstract class DashboardViewModelBase with Store {
           transaction: transaction,
           balanceViewModel: balanceViewModel,
           settingsStore: appStore.settingsStore)));
+    } else if (_wallet.type == WalletType.wownero) {
+      subname = wow.wownero!.getCurrentAccount(_wallet).label;
+
+      _onMoneroAccountChangeReaction = reaction(
+          (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
+          (wow.Account account) => _onMoneroAccountChange(_wallet));
+
+      _onMoneroBalanceChangeReaction = reaction(
+          (_) => wow.wownero!.getWowneroWalletDetails(wallet).balance,
+          (wow.WowneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
+
+      final _accountTransactions = _wallet.transactionHistory.transactions.values
+          .where((tx) =>
+              wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+          .toList();
+
+      final sortedTransactions = [..._accountTransactions];
+      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
+
+      transactions = ObservableList.of(sortedTransactions.map((transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore)));
     } else {
       final sortedTransactions = [...wallet.transactionHistory.transactions.values];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
@@ -198,6 +223,10 @@ abstract class DashboardViewModelBase with Store {
       if (wallet.type == WalletType.monero) {
         return monero!.getTransactionInfoAccountId(transaction) ==
             monero!.getCurrentAccount(wallet).id;
+      }
+      if (wallet.type == WalletType.wownero) {
+        return wow.wownero!.getTransactionInfoAccountId(transaction) ==
+            wow.wownero!.getCurrentAccount(wallet).id;
       }
 
       return true;
@@ -303,10 +332,11 @@ abstract class DashboardViewModelBase with Store {
   bool get hasRescan =>
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.wownero ||
       wallet.type == WalletType.haven;
 
   @computed
-  bool get hasSilentPayments => wallet.type == WalletType.bitcoin;
+  bool get hasSilentPayments => wallet.type == WalletType.bitcoin && !wallet.isHardwareWallet;
 
   @computed
   bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
@@ -374,7 +404,8 @@ abstract class DashboardViewModelBase with Store {
         .toList();
   }
 
-  bool get hasSellProviders => ProvidersHelper.getAvailableSellProviderTypes(wallet.type).isNotEmpty;
+  bool get hasSellProviders =>
+      ProvidersHelper.getAvailableSellProviderTypes(wallet.type).isNotEmpty;
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
@@ -471,6 +502,21 @@ abstract class DashboardViewModelBase with Store {
           (MoneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
 
       _onMoneroTransactionsUpdate(wallet);
+    } else if (wallet.type == WalletType.wownero) {
+      subname = wow.wownero!.getCurrentAccount(wallet).label;
+
+      _onMoneroAccountChangeReaction?.reaction.dispose();
+      _onMoneroBalanceChangeReaction?.reaction.dispose();
+
+      _onMoneroAccountChangeReaction = reaction(
+          (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
+          (wow.Account account) => _onMoneroAccountChange(wallet));
+
+      _onMoneroBalanceChangeReaction = reaction(
+          (_) => wow.wownero!.getWowneroWalletDetails(wallet).balance,
+          (wow.WowneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
+
+      _onMoneroTransactionsUpdate(wallet);
     } else {
       // FIX-ME: Check for side effects
       // subname = null;
@@ -500,32 +546,54 @@ abstract class DashboardViewModelBase with Store {
         return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
       }
 
+      if (wallet.type == WalletType.wownero) {
+        return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
+      }
+
       return true;
     });
   }
 
   @action
   void _onMoneroAccountChange(WalletBase wallet) {
-    subname = monero!.getCurrentAccount(wallet).label;
+    if (wallet.type == WalletType.monero) {
+      subname = monero!.getCurrentAccount(wallet).label;
+    } else if (wallet.type == WalletType.wownero) {
+      subname = wow.wownero!.getCurrentAccount(wallet).label;
+    }
     _onMoneroTransactionsUpdate(wallet);
   }
 
   @action
   void _onMoneroTransactionsUpdate(WalletBase wallet) {
     transactions.clear();
+    if (wallet.type == WalletType.monero) {
+      final _accountTransactions = monero!
+          .getTransactionHistory(wallet)
+          .transactions
+          .values
+          .where(
+              (tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
+          .toList();
 
-    final _accountTransactions = monero!
-        .getTransactionHistory(wallet)
-        .transactions
-        .values
-        .where(
-            (tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
-        .toList();
+      transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore)));
+    } else if (wallet.type == WalletType.wownero) {
+      final _accountTransactions = wow.wownero!
+          .getTransactionHistory(wallet)
+          .transactions
+          .values
+          .where(
+              (tx) => wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+          .toList();
 
-    transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
-        transaction: transaction,
-        balanceViewModel: balanceViewModel,
-        settingsStore: appStore.settingsStore)));
+      transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore)));
+    }
   }
 
   void updateActions() {
@@ -545,6 +613,14 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
+
+  Future<List<String>> checkForHavenWallets() async {
+    final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+    return walletInfoSource.values
+        .where((element) => element.type == WalletType.haven)
+        .map((e) => e.name)
+        .toList();
+  }
 
   Future<List<String>> checkAffectedWallets() async {
     try {
@@ -584,29 +660,34 @@ abstract class DashboardViewModelBase with Store {
   Future<ServicesResponse> getServicesStatus() async {
     try {
       if (isEnabledBulletinAction) {
-          final res = await http.get(Uri.parse("https://service-api.cakewallet.com/v1/active-notices"));
+        final uri = Uri.https(
+          "service-api.cakewallet.com",
+          "/v1/active-notices",
+          {'key': secrets.fiatApiKey},
+        );
 
-          if (res.statusCode < 200 || res.statusCode >= 300) {
-            throw res.body;
-          }
+        final res = await http.get(uri);
 
-          final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
-
-          final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
-          final currentSha = bytesToHex(hash.bytes);
-
-          final hasUpdates = oldSha != currentSha;
-
-          return ServicesResponse.fromJson(
-            json.decode(res.body) as Map<String, dynamic>,
-            hasUpdates,
-            currentSha,
-          );
-      }
-      else {
-          return ServicesResponse([], false, '');
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          throw res.body;
         }
-    } catch (_) {
+
+        final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
+
+        final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
+        final currentSha = bytesToHex(hash.bytes);
+
+        final hasUpdates = oldSha != currentSha;
+
+        return ServicesResponse.fromJson(
+          json.decode(res.body) as Map<String, dynamic>,
+          hasUpdates,
+          currentSha,
+        );
+      } else {
+        return ServicesResponse([], false, '');
+      }
+    } catch (e) {
       return ServicesResponse([], false, '');
     }
   }

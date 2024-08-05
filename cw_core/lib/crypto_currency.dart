@@ -105,6 +105,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.usdtSol,
     CryptoCurrency.usdcTrc20,
     CryptoCurrency.tbtc,
+    CryptoCurrency.wow,
   ];
 
   static const havenCurrencies = [
@@ -221,6 +222,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const usdtSol = CryptoCurrency(title: 'USDT', tag: 'SOL', fullName: 'USDT Tether', raw: 91, name: 'usdtsol', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
   static const usdcTrc20 = CryptoCurrency(title: 'USDC', tag: 'TRX', fullName: 'USDC Coin', raw: 92, name: 'usdctrc20', iconPath: 'assets/images/usdc_icon.png', decimals: 6);
   static const tbtc = CryptoCurrency(title: 'tBTC', fullName: 'Testnet Bitcoin', raw: 93, name: 'tbtc', iconPath: 'assets/images/tbtc.png', decimals: 8);
+  static const wow = CryptoCurrency(title: 'WOW', fullName: 'Wownero', raw: 94, name: 'wow', iconPath: 'assets/images/wownero_icon.png', decimals: 11);
 
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
@@ -279,7 +281,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       final s = 'Unexpected token: $name for CryptoCurrency fromFullName';
       throw  ArgumentError.value(name, 'Fullname', s);
     }
-    return CryptoCurrency._fullNameCurrencyMap[name.toLowerCase()]!;
+    return CryptoCurrency._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()]!;
   }
 
   @override

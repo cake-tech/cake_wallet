@@ -98,26 +98,7 @@ abstract class ElectrumWalletBase
     this.walletInfo = walletInfo;
     transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
 
-    reaction((_) => syncStatus, (SyncStatus syncStatus) async {
-      if (syncStatus is! AttemptingSyncStatus && syncStatus is! SyncedTipSyncStatus) {
-        silentPaymentsScanningActive = syncStatus is SyncingSyncStatus;
-      }
-
-      if (syncStatus is NotConnectedSyncStatus) {
-        // Needs to re-subscribe to all scripthashes when reconnected
-        _scripthashesUpdateSubject = {};
-
-        // TODO: double check this and make sure it doesn't cause any un-necessary calls
-        // await this.electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL);
-      }
-
-      // Message is shown on the UI for 3 seconds, revert to synced
-      if (syncStatus is SyncedTipSyncStatus) {
-        Timer(Duration(seconds: 3), () {
-          if (this.syncStatus is SyncedTipSyncStatus) this.syncStatus = SyncedSyncStatus();
-        });
-      }
-    });
+    reaction((_) => syncStatus, _syncStatusReaction);
   }
 
   static bitcoin.HDWallet getAccountHDWallet(
@@ -202,6 +183,8 @@ abstract class ElectrumWalletBase
   bool nodeSupportsSilentPayments = true;
   @observable
   bool silentPaymentsScanningActive = false;
+
+  bool _isTryingToConnect = false;
 
   @action
   Future<void> setSilentPaymentsScanning(bool active, bool usingElectrs) async {
@@ -538,17 +521,20 @@ abstract class ElectrumWalletBase
         );
         spendsSilentPayment = true;
         isSilentPayment = true;
-      } else {
+      } else if (!isHardwareWallet) {
         privkey =
             generateECPrivate(hd: hd, index: utx.bitcoinAddressRecord.index, network: network);
       }
 
       vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
-      inputPrivKeyInfos.add(ECPrivateInfo(
-        privkey,
-        address.type == SegwitAddresType.p2tr,
-        tweak: !isSilentPayment,
-      ));
+
+      if (privkey != null) {
+        inputPrivKeyInfos.add(ECPrivateInfo(
+          privkey,
+          address.type == SegwitAddresType.p2tr,
+          tweak: !isSilentPayment,
+        ));
+      }
 
       utxos.add(
         UtxoWithAddress(
@@ -560,7 +546,7 @@ abstract class ElectrumWalletBase
             isSilentPayment: isSilentPayment,
           ),
           ownerDetails: UtxoAddressDetails(
-            publicKey: privkey.getPublic().toHex(),
+            publicKey: pubKeyHex,
             address: address,
           ),
         ),
@@ -1892,6 +1878,38 @@ abstract class ElectrumWalletBase
       syncStatus = LostConnectionSyncStatus();
     } else if (isConnected != true && syncStatus is! ConnectingSyncStatus) {
       syncStatus = NotConnectedSyncStatus();
+    }
+  }
+
+  void _syncStatusReaction(SyncStatus syncStatus) async {
+    if (syncStatus is! AttemptingSyncStatus && syncStatus is! SyncedTipSyncStatus) {
+      silentPaymentsScanningActive = syncStatus is SyncingSyncStatus;
+    }
+
+    if (syncStatus is NotConnectedSyncStatus) {
+      // Needs to re-subscribe to all scripthashes when reconnected
+      _scripthashesUpdateSubject = {};
+
+      if (_isTryingToConnect) return;
+
+      _isTryingToConnect = true;
+
+      Future.delayed(Duration(seconds: 10), () {
+        if (this.syncStatus is! SyncedSyncStatus && this.syncStatus is! SyncedTipSyncStatus) {
+          this.electrumClient.connectToUri(
+                node!.uri,
+                useSSL: node!.useSSL ?? false,
+              );
+        }
+        _isTryingToConnect = false;
+      });
+    }
+
+    // Message is shown on the UI for 3 seconds, revert to synced
+    if (syncStatus is SyncedTipSyncStatus) {
+      Timer(Duration(seconds: 3), () {
+        if (this.syncStatus is SyncedTipSyncStatus) this.syncStatus = SyncedSyncStatus();
+      });
     }
   }
 }

@@ -8,6 +8,7 @@ import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/utils/language_list.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -43,7 +44,9 @@ class SeedValidator extends Validator<MnemonicItem> {
         return solana!.getSolanaWordList(language);
       case WalletType.tron:
         return tron!.getTronWordList(language);
-      default:
+      case WalletType.wownero:
+          return wownero!.getWowneroWordList(language);
+      case WalletType.none:
         return [];
     }
   }

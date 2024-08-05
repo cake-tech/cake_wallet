@@ -1,2 +1,8 @@
 -
   uri: electrum.cakewallet.com:50002
+  useSSL: true
+-
+  uri: btc-electrum.cakewallet.com:50002
+  isDefault: true
+-
+  uri: electrs.cakewallet.com:50001
