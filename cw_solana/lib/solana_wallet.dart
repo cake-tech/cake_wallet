@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
@@ -12,6 +13,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_solana/default_spl_tokens.dart';
 import 'package:cw_solana/file.dart';
 import 'package:cw_solana/solana_balance.dart';
@@ -36,7 +38,8 @@ part 'solana_wallet.g.dart';
 class SolanaWallet = SolanaWalletBase with _$SolanaWallet;
 
 abstract class SolanaWalletBase
-    extends WalletBase<SolanaBalance, SolanaTransactionHistory, SolanaTransactionInfo> with Store {
+    extends WalletBase<SolanaBalance, SolanaTransactionHistory, SolanaTransactionInfo>
+    with Store, WalletKeysFile {
   SolanaWalletBase({
     required WalletInfo walletInfo,
     String? mnemonic,
@@ -120,6 +123,9 @@ abstract class SolanaWalletBase
 
     return privateKey;
   }
+
+  @override
+  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
 
   Future<void> init() async {
     final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${SPLToken.boxName}";
@@ -361,6 +367,7 @@ abstract class SolanaWalletBase
     }
   }
 
+  @override
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   String toJSON() => json.encode({

@@ -16,6 +16,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_tron/default_tron_tokens.dart';
 import 'package:cw_tron/file.dart';
@@ -37,7 +38,8 @@ part 'tron_wallet.g.dart';
 class TronWallet = TronWalletBase with _$TronWallet;
 
 abstract class TronWalletBase
-    extends WalletBase<TronBalance, TronTransactionHistory, TronTransactionInfo> with Store {
+    extends WalletBase<TronBalance, TronTransactionHistory, TronTransactionInfo>
+    with Store, WalletKeysFile {
   TronWalletBase({
     required WalletInfo walletInfo,
     String? mnemonic,
@@ -163,9 +165,7 @@ abstract class TronWalletBase
   }) async {
     assert(mnemonic != null || privateKey != null);
 
-    if (privateKey != null) {
-      return TronPrivateKey(privateKey);
-    }
+    if (privateKey != null) return TronPrivateKey(privateKey);
 
     final seed = bip39.mnemonicToSeed(mnemonic!);
 
@@ -181,14 +181,10 @@ abstract class TronWalletBase
   int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
 
   @override
-  Future<void> changePassword(String password) {
-    throw UnimplementedError("changePassword");
-  }
+  Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  void close() {
-    _transactionsUpdateTimer?.cancel();
-  }
+  void close() => _transactionsUpdateTimer?.cancel();
 
   @action
   @override
@@ -406,9 +402,7 @@ abstract class TronWalletBase
   Object get keys => throw UnimplementedError("keys");
 
   @override
-  Future<void> rescan({required int height}) {
-    throw UnimplementedError("rescan");
-  }
+  Future<void> rescan({required int height}) => throw UnimplementedError("rescan");
 
   @override
   Future<void> save() async {
@@ -424,6 +418,10 @@ abstract class TronWalletBase
   @override
   String get privateKey => _tronPrivateKey.toHex();
 
+  @override
+  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
+
+  @override
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   String toJSON() => json.encode({
@@ -512,7 +510,7 @@ abstract class TronWalletBase
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    String transactionHistoryFileNameForWallet = 'tron_transactions.json';
+    const transactionHistoryFileNameForWallet = 'tron_transactions.json';
 
     final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
     final currentWalletFile = File(currentWalletPath);
@@ -550,9 +548,7 @@ abstract class TronWalletBase
   Future<String> signMessage(String message, {String? address}) async =>
       _tronPrivateKey.signPersonalMessage(ascii.encode(message));
 
-  String getTronBase58AddressFromHex(String hexAddress) {
-    return TronAddress(hexAddress).toAddress();
-  }
+  String getTronBase58AddressFromHex(String hexAddress) => TronAddress(hexAddress).toAddress();
 
   void updateScanProviderUsageState(bool isEnabled) {
     if (isEnabled) {

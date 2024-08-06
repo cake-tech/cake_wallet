@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -14,7 +15,6 @@ import 'package:cw_tron/tron_exception.dart';
 import 'package:cw_tron/tron_wallet.dart';
 import 'package:cw_tron/tron_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
-import 'package:collection/collection.dart';
 
 class TronWalletService extends WalletService<
     TronNewWalletCredentials,
@@ -45,9 +45,14 @@ class TronWalletService extends WalletService<
       password: credentials.password!,
     );
 
+    await wallet.saveKeysFile(credentials.password!);
+
     await wallet.init();
     wallet.addInitialTokens();
     await wallet.save();
+
+    // Store the key file again, just be sure
+    await wallet.saveKeysFile(credentials.password!, true);
 
     return wallet;
   }
@@ -153,7 +158,8 @@ class TronWalletService extends WalletService<
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> restoreFromHardwareWallet(TronNewWalletCredentials credentials) {
+  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
+      restoreFromHardwareWallet(TronNewWalletCredentials credentials) {
     // TODO: implement restoreFromHardwareWallet
     throw UnimplementedError();
   }

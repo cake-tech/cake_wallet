@@ -39,7 +39,13 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       mnemonic: mnemonic,
       password: credentials.password!,
     );
+
     wallet.init();
+    await wallet.saveKeysFile(credentials.password!);
+
+    // Store the key file again, just be sure
+    await wallet.saveKeysFile(credentials.password!, true);
+
     return wallet;
   }
 
