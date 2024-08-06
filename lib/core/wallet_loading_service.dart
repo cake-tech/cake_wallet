@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -76,7 +79,7 @@ class WalletLoadingService {
               PreferencesKey.currentWalletType, serializeToInt(wallet.type));
 
           // if found a wallet that is not corrupted, then still display the seeds of the corrupted ones
-          ExceptionHandler.showError(corruptedWalletsSeeds, delayInSeconds: 3);
+          authenticatedErrorStreamController.add(corruptedWalletsSeeds);
 
           return wallet;
         } catch (_) {

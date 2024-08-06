@@ -489,6 +489,7 @@ Future<void> setup({
 
         if (loginError != null) {
           authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+          loginError = null;
         }
 
         ReactionDisposer? _reaction;
