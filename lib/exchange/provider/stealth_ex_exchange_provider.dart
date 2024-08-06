@@ -18,7 +18,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
   static const List<CryptoCurrency> _notSupported = [];
 
-  static const apiKey = secrets.stealthExBearerToken;
+  static const apiKey = '';//secrets.stealthExBearerToken;
   static const _baseUrl = 'https://api.stealthex.io';
   static const _rangePath = '/v4/rates/range';
   static const _amountPath = '/v4/rates/estimated-amount';
