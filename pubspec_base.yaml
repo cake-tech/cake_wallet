@@ -31,7 +31,7 @@ dependencies:
   flutter_local_authentication:
     git:
       url: https://github.com/cake-tech/flutter_local_authentication
-  package_info_plus: ^4.1.0
+  package_info_plus: ^8.0.1
   devicelocale:
     git:
       url: https://github.com/cake-tech/flutter-devicelocale
