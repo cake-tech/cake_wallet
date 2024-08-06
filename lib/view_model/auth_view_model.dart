@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_authentication/flutter_local_authentication.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/view_model/auth_state.dart';
@@ -105,12 +106,15 @@ abstract class AuthViewModelBase with Store {
 
   @action
   Future<void> biometricAuth() async {
+    final _flutterLocalAuthenticationPlugin = FlutterLocalAuthentication();
+
     try {
       if (await _biometricAuth.canCheckBiometrics() && await _biometricAuth.isAuthenticated()) {
         state = ExecutedSuccessfullyState();
       } else {
         throw Exception('Biometric authentication failed');
       }
+      state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());
     }

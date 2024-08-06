@@ -15,7 +15,6 @@ dependencies:
   mobx: ^2.0.7+4
   bip39: ^1.0.6
   bip32: ^2.0.0
-  nanodart: ^2.0.0
   decimal: ^2.3.3
   libcrypto: ^0.2.2
   ed25519_hd_key: ^2.2.0
@@ -25,7 +24,7 @@ dependencies:
   nanoutil:
     git:
       url: https://github.com/perishllc/nanoutil.git
-      ref: c37e72817cf0a28162f43124f79661d6c8e0098f
+      ref: c01a9c552917008d8fbc6b540db657031625b04f
   cw_core:
     path: ../cw_core
 
