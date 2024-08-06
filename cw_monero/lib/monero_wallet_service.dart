@@ -58,8 +58,11 @@ class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
   final String spendKey;
 }
 
-class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
-    MoneroRestoreWalletFromSeedCredentials, MoneroRestoreWalletFromKeysCredentials, MoneroNewWalletCredentials> {
+class MoneroWalletService extends WalletService<
+    MoneroNewWalletCredentials,
+    MoneroRestoreWalletFromSeedCredentials,
+    MoneroRestoreWalletFromKeysCredentials,
+    MoneroNewWalletCredentials> {
   MoneroWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
@@ -190,11 +193,8 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
       final wmaddr = wmPtr.address;
       final waddr = openedWalletsByPath["$path/$wallet"]!.address;
       // await Isolate.run(() {
-        monero.WalletManager_closeWallet(
-            Pointer.fromAddress(wmaddr),
-            Pointer.fromAddress(waddr),
-            false
-        );
+      monero.WalletManager_closeWallet(
+          Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), false);
       // });
       openedWalletsByPath.remove("$path/$wallet");
       print("wallet closed");
@@ -261,7 +261,8 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
 
   @override
   Future<MoneroWallet> restoreFromHardwareWallet(MoneroNewWalletCredentials credentials) {
-    throw UnimplementedError("Restoring a Monero wallet from a hardware wallet is not yet supported!");
+    throw UnimplementedError(
+        "Restoring a Monero wallet from a hardware wallet is not yet supported!");
   }
 
   @override
@@ -367,6 +368,26 @@ class MoneroWalletService extends WalletService<MoneroNewWalletCredentials,
       });
     } catch (e) {
       print(e.toString());
+    }
+  }
+
+  @override
+  Future<String> getSeeds(String name, String password, WalletType type) async {
+    try {
+      final path = await pathForWallet(name: name, type: getType());
+
+      if (walletFilesExist(path)) {
+        await repairOldAndroidWallet(name);
+      }
+
+      await monero_wallet_manager.openWalletAsync({'path': path, 'password': password});
+      final walletInfo = walletInfoSource.values
+          .firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
+      final wallet = MoneroWallet(walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
+      return wallet.seed;
+    } catch (_) {
+      // if the file couldn't be opened or read
+      return '';
     }
   }
 }
