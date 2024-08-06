@@ -1,6 +1,5 @@
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:isolate';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -383,7 +382,11 @@ class MoneroWalletService extends WalletService<
       await monero_wallet_manager.openWalletAsync({'path': path, 'password': password});
       final walletInfo = walletInfoSource.values
           .firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-      final wallet = MoneroWallet(walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource);
+      final wallet = MoneroWallet(
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: password,
+      );
       return wallet.seed;
     } catch (_) {
       // if the file couldn't be opened or read

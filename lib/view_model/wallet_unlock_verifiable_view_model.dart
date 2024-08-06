@@ -10,8 +10,7 @@ part 'wallet_unlock_verifiable_view_model.g.dart';
 class WalletUnlockVerifiableViewModel = WalletUnlockVerifiableViewModelBase
     with _$WalletUnlockVerifiableViewModel;
 
-abstract class WalletUnlockVerifiableViewModelBase extends WalletUnlockViewModel
-    with Store {
+abstract class WalletUnlockVerifiableViewModelBase extends WalletUnlockViewModel with Store {
   WalletUnlockVerifiableViewModelBase(this.appStore,
       {required this.walletName, required this.walletType})
       : password = '',

@@ -10,8 +10,7 @@ part 'wallet_unlock_loadable_view_model.g.dart';
 class WalletUnlockLoadableViewModel = WalletUnlockLoadableViewModelBase
     with _$WalletUnlockLoadableViewModel;
 
-abstract class WalletUnlockLoadableViewModelBase extends WalletUnlockViewModel
-    with Store {
+abstract class WalletUnlockLoadableViewModelBase extends WalletUnlockViewModel with Store {
   WalletUnlockLoadableViewModelBase(this._appStore, this._walletLoadingService,
       {required this.walletName, required this.walletType})
       : password = '',
@@ -42,8 +41,7 @@ abstract class WalletUnlockLoadableViewModelBase extends WalletUnlockViewModel
   Future<void> unlock() async {
     try {
       state = InitialExecutionState();
-      final wallet = await _walletLoadingService.load(walletType, walletName,
-          password: password);
+      final wallet = await _walletLoadingService.load(walletType, walletName, password: password);
       _appStore.changeCurrentWallet(wallet);
       success();
     } catch (e) {
