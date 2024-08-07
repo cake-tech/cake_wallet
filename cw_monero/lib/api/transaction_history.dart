@@ -110,7 +110,10 @@ Future<PendingTransactionDescription> createTransactionSync(
   })();
 
   if (error != null) {
-    final message = error;
+    String message = error;
+    if (message.contains("RPC error")) {
+      message = "Invalid node response, please try again or switch node\n\ntrace: $message";
+    }
     throw CreationTransactionException(message: message);
   }
 
