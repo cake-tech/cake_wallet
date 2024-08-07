@@ -356,6 +356,7 @@ abstract class NanoWalletBase
     }
   }
 
+  @override
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   String toJSON() => json.encode({
@@ -375,12 +376,24 @@ abstract class NanoWalletBase
     final jsonSource = await read(path: path, password: password);
 
     final data = json.decode(jsonSource) as Map;
-    final mnemonic = data['mnemonic'] as String;
-
     final balance = NanoBalance.fromRawString(
       currentBalance: data['currentBalance'] as String? ?? "0",
       receivableBalance: data['receivableBalance'] as String? ?? "0",
     );
+
+    final WalletKeysData keysData;
+    // Migrate wallet from the old scheme to then new .keys file scheme
+    if (!(await WalletKeysFile.hasKeysFile(name, walletInfo.type))) {
+      final mnemonic = data['mnemonic'] as String;
+      final isHexSeed = !mnemonic.contains(' ');
+
+      final newKeysData = WalletKeysData(
+          mnemonic: isHexSeed ? null : mnemonic, altMnemonic: isHexSeed ? mnemonic : null);
+      await WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
+      keysData = newKeysData;
+    } else {
+      keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
+    }
 
     DerivationType derivationType = DerivationType.nano;
     if (data['derivationType'] == "DerivationType.bip39") {
@@ -395,7 +408,7 @@ abstract class NanoWalletBase
     return NanoWallet(
       walletInfo: walletInfo,
       password: password,
-      mnemonic: mnemonic,
+      mnemonic: keysData.mnemonic!,
       initialBalance: balance,
     );
     // init() should always be run after this!

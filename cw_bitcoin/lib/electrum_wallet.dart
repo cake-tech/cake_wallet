@@ -171,7 +171,8 @@ abstract class ElectrumWalletBase
   String? get seed => _mnemonic;
 
   @override
-  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, xPub: xpub);
+  WalletKeysData get walletKeysData =>
+      WalletKeysData(mnemonic: _mnemonic, xPub: xpub, passphrase: passphrase);
 
   bitcoin.NetworkType networkType;
   BasedUtxoNetwork network;

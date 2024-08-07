@@ -12,6 +12,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -91,8 +92,20 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   }) async {
     final snp = await ElectrumWalletSnapshot.load(
         name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
+
+    final WalletKeysData keysData;
+    // Migrate wallet from the old scheme to then new .keys file scheme
+    if (!(await WalletKeysFile.hasKeysFile(name, walletInfo.type))) {
+      final newKeysData =
+          WalletKeysData(mnemonic: snp.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
+      await WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
+      keysData = newKeysData;
+    } else {
+      keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
+    }
+
     return BitcoinCashWallet(
-      mnemonic: snp.mnemonic!,
+      mnemonic: keysData.mnemonic!,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
@@ -117,7 +130,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         }
       }).toList(),
       initialBalance: snp.balance,
-      seedBytes: await Mnemonic.toSeed(snp.mnemonic!),
+      seedBytes: await Mnemonic.toSeed(keysData.mnemonic!),
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,

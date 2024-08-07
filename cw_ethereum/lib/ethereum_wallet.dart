@@ -6,6 +6,7 @@ import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_ethereum/default_ethereum_erc20_tokens.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_transaction_history.dart';
@@ -125,16 +126,27 @@ class EthereumWallet extends EVMChainWallet {
     final path = await pathForWallet(name: name, type: walletInfo.type);
     final jsonSource = await read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
-    final mnemonic = data['mnemonic'] as String?;
-    final privateKey = data['private_key'] as String?;
     final balance = EVMChainERC20Balance.fromJSON(data['balance'] as String) ??
         EVMChainERC20Balance(BigInt.zero);
+
+    final WalletKeysData keysData;
+    // Migrate wallet from the old scheme to then new .keys file scheme
+    if (!(await WalletKeysFile.hasKeysFile(name, walletInfo.type))) {
+      final mnemonic = data['mnemonic'] as String?;
+      final privateKey = data['private_key'] as String?;
+
+      final newKeysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+      await WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
+      keysData = newKeysData;
+    } else {
+      keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
+    }
 
     return EthereumWallet(
       walletInfo: walletInfo,
       password: password,
-      mnemonic: mnemonic,
-      privateKey: privateKey,
+      mnemonic: keysData.mnemonic,
+      privateKey: keysData.privateKey,
       initialBalance: balance,
       client: EthereumClient(),
     );

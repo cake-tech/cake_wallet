@@ -384,15 +384,26 @@ abstract class SolanaWalletBase
     final path = await pathForWallet(name: name, type: walletInfo.type);
     final jsonSource = await read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
-    final mnemonic = data['mnemonic'] as String?;
-    final privateKey = data['private_key'] as String?;
     final balance = SolanaBalance.fromJSON(data['balance'] as String) ?? SolanaBalance(0.0);
+
+    final WalletKeysData keysData;
+    // Migrate wallet from the old scheme to then new .keys file scheme
+    if (!(await WalletKeysFile.hasKeysFile(name, walletInfo.type))) {
+      final mnemonic = data['mnemonic'] as String?;
+      final privateKey = data['private_key'] as String?;
+
+      final newKeysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+      await WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
+      keysData = newKeysData;
+    } else {
+      keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
+    }
 
     return SolanaWallet(
       walletInfo: walletInfo,
       password: password,
-      mnemonic: mnemonic,
-      privateKey: privateKey,
+      mnemonic: keysData.mnemonic,
+      privateKey: keysData.privateKey,
       initialBalance: balance,
     );
   }
