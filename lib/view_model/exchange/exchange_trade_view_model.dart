@@ -53,7 +53,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         _provider = QuantexExchangeProvider();
         break;
       case ExchangeProviderDescription.thorChain:
-        _provider = ThorChainExchangeProvider(tradesStore: trades);
+        _provider = ThorChainExchangeProvider(tradesStore: trades, settingsStore: sendViewModel.balanceViewModel.settingsStore);
         break;
     }
 
@@ -108,7 +108,10 @@ abstract class ExchangeTradeViewModelBase with Store {
     final output = sendViewModel.outputs.first;
     output.address = trade.inputAddress ?? '';
     output.setCryptoAmount(trade.amount);
-    if (_provider is ThorChainExchangeProvider) output.memo = trade.memo;
+    if (_provider is ThorChainExchangeProvider) {
+      output.memo = trade.memo;
+      output.router = trade.router;
+    }
     if (trade.isSendAll == true) output.sendAll = true;
     sendViewModel.selectedCryptoCurrency = trade.from;
     final pendingTransaction = await sendViewModel.createTransaction(provider: _provider);
