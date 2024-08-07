@@ -49,7 +49,7 @@ List<Subaddress> getAllSubaddresses() {
     );
   }).reversed.toList();
   if (list.length == 0) {
-    list.add(Subaddress(addressIndex: 0, accountIndex: 0));
+    list.add(Subaddress(addressIndex: subaddress!.accountIndex, accountIndex: 0));
   }
   return list;
 }

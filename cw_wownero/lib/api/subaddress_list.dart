@@ -48,7 +48,7 @@ List<Subaddress> getAllSubaddresses() {
     );
   }).reversed.toList();
   if (list.isEmpty) {
-    list.add(Subaddress(addressIndex: 0, accountIndex: 0));
+    list.add(Subaddress(addressIndex: 0, accountIndex: subaddress!.accountIndex));
   }
   return list;
 }
