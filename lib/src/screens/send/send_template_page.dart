@@ -144,7 +144,7 @@ class SendTemplatePage extends BasePage {
                           .toList();
 
                       sendTemplateViewModel.addTemplate(
-                          isCurrencySelected: mainTemplate.isCurrencySelected,
+                          isCurrencySelected: mainTemplate.isCryptoSelected,
                           name: mainTemplate.name,
                           address: mainTemplate.address,
                           cryptoCurrency: mainTemplate.selectedCurrency.title,

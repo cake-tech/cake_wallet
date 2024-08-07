@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
@@ -207,158 +208,19 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                               textStyle: TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                               validator: sendViewModel.addressValidator)),
-                    Observer(
-                      builder: (_) => Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: Stack(
-                            children: [
-                              BaseTextFormField(
-                                focusNode: cryptoAmountFocus,
-                                controller: cryptoAmountController,
-                                keyboardType: TextInputType.numberWithOptions(
-                                    signed: false, decimal: true),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
-                                ],
-
-                                suffixIcon: SizedBox(
-                                  width: prefixIconWidth,
-                                ),
-                                prefixIcon: Padding(
-                                  padding: const EdgeInsets.only(right: 6.0),
-                                  child: Container(
-                                    height: 32,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        sendViewModel.hasMultipleTokens
-                                            ? Container(
-                                          child: InkWell(
-                                            onTap: () => _presentPicker(context),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: <Widget>[
-                                                Padding(
-                                                  padding: EdgeInsets.only(right: 6),
-                                                  child: Image.asset(
-                                                    'assets/images/arrow_bottom_purple_icon.png',
-                                                    color: Colors.white,
-                                                    height: 8,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  sendViewModel.selectedCryptoCurrency.title,
-                                                  style: TextStyle(
-                                                      fontWeight: FontWeight.w600,
-                                                      fontSize: 16,
-                                                      color: Colors.white),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        )
-                                            : Text(
-                                          sendViewModel.selectedCryptoCurrency.title,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                              color: Colors.white),
-                                        ),
-                                        sendViewModel.selectedCryptoCurrency.tag != null
-                                            ? Padding(
-                                          padding: const EdgeInsets.fromLTRB(3.0, 0, 3.0, 0),
-                                          child: Container(
-                                            height: prefixIconHeight,
-                                            width: prefixIconWidth,
-                                            decoration: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .extension<SendPageTheme>()!
-                                                    .textFieldButtonColor,
-                                                borderRadius: BorderRadius.all(
-                                                  Radius.circular(6),
-                                                )),
-                                            child: Center(
-                                              child: Text(
-                                                sendViewModel.selectedCryptoCurrency.tag!,
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Theme.of(context)
-                                                        .extension<SendPageTheme>()!
-                                                        .textFieldButtonIconColor),
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                            : Container(),
-                                        Text(
-                                          ':',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                              color: Colors.white),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                hintText: '0.0000',
-                                borderColor: Colors.transparent,
-                                textStyle: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white),
-                                placeholderTextStyle: TextStyle(
-                                    color: Theme.of(context)
-                                        .extension<SendPageTheme>()!
-                                        .textFieldHintColor,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16),
-                                validator: output.sendAll
-                                    ? sendViewModel.allAmountValidator
-                                    : sendViewModel.amountValidator,
-                              ),
-                              if (!sendViewModel.isBatchSending)
-                                Positioned(
-                                  top: 2,
-                                  right: 0,
-                                  child: Container(
-                                    width: prefixIconWidth,
-                                    height: prefixIconHeight,
-                                    child: InkWell(
-                                      onTap: () async {
-                                        output.setSendAll(sendViewModel.balance);
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .extension<SendPageTheme>()!
-                                              .textFieldButtonColor,
-                                          borderRadius: BorderRadius.all(
-                                            Radius.circular(6),
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            S.of(context).all,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                              color: Theme.of(context)
-                                                  .extension<SendPageTheme>()!
-                                                  .textFieldButtonIconColor,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          )),
-                    ),
+                    CurrencyAmountTextField(
+                        selectedCurrency: sendViewModel.selectedCryptoCurrency.title,
+                        amountFocusNode: cryptoAmountFocus,
+                        amountController: cryptoAmountController,
+                        isAmountEditable: true,
+                        onTapPicker: () => _presentPicker(context),
+                        isPickerEnable: sendViewModel.hasMultipleTokens,
+                        tag: sendViewModel.selectedCryptoCurrency.tag,
+                        allAmountButton: !sendViewModel.isBatchSending,
+                        currencyValueValidator: output.sendAll
+                            ? sendViewModel.allAmountValidator
+                            : sendViewModel.amountValidator,
+                        allAmountCallback: () async => output.setSendAll(sendViewModel.balance)),
                     Divider(
                         height: 1,
                         color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
@@ -394,46 +256,16 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       ),
                     ),
                     if (!sendViewModel.isFiatDisabled)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20),
-                        child: BaseTextFormField(
-                          focusNode: fiatAmountFocus,
-                          controller: fiatAmountController,
-                          keyboardType:
-                              TextInputType.numberWithOptions(signed: false, decimal: true),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.deny(
-                              RegExp('[\\-|\\ ]'),
-                            )
-                          ],
-                          prefixIcon: Container(
-                            height: 32,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  sendViewModel.fiat.title + ':',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                      CurrencyAmountTextField(
+                          selectedCurrency: sendViewModel.fiat.title,
+                          amountFocusNode: fiatAmountFocus,
+                          amountController: fiatAmountController,
                           hintText: '0.00',
-                          borderColor:
-                              Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                          textStyle: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                          placeholderTextStyle: TextStyle(
-                              color:
-                                  Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16),
-                        ),
-                      ),
+                          isAmountEditable: true,
+                          allAmountButton: false),
+                    Divider(
+                        height: 1,
+                        color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: BaseTextFormField(
@@ -712,12 +544,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     showPopUp<void>(
       context: context,
       builder: (_) => CurrencyPicker(
-        selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
-        items: sendViewModel.currencies,
-        hintText: S.of(context).search_currency,
-        onItemSelected: (Currency cur) =>
-            sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency),
-      ),
+          selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
+          items: sendViewModel.currencies,
+          hintText: S.of(context).search_currency,
+          onItemSelected: (Currency cur) =>
+              sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency)),
     );
   }
 
