@@ -13,3 +13,7 @@ class RestoreFromKeysException extends ZanoWalletException {
 class TransferException extends ZanoWalletException {
   TransferException(String message): super(message);
 }
+
+class ZanoWalletBusyException extends ZanoWalletException {
+  ZanoWalletBusyException(): super('');
+}

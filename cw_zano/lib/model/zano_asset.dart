@@ -26,11 +26,11 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
   @HiveField(7)
   final String metaInfo;
   @HiveField(8)
-  final int currentSupply;
+  final BigInt currentSupply;
   @HiveField(9)
   final bool hiddenSupply;
   @HiveField(10)
-  final int totalMaxSupply;
+  final BigInt totalMaxSupply;
   @HiveField(11)
   final bool isInGlobalWhitelist;
 
@@ -47,11 +47,11 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
     this.iconPath,
     this.owner = defaultOwner,
     this.metaInfo = '',
-    this.currentSupply = 0,
+    required this.currentSupply,
     this.hiddenSupply = false,
-    this.totalMaxSupply = 0,
+    required this.totalMaxSupply,
     this.isInGlobalWhitelist = false,
-  })  : _enabled = enabled,
+  })  : _enabled = enabled, 
         super(
           name: fullName,
           title: ticker.toUpperCase(),
@@ -86,16 +86,18 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
 
   factory ZanoAsset.fromJson(Map<String, dynamic> json, {bool isInGlobalWhitelist = false}) => ZanoAsset(
         assetId: json['asset_id'] as String? ?? '',
-        currentSupply: json['current_supply'] as int? ?? 0,
+        currentSupply: ZanoFormatter.bigIntFromDynamic(json['current_supply']),
         decimalPoint: json['decimal_point'] as int? ?? ZanoFormatter.defaultDecimalPoint,
         fullName: json['full_name'] as String? ?? '',
         hiddenSupply: json['hidden_supply'] as bool? ?? false,
         metaInfo: json['meta_info'] as String? ?? '',
         owner: json['owner'] as String? ?? '',
         ticker: json['ticker'] as String? ?? '',
-        totalMaxSupply: json['total_max_supply'] as int? ?? 0,
+        totalMaxSupply: ZanoFormatter.bigIntFromDynamic(json['total_max_supply']),
         isInGlobalWhitelist: isInGlobalWhitelist,
       );
+
+
 
   static const typeId = ZANO_ASSET_TYPE_ID;
   static const zanoAssetsBoxName = 'zanoAssetsBox';    

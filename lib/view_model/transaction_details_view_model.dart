@@ -20,6 +20,7 @@ import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_zano/model/zano_transaction_info.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/src/intl/date_format.dart';
 import 'package:mobx/mobx.dart';
@@ -497,9 +498,11 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addZanoListItems(TransactionInfo tx, DateFormat dateFormat) {
+    tx as ZanoTransactionInfo;
     final comment = tx.additionalInfo['comment'] as String?;
     items.addAll([
       StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: 'Asset ID', value: tx.assetId),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),

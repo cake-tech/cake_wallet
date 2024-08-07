@@ -102,7 +102,9 @@ class CWZano extends Zano {
   }
 
   @override
-  double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency}) {
+  double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency, required bool forFee}) {
+    // fee always counted in zano with default decimal points
+    if (forFee) return ZanoFormatter.intAmountToDouble(amount);
     if (currency is ZanoAsset) return ZanoFormatter.intAmountToDouble(amount, currency.decimalPoint);
     return ZanoFormatter.intAmountToDouble(amount);
   }

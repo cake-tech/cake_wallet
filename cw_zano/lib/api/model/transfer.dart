@@ -3,7 +3,9 @@ import 'package:cw_zano/api/model/subtransfer.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_zano/model/zano_asset.dart';
 import 'package:cw_zano/model/zano_transaction_info.dart';
+import 'package:cw_zano/zano_formatter.dart';
 import 'package:cw_zano/zano_wallet.dart';
+import 'package:cw_zano/zano_wallet_api.dart';
 
 class Transfer {
   final String comment;
@@ -71,8 +73,8 @@ class Transfer {
         unlockTime: json['unlock_time'] as int? ?? 0,
       );
 
-  static Map<String, ZanoTransactionInfo> makeMap(List<Transfer> transfers, Map<String, ZanoAsset> zanoAssets, int currentDaemonHeight) =>
-      Map.fromIterable(
+  static Map<String, ZanoTransactionInfo> makeMap(List<Transfer> transfers, Map<String, ZanoAsset> zanoAssets, int currentDaemonHeight) {
+    return Map.fromIterable(
         transfers,
         key: (item) => (item as Transfer).txHash,
         value: (transfer) {
@@ -81,7 +83,7 @@ class Transfer {
           Subtransfer? single = transfer.subtransfers.singleOrNull;
           if (transfer.subtransfers.length == 2) {
             final zano = transfer.subtransfers.firstWhereOrNull((element) => element.assetId == ZanoWalletBase.zanoAssetId);
-            if (zano != null && !zano.isIncome && zano.amount == transfer.fee) {
+            if (zano != null && !zano.isIncome && zano.amount == BigInt.from(transfer.fee)) {
               single = transfer.subtransfers.firstWhere((element) => element.assetId != ZanoWalletBase.zanoAssetId);
             }
           }
@@ -93,18 +95,22 @@ class Transfer {
           }
           if (single.assetId != ZanoWalletBase.zanoAssetId) {
             final asset = zanoAssets[single.assetId];
-            if (asset != null)
-              return ZanoTransactionInfo.fromTransfer(
-                transfer,
-                confirmations: currentDaemonHeight - transfer.height,
-                isIncome: single.isIncome,
-                assetId: single.assetId,
-                amount: single.amount,
-                tokenSymbol: isSimple ? asset.ticker : '*${asset.ticker}',
-                decimalPoint: asset.decimalPoint,
-              );
+            if (asset == null) {
+              ZanoWalletApi.error('unknown asset ${single.assetId}');
+            }
+            final ticker = asset == null ? '***' : asset.ticker;
+            final decimalPoint = asset == null ? ZanoFormatter.defaultDecimalPoint : asset.decimalPoint;
+            return ZanoTransactionInfo.fromTransfer(
+              transfer,
+              confirmations: currentDaemonHeight - transfer.height,
+              isIncome: single.isIncome,
+              assetId: single.assetId,
+              amount: single.amount,
+              tokenSymbol: isSimple ? ticker : '*${ticker}',
+              decimalPoint: decimalPoint,
+            );
           }
-          final amount = single.isIncome ? single.amount : single.amount - transfer.fee;
+          final amount = single.isIncome ? single.amount : single.amount - BigInt.from(transfer.fee);
           return ZanoTransactionInfo.fromTransfer(
             transfer,
             confirmations: currentDaemonHeight - transfer.height,
@@ -115,4 +121,5 @@ class Transfer {
           );
         },
       );
+  }
 }

@@ -1,11 +1,12 @@
 import 'package:cw_zano/model/zano_asset.dart';
+import 'package:cw_zano/zano_formatter.dart';
 
 class Balance {
   final ZanoAsset assetInfo;
-  final int awaitingIn;
-  final int awaitingOut;
-  final int total;
-  final int unlocked;
+  final BigInt awaitingIn;
+  final BigInt awaitingOut;
+  final BigInt total;
+  final BigInt unlocked;
 
   Balance(
       {required this.assetInfo,
@@ -22,9 +23,9 @@ class Balance {
   factory Balance.fromJson(Map<String, dynamic> json) => Balance(
         assetInfo:
             ZanoAsset.fromJson(json['asset_info'] as Map<String, dynamic>? ?? {}),
-        awaitingIn: json['awaiting_in'] as int? ?? 0,
-        awaitingOut: json['awaiting_out'] as int? ?? 0,
-        total: json['total'] as int? ?? 0,
-        unlocked: json['unlocked'] as int? ?? 0,
+        awaitingIn: ZanoFormatter.bigIntFromDynamic(json['awaiting_in']),
+        awaitingOut: ZanoFormatter.bigIntFromDynamic(json['awaiting_out']),
+        total: ZanoFormatter.bigIntFromDynamic(json['total']),
+        unlocked: ZanoFormatter.bigIntFromDynamic(json['unlocked']),
       );
 }

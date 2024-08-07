@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:convert' as convert;
 
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_zano/api/api_calls.dart';
@@ -20,14 +20,16 @@ import 'package:cw_zano/api/model/transfer_result.dart';
 import 'package:cw_zano/model/zano_asset.dart';
 import 'package:cw_zano/zano_wallet_exceptions.dart';
 import 'package:flutter/foundation.dart';
+import 'package:json_bigint/json_bigint.dart';
 
 mixin ZanoWalletApi {
   static const _defaultNodeUri = '195.201.107.230:33336';
   static const _statusDelivered = 'delivered';
   static const _maxInvokeAttempts = 10;
+  static const _maxReopenAttempts = 5;
   static const _logInfo = true;
   static const _logError = true;
-  static const _logJson = true;
+  static const _logJson = false;
   static const int _zanoMixinValue = 10;
 
   int _hWallet = 0;
@@ -39,6 +41,9 @@ mixin ZanoWalletApi {
   }
 
   int getCurrentTxFee(TransactionPriority priority) => ApiCalls.getCurrentTxFee(priority: priority.raw);
+
+  String getOpenedWallets() => ApiCalls.getOpenedWallets();
+  String getConnectivityStatus() => ApiCalls.getConnectivityStatus();
 
   void setPassword(String password) => ApiCalls.setPassword(hWallet: hWallet, password: password);
 
@@ -65,7 +70,6 @@ mixin ZanoWalletApi {
     final json = ApiCalls.getWalletInfo(hWallet);
     final result = GetWalletInfoResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
     _json('get_wallet_info', json);
-    //await _writeLog('get_wallet_info', 'get_wallet_info result $json');
     info('get_wallet_info got ${result.wi.balances.length} balances: ${result.wi.balances} seed: ${_shorten(result.wiExtended.seed)}');
     return result;
   }
@@ -78,7 +82,6 @@ mixin ZanoWalletApi {
     }
     final status = GetWalletStatusResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
     _json('get_wallet_status', json);
-    //await _writeLog('get_wallet_status', 'get_wallet_status result $json');
     if (_logInfo)
       info(
           'get_wallet_status connected: ${status.isDaemonConnected} in refresh: ${status.isInLongRefresh} progress: ${status.progress} wallet state: ${status.walletState}');
@@ -86,13 +89,13 @@ mixin ZanoWalletApi {
   }
 
   Future<String> invokeMethod(String methodName, Object params) async {
-    //await _writeLog(methodName, 'invoke method $methodName params: ${jsonEncode(params)} hWallet: $hWallet');
     var invokeResult =
         ApiCalls.asyncCall(methodName: 'invoke', hWallet: hWallet, params: '{"method": "$methodName","params": ${jsonEncode(params)}}');
     Map<String, dynamic> map;
     try {
       map = jsonDecode(invokeResult) as Map<String, dynamic>;
     } catch (e) {
+      if (invokeResult.contains(Consts.errorWalletWrongId)) throw ZanoWalletException('Wrong wallet id');
       error('exception in parsing json in invokeMethod: $invokeResult');
       rethrow;
     }
@@ -105,16 +108,15 @@ mixin ZanoWalletApi {
         try {
           map = jsonDecode(result) as Map<String, dynamic>;
         } catch (e) {
+          if (result.contains(Consts.errorWalletWrongId)) throw ZanoWalletException('Wrong wallet id');
           error('exception in parsing json in invokeMethod: $result');
           rethrow;
         }
         if (map['status'] != null && map['status'] == _statusDelivered && map['result'] != null) {
-          //await _writeLog(methodName, 'invoke method $methodName result $result');
           return result;
         }
       } while (++attempts < _maxInvokeAttempts);
     }
-    //await _writeLog(methodName, 'invoke method $methodName result: $invokeResult');
     return invokeResult;
   }
 
@@ -139,7 +141,8 @@ mixin ZanoWalletApi {
       return [...globalWhitelist, ...localWhitelist, ...ownAssets];
     } catch (e) {
       error('assets_whitelist_get $e');
-      return [];
+      //return [];
+      rethrow;
     }
   }
 
@@ -190,7 +193,7 @@ mixin ZanoWalletApi {
     final result = await _proxyToDaemon('/json_rpc', '{"method": "$methodName","params": ${jsonEncode(params)}}');
     _json('$methodName $assetId', result?.body ?? '');
     if (result == null) {
-      debugPrint('get_asset_info empty result');
+      error('get_asset_info empty result');
       return null;
     }
     final map = jsonDecode(result.body) as Map<String, dynamic>?;
@@ -253,10 +256,8 @@ mixin ZanoWalletApi {
 
   Future<CreateWalletResult> createWallet(String path, String password) async {
     info('create_wallet path $path password ${_shorten(password)}');
-    //await _writeLog('create_wallet', 'create_wallet path $path password ${_shorten(password)}');
     final json = ApiCalls.createWallet(path: path, password: password);
     _json('create_wallet', json);
-    //await _writeLog('create_wallet', 'create_wallet result $json');
     final map = jsonDecode(json) as Map<String, dynamic>?;
     if (map?['error'] != null) {
       final code = map!['error']!['code'] ?? '';
@@ -273,10 +274,8 @@ mixin ZanoWalletApi {
 
   Future<CreateWalletResult> restoreWalletFromSeed(String path, String password, String seed) async {
     info('restore_wallet path $path password ${_shorten(password)} seed ${_shorten(seed)}');
-    //await _writeLog('restore_wallet', 'restore_wallet path $path password ${_shorten(password)} seed ${_shorten(seed)}');
     final json = ApiCalls.restoreWalletFromSeed(path: path, password: password, seed: seed);
     _json('restore_wallet', json);
-    //await _writeLog('restore_wallet', 'restore_wallet result $json');
     final map = jsonDecode(json) as Map<String, dynamic>?;
     if (map?['error'] != null) {
       final code = map!['error']!['code'] ?? '';
@@ -298,15 +297,19 @@ mixin ZanoWalletApi {
 
   Future<CreateWalletResult> loadWallet(String path, String password, [int attempt = 0]) async {
     info('load_wallet path $path password ${_shorten(password)}');
-    //await _writeLog('load_wallet', 'load_wallet path $path password ${_shorten(password)}');
-    final json = ApiCalls.loadWallet(path: path, password: password);
+    final String json;
+    try {
+      json = ApiCalls.loadWallet(path: path, password: password);
+    } catch (e) {
+      error('error in loadingWallet $e'); 
+      rethrow;
+    }
     _json('load_wallet', json);
-    //await _writeLog('load_wallet', 'load_wallet result $json');
     final map = jsonDecode(json) as Map<String, dynamic>?;
     if (map?['error'] != null) {
       final code = map?['error']!['code'] ?? '';
       final message = map?['error']!['message'] ?? '';
-      if (code == Consts.errorAlreadyExists && attempt <= 5) {
+      if (code == Consts.errorAlreadyExists && attempt <= _maxReopenAttempts) {
         // already connected to this wallet. closing and trying to reopen
         info('already connected. closing and reopen wallet (attempt $attempt)');
         closeWallet(attempt);
@@ -347,11 +350,11 @@ mixin ZanoWalletApi {
         final errorCode = resultMap['error']['code'];
         final code = errorCode is int ? errorCode.toString() : errorCode as String? ?? '';
         final message = resultMap['error']['message'] as String? ?? '';
-        debugPrint('transfer error $code $message');
+        error('transfer error $code $message');
         throw TransferException('Transfer error, $message ($code)');
       }
     }
-    debugPrint('transfer error empty result');
+    error('transfer error empty result');
     throw TransferException('Transfer error, empty result');
   }
 
@@ -366,6 +369,9 @@ mixin ZanoWalletApi {
     if (result['error'] != null) {
       final code = result['error']!['code'] ?? '';
       final message = result['error']!['message'] ?? '';
+      if (code == -1 && message == Consts.errorBusy) {
+        throw ZanoWalletBusyException();
+      }
       throw ZanoWalletException('Error, $message ($code)');
     }
   }
@@ -382,5 +388,18 @@ mixin ZanoWalletApi {
 
   static void info(String s) => _logInfo ? debugPrint('[info] $s') : null;
   static void error(String s) => _logError ? debugPrint('[error] $s') : null;
-  static void _json(String methodName, String json) => _logJson ? debugPrint('$methodName $json') : null;
+  static void printWrapped(String text) => RegExp('.{1,800}').allMatches(text).map((m) => m.group(0)).forEach(print);
+  static void _json(String methodName, String json) => _logJson ? printWrapped('$methodName $json') : null;
+  
+  Map<String, dynamic> jsonDecode(String json) {
+    try {
+      return decodeJson(json.replaceAll("\\/", "/")) as Map<String, dynamic>;
+    } catch (e) {
+      return convert.jsonDecode(json) as Map<String, dynamic>;
+    }
+  }
+
+  String jsonEncode(Object? object) {
+    return convert.jsonEncode(object);
+  }
 }

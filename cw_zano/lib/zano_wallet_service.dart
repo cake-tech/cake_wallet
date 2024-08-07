@@ -9,6 +9,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zano/api/api_calls.dart';
 import 'package:cw_zano/zano_wallet.dart';
+import 'package:cw_zano/zano_wallet_api.dart';
 import 'package:hive/hive.dart';
 
 class ZanoNewWalletCredentials extends WalletCredentials {
@@ -54,7 +55,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
 
   @override
   Future<ZanoWallet> create(WalletCredentials credentials, {bool? isTestnet}) async {
-    print('zanowallet service create isTestnet $isTestnet');
+    ZanoWalletApi.info('zanowallet service create isTestnet $isTestnet');
     return await ZanoWalletBase.create(credentials: credentials);
   }
 

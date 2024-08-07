@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:cw_zano/api/utf8.dart';
 import 'package:cw_zano/api/utf8_box.dart';
 import 'package:cw_zano/api/zano_api.dart';
 import 'package:ffi/ffi.dart';
@@ -52,12 +53,13 @@ typedef _SetPassword = Pointer<Utf8> Function(int hWallet, Pointer<Utf8> passwor
 
 // char*  get_connectivity_status()
 // char* get_version()
+// get_opened_wallets()
 typedef _stringFunction = Pointer<Utf8> Function();
 
 class ApiCalls {
   static String _convertUTF8ToString({required Pointer<Utf8> pointer}) {
-    final str = pointer.toDartString();
-    //final str = pointer.toDartStringAllowingMalformed();
+    //final str = pointer.toDartString();
+    final str = pointer.toDartStringAllowingMalformed();
     calloc.free(pointer);
     return str;
   }
@@ -181,8 +183,11 @@ class ApiCalls {
   static int getCurrentTxFee({required int priority}) => _getCurrentTxFeeNative(priority);
 
   static final _getConnectivityStatusNative = zanoApi.lookup<NativeFunction<_stringFunction>>('get_connectivity_status').asFunction<_stringFunction>();
-
+  
   static String getConnectivityStatus() => _performApiCall(() => _getConnectivityStatusNative());
+  
+  static final _getOpenedWalletsNative = zanoApi.lookup<NativeFunction<_stringFunction>>('get_opened_wallets').asFunction<_stringFunction>();
+  static String getOpenedWallets() => _performApiCall(() => _getOpenedWalletsNative());
 
   static final _getAddressInfoNative = zanoApi.lookup<NativeFunction<_GetAddressInfo>>('get_address_info').asFunction<_GetAddressInfo>();
 

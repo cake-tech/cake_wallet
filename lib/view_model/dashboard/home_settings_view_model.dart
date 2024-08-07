@@ -88,9 +88,7 @@ abstract class HomeSettingsViewModelBase with Store {
     }
 
     if (_balanceViewModel.wallet.type == WalletType.zano) {
-      // TODO: assuming that token is Erc20Token
-      token as Erc20Token;
-      await zano!.addZanoAssetById(_balanceViewModel.wallet, token.contractAddress);
+      await zano!.addZanoAssetById(_balanceViewModel.wallet, contractAddress);
     }
 
     _updateTokensList();

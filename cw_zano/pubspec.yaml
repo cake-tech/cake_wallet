@@ -21,6 +21,8 @@ dependencies:
   decimal: ^2.3.3
   cw_core:
     path: ../cw_core
+  json_bigint: ^3.0.0
+  fluttertoast: 8.1.4
 
 dev_dependencies:
   flutter_test:

@@ -14,6 +14,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_zano/api/model/create_wallet_result.dart';
 import 'package:cw_zano/api/model/destination.dart';
 import 'package:cw_zano/api/model/get_recent_txs_and_info_result.dart';
+import 'package:cw_zano/api/model/get_wallet_info_result.dart';
 import 'package:cw_zano/api/model/get_wallet_status_result.dart';
 import 'package:cw_zano/api/model/transfer.dart';
 import 'package:cw_zano/model/pending_zano_transaction.dart';
@@ -29,6 +30,8 @@ import 'package:cw_zano/zano_wallet_addresses.dart';
 import 'package:cw_zano/zano_wallet_api.dart';
 import 'package:cw_zano/zano_wallet_exceptions.dart';
 import 'package:cw_zano/zano_wallet_service.dart';
+import 'package:cw_zano/api/model/balance.dart';
+
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
@@ -39,6 +42,7 @@ class ZanoWallet = ZanoWalletBase with _$ZanoWallet;
 abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHistory, ZanoTransactionInfo> with Store, ZanoWalletApi {
   static const int _autoSaveIntervalSeconds = 30;
   static const int _pollIntervalMilliseconds = 2000;
+  static const int _maxLoadAssetsRetries = 5;
 
   @override
   ZanoWalletAddresses walletAddresses;
@@ -101,7 +105,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     await wallet.connectToNode(node: Node());
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
     final createWalletResult = await wallet.createWallet(path, credentials.password!);
-    await _parseCreateWalletResult(createWalletResult, wallet);
+    await wallet.parseCreateWalletResult(createWalletResult);
     await wallet.init(createWalletResult.wi.address);
     return wallet;
   }
@@ -111,7 +115,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     await wallet.connectToNode(node: Node());
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
     final createWalletResult = await wallet.restoreWalletFromSeed(path, credentials.password!, credentials.mnemonic);
-    await _parseCreateWalletResult(createWalletResult, wallet);
+    await wallet.parseCreateWalletResult(createWalletResult);
     await wallet.init(createWalletResult.wi.address);
     return wallet;
   }
@@ -121,19 +125,20 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     final wallet = ZanoWallet(walletInfo);
     await wallet.connectToNode(node: Node());
     final createWalletResult = await wallet.loadWallet(path, password);
-    await _parseCreateWalletResult(createWalletResult, wallet);
+    await wallet.parseCreateWalletResult(createWalletResult);
     await wallet.init(createWalletResult.wi.address);
     return wallet;
   }
 
-  static Future<void> _parseCreateWalletResult(CreateWalletResult result, ZanoWallet wallet) async {
-    wallet.hWallet = result.walletId;
-    wallet.seed = result.seed;
+  Future<void> parseCreateWalletResult(CreateWalletResult result) async {
+    hWallet = result.walletId;
+    seed = result.seed;
     ZanoWalletApi.info('setting hWallet = ${result.walletId}');
-    wallet.walletAddresses.address = result.wi.address;
+    walletAddresses.address = result.wi.address;
+    await loadAssets(result.wi.balances, maxRetries: _maxLoadAssetsRetries);
     for (final item in result.wi.balances) {
       if (item.assetInfo.assetId == zanoAssetId) {
-        wallet.balance[CryptoCurrency.zano] = ZanoBalance(
+        balance[CryptoCurrency.zano] = ZanoBalance(
           total: item.total,
           unlocked: item.unlocked,
         );
@@ -141,9 +146,9 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     }
     if (result.recentHistory.history != null) {
       final transfers = result.recentHistory.history!;
-      final transactions = Transfer.makeMap(transfers, wallet.zanoAssets, wallet.currentDaemonHeight);
-      wallet.transactionHistory.addMany(transactions);
-      await wallet.transactionHistory.save();
+      final transactions = Transfer.makeMap(transfers, zanoAssets, currentDaemonHeight);
+      transactionHistory.addMany(transactions);
+      await transactionHistory.save();
     }
   }
 
@@ -167,8 +172,8 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     final isZano = credentials.currency == CryptoCurrency.zano;
     final outputs = credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final unlockedBalanceZano = BigInt.from(balance[CryptoCurrency.zano]?.unlocked ?? 0);
-    final unlockedBalanceCurrency = BigInt.from(balance[credentials.currency]?.unlocked ?? 0);
+    final unlockedBalanceZano = balance[CryptoCurrency.zano]?.unlocked ?? BigInt.zero;
+    final unlockedBalanceCurrency = balance[credentials.currency]?.unlocked ?? BigInt.zero;
     final fee = BigInt.from(calculateEstimatedFee(credentials.priority));
     late BigInt totalAmount;
     void checkForEnoughBalances() {
@@ -184,7 +189,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
         }
         if (totalAmount > unlockedBalanceCurrency) {
           throw ZanoTransactionCreationException(
-              "You don't have enough coins (required: ${ZanoFormatter.bigIntAmountToString(totalAmount)} ${credentials.currency.title}, unlocked ${ZanoFormatter.bigIntAmountToString(unlockedBalanceZano)} ${credentials.currency.title}).");
+              "You don't have enough coins (required: ${ZanoFormatter.bigIntAmountToString(totalAmount, credentials.currency.decimals)} ${credentials.currency.title}, unlocked ${ZanoFormatter.bigIntAmountToString(unlockedBalanceCurrency, credentials.currency.decimals)} ${credentials.currency.title}).");
         }
       }
     }
@@ -241,18 +246,14 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     try {
       final transfers = <Transfer>[];
       late GetRecentTxsAndInfoResult result;
-      bool first = true;
       do {
         result = await getRecentTxsAndInfo(offset: _lastTxIndex, count: _txChunkSize);
-        // TODO: that's for debug purposes
-        if (first && result.transfers.isEmpty) break;
-        first = false;
         _lastTxIndex += result.transfers.length;
         transfers.addAll(result.transfers);
       } while (result.lastItemIndex + 1 < result.totalTransfers);
       return Transfer.makeMap(transfers, zanoAssets, currentDaemonHeight);
     } catch (e) {
-      print(e);
+      ZanoWalletApi.error(e.toString());
       return {};
     }
   }
@@ -297,7 +298,33 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
       await store();
       await walletAddresses.updateAddressesInBox();
     } catch (e) {
-      print('Error while saving Zano wallet file ${e.toString()}');
+      ZanoWalletApi.error('Error while saving Zano wallet file ${e.toString()}');
+    }
+  }
+
+  Future<void> loadAssets(List<Balance> balances, {int maxRetries = 1}) async {
+    List<ZanoAsset> assets = [];
+    int retryCount = 0;
+
+    while (retryCount < maxRetries) {
+      try {
+        assets = await getAssetsWhitelist();
+        break;
+      } on ZanoWalletBusyException {
+        if (retryCount < maxRetries - 1) {
+          retryCount++;
+          await Future.delayed(Duration(seconds: 1)); 
+        } else {
+          ZanoWalletApi.error('failed to load assets after $retryCount retries');
+          break; 
+        }
+      }
+    }
+    zanoAssets = {};
+    for (final asset in assets) {
+      final newAsset = ZanoAsset.copyWith(asset,
+          icon: _getIconPath(asset.title), enabled: balances.any((element) => element.assetId == asset.assetId));
+      zanoAssets.putIfAbsent(asset.assetId, () => newAsset);
     }
   }
 
@@ -308,7 +335,13 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
       _lastKnownBlockHeight = 0;
       _initialSyncHeight = 0;
       _updateSyncInfoTimer ??= Timer.periodic(Duration(milliseconds: _pollIntervalMilliseconds), (_) async {
-        final walletStatus = await getWalletStatus();
+        GetWalletStatusResult walletStatus;
+        // ignoring get wallet status exception (in case of wrong wallet id)
+        try {
+          walletStatus = await getWalletStatus();
+        } on ZanoWalletException {
+          return; 
+        }
         currentDaemonHeight = walletStatus.currentDaemonHeight;
         _updateSyncProgress(walletStatus);
 
@@ -322,14 +355,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
             publicSpendKey: walletInfo.wiExtended.spendPublicKey,
             publicViewKey: walletInfo.wiExtended.viewPublicKey,
           );
-
-          final assets = await getAssetsWhitelist();
-          zanoAssets = {};
-          for (final asset in assets) {
-            final newAsset = ZanoAsset.copyWith(asset,
-                icon: _getIconPath(asset.title), enabled: walletInfo.wi.balances.any((element) => element.assetId == asset.assetId));
-            zanoAssets.putIfAbsent(asset.assetId, () => newAsset);
-          }
+          loadAssets(walletInfo.wi.balances);
           // matching balances and whitelists
           // 1. show only balances available in whitelists
           // 2. set whitelists available in balances as 'enabled' ('disabled' by default)
@@ -358,8 +384,8 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
       });
     } catch (e) {
       syncStatus = FailedSyncStatus();
-      print(e);
-      rethrow;
+      ZanoWalletApi.error(e.toString());
+      //rethrow; // TODO: we don't need to propagate exception here 
     }
   }
 
@@ -377,7 +403,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
       await transactionHistory.save();
       _isTransactionUpdating = false;
     } catch (e) {
-      print(e);
+      ZanoWalletApi.error(e.toString());
       _isTransactionUpdating = false;
     }
   }
@@ -407,12 +433,12 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     if (asset.enabled) {
       final assetDescriptor = await addAssetsWhitelist(asset.assetId);
       if (assetDescriptor == null) {
-        print('Error adding zano asset');
+        ZanoWalletApi.error('Error adding zano asset');
       }
     } else {
       final result = await removeAssetsWhitelist(asset.assetId);
       if (result == false) {
-        print('Error removing zano asset');
+        ZanoWalletApi.error('Error removing zano asset');
       }
     }
   }
@@ -441,7 +467,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
         syncStatus = SyncingSyncStatus(blocksLeft, ptc);
       }
     } catch (e) {
-      print(e.toString());
+      ZanoWalletApi.error(e.toString());
     }
   }
 

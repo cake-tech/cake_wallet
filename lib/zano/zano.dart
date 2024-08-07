@@ -42,7 +42,7 @@ abstract class Zano {
   WalletCredentials createZanoRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
   WalletCredentials createZanoNewWalletCredentials({required String name, String password});
   Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency});
-  double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency});
+  double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency, required bool forFee});
   int formatterParseAmount({required String amount, required CryptoCurrency currency});
   WalletService createZanoWalletService(Box<WalletInfo> walletInfoSource);
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo tx);
