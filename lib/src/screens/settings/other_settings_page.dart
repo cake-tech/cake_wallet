@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -12,7 +13,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class OtherSettingsPage extends BasePage {
-  OtherSettingsPage(this._otherSettingsViewModel);
+  OtherSettingsPage(this._otherSettingsViewModel) {
+    if (_otherSettingsViewModel.sendViewModel.isElectrumWallet) {
+      bitcoin!.updateFeeRates(_otherSettingsViewModel.sendViewModel.wallet);
+    }
+  }
 
   @override
   String get title => S.current.other_settings;
