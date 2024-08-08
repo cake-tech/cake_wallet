@@ -502,7 +502,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
             value: widget.sliderValue ?? 1,
             onChanged: isActivated ? widget.onSliderChanged : null,
             min: widget.minValue ?? 1,
-            max: widget.maxValue ?? 100,
+            max: (widget.maxValue == null || widget.maxValue! < 1) ? 100 : widget.maxValue!,
             divisions: 100,
           ),
         ),
