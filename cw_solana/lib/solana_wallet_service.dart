@@ -33,9 +33,13 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       password: credentials.password!,
     );
 
+    await wallet.saveKeysFile(credentials.password!);
     await wallet.init();
     wallet.addInitialTokens();
     await wallet.save();
+    // Store the key file again, just be sure
+    await wallet.saveKeysFile(credentials.password!, true);
+
     return wallet;
   }
 
@@ -94,9 +98,12 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       walletInfo: credentials.walletInfo!,
     );
 
+    await wallet.saveKeysFile(credentials.password!);
     await wallet.init();
     wallet.addInitialTokens();
     await wallet.save();
+    // Store the key file again, just be sure
+    await wallet.saveKeysFile(credentials.password!, true);
 
     return wallet;
   }

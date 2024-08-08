@@ -367,9 +367,6 @@ abstract class SolanaWalletBase
     }
   }
 
-  @override
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
-
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
         'private_key': _hexPrivateKey,
@@ -393,7 +390,7 @@ abstract class SolanaWalletBase
       final privateKey = data['private_key'] as String?;
 
       final newKeysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
-      await WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
+      WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
       keysData = newKeysData;
     } else {
       keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);

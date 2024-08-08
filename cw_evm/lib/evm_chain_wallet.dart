@@ -526,9 +526,6 @@ abstract class EVMChainWalletBase
   @override
   WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
 
-  @override
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
-
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
         'private_key': privateKey,

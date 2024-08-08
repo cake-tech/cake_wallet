@@ -1136,9 +1136,6 @@ abstract class ElectrumWalletBase
     _autoSaveTimer?.cancel();
   }
 
-  @override
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
-
   @action
   Future<void> updateAllUnspents() async {
     List<BitcoinUnspent> updatedUnspentCoins = [];

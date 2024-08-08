@@ -136,7 +136,7 @@ class EthereumWallet extends EVMChainWallet {
       final privateKey = data['private_key'] as String?;
 
       final newKeysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
-      await WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
+      WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
       keysData = newKeysData;
     } else {
       keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);

@@ -1,16 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cw_core/balance.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/file.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
-mixin WalletKeysFile {
-  // this needs to be overridden
-  Future<String> makePath() => throw UnimplementedError();
+mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
+        TransactionType extends TransactionInfo>
+    on WalletBase<BalanceType, HistoryType, TransactionType> {
+  Future<String> makePath() => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   // this needs to be overridden
-  WalletKeysData get walletKeysData => throw UnimplementedError();
+  WalletKeysData get walletKeysData;
 
   Future<String> makeKeysFilePath() async => "${await makePath()}.keys";
 

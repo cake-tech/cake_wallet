@@ -105,13 +105,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final snp =
         await ElectrumWalletSnapshot.load(name, walletInfo.type, password, LitecoinNetwork.mainnet);
 
-
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
     if (!(await WalletKeysFile.hasKeysFile(name, walletInfo.type))) {
       final newKeysData =
-      WalletKeysData(mnemonic: snp.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
-      await WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
+          WalletKeysData(mnemonic: snp.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
+      WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
       keysData = newKeysData;
     } else {
       keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);

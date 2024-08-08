@@ -152,7 +152,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     if (!(await WalletKeysFile.hasKeysFile(name, walletInfo.type))) {
       final newKeysData =
           WalletKeysData(mnemonic: snp.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
-      await WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
+      WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
       keysData = newKeysData;
     } else {
       keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);

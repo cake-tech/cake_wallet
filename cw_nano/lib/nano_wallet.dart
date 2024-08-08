@@ -356,9 +356,6 @@ abstract class NanoWalletBase
     }
   }
 
-  @override
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
-
   String toJSON() => json.encode({
         'seedKey': _hexSeed,
         'mnemonic': _mnemonic,
@@ -389,7 +386,7 @@ abstract class NanoWalletBase
 
       final newKeysData = WalletKeysData(
           mnemonic: isHexSeed ? null : mnemonic, altMnemonic: isHexSeed ? mnemonic : null);
-      await WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
+      WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
       keysData = newKeysData;
     } else {
       keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
