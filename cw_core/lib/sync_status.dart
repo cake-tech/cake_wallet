@@ -3,6 +3,11 @@ abstract class SyncStatus {
   double progress();
 }
 
+class StartingScanSyncStatus extends SyncStatus {
+  @override
+  double progress() => 0.0;
+}
+
 class SyncingSyncStatus extends SyncStatus {
   SyncingSyncStatus(this.blocksLeft, this.ptc);
 

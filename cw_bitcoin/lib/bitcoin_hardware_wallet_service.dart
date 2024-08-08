@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:ledger_bitcoin/ledger_bitcoin.dart';
@@ -25,7 +25,8 @@ class BitcoinHardwareWalletService {
     for (final i in indexRange) {
       final derivationPath = "m/84'/0'/$i'";
       final xpub = await bitcoinLedgerApp.getXPubKey(device, derivationPath: derivationPath);
-      HDWallet hd = HDWallet.fromBase58(xpub).derive(0);
+      Bip32Slip10Secp256k1 hd =
+          Bip32Slip10Secp256k1.fromExtendedKey(xpub).childKey(Bip32KeyIndex(0));
 
       final address = generateP2WPKHAddress(hd: hd, index: 0, network: BitcoinNetwork.mainnet);
 

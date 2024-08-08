@@ -11,7 +11,8 @@ import 'package:http/io_client.dart' as ioc;
 
 part 'node.g.dart';
 
-Uri createUriFromElectrumAddress(String address, String path) => Uri.tryParse('tcp://$address$path')!;
+Uri createUriFromElectrumAddress(String address, String path) =>
+    Uri.tryParse('tcp://$address$path')!;
 
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
@@ -71,6 +72,12 @@ class Node extends HiveObject with Keyable {
 
   @HiveField(7, defaultValue: '')
   String? path;
+
+  @HiveField(8)
+  bool? isElectrs;
+
+  @HiveField(9)
+  bool? supportsSilentPayments;
 
   bool get isSSL => useSSL ?? false;
 

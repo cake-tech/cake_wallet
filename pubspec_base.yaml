@@ -87,10 +87,6 @@ dependencies:
     git:
       url: https://github.com/cake-tech/ens_dart.git
       ref: main
-  bitcoin_flutter:
-    git:
-      url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v4
   fluttertoast: 8.1.4
 #  tor:
 #    git:
@@ -104,7 +100,7 @@ dependencies:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v3
+      ref: cake-update-v4
   ledger_flutter: ^1.0.1
   hashlib: 1.12.0
 

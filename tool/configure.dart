@@ -94,12 +94,11 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as btc;
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_bitcoin/litecoin_network.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';

@@ -22,7 +22,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   ElectrumTransactionInfo(this.type,
       {required String id,
-      required int height,
+      int? height,
       required int amount,
       int? fee,
       List<String>? inputAddresses,
@@ -99,7 +99,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   factory ElectrumTransactionInfo.fromElectrumBundle(
       ElectrumTransactionBundle bundle, WalletType type, BasedUtxoNetwork network,
-      {required Set<String> addresses, required int height}) {
+      {required Set<String> addresses, int? height}) {
     final date = bundle.time != null
         ? DateTime.fromMillisecondsSinceEpoch(bundle.time! * 1000)
         : DateTime.now();

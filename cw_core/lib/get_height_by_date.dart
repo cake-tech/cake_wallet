@@ -245,6 +245,8 @@ Future<int> getHavenCurrentHeight() async {
 
 // Data taken from https://timechaincalendar.com/
 const bitcoinDates = {
+  "2024-08": 854889,
+  "2024-07": 850182,
   "2024-06": 846005,
   "2024-05": 841590,
   "2024-04": 837182,
@@ -371,7 +373,8 @@ const wowDates = {
 
 int getWowneroHeightByDate({required DateTime date}) {
   String closestKey =
-  wowDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
+      wowDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
 
   return wowDates[closestKey] ?? 0;
 }
+

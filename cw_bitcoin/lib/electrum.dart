@@ -8,6 +8,8 @@ import 'package:cw_bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
+enum ConnectionStatus { connected, disconnected, connecting, failed }
+
 String jsonrpcparams(List<Object> params) {
   final _params = params.map((val) => '"${val.toString()}"').join(',');
   return '[$_params]';
@@ -41,7 +43,7 @@ class ElectrumClient {
 
   bool get isConnected => _isConnected;
   Socket? socket;
-  void Function(bool?)? onConnectionStatusChange;
+  void Function(ConnectionStatus)? onConnectionStatusChange;
   int _id;
   final Map<String, SocketTask> _tasks;
   Map<String, SocketTask> get tasks => _tasks;
@@ -60,6 +62,8 @@ class ElectrumClient {
   }
 
   Future<void> connect({required String host, required int port, bool? useSSL}) async {
+    _setConnectionStatus(ConnectionStatus.connecting);
+
     try {
       await socket?.close();
     } catch (_) {}
@@ -67,10 +71,14 @@ class ElectrumClient {
     if (useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum"))) {
       socket = await Socket.connect(host, port, timeout: connectionTimeout);
     } else {
-      socket = await SecureSocket.connect(host, port,
-          timeout: connectionTimeout, onBadCertificate: (_) => true);
+      socket = await SecureSocket.connect(
+        host,
+        port,
+        timeout: connectionTimeout,
+        onBadCertificate: (_) => true,
+      );
     }
-    _setIsConnected(true);
+    _setConnectionStatus(ConnectionStatus.connected);
 
     socket!.listen((Uint8List event) {
       try {
@@ -86,13 +94,20 @@ class ElectrumClient {
         print(e.toString());
       }
     }, onError: (Object error) {
-      print(error.toString());
+      final errorMsg = error.toString();
+      print(errorMsg);
       unterminatedString = '';
-      _setIsConnected(false);
+
+      final currentHost = socket?.address.host;
+      final isErrorForCurrentHost = errorMsg.contains(" ${currentHost} ");
+
+      if (currentHost != null && isErrorForCurrentHost)
+        _setConnectionStatus(ConnectionStatus.failed);
     }, onDone: () {
       unterminatedString = '';
-      _setIsConnected(null);
+      if (host == socket?.address.host) _setConnectionStatus(ConnectionStatus.disconnected);
     });
+
     keepAlive();
   }
 
@@ -144,9 +159,9 @@ class ElectrumClient {
   Future<void> ping() async {
     try {
       await callWithTimeout(method: 'server.ping');
-      _setIsConnected(true);
+      _setConnectionStatus(ConnectionStatus.connected);
     } on RequestFailedTimeoutException catch (_) {
-      _setIsConnected(null);
+      _setConnectionStatus(ConnectionStatus.disconnected);
     }
   }
 
@@ -236,9 +251,12 @@ class ElectrumClient {
         return [];
       });
 
-  Future<Map<String, dynamic>> getTransactionRaw({required String hash}) async =>
-      callWithTimeout(method: 'blockchain.transaction.get', params: [hash, true], timeout: 10000)
-          .then((dynamic result) {
+  Future<dynamic> getTransaction({required String hash, required bool verbose}) async =>
+      callWithTimeout(
+          method: 'blockchain.transaction.get', params: [hash, verbose], timeout: 10000);
+
+  Future<Map<String, dynamic>> getTransactionVerbose({required String hash}) =>
+      getTransaction(hash: hash, verbose: true).then((dynamic result) {
         if (result is Map<String, dynamic>) {
           return result;
         }
@@ -246,9 +264,8 @@ class ElectrumClient {
         return <String, dynamic>{};
       });
 
-  Future<String> getTransactionHex({required String hash}) async =>
-      callWithTimeout(method: 'blockchain.transaction.get', params: [hash, false], timeout: 10000)
-          .then((dynamic result) {
+  Future<String> getTransactionHex({required String hash}) =>
+      getTransaction(hash: hash, verbose: false).then((dynamic result) {
         if (result is String) {
           return result;
         }
@@ -336,7 +353,7 @@ class ElectrumClient {
     try {
       final topDoubleString = await estimatefee(p: 1);
       final middleDoubleString = await estimatefee(p: 5);
-      final bottomDoubleString = await estimatefee(p: 100);
+      final bottomDoubleString = await estimatefee(p: 10);
       final top = (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000).round();
       final middle = (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000).round();
       final bottom = (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000).round();
@@ -426,6 +443,7 @@ class ElectrumClient {
     _aliveTimer?.cancel();
     try {
       await socket?.close();
+      socket = null;
     } catch (_) {}
     onConnectionStatusChange = null;
   }
@@ -474,12 +492,9 @@ class ElectrumClient {
     }
   }
 
-  void _setIsConnected(bool? isConnected) {
-    if (_isConnected != isConnected) {
-      onConnectionStatusChange?.call(isConnected);
-    }
-
-    _isConnected = isConnected ?? false;
+  void _setConnectionStatus(ConnectionStatus status) {
+    onConnectionStatusChange?.call(status);
+    _isConnected = status == ConnectionStatus.connected;
   }
 
   void _handleResponse(Map<String, dynamic> response) {
