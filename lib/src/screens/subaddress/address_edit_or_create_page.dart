@@ -58,7 +58,7 @@ class AddressEditOrCreatePage extends BasePage {
                   isLoading:
                       addressEditOrCreateViewModel.state is AddressIsSaving,
                   isDisabled:
-                      addressEditOrCreateViewModel.label?.isEmpty ?? true,
+                      addressEditOrCreateViewModel.label.isEmpty,
                 ),
               )
             ],
@@ -74,7 +74,9 @@ class AddressEditOrCreatePage extends BasePage {
             (AddressEditOrCreateState state) {
           if (state is AddressSavedSuccessfully) {
             WidgetsBinding.instance
-                .addPostFrameCallback((_) => Navigator.of(context).pop());
+                .addPostFrameCallback((_) {
+                  if (context.mounted) Navigator.of(context).pop();
+                });
           }
         });
 

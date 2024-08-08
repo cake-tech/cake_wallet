@@ -21,7 +21,7 @@ dependencies:
   mobx: ^2.1.4
   flutter_mobx: ^2.0.6+5
   flutter_slidable: ^3.0.1
-  share_plus: ^4.0.10
+  share_plus: ^10.0.0
   # date_range_picker: ^1.0.6
   #https://api.flutter.dev/flutter/material/showDateRangePicker.html
   dio: ^4.0.6
