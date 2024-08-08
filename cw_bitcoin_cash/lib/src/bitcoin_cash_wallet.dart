@@ -90,14 +90,21 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWalletSnapshot.load(
-        name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
+
+    ElectrumWalletSnapshot? snp = null;
+
+    try {
+      snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
+    } catch (e) {
+      if (!hasKeysFile) rethrow;
+    }
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
-    if (!(await WalletKeysFile.hasKeysFile(name, walletInfo.type))) {
+    if (!hasKeysFile) {
       final newKeysData =
-          WalletKeysData(mnemonic: snp.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
+          WalletKeysData(mnemonic: snp!.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
       WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
       keysData = newKeysData;
     } else {
@@ -109,7 +116,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: snp.addresses.map((addr) {
+      initialAddresses: snp?.addresses.map((addr) {
         try {
           BitcoinCashAddress(addr.address);
           return BitcoinAddressRecord(
@@ -129,10 +136,10 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
           );
         }
       }).toList(),
-      initialBalance: snp.balance,
+      initialBalance: snp?.balance,
       seedBytes: await Mnemonic.toSeed(keysData.mnemonic!),
-      initialRegularAddressIndex: snp.regularAddressIndex,
-      initialChangeAddressIndex: snp.changeAddressIndex,
+      initialRegularAddressIndex: snp?.regularAddressIndex,
+      initialChangeAddressIndex: snp?.changeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,
     );
   }

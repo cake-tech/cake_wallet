@@ -374,19 +374,27 @@ abstract class NanoWalletBase
     required String password,
     required WalletInfo walletInfo,
   }) async {
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
     final path = await pathForWallet(name: name, type: walletInfo.type);
-    final jsonSource = await read(path: path, password: password);
 
-    final data = json.decode(jsonSource) as Map;
+    Map<String, dynamic>? data = null;
+    try {
+      final jsonSource = await read(path: path, password: password);
+
+      data = json.decode(jsonSource) as Map<String, dynamic>;
+    } catch (e) {
+      if (!hasKeysFile) rethrow;
+    }
+
     final balance = NanoBalance.fromRawString(
-      currentBalance: data['currentBalance'] as String? ?? "0",
-      receivableBalance: data['receivableBalance'] as String? ?? "0",
+      currentBalance: data?['currentBalance'] as String? ?? "0",
+      receivableBalance: data?['receivableBalance'] as String? ?? "0",
     );
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
-    if (!(await WalletKeysFile.hasKeysFile(name, walletInfo.type))) {
-      final mnemonic = data['mnemonic'] as String;
+    if (!hasKeysFile) {
+      final mnemonic = data!['mnemonic'] as String;
       final isHexSeed = !mnemonic.contains(' ');
 
       final newKeysData = WalletKeysData(
@@ -398,7 +406,7 @@ abstract class NanoWalletBase
     }
 
     DerivationType derivationType = DerivationType.nano;
-    if (data['derivationType'] == "DerivationType.bip39") {
+    if (data!['derivationType'] == "DerivationType.bip39") {
       derivationType = DerivationType.bip39;
     }
 

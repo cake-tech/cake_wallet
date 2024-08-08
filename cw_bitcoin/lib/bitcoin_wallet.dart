@@ -145,13 +145,21 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         ? BasedUtxoNetwork.fromName(walletInfo.network!)
         : BitcoinNetwork.mainnet;
 
-    final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password, network);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
+
+    ElectrumWalletSnapshot? snp = null;
+
+    try {
+      snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password, network);
+    } catch (e) {
+      if (!hasKeysFile) rethrow;
+    }
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
-    if (!(await WalletKeysFile.hasKeysFile(name, walletInfo.type))) {
+    if (!hasKeysFile) {
       final newKeysData =
-          WalletKeysData(mnemonic: snp.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
+          WalletKeysData(mnemonic: snp!.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
       WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
       keysData = newKeysData;
     } else {
@@ -159,13 +167,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     walletInfo.derivationInfo ??= DerivationInfo(
-      derivationType: snp.derivationType ?? DerivationType.electrum,
-      derivationPath: snp.derivationPath,
+      derivationType: snp?.derivationType ?? DerivationType.electrum,
+      derivationPath: snp?.derivationPath,
     );
 
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath = snp.derivationPath ?? electrum_path;
-    walletInfo.derivationInfo!.derivationType = snp.derivationType ?? DerivationType.electrum;
+    walletInfo.derivationInfo!.derivationPath = snp?.derivationPath ?? electrum_path;
+    walletInfo.derivationInfo!.derivationType = snp?.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
     final mnemonic = keysData.mnemonic;
@@ -193,14 +201,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       passphrase: passphrase,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: snp.addresses,
-      initialSilentAddresses: snp.silentAddresses,
-      initialSilentAddressIndex: snp.silentAddressIndex,
-      initialBalance: snp.balance,
+      initialAddresses: snp?.addresses,
+      initialSilentAddresses: snp?.silentAddresses,
+      initialSilentAddressIndex: snp?.silentAddressIndex ?? 0,
+      initialBalance: snp?.balance,
       seedBytes: seedBytes,
-      initialRegularAddressIndex: snp.regularAddressIndex,
-      initialChangeAddressIndex: snp.changeAddressIndex,
-      addressPageType: snp.addressPageType,
+      initialRegularAddressIndex: snp?.regularAddressIndex,
+      initialChangeAddressIndex: snp?.changeAddressIndex,
+      addressPageType: snp?.addressPageType,
       networkParam: network,
       alwaysScan: alwaysScan,
     );

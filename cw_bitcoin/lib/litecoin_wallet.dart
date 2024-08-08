@@ -102,14 +102,21 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp =
-        await ElectrumWalletSnapshot.load(name, walletInfo.type, password, LitecoinNetwork.mainnet);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
+
+    ElectrumWalletSnapshot? snp = null;
+
+    try {
+      snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password, LitecoinNetwork.mainnet);
+    } catch (e) {
+      if (!hasKeysFile) rethrow;
+    }
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
-    if (!(await WalletKeysFile.hasKeysFile(name, walletInfo.type))) {
+    if (!hasKeysFile) {
       final newKeysData =
-          WalletKeysData(mnemonic: snp.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
+          WalletKeysData(mnemonic: snp!.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
       WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
       keysData = newKeysData;
     } else {
@@ -121,12 +128,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: snp.addresses,
-      initialBalance: snp.balance,
+      initialAddresses: snp?.addresses,
+      initialBalance: snp?.balance,
       seedBytes: await mnemonicToSeedBytes(keysData.mnemonic!),
-      initialRegularAddressIndex: snp.regularAddressIndex,
-      initialChangeAddressIndex: snp.changeAddressIndex,
-      addressPageType: snp.addressPageType,
+      initialRegularAddressIndex: snp?.regularAddressIndex,
+      initialChangeAddressIndex: snp?.changeAddressIndex,
+      addressPageType: snp?.addressPageType,
     );
   }
 

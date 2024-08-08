@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -14,9 +14,9 @@ import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
 import 'package:cw_evm/file.dart';
 import 'package:cw_polygon/default_polygon_erc20_tokens.dart';
-import 'package:cw_polygon/polygon_transaction_info.dart';
 import 'package:cw_polygon/polygon_client.dart';
 import 'package:cw_polygon/polygon_transaction_history.dart';
+import 'package:cw_polygon/polygon_transaction_info.dart';
 
 class PolygonWallet extends EVMChainWallet {
   PolygonWallet({
@@ -98,16 +98,25 @@ class PolygonWallet extends EVMChainWallet {
 
   static Future<PolygonWallet> open(
       {required String name, required String password, required WalletInfo walletInfo}) async {
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
     final path = await pathForWallet(name: name, type: walletInfo.type);
-    final jsonSource = await read(path: path, password: password);
-    final data = json.decode(jsonSource) as Map;
-    final balance = EVMChainERC20Balance.fromJSON(data['balance'] as String) ??
+
+    Map<String, dynamic>? data;
+    try {
+      final jsonSource = await read(path: path, password: password);
+
+      data = json.decode(jsonSource) as Map<String, dynamic>;
+    } catch (e) {
+      if (!hasKeysFile) rethrow;
+    }
+
+    final balance = EVMChainERC20Balance.fromJSON(data?['balance'] as String) ??
         EVMChainERC20Balance(BigInt.zero);
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
-    if (!(await WalletKeysFile.hasKeysFile(name, walletInfo.type))) {
-      final mnemonic = data['mnemonic'] as String?;
+    if (!hasKeysFile) {
+      final mnemonic = data!['mnemonic'] as String?;
       final privateKey = data['private_key'] as String?;
 
       final newKeysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
