@@ -157,8 +157,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ThorChainExchangeProvider(tradesStore: trades),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         QuantexExchangeProvider(),
-        TrocadorExchangeProvider(
-            useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
+        TrocadorExchangeProvider(useTorOnly: _useTorOnly)
       ];
 
   @observable
@@ -540,6 +539,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           else {
             try {
               tradeState = TradeIsCreating();
+              if (provider is TrocadorExchangeProvider) {
+                updateAllTrocadorProviderStates(provider);
+                provider.providerStates =
+                    Map<String, bool>.from(_settingsStore.trocadorProviderStates);
+              }
               final trade = await provider.createTrade(
                 request: request,
                 isFixedRateMode: isFixedRateMode,
@@ -769,6 +773,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       PreferencesKey.exchangeProvidersSelection,
       json.encode(exchangeProvidersSelection),
     );
+  }
+
+  @action
+  Future<void> updateAllTrocadorProviderStates(TrocadorExchangeProvider trocadorProvider) async {
+    try {
+      var providers = await trocadorProvider.fetchProviders();
+      var providerNames = providers.map((e) => e.name).toList();
+      await _settingsStore.updateAllTrocadorProviderStates(providerNames);
+    } catch (e) {
+      print('Error updating trocador provider states: $e');
+    }
   }
 
   bool get isAvailableInSelected {
