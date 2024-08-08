@@ -68,7 +68,7 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
       final keysData = WalletKeysData.fromJSON(data);
 
       dev.log("Restoring .keys from .keys.backup");
-      createKeysFile(name, type, password, keysData);
+      createKeysFile(name, type, password, keysData, false);
       return keysData;
     }
   }
