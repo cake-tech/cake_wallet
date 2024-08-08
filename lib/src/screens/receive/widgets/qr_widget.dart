@@ -1,5 +1,4 @@
 import 'package:cake_wallet/entities/qr_view_data.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_amount_text_field.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
