@@ -582,9 +582,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   ) {
     String errorMessage = error.toString();
 
+    if (walletType == WalletType.solana) {
+      if (errorMessage.contains('insufficient funds for rent')) {
+        return 'You do not have enough SOL to cover the transaction fee and rent for the account. Kindly add more SOL to your wallet or reduce the SOL amount you\'re sending.';
+      }
+
+      return errorMessage;
+    }
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
-        walletType == WalletType.solana ||
         walletType == WalletType.haven) {
       if (errorMessage.contains('gas required exceeds allowance') ||
           errorMessage.contains('insufficient funds')) {

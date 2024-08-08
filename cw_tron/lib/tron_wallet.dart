@@ -335,6 +335,11 @@ abstract class TronWalletBase
         continue;
       }
 
+      // Filter out spam transaactions that involve receiving TRC10 assets transaction, we deal with TRC and TRC20 transactions
+      if (transactionModel.contracts?.first.type == "TransferAssetContract") {
+        continue;
+      }
+
       String? tokenSymbol;
       if (transactionModel.contractAddress != null) {
         final tokenAddress = TronAddress(transactionModel.contractAddress!);
