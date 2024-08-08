@@ -83,7 +83,7 @@ class ExceptionHandler {
   }
 
   static void onError(FlutterErrorDetails errorDetails) async {
-    if (kDebugMode) {
+    if (kDebugMode || kProfileMode) {
       FlutterError.presentError(errorDetails);
       debugPrint(errorDetails.toString());
       return;

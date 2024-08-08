@@ -208,8 +208,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   WalletService createLitecoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-    return LitecoinWalletService(walletInfoSource, unspentCoinSource);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan) {
+    return LitecoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan);
   }
 
   @override
@@ -249,6 +249,9 @@ class CWBitcoin extends Bitcoin {
   List<ReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
 
   @override
+  List<ReceivePageOption> getLitecoinReceivePageOptions() => BitcoinReceivePageOption.allLitecoin;
+
+  @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
     switch (option) {
       case BitcoinReceivePageOption.p2pkh:
@@ -259,6 +262,8 @@ class CWBitcoin extends Bitcoin {
         return SegwitAddresType.p2tr;
       case BitcoinReceivePageOption.p2wsh:
         return SegwitAddresType.p2wsh;
+      case BitcoinReceivePageOption.mweb:
+        return SegwitAddresType.mweb;
       case BitcoinReceivePageOption.p2wpkh:
       default:
         return SegwitAddresType.p2wpkh;
@@ -579,5 +584,17 @@ class CWBitcoin extends Bitcoin {
   Future<void> updateFeeRates(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     await bitcoinWallet.updateFeeRates();
+  }
+
+  @override
+  void setMwebEnabled(Object wallet, bool enabled) {
+    final litecoinWallet = wallet as LitecoinWallet;
+    litecoinWallet.setMwebEnabled(enabled);
+  }
+
+  @override
+  bool getMwebEnabled(Object wallet) {
+    final litecoinWallet = wallet as LitecoinWallet;
+    return litecoinWallet.mwebEnabled;
   }
 }

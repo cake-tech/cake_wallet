@@ -103,40 +103,63 @@ class UnspentCoinsListItem extends StatelessWidget {
                           ),
                           maxLines: 1,
                         ),
-                        if (isChange)
-                          Container(
-                            height: 17,
-                            padding: EdgeInsets.only(left: 6, right: 6),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(8.5)),
-                                color: Colors.white),
-                            alignment: Alignment.center,
-                            child: Text(
-                              S.of(context).unspent_change,
-                              style: TextStyle(
-                                color: itemColor,
-                                fontSize: 7,
-                                fontWeight: FontWeight.w600,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            if (isChange)
+                              Container(
+                                height: 17,
+                                padding: EdgeInsets.only(left: 6, right: 6),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(8.5)),
+                                    color: Colors.white),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  S.of(context).unspent_change,
+                                  style: TextStyle(
+                                    color: itemColor,
+                                    fontSize: 7,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        if (isSilentPayment)
-                          Container(
-                            height: 17,
-                            padding: EdgeInsets.only(left: 6, right: 6),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(8.5)),
-                                color: Colors.white),
-                            alignment: Alignment.center,
-                            child: Text(
-                              S.of(context).silent_payments,
-                              style: TextStyle(
-                                color: itemColor,
-                                fontSize: 7,
-                                fontWeight: FontWeight.w600,
+                            if (address.toLowerCase().contains("mweb"))
+                              Container(
+                                height: 17,
+                                padding: EdgeInsets.only(left: 6, right: 6),
+                                margin: EdgeInsets.only(left: 6),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(8.5)),
+                                    color: Colors.white),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "MWEB",
+                                  style: TextStyle(
+                                    color: itemColor,
+                                    fontSize: 7,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
+                            if (isSilentPayment)
+                              Container(
+                                height: 17,
+                                padding: EdgeInsets.only(left: 6, right: 6),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(8.5)),
+                                    color: Colors.white),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  S.of(context).silent_payments,
+                                  style: TextStyle(
+                                    color: itemColor,
+                                    fontSize: 7,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
