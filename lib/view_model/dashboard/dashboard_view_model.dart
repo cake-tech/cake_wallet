@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -10,6 +11,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -29,6 +31,7 @@ import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
+import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
@@ -44,7 +47,9 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:http/http.dart' as http;
@@ -56,19 +61,20 @@ part 'dashboard_view_model.g.dart';
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 
 abstract class DashboardViewModelBase with Store {
-  DashboardViewModelBase(
-      {required this.balanceViewModel,
-      required this.appStore,
-      required this.tradesStore,
-      required this.tradeFilterStore,
-      required this.transactionFilterStore,
-      required this.settingsStore,
-      required this.yatStore,
-      required this.ordersStore,
-      required this.anonpayTransactionsStore,
-      required this.sharedPreferences,
-      required this.keyService})
-      : hasSellAction = false,
+  DashboardViewModelBase({
+    required this.balanceViewModel,
+    required this.appStore,
+    required this.tradesStore,
+    required this.tradeFilterStore,
+    required this.transactionFilterStore,
+    required this.settingsStore,
+    required this.yatStore,
+    required this.ordersStore,
+    required this.anonpayTransactionsStore,
+    required this.sharedPreferences,
+    required this.keyService,
+    required this.lightningViewModel,
+  })  : hasSellAction = false,
         hasBuyAction = false,
         hasExchangeAction = false,
         isShowFirstYatIntroduction = false,
@@ -181,7 +187,8 @@ abstract class DashboardViewModelBase with Store {
 
       final _accountTransactions = _wallet.transactionHistory.transactions.values
           .where((tx) =>
-              wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+              wow.wownero!.getTransactionInfoAccountId(tx) ==
+              wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
       final sortedTransactions = [..._accountTransactions];
@@ -199,6 +206,27 @@ abstract class DashboardViewModelBase with Store {
           transaction: transaction,
           balanceViewModel: balanceViewModel,
           settingsStore: appStore.settingsStore)));
+    }
+
+    if (wallet.type == WalletType.lightning) {
+      _onLightningBalanceChangeReaction?.reaction.dispose();
+      // trigger reaction when transactionHistory is updated:
+      _onLightningBalanceChangeReaction =
+          reaction((_) => appStore.wallet!.transactionHistory.transactions.length, (_) {
+        Map<String, int> payments = lightning!.getIncomingPayments(wallet);
+
+        for (int amount in payments.values) {
+          Fluttertoast.showToast(
+            msg: S.current.lightning_received_sats(amount.toString()),
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.SNACKBAR,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 14,
+          );
+        }
+        lightning!.clearIncomingPayments(wallet);
+      });
     }
 
     // TODO: nano sub-account generation is disabled:
@@ -391,6 +419,8 @@ abstract class DashboardViewModelBase with Store {
 
   TransactionFilterStore transactionFilterStore;
 
+  LightningViewModel lightningViewModel;
+
   Map<String, List<FilterItem>> filterItems;
 
   BuyProvider? get defaultBuyProvider => ProvidersHelper.getProviderByType(
@@ -430,7 +460,12 @@ abstract class DashboardViewModelBase with Store {
   void furtherShowYatPopup(bool shouldShow) => settingsStore.shouldShowYatPopup = shouldShow;
 
   @computed
-  bool get isEnabledExchangeAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
+  bool get isEnabledExchangeAction {
+    if (wallet.type == WalletType.lightning) {
+      return false;
+    }
+    return settingsStore.exchangeStatus != ExchangeApiMode.disabled;
+  }
 
   @observable
   bool hasExchangeAction;
@@ -454,8 +489,27 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
+  ReactionDisposer? _onLightningBalanceChangeReaction;
+
+  @computed
+  bool get hasNodes => wallet.type != WalletType.lightning;
+
   @computed
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
+
+  String get serviceMessage {
+    if (wallet.type == WalletType.lightning) {
+      final serviceStatus = lightningViewModel.serviceHealthCheck();
+      if (serviceStatus == HealthCheckStatus.ServiceDisruption) {
+        return S.current.breez_warning_disruption;
+      } else if (serviceStatus == HealthCheckStatus.Maintenance) {
+        return S.current.breez_warning_maintenance;
+      }
+      return "";
+    }
+
+    return "";
+  }
 
   bool get showRepWarning {
     if (wallet.type != WalletType.nano) {
@@ -550,7 +604,8 @@ abstract class DashboardViewModelBase with Store {
       }
 
       if (wallet.type == WalletType.wownero) {
-        return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
+        return wow.wownero!.getTransactionInfoAccountId(tx) ==
+            wow.wownero!.getCurrentAccount(wallet).id;
       }
 
       return true;
@@ -575,8 +630,8 @@ abstract class DashboardViewModelBase with Store {
           .getTransactionHistory(wallet)
           .transactions
           .values
-          .where(
-              (tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
+          .where((tx) =>
+              monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
@@ -588,8 +643,9 @@ abstract class DashboardViewModelBase with Store {
           .getTransactionHistory(wallet)
           .transactions
           .values
-          .where(
-              (tx) => wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+          .where((tx) =>
+              wow.wownero!.getTransactionInfoAccountId(tx) ==
+              wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(

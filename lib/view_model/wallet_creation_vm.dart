@@ -105,6 +105,8 @@ abstract class WalletCreationVMBase with Store {
           derivationType: DerivationType.nano,
         );
       case WalletType.bitcoin:
+      case WalletType.lightning:
+        return bitcoin!.getElectrumDerivations()[DerivationType.bip39]!.first;
       case WalletType.litecoin:
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       default:
@@ -119,6 +121,7 @@ abstract class WalletCreationVMBase with Store {
           derivationType: DerivationType.nano,
         );
       case WalletType.bitcoin:
+      case WalletType.lightning:
         return DerivationInfo(
           derivationType: DerivationType.bip39,
           derivationPath: "m/84'/0'/0'/0",

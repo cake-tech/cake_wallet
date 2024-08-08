@@ -186,7 +186,7 @@ abstract class TronWalletBase
   }
 
   @override
-  void close() {
+  void close({bool? switchingToSameWalletType}) {
     _transactionsUpdateTimer?.cancel();
   }
 
