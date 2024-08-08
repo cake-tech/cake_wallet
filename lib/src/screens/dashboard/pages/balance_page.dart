@@ -266,6 +266,20 @@ class CryptoBalanceWidget extends StatelessWidget {
             Observer(builder: (context) {
               return Column(
                 children: [
+                  if (dashboardViewModel.isMoneroWalletBrokenReasons.isNotEmpty) ...[
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: DashBoardRoundedCardWidget(
+                        customBorder: 30,
+                        title: "Monero wallet is broken",
+                        subTitle: "Here are the things that are broken:\n - "
+                        +dashboardViewModel.isMoneroWalletBrokenReasons.join("\n - ")
+                        +"\n\nPlease restart your wallet and if it doesn't help contact our support.",
+                        onTap: () {},
+                      )
+                    )
+                  ],
                   if (dashboardViewModel.showSilentPaymentsCard) ...[
                     SizedBox(height: 10),
                     Padding(

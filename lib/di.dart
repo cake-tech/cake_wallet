@@ -1,4 +1,4 @@
-import 'package:breez_sdk/bridge_generated.dart';
+import 'dart:async' show Timer;
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
@@ -499,6 +499,7 @@ Future<void> setup({
 
         if (loginError != null) {
           authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+          loginError = null;
         }
 
         ReactionDisposer? _reaction;
@@ -508,6 +509,17 @@ Future<void> setup({
           final linkViewModel = getIt.get<LinkViewModel>();
           if (linkViewModel.currentLink != null) {
             linkViewModel.handleLink();
+          }
+        });
+
+        Timer.periodic(Duration(seconds: 1), (timer) {
+          if (timer.tick > 30) {
+            timer.cancel();
+          }
+
+          if (loginError != null) {
+            authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+            timer.cancel();
           }
         });
       }

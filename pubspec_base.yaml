@@ -141,7 +141,7 @@ dependency_overrides:
   ledger_flutter:
     git:
       url: https://github.com/cake-tech/ledger-flutter.git
-      ref: cake-stax
+      ref: cake-v3
   web3dart:
     git:
       url: https://github.com/cake-tech/web3dart.git

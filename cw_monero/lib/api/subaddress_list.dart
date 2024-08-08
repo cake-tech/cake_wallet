@@ -42,12 +42,16 @@ class Subaddress {
 
 List<Subaddress> getAllSubaddresses() {
   final size = monero.Wallet_numSubaddresses(wptr!, accountIndex: subaddress!.accountIndex);
-  return List.generate(size, (index) {
+  final list = List.generate(size, (index) {
     return Subaddress(
       accountIndex: subaddress!.accountIndex,
       addressIndex: index,
     );
   }).reversed.toList();
+  if (list.length == 0) {
+    list.add(Subaddress(addressIndex: subaddress!.accountIndex, accountIndex: 0));
+  }
+  return list;
 }
 
 void addSubaddressSync({required int accountIndex, required String label}) {
