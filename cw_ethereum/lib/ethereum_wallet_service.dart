@@ -29,13 +29,9 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
       client: client,
     );
 
-    await wallet.saveKeysFile(credentials.password!);
     await wallet.init();
     wallet.addInitialTokens();
     await wallet.save();
-
-    // Store the key file again, just be sure
-    await wallet.saveKeysFile(credentials.password!, true);
 
     return wallet;
   }
@@ -103,13 +99,9 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
       client: client,
     );
 
-    await wallet.saveKeysFile(credentials.password!);
     await wallet.init();
     wallet.addInitialTokens();
     await wallet.save();
-
-    // Store the key file again, just be sure
-    await wallet.saveKeysFile(credentials.password!, true);
 
     return wallet;
   }

@@ -28,7 +28,8 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
   }
 
   static Future<void> createKeysFile(
-      String name, WalletType type, String password, WalletKeysData walletKeysData, [bool withBackup = true]) async {
+      String name, WalletType type, String password, WalletKeysData walletKeysData,
+      [bool withBackup = true]) async {
     final rootPath = await pathForWallet(name: name, type: type);
     final path = "$rootPath.keys";
 

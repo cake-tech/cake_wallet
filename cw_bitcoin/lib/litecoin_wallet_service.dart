@@ -34,12 +34,8 @@ class LitecoinWalletService extends WalletService<
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
 
-    await wallet.saveKeysFile(credentials.password!);
     await wallet.save();
     await wallet.init();
-
-    // Store the key file again, just be sure
-    await wallet.saveKeysFile(credentials.password!, true);
 
     return wallet;
   }
@@ -122,12 +118,8 @@ class LitecoinWalletService extends WalletService<
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
-    await wallet.saveKeysFile(credentials.password!);
     await wallet.save();
     await wallet.init();
-
-    // Store the key file again, just be sure
-    await wallet.saveKeysFile(credentials.password!, true);
     return wallet;
   }
 }

@@ -342,6 +342,11 @@ abstract class SolanaWalletBase
 
   @override
   Future<void> save() async {
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+      await saveKeysFile(_password);
+      saveKeysFile(_password, true);
+    }
+
     await walletAddresses.updateAddressesInBox();
     final path = await makePath();
     await write(path: path, password: _password, data: toJSON());
