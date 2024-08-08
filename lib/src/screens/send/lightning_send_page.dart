@@ -447,37 +447,34 @@ class LightningSendPage extends BasePage {
                           text: S.of(context).send,
                           onPressed: () async {
                             try {
+                              final output = Output(
+                                lightningSendViewModel.wallet,
+                                lightningSendViewModel.settingsStore,
+                                lightningSendViewModel.fiatConversionStore,
+                                () {
+                                  return CryptoCurrency.btcln;
+                                },
+                              );
+                              String feeValue = '';
+                              String feeFiatAmount = '';
+                              if (lightningSendViewModel.invoice != null) {
+                                output.address = lightningSendViewModel.invoice!.bolt11;
+                                output.cryptoAmount =
+                                    "${lightningSendViewModel.satAmount.toString()} sats";
+                              } else if (lightningSendViewModel.btcAddress.isNotEmpty) {
+                                output.address = lightningSendViewModel.btcAddress;
+                                feeValue = lightningSendViewModel.estimatedFeeSats.toString();
+                                feeFiatAmount = lightningSendViewModel
+                                    .formattedFiatAmount(lightningSendViewModel.estimatedFeeSats);
+                                output.cryptoAmount = "${_amountController.text} sats";
+                              } else {
+                                throw Exception("Input cannot be empty");
+                              }
+                              output.fiatAmount = lightningSendViewModel
+                                  .formattedFiatAmount(int.parse(_amountController.text));
                               bool cancel = await showPopUp<bool>(
                                       context: context,
                                       builder: (BuildContext _dialogContext) {
-                                        final output = Output(
-                                          lightningSendViewModel.wallet,
-                                          lightningSendViewModel.settingsStore,
-                                          lightningSendViewModel.fiatConversionStore,
-                                          () {
-                                            return CryptoCurrency.btcln;
-                                          },
-                                        );
-                                        String feeValue = '';
-                                        String feeFiatAmount = '';
-                                        if (lightningSendViewModel.invoice != null) {
-                                          output.address = lightningSendViewModel.invoice!.bolt11;
-                                          output.cryptoAmount =
-                                              "${lightningSendViewModel.satAmount.toString()} sats";
-                                        } else if (lightningSendViewModel.btcAddress.isNotEmpty) {
-                                          output.address = lightningSendViewModel.btcAddress;
-                                          feeValue =
-                                              lightningSendViewModel.estimatedFeeSats.toString();
-                                          feeFiatAmount =
-                                              lightningSendViewModel.formattedFiatAmount(
-                                                  lightningSendViewModel.estimatedFeeSats);
-                                          output.cryptoAmount = "${_amountController.text} sats";
-                                        } else {
-                                          throw Exception("Input cannot be empty");
-                                        }
-                                        output.fiatAmount = lightningSendViewModel
-                                            .formattedFiatAmount(int.parse(_amountController.text));
-
                                         return ConfirmSendingAlert(
                                           alertTitle: S.current.confirm_sending,
                                           amount: S.current.send_amount,
