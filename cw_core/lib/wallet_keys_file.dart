@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 import 'dart:io';
 
 import 'package:cw_core/balance.dart';
@@ -22,35 +23,54 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
   Future<void> saveKeysFile(String password, [bool isBackup = false]) async {
     final rootPath = await makeKeysFilePath();
     final path = "$rootPath${isBackup ? ".backup" : ""}";
-    print("Saving .keys file '$path'");
+    dev.log("Saving .keys file '$path'");
     await write(path: path, password: password, data: walletKeysData.toJSON());
   }
 
   static Future<void> createKeysFile(
-      String name, WalletType type, String password, WalletKeysData walletKeysData) async {
+      String name, WalletType type, String password, WalletKeysData walletKeysData, [bool withBackup = true]) async {
     final rootPath = await pathForWallet(name: name, type: type);
     final path = "$rootPath.keys";
 
-    print("Saving .keys file '$path'");
+    dev.log("Saving .keys file '$path'");
     await write(path: path, password: password, data: walletKeysData.toJSON());
 
-    print("Saving .keys.backup file '$path.backup'");
-    await write(path: "$path.backup", password: password, data: walletKeysData.toJSON());
+    if (withBackup) {
+      dev.log("Saving .keys.backup file '$path.backup'");
+      await write(path: "$path.backup", password: password, data: walletKeysData.toJSON());
+    }
   }
 
   static Future<bool> hasKeysFile(String name, WalletType type) async {
     final path = await pathForWallet(name: name, type: type);
-    return File("$path.keys").existsSync();
+    return File("$path.keys").existsSync() || File("$path.keys.backup").existsSync();
   }
 
   static Future<WalletKeysData> readKeysFile(String name, WalletType type, String password) async {
     final path = await pathForWallet(name: name, type: type);
 
-    if (!File("$path.keys").existsSync()) throw Exception("No .keys file found for $name $type");
+    var readPath = "$path.keys";
+    try {
+      if (!File(readPath).existsSync()) throw Exception("No .keys file found for $name $type");
 
-    final jsonSource = await read(path: "$path.keys", password: password);
-    final data = json.decode(jsonSource) as Map<String, dynamic>;
-    return WalletKeysData.fromJSON(data);
+      final jsonSource = await read(path: readPath, password: password);
+      final data = json.decode(jsonSource) as Map<String, dynamic>;
+      return WalletKeysData.fromJSON(data);
+    } catch (e) {
+      dev.log("Failed to read .keys file. Trying .keys.backup file...");
+
+      readPath = "$readPath.backup";
+      if (!File(readPath).existsSync())
+        throw Exception("No .keys nor a .keys.backup file found for $name $type");
+
+      final jsonSource = await read(path: readPath, password: password);
+      final data = json.decode(jsonSource) as Map<String, dynamic>;
+      final keysData = WalletKeysData.fromJSON(data);
+
+      dev.log("Restoring .keys from .keys.backup");
+      createKeysFile(name, type, password, keysData);
+      return keysData;
+    }
   }
 }
 
