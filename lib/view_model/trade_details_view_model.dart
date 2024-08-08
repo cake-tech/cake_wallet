@@ -4,6 +4,7 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/quantex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
@@ -59,6 +60,8 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
       case ExchangeProviderDescription.quantex:
         _provider = QuantexExchangeProvider();
+      case ExchangeProviderDescription.letsExchange:
+        _provider = LetsExchangeExchangeProvider();
         break;
     }
 

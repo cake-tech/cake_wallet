@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -36,7 +37,8 @@ class TradeRow extends StatelessWidget {
             children: [
               ClipRRect(
                   borderRadius: BorderRadius.circular(50),
-                  child: Image.asset(provider.image, width: 36, height: 36)),
+                  child: ImageUtil.getImageFromPath(
+                      imagePath: provider.image, height: 36, width: 36)),
               SizedBox(width: 12),
               Expanded(
                   child: Column(
