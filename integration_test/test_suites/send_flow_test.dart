@@ -6,6 +6,7 @@ import '../components/common_test_constants.dart';
 import '../components/common_test_flows.dart';
 import '../robots/dashboard_page_robot.dart';
 import '../robots/send_page_robot.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +22,10 @@ void main() {
       dashboardPageRobot = DashboardPageRobot(tester);
 
       await commonTestFlows.startAppFlow(ValueKey('send_test_app_key'));
-      await commonTestFlows.restoreWalletThroughSeedsFlow();
+      await commonTestFlows.welcomePageToRestoreWalletThroughSeedsFlow(
+        CommonTestConstants.testWalletType,
+        secrets.solanaTestWalletSeeds,
+      );
       await dashboardPageRobot.navigateToSendPage();
 
       await sendPageRobot.enterReceiveAddress(CommonTestConstants.testWalletAddress);

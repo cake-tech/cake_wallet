@@ -9,6 +9,7 @@ import '../robots/dashboard_page_robot.dart';
 import '../robots/exchange_confirm_page_robot.dart';
 import '../robots/exchange_page_robot.dart';
 import '../robots/exchange_trade_page_robot.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +31,10 @@ void main() {
       exchangeConfirmPageRobot = ExchangeConfirmPageRobot(tester);
 
       await commonTestFlows.startAppFlow(ValueKey('exchange_app_test_key'));
-      await commonTestFlows.restoreWalletThroughSeedsFlow();
+      await commonTestFlows.welcomePageToRestoreWalletThroughSeedsFlow(
+        CommonTestConstants.testWalletType,
+        secrets.solanaTestWalletSeeds,
+      );
       await dashboardPageRobot.navigateToExchangePage();
 
       // ----------- Exchange Page -------------
