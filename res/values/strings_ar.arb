@@ -337,6 +337,7 @@
   "incoming": "الواردة",
   "incorrect_seed": "النص الذي تم إدخاله غير صالح.",
   "inputs": "المدخلات",
+  "insufficientFundsForRentError": "ليس لديك ما يكفي من SOL لتغطية رسوم المعاملة والإيجار للحساب. يرجى إضافة المزيد من sol إلى محفظتك أو تقليل مبلغ sol الذي ترسله",
   "introducing_cake_pay": "نقدم لكم Cake Pay!",
   "invalid_input": "مدخل غير صالح",
   "invoice_details": "تفاصيل الفاتورة",
