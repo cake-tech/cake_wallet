@@ -237,7 +237,11 @@ class _DashboardPageView extends BasePage {
               padding: EdgeInsets.only(bottom: 24, top: 10),
               child: Observer(
                 builder: (context) {
-                  return ExcludeSemantics(
+                  return Semantics(
+                    button: false,
+                    label: 'Page Indicator',
+                    hint: 'Swipe to change page',
+                    excludeSemantics: true,
                     child: SmoothPageIndicator(
                       controller: controller,
                       count: pages.length,
