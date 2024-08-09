@@ -16,12 +16,6 @@ for coin in monero wownero;
 do
     if [[ ! -f "scripts/monero_c/release/${coin}/$(gcc -dumpmachine)_libwallet2_api_c.so" ]];
     then
-        git config --global --add safe.directory "*"
-        for i in gcc g++ ar ranlib;
-        do
-            ln -s /usr/bin/$i /usr/bin/aarch64-meego-linux-gnu-$i
-            ln -s /usr/bin/$i /usr/bin/aarch64-linux-gnu-$i
-        done
         ./scripts/linux/build_monero_all.sh
     fi
 done

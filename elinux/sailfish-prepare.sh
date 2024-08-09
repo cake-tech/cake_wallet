@@ -3,6 +3,17 @@
 # adjusted for cake
 
 zypper in -f -y cmake ffmpeg-tools git clang libxkbcommon-devel wayland-protocols-devel wayland-client wayland-egl-devel make glibc-static
+
+zypper in -f -y perl-IPC-Cmd curl ccache gperf cmake ffmpeg-tools git clang libxkbcommon-devel wayland-protocols-devel wayland-client wayland-egl-devel make glibc-static
+
+git config --global --add safe.directory "*"
+
+for i in gcc g++ ar ranlib;
+do
+    ln -s /usr/bin/$i /usr/bin/aarch64-meego-linux-gnu-$i
+    ln -s /usr/bin/$i /usr/bin/aarch64-linux-gnu-$i
+done
+
 mkdir -p $HOME/flutter-elinux
 git clone https://github.com/sony/flutter-elinux.git $HOME/flutter-elinux/$(uname -m)
 
