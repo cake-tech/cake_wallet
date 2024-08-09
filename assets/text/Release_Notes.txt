@@ -1,5 +1,6 @@
-Monero and Ethereum enhancements
-Synchronization improvements
-Exchange flow enhancements
-Ledger improvements
+Wallets enhancements
+Monero synchronization improvements
+Improve wallet backups
+Enhance error handling
+UI enhancements
 Bug fixes
