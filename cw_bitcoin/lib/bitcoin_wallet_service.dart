@@ -41,8 +41,10 @@ class BitcoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       network: network,
     );
+
     await wallet.save();
     await wallet.init();
+
     return wallet;
   }
 
