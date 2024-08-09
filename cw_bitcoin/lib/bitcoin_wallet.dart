@@ -164,14 +164,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
     }
 
-    walletInfo.derivationInfo ??= DerivationInfo(
-      derivationType: snp?.derivationType ?? DerivationType.electrum,
-      derivationPath: snp?.derivationPath,
-    );
+    walletInfo.derivationInfo ??= DerivationInfo();
 
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath = snp?.derivationPath ?? electrum_path;
-    walletInfo.derivationInfo!.derivationType = snp?.derivationType ?? DerivationType.electrum;
+    walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
+    walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
     final mnemonic = keysData.mnemonic;
