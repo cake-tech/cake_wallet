@@ -481,11 +481,12 @@ packages:
   ledger_flutter:
     dependency: "direct main"
     description:
-      name: ledger_flutter
-      sha256: f1680060ed6ff78f275837e0024ccaf667715a59ba7aa29fa7354bc7752e71c8
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
+      path: "."
+      ref: cake-v3
+      resolved-ref: "66469ff9dffe2417c70ae7287c9d76d2fe7157a4"
+      url: "https://github.com/cake-tech/ledger-flutter.git"
+    source: git
+    version: "1.0.2"
   ledger_usb:
     dependency: transitive
     description:
