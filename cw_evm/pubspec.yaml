@@ -20,6 +20,7 @@ dependencies:
   hive: ^2.2.3
   collection: ^1.17.1
   shared_preferences: ^2.0.15
+  mobx: ^2.0.7+4
   cw_core:
     path: ../cw_core
   ledger_flutter: ^1.0.1

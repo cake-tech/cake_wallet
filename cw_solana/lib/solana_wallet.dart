@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -13,7 +14,6 @@ import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_solana/default_spl_tokens.dart';
-import 'package:cw_solana/file.dart';
 import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_client.dart';
 import 'package:cw_solana/solana_exceptions.dart';
@@ -43,6 +43,7 @@ abstract class SolanaWalletBase
     String? privateKey,
     required String password,
     SolanaBalance? initialBalance,
+    required this.encryptionFileUtils,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -53,7 +54,11 @@ abstract class SolanaWalletBase
             {CryptoCurrency.sol: initialBalance ?? SolanaBalance(BigInt.zero.toDouble())}),
         super(walletInfo) {
     this.walletInfo = walletInfo;
-    transactionHistory = SolanaTransactionHistory(walletInfo: walletInfo, password: password);
+    transactionHistory = SolanaTransactionHistory(
+      walletInfo: walletInfo,
+      password: password,
+      encryptionFileUtils: encryptionFileUtils,
+    );
 
     if (!CakeHive.isAdapterRegistered(SPLToken.typeId)) {
       CakeHive.registerAdapter(SPLTokenAdapter());
@@ -65,6 +70,7 @@ abstract class SolanaWalletBase
   final String _password;
   final String? _mnemonic;
   final String? _hexPrivateKey;
+  final EncryptionFileUtils encryptionFileUtils;
 
   // The Solana WalletPair
   Ed25519HDKeyPair? _walletKeyPair;
@@ -338,7 +344,7 @@ abstract class SolanaWalletBase
   Future<void> save() async {
     await walletAddresses.updateAddressesInBox();
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
+    await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
 
@@ -373,9 +379,10 @@ abstract class SolanaWalletBase
     required String name,
     required String password,
     required WalletInfo walletInfo,
+    required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
-    final jsonSource = await read(path: path, password: password);
+    final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String?;
     final privateKey = data['private_key'] as String?;
@@ -387,6 +394,7 @@ abstract class SolanaWalletBase
       mnemonic: mnemonic,
       privateKey: privateKey,
       initialBalance: balance,
+      encryptionFileUtils: encryptionFileUtils,
     );
   }
 
@@ -545,4 +553,7 @@ abstract class SolanaWalletBase
   }
 
   SolanaClient? get solanaClient => _client.getSolanaClient;
+
+  @override
+  String get password => _password;
 }

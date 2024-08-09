@@ -47,6 +47,7 @@ final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
 Future<void> main() async {
+
   bool isAppRunning = false;
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -168,7 +169,6 @@ Future<void> initializeAppConfigs() async {
   }
 
   final secureStorage = secureStorageShared;
-
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
@@ -245,8 +245,8 @@ Future<void> initialSetup(
     ordersSource: ordersSource,
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
-    secureStorage: secureStorage,
     navigatorKey: navigatorKey,
+    secureStorage: secureStorage,
   );
   await bootstrap(navigatorKey);
   monero?.onStartup();

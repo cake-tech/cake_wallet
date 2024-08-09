@@ -8,6 +8,7 @@ class PolygonTransactionHistory extends EVMChainTransactionHistory {
   PolygonTransactionHistory({
     required super.walletInfo,
     required super.password,
+    required super.encryptionFileUtils,
   });
 
   @override

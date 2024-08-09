@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:core';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_solana/file.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -15,12 +15,14 @@ class SolanaTransactionHistory = SolanaTransactionHistoryBase with _$SolanaTrans
 
 abstract class SolanaTransactionHistoryBase extends TransactionHistoryBase<SolanaTransactionInfo>
     with Store {
-  SolanaTransactionHistoryBase({required this.walletInfo, required String password})
+  SolanaTransactionHistoryBase(
+      {required this.walletInfo, required String password, required this.encryptionFileUtils})
       : _password = password {
     transactions = ObservableMap<String, SolanaTransactionInfo>();
   }
 
   final WalletInfo walletInfo;
+  final EncryptionFileUtils encryptionFileUtils;
   String _password;
 
   Future<void> init() async => await _load();
@@ -32,7 +34,7 @@ abstract class SolanaTransactionHistoryBase extends TransactionHistoryBase<Solan
       final path = '$dirPath/$transactionsHistoryFileName';
       final transactionMaps = transactions.map((key, value) => MapEntry(key, value.toJson()));
       final data = json.encode({'transactions': transactionMaps});
-      await writeData(path: path, password: _password, data: data);
+      await encryptionFileUtils.write(path: path, password: _password, data: data);
     } catch (e, s) {
       print('Error while saving solana transaction history: ${e.toString()}');
       print(s);
@@ -49,7 +51,7 @@ abstract class SolanaTransactionHistoryBase extends TransactionHistoryBase<Solan
   Future<Map<String, dynamic>> _read() async {
     final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
     final path = '$dirPath/$transactionsHistoryFileName';
-    final content = await read(path: path, password: _password);
+    final content = await encryptionFileUtils.read(path: path, password: _password);
     if (content.isEmpty) {
       return {};
     }

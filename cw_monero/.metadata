@@ -18,6 +18,9 @@ migration:
     - platform: macos
       create_revision: e3c29ec00c9c825c891d75054c63fcc46454dca1
       base_revision: e3c29ec00c9c825c891d75054c63fcc46454dca1
+    - platform: linux
+      create_revision: e3c29ec00c9c825c891d75054c63fcc46454dca1
+      base_revision: e3c29ec00c9c825c891d75054c63fcc46454dca1
 
   # User provided section
 

@@ -1,7 +1,10 @@
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
@@ -336,6 +339,20 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
+    if (SettingsStoreBase.walletPasswordDirectInput) {
+      Navigator.of(context).pushNamed(
+          Routes.walletUnlockLoadable,
+          arguments: WalletUnlockArguments(
+              callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+                if (isAuthenticatedSuccessfully) {
+                  auth.close();
+                  setState(() {});
+                }
+              }, walletName: wallet.name,
+              walletType: wallet.type));
+      return;
+    }
+
     await widget.authService.authenticateAction(
       context,
       onAuthSuccess: (isAuthenticatedSuccessfully) async {

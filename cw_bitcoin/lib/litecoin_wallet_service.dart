@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -17,10 +18,11 @@ class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials,BitcoinNewWalletCredentials> {
-  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
+  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+  final bool isDirect;
 
   @override
   WalletType getType() => WalletType.litecoin;
@@ -32,7 +34,8 @@ class LitecoinWalletService extends WalletService<
         password: credentials.password!,
         passphrase: credentials.passphrase,
         walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
     await wallet.save();
     await wallet.init();
 
@@ -51,7 +54,8 @@ class LitecoinWalletService extends WalletService<
     try {
       final wallet = await LitecoinWalletBase.open(
           password: password, name: name, walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource);
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          encryptionFileUtils: encryptionFileUtilsFor(isDirect));
       await wallet.init();
       saveBackup(name);
       return wallet;
@@ -59,7 +63,8 @@ class LitecoinWalletService extends WalletService<
       await restoreWalletFilesFromBackup(name);
       final wallet = await LitecoinWalletBase.open(
           password: password, name: name, walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource);
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          encryptionFileUtils: encryptionFileUtilsFor(isDirect));
       await wallet.init();
       return wallet;
     }
@@ -82,7 +87,8 @@ class LitecoinWalletService extends WalletService<
         password: password,
         name: currentName,
         walletInfo: currentWalletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
 
     await currentWallet.renameWalletFiles(newName);
     await saveBackup(newName);
@@ -116,7 +122,8 @@ class LitecoinWalletService extends WalletService<
         passphrase: credentials.passphrase,
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
     await wallet.save();
     await wallet.init();
     return wallet;

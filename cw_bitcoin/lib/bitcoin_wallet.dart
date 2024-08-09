@@ -6,6 +6,7 @@ import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:convert/convert.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -30,6 +31,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required EncryptionFileUtils encryptionFileUtils,
     Uint8List? seedBytes,
     String? mnemonic,
     String? xpub,
@@ -58,6 +60,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           initialAddresses: initialAddresses,
           initialBalance: initialBalance,
           seedBytes: seedBytes,
+          encryptionFileUtils: encryptionFileUtils,
           currency:
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
@@ -91,6 +94,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required EncryptionFileUtils encryptionFileUtils,
     String? passphrase,
     String? addressPageType,
     BasedUtxoNetwork? network,
@@ -125,6 +129,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
       initialBalance: initialBalance,
+      encryptionFileUtils: encryptionFileUtils,
       seedBytes: seedBytes,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
@@ -138,12 +143,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
+    required EncryptionFileUtils encryptionFileUtils,
     required bool alwaysScan,
   }) async {
     final network = walletInfo.network != null
         ? BasedUtxoNetwork.fromName(walletInfo.network!)
         : BitcoinNetwork.mainnet;
-    final snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password, network);
+    final snp = await ElectrumWalletSnapshot.load(encryptionFileUtils, name, walletInfo.type, password, network);
 
     walletInfo.derivationInfo ??= DerivationInfo(
       derivationType: snp.derivationType ?? DerivationType.electrum,
@@ -182,6 +188,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialSilentAddresses: snp.silentAddresses,
       initialSilentAddressIndex: snp.silentAddressIndex,
       initialBalance: snp.balance,
+      encryptionFileUtils: encryptionFileUtils,
       seedBytes: seedBytes,
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,

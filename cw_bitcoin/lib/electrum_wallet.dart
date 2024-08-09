@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
@@ -34,7 +35,6 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -60,6 +60,7 @@ abstract class ElectrumWalletBase
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required this.networkType,
+    required this.encryptionFileUtils,
     String? xpub,
     String? mnemonic,
     Uint8List? seedBytes,
@@ -95,7 +96,11 @@ abstract class ElectrumWalletBase
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
-    transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
+    transactionHistory =
+        ElectrumTransactionHistory(
+          walletInfo: walletInfo,
+          password: password,
+          encryptionFileUtils: encryptionFileUtils);
 
     reaction((_) => syncStatus, _syncStatusReaction);
   }
@@ -133,6 +138,8 @@ abstract class ElectrumWalletBase
   final String? _mnemonic;
 
   bitcoin.HDWallet get hd => accountHD.derive(0);
+
+  final EncryptionFileUtils encryptionFileUtils;
   final String? passphrase;
 
   @override
@@ -168,6 +175,9 @@ abstract class ElectrumWalletBase
 
   @override
   String? get seed => _mnemonic;
+
+  @override
+  String get password => _password;
 
   bitcoin.NetworkType networkType;
   BasedUtxoNetwork network;
@@ -1077,7 +1087,7 @@ abstract class ElectrumWalletBase
   @override
   Future<void> save() async {
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
+    await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
 

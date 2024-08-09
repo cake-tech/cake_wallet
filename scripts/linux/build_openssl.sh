@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -e
+
+. ./config.sh
+
+OPENSSL_FILENAME=openssl-1.1.1q.tar.gz
+OPENSSL_FILE_PATH=${EXTERNAL_LINUX_SOURCE_DIR}/${OPENSSL_FILENAME}
+OPENSSL_SRC_DIR=${EXTERNAL_LINUX_SOURCE_DIR}/openssl-1.1.1q
+OPENSSL_SHA256="d7939ce614029cdff0b6c20f0e2e5703158a489a72b2507b8bd51bf8c8fd10ca"
+
+curl https://www.openssl.org/source/${OPENSSL_FILENAME} -o ${OPENSSL_FILE_PATH}
+
+rm -rf $OPENSSL_SRC_DIR
+tar -xzf $OPENSSL_FILE_PATH -C $EXTERNAL_LINUX_SOURCE_DIR
+cd $OPENSSL_SRC_DIR
+export CFLAGS=-fPIC
+./config -fPIC shared --prefix=${EXTERNAL_LINUX_DIR}
+make install

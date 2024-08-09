@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:core';
 import 'dart:developer';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
-import 'package:cw_evm/file.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 
@@ -15,7 +15,8 @@ abstract class EVMChainTransactionHistory = EVMChainTransactionHistoryBase
 
 abstract class EVMChainTransactionHistoryBase
     extends TransactionHistoryBase<EVMChainTransactionInfo> with Store {
-  EVMChainTransactionHistoryBase({required this.walletInfo, required String password})
+  EVMChainTransactionHistoryBase(
+      {required this.walletInfo, required String password, required this.encryptionFileUtils})
       : _password = password {
     transactions = ObservableMap<String, EVMChainTransactionInfo>();
   }
@@ -23,6 +24,7 @@ abstract class EVMChainTransactionHistoryBase
   String _password;
 
   final WalletInfo walletInfo;
+  final EncryptionFileUtils encryptionFileUtils;
 
   //! Method to be overridden by all child classes
 
@@ -41,7 +43,7 @@ abstract class EVMChainTransactionHistoryBase
       final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
       String path = '$dirPath/$transactionsHistoryFileNameForWallet';
       final data = json.encode({'transactions': transactions});
-      await writeData(path: path, password: _password, data: data);
+      await encryptionFileUtils.write(path: path, password: _password, data: data);
     } catch (e, s) {
       log('Error while saving ${walletInfo.type.name} transaction history: ${e.toString()}');
       log(s.toString());
@@ -59,7 +61,7 @@ abstract class EVMChainTransactionHistoryBase
     final transactionsHistoryFileNameForWallet = getTransactionHistoryFileName();
     final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
     String path = '$dirPath/$transactionsHistoryFileNameForWallet';
-    final content = await read(path: path, password: _password);
+    final content = await encryptionFileUtils.read(path: path, password: _password);
     if (content.isEmpty) {
       return {};
     }

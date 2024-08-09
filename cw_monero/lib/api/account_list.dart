@@ -34,7 +34,6 @@ List<monero.SubaddressAccountRow> getAllAccount() {
   // final size = monero.Wallet_numSubaddressAccounts(wptr!);
   refreshAccounts();
   int size = monero.SubaddressAccount_getAll_size(subaddressAccount!);
-  print("size: $size");
   if (size == 0) {
     monero.Wallet_addSubaddressAccount(wptr!);
     return getAllAccount();

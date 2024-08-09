@@ -1,0 +1,35 @@
+app-id: com.cakewallet.CakeWallet
+runtime: org.freedesktop.Platform
+runtime-version: '22.08'
+sdk: org.freedesktop.Sdk
+command: cake_wallet
+separate-locales: false
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --socket=pulseaudio
+  - --share=network
+  - --filesystem=home
+modules:
+  - name: cake_wallet
+    buildsystem: simple
+    only-arches:
+      - x86_64
+    build-commands:
+      - "cp -R bundle /app/cake_wallet"
+      - "chmod +x /app/cake_wallet/cake_wallet"
+      - "mkdir -p /app/bin"
+      - "ln -s /app/cake_wallet/cake_wallet /app/bin/cake_wallet"
+      - "mkdir -p /app/share/icons/hicolor/scalable/apps"
+      - "cp cakewallet_icon_180.png /app/share/icons/hicolor/scalable/apps/com.cakewallet.CakeWallet.png"
+      - "mkdir -p /app/share/applications"
+      - "cp com.cakewallet.CakeWallet.desktop /app/share/applications"
+    sources:
+      - type: dir
+        path: build/linux/x64/release
+      - type: file
+        path: assets/images/cakewallet_icon_180.png
+      - type: file
+        path: linux/com.cakewallet.CakeWallet.desktop

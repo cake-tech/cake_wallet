@@ -31,8 +31,7 @@ dependencies:
   flutter_local_authentication:
     git:
       url: https://github.com/cake-tech/flutter_local_authentication
-  package_info: ^2.0.0
-  #package_info_plus: ^1.4.2
+  package_info_plus: ^8.0.1
   devicelocale:
     git:
       url: https://github.com/cake-tech/flutter-devicelocale
@@ -80,6 +79,7 @@ dependencies:
   path_provider_android: ^2.2.1
   shared_preferences_android: 2.0.17
   url_launcher_android: 6.0.24
+  url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
   sensitive_clipboard: ^1.0.0
   walletconnect_flutter_v2: ^2.1.4
   eth_sig_util: ^0.0.9

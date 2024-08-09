@@ -32,10 +32,11 @@ abstract class WalletEditViewModelBase with Store {
   final WalletLoadingService _walletLoadingService;
 
   @action
-  Future<void> changeName(WalletListItem walletItem) async {
+  Future<void> changeName(WalletListItem walletItem, {String? password}) async {
     state = WalletEditRenamePending();
     await _walletLoadingService.renameWallet(
-        walletItem.type, walletItem.name, newName);
+        walletItem.type, walletItem.name, newName,
+        password: password);
     _walletListViewModel.updateList();
   }
 
