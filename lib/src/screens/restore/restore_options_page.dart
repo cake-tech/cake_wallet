@@ -59,7 +59,7 @@ class RestoreOptionsPage extends BasePage {
             child: Column(
               children: <Widget>[
                 OptionTile(
-                  key: ValueKey('restore_options_from_seeds_button_key'),
+                  key: ValueKey('restore_options_from_seeds_or_keys_button_key'),
                   onPressed: () => Navigator.pushNamed(
                     context,
                     Routes.restoreWalletFromSeedKeys,
