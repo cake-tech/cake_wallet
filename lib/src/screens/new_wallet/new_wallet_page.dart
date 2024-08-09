@@ -40,11 +40,11 @@ class NewWalletPage extends BasePage {
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.focusedChild?.unfocus();
-    }
-  };
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
 
   @override
   Widget body(BuildContext context) => WalletNameForm(
@@ -88,15 +88,17 @@ class _WalletNameFormState extends State<WalletNameForm> {
 
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (_) {
-                return AlertWithOneAction(
-                    alertTitle: S.current.new_wallet,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
+          if (context.mounted) {
+            showPopUp<void>(
+                context: context,
+                builder: (_) {
+                  return AlertWithOneAction(
+                      alertTitle: S.current.new_wallet,
+                      alertContent: state.error,
+                      buttonText: S.of(context).ok,
+                      buttonAction: () => Navigator.of(context).pop());
+                });
+          }
         });
       }
     });

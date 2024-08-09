@@ -12,6 +12,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -89,14 +90,32 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp = await ElectrumWalletSnapshot.load(
-        name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
+
+    ElectrumWalletSnapshot? snp = null;
+
+    try {
+      snp = await ElectrumWalletSnapshot.load(
+          name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
+    } catch (e) {
+      if (!hasKeysFile) rethrow;
+    }
+
+    final WalletKeysData keysData;
+    // Migrate wallet from the old scheme to then new .keys file scheme
+    if (!hasKeysFile) {
+      keysData =
+          WalletKeysData(mnemonic: snp!.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
+    } else {
+      keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
+    }
+
     return BitcoinCashWallet(
-      mnemonic: snp.mnemonic!,
+      mnemonic: keysData.mnemonic!,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: snp.addresses.map((addr) {
+      initialAddresses: snp?.addresses.map((addr) {
         try {
           BitcoinCashAddress(addr.address);
           return BitcoinAddressRecord(
@@ -116,10 +135,10 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
           );
         }
       }).toList(),
-      initialBalance: snp.balance,
-      seedBytes: await Mnemonic.toSeed(snp.mnemonic!),
-      initialRegularAddressIndex: snp.regularAddressIndex,
-      initialChangeAddressIndex: snp.changeAddressIndex,
+      initialBalance: snp?.balance,
+      seedBytes: await Mnemonic.toSeed(keysData.mnemonic!),
+      initialRegularAddressIndex: snp?.regularAddressIndex,
+      initialChangeAddressIndex: snp?.changeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,
     );
   }

@@ -35,7 +35,7 @@ dependency_overrides:
   ledger_flutter:
     git:
       url: https://github.com/cake-tech/ledger-flutter.git
-      ref: cake
+      ref: cake-v3
   watcher: ^1.1.0
 
 dev_dependencies:
