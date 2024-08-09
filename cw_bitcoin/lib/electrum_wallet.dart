@@ -1870,6 +1870,13 @@ abstract class ElectrumWalletBase
         break;
       case ConnectionStatus.failed:
         syncStatus = LostConnectionSyncStatus();
+        // wait for 5 seconds and then try to reconnect:
+        Future.delayed(Duration(seconds: 5), () {
+          electrumClient.connectToUri(
+            node!.uri,
+            useSSL: node!.useSSL ?? false,
+          );
+        });
         break;
       case ConnectionStatus.connecting:
         syncStatus = ConnectingSyncStatus();

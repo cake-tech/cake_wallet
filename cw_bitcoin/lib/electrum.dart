@@ -68,15 +68,25 @@ class ElectrumClient {
       await socket?.close();
     } catch (_) {}
 
-    if (useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum"))) {
-      socket = await Socket.connect(host, port, timeout: connectionTimeout);
-    } else {
-      socket = await SecureSocket.connect(
-        host,
-        port,
-        timeout: connectionTimeout,
-        onBadCertificate: (_) => true,
-      );
+    try {
+      if (useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum"))) {
+        socket = await Socket.connect(host, port, timeout: connectionTimeout);
+      } else {
+        socket = await SecureSocket.connect(
+          host,
+          port,
+          timeout: connectionTimeout,
+          onBadCertificate: (_) => true,
+        );
+      }
+    } catch (_) {
+      _setConnectionStatus(ConnectionStatus.failed);
+      return;
+    }
+
+    if (socket == null) {
+      _setConnectionStatus(ConnectionStatus.failed);
+      return;
     }
     _setConnectionStatus(ConnectionStatus.connected);
 
@@ -396,6 +406,10 @@ class ElectrumClient {
   BehaviorSubject<T>? subscribe<T>(
       {required String id, required String method, List<Object> params = const []}) {
     try {
+      if (socket == null) {
+        _setConnectionStatus(ConnectionStatus.failed);
+        return null;
+      }
       final subscription = BehaviorSubject<T>();
       _regisrySubscription(id, subscription);
       socket!.write(jsonrpc(method: method, id: _id, params: params));
@@ -409,6 +423,10 @@ class ElectrumClient {
 
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
+    if (socket == null) {
+      _setConnectionStatus(ConnectionStatus.failed);
+      return null;
+    }
     final completer = Completer<dynamic>();
     _id += 1;
     final id = _id;
@@ -422,6 +440,10 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 4000}) async {
     try {
+      if (socket == null) {
+        _setConnectionStatus(ConnectionStatus.failed);
+        return null;
+      }
       final completer = Completer<dynamic>();
       _id += 1;
       final id = _id;
