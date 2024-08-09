@@ -337,6 +337,7 @@
   "incoming": "آنے والا",
   "incorrect_seed": "درج کردہ متن درست نہیں ہے۔",
   "inputs": "آدانوں",
+  "insufficientFundsForRentError": "آپ کے پاس ٹرانزیکشن فیس اور اکاؤنٹ کے لئے کرایہ لینے کے ل enough اتنا SOL نہیں ہے۔ برائے مہربانی اپنے بٹوے میں مزید سول شامل کریں یا آپ کو بھیجنے والی سول رقم کو کم کریں",
   "introducing_cake_pay": "Cake پے کا تعارف!",
   "invalid_input": "غلط ان پٹ",
   "invoice_details": "رسید کی تفصیلات",

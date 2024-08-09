@@ -337,6 +337,7 @@
   "incoming": "Entrantes",
   "incorrect_seed": "Le texte entré est invalide.",
   "inputs": "Contributions",
+  "insufficientFundsForRentError": "Vous n'avez pas assez de SOL pour couvrir les frais de transaction et le loyer pour le compte. Veuillez ajouter plus de Sol à votre portefeuille ou réduire la quantité de sol que vous envoyez",
   "introducing_cake_pay": "Présentation de Cake Pay !",
   "invalid_input": "Entrée invalide",
   "invoice_details": "Détails de la facture",

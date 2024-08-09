@@ -337,6 +337,7 @@
   "incoming": "Entrante",
   "incorrect_seed": "El texto ingresado no es válido.",
   "inputs": "Entradas",
+  "insufficientFundsForRentError": "No tiene suficiente SOL para cubrir la tarifa de transacción y alquilar para la cuenta. Por favor, agregue más sol a su billetera o reduzca la cantidad de sol que está enviando",
   "introducing_cake_pay": "¡Presentamos Cake Pay!",
   "invalid_input": "Entrada inválida",
   "invoice_details": "Detalles de la factura",

@@ -337,6 +337,7 @@
   "incoming": "收到",
   "incorrect_seed": "输入的文字无效。",
   "inputs": "输入",
+  "insufficientFundsForRentError": "您没有足够的溶胶来支付该帐户的交易费和租金。请在钱包中添加更多溶胶或减少您发送的溶胶量",
   "introducing_cake_pay": "介绍 Cake Pay!",
   "invalid_input": "输入无效",
   "invoice_details": "发票明细",

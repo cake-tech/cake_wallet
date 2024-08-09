@@ -337,6 +337,7 @@
   "incoming": "Papasok",
   "incorrect_seed": "Ang teksto na ipinasok ay hindi wasto.",
   "inputs": "Mga input",
+  "insufficientFundsForRentError": "Wala kang sapat na sol upang masakop ang bayad sa transaksyon at upa para sa account. Mabait na magdagdag ng higit pa sa iyong pitaka o bawasan ang halaga ng sol na iyong ipinapadala",
   "introducing_cake_pay": "Ipinakikilala ang cake pay!",
   "invalid_input": "Di -wastong input",
   "invoice_details": "Mga detalye ng invoice",

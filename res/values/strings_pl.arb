@@ -337,6 +337,7 @@
   "incoming": "Przychodzące",
   "incorrect_seed": "Wprowadzony seed jest nieprawidłowy.",
   "inputs": "Wejścia",
+  "insufficientFundsForRentError": "Nie masz wystarczającej ilości SOL, aby pokryć opłatę za transakcję i czynsz za konto. Uprzejmie dodaj więcej sol do portfela lub zmniejsz solę, którą wysyłasz",
   "introducing_cake_pay": "Przedstawiamy Cake Pay!",
   "invalid_input": "Nieprawidłowe dane wejściowe",
   "invoice_details": "Dane do faktury",

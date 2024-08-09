@@ -337,6 +337,7 @@
   "incoming": "Dolazno",
   "incorrect_seed": "Uneseni tekst nije valjan.",
   "inputs": "Unosi",
+  "insufficientFundsForRentError": "Nemate dovoljno SOL -a za pokrivanje naknade za transakciju i najamninu za račun. Ljubazno dodajte više sol u svoj novčanik ili smanjite količinu SOL -a koju šaljete",
   "introducing_cake_pay": "Predstavljamo Cake Pay!",
   "invalid_input": "Pogrešan unos",
   "invoice_details": "Podaci o fakturi",
