@@ -1805,15 +1805,34 @@ abstract class ElectrumWalletBase
       derivationPath.substring(0, derivationPath.lastIndexOf("'") + 1);
 
   @action
-  void _onConnectionStatusChange(bool? isConnected) {
-    if (syncStatus is SyncingSyncStatus) return;
+  void _onConnectionStatusChange(ConnectionStatus status) {
+    switch (status) {
+      case ConnectionStatus.connected:
+        if (syncStatus is NotConnectedSyncStatus ||
+            syncStatus is LostConnectionSyncStatus ||
+            syncStatus is ConnectingSyncStatus) {
+          syncStatus = AttemptingSyncStatus();
+          startSync();
+        }
 
-    if (isConnected == true && syncStatus is! SyncedSyncStatus) {
-      syncStatus = ConnectedSyncStatus();
-    } else if (isConnected == false) {
-      syncStatus = LostConnectionSyncStatus();
-    } else if (isConnected != true && syncStatus is! ConnectingSyncStatus) {
-      syncStatus = NotConnectedSyncStatus();
+        break;
+      case ConnectionStatus.disconnected:
+        syncStatus = NotConnectedSyncStatus();
+        break;
+      case ConnectionStatus.failed:
+        syncStatus = LostConnectionSyncStatus();
+        // wait for 5 seconds and then try to reconnect:
+        Future.delayed(Duration(seconds: 5), () {
+          electrumClient.connectToUri(
+            node!.uri,
+            useSSL: node!.useSSL ?? false,
+          );
+        });
+        break;
+      case ConnectionStatus.connecting:
+        syncStatus = ConnectingSyncStatus();
+        break;
+      default:
     }
   }
 
