@@ -379,6 +379,9 @@ class ElectrumClient {
   BehaviorSubject<T>? subscribe<T>(
       {required String id, required String method, List<Object> params = const []}) {
     try {
+      if (socket == null || !_isConnected) {
+        return null;
+      }
       final subscription = BehaviorSubject<T>();
       _regisrySubscription(id, subscription);
       socket!.write(jsonrpc(method: method, id: _id, params: params));
@@ -392,6 +395,9 @@ class ElectrumClient {
 
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
+    if (socket == null || !_isConnected) {
+      return null;
+    }
     final completer = Completer<dynamic>();
     _id += 1;
     final id = _id;
@@ -405,6 +411,9 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 4000}) async {
     try {
+      if (socket == null || !_isConnected) {
+        return null;
+      }
       final completer = Completer<dynamic>();
       _id += 1;
       final id = _id;
