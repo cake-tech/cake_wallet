@@ -119,9 +119,7 @@ class PolygonWallet extends EVMChainWallet {
       final mnemonic = data!['mnemonic'] as String?;
       final privateKey = data['private_key'] as String?;
 
-      final newKeysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
-      WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
-      keysData = newKeysData;
+      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
     } else {
       keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
     }

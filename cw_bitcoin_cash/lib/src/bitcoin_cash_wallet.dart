@@ -95,7 +95,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     ElectrumWalletSnapshot? snp = null;
 
     try {
-      snp = await ElectrumWalletSnapshot.load(name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
+      snp = await ElectrumWalletSnapshot.load(
+          name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
     } catch (e) {
       if (!hasKeysFile) rethrow;
     }
@@ -103,10 +104,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
     if (!hasKeysFile) {
-      final newKeysData =
+      keysData =
           WalletKeysData(mnemonic: snp!.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
-      WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
-      keysData = newKeysData;
     } else {
       keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
     }

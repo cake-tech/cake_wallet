@@ -397,10 +397,8 @@ abstract class NanoWalletBase
       final mnemonic = data!['mnemonic'] as String;
       final isHexSeed = !mnemonic.contains(' ');
 
-      final newKeysData = WalletKeysData(
+      keysData = WalletKeysData(
           mnemonic: isHexSeed ? null : mnemonic, altMnemonic: isHexSeed ? mnemonic : null);
-      WalletKeysFile.createKeysFile(name, walletInfo.type, password, newKeysData);
-      keysData = newKeysData;
     } else {
       keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
     }
