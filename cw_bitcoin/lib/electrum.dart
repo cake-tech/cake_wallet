@@ -381,14 +381,21 @@ class ElectrumClient {
   //   "height": 520481,
   //   "hex": "00000020890208a0ae3a3892aa047c5468725846577cfcd9b512b50000000000000000005dc2b02f2d297a9064ee103036c14d678f9afc7e3d9409cf53fd58b82e938e8ecbeca05a2d2103188ce804c4"
   // }
-  Future<int?> getCurrentBlockChainTip() =>
-      callWithTimeout(method: 'blockchain.headers.subscribe').then((result) {
-        if (result is Map<String, dynamic>) {
-          return result["height"] as int;
-        }
 
-        return null;
-      });
+  Future<int?> getCurrentBlockChainTip() async {
+    try {
+      final result = await callWithTimeout(method: 'blockchain.headers.subscribe');
+      if (result is Map<String, dynamic>) {
+        return result["height"] as int;
+      }
+      return null;
+    } on RequestFailedTimeoutException catch (_) {
+      return null;
+    } catch (e) {
+      print("getCurrentBlockChainTip: ${e.toString()}");
+      return null;
+    }
+  }
 
   BehaviorSubject<Object>? chainTipSubscribe() {
     _id += 1;
