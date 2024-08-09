@@ -37,6 +37,7 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:flutter/foundation.dart';
@@ -54,7 +55,7 @@ const int TWEAKS_COUNT = 25;
 
 abstract class ElectrumWalletBase
     extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
-    with Store {
+    with Store, WalletKeysFile {
   ElectrumWalletBase({
     required String password,
     required WalletInfo walletInfo,
@@ -168,6 +169,10 @@ abstract class ElectrumWalletBase
 
   @override
   String? get seed => _mnemonic;
+
+  @override
+  WalletKeysData get walletKeysData =>
+      WalletKeysData(mnemonic: _mnemonic, xPub: xpub, passphrase: passphrase);
 
   bitcoin.NetworkType networkType;
   BasedUtxoNetwork network;
@@ -1076,6 +1081,11 @@ abstract class ElectrumWalletBase
 
   @override
   Future<void> save() async {
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+      await saveKeysFile(_password);
+      saveKeysFile(_password, true);
+    }
+
     final path = await makePath();
     await write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
@@ -1130,8 +1140,6 @@ abstract class ElectrumWalletBase
     } catch (_) {}
     _autoSaveTimer?.cancel();
   }
-
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   @action
   Future<void> updateAllUnspents() async {
