@@ -125,6 +125,36 @@ class CryptoBalanceWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Observer(
+              builder: (_) {
+                if (dashboardViewModel.getMoneroError != null) {
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16,0,16,16),
+                    child: DashBoardRoundedCardWidget(
+                      title: "Invalid monero bindings",
+                      subTitle: dashboardViewModel.getMoneroError.toString(),
+                      onTap: () {},
+                    ),
+                  );
+                }
+                return Container();
+              },
+            ),
+            Observer(
+              builder: (_) {
+                if (dashboardViewModel.getWowneroError != null) {
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16,0,16,16),
+                    child: DashBoardRoundedCardWidget(
+                      title: "Invalid wownero bindings",
+                      subTitle: dashboardViewModel.getWowneroError.toString(),
+                      onTap: () {},
+                    )
+                  );
+                }
+                return Container();
+              },
+            ),
+            Observer(
                 builder: (_) => dashboardViewModel.balanceViewModel.hasAccounts
                     ? HomeScreenAccountWidget(
                         walletName: dashboardViewModel.name,

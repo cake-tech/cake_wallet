@@ -107,9 +107,7 @@ abstract class WowneroWalletBase
   @override
   String get seed => wownero_wallet.getSeed();
 
-  String seedLegacy(String? language) {
-    return wownero_wallet.getSeedLegacy(language);
-  }
+  String seedLegacy(String? language) => wownero_wallet.getSeedLegacy(language);
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
@@ -182,12 +180,12 @@ abstract class WowneroWalletBase
   @override
   Future<void> startSync() async {
     try {
-      _setInitialHeight();
+      _assertInitialHeight();
     } catch (_) {
       // our restore height wasn't correct, so lets see if using the backup works:
       try {
         await resetCache(name);
-        _setInitialHeight();
+        _assertInitialHeight();
       } catch (e) {
         // we still couldn't get a valid height from the backup?!:
         // try to use the date instead:
@@ -604,18 +602,14 @@ abstract class WowneroWalletBase
     _listener = wownero_wallet.setListeners(_onNewBlock, _onNewTransaction);
   }
 
-  // check if the height is correct:
-  void _setInitialHeight() {
-    if (walletInfo.isRecovery) {
-      return;
-    }
+  /// Asserts the current height to be above [MIN_RESTORE_HEIGHT]
+  void _assertInitialHeight() {
+    if (walletInfo.isRecovery) return;
 
     final height = wownero_wallet.getCurrentHeight();
 
-    if (height > MIN_RESTORE_HEIGHT) {
-      // the restore height is probably correct, so we do nothing:
-      return;
-    }
+    // the restore height is probably correct, so we do nothing:
+    if (height > MIN_RESTORE_HEIGHT) return;
 
     throw Exception("height isn't > $MIN_RESTORE_HEIGHT!");
   }

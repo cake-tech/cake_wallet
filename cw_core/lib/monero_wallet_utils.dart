@@ -79,6 +79,7 @@ Future<bool> backupWalletFilesExists(String name) async {
       backupAddressListFile.existsSync();
 }
 
+// WARNING: Transaction keys and your Polyseed CANNOT be recovered if this file is deleted
 Future<void> removeCache(String name) async {
   final path = await pathForWallet(name: name, type: WalletType.monero);
   final cacheFile = File(path);
@@ -92,8 +93,8 @@ Future<void> restoreOrResetWalletFiles(String name) async {
   final backupsExists = await backupWalletFilesExists(name);
 
   if (backupsExists) {
+    await removeCache(name);
+
     await restoreWalletFiles(name);
   }
-
-  removeCache(name);
 }
