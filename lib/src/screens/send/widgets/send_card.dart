@@ -216,7 +216,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         onTapPicker: () => _presentPicker(context),
                         isPickerEnable: sendViewModel.hasMultipleTokens,
                         tag: sendViewModel.selectedCryptoCurrency.tag,
-                        allAmountButton: !sendViewModel.isBatchSending,
+                        allAmountButton: !sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL,
                         currencyValueValidator: output.sendAll
                             ? sendViewModel.allAmountValidator
                             : sendViewModel.amountValidator,

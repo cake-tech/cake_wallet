@@ -337,6 +337,7 @@
   "incoming": "inkomend",
   "incorrect_seed": "De ingevoerde tekst is niet geldig.",
   "inputs": "Invoer",
+  "insufficientFundsForRentError": "U hebt niet genoeg SOL om de transactiekosten en huur voor de rekening te dekken. Voeg vriendelijk meer SOL toe aan uw portemonnee of verminder de SOL -hoeveelheid die u verzendt",
   "introducing_cake_pay": "Introductie van Cake Pay!",
   "invalid_input": "Ongeldige invoer",
   "invoice_details": "Factuurgegevens",

@@ -337,6 +337,7 @@
   "incoming": "Incoming",
   "incorrect_seed": "The text entered is not valid.",
   "inputs": "Inputs",
+  "insufficientFundsForRentError": "You do not have enough SOL to cover the transaction fee and rent for the account. Kindly add more SOL to your wallet or reduce the SOL amount you\\'re sending",
   "introducing_cake_pay": "Introducing Cake Pay!",
   "invalid_input": "Invalid input",
   "invoice_details": "Invoice details",
