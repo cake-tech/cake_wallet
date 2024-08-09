@@ -37,8 +37,10 @@ class BitcoinCashWalletService extends WalletService<
         password: credentials.password!,
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
+
     await wallet.save();
     await wallet.init();
+
     return wallet;
   }
 
