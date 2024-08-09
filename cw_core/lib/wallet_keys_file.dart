@@ -21,30 +21,38 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
   Future<String> makeKeysFilePath() async => "${await makePath()}.keys";
 
   Future<void> saveKeysFile(String password, [bool isBackup = false]) async {
-    final rootPath = await makeKeysFilePath();
-    final path = "$rootPath${isBackup ? ".backup" : ""}";
-    dev.log("Saving .keys file '$path'");
-    await write(path: path, password: password, data: walletKeysData.toJSON());
+    try {
+      final rootPath = await makeKeysFilePath();
+      final path = "$rootPath${isBackup ? ".backup" : ""}";
+      dev.log("Saving .keys file '$path'");
+      await write(path: path, password: password, data: walletKeysData.toJSON());
+    } catch (_) {}
   }
 
   static Future<void> createKeysFile(
       String name, WalletType type, String password, WalletKeysData walletKeysData,
       [bool withBackup = true]) async {
-    final rootPath = await pathForWallet(name: name, type: type);
-    final path = "$rootPath.keys";
+    try {
+      final rootPath = await pathForWallet(name: name, type: type);
+      final path = "$rootPath.keys";
 
-    dev.log("Saving .keys file '$path'");
-    await write(path: path, password: password, data: walletKeysData.toJSON());
+      dev.log("Saving .keys file '$path'");
+      await write(path: path, password: password, data: walletKeysData.toJSON());
 
-    if (withBackup) {
-      dev.log("Saving .keys.backup file '$path.backup'");
-      await write(path: "$path.backup", password: password, data: walletKeysData.toJSON());
-    }
+      if (withBackup) {
+        dev.log("Saving .keys.backup file '$path.backup'");
+        await write(path: "$path.backup", password: password, data: walletKeysData.toJSON());
+      }
+    } catch (_) {}
   }
 
   static Future<bool> hasKeysFile(String name, WalletType type) async {
-    final path = await pathForWallet(name: name, type: type);
-    return File("$path.keys").existsSync() || File("$path.keys.backup").existsSync();
+    try {
+      final path = await pathForWallet(name: name, type: type);
+      return File("$path.keys").existsSync() || File("$path.keys.backup").existsSync();
+    } catch (_) {
+      return false;
+    }
   }
 
   static Future<WalletKeysData> readKeysFile(String name, WalletType type, String password) async {
