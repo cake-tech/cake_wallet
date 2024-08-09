@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:ui';
+import 'dart:io';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -298,6 +300,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             onGenerateRoute: (settings) => Router.createRoute(settings),
             initialRoute: initialRoute,
             home: _Home(),
+            scrollBehavior: doWeNeedCompletelyWrongButKindOfWorkingScrollBehavior() ? MyCustomScrollBehavior() : null,
           ));
     });
   }
@@ -334,4 +337,23 @@ class _HomeState extends State<_Home> {
   Widget build(BuildContext context) {
     return const SizedBox.shrink();
   }
+}
+
+bool doWeNeedCompletelyWrongButKindOfWorkingScrollBehavior() {
+  if (!Platform.isLinux) return false;
+  try {
+    return File("/etc/os-release").readAsStringSync().contains("sailfishos");
+  } catch (e) {
+    return false;
+  }
+}
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  // Override behavior methods and getters like dragDevices
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        // etc.
+      };
 }

@@ -7,8 +7,8 @@ final List<String> triplets = [
   "x86_64-linux-gnu", // linux desktop - majority of users onlinux 
   // "i686-linux-gnu", // not supported by cake
   // "i686-meego-linux-gnu", // sailfishos (emulator)- not supported by cake
-  // "aarch64-linux-gnu", // not (yet) supported by cake - (mostly) mobile linux
-  // "aarch64-meego-linux-gnu", // sailfishos - not supported by cake
+  "aarch64-linux-gnu", // (mostly) mobile linux
+  "aarch64-meego-linux-gnu", // sailfishos
   "x86_64-linux-android",
   // "i686-linux-android", // not supported by monero_c - mostly old android emulators
   "aarch64-linux-android",

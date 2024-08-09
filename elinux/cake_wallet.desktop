@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0.0+100
+Name=Cake Wallet
+GenericName=cake_wallet
+Comment=Cake Wallet port for SailfishOS
+Exec=/opt/cake_wallet/cake_wallet %U
+Terminal=false
+Type=Application
+Categories=Utility
+Keywords=Finance;
+Icon=cake_wallet
+
+[X-Sailjail]
+Sandboxing=Disabled
