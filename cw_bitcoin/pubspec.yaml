@@ -56,6 +56,10 @@ dev_dependencies:
   hive_generator: ^1.1.3
 
 dependency_overrides:
+  ledger_flutter:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter.git
+      ref: cake-v3
   watcher: ^1.1.0
 
 # For information on the generic Dart part of this file, see the
