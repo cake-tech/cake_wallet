@@ -168,14 +168,21 @@ class MoneroWalletService extends WalletService<
       final bool invalidSignature = e.toString().contains('invalid signature') ||
           (e is WalletOpeningException && e.message.contains('invalid signature'));
 
+      final bool invalidPassword = e.toString().contains('invalid password') ||
+          (e is WalletOpeningException && e.message.contains('invalid password'));
+
       if (!isBadAlloc &&
           !doesNotCorrespond &&
           !isMissingCacheFilesIOS &&
           !isMissingCacheFilesAndroid &&
           !invalidSignature &&
+          !invalidPassword &&
           wallet != null &&
           wallet.onError != null) {
         wallet.onError!(FlutterErrorDetails(exception: e, stack: s));
+      }
+      if (invalidPassword) {
+        rethrow;
       }
 
       await restoreOrResetWalletFiles(name);
