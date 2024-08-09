@@ -40,35 +40,22 @@ abstract class TemplateViewModelBase with Store {
   CryptoCurrency _currency;
 
   @observable
-  bool isCurrencySelected = true;
-
-  @observable
-  bool isFiatSelected = false;
+  bool isCryptoSelected = true;
 
   @action
-  void selectCurrency() {
-    isCurrencySelected = true;
-    isFiatSelected = false;
-  }
-
-  @action
-  void selectFiat() {
-    isFiatSelected = true;
-    isCurrencySelected = false;
-  }
+  void setCryptoCurrency(bool value) => isCryptoSelected = value;
 
   @action
   void reset() {
     name = '';
     address = '';
-    isCurrencySelected = true;
-    isFiatSelected = false;
+    isCryptoSelected = true;
     output.reset();
   }
 
   Template toTemplate({required String cryptoCurrency, required String fiatCurrency}) {
     return Template(
-        isCurrencySelectedRaw: isCurrencySelected,
+        isCurrencySelectedRaw: isCryptoSelected,
         nameRaw: name,
         addressRaw: address,
         cryptoCurrencyRaw: cryptoCurrency,
@@ -79,7 +66,7 @@ abstract class TemplateViewModelBase with Store {
 
   @action
   void changeSelectedCurrency(CryptoCurrency currency) {
-    isCurrencySelected = true;
+    isCryptoSelected = true;
     _currency = currency;
   }
 

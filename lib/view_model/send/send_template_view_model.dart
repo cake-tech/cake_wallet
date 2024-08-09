@@ -1,3 +1,4 @@
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/view_model/send/template_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -97,4 +98,8 @@ abstract class SendTemplateViewModelBase with Store {
 
   @computed
   List<CryptoCurrency> get walletCurrencies => _wallet.balance.keys.toList();
+
+  bool get hasMultipleTokens => isEVMCompatibleChain(_wallet.type) ||
+  _wallet.type == WalletType.solana ||
+  _wallet.type == WalletType.tron;
 }

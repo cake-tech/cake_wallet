@@ -1,5 +1,5 @@
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
-import 'package:cake_wallet/src/screens/send/widgets/prefix_currency_icon_widget.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -59,7 +59,8 @@ class SendTemplateCard extends StatelessWidget {
                       hintText: sendTemplateViewModel.recipients.length > 1
                           ? S.of(context).template_name
                           : S.of(context).send_name,
-                      borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                      borderColor:
+                          Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
                       textStyle:
                           TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                       placeholderTextStyle: TextStyle(
@@ -69,107 +70,87 @@ class SendTemplateCard extends StatelessWidget {
                       validator: sendTemplateViewModel.templateValidator),
                 Padding(
                   padding: EdgeInsets.only(top: 20),
-                  child: Observer(
-                    builder: (context) {
-                      return AddressTextField(
-                        selectedCurrency: template.selectedCurrency,
-                        controller: _addressController,
-                        onURIScanned: (uri) {
-                          final paymentRequest = PaymentRequest.fromUri(uri);
-                          _addressController.text = paymentRequest.address;
-                          _cryptoAmountController.text = paymentRequest.amount;
-                        },
-                        options: [
-                          AddressTextFieldOption.paste,
-                          AddressTextFieldOption.qrCode,
-                          AddressTextFieldOption.addressBook
-                        ],
-                        onPushPasteButton: (context) async {
-                          template.output.resetParsedAddress();
-                          await template.output.fetchParsedAddress(context);
-                        },
-                        onPushAddressBookButton: (context) async {
-                          template.output.resetParsedAddress();
-                          await template.output.fetchParsedAddress(context);
-                        },
-                        buttonColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-                        borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                        textStyle: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                        hintStyle: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
-                        ),
-                        validator: sendTemplateViewModel.addressValidator,
-                      );
-                    }
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: Focus(
-                    onFocusChange: (hasFocus) {
-                      if (hasFocus) {
-                        template.selectCurrency();
-                      }
-                    },
-                    child: BaseTextFormField(
-                      focusNode: _cryptoAmountFocus,
-                      controller: _cryptoAmountController,
-                      keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-                      inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))],
-                      prefixIcon: Observer(
-                        builder: (_) => PrefixCurrencyIcon(
-                          title: template.selectedCurrency.title,
-                          isSelected: template.isCurrencySelected,
-                          onTap: sendTemplateViewModel.walletCurrencies.length > 1
-                              ? () => _presentPicker(context)
-                              : null,
-                        ),
-                      ),
-                      hintText: '0.0000',
-                      borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                      textStyle:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
-                      placeholderTextStyle: TextStyle(
-                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14),
-                      validator: sendTemplateViewModel.amountValidator,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: Focus(
-                    onFocusChange: (hasFocus) {
-                      if (hasFocus) {
-                        template.selectFiat();
-                      }
-                    },
-                    child: BaseTextFormField(
-                      focusNode: _fiatAmountFocus,
-                      controller: _fiatAmountController,
-                      keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-                      inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))],
-                      prefixIcon: Observer(
-                          builder: (_) => PrefixCurrencyIcon(
-                              title: sendTemplateViewModel.fiatCurrency,
-                              isSelected: template.isFiatSelected)),
-                      hintText: '0.00',
-                      borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                      textStyle:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
-                      placeholderTextStyle: TextStyle(
-                        color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
-                        fontWeight: FontWeight.w500,
+                  child: Observer(builder: (context) {
+                    return AddressTextField(
+                      selectedCurrency: template.selectedCurrency,
+                      controller: _addressController,
+                      onURIScanned: (uri) {
+                        final paymentRequest = PaymentRequest.fromUri(uri);
+                        _addressController.text = paymentRequest.address;
+                        _cryptoAmountController.text = paymentRequest.amount;
+                      },
+                      options: [
+                        AddressTextFieldOption.paste,
+                        AddressTextFieldOption.qrCode,
+                        AddressTextFieldOption.addressBook
+                      ],
+                      onPushPasteButton: (context) async {
+                        template.output.resetParsedAddress();
+                        await template.output.fetchParsedAddress(context);
+                      },
+                      onPushAddressBookButton: (context) async {
+                        template.output.resetParsedAddress();
+                        await template.output.fetchParsedAddress(context);
+                      },
+                      buttonColor:
+                          Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                      borderColor:
+                          Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                      textStyle: TextStyle(
                         fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
                       ),
-                    ),
+                      hintStyle: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
+                      ),
+                      validator: sendTemplateViewModel.addressValidator,
+                    );
+                  }),
+                ),
+                Focus(
+                  onFocusChange: (hasFocus) {
+                    if (hasFocus) template.setCryptoCurrency(true);
+                  },
+                  child: Column(
+                    children: [
+                      Observer(
+                          builder: (context) => CurrencyAmountTextField(
+                              selectedCurrency: template.selectedCurrency.title,
+                              amountFocusNode: _cryptoAmountFocus,
+                              amountController: _cryptoAmountController,
+                              isSelected: template.isCryptoSelected,
+                              tag: template.selectedCurrency.tag,
+                              isPickerEnable: sendTemplateViewModel.hasMultipleTokens,
+                              onTapPicker: () => _presentPicker(context),
+                              currencyValueValidator: sendTemplateViewModel.amountValidator,
+                              isAmountEditable: true)),
+                      Divider(
+                          height: 1,
+                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor)
+                    ],
+                  ),
+                ),
+                Focus(
+                  onFocusChange: (hasFocus) {
+                    if (hasFocus) template.setCryptoCurrency(false);
+                  },
+                  child: Column(
+                    children: [
+                      Observer(
+                          builder: (context) => CurrencyAmountTextField(
+                              selectedCurrency: sendTemplateViewModel.fiatCurrency,
+                              amountFocusNode: _fiatAmountFocus,
+                              amountController: _fiatAmountController,
+                              isSelected: !template.isCryptoSelected,
+                              hintText: '0.00',
+                              isAmountEditable: true)),
+                      Divider(
+                          height: 1,
+                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor)
+                    ],
                   ),
                 ),
               ],
