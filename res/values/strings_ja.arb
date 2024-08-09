@@ -338,6 +338,7 @@
   "incoming": "着信",
   "incorrect_seed": "入力されたテキストは無効です。",
   "inputs": "入力",
+  "insufficientFundsForRentError": "アカウントの取引料金とレンタルをカバーするのに十分なソルがありません。財布にソルを追加するか、送信するソル量を減らしてください",
   "introducing_cake_pay": "序章Cake Pay！",
   "invalid_input": "無効入力",
   "invoice_details": "請求の詳細",

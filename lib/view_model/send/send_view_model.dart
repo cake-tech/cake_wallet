@@ -584,7 +584,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     if (walletType == WalletType.solana) {
       if (errorMessage.contains('insufficient funds for rent')) {
-        return 'You do not have enough SOL to cover the transaction fee and rent for the account. Kindly add more SOL to your wallet or reduce the SOL amount you\'re sending.';
+        return S.current.insufficientFundsForRentError;
       }
 
       return errorMessage;
