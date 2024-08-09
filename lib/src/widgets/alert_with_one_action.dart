@@ -9,7 +9,9 @@ class AlertWithOneAction extends BaseAlertDialog {
     required this.buttonAction,
     this.alertBarrierDismissible = true,
     this.headerTitleText,
-    this.headerImageProfileUrl
+    this.headerImageProfileUrl,
+    this.buttonKey,
+    Key? key,
   });
 
   final String alertTitle;
@@ -19,6 +21,7 @@ class AlertWithOneAction extends BaseAlertDialog {
   final bool alertBarrierDismissible;
   final String? headerTitleText;
   final String? headerImageProfileUrl;
+  final Key? buttonKey;
 
   @override
   String get titleText => alertTitle;
@@ -45,6 +48,7 @@ class AlertWithOneAction extends BaseAlertDialog {
       child: ButtonTheme(
         minWidth: double.infinity,
         child: TextButton(
+            key: buttonKey,
             onPressed: buttonAction,
             // FIX-ME: Style
             //highlightColor: Colors.transparent,

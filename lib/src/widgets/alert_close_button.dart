@@ -3,7 +3,12 @@ import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 
 class AlertCloseButton extends StatelessWidget {
-  AlertCloseButton({this.image, this.bottom, this.onTap});
+  AlertCloseButton({
+    this.image,
+    this.bottom,
+    this.onTap,
+    super.key,
+  });
 
   final VoidCallback? onTap;
 

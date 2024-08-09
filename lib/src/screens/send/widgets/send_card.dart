@@ -157,6 +157,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                           : sendViewModel.addressValidator;
 
                       return AddressTextField(
+                        addressKey: ValueKey('send_page_address_textfield_key'),
                         focusNode: addressFocusNode,
                         controller: addressController,
                         onURIScanned: (uri) {
@@ -221,6 +222,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                             padding: EdgeInsets.only(right: 8),
                                             height: 32,
                                             child: InkWell(
+                                              key: ValueKey('send_page_currency_picker_button_key'),
                                               onTap: () => _presentPicker(context),
                                               child: Row(
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -298,6 +300,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                 child: Stack(
                                   children: [
                                     BaseTextFormField(
+                                      key: ValueKey('send_page_amount_textfield_key'),
                                       focusNode: cryptoAmountFocus,
                                       controller: cryptoAmountController,
                                       keyboardType: TextInputType.numberWithOptions(
@@ -332,6 +335,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                           width: prefixIconWidth,
                                           height: prefixIconHeight,
                                           child: InkWell(
+                                            key: ValueKey('send_page_send_all_button_key'),
                                             onTap: () async {
                                               output.setSendAll(sendViewModel.balance);
                                             },
@@ -405,6 +409,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       Padding(
                         padding: const EdgeInsets.only(top: 20),
                         child: BaseTextFormField(
+                          key: ValueKey('send_page_fiat_amount_textfield_key'),
                           focusNode: fiatAmountFocus,
                           controller: fiatAmountController,
                           keyboardType:
@@ -440,6 +445,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: BaseTextFormField(
+                        key: ValueKey('send_page_note_textfield_key'),
                         controller: noteController,
                         keyboardType: TextInputType.multiline,
                         maxLines: null,
@@ -458,6 +464,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     if (sendViewModel.hasFees)
                       Observer(
                         builder: (_) => GestureDetector(
+                          key: ValueKey('send_page_select_fee_priority_button_key'),
                           onTap: sendViewModel.hasFeesPriority
                               ? () => pickTransactionPriority(context)
                               : () {},
@@ -531,6 +538,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       Padding(
                         padding: EdgeInsets.only(top: 6),
                         child: GestureDetector(
+                          key: ValueKey('send_page_unspent_coin_button_key'),
                           onTap: () => Navigator.of(context).pushNamed(Routes.unspentCoinsList),
                           child: Container(
                             color: Colors.transparent,
@@ -715,6 +723,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     showPopUp<void>(
       context: context,
       builder: (_) => CurrencyPicker(
+        key: ValueKey('send_page_currency_picker_dialog_button_key'),
         selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
         items: sendViewModel.currencies,
         hintText: S.of(context).search_currency,

@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class ActionButton extends StatelessWidget {
-  ActionButton(
-      {required this.image,
-        required this.title,
-        this.route,
-        this.onClick,
-        this.alignment = Alignment.center,
-        this.textColor});
+  ActionButton({
+    required this.image,
+    required this.title,
+    this.route,
+    this.onClick,
+    this.alignment = Alignment.center,
+    this.textColor,
+    super.key,
+  });
 
   final Image image;
   final String title;

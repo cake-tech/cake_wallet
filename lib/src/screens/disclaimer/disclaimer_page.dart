@@ -207,6 +207,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                           padding: EdgeInsets.only(
                               left: 24.0, top: 10.0, right: 24.0, bottom: 10.0),
                           child: InkWell(
+                            key: ValueKey('disclaimer_check_key'),
                             onTap: () {
                               setState(() {
                                 _checked = !_checked;
@@ -230,6 +231,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                       color: Theme.of(context).colorScheme.background),
                                   child: _checked
                                       ? Icon(
+                                          key: ValueKey('disclaimer_check_icon_key'),
                                           Icons.check,
                                           color: Colors.blue,
                                           size: 20.0,
@@ -253,6 +255,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                   padding:
                       EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
                   child: PrimaryButton(
+                      key: ValueKey('disclaimer_accept_button_key'),
                       onPressed: _checked
                           ? () => Navigator.of(context)
                               .popAndPushNamed(Routes.welcome)

@@ -4,15 +4,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton(
-      {required this.text,
-      required this.color,
-      required this.textColor,
-      this.onPressed,
-      this.isDisabled = false,
-      this.isDottedBorder = false,
-      this.borderColor = Colors.black,
-      this.onDisabledPressed});
+  const PrimaryButton({
+    required this.text,
+    required this.color,
+    required this.textColor,
+    this.onPressed,
+    this.isDisabled = false,
+    this.isDottedBorder = false,
+    this.borderColor = Colors.black,
+    this.onDisabledPressed,
+    super.key,
+  });
 
   final VoidCallback? onPressed;
   final VoidCallback? onDisabledPressed;
@@ -31,23 +33,23 @@ class PrimaryButton extends StatelessWidget {
           width: double.infinity,
           height: 52.0,
           child: TextButton(
-            onPressed: isDisabled
-                ? (onDisabledPressed != null ? onDisabledPressed : null) : onPressed,
-            style: ButtonStyle(backgroundColor: MaterialStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),
+            onPressed:
+                isDisabled ? (onDisabledPressed != null ? onDisabledPressed : null) : onPressed,
+            style: ButtonStyle(
+                backgroundColor:
+                    MaterialStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(26.0),
                   ),
                 ),
-              overlayColor: MaterialStateProperty.all(Colors.transparent)),
+                overlayColor: MaterialStateProperty.all(Colors.transparent)),
             child: Text(text,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 15.0,
                     fontWeight: FontWeight.w600,
-                    color: isDisabled
-                        ? textColor.withOpacity(0.5)
-                        : textColor)),
+                    color: isDisabled ? textColor.withOpacity(0.5) : textColor)),
           )),
     );
 
@@ -64,13 +66,15 @@ class PrimaryButton extends StatelessWidget {
 }
 
 class LoadingPrimaryButton extends StatelessWidget {
-  const LoadingPrimaryButton(
-      {required this.onPressed,
-        required this.text,
-        required this.color,
-        required this.textColor,
-        this.isDisabled = false,
-        this.isLoading = false});
+  const LoadingPrimaryButton({
+    required this.onPressed,
+    required this.text,
+    required this.color,
+    required this.textColor,
+    this.isDisabled = false,
+    this.isLoading = false,
+    super.key,
+  });
 
   final VoidCallback onPressed;
   final Color color;
@@ -88,41 +92,38 @@ class LoadingPrimaryButton extends StatelessWidget {
           height: 52.0,
           child: TextButton(
             onPressed: (isLoading || isDisabled) ? null : onPressed,
-            style: ButtonStyle(backgroundColor: MaterialStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(26.0),
-                ),
-              )),
-
+            style: ButtonStyle(
+                backgroundColor:
+                    MaterialStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(26.0),
+                  ),
+                )),
             child: isLoading
                 ? CupertinoActivityIndicator(animating: true)
                 : Text(text,
-                style: TextStyle(
-                    fontSize: 15.0,
-                    fontWeight: FontWeight.w600,
-                    color: isDisabled
-                        ? textColor.withOpacity(0.5)
-                        : textColor
-                )),
+                    style: TextStyle(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w600,
+                        color: isDisabled ? textColor.withOpacity(0.5) : textColor)),
           )),
     );
   }
 }
 
 class PrimaryIconButton extends StatelessWidget {
-  const PrimaryIconButton({
-    required this.onPressed,
-    required this.iconData,
-    required this.text,
-    required this.color,
-    required this.borderColor,
-    required this.iconColor,
-    required this.iconBackgroundColor,
-    required this.textColor,
-    this.mainAxisAlignment = MainAxisAlignment.start,
-    this.radius = 26
-  });
+  const PrimaryIconButton(
+      {required this.onPressed,
+      required this.iconData,
+      required this.text,
+      required this.color,
+      required this.borderColor,
+      required this.iconColor,
+      required this.iconBackgroundColor,
+      required this.textColor,
+      this.mainAxisAlignment = MainAxisAlignment.start,
+      this.radius = 26, super.key});
 
   final VoidCallback onPressed;
   final IconData iconData;
@@ -144,7 +145,8 @@ class PrimaryIconButton extends StatelessWidget {
           height: 52.0,
           child: TextButton(
             onPressed: onPressed,
-            style: ButtonStyle(backgroundColor: MaterialStateProperty.all(color),
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(color),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(radius),
@@ -158,21 +160,15 @@ class PrimaryIconButton extends StatelessWidget {
                     Container(
                       width: 26.0,
                       height: 52.0,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle, color: iconBackgroundColor),
-                      child: Center(
-                          child: Icon(iconData, color: iconColor, size: 22.0)
-                      ),
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: iconBackgroundColor),
+                      child: Center(child: Icon(iconData, color: iconColor, size: 22.0)),
                     ),
                   ],
                 ),
                 Container(
                   height: 52.0,
                   child: Center(
-                    child: Text(text,
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            color: textColor)),
+                    child: Text(text, style: TextStyle(fontSize: 16.0, color: textColor)),
                   ),
                 )
               ],
@@ -189,7 +185,7 @@ class PrimaryImageButton extends StatelessWidget {
       required this.text,
       required this.color,
       required this.textColor,
-      this.borderColor = Colors.transparent});
+      this.borderColor = Colors.transparent, super.key});
 
   final VoidCallback onPressed;
   final Image image;
@@ -206,31 +202,27 @@ class PrimaryImageButton extends StatelessWidget {
           width: double.infinity,
           height: 52.0,
           child: TextButton(
-            onPressed: onPressed,
-            style: ButtonStyle(backgroundColor: MaterialStateProperty.all(color),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(26.0),
-                  ),
-                )),
-            child:Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  image,
-                  SizedBox(width: 15),
-                  Text(
-                    text,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: textColor
+              onPressed: onPressed,
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(color),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(26.0),
                     ),
-                  )
-                ],
-              ),
-            )
-          )),
+                  )),
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    image,
+                    SizedBox(width: 15),
+                    Text(
+                      text,
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: textColor),
+                    )
+                  ],
+                ),
+              ))),
     );
   }
 }
