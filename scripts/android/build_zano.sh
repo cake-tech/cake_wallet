@@ -4,10 +4,10 @@ set -o xtrace
 . ./config.sh
 #HAVEN_VERSION=tags/v3.0.7
 ZANO_SRC_DIR=${WORKDIR}/zano
-ZANO_CHECKOUT_ID=master
+ZANO_CHECKOUT_ID=develop
 
 git clone --recursive https://github.com/hyle-team/zano.git ${ZANO_SRC_DIR}
-#cd $ZANO_SRC_DIR
+cd $ZANO_SRC_DIR
 git checkout ${ZANO_CHECKOUT_ID}
 git submodule init
 git submodule update

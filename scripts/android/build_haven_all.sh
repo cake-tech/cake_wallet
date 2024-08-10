@@ -7,3 +7,4 @@
 ./build_zmq.sh
 ./build_haven.sh
 ./build_zano.sh
+./copy_zano_libs.sh
