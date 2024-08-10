@@ -1539,7 +1539,17 @@ abstract class ElectrumWalletBase
     final ins = <BtcTransaction>[];
 
     for (final vin in original.inputs) {
-      ins.add(BtcTransaction.fromRaw(await electrumClient.getTransactionHex(hash: vin.txId)));
+      final verboseTransaction = await electrumClient.getTransactionVerbose(hash: vin.txId);
+
+      final String inputTransactionHex;
+
+      if (verboseTransaction.isEmpty) {
+        inputTransactionHex = await electrumClient.getTransactionHex(hash: hash);
+      } else {
+        inputTransactionHex = verboseTransaction['hex'] as String;
+      }
+
+      ins.add(BtcTransaction.fromRaw(inputTransactionHex));
     }
 
     return ElectrumTransactionBundle(
