@@ -1333,10 +1333,17 @@ abstract class ElectrumWalletBase
   }
 
   Future<bool> canReplaceByFee(String hash) async {
-    // TODO: not every node supports verbose
     final verboseTransaction = await electrumClient.getTransactionVerbose(hash: hash);
-    final confirmations = verboseTransaction['confirmations'] as int? ?? 0;
-    final transactionHex = verboseTransaction['hex'] as String?;
+
+    final String? transactionHex;
+    int confirmations = 0;
+
+    if (verboseTransaction.isEmpty) {
+      transactionHex = await electrumClient.getTransactionHex(hash: hash);
+    } else {
+      confirmations = verboseTransaction['confirmations'] as int? ?? 0;
+      transactionHex = verboseTransaction['hex'] as String?;
+    }
 
     if (confirmations > 0) return false;
 
