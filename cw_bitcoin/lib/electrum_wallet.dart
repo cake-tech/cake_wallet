@@ -445,19 +445,16 @@ abstract class ElectrumWalletBase
 
     final version = await electrumClient.version();
 
-    if (version.isEmpty) {
-      node!.isElectrs = false;
-      node!.save();
-      return node!.isElectrs!;
+    if (version.isNotEmpty) {
+      final server = version[0];
+
+      if (server.toLowerCase().contains('electrs')) {
+        node!.isElectrs = true;
+        node!.save();
+        return node!.isElectrs!;
+      }
     }
 
-    final server = version[0];
-
-    if (server.toLowerCase().contains('electrs')) {
-      node!.isElectrs = true;
-      node!.save();
-      return node!.isElectrs!;
-    }
 
     node!.isElectrs = false;
     node!.save();
