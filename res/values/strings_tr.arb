@@ -695,6 +695,7 @@
   "sync_status_connecting": "BAĞLANILIYOR",
   "sync_status_failed_connect": "BAĞLANTI KESİLDİ",
   "sync_status_not_connected": "BAĞLI DEĞİL",
+  "sync_status_starting_scan": "Başlangıç ​​taraması",
   "sync_status_starting_sync": "SENKRONİZE BAŞLATILIYOR",
   "sync_status_syncronized": "SENKRONİZE EDİLDİ",
   "sync_status_syncronizing": "SENKRONİZE EDİLİYOR",

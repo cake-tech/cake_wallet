@@ -695,6 +695,7 @@
   "sync_status_connecting": "CONNEXION EN COURS",
   "sync_status_failed_connect": "DÉCONNECTÉ",
   "sync_status_not_connected": "NON CONNECTÉ",
+  "sync_status_starting_scan": "Démarrage",
   "sync_status_starting_sync": "DÉBUT DE SYNCHRO",
   "sync_status_syncronized": "SYNCHRONISÉ",
   "sync_status_syncronizing": "SYNCHRONISATION EN COURS",

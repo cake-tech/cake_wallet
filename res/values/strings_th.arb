@@ -695,6 +695,7 @@
   "sync_status_connecting": "กำลังเชื่อมต่อ",
   "sync_status_failed_connect": "การเชื่อมต่อล้มเหลว",
   "sync_status_not_connected": "ไม่ได้เชื่อมต่อ",
+  "sync_status_starting_scan": "เริ่มการสแกน",
   "sync_status_starting_sync": "กำลังเริ่มซิงโครไนซ์",
   "sync_status_syncronized": "ซิงโครไนซ์แล้ว",
   "sync_status_syncronizing": "กำลังซิงโครไนซ์",

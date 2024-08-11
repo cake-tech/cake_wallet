@@ -696,6 +696,7 @@
   "sync_status_connecting": "ПІДКЛЮЧЕННЯ",
   "sync_status_failed_connect": "ВІДКЛЮЧЕНО",
   "sync_status_not_connected": "НЕ ПІДКЛЮЧЕННИЙ",
+  "sync_status_starting_scan": "Початок сканування",
   "sync_status_starting_sync": "ПОЧАТОК СИНХРОНІЗАЦІЇ",
   "sync_status_syncronized": "СИНХРОНІЗОВАНИЙ",
   "sync_status_syncronizing": "СИНХРОНІЗАЦІЯ",

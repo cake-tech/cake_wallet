@@ -697,6 +697,7 @@
   "sync_status_connecting": "جڑ رہا ہے۔",
   "sync_status_failed_connect": "منقطع",
   "sync_status_not_connected": "منسلک نہیں",
+  "sync_status_starting_scan": "اسکین شروع کرنا",
   "sync_status_starting_sync": "مطابقت پذیری شروع کر رہا ہے۔",
   "sync_status_syncronized": "مطابقت پذیر",
   "sync_status_syncronizing": "مطابقت پذیری",

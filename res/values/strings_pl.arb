@@ -695,6 +695,7 @@
   "sync_status_connecting": "ŁĄCZENIE",
   "sync_status_failed_connect": "POŁĄCZENIE NIEUDANE",
   "sync_status_not_connected": "NIE POŁĄCZONY",
+  "sync_status_starting_scan": "Rozpoczęcie skanowania",
   "sync_status_starting_sync": "ROZPOCZĘCIE SYNCHRONIZACJI",
   "sync_status_syncronized": "ZSYNCHRONIZOWANO",
   "sync_status_syncronizing": "SYNCHRONIZACJA",

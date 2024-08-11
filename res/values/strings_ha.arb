@@ -697,6 +697,7 @@
   "sync_status_connecting": "HADA",
   "sync_status_failed_connect": "BABU INTERNET",
   "sync_status_not_connected": "BABU INTERNET",
+  "sync_status_starting_scan": "Fara scan",
   "sync_status_starting_sync": "KWAFI",
   "sync_status_syncronized": "KYAU",
   "sync_status_syncronizing": "KWAFI",

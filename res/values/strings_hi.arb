@@ -697,6 +697,7 @@
   "sync_status_connecting": "कनेक्ट",
   "sync_status_failed_connect": "डिस्कनेक्ट किया गया",
   "sync_status_not_connected": "जुड़े नहीं हैं",
+  "sync_status_starting_scan": "स्कैन शुरू करना",
   "sync_status_starting_sync": "सिताज़ा करना",
   "sync_status_syncronized": "सिंक्रनाइज़",
   "sync_status_syncronizing": "सिंक्रनाइज़ करने",

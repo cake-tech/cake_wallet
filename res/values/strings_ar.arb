@@ -695,6 +695,7 @@
   "sync_status_connecting": "يتم التوصيل",
   "sync_status_failed_connect": "انقطع الاتصال",
   "sync_status_not_connected": "غير متصل",
+  "sync_status_starting_scan": "بدء المسح",
   "sync_status_starting_sync": "بدء المزامنة",
   "sync_status_syncronized": "متزامن",
   "sync_status_syncronizing": "يتم المزامنة",

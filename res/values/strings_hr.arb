@@ -695,6 +695,7 @@
   "sync_status_connecting": "SPAJANJE",
   "sync_status_failed_connect": "ISKLJUČENO",
   "sync_status_not_connected": "NIJE POVEZANO",
+  "sync_status_starting_scan": "Početno skeniranje",
   "sync_status_starting_sync": "ZAPOČINJEMO SINKRONIZIRANJE",
   "sync_status_syncronized": "SINKRONIZIRANO",
   "sync_status_syncronizing": "SINKRONIZIRANJE",

@@ -302,16 +302,13 @@ class CWBitcoin extends Bitcoin {
     await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
 
     late BasedUtxoNetwork network;
-    btc.NetworkType networkType;
     switch (node.type) {
       case WalletType.litecoin:
         network = LitecoinNetwork.mainnet;
-        networkType = litecoinNetwork;
         break;
       case WalletType.bitcoin:
       default:
         network = BitcoinNetwork.mainnet;
-        networkType = btc.bitcoin;
         break;
     }
 
@@ -341,10 +338,8 @@ class CWBitcoin extends Bitcoin {
             balancePath += "/0";
           }
 
-          final hd = btc.HDWallet.fromSeed(
-            seedBytes,
-            network: networkType,
-          ).derivePath(balancePath);
+          final hd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(balancePath)
+              as Bip32Slip10Secp256k1;
 
           // derive address at index 0:
           String? address;
@@ -515,10 +510,7 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<void> setScanningActive(Object wallet, bool active) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    bitcoinWallet.setSilentPaymentsScanning(
-      active,
-      active && (await getNodeIsElectrsSPEnabled(wallet)),
-    );
+    bitcoinWallet.setSilentPaymentsScanning(active);
   }
 
   @override
@@ -536,44 +528,10 @@ class CWBitcoin extends Bitcoin {
     bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
   }
 
-  Future<bool> getNodeIsElectrs(Object wallet) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
-
-    final version = await bitcoinWallet.electrumClient.version();
-
-    if (version.isEmpty) {
-      return false;
-    }
-
-    final server = version[0];
-
-    if (server.toLowerCase().contains('electrs')) {
-      return true;
-    }
-
-    return false;
-  }
-
   @override
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet) async {
-    if (!(await getNodeIsElectrs(wallet))) {
-      return false;
-    }
-
     final bitcoinWallet = wallet as ElectrumWallet;
-    try {
-      final tweaksResponse = await bitcoinWallet.electrumClient.getTweaks(height: 0);
-
-      if (tweaksResponse != null) {
-        return true;
-      }
-    } on RequestFailedTimeoutException catch (_) {
-      return false;
-    } catch (_) {
-      rethrow;
-    }
-
-    return false;
+    return bitcoinWallet.getNodeSupportsSilentPayments();
   }
 
   @override

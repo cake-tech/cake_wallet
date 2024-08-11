@@ -695,6 +695,7 @@
   "sync_status_connecting": "PŘIPOJOVÁNÍ",
   "sync_status_failed_connect": "ODPOJENO",
   "sync_status_not_connected": "NEPŘIPOJENO",
+  "sync_status_starting_scan": "Počáteční skenování",
   "sync_status_starting_sync": "SPOUŠTĚNÍ SYNCHRONIZACE",
   "sync_status_syncronized": "SYNCHRONIZOVÁNO",
   "sync_status_syncronizing": "SYNCHRONIZUJI",
