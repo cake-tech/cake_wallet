@@ -45,7 +45,6 @@ dependencies:
       url: https://github.com/rafael-xmr/sp_scanner
       ref: sp_v4.0.0
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -65,6 +64,10 @@ dependency_overrides:
     git:
       url: https://github.com/cake-tech/bitcoin_base
       ref: cake-update-v5
+
+
+
+  pointycastle: 3.7.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

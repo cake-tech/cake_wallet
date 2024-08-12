@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:blockchain_utils/bip/bip/bip32/base/bip32_base.dart';
 import 'package:collection/collection.dart';
 import 'package:convert/convert.dart' as convert;
 import 'package:crypto/crypto.dart';
@@ -65,7 +64,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           seedBytes: seedBytes,
           currency: CryptoCurrency.ltc,
         ) {
-    mwebHd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/1000") as Bip32Slip10Secp256k1;
+    mwebHd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/1000'") as Bip32Slip10Secp256k1;
     mwebEnabled = alwaysScan ?? false;
     walletAddresses = LitecoinWalletAddresses(
       walletInfo,
@@ -84,7 +83,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       _stub = value;
     });
   }
-
   late final Bip32Slip10Secp256k1 mwebHd;
   late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;

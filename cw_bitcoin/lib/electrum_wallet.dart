@@ -105,11 +105,17 @@ abstract class ElectrumWalletBase
     }
 
     if (seedBytes != null) {
-      return currency == CryptoCurrency.bch
-          ? bitcoinCashHDWallet(seedBytes)
-          : Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(
+      switch (currency) {
+        case CryptoCurrency.btc:
+        case CryptoCurrency.ltc:
+          return Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(
                   _hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path))
               as Bip32Slip10Secp256k1;
+        case CryptoCurrency.bch:
+          return bitcoinCashHDWallet(seedBytes);
+        default:
+          throw Exception("Unsupported currency");
+      }
     }
 
     return Bip32Slip10Secp256k1.fromExtendedKey(xpub!);
@@ -460,7 +466,6 @@ abstract class ElectrumWalletBase
         return node!.isElectrs!;
       }
     }
-
 
     node!.isElectrs = false;
     node!.save();
@@ -2281,4 +2286,3 @@ class UtxoDetails {
     required this.spendsUnconfirmedTX,
   });
 }
-

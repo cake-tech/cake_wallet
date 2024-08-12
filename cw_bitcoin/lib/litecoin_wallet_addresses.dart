@@ -27,9 +27,10 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   final Bip32Slip10Secp256k1 mwebHd;
+
   List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
-  // TODO: I'm not 100% sure if it's supposed to be the compressed or uncompressed public key!
-  List<int> get spendPubkey => mwebHd.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
+  List<int> get spendPubkey =>
+      mwebHd.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
 
   List<String> mwebAddrs = [];
 
