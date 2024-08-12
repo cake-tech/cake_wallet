@@ -34,7 +34,7 @@ class CakePayBuyCardDetailPage extends BasePage {
 
   @override
   Widget? middle(BuildContext context) {
-    return  Text(
+    return Text(
       title,
       textAlign: TextAlign.center,
       maxLines: 2,
@@ -359,7 +359,7 @@ class CakePayBuyCardDetailPage extends BasePage {
     reaction((_) => cakePayPurchaseViewModel.sendViewModel.state, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showStateAlert(context, S.of(context).error, state.error);
+          if (context.mounted) showStateAlert(context, S.of(context).error, state.error);
         });
       }
 
@@ -381,31 +381,35 @@ class CakePayBuyCardDetailPage extends BasePage {
   }
 
   void showStateAlert(BuildContext context, String title, String content) {
-    showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
-              alertTitle: title,
-              alertContent: content,
-              buttonText: S.of(context).ok,
-              buttonAction: () => Navigator.of(context).pop());
-        });
+    if (context.mounted) {
+      showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: title,
+                alertContent: content,
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+    }
   }
 
   Future<void> showSentAlert(BuildContext context) async {
+    if (!context.mounted) {
+      return;
+    }
     final order = cakePayPurchaseViewModel.order!.orderId;
     final isCopy = await showPopUp<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithTwoActions(
-              alertTitle: S.of(context).transaction_sent,
-              alertContent:
-              S.of(context).cake_pay_save_order + '\n${order}',
-              leftButtonText: S.of(context).ignor,
-              rightButtonText: S.of(context).copy,
-              actionLeftButton: () => Navigator.of(context).pop(false),
-              actionRightButton: () => Navigator.of(context).pop(true));
-        }) ??
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithTwoActions(
+                  alertTitle: S.of(context).transaction_sent,
+                  alertContent: S.of(context).cake_pay_save_order + '\n${order}',
+                  leftButtonText: S.of(context).ignor,
+                  rightButtonText: S.of(context).copy,
+                  actionLeftButton: () => Navigator.of(context).pop(false),
+                  actionRightButton: () => Navigator.of(context).pop(true));
+            }) ??
         false;
 
     if (isCopy) {

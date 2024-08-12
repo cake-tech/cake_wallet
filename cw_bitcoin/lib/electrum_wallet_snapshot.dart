@@ -32,15 +32,21 @@ class ElectrumWalletSnapshot {
   final WalletType type;
   final String? addressPageType;
 
+  @deprecated
   String? mnemonic;
+
+  @deprecated
   String? xpub;
+
+  @deprecated
+  String? passphrase;
+
   List<BitcoinAddressRecord> addresses;
   List<BitcoinSilentPaymentAddressRecord> silentAddresses;
   ElectrumBalance balance;
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
   int silentAddressIndex;
-  String? passphrase;
   DerivationType? derivationType;
   String? derivationPath;
 
