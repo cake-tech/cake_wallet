@@ -19,10 +19,6 @@ dependencies:
   intl: ^0.18.0
   cw_core:
     path: ../cw_core
-  bitcoin_flutter:
-    git:
-      url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v4
   bitbox:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
@@ -32,19 +28,19 @@ dependencies:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v3
+      ref: cake-update-v4
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v1
+      ref: cake-update-v2
   ledger_flutter: ^1.0.1
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-bitcoin
   sp_scanner:
-     git:
-       url: https://github.com/cake-tech/sp_scanner
-       ref: sp_v2.1.0
+    git:
+      url: https://github.com/rafael-xmr/sp_scanner
+      ref: sp_v4.0.0
 
 
 dev_dependencies:

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
@@ -208,169 +209,19 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                               textStyle: TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                               validator: sendViewModel.addressValidator)),
-                    Observer(
-                      builder: (_) => Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
-                                child: Row(
-                                  children: [
-                                    sendViewModel.hasMultipleTokens
-                                        ? Container(
-                                            padding: EdgeInsets.only(right: 8),
-                                            height: 32,
-                                            child: InkWell(
-                                              key: ValueKey('send_page_currency_picker_button_key'),
-                                              onTap: () => _presentPicker(context),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: <Widget>[
-                                                  Padding(
-                                                    padding: EdgeInsets.only(right: 5),
-                                                    child: Image.asset(
-                                                      'assets/images/arrow_bottom_purple_icon.png',
-                                                      color: Colors.white,
-                                                      height: 8,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    sendViewModel.selectedCryptoCurrency.title,
-                                                    style: TextStyle(
-                                                        fontWeight: FontWeight.w600,
-                                                        fontSize: 16,
-                                                        color: Colors.white),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          )
-                                        : Text(
-                                            sendViewModel.selectedCryptoCurrency.title,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 16,
-                                                color: Colors.white),
-                                          ),
-                                    sendViewModel.selectedCryptoCurrency.tag != null
-                                        ? Padding(
-                                            padding: const EdgeInsets.fromLTRB(3.0, 0, 3.0, 0),
-                                            child: Container(
-                                              height: 32,
-                                              decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .extension<SendPageTheme>()!
-                                                      .textFieldButtonColor,
-                                                  borderRadius: BorderRadius.all(
-                                                    Radius.circular(6),
-                                                  )),
-                                              child: Center(
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(6.0),
-                                                  child: Text(
-                                                    sendViewModel.selectedCryptoCurrency.tag!,
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: Theme.of(context)
-                                                            .extension<SendPageTheme>()!
-                                                            .textFieldButtonIconColor),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        : Container(),
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 10.0),
-                                      child: Text(
-                                        ':',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                            color: Colors.white),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Stack(
-                                  children: [
-                                    BaseTextFormField(
-                                      key: ValueKey('send_page_amount_textfield_key'),
-                                      focusNode: cryptoAmountFocus,
-                                      controller: cryptoAmountController,
-                                      keyboardType: TextInputType.numberWithOptions(
-                                          signed: false, decimal: true),
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
-                                      ],
-                                      suffixIcon: SizedBox(
-                                        width: prefixIconWidth,
-                                      ),
-                                      hintText: '0.0000',
-                                      borderColor: Colors.transparent,
-                                      textStyle: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white),
-                                      placeholderTextStyle: TextStyle(
-                                          color: Theme.of(context)
-                                              .extension<SendPageTheme>()!
-                                              .textFieldHintColor,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14),
-                                      validator: output.sendAll
-                                          ? sendViewModel.allAmountValidator
-                                          : sendViewModel.amountValidator,
-                                    ),
-                                    if (!sendViewModel.isBatchSending)
-                                      Positioned(
-                                        top: 2,
-                                        right: 0,
-                                        child: Container(
-                                          width: prefixIconWidth,
-                                          height: prefixIconHeight,
-                                          child: InkWell(
-                                            key: ValueKey('send_page_send_all_button_key'),
-                                            onTap: () async {
-                                              output.setSendAll(sendViewModel.balance);
-                                            },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .extension<SendPageTheme>()!
-                                                    .textFieldButtonColor,
-                                                borderRadius: BorderRadius.all(
-                                                  Radius.circular(6),
-                                                ),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  S.of(context).all,
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Theme.of(context)
-                                                        .extension<SendPageTheme>()!
-                                                        .textFieldButtonIconColor,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          )),
-                    ),
+                    CurrencyAmountTextField(
+                        selectedCurrency: sendViewModel.selectedCryptoCurrency.title,
+                        amountFocusNode: cryptoAmountFocus,
+                        amountController: cryptoAmountController,
+                        isAmountEditable: true,
+                        onTapPicker: () => _presentPicker(context),
+                        isPickerEnable: sendViewModel.hasMultipleTokens,
+                        tag: sendViewModel.selectedCryptoCurrency.tag,
+                        allAmountButton: !sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL,
+                        currencyValueValidator: output.sendAll
+                            ? sendViewModel.allAmountValidator
+                            : sendViewModel.amountValidator,
+                        allAmountCallback: () async => output.setSendAll(sendViewModel.balance)),
                     Divider(
                         height: 1,
                         color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
@@ -406,42 +257,16 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       ),
                     ),
                     if (!sendViewModel.isFiatDisabled)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20),
-                        child: BaseTextFormField(
-                          key: ValueKey('send_page_fiat_amount_textfield_key'),
-                          focusNode: fiatAmountFocus,
-                          controller: fiatAmountController,
-                          keyboardType:
-                              TextInputType.numberWithOptions(signed: false, decimal: true),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.deny(
-                              RegExp('[\\-|\\ ]'),
-                            )
-                          ],
-                          prefixIcon: Padding(
-                            padding: EdgeInsets.only(top: 9),
-                            child: Text(
-                              sendViewModel.fiat.title + ':',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
+                      CurrencyAmountTextField(
+                          selectedCurrency: sendViewModel.fiat.title,
+                          amountFocusNode: fiatAmountFocus,
+                          amountController: fiatAmountController,
                           hintText: '0.00',
-                          borderColor:
-                              Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                          textStyle: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
-                          placeholderTextStyle: TextStyle(
-                              color:
-                                  Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14),
-                        ),
-                      ),
+                          isAmountEditable: true,
+                          allAmountButton: false),
+                    Divider(
+                        height: 1,
+                        color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: BaseTextFormField(

@@ -67,17 +67,6 @@ class ExchangePage extends BasePage {
   Debounce _depositAmountDebounce = Debounce(Duration(milliseconds: 500));
   var _isReactionsSet = false;
 
-  final arrowBottomPurple = Image.asset(
-    'assets/images/arrow_bottom_purple_icon.png',
-    color: Colors.white,
-    height: 8,
-  );
-  final arrowBottomCakeGreen = Image.asset(
-    'assets/images/arrow_bottom_cake_green.png',
-    color: Colors.white,
-    height: 8,
-  );
-
   late final String? depositWalletName;
   late final String? receiveWalletName;
 
@@ -666,7 +655,6 @@ class ExchangePage extends BasePage {
 
                 exchangeViewModel.changeDepositCurrency(currency: currency);
               },
-              imageArrow: arrowBottomPurple,
               currencyButtonColor: Colors.transparent,
               addressButtonsColor:
                   Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
@@ -714,7 +702,6 @@ class ExchangePage extends BasePage {
               currencies: exchangeViewModel.receiveCurrencies,
               onCurrencySelected: (currency) =>
                   exchangeViewModel.changeReceiveCurrency(currency: currency),
-              imageArrow: arrowBottomCakeGreen,
               currencyButtonColor: Colors.transparent,
               addressButtonsColor:
                   Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
