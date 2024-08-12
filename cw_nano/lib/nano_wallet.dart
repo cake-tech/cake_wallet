@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/n2_node.dart';
+import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -11,22 +15,22 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/n2_node.dart';
+import 'package:cw_core/wallet_keys_file.dart';
+import 'package:cw_nano/file.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_transaction_history.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
+import 'package:cw_nano/nano_wallet_addresses.dart';
 import 'package:cw_nano/nano_wallet_keys.dart';
 import 'package:cw_nano/pending_nano_transaction.dart';
 import 'package:mobx/mobx.dart';
-import 'dart:async';
-import 'package:cw_nano/nano_wallet_addresses.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:nanodart/nanodart.dart';
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:nanoutil/nanoutil.dart';
 
 part 'nano_wallet.g.dart';
@@ -34,7 +38,8 @@ part 'nano_wallet.g.dart';
 class NanoWallet = NanoWalletBase with _$NanoWallet;
 
 abstract class NanoWalletBase
-    extends WalletBase<NanoBalance, NanoTransactionHistory, NanoTransactionInfo> with Store {
+    extends WalletBase<NanoBalance, NanoTransactionHistory, NanoTransactionInfo>
+    with Store, WalletKeysFile {
   NanoWalletBase({
     required WalletInfo walletInfo,
     required String mnemonic,
@@ -78,6 +83,7 @@ abstract class NanoWalletBase
 
   String? _representativeAddress;
   int repScore = 100;
+
   bool get isRepOk => repScore >= 90;
 
   late final NanoClient _client;
@@ -139,14 +145,10 @@ abstract class NanoWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    return 0; // always 0 :)
-  }
+  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0; // always 0 :)
 
   @override
-  Future<void> changePassword(String password) {
-    throw UnimplementedError("changePassword");
-  }
+  Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
   void close() {
@@ -181,9 +183,7 @@ abstract class NanoWalletBase
   }
 
   @override
-  Future<void> connectToPowNode({required Node node}) async {
-    _client.connectPow(node);
-  }
+  Future<void> connectToPowNode({required Node node}) async => _client.connectPow(node);
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
@@ -307,9 +307,7 @@ abstract class NanoWalletBase
   }
 
   @override
-  NanoWalletKeys get keys {
-    return NanoWalletKeys(seedKey: _hexSeed!);
-  }
+  NanoWalletKeys get keys => NanoWalletKeys(seedKey: _hexSeed!);
 
   @override
   String? get privateKey => _privateKey!;
@@ -323,6 +321,11 @@ abstract class NanoWalletBase
 
   @override
   Future<void> save() async {
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+      await saveKeysFile(_password);
+      saveKeysFile(_password, true);
+    }
+
     await walletAddresses.updateAddressesInBox();
     final path = await makePath();
     await _encryptionFileUtils.write(path: path, password: _password, data: toJSON());
@@ -333,6 +336,9 @@ abstract class NanoWalletBase
   String? get seed => _mnemonic.isNotEmpty ? _mnemonic : null;
 
   String get hexSeed => _hexSeed!;
+
+  @override
+  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, altMnemonic: hexSeed);
 
   String get representative => _representativeAddress ?? "";
 
@@ -369,8 +375,6 @@ abstract class NanoWalletBase
     }
   }
 
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
-
   String toJSON() => json.encode({
         'seedKey': _hexSeed,
         'mnemonic': _mnemonic,
@@ -385,31 +389,47 @@ abstract class NanoWalletBase
     required WalletInfo walletInfo,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
     final path = await pathForWallet(name: name, type: walletInfo.type);
-    final jsonSource = await encryptionFileUtils.read(path: path, password: password);
 
-    final data = json.decode(jsonSource) as Map;
-    final mnemonic = data['mnemonic'] as String;
+    Map<String, dynamic>? data = null;
+    try {
+      final jsonSource = await encryptionFileUtils.read(path: path, password: password);
+
+      data = json.decode(jsonSource) as Map<String, dynamic>;
+    } catch (e) {
+      if (!hasKeysFile) rethrow;
+    }
 
     final balance = NanoBalance.fromRawString(
-      currentBalance: data['currentBalance'] as String? ?? "0",
-      receivableBalance: data['receivableBalance'] as String? ?? "0",
+      currentBalance: data?['currentBalance'] as String? ?? "0",
+      receivableBalance: data?['receivableBalance'] as String? ?? "0",
     );
 
+    final WalletKeysData keysData;
+    // Migrate wallet from the old scheme to then new .keys file scheme
+    if (!hasKeysFile) {
+      final mnemonic = data!['mnemonic'] as String;
+      final isHexSeed = !mnemonic.contains(' ');
+
+      keysData = WalletKeysData(
+          mnemonic: isHexSeed ? null : mnemonic, altMnemonic: isHexSeed ? mnemonic : null);
+    } else {
+      keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
+    }
+
     DerivationType derivationType = DerivationType.nano;
-    if (data['derivationType'] == "DerivationType.bip39") {
+    if (data?['derivationType'] == "DerivationType.bip39") {
       derivationType = DerivationType.bip39;
     }
 
     walletInfo.derivationInfo ??= DerivationInfo(derivationType: derivationType);
-    if (walletInfo.derivationInfo!.derivationType == null) {
-      walletInfo.derivationInfo!.derivationType = derivationType;
-    }
+    walletInfo.derivationInfo!.derivationType ??= derivationType;
 
     return NanoWallet(
       walletInfo: walletInfo,
       password: password,
-      mnemonic: mnemonic,
+      mnemonic: keysData.mnemonic!,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,
     );
@@ -448,7 +468,7 @@ abstract class NanoWalletBase
       _representativeAddress = await _client.getRepFromPrefs();
       throw Exception("Failed to get representative address $e");
     }
-    
+
     repScore = await _client.getRepScore(_representativeAddress!);
   }
 

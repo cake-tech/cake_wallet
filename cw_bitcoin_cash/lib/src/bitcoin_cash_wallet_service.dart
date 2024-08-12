@@ -12,8 +12,11 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
 
-class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredentials,
-    BitcoinCashRestoreWalletFromSeedCredentials, BitcoinCashRestoreWalletFromWIFCredentials, BitcoinCashNewWalletCredentials> {
+class BitcoinCashWalletService extends WalletService<
+    BitcoinCashNewWalletCredentials,
+    BitcoinCashRestoreWalletFromSeedCredentials,
+    BitcoinCashRestoreWalletFromWIFCredentials,
+    BitcoinCashNewWalletCredentials> {
   BitcoinCashWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
@@ -32,13 +35,15 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final wallet = await BitcoinCashWalletBase.create(
-        mnemonic: await Mnemonic.generate(strength: strength),
-        password: credentials.password!,
-        walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
+        mnemonic: await MnemonicBip39.generate(strength: strength),
+      password: credentials.password!,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
     await wallet.save();
     await wallet.init();
+
     return wallet;
   }
 
@@ -103,7 +108,8 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
 
   @override
   Future<BitcoinCashWallet> restoreFromHardwareWallet(BitcoinCashNewWalletCredentials credentials) {
-    throw UnimplementedError("Restoring a Bitcoin Cash wallet from a hardware wallet is not yet supported!");
+    throw UnimplementedError(
+        "Restoring a Bitcoin Cash wallet from a hardware wallet is not yet supported!");
   }
 
   @override

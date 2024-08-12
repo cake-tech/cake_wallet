@@ -113,9 +113,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   String get seed => monero_wallet.getSeed();
-  String  seedLegacy(String? language) {
-    return monero_wallet.getSeedLegacy(language);
-  }
+  String seedLegacy(String? language) => monero_wallet.getSeedLegacy(language);
 
   @override
   String get password => _password;
@@ -198,12 +196,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   Future<void> startSync() async {
     try {
-      _setInitialHeight();
+      _assertInitialHeight();
     } catch (_) {
       // our restore height wasn't correct, so lets see if using the backup works:
       try {
-        await resetCache(name);
-        _setInitialHeight();
+        await resetCache(name); // Resetting the cache removes the TX Keys and Polyseed
+        _assertInitialHeight();
       } catch (e) {
         // we still couldn't get a valid height from the backup?!:
         // try to use the date instead:
@@ -643,18 +641,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     _listener = monero_wallet.setListeners(_onNewBlock, _onNewTransaction);
   }
 
-  // check if the height is correct:
-  void _setInitialHeight() {
-    if (walletInfo.isRecovery) {
-      return;
-    }
+  /// Asserts the current height to be above [MIN_RESTORE_HEIGHT]
+  void _assertInitialHeight() {
+    if (walletInfo.isRecovery) return;
 
     final height = monero_wallet.getCurrentHeight();
 
-    if (height > MIN_RESTORE_HEIGHT) {
-      // the restore height is probably correct, so we do nothing:
-      return;
-    }
+    // the restore height is probably correct, so we do nothing:
+    if (height > MIN_RESTORE_HEIGHT) return;
 
     throw Exception("height isn't > $MIN_RESTORE_HEIGHT!");
   }

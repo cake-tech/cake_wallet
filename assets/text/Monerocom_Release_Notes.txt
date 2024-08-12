@@ -1,3 +1,4 @@
-Monero enhancements
-Synchronization improvements
+Monero synchronization improvements
+Enhance error handling
+UI enhancements
 Bug fixes

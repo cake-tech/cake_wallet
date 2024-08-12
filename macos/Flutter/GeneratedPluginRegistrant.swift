@@ -14,7 +14,7 @@ import flutter_secure_storage_macos
 import in_app_review
 import package_info_plus
 import path_provider_foundation
-import share_plus_macos
+import share_plus
 import shared_preferences_foundation
 import url_launcher_macos
 import wakelock_plus

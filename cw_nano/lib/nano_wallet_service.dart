@@ -42,7 +42,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       password: credentials.password!,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
-    wallet.init();
+    await wallet.init();
     return wallet;
   }
 
