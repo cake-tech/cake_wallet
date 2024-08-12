@@ -25,6 +25,7 @@ import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/script_hash.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -37,10 +38,9 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/get_height_by_date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_flutter/ledger_flutter.dart' as ledger;
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
@@ -108,12 +108,13 @@ abstract class ElectrumWalletBase
     if (seedBytes != null) {
       return currency == CryptoCurrency.bch
           ? bitcoinCashHDWallet(seedBytes)
-          : Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(
+          : Bip32Slip10Secp256k1.fromSeed(seedBytes, getKeyNetVersion(network)).derivePath(
                   _hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path))
               as Bip32Slip10Secp256k1;
     }
 
-    return Bip32Slip10Secp256k1.fromExtendedKey(xpub!, network: networkType);
+    print(xpub);
+    return Bip32Slip10Secp256k1.fromExtendedKey(xpub!, getKeyNetVersion(network));
   }
 
   static Bip32Slip10Secp256k1 bitcoinCashHDWallet(Uint8List seedBytes) =>
@@ -121,6 +122,15 @@ abstract class ElectrumWalletBase
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
+
+  static Bip32KeyNetVersions? getKeyNetVersion(BasedUtxoNetwork network) {
+    switch (network) {
+      case LitecoinNetwork.mainnet:
+        return Bip44Conf.litecoinMainNet.altKeyNetVer;
+      default:
+        return null;
+    }
+  }
 
   bool? alwaysScan;
 
@@ -455,7 +465,6 @@ abstract class ElectrumWalletBase
         return node!.isElectrs!;
       }
     }
-
 
     node!.isElectrs = false;
     node!.save();
@@ -1032,7 +1041,8 @@ abstract class ElectrumWalletBase
     }
   }
 
-  void setLedger(Ledger setLedger, LedgerDevice setLedgerDevice) => throw UnimplementedError();
+  void setLedger(ledger.Ledger setLedger, ledger.LedgerDevice setLedgerDevice) =>
+      throw UnimplementedError();
 
   Future<BtcTransaction> buildHardwareWalletTransaction({
     required List<BitcoinBaseOutput> outputs,
@@ -2261,4 +2271,3 @@ class UtxoDetails {
     required this.spendsUnconfirmedTX,
   });
 }
-

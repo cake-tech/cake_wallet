@@ -130,7 +130,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     return LitecoinWallet(
       mnemonic: keysData.mnemonic,
-      xpub: snp.xpub,
+      xpub: keysData.xPub,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
