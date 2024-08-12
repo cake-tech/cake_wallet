@@ -27,6 +27,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_lightning/.secrets.g.dart' as secrets;
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 
 part 'lightning_wallet.g.dart';
 
@@ -59,7 +60,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
           password: password,
           walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfo,
-          networkType: bitcoin.bitcoin,
+          network: BitcoinNetwork.mainnet,
           initialAddresses: initialAddresses,
           initialBalance: initialBalance,
           seedBytes: seedBytes,
@@ -67,16 +68,13 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         ) {
     _balance[CryptoCurrency.btcln] =
         initialBalance ?? LightningBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
-    String derivationPath = walletInfo.derivationInfo!.derivationPath!;
-    String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
-    final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
-      mainHd: hd.derivePath(derivationPath),
-      sideHd: hd.derivePath(sideDerivationPath),
+      mainHd: super.hd,
+      sideHd: super.accountHD.childKey(Bip32KeyIndex(1)),
       network: network,
     );
 
