@@ -769,8 +769,8 @@ Future<void> setup({
   getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() {
-    return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
-  });
+    return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!,
+        getIt.get<SendViewModel>());});
 
   getIt.registerFactory(() {
     return SecuritySettingsViewModel(getIt.get<SettingsStore>());

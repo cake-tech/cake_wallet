@@ -9,7 +9,7 @@ abstract class TransactionInfo extends Object with Keyable {
   late TransactionDirection direction;
   late bool isPending;
   late DateTime date;
-  late int height;
+  int? height;
   late int confirmations;
   String amountFormatted();
   String fiatAmount();
@@ -24,5 +24,6 @@ abstract class TransactionInfo extends Object with Keyable {
   @override
   dynamic get keyIndex => id;
 
-  Map<String, dynamic> additionalInfo = {};
+  late Map<String, dynamic> additionalInfo;
 }
+

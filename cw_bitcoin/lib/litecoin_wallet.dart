@@ -1,20 +1,21 @@
+import 'package:bip39/bip39.dart' as bip39;
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/electrum_balance.dart';
-import 'package:cw_bitcoin/litecoin_network.dart';
-import 'package:bip39/bip39.dart' as bip39;
 
 part 'litecoin_wallet.g.dart';
 
@@ -37,7 +38,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           password: password,
           walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfo,
-          networkType: litecoinNetwork,
+          network: LitecoinNetwork.mainnet,
           initialAddresses: initialAddresses,
           initialBalance: initialBalance,
           seedBytes: seedBytes,
@@ -49,7 +50,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       mainHd: hd,
-      sideHd: accountHD.derive(1),
+      sideHd: accountHD.childKey(Bip32KeyIndex(1)),
       network: network,
     );
     autorun((_) {
@@ -102,19 +103,37 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
   }) async {
-    final snp =
-        await ElectrumWalletSnapshot.load(name, walletInfo.type, password, LitecoinNetwork.mainnet);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
+
+    ElectrumWalletSnapshot? snp = null;
+
+    try {
+      snp = await ElectrumWalletSnapshot.load(
+          name, walletInfo.type, password, LitecoinNetwork.mainnet);
+    } catch (e) {
+      if (!hasKeysFile) rethrow;
+    }
+
+    final WalletKeysData keysData;
+    // Migrate wallet from the old scheme to then new .keys file scheme
+    if (!hasKeysFile) {
+      keysData =
+          WalletKeysData(mnemonic: snp!.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
+    } else {
+      keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
+    }
+
     return LitecoinWallet(
-      mnemonic: snp.mnemonic!,
+      mnemonic: keysData.mnemonic!,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: snp.addresses,
-      initialBalance: snp.balance,
-      seedBytes: await electrumMnemonicToSeedBytes(snp.mnemonic!),
-      initialRegularAddressIndex: snp.regularAddressIndex,
-      initialChangeAddressIndex: snp.changeAddressIndex,
-      addressPageType: snp.addressPageType,
+      initialAddresses: snp?.addresses,
+      initialBalance: snp?.balance,
+      seedBytes: await electrumMnemonicToSeedBytes(keysData.mnemonic!),
+      initialRegularAddressIndex: snp?.regularAddressIndex,
+      initialChangeAddressIndex: snp?.changeAddressIndex,
+      addressPageType: snp?.addressPageType,
     );
   }
 

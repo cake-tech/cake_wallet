@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/package_info.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
 // import 'package:package_info/package_info.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
@@ -20,7 +21,7 @@ class OtherSettingsViewModel = OtherSettingsViewModelBase
     with _$OtherSettingsViewModel;
 
 abstract class OtherSettingsViewModelBase with Store {
-  OtherSettingsViewModelBase(this._settingsStore, this._wallet)
+  OtherSettingsViewModelBase(this._settingsStore, this._wallet, this.sendViewModel)
       : walletType = _wallet.type,
         currentVersion = '' {
     PackageInfo.fromPlatform().then(
@@ -42,6 +43,7 @@ abstract class OtherSettingsViewModelBase with Store {
   String currentVersion;
 
   final SettingsStore _settingsStore;
+  final SendViewModel sendViewModel;
 
   @computed
   TransactionPriority get transactionPriority {

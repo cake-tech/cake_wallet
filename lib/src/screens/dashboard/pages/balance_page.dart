@@ -23,6 +23,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -124,6 +125,36 @@ class CryptoBalanceWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Observer(
+              builder: (_) {
+                if (dashboardViewModel.getMoneroError != null) {
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16,0,16,16),
+                    child: DashBoardRoundedCardWidget(
+                      title: "Invalid monero bindings",
+                      subTitle: dashboardViewModel.getMoneroError.toString(),
+                      onTap: () {},
+                    ),
+                  );
+                }
+                return Container();
+              },
+            ),
+            Observer(
+              builder: (_) {
+                if (dashboardViewModel.getWowneroError != null) {
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16,0,16,16),
+                    child: DashBoardRoundedCardWidget(
+                      title: "Invalid wownero bindings",
+                      subTitle: dashboardViewModel.getWowneroError.toString(),
+                      onTap: () {},
+                    )
+                  );
+                }
+                return Container();
+              },
+            ),
             Observer(
                 builder: (_) => dashboardViewModel.balanceViewModel.hasAccounts
                     ? HomeScreenAccountWidget(
@@ -457,15 +488,19 @@ class BalanceRowWidget extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Text('${availableBalanceLabel}',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w400,
-                                  color: Theme.of(context)
-                                      .extension<BalancePageTheme>()!
-                                      .labelTextColor,
-                                  height: 1)),
+                          Semantics(
+                            hint: 'Double tap to see more information',
+                            container: true,
+                            child: Text('${availableBalanceLabel}',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w400,
+                                    color: Theme.of(context)
+                                        .extension<BalancePageTheme>()!
+                                        .labelTextColor,
+                                    height: 1)),
+                          ),
                           if (hasAdditionalBalance)
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 4),
