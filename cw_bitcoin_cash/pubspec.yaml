@@ -21,10 +21,6 @@ dependencies:
     path: ../cw_core
   cw_bitcoin:
     path: ../cw_bitcoin
-  bitcoin_flutter:
-    git:
-      url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v4
   bitbox:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
@@ -36,7 +32,7 @@ dependencies:
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v1
+      ref: cake-update-v2
 
 dev_dependencies:
   flutter_test:

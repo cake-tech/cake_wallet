@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 
 import 'package:cw_monero/api/account_list.dart';
@@ -8,7 +9,41 @@ import 'package:cw_monero/api/exceptions/wallet_restore_from_keys_exception.dart
 import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart';
 import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:flutter/foundation.dart';
 import 'package:monero/monero.dart' as monero;
+
+class MoneroCException implements Exception {
+  final String message;
+
+  MoneroCException(this.message);
+  
+  @override
+  String toString() {
+    return message;
+  }
+}
+
+void checkIfMoneroCIsFine() {
+  final cppCsCpp = monero.MONERO_checksum_wallet2_api_c_cpp();
+  final cppCsH = monero.MONERO_checksum_wallet2_api_c_h();
+  final cppCsExp = monero.MONERO_checksum_wallet2_api_c_exp();
+
+  final dartCsCpp = monero.wallet2_api_c_cpp_sha256;
+  final dartCsH = monero.wallet2_api_c_h_sha256;
+  final dartCsExp = monero.wallet2_api_c_exp_sha256;
+
+  if (cppCsCpp != dartCsCpp) {
+    throw MoneroCException("monero_c and monero.dart cpp wrapper code mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsCpp'\ndart: '$dartCsCpp'");
+  }
+
+  if (cppCsH != dartCsH) {
+    throw MoneroCException("monero_c and monero.dart cpp wrapper header mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsH'\ndart: '$dartCsH'");
+  }
+
+  if (cppCsExp != dartCsExp && (Platform.isIOS || Platform.isMacOS)) {
+    throw MoneroCException("monero_c and monero.dart wrapper export list mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsExp'\ndart: '$dartCsExp'");
+  }
+}
 
 monero.WalletManager? _wmPtr;
 final monero.WalletManager wmPtr = Pointer.fromAddress((() {
@@ -32,13 +67,14 @@ void createWalletSync(
     required String language,
     int nettype = 0}) {
   txhistory = null;
-  wptr = monero.WalletManager_createWallet(wmPtr,
+  final newWptr = monero.WalletManager_createWallet(wmPtr,
       path: path, password: password, language: language, networkType: 0);
 
-  final status = monero.Wallet_status(wptr!);
+  final status = monero.Wallet_status(newWptr);
   if (status != 0) {
-    throw WalletCreationException(message: monero.Wallet_errorString(wptr!));
+    throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
   }
+  wptr = newWptr;
   monero.Wallet_store(wptr!, path: path);
   openedWalletsByPath[path] = wptr!;
 
@@ -57,7 +93,7 @@ void restoreWalletFromSeedSync(
     int nettype = 0,
     int restoreHeight = 0}) {
   txhistory = null;
-  wptr = monero.WalletManager_recoveryWallet(
+  final newWptr = monero.WalletManager_recoveryWallet(
     wmPtr,
     path: path,
     password: password,
@@ -67,12 +103,13 @@ void restoreWalletFromSeedSync(
     networkType: 0,
   );
 
-  final status = monero.Wallet_status(wptr!);
+  final status = monero.Wallet_status(newWptr);
 
   if (status != 0) {
-    final error = monero.Wallet_errorString(wptr!);
+    final error = monero.Wallet_errorString(newWptr);
     throw WalletRestoreFromSeedException(message: error);
   }
+  wptr = newWptr;
 
   openedWalletsByPath[path] = wptr!;
 }
@@ -87,7 +124,7 @@ void restoreWalletFromKeysSync(
     int nettype = 0,
     int restoreHeight = 0}) {
   txhistory = null;
-  wptr = monero.WalletManager_createWalletFromKeys(
+  final newWptr = monero.WalletManager_createWalletFromKeys(
     wmPtr,
     path: path,
     password: password,
@@ -98,11 +135,13 @@ void restoreWalletFromKeysSync(
     nettype: 0,
   );
 
-  final status = monero.Wallet_status(wptr!);
+  final status = monero.Wallet_status(newWptr);
   if (status != 0) {
     throw WalletRestoreFromKeysException(
-        message: monero.Wallet_errorString(wptr!));
+        message: monero.Wallet_errorString(newWptr));
   }
+
+  wptr = newWptr;
 
   openedWalletsByPath[path] = wptr!;
 }
@@ -128,7 +167,7 @@ void restoreWalletFromSpendKeySync(
   // );
   
   txhistory = null;
-  wptr = monero.WalletManager_createDeterministicWalletFromSpendKey(
+  final newWptr = monero.WalletManager_createDeterministicWalletFromSpendKey(
     wmPtr,
     path: path,
     password: password,
@@ -138,13 +177,15 @@ void restoreWalletFromSpendKeySync(
     restoreHeight: restoreHeight,
   );
 
-  final status = monero.Wallet_status(wptr!);
+  final status = monero.Wallet_status(newWptr);
 
   if (status != 0) {
-    final err = monero.Wallet_errorString(wptr!);
+    final err = monero.Wallet_errorString(newWptr);
     print("err: $err");
     throw WalletRestoreFromKeysException(message: err);
   }
+
+  wptr = newWptr;
 
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
 
@@ -203,15 +244,16 @@ void loadWallet(
       });
     }
     txhistory = null;
-    wptr = monero.WalletManager_openWallet(wmPtr,
+    final newWptr = monero.WalletManager_openWallet(wmPtr,
         path: path, password: password);
     _lastOpenedWallet = path;
-    final status = monero.Wallet_status(wptr!);
+    final status = monero.Wallet_status(newWptr);
     if (status != 0) {
-      final err = monero.Wallet_errorString(wptr!);
+      final err = monero.Wallet_errorString(newWptr);
       print(err);
       throw WalletOpeningException(message: err);
     }
+    wptr = newWptr;
     openedWalletsByPath[path] = wptr!;
   }
 }

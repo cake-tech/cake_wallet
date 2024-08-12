@@ -11,6 +11,7 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -340,6 +341,44 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.wownero ||
       wallet.type == WalletType.haven;
+
+  @computed
+  String? get getMoneroError {
+    if (wallet.type != WalletType.monero) return null;
+    try {
+      monero!.monerocCheck();
+    } catch (e) {
+      return e.toString();
+    }
+    return null;
+  }
+
+  @computed
+  String? get getWowneroError {
+    if (wallet.type != WalletType.wownero) return null;
+    try {
+      wow.wownero!.wownerocCheck();
+    } catch (e) {
+      return e.toString();
+    }
+    return null;
+  }
+
+  List<String> get isMoneroWalletBrokenReasons {
+    if (wallet.type != WalletType.monero) return [];
+    final keys = monero!.getKeys(wallet);
+    List<String> errors = [
+      if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
+      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("")) "private view key is 0",
+      if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
+      if (keys['publicViewKey'] == List.generate(64, (index) => "0").join("")) "private view key is 0",
+      if (wallet.seed == null) "wallet seed is null",
+      if (wallet.seed == "") "wallet seed is empty",
+      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address == "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4") 
+        "primary address is invalid, you won't be able to receive / spend funds",
+    ];
+    return errors;
+  }
 
   @computed
   bool get hasSilentPayments => wallet.type == WalletType.bitcoin && !wallet.isHardwareWallet;

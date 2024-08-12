@@ -1,6 +1,6 @@
 import 'package:convert/convert.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -26,20 +26,22 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     topUpMweb(0);
   }
 
-  final HDWallet mwebHd;
+  final Bip32Slip10Secp256k1 mwebHd;
+  List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
+  // TODO: I'm not 100% sure if it's supposed to be the compressed or uncompressed public key!
+  List<int> get spendPubkey => mwebHd.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
+
   List<String> mwebAddrs = [];
 
   Future<void> topUpMweb(int index) async {
     while (mwebAddrs.length - index < 1000) {
       final length = mwebAddrs.length;
-      final scanSecret = mwebHd.derive(0x80000000).privKey!;
-      final spendPubkey = mwebHd.derive(0x80000001).pubKey!;
       final stub = await CwMweb.stub();
       final resp = await stub.addresses(AddressRequest(
         fromIndex: length,
         toIndex: index + 1000,
-        scanSecret: hex.decode(scanSecret),
-        spendPubkey: hex.decode(spendPubkey),
+        scanSecret: scanSecret,
+        spendPubkey: spendPubkey,
       ));
       if (mwebAddrs.length == length) {
         mwebAddrs.addAll(resp.address);
@@ -48,7 +50,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   @override
-  String getAddress({required int index, required HDWallet hd, BitcoinAddressType? addressType}) {
+  String getAddress({
+    required int index,
+    required Bip32Slip10Secp256k1 hd,
+    BitcoinAddressType? addressType,
+  }) {
     if (addressType == SegwitAddresType.mweb) {
       topUpMweb(index);
       return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
@@ -57,8 +63,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   @override
-  Future<String> getAddressAsync(
-      {required int index, required HDWallet hd, BitcoinAddressType? addressType}) async {
+  Future<String> getAddressAsync({
+    required int index,
+    required Bip32Slip10Secp256k1 hd,
+    BitcoinAddressType? addressType,
+  }) async {
     if (addressType == SegwitAddresType.mweb) {
       await topUpMweb(index);
     }
