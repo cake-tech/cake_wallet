@@ -35,7 +35,6 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_mweb/cw_mweb.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
 part 'litecoin_wallet.g.dart';
 
@@ -87,7 +86,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   late final Bip32Slip10Secp256k1 mwebHd;
-  late final bitcoin.HDWallet oldMwebHd;
   late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;
   StreamSubscription<Utxo>? _utxoStream;
@@ -371,7 +369,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> processMwebUtxos() async {
-    // final scanSecret = oldMwebHd.derive(0x80000000).privKey!;
     int restoreHeight = walletInfo.restoreHeight;
     print("SCANNING FROM HEIGHT: $restoreHeight");
     final req = UtxosRequest(scanSecret: scanSecret, fromHeight: restoreHeight);
