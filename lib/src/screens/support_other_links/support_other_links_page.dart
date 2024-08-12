@@ -42,11 +42,11 @@ class SupportOtherLinksPage extends BasePage {
                   return SettingsCellWithArrow(title: item.title, handler: item.handler);
                 }
                 if (item is LinkListItem) {
-                  bool lightIcon = false;
-                  if (item.lightIcon != null) lightIcon = true;
+                  bool hasLightIcon = false;
+                  if (item.lightIcon != null) hasLightIcon = true;
                   return SettingsLinkProviderCell(
                       title: item.title,
-                      icon: isLightMode && lightIcon ? item.lightIcon : item.icon,
+                      icon: isLightMode && hasLightIcon ? item.lightIcon : item.icon,
                       iconColor: item.hasIconColor ? iconColor : null,
                       link: item.link,
                       linkTitle: item.linkTitle);
