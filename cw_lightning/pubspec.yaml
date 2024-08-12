@@ -32,7 +32,7 @@ dependencies:
   breez_sdk:
     git:
       url: https://github.com/breez/breez-sdk-flutter.git
-      ref: v0.5.0
+      ref: v0.5.2
   cryptography: ^2.0.5
   bitcoin_base:
     git:
