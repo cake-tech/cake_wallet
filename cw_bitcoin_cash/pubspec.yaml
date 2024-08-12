@@ -28,7 +28,7 @@ dependencies:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-mweb
+      ref: cake-update-v5
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
@@ -46,7 +46,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-mweb
+      ref: cake-update-v5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
