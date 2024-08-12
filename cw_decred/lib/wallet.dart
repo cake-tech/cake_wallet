@@ -337,7 +337,7 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
         return defaultFeeRate;
       }
     };
-    final p = priority as DecredTransactionPriority;
+    final p = priority;
     switch (p) {
       case DecredTransactionPriority.slow:
         if (feeRateSlow.isOld()) {
@@ -388,7 +388,6 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
     return this.fetchFiveTransactions(0);
   }
 
-  @override
   Future<Map<String, DecredTransactionInfo>> fetchFiveTransactions(
       int from) async {
     final res =
@@ -396,7 +395,7 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
     final decoded = json.decode(res);
     var txs = <String, DecredTransactionInfo>{};
     for (final d in decoded) {
-      final txid = d["txid"] ?? "";
+      final txid = uniqueTxID(d["txid"] ?? "", d["vout"] ?? 0);
       var direction = TransactionDirection.outgoing;
       if (d["category"] == "receive") {
         direction = TransactionDirection.incoming;
@@ -421,6 +420,11 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
       txs[txid] = txInfo;
     }
     return txs;
+  }
+
+  // uniqueTxID combines the tx id and vout to create a unique id.
+  String uniqueTxID(String id, int vout) {
+    return id + ":" + vout.toString();
   }
 
   @override

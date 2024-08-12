@@ -4,7 +4,7 @@
 CW_DECRED_DIR=${WORKDIR}/cake_wallet/cw_decred
 LIBWALLET_PATH="${WORKDIR}/decred/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
-LIBWALLET_VERSION="v1.0.4"
+LIBWALLET_VERSION="v1.1.0"
 
 if [ -e $LIBWALLET_PATH ]; then
        rm -fr $LIBWALLET_PATH

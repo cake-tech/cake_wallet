@@ -182,7 +182,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.wownero:
         return 'https://explore.wownero.com/tx/${txId}';
       case WalletType.decred:
-        return 'https://dcrdata.decred.org/tx/${txId}';
+        return 'https://dcrdata.decred.org/tx/${txId.split(':')[0]}';
       case WalletType.none:
         return '';
     }
