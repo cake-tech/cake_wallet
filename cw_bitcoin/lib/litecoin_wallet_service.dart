@@ -55,20 +55,24 @@ class LitecoinWalletService extends WalletService<
 
     try {
       final wallet = await LitecoinWalletBase.open(
-          password: password,
-          name: name,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource);
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      );
       await wallet.init();
       saveBackup(name);
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
       final wallet = await LitecoinWalletBase.open(
-          password: password,
-          name: name,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource);
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      );
       await wallet.init();
       return wallet;
     }
@@ -87,10 +91,12 @@ class LitecoinWalletService extends WalletService<
     final currentWalletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
     final currentWallet = await LitecoinWalletBase.open(
-        password: password,
-        name: currentName,
-        walletInfo: currentWalletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
 
     await currentWallet.renameWalletFiles(newName);
     await saveBackup(newName);
@@ -121,12 +127,13 @@ class LitecoinWalletService extends WalletService<
     }
 
     final wallet = await LitecoinWalletBase.create(
-        password: credentials.password!,
-        passphrase: credentials.passphrase,
-        mnemonic: credentials.mnemonic,
-        walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
+      password: credentials.password!,
+      passphrase: credentials.passphrase,
+      mnemonic: credentials.mnemonic,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
     await wallet.save();
     await wallet.init();
     return wallet;
