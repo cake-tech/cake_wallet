@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 
 import 'package:cw_monero/api/account_list.dart';
@@ -8,7 +9,41 @@ import 'package:cw_monero/api/exceptions/wallet_restore_from_keys_exception.dart
 import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart';
 import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:flutter/foundation.dart';
 import 'package:monero/monero.dart' as monero;
+
+class MoneroCException implements Exception {
+  final String message;
+
+  MoneroCException(this.message);
+  
+  @override
+  String toString() {
+    return message;
+  }
+}
+
+void checkIfMoneroCIsFine() {
+  final cppCsCpp = monero.MONERO_checksum_wallet2_api_c_cpp();
+  final cppCsH = monero.MONERO_checksum_wallet2_api_c_h();
+  final cppCsExp = monero.MONERO_checksum_wallet2_api_c_exp();
+
+  final dartCsCpp = monero.wallet2_api_c_cpp_sha256;
+  final dartCsH = monero.wallet2_api_c_h_sha256;
+  final dartCsExp = monero.wallet2_api_c_exp_sha256;
+
+  if (cppCsCpp != dartCsCpp) {
+    throw MoneroCException("monero_c and monero.dart cpp wrapper code mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsCpp'\ndart: '$dartCsCpp'");
+  }
+
+  if (cppCsH != dartCsH) {
+    throw MoneroCException("monero_c and monero.dart cpp wrapper header mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsH'\ndart: '$dartCsH'");
+  }
+
+  if (cppCsExp != dartCsExp && (Platform.isIOS || Platform.isMacOS)) {
+    throw MoneroCException("monero_c and monero.dart wrapper export list mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsExp'\ndart: '$dartCsExp'");
+  }
+}
 
 monero.WalletManager? _wmPtr;
 final monero.WalletManager wmPtr = Pointer.fromAddress((() {
