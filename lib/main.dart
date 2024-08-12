@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/app_scroll_behavior.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
@@ -75,6 +76,7 @@ Future<void> main() async {
       runApp(
         MaterialApp(
           debugShowCheckedModeBanner: false,
+          scrollBehavior: AppScrollBehavior(),
           home: Scaffold(
             body: SingleChildScrollView(
               child: Container(
@@ -297,6 +299,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             locale: Locale(settingsStore.languageCode),
             onGenerateRoute: (settings) => Router.createRoute(settings),
             initialRoute: initialRoute,
+            scrollBehavior: AppScrollBehavior(),
             home: _Home(),
           ));
     });

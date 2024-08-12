@@ -34,6 +34,7 @@ class LitecoinWalletService extends WalletService<
         passphrase: credentials.passphrase,
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource);
+
     await wallet.save();
     await wallet.init();
 

@@ -17,7 +17,7 @@ class StandardPickerListItem<T> extends TransactionDetailsListItem {
   final List<T> items;
   final String Function(T item, double sliderValue) displayItem;
   final Function(double) onSliderChanged;
-  final Function(T) onItemSelected;
+  final Function(T item, double sliderValue) onItemSelected;
   final int selectedIdx;
   final double? maxValue;
   final int customItemIndex;

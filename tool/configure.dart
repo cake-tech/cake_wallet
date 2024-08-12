@@ -94,12 +94,11 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as btc;
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_bitcoin/litecoin_network.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
@@ -211,6 +210,7 @@ abstract class Bitcoin {
   int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
   int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
       {int? outputsCount, int? size});
+  int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
   int getHeightByDate({required DateTime date});
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan});
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet);
@@ -264,6 +264,7 @@ import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
+import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
@@ -379,6 +380,7 @@ abstract class Monero {
   double formatterMoneroAmountToDouble({required int amount});
   int formatterMoneroParseAmount({required String amount});
   Account getCurrentAccount(Object wallet);
+  void monerocCheck();
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
@@ -451,6 +453,7 @@ import 'package:cw_wownero/wownero_transaction_info.dart';
 import 'package:cw_wownero/wownero_transaction_creation_credentials.dart';
 import 'package:cw_core/account.dart' as wownero_account;
 import 'package:cw_wownero/api/wallet.dart' as wownero_wallet_api;
+import 'package:cw_wownero/api/wallet_manager.dart';
 import 'package:cw_wownero/mnemonics/english.dart';
 import 'package:cw_wownero/mnemonics/chinese_simplified.dart';
 import 'package:cw_wownero/mnemonics/dutch.dart';
@@ -542,6 +545,7 @@ abstract class Wownero {
   Future<void> updateUnspents(Object wallet);
 
   Future<int> getCurrentHeight();
+  void wownerocCheck();
 
   WalletCredentials createWowneroRestoreWalletFromKeysCredentials({
     required String name,
