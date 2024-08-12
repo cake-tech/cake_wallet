@@ -210,6 +210,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                   fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                               validator: sendViewModel.addressValidator)),
                     CurrencyAmountTextField(
+                        currencyPickerButtonKey: ValueKey('send_page_currency_picker_button_key'),
+                        amountTextfieldKey: ValueKey('send_page_amount_textfield_key'),
+                        sendAllButtonKey: ValueKey('send_page_send_all_button_key'),
+                        currencyAmountTextFieldWidgetKey:
+                            ValueKey('send_page_crypto_currency_amount_textfield_widget_key'),
                         selectedCurrency: sendViewModel.selectedCryptoCurrency.title,
                         amountFocusNode: cryptoAmountFocus,
                         amountController: cryptoAmountController,
@@ -217,7 +222,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         onTapPicker: () => _presentPicker(context),
                         isPickerEnable: sendViewModel.hasMultipleTokens,
                         tag: sendViewModel.selectedCryptoCurrency.tag,
-                        allAmountButton: !sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL,
+                        allAmountButton:
+                            !sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL,
                         currencyValueValidator: output.sendAll
                             ? sendViewModel.allAmountValidator
                             : sendViewModel.amountValidator,
@@ -258,6 +264,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     ),
                     if (!sendViewModel.isFiatDisabled)
                       CurrencyAmountTextField(
+                          amountTextfieldKey: ValueKey('send_page_fiat_amount_textfield_key'),
+                          currencyAmountTextFieldWidgetKey:
+                              ValueKey('send_page_fiat_currency_amount_textfield_widget_key'),
                           selectedCurrency: sendViewModel.fiat.title,
                           amountFocusNode: fiatAmountFocus,
                           amountController: fiatAmountController,
