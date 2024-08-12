@@ -319,16 +319,18 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return address;
   }
 
-  String getAddress(
-          {required int index,
-          required Bip32Slip10Secp256k1 hd,
-          BitcoinAddressType? addressType}) =>
+  String getAddress({
+    required int index,
+    required Bip32Slip10Secp256k1 hd,
+    BitcoinAddressType? addressType,
+  }) =>
       '';
 
-  Future<String> getAddressAsync(
-          {required int index,
-          required bitcoin.HDWallet hd,
-          BitcoinAddressType? addressType}) async =>
+  Future<String> getAddressAsync({
+    required int index,
+    required Bip32Slip10Secp256k1 hd,
+    BitcoinAddressType? addressType,
+  }) async =>
       getAddress(index: index, hd: hd, addressType: addressType);
 
   void addBitcoinAddressTypes() {
@@ -416,7 +418,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         } else {
           addressesMap[address] = 'Active - P2WPKH';
         }
-        
+
         final lastMweb = _addresses.firstWhere(
             (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
         if (lastMweb.address != address) {
