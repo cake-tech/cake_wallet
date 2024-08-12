@@ -17,10 +17,7 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/nano_account.dart';
-import 'package:cw_core/n2_node.dart';
 import 'package:cw_core/wallet_keys_file.dart';
-import 'package:cw_nano/file.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_transaction_credentials.dart';
@@ -322,8 +319,8 @@ abstract class NanoWalletBase
   @override
   Future<void> save() async {
     if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
-      await saveKeysFile(_password);
-      saveKeysFile(_password, true);
+      await saveKeysFile(_password, _encryptionFileUtils);
+      saveKeysFile(_password, _encryptionFileUtils, true);
     }
 
     await walletAddresses.updateAddressesInBox();
@@ -415,7 +412,12 @@ abstract class NanoWalletBase
       keysData = WalletKeysData(
           mnemonic: isHexSeed ? null : mnemonic, altMnemonic: isHexSeed ? mnemonic : null);
     } else {
-      keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
+      keysData = await WalletKeysFile.readKeysFile(
+        name,
+        walletInfo.type,
+        password,
+        encryptionFileUtils,
+      );
     }
 
     DerivationType derivationType = DerivationType.nano;

@@ -516,8 +516,8 @@ abstract class EVMChainWalletBase
   @override
   Future<void> save() async {
     if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
-      await saveKeysFile(_password);
-      saveKeysFile(_password, true);
+      await saveKeysFile(_password, encryptionFileUtils);
+      saveKeysFile(_password, encryptionFileUtils, true);
     }
 
     await walletAddresses.updateAddressesInBox();

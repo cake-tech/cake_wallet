@@ -96,12 +96,18 @@ class PolygonWallet extends EVMChainWallet {
   EVMChainTransactionHistory setUpTransactionHistory(
       WalletInfo walletInfo, String password, EncryptionFileUtils encryptionFileUtils) {
     return PolygonTransactionHistory(
-        walletInfo: walletInfo, password: password, encryptionFileUtils: encryptionFileUtils);
+      walletInfo: walletInfo,
+      password: password,
+      encryptionFileUtils: encryptionFileUtils,
+    );
   }
 
-  static Future<PolygonWallet> open(
-      {required String name, required String password, required WalletInfo walletInfo,
-        required EncryptionFileUtils encryptionFileUtils,}) async {
+  static Future<PolygonWallet> open({
+    required String name,
+    required String password,
+    required WalletInfo walletInfo,
+    required EncryptionFileUtils encryptionFileUtils,
+  }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
     final path = await pathForWallet(name: name, type: walletInfo.type);
 
@@ -125,7 +131,12 @@ class PolygonWallet extends EVMChainWallet {
 
       keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
     } else {
-      keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
+      keysData = await WalletKeysFile.readKeysFile(
+        name,
+        walletInfo.type,
+        password,
+        encryptionFileUtils,
+      );
     }
 
     return PolygonWallet(

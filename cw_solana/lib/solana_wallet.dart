@@ -83,7 +83,7 @@ abstract class SolanaWalletBase
   // To access the privateKey bytes.
   Ed25519HDKeyPairData? _keyPairData;
 
-  late SolanaWalletClient _client;
+  late final SolanaWalletClient _client;
 
   @observable
   double? estimatedFee;
@@ -103,7 +103,7 @@ abstract class SolanaWalletBase
   @observable
   late ObservableMap<CryptoCurrency, SolanaBalance> balance;
 
-  Completer<SharedPreferences> _sharedPrefs = Completer();
+  final Completer<SharedPreferences> _sharedPrefs = Completer();
 
   @override
   Ed25519HDKeyPairData get keys {
@@ -349,8 +349,8 @@ abstract class SolanaWalletBase
   @override
   Future<void> save() async {
     if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
-      await saveKeysFile(_password);
-      saveKeysFile(_password, true);
+      await saveKeysFile(_password, encryptionFileUtils);
+      saveKeysFile(_password, encryptionFileUtils, true);
     }
 
     await walletAddresses.updateAddressesInBox();
@@ -412,7 +412,12 @@ abstract class SolanaWalletBase
 
       keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
     } else {
-      keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
+      keysData = await WalletKeysFile.readKeysFile(
+        name,
+        walletInfo.type,
+        password,
+        encryptionFileUtils,
+      );
     }
 
     return SolanaWallet(

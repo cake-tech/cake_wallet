@@ -93,11 +93,11 @@ abstract class ElectrumWalletBase
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
-    transactionHistory =
-        ElectrumTransactionHistory(
-          walletInfo: walletInfo,
-          password: password,
-          encryptionFileUtils: encryptionFileUtils);
+    transactionHistory = ElectrumTransactionHistory(
+      walletInfo: walletInfo,
+      password: password,
+      encryptionFileUtils: encryptionFileUtils,
+    );
 
     reaction((_) => syncStatus, _syncStatusReaction);
   }
@@ -464,7 +464,6 @@ abstract class ElectrumWalletBase
         return node!.isElectrs!;
       }
     }
-
 
     node!.isElectrs = false;
     node!.save();
@@ -1140,8 +1139,8 @@ abstract class ElectrumWalletBase
   @override
   Future<void> save() async {
     if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
-      await saveKeysFile(_password);
-      saveKeysFile(_password, true);
+      await saveKeysFile(_password, encryptionFileUtils);
+      saveKeysFile(_password, encryptionFileUtils, true);
     }
 
     final path = await makePath();
@@ -2268,4 +2267,3 @@ class UtxoDetails {
     required this.spendsUnconfirmedTX,
   });
 }
-

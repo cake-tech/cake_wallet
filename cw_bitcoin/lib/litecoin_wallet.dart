@@ -11,9 +11,7 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
@@ -103,20 +101,24 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     );
   }
 
-  static Future<LitecoinWallet> open({
-    required String name,
-    required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required String password,
-    required EncryptionFileUtils encryptionFileUtils
-  }) async {
+  static Future<LitecoinWallet> open(
+      {required String name,
+      required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required String password,
+      required EncryptionFileUtils encryptionFileUtils}) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
 
     ElectrumWalletSnapshot? snp = null;
 
     try {
       snp = await ElectrumWalletSnapshot.load(
-          encryptionFileUtils, name, walletInfo.type, password, LitecoinNetwork.mainnet,);
+        encryptionFileUtils,
+        name,
+        walletInfo.type,
+        password,
+        LitecoinNetwork.mainnet,
+      );
     } catch (e) {
       if (!hasKeysFile) rethrow;
     }
@@ -127,7 +129,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       keysData =
           WalletKeysData(mnemonic: snp!.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
     } else {
-      keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
+      keysData = await WalletKeysFile.readKeysFile(
+        name,
+        walletInfo.type,
+        password,
+        encryptionFileUtils,
+      );
     }
 
     return LitecoinWallet(
