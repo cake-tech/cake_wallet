@@ -28,10 +28,9 @@ class LitecoinHardwareWalletService {
       final xpub = await litecoinLedgerApp.getXPubKey(device,
           accountsDerivationPath: derivationPath,
           xPubVersion: int.parse(hex.encode(xpubVersion.public), radix: 16));
-      final hd = Bip32Slip10Secp256k1.fromExtendedKey(xpub, xpubVersion);
+      final hd = Bip32Slip10Secp256k1.fromExtendedKey(xpub, xpubVersion).childKey(Bip32KeyIndex(0));
 
       final address = generateP2WPKHAddress(hd: hd, index: 0, network: LitecoinNetwork.mainnet);
-      print(xpub);
 
       accounts.add(HardwareAccountData(
         address: address,
