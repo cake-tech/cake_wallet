@@ -24,9 +24,8 @@ import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
-import 'package:mutex/mutex.dart';
 
-final Mutex formMutex = Mutex();
+bool formProcessing = false;
 
 class NewWalletPage extends BasePage {
   NewWalletPage(this._walletNewVM, this._seedTypeViewModel);
@@ -351,10 +350,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
   }
 
   void _confirmForm() async {
-    await formMutex.acquire();
+    if (formProcessing) return;
+    formProcessing = true;
     try {
       if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-        formMutex.release();
+        formProcessing = false;
         return;
       }
       if (_walletNewVM.nameExists(_walletNewVM.name)) {
@@ -374,10 +374,10 @@ class _WalletNameFormState extends State<WalletNameForm> {
                 : null);
       }
     } catch (e) {
-      formMutex.release();
+      formProcessing = false;
       rethrow;
     }
-    formMutex.release();
+    formProcessing = false;
   }
 
   bool get isPolyseed => widget._seedTypeViewModel.moneroSeedType == SeedType.polyseed;

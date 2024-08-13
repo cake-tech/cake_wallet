@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -21,9 +22,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:mutex/mutex.dart';
-
-final Mutex formMutex = Mutex();
 
 class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel, this.seedTypeViewModel)
@@ -353,7 +351,8 @@ class WalletRestorePage extends BasePage {
   }
 
   Future<void> _confirmForm(BuildContext context) async {
-    await formMutex.acquire();
+    if (formProcessing) return;
+    formProcessing = true;
     try {
       // Dismissing all visible keyboard to provide context for navigation
       FocusManager.instance.primaryFocus?.unfocus();
@@ -372,13 +371,13 @@ class WalletRestorePage extends BasePage {
       }
 
       if (!formKey!.currentState!.validate()) {
-        formMutex.release();
+        formProcessing = false;
         return;
       }
 
       if (walletRestoreViewModel.nameExists(name)) {
         showNameExistsAlert(formContext!);
-        formMutex.release();
+        formProcessing = false;
         return;
       }
 
@@ -427,10 +426,10 @@ class WalletRestorePage extends BasePage {
 
       await walletRestoreViewModel.create(options: _credentials());
     } catch (e) {
-      formMutex.release();
+      formProcessing = false;
       rethrow;
     }
-    formMutex.release();
+    formProcessing = false;
   }
 
   Future<void> showNameExistsAlert(BuildContext context) {
