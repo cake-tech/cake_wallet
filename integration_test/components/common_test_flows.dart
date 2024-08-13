@@ -85,7 +85,7 @@ class CommonTestFlows {
   Future<void> _restoreFromSeeds() async {
     // ----------- RestoreFromSeedOrKeys Page -------------
     await _restoreFromSeedOrKeysPageRobot.enterWalletNameText(CommonTestConstants.testWalletName);
-    await _restoreFromSeedOrKeysPageRobot.enterSeedPhraseForWalletRestore(secrets.seeds);
+    await _restoreFromSeedOrKeysPageRobot.enterSeedPhraseForWalletRestore(secrets.solanaTestWalletSeeds);
     await _restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonPressed();
   }
 
