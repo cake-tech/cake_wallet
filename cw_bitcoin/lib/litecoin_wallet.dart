@@ -2,13 +2,6 @@ import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:blockchain_utils/crypto/crypto/cdsa/curve/curves.dart';
-import 'package:blockchain_utils/crypto/crypto/cdsa/ecdsa/signature.dart';
-import 'package:blockchain_utils/crypto/quick_crypto.dart';
-import 'package:blockchain_utils/exception/exception.dart';
-import 'package:blockchain_utils/hex/hex.dart';
-import 'package:blockchain_utils/numbers/bigint_utils.dart';
-import 'package:blockchain_utils/signer/bitcoin_signer.dart';
 import 'package:blockchain_utils/signer/ecdsa_signing_key.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
