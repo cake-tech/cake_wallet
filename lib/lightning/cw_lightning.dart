@@ -14,8 +14,8 @@ class CWLightning extends Lightning {
       stringDoubleToBitcoinAmount(amount * 100000000);
 
   WalletService createLightningWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-    return LightningWalletService(walletInfoSource, unspentCoinSource);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+    return LightningWalletService(walletInfoSource, unspentCoinSource, isDirect);
   }
 
   @override

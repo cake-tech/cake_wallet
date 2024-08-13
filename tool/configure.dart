@@ -1028,7 +1028,7 @@ abstract class Lightning {
   double formatterLightningAmountToDouble({required int amount});
   int formatterStringDoubleToLightningAmount(String amount);
   WalletService createLightningWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
   List<ReceivePageOption> getLightningReceivePageOptions();
   String satsToLightningString(int sats);
   ReceivePageOption getOptionInvoice();
