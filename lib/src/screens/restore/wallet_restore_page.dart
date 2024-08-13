@@ -81,6 +81,8 @@ class WalletRestorePage extends BasePage {
     });
   }
 
+  static bool formProcessing = false;
+
   @override
   Widget middle(BuildContext context) => Observer(
       builder: (_) => Text(

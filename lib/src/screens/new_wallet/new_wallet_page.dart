@@ -25,7 +25,6 @@ import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 
-bool formProcessing = false;
 
 class NewWalletPage extends BasePage {
   NewWalletPage(this._walletNewVM, this._seedTypeViewModel);
@@ -76,6 +75,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
             _walletNewVM.hasWalletPassword ? TextEditingController() : null;
 
   static const aspectRatioImage = 1.22;
+  static bool formProcessing = false;
 
   final GlobalKey<FormState> _formKey;
   final GlobalKey<SeedLanguageSelectorState> _languageSelectorKey;
