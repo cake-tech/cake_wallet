@@ -1472,7 +1472,7 @@ abstract class ElectrumWalletBase
 
       // deduct the change amount from the output amount
       if (changeOutput != null) {
-        totalOutAmount -= changeOutput.value.toInt();
+        totalOutAmount = allInputsAmount - changeOutput.value.toInt() - newFee;
       }
 
       final txb = BitcoinTransactionBuilder(
