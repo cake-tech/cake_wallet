@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -12,8 +14,8 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_solana/default_spl_tokens.dart';
-import 'package:cw_solana/file.dart';
 import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_client.dart';
 import 'package:cw_solana/solana_exceptions.dart';
@@ -36,13 +38,15 @@ part 'solana_wallet.g.dart';
 class SolanaWallet = SolanaWalletBase with _$SolanaWallet;
 
 abstract class SolanaWalletBase
-    extends WalletBase<SolanaBalance, SolanaTransactionHistory, SolanaTransactionInfo> with Store {
+    extends WalletBase<SolanaBalance, SolanaTransactionHistory, SolanaTransactionInfo>
+    with Store, WalletKeysFile {
   SolanaWalletBase({
     required WalletInfo walletInfo,
     String? mnemonic,
     String? privateKey,
     required String password,
     SolanaBalance? initialBalance,
+    required this.encryptionFileUtils,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -53,7 +57,11 @@ abstract class SolanaWalletBase
             {CryptoCurrency.sol: initialBalance ?? SolanaBalance(BigInt.zero.toDouble())}),
         super(walletInfo) {
     this.walletInfo = walletInfo;
-    transactionHistory = SolanaTransactionHistory(walletInfo: walletInfo, password: password);
+    transactionHistory = SolanaTransactionHistory(
+      walletInfo: walletInfo,
+      password: password,
+      encryptionFileUtils: encryptionFileUtils,
+    );
 
     if (!CakeHive.isAdapterRegistered(SPLToken.typeId)) {
       CakeHive.registerAdapter(SPLTokenAdapter());
@@ -65,6 +73,7 @@ abstract class SolanaWalletBase
   final String _password;
   final String? _mnemonic;
   final String? _hexPrivateKey;
+  final EncryptionFileUtils encryptionFileUtils;
 
   // The Solana WalletPair
   Ed25519HDKeyPair? _walletKeyPair;
@@ -74,7 +83,7 @@ abstract class SolanaWalletBase
   // To access the privateKey bytes.
   Ed25519HDKeyPairData? _keyPairData;
 
-  late SolanaWalletClient _client;
+  late final SolanaWalletClient _client;
 
   @observable
   double? estimatedFee;
@@ -94,7 +103,7 @@ abstract class SolanaWalletBase
   @observable
   late ObservableMap<CryptoCurrency, SolanaBalance> balance;
 
-  Completer<SharedPreferences> _sharedPrefs = Completer();
+  final Completer<SharedPreferences> _sharedPrefs = Completer();
 
   @override
   Ed25519HDKeyPairData get keys {
@@ -120,6 +129,9 @@ abstract class SolanaWalletBase
 
     return privateKey;
   }
+
+  @override
+  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
 
   Future<void> init() async {
     final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${SPLToken.boxName}";
@@ -336,9 +348,14 @@ abstract class SolanaWalletBase
 
   @override
   Future<void> save() async {
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+      await saveKeysFile(_password, encryptionFileUtils);
+      saveKeysFile(_password, encryptionFileUtils, true);
+    }
+
     await walletAddresses.updateAddressesInBox();
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
+    await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
 
@@ -361,8 +378,6 @@ abstract class SolanaWalletBase
     }
   }
 
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
-
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
         'private_key': _hexPrivateKey,
@@ -373,20 +388,45 @@ abstract class SolanaWalletBase
     required String name,
     required String password,
     required WalletInfo walletInfo,
+    required EncryptionFileUtils encryptionFileUtils,
   }) async {
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
     final path = await pathForWallet(name: name, type: walletInfo.type);
-    final jsonSource = await read(path: path, password: password);
-    final data = json.decode(jsonSource) as Map;
-    final mnemonic = data['mnemonic'] as String?;
-    final privateKey = data['private_key'] as String?;
-    final balance = SolanaBalance.fromJSON(data['balance'] as String) ?? SolanaBalance(0.0);
+
+    Map<String, dynamic>? data;
+    try {
+      final jsonSource = await encryptionFileUtils.read(path: path, password: password);
+
+      data = json.decode(jsonSource) as Map<String, dynamic>;
+    } catch (e) {
+      if (!hasKeysFile) rethrow;
+    }
+
+    final balance = SolanaBalance.fromJSON(data?['balance'] as String) ?? SolanaBalance(0.0);
+
+    final WalletKeysData keysData;
+    // Migrate wallet from the old scheme to then new .keys file scheme
+    if (!hasKeysFile) {
+      final mnemonic = data!['mnemonic'] as String?;
+      final privateKey = data['private_key'] as String?;
+
+      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+    } else {
+      keysData = await WalletKeysFile.readKeysFile(
+        name,
+        walletInfo.type,
+        password,
+        encryptionFileUtils,
+      );
+    }
 
     return SolanaWallet(
       walletInfo: walletInfo,
       password: password,
-      mnemonic: mnemonic,
-      privateKey: privateKey,
+      mnemonic: keysData.mnemonic,
+      privateKey: keysData.privateKey,
       initialBalance: balance,
+      encryptionFileUtils: encryptionFileUtils,
     );
   }
 
@@ -545,4 +585,7 @@ abstract class SolanaWalletBase
   }
 
   SolanaClient? get solanaClient => _client.getSolanaClient;
+
+  @override
+  String get password => _password;
 }

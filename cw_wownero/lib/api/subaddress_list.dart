@@ -41,12 +41,16 @@ class Subaddress {
 
 List<Subaddress> getAllSubaddresses() {
   final size = wownero.Wallet_numSubaddresses(wptr!, accountIndex: subaddress!.accountIndex);
-  return List.generate(size, (index) {
+  final list = List.generate(size, (index) {
     return Subaddress(
       accountIndex: subaddress!.accountIndex,
       addressIndex: index,
     );
   }).reversed.toList();
+  if (list.isEmpty) {
+    list.add(Subaddress(addressIndex: 0, accountIndex: subaddress!.accountIndex));
+  }
+  return list;
 }
 
 void addSubaddressSync({required int accountIndex, required String label}) {

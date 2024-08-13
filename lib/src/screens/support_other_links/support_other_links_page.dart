@@ -7,6 +7,7 @@ import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class SupportOtherLinksPage extends BasePage {
@@ -22,7 +23,10 @@ class SupportOtherLinksPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+
     final iconColor = Theme.of(context).extension<SupportPageTheme>()!.iconColor;
+
+    final isLightMode = Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
 
     return Container(
       child: Center(
@@ -37,16 +41,16 @@ class SupportOtherLinksPage extends BasePage {
                 if (item is RegularListItem) {
                   return SettingsCellWithArrow(title: item.title, handler: item.handler);
                 }
-
                 if (item is LinkListItem) {
+                  bool hasLightIcon = false;
+                  if (item.lightIcon != null) hasLightIcon = true;
                   return SettingsLinkProviderCell(
                       title: item.title,
-                      icon: item.icon,
+                      icon: isLightMode && hasLightIcon ? item.lightIcon : item.icon,
                       iconColor: item.hasIconColor ? iconColor : null,
                       link: item.link,
                       linkTitle: item.linkTitle);
                 }
-
                 return Container();
               }),
         ),
