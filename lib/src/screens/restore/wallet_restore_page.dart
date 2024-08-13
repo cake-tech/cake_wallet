@@ -425,7 +425,7 @@ class WalletRestorePage extends BasePage {
         this.derivationInfo = walletRestoreViewModel.getDefaultDerivation();
       }
 
-      walletRestoreViewModel.create(options: _credentials());
+      await walletRestoreViewModel.create(options: _credentials());
     } catch (e) {
       formMutex.release();
       rethrow;

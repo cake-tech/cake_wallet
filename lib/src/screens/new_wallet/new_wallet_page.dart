@@ -358,7 +358,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
         return;
       }
       if (_walletNewVM.nameExists(_walletNewVM.name)) {
-        showPopUp<void>(
+        await showPopUp<void>(
             context: context,
             builder: (_) {
               return AlertWithOneAction(
@@ -368,7 +368,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   buttonAction: () => Navigator.of(context).pop());
             });
       } else {
-        _walletNewVM.create(
+        await _walletNewVM.create(
             options: _walletNewVM.hasLanguageSelector
                 ? [_languageSelectorKey.currentState!.selected, isPolyseed]
                 : null);
