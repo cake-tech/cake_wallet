@@ -132,7 +132,7 @@ class MoneroWalletService extends WalletService<
           .openWalletAsync({'path': path, 'password': password});
       final walletInfo = walletInfoSource.values.firstWhere(
           (info) => info.id == WalletBase.idFor(name, getType()));
-      final wallet = MoneroWallet(
+      wallet = MoneroWallet(
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         password: password);
@@ -182,6 +182,7 @@ class MoneroWalletService extends WalletService<
         wallet.onError!(FlutterErrorDetails(exception: e, stack: s));
       }
       if (invalidPassword) {
+        wallet?.onError?.call(FlutterErrorDetails(exception: e, stack: s));
         rethrow;
       }
 
