@@ -37,6 +37,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/receive_page_option.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -124,6 +125,8 @@ import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -227,6 +230,8 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_unlock_loadable_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_unlock_verifiable_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -345,7 +350,6 @@ Future<void> setup({
       WalletCreationService(
           initialType: type,
           keyService: getIt.get<KeyService>(),
-          secureStorage: getIt.get<SecureStorage>(),
           sharedPreferences: getIt.get<SharedPreferences>(),
           settingsStore: getIt.get<SettingsStore>(),
           walletInfoSource: _walletInfoSource));
@@ -364,6 +368,55 @@ Future<void> setup({
       _walletInfoSource,
       getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
       type: type));
+
+  getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
+    return WalletUnlockPage(getIt.get<WalletUnlockLoadableViewModel>(param1: args), args.callback,
+        args.authPasswordHandler,
+        closable: closable);
+  }, instanceName: 'wallet_unlock_loadable');
+
+  getIt.registerFactory<WalletUnlockPage>(
+      () => getIt.get<WalletUnlockPage>(
+          param1: WalletUnlockArguments(callback: (bool successful, _) {
+            if (successful) {
+              final authStore = getIt.get<AuthenticationStore>();
+              authStore.allowed();
+            }
+          }),
+          param2: false,
+          instanceName: 'wallet_unlock_loadable'),
+      instanceName: 'wallet_password_login');
+
+  getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
+    return WalletUnlockPage(getIt.get<WalletUnlockVerifiableViewModel>(param1: args), args.callback,
+        args.authPasswordHandler,
+        closable: closable);
+  }, instanceName: 'wallet_unlock_verifiable');
+
+  getIt.registerFactoryParam<WalletUnlockLoadableViewModel, WalletUnlockArguments, void>((args, _) {
+    final currentWalletName =
+        getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName) ?? '';
+    final currentWalletTypeRaw =
+        getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
+    final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
+
+    return WalletUnlockLoadableViewModel(getIt.get<AppStore>(), getIt.get<WalletLoadingService>(),
+        walletName: args.walletName ?? currentWalletName,
+        walletType: args.walletType ?? currentWalletType);
+  });
+
+  getIt.registerFactoryParam<WalletUnlockVerifiableViewModel, WalletUnlockArguments, void>(
+      (args, _) {
+    final currentWalletName =
+        getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName) ?? '';
+    final currentWalletTypeRaw =
+        getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
+    final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
+
+    return WalletUnlockVerifiableViewModel(getIt.get<AppStore>(),
+        walletName: args.walletName ?? currentWalletName,
+        walletType: args.walletType ?? currentWalletType);
+  });
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
@@ -702,7 +755,9 @@ Future<void> setup({
 
   getIt.registerFactory<MoneroAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero || wallet.type == WalletType.haven) {
+    if (wallet.type == WalletType.monero ||
+        wallet.type == WalletType.wownero ||
+        wallet.type == WalletType.haven) {
       return MoneroAccountListViewModel(wallet);
     }
     throw Exception(
@@ -769,8 +824,9 @@ Future<void> setup({
   getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() {
-    return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!,
-        getIt.get<SendViewModel>());});
+    return OtherSettingsViewModel(
+        getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!, getIt.get<SendViewModel>());
+  });
 
   getIt.registerFactory(() {
     return SecuritySettingsViewModel(getIt.get<SettingsStore>());
@@ -917,25 +973,52 @@ Future<void> setup({
           _walletInfoSource,
           _unspentCoinsInfoSource,
           getIt.get<SettingsStore>().silentPaymentsAlwaysScan,
+          SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.litecoin:
-        return bitcoin!.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+        return bitcoin!.createLitecoinWalletService(
+          _walletInfoSource,
+          _unspentCoinsInfoSource,
+          SettingsStoreBase.walletPasswordDirectInput,
+        );
       case WalletType.ethereum:
-        return ethereum!.createEthereumWalletService(_walletInfoSource);
+        return ethereum!.createEthereumWalletService(
+          _walletInfoSource,
+          SettingsStoreBase.walletPasswordDirectInput,
+        );
       case WalletType.bitcoinCash:
-        return bitcoinCash!
-            .createBitcoinCashWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+        return bitcoinCash!.createBitcoinCashWalletService(
+          _walletInfoSource,
+          _unspentCoinsInfoSource,
+          SettingsStoreBase.walletPasswordDirectInput,
+        );
       case WalletType.nano:
       case WalletType.banano:
-        return nano!.createNanoWalletService(_walletInfoSource);
-      case WalletType.polygon:
-        return polygon!.createPolygonWalletService(_walletInfoSource);
+        return nano!.createNanoWalletService(
+          _walletInfoSource,
+          SettingsStoreBase.walletPasswordDirectInput,
+        );
       case WalletType.lightning:
-        return lightning!.createLightningWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+        return lightning!.createLightningWalletService(
+          _walletInfoSource,
+          _unspentCoinsInfoSource,
+          SettingsStoreBase.walletPasswordDirectInput,
+        );
+      case WalletType.polygon:
+        return polygon!.createPolygonWalletService(
+          _walletInfoSource,
+          SettingsStoreBase.walletPasswordDirectInput,
+        );
       case WalletType.solana:
-        return solana!.createSolanaWalletService(_walletInfoSource);
+        return solana!.createSolanaWalletService(
+          _walletInfoSource,
+          SettingsStoreBase.walletPasswordDirectInput,
+        );
       case WalletType.tron:
-        return tron!.createTronWalletService(_walletInfoSource);
+        return tron!.createTronWalletService(
+          _walletInfoSource,
+          SettingsStoreBase.walletPasswordDirectInput,
+        );
       case WalletType.wownero:
         return wownero!.createWowneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.none:

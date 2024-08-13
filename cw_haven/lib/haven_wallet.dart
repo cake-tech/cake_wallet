@@ -38,9 +38,10 @@ class HavenWallet = HavenWalletBase with _$HavenWallet;
 
 abstract class HavenWalletBase
     extends WalletBase<MoneroBalance, HavenTransactionHistory, HavenTransactionInfo> with Store {
-  HavenWalletBase({required WalletInfo walletInfo})
+  HavenWalletBase({required WalletInfo walletInfo, String? password})
       : balance = ObservableMap.of(getHavenBalance(accountIndex: 0)),
         _isTransactionUpdating = false,
+        _password = password ?? '',
         _hasSyncAfterStartup = false,
         walletAddresses = HavenWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
@@ -56,6 +57,7 @@ abstract class HavenWalletBase
   }
 
   static const int _autoSaveInterval = 30;
+  final String _password;
 
   @override
   HavenWalletAddresses walletAddresses;
@@ -111,7 +113,7 @@ abstract class HavenWalletBase
     _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
-  
+
   @override
   Future<void> connectToNode({required Node node}) async {
     try {
@@ -414,4 +416,7 @@ abstract class HavenWalletBase
       print(e.toString());
     }
   }
+
+  @override
+  String get password => _password;
 }

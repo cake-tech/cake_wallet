@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -21,11 +22,12 @@ class TronWalletService extends WalletService<
     TronRestoreWalletFromSeedCredentials,
     TronRestoreWalletFromPrivateKey,
     TronNewWalletCredentials> {
-  TronWalletService(this.walletInfoSource, {required this.client});
+  TronWalletService(this.walletInfoSource, {required this.client, required this.isDirect});
 
   late TronClient client;
 
   final Box<WalletInfo> walletInfoSource;
+  final bool isDirect;
 
   @override
   WalletType getType() => WalletType.tron;
@@ -43,6 +45,7 @@ class TronWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -62,6 +65,7 @@ class TronWalletService extends WalletService<
         name: name,
         password: password,
         walletInfo: walletInfo,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
 
       await wallet.init();
@@ -75,6 +79,7 @@ class TronWalletService extends WalletService<
         name: name,
         password: password,
         walletInfo: walletInfo,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
 
       await wallet.init();
@@ -92,6 +97,7 @@ class TronWalletService extends WalletService<
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -114,6 +120,7 @@ class TronWalletService extends WalletService<
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -128,7 +135,11 @@ class TronWalletService extends WalletService<
     final currentWalletInfo = walletInfoSource.values
         .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
     final currentWallet = await TronWalletBase.open(
-        password: password, name: currentName, walletInfo: currentWalletInfo);
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
 
     await currentWallet.renameWalletFiles(newName);
     await saveBackup(newName);

@@ -8,6 +8,7 @@ import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -46,6 +47,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
+    required EncryptionFileUtils encryptionFileUtils,
     String? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
     LightningBalance? initialBalance,
@@ -64,6 +66,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
           initialAddresses: initialAddresses,
           initialBalance: initialBalance,
           seedBytes: seedBytes,
+          encryptionFileUtils: encryptionFileUtils,
           currency: CryptoCurrency.btcln,
         ) {
     _balance[CryptoCurrency.btcln] =
@@ -141,6 +144,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
+    required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final snp =
         await ElectrumWalletSnapshot.load(name, walletInfo.type, password, BitcoinNetwork.mainnet);
@@ -160,6 +164,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         snp.mnemonic!,
         derivationType: walletInfo.derivationInfo?.derivationType,
       ),
+      encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: snp.regularAddressIndex,
       initialChangeAddressIndex: snp.changeAddressIndex,
       addressPageType: snp.addressPageType,

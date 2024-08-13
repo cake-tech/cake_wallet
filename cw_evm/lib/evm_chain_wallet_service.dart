@@ -15,9 +15,10 @@ abstract class EVMChainWalletService<T extends EVMChainWallet> extends WalletSer
     EVMChainRestoreWalletFromSeedCredentials,
     EVMChainRestoreWalletFromPrivateKey,
     EVMChainRestoreWalletFromHardware> {
-  EVMChainWalletService(this.walletInfoSource);
+  EVMChainWalletService(this.walletInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
+  final bool isDirect;
 
   @override
   WalletType getType();

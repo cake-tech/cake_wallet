@@ -19,10 +19,11 @@ class LightningWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials,
     BitcoinRestoreWalletFromHardware> {
-  LightningWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
+  LightningWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+  final bool isDirect;
 
   @override
   WalletType getType() => WalletType.lightning;

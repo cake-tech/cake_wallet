@@ -1,4 +1,4 @@
-name: PR Test Build
+name: PR Test Build linux
 
 on:
   pull_request:
@@ -25,18 +25,7 @@ jobs:
 
       - name: is not pr
         if: github.event_name != 'pull_request'
-        run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
-
-      - name: Free Disk Space (Ubuntu)
-        uses: insightsengineering/disk-space-reclaimer@v1
-        with:
-          tools-cache: true
-          android: false
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
-          docker-images: true
+        run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENVg
 
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
@@ -53,8 +42,14 @@ jobs:
           channel: stable
 
       - name: Install package dependencies
-        run: sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
+        run: |
+          sudo apt update
+          sudo apt-get install -y curl unzip automake build-essential file pkg-config git python-is-python3 libtool libtinfo5 cmake clang
 
+      - name: Install desktop dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y ninja-build libgtk-3-dev gperf
       - name: Execute Build and Setup Commands
         run: |
           sudo mkdir -p /opt/android
@@ -63,11 +58,15 @@ jobs:
           -y curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
           cargo install cargo-ndk
           git clone https://github.com/cake-tech/cake_wallet.git --branch ${{ env.BRANCH_NAME }}
+          cd scripts && ./gen_android_manifest.sh && cd ..
           cd cake_wallet/scripts/android/
-          ./install_ndk.sh
           source ./app_env.sh cakewallet
-          chmod +x pubspec_gen.sh
           ./app_config.sh
+          cd ../../..
+          cd cake_wallet/scripts/linux/
+          source ./app_env.sh cakewallet
+          ./app_config.sh
+          cd ../../..
 
       - name: Cache Externals
         id: cache-externals
@@ -76,12 +75,12 @@ jobs:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
-          key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
+          key: linux-${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
         run: |
-          cd /opt/android/cake_wallet/scripts/android/
+          cd /opt/android/cake_wallet/scripts/linux/
           source ./app_env.sh cakewallet
           ./build_monero_all.sh
 
@@ -89,16 +88,6 @@ jobs:
         run: |
           cd /opt/android/cake_wallet
           flutter pub get
-
-      - name: Generate KeyStore
-        run: |
-          cd /opt/android/cake_wallet/android/app
-          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
-
-      - name: Generate key properties
-        run: |
-          cd /opt/android/cake_wallet
-          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=$STORE_PASS keyPassword=$KEY_PASS
 
       - name: Generate localization
         run: |
@@ -155,9 +144,6 @@ jobs:
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
-          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_lightning/lib/.secrets.g.dart
-          echo "const greenlightCert = '${{ secrets.GREENLIGHT_CERTIFICATE }}';" >> cw_lightning/lib/.secrets.g.dart
-          echo "const greenlightKey = '${{ secrets.GREENLIGHT_KEY }}';" >> cw_lightning/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
@@ -176,39 +162,25 @@ jobs:
       - name: Build
         run: |
           cd /opt/android/cake_wallet
-          flutter build apk --release --split-per-abi
+          flutter build linux --release
 
-      #            - name: Push to App Center
-      #              run: |
-      #                echo 'Installing App Center CLI tools'
-      #                npm install -g appcenter-cli
-      #                echo "Publishing test to App Center"
-      #                appcenter distribute release \
-      #                    --group "Testers" \
-      #                    --file "/opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk" \
-      #                    --release-notes ${{ env.BRANCH_NAME }} \
-      #                    --app Cake-Labs/Cake-Wallet \
-      #                    --token ${{ secrets.APP_CENTER_TOKEN }} \
-      #                    --quiet
-
-      - name: Rename apk file
+      - name: Prepare release zip file
         run: |
-          cd /opt/android/cake_wallet/build/app/outputs/flutter-apk
-          mkdir test-apk
-          cp app-arm64-v8a-release.apk test-apk/${{env.BRANCH_NAME}}.apk
+          cd /opt/android/cake_wallet/build/linux/x64/release
+          zip -r ${{env.BRANCH_NAME}}.zip bundle
 
       - name: Upload Artifact
         uses: kittaakos/upload-artifact-as-is@v0
         with:
-          path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/
+          path: /opt/android/cake_wallet/build/linux/x64/release/${{env.BRANCH_NAME}}.zip
 
       - name: Send Test APK
         continue-on-error: true
         uses: adrey/slack-file-upload-action@1.0.5
         with:
           token: ${{ secrets.SLACK_APP_TOKEN }}
-          path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/${{env.BRANCH_NAME}}.apk
+          path: /opt/android/cake_wallet/build/linux/x64/release/${{env.BRANCH_NAME}}.zip
           channel: ${{ secrets.SLACK_APK_CHANNEL }}
-          title: "${{ env.BRANCH_NAME }}.apk"
-          filename: ${{ env.BRANCH_NAME }}.apk
+          title: "${{ env.BRANCH_NAME }}_linux.zip"
+          filename: ${{ env.BRANCH_NAME }}_linux.zip
           initial_comment: ${{ github.event.head_commit.message }}
