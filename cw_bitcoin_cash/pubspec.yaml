@@ -46,7 +46,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: sign_message_v
+      ref: cake-update-v5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
