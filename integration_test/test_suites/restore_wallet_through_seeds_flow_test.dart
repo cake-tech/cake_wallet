@@ -38,7 +38,7 @@ void main() {
 
       // Do the same for other available wallet types
       for (var walletType in availableWalletTypes) {
-        if (walletType == WalletType.solana || walletType == WalletType.wownero) {
+        if (walletType == WalletType.solana) {
           continue;
         }
 
