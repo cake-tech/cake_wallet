@@ -25,6 +25,7 @@ import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 
+
 class NewWalletPage extends BasePage {
   NewWalletPage(this._walletNewVM, this._seedTypeViewModel);
 
@@ -74,6 +75,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
             _walletNewVM.hasWalletPassword ? TextEditingController() : null;
 
   static const aspectRatioImage = 1.22;
+  static bool formProcessing = false;
 
   final GlobalKey<FormState> _formKey;
   final GlobalKey<SeedLanguageSelectorState> _languageSelectorKey;
@@ -347,26 +349,35 @@ class _WalletNameFormState extends State<WalletNameForm> {
     );
   }
 
-  void _confirmForm() {
-    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-      return;
+  void _confirmForm() async {
+    if (formProcessing) return;
+    formProcessing = true;
+    try {
+      if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+        formProcessing = false;
+        return;
+      }
+      if (_walletNewVM.nameExists(_walletNewVM.name)) {
+        await showPopUp<void>(
+            context: context,
+            builder: (_) {
+              return AlertWithOneAction(
+                  alertTitle: '',
+                  alertContent: S.of(context).wallet_name_exists,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+      } else {
+        await _walletNewVM.create(
+            options: _walletNewVM.hasLanguageSelector
+                ? [_languageSelectorKey.currentState!.selected, isPolyseed]
+                : null);
+      }
+    } catch (e) {
+      formProcessing = false;
+      rethrow;
     }
-    if (_walletNewVM.nameExists(_walletNewVM.name)) {
-      showPopUp<void>(
-          context: context,
-          builder: (_) {
-            return AlertWithOneAction(
-                alertTitle: '',
-                alertContent: S.of(context).wallet_name_exists,
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-    } else {
-      _walletNewVM.create(
-          options: _walletNewVM.hasLanguageSelector
-              ? [_languageSelectorKey.currentState!.selected, isPolyseed]
-              : null);
-    }
+    formProcessing = false;
   }
 
   bool get isPolyseed => widget._seedTypeViewModel.moneroSeedType == SeedType.polyseed;
