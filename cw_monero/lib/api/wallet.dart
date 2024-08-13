@@ -131,7 +131,7 @@ void storeSync() async {
     return monero.Wallet_synchronized(Pointer.fromAddress(addr));
   });
   if (lastStorePointer == wptr!.address &&
-      lastStoreHeight + 5000 < monero.Wallet_blockChainHeight(wptr!) &&
+      lastStoreHeight + 5000 > monero.Wallet_blockChainHeight(wptr!) &&
       !synchronized) {
     return;
   }

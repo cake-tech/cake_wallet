@@ -3,6 +3,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -19,11 +20,12 @@ class BitcoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials,
     BitcoinRestoreWalletFromHardware> {
-  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan);
+  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool alwaysScan;
+  final bool isDirect;
 
   @override
   WalletType getType() => WalletType.bitcoin;
@@ -40,9 +42,12 @@ class BitcoinWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       network: network,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
+
     await wallet.save();
     await wallet.init();
+
     return wallet;
   }
 
@@ -61,6 +66,7 @@ class BitcoinWalletService extends WalletService<
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         alwaysScan: alwaysScan,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
       saveBackup(name);
@@ -73,6 +79,7 @@ class BitcoinWalletService extends WalletService<
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         alwaysScan: alwaysScan,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
       return wallet;
@@ -97,6 +104,7 @@ class BitcoinWalletService extends WalletService<
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
       alwaysScan: alwaysScan,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await currentWallet.renameWalletFiles(newName);
@@ -123,6 +131,7 @@ class BitcoinWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     await wallet.save();
     await wallet.init();
@@ -151,6 +160,7 @@ class BitcoinWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       network: network,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     await wallet.save();
     await wallet.init();
