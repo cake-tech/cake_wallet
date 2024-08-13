@@ -29,8 +29,8 @@ class CWBitcoin extends Bitcoin {
 
   @override
   WalletCredentials createBitcoinNewWalletCredentials(
-          {required String name, WalletInfo? walletInfo}) =>
-      BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
+          {required String name, WalletInfo? walletInfo, String? password}) =>
+      BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
 
   @override
   WalletCredentials createBitcoinHardwareWalletCredentials(
@@ -203,13 +203,13 @@ class CWBitcoin extends Bitcoin {
   }
 
   WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan) {
-    return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
+    return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
   }
 
   WalletService createLitecoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-    return LitecoinWalletService(walletInfoSource, unspentCoinSource);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+    return LitecoinWalletService(walletInfoSource, unspentCoinSource, isDirect);
   }
 
   @override

@@ -53,7 +53,10 @@ class WalletRestorePage extends BasePage {
               onLanguageChange: (String language) {
                 final isPolyseed = language.startsWith("POLYSEED_");
                 _validateOnChange(isPolyseed: isPolyseed);
-              }));
+              },
+              displayWalletPassword: walletRestoreViewModel.hasWalletPassword,
+              onPasswordChange: (String password) => walletRestoreViewModel.walletPassword = password,
+              onRepeatedPasswordChange: (String repeatedPassword) => walletRestoreViewModel.repeatedWalletPassword = repeatedPassword));
           break;
         case WalletRestoreMode.keys:
           _pages.add(WalletRestoreFromKeysFrom(
@@ -66,6 +69,9 @@ class WalletRestorePage extends BasePage {
                 }
               },
               displayPrivateKeyField: walletRestoreViewModel.hasRestoreFromPrivateKey,
+              displayWalletPassword: walletRestoreViewModel.hasWalletPassword,
+              onPasswordChange: (String password) => walletRestoreViewModel.walletPassword = password,
+              onRepeatedPasswordChange: (String repeatedPassword) => walletRestoreViewModel.repeatedWalletPassword = repeatedPassword,
               onHeightOrDateEntered: (value) => walletRestoreViewModel.isButtonEnabled = value));
           break;
         default:
@@ -127,6 +133,8 @@ class WalletRestorePage extends BasePage {
 
     reaction((_) => walletRestoreViewModel.mode, (WalletRestoreMode mode) {
       walletRestoreViewModel.isButtonEnabled = false;
+      walletRestoreViewModel.walletPassword = null;
+      walletRestoreViewModel.repeatedWalletPassword = null;
 
       walletRestoreFromSeedFormKey
           .currentState!.blockchainHeightKey.currentState!.restoreHeightController.text = '';
