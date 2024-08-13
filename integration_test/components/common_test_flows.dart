@@ -96,7 +96,7 @@ class CommonTestFlows {
 
   Future<void> startAppFlow(Key key) async {
     await app.main(topLevelKey: ValueKey('send_flow_test_app_key'));
-    
+
     await _tester.pumpAndSettle();
 
     // --------- Disclaimer Page ------------
@@ -122,18 +122,8 @@ class CommonTestFlows {
     await _restoreFromKeys();
   }
 
-  Future<void> switchAndRestoreWalletFromDashboardPage(
-    WalletType walletType,
-    String walletSeed,
-  ) async {
-    _tester.printToConsole('Switching to Wallet Menu');
-    await switchToWalletMenuFromDashboardPage();
-
-    _tester.printToConsole('Restoring ${walletType.name} Wallet');
-    await restoreWalletFromWalletMenu(walletType, walletSeed);
-  }
-
   Future<void> switchToWalletMenuFromDashboardPage() async {
+    _tester.printToConsole('Switching to Wallet Menu');
     await _dashboardPageRobot.openDrawerMenu();
     await _commonTestCases.defaultSleepTime();
 
@@ -141,7 +131,11 @@ class CommonTestFlows {
     await _commonTestCases.defaultSleepTime();
   }
 
-  Future<void> restoreWalletFromWalletMenu(WalletType walletType, String walletSeed) async {
+  Future<void> restoreWalletFromWalletMenu(
+    WalletType walletType,
+    String walletSeed,
+  ) async {
+    _tester.printToConsole('Restoring ${walletType.name} Wallet');
     await _walletListPageRobot.navigateToRestoreWalletOptionsPage();
     await _commonTestCases.defaultSleepTime();
 
