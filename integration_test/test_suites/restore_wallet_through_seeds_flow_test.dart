@@ -42,7 +42,7 @@ void main() {
 
         await commonTestFlows.switchToWalletMenuFromDashboardPage();
 
-        commonTestFlows.restoreWalletFromWalletMenu(
+        await commonTestFlows.restoreWalletFromWalletMenu(
           walletType,
           commonTestFlows.getWalletSeedsByWalletType(walletType),
         );
