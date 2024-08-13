@@ -103,6 +103,7 @@ dependencies:
       ref: cake-update-v4
   ledger_flutter: ^1.0.1
   hashlib: 1.12.0
+  mutex: ^3.1.0
 
 dev_dependencies:
   flutter_test:

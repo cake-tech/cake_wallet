@@ -24,6 +24,9 @@ import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:mutex/mutex.dart';
+
+final Mutex formMutex = Mutex();
 
 class NewWalletPage extends BasePage {
   NewWalletPage(this._walletNewVM, this._seedTypeViewModel);
@@ -347,26 +350,34 @@ class _WalletNameFormState extends State<WalletNameForm> {
     );
   }
 
-  void _confirmForm() {
-    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-      return;
+  void _confirmForm() async {
+    await formMutex.acquire();
+    try {
+      if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+        formMutex.release();
+        return;
+      }
+      if (_walletNewVM.nameExists(_walletNewVM.name)) {
+        showPopUp<void>(
+            context: context,
+            builder: (_) {
+              return AlertWithOneAction(
+                  alertTitle: '',
+                  alertContent: S.of(context).wallet_name_exists,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+      } else {
+        _walletNewVM.create(
+            options: _walletNewVM.hasLanguageSelector
+                ? [_languageSelectorKey.currentState!.selected, isPolyseed]
+                : null);
+      }
+    } catch (e) {
+      formMutex.release();
+      rethrow;
     }
-    if (_walletNewVM.nameExists(_walletNewVM.name)) {
-      showPopUp<void>(
-          context: context,
-          builder: (_) {
-            return AlertWithOneAction(
-                alertTitle: '',
-                alertContent: S.of(context).wallet_name_exists,
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-    } else {
-      _walletNewVM.create(
-          options: _walletNewVM.hasLanguageSelector
-              ? [_languageSelectorKey.currentState!.selected, isPolyseed]
-              : null);
-    }
+    formMutex.release();
   }
 
   bool get isPolyseed => widget._seedTypeViewModel.moneroSeedType == SeedType.polyseed;
