@@ -7,7 +7,6 @@ import 'package:integration_test/integration_test.dart';
 import '../components/common_test_constants.dart';
 import '../components/common_test_flows.dart';
 import '../robots/dashboard_page_robot.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -16,20 +15,18 @@ void main() {
   DashboardPageRobot dashboardPageRobot;
 
   testWidgets(
-    'Restoring Wallets Through Seeds',
+    'Create Wallet Flow',
     (tester) async {
       commonTestFlows = CommonTestFlows(tester);
       dashboardPageRobot = DashboardPageRobot(tester);
 
       // Start the app
       await commonTestFlows.startAppFlow(
-        ValueKey('restore_wallets_through_seeds_test_app_key'),
+        ValueKey('create_wallets_through_seeds_test_app_key'),
       );
 
-      // Restore the first wallet type: Solana
-      await commonTestFlows.welcomePageToRestoreWalletThroughSeedsFlow(
+      await commonTestFlows.welcomePageToCreateNewWalletFlow(
         WalletType.solana,
-        secrets.solanaTestWalletSeeds,
         CommonTestConstants.pin,
       );
 
@@ -38,16 +35,13 @@ void main() {
 
       // Do the same for other available wallet types
       for (var walletType in availableWalletTypes) {
-        if (walletType == WalletType.solana || walletType == WalletType.wownero) {
+        if (walletType == WalletType.solana) {
           continue;
         }
 
         await commonTestFlows.switchToWalletMenuFromDashboardPage();
 
-        await commonTestFlows.restoreWalletFromWalletMenu(
-          walletType,
-          commonTestFlows.getWalletSeedsByWalletType(walletType),
-        );
+        await commonTestFlows.createNewWalletFromWalletMenu(walletType);
 
         await dashboardPageRobot.confirmWalletTypeIsDisplayedCorrectly(walletType);
       }

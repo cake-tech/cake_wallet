@@ -34,6 +34,7 @@ void main() {
       await commonTestFlows.welcomePageToRestoreWalletThroughSeedsFlow(
         CommonTestConstants.testWalletType,
         secrets.solanaTestWalletSeeds,
+        CommonTestConstants.pin,
       );
       await dashboardPageRobot.navigateToExchangePage();
 
@@ -46,7 +47,7 @@ void main() {
         depositAddress: CommonTestConstants.testWalletAddress,
       );
       await exchangePageRobot.enterReceiveAddress(CommonTestConstants.testWalletAddress);
-      
+
       await exchangePageRobot.onExchangeButtonPressed();
 
       await exchangePageRobot.handleErrors(CommonTestConstants.exchangeTestAmount);

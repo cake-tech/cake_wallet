@@ -36,6 +36,7 @@ void main() {
       await commonTestFlows.welcomePageToRestoreWalletThroughSeedsFlow(
         CommonTestConstants.testWalletType,
         secrets.solanaTestWalletSeeds,
+        CommonTestConstants.pin,
       );
 
       // ----------- RestoreFromSeedOrKeys Page -------------

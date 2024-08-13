@@ -25,6 +25,7 @@ void main() {
       await commonTestFlows.welcomePageToRestoreWalletThroughSeedsFlow(
         CommonTestConstants.testWalletType,
         secrets.solanaTestWalletSeeds,
+        CommonTestConstants.pin,
       );
       await dashboardPageRobot.navigateToSendPage();
 
