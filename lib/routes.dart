@@ -82,6 +82,8 @@ class Routes {
   static const otherSettingsPage = '/other_settings_page';
   static const advancedPrivacySettings = '/advanced_privacy_settings';
   static const sweepingWalletPage = '/sweeping_wallet_page';
+  static const walletPasswordUnlock = '/wallet_password_unlock';
+  static const walletUnlockLoadable = '/wallet_unlock_loadable';
   static const anonPayInvoicePage = '/anon_pay_invoice_page';
   static const anonPayReceivePage = '/anon_pay_receive_page';
   static const anonPayDetailsPage = '/anon_pay_details_page';

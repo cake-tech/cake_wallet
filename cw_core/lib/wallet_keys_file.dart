@@ -3,10 +3,10 @@ import 'dart:developer' as dev;
 import 'dart:io';
 
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -20,28 +20,32 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
 
   Future<String> makeKeysFilePath() async => "${await makePath()}.keys";
 
-  Future<void> saveKeysFile(String password, [bool isBackup = false]) async {
+  Future<void> saveKeysFile(String password, EncryptionFileUtils encryptionFileUtils,
+      [bool isBackup = false]) async {
     try {
       final rootPath = await makeKeysFilePath();
       final path = "$rootPath${isBackup ? ".backup" : ""}";
       dev.log("Saving .keys file '$path'");
-      await write(path: path, password: password, data: walletKeysData.toJSON());
+      await encryptionFileUtils.write(
+          path: path, password: password, data: walletKeysData.toJSON());
     } catch (_) {}
   }
 
-  static Future<void> createKeysFile(
-      String name, WalletType type, String password, WalletKeysData walletKeysData,
+  static Future<void> createKeysFile(String name, WalletType type, String password,
+      WalletKeysData walletKeysData, EncryptionFileUtils encryptionFileUtils,
       [bool withBackup = true]) async {
     try {
       final rootPath = await pathForWallet(name: name, type: type);
       final path = "$rootPath.keys";
 
       dev.log("Saving .keys file '$path'");
-      await write(path: path, password: password, data: walletKeysData.toJSON());
+      await encryptionFileUtils.write(
+          path: path, password: password, data: walletKeysData.toJSON());
 
       if (withBackup) {
         dev.log("Saving .keys.backup file '$path.backup'");
-        await write(path: "$path.backup", password: password, data: walletKeysData.toJSON());
+        await encryptionFileUtils.write(
+            path: "$path.backup", password: password, data: walletKeysData.toJSON());
       }
     } catch (_) {}
   }
@@ -55,14 +59,19 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
     }
   }
 
-  static Future<WalletKeysData> readKeysFile(String name, WalletType type, String password) async {
+  static Future<WalletKeysData> readKeysFile(
+    String name,
+    WalletType type,
+    String password,
+    EncryptionFileUtils encryptionFileUtils,
+  ) async {
     final path = await pathForWallet(name: name, type: type);
 
     var readPath = "$path.keys";
     try {
       if (!File(readPath).existsSync()) throw Exception("No .keys file found for $name $type");
 
-      final jsonSource = await read(path: readPath, password: password);
+      final jsonSource = await encryptionFileUtils.read(path: readPath, password: password);
       final data = json.decode(jsonSource) as Map<String, dynamic>;
       return WalletKeysData.fromJSON(data);
     } catch (e) {
@@ -72,12 +81,12 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
       if (!File(readPath).existsSync())
         throw Exception("No .keys nor a .keys.backup file found for $name $type");
 
-      final jsonSource = await read(path: readPath, password: password);
+      final jsonSource = await encryptionFileUtils.read(path: readPath, password: password);
       final data = json.decode(jsonSource) as Map<String, dynamic>;
       final keysData = WalletKeysData.fromJSON(data);
 
       dev.log("Restoring .keys from .keys.backup");
-      createKeysFile(name, type, password, keysData, false);
+      createKeysFile(name, type, password, keysData, encryptionFileUtils, false);
       return keysData;
     }
   }
