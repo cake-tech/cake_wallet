@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -79,6 +80,8 @@ class WalletRestorePage extends BasePage {
       }
     });
   }
+
+  static bool formProcessing = false;
 
   @override
   Widget middle(BuildContext context) => Observer(
@@ -350,75 +353,85 @@ class WalletRestorePage extends BasePage {
   }
 
   Future<void> _confirmForm(BuildContext context) async {
-    // Dismissing all visible keyboard to provide context for navigation
-    FocusManager.instance.primaryFocus?.unfocus();
+    if (formProcessing) return;
+    formProcessing = true;
+    try {
+      // Dismissing all visible keyboard to provide context for navigation
+      FocusManager.instance.primaryFocus?.unfocus();
 
-    late BuildContext? formContext;
-    late GlobalKey<FormState>? formKey;
-    late String name;
-    if (walletRestoreViewModel.mode == WalletRestoreMode.seed) {
-      formContext = walletRestoreFromSeedFormKey.currentContext;
-      formKey = walletRestoreFromSeedFormKey.currentState!.formKey;
-      name = walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.value.text;
-    } else if (walletRestoreViewModel.mode == WalletRestoreMode.keys) {
-      formContext = walletRestoreFromKeysFormKey.currentContext;
-      formKey = walletRestoreFromKeysFormKey.currentState!.formKey;
-      name = walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.value.text;
-    }
-
-    if (!formKey!.currentState!.validate()) {
-      return;
-    }
-
-    if (walletRestoreViewModel.nameExists(name)) {
-      showNameExistsAlert(formContext!);
-      return;
-    }
-
-    walletRestoreViewModel.state = IsExecutingState();
-
-    DerivationInfo? dInfo;
-
-    // get info about the different derivations:
-    List<DerivationInfo> derivations =
-        await walletRestoreViewModel.getDerivationInfo(_credentials());
-
-    int derivationsWithHistory = 0;
-    int derivationWithHistoryIndex = 0;
-    for (int i = 0; i < derivations.length; i++) {
-      if (derivations[i].transactionsCount > 0) {
-        derivationsWithHistory++;
-        derivationWithHistoryIndex = i;
+      late BuildContext? formContext;
+      late GlobalKey<FormState>? formKey;
+      late String name;
+      if (walletRestoreViewModel.mode == WalletRestoreMode.seed) {
+        formContext = walletRestoreFromSeedFormKey.currentContext;
+        formKey = walletRestoreFromSeedFormKey.currentState!.formKey;
+        name = walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.value.text;
+      } else if (walletRestoreViewModel.mode == WalletRestoreMode.keys) {
+        formContext = walletRestoreFromKeysFormKey.currentContext;
+        formKey = walletRestoreFromKeysFormKey.currentState!.formKey;
+        name = walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.value.text;
       }
-    }
 
-    if (derivationsWithHistory > 1) {
-      dInfo = await Navigator.of(context).pushNamed(
-        Routes.restoreWalletChooseDerivation,
-        arguments: derivations,
-      ) as DerivationInfo?;
-    } else if (derivationsWithHistory == 1) {
-      dInfo = derivations[derivationWithHistoryIndex];
-    }
-
-    // get the default derivation for this wallet type:
-    if (dInfo == null) {
-      // we only return 1 derivation if we're pretty sure we know which one to use:
-      if (derivations.length == 1) {
-        dInfo = derivations.first;
-      } else {
-        // if we have multiple possible derivations, and none have histories
-        // we just default to the most common one:
-        dInfo = walletRestoreViewModel.getCommonRestoreDerivation();
+      if (!formKey!.currentState!.validate()) {
+        formProcessing = false;
+        return;
       }
-    }
 
-    this.derivationInfo = dInfo;
-    if (this.derivationInfo == null) {
-      this.derivationInfo = walletRestoreViewModel.getDefaultDerivation();
-    }
+      if (walletRestoreViewModel.nameExists(name)) {
+        showNameExistsAlert(formContext!);
+        formProcessing = false;
+        return;
+      }
 
-    walletRestoreViewModel.create(options: _credentials());
+      walletRestoreViewModel.state = IsExecutingState();
+
+      DerivationInfo? dInfo;
+
+      // get info about the different derivations:
+      List<DerivationInfo> derivations =
+          await walletRestoreViewModel.getDerivationInfo(_credentials());
+
+      int derivationsWithHistory = 0;
+      int derivationWithHistoryIndex = 0;
+      for (int i = 0; i < derivations.length; i++) {
+        if (derivations[i].transactionsCount > 0) {
+          derivationsWithHistory++;
+          derivationWithHistoryIndex = i;
+        }
+      }
+
+      if (derivationsWithHistory > 1) {
+        dInfo = await Navigator.of(context).pushNamed(
+          Routes.restoreWalletChooseDerivation,
+          arguments: derivations,
+        ) as DerivationInfo?;
+      } else if (derivationsWithHistory == 1) {
+        dInfo = derivations[derivationWithHistoryIndex];
+      }
+
+      // get the default derivation for this wallet type:
+      if (dInfo == null) {
+        // we only return 1 derivation if we're pretty sure we know which one to use:
+        if (derivations.length == 1) {
+          dInfo = derivations.first;
+        } else {
+          // if we have multiple possible derivations, and none have histories
+          // we just default to the most common one:
+          dInfo = walletRestoreViewModel.getCommonRestoreDerivation();
+        }
+      }
+
+      this.derivationInfo = dInfo;
+      if (this.derivationInfo == null) {
+        this.derivationInfo = walletRestoreViewModel.getDefaultDerivation();
+      }
+
+      await walletRestoreViewModel.create(options: _credentials());
+    } catch (e) {
+      formProcessing = false;
+      rethrow;
+    }
+    formProcessing = false;
   }
 
   Future<void> showNameExistsAlert(BuildContext context) {
