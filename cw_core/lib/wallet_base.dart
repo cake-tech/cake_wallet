@@ -85,6 +85,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> changePassword(String password);
 
+  String get password;
+
   Future<void>? updateBalance();
 
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;

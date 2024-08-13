@@ -4,15 +4,16 @@ class CWPolygon extends Polygon {
   @override
   List<String> getPolygonWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource) =>
-      PolygonWalletService(walletInfoSource, client: PolygonClient());
+  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
+      PolygonWalletService(walletInfoSource, isDirect, client: PolygonClient());
 
   @override
   WalletCredentials createPolygonNewWalletCredentials({
     required String name,
     WalletInfo? walletInfo,
+    String? password
   }) =>
-      EVMChainNewWalletCredentials(name: name, walletInfo: walletInfo);
+      EVMChainNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
 
   @override
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({

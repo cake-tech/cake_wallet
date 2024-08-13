@@ -173,6 +173,7 @@ class ExceptionHandler {
     "OS Error: Network is unreachable",
     "ClientException: Write failed, uri=http",
     "Connection terminated during handshake",
+    "Corrupted wallets seeds",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
