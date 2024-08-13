@@ -22,7 +22,6 @@ import 'package:cw_lightning/lightning_transaction_priority.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
@@ -117,6 +116,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       required String password,
       required WalletInfo walletInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required EncryptionFileUtils encryptionFileUtils,
       String? addressPageType,
       List<BitcoinAddressRecord>? initialAddresses,
       LightningBalance? initialBalance,
@@ -133,6 +133,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         mnemonic,
         derivationType: walletInfo.derivationInfo?.derivationType,
       ),
+      encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
@@ -146,8 +147,13 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
-    final snp =
-        await ElectrumWalletSnapshot.load(name, walletInfo.type, password, BitcoinNetwork.mainnet);
+    final snp = await ElectrumWalletSnapshot.load(
+      encryptionFileUtils,
+      name,
+      walletInfo.type,
+      password,
+      BitcoinNetwork.mainnet,
+    );
 
     return LightningWallet(
       mnemonic: snp.mnemonic!,

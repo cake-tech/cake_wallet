@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -42,6 +44,7 @@ class LightningWalletService extends WalletService<
       password: credentials.password!,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     await wallet.save();
     await wallet.init();
@@ -62,6 +65,7 @@ class LightningWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
       saveBackup(name);
@@ -73,6 +77,7 @@ class LightningWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
       return wallet;
@@ -99,10 +104,12 @@ class LightningWalletService extends WalletService<
     final currentWalletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
     final currentWallet = await LightningWalletBase.open(
-        password: password,
-        name: currentName,
-        walletInfo: currentWalletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
 
     await currentWallet.renameWalletFiles(newName);
     await saveBackup(newName);
@@ -135,6 +142,7 @@ class LightningWalletService extends WalletService<
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     await wallet.save();
     await wallet.init();
