@@ -50,7 +50,7 @@ abstract class WowneroWalletBase
     extends WalletBase<WowneroBalance, WowneroTransactionHistory, WowneroTransactionInfo>
     with Store {
   WowneroWalletBase(
-      {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo})
+      {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo, required String password})
       : balance = ObservableMap<CryptoCurrency, WowneroBalance>.of({
           CryptoCurrency.wow: WowneroBalance(
               fullBalance: wownero_wallet.getFullBalance(accountIndex: 0),
@@ -58,6 +58,7 @@ abstract class WowneroWalletBase
         }),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
+        _password = password,
         isEnabledAutoGenerateSubaddress = false,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
@@ -108,6 +109,10 @@ abstract class WowneroWalletBase
   String get seed => wownero_wallet.getSeed();
 
   String seedLegacy(String? language) => wownero_wallet.getSeedLegacy(language);
+
+  String get password => _password;
+
+  String _password;
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(

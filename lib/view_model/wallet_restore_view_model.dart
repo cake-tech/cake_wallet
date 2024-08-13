@@ -86,7 +86,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   @override
   WalletCredentials getCredentials(dynamic options) {
-    final password = generateWalletPassword();
+    final password = walletPassword ?? generateWalletPassword();
     String? passphrase = options['passphrase'] as String?;
     final height = options['height'] as int? ?? 0;
     name = options['name'] as String;
