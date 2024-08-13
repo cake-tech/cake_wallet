@@ -1,6 +1,6 @@
 <div align="center">
 
-<img height="100" src=".github/assets/Logo_CakeWallet.png">
+![logo](.github/assets/Logo_CakeWallet.png)
 
 </div>
 
