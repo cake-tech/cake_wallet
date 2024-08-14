@@ -222,10 +222,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       if (resp.blockHeaderHeight < nodeHeight) {
         int h = resp.blockHeaderHeight;
-        syncStatus = SyncingSyncStatus(height - h, h / height);
+        syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
       } else if (resp.mwebHeaderHeight < nodeHeight) {
         int h = resp.mwebHeaderHeight;
-        syncStatus = SyncingSyncStatus(height - h, h / height);
+        syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
       } else if (resp.mwebUtxosHeight < nodeHeight) {
         syncStatus = SyncingSyncStatus(1, 0.999);
       } else {

@@ -115,7 +115,10 @@ class ElectrumClient {
         _setConnectionStatus(ConnectionStatus.failed);
     }, onDone: () {
       unterminatedString = '';
-      if (host == socket?.address.host) _setConnectionStatus(ConnectionStatus.disconnected);
+      if (host == socket?.address.host) {
+        _setConnectionStatus(ConnectionStatus.disconnected);
+      }
+      socket = null;
     });
 
     keepAlive();
