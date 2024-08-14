@@ -3,11 +3,7 @@ import Flutter
 import workmanager
 
 @UIApplicationMain
-@objc class AppDelegate: FlutterAppDelegate {
-    lazy var resolution : Resolution? =  {
-               return try? Resolution()
-            }()
-    
+@objc class AppDelegate: FlutterAppDelegate {    
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
