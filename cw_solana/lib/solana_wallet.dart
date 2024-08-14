@@ -573,18 +573,15 @@ abstract class SolanaWalletBase
     });
   }
 
-  Future<String> signSolanaMessage(String message) async {
+  @override
+  Future<String> signMessage(String message, {String? address}) async {
     // Convert the message to bytes
     final messageBytes = utf8.encode(message);
 
     // Sign the message bytes with the wallet's private key
-    final signature = await _walletKeyPair!.sign(messageBytes);
-    return signature.toString();
-  }
+    final signature = (await _walletKeyPair!.sign(messageBytes)).toString();
 
-  @override
-  Future<String> signMessage(String message, {String? address}) async {
-    return HEX.encode(utf8.encode(await signSolanaMessage(message))).toUpperCase();
+    return HEX.encode(utf8.encode(signature)).toUpperCase();
   }
 
   List<List<int>> bytesFromSigString(String signatureString) {
