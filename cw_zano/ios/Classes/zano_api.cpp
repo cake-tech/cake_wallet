@@ -6,13 +6,15 @@
 #include <unistd.h>
 #include <mutex>
 #include "thread"
+
+
 #if __APPLE__
 // Fix for randomx on ios
 void __clear_cache(void* start, void* end) { }
-#include "../External/ios/include/wallet2_api.h"
-#else
-#include "../External/android/include/wallet2_api.h"
+//#include "../External/ios/include/wallet2_api.h"
 #endif
+
+#include "../External/include/wallet2_api.h"
 
 #include "plain_wallet_api.h"
 //#include "plain_wallet_api_ex.h"

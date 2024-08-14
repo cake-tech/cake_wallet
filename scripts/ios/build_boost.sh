@@ -5,8 +5,8 @@
 MIN_IOS_VERSION=10.0
 BOOST_URL="https://github.com/cake-tech/Apple-Boost-BuildScript.git"
 BOOST_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/Apple-Boost-BuildScript"
-BOOST_VERSION=1.72.0
-BOOST_LIBS="random regex graph random chrono thread filesystem system date_time locale serialization program_options"
+BOOST_VERSION=1.76.0
+BOOST_LIBS="random regex graph random chrono thread filesystem system date_time locale serialization program_options thread timer atomic"
 
 echo "============================ Boost ============================"
 
