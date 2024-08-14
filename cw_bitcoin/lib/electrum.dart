@@ -66,6 +66,7 @@ class ElectrumClient {
 
     try {
       await socket?.close();
+      socket = null;
     } catch (_) {}
 
     try {
