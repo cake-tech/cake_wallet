@@ -105,6 +105,7 @@ class ElectrumClient {
         print(e.toString());
       }
     }, onError: (Object error) {
+      socket = null;
       final errorMsg = error.toString();
       print(errorMsg);
       unterminatedString = '';
@@ -112,11 +113,15 @@ class ElectrumClient {
       final currentHost = socket?.address.host;
       final isErrorForCurrentHost = errorMsg.contains(" ${currentHost} ");
 
-      if (currentHost != null && isErrorForCurrentHost)
+      if (currentHost != null && isErrorForCurrentHost) {
         _setConnectionStatus(ConnectionStatus.failed);
+      }
     }, onDone: () {
+      socket = null;
       unterminatedString = '';
-      if (host == socket?.address.host) _setConnectionStatus(ConnectionStatus.disconnected);
+      if (host == socket?.address.host) {
+        _setConnectionStatus(ConnectionStatus.disconnected);
+      }
     });
 
     keepAlive();

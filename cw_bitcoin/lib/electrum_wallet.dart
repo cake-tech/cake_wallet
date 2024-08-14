@@ -256,6 +256,7 @@ abstract class ElectrumWalletBase
   Future<Isolate>? _isolate;
 
   void Function(FlutterErrorDetails)? _onError;
+  Timer? _reconnectTimer;
   Timer? _autoSaveTimer;
   static const int _autoSaveInterval = 30;
 
@@ -1822,7 +1823,8 @@ abstract class ElectrumWalletBase
       case ConnectionStatus.failed:
         syncStatus = LostConnectionSyncStatus();
         // wait for 5 seconds and then try to reconnect:
-        Future.delayed(Duration(seconds: 5), () {
+        _reconnectTimer?.cancel();
+        _reconnectTimer = Timer(Duration(seconds: 5), () {
           electrumClient.connectToUri(
             node!.uri,
             useSSL: node!.useSSL ?? false,
