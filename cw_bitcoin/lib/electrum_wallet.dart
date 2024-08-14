@@ -425,6 +425,7 @@ abstract class ElectrumWalletBase
       await updateTransactions();
       await updateAllUnspents();
       await updateBalance();
+      updateFeeRates();
 
       if (alwaysScan == true) {
         _setListeners(walletInfo.restoreHeight);
