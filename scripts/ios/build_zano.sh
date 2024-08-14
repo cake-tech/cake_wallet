@@ -46,14 +46,9 @@ mkdir -p build
 cd ..
 
 
-ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ -z $INSTALL_PREFIX ]; then
-    INSTALL_PREFIX=${ROOT_DIR}/haven
-fi
-
 export CMAKE_INCLUDE_PATH="${PREFIX}/include"
 export CMAKE_LIBRARY_PATH="${PREFIX}/lib"
--Wno-enum-constexpr-conversion
+
 
 rm -rf ${ZANO_MOBILE_IOS_BUILD_FOLDER_ARM64} > /dev/null
 rm -rf ${ZANO_MOBILE_IOS_INSTALL_FOLDER_ARM64} > /dev/null
@@ -89,14 +84,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+mkdir -p $DEST_LIB_DIR
+mkdir -p $DEST_INCLUDE_DIR
 
-
-#only for arm64
-#mkdir -p $DEST_LIB_DIR
-#mkdir -p $DEST_INCLUDE_DIR
-
-#echo "DEST_INCLUDE_DIR: ${DEST_INCLUDE_DIR}"
-#echo "DEST_LIB_DIR: ${DEST_LIB_DIR}"
-#cp ${ZANO_DIR_PATH}/lib-armv8-a/* $DEST_LIB_DIR
-#cp ${ZANO_DIR_PATH}/src/wallet/plain_wallet_api.h $DEST_INCLUDE_DIR
-
+cp ${ZANO_MOBILE_IOS_INSTALL_FOLDER_ARM64}/lib/* $DEST_LIB_DIR
+cp ${ZANO_DIR_PATH}/src/wallet/plain_wallet_api.h $DEST_INCLUDE_DIR
