@@ -90,8 +90,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   late final Bip32Slip10Secp256k1 mwebHd;
   late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;
+  Timer? _feeRatesTimer;
   StreamSubscription<Utxo>? _utxoStream;
-  int mwebUtxosHeight = 0;
   late RpcClient _stub;
   late bool mwebEnabled;
 
@@ -196,6 +196,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> startSync() async {
+    print("STARTING SYNC");
     if (!mwebEnabled) {
       syncStatus = SyncronizingSyncStatus();
       await subscribeForUpdates();
@@ -208,21 +209,24 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await updateTransactions();
     await updateFeeRates();
 
-    Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
+    _feeRatesTimer?.cancel();
+    _feeRatesTimer =
+        Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
     _stub = await CwMweb.stub();
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
-      final height = await electrumClient.getCurrentBlockChainTip() ?? 0;
+      final nodeHeight = await electrumClient.getCurrentBlockChainTip() ?? 0;
       final resp = await _stub.status(StatusRequest());
-      if (resp.blockHeaderHeight < height) {
+
+      if (resp.blockHeaderHeight < nodeHeight) {
         int h = resp.blockHeaderHeight;
         syncStatus = SyncingSyncStatus(height - h, h / height);
-      } else if (resp.mwebHeaderHeight < height) {
+      } else if (resp.mwebHeaderHeight < nodeHeight) {
         int h = resp.mwebHeaderHeight;
         syncStatus = SyncingSyncStatus(height - h, h / height);
-      } else if (resp.mwebUtxosHeight < height) {
+      } else if (resp.mwebUtxosHeight < nodeHeight) {
         syncStatus = SyncingSyncStatus(1, 0.999);
       } else {
         // prevent unnecessary reaction triggers:
@@ -230,14 +234,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           syncStatus = SyncedSyncStatus();
         }
 
-        if (resp.mwebUtxosHeight > mwebUtxosHeight) {
-          mwebUtxosHeight = resp.mwebUtxosHeight;
+        if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
+          await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
           await checkMwebUtxosSpent();
           // update the confirmations for each transaction:
           for (final transaction in transactionHistory.transactions.values) {
             if (transaction.isPending) continue;
-            int txHeight = transaction.height ?? mwebUtxosHeight;
-            final confirmations = (mwebUtxosHeight - txHeight) + 1;
+            int txHeight = transaction.height ?? resp.mwebUtxosHeight;
+            final confirmations = (resp.mwebUtxosHeight - txHeight) + 1;
             if (transaction.confirmations == confirmations) continue;
             transaction.confirmations = confirmations;
             transactionHistory.addOne(transaction);
@@ -292,7 +296,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }) async {
     await mwebUtxosBox.clear();
     transactionHistory.clear();
-    mwebUtxosHeight = height;
     await walletInfo.updateRestoreHeight(height);
 
     // reset coin balances and txCount to 0:
@@ -307,7 +310,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       addressRecord.txCount = 0;
     }
 
-    print("STARTING SYNC");
     await startSync();
   }
 
@@ -362,6 +364,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       final addressRecord = walletAddresses.allAddresses
           .firstWhereOrNull((addressRecord) => addressRecord.address == utxo.address);
       if (addressRecord == null) {
+        print("we don't have this address in the wallet! ${utxo.address}");
         return;
       }
 
@@ -391,21 +394,20 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final req = UtxosRequest(scanSecret: scanSecret, fromHeight: restoreHeight);
 
     // process old utxos:
-    for (final utxo in mwebUtxosBox.values) {
-      if (utxo.address.isEmpty) {
-        continue;
-      }
+    // for (final utxo in mwebUtxosBox.values) {
+    //   if (utxo.address.isEmpty) {
+    //     continue;
+    //   }
 
-      // if (walletInfo.restoreHeight > utxo.height) {
-      //   continue;
-      // }
+    //   // if (walletInfo.restoreHeight > utxo.height) {
+    //   //   continue;
+    //   // }
+    //   // await handleIncoming(utxo, _stub);
 
-      await handleIncoming(utxo, _stub);
-
-      if (utxo.height > walletInfo.restoreHeight) {
-        await walletInfo.updateRestoreHeight(utxo.height);
-      }
-    }
+    //   if (utxo.height > walletInfo.restoreHeight) {
+    //     await walletInfo.updateRestoreHeight(utxo.height);
+    //   }
+    // }
 
     // process new utxos as they come in:
     _utxoStream?.cancel();
@@ -418,10 +420,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         value: sUtxo.value.toInt(),
       );
 
-      if (mwebUtxosBox.containsKey(utxo.outputId)) {
-        // we've already stored this utxo, skip it:
-        return;
-      }
+      // if (mwebUtxosBox.containsKey(utxo.outputId)) {
+      //   // we've already stored this utxo, skip it:
+      //   return;
+      // }
 
       // if (utxo.address.isEmpty) {
       //   await updateUnspent();
@@ -631,10 +633,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     // update the txCount for each address using the tx history, since we can't rely on mwebd
     // to have an accurate count, we should just keep it in sync with what we know from the tx history:
-    for (var tx in transactionHistory.transactions.values) {
-      if (tx.isPending) continue;
+    for (final tx in transactionHistory.transactions.values) {
+      // if (tx.isPending) continue;
       final txAddresses = tx.inputAddresses! + tx.outputAddresses!;
-      for (var address in txAddresses) {
+      for (final address in txAddresses) {
         final addressRecord = walletAddresses.allAddresses
             .firstWhereOrNull((addressRecord) => addressRecord.address == address);
         if (addressRecord == null) {
