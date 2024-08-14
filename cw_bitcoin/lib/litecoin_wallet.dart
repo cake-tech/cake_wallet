@@ -189,6 +189,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: snp?.regularAddressIndex,
       initialChangeAddressIndex: snp?.changeAddressIndex,
       addressPageType: snp?.addressPageType,
+      alwaysScan: alwaysScan,
     );
   }
 
@@ -817,5 +818,16 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebEnabled = enabled;
     stopSync();
     startSync();
+  }
+
+  Future<RpcClient> getStub() async {
+    _stub = await CwMweb.stub();
+    return _stub;
+  }
+
+  Future<StatusResponse> getStatusRequest() async {
+    await getStub();
+    final resp = await _stub.status(StatusRequest());
+    return resp;
   }
 }
