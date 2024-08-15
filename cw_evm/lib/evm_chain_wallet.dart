@@ -7,6 +7,7 @@ import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -16,6 +17,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_evm/evm_chain_client.dart';
 import 'package:cw_evm/evm_chain_exceptions.dart';
@@ -26,7 +28,6 @@ import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet_addresses.dart';
 import 'package:cw_evm/evm_ledger_credentials.dart';
-import 'package:cw_evm/file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
@@ -58,7 +59,7 @@ abstract class EVMChainWallet = EVMChainWalletBase with _$EVMChainWallet;
 
 abstract class EVMChainWalletBase
     extends WalletBase<EVMChainERC20Balance, EVMChainTransactionHistory, EVMChainTransactionInfo>
-    with Store {
+    with Store, WalletKeysFile {
   EVMChainWalletBase({
     required WalletInfo walletInfo,
     required EVMChainClient client,
@@ -67,6 +68,7 @@ abstract class EVMChainWalletBase
     String? privateKey,
     required String password,
     EVMChainERC20Balance? initialBalance,
+    required this.encryptionFileUtils,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -82,7 +84,7 @@ abstract class EVMChainWalletBase
         ),
         super(walletInfo) {
     this.walletInfo = walletInfo;
-    transactionHistory = setUpTransactionHistory(walletInfo, password);
+    transactionHistory = setUpTransactionHistory(walletInfo, password, encryptionFileUtils);
 
     if (!CakeHive.isAdapterRegistered(Erc20Token.typeId)) {
       CakeHive.registerAdapter(Erc20TokenAdapter());
@@ -94,6 +96,7 @@ abstract class EVMChainWalletBase
   final String? _mnemonic;
   final String? _hexPrivateKey;
   final String _password;
+  final EncryptionFileUtils encryptionFileUtils;
 
   late final Box<Erc20Token> erc20TokensBox;
 
@@ -148,7 +151,11 @@ abstract class EVMChainWalletBase
 
   Erc20Token createNewErc20TokenObject(Erc20Token token, String? iconPath);
 
-  EVMChainTransactionHistory setUpTransactionHistory(WalletInfo walletInfo, String password);
+  EVMChainTransactionHistory setUpTransactionHistory(
+    WalletInfo walletInfo,
+    String password,
+    EncryptionFileUtils encryptionFileUtils,
+  );
 
   //! Common Methods across child classes
 
@@ -508,9 +515,14 @@ abstract class EVMChainWalletBase
 
   @override
   Future<void> save() async {
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+      await saveKeysFile(_password, encryptionFileUtils);
+      saveKeysFile(_password, encryptionFileUtils, true);
+    }
+
     await walletAddresses.updateAddressesInBox();
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
+    await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
 
@@ -522,7 +534,8 @@ abstract class EVMChainWalletBase
       ? HEX.encode((evmChainPrivateKey as EthPrivateKey).privateKey)
       : null;
 
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
+  @override
+  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
 
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
@@ -683,4 +696,7 @@ abstract class EVMChainWalletBase
       bytesToHex(await _evmChainPrivateKey.signPersonalMessage(ascii.encode(message)));
 
   Web3Client? getWeb3Client() => _client.getWeb3Client();
+
+  @override
+  String get password => _password;
 }

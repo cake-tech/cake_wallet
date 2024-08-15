@@ -352,4 +352,9 @@ class CWMonero extends Monero {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.submitTransactionUR(ur);
   }
+
+  @override
+  void monerocCheck() {
+    checkIfMoneroCIsFine();
+  }
 }

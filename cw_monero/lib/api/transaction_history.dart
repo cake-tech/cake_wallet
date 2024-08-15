@@ -1,4 +1,3 @@
-
 import 'dart:ffi';
 import 'dart:isolate';
 
@@ -116,7 +115,10 @@ Future<PendingTransactionDescription> createTransactionSync(
   })();
 
   if (error != null) {
-    final message = error;
+    String message = error;
+    if (message.contains("RPC error")) {
+      message = "Invalid node response, please try again or switch node\n\ntrace: $message";
+    }
     throw CreationTransactionException(message: message);
   }
 
@@ -297,7 +299,7 @@ class Transaction {
     };
   }
 
-  // S finalubAddress? subAddress;
+  // final SubAddress? subAddress;
   // List<Transfer> transfers = [];
   // final int txIndex;
   final monero.TransactionInfo txInfo;
