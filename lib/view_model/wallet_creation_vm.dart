@@ -133,11 +133,19 @@ abstract class WalletCreationVMBase with Store {
       case WalletType.nano:
         return DerivationInfo(derivationType: DerivationType.nano);
       case WalletType.bitcoin:
-        final list = bitcoin!.getElectrumDerivations()[DerivationType.bip39]!;
-        return list.firstWhere((d) => d.description == "Standard BIP84 native segwit");
+        return DerivationInfo(
+          derivationType: DerivationType.bip39,
+          derivationPath: "m/84'/0'/0'/0",
+          description: "Standard BIP84 native segwit",
+          scriptType: "p2wpkh",
+        );
       case WalletType.litecoin:
-        final list = bitcoin!.getElectrumDerivations()[DerivationType.bip39]!;
-        return list.firstWhere((d) => d.description == "Default Litecoin");
+        return DerivationInfo(
+          derivationType: DerivationType.bip39,
+          derivationPath: "m/84'/2'/0'/0",
+          description: "Standard BIP84 native segwit (litecoin)",
+          scriptType: "p2wpkh",
+        );
       default:
         return null;
     }
