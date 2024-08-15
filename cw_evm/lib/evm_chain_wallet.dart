@@ -501,7 +501,7 @@ abstract class EVMChainWalletBase
     }
 
     final methodSignature =
-    transactionInput.length >= 10 ? transactionInput.substring(0, 10) : null;
+        transactionInput.length >= 10 ? transactionInput.substring(0, 10) : null;
 
     return methodSignatureToType[methodSignature];
   }
@@ -694,15 +694,7 @@ abstract class EVMChainWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address}) async {
-    final pk = await getPrivateKey(
-      mnemonic: _mnemonic,
-      privateKey: _hexPrivateKey,
-      password: _password,
-    );
-    return EthSigUtil.signPersonalMessage(
-      privateKey: bytesToHex(pk.privateKey),
-      message: ascii.encode(message),
-    );
+    return bytesToHex(await _evmChainPrivateKey.signPersonalMessage(ascii.encode(message)));
   }
 
   @override

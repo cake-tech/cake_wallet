@@ -91,11 +91,9 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> renameWalletFiles(String newWalletName);
 
-  Future<String> signMessage(String message, {String? address = null}) =>
-      throw UnimplementedError();
+  Future<String> signMessage(String message, {String? address = null});
 
-  Future<bool> verifyMessage(String message, String signature, {String? address = null}) =>
-      throw UnimplementedError();
+  Future<bool> verifyMessage(String message, String signature, {String? address = null});
 
   bool? isTestnet;
 }

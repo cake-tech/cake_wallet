@@ -27,7 +27,6 @@ import 'package:cw_nano/nano_wallet_addresses.dart';
 import 'package:cw_nano/nano_wallet_keys.dart';
 import 'package:cw_nano/pending_nano_transaction.dart';
 import 'package:mobx/mobx.dart';
-import 'package:nanodart/nanodart.dart' as ND;
 import 'package:nanoutil/nanoutil.dart';
 
 part 'nano_wallet.g.dart';

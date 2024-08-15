@@ -182,7 +182,8 @@ abstract class DashboardViewModelBase with Store {
 
       final _accountTransactions = _wallet.transactionHistory.transactions.values
           .where((tx) =>
-              wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+              wow.wownero!.getTransactionInfoAccountId(tx) ==
+              wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
       final sortedTransactions = [..._accountTransactions];
@@ -362,13 +363,18 @@ abstract class DashboardViewModelBase with Store {
     if (wallet.type != WalletType.monero) return [];
     final keys = monero!.getKeys(wallet);
     List<String> errors = [
-      if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
-      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("")) "private view key is 0",
-      if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
-      if (keys['publicViewKey'] == List.generate(64, (index) => "0").join("")) "private view key is 0",
+      if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join(""))
+        "Private spend key is 0",
+      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join(""))
+        "private view key is 0",
+      if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join(""))
+        "public spend key is 0",
+      if (keys['publicViewKey'] == List.generate(64, (index) => "0").join(""))
+        "private view key is 0",
       if (wallet.seed == null) "wallet seed is null",
       if (wallet.seed == "") "wallet seed is empty",
-      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address == "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4") 
+      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
+          "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
         "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
@@ -480,18 +486,25 @@ abstract class DashboardViewModelBase with Store {
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
   @computed
-  bool get hasSignMessages => [
-        WalletType.monero,
-        WalletType.litecoin,
-        WalletType.bitcoin,
-        WalletType.bitcoinCash,
-        WalletType.ethereum,
-        WalletType.polygon,
-        WalletType.solana,
-        WalletType.nano,
-        WalletType.banano,
-        WalletType.tron,
-      ].contains(wallet.type);
+  bool get hasSignMessages {
+    switch (wallet.type) {
+      case WalletType.monero:
+      case WalletType.litecoin:
+      case WalletType.bitcoin:
+      case WalletType.bitcoinCash:
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.nano:
+      case WalletType.banano:
+      case WalletType.tron:
+      case WalletType.wownero:
+        return true;
+      case WalletType.haven:
+      case WalletType.none:
+        return false;
+    }
+  }
 
   bool get showRepWarning {
     if (wallet.type != WalletType.nano) {
@@ -586,7 +599,8 @@ abstract class DashboardViewModelBase with Store {
       }
 
       if (wallet.type == WalletType.wownero) {
-        return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
+        return wow.wownero!.getTransactionInfoAccountId(tx) ==
+            wow.wownero!.getCurrentAccount(wallet).id;
       }
 
       return true;
@@ -611,8 +625,8 @@ abstract class DashboardViewModelBase with Store {
           .getTransactionHistory(wallet)
           .transactions
           .values
-          .where(
-              (tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
+          .where((tx) =>
+              monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
@@ -624,8 +638,9 @@ abstract class DashboardViewModelBase with Store {
           .getTransactionHistory(wallet)
           .transactions
           .values
-          .where(
-              (tx) => wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+          .where((tx) =>
+              wow.wownero!.getTransactionInfoAccountId(tx) ==
+              wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(

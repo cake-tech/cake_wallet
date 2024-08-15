@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cw_core/nano_account_info_response.dart';
-import 'package:cw_core/nano_block_info_response.dart';
+import 'package:cw_nano/nano_block_info_response.dart';
 import 'package:cw_core/n2_node.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_transaction_model.dart';

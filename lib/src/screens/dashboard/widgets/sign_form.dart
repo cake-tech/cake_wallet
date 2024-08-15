@@ -95,15 +95,4 @@ class SignFormState extends State<SignForm> {
       ),
     );
   }
-
-  Widget get expandIcon => Container(
-        padding: EdgeInsets.all(18),
-        width: 24,
-        height: 24,
-        child: Image.asset(
-          'assets/images/arrow_bottom_purple_icon.png',
-          height: 8,
-          color: Theme.of(context).hintColor,
-        ),
-      );
 }
