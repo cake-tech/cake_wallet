@@ -1,4 +1,3 @@
-
 import 'dart:ffi';
 import 'dart:isolate';
 
@@ -288,7 +287,7 @@ class Transaction {
     };
   }
 
-  // S finalubAddress? subAddress;
+  // final SubAddress? subAddress;
   // List<Transfer> transfers = [];
   // final int txIndex;
   final monero.TransactionInfo txInfo;

@@ -89,7 +89,6 @@ class ElectrumClient {
       _setConnectionStatus(ConnectionStatus.failed);
       return;
     }
-
     _setConnectionStatus(ConnectionStatus.connected);
 
     socket!.listen((Uint8List event) {
@@ -114,15 +113,12 @@ class ElectrumClient {
       final currentHost = socket?.address.host;
       final isErrorForCurrentHost = errorMsg.contains(" ${currentHost} ");
 
-      if (currentHost != null && isErrorForCurrentHost) {
+      if (currentHost != null && isErrorForCurrentHost)
         _setConnectionStatus(ConnectionStatus.failed);
-      }
     }, onDone: () {
       socket = null;
       unterminatedString = '';
-      if (host == socket?.address.host) {
-        _setConnectionStatus(ConnectionStatus.disconnected);
-      }
+      if (host == socket?.address.host) _setConnectionStatus(ConnectionStatus.disconnected);
     });
 
     keepAlive();
@@ -268,9 +264,21 @@ class ElectrumClient {
         return [];
       });
 
-  Future<dynamic> getTransaction({required String hash, required bool verbose}) async =>
-      callWithTimeout(
+  Future<dynamic> getTransaction({required String hash, required bool verbose}) async {
+    try {
+      final result = await callWithTimeout(
           method: 'blockchain.transaction.get', params: [hash, verbose], timeout: 10000);
+      if (result is Map<String, dynamic>) {
+        return result;
+      }
+    } on RequestFailedTimeoutException catch (_) {
+      return <String, dynamic>{};
+    } catch (e) {
+      print("getTransaction: ${e.toString()}");
+      return <String, dynamic>{};
+    }
+    return <String, dynamic>{};
+  }
 
   Future<Map<String, dynamic>> getTransactionVerbose({required String hash}) =>
       getTransaction(hash: hash, verbose: true).then((dynamic result) {

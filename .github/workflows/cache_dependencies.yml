@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
         with:
-          java-version: "11.x"
+          java-version: "17.x"
       - name: Configure placeholder git details
         run: |
           git config --global user.email "CI@cakewallet.com"
@@ -60,7 +60,7 @@ jobs:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
-          key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh') }}
+          key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
