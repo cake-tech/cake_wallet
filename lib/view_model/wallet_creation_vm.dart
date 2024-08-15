@@ -110,8 +110,6 @@ abstract class WalletCreationVMBase with Store {
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
     } catch (e, s) {
-      print("@@@@@@@@");
-      print(s);
       state = FailureState(e.toString());
     }
   }
