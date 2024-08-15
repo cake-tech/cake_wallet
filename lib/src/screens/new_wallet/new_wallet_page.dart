@@ -75,7 +75,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
             _walletNewVM.hasWalletPassword ? TextEditingController() : null;
 
   static const aspectRatioImage = 1.22;
-  static bool formProcessing = false;
+  bool _formProcessing = false;
 
   final GlobalKey<FormState> _formKey;
   final GlobalKey<SeedLanguageSelectorState> _languageSelectorKey;
@@ -359,11 +359,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
   }
 
   void _confirmForm() async {
-    if (formProcessing) return;
-    formProcessing = true;
+    if (_formProcessing) return;
+    _formProcessing = true;
     try {
       if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-        formProcessing = false;
+        _formProcessing = false;
         return;
       }
       if (_walletNewVM.nameExists(_walletNewVM.name)) {
@@ -383,10 +383,10 @@ class _WalletNameFormState extends State<WalletNameForm> {
                 : null);
       }
     } catch (e) {
-      formProcessing = false;
+      _formProcessing = false;
       rethrow;
     }
-    formProcessing = false;
+    _formProcessing = false;
   }
 
   bool get isPolyseed => widget._seedTypeViewModel.moneroSeedType == SeedType.polyseed;
