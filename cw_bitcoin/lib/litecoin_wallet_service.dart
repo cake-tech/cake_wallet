@@ -122,6 +122,7 @@ class LitecoinWalletService extends WalletService<
       xpub: credentials.hwAccountData.xpub,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     await wallet.save();
     await wallet.init();

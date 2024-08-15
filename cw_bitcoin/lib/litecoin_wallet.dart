@@ -204,14 +204,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
       final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
-      print(rawTx);
-
       readyInputs.add(LedgerTransaction(
         rawTx: rawTx,
         outputIndex: utxo.utxo.vout,
         ownerPublicKey: Uint8List.fromList(hex.decode(publicKeyAndDerivationPath.publicKey)),
         ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
-        sequence: enableRBF ? 0x1 : 0xffffffff,
+        // sequence: enableRBF ? 0x1 : 0xffffffff,
+        sequence: 0xffffffff,
       ));
     }
 
