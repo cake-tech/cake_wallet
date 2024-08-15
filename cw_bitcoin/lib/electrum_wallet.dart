@@ -1917,6 +1917,10 @@ abstract class ElectrumWalletBase
   }
 
   void _syncStatusReaction(SyncStatus syncStatus) async {
+    if (syncStatus is SyncingSyncStatus) {
+      return;
+    }
+
     if (syncStatus is NotConnectedSyncStatus) {
       // Needs to re-subscribe to all scripthashes when reconnected
       _scripthashesUpdateSubject = {};
