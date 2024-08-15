@@ -25,6 +25,7 @@ import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 
+
 class NewWalletPage extends BasePage {
   NewWalletPage(this._walletNewVM, this._seedTypeViewModel);
 
@@ -68,14 +69,20 @@ class _WalletNameFormState extends State<WalletNameForm> {
   _WalletNameFormState(this._walletNewVM)
       : _formKey = GlobalKey<FormState>(),
         _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>(),
-        _controller = TextEditingController();
+        _nameController = TextEditingController(),
+        _passwordController = _walletNewVM.hasWalletPassword ? TextEditingController() : null,
+        _repeatedPasswordController =
+            _walletNewVM.hasWalletPassword ? TextEditingController() : null;
 
   static const aspectRatioImage = 1.22;
+  bool _formProcessing = false;
 
   final GlobalKey<FormState> _formKey;
   final GlobalKey<SeedLanguageSelectorState> _languageSelectorKey;
   final WalletNewVM _walletNewVM;
-  final TextEditingController _controller;
+  final TextEditingController _nameController;
+  final TextEditingController? _passwordController;
+  final TextEditingController? _repeatedPasswordController;
   ReactionDisposer? _stateReaction;
 
   @override
@@ -130,12 +137,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
                     padding: EdgeInsets.only(top: 24),
                     child: Form(
                       key: _formKey,
-                      child: Stack(
-                        alignment: Alignment.centerRight,
+                      child: Column(
                         children: [
                           TextFormField(
                             onChanged: (value) => _walletNewVM.name = value,
-                            controller: _controller,
+                            controller: _nameController,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 fontSize: 20.0,
@@ -169,10 +175,10 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                     FocusManager.instance.primaryFocus?.unfocus();
 
                                     setState(() {
-                                      _controller.text = rName;
+                                      _nameController.text = rName;
                                       _walletNewVM.name = rName;
-                                      _controller.selection = TextSelection.fromPosition(
-                                          TextPosition(offset: _controller.text.length));
+                                      _nameController.selection = TextSelection.fromPosition(
+                                          TextPosition(offset: _nameController.text.length));
                                     });
                                   },
                                   icon: Container(
@@ -195,6 +201,80 @@ class _WalletNameFormState extends State<WalletNameForm> {
                             ),
                             validator: WalletNameValidator(),
                           ),
+                          if (_walletNewVM.hasWalletPassword) ...[
+                            TextFormField(
+                              onChanged: (value) => _walletNewVM.walletPassword = value,
+                              controller: _passwordController,
+                              textAlign: TextAlign.center,
+                              obscureText: true,
+                              style: TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              ),
+                              decoration: InputDecoration(
+                                hintStyle: TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                                ),
+                                hintText: S.of(context).password,
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TextFormField(
+                              onChanged: (value) => _walletNewVM.repeatedWalletPassword = value,
+                              controller: _repeatedPasswordController,
+                              textAlign: TextAlign.center,
+                              obscureText: true,
+                              style: TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              ),
+                              decoration: InputDecoration(
+                                hintStyle: TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                                ),
+                                hintText: S.of(context).repeat_wallet_password,
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -269,26 +349,35 @@ class _WalletNameFormState extends State<WalletNameForm> {
     );
   }
 
-  void _confirmForm() {
-    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-      return;
+  void _confirmForm() async {
+    if (_formProcessing) return;
+    _formProcessing = true;
+    try {
+      if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+        _formProcessing = false;
+        return;
+      }
+      if (_walletNewVM.nameExists(_walletNewVM.name)) {
+        await showPopUp<void>(
+            context: context,
+            builder: (_) {
+              return AlertWithOneAction(
+                  alertTitle: '',
+                  alertContent: S.of(context).wallet_name_exists,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+      } else {
+        await _walletNewVM.create(
+            options: _walletNewVM.hasLanguageSelector
+                ? [_languageSelectorKey.currentState!.selected, isPolyseed]
+                : null);
+      }
+    } catch (e) {
+      _formProcessing = false;
+      rethrow;
     }
-    if (_walletNewVM.nameExists(_walletNewVM.name)) {
-      showPopUp<void>(
-          context: context,
-          builder: (_) {
-            return AlertWithOneAction(
-                alertTitle: '',
-                alertContent: S.of(context).wallet_name_exists,
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-    } else {
-      _walletNewVM.create(
-          options: _walletNewVM.hasLanguageSelector
-              ? [_languageSelectorKey.currentState!.selected, isPolyseed]
-              : null);
-    }
+    _formProcessing = false;
   }
 
   bool get isPolyseed => widget._seedTypeViewModel.moneroSeedType == SeedType.polyseed;

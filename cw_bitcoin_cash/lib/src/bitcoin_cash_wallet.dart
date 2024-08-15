@@ -1,6 +1,7 @@
 import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -28,6 +29,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
+    required EncryptionFileUtils encryptionFileUtils,
     BitcoinAddressType? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
@@ -42,7 +44,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             initialAddresses: initialAddresses,
             initialBalance: initialBalance,
             seedBytes: seedBytes,
-            currency: CryptoCurrency.bch) {
+            currency: CryptoCurrency.bch,
+            encryptionFileUtils: encryptionFileUtils) {
     walletAddresses = BitcoinCashWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
@@ -63,6 +66,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       required String password,
       required WalletInfo walletInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required EncryptionFileUtils encryptionFileUtils,
       String? addressPageType,
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumBalance? initialBalance,
@@ -76,6 +80,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
       seedBytes: await MnemonicBip39.toSeed(mnemonic),
+      encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,
@@ -87,6 +92,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
+    required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
 
@@ -94,7 +100,12 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
 
     try {
       snp = await ElectrumWalletSnapshot.load(
-          name, walletInfo.type, password, BitcoinCashNetwork.mainnet);
+        encryptionFileUtils,
+        name,
+        walletInfo.type,
+        password,
+        BitcoinCashNetwork.mainnet,
+      );
     } catch (e) {
       if (!hasKeysFile) rethrow;
     }
@@ -105,7 +116,12 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       keysData =
           WalletKeysData(mnemonic: snp!.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
     } else {
-      keysData = await WalletKeysFile.readKeysFile(name, walletInfo.type, password);
+      keysData = await WalletKeysFile.readKeysFile(
+        name,
+        walletInfo.type,
+        password,
+        encryptionFileUtils,
+      );
     }
 
     return BitcoinCashWallet(
@@ -135,6 +151,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       }).toList(),
       initialBalance: snp?.balance,
       seedBytes: await MnemonicBip39.toSeed(keysData.mnemonic!),
+      encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: snp?.regularAddressIndex,
       initialChangeAddressIndex: snp?.changeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,

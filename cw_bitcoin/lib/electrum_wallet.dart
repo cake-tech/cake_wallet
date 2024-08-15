@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
@@ -33,7 +34,6 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -59,6 +59,7 @@ abstract class ElectrumWalletBase
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required this.network,
+    required this.encryptionFileUtils,
     String? xpub,
     String? mnemonic,
     Uint8List? seedBytes,
@@ -93,7 +94,11 @@ abstract class ElectrumWalletBase
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
-    transactionHistory = ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
+    transactionHistory = ElectrumTransactionHistory(
+      walletInfo: walletInfo,
+      password: password,
+      encryptionFileUtils: encryptionFileUtils,
+    );
 
     reaction((_) => syncStatus, _syncStatusReaction);
   }
@@ -138,6 +143,8 @@ abstract class ElectrumWalletBase
   final String? _mnemonic;
 
   Bip32Slip10Secp256k1 get hd => accountHD.childKey(Bip32KeyIndex(0));
+
+  final EncryptionFileUtils encryptionFileUtils;
   final String? passphrase;
 
   @override
@@ -177,6 +184,9 @@ abstract class ElectrumWalletBase
   @override
   WalletKeysData get walletKeysData =>
       WalletKeysData(mnemonic: _mnemonic, xPub: xpub, passphrase: passphrase);
+
+  @override
+  String get password => _password;
 
   BasedUtxoNetwork network;
 
@@ -1143,12 +1153,12 @@ abstract class ElectrumWalletBase
   @override
   Future<void> save() async {
     if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
-      await saveKeysFile(_password);
-      saveKeysFile(_password, true);
+      await saveKeysFile(_password, encryptionFileUtils);
+      saveKeysFile(_password, encryptionFileUtils, true);
     }
 
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
+    await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
 
