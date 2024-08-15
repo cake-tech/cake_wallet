@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
@@ -47,6 +49,17 @@ class WalletRestoreFromQRCode {
     final sortedKeys = _walletTypeMap.keys.toList()..sort((a, b) => b.length.compareTo(a.length));
 
     final extracted = sortedKeys.firstWhereOrNull((key) => code.toLowerCase().contains(key));
+
+    if (extracted == null) {
+      // Special case for view-only monero wallet
+      final codeParsed = json.decode(code);
+      if (codeParsed["version"] == 0 &&
+          codeParsed["primaryAddress"] != null &&
+          codeParsed["privateViewKey"] != null &&
+          codeParsed["restoreHeight"] != null) {
+        return WalletType.monero;
+      }
+    }
 
     return _walletTypeMap[extracted];
   }
@@ -109,7 +122,7 @@ class WalletRestoreFromQRCode {
       queryParameters['address'] = _extractAddressFromUrl(code, walletType!);
     }
 
-    Map<String, dynamic> credentials = {'type': walletType, ...queryParameters};
+    Map<String, dynamic> credentials = {'type': walletType, ...queryParameters, 'raw_qr': code};
 
     credentials['mode'] = _determineWalletRestoreMode(credentials);
 
@@ -197,6 +210,17 @@ class WalletRestoreFromQRCode {
       final privateKey = credentials['private_key'] as String;
       if (privateKey.isEmpty) {
         throw Exception('Unexpected restore mode: private_key');
+      }
+      return WalletRestoreMode.keys;
+    }
+
+    if (type == WalletType.monero) {
+      final codeParsed = json.decode(credentials['raw_qr'].toString());
+      if (codeParsed["version"] != 0) throw UnimplementedError("Found view-only restore with unsupported version");
+      if (codeParsed["primaryAddress"] == null &&
+          codeParsed["privateViewKey"] == null &&
+          codeParsed["restoreHeight"] == null) {
+        throw UnimplementedError("Missing one or more attributes in the JSON");
       }
       return WalletRestoreMode.keys;
     }
