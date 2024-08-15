@@ -1338,26 +1338,12 @@ abstract class ElectrumWalletBase
     }
   }
 
-  Future<bool> canReplaceByFee(String hash) async {
-    final verboseTransaction = await electrumClient.getTransactionVerbose(hash: hash);
+  Future<bool> canReplaceByFee(ElectrumTransactionInfo tx) async {
+    final bundle = await getTransactionExpanded(hash: tx.txHash);
+    _updateInputsAndOutputs(tx, bundle);
+    if (bundle.confirmations > 0) return false;
 
-    final String? transactionHex;
-    int confirmations = 0;
-
-    if (verboseTransaction.isEmpty) {
-      transactionHex = await electrumClient.getTransactionHex(hash: hash);
-    } else {
-      confirmations = verboseTransaction['confirmations'] as int? ?? 0;
-      transactionHex = verboseTransaction['hex'] as String?;
-    }
-
-    if (confirmations > 0) return false;
-
-    if (transactionHex == null) {
-      return false;
-    }
-
-    return BtcTransaction.fromRaw(transactionHex).canReplaceByFee;
+    return bundle.originalTransaction.canReplaceByFee;
   }
 
   Future<bool> isChangeSufficientForFee(String txId, int newFee) async {
@@ -1941,6 +1927,39 @@ abstract class ElectrumWalletBase
       Timer(Duration(seconds: 3), () {
         if (this.syncStatus is SyncedTipSyncStatus) this.syncStatus = SyncedSyncStatus();
       });
+    }
+  }
+
+  void _updateInputsAndOutputs(ElectrumTransactionInfo tx, ElectrumTransactionBundle bundle) {
+    tx.inputAddresses = tx.inputAddresses?.where((address) => address.isNotEmpty).toList();
+
+    if (tx.inputAddresses == null ||
+        tx.inputAddresses!.isEmpty ||
+        tx.outputAddresses == null ||
+        tx.outputAddresses!.isEmpty) {
+      List<String> inputAddresses = [];
+      List<String> outputAddresses = [];
+
+      for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
+        final input = bundle.originalTransaction.inputs[i];
+        final inputTransaction = bundle.ins[i];
+        final vout = input.txIndex;
+        final outTransaction = inputTransaction.outputs[vout];
+        final address = addressFromOutputScript(outTransaction.scriptPubKey, network);
+
+        if (address.isNotEmpty) inputAddresses.add(address);
+      }
+
+      for (int i = 0; i < bundle.originalTransaction.outputs.length; i++) {
+        final out = bundle.originalTransaction.outputs[i];
+        final address = addressFromOutputScript(out.scriptPubKey, network);
+
+        if (address.isNotEmpty) outputAddresses.add(address);
+      }
+      tx.inputAddresses = inputAddresses;
+      tx.outputAddresses = outputAddresses;
+
+      transactionHistory.addOne(tx);
     }
   }
 }
