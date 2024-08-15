@@ -60,6 +60,7 @@ class WalletKeysPage extends BasePage {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: AutoSizeText(
+                    key: ValueKey('wallet_keys_page_share_warning_text_key'),
                     S.of(context).do_not_share_warning_text.toUpperCase(),
                     textAlign: TextAlign.center,
                     maxLines: 4,
