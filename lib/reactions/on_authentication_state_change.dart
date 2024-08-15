@@ -7,11 +7,12 @@ import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/load_current_wallet.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:rxdart/subjects.dart';
 
 ReactionDisposer? _onAuthenticationStateChange;
 
 dynamic loginError;
-StreamController<dynamic> authenticatedErrorStreamController = StreamController<dynamic>();
+StreamController<dynamic> authenticatedErrorStreamController = BehaviorSubject();
 
 void startAuthenticationStateChange(
     AuthenticationStore authenticationStore, GlobalKey<NavigatorState> navigatorKey) {
@@ -38,7 +39,8 @@ void startAuthenticationStateChange(
       await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
       if (!(await authenticatedErrorStreamController.stream.isEmpty)) {
         ExceptionHandler.showError(
-            (await authenticatedErrorStreamController.stream.first).toString());
+          (await authenticatedErrorStreamController.stream.first).toString(),
+        );
         authenticatedErrorStreamController.stream.drain();
       }
       return;
