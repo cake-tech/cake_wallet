@@ -214,6 +214,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       ));
     }
 
+    String? changePath;
+    for (final output in outputs) {
+      final maybeChangePath = publicKeys[(output as BitcoinOutput).address.pubKeyHash()];
+      if (maybeChangePath != null) changePath ??= maybeChangePath.derivationPath;
+    }
+
+
     final rawHex = await _litecoinLedgerApp!.createTransaction(
       _ledgerDevice!,
       inputs: readyInputs,
@@ -221,6 +228,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           .map((e) => TransactionOutput.fromBigInt(
               (e as BitcoinOutput).value, Uint8List.fromList(e.address.toScriptPubKey().toBytes())))
           .toList(),
+      changePath: changePath,
       sigHashType: 0x01,
       additionals: ["bech32"],
       isSegWit: true,

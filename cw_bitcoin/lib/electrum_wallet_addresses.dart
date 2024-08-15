@@ -237,7 +237,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<String> getChangeAddress() async {
+  Future<BitcoinAddressRecord> getChangeAddress() async {
     updateChangeAddresses();
 
     if (changeAddresses.isEmpty) {
@@ -252,7 +252,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     updateChangeAddresses();
-    final address = changeAddresses[currentChangeAddressIndex].address;
+    final address = changeAddresses[currentChangeAddressIndex];
     currentChangeAddressIndex += 1;
     return address;
   }
