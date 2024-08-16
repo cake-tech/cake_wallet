@@ -13,17 +13,19 @@ ReactionDisposer? _onAuthenticationStateChange;
 dynamic loginError;
 StreamController<dynamic> authenticatedErrorStreamController = StreamController<dynamic>();
 
-void reInitializeStreamController() {
+Future<void> reInitializeStreamController() async {
   if (!authenticatedErrorStreamController.isClosed) {
-    authenticatedErrorStreamController.close();
+    await authenticatedErrorStreamController.close();
   }
 
   authenticatedErrorStreamController = StreamController<dynamic>();
 }
 
-void startAuthenticationStateChange(
-    AuthenticationStore authenticationStore, GlobalKey<NavigatorState> navigatorKey) {
-  reInitializeStreamController();
+Future<void> startAuthenticationStateChange(
+  AuthenticationStore authenticationStore,
+  GlobalKey<NavigatorState> navigatorKey,
+) async {
+  await reInitializeStreamController();
 
   authenticatedErrorStreamController.stream.listen((event) {
     if (authenticationStore.state == AuthenticationState.allowed) {
