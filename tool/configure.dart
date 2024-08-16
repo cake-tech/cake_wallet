@@ -1001,13 +1001,16 @@ Future<void> generateBitcoinCash(bool hasImplementation) async {
   const bitcoinCashCommonHeaders = """
 import 'dart:typed_data';
 
-import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter/ledger_flutter.dart';
 """;
   const bitcoinCashCWHeaders = """
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
@@ -1027,6 +1030,9 @@ abstract class BitcoinCash {
   WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
       {required String name, required String mnemonic, required String password});
 
+  WalletCredentials createBitcoinCashHardwareWalletCredentials(
+      {required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
+
   TransactionPriority deserializeBitcoinCashTransactionPriority(int raw);
 
   TransactionPriority getDefaultTransactionPriority();
@@ -1034,6 +1040,9 @@ abstract class BitcoinCash {
   List<TransactionPriority> getTransactionPriorities();
   
   TransactionPriority getBitcoinCashTransactionPrioritySlow();
+  
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
+      {int index = 0, int limit = 5});
 }
   """;
 

@@ -33,6 +33,9 @@ dependencies:
     git:
       url: https://github.com/cake-tech/blockchain_utils
       ref: cake-update-v2
+  ledger_flutter: ^1.0.1
+  ledger_litecoin:
+    path: ../../ledger_litecoin
 
 dev_dependencies:
   flutter_test:
@@ -43,6 +46,10 @@ dev_dependencies:
 
 dependency_overrides:
   watcher: ^1.1.0
+  ledger_flutter:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter.git
+      ref: cake-v3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

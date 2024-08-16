@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -58,6 +59,10 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
         accounts = await bitcoin!
             .getHardwareWalletLitecoinAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
         break;
+        case WalletType.bitcoinCash:
+          accounts = await bitcoinCash!
+              .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+          break;
       case WalletType.ethereum:
         accounts = await ethereum!
             .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
@@ -90,6 +95,10 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
       case WalletType.litecoin:
         credentials =
             bitcoin!.createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
+        break;
+      case WalletType.bitcoinCash:
+        credentials =
+            bitcoinCash!.createBitcoinCashHardwareWalletCredentials(name: name, accountData: selectedAccount!);
         break;
       case WalletType.ethereum:
         credentials =

@@ -64,6 +64,7 @@ class LedgerViewModel {
     switch (wallet.type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.bitcoinCash:
         return bitcoin!.setLedger(wallet, ledger, device);
       case WalletType.ethereum:
         return ethereum!.setLedger(wallet, ledger, device);
