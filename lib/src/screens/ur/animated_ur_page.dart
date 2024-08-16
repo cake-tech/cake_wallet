@@ -41,30 +41,28 @@ class AnimatedURPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return Expanded(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 64.0),
-            child: URQR(
-              frames: urQr.trim().split("\n"),
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 64.0),
+          child: URQR(
+            frames: urQr.trim().split("\n"),
           ),
-          Text(urQrType),
-          if (urQrType == "ur:xmr-txunsigned" || urQrType == "ur:xmr-output")
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: SizedBox(
-                width: double.maxFinite,
-                child: OutlinedButton(
-                  onPressed: () => _continue(context),
-                  child: Text("Continue"),
-                ),
+        ),
+        Text(urQrType),
+        if (urQrType == "ur:xmr-txunsigned" || urQrType == "ur:xmr-output")
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: SizedBox(
+              width: double.maxFinite,
+              child: OutlinedButton(
+                onPressed: () => _continue(context),
+                child: Text("Continue"),
               ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 
