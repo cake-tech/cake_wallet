@@ -13,8 +13,18 @@ ReactionDisposer? _onAuthenticationStateChange;
 dynamic loginError;
 StreamController<dynamic> authenticatedErrorStreamController = StreamController<dynamic>();
 
+void reInitializeStreamController() {
+  if (!authenticatedErrorStreamController.isClosed) {
+    authenticatedErrorStreamController.close();
+  }
+
+  authenticatedErrorStreamController = StreamController<dynamic>();
+}
+
 void startAuthenticationStateChange(
     AuthenticationStore authenticationStore, GlobalKey<NavigatorState> navigatorKey) {
+  reInitializeStreamController();
+
   authenticatedErrorStreamController.stream.listen((event) {
     if (authenticationStore.state == AuthenticationState.allowed) {
       ExceptionHandler.showError(event.toString(), delayInSeconds: 3);

@@ -338,6 +338,8 @@
   "incoming": "Entrantes",
   "incorrect_seed": "Le texte entré est invalide.",
   "inputs": "Contributions",
+  "insufficient_lamport_for_tx": "Vous n'avez pas assez de sol pour couvrir la transaction et ses frais de transaction. Veuillez ajouter plus de Sol à votre portefeuille ou réduire la quantité de Sol que vous envoyez.",
+  "insufficient_lamports": "Vous n'avez pas assez de sol pour couvrir la transaction et ses frais de transaction. Vous avez besoin d'au moins ${solValueNeeded} sol. Veuillez ajouter plus de Sol à votre portefeuille ou réduire la quantité de sol que vous envoyez",
   "insufficientFundsForRentError": "Vous n'avez pas assez de SOL pour couvrir les frais de transaction et le loyer pour le compte. Veuillez ajouter plus de Sol à votre portefeuille ou réduire la quantité de sol que vous envoyez",
   "introducing_cake_pay": "Présentation de Cake Pay !",
   "invalid_input": "Entrée invalide",

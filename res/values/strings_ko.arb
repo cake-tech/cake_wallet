@@ -338,6 +338,8 @@
   "incoming": "들어오는",
   "incorrect_seed": "입력하신 텍스트가 유효하지 않습니다.",
   "inputs": "입력",
+  "insufficient_lamport_for_tx": "거래 및 거래 수수료를 충당하기에 충분한 SOL이 없습니다. 지갑에 더 많은 솔을 추가하거나 보내는 솔을 줄입니다.",
+  "insufficient_lamports": "거래 및 거래 수수료를 충당하기에 충분한 SOL이 없습니다. 최소 ${solValueNeeded} sol이 필요합니다. 지갑에 더 많은 솔을 추가하거나 보내는 솔을 줄이십시오.",
   "insufficientFundsForRentError": "거래 수수료와 계좌 임대료를 충당하기에 충분한 SOL이 없습니다. 지갑에 더 많은 솔을 추가하거나 보내는 솔을 줄이십시오.",
   "introducing_cake_pay": "소개 Cake Pay!",
   "invalid_input": "잘못된 입력",
