@@ -338,6 +338,8 @@
   "incoming": "Przychodzące",
   "incorrect_seed": "Wprowadzony seed jest nieprawidłowy.",
   "inputs": "Wejścia",
+  "insufficient_lamport_for_tx": "Nie masz wystarczającej ilości SOL, aby pokryć transakcję i opłatę za transakcję. Uprzejmie dodaj więcej sol do portfela lub zmniejsz wysyłaną kwotę SOL.",
+  "insufficient_lamports": "Nie masz wystarczającej ilości SOL, aby pokryć transakcję i opłatę za transakcję. Potrzebujesz przynajmniej ${solValueNeeded} sol. Uprzejmie dodaj więcej sol do portfela lub zmniejsz wysyłaną kwotę SOL, którą wysyłasz",
   "insufficientFundsForRentError": "Nie masz wystarczającej ilości SOL, aby pokryć opłatę za transakcję i czynsz za konto. Uprzejmie dodaj więcej sol do portfela lub zmniejsz solę, którą wysyłasz",
   "introducing_cake_pay": "Przedstawiamy Cake Pay!",
   "invalid_input": "Nieprawidłowe dane wejściowe",

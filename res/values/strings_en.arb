@@ -338,6 +338,8 @@
   "incoming": "Incoming",
   "incorrect_seed": "The text entered is not valid.",
   "inputs": "Inputs",
+  "insufficient_lamport_for_tx": "You do not have enough SOL to cover the transaction and its transaction fee. Kindly add more SOL to your wallet or reduce the SOL amount you\\'re sending.",
+  "insufficient_lamports": "You do not have enough SOL to cover the transaction and its transaction fee. You need at least ${solValueNeeded} SOL. Kindly add more SOL to your wallet or reduce the SOL amount you\\'re sending",
   "insufficientFundsForRentError": "You do not have enough SOL to cover the transaction fee and rent for the account. Kindly add more SOL to your wallet or reduce the SOL amount you\\'re sending",
   "introducing_cake_pay": "Introducing Cake Pay!",
   "invalid_input": "Invalid input",

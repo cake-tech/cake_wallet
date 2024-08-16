@@ -338,6 +338,8 @@
   "incoming": "Eingehend",
   "incorrect_seed": "Der eingegebene Text ist ungültig.",
   "inputs": "Eingänge",
+  "insufficient_lamport_for_tx": "Sie haben nicht genug SOL, um die Transaktion und ihre Transaktionsgebühr abzudecken. Bitte fügen Sie Ihrer Brieftasche mehr Sol hinzu oder reduzieren Sie die SO -Menge, die Sie senden.",
+  "insufficient_lamports": "Sie haben nicht genug SOL, um die Transaktion und ihre Transaktionsgebühr abzudecken. Sie brauchen mindestens ${solValueNeeded} Sol. Bitte fügen Sie mehr Sol zu Ihrer Wallet hinzu oder reduzieren Sie den von Ihnen gesendeten Sol -Betrag",
   "insufficientFundsForRentError": "Sie haben nicht genug SOL, um die Transaktionsgebühr und die Miete für das Konto zu decken. Bitte fügen Sie mehr Sol zu Ihrer Brieftasche hinzu oder reduzieren Sie den von Ihnen gesendeten Sol -Betrag",
   "introducing_cake_pay": "Einführung von Cake Pay!",
   "invalid_input": "Ungültige Eingabe",
