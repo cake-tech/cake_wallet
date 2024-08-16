@@ -753,48 +753,43 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
   String get scrimOnTapHintRaw => "Scrip on Tap";
 
   @override
-  // TODO: implement collapsedHint
   String get collapsedHint => "collapsedHint";
 
   @override
-  // TODO: implement expandedHint
   String get expandedHint => "expandedHint";
 
   @override
-  // TODO: implement expansionTileCollapsedHint
   String get expansionTileCollapsedHint => "expansionTileCollapsedHint";
 
   @override
-  // TODO: implement expansionTileCollapsedTapHint
   String get expansionTileCollapsedTapHint => "expansionTileCollapsedTapHint";
 
   @override
-  // TODO: implement expansionTileExpandedHint
   String get expansionTileExpandedHint => "expansionTileExpandedHint";
 
   @override
-  // TODO: implement expansionTileExpandedTapHint
   String get expansionTileExpandedTapHint => "expansionTileExpandedTapHint";
 
   @override
-  // TODO: implement scanTextButtonLabel
   String get scanTextButtonLabel => "scanTextButtonLabel";
 
   @override
-  // TODO: implement lookUpButtonLabel
   String get lookUpButtonLabel => "lookUpButtonLabel";
 
   @override
-  // TODO: implement menuDismissLabel
   String get menuDismissLabel => "menuDismissLabel";
 
   @override
-  // TODO: implement searchWebButtonLabel
   String get searchWebButtonLabel => "searchWebButtonLabel";
 
   @override
-  // TODO: implement shareButtonLabel
   String get shareButtonLabel => "shareButtonLabel";
+
+  @override
+  String get clearButtonTooltip => "clearButtonTooltip";
+
+  @override
+  String get selectedDateLabel => "selectedDateLabel";
 }
 
 /// Cupertino Support
