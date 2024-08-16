@@ -123,7 +123,16 @@ void restoreWalletFromKeysSync(
     int nettype = 0,
     int restoreHeight = 0}) {
   txhistory = null;
-  final newWptr = monero.WalletManager_createWalletFromKeys(
+  final newWptr = spendKey != ""
+   ? monero.WalletManager_createDeterministicWalletFromSpendKey(
+    wmPtr,
+    path: path,
+    password: password,
+    language: language,
+    spendKeyString: spendKey, 
+    newWallet: true, // TODO(mrcyjanek): safe to remove
+    restoreHeight: restoreHeight)
+   : monero.WalletManager_createWalletFromKeys(
     wmPtr,
     path: path,
     password: password,

@@ -338,6 +338,8 @@
   "incoming": "Dolazno",
   "incorrect_seed": "Uneseni tekst nije valjan.",
   "inputs": "Unosi",
+  "insufficient_lamport_for_tx": "Nemate dovoljno SOL -a da pokriva transakciju i njegovu transakcijsku naknadu. Ljubazno dodajte više sol u svoj novčanik ili smanjite količinu SOL -a koju šaljete.",
+  "insufficient_lamports": "Nemate dovoljno SOL -a da pokriva transakciju i njegovu transakcijsku naknadu. Trebate najmanje ${solValueNeeded} sol. Ljubazno dodajte više sol u svoj novčanik ili smanjite količinu SOL -a koju šaljete",
   "insufficientFundsForRentError": "Nemate dovoljno SOL -a za pokrivanje naknade za transakciju i najamninu za račun. Ljubazno dodajte više sol u svoj novčanik ili smanjite količinu SOL -a koju šaljete",
   "introducing_cake_pay": "Predstavljamo Cake Pay!",
   "invalid_input": "Pogrešan unos",

@@ -361,12 +361,15 @@ abstract class DashboardViewModelBase with Store {
     if (wallet.type != WalletType.monero) return [];
     final keys = monero!.getKeys(wallet);
     List<String> errors = [
-      if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
+      // leaving these commented out for now, I'll be able to fix that properly in the airgap update
+      // to not cause work duplication, this will do the job as well, it will be slightly less precise
+      // about what happened - but still enough.
+      // if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
       if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("")) "private view key is 0",
-      if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
-      if (keys['publicViewKey'] == List.generate(64, (index) => "0").join("")) "private view key is 0",
-      if (wallet.seed == null) "wallet seed is null",
-      if (wallet.seed == "") "wallet seed is empty",
+      // if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
+      if (keys['publicViewKey'] == List.generate(64, (index) => "0").join("")) "public view key is 0",
+      // if (wallet.seed == null) "wallet seed is null",
+      // if (wallet.seed == "") "wallet seed is empty",
       if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address == "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4") 
         "primary address is invalid, you won't be able to receive / spend funds",
     ];

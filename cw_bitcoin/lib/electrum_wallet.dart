@@ -998,11 +998,29 @@ abstract class ElectrumWalletBase
       bool hasTaprootInputs = false;
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
-        final key = estimatedTx.inputPrivKeyInfos
-            .firstWhereOrNull((element) => element.privkey.getPublic().toHex() == publicKey);
+        String error = "Cannot find private key.";
+
+        ECPrivateInfo? key;
+
+        if (estimatedTx.inputPrivKeyInfos.isEmpty) {
+          error += "\nNo private keys generated.";
+        } else {
+          error += "\nAddress: ${utxo.ownerDetails.address.toAddress()}";
+
+          key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
+            final elemPubkey = element.privkey.getPublic().toHex();
+            if (elemPubkey == publicKey) {
+              return true;
+            } else {
+              error += "\nExpected: $publicKey";
+              error += "\nPubkey: $elemPubkey";
+              return false;
+            }
+          });
+        }
 
         if (key == null) {
-          throw Exception("Cannot find private key");
+          throw Exception(error);
         }
 
         if (utxo.utxo.isP2tr()) {

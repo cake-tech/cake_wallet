@@ -338,6 +338,8 @@
   "incoming": "Entrante",
   "incorrect_seed": "El texto ingresado no es válido.",
   "inputs": "Entradas",
+  "insufficient_lamport_for_tx": "No tiene suficiente SOL para cubrir la transacción y su tarifa de transacción. Por favor, agregue más SOL a su billetera o reduzca la cantidad de sol que está enviando.",
+  "insufficient_lamports": "No tiene suficiente SOL para cubrir la transacción y su tarifa de transacción. Necesita al menos ${solValueNeeded} sol. Por favor, agregue más sol a su billetera o reduzca la cantidad de sol que está enviando",
   "insufficientFundsForRentError": "No tiene suficiente SOL para cubrir la tarifa de transacción y alquilar para la cuenta. Por favor, agregue más sol a su billetera o reduzca la cantidad de sol que está enviando",
   "introducing_cake_pay": "¡Presentamos Cake Pay!",
   "invalid_input": "Entrada inválida",
