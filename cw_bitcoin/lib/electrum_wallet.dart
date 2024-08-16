@@ -1359,7 +1359,7 @@ abstract class ElectrumWalletBase
 
     if (confirmations > 0) return false;
 
-    if (transactionHex == null) {
+    if (transactionHex == null || transactionHex.isEmpty) {
       return false;
     }
 
