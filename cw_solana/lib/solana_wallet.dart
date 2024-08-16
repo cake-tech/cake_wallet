@@ -611,6 +611,16 @@ abstract class SolanaWalletBase
     final sigBytes = bytes[0];
     final pubKeyBytes = bytes[1];
 
+    if (address == null) {
+      return false;
+    }
+
+    // make sure the address derived from the public key provided matches the one we expect
+    final pub = Ed25519HDPublicKey(pubKeyBytes);
+    if (address != pub.toBase58()) {
+      return false;
+    }
+
     return await verifySignature(
       message: messageBytes,
       signature: sigBytes,
