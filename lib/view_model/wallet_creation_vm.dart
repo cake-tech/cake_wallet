@@ -123,6 +123,13 @@ abstract class WalletCreationVMBase with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+      case WalletType.bitcoinCash:
+        return DerivationInfo(
+          derivationType: DerivationType.bip39,
+          derivationPath: "m/44'/145'/0'",
+          description: "Standard BIP44",
+          scriptType: "p2pkh",
+        );
       default:
         return null;
     }
