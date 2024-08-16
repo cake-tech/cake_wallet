@@ -16,7 +16,7 @@ void __clear_cache(void* start, void* end) { }
 
 #include "../External/include/wallet2_api.h"
 
-#include "plain_wallet_api.h"
+#include "../../../cw_shared_external/ios/External/ios/sources/zano/src/wallet/plain_wallet_api.h"
 //#include "plain_wallet_api_ex.h"
 
 

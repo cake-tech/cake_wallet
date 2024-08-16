@@ -4,7 +4,7 @@
 
 ZANO_URL="https://github.com/hyle-team/zano.git"
 ZANO_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/zano"
-ZANO_VERSION=9f0fa8a390e10fc0525a01a9409e52765fb93e07
+ZANO_VERSION=fde28efdc5d7efe8741dcb0e62ea0aebc805a373
 
 
 IOS_TOOLCHAIN_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/ios_toolchain"
@@ -40,8 +40,21 @@ cd ..
 echo "Cloning zano from - $ZANO_URL to - $ZANO_DIR_PATH"		
 git clone $ZANO_URL $ZANO_DIR_PATH
 cd $ZANO_DIR_PATH
+git fetch origin
+if [ $? -ne 0 ]; then
+    echo "Failed to perform command"
+    exit 1
+fi
 git checkout $ZANO_VERSION
+if [ $? -ne 0 ]; then
+    echo "Failed to perform command"
+    exit 1
+fi
 git submodule update --init --force
+if [ $? -ne 0 ]; then
+    echo "Failed to perform command"
+    exit 1
+fi
 mkdir -p build
 cd ..
 
@@ -64,6 +77,8 @@ cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -S"${ZANO_DIR_PATH}" \
       -B"${ZANO_MOBILE_IOS_BUILD_FOLDER_ARM64}" \
       -GXcode \
+			-DCAKEWALLET=TRUE \
+			-DSKIP_BOOST_FATLIB_LIB=TRUE \
       -DCMAKE_SYSTEM_NAME=iOS \
       -DCMAKE_INSTALL_PREFIX="${ZANO_MOBILE_IOS_INSTALL_FOLDER_ARM64}" \
       -DCMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH=NO \

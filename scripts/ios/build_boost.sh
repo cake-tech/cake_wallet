@@ -17,7 +17,11 @@ cd $BOOST_DIR_PATH
 	--min-ios-version ${MIN_IOS_VERSION} \
 	--boost-libs "${BOOST_LIBS}" \
 	--boost-version ${BOOST_VERSION} \
-	--no-framework
+	-ios \
+	--no-framework 
 
 mv ${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}/ios/release/prefix/include/*  $EXTERNAL_IOS_INCLUDE_DIR
-mv ${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}/ios/release/prefix/lib/*  $EXTERNAL_IOS_LIB_DIR
+#mv ${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}/ios/release/prefix/lib/*  $EXTERNAL_IOS_LIB_DIR
+mv ${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}/ios/release/build/iphonesimulator/arm64/*  $EXTERNAL_IOS_LIB_DIR
+
+

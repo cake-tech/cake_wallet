@@ -7,7 +7,7 @@ PODS:
   - connectivity_plus (0.0.1):
     - Flutter
     - ReachabilitySwift
-  - CryptoSwift (1.8.2)
+  - CryptoSwift (1.8.3)
   - cw_zano (0.0.1):
     - cw_zano/Boost (= 0.0.1)
     - cw_zano/OpenSSL (= 0.0.1)
@@ -92,15 +92,15 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.1.1):
     - Flutter
-  - Protobuf (3.27.2)
+  - Protobuf (3.27.3)
   - ReachabilitySwift (5.2.3)
   - reactive_ble_mobile (0.0.1):
     - Flutter
     - Protobuf (~> 3.5)
     - SwiftProtobuf (~> 1.0)
-  - SDWebImage (5.19.4):
-    - SDWebImage/Core (= 5.19.4)
-  - SDWebImage/Core (5.19.4)
+  - SDWebImage (5.19.6):
+    - SDWebImage/Core (= 5.19.6)
+  - SDWebImage/Core (5.19.6)
   - sensitive_clipboard (0.0.1):
     - Flutter
   - share_plus (0.0.1):
@@ -110,7 +110,7 @@ PODS:
     - FlutterMacOS
   - sp_scanner (0.0.1):
     - Flutter
-  - SwiftProtobuf (1.26.0)
+  - SwiftProtobuf (1.27.1)
   - SwiftyGif (5.4.5)
   - Toast (4.1.1)
   - uni_links (0.0.1):
@@ -232,8 +232,8 @@ SPEC CHECKSUMS:
   barcode_scan2: 0af2bb63c81b4565aab6cd78278e4c0fa136dbb0
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
-  CryptoSwift: c63a805d8bb5e5538e88af4e44bb537776af11ea
-  cw_zano: 6f8036f4f70a7ae2f04cb33d6f88ad3c68884365
+  CryptoSwift: 967f37cea5a3294d9cce358f78861652155be483
+  cw_zano: 8fee0e1d14163be13c0ee6f08f3cfafa72905710
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   devicelocale: b22617f40038496deffba44747101255cee005b0
@@ -253,15 +253,15 @@ SPEC CHECKSUMS:
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
-  Protobuf: fb2c13674723f76ff6eede14f78847a776455fa2
+  Protobuf: c1cbc880ea7c4e9b157e113515c720a22ee7cf50
   ReachabilitySwift: 7f151ff156cea1481a8411701195ac6a984f4979
   reactive_ble_mobile: 9ce6723d37ccf701dbffd202d487f23f5de03b4c
-  SDWebImage: 066c47b573f408f18caa467d71deace7c0f8280d
+  SDWebImage: a79252b60f4678812d94316c91da69ec83089c9f
   sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sp_scanner: eaa617fa827396b967116b7f1f43549ca62e9a12
-  SwiftProtobuf: 5e8349171e7c2f88f5b9e683cb3cb79d1dc780b3
+  SwiftProtobuf: b109bd17979d7993a84da14b1e1fdd8b0ded934a
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
