@@ -52,6 +52,7 @@ String getSeedLegacy(String? language) {
     case "Chinese (Simplified)": language = "Chinese (simplified)"; break;
     case "Korean": language = "English"; break;
     case "Czech": language = "English"; break;
+    case "Japanese": language = "English"; break;
   }
   if (wownero.Wallet_status(wptr!) != 0) {
     wownero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");

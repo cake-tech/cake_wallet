@@ -50,6 +50,7 @@ String getSeedLegacy(String? language) {
     case "Chinese (Simplified)": language = "Chinese (simplified)"; break;
     case "Korean": language = "English"; break;
     case "Czech": language = "English"; break;
+    case "Japanese": language = "English"; break;
   }
   if (monero.Wallet_status(wptr!) != 0) {
     monero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
