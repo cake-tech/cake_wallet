@@ -35,7 +35,8 @@ dependencies:
       ref: cake-update-v2
   ledger_flutter: ^1.0.1
   ledger_litecoin:
-    path: ../../ledger_litecoin
+    git:
+      url: https://github.com/cake-tech/ledger-litecoin
 
 dev_dependencies:
   flutter_test:
