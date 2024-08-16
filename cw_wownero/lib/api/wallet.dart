@@ -43,7 +43,7 @@ String getSeed() {
   if (polyseed != "") {
     return polyseed;
   }
-  final legacy = wownero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
+  final legacy = getSeedLegacy(null);
   return legacy;
 }
 
@@ -54,6 +54,9 @@ String getSeedLegacy(String? language) {
   if (wownero.Wallet_status(wptr!) != 0) {
     wownero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
     legacy = wownero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
+  }
+  if (wownero.Wallet_status(wptr!) != 0) {
+    return wownero.Wallet_errorString(wptr!);
   }
   return legacy;
 }

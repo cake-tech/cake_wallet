@@ -41,7 +41,7 @@ String getSeed() {
   if (polyseed != "") {
     return polyseed;
   }
-  final legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
+  final legacy = getSeedLegacy("English");
   return legacy;
 }
 
@@ -52,6 +52,9 @@ String getSeedLegacy(String? language) {
   if (monero.Wallet_status(wptr!) != 0) {
     monero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
     legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
+  }
+  if (monero.Wallet_status(wptr!) != 0) {
+    return monero.Wallet_errorString(wptr!);
   }
   return legacy;
 }
@@ -142,7 +145,7 @@ void storeSync() async {
     return monero.Wallet_synchronized(Pointer.fromAddress(addr));
   });
   if (lastStorePointer == wptr!.address &&
-      lastStoreHeight + 5000 < monero.Wallet_blockChainHeight(wptr!) &&
+      lastStoreHeight + 5000 > monero.Wallet_blockChainHeight(wptr!) &&
       !synchronized) {
     return;
   }

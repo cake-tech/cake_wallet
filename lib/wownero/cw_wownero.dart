@@ -348,4 +348,9 @@ class CWWownero extends Wownero {
 
   String getLegacySeed(Object wallet, String langName) =>
       (wallet as WowneroWalletBase).seedLegacy(langName);
+
+  @override
+  void wownerocCheck() {
+    checkIfMoneroCIsFine();
+  }
 }

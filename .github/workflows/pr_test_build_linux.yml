@@ -1,0 +1,187 @@
+name: PR Test Build linux
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch name to build"
+        required: true
+        default: "main"
+
+jobs:
+  PR_test_build:
+    runs-on: ubuntu-20.04
+    env:
+      STORE_PASS: test@cake_wallet
+      KEY_PASS: test@cake_wallet
+      PR_NUMBER: ${{ github.event.number }}
+
+    steps:
+      - name: is pr
+        if: github.event_name == 'pull_request'
+        run: echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
+
+      - name: is not pr
+        if: github.event_name != 'pull_request'
+        run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENVg
+
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: "17.x"
+      - name: Configure placeholder git details
+        run: |
+          git config --global user.email "CI@cakewallet.com"
+          git config --global user.name "Cake Github Actions"
+      - name: Flutter action
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: "3.19.6"
+          channel: stable
+
+      - name: Install package dependencies
+        run: |
+          sudo apt update
+          sudo apt-get install -y curl unzip automake build-essential file pkg-config git python-is-python3 libtool libtinfo5 cmake clang
+
+      - name: Install desktop dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y ninja-build libgtk-3-dev gperf
+      - name: Execute Build and Setup Commands
+        run: |
+          sudo mkdir -p /opt/android
+          sudo chown $USER /opt/android
+          cd /opt/android
+          -y curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          cargo install cargo-ndk
+          git clone https://github.com/cake-tech/cake_wallet.git --branch ${{ env.BRANCH_NAME }}
+          cd scripts && ./gen_android_manifest.sh && cd ..
+          cd cake_wallet/scripts/android/
+          source ./app_env.sh cakewallet
+          ./app_config.sh
+          cd ../../..
+          cd cake_wallet/scripts/linux/
+          source ./app_env.sh cakewallet
+          ./app_config.sh
+          cd ../../..
+
+      - name: Cache Externals
+        id: cache-externals
+        uses: actions/cache@v3
+        with:
+          path: |
+            /opt/android/cake_wallet/cw_haven/android/.cxx
+            /opt/android/cake_wallet/scripts/monero_c/release
+          key: linux_${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
+
+      - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
+        name: Generate Externals
+        run: |
+          cd /opt/android/cake_wallet/scripts/linux/
+          source ./app_env.sh cakewallet
+          ./build_monero_all.sh
+
+      - name: Install Flutter dependencies
+        run: |
+          cd /opt/android/cake_wallet
+          flutter pub get
+
+      - name: Generate localization
+        run: |
+          cd /opt/android/cake_wallet
+          flutter packages pub run tool/generate_localization.dart
+
+      - name: Build generated code
+        run: |
+          cd /opt/android/cake_wallet
+          ./model_generator.sh
+
+      - name: Add secrets
+        run: |
+          cd /opt/android/cake_wallet
+          touch lib/.secrets.g.dart
+          touch cw_evm/lib/.secrets.g.dart
+          touch cw_solana/lib/.secrets.g.dart
+          touch cw_core/lib/.secrets.g.dart
+          touch cw_nano/lib/.secrets.g.dart
+          touch cw_tron/lib/.secrets.g.dart
+          echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
+          echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
+          echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
+          echo "const walletSalt = '${{ secrets.WALLET_SALT }}';" >> lib/.secrets.g.dart
+          echo "const shortKey = '${{ secrets.SHORT_KEY }}';" >> lib/.secrets.g.dart
+          echo "const backupSalt = '${{ secrets.BACKUP_SALT }}';" >> lib/.secrets.g.dart
+          echo "const backupKeychainSalt = '${{ secrets.BACKUP_KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
+          echo "const changeNowApiKey = '${{ secrets.CHANGE_NOW_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const changeNowApiKeyDesktop = '${{ secrets.CHANGE_NOW_API_KEY_DESKTOP }}';" >> lib/.secrets.g.dart
+          echo "const wyreSecretKey = '${{ secrets.WYRE_SECRET_KEY }}';" >> lib/.secrets.g.dart
+          echo "const wyreApiKey = '${{ secrets.WYRE_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const wyreAccountId = '${{ secrets.WYRE_ACCOUNT_ID }}';" >> lib/.secrets.g.dart
+          echo "const moonPayApiKey = '${{ secrets.MOON_PAY_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const moonPaySecretKey = '${{ secrets.MOON_PAY_SECRET_KEY }}';" >> lib/.secrets.g.dart
+          echo "const sideShiftAffiliateId = '${{ secrets.SIDE_SHIFT_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
+          echo "const simpleSwapApiKey = '${{ secrets.SIMPLE_SWAP_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const simpleSwapApiKeyDesktop = '${{ secrets.SIMPLE_SWAP_API_KEY_DESKTOP }}';" >> lib/.secrets.g.dart
+          echo "const onramperApiKey = '${{ secrets.ONRAMPER_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const anypayToken = '${{ secrets.ANY_PAY_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const ioniaClientId = '${{ secrets.IONIA_CLIENT_ID }}';" >> lib/.secrets.g.dart
+          echo "const twitterBearerToken = '${{ secrets.TWITTER_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const trocadorApiKey = '${{ secrets.TROCADOR_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const trocadorExchangeMarkup = '${{ secrets.TROCADOR_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
+          echo "const anonPayReferralCode = '${{ secrets.ANON_PAY_REFERRAL_CODE }}';" >> lib/.secrets.g.dart
+          echo "const fiatApiKey = '${{ secrets.FIAT_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const payfuraApiKey = '${{ secrets.PAYFURA_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const chatwootWebsiteToken = '${{ secrets.CHATWOOT_WEBSITE_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const exolixApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const robinhoodApplicationId = '${{ secrets.ROBINHOOD_APPLICATION_ID }}';" >> lib/.secrets.g.dart
+          echo "const exchangeHelperApiKey = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
+          echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
+          echo "const CSRFToken = '${{ secrets.CSRF_TOKEN }}';" >> lib/.secrets.g.dart
+          echo "const quantexExchangeMarkup = '${{ secrets.QUANTEX_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
+          echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+          echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+          echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+
+      - name: Rename app
+        run: |
+          echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
+
+      - name: Build
+        run: |
+          cd /opt/android/cake_wallet
+          flutter build linux --release
+
+      - name: Prepare release zip file
+        run: |
+          cd /opt/android/cake_wallet/build/linux/x64/release
+          zip -r ${{env.BRANCH_NAME}}.zip bundle
+
+      - name: Upload Artifact
+        uses: kittaakos/upload-artifact-as-is@v0
+        with:
+          path: /opt/android/cake_wallet/build/linux/x64/release/${{env.BRANCH_NAME}}.zip
+
+#        Just as an artifact would be enough
+#      - name: Send Test APK
+#        continue-on-error: true
+#        uses: adrey/slack-file-upload-action@1.0.5
+#        with:
+#          token: ${{ secrets.SLACK_APP_TOKEN }}
+#          path: /opt/android/cake_wallet/build/linux/x64/release/${{env.BRANCH_NAME}}.zip
+#          channel: ${{ secrets.SLACK_APK_CHANNEL }}
+#          title: "${{ env.BRANCH_NAME }}_linux.zip"
+#          filename: ${{ env.BRANCH_NAME }}_linux.zip
+#          initial_comment: ${{ github.event.head_commit.message }}

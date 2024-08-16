@@ -347,4 +347,9 @@ class CWMonero extends Monero {
   Future<int> getCurrentHeight() async {
     return monero_wallet_api.getCurrentHeight();
   }
+
+  @override
+  void monerocCheck() {
+    checkIfMoneroCIsFine();
+  }
 }

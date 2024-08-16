@@ -118,7 +118,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get isBatchSending => outputs.length > 1;
 
-  bool get shouldDisplaySendALL => walletType != WalletType.solana || walletType != WalletType.tron;
+  bool get shouldDisplaySendALL => walletType != WalletType.solana;
 
   @computed
   String get pendingTransactionFiatAmount {
@@ -582,9 +582,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   ) {
     String errorMessage = error.toString();
 
+    if (walletType == WalletType.solana) {
+      if (errorMessage.contains('insufficient funds for rent')) {
+        return S.current.insufficientFundsForRentError;
+      }
+
+      return errorMessage;
+    }
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
-        walletType == WalletType.solana ||
         walletType == WalletType.haven) {
       if (errorMessage.contains('gas required exceeds allowance') ||
           errorMessage.contains('insufficient funds')) {
