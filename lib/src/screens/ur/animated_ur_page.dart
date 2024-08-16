@@ -1,24 +1,38 @@
 import 'dart:async';
 
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/animated_ur_model.dart';
+import 'package:cake_wallet/view_model/dashboard/wallet_balance.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 // ur:xmr-txunsigned - unsigned transaction
 //     should show a scanner afterwards.
 
 class AnimatedURPage extends BasePage {
-  AnimatedURPage({required this.urQr, required this.wallet});
-  
-  final String urQr;
-  final WalletBase wallet;
+  AnimatedURPage(this.animatedURmodel, {required String urQr}) {
+    if (urQr == "export-outputs") {
+      this.urQr = monero!.exportOutputsUR(animatedURmodel.wallet);
+    } else {
+      this.urQr = urQr;
+    }
+  }
+
+  late String urQr;
+
+  final AnimatedURModel animatedURmodel;
 
   String get urQrType {
     final first = urQr.trim().split("\n")[0];
@@ -38,7 +52,7 @@ class AnimatedURPage extends BasePage {
             ),
           ),
           Text(urQrType),
-          if (urQrType == "ur:xmr-txunsigned")
+          if (urQrType == "ur:xmr-txunsigned" || urQrType == "ur:xmr-output")
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: SizedBox(
@@ -55,10 +69,35 @@ class AnimatedURPage extends BasePage {
   }
 
   Future<void> _continue(BuildContext context) async {
-    final ur = await presentQRScanner(context);
-    final result = await monero!.commitTransactionUR(wallet, ur);
-    if (result) {
-      Navigator.of(context).pop();
+    try {
+    switch (urQrType) {
+      case "ur:xmr-txunsigned": // ur:xmr-txsigned
+        final ur = await presentQRScanner(context);
+        final result = await monero!.commitTransactionUR(animatedURmodel.wallet, ur);
+        if (result) {
+          Navigator.of(context).pop();
+        }        
+        break;
+      case "ur:xmr-output": // xmr-keyimage
+        final ur = await presentQRScanner(context);
+        final result = await monero!.importKeyImagesUR(animatedURmodel.wallet, ur);
+        if (result) {
+          Navigator.of(context).pop();
+        }        
+        break;
+      default:
+        throw UnimplementedError("unable to handle UR: ${urQrType}");
+    }
+  } catch (e) {
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+            alertTitle: S.of(context).error,
+            alertContent: e.toString(),
+            buttonText: S.of(context).ok,
+            buttonAction: () => Navigator.pop(context));
+      });
     }
   }
 }

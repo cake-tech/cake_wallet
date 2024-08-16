@@ -363,6 +363,10 @@ abstract class Monero {
 
   Future<bool> commitTransactionUR(Object wallet, String ur);
 
+  String exportOutputsUR(Object wallet);
+
+  bool importKeyImagesUR(Object wallet, String ur);
+
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials({
     required String name,
     required String spendKey,

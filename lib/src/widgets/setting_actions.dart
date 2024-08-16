@@ -1,5 +1,8 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:flutter/material.dart';
 
 class SettingActions {
@@ -14,6 +17,7 @@ class SettingActions {
   });
 
   static List<SettingActions> all = [
+    exportOutputsAction,
     connectionSettingAction,
     walletSettingAction,
     addressBookSettingAction,
@@ -43,6 +47,17 @@ class SettingActions {
     onTap: (BuildContext context) {
       Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.silentPaymentsSettings);
+    },
+  );
+
+  static SettingActions exportOutputsAction = SettingActions._(
+    name: (context) => "Export outputs",
+    image: 'assets/images/bitcoin_menu.png',
+    onTap: (BuildContext context) {
+      Navigator.pop(context);
+      Navigator.of(context).push(MaterialPageRoute(builder:(context) {
+        return getIt.get<AnimatedURPage>(param1: 'export-outputs');
+      },));
     },
   );
 

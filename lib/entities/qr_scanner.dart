@@ -93,6 +93,13 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
             onDetect: _handleBarcode,
             controller: ctrl,
           ),
+          if (ur.inputs.length != 0) 
+            Center(child:
+              Text(
+                "${ur.inputs.length}/${ur.count}",
+                style: Theme.of(context).textTheme.displayLarge?.copyWith(color: Colors.white)
+              ),
+            ),
           SizedBox(
             child: Center(
               child: SizedBox(

@@ -226,7 +226,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
   }
 
-  @override
   Future<bool> submitTransactionUR(String ur) async {
     final bool = monero.Wallet_submitTransactionUR(wptr!, ur);
     final status = monero.Wallet_status(wptr!);
@@ -235,6 +234,26 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       throw MoneroTransactionCreationException("unable to broadcast signed transaction: $err");
     }
     return bool;
+  }
+
+  bool importKeyImagesUR(String ur) {
+    final bool = monero.Wallet_importKeyImagesUR(wptr!, ur);
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(wptr!);
+      throw Exception("unable to import key images: $err");
+    }
+    return bool;
+  }
+
+  String exportOutputsUR() {
+    final str = monero.Wallet_exportOutputsUR(wptr!);
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(wptr!);
+      throw MoneroTransactionCreationException("unable to broadcast signed transaction: $err");
+    }
+    return str;
   }
 
   @override

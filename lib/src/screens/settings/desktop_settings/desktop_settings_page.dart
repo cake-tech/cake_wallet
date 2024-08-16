@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
@@ -57,6 +58,11 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
 
                         if (!widget.dashboardViewModel.hasSilentPayments &&
                             item.name(context) == S.of(context).silent_payments_settings) {
+                          return Container();
+                        }
+
+                        if (widget.dashboardViewModel.wallet.type != WalletType.monero &&
+                            item.name(context) == "Export outputs") {
                           return Container();
                         }
 

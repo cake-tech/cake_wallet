@@ -348,9 +348,22 @@ class CWMonero extends Monero {
   }
   
   @override
+  bool importKeyImagesUR(Object wallet, String ur) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.importKeyImagesUR(ur);
+  }
+
+
+  @override
   Future<bool> commitTransactionUR(Object wallet, String ur) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.submitTransactionUR(ur);
+  }
+
+  @override
+  String exportOutputsUR(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.exportOutputsUR();
   }
 
   @override
