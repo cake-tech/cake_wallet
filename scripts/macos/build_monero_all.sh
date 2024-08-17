@@ -43,15 +43,14 @@ else
 	    WOWNERO_LIBS=" -arch ${ARCH} ${WOWNEROC_RELEASE_DIR}/${HOST}_libwallet2_api_c.dylib"
 
 	    if [[ ! $(uname -m) == $ARCH ]]; then
-		PRC="arch -${ARCH}"
+			PRC="arch -${ARCH}"
 	    fi
 
-            pushd ../monero_c
+		pushd ../monero_c
             $PRC ./build_single.sh ${COIN} ${HOST} $NPROC
-	    unxz -f ./release/${COIN}/${HOST}_libwallet2_api_c.dylib.xz
-
-            popd
-	 done
+	    	unxz -f ./release/${COIN}/${HOST}_libwallet2_api_c.dylib.xz
+		popd
+	done
     done
 fi
 
