@@ -338,6 +338,8 @@
   "incoming": "Masuk",
   "incorrect_seed": "Teks yang dimasukkan tidak valid.",
   "inputs": "Input",
+  "insufficient_lamport_for_tx": "Anda tidak memiliki cukup SOL untuk menutupi transaksi dan biaya transaksinya. Mohon tambahkan lebih banyak sol ke dompet Anda atau kurangi jumlah sol yang Anda kirim.",
+  "insufficient_lamports": "Anda tidak memiliki cukup SOL untuk menutupi transaksi dan biaya transaksinya. Anda membutuhkan setidaknya ${solValueNeeded} sol. Mohon tambahkan lebih banyak sol ke dompet Anda atau kurangi jumlah sol yang Anda kirim",
   "insufficientFundsForRentError": "Anda tidak memiliki cukup SOL untuk menutupi biaya transaksi dan menyewa untuk akun tersebut. Mohon tambahkan lebih banyak sol ke dompet Anda atau kurangi jumlah sol yang Anda kirim",
   "introducing_cake_pay": "Perkenalkan Cake Pay!",
   "invalid_input": "Masukan tidak valid",

@@ -338,6 +338,8 @@
   "incoming": "inkomend",
   "incorrect_seed": "De ingevoerde tekst is niet geldig.",
   "inputs": "Invoer",
+  "insufficient_lamport_for_tx": "U hebt niet genoeg SOL om de transactie en de transactiekosten te dekken. Voeg vriendelijk meer SOL toe aan uw portemonnee of verminder de SOL -hoeveelheid die u verzendt.",
+  "insufficient_lamports": "U hebt niet genoeg SOL om de transactie en de transactiekosten te dekken. Je hebt minstens ${solValueNeeded} sol nodig. Voeg vriendelijk meer Sol toe aan uw portemonnee of verminder de SOL -hoeveelheid die u verzendt",
   "insufficientFundsForRentError": "U hebt niet genoeg SOL om de transactiekosten en huur voor de rekening te dekken. Voeg vriendelijk meer SOL toe aan uw portemonnee of verminder de SOL -hoeveelheid die u verzendt",
   "introducing_cake_pay": "Introductie van Cake Pay!",
   "invalid_input": "Ongeldige invoer",

@@ -339,6 +339,8 @@
   "incoming": "In arrivo",
   "incorrect_seed": "Il testo inserito non è valido.",
   "inputs": "Input",
+  "insufficient_lamport_for_tx": "Non hai abbastanza SOL per coprire la transazione e la sua quota di transazione. Si prega di aggiungere più SOL al tuo portafoglio o ridurre l'importo SOL che stai inviando.",
+  "insufficient_lamports": "Non hai abbastanza SOL per coprire la transazione e la sua quota di transazione. Hai bisogno di almeno ${solValueNeeded} sol. Si prega di aggiungere più SOL al tuo portafoglio o ridurre l'importo SOL che stai inviando",
   "insufficientFundsForRentError": "Non hai abbastanza SOL per coprire la tassa di transazione e l'affitto per il conto. Si prega di aggiungere più SOL al tuo portafoglio o ridurre l'importo SOL che stai inviando",
   "introducing_cake_pay": "Presentazione di Cake Pay!",
   "invalid_input": "Inserimento non valido",

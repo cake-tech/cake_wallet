@@ -338,6 +338,8 @@
   "incoming": "收到",
   "incorrect_seed": "输入的文字无效。",
   "inputs": "输入",
+  "insufficient_lamport_for_tx": "您没有足够的溶胶来支付交易及其交易费用。请在您的钱包中添加更多溶胶或减少您发送的溶胶量。",
+  "insufficient_lamports": "您没有足够的溶胶来支付交易及其交易费用。您至少需要${solValueNeeded} sol。请在您的钱包中添加更多溶胶或减少您发送的溶胶量",
   "insufficientFundsForRentError": "您没有足够的溶胶来支付该帐户的交易费和租金。请在钱包中添加更多溶胶或减少您发送的溶胶量",
   "introducing_cake_pay": "介绍 Cake Pay!",
   "invalid_input": "输入无效",
