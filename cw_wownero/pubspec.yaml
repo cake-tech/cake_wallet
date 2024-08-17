@@ -19,7 +19,10 @@ dependencies:
   flutter_mobx: ^2.0.6+1
   intl: ^0.18.0
   encrypt: ^5.0.1
-  polyseed: ^0.0.5
+  polyseed:
+    git:
+      url: https://github.com/mrcyjanek/polyseed_dart
+      ref: f9adc68dbf879fefadeae8e86d1c2983f5a2cc3f
   cw_core:
     path: ../cw_core
   monero:
