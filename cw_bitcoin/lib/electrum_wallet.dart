@@ -218,10 +218,7 @@ abstract class ElectrumWalletBase
       if (electrumClient.isConnected) {
         syncStatus = SyncedSyncStatus();
       } else {
-        if (electrumClient.uri != null) {
-          await electrumClient.connectToUri(electrumClient.uri!, useSSL: electrumClient.useSSL);
-          startSync();
-        }
+        syncStatus = NotConnectedSyncStatus();
       }
     }
   }
@@ -265,6 +262,7 @@ abstract class ElectrumWalletBase
   Future<Isolate>? _isolate;
 
   void Function(FlutterErrorDetails)? _onError;
+  Timer? _reconnectTimer;
   Timer? _autoSaveTimer;
   Timer? _updateFeeRateTimer;
   static const int _autoSaveInterval = 1;
@@ -1986,13 +1984,6 @@ abstract class ElectrumWalletBase
         break;
       case ConnectionStatus.failed:
         syncStatus = LostConnectionSyncStatus();
-        // wait for 5 seconds and then try to reconnect:
-        Future.delayed(Duration(seconds: 5), () {
-          electrumClient.connectToUri(
-            node!.uri,
-            useSSL: node!.useSSL ?? false,
-          );
-        });
         break;
       case ConnectionStatus.connecting:
         syncStatus = ConnectingSyncStatus();
@@ -2002,7 +1993,11 @@ abstract class ElectrumWalletBase
   }
 
   void _syncStatusReaction(SyncStatus syncStatus) async {
-    if (syncStatus is NotConnectedSyncStatus) {
+    if (syncStatus is SyncingSyncStatus) {
+      return;
+    }
+
+    if (syncStatus is NotConnectedSyncStatus || syncStatus is LostConnectionSyncStatus) {
       // Needs to re-subscribe to all scripthashes when reconnected
       _scripthashesUpdateSubject = {};
 
@@ -2010,7 +2005,8 @@ abstract class ElectrumWalletBase
 
       _isTryingToConnect = true;
 
-      Future.delayed(Duration(seconds: 10), () {
+      _reconnectTimer?.cancel();
+      _reconnectTimer = Timer(Duration(seconds: 10), () {
         if (this.syncStatus is! SyncedSyncStatus && this.syncStatus is! SyncedTipSyncStatus) {
           this.electrumClient.connectToUri(
                 node!.uri,
