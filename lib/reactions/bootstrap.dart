@@ -27,7 +27,7 @@ Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey) async {
     authenticationStore.installed();
   }
 
-  await startAuthenticationStateChange(authenticationStore, navigatorKey);
+  startAuthenticationStateChange(authenticationStore, navigatorKey);
   startCurrentWalletChangeReaction(appStore, settingsStore, fiatConversionStore);
   startCurrentFiatChangeReaction(appStore, settingsStore, fiatConversionStore);
   startCurrentFiatApiModeChangeReaction(appStore, settingsStore, fiatConversionStore);
