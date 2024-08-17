@@ -295,10 +295,10 @@ packages:
     dependency: transitive
     description:
       name: hashlib
-      sha256: "5037d3b8c36384c03a728543ae67d962a56970c5432a50862279fe68ee4c8411"
+      sha256: d41795742c10947930630118c6836608deeb9047cd05aee32d2baeb697afd66a
       url: "https://pub.dev"
     source: hosted
-    version: "1.19.1"
+    version: "1.19.2"
   hashlib_codecs:
     dependency: transitive
     description:
@@ -575,12 +575,11 @@ packages:
   polyseed:
     dependency: "direct main"
     description:
-      path: "."
-      ref: f9adc68dbf879fefadeae8e86d1c2983f5a2cc3f
-      resolved-ref: f9adc68dbf879fefadeae8e86d1c2983f5a2cc3f
-      url: "https://github.com/mrcyjanek/polyseed_dart"
-    source: git
-    version: "0.0.5"
+      name: polyseed
+      sha256: "11d4dbee409db053c5e9cd77382b2f5115f43fc2529158a826a96f3ba505d770"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.6"
   pool:
     dependency: transitive
     description:
