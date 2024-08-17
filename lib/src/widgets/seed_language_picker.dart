@@ -17,7 +17,7 @@ class SeedLanguagePickerOption {
 final List<SeedLanguagePickerOption> seedLanguages = [
   SeedLanguagePickerOption('English', S.current.seed_language_english,
       Image.asset('assets/images/flags/usa.png'), [SeedType.legacy, SeedType.polyseed]),
-  SeedLanguagePickerOption('Chinese (simplified)', S.current.seed_language_chinese,
+  SeedLanguagePickerOption('Chinese (Simplified)', S.current.seed_language_chinese,
       Image.asset('assets/images/flags/chn.png'), [SeedType.legacy, SeedType.polyseed]),
   SeedLanguagePickerOption('Chinese (Traditional)', S.current.seed_language_chinese_traditional,
       Image.asset('assets/images/flags/chn.png'), [SeedType.polyseed]),
