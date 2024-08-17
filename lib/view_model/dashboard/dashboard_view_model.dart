@@ -484,6 +484,9 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get hasSignMessages {
+    if (wallet.isHardwareWallet) {
+      return false;
+    }
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.litecoin:
