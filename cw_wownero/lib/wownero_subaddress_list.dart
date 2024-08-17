@@ -1,6 +1,7 @@
 import 'package:cw_core/subaddress.dart';
 import 'package:cw_wownero/api/coins_info.dart';
 import 'package:cw_wownero/api/subaddress_list.dart' as subaddress_list;
+import 'package:cw_wownero/api/wallet.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 
@@ -102,7 +103,11 @@ abstract class WowneroSubaddressListBase with Store {
     required String defaultLabel,
     required List<String> usedAddresses,
   }) async {
+    _usedAddresses.add(getAddress(accountIndex: accountIndex, addressIndex: 0));
     _usedAddresses.addAll(usedAddresses);
+    final _all = _usedAddresses.toSet().toList();
+    _usedAddresses.clear();
+    _usedAddresses.addAll(_all);
     if (_isUpdating) {
       return;
     }
