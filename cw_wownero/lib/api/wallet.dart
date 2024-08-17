@@ -320,3 +320,7 @@ Future<bool> trustedDaemon() async => wownero.Wallet_trustedDaemon(wptr!);
 String signMessage(String message, {String address = ""}) {
   return wownero.Wallet_signMessage(wptr!, message: message, address: address);
 }
+
+bool verifyMessage(String message, String address, String signature) {
+  return wownero.Wallet_verifySignedMessage(wptr!, message: message, address: address, signature: signature);
+}

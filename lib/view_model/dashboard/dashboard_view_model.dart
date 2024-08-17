@@ -182,7 +182,8 @@ abstract class DashboardViewModelBase with Store {
 
       final _accountTransactions = _wallet.transactionHistory.transactions.values
           .where((tx) =>
-              wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+              wow.wownero!.getTransactionInfoAccountId(tx) ==
+              wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
       final sortedTransactions = [..._accountTransactions];
@@ -482,6 +483,27 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
+  @computed
+  bool get hasSignMessages {
+    switch (wallet.type) {
+      case WalletType.monero:
+      case WalletType.litecoin:
+      case WalletType.bitcoin:
+      case WalletType.bitcoinCash:
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.nano:
+      case WalletType.banano:
+      case WalletType.tron:
+      case WalletType.wownero:
+        return true;
+      case WalletType.haven:
+      case WalletType.none:
+        return false;
+    }
+  }
+
   bool get showRepWarning {
     if (wallet.type != WalletType.nano) {
       return false;
@@ -575,7 +597,8 @@ abstract class DashboardViewModelBase with Store {
       }
 
       if (wallet.type == WalletType.wownero) {
-        return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
+        return wow.wownero!.getTransactionInfoAccountId(tx) ==
+            wow.wownero!.getCurrentAccount(wallet).id;
       }
 
       return true;
@@ -600,8 +623,8 @@ abstract class DashboardViewModelBase with Store {
           .getTransactionHistory(wallet)
           .transactions
           .values
-          .where(
-              (tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
+          .where((tx) =>
+              monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
@@ -613,8 +636,9 @@ abstract class DashboardViewModelBase with Store {
           .getTransactionHistory(wallet)
           .transactions
           .values
-          .where(
-              (tx) => wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+          .where((tx) =>
+              wow.wownero!.getTransactionInfoAccountId(tx) ==
+              wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
