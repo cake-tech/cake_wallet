@@ -567,10 +567,11 @@ packages:
   polyseed:
     dependency: "direct main"
     description:
-      name: polyseed
-      sha256: edf28042e7b0b28f97a0469aa98e6e4015937cef6b9340cd6ad2822139c95217
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: f9adc68dbf879fefadeae8e86d1c2983f5a2cc3f
+      resolved-ref: f9adc68dbf879fefadeae8e86d1c2983f5a2cc3f
+      url: "https://github.com/mrcyjanek/polyseed_dart"
+    source: git
     version: "0.0.5"
   pool:
     dependency: transitive

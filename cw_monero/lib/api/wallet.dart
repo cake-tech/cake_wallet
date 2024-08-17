@@ -45,12 +45,23 @@ String getSeed() {
 
 String getSeedLegacy(String? language) {
   var legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  switch (language) {
+    case "Chinese (Traditional)": language = "Chinese (simplified)"; break;
+    case "Chinese (Simplified)": language = "Chinese (simplified)"; break;
+    case "Korean": language = "English"; break;
+    case "Czech": language = "English"; break;
+    case "Japanese": language = "English"; break;
+  }
   if (monero.Wallet_status(wptr!) != 0) {
     monero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
     legacy = monero.Wallet_seed(wptr!, seedOffset: '');
   }
   if (monero.Wallet_status(wptr!) != 0) {
-    return monero.Wallet_errorString(wptr!);
+    final err = monero.Wallet_errorString(wptr!);
+    if (legacy.isNotEmpty) {
+      return "$err\n\n$legacy";
+    }
+    return err;
   }
   return legacy;
 }

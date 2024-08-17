@@ -47,12 +47,23 @@ String getSeed() {
 
 String getSeedLegacy(String? language) {
   var legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
+  switch (language) {
+    case "Chinese (Traditional)": language = "Chinese (simplified)"; break;
+    case "Chinese (Simplified)": language = "Chinese (simplified)"; break;
+    case "Korean": language = "English"; break;
+    case "Czech": language = "English"; break;
+    case "Japanese": language = "English"; break;
+  }
   if (wownero.Wallet_status(wptr!) != 0) {
     wownero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
     legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
   }
   if (wownero.Wallet_status(wptr!) != 0) {
-    return wownero.Wallet_errorString(wptr!);
+    final err = wownero.Wallet_errorString(wptr!);
+    if (legacy.isNotEmpty) {
+      return "$err\n\n$legacy";
+    }
+    return err;
   }
   return legacy;
 }
