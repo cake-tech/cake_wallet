@@ -7,26 +7,17 @@ import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/load_current_wallet.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:rxdart/subjects.dart';
 
 ReactionDisposer? _onAuthenticationStateChange;
 
 dynamic loginError;
-StreamController<dynamic> authenticatedErrorStreamController = StreamController<dynamic>();
+StreamController<dynamic> authenticatedErrorStreamController = BehaviorSubject<dynamic>();
 
-Future<void> reInitializeStreamController() async {
-  if (!authenticatedErrorStreamController.isClosed) {
-    await authenticatedErrorStreamController.close();
-  }
-
-  authenticatedErrorStreamController = StreamController<dynamic>();
-}
-
-Future<void> startAuthenticationStateChange(
+void startAuthenticationStateChange(
   AuthenticationStore authenticationStore,
   GlobalKey<NavigatorState> navigatorKey,
-) async {
-  await reInitializeStreamController();
-
+) {
   authenticatedErrorStreamController.stream.listen((event) {
     if (authenticationStore.state == AuthenticationState.allowed) {
       ExceptionHandler.showError(event.toString(), delayInSeconds: 3);

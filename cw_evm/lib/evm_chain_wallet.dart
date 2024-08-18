@@ -113,6 +113,8 @@ abstract class EVMChainWalletBase
   int? gasBaseFee = 0;
   int estimatedGasUnits = 0;
 
+  Timer? _updateFeesTimer;
+
   bool _isTransactionUpdating;
 
   // TODO: remove after integrating our own node and having eth_newPendingTransactionFilter
@@ -263,6 +265,7 @@ abstract class EVMChainWalletBase
   void close() {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
+    _updateFeesTimer?.cancel();
   }
 
   @action
@@ -297,7 +300,7 @@ abstract class EVMChainWalletBase
 
       await _updateEstimatedGasFeeParams();
 
-      Timer.periodic(const Duration(seconds: 10), (timer) async {
+      _updateFeesTimer ??= Timer.periodic(const Duration(seconds: 30), (timer) async {
         await _updateEstimatedGasFeeParams();
       });
 

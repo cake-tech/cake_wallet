@@ -264,7 +264,8 @@ abstract class ElectrumWalletBase
   void Function(FlutterErrorDetails)? _onError;
   Timer? _reconnectTimer;
   Timer? _autoSaveTimer;
-  static const int _autoSaveInterval = 30;
+  Timer? _updateFeeRateTimer;
+  static const int _autoSaveInterval = 1;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -272,7 +273,7 @@ abstract class ElectrumWalletBase
     await save();
 
     _autoSaveTimer =
-        Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
+        Timer.periodic(Duration(minutes: _autoSaveInterval), (_) async => await save());
   }
 
   @action
@@ -425,6 +426,10 @@ abstract class ElectrumWalletBase
       await updateTransactions();
       await updateAllUnspents();
       await updateBalance();
+      updateFeeRates();
+
+      _updateFeeRateTimer ??=
+          Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
       if (alwaysScan == true) {
         _setListeners(walletInfo.restoreHeight);
@@ -1213,6 +1218,7 @@ abstract class ElectrumWalletBase
       await electrumClient.close();
     } catch (_) {}
     _autoSaveTimer?.cancel();
+    _updateFeeRateTimer?.cancel();
   }
 
   @action
@@ -1371,7 +1377,7 @@ abstract class ElectrumWalletBase
 
     if (confirmations > 0) return false;
 
-    if (transactionHex == null) {
+    if (transactionHex == null || transactionHex.isEmpty) {
       return false;
     }
 

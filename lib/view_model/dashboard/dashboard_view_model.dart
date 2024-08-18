@@ -32,7 +32,6 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -485,6 +484,9 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get hasSignMessages {
+    if (wallet.isHardwareWallet) {
+      return false;
+    }
     switch (wallet.type) {
       case WalletType.monero:
       case WalletType.litecoin:
