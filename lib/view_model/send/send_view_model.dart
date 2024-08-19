@@ -583,6 +583,30 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     String errorMessage = error.toString();
 
     if (walletType == WalletType.solana) {
+      if (errorMessage.contains('insufficient lamports')) {
+        double solValueNeeded = 0.0;
+
+        // Regular expression to match the number after "need". This shows the exact lamports the user needs to perform the transaction.
+        RegExp regExp = RegExp(r'need (\d+)');
+
+        // Find the match
+        Match? match = regExp.firstMatch(errorMessage);
+
+        if (match != null) {
+          String neededAmount = match.group(1)!;
+          final lamportsNeeded = int.tryParse(neededAmount);
+
+          // 5000 lamport used here is the constant for sending a transaction on solana
+          int lamportsPerSol = 1000000000;
+
+          solValueNeeded =
+              lamportsNeeded != null ? ((lamportsNeeded + 5000) / lamportsPerSol) : 0.0;
+          return S.current.insufficient_lamports(solValueNeeded.toString());
+        } else {
+          print("No match found.");
+          return S.current.insufficient_lamport_for_tx;
+        }
+      }
       if (errorMessage.contains('insufficient funds for rent')) {
         return S.current.insufficientFundsForRentError;
       }

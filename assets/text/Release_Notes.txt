@@ -1,6 +1,3 @@
-Wallets enhancements
-Monero synchronization improvements
-Improve wallet backups
-Enhance error handling
-UI enhancements
+Scan and verify messages
+Synchronization enhancements
 Bug fixes

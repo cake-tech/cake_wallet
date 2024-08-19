@@ -110,8 +110,6 @@ abstract class WalletCreationVMBase with Store {
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
     } catch (e, s) {
-      print("@@@@@@@@");
-      print(s);
       state = FailureState(e.toString());
     }
   }
@@ -119,9 +117,7 @@ abstract class WalletCreationVMBase with Store {
   DerivationInfo? getDefaultDerivation() {
     switch (this.type) {
       case WalletType.nano:
-        return DerivationInfo(
-          derivationType: DerivationType.nano,
-        );
+        return DerivationInfo(derivationType: DerivationType.nano);
       case WalletType.bitcoin:
       case WalletType.litecoin:
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
@@ -133,9 +129,7 @@ abstract class WalletCreationVMBase with Store {
   DerivationInfo? getCommonRestoreDerivation() {
     switch (this.type) {
       case WalletType.nano:
-        return DerivationInfo(
-          derivationType: DerivationType.nano,
-        );
+        return DerivationInfo(derivationType: DerivationType.nano);
       case WalletType.bitcoin:
         return DerivationInfo(
           derivationType: DerivationType.bip39,
