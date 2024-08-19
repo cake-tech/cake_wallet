@@ -202,11 +202,12 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    final index = address != null
-        ? walletAddresses.allAddresses
-            .firstWhere((element) => element.address == AddressUtils.toLegacyAddress(address))
-            .index
-        : null;
+    int? index;
+    try {
+      index = address != null
+          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
+          : null;
+    } catch (_) {}
     final HD = index == null ? hd : hd.childKey(Bip32KeyIndex(index));
     final priv = ECPrivate.fromWif(
       WifEncoder.encode(HD.privateKey.raw, netVer: network.wifNetVer),
