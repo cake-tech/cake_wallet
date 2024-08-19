@@ -1419,46 +1419,85 @@ abstract class ElectrumWalletBase
         );
       }
 
-      int totalOutAmount = bundle.originalTransaction.outputs
-          .fold<int>(0, (previousValue, element) => previousValue + element.amount.toInt());
-
-      var currentFee = allInputsAmount - totalOutAmount;
-      int remainingFee = newFee - currentFee;
-
+      // Create a list of available outputs
       final outputs = <BitcoinOutput>[];
-
-      // Add outputs and deduct the fees from it
-      for (int i = bundle.originalTransaction.outputs.length - 1; i >= 0; i--) {
-        final out = bundle.originalTransaction.outputs[i];
+      for (final out in bundle.originalTransaction.outputs) {
         final address = addressFromOutputScript(out.scriptPubKey, network);
         final btcAddress = addressTypeFromStr(address, network);
-
-        int newAmount;
-        if (out.amount.toInt() >= remainingFee) {
-          newAmount = out.amount.toInt() - remainingFee;
-          remainingFee = 0;
-
-          // if new amount of output is less than dust amount, then don't add this output as well
-          if (newAmount <= _dustAmount) {
-            continue;
-          }
-        } else {
-          remainingFee -= out.amount.toInt();
-          continue;
-        }
-
-        outputs.add(BitcoinOutput(address: btcAddress, value: BigInt.from(newAmount)));
+        outputs.add(BitcoinOutput(address: btcAddress, value: BigInt.from(out.amount.toInt())));
       }
 
-      final changeAddresses = walletAddresses.allAddresses.where((element) => element.isHidden);
+      // Calculate the total amount and fees
+      int totalOutAmount =
+          outputs.fold<int>(0, (previousValue, output) => previousValue + output.value.toInt());
+      int currentFee = allInputsAmount - totalOutAmount;
+      int remainingFee = newFee - currentFee;
 
-      // look for a change address in the outputs
-      final changeOutput = outputs.firstWhereOrNull((output) =>
+      if (remainingFee <= 0) {
+        throw Exception("New fee must be higher than the current fee.");
+      }
+
+      // Identify and deduct from change output if it exists
+      final changeAddresses = walletAddresses.allAddresses.where((element) => element.isHidden);
+      BitcoinOutput? changeOutput = outputs.firstWhereOrNull((output) =>
           changeAddresses.any((element) => element.address == output.address.toAddress(network)));
 
-      // deduct the change amount from the output amount
+      bool isDeductedFromChange = false;
+
+      // Try to adjust the change output to cover the new fee
       if (changeOutput != null) {
-        totalOutAmount = allInputsAmount - changeOutput.value.toInt() - newFee;
+        if (changeOutput.value.toInt() < _dustAmount) {
+          outputs.remove(changeOutput);
+        } else {
+          final newAmount = changeOutput.value.toInt() - remainingFee;
+
+          if (newAmount > 0) {
+            if (newAmount > _dustAmount) {
+              // The fee is fully covered, no need to adjust further
+              outputs.remove(changeOutput);
+              outputs
+                  .add(BitcoinOutput(address: changeOutput.address, value: BigInt.from(newAmount)));
+              remainingFee = 0;
+              isDeductedFromChange = true;
+            }
+          }
+        }
+      }
+
+
+      // Deduct Remaining Fee from Other Outputs (excluding change output)
+      if (remainingFee > 0) {
+        for (int i = 0; i < outputs.length; i++) {
+          // Skip the change output since it has already been processed
+          if (outputs[i] == changeOutput) continue;
+
+          int outputAmount = outputs[i].value.toInt();
+
+          int newAmount = outputAmount - remainingFee;
+
+          if (newAmount >= 0) {
+            if (newAmount > _dustAmount) {
+              outputs[i] =
+                  BitcoinOutput(address: outputs[i].address, value: BigInt.from(newAmount));
+              remainingFee = 0;
+              break;
+            }
+          }
+        }
+      }
+
+      // Final check if the remaining fee couldn't be deducted
+      if (remainingFee > 0) {
+        throw Exception("Not enough funds to cover the fee.");
+      }
+
+      // Set totalOutAmount to the final amount that the receiver will receive
+      int sendingAmount;
+
+      if (isDeductedFromChange) {
+        sendingAmount = totalOutAmount - changeOutput!.value.toInt();
+      } else {
+        sendingAmount = allInputsAmount - newFee;
       }
 
       final txb = BitcoinTransactionBuilder(
@@ -1488,7 +1527,7 @@ abstract class ElectrumWalletBase
         transaction,
         type,
         electrumClient: electrumClient,
-        amount: totalOutAmount,
+        amount: sendingAmount,
         fee: newFee,
         network: network,
         hasChange: changeOutput != null,

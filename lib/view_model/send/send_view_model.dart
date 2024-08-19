@@ -395,22 +395,29 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Future<void> replaceByFee(String txId, String newFee) async {
     state = IsExecutingState();
 
-    final isSufficient = await bitcoin!.isChangeSufficientForFee(wallet, txId, newFee);
+    try {
+      final isSufficient = await bitcoin!.isChangeSufficientForFee(wallet, txId, newFee);
 
-    if (!isSufficient) {
-      state = AwaitingConfirmationState(
-          title: S.current.confirm_fee_deduction,
-          message: S.current.confirm_fee_deduction_content,
-          onConfirm: () async {
-            pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
-            state = ExecutedSuccessfullyState();
-          },
-          onCancel: () {
-            state = FailureState('Insufficient change for fee');
-          });
-    } else {
+      if (!isSufficient) {
+        state = AwaitingConfirmationState(
+            title: S.current.confirm_fee_deduction,
+            message: S.current.confirm_fee_deduction_content,
+            onConfirm: () async => await _executeReplaceByFee(txId, newFee),
+            onCancel: () => state = FailureState('Insufficient change for fee'));
+      } else {
+        await _executeReplaceByFee(txId, newFee);
+      }
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
+  }
+
+  Future<void> _executeReplaceByFee(String txId, String newFee) async {
+    try {
       pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
       state = ExecutedSuccessfullyState();
+    } catch (e) {
+      state = FailureState(e.toString());
     }
   }
 
