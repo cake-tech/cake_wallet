@@ -49,12 +49,23 @@ String getSeedLegacy(String? language) {
   final cakepassphrase =
       monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
   var legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
+  switch (language) {
+    case "Chinese (Traditional)": language = "Chinese (simplified)"; break;
+    case "Chinese (Simplified)": language = "Chinese (simplified)"; break;
+    case "Korean": language = "English"; break;
+    case "Czech": language = "English"; break;
+    case "Japanese": language = "English"; break;
+  }
   if (monero.Wallet_status(wptr!) != 0) {
     monero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
     legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   }
   if (monero.Wallet_status(wptr!) != 0) {
-    return monero.Wallet_errorString(wptr!);
+    final err = monero.Wallet_errorString(wptr!);
+    if (legacy.isNotEmpty) {
+      return "$err\n\n$legacy";
+    }
+    return err;
   }
   return legacy;
 }
@@ -315,4 +326,8 @@ Future<bool> trustedDaemon() async => monero.Wallet_trustedDaemon(wptr!);
 
 String signMessage(String message, {String address = ""}) {
   return monero.Wallet_signMessage(wptr!, message: message, address: address);
+}
+
+bool verifyMessage(String message, String address, String signature) {
+  return monero.Wallet_verifySignedMessage(wptr!, message: message, address: address, signature: signature);
 }

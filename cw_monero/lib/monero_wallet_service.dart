@@ -127,7 +127,7 @@ class MoneroWalletService extends WalletService<
   }
 
   @override
-  Future<MoneroWallet> openWallet(String name, String password) async {
+  Future<MoneroWallet> openWallet(String name, String password, {bool? retryOnFailure}) async {
     MoneroWallet? wallet;
     try {
       final path = await pathForWallet(name: name, type: getType());
@@ -189,12 +189,12 @@ class MoneroWalletService extends WalletService<
           wallet.onError != null) {
         wallet.onError!(FlutterErrorDetails(exception: e, stack: s));
       }
-      if (invalidPassword) {
+      if (invalidPassword || retryOnFailure == false) {
         rethrow;
       }
 
       await restoreOrResetWalletFiles(name);
-      return openWallet(name, password);
+      return openWallet(name, password, retryOnFailure: false);
     }
   }
 

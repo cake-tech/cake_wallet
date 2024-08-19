@@ -42,6 +42,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:http/http.dart' as http;
 import 'package:sp_scanner/sp_scanner.dart';
 
 part 'electrum_wallet.g.dart';
@@ -132,6 +133,7 @@ abstract class ElectrumWalletBase
   final String? _mnemonic;
 
   Bip32Slip10Secp256k1 get hd => accountHD.childKey(Bip32KeyIndex(0));
+  Bip32Slip10Secp256k1 get sideHd => accountHD.childKey(Bip32KeyIndex(1));
 
   final EncryptionFileUtils encryptionFileUtils;
   final String? passphrase;
@@ -216,10 +218,7 @@ abstract class ElectrumWalletBase
       if (electrumClient.isConnected) {
         syncStatus = SyncedSyncStatus();
       } else {
-        if (electrumClient.uri != null) {
-          await electrumClient.connectToUri(electrumClient.uri!, useSSL: electrumClient.useSSL);
-          startSync();
-        }
+        syncStatus = NotConnectedSyncStatus();
       }
     }
   }
@@ -263,8 +262,10 @@ abstract class ElectrumWalletBase
   Future<Isolate>? _isolate;
 
   void Function(FlutterErrorDetails)? _onError;
+  Timer? _reconnectTimer;
   Timer? _autoSaveTimer;
-  static const int _autoSaveInterval = 30;
+  Timer? _updateFeeRateTimer;
+  static const int _autoSaveInterval = 1;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -272,7 +273,7 @@ abstract class ElectrumWalletBase
     await save();
 
     _autoSaveTimer =
-        Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
+        Timer.periodic(Duration(minutes: _autoSaveInterval), (_) async => await save());
   }
 
   @action
@@ -425,6 +426,10 @@ abstract class ElectrumWalletBase
       await updateTransactions();
       await updateAllUnspents();
       await updateBalance();
+      updateFeeRates();
+
+      _updateFeeRateTimer ??=
+          Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
       if (alwaysScan == true) {
         _setListeners(walletInfo.restoreHeight);
@@ -591,7 +596,7 @@ abstract class ElectrumWalletBase
       }
 
       final derivationPath =
-          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? electrum_path)}"
           "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
           "/${utx.bitcoinAddressRecord.index}";
       publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
@@ -1213,6 +1218,7 @@ abstract class ElectrumWalletBase
       await electrumClient.close();
     } catch (_) {}
     _autoSaveTimer?.cancel();
+    _updateFeeRateTimer?.cancel();
   }
 
   @action
@@ -1371,7 +1377,7 @@ abstract class ElectrumWalletBase
 
     if (confirmations > 0) return false;
 
-    if (transactionHex == null) {
+    if (transactionHex == null || transactionHex.isEmpty) {
       return false;
     }
 
@@ -1869,11 +1875,70 @@ abstract class ElectrumWalletBase
         ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
         : null;
     final HD = index == null ? hd : hd.childKey(Bip32KeyIndex(index));
-    final priv = ECPrivate.fromWif(
-      WifEncoder.encode(HD.privateKey.raw, netVer: network.wifNetVer),
-      netVersion: network.wifNetVer,
-    );
-    return priv.signMessage(StringUtils.encode(message));
+    final priv = ECPrivate.fromHex(HD.privateKey.privKey.toHex());
+
+    String messagePrefix = '\x18Bitcoin Signed Message:\n';
+    final hexEncoded = priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
+    final decodedSig = hex.decode(hexEncoded);
+    return base64Encode(decodedSig);
+  }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
+    if (address == null) {
+      return false;
+    }
+
+    List<int> sigDecodedBytes = [];
+
+    if (signature.endsWith('=')) {
+      sigDecodedBytes = base64.decode(signature);
+    } else {
+      sigDecodedBytes = hex.decode(signature);
+    }
+
+    if (sigDecodedBytes.length != 64 && sigDecodedBytes.length != 65) {
+      throw ArgumentException(
+          "signature must be 64 bytes without recover-id or 65 bytes with recover-id");
+    }
+
+    String messagePrefix = '\x18Bitcoin Signed Message:\n';
+    final messageHash = QuickCrypto.sha256Hash(
+        BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix));
+
+    List<int> correctSignature =
+        sigDecodedBytes.length == 65 ? sigDecodedBytes.sublist(1) : List.from(sigDecodedBytes);
+    List<int> rBytes = correctSignature.sublist(0, 32);
+    List<int> sBytes = correctSignature.sublist(32);
+    final sig = ECDSASignature(BigintUtils.fromBytes(rBytes), BigintUtils.fromBytes(sBytes));
+
+    List<int> possibleRecoverIds = [0, 1];
+
+    final baseAddress = addressTypeFromStr(address, network);
+
+    for (int recoveryId in possibleRecoverIds) {
+      final pubKey = sig.recoverPublicKey(messageHash, Curves.generatorSecp256k1, recoveryId);
+
+      final recoveredPub = ECPublic.fromBytes(pubKey!.toBytes());
+
+      String? recoveredAddress;
+
+      if (baseAddress is P2pkAddress) {
+        recoveredAddress = recoveredPub.toP2pkAddress().toAddress(network);
+      } else if (baseAddress is P2pkhAddress) {
+        recoveredAddress = recoveredPub.toP2pkhAddress().toAddress(network);
+      } else if (baseAddress is P2wshAddress) {
+        recoveredAddress = recoveredPub.toP2wshAddress().toAddress(network);
+      } else if (baseAddress is P2wpkhAddress) {
+        recoveredAddress = recoveredPub.toP2wpkhAddress().toAddress(network);
+      }
+
+      if (recoveredAddress == address) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   Future<void> _setInitialHeight() async {
@@ -1919,13 +1984,6 @@ abstract class ElectrumWalletBase
         break;
       case ConnectionStatus.failed:
         syncStatus = LostConnectionSyncStatus();
-        // wait for 5 seconds and then try to reconnect:
-        Future.delayed(Duration(seconds: 5), () {
-          electrumClient.connectToUri(
-            node!.uri,
-            useSSL: node!.useSSL ?? false,
-          );
-        });
         break;
       case ConnectionStatus.connecting:
         syncStatus = ConnectingSyncStatus();
@@ -1935,7 +1993,11 @@ abstract class ElectrumWalletBase
   }
 
   void _syncStatusReaction(SyncStatus syncStatus) async {
-    if (syncStatus is NotConnectedSyncStatus) {
+    if (syncStatus is SyncingSyncStatus) {
+      return;
+    }
+
+    if (syncStatus is NotConnectedSyncStatus || syncStatus is LostConnectionSyncStatus) {
       // Needs to re-subscribe to all scripthashes when reconnected
       _scripthashesUpdateSubject = {};
 
@@ -1943,7 +2005,8 @@ abstract class ElectrumWalletBase
 
       _isTryingToConnect = true;
 
-      Future.delayed(Duration(seconds: 10), () {
+      _reconnectTimer?.cancel();
+      _reconnectTimer = Timer(Duration(seconds: 10), () {
         if (this.syncStatus is! SyncedSyncStatus && this.syncStatus is! SyncedTipSyncStatus) {
           this.electrumClient.connectToUri(
                 node!.uri,

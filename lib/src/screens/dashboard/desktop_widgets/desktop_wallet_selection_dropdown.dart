@@ -200,14 +200,14 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       }
 
         try {
-          if (context.mounted) {
+          if (mounted) {
             changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
           }
           await widget.walletListViewModel.loadWallet(wallet);
           hideProgressText();
           setState(() {});
         } catch (e) {
-          if (context.mounted) {
+          if (mounted) {
             changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
           }
         }
