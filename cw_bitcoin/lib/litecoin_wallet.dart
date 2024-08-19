@@ -83,6 +83,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       sideHd: accountHD.childKey(Bip32KeyIndex(1)),
       network: network,
       mwebHd: mwebHd,
+      mwebEnabled: mwebEnabled,
     );
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
@@ -822,6 +823,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     mwebEnabled = enabled;
+    (walletAddresses as LitecoinWalletAddresses).mwebEnabled = enabled;
     stopSync();
     startSync();
   }

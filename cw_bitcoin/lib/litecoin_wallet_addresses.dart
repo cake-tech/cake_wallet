@@ -17,8 +17,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     WalletInfo walletInfo, {
     required super.mainHd,
     required super.sideHd,
-    required this.mwebHd,
     required super.network,
+    required this.mwebHd,
+    required this.mwebEnabled,
     super.initialAddresses,
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
@@ -27,6 +28,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   final Bip32Slip10Secp256k1 mwebHd;
+  bool mwebEnabled;
 
   List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendPubkey =>
@@ -78,11 +80,10 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   @action
   @override
   Future<String> getChangeAddress() async {
-    // super.getChangeAddress();
-    // updateChangeAddresses();
-    // print("getChangeAddress @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-    // this means all change addresses used will be mweb addresses!:
-    await topUpMweb(0);
-    return mwebAddrs[0];
+    if (mwebEnabled) {
+      await topUpMweb(0);
+      return mwebAddrs[0];
+    }
+    return super.getChangeAddress();
   }
 }
