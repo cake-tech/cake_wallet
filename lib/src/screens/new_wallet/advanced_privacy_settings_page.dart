@@ -64,7 +64,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
 
   @override
   Widget build(BuildContext context) {
-    if (testnetValue == null && widget.useTestnet != null) {
+    if (testnetValue == null && widget.useTestnet) {
       testnetValue = widget.useTestnet;
     }
 
@@ -154,7 +154,7 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                       setState(() {
                         testnetValue = !val;
                       });
-                      widget.toggleUseTestnet!.call(testnetValue);
+                      widget.toggleUseTestnet.call(testnetValue);
                     });
               }),
           ],
