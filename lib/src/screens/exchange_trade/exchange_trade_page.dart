@@ -284,7 +284,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
+          if (mounted) {
             showPopUp<void>(
                 context: context,
                 builder: (BuildContext popupContext) {

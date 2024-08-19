@@ -66,6 +66,7 @@ class ElectrumClient {
 
     try {
       await socket?.close();
+      socket = null;
     } catch (_) {}
 
     try {
@@ -90,33 +91,40 @@ class ElectrumClient {
     }
     _setConnectionStatus(ConnectionStatus.connected);
 
-    socket!.listen((Uint8List event) {
-      try {
-        final msg = utf8.decode(event.toList());
-        final messagesList = msg.split("\n");
-        for (var message in messagesList) {
-          if (message.isEmpty) {
-            continue;
+    socket!.listen(
+      (Uint8List event) {
+        try {
+          final msg = utf8.decode(event.toList());
+          final messagesList = msg.split("\n");
+          for (var message in messagesList) {
+            if (message.isEmpty) {
+              continue;
+            }
+            _parseResponse(message);
           }
-          _parseResponse(message);
+        } catch (e) {
+          print(e.toString());
         }
-      } catch (e) {
-        print(e.toString());
-      }
-    }, onError: (Object error) {
-      final errorMsg = error.toString();
-      print(errorMsg);
-      unterminatedString = '';
+      },
+      onError: (Object error) {
+        socket = null;
+        final errorMsg = error.toString();
+        print(errorMsg);
+        unterminatedString = '';
 
-      final currentHost = socket?.address.host;
-      final isErrorForCurrentHost = errorMsg.contains(" ${currentHost} ");
+        final currentHost = socket?.address.host;
+        final isErrorForCurrentHost = errorMsg.contains(" ${currentHost} ");
 
-      if (currentHost != null && isErrorForCurrentHost)
-        _setConnectionStatus(ConnectionStatus.failed);
-    }, onDone: () {
-      unterminatedString = '';
-      if (host == socket?.address.host) _setConnectionStatus(ConnectionStatus.disconnected);
-    });
+        if (currentHost != null && isErrorForCurrentHost)
+          _setConnectionStatus(ConnectionStatus.failed);
+      },
+      onDone: () {
+        socket = null;
+        unterminatedString = '';
+        if (host == socket?.address.host) _setConnectionStatus(ConnectionStatus.disconnected);
+      },
+      cancelOnError: true,
+    );
 
     keepAlive();
   }

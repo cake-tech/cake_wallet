@@ -8,6 +8,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -63,6 +64,19 @@ class CakeFeaturesPage extends StatelessWidget {
                       title: "NanoGPT",
                       subTitle: S.of(context).nanogpt_subtitle,
                       onTap: () => _launchUrl("cake.nano-gpt.com"),
+                    ),
+                    SizedBox(height: 20),
+                    Observer(
+                      builder: (context) {
+                        if (!dashboardViewModel.hasSignMessages) {
+                          return const SizedBox();
+                        }
+                        return DashBoardRoundedCardWidget(
+                          onTap: () => Navigator.of(context).pushNamed(Routes.signPage),
+                          title: S.current.sign_verify_message,
+                          subTitle: S.current.sign_verify_message_sub,
+                        );
+                      },
                     ),
                   ],
                 ),
