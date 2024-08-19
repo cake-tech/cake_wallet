@@ -582,8 +582,18 @@ abstract class TronWalletBase
   }
 
   @override
-  Future<String> signMessage(String message, {String? address}) async =>
-      _tronPrivateKey.signPersonalMessage(ascii.encode(message));
+  Future<String> signMessage(String message, {String? address}) async {
+    return _tronPrivateKey.signPersonalMessage(ascii.encode(message));
+  }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address}) async {
+    if (address == null) {
+      return false;
+    }
+    TronPublicKey pubKey = TronPublicKey.fromPersonalSignature(ascii.encode(message), signature)!;
+    return pubKey.toAddress().toString() == address;
+  }
 
   String getTronBase58AddressFromHex(String hexAddress) => TronAddress(hexAddress).toAddress();
 

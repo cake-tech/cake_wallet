@@ -28,6 +28,7 @@ import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
@@ -45,6 +46,7 @@ import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/receive/lightning_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/lightning_receive_page.dart';
+import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
@@ -104,6 +106,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
@@ -470,6 +473,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<ContactListPage>(param1: selectedCurrency));
 
+    case Routes.pickerWalletAddress:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<AddressListPage>());
+
     case Routes.addressBookAddContact:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<ContactPage>(param1: settings.arguments as ContactRecord?));
@@ -703,7 +709,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.lightningSend:
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true,
           builder: (_) => getIt.get<LightningSendPage>(param1: settings.arguments as String?));
 
     case Routes.lightningRefund:
@@ -721,9 +726,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<LightningInvoicePage>());
 
+    case Routes.signPage:
+      return MaterialPageRoute<void>(
+          getIt.get<SignViewModel>(),
+        ),
+      );
+    
     case Routes.connectDevices:
       final params = settings.arguments as ConnectDevicePageParams;
-      return MaterialPageRoute<void>(
           builder: (_) => ConnectDevicePage(params, getIt.get<LedgerViewModel>()));
 
     default:

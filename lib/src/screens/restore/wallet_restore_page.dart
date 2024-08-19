@@ -2,7 +2,6 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -81,7 +80,7 @@ class WalletRestorePage extends BasePage {
     });
   }
 
-  static bool formProcessing = false;
+  bool _formProcessing = false;
 
   @override
   Widget middle(BuildContext context) => Observer(
@@ -354,8 +353,8 @@ class WalletRestorePage extends BasePage {
   }
 
   Future<void> _confirmForm(BuildContext context) async {
-    if (formProcessing) return;
-    formProcessing = true;
+    if (_formProcessing) return;
+    _formProcessing = true;
     try {
       // Dismissing all visible keyboard to provide context for navigation
       FocusManager.instance.primaryFocus?.unfocus();
@@ -374,13 +373,13 @@ class WalletRestorePage extends BasePage {
       }
 
       if (!formKey!.currentState!.validate()) {
-        formProcessing = false;
+        _formProcessing = false;
         return;
       }
 
       if (walletRestoreViewModel.nameExists(name)) {
         showNameExistsAlert(formContext!);
-        formProcessing = false;
+        _formProcessing = false;
         return;
       }
 
@@ -429,10 +428,10 @@ class WalletRestorePage extends BasePage {
 
       await walletRestoreViewModel.create(options: _credentials());
     } catch (e) {
-      formProcessing = false;
+      _formProcessing = false;
       rethrow;
     }
-    formProcessing = false;
+    _formProcessing = false;
   }
 
   Future<void> showNameExistsAlert(BuildContext context) {

@@ -140,7 +140,16 @@ void restoreWalletFromKeysSync(
     int nettype = 0,
     int restoreHeight = 0}) {
   txhistory = null;
-  final newWptr = wownero.WalletManager_createWalletFromKeys(
+  final newWptr =  spendKey != ""
+   ? wownero.WalletManager_createDeterministicWalletFromSpendKey(
+    wmPtr,
+    path: path,
+    password: password,
+    language: language,
+    spendKeyString: spendKey, 
+    newWallet: true, // TODO(mrcyjanek): safe to remove
+    restoreHeight: restoreHeight)
+   : wownero.WalletManager_createWalletFromKeys(
     wmPtr,
     path: path,
     password: password,

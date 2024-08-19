@@ -60,7 +60,9 @@ class WalletLoadingService {
       String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
       try {
         corruptedWalletsSeeds += await _getCorruptedWalletSeeds(name, type);
-      } catch (_) {}
+      } catch (e) {
+        corruptedWalletsSeeds += "\nFailed to  fetch $name seeds: $e";
+      }
 
       // try opening another wallet that is not corrupted to give user access to the app
       final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
@@ -90,7 +92,9 @@ class WalletLoadingService {
             if (!corruptedWalletsSeeds.contains(seeds)) {
               corruptedWalletsSeeds += seeds;
             }
-          } catch (_) {}
+          } catch (e) {
+            corruptedWalletsSeeds += "\nFailed to  fetch $name seeds: $e";
+          }
         }
       }
 
