@@ -142,7 +142,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       _bestRate = 0;
       _calculateBestRate();
     });
+
+    if (isElectrumWallet) {
+      bitcoin!.updateFeeRates(wallet);
+    }
   }
+
+  bool get isElectrumWallet =>
+      wallet.type == WalletType.bitcoin ||
+      wallet.type == WalletType.litecoin ||
+      wallet.type == WalletType.bitcoinCash;
 
   bool _useTorOnly;
   final Box<Trade> trades;

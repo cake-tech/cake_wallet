@@ -295,10 +295,10 @@ packages:
     dependency: transitive
     description:
       name: hashlib
-      sha256: "5037d3b8c36384c03a728543ae67d962a56970c5432a50862279fe68ee4c8411"
+      sha256: d41795742c10947930630118c6836608deeb9047cd05aee32d2baeb697afd66a
       url: "https://pub.dev"
     source: hosted
-    version: "1.19.1"
+    version: "1.19.2"
   hashlib_codecs:
     dependency: transitive
     description:
@@ -576,10 +576,10 @@ packages:
     dependency: "direct main"
     description:
       name: polyseed
-      sha256: edf28042e7b0b28f97a0469aa98e6e4015937cef6b9340cd6ad2822139c95217
+      sha256: "11d4dbee409db053c5e9cd77382b2f5115f43fc2529158a826a96f3ba505d770"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.5"
+    version: "0.0.6"
   pool:
     dependency: transitive
     description:

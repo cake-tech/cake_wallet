@@ -95,7 +95,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
 
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
+          if (mounted) {
             showPopUp<void>(
                 context: context,
                 builder: (_) {
