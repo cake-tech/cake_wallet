@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:convert' as convert;
 import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
@@ -467,7 +468,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (status.mwebUtxosHeight != height) return;
     int amount = 0;
     Set<String> inputAddresses = {};
-    var output = AccumulatorSink<Digest>();
+    var output = convert.AccumulatorSink<Digest>();
     var input = sha256.startChunkedConversion(output);
     for (final outputId in spent) {
       final utxo = mwebUtxosBox.get(outputId);
