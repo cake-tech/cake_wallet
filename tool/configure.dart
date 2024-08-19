@@ -79,6 +79,7 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/output_info.dart';
