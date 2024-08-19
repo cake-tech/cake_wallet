@@ -280,7 +280,7 @@ class CWBitcoin extends Bitcoin {
     return [DerivationType.bip39, DerivationType.electrum];
   }
 
-  int _countOccurrences(String str, String charToCount) {
+  int _countCharOccurrences(String str, String charToCount) {
     int count = 0;
     for (int i = 0; i < str.length; i++) {
       if (str[i] == charToCount) {
@@ -335,7 +335,7 @@ class CWBitcoin extends Bitcoin {
           );
 
           String balancePath = dInfoCopy.derivationPath!;
-          int derivationDepth = _countOccurrences(balancePath, "/");
+          int derivationDepth = _countCharOccurrences(balancePath, '/');
 
           // for BIP44
           if (derivationDepth == 3 || derivationDepth == 1) {

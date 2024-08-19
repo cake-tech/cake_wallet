@@ -1596,8 +1596,14 @@ abstract class SettingsStoreBase with Store {
       final macInfo = await deviceInfoPlugin.macOsInfo;
       deviceName = macInfo.computerName;
     } else if (Platform.isWindows) {
-      final windowsInfo = await deviceInfoPlugin.windowsInfo;
-      deviceName = windowsInfo.productName;
+      try {
+        final windowsInfo = await deviceInfoPlugin.windowsInfo;
+        deviceName = windowsInfo.productName;
+      } catch (e) {
+        print(e);
+        print('likely digitalProductId is null wait till https://github.com/fluttercommunity/plus_plugins/pull/3188 is merged');
+        deviceName = "Windows Device";
+      }
     }
 
     return deviceName;

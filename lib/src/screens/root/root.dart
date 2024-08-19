@@ -227,7 +227,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   void waitForWalletInstance(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (context.mounted) {
+      if (mounted) {
         _walletReactionDisposer = reaction(
           (_) => widget.appStore.wallet,
           (WalletBase? wallet) {

@@ -94,7 +94,7 @@ dependencies:
 #      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
-  polyseed: ^0.0.5
+  polyseed: ^0.0.6
   nostr_tools: ^1.0.9
   solana: ^0.30.1
   bitcoin_base:
@@ -102,7 +102,7 @@ dependencies:
       url: https://github.com/cake-tech/bitcoin_base
       ref: cake-update-v5
   ledger_flutter: ^1.0.1
-  hashlib: 1.12.0
+  hashlib: ^1.19.2
 
 dev_dependencies:
   flutter_test:
