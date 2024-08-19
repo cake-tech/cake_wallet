@@ -103,8 +103,8 @@ abstract class MoneroSubaddressListBase with Store {
     required String defaultLabel,
     required List<String> usedAddresses,
   }) async {
-    _usedAddresses.add(getAddress(accountIndex: accountIndex, addressIndex: 0));
     _usedAddresses.addAll(usedAddresses);
+    print(usedAddresses);
     final _all = _usedAddresses.toSet().toList();
     _usedAddresses.clear();
     _usedAddresses.addAll(_all);

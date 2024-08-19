@@ -103,7 +103,6 @@ abstract class WowneroSubaddressListBase with Store {
     required String defaultLabel,
     required List<String> usedAddresses,
   }) async {
-    _usedAddresses.add(getAddress(accountIndex: accountIndex, addressIndex: 0));
     _usedAddresses.addAll(usedAddresses);
     final _all = _usedAddresses.toSet().toList();
     _usedAddresses.clear();
