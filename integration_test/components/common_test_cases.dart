@@ -31,6 +31,11 @@ class CommonTestCases {
     expect(typeWidget, findsOneWidget);
   }
 
+  bool isKeyPresent(String key) {
+    final typeWidget = find.byKey(ValueKey(key));
+    return typeWidget.tryEvaluate();
+  }
+
   void hasValueKey(String key) {
     final typeWidget = find.byKey(ValueKey(key));
     expect(typeWidget, findsOneWidget);

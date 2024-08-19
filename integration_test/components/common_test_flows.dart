@@ -99,10 +99,8 @@ class CommonTestFlows {
   Future<void> switchToWalletMenuFromDashboardPage() async {
     _tester.printToConsole('Switching to Wallet Menu');
     await _dashboardPageRobot.openDrawerMenu();
-    await _commonTestCases.defaultSleepTime();
 
     await _dashboardPageRobot.dashboardMenuWidgetRobot.navigateToWalletMenu();
-    await _commonTestCases.defaultSleepTime();
   }
 
   //* ========== Handles creating new wallet flow from wallet list/menu ===============

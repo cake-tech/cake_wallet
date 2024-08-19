@@ -29,4 +29,11 @@ class DashboardMenuWidgetRobot {
     await commonTestCases.tapItemByKey('dashboard_page_menu_widget_wallet_menu_button_key');
     await commonTestCases.defaultSleepTime();
   }
+
+  Future<void> navigateToSecurityAndBackupPage() async {
+    await commonTestCases.tapItemByKey(
+      'dashboard_page_menu_widget_security_and_backup_button_key',
+    );
+    await commonTestCases.defaultSleepTime();
+  }
 }

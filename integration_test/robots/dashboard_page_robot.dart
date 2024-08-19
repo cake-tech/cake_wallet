@@ -77,6 +77,7 @@ class DashboardPageRobot {
 
   Future<void> openDrawerMenu() async {
     await commonTestCases.tapItemByKey('dashboard_page_wallet_menu_button_key');
+    await commonTestCases.defaultSleepTime();
   }
 
   Future<void> navigateToBuyPage() async {

@@ -57,6 +57,8 @@ abstract class WalletKeysViewModelBase with Store {
 
   final String _walletName;
 
+  AppStore get appStore => _appStore;
+
   final AppStore _appStore;
 
   final int _restoreHeight;
