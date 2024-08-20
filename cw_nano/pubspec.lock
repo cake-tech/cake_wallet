@@ -526,7 +526,7 @@ packages:
     source: hosted
     version: "2.6.1"
   nanodart:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: nanodart
       sha256: "4b2f42d60307b54e8cf384d6193a567d07f8efd773858c0d5948246153c13282"
@@ -537,11 +537,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: c37e72817cf0a28162f43124f79661d6c8e0098f
-      resolved-ref: c37e72817cf0a28162f43124f79661d6c8e0098f
+      ref: c01a9c552917008d8fbc6b540db657031625b04f
+      resolved-ref: c01a9c552917008d8fbc6b540db657031625b04f
       url: "https://github.com/perishllc/nanoutil.git"
     source: git
-    version: "1.0.0"
+    version: "1.0.3"
   nested:
     dependency: transitive
     description:

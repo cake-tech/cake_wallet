@@ -103,7 +103,6 @@ dependencies:
       ref: cake-update-v5
   ledger_flutter: ^1.0.1
   hashlib: ^1.19.2
-  ldk_node: ^0.3.0
 
 dev_dependencies:
   flutter_test:
