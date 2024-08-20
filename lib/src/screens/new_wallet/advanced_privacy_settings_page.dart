@@ -1,32 +1,33 @@
 import 'package:cake_wallet/entities/default_settings_migration.dart';
+import 'package:cake_wallet/entities/derivation_type_setting.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
-import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
-import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
-import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
-import 'package:cake_wallet/view_model/seed_type_view_model.dart';
-import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
+import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class AdvancedPrivacySettingsPage extends BasePage {
   AdvancedPrivacySettingsPage(this.useTestnet, this.toggleUseTestnet,
-      this.advancedPrivacySettingsViewModel, this.nodeViewModel, this.seedTypeViewModel);
+      this.advancedPrivacySettingsViewModel, this.nodeViewModel, this.seedSettingsViewModel);
 
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
-  final SeedTypeViewModel seedTypeViewModel;
+  final SeedSettingsViewModel seedSettingsViewModel;
 
   @override
   String get title => S.current.privacy_settings;
@@ -36,7 +37,7 @@ class AdvancedPrivacySettingsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) => AdvancedPrivacySettingsBody(useTestnet, toggleUseTestnet,
-      advancedPrivacySettingsViewModel, nodeViewModel, seedTypeViewModel);
+      advancedPrivacySettingsViewModel, nodeViewModel, seedSettingsViewModel);
 }
 
 class AdvancedPrivacySettingsBody extends StatefulWidget {
@@ -47,7 +48,7 @@ class AdvancedPrivacySettingsBody extends StatefulWidget {
 
   final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
-  final SeedTypeViewModel seedTypeViewModel;
+  final SeedSettingsViewModel seedTypeViewModel;
 
   final bool useTestnet;
   final Function(bool? val) toggleUseTestnet;
@@ -144,9 +145,21 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                   ),
                 );
               }),
+            if ([WalletType.bitcoin, WalletType.litecoin]
+                .contains(widget.privacySettingsViewModel.type))
+              Observer(builder: (_) {
+                return SettingsChoicesCell(
+                  ChoicesListItem<DerivationTypeSetting>(
+                    title: S.current.derivationpath,
+                    items: DerivationTypeSetting.all,
+                    selectedItem: widget.seedTypeViewModel.bitcoinDerivationType,
+                    onItemSelected: widget.seedTypeViewModel.setBitcoinDerivationType,
+                  ),
+                );
+              }),
             if (widget.privacySettingsViewModel.type == WalletType.bitcoin)
               Builder(builder: (_) {
-                final val = testnetValue!;
+                final val = testnetValue ?? false;
                 return SettingsSwitcherCell(
                     title: S.current.use_testnet,
                     value: val,

@@ -1,37 +1,43 @@
-import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
-import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
-import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/haven/haven.dart';
-import 'advanced_privacy_settings_view_model.dart';
+import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
 
 import '../polygon/polygon.dart';
+import 'advanced_privacy_settings_view_model.dart';
 
 part 'wallet_new_vm.g.dart';
 
 class WalletNewVM = WalletNewVMBase with _$WalletNewVM;
 
 abstract class WalletNewVMBase extends WalletCreationVM with Store {
-  WalletNewVMBase(AppStore appStore, WalletCreationService walletCreationService,
-      Box<WalletInfo> walletInfoSource, this.advancedPrivacySettingsViewModel,
+  WalletNewVMBase(
+      AppStore appStore,
+      WalletCreationService walletCreationService,
+      Box<WalletInfo> walletInfoSource,
+      this.advancedPrivacySettingsViewModel,
+      this.seedSettingsViewModel,
       {required WalletType type})
       : selectedMnemonicLanguage = '',
         super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: false);
 
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
+  final SeedSettingsViewModel seedSettingsViewModel;
 
   @observable
   String selectedMnemonicLanguage;
@@ -66,7 +72,10 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
-            name: name, language: options!.first as String, password: walletPassword, isPolyseed: options.last as bool);
+            name: name,
+            language: options!.first as String,
+            password: walletPassword,
+            isPolyseed: options.last as bool);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.litecoin:
@@ -77,7 +86,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.bitcoinCash:
-        return bitcoinCash!.createBitcoinCashNewWalletCredentials(name: name, password: walletPassword);
+        return bitcoinCash!
+            .createBitcoinCashNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoNewWalletCredentials(name: name);
@@ -99,5 +109,29 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   Future<WalletBase> process(WalletCredentials credentials) async {
     walletCreationService.changeWalletType(type: type);
     return walletCreationService.create(credentials, isTestnet: useTestnet);
+  }
+
+  @override
+  DerivationInfo? getDefaultDerivation() {
+    final useBip39 = seedSettingsViewModel.bitcoinDerivationType.type == DerivationType.bip39;
+    switch (type) {
+      case WalletType.nano:
+        return DerivationInfo(derivationType: DerivationType.nano);
+      case WalletType.bitcoin:
+        if (useBip39) {
+          return bitcoin!
+              .getElectrumDerivations()[DerivationType.bip39]!
+              .firstWhere((element) => element.description == "Standard BIP84 native segwit");
+        }
+      case WalletType.litecoin:
+        if (useBip39) {
+          return bitcoin!
+              .getElectrumDerivations()[DerivationType.bip39]!
+              .firstWhere((element) => element.description == "Default Litecoin");
+        }
+        return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+      default:
+        return null;
+    }
   }
 }

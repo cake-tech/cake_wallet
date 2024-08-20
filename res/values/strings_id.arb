@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "Apakah Anda yakin ingin menghapus dompet ${wallet_name}?",
   "deleteConnectionConfirmationPrompt": "Apakah Anda yakin ingin menghapus koneksi ke",
   "denominations": "Denominasi",
+  "derivationpath": "Jalur derivasi",
   "descending": "Menurun",
   "description": "Keterangan",
   "destination_tag": "Tag tujuan:",

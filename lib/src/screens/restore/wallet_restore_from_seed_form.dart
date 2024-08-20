@@ -9,7 +9,7 @@ import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/seed_widget.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/seed_type_view_model.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
@@ -23,7 +23,7 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
       required this.displayPassphrase,
       required this.type,
       required this.displayWalletPassword,
-      required this.seedTypeViewModel,
+      required this.seedSettingsViewModel,
       this.blockHeightFocusNode,
       this.onHeightOrDateEntered,
       this.onSeedChange,
@@ -37,7 +37,7 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   final bool displayBlockHeightSelector;
   final bool displayWalletPassword;
   final bool displayPassphrase;
-  final SeedTypeViewModel seedTypeViewModel;
+  final SeedSettingsViewModel seedSettingsViewModel;
   final FocusNode? blockHeightFocusNode;
   final Function(bool)? onHeightOrDateEntered;
   final void Function(String)? onSeedChange;
@@ -78,7 +78,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   @override
   void initState() {
-    _setSeedType(widget.seedTypeViewModel.moneroSeedType);
+    _setSeedType(widget.seedSettingsViewModel.moneroSeedType);
     _setLanguageLabel(language);
 
     if (passwordTextEditingController != null) {
@@ -91,7 +91,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       repeatedPasswordTextEditingController?.addListener(repeatedPasswordListener!);
     }
     moneroSeedTypeReaction =
-        reaction((_) => widget.seedTypeViewModel.moneroSeedType, (SeedType item) {
+        reaction((_) => widget.seedSettingsViewModel.moneroSeedType, (SeedType item) {
       _setSeedType(item);
       _changeLanguage('English');
     });
@@ -262,7 +262,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   }
 
   bool get isPolyseed =>
-      widget.seedTypeViewModel.moneroSeedType == SeedType.polyseed &&
+      widget.seedSettingsViewModel.moneroSeedType == SeedType.polyseed &&
       (widget.type == WalletType.monero || widget.type == WalletType.wownero);
 
   Widget get expandIcon => Container(
@@ -296,7 +296,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   void _changeSeedType(SeedType item) {
     _setSeedType(item);
     _changeLanguage('English');
-    widget.seedTypeViewModel.setMoneroSeedType(item);
+    widget.seedSettingsViewModel.setMoneroSeedType(item);
   }
 
   void _setSeedType(SeedType item) {

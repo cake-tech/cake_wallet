@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "Ṣó dá ẹ lójú pé ẹ fẹ́ pa àpamọ́wọ́ ${wallet_name}?",
   "deleteConnectionConfirmationPrompt": "Ṣe o da ọ loju pe o fẹ paarẹ asopọ si",
   "denominations": "Awọn ede",
+  "derivationpath": "Ọna Deriji",
   "descending": "Sọkalẹ",
   "description": "Apejuwe",
   "destination_tag": "Orúkọ tí ìbí tó a ránṣẹ́ sí:",

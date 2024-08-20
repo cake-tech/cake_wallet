@@ -146,7 +146,7 @@ import 'package:cake_wallet/view_model/cake_pay/cake_pay_purchase_view_model.dar
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
-import 'package:cake_wallet/view_model/seed_type_view_model.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
@@ -361,6 +361,7 @@ Future<void> setup({
       getIt.get<WalletCreationService>(param1: type),
       _walletInfoSource,
       getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+      getIt.get<SeedSettingsViewModel>(),
       type: type));
 
   getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
@@ -833,7 +834,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory<SeedTypeViewModel>(() => SeedTypeViewModel(getIt.get<AppStore>()));
+  getIt.registerFactory<SeedSettingsViewModel>(() => SeedSettingsViewModel(getIt.get<AppStore>()));
 
   getIt.registerFactoryParam<WalletSeedPage, bool, void>((bool isWalletCreated, _) =>
       WalletSeedPage(getIt.get<WalletSeedViewModel>(), isNewWalletCreated: isWalletCreated));
@@ -1018,12 +1019,12 @@ Future<void> setup({
   getIt.registerFactory(() => FaqPage(getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, void>((type, _) =>
-      WalletRestoreViewModel(
-          getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
+      WalletRestoreViewModel(getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type),
+          _walletInfoSource, getIt.get<SeedSettingsViewModel>(),
           type: type));
 
   getIt.registerFactoryParam<WalletRestorePage, WalletType, void>((type, _) => WalletRestorePage(
-      getIt.get<WalletRestoreViewModel>(param1: type), getIt.get<SeedTypeViewModel>()));
+      getIt.get<WalletRestoreViewModel>(param1: type), getIt.get<SeedSettingsViewModel>()));
 
   getIt.registerFactoryParam<WalletRestoreChooseDerivationViewModel, List<DerivationInfo>, void>(
       (derivations, _) => WalletRestoreChooseDerivationViewModel(derivationInfos: derivations));
@@ -1275,7 +1276,7 @@ Future<void> setup({
 
   getIt.registerFactory(
       () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
-  
+
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 

@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "Сигурни ли сте, че искате да изтриете протфейла ${wallet_name}?",
   "deleteConnectionConfirmationPrompt": "Сигурни ли сте, че искате да изтриете връзката към",
   "denominations": "Деноминации",
+  "derivationpath": "Пътят на производно",
   "descending": "Низходящ",
   "description": "Описание",
   "destination_tag": "Destination tag:",

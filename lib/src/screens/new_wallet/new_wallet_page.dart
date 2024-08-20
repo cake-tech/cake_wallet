@@ -7,7 +7,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/seed_type_view_model.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -27,10 +27,10 @@ import 'package:cake_wallet/entities/seed_type.dart';
 
 
 class NewWalletPage extends BasePage {
-  NewWalletPage(this._walletNewVM, this._seedTypeViewModel);
+  NewWalletPage(this._walletNewVM, this._seedSettingsViewModel);
 
   final WalletNewVM _walletNewVM;
-  final SeedTypeViewModel _seedTypeViewModel;
+  final SeedSettingsViewModel _seedSettingsViewModel;
 
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
 
@@ -51,15 +51,15 @@ class NewWalletPage extends BasePage {
   Widget body(BuildContext context) => WalletNameForm(
       _walletNewVM,
       currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage,
-      _seedTypeViewModel);
+      _seedSettingsViewModel);
 }
 
 class WalletNameForm extends StatefulWidget {
-  WalletNameForm(this._walletNewVM, this.walletImage, this._seedTypeViewModel);
+  WalletNameForm(this._walletNewVM, this.walletImage, this._seedSettingsViewModel);
 
   final WalletNewVM _walletNewVM;
   final Image walletImage;
-  final SeedTypeViewModel _seedTypeViewModel;
+  final SeedSettingsViewModel _seedSettingsViewModel;
 
   @override
   _WalletNameFormState createState() => _WalletNameFormState(_walletNewVM);
@@ -285,7 +285,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                         builder: (BuildContext build) => Padding(
                           padding: EdgeInsets.only(top: 24),
                           child: SelectButton(
-                            text: widget._seedTypeViewModel.moneroSeedType.title,
+                            text: widget._seedSettingsViewModel.moneroSeedType.title,
                             onTap: () async {
                               await showPopUp<void>(
                                 context: context,
@@ -308,7 +308,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                           key: _languageSelectorKey,
                           initialSelected: defaultSeedLanguage,
                           seedType: _walletNewVM.hasSeedType
-                              ? widget._seedTypeViewModel.moneroSeedType
+                              ? widget._seedSettingsViewModel.moneroSeedType
                               : SeedType.legacy,
                         ),
                       ),
@@ -380,10 +380,10 @@ class _WalletNameFormState extends State<WalletNameForm> {
     _formProcessing = false;
   }
 
-  bool get isPolyseed => widget._seedTypeViewModel.moneroSeedType == SeedType.polyseed;
+  bool get isPolyseed => widget._seedSettingsViewModel.moneroSeedType == SeedType.polyseed;
 
   void _setSeedType(SeedType item) {
-    widget._seedTypeViewModel.setMoneroSeedType(item);
+    widget._seedSettingsViewModel.setMoneroSeedType(item);
     _languageSelectorKey.currentState?.selected = defaultSeedLanguage; // Reset Seed language
   }
 }

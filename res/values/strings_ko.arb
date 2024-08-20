@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "${wallet_name} 지갑을 삭제하시겠습니까?",
   "deleteConnectionConfirmationPrompt": "다음 연결을 삭제하시겠습니까?",
   "denominations": "교파",
+  "derivationpath": "파생 경로",
   "descending": "내림차순",
   "description": "설명",
   "destination_tag": "목적지 태그:",

@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "Ви впевнені, що хочете видалити гаманець ${wallet_name}?",
   "deleteConnectionConfirmationPrompt": "Ви впевнені, що хочете видалити з’єднання з",
   "denominations": "Конфесія",
+  "derivationpath": "Шлях виведення",
   "descending": "Низхідний",
   "description": "опис",
   "destination_tag": "Тег призначення:",

@@ -196,6 +196,7 @@
   "delete_wallet_confirm_message": "Sei sicuro di voler eliminare il portafoglio ${wallet_name}?",
   "deleteConnectionConfirmationPrompt": "Sei sicuro di voler eliminare la connessione a",
   "denominations": "Denominazioni",
+  "derivationpath": "Percorso di derivazione",
   "descending": "Discendente",
   "description": "Descrizione",
   "destination_tag": "Tag destinazione:",

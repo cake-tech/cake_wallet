@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "您确定要删除 ${wallet_name} 钱包吗？",
   "deleteConnectionConfirmationPrompt": "您确定要删除与",
   "denominations": "教派",
+  "derivationpath": "推导路径",
   "descending": "下降",
   "description": "描述",
   "destination_tag": "目标Tag:",

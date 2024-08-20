@@ -54,7 +54,6 @@ import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
-import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
@@ -73,7 +72,6 @@ import 'package:cake_wallet/src/screens/cake_pay/auth/cake_pay_account_page.dart
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
-import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
@@ -97,7 +95,6 @@ import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -106,7 +103,7 @@ import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
-import 'package:cake_wallet/view_model/seed_type_view_model.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
@@ -162,10 +159,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWallet:
       final type = settings.arguments as WalletType;
       final walletNewVM = getIt.get<WalletNewVM>(param1: type);
-      final seedTypeViewModel = getIt.get<SeedTypeViewModel>();
+      final seedSettingsViewModel = getIt.get<SeedSettingsViewModel>();
 
       return CupertinoPageRoute<void>(
-          builder: (_) => NewWalletPage(walletNewVM, seedTypeViewModel));
+          builder: (_) => NewWalletPage(walletNewVM, seedSettingsViewModel));
 
     case Routes.chooseHardwareWalletAccount:
       final arguments = settings.arguments as List<dynamic>;
@@ -606,7 +603,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 toggleTestnet,
                 getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
                 getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
-                getIt.get<SeedTypeViewModel>(),
+                getIt.get<SeedSettingsViewModel>(),
               ));
 
     case Routes.anonPayInvoicePage:

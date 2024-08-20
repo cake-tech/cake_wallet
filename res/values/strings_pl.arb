@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "Czy na pewno chcesz usunąć portfel ${wallet_name}?",
   "deleteConnectionConfirmationPrompt": "Czy na pewno chcesz usunąć połączenie z",
   "denominations": "Wyznaczenia",
+  "derivationpath": "Ścieżka pochodna",
   "descending": "Schodzenie",
   "description": "Opis",
   "destination_tag": "Tag docelowy:",

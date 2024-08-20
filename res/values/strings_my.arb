@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "${wallet_name} ပိုက်ဆံအိတ်ကို ဖျက်လိုသည်မှာ သေချာပါသလား။",
   "deleteConnectionConfirmationPrompt": "ချိတ်ဆက်မှုကို ဖျက်လိုသည်မှာ သေချာပါသလား။",
   "denominations": "ဂိုဏ်းချုပ်ပစ္စည်းများ",
+  "derivationpath": "derivation လမ်းကြောင်း",
   "descending": "ဆင်း",
   "description": "ဖော်ပြချက်",
   "destination_tag": "ခရီးဆုံးအမှတ်-",

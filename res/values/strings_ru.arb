@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "Вы уверены, что хотите удалить кошелек ${wallet_name}?",
   "deleteConnectionConfirmationPrompt": "Вы уверены, что хотите удалить подключение к",
   "denominations": "Деноминации",
+  "derivationpath": "Путь получения",
   "descending": "Нисходящий",
   "description": "Описание",
   "destination_tag": "Целевой тег:",

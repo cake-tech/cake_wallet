@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "Sind Sie sicher, dass Sie das ${wallet_name} Wallet löschen möchten?",
   "deleteConnectionConfirmationPrompt": "Sind Sie sicher, dass Sie die Verbindung zu löschen möchten?",
   "denominations": "Konfessionen",
+  "derivationpath": "Ableitungspfad",
   "descending": "Absteigend",
   "description": "Beschreibung",
   "destination_tag": "Ziel-Tag:",

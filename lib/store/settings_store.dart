@@ -1,45 +1,47 @@
 import 'dart:io';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
-import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
+import 'package:cake_wallet/entities/derivation_type_setting.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
-import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
-import 'package:cw_core/transaction_priority.dart';
+import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/package_info.dart';
+import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/set_app_secure_native.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/utils/package_info.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/entities/language_service.dart';
-import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cw_core/node.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/entities/action_list_display_mode.dart';
-import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cw_core/set_app_secure_native.dart';
 
 part 'settings_store.g.dart';
 
@@ -56,6 +58,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialSaveRecipientAddress,
       required AutoGenerateSubaddressStatus initialAutoGenerateSubaddressStatus,
       required SeedType initialMoneroSeedType,
+      required DerivationTypeSetting initialBitcoinDerivationType,
       required bool initialAppSecure,
       required bool initialDisableBuy,
       required bool initialDisableSell,
@@ -128,6 +131,7 @@ abstract class SettingsStoreBase with Store {
         shouldSaveRecipientAddress = initialSaveRecipientAddress,
         autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
         moneroSeedType = initialMoneroSeedType,
+        bitcoinDerivationType = initialBitcoinDerivationType,
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
@@ -331,6 +335,11 @@ abstract class SettingsStoreBase with Store {
         (_) => moneroSeedType,
         (SeedType moneroSeedType) =>
             sharedPreferences.setInt(PreferencesKey.moneroSeedType, moneroSeedType.raw));
+
+    reaction(
+        (_) => bitcoinDerivationType,
+        (DerivationTypeSetting bitcoinDerivationType) => sharedPreferences.setInt(
+            PreferencesKey.bitcoinDerivationType, bitcoinDerivationType.raw));
 
     reaction(
         (_) => fiatApiMode,
@@ -556,6 +565,7 @@ abstract class SettingsStoreBase with Store {
   static final walletPasswordDirectInput = Platform.isLinux;
   static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;
   static const defaultMoneroSeedType = SeedType.defaultSeedType;
+  static const defaultBitcoinDerivationType = DerivationTypeSetting.defaultDerivationType;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -586,6 +596,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   SeedType moneroSeedType;
+
+  @observable
+  DerivationTypeSetting bitcoinDerivationType;
 
   @observable
   bool isAppSecure;
@@ -948,6 +961,12 @@ abstract class SettingsStoreBase with Store {
         ? SeedType.deserialize(raw: _moneroSeedType)
         : defaultMoneroSeedType;
 
+    final _bitcoinDerivationType = sharedPreferences.getInt(PreferencesKey.bitcoinDerivationType);
+
+    final bitcoinDerivationType = _bitcoinDerivationType != null
+        ? DerivationTypeSetting.deserialize(raw: _bitcoinDerivationType)
+        : defaultBitcoinDerivationType;
+
     final nodes = <WalletType, Node>{};
     final powNodes = <WalletType, Node>{};
 
@@ -1111,6 +1130,7 @@ abstract class SettingsStoreBase with Store {
       initialSaveRecipientAddress: shouldSaveRecipientAddress,
       initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
       initialMoneroSeedType: moneroSeedType,
+      initialBitcoinDerivationType: bitcoinDerivationType,
       initialAppSecure: isAppSecure,
       initialDisableBuy: disableBuy,
       initialDisableSell: disableSell,
@@ -1235,6 +1255,12 @@ abstract class SettingsStoreBase with Store {
     moneroSeedType = _moneroSeedType != null
         ? SeedType.deserialize(raw: _moneroSeedType)
         : defaultMoneroSeedType;
+
+    final _bitcoinDerivationType = sharedPreferences.getInt(PreferencesKey.bitcoinDerivationType);
+
+    bitcoinDerivationType = _bitcoinDerivationType != null
+        ? DerivationTypeSetting.deserialize(raw: _bitcoinDerivationType)
+        : defaultBitcoinDerivationType;
 
     balanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
