@@ -133,6 +133,7 @@ abstract class ElectrumWalletBase
   final String? _mnemonic;
 
   Bip32Slip10Secp256k1 get hd => accountHD.childKey(Bip32KeyIndex(0));
+
   Bip32Slip10Secp256k1 get sideHd => accountHD.childKey(Bip32KeyIndex(1));
 
   final EncryptionFileUtils encryptionFileUtils;
@@ -1367,7 +1368,6 @@ abstract class ElectrumWalletBase
     _updateInputsAndOutputs(tx, bundle);
     if (bundle.confirmations > 0) return false;
     return bundle.originalTransaction.canReplaceByFee;
-
   }
 
   Future<bool> isChangeSufficientForFee(String txId, int newFee) async {
@@ -1461,51 +1461,20 @@ abstract class ElectrumWalletBase
         throw Exception("New fee must be higher than the current fee.");
       }
 
-      // Identify and deduct from change output if it exists
-      final changeAddresses = walletAddresses.allAddresses.where((element) => element.isHidden);
-      BitcoinOutput? changeOutput = outputs.firstWhereOrNull((output) =>
-          changeAddresses.any((element) => element.address == output.address.toAddress(network)));
-
-      bool isDeductedFromChange = false;
-
-      // Try to adjust the change output to cover the new fee
-      if (changeOutput != null) {
-        if (changeOutput.value.toInt() < _dustAmount) {
-          outputs.remove(changeOutput);
-        } else {
-          final newAmount = changeOutput.value.toInt() - remainingFee;
-
-          if (newAmount > 0) {
-            if (newAmount > _dustAmount) {
-              // The fee is fully covered, no need to adjust further
-              outputs.remove(changeOutput);
-              outputs
-                  .add(BitcoinOutput(address: changeOutput.address, value: BigInt.from(newAmount)));
-              remainingFee = 0;
-              isDeductedFromChange = true;
-            }
-          }
-        }
-      }
-
-
-      // Deduct Remaining Fee from Other Outputs (excluding change output)
+      // Deduct Remaining Fee from Main Outputs
       if (remainingFee > 0) {
-        for (int i = 0; i < outputs.length; i++) {
-          // Skip the change output since it has already been processed
-          if (outputs[i] == changeOutput) continue;
-
+        for (int i = outputs.length - 1; i >= 0; i--) {
           int outputAmount = outputs[i].value.toInt();
 
-          int newAmount = outputAmount - remainingFee;
+          if (outputAmount > _dustAmount) {
+            int deduction = (outputAmount - _dustAmount >= remainingFee)
+                ? remainingFee
+                : outputAmount - _dustAmount;
+            outputs[i] = BitcoinOutput(
+                address: outputs[i].address, value: BigInt.from(outputAmount - deduction));
+            remainingFee -= deduction;
 
-          if (newAmount >= 0) {
-            if (newAmount > _dustAmount) {
-              outputs[i] =
-                  BitcoinOutput(address: outputs[i].address, value: BigInt.from(newAmount));
-              remainingFee = 0;
-              break;
-            }
+            if (remainingFee <= 0) break;
           }
         }
       }
@@ -1515,14 +1484,18 @@ abstract class ElectrumWalletBase
         throw Exception("Not enough funds to cover the fee.");
       }
 
-      // Set totalOutAmount to the final amount that the receiver will receive
-      int sendingAmount;
+      // Identify all change outputs
+      final changeAddresses = walletAddresses.allAddresses.where((element) => element.isHidden);
+      final List<BitcoinOutput> changeOutputs = outputs
+          .where((output) => changeAddresses
+              .any((element) => element.address == output.address.toAddress(network)))
+          .toList();
 
-      if (isDeductedFromChange) {
-        sendingAmount = totalOutAmount - changeOutput!.value.toInt();
-      } else {
-        sendingAmount = allInputsAmount - newFee;
-      }
+      int totalChangeAmount =
+          changeOutputs.fold<int>(0, (sum, output) => sum + output.value.toInt());
+
+      // The final amount that the receiver will receive
+      int sendingAmount = allInputsAmount - newFee - totalChangeAmount;
 
       final txb = BitcoinTransactionBuilder(
         utxos: utxos,
@@ -1554,7 +1527,7 @@ abstract class ElectrumWalletBase
         amount: sendingAmount,
         fee: newFee,
         network: network,
-        hasChange: changeOutput != null,
+        hasChange: changeOutputs.isNotEmpty,
         feeRate: newFee.toString(),
       )..addListener((transaction) async {
           transactionHistory.addOne(transaction);
