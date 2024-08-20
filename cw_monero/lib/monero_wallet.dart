@@ -788,4 +788,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final useAddress = address ?? "";
     return monero_wallet.signMessage(message, address: useAddress);
   }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
+    if (address == null) return false;
+
+    return monero_wallet.verifyMessage(message, address, signature);
+  }
+
 }

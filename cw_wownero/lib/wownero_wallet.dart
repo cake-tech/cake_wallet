@@ -749,4 +749,11 @@ abstract class WowneroWalletBase
     final useAddress = address ?? "";
     return wownero_wallet.signMessage(message, address: useAddress);
   }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
+    if (address == null) return false;
+
+    return wownero_wallet.verifyMessage(message, address, signature);
+  }
 }
