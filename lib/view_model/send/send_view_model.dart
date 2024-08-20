@@ -440,10 +440,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       
       if (pendingTransaction!.shouldCommitUR()) {
         final urstr = await pendingTransaction!.commitUR();
-        await Navigator.of(context).push(MaterialPageRoute(builder:(context) {
+        final result = await Navigator.of(context).push(MaterialPageRoute(builder:(context) {
           return getIt.get<AnimatedURPage>(param1: urstr);
         },));
-        state = TransactionCommitted();
+        if (result == null) {
+          state = FailureState("Canceled by user");
+        } else {
+          state = TransactionCommitted();
+        }
         return;
       } else {
         await pendingTransaction!.commit();

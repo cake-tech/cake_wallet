@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/animated_ur_model.dart';
 import 'package:cake_wallet/view_model/dashboard/wallet_balance.dart';
@@ -53,25 +54,30 @@ class AnimatedURPage extends BasePage {
             frames: urQr.trim().split("\n"),
           ),
         ),
-        if (kDebugMode) Text(urQrType),
-        if (urQrType == "ur:xmr-output" && !isAll) Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: SizedBox(
-              width: double.maxFinite,
-              child: OutlinedButton(
-                onPressed: () => _exportAll(context),
-                child: Text("Export all"),
-              ),
-            ),
-          ),
+        SizedBox(height: 32),
         if (urQrType == "ur:xmr-txunsigned" || urQrType == "ur:xmr-output")
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SizedBox(
               width: double.maxFinite,
-              child: OutlinedButton(
+              child: PrimaryButton(
                 onPressed: () => _continue(context),
-                child: Text("Continue"),
+                text: "Continue",
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+              ),
+            ),
+          ),
+        SizedBox(height: 32),
+        if (urQrType == "ur:xmr-output" && !isAll) Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: SizedBox(
+              width: double.maxFinite,
+              child: PrimaryButton(
+                onPressed: () => _exportAll(context),
+                text: "Export all",
+                color: Theme.of(context).colorScheme.secondary,
+                textColor: Colors.white,
               ),
             ),
           ),
@@ -96,14 +102,14 @@ class AnimatedURPage extends BasePage {
         final ur = await presentQRScanner(context);
         final result = await monero!.commitTransactionUR(animatedURmodel.wallet, ur);
         if (result) {
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(true);
         }        
         break;
       case "ur:xmr-output": // xmr-keyimage
         final ur = await presentQRScanner(context);
         final result = await monero!.importKeyImagesUR(animatedURmodel.wallet, ur);
         if (result) {
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(true);
         }        
         break;
       default:
@@ -117,7 +123,7 @@ class AnimatedURPage extends BasePage {
             alertTitle: S.of(context).error,
             alertContent: e.toString(),
             buttonText: S.of(context).ok,
-            buttonAction: () => Navigator.pop(context));
+            buttonAction: () => Navigator.pop(context, true));
       });
     }
   }
