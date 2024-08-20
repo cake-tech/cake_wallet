@@ -104,7 +104,6 @@ abstract class MoneroSubaddressListBase with Store {
     required List<String> usedAddresses,
   }) async {
     _usedAddresses.addAll(usedAddresses);
-    print(usedAddresses);
     final _all = _usedAddresses.toSet().toList();
     _usedAddresses.clear();
     _usedAddresses.addAll(_all);
@@ -135,8 +134,6 @@ abstract class MoneroSubaddressListBase with Store {
         return await _getAllUnusedAddresses(accountIndex: accountIndex, label: label);
       }
     }
-
-    print(allAddresses);
 
     return allAddresses
         .map((s) {

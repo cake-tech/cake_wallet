@@ -43,7 +43,6 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
     final adds = _originalUsedAddresses.toList();
     for (var i = 0; i < txs.length; i++) {
       for (var j = 0; j < txs[i].addressList.length; j++) {
-        print(txs[i].addressList[j]);
         adds.add(txs[i].addressList[j]);
       }
     }
