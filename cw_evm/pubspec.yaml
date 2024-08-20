@@ -13,6 +13,8 @@ dependencies:
   flutter:
     sdk: flutter
   web3dart: ^2.7.1
+  eth_sig_util: ^0.0.9
+  erc20: ^1.0.1
   bip39: ^1.0.6
   bip32: ^2.0.0
   hex: ^0.2.0
