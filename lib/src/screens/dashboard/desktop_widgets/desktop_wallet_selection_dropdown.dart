@@ -1,5 +1,4 @@
 import 'package:another_flushbar/flushbar.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -8,8 +7,9 @@ import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -122,9 +122,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   void _onSelectedWallet(WalletListItem selectedWallet) async {
-    if (selectedWallet.isCurrent || !selectedWallet.isEnabled) {
-      return;
-    }
+    if (selectedWallet.isCurrent || !selectedWallet.isEnabled) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final confirmed = await showPopUp<bool>(
@@ -149,9 +147,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   Image _imageFor({required WalletType type, bool? isTestnet}) {
     switch (type) {
       case WalletType.bitcoin:
-        if (isTestnet == true) {
-          return tBitcoinIcon;
-        }
+        if (isTestnet == true) return tBitcoinIcon;
         return bitcoinIcon;
       case WalletType.monero:
         return moneroIcon;
@@ -173,6 +169,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return solanaIcon;
       case WalletType.tron:
         return tronIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
       default:
         return nonWalletTypeIcon;
     }
@@ -180,24 +178,23 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
 
   Future<void> _loadWallet(WalletListItem wallet) async {
     if (SettingsStoreBase.walletPasswordDirectInput) {
-      Navigator.of(context).pushNamed(
-          Routes.walletUnlockLoadable,
+      Navigator.of(context).pushNamed(Routes.walletUnlockLoadable,
           arguments: WalletUnlockArguments(
               callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
                 if (isAuthenticatedSuccessfully) {
                   auth.close();
                   setState(() {});
                 }
-              }, walletName: wallet.name,
+              },
+              walletName: wallet.name,
               walletType: wallet.type));
       return;
     }
 
-    widget._authService.authenticateAction(context,
-        onAuthSuccess: (isAuthenticatedSuccessfully) async {
-      if (!isAuthenticatedSuccessfully) {
-        return;
-      }
+    widget._authService.authenticateAction(
+      context,
+      onAuthSuccess: (isAuthenticatedSuccessfully) async {
+        if (!isAuthenticatedSuccessfully) return;
 
         try {
           if (mounted) {
