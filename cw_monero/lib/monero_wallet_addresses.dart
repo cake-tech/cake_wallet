@@ -3,6 +3,7 @@ import 'package:cw_core/address_info.dart';
 import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/monero_account_list.dart';
 import 'package:cw_monero/monero_subaddress_list.dart';
@@ -36,6 +37,26 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   MoneroSubaddressList subaddressList;
 
   MoneroAccountList accountList;
+
+  @override
+  Set<String> get usedAddresses {
+    final txs = getAllTransactions();
+    final adds = _originalUsedAddresses.toList();
+    for (var i = 0; i < txs.length; i++) {
+      for (var j = 0; j < txs[i].addressList.length; j++) {
+        print(txs[i].addressList[j]);
+        adds.add(txs[i].addressList[j]);
+      }
+    }
+    return adds.toSet();
+  }
+
+  Set<String> _originalUsedAddresses = Set();
+
+  @override
+  set usedAddresses(Set<String> _usedAddresses) {
+    _originalUsedAddresses = _usedAddresses;
+  }
 
   @override
   Future<void> init() async {

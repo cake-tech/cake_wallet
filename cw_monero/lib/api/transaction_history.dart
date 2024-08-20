@@ -46,6 +46,7 @@ List<Transaction> getAllTransactions() {
             blockheight: 0,
             accountIndex: i,
             addressIndex: 0,
+            addressIndexList: [0],
             paymentId: "",
             amount: fullBalance - availBalance,
             isSpend: false,
@@ -256,6 +257,12 @@ class Transaction {
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
+  List<String> get addressList => List.generate(addressIndexList.length, (index) =>
+    monero.Wallet_address(
+      wptr!,
+      accountIndex: accountIndex,
+      addressIndex: addressIndexList[index],
+    ));
   final String description;
   final int fee;
   final int confirmations;
@@ -263,6 +270,7 @@ class Transaction {
   final int blockheight;
   final int addressIndex;
   final int accountIndex;
+  final List<int> addressIndexList;
   final String paymentId;
   final int amount;
   final bool isSpend;
@@ -309,6 +317,7 @@ class Transaction {
         paymentId = monero.TransactionInfo_paymentId(txInfo),
         accountIndex = monero.TransactionInfo_subaddrAccount(txInfo),
         addressIndex = int.tryParse(monero.TransactionInfo_subaddrIndex(txInfo).split(", ")[0]) ?? 0,
+        addressIndexList = monero.TransactionInfo_subaddrIndex(txInfo).split(", ").map((e) => int.tryParse(e) ?? 0).toList(),
         blockheight = monero.TransactionInfo_blockHeight(txInfo),
         confirmations = monero.TransactionInfo_confirmations(txInfo),
         fee = monero.TransactionInfo_fee(txInfo),
@@ -322,6 +331,7 @@ class Transaction {
     required this.confirmations,
     required this.blockheight,
     required this.accountIndex,
+    required this.addressIndexList,
     required this.addressIndex,
     required this.paymentId,
     required this.amount,

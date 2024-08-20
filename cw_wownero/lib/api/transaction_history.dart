@@ -46,6 +46,7 @@ List<Transaction> getAllTransactions() {
             blockheight: 0,
             accountIndex: i,
             addressIndex: 0,
+            addressIndexList: [0],
             paymentId: "",
             amount: fullBalance - availBalance,
             isSpend: false,
@@ -250,6 +251,12 @@ class Transaction {
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
+  List<String> get addressList => List.generate(addressIndexList.length, (index) =>
+    wownero.Wallet_address(
+      wptr!,
+      accountIndex: accountIndex,
+      addressIndex: addressIndexList[index],
+    ));
   final String description;
   final int fee;
   final int confirmations;
@@ -257,6 +264,7 @@ class Transaction {
   final int blockheight;
   final int addressIndex;
   final int accountIndex;
+  final List<int> addressIndexList;
   final String paymentId;
   final int amount;
   final bool isSpend;
@@ -303,6 +311,7 @@ class Transaction {
         paymentId = wownero.TransactionInfo_paymentId(txInfo),
         accountIndex = wownero.TransactionInfo_subaddrAccount(txInfo),
         addressIndex = int.tryParse(wownero.TransactionInfo_subaddrIndex(txInfo).split(", ")[0]) ?? 0,
+        addressIndexList = wownero.TransactionInfo_subaddrIndex(txInfo).split(", ").map((e) => int.tryParse(e) ?? 0).toList(),
         blockheight = wownero.TransactionInfo_blockHeight(txInfo),
         confirmations = wownero.TransactionInfo_confirmations(txInfo),
         fee = wownero.TransactionInfo_fee(txInfo),
@@ -317,6 +326,7 @@ class Transaction {
     required this.blockheight,
     required this.accountIndex,
     required this.addressIndex,
+    required this.addressIndexList,
     required this.paymentId,
     required this.amount,
     required this.isSpend,
