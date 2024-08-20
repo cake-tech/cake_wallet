@@ -102,7 +102,7 @@ dependencies:
       url: https://github.com/cake-tech/bitcoin_base
       ref: cake-update-v4
   ledger_flutter: ^1.0.1
-  hashlib: 1.12.0
+  hashlib: ^1.19.2
   ldk_node: ^0.3.0
 
 dev_dependencies:
