@@ -52,7 +52,7 @@ class SettingActions {
 
   static SettingActions exportOutputsAction = SettingActions._(
     name: (context) => "Export outputs",
-    image: 'assets/images/bitcoin_menu.png',
+    image: 'assets/images/monero_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
       Navigator.of(context).push(MaterialPageRoute(builder:(context) {

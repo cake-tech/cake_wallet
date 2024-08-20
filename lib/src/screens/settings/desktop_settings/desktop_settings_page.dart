@@ -61,7 +61,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                           return Container();
                         }
 
-                        if (widget.dashboardViewModel.wallet.type != WalletType.monero &&
+                        if (!widget.dashboardViewModel.isMoneroViewOnly &&
                             item.name(context) == "Export outputs") {
                           return Container();
                         }

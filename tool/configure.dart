@@ -363,7 +363,7 @@ abstract class Monero {
 
   Future<bool> commitTransactionUR(Object wallet, String ur);
 
-  String exportOutputsUR(Object wallet);
+  String exportOutputsUR(Object wallet, bool all);
 
   bool importKeyImagesUR(Object wallet, String ur);
 
@@ -386,6 +386,7 @@ abstract class Monero {
   int formatterMoneroParseAmount({required String amount});
   Account getCurrentAccount(Object wallet);
   void monerocCheck();
+  bool isViewOnly();
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);

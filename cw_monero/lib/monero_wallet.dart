@@ -246,12 +246,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return bool;
   }
 
-  String exportOutputsUR() {
-    final str = monero.Wallet_exportOutputsUR(wptr!);
+  String exportOutputsUR(bool all) {
+    final str = monero.Wallet_exportOutputsUR(wptr!, all: all);
     final status = monero.Wallet_status(wptr!);
     if (status != 0) {
       final err = monero.Wallet_errorString(wptr!);
-      throw MoneroTransactionCreationException("unable to broadcast signed transaction: $err");
+      throw MoneroTransactionCreationException("unable to export UR: $err");
     }
     return str;
   }

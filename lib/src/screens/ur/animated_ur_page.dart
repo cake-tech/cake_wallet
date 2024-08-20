@@ -22,9 +22,12 @@ import 'package:flutter/material.dart';
 //     should show a scanner afterwards.
 
 class AnimatedURPage extends BasePage {
-  AnimatedURPage(this.animatedURmodel, {required String urQr}) {
+  final bool isAll;
+  AnimatedURPage(this.animatedURmodel, {required String urQr, this.isAll = false}) {
     if (urQr == "export-outputs") {
-      this.urQr = monero!.exportOutputsUR(animatedURmodel.wallet);
+      this.urQr = monero!.exportOutputsUR(animatedURmodel.wallet, false);
+    } else if (urQr == "export-outputs-all") {
+      this.urQr = monero!.exportOutputsUR(animatedURmodel.wallet, true);
     } else {
       this.urQr = urQr;
     }
@@ -50,7 +53,17 @@ class AnimatedURPage extends BasePage {
             frames: urQr.trim().split("\n"),
           ),
         ),
-        Text(urQrType),
+        if (kDebugMode) Text(urQrType),
+        if (urQrType == "ur:xmr-output" && !isAll) Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: SizedBox(
+              width: double.maxFinite,
+              child: OutlinedButton(
+                onPressed: () => _exportAll(context),
+                child: Text("Export all"),
+              ),
+            ),
+          ),
         if (urQrType == "ur:xmr-txunsigned" || urQrType == "ur:xmr-output")
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -63,6 +76,16 @@ class AnimatedURPage extends BasePage {
             ),
           ),
       ],
+    );
+  }
+
+  void _exportAll(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) {
+          return AnimatedURPage(animatedURmodel, urQr: "export-outputs-all", isAll: true);
+        },
+      ),
     );
   }
 

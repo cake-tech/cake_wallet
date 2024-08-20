@@ -361,13 +361,17 @@ class CWMonero extends Monero {
   }
 
   @override
-  String exportOutputsUR(Object wallet) {
+  String exportOutputsUR(Object wallet, bool all) {
     final moneroWallet = wallet as MoneroWallet;
-    return moneroWallet.exportOutputsUR();
+    return moneroWallet.exportOutputsUR(all);
   }
 
   @override
   void monerocCheck() {
     checkIfMoneroCIsFine();
+  }
+
+  bool isViewOnly() {
+    return isViewOnlyBySpendKey();
   }
 }

@@ -399,3 +399,5 @@ Future<void> restoreFromSpendKey(
     });
 
 bool isWalletExist({required String path}) => _isWalletExist(path);
+
+bool isViewOnlyBySpendKey() => int.tryParse(monero.Wallet_secretSpendKey(wptr!)) == 0;
