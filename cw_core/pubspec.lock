@@ -85,10 +85,10 @@ packages:
     dependency: "direct dev"
     description:
       name: build_runner
-      sha256: "581bacf68f89ec8792f5e5a0b2c4decd1c948e97ce659dc783688c8a88fbec21"
+      sha256: dd09dd4e2b078992f42aac7f1a622f01882a8492fef08486b27ddde929c19f04
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.8"
+    version: "2.4.12"
   build_runner_core:
     dependency: transitive
     description:
@@ -264,10 +264,10 @@ packages:
     dependency: transitive
     description:
       name: frontend_server_client
-      sha256: "408e3ca148b31c20282ad6f37ebfa6f4bdc8fede5b74bc2f08d9d92b55db3612"
+      sha256: f64a0333a82f30b0cca061bc3d143813a486dc086b574bfb233b7c1372427694
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.0"
+    version: "4.0.0"
   glob:
     dependency: transitive
     description:
@@ -432,10 +432,10 @@ packages:
     dependency: "direct dev"
     description:
       name: mobx_codegen
-      sha256: b26c7f9c20b38f0ea572c1ed3f29d8e027cb265538bbd1aed3ec198642cfca42
+      sha256: "8e0d8653a0c720ad933cd8358f6f89f740ce89203657c13f25bea772ef1fff7c"
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.0+1"
+    version: "2.6.1"
   nested:
     dependency: transitive
     description:
@@ -754,5 +754,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.3.0 <4.0.0"
+  dart: ">=3.5.0-259.0.dev <4.0.0"
   flutter: ">=3.18.0-18.0.pre.54"
