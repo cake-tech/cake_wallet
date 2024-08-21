@@ -1005,7 +1005,7 @@ abstract class ElectrumWalletBase
         if (estimatedTx.inputPrivKeyInfos.isEmpty) {
           error += "\nNo private keys generated.";
         } else {
-          error += "\nAddress: ${utxo.ownerDetails.address.toAddress()}";
+          error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
 
           key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
             final elemPubkey = element.privkey.getPublic().toHex();
