@@ -22,6 +22,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 
@@ -460,6 +461,30 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         }
         return false;
       }));
+    }
+
+    if (!kDebugMode) {
+      addressList.removeWhere((element) {
+        if (!(element is WalletAddressListItem)) return false;
+        return wallet.walletAddresses.hiddenAddresses.contains(element.address);
+      });
+    } else {
+      for (var i = 0; i < addressList.length; i++) {
+        if (!(addressList[i] is WalletAddressListItem)) continue;
+        (addressList[i] as WalletAddressListItem).isHidden = wallet.walletAddresses.hiddenAddresses.contains((addressList[i] as WalletAddressListItem).address);
+      }
+    }
+
+    if (!kDebugMode) {
+      addressList.removeWhere((element) {
+        if (!(element is WalletAddressListItem)) return false;
+        return wallet.walletAddresses.manualAddresses.contains(element.address);
+      });
+    } else {
+      for (var i = 0; i < addressList.length; i++) {
+        if (!(addressList[i] is WalletAddressListItem)) continue;
+        (addressList[i] as WalletAddressListItem).isManual = wallet.walletAddresses.manualAddresses.contains((addressList[i] as WalletAddressListItem).address);
+      }
     }
 
     return addressList;

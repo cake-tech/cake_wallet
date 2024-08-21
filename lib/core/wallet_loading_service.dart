@@ -57,7 +57,7 @@ class WalletLoadingService {
       ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
 
       // try fetching the seeds of the corrupted wallet to show it to the user
-      String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
+      String corruptedWalletsSeeds = "$error, $stack\nCorrupted wallets seeds (if retrievable, empty otherwise):";
       try {
         corruptedWalletsSeeds += await _getCorruptedWalletSeeds(name, type);
       } catch (e) {

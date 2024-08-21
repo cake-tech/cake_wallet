@@ -90,7 +90,10 @@ class AddressList extends StatelessWidget {
                 item,
                 isCurrent: isCurrent,
                 hasBalance: addressListViewModel.isElectrumWallet,
-                backgroundColor: backgroundColor,
+                backgroundColor: item.isHidden ?
+                  Theme.of(context).colorScheme.error :
+                  item.isManual ? Theme.of(context).colorScheme.error.withBlue(255) :
+                  backgroundColor,
                 textColor: textColor,
                 onTap: (_) {
                   if (onSelect != null) {

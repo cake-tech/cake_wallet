@@ -536,6 +536,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           isFixedRate: isFixedRateMode,
         );
 
+        wallet.walletAddresses.hiddenAddresses.add(depositAddress);
+        await wallet.walletAddresses.saveAddressesInBox();
+
         var amount = isFixedRateMode ? receiveAmount : depositAmount;
         amount = amount.replaceAll(',', '.');
 

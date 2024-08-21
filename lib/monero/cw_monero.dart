@@ -91,7 +91,7 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
   Future<void> addSubaddress(Object wallet,
       {required int accountIndex, required String label}) async {
     final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.walletAddresses.subaddressList
+    return await moneroWallet.walletAddresses.subaddressList
         .addSubaddress(accountIndex: accountIndex, label: label);
   }
 
