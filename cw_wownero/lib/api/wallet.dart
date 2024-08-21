@@ -34,13 +34,8 @@ String getSeed() {
   // wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   final cakepolyseed =
       wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
-  final cakepassphrase = getPassphrase();
   if (cakepolyseed != "") {
     return cakepolyseed;
-  }
-  final polyseed = wownero.Wallet_getPolyseed(wptr!, passphrase: cakepassphrase);
-  if (polyseed != "") {
-    return polyseed;
   }
   final legacy = getSeedLegacy(null);
   return legacy;

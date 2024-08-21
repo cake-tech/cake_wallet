@@ -32,13 +32,8 @@ String getSeed() {
   // monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   final cakepolyseed =
       monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
-  final cakepassphrase = getPassphrase();
   if (cakepolyseed != "") {
     return cakepolyseed;
-  }
-  final polyseed = monero.Wallet_getPolyseed(wptr!, passphrase: cakepassphrase);
-  if (polyseed != "") {
-    return polyseed;
   }
   final legacy = getSeedLegacy("English");
   return legacy;
