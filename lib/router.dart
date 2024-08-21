@@ -1,4 +1,4 @@
-import 'package:breez_sdk/bridge_generated.dart';
+// import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -728,6 +728,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.signPage:
       return MaterialPageRoute<void>(
+        builder: (_) => SignPage(
           getIt.get<SignViewModel>(),
         ),
       );

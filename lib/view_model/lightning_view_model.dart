@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:breez_sdk/breez_sdk.dart';
-import 'package:breez_sdk/bridge_generated.dart' as BZG;
+// import 'package:breez_sdk/breez_sdk.dart';
+// import 'package:breez_sdk/bridge_generated.dart' as BZG;
 import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:mobx/mobx.dart';
 
@@ -10,46 +10,47 @@ class LightningViewModel = LightningViewModelBase with _$LightningViewModel;
 
 abstract class LightningViewModelBase with Store {
   LightningViewModelBase() {
-    _sdk = BreezSDK();
+    // _sdk = BreezSDK();
   }
 
-  late final BreezSDK _sdk;
+  // late final BreezSDK _sdk;
 
-  Future<ReceiveOnchainResult> receiveOnchain() async {
-    BZG.ReceiveOnchainRequest req = const BZG.ReceiveOnchainRequest();
-    BZG.SwapInfo swapInfo = await _sdk.receiveOnchain(req: req);
-    print("Minimum amount allowed to deposit in sats: ${swapInfo.minAllowedDeposit}");
-    print("Maximum amount allowed to deposit in sats: ${swapInfo.maxAllowedDeposit}");
+  // Future<ReceiveOnchainResult> receiveOnchain() async {
+  //   BZG.ReceiveOnchainRequest req = const BZG.ReceiveOnchainRequest();
+  //   BZG.SwapInfo swapInfo = await _sdk.receiveOnchain(req: req);
+  //   print("Minimum amount allowed to deposit in sats: ${swapInfo.minAllowedDeposit}");
+  //   print("Maximum amount allowed to deposit in sats: ${swapInfo.maxAllowedDeposit}");
 
-    int fee = 0;
-    double feePercent = 0;
+  //   int fee = 0;
+  //   double feePercent = 0;
 
-    try {
-      final nodeState = (await _sdk.nodeInfo())!;
-      int inboundLiquidity = nodeState.inboundLiquidityMsats ~/ 1000;
-      final openingFees = await _sdk.openChannelFee(
-          req: BZG.OpenChannelFeeRequest(amountMsat: inboundLiquidity + 1));
-      feePercent = (openingFees.feeParams.proportional * 100) / 1000000;
-      fee = openingFees.feeParams.minMsat ~/ 1000;
-    } catch (_) {}
+  //   try {
+  //     final nodeState = (await _sdk.nodeInfo())!;
+  //     int inboundLiquidity = nodeState.inboundLiquidityMsats ~/ 1000;
+  //     final openingFees = await _sdk.openChannelFee(
+  //         req: BZG.OpenChannelFeeRequest(amountMsat: inboundLiquidity + 1));
+  //     feePercent = (openingFees.feeParams.proportional * 100) / 1000000;
+  //     fee = openingFees.feeParams.minMsat ~/ 1000;
+  //   } catch (_) {}
 
-    return ReceiveOnchainResult(
-      bitcoinAddress: swapInfo.bitcoinAddress,
-      minAllowedDeposit: swapInfo.minAllowedDeposit,
-      maxAllowedDeposit: swapInfo.maxAllowedDeposit,
-      feePercent: feePercent,
-      fee: fee,
-    );
-  }
+  //   return ReceiveOnchainResult(
+  //     bitcoinAddress: swapInfo.bitcoinAddress,
+  //     minAllowedDeposit: swapInfo.minAllowedDeposit,
+  //     maxAllowedDeposit: swapInfo.maxAllowedDeposit,
+  //     feePercent: feePercent,
+  //     fee: fee,
+  //   );
+  // }
 
   Future<String> createInvoice({required String amountSats, String? description}) async {
-    final req = BZG.ReceivePaymentRequest(
-      amountMsat: (double.parse(amountSats) * 1000).round(),
-      description: description ?? '',
-    );
-    final res = await _sdk.receivePayment(req: req);
+    // final req = BZG.ReceivePaymentRequest(
+    //   amountMsat: (double.parse(amountSats) * 1000).round(),
+    //   description: description ?? '',
+    // );
+    // final res = await _sdk.receivePayment(req: req);
 
-    return res.lnInvoice.bolt11;
+    // return res.lnInvoice.bolt11;
+    return "";
   }
 
   Future<InvoiceSoftLimitsResult> invoiceSoftLimitsSats() async {
@@ -58,19 +59,19 @@ abstract class LightningViewModelBase with Store {
     int inboundLiquidity = 1000000000 * 1000 * 10; // 10 BTC
     int balance = 0;
 
-    try {
-      final nodeState = (await _sdk.nodeInfo())!;
-      inboundLiquidity = nodeState.inboundLiquidityMsats ~/ 1000;
+    // try {
+    //   final nodeState = (await _sdk.nodeInfo())!;
+    //   inboundLiquidity = nodeState.inboundLiquidityMsats ~/ 1000;
 
-      final openingFees = await _sdk.openChannelFee(
-          req: BZG.OpenChannelFeeRequest(amountMsat: inboundLiquidity + 1));
+    //   final openingFees = await _sdk.openChannelFee(
+    //       req: BZG.OpenChannelFeeRequest(amountMsat: inboundLiquidity + 1));
 
-      feePercent = (openingFees.feeParams.proportional * 100) / 1000000;
-      minFee = openingFees.feeParams.minMsat ~/ 1000;
-      balance = nodeState.channelsBalanceMsat ~/ 1000;
-    } catch (_) {
-      minFee = 0;
-    }
+    //   feePercent = (openingFees.feeParams.proportional * 100) / 1000000;
+    //   minFee = openingFees.feeParams.minMsat ~/ 1000;
+    //   balance = nodeState.channelsBalanceMsat ~/ 1000;
+    // } catch (_) {
+    //   minFee = 0;
+    // }
 
     return InvoiceSoftLimitsResult(
       minFee: minFee,
@@ -81,23 +82,24 @@ abstract class LightningViewModelBase with Store {
   }
 
   Future<int> getBalanceSats() async {
-    try {
-      final nodeState = (await _sdk.nodeInfo())!;
-      return nodeState.channelsBalanceMsat ~/ 1000;
-    } catch (_) {
-      return 0;
-    }
+    // try {
+    //   final nodeState = (await _sdk.nodeInfo())!;
+    //   return nodeState.channelsBalanceMsat ~/ 1000;
+    // } catch (_) {
+    //   return 0;
+    // }
+    return 0;
   }
 
-  Future<BZG.HealthCheckStatus> serviceHealthCheck() async {
-    try {
-      BZG.ServiceHealthCheckResponse response =
-          await _sdk.serviceHealthCheck(apiKey: lightning!.getBreezApiKey());
-      return response.status;
-    } catch (_) {
-      return BZG.HealthCheckStatus.ServiceDisruption;
-    }
-  }
+  // Future<BZG.HealthCheckStatus> serviceHealthCheck() async {
+  //   try {
+  //     BZG.ServiceHealthCheckResponse response =
+  //         await _sdk.serviceHealthCheck(apiKey: lightning!.getBreezApiKey());
+  //     return response.status;
+  //   } catch (_) {
+  //     return BZG.HealthCheckStatus.ServiceDisruption;
+  //   }
+  // }
 }
 
 class ReceiveOnchainResult {

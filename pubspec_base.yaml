@@ -104,10 +104,10 @@ dependencies:
   ledger_flutter: ^1.0.1
   hashlib: ^1.19.2
 
-  breez_sdk:
-    git:
-      url: https://github.com/breez/breez-sdk-flutter.git
-      ref: v0.5.2
+  # breez_sdk:
+  #   git:
+  #     url: https://github.com/breez/breez-sdk-flutter.git
+  #     ref: v0.5.2
 
 
 dev_dependencies:

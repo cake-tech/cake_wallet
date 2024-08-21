@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:breez_sdk/bridge_generated.dart';
+// import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';

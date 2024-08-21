@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:breez_sdk/breez_sdk.dart';
-import 'package:breez_sdk/bridge_generated.dart' as BZG;
-import 'package:breez_sdk/sdk.dart';
+// import 'package:breez_sdk/breez_sdk.dart';
+// import 'package:breez_sdk/bridge_generated.dart' as BZG;
+// import 'package:breez_sdk/sdk.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -30,7 +30,7 @@ abstract class LightningSendViewModelBase with Store {
     required this.settingsStore,
     required this.fiatConversionStore,
   }) {
-    _sdk = BreezSDK();
+    // _sdk = BreezSDK();
   }
 
   final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
@@ -46,11 +46,11 @@ abstract class LightningSendViewModelBase with Store {
 
   @action
   Future<void> fetchLimits() async {
-    BZG.OnchainPaymentLimitsResponse currentLimits = await _sdk.onchainPaymentLimits();
-    print("Minimum amount, in sats: ${currentLimits.minSat}");
-    print("Maximum amount, in sats: ${currentLimits.maxSat}");
-    minSats = currentLimits.minSat;
-    maxSats = currentLimits.maxSat;
+    // BZG.OnchainPaymentLimitsResponse currentLimits = await _sdk.onchainPaymentLimits();
+    // print("Minimum amount, in sats: ${currentLimits.minSat}");
+    // print("Maximum amount, in sats: ${currentLimits.maxSat}");
+    // minSats = currentLimits.minSat;
+    // maxSats = currentLimits.maxSat;
   }
 
   @action
@@ -70,8 +70,8 @@ abstract class LightningSendViewModelBase with Store {
   @observable
   String btcAddress = "";
 
-  @observable
-  LNInvoice? invoice;
+  // @observable
+  // LNInvoice? invoice;
 
   @action
   void setLoading(bool value) {
@@ -165,73 +165,73 @@ abstract class LightningSendViewModelBase with Store {
     return amount;
   }
 
-  @action
-  Future<void> sendInvoice(BZG.LNInvoice invoice, int satAmount) async {
-    try {
-      setLoading(true);
-      late BZG.SendPaymentRequest req;
+  // @action
+  // Future<void> sendInvoice(BZG.LNInvoice invoice, int satAmount) async {
+  //   try {
+  //     setLoading(true);
+  //     late BZG.SendPaymentRequest req;
 
-      if (invoice.amountMsat == null) {
-        req = BZG.SendPaymentRequest(
-          bolt11: invoice.bolt11,
-          amountMsat: satAmount * 1000,
-        );
-      } else {
-        req = BZG.SendPaymentRequest(bolt11: invoice.bolt11);
-      }
+  //     if (invoice.amountMsat == null) {
+  //       req = BZG.SendPaymentRequest(
+  //         bolt11: invoice.bolt11,
+  //         amountMsat: satAmount * 1000,
+  //       );
+  //     } else {
+  //       req = BZG.SendPaymentRequest(bolt11: invoice.bolt11);
+  //     }
 
-      final response = await _sdk.sendPayment(req: req);
-      if (response.payment.error != null) {
-        throw Exception(response.payment.error);
-      }
+  //     final response = await _sdk.sendPayment(req: req);
+  //     if (response.payment.error != null) {
+  //       throw Exception(response.payment.error);
+  //     }
 
-      if (response.payment.status == BZG.PaymentStatus.Failed) {
-        throw Exception("Payment failed");
-      }
+  //     if (response.payment.status == BZG.PaymentStatus.Failed) {
+  //       throw Exception("Payment failed");
+  //     }
 
-      setLoading(false);
-    } catch (e) {
-      setLoading(false);
-      rethrow;
-    }
-  }
+  //     setLoading(false);
+  //   } catch (e) {
+  //     setLoading(false);
+  //     rethrow;
+  //   }
+  // }
 
   @action
   Future<void> sendBtc(String address, int satAmount) async {
-    try {
-      setLoading(true);
+    // try {
+    //   setLoading(true);
 
-      if (satAmount < minSats || (satAmount > maxSats && maxSats != 0)) {
-        throw Exception("Amount is outside of liquidity limits!");
-      }
+    //   if (satAmount < minSats || (satAmount > maxSats && maxSats != 0)) {
+    //     throw Exception("Amount is outside of liquidity limits!");
+    //   }
 
-      BZG.PrepareOnchainPaymentResponse prepareRes = await _sdk.prepareOnchainPayment(
-        req: BZG.PrepareOnchainPaymentRequest(
-          amountSat: satAmount,
-          amountType: BZG.SwapAmountType.Send,
-          claimTxFeerate: feeRate,
-        ),
-      );
+    //   BZG.PrepareOnchainPaymentResponse prepareRes = await _sdk.prepareOnchainPayment(
+    //     req: BZG.PrepareOnchainPaymentRequest(
+    //       amountSat: satAmount,
+    //       amountType: BZG.SwapAmountType.Send,
+    //       claimTxFeerate: feeRate,
+    //     ),
+    //   );
 
-      print("Sender amount: ${prepareRes.senderAmountSat} sats");
-      print("Recipient amount: ${prepareRes.recipientAmountSat} sats");
-      print("Total fees: ${prepareRes.totalFees} sats");
+    //   print("Sender amount: ${prepareRes.senderAmountSat} sats");
+    //   print("Recipient amount: ${prepareRes.recipientAmountSat} sats");
+    //   print("Total fees: ${prepareRes.totalFees} sats");
 
-      BZG.PayOnchainRequest req = BZG.PayOnchainRequest(
-        recipientAddress: address,
-        prepareRes: prepareRes,
-      );
-      BZG.PayOnchainResponse res = await _sdk.payOnchain(req: req);
+    //   BZG.PayOnchainRequest req = BZG.PayOnchainRequest(
+    //     recipientAddress: address,
+    //     prepareRes: prepareRes,
+    //   );
+    //   BZG.PayOnchainResponse res = await _sdk.payOnchain(req: req);
 
-      if (res.reverseSwapInfo.status == BZG.ReverseSwapStatus.Cancelled) {
-        throw Exception("Payment cancelled / error");
-      }
+    //   if (res.reverseSwapInfo.status == BZG.ReverseSwapStatus.Cancelled) {
+    //     throw Exception("Payment cancelled / error");
+    //   }
 
-      setLoading(false);
-    } catch (e) {
-      setLoading(false);
-      rethrow;
-    }
+    //   setLoading(false);
+    // } catch (e) {
+    //   setLoading(false);
+    //   rethrow;
+    // }
   }
 
   int get feeRate {
@@ -247,83 +247,84 @@ abstract class LightningSendViewModelBase with Store {
 
   @action
   Future<void> prepareRefundBtc(String address) async {
-    BZG.PrepareRedeemOnchainFundsRequest req = BZG.PrepareRedeemOnchainFundsRequest(
-      toAddress: address,
-      satPerVbyte: feeRate,
-    );
-    final res = await _sdk.prepareRedeemOnchainFunds(req: req);
-    estimatedFeeSats = res.txFeeSat;
+    // BZG.PrepareRedeemOnchainFundsRequest req = BZG.PrepareRedeemOnchainFundsRequest(
+    //   toAddress: address,
+    //   satPerVbyte: feeRate,
+    // );
+    // final res = await _sdk.prepareRedeemOnchainFunds(req: req);
+    // estimatedFeeSats = res.txFeeSat;
   }
 
   @action
   Future<void> refundBtc(String address) async {
-    try {
-      setLoading(true);
-      BZG.RedeemOnchainFundsRequest req = BZG.RedeemOnchainFundsRequest(
-        toAddress: address,
-        satPerVbyte: feeRate,
-      );
-      final res = await _sdk.redeemOnchainFunds(req: req);
-      print(res.txid);
-      setLoading(false);
-    } catch (e) {
-      setLoading(false);
-      rethrow;
-    }
+    // try {
+    //   setLoading(true);
+    //   BZG.RedeemOnchainFundsRequest req = BZG.RedeemOnchainFundsRequest(
+    //     toAddress: address,
+    //     satPerVbyte: feeRate,
+    //   );
+    //   final res = await _sdk.redeemOnchainFunds(req: req);
+    //   print(res.txid);
+    //   setLoading(false);
+    // } catch (e) {
+    //   setLoading(false);
+    //   rethrow;
+    // }
   }
 
   @action
   Future<void> processInput(String input, {BuildContext? context}) async {
-    if (context != null) {
-      FocusScope.of(context).unfocus();
-    }
+    // if (context != null) {
+    //   FocusScope.of(context).unfocus();
+    // }
 
-    late BZG.InputType inputType;
+    // late BZG.InputType inputType;
 
-    try {
-      inputType = await _sdk.parseInput(input: input);
-    } catch (_) {
-      throw Exception("Unknown input type");
-    }
+    // try {
+    //   inputType = await _sdk.parseInput(input: input);
+    // } catch (_) {
+    //   throw Exception("Unknown input type");
+    // }
 
-    if (inputType is BZG.InputType_Bolt11) {
-      final bolt11 = await _sdk.parseInvoice(input);
-      invoice = bolt11;
-      if (invoice?.amountMsat != null) {
-        setCryptoAmount(invoice!.amountMsat! ~/ 1000);
-      }
-      btcAddress = '';
-    } else if (inputType is BZG.InputType_BitcoinAddress) {
-      final address = inputType.address.address;
-      btcAddress = address;
-      invoice = null;
-    } else if (inputType is BZG.InputType_LnUrlPay) {
-      throw Exception("Unsupported input type");
-    } else {
-      throw Exception("Unknown input type");
-    }
+    // if (inputType is BZG.InputType_Bolt11) {
+    //   final bolt11 = await _sdk.parseInvoice(input);
+    //   invoice = bolt11;
+    //   if (invoice?.amountMsat != null) {
+    //     setCryptoAmount(invoice!.amountMsat! ~/ 1000);
+    //   }
+    //   btcAddress = '';
+    // } else if (inputType is BZG.InputType_BitcoinAddress) {
+    //   final address = inputType.address.address;
+    //   btcAddress = address;
+    //   invoice = null;
+    // } else if (inputType is BZG.InputType_LnUrlPay) {
+    //   throw Exception("Unsupported input type");
+    // } else {
+    //   throw Exception("Unknown input type");
+    // }
   }
 
   @action
   Future<void> processSilently(String input) async {
-    try {
-      await processInput(input);
-    } catch (_) {
-      btcAddress = '';
-      invoice = null;
-      setCryptoAmount(0);
-    }
+    // try {
+    //   await processInput(input);
+    // } catch (_) {
+    //   btcAddress = '';
+    //   invoice = null;
+    //   setCryptoAmount(0);
+    // }
   }
 
   Future<bool> checkIfInputIsAddress(String input) async {
-    try {
-      final inputType = await _sdk.parseInput(input: input);
-      if (inputType is BZG.InputType_BitcoinAddress) {
-        return true;
-      }
-      return false;
-    } catch (_) {
-      return false;
-    }
+    // try {
+    //   final inputType = await _sdk.parseInput(input: input);
+    //   if (inputType is BZG.InputType_BitcoinAddress) {
+    //     return true;
+    //   }
+    //   return false;
+    // } catch (_) {
+    //   return false;
+    // }
+    return false;
   }
 }
