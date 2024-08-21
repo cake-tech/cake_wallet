@@ -28,7 +28,7 @@ import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_lightning/.secrets.g.dart' as secrets;
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:ldk_node/ldk_node.dart' as ldk;
+// import 'package:ldk_node/ldk_node.dart' as ldk;
 
 part 'lightning_wallet.g.dart';
 

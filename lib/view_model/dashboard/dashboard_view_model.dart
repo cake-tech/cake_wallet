@@ -525,15 +525,15 @@ abstract class DashboardViewModelBase with Store {
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
   String get serviceMessage {
-    if (wallet.type == WalletType.lightning) {
-      final serviceStatus = lightningViewModel.serviceHealthCheck();
-      if (serviceStatus == HealthCheckStatus.ServiceDisruption) {
-        return S.current.breez_warning_disruption;
-      } else if (serviceStatus == HealthCheckStatus.Maintenance) {
-        return S.current.breez_warning_maintenance;
-      }
-      return "";
-    }
+    // if (wallet.type == WalletType.lightning) {
+    //   final serviceStatus = lightningViewModel.serviceHealthCheck();
+    //   if (serviceStatus == HealthCheckStatus.ServiceDisruption) {
+    //     return S.current.breez_warning_disruption;
+    //   } else if (serviceStatus == HealthCheckStatus.Maintenance) {
+    //     return S.current.breez_warning_maintenance;
+    //   }
+    //   return "";
+    // }
 
     return "";
   }
