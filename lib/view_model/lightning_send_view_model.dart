@@ -38,7 +38,7 @@ abstract class LightningSendViewModelBase with Store {
   final FiatConversionStore fiatConversionStore;
   int satAmount = 0;
 
-  late final BreezSDK _sdk;
+  // late final BreezSDK _sdk;
 
   FiatCurrency get fiat => settingsStore.fiatCurrency;
 

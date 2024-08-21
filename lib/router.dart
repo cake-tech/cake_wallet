@@ -735,6 +735,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     
     case Routes.connectDevices:
       final params = settings.arguments as ConnectDevicePageParams;
+      return MaterialPageRoute<void>(
           builder: (_) => ConnectDevicePage(params, getIt.get<LedgerViewModel>()));
 
     default:

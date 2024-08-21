@@ -211,12 +211,13 @@ class LightningSendPage extends BasePage {
                       ),
                       SizedBox(height: 24),
                       Observer(builder: (_) {
-                        final invoiceSats = lightningSendViewModel.invoice?.amountMsat ?? null;
-                        if (invoiceSats != null) {
-                          _amountController.text = lightning!
-                              .bitcoinAmountToLightningString(amount: invoiceSats ~/ 1000)
-                              .replaceAll(",", "");
-                        }
+                        final invoiceSats = 0;
+                        // final invoiceSats = lightningSendViewModel.invoice?.amountMsat ?? null;
+                        // if (invoiceSats != null) {
+                        //   _amountController.text = lightning!
+                        //       .bitcoinAmountToLightningString(amount: invoiceSats ~/ 1000)
+                        //       .replaceAll(",", "");
+                        // }
                         return Column(
                           children: [
                             if (invoiceSats == null)
@@ -287,37 +288,38 @@ class LightningSendPage extends BasePage {
                             ),
                             SizedBox(height: 12),
                             Observer(builder: (_) {
-                              if (lightningSendViewModel.invoice?.description?.isEmpty ?? true) {
-                                return SizedBox();
-                              }
+                              return SizedBox();
+                              // if (lightningSendViewModel.invoice?.description?.isEmpty ?? true) {
+                              //   return SizedBox();
+                              // }
 
-                              return Column(
-                                children: [
-                                  BaseTextFormField(
-                                    enabled: false,
-                                    initialValue:
-                                        "${S.of(context).description}: ${lightningSendViewModel.invoice?.description}",
-                                    textInputAction: TextInputAction.next,
-                                    borderColor: Theme.of(context)
-                                        .extension<ExchangePageTheme>()!
-                                        .textFieldBorderTopPanelColor,
-                                    suffixIcon: SizedBox(width: 36),
-                                    placeholderTextStyle: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context)
-                                          .extension<ExchangePageTheme>()!
-                                          .hintTextColor,
-                                    ),
-                                    textStyle: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white),
-                                    validator: null,
-                                  ),
-                                  SizedBox(height: 12),
-                                ],
-                              );
+                              // return Column(
+                              //   children: [
+                              //     BaseTextFormField(
+                              //       enabled: false,
+                              //       initialValue:
+                              //           "${S.of(context).description}: ${lightningSendViewModel.invoice?.description}",
+                              //       textInputAction: TextInputAction.next,
+                              //       borderColor: Theme.of(context)
+                              //           .extension<ExchangePageTheme>()!
+                              //           .textFieldBorderTopPanelColor,
+                              //       suffixIcon: SizedBox(width: 36),
+                              //       placeholderTextStyle: TextStyle(
+                              //         fontSize: 16,
+                              //         fontWeight: FontWeight.w600,
+                              //         color: Theme.of(context)
+                              //             .extension<ExchangePageTheme>()!
+                              //             .hintTextColor,
+                              //       ),
+                              //       textStyle: TextStyle(
+                              //           fontSize: 16,
+                              //           fontWeight: FontWeight.w600,
+                              //           color: Colors.white),
+                              //       validator: null,
+                              //     ),
+                              //     SizedBox(height: 12),
+                              //   ],
+                              // );
                             }),
                             if (lightningSendViewModel.btcAddress.isNotEmpty) ...[
                               Observer(
@@ -457,19 +459,19 @@ class LightningSendPage extends BasePage {
                               );
                               String feeValue = '';
                               String feeFiatAmount = '';
-                              if (lightningSendViewModel.invoice != null) {
-                                output.address = lightningSendViewModel.invoice!.bolt11;
-                                output.cryptoAmount =
-                                    "${lightningSendViewModel.satAmount.toString()} sats";
-                              } else if (lightningSendViewModel.btcAddress.isNotEmpty) {
-                                output.address = lightningSendViewModel.btcAddress;
-                                feeValue = lightningSendViewModel.estimatedFeeSats.toString();
-                                feeFiatAmount = lightningSendViewModel
-                                    .formattedFiatAmount(lightningSendViewModel.estimatedFeeSats);
-                                output.cryptoAmount = "${_amountController.text} sats";
-                              } else {
-                                throw Exception("Input cannot be empty");
-                              }
+                              // if (lightningSendViewModel.invoice != null) {
+                              //   output.address = lightningSendViewModel.invoice!.bolt11;
+                              //   output.cryptoAmount =
+                              //       "${lightningSendViewModel.satAmount.toString()} sats";
+                              // } else if (lightningSendViewModel.btcAddress.isNotEmpty) {
+                              //   output.address = lightningSendViewModel.btcAddress;
+                              //   feeValue = lightningSendViewModel.estimatedFeeSats.toString();
+                              //   feeFiatAmount = lightningSendViewModel
+                              //       .formattedFiatAmount(lightningSendViewModel.estimatedFeeSats);
+                              //   output.cryptoAmount = "${_amountController.text} sats";
+                              // } else {
+                              //   throw Exception("Input cannot be empty");
+                              // }
                               output.fiatAmount = lightningSendViewModel
                                   .formattedFiatAmount(int.parse(_amountController.text));
                               bool cancel = await showPopUp<bool>(
@@ -501,15 +503,15 @@ class LightningSendPage extends BasePage {
                                 return;
                               }
 
-                              if (lightningSendViewModel.invoice != null) {
-                                await lightningSendViewModel.sendInvoice(
-                                    lightningSendViewModel.invoice!,
-                                    int.parse(_amountController.text));
-                              } else if (lightningSendViewModel.btcAddress.isNotEmpty) {
-                                await lightningSendViewModel.sendBtc(
-                                    lightningSendViewModel.btcAddress,
-                                    int.parse(_amountController.text));
-                              }
+                              // if (lightningSendViewModel.invoice != null) {
+                              //   await lightningSendViewModel.sendInvoice(
+                              //       lightningSendViewModel.invoice!,
+                              //       int.parse(_amountController.text));
+                              // } else if (lightningSendViewModel.btcAddress.isNotEmpty) {
+                              //   await lightningSendViewModel.sendBtc(
+                              //       lightningSendViewModel.btcAddress,
+                              //       int.parse(_amountController.text));
+                              // }
 
                               await showPopUp<void>(
                                   context: context,

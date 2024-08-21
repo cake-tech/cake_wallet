@@ -29,10 +29,10 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
       ref: Add-Support-For-OP-Return-data
-  breez_sdk:
-    git:
-      url: https://github.com/breez/breez-sdk-flutter.git
-      ref: v0.5.2
+  # breez_sdk:
+  #   git:
+  #     url: https://github.com/breez/breez-sdk-flutter.git
+  #     ref: v0.5.2
   cryptography: ^2.0.5
   bitcoin_base:
     git:

@@ -68,7 +68,8 @@ class LightningReceiveOnchainPage extends BasePage {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         FutureBuilder(
-          future: lightningViewModel.receiveOnchain(),
+          // future: lightningViewModel.receiveOnchain(),
+          future: null,
           builder: ((context, snapshot) {
             if (snapshot.data == null) {
               return CircularProgressIndicator();
@@ -201,7 +202,8 @@ class LightningReceiveOnchainPage extends BasePage {
                 ),
               ),
               FutureBuilder(
-                  future: lightningViewModel.receiveOnchain(),
+                  // future: lightningViewModel.receiveOnchain(),
+                  future: null,
                   builder: (context, snapshot) {
                     if (snapshot.data == null) {
                       return Expanded(
