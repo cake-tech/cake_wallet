@@ -728,6 +728,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.signPage:
       return MaterialPageRoute<void>(
+        builder: (_) => SignPage(
           getIt.get<SignViewModel>(),
         ),
       );
