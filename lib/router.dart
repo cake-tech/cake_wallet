@@ -591,15 +591,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.advancedPrivacySettings:
       final args = settings.arguments as Map<String, dynamic>;
       final type = args['type'] as WalletType;
+      final isFromRestore = args['isFromRestore'] as bool? ?? false;
       final useTestnet = args['useTestnet'] as bool;
       final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
-      final onChangePassphrase = args['onChangePassphrase'] as Function(String? val);
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
+                isFromRestore: isFromRestore,
                 useTestnet: useTestnet,
                 toggleUseTestnet: toggleTestnet,
-                onChangePassphrase: onChangePassphrase,
                 advancedPrivacySettingsViewModel:
                     getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
                 nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),

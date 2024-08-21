@@ -21,13 +21,12 @@ import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 
 class AdvancedPrivacySettingsPage extends BasePage {
   AdvancedPrivacySettingsPage({
+    required this.isFromRestore,
     required this.useTestnet,
     required this.toggleUseTestnet,
-    required this.onChangePassphrase,
     required this.advancedPrivacySettingsViewModel,
     required this.nodeViewModel,
     required this.seedSettingsViewModel,
@@ -40,24 +39,18 @@ class AdvancedPrivacySettingsPage extends BasePage {
   @override
   String get title => S.current.privacy_settings;
 
+  final bool isFromRestore;
   final bool useTestnet;
   final Function(bool? val) toggleUseTestnet;
-  final Function(String? val) onChangePassphrase;
 
   @override
-  Widget body(BuildContext context) =>
-      _AdvancedPrivacySettingsBody(useTestnet, toggleUseTestnet,
-          onChangePassphrase, advancedPrivacySettingsViewModel, nodeViewModel,
-          seedSettingsViewModel);
+  Widget body(BuildContext context) => _AdvancedPrivacySettingsBody(isFromRestore, useTestnet,
+      toggleUseTestnet, advancedPrivacySettingsViewModel, nodeViewModel, seedSettingsViewModel);
 }
 
 class _AdvancedPrivacySettingsBody extends StatefulWidget {
-  const _AdvancedPrivacySettingsBody(this.useTestnet,
-      this.toggleUseTestnet,
-      this.onChangePassphrase,
-      this.privacySettingsViewModel,
-      this.nodeViewModel,
-      this.seedTypeViewModel,
+  const _AdvancedPrivacySettingsBody(this.isFromRestore, this.useTestnet, this.toggleUseTestnet,
+      this.privacySettingsViewModel, this.nodeViewModel, this.seedTypeViewModel,
       {Key? key})
       : super(key: key);
 
@@ -65,9 +58,9 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
   final NodeCreateOrEditViewModel nodeViewModel;
   final SeedSettingsViewModel seedTypeViewModel;
 
+  final bool isFromRestore;
   final bool useTestnet;
   final Function(bool? val) toggleUseTestnet;
-  final Function(String? val) onChangePassphrase;
 
   @override
   _AdvancedPrivacySettingsBodyState createState() => _AdvancedPrivacySettingsBodyState();
@@ -77,11 +70,13 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
   final TextEditingController passphraseController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool? testnetValue;
-  late ReactionDisposer passphraseReaction;
 
   @override
   void initState() {
-    passphraseController.addListener(() => widget.onChangePassphrase(passphraseController.text));
+    passphraseController.text = widget.seedTypeViewModel.passphrase ?? '';
+
+    passphraseController
+        .addListener(() => widget.seedTypeViewModel.setPassphrase(passphraseController.text));
     super.initState();
   }
 
@@ -145,7 +140,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 ],
               );
             }),
-            if (widget.privacySettingsViewModel.hasPassphraseOption)
+            if (!widget.isFromRestore && widget.privacySettingsViewModel.hasPassphraseOption)
               Observer(builder: (_) {
                 return Padding(
                   padding: EdgeInsets.all(24),
@@ -227,29 +222,22 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
 
                 Navigator.pop(context);
               },
-              text: S
-                  .of(context)
-                  .continue_text,
-              color: Theme
-                  .of(context)
-                  .primaryColor,
+              text: S.of(context).continue_text,
+              color: Theme.of(context).primaryColor,
               textColor: Colors.white,
             ),
             const SizedBox(height: 25),
             LayoutBuilder(
-              builder: (_, constraints) =>
-                  SizedBox(
-                    width: constraints.maxWidth * 0.8,
-                    child: Text(
-                      S
-                          .of(context)
-                          .settings_can_be_changed_later,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
-                      ),
-                    ),
+              builder: (_, constraints) => SizedBox(
+                width: constraints.maxWidth * 0.8,
+                child: Text(
+                  S.of(context).settings_can_be_changed_later,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
                   ),
+                ),
+              ),
             )
           ],
         ),
@@ -259,7 +247,8 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
 
   @override
   void dispose() {
-    passphraseController.removeListener(() => widget.onChangePassphrase(passphraseController.text));
+    passphraseController
+        .removeListener(() => widget.seedTypeViewModel.setPassphrase(passphraseController.text));
     super.dispose();
   }
 }

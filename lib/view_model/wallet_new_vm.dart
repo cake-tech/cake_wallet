@@ -69,6 +69,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   @override
   WalletCredentials getCredentials(dynamic _options) {
     final options = _options as List<dynamic>?;
+    final passphrase = seedSettingsViewModel.passphrase;
+    seedSettingsViewModel.setPassphrase(null);
 
     switch (type) {
       case WalletType.monero:

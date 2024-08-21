@@ -29,7 +29,6 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
     this.onLanguageChange,
     this.onPasswordChange,
     this.onRepeatedPasswordChange,
-    this.onPassphraseChange,
   }) : super(key: key);
 
   final WalletType type;
@@ -44,7 +43,6 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   final void Function(String)? onLanguageChange;
   final void Function(String)? onPasswordChange;
   final void Function(String)? onRepeatedPasswordChange;
-  final void Function(String)? onPassphraseChange;
 
   @override
   WalletRestoreFromSeedFormState createState() =>
@@ -75,6 +73,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   final TextEditingController passphraseController;
   final GlobalKey<FormState> formKey;
   late ReactionDisposer moneroSeedTypeReaction;
+  late ReactionDisposer passphraseReaction;
   String language;
   void Function()? passwordListener;
   void Function()? repeatedPasswordListener;
@@ -96,10 +95,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       repeatedPasswordTextEditingController?.addListener(repeatedPasswordListener!);
     }
 
-    if (passphraseListener != null) {
-      passphraseListener = () => widget.onPassphraseChange?.call(passphraseController.text);
-      passphraseController.addListener(passphraseListener!);
-    }
+    passphraseListener = () => widget.seedSettingsViewModel.setPassphrase(passphraseController.text);
+    passphraseController.addListener(passphraseListener!);
 
     moneroSeedTypeReaction =
         reaction((_) => widget.seedSettingsViewModel.moneroSeedType, (SeedType item) {
@@ -112,6 +109,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   @override
   void dispose() {
+    passphraseReaction();
     moneroSeedTypeReaction();
 
     if (passwordListener != null) {
@@ -122,9 +120,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
     }
 
-    if (passphraseListener != null) {
-      passphraseController.removeListener(passphraseListener!);
-    }
+    passphraseReaction();
+    passphraseController.removeListener(passphraseListener!);
 
     super.dispose();
   }

@@ -57,7 +57,6 @@ class WalletRestorePage extends BasePage {
               displayWalletPassword: walletRestoreViewModel.hasWalletPassword,
               onPasswordChange: (String password) => walletRestoreViewModel.walletPassword = password,
               onRepeatedPasswordChange: (String repeatedPassword) => walletRestoreViewModel.repeatedWalletPassword = repeatedPassword,
-              onPassphraseChange: (String passphrase) => walletRestoreViewModel.passphrase = passphrase,
           ));
           break;
         case WalletRestoreMode.keys:
@@ -235,10 +234,10 @@ class WalletRestorePage extends BasePage {
                         onTap: () {
                           Navigator.of(context)
                               .pushNamed(Routes.advancedPrivacySettings, arguments: {
+                            'isFromRestore': true,
                             'type': walletRestoreViewModel.type,
                             'useTestnet': walletRestoreViewModel.useTestnet,
-                            'toggleTestnet': walletRestoreViewModel.toggleUseTestnet,
-                            'onChangePassphrase': (String? val) => walletRestoreViewModel.passphrase = val,
+                            'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
                           });
                         },
                         child: Text(S.of(context).advanced_settings),
@@ -325,7 +324,8 @@ class WalletRestorePage extends BasePage {
       }
 
       if (walletRestoreViewModel.hasPassphrase) {
-        credentials['passphrase'] = walletRestoreViewModel.passphrase;
+        credentials['passphrase'] = seedSettingsViewModel.passphrase;
+        seedSettingsViewModel.setPassphrase(null);
       }
 
       credentials['name'] =

@@ -1,30 +1,29 @@
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
-import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
+import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
-import 'package:mobx/mobx.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/core/wallet_name_validator.dart';
-import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
-import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/entities/seed_type.dart';
-
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 class NewWalletPage extends BasePage {
   NewWalletPage(this._walletNewVM, this._seedSettingsViewModel);
@@ -339,8 +338,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   Navigator.of(context).pushNamed(Routes.advancedPrivacySettings, arguments: {
                     "type": _walletNewVM.type,
                     "useTestnet": _walletNewVM.useTestnet,
-                    "toggleTestnet": _walletNewVM.toggleUseTestnet,
-                    "onChangePassphrase": (String? val) => _walletNewVM.passphrase = val,
+                    "toggleTestnet": _walletNewVM.toggleUseTestnet
                   });
                 },
                 child: Text(S.of(context).advanced_settings),
