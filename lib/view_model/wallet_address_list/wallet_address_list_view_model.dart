@@ -480,11 +480,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         if (!(element is WalletAddressListItem)) return false;
         return wallet.walletAddresses.manualAddresses.contains(element.address);
       });
-    } else {
-      for (var i = 0; i < addressList.length; i++) {
-        if (!(addressList[i] is WalletAddressListItem)) continue;
-        (addressList[i] as WalletAddressListItem).isManual = wallet.walletAddresses.manualAddresses.contains((addressList[i] as WalletAddressListItem).address);
-      }
     }
 
     return addressList;
