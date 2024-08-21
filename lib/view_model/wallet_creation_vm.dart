@@ -45,6 +45,9 @@ abstract class WalletCreationVMBase with Store {
   @observable
   String? repeatedWalletPassword;
 
+  @observable
+  String? passphrase;
+
   bool get hasWalletPassword => SettingsStoreBase.walletPasswordDirectInput;
 
   WalletType type;

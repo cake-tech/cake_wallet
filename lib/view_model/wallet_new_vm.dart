@@ -69,6 +69,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   @override
   WalletCredentials getCredentials(dynamic _options) {
     final options = _options as List<dynamic>?;
+
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
@@ -77,9 +78,9 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             password: walletPassword,
             isPolyseed: options.last as bool);
       case WalletType.bitcoin:
-        return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword);
+        return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword, passphrase: passphrase);
       case WalletType.litecoin:
-        return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword);
+        return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword, passphrase: passphrase);
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
             name: name, language: options!.first as String, password: walletPassword);
@@ -87,7 +88,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return ethereum!.createEthereumNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.bitcoinCash:
         return bitcoinCash!
-            .createBitcoinCashNewWalletCredentials(name: name, password: walletPassword);
+            .createBitcoinCashNewWalletCredentials(name: name, password: walletPassword, passphrase: passphrase);
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoNewWalletCredentials(name: name);
