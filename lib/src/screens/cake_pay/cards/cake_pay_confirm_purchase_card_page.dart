@@ -322,31 +322,31 @@ class CakePayBuyCardDetailPage extends BasePage {
 
     await showPopUp<void>(
       context: context,
-      builder: (_) {
+      builder: (popupContext) {
         return Observer(
             builder: (_) => ConfirmSendingAlert(
-                alertTitle: S.of(context).confirm_sending,
-                paymentId: S.of(context).payment_id,
+                alertTitle: S.of(popupContext).confirm_sending,
+                paymentId: S.of(popupContext).payment_id,
                 paymentIdValue: order?.orderId,
                 expirationTime: cakePayPurchaseViewModel.formattedRemainingTime,
                 onDispose: () => _handleDispose(disposer),
-                amount: S.of(context).send_amount,
+                amount: S.of(popupContext).send_amount,
                 amountValue: pendingTransaction.amountFormatted,
                 fiatAmountValue:
                     cakePayPurchaseViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
-                fee: S.of(context).send_fee,
+                fee: S.of(popupContext).send_fee,
                 feeValue: pendingTransaction.feeFormatted,
                 feeFiatAmount:
                     cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                 feeRate: pendingTransaction.feeRate,
                 outputs: cakePayPurchaseViewModel.sendViewModel.outputs,
-                rightButtonText: S.of(context).send,
-                leftButtonText: S.of(context).cancel,
+                rightButtonText: S.of(popupContext).send,
+                leftButtonText: S.of(popupContext).cancel,
                 actionRightButton: () async {
-                  Navigator.of(context).pop();
+                  Navigator.of(popupContext).pop();
                   await cakePayPurchaseViewModel.sendViewModel.commitTransaction();
                 },
-                actionLeftButton: () => Navigator.of(context).pop()));
+                actionLeftButton: () => Navigator.of(popupContext).pop()));
       },
     );
   }
