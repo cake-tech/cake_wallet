@@ -34,8 +34,7 @@ String getSeed() {
   // wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   final cakepolyseed =
       wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
-  final cakepassphrase =
-      wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
+  final cakepassphrase = getPassphrase();
   if (cakepolyseed != "") {
     return cakepolyseed;
   }
@@ -48,8 +47,7 @@ String getSeed() {
 }
 
 String getSeedLegacy(String? language) {
-  final cakepassphrase =
-      wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
+  final cakepassphrase = getPassphrase();
   var legacy = wownero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   switch (language) {
     case "Chinese (Traditional)": language = "Chinese (simplified)"; break;
@@ -72,11 +70,8 @@ String getSeedLegacy(String? language) {
   return legacy;
 }
 
-String? getPassphrase() {
-  final cakepassphrase =
-      wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
-  if (cakepassphrase == "") return null;
-  return cakepassphrase;
+String getPassphrase() {
+  return wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
 }
 
 String getAddress({int accountIndex = 0, int addressIndex = 1}) =>

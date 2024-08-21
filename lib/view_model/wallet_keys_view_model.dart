@@ -102,12 +102,6 @@ abstract class WalletKeysViewModelBase with Store {
             title: S.current.wallet_recovery_height,
             value: restoreHeight.toString()));
       }
-      final passphrase = (_appStore.wallet as MoneroWalletBase).passphrase();
-      if (passphrase != null) {
-        items.add(StandartListItem(
-            title: S.current.passphrase,
-            value: passphrase.toString()));
-      }
     }
 
     if (_appStore.wallet!.type == WalletType.haven) {
