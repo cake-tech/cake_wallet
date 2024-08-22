@@ -128,7 +128,6 @@ dependency_overrides:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
-  flutter_rust_bridge: ^1.82.6
   uuid: ^4.1.0
   ledger_flutter:
     git:

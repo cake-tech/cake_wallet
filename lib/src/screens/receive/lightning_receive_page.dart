@@ -68,8 +68,7 @@ class LightningReceiveOnchainPage extends BasePage {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         FutureBuilder(
-          // future: lightningViewModel.receiveOnchain(),
-          future: null,
+          future: lightningViewModel.receiveOnchain(),
           builder: ((context, snapshot) {
             if (snapshot.data == null) {
               return CircularProgressIndicator();
@@ -178,58 +177,57 @@ class LightningReceiveOnchainPage extends BasePage {
             );
           }),
         ),
-        Container(
-          padding: const EdgeInsets.only(top: 24, bottom: 24, right: 6),
-          margin: const EdgeInsets.symmetric(horizontal: 24),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(15)),
-            color: Color.fromARGB(255, 170, 147, 30),
-            border: Border.all(
-              color: Color.fromARGB(178, 223, 214, 0),
-              width: 2,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                margin: EdgeInsets.only(left: 12, bottom: 48, right: 20),
-                child: Image.asset(
-                  "assets/images/warning.png",
-                  color: Color.fromARGB(128, 255, 255, 255),
-                ),
-              ),
-              FutureBuilder(
-                  // future: lightningViewModel.receiveOnchain(),
-                  future: null,
-                  builder: (context, snapshot) {
-                    if (snapshot.data == null) {
-                      return Expanded(
-                          child: Container(child: Center(child: CircularProgressIndicator())));
-                    }
-                    ReceiveOnchainResult results = snapshot.data as ReceiveOnchainResult;
-                    return Expanded(
-                      child: Text(
-                        S.of(context).lightning_receive_limits(
-                              lightning!.satsToLightningString(results.minAllowedDeposit),
-                              lightning!.satsToLightningString(results.maxAllowedDeposit),
-                              results.feePercent.toString(),
-                              lightning!.satsToLightningString(results.fee),
-                            ),
-                        maxLines: 10,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                        ),
-                      ),
-                    );
-                  }),
-            ],
-          ),
-        ),
+        // Container(
+        //   padding: const EdgeInsets.only(top: 24, bottom: 24, right: 6),
+        //   margin: const EdgeInsets.symmetric(horizontal: 24),
+        //   decoration: BoxDecoration(
+        //     borderRadius: BorderRadius.all(Radius.circular(15)),
+        //     color: Color.fromARGB(255, 170, 147, 30),
+        //     border: Border.all(
+        //       color: Color.fromARGB(178, 223, 214, 0),
+        //       width: 2,
+        //     ),
+        //   ),
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.start,
+        //     children: [
+        //       Container(
+        //         width: 48,
+        //         height: 48,
+        //         margin: EdgeInsets.only(left: 12, bottom: 48, right: 20),
+        //         child: Image.asset(
+        //           "assets/images/warning.png",
+        //           color: Color.fromARGB(128, 255, 255, 255),
+        //         ),
+        //       ),
+        //       FutureBuilder(
+        //           future: lightningViewModel.receiveOnchain(),
+        //           builder: (context, snapshot) {
+        //             if (snapshot.data == null) {
+        //               return Expanded(
+        //                   child: Container(child: Center(child: CircularProgressIndicator())));
+        //             }
+        //             ReceiveOnchainResult results = snapshot.data as ReceiveOnchainResult;
+        //             return Expanded(
+        //               child: Text(
+        //                 S.of(context).lightning_receive_limits(
+        //                       lightning!.satsToLightningString(results.minAllowedDeposit),
+        //                       lightning!.satsToLightningString(results.maxAllowedDeposit),
+        //                       results.feePercent.toString(),
+        //                       lightning!.satsToLightningString(results.fee),
+        //                     ),
+        //                 maxLines: 10,
+        //                 style: TextStyle(
+        //                   fontSize: 14,
+        //                   fontWeight: FontWeight.w500,
+        //                   color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+        //                 ),
+        //               ),
+        //             );
+        //           }),
+        //     ],
+        //   ),
+        // ),
       ],
     );
   }

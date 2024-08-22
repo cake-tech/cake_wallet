@@ -1312,7 +1312,11 @@ Future<void> setup({
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 
   getIt.registerFactory<LightningViewModel>(
-    () => LightningViewModel(),
+    () => LightningViewModel(
+      appStore: getIt.get<AppStore>(),
+      wallet: getIt.get<AppStore>().wallet!,
+      settingsStore: getIt.get<SettingsStore>(),
+    ),
   );
 
   getIt.registerFactory<LightningSendViewModel>(

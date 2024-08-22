@@ -218,7 +218,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    await stopBreez(true);
+    await stopLightningNode(true);
     await super.renameWalletFiles(newWalletName);
     await setupLightningNode(mnemonic);
   }
@@ -290,18 +290,13 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     // }
   }
 
-  Future<List<String>> newOnchainAddress() async {
-    // final alice = await (await aliceNode.onChainPayment()).newAddress();
-    // final bob = await (await bobNode.onChainPayment()).newAddress();
-    // if (kDebugMode) {
-    //   print("alice's address: ${alice.s}");
-    //   print("bob's address: ${bob.s}");
-    // }
-    // setState(() {
-    //   displayText = alice.s;
-    // });
-    // return [alice.s, bob.s];
-    return [];
+  Future<String> newOnchainAddress() async {
+    if (_node == null) {
+      return "";
+    }
+    final payment = await _node!.onChainPayment();
+    final address = await payment.newAddress();
+    return address.s;
   }
 
   listeningAddress() async {
@@ -445,6 +440,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     _builder = await createBuilder(mnemonic);
     _node = await _builder.build();
     await startNode(_node!);
+    print("node started!");
 
     // // disconnect if already connected
     // try {
@@ -486,7 +482,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     // print("initialized breez: ${(await _sdk.isInitialized())}");
   }
 
-  Future<void> stopBreez(bool disconnect) async {
+  Future<void> stopLightningNode(bool disconnect) async {
     // if (disconnect) {
     //   if (await _sdk.isInitialized()) {
     //     await _sdk.disconnect();
@@ -625,7 +621,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> init() async {
     await super.init();
-    // initialize breez:
     try {
       await setupLightningNode(mnemonic);
     } catch (e) {
@@ -658,7 +653,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     } catch (_) {}
     try {
       bool shouldDisconnect = switchingToSameWalletType == null || !switchingToSameWalletType;
-      await stopBreez(shouldDisconnect);
+      await stopLightningNode(shouldDisconnect);
     } catch (e, s) {
       print("Error stopping breez: $e\n$s");
     }
