@@ -90,7 +90,6 @@ abstract class ElectrumWalletBase
             : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.isTestnet = !network.isMainnet,
-        this._mnemonic = mnemonic,
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
