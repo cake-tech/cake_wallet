@@ -95,5 +95,5 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<bool> verifyMessage(String message, String signature, {String? address = null});
 
-  bool? isTestnet;
+  bool isTestnet = false;
 }
