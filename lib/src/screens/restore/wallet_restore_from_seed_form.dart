@@ -78,7 +78,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   @override
   void initState() {
-    _setSeedType(widget.seedTypeViewModel.moneroSeedType);
+    // _setSeedType(widget.seedTypeViewModel.moneroSeedType);
+    _setSeedType(SeedType.defaultSeedType);
     _setLanguageLabel(language);
 
     if (passwordTextEditingController != null) {
@@ -100,7 +101,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   }
 
   @override
-  void dispose() {
+  void dispose() {    
     moneroSeedTypeReaction();
 
     if (passwordListener != null) {
