@@ -1,5 +1,3 @@
-Monero and Ethereum enhancements
-Synchronization improvements
-Exchange flow enhancements
-Ledger improvements
+Scan and verify messages
+Synchronization enhancements
 Bug fixes

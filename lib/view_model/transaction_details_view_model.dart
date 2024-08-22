@@ -152,7 +152,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return 'https://monero.com/tx/${txId}';
       case WalletType.bitcoin:
-        return 'https://mempool.space/${wallet.isTestnet == true ? "testnet/" : ""}tx/${txId}';
+        return 'https://mempool.space/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.bitcoinCash:
@@ -378,9 +378,9 @@ abstract class TransactionDetailsViewModelBase with Store {
             sendViewModel.displayFeeRate(priority, sliderValue.round()),
         onSliderChanged: (double newValue) =>
             setNewFee(value: newValue, priority: transactionPriority!),
-        onItemSelected: (dynamic item) {
+        onItemSelected: (dynamic item, double sliderValue) {
           transactionPriority = item as TransactionPriority;
-          return setNewFee(priority: transactionPriority!);
+          return setNewFee(value: sliderValue, priority: transactionPriority!);
         }));
 
     if (transactionInfo.inputAddresses != null) {
@@ -427,7 +427,11 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   String setNewFee({double? value, required TransactionPriority priority}) {
     newFee = priority == bitcoin!.getBitcoinTransactionPriorityCustom() && value != null
-        ? bitcoin!.getEstimatedFeeWithFeeRate(wallet, value.round(), transactionInfo.amount)
+        ? bitcoin!.feeAmountWithFeeRate(
+            wallet,
+            value.round(),
+            transactionInfo.inputAddresses?.length ?? 1,
+            transactionInfo.outputAddresses?.length ?? 1)
         : bitcoin!.getFeeAmountForPriority(
             wallet,
             priority,

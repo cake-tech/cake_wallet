@@ -1,3 +1,3 @@
 #!/bin/sh
 
-./build_monero_all.sh
+./build_monero_all.sh universal
