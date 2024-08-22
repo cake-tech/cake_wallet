@@ -1364,10 +1364,14 @@ abstract class ElectrumWalletBase
   }
 
   Future<bool> canReplaceByFee(ElectrumTransactionInfo tx) async {
-    final bundle = await getTransactionExpanded(hash: tx.txHash);
-    _updateInputsAndOutputs(tx, bundle);
-    if (bundle.confirmations > 0) return false;
-    return bundle.originalTransaction.canReplaceByFee;
+    try {
+      final bundle = await getTransactionExpanded(hash: tx.txHash);
+      _updateInputsAndOutputs(tx, bundle);
+      if (bundle.confirmations > 0) return false;
+      return bundle.originalTransaction.canReplaceByFee;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> isChangeSufficientForFee(String txId, int newFee) async {
