@@ -66,25 +66,25 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
-            name: name, language: options!.first as String, isPolyseed: options.last as bool);
+            name: name, language: options!.first as String, password: walletPassword, isPolyseed: options.last as bool);
       case WalletType.bitcoin:
-        return bitcoin!.createBitcoinNewWalletCredentials(name: name);
+        return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.litecoin:
-        return bitcoin!.createBitcoinNewWalletCredentials(name: name);
+        return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.haven:
-        return haven!
-            .createHavenNewWalletCredentials(name: name, language: options!.first as String);
+        return haven!.createHavenNewWalletCredentials(
+            name: name, language: options!.first as String, password: walletPassword);
       case WalletType.ethereum:
-        return ethereum!.createEthereumNewWalletCredentials(name: name);
+        return ethereum!.createEthereumNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.bitcoinCash:
-        return bitcoinCash!.createBitcoinCashNewWalletCredentials(name: name);
+        return bitcoinCash!.createBitcoinCashNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoNewWalletCredentials(name: name);
       case WalletType.polygon:
-        return polygon!.createPolygonNewWalletCredentials(name: name);
+        return polygon!.createPolygonNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.solana:
-        return solana!.createSolanaNewWalletCredentials(name: name);
+        return solana!.createSolanaNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.tron:
         return tron!.createTronNewWalletCredentials(name: name);
       case WalletType.wownero:

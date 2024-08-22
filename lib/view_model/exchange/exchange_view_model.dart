@@ -142,7 +142,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       _bestRate = 0;
       _calculateBestRate();
     });
+
+    if (isElectrumWallet) {
+      bitcoin!.updateFeeRates(wallet);
+    }
   }
+
+  bool get isElectrumWallet =>
+      wallet.type == WalletType.bitcoin ||
+      wallet.type == WalletType.litecoin ||
+      wallet.type == WalletType.bitcoinCash;
 
   bool _useTorOnly;
   final Box<Trade> trades;
@@ -405,13 +414,22 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         .where((element) => !isFixedRateMode || element.supportsFixedRate)
         .toList();
 
-    final result = await Future.wait<double>(_providers.map((element) => element.fetchRate(
-        from: depositCurrency,
-        to: receiveCurrency,
-        amount: amount,
-        isFixedRateMode: isFixedRateMode,
-        isReceiveAmount: isFixedRateMode)));
-
+    final result = await Future.wait<double>(
+      _providers.map(
+        (element) => element
+            .fetchRate(
+              from: depositCurrency,
+              to: receiveCurrency,
+              amount: amount,
+              isFixedRateMode: isFixedRateMode,
+              isReceiveAmount: isFixedRateMode,
+            )
+            .timeout(
+              Duration(seconds: 7),
+              onTimeout: () => 0.0,
+            ),
+      ),
+    );
     _sortedAvailableProviders.clear();
 
     for (int i = 0; i < result.length; i++) {
@@ -441,22 +459,31 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     double? highestMax = 0.0;
 
     try {
-      for (var provider in selectedProviders) {
-        /// if this provider is not valid for the current pair, skip it
-        if (!providersForCurrentPair().contains(provider)) continue;
+      final result = await Future.wait(
+        selectedProviders.where((provider) => providersForCurrentPair().contains(provider)).map(
+              (provider) => provider
+                  .fetchLimits(
+                    from: from,
+                    to: to,
+                    isFixedRateMode: isFixedRateMode,
+                  )
+                  .onError((error, stackTrace) => Limits(max: 0.0, min: double.maxFinite))
+                  .timeout(
+                    Duration(seconds: 7),
+                    onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
+                  ),
+            ),
+      );
 
-        try {
-          final tempLimits =
-              await provider.fetchLimits(from: from, to: to, isFixedRateMode: isFixedRateMode);
-
-          if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin) lowestMin = tempLimits.min;
-
-          if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax)
-            highestMax = tempLimits.max;
-        } catch (e) {
-          continue;
+      result.forEach((tempLimits) {
+        if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin!) {
+          lowestMin = tempLimits.min;
         }
-      }
+
+        if (highestMax != null && (tempLimits.max ?? double.maxFinite) > highestMax!) {
+          highestMax = tempLimits.max;
+        }
+      });
     } on ConcurrentModificationError {
       /// if user changed the selected providers while fetching limits
       /// then delay the fetching limits a bit and try again
@@ -490,17 +517,24 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     try {
-      for (var provider in _sortedAvailableProviders.values) {
+      for (var i = 0; i < _sortedAvailableProviders.values.length; i++) {
+        final provider = _sortedAvailableProviders.values.toList()[i];
+        final providerRate = _sortedAvailableProviders.keys.toList()[i];
+
         if (!(await provider.checkIsAvailable())) continue;
 
+        _bestRate = providerRate;
+        await changeDepositAmount(amount: depositAmount);
+
         final request = TradeRequest(
-            fromCurrency: depositCurrency,
-            toCurrency: receiveCurrency,
-            fromAmount: depositAmount.replaceAll(',', '.'),
-            toAmount: receiveAmount.replaceAll(',', '.'),
-            refundAddress: depositAddress,
-            toAddress: receiveAddress,
-            isFixedRate: isFixedRateMode);
+          fromCurrency: depositCurrency,
+          toCurrency: receiveCurrency,
+          fromAmount: depositAmount.replaceAll(',', '.'),
+          toAmount: receiveAmount.replaceAll(',', '.'),
+          refundAddress: depositAddress,
+          toAddress: receiveAddress,
+          isFixedRate: isFixedRateMode,
+        );
 
         var amount = isFixedRateMode ? receiveAmount : depositAmount;
         amount = amount.replaceAll(',', '.');

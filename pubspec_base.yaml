@@ -21,7 +21,7 @@ dependencies:
   mobx: ^2.1.4
   flutter_mobx: ^2.0.6+5
   flutter_slidable: ^3.0.1
-  share_plus: ^4.0.10
+  share_plus: ^10.0.0
   # date_range_picker: ^1.0.6
   #https://api.flutter.dev/flutter/material/showDateRangePicker.html
   dio: ^4.0.6
@@ -31,8 +31,7 @@ dependencies:
   flutter_local_authentication:
     git:
       url: https://github.com/cake-tech/flutter_local_authentication
-  package_info: ^2.0.0
-  #package_info_plus: ^1.4.2
+  package_info_plus: ^8.0.1
   devicelocale:
     git:
       url: https://github.com/cake-tech/flutter-devicelocale
@@ -66,7 +65,7 @@ dependencies:
       url: https://github.com/cake-tech/device_display_brightness.git
       ref: master
   workmanager: ^0.5.1
-  wakelock_plus: ^1.1.3
+  wakelock_plus: ^1.2.5
   flutter_mailer: ^2.0.2
   device_info_plus: ^9.1.0
   base32: 2.1.3
@@ -80,6 +79,7 @@ dependencies:
   path_provider_android: ^2.2.1
   shared_preferences_android: 2.0.17
   url_launcher_android: 6.0.24
+  url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
   sensitive_clipboard: ^1.0.0
   walletconnect_flutter_v2: ^2.1.4
   eth_sig_util: ^0.0.9
@@ -87,10 +87,6 @@ dependencies:
     git:
       url: https://github.com/cake-tech/ens_dart.git
       ref: main
-  bitcoin_flutter:
-    git:
-      url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v4
   fluttertoast: 8.1.4
 #  tor:
 #    git:
@@ -98,15 +94,15 @@ dependencies:
 #      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
-  polyseed: ^0.0.5
+  polyseed: ^0.0.6
   nostr_tools: ^1.0.9
   solana: ^0.30.1
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v3
+      ref: cake-update-v5
   ledger_flutter: ^1.0.1
-  hashlib: 1.12.0
+  hashlib: ^1.19.2
 
 dev_dependencies:
   flutter_test:
@@ -124,6 +120,7 @@ dev_dependencies:
     git:
       url: https://github.com/cake-tech/google-translator.git
       version: 1.0.0
+  archive: ^3.6.1
 
 dependency_overrides:
   bech32:
@@ -132,12 +129,16 @@ dependency_overrides:
   ledger_flutter:
     git:
       url: https://github.com/cake-tech/ledger-flutter.git
-      ref: cake-stax
+      ref: cake-v3
   web3dart:
     git:
       url: https://github.com/cake-tech/web3dart.git
       ref: cake
   flutter_secure_storage_platform_interface: 1.0.2
+  bitcoin_base:
+    git:
+      url: https://github.com/cake-tech/bitcoin_base
+      ref: cake-update-v5
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

@@ -206,7 +206,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                           ),
                           contractAddress: _contractAddressController.text,
                         );
-                        if (context.mounted) {
+                        if (mounted) {
                           Navigator.pop(context);
                         }
                       }

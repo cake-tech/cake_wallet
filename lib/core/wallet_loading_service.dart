@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -17,17 +20,18 @@ class WalletLoadingService {
   final KeyService keyService;
   final WalletService Function(WalletType type) walletServiceFactory;
 
-  Future<void> renameWallet(WalletType type, String name, String newName) async {
+  Future<void> renameWallet(WalletType type, String name, String newName,
+      {String? password}) async {
     final walletService = walletServiceFactory.call(type);
-    final password = await keyService.getWalletPassword(walletName: name);
+    final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
 
     // Save the current wallet's password to the new wallet name's key
-    await keyService.saveWalletPassword(walletName: newName, password: password);
+    await keyService.saveWalletPassword(walletName: newName, password: walletPassword);
     // Delete previous wallet name from keyService to keep only new wallet's name
     // otherwise keeps duplicate (old and new names)
     await keyService.deleteWalletPassword(walletName: name);
 
-    await walletService.rename(name, password, newName);
+    await walletService.rename(name, walletPassword, newName);
 
     // set shared preferences flag based on previous wallet name
     if (type == WalletType.monero) {
@@ -38,11 +42,11 @@ class WalletLoadingService {
     }
   }
 
-  Future<WalletBase> load(WalletType type, String name) async {
+  Future<WalletBase> load(WalletType type, String name, {String? password}) async {
     try {
       final walletService = walletServiceFactory.call(type);
-      final password = await keyService.getWalletPassword(walletName: name);
-      final wallet = await walletService.openWallet(name, password);
+      final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+      final wallet = await walletService.openWallet(name, walletPassword);
 
       if (type == WalletType.monero) {
         await updateMoneroWalletPassword(wallet);
@@ -52,14 +56,22 @@ class WalletLoadingService {
     } catch (error, stack) {
       ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
 
+      // try fetching the seeds of the corrupted wallet to show it to the user
+      String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
+      try {
+        corruptedWalletsSeeds += await _getCorruptedWalletSeeds(name, type);
+      } catch (e) {
+        corruptedWalletsSeeds += "\nFailed to  fetch $name seeds: $e";
+      }
+
       // try opening another wallet that is not corrupted to give user access to the app
       final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
 
       for (var walletInfo in walletInfoSource.values) {
         try {
           final walletService = walletServiceFactory.call(walletInfo.type);
-          final password = await keyService.getWalletPassword(walletName: walletInfo.name);
-          final wallet = await walletService.openWallet(walletInfo.name, password);
+          final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+          final wallet = await walletService.openWallet(walletInfo.name, walletPassword);
 
           if (walletInfo.type == WalletType.monero) {
             await updateMoneroWalletPassword(wallet);
@@ -69,12 +81,25 @@ class WalletLoadingService {
           await sharedPreferences.setInt(
               PreferencesKey.currentWalletType, serializeToInt(wallet.type));
 
+          // if found a wallet that is not corrupted, then still display the seeds of the corrupted ones
+          authenticatedErrorStreamController.add(corruptedWalletsSeeds);
+
           return wallet;
-        } catch (_) {}
+        } catch (_) {
+          // save seeds and show corrupted wallets' seeds to the user
+          try {
+            final seeds = await _getCorruptedWalletSeeds(walletInfo.name, walletInfo.type);
+            if (!corruptedWalletsSeeds.contains(seeds)) {
+              corruptedWalletsSeeds += seeds;
+            }
+          } catch (e) {
+            corruptedWalletsSeeds += "\nFailed to  fetch $name seeds: $e";
+          }
+        }
       }
 
       // if all user's wallets are corrupted throw exception
-      throw error;
+      throw error.toString() + "\n\n" + corruptedWalletsSeeds;
     }
   }
 
@@ -95,5 +120,12 @@ class WalletLoadingService {
     await keyService.saveWalletPassword(walletName: wallet.name, password: password);
     isPasswordUpdated = true;
     await sharedPreferences.setBool(key, isPasswordUpdated);
+  }
+
+  Future<String> _getCorruptedWalletSeeds(String name, WalletType type) async {
+    final walletService = walletServiceFactory.call(type);
+    final password = await keyService.getWalletPassword(walletName: name);
+
+    return "\n\n$type ($name): ${await walletService.getSeeds(name, password, type)}";
   }
 }

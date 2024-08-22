@@ -69,7 +69,6 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);
 
-
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,
   //     {void Function() onFinished});
@@ -84,13 +83,17 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> changePassword(String password);
 
+  String get password;
+
   Future<void>? updateBalance();
 
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;
 
   Future<void> renameWalletFiles(String newWalletName);
 
-  Future<String> signMessage(String message, {String? address = null}) => throw UnimplementedError();
+  Future<String> signMessage(String message, {String? address = null});
 
-  bool? isTestnet;
+  Future<bool> verifyMessage(String message, String signature, {String? address = null});
+
+  bool isTestnet = false;
 }

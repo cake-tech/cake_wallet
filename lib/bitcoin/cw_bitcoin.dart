@@ -29,8 +29,8 @@ class CWBitcoin extends Bitcoin {
 
   @override
   WalletCredentials createBitcoinNewWalletCredentials(
-          {required String name, WalletInfo? walletInfo}) =>
-      BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
+          {required String name, WalletInfo? walletInfo, String? password}) =>
+      BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
 
   @override
   WalletCredentials createBitcoinHardwareWalletCredentials(
@@ -203,13 +203,13 @@ class CWBitcoin extends Bitcoin {
   }
 
   WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan) {
-    return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
+    return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
   }
 
   WalletService createLitecoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-    return LitecoinWalletService(walletInfoSource, unspentCoinSource);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+    return LitecoinWalletService(walletInfoSource, unspentCoinSource, isDirect);
   }
 
   @override
@@ -275,7 +275,7 @@ class CWBitcoin extends Bitcoin {
     return [DerivationType.bip39, DerivationType.electrum];
   }
 
-  int _countOccurrences(String str, String charToCount) {
+  int _countCharOccurrences(String str, String charToCount) {
     int count = 0;
     for (int i = 0; i < str.length; i++) {
       if (str[i] == charToCount) {
@@ -302,16 +302,13 @@ class CWBitcoin extends Bitcoin {
     await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
 
     late BasedUtxoNetwork network;
-    btc.NetworkType networkType;
     switch (node.type) {
       case WalletType.litecoin:
         network = LitecoinNetwork.mainnet;
-        networkType = litecoinNetwork;
         break;
       case WalletType.bitcoin:
       default:
         network = BitcoinNetwork.mainnet;
-        networkType = btc.bitcoin;
         break;
     }
 
@@ -333,7 +330,7 @@ class CWBitcoin extends Bitcoin {
           );
 
           String balancePath = dInfoCopy.derivationPath!;
-          int derivationDepth = _countOccurrences(balancePath, "/");
+          int derivationDepth = _countCharOccurrences(balancePath, '/');
 
           // for BIP44
           if (derivationDepth == 3 || derivationDepth == 1) {
@@ -341,10 +338,8 @@ class CWBitcoin extends Bitcoin {
             balancePath += "/0";
           }
 
-          final hd = btc.HDWallet.fromSeed(
-            seedBytes,
-            network: networkType,
-          ).derivePath(balancePath);
+          final hd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(balancePath)
+              as Bip32Slip10Secp256k1;
 
           // derive address at index 0:
           String? address;
@@ -436,6 +431,13 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount,
+      {int? size}) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.feeAmountWithFeeRate(feeRate, inputsCount, outputsCount, size: size);
+  }
+
+  @override
   int getMaxCustomFeeRate(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return (bitcoinWallet.feeRate(BitcoinTransactionPriority.fast) * 10).round();
@@ -508,16 +510,13 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<void> setScanningActive(Object wallet, bool active) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    bitcoinWallet.setSilentPaymentsScanning(
-      active,
-      active && (await getNodeIsElectrsSPEnabled(wallet)),
-    );
+    bitcoinWallet.setSilentPaymentsScanning(active);
   }
 
   @override
   bool isTestnet(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.isTestnet ?? false;
+    return bitcoinWallet.isTestnet;
   }
 
   @override
@@ -529,44 +528,10 @@ class CWBitcoin extends Bitcoin {
     bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
   }
 
-  Future<bool> getNodeIsElectrs(Object wallet) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
-
-    final version = await bitcoinWallet.electrumClient.version();
-
-    if (version.isEmpty) {
-      return false;
-    }
-
-    final server = version[0];
-
-    if (server.toLowerCase().contains('electrs')) {
-      return true;
-    }
-
-    return false;
-  }
-
   @override
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet) async {
-    if (!(await getNodeIsElectrs(wallet))) {
-      return false;
-    }
-
     final bitcoinWallet = wallet as ElectrumWallet;
-    try {
-      final tweaksResponse = await bitcoinWallet.electrumClient.getTweaks(height: 0);
-
-      if (tweaksResponse != null) {
-        return true;
-      }
-    } on RequestFailedTimeoutException {
-      return false;
-    } catch (_) {
-      rethrow;
-    }
-
-    return false;
+    return bitcoinWallet.getNodeSupportsSilentPayments();
   }
 
   @override
