@@ -521,7 +521,7 @@ class CWBitcoin extends Bitcoin {
   @override
   bool isTestnet(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.isTestnet ?? false;
+    return bitcoinWallet.isTestnet;
   }
 
   @override
