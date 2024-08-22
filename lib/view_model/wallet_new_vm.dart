@@ -31,13 +31,13 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource,
       this.advancedPrivacySettingsViewModel,
-      this.seedSettingsViewModel,
+      SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type})
       : selectedMnemonicLanguage = '',
-        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: false);
+        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
+            type: type, isRecovery: false);
 
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
-  final SeedSettingsViewModel seedSettingsViewModel;
 
   @observable
   String selectedMnemonicLanguage;
@@ -112,29 +112,5 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   Future<WalletBase> process(WalletCredentials credentials) async {
     walletCreationService.changeWalletType(type: type);
     return walletCreationService.create(credentials, isTestnet: useTestnet);
-  }
-
-  @override
-  DerivationInfo? getDefaultDerivation() {
-    final useBip39 = seedSettingsViewModel.bitcoinDerivationType.type == DerivationType.bip39;
-    switch (type) {
-      case WalletType.nano:
-        return DerivationInfo(derivationType: DerivationType.nano);
-      case WalletType.bitcoin:
-        if (useBip39) {
-          return bitcoin!
-              .getElectrumDerivations()[DerivationType.bip39]!
-              .firstWhere((element) => element.description == "Standard BIP84 native segwit");
-        }
-      case WalletType.litecoin:
-        if (useBip39) {
-          return bitcoin!
-              .getElectrumDerivations()[DerivationType.bip39]!
-              .firstWhere((element) => element.description == "Default Litecoin");
-        }
-        return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
-      default:
-        return null;
-    }
   }
 }

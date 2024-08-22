@@ -8,6 +8,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -23,6 +24,7 @@ class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
 abstract class WalletCreationVMBase with Store {
   WalletCreationVMBase(this._appStore, this._walletInfoSource, this.walletCreationService,
+      this.seedSettingsViewModel,
       {required this.type, required this.isRecovery})
       : state = InitialExecutionState(),
         name = '';
@@ -44,10 +46,6 @@ abstract class WalletCreationVMBase with Store {
 
   @observable
   String? repeatedWalletPassword;
-
-  @observable
-  String? passphrase;
-
   bool get hasWalletPassword => SettingsStoreBase.walletPasswordDirectInput;
 
   WalletType type;
@@ -55,6 +53,7 @@ abstract class WalletCreationVMBase with Store {
   final WalletCreationService walletCreationService;
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
+  final SeedSettingsViewModel seedSettingsViewModel;
 
   bool isPolyseed(String seed) =>
       (type == WalletType.monero || type == WalletType.wownero) &&
@@ -118,11 +117,23 @@ abstract class WalletCreationVMBase with Store {
   }
 
   DerivationInfo? getDefaultDerivation() {
-    switch (this.type) {
+    final useBip39 = seedSettingsViewModel.bitcoinDerivationType.type == DerivationType.bip39;
+    switch (type) {
       case WalletType.nano:
         return DerivationInfo(derivationType: DerivationType.nano);
       case WalletType.bitcoin:
+        if (useBip39) {
+          return bitcoin!
+              .getElectrumDerivations()[DerivationType.bip39]!
+              .firstWhere((element) => element.description == "Standard BIP84 native segwit");
+        }
+        return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       case WalletType.litecoin:
+        if (useBip39) {
+          return bitcoin!
+              .getElectrumDerivations()[DerivationType.bip39]!
+              .firstWhere((element) => element.description == "Default Litecoin");
+        }
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       default:
         return null;

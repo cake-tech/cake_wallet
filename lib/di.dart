@@ -425,14 +425,21 @@ Future<void> setup({
       walletType: args.walletType ?? currentWalletType);
   });
 
-  getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
-    return WalletRestorationFromQRVM(getIt.get<AppStore>(),
-        getIt.get<WalletCreationService>(param1: type), _walletInfoSource, type);
-  });
+  getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) =>
+      WalletRestorationFromQRVM(
+          getIt.get<AppStore>(),
+          getIt.get<WalletCreationService>(param1: type),
+          _walletInfoSource,
+          type,
+          getIt.get<SeedSettingsViewModel>()));
 
   getIt.registerFactoryParam<WalletHardwareRestoreViewModel, WalletType, void>((type, _) =>
-      WalletHardwareRestoreViewModel(getIt.get<LedgerViewModel>(), getIt.get<AppStore>(),
-          getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
+      WalletHardwareRestoreViewModel(
+          getIt.get<LedgerViewModel>(),
+          getIt.get<AppStore>(),
+          getIt.get<WalletCreationService>(param1: type),
+          _walletInfoSource,
+          getIt.get<SeedSettingsViewModel>(),
           type: type));
 
   getIt.registerFactory<WalletAddressListViewModel>(() => WalletAddressListViewModel(

@@ -28,7 +28,7 @@ class WalletRestoreViewModel = WalletRestoreViewModelBase with _$WalletRestoreVi
 
 abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
-      Box<WalletInfo> walletInfoSource, this.seedSettingsViewModel,
+      Box<WalletInfo> walletInfoSource, SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type})
       : hasSeedLanguageSelector =
             type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero,
@@ -42,7 +42,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             type == WalletType.tron,
         isButtonEnabled = false,
         mode = WalletRestoreMode.seed,
-        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
+        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel, type: type, isRecovery: true) {
     switch (type) {
       case WalletType.monero:
         availableModes = WalletRestoreMode.values;
@@ -76,7 +76,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   final bool hasSeedLanguageSelector;
   final bool hasBlockchainHeightLanguageSelector;
   final bool hasRestoreFromPrivateKey;
-  final SeedSettingsViewModel seedSettingsViewModel;
 
   bool get hasPassphrase =>
       [WalletType.bitcoin, WalletType.litecoin].contains(type);
@@ -271,29 +270,5 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       return walletCreationService.restoreFromKeys(credentials, isTestnet: useTestnet);
     }
     return walletCreationService.restoreFromSeed(credentials, isTestnet: useTestnet);
-  }
-
-  @override
-  DerivationInfo? getDefaultDerivation() {
-    final useBip39 = seedSettingsViewModel.bitcoinDerivationType.type == DerivationType.bip39;
-    switch (type) {
-      case WalletType.nano:
-        return DerivationInfo(derivationType: DerivationType.nano);
-      case WalletType.bitcoin:
-        if (useBip39) {
-          return bitcoin!
-              .getElectrumDerivations()[DerivationType.bip39]!
-              .firstWhere((element) => element.description == "Standard BIP84 native segwit");
-        }
-      case WalletType.litecoin:
-        if (useBip39) {
-          return bitcoin!
-              .getElectrumDerivations()[DerivationType.bip39]!
-              .firstWhere((element) => element.description == "Default Litecoin");
-        }
-        return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
-      default:
-        return null;
-    }
   }
 }
