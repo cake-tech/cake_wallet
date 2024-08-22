@@ -23,7 +23,7 @@ String generateP2SHAddress({
   required int index,
 }) =>
     ECPublic.fromBip32(hd.childKey(Bip32KeyIndex(index)).publicKey)
-        .toP2wpkhInP2sh()
+        .toP2wshInP2sh()
         .toAddress(network);
 
 String generateP2WSHAddress({

@@ -15,7 +15,7 @@ const List<BitcoinAddressType> ADDRESS_TYPES = [
   P2pkhAddressType.p2pkh,
   SegwitAddresType.p2tr,
   SegwitAddresType.p2wsh,
-  P2shAddressType.p2wpkhInP2sh,
+  P2shAddressType.p2wshInP2sh,
 ];
 
 abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
@@ -217,7 +217,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     } else if (walletInfo.type == WalletType.bitcoin) {
       await _generateInitialAddresses();
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
-      await _generateInitialAddresses(type: P2shAddressType.p2wpkhInP2sh);
+      await _generateInitialAddresses(type: P2shAddressType.p2wshInP2sh);
       await _generateInitialAddresses(type: SegwitAddresType.p2tr);
       await _generateInitialAddresses(type: SegwitAddresType.p2wsh);
     }
@@ -354,7 +354,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
 
       final lastP2sh = _addresses.firstWhere((addressRecord) =>
-          _isUnusedReceiveAddressByType(addressRecord, P2shAddressType.p2wpkhInP2sh));
+          _isUnusedReceiveAddressByType(addressRecord, P2shAddressType.p2wshInP2sh));
       if (lastP2sh.address != address) {
         addressesMap[lastP2sh.address] = 'P2SH';
       } else {

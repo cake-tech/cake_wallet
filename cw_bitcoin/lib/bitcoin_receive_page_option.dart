@@ -36,7 +36,7 @@ class BitcoinReceivePageOption implements ReceivePageOption {
       case BitcoinReceivePageOption.p2pkh:
         return P2pkhAddressType.p2pkh;
       case BitcoinReceivePageOption.p2sh:
-        return P2shAddressType.p2wpkhInP2sh;
+        return P2shAddressType.p2wshInP2sh;
       case BitcoinReceivePageOption.silent_payments:
         return SilentPaymentsAddresType.p2sp;
       case BitcoinReceivePageOption.p2wpkh:
@@ -53,7 +53,7 @@ class BitcoinReceivePageOption implements ReceivePageOption {
         return BitcoinReceivePageOption.p2wsh;
       case P2pkhAddressType.p2pkh:
         return BitcoinReceivePageOption.p2pkh;
-      case P2shAddressType.p2wpkhInP2sh:
+      case P2shAddressType.p2wshInP2sh:
         return BitcoinReceivePageOption.p2sh;
       case SilentPaymentsAddresType.p2sp:
         return BitcoinReceivePageOption.silent_payments;

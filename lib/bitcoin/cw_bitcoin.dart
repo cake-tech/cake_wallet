@@ -202,8 +202,8 @@ class CWBitcoin extends Bitcoin {
     await bitcoinWallet.updateAllUnspents();
   }
 
-  WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
+  WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource,
+      Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
     return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
   }
 
@@ -254,7 +254,7 @@ class CWBitcoin extends Bitcoin {
       case BitcoinReceivePageOption.p2pkh:
         return P2pkhAddressType.p2pkh;
       case BitcoinReceivePageOption.p2sh:
-        return P2shAddressType.p2wpkhInP2sh;
+        return P2shAddressType.p2wshInP2sh;
       case BitcoinReceivePageOption.p2tr:
         return SegwitAddresType.p2tr;
       case BitcoinReceivePageOption.p2wsh:

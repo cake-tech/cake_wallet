@@ -35,7 +35,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     if (addressType == SegwitAddresType.p2wsh)
       return generateP2WSHAddress(hd: hd, index: index, network: network);
 
-    if (addressType == P2shAddressType.p2wpkhInP2sh)
+    if (addressType == P2shAddressType.p2wshInP2sh)
       return generateP2SHAddress(hd: hd, index: index, network: network);
 
     return generateP2WPKHAddress(hd: hd, index: index, network: network);

@@ -2315,7 +2315,7 @@ BitcoinAddressType _getScriptType(BitcoinBaseAddress type) {
   if (type is P2pkhAddress) {
     return P2pkhAddressType.p2pkh;
   } else if (type is P2shAddress) {
-    return P2shAddressType.p2wpkhInP2sh;
+    return P2shAddressType.p2wshInP2sh;
   } else if (type is P2wshAddress) {
     return SegwitAddresType.p2wsh;
   } else if (type is P2trAddress) {
