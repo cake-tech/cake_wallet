@@ -28,7 +28,7 @@ import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_lightning/.secrets.g.dart' as secrets;
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-// import 'package:ldk_node/ldk_node.dart' as ldk;
+import 'package:ldk_node/ldk_node.dart' as ldk;
 
 part 'lightning_wallet.g.dart';
 
@@ -92,6 +92,8 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   // StreamSubscription<LogEntry>? _logStream;
   // StreamSubscription<InvoicePaidDetails>? _invoiceSub;
   // late final BreezSDK _sdk;
+  late ldk.Builder _builder;
+  ldk.Node? _node;
 
   late final Uint8List seedBytes;
   String mnemonic;
@@ -218,22 +220,211 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   Future<void> renameWalletFiles(String newWalletName) async {
     await stopBreez(true);
     await super.renameWalletFiles(newWalletName);
-    // await setupBreez(seedBytes);
+    await setupLightningNode(mnemonic);
   }
 
-  // void _logSdkEntries(LogEntry entry) {
-  //   switch (entry.level) {
-  //     case "ERROR":
-  //     case "WARN":
-  //       // case "INFO":
-  //       // case "DEBUG":
-  //       // case "TRACE":
-  //       print("BREEZ:${entry.level}: ${entry.line}");
-  //       break;
-  //   }
-  // }
+  totalOnchainBalanceSats() async {
+    final balance = await _node?.listBalances();
+    if (balance == null) {
+      return;
+    }
+    _balance[CryptoCurrency.btcln] = LightningBalance(
+      confirmed: balance.spendableOnchainBalanceSats.toInt(),
+      unconfirmed: (balance.totalOnchainBalanceSats - balance.spendableOnchainBalanceSats).toInt(),
+      frozen: balance.totalOnchainBalanceSats.toInt(),
+    );
+    print("wallet balance: ${balance.totalOnchainBalanceSats}");
+    print("wallet spendable balance: ${balance.spendableOnchainBalanceSats}");
+  }
 
-  Future<void> setupBreez(Uint8List seedBytes) async {
+  syncWallets() async {
+    await _node?.syncWallets();
+    print("wallet syncing complete!");
+  }
+
+  listChannels() async {
+    final res = await _node?.listChannels();
+    if (res == null) {
+      return;
+    }
+    if (res.isNotEmpty) {
+      print("======Channels========");
+      for (var e in res) {
+        print("nodeId: ${(await _node!.nodeId()).hex}");
+        print("userChannelId: ${e.userChannelId.data}");
+        print("confirmations required: ${e.confirmationsRequired}");
+        print("isChannelReady: ${e.isChannelReady}");
+        print("isUsable: ${e.isUsable}");
+        print("outboundCapacityMsat: ${e.outboundCapacityMsat}");
+      }
+    }
+  }
+
+  listPaymentsWithFilter(bool printPayments) async {
+    // final res =
+    //     await aliceNode.listPaymentsWithFilter(paymentDirection: ldk.PaymentDirection.outbound);
+    // if (res.isNotEmpty) {
+    //   if (printPayments) {
+    //     if (kDebugMode) {
+    //       print("======Payments========");
+    //       for (var e in res) {
+    //         print("amountMsat: ${e.amountMsat}");
+    //         print("paymentId: ${e.id.field0}");
+    //         print("status: ${e.status.name}");
+    //       }
+    //     }
+    //   }
+    //   return res.last;
+    // } else {
+    //   return null;
+    // }
+  }
+
+  removeLastPayment() async {
+    // final lastPayment = await listPaymentsWithFilter(false);
+    // if (lastPayment != null) {
+    //   final _ = await aliceNode.removePayment(paymentId: lastPayment.id);
+    //   setState(() {
+    //     displayText = "${lastPayment.hash.internal} removed";
+    //   });
+    // }
+  }
+
+  Future<List<String>> newOnchainAddress() async {
+    // final alice = await (await aliceNode.onChainPayment()).newAddress();
+    // final bob = await (await bobNode.onChainPayment()).newAddress();
+    // if (kDebugMode) {
+    //   print("alice's address: ${alice.s}");
+    //   print("bob's address: ${bob.s}");
+    // }
+    // setState(() {
+    //   displayText = alice.s;
+    // });
+    // return [alice.s, bob.s];
+    return [];
+  }
+
+  listeningAddress() async {
+    // final alice = await aliceNode.listeningAddresses();
+    // final bob = await bobNode.listeningAddresses();
+
+    // setState(() {
+    //   bobAddr = bob!.first;
+    // });
+    // if (kDebugMode) {
+    //   print("alice's listeningAddress : ${alice!.first.toString()}");
+    //   print("bob's listeningAddress: ${bob!.first.toString()}");
+    // }
+  }
+
+  closeChannel() async {
+    // await aliceNode.closeChannel(
+    //     userChannelId: userChannelId!,
+    //     counterpartyNodeId: ldk.PublicKey(
+    //       hex: '02465ed5be53d04fde66c9418ff14a5f2267723810176c9212b722e542dc1afb1b',
+    //     ));
+  }
+
+  connectOpenChannel() async {
+    // final funding_amount_sat = 80000;
+    // final push_msat = (funding_amount_sat / 2) * 1000;
+    // userChannelId = await aliceNode.connectOpenChannel(
+    //     channelAmountSats: BigInt.from(funding_amount_sat),
+    //     announceChannel: true,
+    //     socketAddress: ldk.SocketAddress.hostname(
+    //       addr: '45.79.52.207',
+    //       port: 9735,
+    //     ),
+    //     pushToCounterpartyMsat: BigInt.from(push_msat),
+    //     nodeId: ldk.PublicKey(
+    //       hex: '02465ed5be53d04fde66c9418ff14a5f2267723810176c9212b722e542dc1afb1b',
+    //     ));
+  }
+
+  receiveAndSendPayments() async {
+    // final bobBolt11Handler = await bobNode.bolt11Payment();
+    // final aliceBolt11Handler = await aliceNode.bolt11Payment();
+    // // Bob doesn't have a channel yet, so he can't receive normal payments,
+    // //  but he can receive payments via JIT channels through an LSP configured
+    // //  in its node.
+    // invoice = await bobBolt11Handler.receiveViaJitChannel(
+    //     amountMsat: BigInt.from(25000 * 1000), description: 'asdf', expirySecs: 9217);
+    // print(invoice!.signedRawInvoice);
+    // setState(() {
+    //   displayText = invoice!.signedRawInvoice;
+    // });
+    // final paymentId = await aliceBolt11Handler.send(invoice: invoice!);
+    // final res = await aliceNode.payment(paymentId: paymentId);
+    // setState(() {
+    //   displayText = "Payment status: ${res?.status.name}\n PaymentId: ${res?.id.field0}";
+    // });
+  }
+
+  stop() async {
+    // await bobNode.stop();
+    // await aliceNode.stop();
+  }
+
+  Future handleEvent(ldk.Node node) async {
+    final res = await node.nextEvent();
+    res?.map(paymentSuccessful: (e) {
+      if (kDebugMode) {
+        print("paymentSuccessful: ${e.paymentHash.data}");
+      }
+    }, paymentFailed: (e) {
+      if (kDebugMode) {
+        print("paymentFailed: ${e.paymentHash.data}");
+      }
+    }, paymentReceived: (e) {
+      if (kDebugMode) {
+        print("paymentReceived: ${e.paymentHash.data}");
+      }
+    }, channelReady: (e) {
+      if (kDebugMode) {
+        print("channelReady: ${e.channelId.data}, userChannelId: ${e.userChannelId.data}");
+      }
+    }, channelClosed: (e) {
+      if (kDebugMode) {
+        print("channelClosed: ${e.channelId.data}, userChannelId: ${e.userChannelId.data}");
+      }
+    }, channelPending: (e) {
+      if (kDebugMode) {
+        print("channelClosed: ${e.channelId.data}, userChannelId: ${e.userChannelId.data}");
+      }
+    }, paymentClaimable: (e) {
+      if (kDebugMode) {
+        print(
+            "paymentId: ${e.paymentId.field0.toString()}, claimableAmountMsat: ${e.claimableAmountMsat}, userChannelId: ${e.claimDeadline}");
+      }
+    });
+    await node.eventHandled();
+  }
+
+  Future<void> startNode(ldk.Node node) async {
+    try {
+      node.start();
+    } on ldk.NodeException catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<ldk.Builder> createBuilder(String mnemonic) async {
+    String workingDir = await pathForWalletDir(name: walletInfo.name, type: type);
+    workingDir = "$workingDir/ldk/";
+    new Directory(workingDir).createSync(recursive: true);
+
+    String esploraUrl = "https://mutinynet.ltbl.io/api";
+
+    ldk.SocketAddress address = ldk.SocketAddress.hostname(addr: "0.0.0.0", port: 3003);
+
+    return ldk.Builder.mutinynet()
+        .setEntropyBip39Mnemonic(mnemonic: ldk.Mnemonic(seedPhrase: mnemonic))
+        .setEsploraServer(esploraUrl)
+        .setStorageDirPath(workingDir)
+        .setListeningAddresses([address]);
+  }
+
+  Future<void> setupLightningNode(String mnemonic) async {
     // _sdk = await BreezSDK();
     // await _logStream?.cancel();
     // _logStream = _sdk.logStream.listen(_logSdkEntries);
@@ -247,28 +438,13 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     //   return;
     // }
 
-    // GreenlightCredentials greenlightCredentials = GreenlightCredentials(
-    //   developerKey: base64.decode(secrets.greenlightKey),
-    //   developerCert: base64.decode(secrets.greenlightCert),
-    // );
+    if (_node != null) {
+      await _node?.stop();
+    }
 
-    // NodeConfig breezNodeConfig = NodeConfig.greenlight(
-    //   config: GreenlightNodeConfig(
-    //     partnerCredentials: greenlightCredentials,
-    //     inviteCode: null,
-    //   ),
-    // );
-    // Config breezConfig = await _sdk.defaultConfig(
-    //   envType: EnvironmentType.Production,
-    //   apiKey: secrets.breezApiKey,
-    //   nodeConfig: breezNodeConfig,
-    // );
-
-    // String workingDir = await pathForWalletDir(name: walletInfo.name, type: type);
-    // workingDir = "$workingDir/breez/";
-
-    // new Directory(workingDir).createSync(recursive: true);
-    // breezConfig = breezConfig.copyWith(workingDir: workingDir);
+    _builder = await createBuilder(mnemonic);
+    _node = await _builder.build();
+    await startNode(_node!);
 
     // // disconnect if already connected
     // try {
@@ -451,7 +627,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     await super.init();
     // initialize breez:
     try {
-      await setupBreez(seedBytes);
+      await setupLightningNode(mnemonic);
     } catch (e) {
       print("Error initializing Breez: $e");
     }
