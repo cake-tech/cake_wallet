@@ -73,7 +73,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   final TextEditingController passphraseController;
   final GlobalKey<FormState> formKey;
   late ReactionDisposer moneroSeedTypeReaction;
-  late ReactionDisposer passphraseReaction;
   String language;
   void Function()? passwordListener;
   void Function()? repeatedPasswordListener;
@@ -99,7 +98,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     passphraseController.addListener(passphraseListener!);
 
     moneroSeedTypeReaction =
-        reaction((_) => widget.seedSettingsViewModel.moneroSeedType, (SeedType item) {
+        reaction((_) => widget.seedSettingsViewModel.moneroSeedType, (MoneroSeedType item) {
           _setSeedType(item);
           _changeLanguage('English');
         });
@@ -109,7 +108,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   @override
   void dispose() {
-    passphraseReaction();
     moneroSeedTypeReaction();
 
     if (passwordListener != null) {
@@ -120,7 +118,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
     }
 
-    passphraseReaction();
     passphraseController.removeListener(passphraseListener!);
 
     super.dispose();
@@ -131,13 +128,13 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         Polyseed.isValidSeed(seed)) {
       final lang = PolyseedLang.getByPhrase(seed);
 
-      _changeSeedType(SeedType.polyseed);
+      _changeSeedType(MoneroSeedType.polyseed);
       _changeLanguage(lang.nameEnglish);
     }
     if (widget.type == WalletType.wownero && seed
         .split(" ")
         .length == 14) {
-      _changeSeedType(SeedType.wowneroSeed);
+      _changeSeedType(MoneroSeedType.wowneroSeed);
       _changeLanguage("English");
     }
     widget.onSeedChange?.call(seed);
@@ -252,7 +249,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                           SeedLanguagePicker(
                             selected: language,
                             onItemSelected: _changeLanguage,
-                            seedType: isPolyseed ? SeedType.polyseed : SeedType.legacy,
+                            seedType: isPolyseed ? MoneroSeedType.polyseed : MoneroSeedType.legacy,
                           ));
                 },
                 child: Container(
@@ -288,7 +285,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   }
 
   bool get isPolyseed =>
-      widget.seedSettingsViewModel.moneroSeedType == SeedType.polyseed &&
+      widget.seedSettingsViewModel.moneroSeedType == MoneroSeedType.polyseed &&
           (widget.type == WalletType.monero || widget.type == WalletType.wownero);
 
   Widget get expandIcon =>
@@ -322,24 +319,24 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   void _setLanguageLabel(String language) =>
       languageController.text = '${language.replaceAll("POLYSEED_", "")} (Seed language)';
 
-  void _changeSeedType(SeedType item) {
+  void _changeSeedType(MoneroSeedType item) {
     _setSeedType(item);
     _changeLanguage('English');
     widget.seedSettingsViewModel.setMoneroSeedType(item);
   }
 
-  void _setSeedType(SeedType item) {
+  void _setSeedType(MoneroSeedType item) {
     seedTypeController.text = item.toString();
   }
 
-  List<SeedType> _getItems() {
+  List<MoneroSeedType> _getItems() {
     switch (widget.type) {
       case WalletType.monero:
-        return [SeedType.legacy, SeedType.polyseed];
+        return [MoneroSeedType.legacy, MoneroSeedType.polyseed];
       case WalletType.wownero:
-        return [SeedType.legacy, SeedType.polyseed, SeedType.wowneroSeed];
+        return [MoneroSeedType.legacy, MoneroSeedType.polyseed, MoneroSeedType.wowneroSeed];
       default:
-        return [SeedType.legacy];
+        return [MoneroSeedType.legacy];
     }
   }
 }

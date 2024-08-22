@@ -165,9 +165,9 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
             if (widget.privacySettingsViewModel.hasSeedTypeOption)
               Observer(builder: (_) {
                 return SettingsChoicesCell(
-                  ChoicesListItem<SeedType>(
+                  ChoicesListItem<MoneroSeedType>(
                     title: S.current.seedtype,
-                    items: SeedType.all,
+                    items: MoneroSeedType.all,
                     selectedItem: widget.seedTypeViewModel.moneroSeedType,
                     onItemSelected: widget.seedTypeViewModel.setMoneroSeedType,
                   ),
@@ -177,11 +177,11 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 .contains(widget.privacySettingsViewModel.type))
               Observer(builder: (_) {
                 return SettingsChoicesCell(
-                  ChoicesListItem<DerivationTypeSetting>(
+                  ChoicesListItem<BitcoinSeedTypeSetting>(
                     title: S.current.derivationpath,
-                    items: DerivationTypeSetting.all,
-                    selectedItem: widget.seedTypeViewModel.bitcoinDerivationType,
-                    onItemSelected: widget.seedTypeViewModel.setBitcoinDerivationType,
+                    items: BitcoinSeedTypeSetting.all,
+                    selectedItem: widget.seedTypeViewModel.bitcoinSeedType,
+                    onItemSelected: widget.seedTypeViewModel.setBitcoinSeedType,
                   ),
                 );
               }),

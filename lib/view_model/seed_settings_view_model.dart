@@ -12,26 +12,23 @@ abstract class SeedSettingsViewModelBase with Store {
   SeedSettingsViewModelBase(this._appStore, this._seedSettingsStore);
 
   @computed
-  SeedType get moneroSeedType => _appStore.settingsStore.moneroSeedType;
+  MoneroSeedType get moneroSeedType => _appStore.settingsStore.moneroSeedType;
 
   @action
-  void setMoneroSeedType(SeedType seedType) => _appStore.settingsStore.moneroSeedType = seedType;
+  void setMoneroSeedType(MoneroSeedType seedType) => _appStore.settingsStore.moneroSeedType = seedType;
 
   @computed
-  DerivationTypeSetting get bitcoinDerivationType => _appStore.settingsStore.bitcoinDerivationType;
+  BitcoinSeedTypeSetting get bitcoinSeedType => _appStore.settingsStore.bitcoinSeedType;
 
   @action
-  void setBitcoinDerivationType(DerivationTypeSetting derivationType) =>
-      _appStore.settingsStore.bitcoinDerivationType = derivationType;
+  void setBitcoinSeedType(BitcoinSeedTypeSetting derivationType) =>
+      _appStore.settingsStore.bitcoinSeedType = derivationType;
 
   @computed
   String? get passphrase => this._seedSettingsStore.passphrase;
 
   @action
-  void setPassphrase(String? passphrase) {
-    print("Passpahres $passphrase");
-    this._seedSettingsStore.passphrase = passphrase;
-  }
+  void setPassphrase(String? passphrase) => this._seedSettingsStore.passphrase = passphrase;
 
   final AppStore _appStore;
   final SeedSettingsStore _seedSettingsStore;

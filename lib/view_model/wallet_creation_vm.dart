@@ -117,7 +117,7 @@ abstract class WalletCreationVMBase with Store {
   }
 
   DerivationInfo? getDefaultDerivation() {
-    final useBip39 = seedSettingsViewModel.bitcoinDerivationType.type == DerivationType.bip39;
+    final useBip39 = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.bip39;
     switch (type) {
       case WalletType.nano:
         return DerivationInfo(derivationType: DerivationType.nano);

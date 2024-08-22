@@ -109,7 +109,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
       }
     });
 
-    _setSeedType(SeedType.defaultSeedType);
+    _setSeedType(MoneroSeedType.defaultSeedType);
     super.initState();
   }
 
@@ -289,7 +289,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               await showPopUp<void>(
                                 context: context,
                                 builder: (_) => Picker(
-                                  items: SeedType.all,
+                                  items: MoneroSeedType.all,
                                   selectedAtIndex: isPolyseed ? 1 : 0,
                                   onItemSelected: _setSeedType,
                                   isSeparated: false,
@@ -308,7 +308,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                           initialSelected: defaultSeedLanguage,
                           seedType: _walletNewVM.hasSeedType
                               ? widget._seedSettingsViewModel.moneroSeedType
-                              : SeedType.legacy,
+                              : MoneroSeedType.legacy,
                         ),
                       ),
                     )
@@ -379,9 +379,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
     _formProcessing = false;
   }
 
-  bool get isPolyseed => widget._seedSettingsViewModel.moneroSeedType == SeedType.polyseed;
+  bool get isPolyseed => widget._seedSettingsViewModel.moneroSeedType == MoneroSeedType.polyseed;
 
-  void _setSeedType(SeedType item) {
+  void _setSeedType(MoneroSeedType item) {
     widget._seedSettingsViewModel.setMoneroSeedType(item);
     _languageSelectorKey.currentState?.selected = defaultSeedLanguage; // Reset Seed language
   }

@@ -57,8 +57,8 @@ abstract class SettingsStoreBase with Store {
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
       required AutoGenerateSubaddressStatus initialAutoGenerateSubaddressStatus,
-      required SeedType initialMoneroSeedType,
-      required DerivationTypeSetting initialBitcoinDerivationType,
+      required MoneroSeedType initialMoneroSeedType,
+      required BitcoinSeedTypeSetting initialBitcoinSeedType,
       required bool initialAppSecure,
       required bool initialDisableBuy,
       required bool initialDisableSell,
@@ -131,7 +131,7 @@ abstract class SettingsStoreBase with Store {
         shouldSaveRecipientAddress = initialSaveRecipientAddress,
         autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
         moneroSeedType = initialMoneroSeedType,
-        bitcoinDerivationType = initialBitcoinDerivationType,
+        bitcoinSeedType = initialBitcoinSeedType,
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
@@ -333,13 +333,13 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => moneroSeedType,
-        (SeedType moneroSeedType) =>
+        (MoneroSeedType moneroSeedType) =>
             sharedPreferences.setInt(PreferencesKey.moneroSeedType, moneroSeedType.raw));
 
     reaction(
-        (_) => bitcoinDerivationType,
-        (DerivationTypeSetting bitcoinDerivationType) => sharedPreferences.setInt(
-            PreferencesKey.bitcoinDerivationType, bitcoinDerivationType.raw));
+        (_) => bitcoinSeedType,
+        (BitcoinSeedTypeSetting bitcoinSeedType) => sharedPreferences.setInt(
+            PreferencesKey.bitcoinSeedType, bitcoinSeedType.raw));
 
     reaction(
         (_) => fiatApiMode,
@@ -564,8 +564,8 @@ abstract class SettingsStoreBase with Store {
   static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
   static final walletPasswordDirectInput = Platform.isLinux;
   static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;
-  static const defaultMoneroSeedType = SeedType.defaultSeedType;
-  static const defaultBitcoinDerivationType = DerivationTypeSetting.defaultDerivationType;
+  static const defaultMoneroSeedType = MoneroSeedType.defaultSeedType;
+  static const defaultBitcoinSeedType = BitcoinSeedTypeSetting.defaultDerivationType;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -595,10 +595,10 @@ abstract class SettingsStoreBase with Store {
   AutoGenerateSubaddressStatus autoGenerateSubaddressStatus;
 
   @observable
-  SeedType moneroSeedType;
+  MoneroSeedType moneroSeedType;
 
   @observable
-  DerivationTypeSetting bitcoinDerivationType;
+  BitcoinSeedTypeSetting bitcoinSeedType;
 
   @observable
   bool isAppSecure;
@@ -958,14 +958,14 @@ abstract class SettingsStoreBase with Store {
     final _moneroSeedType = sharedPreferences.getInt(PreferencesKey.moneroSeedType);
 
     final moneroSeedType = _moneroSeedType != null
-        ? SeedType.deserialize(raw: _moneroSeedType)
+        ? MoneroSeedType.deserialize(raw: _moneroSeedType)
         : defaultMoneroSeedType;
 
-    final _bitcoinDerivationType = sharedPreferences.getInt(PreferencesKey.bitcoinDerivationType);
+    final _bitcoinSeedType = sharedPreferences.getInt(PreferencesKey.bitcoinSeedType);
 
-    final bitcoinDerivationType = _bitcoinDerivationType != null
-        ? DerivationTypeSetting.deserialize(raw: _bitcoinDerivationType)
-        : defaultBitcoinDerivationType;
+    final bitcoinSeedType = _bitcoinSeedType != null
+        ? BitcoinSeedTypeSetting.deserialize(raw: _bitcoinSeedType)
+        : defaultBitcoinSeedType;
 
     final nodes = <WalletType, Node>{};
     final powNodes = <WalletType, Node>{};
@@ -1130,7 +1130,7 @@ abstract class SettingsStoreBase with Store {
       initialSaveRecipientAddress: shouldSaveRecipientAddress,
       initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
       initialMoneroSeedType: moneroSeedType,
-      initialBitcoinDerivationType: bitcoinDerivationType,
+      initialBitcoinSeedType: bitcoinSeedType,
       initialAppSecure: isAppSecure,
       initialDisableBuy: disableBuy,
       initialDisableSell: disableSell,
@@ -1253,14 +1253,14 @@ abstract class SettingsStoreBase with Store {
     final _moneroSeedType = sharedPreferences.getInt(PreferencesKey.moneroSeedType);
 
     moneroSeedType = _moneroSeedType != null
-        ? SeedType.deserialize(raw: _moneroSeedType)
+        ? MoneroSeedType.deserialize(raw: _moneroSeedType)
         : defaultMoneroSeedType;
 
-    final _bitcoinDerivationType = sharedPreferences.getInt(PreferencesKey.bitcoinDerivationType);
+    final _bitcoinSeedType = sharedPreferences.getInt(PreferencesKey.bitcoinSeedType);
 
-    bitcoinDerivationType = _bitcoinDerivationType != null
-        ? DerivationTypeSetting.deserialize(raw: _bitcoinDerivationType)
-        : defaultBitcoinDerivationType;
+    bitcoinSeedType = _bitcoinSeedType != null
+        ? BitcoinSeedTypeSetting.deserialize(raw: _bitcoinSeedType)
+        : defaultBitcoinSeedType;
 
     balanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);

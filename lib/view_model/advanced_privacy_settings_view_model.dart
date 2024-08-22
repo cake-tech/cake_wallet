@@ -68,7 +68,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   SeedPhraseLength get seedPhraseLength => _settingsStore.seedPhraseLength;
 
   @computed
-  bool get isPolySeed => _settingsStore.moneroSeedType == SeedType.polyseed;
+  bool get isPolySeed => _settingsStore.moneroSeedType == MoneroSeedType.polyseed;
 
   @action
   void setFiatApiMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;
