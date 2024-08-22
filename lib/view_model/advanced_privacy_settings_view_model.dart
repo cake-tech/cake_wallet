@@ -57,6 +57,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get hasPassphraseOption => [
         WalletType.bitcoin,
         WalletType.litecoin,
+        WalletType.bitcoinCash,
         WalletType.monero,
         WalletType.wownero
       ].contains(type);
