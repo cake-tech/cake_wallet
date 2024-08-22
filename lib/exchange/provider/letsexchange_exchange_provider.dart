@@ -26,7 +26,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   static const _createTransactionRevertPath = '/api/v1/transaction-revert';
   static const _getTransactionPath = '/api/v1/transaction';
 
-  static const _affiliateId = '';
+  static const _affiliateId = secrets.letsExchangeAffiliateId;
 
   @override
   String get title => 'LetsExchange';
