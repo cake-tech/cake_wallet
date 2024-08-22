@@ -10,6 +10,7 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
+import 'package:cw_wownero/wownero_wallet.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
 
@@ -95,6 +96,13 @@ abstract class WalletKeysViewModelBase with Store {
             value: (_appStore.wallet as MoneroWalletBase)
                 .seedLegacy(lang.nameEnglish)));
       }
+      
+      final passphrase = (_appStore.wallet as MoneroWalletBase).passphrase();
+      if (passphrase != null && passphrase != "") {
+        items.add(StandartListItem(
+            title: S.current.passphrase_view_keys,
+            value: passphrase.toString()));
+      }
 
       final restoreHeight = monero!.getRestoreHeight(_appStore.wallet!);
       if (restoreHeight != null) {
@@ -141,7 +149,7 @@ abstract class WalletKeysViewModelBase with Store {
               title: S.current.spend_key_private,
               value: keys['privateSpendKey']!),
         if (keys['publicViewKey'] != null)
-          StandartListItem(
+          StandartListItem( 
               title: S.current.view_key_public, value: keys['publicViewKey']!),
         if (keys['privateViewKey'] != null)
           StandartListItem(
@@ -157,6 +165,13 @@ abstract class WalletKeysViewModelBase with Store {
         items.add(StandartListItem(
             title: S.current.wallet_seed_legacy,
             value: wownero!.getLegacySeed(_appStore.wallet!, lang.nameEnglish)));
+      }
+
+      final passphrase = (_appStore.wallet as WowneroWalletBase).passphrase();
+      if (passphrase != null && passphrase != "") {
+        items.add(StandartListItem(
+            title: S.current.passphrase_view_keys,
+            value: passphrase.toString()));
       }
     }
 
@@ -276,7 +291,9 @@ abstract class WalletKeysViewModelBase with Store {
       if (_appStore.wallet!.seed == null &&
           _appStore.wallet!.privateKey != null)
         'private_key': _appStore.wallet!.privateKey!,
-      if (restoreHeightResult != null) ...{'height': restoreHeightResult}
+      if (restoreHeightResult != null) ...{'height': restoreHeightResult},
+      if (_appStore.wallet is MoneroWalletBase) ...{'passphrase': (_appStore.wallet as MoneroWalletBase).passphrase()??''},
+      if (_appStore.wallet is WowneroWalletBase) ...{'passphrase': (_appStore.wallet as WowneroWalletBase).passphrase()??''}
     };
   }
 
