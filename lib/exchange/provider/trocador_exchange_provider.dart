@@ -120,10 +120,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       required bool isFixedRateMode,
       required bool isReceiveAmount}) async {
     try {
-
-      final fPrintResponse = await get(Uri.parse("https://backup.trocador.app/_bProxy/fingerprint"));
-      print(fPrintResponse.body);
-      
       if (amount == 0) return 0.0;
 
       final params = <String, String>{
