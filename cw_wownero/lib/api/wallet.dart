@@ -45,8 +45,9 @@ String getSeed() {
       final lang = PolyseedLang.getByPhrase(cakepassphrase);
       final coin = PolyseedCoin.POLYSEED_MONERO;
       final ps = Polyseed.decode(cakepolyseed, lang, coin);
-      if (ps.isEncrypted) return ps.encode(lang, coin);
-      ps.crypt(getPassphrase());
+      final passphrase = getPassphrase();
+      if (ps.isEncrypted || passphrase == "") return ps.encode(lang, coin);
+      ps.crypt(passphrase);
       return ps.encode(lang, coin);
     }
     return cakepolyseed;
