@@ -34,7 +34,7 @@ const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
 const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
-const nanoDefaultNodeUri = 'rpc.nano.to';
+const nanoDefaultNodeUri = 'nano.nownodes.io';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'rpc.ankr.com';
 const tronDefaultNodeUri = 'trx.nownodes.io';
@@ -241,6 +241,10 @@ Future<void> defaultSettingsMigration(
         case 38:
           await fixBtcDerivationPaths(walletInfoSource);
           break;
+        case 39:
+          _fixNodesUseSSLFlag(nodes);
+          await changeDefaultNanoNode(nodes, sharedPreferences);
+          break;
         default:
           break;
       }
@@ -253,6 +257,17 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+void _fixNodesUseSSLFlag(Box<Node> nodes) {
+  for (Node node in nodes.values) {
+    switch (node.uriRaw) {
+      case cakeWalletLitecoinElectrumUri:
+      case cakeWalletBitcoinElectrumUri:
+        node.useSSL = true;
+        break;
+    }
+  }
 }
 
 Future<void> updateNanoNodeList({required Box<Node> nodes}) async {
@@ -512,10 +527,17 @@ Node getWowneroDefaultNode({required Box<Node> nodes}) {
     nodeUri = 'node3.monerodevs.org:34568';
   }
 
+  if (nodeUri == '') {
+    return nodes.values.where((element) => element.type == WalletType.wownero).first;
+  }
+
   try {
-    return nodes.values.firstWhere((Node node) => node.uriRaw == nodeUri);
+    return nodes.values.firstWhere(
+      (Node node) => node.uriRaw == nodeUri,
+      orElse: () => nodes.values.where((element) => element.type == WalletType.wownero).first,
+    );
   } catch (_) {
-    return nodes.values.first;
+    return nodes.values.where((element) => element.type == WalletType.wownero).first;
   }
 }
 
@@ -826,6 +848,25 @@ Future<void> updateBtcNanoWalletInfos(Box<WalletInfo> walletsInfoSource) async {
       );
       await walletInfo.save();
     }
+  }
+}
+
+Future<void> changeDefaultNanoNode(
+    Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
+  const oldNanoNodeUriPattern = 'rpc.nano.to';
+  final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
+  final currentNanoNode = nodeSource.values.firstWhere((node) => node.key == currentNanoNodeId);
+
+  final newCakeWalletNode = Node(
+    uri: nanoDefaultNodeUri,
+    type: WalletType.nano,
+    useSSL: true,
+  );
+
+  await nodeSource.add(newCakeWalletNode);
+
+  if (currentNanoNode.uri.toString().contains(oldNanoNodeUriPattern)) {
+    await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, newCakeWalletNode.key as int);
   }
 }
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/app_scroll_behavior.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
@@ -41,13 +42,13 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
-import 'package:monero/monero.dart' as monero_d;
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
 Future<void> main() async {
+
   bool isAppRunning = false;
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -61,7 +62,6 @@ Future<void> main() async {
 
       return true;
     };
-    //monero_d.WalletManagerFactory_setLogLevel(3);
 
     await setDefaultMinimumWindowSize();
 
@@ -77,6 +77,7 @@ Future<void> main() async {
       runApp(
         MaterialApp(
           debugShowCheckedModeBanner: false,
+          scrollBehavior: AppScrollBehavior(),
           home: Scaffold(
             body: SingleChildScrollView(
               child: Container(
@@ -170,7 +171,6 @@ Future<void> initializeAppConfigs() async {
   }
 
   final secureStorage = secureStorageShared;
-
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
@@ -205,7 +205,7 @@ Future<void> initializeAppConfigs() async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 38,
+    initialMigrationVersion: 39,
   );
 }
 
@@ -247,8 +247,8 @@ Future<void> initialSetup(
     ordersSource: ordersSource,
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
-    secureStorage: secureStorage,
     navigatorKey: navigatorKey,
+    secureStorage: secureStorage,
   );
   await bootstrap(navigatorKey);
   monero?.onStartup();
@@ -299,6 +299,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             locale: Locale(settingsStore.languageCode),
             onGenerateRoute: (settings) => Router.createRoute(settings),
             initialRoute: initialRoute,
+            scrollBehavior: AppScrollBehavior(),
             home: _Home(),
           ));
     });

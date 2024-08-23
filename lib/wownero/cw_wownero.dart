@@ -344,4 +344,12 @@ class CWWownero extends Wownero {
   Future<int> getCurrentHeight() async {
     return wownero_wallet_api.getCurrentHeight();
   }
+
+  String getLegacySeed(Object wallet, String langName) =>
+      (wallet as WowneroWalletBase).seedLegacy(langName);
+
+  @override
+  void wownerocCheck() {
+    checkIfMoneroCIsFine();
+  }
 }

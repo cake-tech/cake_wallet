@@ -56,8 +56,14 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedPendingStatus {
-    if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
-      return ' (${transaction.confirmations}/10)';
+    if (balanceViewModel.wallet.type == WalletType.monero || balanceViewModel.wallet.type == WalletType.haven) {
+      if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
+        return ' (${transaction.confirmations}/10)';
+      }
+    } else if (balanceViewModel.wallet.type == WalletType.wownero) {
+      if (transaction.confirmations >= 0 && transaction.confirmations < 3) {
+        return ' (${transaction.confirmations}/3)';
+      }
     }
     return '';
   }

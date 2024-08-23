@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sideba
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
+import 'package:cake_wallet/src/widgets/haven_wallet_removal_popup.dart';
 import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
 import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
@@ -236,7 +237,11 @@ class _DashboardPageView extends BasePage {
               padding: EdgeInsets.only(bottom: 24, top: 10),
               child: Observer(
                 builder: (context) {
-                  return ExcludeSemantics(
+                  return Semantics(
+                    button: false,
+                    label: 'Page Indicator',
+                    hint: 'Swipe to change page',
+                    excludeSemantics: true,
                     child: SmoothPageIndicator(
                       controller: controller,
                       count: pages.length,
@@ -351,10 +356,12 @@ class _DashboardPageView extends BasePage {
 
     _showVulnerableSeedsPopup(context);
 
+    _showHavenPopup(context);
+
     var needToPresentYat = false;
     var isInactive = false;
 
-    _onInactiveSub = rootKey.currentState!.isInactive.listen(
+    _onInactiveSub = rootKey.currentState?.isInactive.listen(
       (inactive) {
         isInactive = inactive;
 
@@ -422,6 +429,24 @@ class _DashboardPageView extends BasePage {
             context: context,
             builder: (BuildContext context) {
               return VulnerableSeedsPopup(affectedWalletNames);
+            },
+          );
+        },
+      );
+    }
+  }
+
+  void _showHavenPopup(BuildContext context) async {
+    final List<String> havenWalletList = await dashboardViewModel.checkForHavenWallets();
+
+    if (havenWalletList.isNotEmpty) {
+      Future<void>.delayed(
+        Duration(seconds: 1),
+        () {
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return HavenWalletRemovalPopup(havenWalletList);
             },
           );
         },

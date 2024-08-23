@@ -6,11 +6,13 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
+
 // import 'package:tor/tor.dart';
 
 part 'node.g.dart';
 
-Uri createUriFromElectrumAddress(String address, String path) => Uri.tryParse('tcp://$address$path')!;
+Uri createUriFromElectrumAddress(String address, String path) =>
+    Uri.tryParse('tcp://$address$path')!;
 
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
@@ -70,6 +72,12 @@ class Node extends HiveObject with Keyable {
 
   @HiveField(7, defaultValue: '')
   String? path;
+
+  @HiveField(8)
+  bool? isElectrs;
+
+  @HiveField(9)
+  bool? supportsSilentPayments;
 
   bool get isSSL => useSSL ?? false;
 
@@ -148,7 +156,6 @@ class Node extends HiveObject with Keyable {
           return requestMoneroNode();
         case WalletType.nano:
         case WalletType.banano:
-          return requestNanoNode();
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.bitcoinCash:
@@ -203,23 +210,6 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestNanoNode() async {
-    http.Response response = await http.post(
-      uri,
-      headers: {'Content-type': 'application/json'},
-      body: json.encode(
-        {
-          "action": "block_count",
-        },
-      ),
-    );
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   Future<bool> requestNodeWithProxy() async {
     if (!isValidProxyAddress /* && !Tor.instance.enabled*/) {
       return false;
@@ -244,6 +234,9 @@ class Node extends HiveObject with Keyable {
     }
   }
 
+  // TODO: this will return true most of the time, even if the node has useSSL set to true while
+  // it doesn't support SSL or vice versa, because it will connect normally, but it will fail if
+  // you try to communicate with it
   Future<bool> requestElectrumServer() async {
     try {
       if (useSSL == true) {

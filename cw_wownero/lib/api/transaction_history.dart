@@ -17,16 +17,47 @@ String getTxKey(String txId) {
 wownero.TransactionHistory? txhistory;
 
 void refreshTransactions() {
-  txhistory = wownero.Wallet_history(wptr!);
+  txhistory ??= wownero.Wallet_history(wptr!);
   wownero.TransactionHistory_refresh(txhistory!);
 }
 
 int countOfTransactions() => wownero.TransactionHistory_count(txhistory!);
 
 List<Transaction> getAllTransactions() {
-  final size = countOfTransactions();
+  List<Transaction> dummyTxs = [];
 
-  return List.generate(size, (index) => Transaction(txInfo: wownero.TransactionHistory_transaction(txhistory!, index: index)));
+  txhistory ??= wownero.Wallet_history(wptr!);
+  wownero.TransactionHistory_refresh(txhistory!);
+  int size = countOfTransactions();
+  final list = List.generate(size, (index) => Transaction(txInfo: wownero.TransactionHistory_transaction(txhistory!, index: index)));
+
+  final accts = wownero.Wallet_numSubaddressAccounts(wptr!);
+  for (var i = 0; i < accts; i++) {  
+    final fullBalance = wownero.Wallet_balance(wptr!, accountIndex: i);
+    final availBalance = wownero.Wallet_unlockedBalance(wptr!, accountIndex: i);
+    if (fullBalance > availBalance) {
+      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).isEmpty) {
+        dummyTxs.add(
+          Transaction.dummy(
+            displayLabel: "",
+            description: "",
+            fee: 0,
+            confirmations: 0,
+            blockheight: 0,
+            accountIndex: i,
+            paymentId: "",
+            amount: fullBalance - availBalance,
+            isSpend: false,
+            hash: "pending",
+            key: "pending",
+            txInfo: Pointer.fromAddress(0),
+          )..timeStamp = DateTime.now()
+        );
+      }
+    }
+  }
+  list.addAll(dummyTxs);
+  return list;
 }
 
 // TODO(mrcyjanek): ...
@@ -221,7 +252,7 @@ class Transaction {
   final String description;
   final int fee;
   final int confirmations;
-  late final bool isPending = confirmations < 10;
+  late final bool isPending = confirmations < 3;
   final int blockheight;
   final int addressIndex = 0;
   final int accountIndex;
@@ -254,7 +285,7 @@ class Transaction {
     };
   }
 
-  // S finalubAddress? subAddress;
+  // final SubAddress? subAddress;
   // List<Transfer> transfers = [];
   // final int txIndex;
   final wownero.TransactionInfo txInfo;
@@ -275,4 +306,19 @@ class Transaction {
         fee = wownero.TransactionInfo_fee(txInfo),
         description = wownero.TransactionInfo_description(txInfo),
         key = wownero.Wallet_getTxKey(wptr!, txid: wownero.TransactionInfo_hash(txInfo));
+
+  Transaction.dummy({
+    required this.displayLabel,
+    required this.description,
+    required this.fee,
+    required this.confirmations,
+    required this.blockheight,
+    required this.accountIndex,
+    required this.paymentId,
+    required this.amount,
+    required this.isSpend,
+    required this.hash,
+    required this.key,
+    required this.txInfo
+  });
 }

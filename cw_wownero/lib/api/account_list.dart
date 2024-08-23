@@ -34,7 +34,6 @@ List<wownero.SubaddressAccountRow> getAllAccount() {
   // final size = wownero.Wallet_numSubaddressAccounts(wptr!);
   refreshAccounts();
   int size = wownero.SubaddressAccount_getAll_size(subaddressAccount!);
-  print("size: $size");
   if (size == 0) {
     wownero.Wallet_addSubaddressAccount(wptr!);
     return getAllAccount();

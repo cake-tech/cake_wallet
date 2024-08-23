@@ -5,11 +5,14 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   flutter_local_authentication
+  flutter_secure_storage_windows
   permission_handler_windows
+  share_plus
   url_launcher_windows
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
+  sp_scanner
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

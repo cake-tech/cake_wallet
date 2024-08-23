@@ -1,4 +1,3 @@
-
 import 'dart:ffi';
 import 'dart:isolate';
 
@@ -18,16 +17,47 @@ String getTxKey(String txId) {
 monero.TransactionHistory? txhistory;
 
 void refreshTransactions() {
-  txhistory = monero.Wallet_history(wptr!);
+  txhistory ??= monero.Wallet_history(wptr!);
   monero.TransactionHistory_refresh(txhistory!);
 }
 
 int countOfTransactions() => monero.TransactionHistory_count(txhistory!);
 
 List<Transaction> getAllTransactions() {
-  final size = countOfTransactions();
+  List<Transaction> dummyTxs = [];
 
-  return List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
+  txhistory ??= monero.Wallet_history(wptr!);
+  monero.TransactionHistory_refresh(txhistory!);
+  int size = countOfTransactions();
+  final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
+
+  final accts = monero.Wallet_numSubaddressAccounts(wptr!);
+  for (var i = 0; i < accts; i++) {  
+    final fullBalance = monero.Wallet_balance(wptr!, accountIndex: i);
+    final availBalance = monero.Wallet_unlockedBalance(wptr!, accountIndex: i);
+    if (fullBalance > availBalance) {
+      if (list.where((element) => element.accountIndex == i && element.isConfirmed == false).isEmpty) {
+        dummyTxs.add(
+          Transaction.dummy(
+            displayLabel: "",
+            description: "",
+            fee: 0,
+            confirmations: 0,
+            blockheight: 0,
+            accountIndex: i,
+            paymentId: "",
+            amount: fullBalance - availBalance,
+            isSpend: false,
+            hash: "pending",
+            key: "",
+            txInfo: Pointer.fromAddress(0),
+          )..timeStamp = DateTime.now()
+        );
+      }
+    }
+  }
+  list.addAll(dummyTxs);
+  return list;
 }
 
 Transaction getTransaction(String txId) {
@@ -79,7 +109,10 @@ Future<PendingTransactionDescription> createTransactionSync(
   })();
 
   if (error != null) {
-    final message = error;
+    String message = error;
+    if (message.contains("RPC error")) {
+      message = "Invalid node response, please try again or switch node\n\ntrace: $message";
+    }
     throw CreationTransactionException(message: message);
   }
 
@@ -254,7 +287,7 @@ class Transaction {
     };
   }
 
-  // S finalubAddress? subAddress;
+  // final SubAddress? subAddress;
   // List<Transfer> transfers = [];
   // final int txIndex;
   final monero.TransactionInfo txInfo;
@@ -275,4 +308,19 @@ class Transaction {
         fee = monero.TransactionInfo_fee(txInfo),
         description = monero.TransactionInfo_description(txInfo),
         key = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo));
+
+  Transaction.dummy({
+    required this.displayLabel,
+    required this.description,
+    required this.fee,
+    required this.confirmations,
+    required this.blockheight,
+    required this.accountIndex,
+    required this.paymentId,
+    required this.amount,
+    required this.isSpend,
+    required this.hash,
+    required this.key,
+    required this.txInfo
+  });
 }

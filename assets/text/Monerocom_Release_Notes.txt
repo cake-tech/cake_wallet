@@ -1,2 +1,3 @@
-Monero enhancements
+Scan and verify messages
+Synchronization enhancements
 Bug fixes

@@ -41,6 +41,7 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   bool get isAutoGenerateSubaddressesVisible =>
       _wallet.type == WalletType.monero ||
+      _wallet.type == WalletType.wownero ||
       _wallet.type == WalletType.bitcoin ||
       _wallet.type == WalletType.litecoin ||
       _wallet.type == WalletType.bitcoinCash;

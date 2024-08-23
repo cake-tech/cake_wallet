@@ -86,7 +86,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     if (showRecipientAddress && !isRecipientAddressShown) {
       try {
         final recipientAddress = transactionDescriptionBox.values
-            .firstWhere((val) => val.id == transactionInfo.id)
+            .firstWhere((val) => val.id == transactionInfo.txHash)
             .recipientAddress;
 
         if (recipientAddress?.isNotEmpty ?? false) {
@@ -103,15 +103,16 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.add(BlockExplorerListItem(
         title: S.current.view_in_block_explorer,
         value: _explorerDescription(type),
-        onTap: () {
+        onTap: () async {
           try {
-            launch(_explorerUrl(type, tx.id));
+            final uri = Uri.parse(_explorerUrl(type, tx.txHash));
+            if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
           } catch (e) {}
         }));
 
     final description = transactionDescriptionBox.values.firstWhere(
-        (val) => val.id == transactionInfo.id,
-        orElse: () => TransactionDescription(id: transactionInfo.id));
+        (val) => val.id == transactionInfo.txHash,
+        orElse: () => TransactionDescription(id: transactionInfo.txHash));
 
     items.add(TextFieldListItem(
         title: S.current.note_tap_to_change,
@@ -151,7 +152,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return 'https://monero.com/tx/${txId}';
       case WalletType.bitcoin:
-        return 'https://mempool.space/${wallet.isTestnet == true ? "testnet/" : ""}tx/${txId}';
+        return 'https://mempool.space/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.bitcoinCash:
@@ -213,7 +214,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final addressIndex = tx.additionalInfo['addressIndex'] as int;
     final feeFormatted = tx.feeFormatted();
     final _items = [
-      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.txHash),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
@@ -249,7 +250,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void _addElectrumListItems(TransactionInfo tx, DateFormat dateFormat) {
     final _items = [
-      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.txHash),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.confirmations, value: tx.confirmations.toString()),
@@ -264,7 +265,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void _addHavenListItems(TransactionInfo tx, DateFormat dateFormat) {
     items.addAll([
-      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.txHash),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
@@ -276,7 +277,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void _addEthereumListItems(TransactionInfo tx, DateFormat dateFormat) {
     final _items = [
-      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.txHash),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.confirmations, value: tx.confirmations.toString()),
@@ -295,7 +296,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void _addNanoListItems(TransactionInfo tx, DateFormat dateFormat) {
     final _items = [
-      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.txHash),
       if (showRecipientAddress && tx.to != null)
         StandartListItem(title: S.current.transaction_details_recipient_address, value: tx.to!),
       if (showRecipientAddress && tx.from != null)
@@ -312,7 +313,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void _addPolygonListItems(TransactionInfo tx, DateFormat dateFormat) {
     final _items = [
-      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.txHash),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.confirmations, value: tx.confirmations.toString()),
@@ -331,7 +332,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void _addSolanaListItems(TransactionInfo tx, DateFormat dateFormat) {
     final _items = [
-      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.txHash),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
@@ -377,9 +378,9 @@ abstract class TransactionDetailsViewModelBase with Store {
             sendViewModel.displayFeeRate(priority, sliderValue.round()),
         onSliderChanged: (double newValue) =>
             setNewFee(value: newValue, priority: transactionPriority!),
-        onItemSelected: (dynamic item) {
+        onItemSelected: (dynamic item, double sliderValue) {
           transactionPriority = item as TransactionPriority;
-          return setNewFee(priority: transactionPriority!);
+          return setNewFee(value: sliderValue, priority: transactionPriority!);
         }));
 
     if (transactionInfo.inputAddresses != null) {
@@ -395,7 +396,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void _addTronListItems(TransactionInfo tx, DateFormat dateFormat) {
     final _items = [
-      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.txHash),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
@@ -426,7 +427,11 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   String setNewFee({double? value, required TransactionPriority priority}) {
     newFee = priority == bitcoin!.getBitcoinTransactionPriorityCustom() && value != null
-        ? bitcoin!.getEstimatedFeeWithFeeRate(wallet, value.round(), transactionInfo.amount)
+        ? bitcoin!.feeAmountWithFeeRate(
+            wallet,
+            value.round(),
+            transactionInfo.inputAddresses?.length ?? 1,
+            transactionInfo.outputAddresses?.length ?? 1)
         : bitcoin!.getFeeAmountForPriority(
             wallet,
             priority,
@@ -454,7 +459,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final addressIndex = tx.additionalInfo['addressIndex'] as int;
     final feeFormatted = tx.feeFormatted();
     final _items = [
-      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.txHash),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),

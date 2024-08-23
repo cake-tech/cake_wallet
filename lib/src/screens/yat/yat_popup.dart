@@ -161,27 +161,26 @@ class YatPopup extends StatelessWidget {
                 onClose: onClose,
                 onGet: () {
                   var createNewYatUrl = YatLink.startFlowUrl;
-                  final createNewYatUrlParameters = dashboardViewModel.
-                      yatStore.defineQueryParameters();
-                  
+                  final createNewYatUrlParameters =
+                  dashboardViewModel.yatStore.defineQueryParameters();
+
                   if (createNewYatUrlParameters.isNotEmpty) {
                     createNewYatUrl += '?sub1=' + createNewYatUrlParameters;
                   }
 
-                  launch(createNewYatUrl, forceSafariVC: false);
+                  final uri = Uri.parse(createNewYatUrl);
+                  launchUrl(uri, mode: LaunchMode.externalApplication);
                 },
                 onConnect: () {
                   String url = baseUrl + YatLink.signInSuffix;
-                  final parameters = dashboardViewModel
-                      .yatStore.defineQueryParameters();
+                  final parameters = dashboardViewModel.yatStore.defineQueryParameters();
                   if (parameters.isNotEmpty) {
                     url += YatLink.queryParameter + parameters;
                   }
-                  launch(url, forceSafariVC: false);
-                }
-            ))
-            : Container()
-        )
+                  final uri = Uri.parse(url);
+                  launchUrl(uri, mode: LaunchMode.externalApplication);
+                }))
+            : Container())
       ],
     );
   }
