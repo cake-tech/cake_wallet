@@ -212,9 +212,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
     if (!mwebEnabled) {
-      await super.updateAllUnspents();
-      await updateBalance();
-      syncStatus = SyncedSyncStatus();
+      try {
+        await updateAllUnspents();
+        await updateBalance();
+        syncStatus = SyncedSyncStatus();
+      } catch (e, s) {
+        print(e);
+        print(s);
+        syncStatus = FailedSyncStatus();
+      }
       return;
     }
 
@@ -480,7 +486,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           .firstWhere((addressRecord) => addressRecord.address == utxo.address);
       if (!inputAddresses.contains(utxo.address)) {
         addressRecord.txCount++;
-        // print("COUNT UPDATED HERE 3!!!!! ${addressRecord.address} ${addressRecord.txCount} !!!!!!");
       }
       addressRecord.balance -= utxo.value.toInt();
       amount += utxo.value.toInt();
@@ -593,13 +598,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final balance = await super.fetchBalances();
     int confirmed = balance.confirmed;
     int unconfirmed = balance.unconfirmed;
-    mwebUtxosBox.values.forEach((utxo) {
-      if (utxo.height > 0) {
-        confirmed += utxo.value.toInt();
-      } else {
-        unconfirmed += utxo.value.toInt();
-      }
-    });
+    try {
+      mwebUtxosBox.values.forEach((utxo) {
+        if (utxo.height > 0) {
+          confirmed += utxo.value.toInt();
+        } else {
+          unconfirmed += utxo.value.toInt();
+        }
+      });
+    } catch (_) {}
 
     // update unspent balances:
 
@@ -609,6 +616,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     //     coin.bitcoinAddressRecord.balance = 0;
     //   coin.bitcoinAddressRecord.txCount = 0;
     // });
+
+    await updateUnspent();
+    
     for (var addressRecord in walletAddresses.allAddresses) {
       addressRecord.balance = 0;
       addressRecord.txCount = 0;
@@ -653,7 +663,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    await updateUnspent();
+    
 
     return ElectrumBalance(confirmed: confirmed, unconfirmed: unconfirmed, frozen: balance.frozen);
   }
@@ -814,7 +824,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> close() async {
     await super.close();
-    await mwebUtxosBox.close();
     _syncTimer?.cancel();
     _utxoStream?.cancel();
   }
