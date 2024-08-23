@@ -130,9 +130,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
       totalOutAmount += out.amount.toInt();
       final addressExists = addresses.contains(addressFromOutputScript(out.scriptPubKey, network));
       final address = addressFromOutputScript(out.scriptPubKey, network);
-      if (address.isNotEmpty) {
-        outputAddresses.add(address);
-      }
+
+      if (address.isNotEmpty) outputAddresses.add(address);
 
       // Check if the script contains OP_RETURN
       final script = out.scriptPubKey.script;

@@ -44,6 +44,7 @@ import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:http/http.dart' as http;
 import 'package:sp_scanner/sp_scanner.dart';
+import 'package:hex/hex.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -1412,6 +1413,7 @@ abstract class ElectrumWalletBase
       List<ECPrivate> privateKeys = [];
 
       var allInputsAmount = 0;
+      String? memo;
 
       // Add inputs
       for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
@@ -1450,6 +1452,24 @@ abstract class ElectrumWalletBase
       // Create a list of available outputs
       final outputs = <BitcoinOutput>[];
       for (final out in bundle.originalTransaction.outputs) {
+        // Check if the script contains OP_RETURN
+        final script = out.scriptPubKey.script;
+        bool isOpReturn = false;
+        if (script.contains('OP_RETURN') && memo == null) {
+          final index = script.indexOf('OP_RETURN');
+          if (index + 1 <= script.length) {
+            try {
+              final opReturnData = script[index + 1].toString();
+              memo = utf8.decode(HEX.decode(opReturnData));
+              isOpReturn = true; // Mark this output as OP_RETURN
+            } catch (_) {
+              throw Exception('Cannot decode OP_RETURN data');
+            }
+          }
+        }
+
+        if (isOpReturn) continue;
+
         final address = addressFromOutputScript(out.scriptPubKey, network);
         final btcAddress = addressTypeFromStr(address, network);
         outputs.add(BitcoinOutput(address: btcAddress, value: BigInt.from(out.amount.toInt())));
@@ -1506,6 +1526,8 @@ abstract class ElectrumWalletBase
         outputs: outputs,
         fee: BigInt.from(newFee),
         network: network,
+        memo: memo,
+        outputOrdering: BitcoinOrdering.none,
         enableRBF: true,
       );
 
@@ -2052,6 +2074,21 @@ abstract class ElectrumWalletBase
         final address = addressFromOutputScript(out.scriptPubKey, network);
 
         if (address.isNotEmpty) outputAddresses.add(address);
+
+        // Check if the script contains OP_RETURN
+        final script = out.scriptPubKey.script;
+        if (script.contains('OP_RETURN')) {
+          final index = script.indexOf('OP_RETURN');
+          if (index + 1 <= script.length) {
+            try {
+              final opReturnData = script[index + 1].toString();
+              final decodedString = utf8.decode(HEX.decode(opReturnData));
+              outputAddresses.add('OP_RETURN:$decodedString');
+            } catch (_) {
+              outputAddresses.add('OP_RETURN:');
+            }
+          }
+        }
       }
       tx.inputAddresses = inputAddresses;
       tx.outputAddresses = outputAddresses;
