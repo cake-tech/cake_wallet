@@ -42,7 +42,6 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:http/http.dart' as http;
 import 'package:sp_scanner/sp_scanner.dart';
 import 'package:hex/hex.dart';
 
@@ -90,7 +89,7 @@ abstract class ElectrumWalletBase
               }
             : {}),
         this.unspentCoinsInfo = unspentCoinsInfo,
-        this.isTestnet = network == BitcoinNetwork.testnet,
+        this.isTestnet = !network.isMainnet,
         this._mnemonic = mnemonic,
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
@@ -184,7 +183,7 @@ abstract class ElectrumWalletBase
   BasedUtxoNetwork network;
 
   @override
-  bool? isTestnet;
+  bool isTestnet;
 
   bool get hasSilentPaymentsScanning => type == WalletType.bitcoin;
 
@@ -428,7 +427,7 @@ abstract class ElectrumWalletBase
       await updateTransactions();
       await updateAllUnspents();
       await updateBalance();
-      updateFeeRates();
+      await updateFeeRates();
 
       _updateFeeRateTimer ??=
           Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
@@ -450,6 +449,8 @@ abstract class ElectrumWalletBase
     final feeRates = await electrumClient.feeRates(network: network);
     if (feeRates != [0, 0, 0]) {
       _feeRates = feeRates;
+    } else if (isTestnet) {
+      _feeRates = [1, 1, 1];
     }
   }
 
@@ -1007,7 +1008,7 @@ abstract class ElectrumWalletBase
         if (estimatedTx.inputPrivKeyInfos.isEmpty) {
           error += "\nNo private keys generated.";
         } else {
-          error += "\nAddress: ${utxo.ownerDetails.address.toAddress()}";
+          error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
 
           key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
             final elemPubkey = element.privkey.getPublic().toHex();
@@ -1452,6 +1453,7 @@ abstract class ElectrumWalletBase
       // Create a list of available outputs
       final outputs = <BitcoinOutput>[];
       for (final out in bundle.originalTransaction.outputs) {
+
         // Check if the script contains OP_RETURN
         final script = out.scriptPubKey.script;
         bool isOpReturn = false;
@@ -1968,8 +1970,9 @@ abstract class ElectrumWalletBase
   Future<void> _setInitialHeight() async {
     if (_chainTipUpdateSubject != null) return;
 
+    _currentChainTip = await getUpdatedChainTip();
+
     if ((_currentChainTip == null || _currentChainTip! == 0) && walletInfo.restoreHeight == 0) {
-      await getUpdatedChainTip();
       await walletInfo.updateRestoreHeight(_currentChainTip!);
     }
 
