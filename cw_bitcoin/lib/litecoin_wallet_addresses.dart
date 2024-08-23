@@ -24,7 +24,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
   }) : super(walletInfo) {
-    topUpMweb(0);
+    if (mwebEnabled) {
+      topUpMweb(0);
+    }
   }
 
   final Bip32Slip10Secp256k1 mwebHd;
@@ -58,7 +60,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) {
-    if (addressType == SegwitAddresType.mweb) {
+    if (addressType == SegwitAddresType.mweb && mwebEnabled) {
       topUpMweb(index);
       return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
@@ -71,7 +73,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) async {
-    if (addressType == SegwitAddresType.mweb) {
+    // if mweb isn't enabled we'll just return the regular address type which does effectively nothing
+    // sort of a hack but easier than trying to pull the mweb setting into the electrum_wallet_addresses initialization code
+    // (we want to avoid initializing the mweb.stub() if it's not enabled or we'd be starting the whole server for no reason and it's slow)
+    // TODO: find a way to do address generation without starting the whole mweb server
+    if (addressType == SegwitAddresType.mweb && mwebEnabled) {
       await topUpMweb(index);
     }
     return getAddress(index: index, hd: hd, addressType: addressType);

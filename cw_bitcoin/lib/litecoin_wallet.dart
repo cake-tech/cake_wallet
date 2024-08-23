@@ -88,9 +88,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
-    CwMweb.stub().then((value) {
-      _stub = value;
-    });
   }
   late final Bip32Slip10Secp256k1 mwebHd;
   late final Box<MwebUtxo> mwebUtxosBox;
@@ -201,7 +198,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> startSync() async {
-    print("STARTING SYNC");
+    print("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
     syncStatus = SyncronizingSyncStatus();
     await subscribeForUpdates();
     await updateTransactions();
@@ -210,6 +207,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _feeRatesTimer?.cancel();
     _feeRatesTimer =
         Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
+
 
     if (!mwebEnabled) {
       try {
@@ -224,10 +222,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return;
     }
 
+    await getStub();
     await updateUnspent();
     await updateBalance();
 
-    _stub = await CwMweb.stub();
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
@@ -596,6 +594,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<ElectrumBalance> fetchBalances() async {
     final balance = await super.fetchBalances();
+    if (!mwebEnabled) {
+      return balance;
+    }
+    
     int confirmed = balance.confirmed;
     int unconfirmed = balance.unconfirmed;
     try {
@@ -618,7 +620,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // });
 
     await updateUnspent();
-    
+
     for (var addressRecord in walletAddresses.allAddresses) {
       addressRecord.balance = 0;
       addressRecord.txCount = 0;
@@ -662,8 +664,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         addressRecord.txCount++;
       }
     }
-
-    
 
     return ElectrumBalance(confirmed: confirmed, unconfirmed: unconfirmed, frozen: balance.frozen);
   }
@@ -835,6 +835,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     mwebEnabled = enabled;
     (walletAddresses as LitecoinWalletAddresses).mwebEnabled = enabled;
+    if (enabled) {
+      // generate inital mweb addresses:
+      (walletAddresses as LitecoinWalletAddresses).topUpMweb(0);
+    }
     stopSync();
     startSync();
   }
