@@ -6,6 +6,7 @@ import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:mutex/mutex.dart';
+import 'package:polyseed/polyseed.dart';
 
 int getSyncingHeight() {
   // final height = monero.MONERO_cw_WalletListener_height(getWlptr());
@@ -32,6 +33,13 @@ String getSeed() {
   // monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   final cakepolyseed =
       monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
+  final cakepassphrase = getPassphrase();
+  if (cakepassphrase != "") {
+    final lang = PolyseedLang.getByPhrase(cakepassphrase);
+    final coin = PolyseedCoin.POLYSEED_MONERO;
+    final ps = Polyseed.decode(cakepolyseed, lang, coin);
+    if (ps.isEncrypted) return ps.encode(lang, coin);
+  }
   if (cakepolyseed != "") {
     return cakepolyseed;
   }

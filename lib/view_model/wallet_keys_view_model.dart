@@ -97,7 +97,7 @@ abstract class WalletKeysViewModelBase with Store {
                 .seedLegacy(lang.nameEnglish)));
       }
       
-      final passphrase = (_appStore.wallet as MoneroWalletBase).passphrase();
+      final passphrase = _appStore.wallet?.passphrase;
       if (passphrase != null && passphrase != "") {
         items.add(StandartListItem(
             title: S.current.passphrase_view_keys,
@@ -292,8 +292,7 @@ abstract class WalletKeysViewModelBase with Store {
           _appStore.wallet!.privateKey != null)
         'private_key': _appStore.wallet!.privateKey!,
       if (restoreHeightResult != null) ...{'height': restoreHeightResult},
-      if (_appStore.wallet is MoneroWalletBase) ...{'passphrase': (_appStore.wallet as MoneroWalletBase).passphrase()??''},
-      if (_appStore.wallet is WowneroWalletBase) ...{'passphrase': (_appStore.wallet as WowneroWalletBase).passphrase()??''}
+      if ((_appStore.wallet?.passphrase??"") != "") ...{'passphrase': _appStore.wallet?.passphrase??''},
     };
   }
 

@@ -118,9 +118,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   String get password => _password;
 
-  String? passphrase() {
-    return monero_wallet.getPassphrase();
-  }
+  @override
+  String get passphrase => monero_wallet.getPassphrase();
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
