@@ -210,6 +210,7 @@ void restoreWalletFromPolyseedWithOffset(
   wptr = newWptr;
 
   wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
+  wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: seedOffset);
 
   storeSync();
 

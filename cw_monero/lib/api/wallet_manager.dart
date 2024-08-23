@@ -191,6 +191,7 @@ void restoreWalletFromPolyseedWithOffset(
   wptr = newWptr;
 
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
+  monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: seedOffset);
 
   storeSync();
 
