@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build all Haven Stuff
+echo "Building Haven"
 ./build_iconv.sh
 ./build_boost.sh
 ./build_openssl.sh
