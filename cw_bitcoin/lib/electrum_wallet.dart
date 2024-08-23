@@ -424,9 +424,7 @@ abstract class ElectrumWalletBase
   @override
   Future<void> startSync() async {
     try {
-      if (this is! LitecoinWallet) {
-        syncStatus = SyncronizingSyncStatus();
-      }
+      syncStatus = SyncronizingSyncStatus();
 
       if (hasSilentPaymentsScanning) {
         await _setInitialHeight();
@@ -1262,69 +1260,51 @@ abstract class ElectrumWalletBase
       updatedUnspentCoins.addAll(await fetchUnspent(address));
     }));
 
-    unspentCoins = updatedUnspentCoins;
-  }
-
-  Future<void> updateUnspent() async {
-    await updateAllUnspents();
-
-    if (unspentCoinsInfo.length != unspentCoins.length) {
-      unspentCoins.forEach((coin) => addCoinInfo(coin));
-      return;
+    if (unspentCoinsInfo.length != updatedUnspentCoins.length) {
+      updatedUnspentCoins.forEach((coin) => addCoinInfo(coin));
     }
 
-    if (unspentCoins.isNotEmpty) {
-      unspentCoins.forEach((coin) {
-        final coinInfoList = unspentCoinsInfo.values.where((element) =>
-            element.walletId.contains(id) &&
-            element.hash.contains(coin.hash) &&
-            element.vout == coin.vout);
-
-        if (coinInfoList.isNotEmpty) {
-          final coinInfo = coinInfoList.first;
-
-          coin.isFrozen = coinInfo.isFrozen;
-          coin.isSending = coinInfo.isSending;
-          coin.note = coinInfo.note;
-          if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
-            coin.bitcoinAddressRecord.balance += coinInfo.value;
-        } else {
-          addCoinInfo(coin);
-        }
-      });
-    }
-
+    await updateCoins(updatedUnspentCoins, set: true);
     await _refreshUnspentCoinsInfo();
   }
 
-  @action
-  Future<void> updateUnspents(BitcoinAddressRecord address) async {
-    final newUnspentCoins = await fetchUnspent(address);
-
-    if (newUnspentCoins.isNotEmpty) {
-      unspentCoins.addAll(newUnspentCoins);
-
-      newUnspentCoins.forEach((coin) {
-        final coinInfoList = unspentCoinsInfo.values.where(
-          (element) =>
-              element.walletId.contains(id) &&
-              element.hash.contains(coin.hash) &&
-              element.vout == coin.vout,
-        );
-
-        if (coinInfoList.isNotEmpty) {
-          final coinInfo = coinInfoList.first;
-
-          coin.isFrozen = coinInfo.isFrozen;
-          coin.isSending = coinInfo.isSending;
-          coin.note = coinInfo.note;
-          if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
-            coin.bitcoinAddressRecord.balance += coinInfo.value;
-        } else {
-          addCoinInfo(coin);
-        }
-      });
+  Future<void> updateCoins(List<BitcoinUnspent> newUnspentCoins, {bool set = false}) async {
+    if (newUnspentCoins.isEmpty) {
+      return;
     }
+
+    if (set) {
+      unspentCoins = newUnspentCoins;
+    } else {
+      unspentCoins.addAll(newUnspentCoins);
+    }
+
+    newUnspentCoins.forEach((coin) {
+      final coinInfoList = unspentCoinsInfo.values.where(
+        (element) =>
+            element.walletId.contains(id) &&
+            element.hash.contains(coin.hash) &&
+            element.vout == coin.vout,
+      );
+
+      if (coinInfoList.isNotEmpty) {
+        final coinInfo = coinInfoList.first;
+
+        coin.isFrozen = coinInfo.isFrozen;
+        coin.isSending = coinInfo.isSending;
+        coin.note = coinInfo.note;
+        if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
+          coin.bitcoinAddressRecord.balance += coinInfo.value;
+      } else {
+        addCoinInfo(coin);
+      }
+    });
+  }
+
+  @action
+  Future<void> updateUnspentsForAddress(BitcoinAddressRecord address) async {
+    final newUnspentCoins = await fetchUnspent(address);
+    await updateCoins(newUnspentCoins);
   }
 
   @action
@@ -1819,7 +1799,7 @@ abstract class ElectrumWalletBase
       _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
       _scripthashesUpdateSubject[sh]?.listen((event) async {
         try {
-          await updateUnspents(address);
+          await updateUnspentsForAddress(address);
 
           await updateBalance();
 

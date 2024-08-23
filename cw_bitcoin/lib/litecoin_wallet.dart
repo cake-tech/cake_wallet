@@ -202,14 +202,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> startSync() async {
     print("STARTING SYNC");
-    if (!mwebEnabled) {
-      syncStatus = SyncronizingSyncStatus();
-      await subscribeForUpdates();
-      await updateTransactions();
-      syncStatus = SyncedSyncStatus();
-      return;
-    }
-
+    syncStatus = SyncronizingSyncStatus();
     await subscribeForUpdates();
     await updateTransactions();
     await updateFeeRates();
@@ -217,6 +210,16 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _feeRatesTimer?.cancel();
     _feeRatesTimer =
         Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
+
+    if (!mwebEnabled) {
+      await super.updateAllUnspents();
+      await updateBalance();
+      syncStatus = SyncedSyncStatus();
+      return;
+    }
+
+    await updateUnspent();
+    await updateBalance();
 
     _stub = await CwMweb.stub();
     _syncTimer?.cancel();
@@ -255,8 +258,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         }
       }
     });
-    updateUnspent();
-    fetchBalances();
     // this runs in the background and processes new utxos as they come in:
     processMwebUtxos();
   }
@@ -538,62 +539,60 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     return true;
   }
 
-  @override
   Future<void> updateUnspent() async {
-    await super.updateUnspent();
     await checkMwebUtxosSpent();
+    await updateAllUnspents();
   }
 
   @override
   @action
   Future<void> updateAllUnspents() async {
-    List<BitcoinUnspent> updatedUnspentCoins = [];
+    // get ltc unspents:
+    await super.updateAllUnspents();
 
-    await Future.wait(walletAddresses.allAddresses.map((address) async {
-      updatedUnspentCoins.addAll(await fetchUnspent(address));
-    }));
-
-    if (mwebEnabled) {
-      // update mweb unspents:
-      final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
-      mwebUtxosBox.keys.forEach((dynamic oId) {
-        final String outputId = oId as String;
-        final utxo = mwebUtxosBox.get(outputId);
-        if (utxo == null) {
-          return;
-        }
-        if (utxo.address.isEmpty) {
-          // not sure if a bug or a special case but we definitely ignore these
-          return;
-        }
-        final addressRecord = walletAddresses.allAddresses
-            .firstWhereOrNull((addressRecord) => addressRecord.address == utxo.address);
-
-        if (addressRecord == null) {
-          print("utxo contains an address that is not in the wallet: ${utxo.address}");
-          return;
-        }
-        final unspent = BitcoinUnspent(
-          addressRecord,
-          outputId,
-          utxo.value.toInt(),
-          mwebAddrs.indexOf(utxo.address),
-        );
-        if (unspent.vout == 0) {
-          unspent.isChange = true;
-        }
-        updatedUnspentCoins.add(unspent);
-      });
+    if (!mwebEnabled) {
+      return;
     }
+    // add the mweb unspents to the list:
+    List<BitcoinUnspent> mwebUnspentCoins = [];
+    // update mweb unspents:
+    final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
+    mwebUtxosBox.keys.forEach((dynamic oId) {
+      final String outputId = oId as String;
+      final utxo = mwebUtxosBox.get(outputId);
+      if (utxo == null) {
+        return;
+      }
+      if (utxo.address.isEmpty) {
+        // not sure if a bug or a special case but we definitely ignore these
+        return;
+      }
+      final addressRecord = walletAddresses.allAddresses
+          .firstWhereOrNull((addressRecord) => addressRecord.address == utxo.address);
 
-    unspentCoins = updatedUnspentCoins;
+      if (addressRecord == null) {
+        print("utxo contains an address that is not in the wallet: ${utxo.address}");
+        return;
+      }
+      final unspent = BitcoinUnspent(
+        addressRecord,
+        outputId,
+        utxo.value.toInt(),
+        mwebAddrs.indexOf(utxo.address),
+      );
+      if (unspent.vout == 0) {
+        unspent.isChange = true;
+      }
+      mwebUnspentCoins.add(unspent);
+    });
+    unspentCoins.addAll(mwebUnspentCoins);
   }
 
   @override
   Future<ElectrumBalance> fetchBalances() async {
     final balance = await super.fetchBalances();
-    var confirmed = balance.confirmed;
-    var unconfirmed = balance.unconfirmed;
+    int confirmed = balance.confirmed;
+    int unconfirmed = balance.unconfirmed;
     mwebUtxosBox.values.forEach((utxo) {
       if (utxo.height > 0) {
         confirmed += utxo.value.toInt();
@@ -640,6 +639,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // to have an accurate count, we should just keep it in sync with what we know from the tx history:
     for (final tx in transactionHistory.transactions.values) {
       // if (tx.isPending) continue;
+      if (tx.inputAddresses == null || tx.outputAddresses == null) {
+        continue;
+      }
       final txAddresses = tx.inputAddresses! + tx.outputAddresses!;
       for (final address in txAddresses) {
         final addressRecord = walletAddresses.allAddresses
