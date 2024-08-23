@@ -111,7 +111,7 @@ abstract class WalletCreationVMBase with Store {
       getIt.get<BackgroundTasks>().registerSyncTask();
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
-    } catch (e, s) {
+    } catch (e, _) {
       state = FailureState(e.toString());
     }
   }
@@ -123,16 +123,22 @@ abstract class WalletCreationVMBase with Store {
         return DerivationInfo(derivationType: DerivationType.nano);
       case WalletType.bitcoin:
         if (useBip39) {
-          return bitcoin!
-              .getElectrumDerivations()[DerivationType.bip39]!
-              .firstWhere((element) => element.description == "Standard BIP84 native segwit");
+          return DerivationInfo(
+            derivationType: DerivationType.bip39,
+            derivationPath: "m/84'/0'/0'",
+            description: "Standard BIP84 native segwit",
+            scriptType: "p2wpkh",
+          );
         }
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       case WalletType.litecoin:
         if (useBip39) {
-          return bitcoin!
-              .getElectrumDerivations()[DerivationType.bip39]!
-              .firstWhere((element) => element.description == "Default Litecoin");
+          return DerivationInfo(
+            derivationType: DerivationType.bip39,
+            derivationPath: "m/84'/2'/0'",
+            description: "Default Litecoin",
+            scriptType: "p2wpkh",
+          );
         }
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       default:
