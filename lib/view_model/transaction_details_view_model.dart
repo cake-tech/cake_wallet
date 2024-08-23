@@ -52,7 +52,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.bitcoin:
         _addElectrumListItems(tx, dateFormat);
         _addBumpFeesListItems(tx);
-        _checkForRBF();
+        _checkForRBF(tx);
         break;
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
@@ -349,12 +349,15 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void _addBumpFeesListItems(TransactionInfo tx) {
     transactionPriority = bitcoin!.getBitcoinTransactionPriorityMedium();
+    final inputsCount = (transactionInfo.inputAddresses?.isEmpty ?? true)
+        ? 1
+        : transactionInfo.inputAddresses!.length;
+    final outputsCount = (transactionInfo.outputAddresses?.isEmpty ?? true)
+        ? 1
+        : transactionInfo.outputAddresses!.length;
 
     newFee = bitcoin!.getFeeAmountForPriority(
-        wallet,
-        bitcoin!.getBitcoinTransactionPriorityMedium(),
-        transactionInfo.inputAddresses?.length ?? 1,
-        transactionInfo.outputAddresses?.length ?? 1);
+        wallet, bitcoin!.getBitcoinTransactionPriorityMedium(), inputsCount, outputsCount);
 
     RBFListItems.add(StandartListItem(title: S.current.old_fee, value: tx.feeFormatted() ?? '0.0'));
 
@@ -383,12 +386,12 @@ abstract class TransactionDetailsViewModelBase with Store {
           return setNewFee(value: sliderValue, priority: transactionPriority!);
         }));
 
-    if (transactionInfo.inputAddresses != null) {
+    if (transactionInfo.inputAddresses != null && transactionInfo.inputAddresses!.isNotEmpty) {
       RBFListItems.add(StandardExpandableListItem(
           title: S.current.inputs, expandableItems: transactionInfo.inputAddresses!));
     }
 
-    if (transactionInfo.outputAddresses != null) {
+    if (transactionInfo.outputAddresses != null && transactionInfo.outputAddresses!.isNotEmpty) {
       RBFListItems.add(StandardExpandableListItem(
           title: S.current.outputs, expandableItems: transactionInfo.outputAddresses!));
     }
@@ -416,10 +419,10 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   @action
-  Future<void> _checkForRBF() async {
+  Future<void> _checkForRBF(TransactionInfo tx) async {
     if (wallet.type == WalletType.bitcoin &&
         transactionInfo.direction == TransactionDirection.outgoing) {
-      if (await bitcoin!.canReplaceByFee(wallet, transactionInfo.id)) {
+      if (await bitcoin!.canReplaceByFee(wallet, tx)) {
         _canReplaceByFee = true;
       }
     }
@@ -441,7 +444,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     return bitcoin!.formatterBitcoinAmountToString(amount: newFee);
   }
 
-  void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo.id, newFee);
+  void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo, newFee,);
 
   @computed
   String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
