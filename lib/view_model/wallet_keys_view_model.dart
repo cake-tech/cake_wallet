@@ -167,7 +167,7 @@ abstract class WalletKeysViewModelBase with Store {
             value: wownero!.getLegacySeed(_appStore.wallet!, lang.nameEnglish)));
       }
 
-      final passphrase = (_appStore.wallet as WowneroWalletBase).passphrase();
+      final passphrase = _appStore.wallet?.passphrase;
       if (passphrase != null && passphrase != "") {
         items.add(StandartListItem(
             title: S.current.passphrase_view_keys,

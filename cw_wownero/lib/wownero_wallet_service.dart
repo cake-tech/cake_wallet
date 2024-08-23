@@ -303,6 +303,29 @@ class WowneroWalletService extends WalletService<
   Future<WowneroWallet> _restoreFromPolyseed(
       String path, String password, Polyseed polyseed, WalletInfo walletInfo, PolyseedLang lang,
       {PolyseedCoin coin = PolyseedCoin.POLYSEED_WOWNERO, int? overrideHeight, String? passphrase}) async {
+
+    
+    if (polyseed.isEncrypted == false &&
+        (passphrase??'') != "") {
+      // Fallback to the different passphrase offset method, when a passphrase
+      // was provided but the polyseed is not encrypted.
+      wownero_wallet_manager.restoreWalletFromPolyseedWithOffset(
+        path: path,
+        password: password,
+        seed: polyseed.encode(lang, coin),
+        seedOffset: passphrase??'',
+        language: "English");
+      
+      final wallet = WowneroWallet(
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: password,
+      );
+      await wallet.init();
+
+      return wallet;
+    }
+
     if (polyseed.isEncrypted) polyseed.crypt(passphrase ?? '');
 
     final height = overrideHeight ??

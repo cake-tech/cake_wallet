@@ -332,6 +332,28 @@ class MoneroWalletService extends WalletService<
       {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO,
       int? overrideHeight,
       String? passphrase}) async {
+    
+    if (polyseed.isEncrypted == false &&
+        (passphrase??'') != "") {
+      // Fallback to the different passphrase offset method, when a passphrase
+      // was provided but the polyseed is not encrypted.
+      monero_wallet_manager.restoreWalletFromPolyseedWithOffset(
+        path: path,
+        password: password,
+        seed: polyseed.encode(lang, coin),
+        seedOffset: passphrase??'',
+        language: "English");
+      
+      final wallet = MoneroWallet(
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: password,
+      );
+      await wallet.init();
+
+      return wallet;
+    }
+
     if (polyseed.isEncrypted) polyseed.crypt(passphrase ?? '');
 
     final height = overrideHeight ??

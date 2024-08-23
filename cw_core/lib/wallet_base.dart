@@ -46,7 +46,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   String? get hexSeed => null;
 
-  String get passphrase => "";
+  String? get passphrase => null;
 
   Object get keys;
 

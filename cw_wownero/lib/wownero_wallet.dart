@@ -112,9 +112,8 @@ abstract class WowneroWalletBase
 
   String get password => _password;
 
-  String? passphrase() {
-    return wownero_wallet.getPassphrase();
-  }
+  @override
+  String get passphrase => wownero_wallet.getPassphrase();
 
   String _password;
 

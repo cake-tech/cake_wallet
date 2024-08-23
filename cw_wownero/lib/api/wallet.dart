@@ -6,6 +6,7 @@ import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/exceptions/setup_wallet_exception.dart';
 import 'package:monero/wownero.dart' as wownero;
 import 'package:mutex/mutex.dart';
+import 'package:polyseed/polyseed.dart';
 
 int getSyncingHeight() {
   // final height = wownero.WOWNERO_cw_WalletListener_height(getWlptr());
@@ -31,10 +32,23 @@ bool isNewTransactionExist() {
 String getFilename() => wownero.Wallet_filename(wptr!);
 
 String getSeed() {
-  // wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
+  // monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   final cakepolyseed =
       wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
+  final cakepassphrase = getPassphrase();
+
+  final weirdPolyseed = wownero.Wallet_getPolyseed(wptr!, passphrase: cakepassphrase);
+  if (weirdPolyseed != "") return weirdPolyseed;
+
   if (cakepolyseed != "") {
+    if (cakepassphrase != "") {
+      final lang = PolyseedLang.getByPhrase(cakepassphrase);
+      final coin = PolyseedCoin.POLYSEED_MONERO;
+      final ps = Polyseed.decode(cakepolyseed, lang, coin);
+      if (ps.isEncrypted) return ps.encode(lang, coin);
+      ps.crypt(getPassphrase());
+      return ps.encode(lang, coin);
+    }
     return cakepolyseed;
   }
   final legacy = getSeedLegacy(null);

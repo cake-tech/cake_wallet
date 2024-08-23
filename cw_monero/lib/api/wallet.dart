@@ -34,16 +34,22 @@ String getSeed() {
   final cakepolyseed =
       monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
   final cakepassphrase = getPassphrase();
-  if (cakepassphrase != "") {
-    final lang = PolyseedLang.getByPhrase(cakepassphrase);
-    final coin = PolyseedCoin.POLYSEED_MONERO;
-    final ps = Polyseed.decode(cakepolyseed, lang, coin);
-    if (ps.isEncrypted) return ps.encode(lang, coin);
-  }
+
+  final weirdPolyseed = monero.Wallet_getPolyseed(wptr!, passphrase: cakepassphrase);
+  if (weirdPolyseed != "") return weirdPolyseed;
+
   if (cakepolyseed != "") {
+    if (cakepassphrase != "") {
+      final lang = PolyseedLang.getByPhrase(cakepassphrase);
+      final coin = PolyseedCoin.POLYSEED_MONERO;
+      final ps = Polyseed.decode(cakepolyseed, lang, coin);
+      if (ps.isEncrypted) return ps.encode(lang, coin);
+      ps.crypt(getPassphrase());
+      return ps.encode(lang, coin);
+    }
     return cakepolyseed;
   }
-  final legacy = getSeedLegacy("English");
+  final legacy = getSeedLegacy(null);
   return legacy;
 }
 

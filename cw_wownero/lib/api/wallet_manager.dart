@@ -175,6 +175,47 @@ void restoreWalletFromKeysSync(
   openedWalletsByPath[path] = wptr!;
 }
 
+
+
+// English only, because normalization.
+void restoreWalletFromPolyseedWithOffset(
+    {required String path,
+    required String password,
+    required String seed,
+    required String seedOffset,
+    required String language,
+    int nettype = 0}) {
+  
+  txhistory = null;
+  final newWptr = wownero.WalletManager_createWalletFromPolyseed(
+    wmPtr,
+    path: path,
+    password: password,
+    networkType: nettype,
+    mnemonic: seed,
+    seedOffset: seedOffset,
+    newWallet: true, // safe to remove
+    restoreHeight: 0,
+    kdfRounds: 1,
+  );
+
+  final status = wownero.Wallet_status(newWptr);
+
+  if (status != 0) {
+    final err = wownero.Wallet_errorString(newWptr);
+    print("err: $err");
+    throw WalletRestoreFromKeysException(message: err);
+  }
+
+  wptr = newWptr;
+
+  wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
+
+  storeSync();
+
+  openedWalletsByPath[path] = wptr!;
+}
+
 void restoreWalletFromSpendKeySync(
     {required String path,
     required String password,
