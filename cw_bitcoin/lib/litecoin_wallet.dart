@@ -208,7 +208,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _feeRatesTimer =
         Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
-
     if (!mwebEnabled) {
       try {
         await updateAllUnspents();
@@ -556,6 +555,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (!mwebEnabled) {
       return;
     }
+    await getStub();
+
     // add the mweb unspents to the list:
     List<BitcoinUnspent> mwebUnspentCoins = [];
     // update mweb unspents:
@@ -597,7 +598,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (!mwebEnabled) {
       return balance;
     }
-    
+    await getStub();
+
     int confirmed = balance.confirmed;
     int unconfirmed = balance.unconfirmed;
     try {
@@ -758,6 +760,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (!mwebEnabled) {
         return tx;
       }
+      await getStub();
 
       final resp = await _stub.create(CreateRequest(
         rawTx: hex.decode(tx.hex),
