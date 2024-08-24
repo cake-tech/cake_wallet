@@ -61,6 +61,7 @@ class PreferencesKey {
   static const useEtherscan = 'use_etherscan';
   static const usePolygonScan = 'use_polygonscan';
   static const useTronGrid = 'use_trongrid';
+  static const useMempoolFeeAPI = 'use_mempool_fee_api';
   static const defaultNanoRep = 'default_nano_representative';
   static const defaultBananoRep = 'default_banano_representative';
   static const lookupsTwitter = 'looks_up_twitter';

@@ -99,6 +99,7 @@ abstract class SettingsStoreBase with Store {
       required this.useEtherscan,
       required this.usePolygonScan,
       required this.useTronGrid,
+      required this.useMempoolFeeAPI,
       required this.defaultNanoRep,
       required this.defaultBananoRep,
       required this.lookupsTwitter,
@@ -408,6 +409,9 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => useTronGrid,
         (bool useTronGrid) => _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
 
+    reaction((_) => useMempoolFeeAPI,
+        (bool useMempoolFeeAPI) => _sharedPreferences.setBool(PreferencesKey.useMempoolFeeAPI, useMempoolFeeAPI));
+
     reaction((_) => defaultNanoRep,
         (String nanoRep) => _sharedPreferences.setString(PreferencesKey.defaultNanoRep, nanoRep));
 
@@ -696,6 +700,9 @@ abstract class SettingsStoreBase with Store {
   bool useTronGrid;
 
   @observable
+  bool useMempoolFeeAPI;
+
+  @observable
   String defaultNanoRep;
 
   @observable
@@ -880,6 +887,7 @@ abstract class SettingsStoreBase with Store {
     final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
     final usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
+    final useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -1135,6 +1143,7 @@ abstract class SettingsStoreBase with Store {
       useEtherscan: useEtherscan,
       usePolygonScan: usePolygonScan,
       useTronGrid: useTronGrid,
+      useMempoolFeeAPI: useMempoolFeeAPI,
       defaultNanoRep: defaultNanoRep,
       defaultBananoRep: defaultBananoRep,
       lookupsTwitter: lookupsTwitter,
@@ -1282,6 +1291,7 @@ abstract class SettingsStoreBase with Store {
     useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
     usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
+    useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
