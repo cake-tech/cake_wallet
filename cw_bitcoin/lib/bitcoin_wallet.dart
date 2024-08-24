@@ -106,8 +106,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }) async {
     late Uint8List seedBytes;
 
+    print(walletInfo.derivationInfo?.derivationType);
     switch (walletInfo.derivationInfo?.derivationType) {
       case DerivationType.bip39:
+        print(passphrase);
         seedBytes = await bip39.mnemonicToSeed(
           mnemonic,
           passphrase: passphrase ?? "",
