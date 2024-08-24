@@ -392,8 +392,15 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
 
     if (transactionInfo.outputAddresses != null && transactionInfo.outputAddresses!.isNotEmpty) {
-      RBFListItems.add(StandardExpandableListItem(
-          title: S.current.outputs, expandableItems: transactionInfo.outputAddresses!));
+      final outputAddresses = transactionInfo.outputAddresses!.map((element) {
+        if (element.contains('OP_RETURN:') && element.length > 40) {
+            return element.substring(0, 40) + '...';
+        }
+        return element;
+      }).toList();
+
+      RBFListItems.add(
+          StandardExpandableListItem(title: S.current.outputs, expandableItems: outputAddresses));
     }
   }
 
