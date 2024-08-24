@@ -37,6 +37,11 @@ dependencies:
     git:
       url: https://github.com/rafael-xmr/sp_scanner
       ref: sp_v4.0.0
+  payjoin_flutter: 0.20.0
+  # payjoin_flutter:
+  #   git:
+  #     url: https://github.com/kumulynja/payjoin-flutter
+  #     ref: override-ffi-functions
 
 
 dev_dependencies:
