@@ -2056,42 +2056,13 @@ abstract class ElectrumWalletBase
         tx.inputAddresses!.isEmpty ||
         tx.outputAddresses == null ||
         tx.outputAddresses!.isEmpty) {
-      List<String> inputAddresses = [];
-      List<String> outputAddresses = [];
-
-      for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
-        final input = bundle.originalTransaction.inputs[i];
-        final inputTransaction = bundle.ins[i];
-        final vout = input.txIndex;
-        final outTransaction = inputTransaction.outputs[vout];
-        final address = addressFromOutputScript(outTransaction.scriptPubKey, network);
-
-        if (address.isNotEmpty) inputAddresses.add(address);
-      }
-
-      for (int i = 0; i < bundle.originalTransaction.outputs.length; i++) {
-        final out = bundle.originalTransaction.outputs[i];
-        final address = addressFromOutputScript(out.scriptPubKey, network);
-
-        if (address.isNotEmpty) outputAddresses.add(address);
-
-        // Check if the script contains OP_RETURN
-        final script = out.scriptPubKey.script;
-        if (script.contains('OP_RETURN')) {
-          final index = script.indexOf('OP_RETURN');
-          if (index + 1 <= script.length) {
-            try {
-              final opReturnData = script[index + 1].toString();
-              final decodedString = utf8.decode(HEX.decode(opReturnData));
-              outputAddresses.add('OP_RETURN:$decodedString');
-            } catch (_) {
-              outputAddresses.add('OP_RETURN:');
-            }
-          }
-        }
-      }
-      tx.inputAddresses = inputAddresses;
-      tx.outputAddresses = outputAddresses;
+      tx = ElectrumTransactionInfo.fromElectrumBundle(
+        bundle,
+        walletInfo.type,
+        network,
+        addresses: addressesSet,
+        height: tx.height,
+      );
 
       transactionHistory.addOne(tx);
     }
