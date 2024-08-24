@@ -1456,21 +1456,18 @@ abstract class ElectrumWalletBase
 
         // Check if the script contains OP_RETURN
         final script = out.scriptPubKey.script;
-        bool isOpReturn = false;
         if (script.contains('OP_RETURN') && memo == null) {
           final index = script.indexOf('OP_RETURN');
           if (index + 1 <= script.length) {
             try {
               final opReturnData = script[index + 1].toString();
               memo = utf8.decode(HEX.decode(opReturnData));
-              isOpReturn = true; // Mark this output as OP_RETURN
+              continue;
             } catch (_) {
               throw Exception('Cannot decode OP_RETURN data');
             }
           }
         }
-
-        if (isOpReturn) continue;
 
         final address = addressFromOutputScript(out.scriptPubKey, network);
         final btcAddress = addressTypeFromStr(address, network);
