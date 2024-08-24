@@ -392,14 +392,12 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
 
     if (transactionInfo.outputAddresses != null && transactionInfo.outputAddresses!.isNotEmpty) {
-      final outputAddresses = transactionInfo.outputAddresses!.toList();
-      outputAddresses.forEach((element) {
-        if (element.contains('OP_RETURN:')) {
-          if (element.length > 40) {
-            outputAddresses[outputAddresses.indexOf(element)] = element.substring(0, 40) + '...';
-          }
+      final outputAddresses = transactionInfo.outputAddresses!.map((element) {
+        if (element.contains('OP_RETURN:') && element.length > 40) {
+            return element.substring(0, 40) + '...';
         }
-      });
+        return element;
+      }).toList();
 
       RBFListItems.add(
           StandardExpandableListItem(title: S.current.outputs, expandableItems: outputAddresses));
