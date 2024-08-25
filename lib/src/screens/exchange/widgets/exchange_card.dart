@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -26,7 +27,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
       required this.isAmountEstimated,
       required this.currencies,
       required this.onCurrencySelected,
-      required this.imageArrow,
+      this.imageArrow,
       this.currencyValueValidator,
       this.addressTextFieldValidator,
       this.title = '',
@@ -61,7 +62,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
   final bool isAmountEstimated;
   final bool hasRefundAddress;
   final bool isMoneroWallet;
-  final Image imageArrow;
+  final Image? imageArrow;
   final Color currencyButtonColor;
   final Color? addressButtonsColor;
   final Color borderColor;
@@ -197,118 +198,18 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
             )
           ],
         ),
-        Padding(
-            padding: widget.currencyRowPadding ?? EdgeInsets.only(top: 20),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.only(right: 8),
-                  height: 32,
-                  color: widget.currencyButtonColor,
-                  child: InkWell(
-                    onTap: () => _presentPicker(context),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(right: 5),
-                            child: widget.imageArrow,
-                          ),
-                          Text(_selectedCurrency.toString(),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white))
-                        ]),
-                  ),
-                ),
-                if (_selectedCurrency.tag != null)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 3.0),
-                    child: Container(
-                      height: 32,
-                      decoration: BoxDecoration(
-                          color: widget.addressButtonsColor ??
-                              Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-                          borderRadius: BorderRadius.all(Radius.circular(6))),
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: Text(_selectedCurrency.tag!,
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context)
-                                      .extension<SendPageTheme>()!
-                                      .textFieldButtonIconColor)),
-                        ),
-                      ),
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 4.0),
-                  child: Text(':',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white)),
-                ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: FocusTraversalOrder(
-                          order: NumericFocusOrder(1),
-                          child: BaseTextFormField(
-                              focusNode: widget.amountFocusNode,
-                              controller: amountController,
-                              enabled: _isAmountEditable,
-                              textAlign: TextAlign.left,
-                              keyboardType:
-                                  TextInputType.numberWithOptions(signed: false, decimal: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
-                              ],
-                              hintText: '0.0000',
-                              borderColor: Colors.transparent,
-                              //widget.borderColor,
-                              textStyle: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                              placeholderTextStyle: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context)
-                                      .extension<ExchangePageTheme>()!
-                                      .hintTextColor),
-                              validator: _isAmountEditable ? widget.currencyValueValidator : null),
-                        ),
-                      ),
-                      if (widget.hasAllAmount)
-                        Container(
-                          height: 32,
-                          width: 32,
-                          decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .extension<SendPageTheme>()!
-                                  .textFieldButtonColor,
-                              borderRadius: BorderRadius.all(Radius.circular(6))),
-                          child: InkWell(
-                            onTap: () => widget.allAmount?.call(),
-                            child: Center(
-                              child: Text(S.of(context).all,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .extension<SendPageTheme>()!
-                                          .textFieldButtonIconColor)),
-                            ),
-                          ),
-                        )
-                    ],
-                  ),
-                ),
-              ],
-            )),
+        CurrencyAmountTextField(
+            imageArrow: widget.imageArrow,
+            selectedCurrency: _selectedCurrency.toString(),
+            amountFocusNode: widget.amountFocusNode,
+            amountController: amountController,
+            onTapPicker: () => _presentPicker(context),
+            isAmountEditable: _isAmountEditable,
+            isPickerEnable: true,
+            allAmountButton: widget.hasAllAmount,
+            currencyValueValidator: widget.currencyValueValidator,
+            tag: _selectedCurrency.tag,
+            allAmountCallback: widget.allAmount),
         Divider(height: 1, color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
         Padding(
             padding: EdgeInsets.only(top: 5),

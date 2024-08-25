@@ -19,6 +19,11 @@ dependencies:
   flutter_mobx: ^2.0.6+1
   intl: ^0.18.0
   encrypt: ^5.0.1
+  cake_backup:
+    git:
+      url: https://github.com/cake-tech/cake_backup.git
+      ref: main
+      version: 1.0.0
   socks5_proxy: ^1.0.4
   unorm_dart: ^0.3.0
 #  tor:

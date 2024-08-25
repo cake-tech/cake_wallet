@@ -8,10 +8,12 @@ class LinkListItem extends SettingsListItem {
         required this.link,
         required this.linkTitle,
         this.icon,
+        this.lightIcon,
         this.hasIconColor = false})
       : super(title);
 
   final String? icon;
+  final String? lightIcon;
   final String link;
   final String linkTitle;
   final bool hasIconColor;

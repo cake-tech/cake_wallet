@@ -31,6 +31,7 @@ class Routes {
   static const nanoAccountCreation = '/nano_account_new';
   static const addressBook = '/address_book';
   static const pickerAddressBook = '/picker_address_book';
+  static const pickerWalletAddress = '/picker_wallet_address';
   static const addressBookAddContact = '/address_book_add_contact';
   static const showKeys = '/show_keys';
   static const exchangeConfirm = '/exchange_confirm';
@@ -83,6 +84,8 @@ class Routes {
   static const otherSettingsPage = '/other_settings_page';
   static const advancedPrivacySettings = '/advanced_privacy_settings';
   static const sweepingWalletPage = '/sweeping_wallet_page';
+  static const walletPasswordUnlock = '/wallet_password_unlock';
+  static const walletUnlockLoadable = '/wallet_unlock_loadable';
   static const anonPayInvoicePage = '/anon_pay_invoice_page';
   static const anonPayReceivePage = '/anon_pay_receive_page';
   static const anonPayDetailsPage = '/anon_pay_details_page';
@@ -102,5 +105,6 @@ class Routes {
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
   static const torPage = '/tor_page';
+  static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
 }

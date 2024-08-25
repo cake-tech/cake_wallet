@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -20,7 +21,6 @@ import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
-
 import 'package:cake_backup/backup.dart' as cake_backup;
 
 class BackupService {

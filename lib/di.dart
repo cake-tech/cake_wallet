@@ -1,3 +1,5 @@
+import 'dart:async' show Timer;
+
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
@@ -29,6 +31,13 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
+import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
+import 'package:cw_core/receive_page_option.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -113,6 +122,8 @@ import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -157,7 +168,6 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_page.dart';
-import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
@@ -177,7 +187,6 @@ import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/store/templates/send_template_store.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
@@ -191,7 +200,6 @@ import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
-import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
@@ -218,9 +226,10 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_unlock_loadable_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_unlock_verifiable_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -340,7 +349,6 @@ Future<void> setup({
       WalletCreationService(
           initialType: type,
           keyService: getIt.get<KeyService>(),
-          secureStorage: getIt.get<SecureStorage>(),
           sharedPreferences: getIt.get<SharedPreferences>(),
           settingsStore: getIt.get<SettingsStore>(),
           walletInfoSource: _walletInfoSource));
@@ -359,6 +367,65 @@ Future<void> setup({
       _walletInfoSource,
       getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
       type: type));
+
+  getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
+    return WalletUnlockPage(
+      getIt.get<WalletUnlockLoadableViewModel>(param1: args),
+      args.callback,
+      args.authPasswordHandler,
+      closable: closable);
+  }, instanceName: 'wallet_unlock_loadable');
+
+  getIt.registerFactory<WalletUnlockPage>(
+    () => getIt.get<WalletUnlockPage>(
+      param1: WalletUnlockArguments(
+        callback: (bool successful, _) {
+          if (successful) {
+            final authStore = getIt.get<AuthenticationStore>();
+            authStore.allowed();
+          }}),
+      param2: false,
+      instanceName: 'wallet_unlock_loadable'),
+    instanceName: 'wallet_password_login');
+
+  getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
+    return WalletUnlockPage(
+      getIt.get<WalletUnlockVerifiableViewModel>(param1: args),
+      args.callback,
+      args.authPasswordHandler,
+      closable: closable);
+  }, instanceName: 'wallet_unlock_verifiable');
+
+  getIt.registerFactoryParam<WalletUnlockLoadableViewModel, WalletUnlockArguments, void>((args, _) {
+    final currentWalletName = getIt
+      .get<SharedPreferences>()
+      .getString(PreferencesKey.currentWalletName) ?? '';
+    final currentWalletTypeRaw =
+      getIt.get<SharedPreferences>()
+        .getInt(PreferencesKey.currentWalletType) ?? 0;
+    final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
+
+    return WalletUnlockLoadableViewModel(
+      getIt.get<AppStore>(),
+      getIt.get<WalletLoadingService>(),
+      walletName: args.walletName ?? currentWalletName,
+      walletType: args.walletType ?? currentWalletType);
+  });
+
+  getIt.registerFactoryParam<WalletUnlockVerifiableViewModel, WalletUnlockArguments, void>((args, _) {
+    final currentWalletName = getIt
+      .get<SharedPreferences>()
+      .getString(PreferencesKey.currentWalletName) ?? '';
+    final currentWalletTypeRaw =
+      getIt.get<SharedPreferences>()
+        .getInt(PreferencesKey.currentWalletType) ?? 0;
+    final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
+
+    return WalletUnlockVerifiableViewModel(
+      getIt.get<AppStore>(),
+      walletName: args.walletName ?? currentWalletName,
+      walletType: args.walletType ?? currentWalletType);
+  });
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) {
     return WalletRestorationFromQRVM(getIt.get<AppStore>(),
@@ -492,6 +559,7 @@ Future<void> setup({
 
         if (loginError != null) {
           authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+          loginError = null;
         }
 
         ReactionDisposer? _reaction;
@@ -501,6 +569,17 @@ Future<void> setup({
           final linkViewModel = getIt.get<LinkViewModel>();
           if (linkViewModel.currentLink != null) {
             linkViewModel.handleLink();
+          }
+        });
+
+        Timer.periodic(Duration(seconds: 1), (timer) {
+          if (timer.tick > 30) {
+            timer.cancel();
+          }
+
+          if (loginError != null) {
+            authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+            timer.cancel();
           }
         });
       }
@@ -750,8 +829,8 @@ Future<void> setup({
   getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() {
-    return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
-  });
+    return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!,
+        getIt.get<SendViewModel>());});
 
   getIt.registerFactory(() {
     return SecuritySettingsViewModel(getIt.get<SettingsStore>());
@@ -780,6 +859,8 @@ Future<void> setup({
 
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
       (ContactRecord? contact, _) => ContactPage(getIt.get<ContactViewModel>(param1: contact)));
+
+  getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
@@ -902,23 +983,28 @@ Future<void> setup({
           _walletInfoSource,
           _unspentCoinsInfoSource,
           getIt.get<SettingsStore>().silentPaymentsAlwaysScan,
+          SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.litecoin:
-        return bitcoin!.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+        return bitcoin!.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource,
+            SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.ethereum:
-        return ethereum!.createEthereumWalletService(_walletInfoSource);
+        return ethereum!.createEthereumWalletService(
+            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
-        return bitcoinCash!
-            .createBitcoinCashWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+        return bitcoinCash!.createBitcoinCashWalletService(_walletInfoSource,
+            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.nano:
       case WalletType.banano:
-        return nano!.createNanoWalletService(_walletInfoSource);
+        return nano!.createNanoWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.polygon:
-        return polygon!.createPolygonWalletService(_walletInfoSource);
+        return polygon!.createPolygonWalletService(
+            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.solana:
-        return solana!.createSolanaWalletService(_walletInfoSource);
+        return solana!.createSolanaWalletService(
+            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.tron:
-        return tron!.createTronWalletService(_walletInfoSource);
+        return tron!.createTronWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.wownero:
         return wownero!.createWowneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.none:
@@ -1215,9 +1301,11 @@ Future<void> setup({
 
   getIt.registerFactory(
       () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
-
+  
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
+
+  getIt.registerFactory(() => SignViewModel(getIt.get<AppStore>().wallet!));
 
   _isSetupFinished = true;
 }

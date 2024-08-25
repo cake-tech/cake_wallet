@@ -1,5 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
@@ -37,6 +39,14 @@ abstract class WalletCreationVMBase with Store {
   @observable
   ExecutionState state;
 
+  @observable
+  String? walletPassword;
+
+  @observable
+  String? repeatedWalletPassword;
+
+  bool get hasWalletPassword => SettingsStoreBase.walletPasswordDirectInput;
+
   WalletType type;
   final bool isRecovery;
   final WalletCreationService walletCreationService;
@@ -57,6 +67,14 @@ abstract class WalletCreationVMBase with Store {
       state = IsExecutingState();
       if (name.isEmpty) {
         name = await generateName();
+      }
+
+      if (hasWalletPassword && (walletPassword?.isEmpty ?? true)) {
+        throw Exception(S.current.wallet_password_is_empty);
+      }
+
+      if (hasWalletPassword && walletPassword != repeatedWalletPassword) {
+        throw Exception(S.current.repeated_password_is_incorrect);
       }
 
       walletCreationService.checkIfExists(name);
@@ -92,8 +110,6 @@ abstract class WalletCreationVMBase with Store {
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
     } catch (e, s) {
-      print("@@@@@@@@");
-      print(s);
       state = FailureState(e.toString());
     }
   }
@@ -101,9 +117,7 @@ abstract class WalletCreationVMBase with Store {
   DerivationInfo? getDefaultDerivation() {
     switch (this.type) {
       case WalletType.nano:
-        return DerivationInfo(
-          derivationType: DerivationType.nano,
-        );
+        return DerivationInfo(derivationType: DerivationType.nano);
       case WalletType.bitcoin:
       case WalletType.litecoin:
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
@@ -115,9 +129,7 @@ abstract class WalletCreationVMBase with Store {
   DerivationInfo? getCommonRestoreDerivation() {
     switch (this.type) {
       case WalletType.nano:
-        return DerivationInfo(
-          derivationType: DerivationType.nano,
-        );
+        return DerivationInfo(derivationType: DerivationType.nano);
       case WalletType.bitcoin:
         return DerivationInfo(
           derivationType: DerivationType.bip39,

@@ -79,6 +79,7 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/output_info.dart';
@@ -94,12 +95,11 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as btc;
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_bitcoin/litecoin_network.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
@@ -151,7 +151,7 @@ abstract class Bitcoin {
     String? passphrase,
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
-  WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
   Map<String, String> getWalletKeys(Object wallet);
@@ -180,8 +180,8 @@ abstract class Bitcoin {
   List<Unspent> getUnspents(Object wallet);
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan);
-  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect);
+  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPriorityCustom();
   TransactionPriority getLitecoinTransactionPriorityMedium();
@@ -205,11 +205,12 @@ abstract class Bitcoin {
   bool isTestnet(Object wallet);
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
-  Future<bool> canReplaceByFee(Object wallet, String transactionHash);
+  Future<bool> canReplaceByFee(Object wallet, Object tx);
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
   int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
   int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
       {int? outputsCount, int? size});
+  int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
   int getHeightByDate({required DateTime date});
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan});
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet);
@@ -262,6 +263,7 @@ import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
+import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
@@ -368,7 +370,7 @@ abstract class Monero {
     required String language,
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
-  WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, String password});
+  WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, String? password});
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
   Object createMoneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
@@ -377,6 +379,7 @@ abstract class Monero {
   double formatterMoneroAmountToDouble({required int amount});
   int formatterMoneroParseAmount({required String amount});
   Account getCurrentAccount(Object wallet);
+  void monerocCheck();
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
@@ -449,6 +452,7 @@ import 'package:cw_wownero/wownero_transaction_info.dart';
 import 'package:cw_wownero/wownero_transaction_creation_credentials.dart';
 import 'package:cw_core/account.dart' as wownero_account;
 import 'package:cw_wownero/api/wallet.dart' as wownero_wallet_api;
+import 'package:cw_wownero/api/wallet_manager.dart';
 import 'package:cw_wownero/mnemonics/english.dart';
 import 'package:cw_wownero/mnemonics/chinese_simplified.dart';
 import 'package:cw_wownero/mnemonics/dutch.dart';
@@ -540,6 +544,7 @@ abstract class Wownero {
   Future<void> updateUnspents(Object wallet);
 
   Future<int> getCurrentHeight();
+  void wownerocCheck();
 
   WalletCredentials createWowneroRestoreWalletFromKeysCredentials({
     required String name,
@@ -730,7 +735,7 @@ abstract class Haven {
       required String language,
       required int height});
   WalletCredentials createHavenRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
-  WalletCredentials createHavenNewWalletCredentials({required String name, required String language, String password});
+  WalletCredentials createHavenNewWalletCredentials({required String name, required String language, String? password});
   Map<String, String> getKeys(Object wallet);
   Object createHavenTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority, required String assetType});
   String formatterMoneroAmountToString({required int amount});
@@ -824,8 +829,8 @@ import 'package:eth_sig_util/util/utils.dart';
   const ethereumContent = """
 abstract class Ethereum {
   List<String> getEthereumWordList(String language);
-  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource);
-  WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   WalletCredentials createEthereumHardwareWalletCredentials({required String name, required HardwareAccountData hwAccountData, WalletInfo? walletInfo});
@@ -928,8 +933,8 @@ import 'package:eth_sig_util/util/utils.dart';
   const polygonContent = """
 abstract class Polygon {
   List<String> getPolygonWordList(String language);
-  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource);
-  WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createPolygonRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   WalletCredentials createPolygonHardwareWalletCredentials({required String name, required HardwareAccountData hwAccountData, WalletInfo? walletInfo});
@@ -1013,10 +1018,10 @@ abstract class BitcoinCash {
   String getCashAddrFormat(String address);
 
   WalletService createBitcoinCashWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
 
   WalletCredentials createBitcoinCashNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo});
+      {required String name, WalletInfo? walletInfo, String? password});
 
   WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
       {required String name, required String mnemonic, required String password});
@@ -1093,11 +1098,11 @@ abstract class Nano {
 
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
 
-  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource);
+  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
 
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
-    String password,
+    String? password,
   });
   
   WalletCredentials createNanoRestoreWalletFromSeedCredentials({
@@ -1211,9 +1216,9 @@ import 'package:cw_solana/solana_wallet_creation_credentials.dart';
   const solanaContent = """
 abstract class Solana {
   List<String> getSolanaWordList(String language);
-  WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource);
+  WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
   WalletCredentials createSolanaNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo});
+      {required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createSolanaRestoreWalletFromSeedCredentials(
       {required String name, required String mnemonic, required String password});
   WalletCredentials createSolanaRestoreWalletFromPrivateKey(
@@ -1298,8 +1303,8 @@ import 'package:cw_tron/tron_wallet_service.dart';
   const tronContent = """
 abstract class Tron {
   List<String> getTronWordList(String language);
-  WalletService createTronWalletService(Box<WalletInfo> walletInfoSource);
-  WalletCredentials createTronNewWalletCredentials({required String name, WalletInfo? walletInfo});
+  WalletService createTronWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletCredentials createTronNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createTronRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createTronRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);
