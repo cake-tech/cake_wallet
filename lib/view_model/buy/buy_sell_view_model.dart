@@ -6,27 +6,16 @@ import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/buy/sell_buy_states.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
-import 'package:cake_wallet/entities/country.dart';
-import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
-import 'package:cake_wallet/exchange/exchange_trade_state.dart';
-import 'package:cake_wallet/exchange/limits.dart';
-import 'package:cake_wallet/exchange/limits_state.dart';
-import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'buy_sell_view_model.g.dart';
 
@@ -39,7 +28,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         cryptoAmount = '',
         fiatAmount = '',
         cryptoCurrencyAddress = '',
-        country = Country.usa,
         cryptoCurrencies = <CryptoCurrency>[],
         fiatCurrencies = <FiatCurrency>[],
         paymentMethodState = InitialPaymentMethod(),
@@ -136,9 +124,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @observable
   ObservableList<PaymentMethod> paymentMethods;
-
-  @observable
-  Country country;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -275,12 +260,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   void _setProviders() =>
       providerList = isBuyAction ? availableBuyProviders : availableSellProviders;
 
-  @action
-  void setCountry(Country country) {
-    this.country = country;
-    _initialize();
-  }
-
   Future<void> _initialize() async {
     _setProviders();
     cryptoAmount = '';
@@ -329,7 +308,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           paymentType: selectedPaymentMethod!.paymentMethodType,
           isBuyAction: isBuyAction,
           walletAddress: wallet.walletAddresses.address,
-          countryCode: country.countryCode,
         )));
 
     final validQuotes = result.where((quote) => quote != null).cast<Quote>().toList();
@@ -362,7 +340,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       amount: amount,
       isBuyAction: isBuyAction,
       cryptoCurrencyAddress: cryptoCurrencyAddress,
-      countryCode: country.countryCode,
     );
   }
 }

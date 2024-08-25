@@ -1,20 +1,14 @@
 import 'package:cake_wallet/buy/sell_buy_states.dart';
 import 'package:cake_wallet/core/address_validator.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/exchange_card.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
-import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
-import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
@@ -26,9 +20,7 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -162,8 +154,6 @@ class BuySellPage extends BasePage {
                             child: Column(
                               children: [
                                 SizedBox(height: 12),
-                                _countryPicker(context),
-                                SizedBox(height: 12),
                                 _buildPaymentMethodTile(context),
                                 SizedBox(height: 12),
                                 _buildQuoteTile(context)
@@ -185,29 +175,6 @@ class BuySellPage extends BasePage {
               )),
         ));
   }
-
-  Widget _countryPicker(BuildContext context) => Observer(
-      builder: (BuildContext build) => OptionTile(
-          imagePath: buySellViewModel.country.iconPath,
-          title: buySellViewModel.country.fullName,
-          leadingIcon: Icons.arrow_forward_ios,
-          padding: EdgeInsets.fromLTRB(8, 12, 24, 12),
-          titleTextStyle:
-              textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-          borderRadius: 30,
-          onPressed: () async {
-            await showPopUp<void>(
-                context: context,
-                builder: (_) => Picker(
-                    items: Country.all,
-                    images: Country.all.map((e) => Image.asset(e.iconPath)).toList(),
-                    selectedAtIndex: Country.all.indexOf(buySellViewModel.country),
-                    onItemSelected: (Country country) => buySellViewModel.setCountry(country),
-                    isSeparated: false,
-                    hintText: 'Search_country',
-                    matchingCriteria: (Country country, String searchText) =>
-                        country.fullName.toLowerCase().contains(searchText)));
-          }));
 
   Widget _buildPaymentMethodTile(BuildContext context) {
     if (buySellViewModel.paymentMethodState is PaymentMethodLoading ||
