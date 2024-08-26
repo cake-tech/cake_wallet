@@ -60,7 +60,7 @@ class LanguageService {
     'yo': 'nga',
     'ha': 'hau',
     'tl': 'phl',
-    'hy': 'arm'
+    'hy': 'arm',
   };
 
   static final list = <String, String>{};

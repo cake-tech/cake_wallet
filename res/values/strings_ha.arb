@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "Shin kun tabbata cewa kuna son share jakar ${wallet_name}?",
   "deleteConnectionConfirmationPrompt": "Shin kun tabbata cewa kuna son share haɗin zuwa",
   "denominations": "Denominations",
+  "derivationpath": "Hanyar Nasara",
   "descending": "Saukowa",
   "description": "Bayani",
   "destination_tag": "Tambarin makoma:",

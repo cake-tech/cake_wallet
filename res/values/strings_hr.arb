@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "Jeste li sigurni da želite izbrisati ${wallet_name} novčanik?",
   "deleteConnectionConfirmationPrompt": "Jeste li sigurni da želite izbrisati vezu s",
   "denominations": "Denominacije",
+  "derivationpath": "Put derivacije",
   "descending": "Silazni",
   "description": "Opis",
   "destination_tag": "Odredišna oznaka:",

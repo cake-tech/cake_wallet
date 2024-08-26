@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "Opravdu chcete smazat ${wallet_name} peněženku?",
   "deleteConnectionConfirmationPrompt": "Jste si jisti, že chcete smazat připojení k?",
   "denominations": "Označení",
+  "derivationpath": "Derivační cesta",
   "descending": "Klesající",
   "description": "Popis",
   "destination_tag": "Destination Tag:",

@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "${wallet_name} isimli cüzdanını silmek istediğinden emin misin?",
   "deleteConnectionConfirmationPrompt": "Bağlantıyı silmek istediğinizden emin misiniz?",
   "denominations": "Mezhepler",
+  "derivationpath": "Türev yolu",
   "descending": "Azalan",
   "description": "Tanım",
   "destination_tag": "Hedef Etiketi:",

@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "คุณแน่ใจหรือว่าต้องการลบกระเป๋า${wallet_name}?",
   "deleteConnectionConfirmationPrompt": "คุณแน่ใจหรือไม่ว่าต้องการลบการเชื่อมต่อไปยัง",
   "denominations": "นิกาย",
+  "derivationpath": "เส้นทางที่ได้มา",
   "descending": "ลงมา",
   "description": "คำอธิบาย",
   "destination_tag": "แท็กปลายทาง:",

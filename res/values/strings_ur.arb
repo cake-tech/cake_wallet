@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "کیا آپ واقعی ${wallet_name} والیٹ کو حذف کرنا چاہتے ہیں؟",
   "deleteConnectionConfirmationPrompt": "۔ﮟﯿﮨ ﮯﺘﮨﺎﭼ ﺎﻧﺮﮐ ﻑﺬﺣ ﻮﮐ ﻦﺸﮑﻨﮐ ﭖﺁ ﮧﮐ ﮯﮨ ﻦﯿﻘﯾ ﻮﮐ ﭖﺁ ﺎﯿﮐ",
   "denominations": "فرق",
+  "derivationpath": "مشتق راستہ",
   "descending": "اترتے ہوئے",
   "description": "ﻞﯿﺼﻔﺗ",
   "destination_tag": "منزل کا ٹیگ:",

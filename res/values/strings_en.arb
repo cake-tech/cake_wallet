@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "Are you sure that you want to delete ${wallet_name} wallet?",
   "deleteConnectionConfirmationPrompt": "Are you sure that you want to delete the connection to",
   "denominations": "Denominations",
+  "derivationpath": "Derivation Path",
   "descending": "Descending",
   "description": "Description",
   "destination_tag": "Destination tag:",

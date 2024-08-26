@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "¿Está seguro de que desea eliminar la billetera ${wallet_name}?",
   "deleteConnectionConfirmationPrompt": "¿Está seguro de que desea eliminar la conexión a",
   "denominations": "Denominaciones",
+  "derivationpath": "Ruta de derivación",
   "descending": "Descendente",
   "description": "Descripción",
   "destination_tag": "Etiqueta de destino:",

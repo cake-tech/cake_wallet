@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
@@ -30,8 +31,21 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
+    final String mnemonic;
+    switch ( credentials.walletInfo?.derivationInfo?.derivationType) {
+      case DerivationType.bip39:
+        final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+
+        mnemonic = await MnemonicBip39.generate(strength: strength);
+        break;
+      case DerivationType.electrum:
+      default:
+        mnemonic = await generateElectrumMnemonic();
+        break;
+    }
+
     final wallet = await LitecoinWalletBase.create(
-      mnemonic: await generateElectrumMnemonic(),
+      mnemonic: mnemonic,
       password: credentials.password!,
       passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,

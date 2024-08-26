@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "هل أنت متأكد أنك تريد حذف محفظة ${wallet_name}؟",
   "deleteConnectionConfirmationPrompt": "ـﺑ ﻝﺎﺼﺗﻻ﻿ﺍ ﻑﺬﺣ ﺪﻳﺮﺗ ﻚﻧﺃ ﺪﻛﺄﺘﻣ ﺖﻧﺃ ﻞﻫ",
   "denominations": "الطوائف",
+  "derivationpath": "مسار الاشتقاق",
   "descending": "النزول",
   "description": "ﻒﺻﻭ",
   "destination_tag": "علامة الوجهة:",

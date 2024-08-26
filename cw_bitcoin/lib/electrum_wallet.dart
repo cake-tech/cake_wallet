@@ -137,6 +137,8 @@ abstract class ElectrumWalletBase
   Bip32Slip10Secp256k1 get sideHd => accountHD.childKey(Bip32KeyIndex(1));
 
   final EncryptionFileUtils encryptionFileUtils;
+
+  @override
   final String? passphrase;
 
   @override

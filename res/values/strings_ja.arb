@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "${wallet_name} ウォレットを削除してもよろしいですか?",
   "deleteConnectionConfirmationPrompt": "への接続を削除してもよろしいですか?",
   "denominations": "宗派",
+  "derivationpath": "派生パス",
   "descending": "下降",
   "description": "説明",
   "destination_tag": "宛先タグ:",

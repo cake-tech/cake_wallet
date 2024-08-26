@@ -195,6 +195,7 @@
   "delete_wallet_confirm_message": "Tem certeza de que deseja excluir a carteira ${wallet_name}?",
   "deleteConnectionConfirmationPrompt": "Tem certeza de que deseja excluir a conexão com",
   "denominations": "Denominações",
+  "derivationpath": "Caminho de derivação",
   "descending": "descendente",
   "description": "Descrição",
   "destination_tag": "Tag de destino:",
