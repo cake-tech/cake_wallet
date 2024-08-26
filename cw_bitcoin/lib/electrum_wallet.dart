@@ -43,6 +43,7 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
+import 'package:hex/hex.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -132,6 +133,7 @@ abstract class ElectrumWalletBase
   final String? _mnemonic;
 
   Bip32Slip10Secp256k1 get hd => accountHD.childKey(Bip32KeyIndex(0));
+
   Bip32Slip10Secp256k1 get sideHd => accountHD.childKey(Bip32KeyIndex(1));
 
   final EncryptionFileUtils encryptionFileUtils;
@@ -1363,26 +1365,15 @@ abstract class ElectrumWalletBase
     }
   }
 
-  Future<bool> canReplaceByFee(String hash) async {
-    final verboseTransaction = await electrumClient.getTransactionVerbose(hash: hash);
-
-    final String? transactionHex;
-    int confirmations = 0;
-
-    if (verboseTransaction.isEmpty) {
-      transactionHex = await electrumClient.getTransactionHex(hash: hash);
-    } else {
-      confirmations = verboseTransaction['confirmations'] as int? ?? 0;
-      transactionHex = verboseTransaction['hex'] as String?;
-    }
-
-    if (confirmations > 0) return false;
-
-    if (transactionHex == null || transactionHex.isEmpty) {
+  Future<bool> canReplaceByFee(ElectrumTransactionInfo tx) async {
+    try {
+      final bundle = await getTransactionExpanded(hash: tx.txHash);
+      _updateInputsAndOutputs(tx, bundle);
+      if (bundle.confirmations > 0) return false;
+      return bundle.originalTransaction.canReplaceByFee;
+    } catch (e) {
       return false;
     }
-
-    return BtcTransaction.fromRaw(transactionHex).canReplaceByFee;
   }
 
   Future<bool> isChangeSufficientForFee(String txId, int newFee) async {
@@ -1423,6 +1414,7 @@ abstract class ElectrumWalletBase
       List<ECPrivate> privateKeys = [];
 
       var allInputsAmount = 0;
+      String? memo;
 
       // Add inputs
       for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
@@ -1458,53 +1450,83 @@ abstract class ElectrumWalletBase
         );
       }
 
-      int totalOutAmount = bundle.originalTransaction.outputs
-          .fold<int>(0, (previousValue, element) => previousValue + element.amount.toInt());
-
-      var currentFee = allInputsAmount - totalOutAmount;
-      int remainingFee = newFee - currentFee;
-
+      // Create a list of available outputs
       final outputs = <BitcoinOutput>[];
+      for (final out in bundle.originalTransaction.outputs) {
 
-      // Add outputs and deduct the fees from it
-      for (int i = bundle.originalTransaction.outputs.length - 1; i >= 0; i--) {
-        final out = bundle.originalTransaction.outputs[i];
-        final address = addressFromOutputScript(out.scriptPubKey, network);
-        final btcAddress = addressTypeFromStr(address, network);
-
-        int newAmount;
-        if (out.amount.toInt() >= remainingFee) {
-          newAmount = out.amount.toInt() - remainingFee;
-          remainingFee = 0;
-
-          // if new amount of output is less than dust amount, then don't add this output as well
-          if (newAmount <= _dustAmount) {
-            continue;
+        // Check if the script contains OP_RETURN
+        final script = out.scriptPubKey.script;
+        if (script.contains('OP_RETURN') && memo == null) {
+          final index = script.indexOf('OP_RETURN');
+          if (index + 1 <= script.length) {
+            try {
+              final opReturnData = script[index + 1].toString();
+              memo = utf8.decode(HEX.decode(opReturnData));
+              continue;
+            } catch (_) {
+              throw Exception('Cannot decode OP_RETURN data');
+            }
           }
-        } else {
-          remainingFee -= out.amount.toInt();
-          continue;
         }
 
-        outputs.add(BitcoinOutput(address: btcAddress, value: BigInt.from(newAmount)));
+        final address = addressFromOutputScript(out.scriptPubKey, network);
+        final btcAddress = addressTypeFromStr(address, network);
+        outputs.add(BitcoinOutput(address: btcAddress, value: BigInt.from(out.amount.toInt())));
       }
 
+      // Calculate the total amount and fees
+      int totalOutAmount =
+          outputs.fold<int>(0, (previousValue, output) => previousValue + output.value.toInt());
+      int currentFee = allInputsAmount - totalOutAmount;
+      int remainingFee = newFee - currentFee;
+
+      if (remainingFee <= 0) {
+        throw Exception("New fee must be higher than the current fee.");
+      }
+
+      // Deduct Remaining Fee from Main Outputs
+      if (remainingFee > 0) {
+        for (int i = outputs.length - 1; i >= 0; i--) {
+          int outputAmount = outputs[i].value.toInt();
+
+          if (outputAmount > _dustAmount) {
+            int deduction = (outputAmount - _dustAmount >= remainingFee)
+                ? remainingFee
+                : outputAmount - _dustAmount;
+            outputs[i] = BitcoinOutput(
+                address: outputs[i].address, value: BigInt.from(outputAmount - deduction));
+            remainingFee -= deduction;
+
+            if (remainingFee <= 0) break;
+          }
+        }
+      }
+
+      // Final check if the remaining fee couldn't be deducted
+      if (remainingFee > 0) {
+        throw Exception("Not enough funds to cover the fee.");
+      }
+
+      // Identify all change outputs
       final changeAddresses = walletAddresses.allAddresses.where((element) => element.isHidden);
+      final List<BitcoinOutput> changeOutputs = outputs
+          .where((output) => changeAddresses
+              .any((element) => element.address == output.address.toAddress(network)))
+          .toList();
 
-      // look for a change address in the outputs
-      final changeOutput = outputs.firstWhereOrNull((output) =>
-          changeAddresses.any((element) => element.address == output.address.toAddress(network)));
+      int totalChangeAmount =
+          changeOutputs.fold<int>(0, (sum, output) => sum + output.value.toInt());
 
-      // deduct the change amount from the output amount
-      if (changeOutput != null) {
-        totalOutAmount -= changeOutput.value.toInt();
-      }
+      // The final amount that the receiver will receive
+      int sendingAmount = allInputsAmount - newFee - totalChangeAmount;
 
       final txb = BitcoinTransactionBuilder(
         utxos: utxos,
         outputs: outputs,
         fee: BigInt.from(newFee),
         network: network,
+        memo: memo,
+        outputOrdering: BitcoinOrdering.none,
         enableRBF: true,
       );
 
@@ -1527,10 +1549,10 @@ abstract class ElectrumWalletBase
         transaction,
         type,
         electrumClient: electrumClient,
-        amount: totalOutAmount,
+        amount: sendingAmount,
         fee: newFee,
         network: network,
-        hasChange: changeOutput != null,
+        hasChange: changeOutputs.isNotEmpty,
         feeRate: newFee.toString(),
       )..addListener((transaction) async {
           transactionHistory.addOne(transaction);
@@ -2024,6 +2046,25 @@ abstract class ElectrumWalletBase
       Timer(Duration(seconds: 3), () {
         if (this.syncStatus is SyncedTipSyncStatus) this.syncStatus = SyncedSyncStatus();
       });
+    }
+  }
+
+  void _updateInputsAndOutputs(ElectrumTransactionInfo tx, ElectrumTransactionBundle bundle) {
+    tx.inputAddresses = tx.inputAddresses?.where((address) => address.isNotEmpty).toList();
+
+    if (tx.inputAddresses == null ||
+        tx.inputAddresses!.isEmpty ||
+        tx.outputAddresses == null ||
+        tx.outputAddresses!.isEmpty) {
+      tx = ElectrumTransactionInfo.fromElectrumBundle(
+        bundle,
+        walletInfo.type,
+        network,
+        addresses: addressesSet,
+        height: tx.height,
+      );
+
+      transactionHistory.addOne(tx);
     }
   }
 }

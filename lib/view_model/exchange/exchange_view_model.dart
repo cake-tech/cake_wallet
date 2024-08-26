@@ -854,6 +854,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         );
       }
 
+      if ((trade.memo == null || trade.memo!.isEmpty)) {
+        return CreateTradeResult(
+          result: false,
+          errorMessage: 'Memo is required for Thorchain trade',
+        );
+      }
+
       final currenciesToCheckPattern = RegExp('0x[0-9a-zA-Z]');
 
       // Perform checks for payOutAddress
