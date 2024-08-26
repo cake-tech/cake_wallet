@@ -34,10 +34,6 @@ dependencies:
   #     url: https://github.com/breez/breez-sdk-flutter.git
   #     ref: v0.5.2
   cryptography: ^2.0.5
-  bitcoin_base:
-    git:
-      url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v5
   fluttertoast: 8.1.4
   ldk_node: ^0.3.0
   
@@ -55,9 +51,9 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v5
+      ref: cake-update-v6
   meta: 1.11.0
-  # flutter_rust_bridge: 2.0.0
+  flutter_rust_bridge: 2.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -223,14 +223,15 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     await setupLightningNode(mnemonic);
   }
 
-  totalOnchainBalanceSats() async {
+  Future<void> updateBalance() async {
     final balance = await _node?.listBalances();
     if (balance == null) {
       return;
     }
     _balance[CryptoCurrency.btcln] = LightningBalance(
       confirmed: balance.spendableOnchainBalanceSats.toInt(),
-      unconfirmed: (balance.totalOnchainBalanceSats - balance.spendableOnchainBalanceSats).toInt(),
+      unconfirmed: 0,
+      // frozen: (balance.totalOnchainBalanceSats - balance.spendableOnchainBalanceSats).toInt(),
       frozen: balance.totalOnchainBalanceSats.toInt(),
     );
     print("wallet balance: ${balance.totalOnchainBalanceSats}");
@@ -260,25 +261,24 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     }
   }
 
-  listPaymentsWithFilter(bool printPayments) async {
-    // final res =
-    //     await aliceNode.listPaymentsWithFilter(paymentDirection: ldk.PaymentDirection.outbound);
-    // if (res.isNotEmpty) {
-    //   if (printPayments) {
-    //     if (kDebugMode) {
-    //       print("======Payments========");
-    //       for (var e in res) {
-    //         print("amountMsat: ${e.amountMsat}");
-    //         print("paymentId: ${e.id.field0}");
-    //         print("status: ${e.status.name}");
-    //       }
-    //     }
-    //   }
-    //   return res.last;
-    // } else {
-    //   return null;
-    // }
-  }
+  // listPaymentsWithFilter(bool printPayments) async {
+  //   final res =
+  //       await _node.listPaymentsWithFilter(paymentDirection: ldk.PaymentDirection.outbound);
+  //   if (res.isEmpty) {
+  //     return null;
+  //   }
+  //   if (printPayments) {
+  //     if (kDebugMode) {
+  //       print("======Payments========");
+  //       for (var e in res) {
+  //         print("amountMsat: ${e.amountMsat}");
+  //         print("paymentId: ${e.id.field0}");
+  //         print("status: ${e.status.name}");
+  //       }
+  //     }
+  //   }
+  //   return res.last;
+  // }
 
   removeLastPayment() async {
     // final lastPayment = await listPaymentsWithFilter(false);
@@ -292,7 +292,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
 
   Future<String> newOnchainAddress() async {
     if (_node == null) {
-      return "";
+      throw Exception("Node is null!");
     }
     final payment = await _node!.onChainPayment();
     final address = await payment.newAddress();
@@ -336,14 +336,27 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     //     ));
   }
 
-  receiveAndSendPayments() async {
-    // final bobBolt11Handler = await bobNode.bolt11Payment();
+  Future<String> createInvoice({required BigInt amountMsat, String? description}) async {
+    if (_node == null) {
+      throw Exception("Node is null!");
+    }
+
+    final bolt11Handler = await _node!.bolt11Payment();
     // final aliceBolt11Handler = await aliceNode.bolt11Payment();
     // // Bob doesn't have a channel yet, so he can't receive normal payments,
     // //  but he can receive payments via JIT channels through an LSP configured
     // //  in its node.
-    // invoice = await bobBolt11Handler.receiveViaJitChannel(
-    //     amountMsat: BigInt.from(25000 * 1000), description: 'asdf', expirySecs: 9217);
+
+    // check if we have an open channel:
+
+    final invoice = await bolt11Handler.receiveViaJitChannel(
+      amountMsat: amountMsat,
+      description: description ?? '',
+      expirySecs: 9000,
+    );
+
+    return invoice.signedRawInvoice;
+
     // print(invoice!.signedRawInvoice);
     // setState(() {
     //   displayText = invoice!.signedRawInvoice;
@@ -355,12 +368,12 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     // });
   }
 
-  stop() async {
+  Future<void> stop() async {
     // await bobNode.stop();
     // await aliceNode.stop();
   }
 
-  Future handleEvent(ldk.Node node) async {
+  Future<void> handleEvent(ldk.Node node) async {
     final res = await node.nextEvent();
     res?.map(paymentSuccessful: (e) {
       if (kDebugMode) {
@@ -393,6 +406,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
       }
     });
     await node.eventHandled();
+    handleEvent(_node!);
   }
 
   Future<void> startNode(ldk.Node node) async {
@@ -417,22 +431,44 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         .setEsploraServer(esploraUrl)
         .setStorageDirPath(workingDir)
         .setListeningAddresses([address]);
+
+    // return ldk.Builder()
+    //     .setEntropyBip39Mnemonic(mnemonic: ldk.Mnemonic(seedPhrase: mnemonic))
+    //     .setEsploraServer(esploraUrl)
+    //     .setStorageDirPath(workingDir)
+    //     .setListeningAddresses([address])
+    //     .setNetwork(ldk.Network.bitcoin)
+    //     .setLiquiditySourceLsps2(address: address, publicKey: publicKey)
+    //     .setGossipSourceRgs(DefaultServicesMutinynet.rgsServerUrl)
+    //     .setLiquiditySourceLsps2(
+    //       address: types.SocketAddress.hostname(
+    //         addr: DefaultServicesMutinynet.lsps2SourceAddress,
+    //         port: DefaultServicesMutinynet.lsps2SourcePort,
+    //       ),
+    //       publicKey: types.PublicKey(
+    //         hex: DefaultServicesMutinynet.lsps2SourcePublicKey,
+    //       ),
+    //       token: DefaultServicesMutinynet.lsps2SourceToken,
+    //     );
+  }
+
+  Future<String> sendToOnchainAddress({
+    required String address,
+    required BigInt amountSats,
+  }) async {
+    if (_node == null) {
+      throw Exception("Node is null!");
+    }
+
+    final addr = ldk.Address(s: address);
+    final payment = await _node!.onChainPayment();
+    final txid = await payment.sendToAddress(address: addr, amountSats: amountSats);
+
+    print('Sent On-Chain Txid: ${txid.hash}');
+    return txid.hash;
   }
 
   Future<void> setupLightningNode(String mnemonic) async {
-    // _sdk = await BreezSDK();
-    // await _logStream?.cancel();
-    // _logStream = _sdk.logStream.listen(_logSdkEntries);
-
-    // try {
-    //   if (!(await _sdk.isInitialized())) {
-    //     _sdk.initialize();
-    //   }
-    // } catch (e) {
-    //   print("Error initializing Breez: $e");
-    //   return;
-    // }
-
     if (_node != null) {
       await _node?.stop();
     }
@@ -441,6 +477,11 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     _node = await _builder.build();
     await startNode(_node!);
     print("node started!");
+
+    await handleEvent(_node!);
+    // Timer.periodic(Duration(seconds: 10), (timer) async {
+    //   await handleEvent(_node!);
+    // });
 
     // // disconnect if already connected
     // try {
@@ -500,6 +541,7 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     try {
       syncStatus = AttemptingSyncStatus();
       await updateTransactions();
+      await updateBalance();
       await fetchFees();
       syncStatus = SyncedSyncStatus();
     } catch (e) {
@@ -574,37 +616,43 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
     }
   }
 
-  // Map<String, LightningTransactionInfo> convertToTxInfo(List<Payment> payments) {
-  //   Map<String, LightningTransactionInfo> transactions = {};
+  Map<String, LightningTransactionInfo> convertToTxInfo(List<ldk.PaymentDetails> payments) {
+    Map<String, LightningTransactionInfo> transactions = {};
 
-  //   for (Payment tx in payments) {
-  //     bool pending = tx.status == PaymentStatus.Pending;
-  //     if (tx.status == PaymentStatus.Complete) {
-  //       pending = false;
-  //     }
+    for (final tx in payments) {
+      bool pending = tx.status == ldk.PaymentStatus.pending;
 
-  //     bool isSend =
-  //         tx.paymentType == PaymentType.Sent || tx.paymentType == PaymentType.ClosedChannel;
-  //     transactions[tx.id] = LightningTransactionInfo(
-  //       isPending: pending,
-  //       id: tx.id,
-  //       amount: tx.amountMsat ~/ 1000,
-  //       fee: tx.feeMsat ~/ 1000,
-  //       date: DateTime.fromMillisecondsSinceEpoch(tx.paymentTime * 1000),
-  //       direction: isSend ? TransactionDirection.outgoing : TransactionDirection.incoming,
-  //       isChannelClose: tx.paymentType == PaymentType.ClosedChannel,
-  //     );
-  //   }
-  //   return transactions;
-  // }
+      bool isSend = tx.direction == ldk.PaymentDirection.outbound;
+
+      int amount = (tx.amountMsat?.toInt() ?? 0) ~/ 1000;
+
+      // TODO: check if this is a channel closure:
+      bool isChannelClose = false;
+      // if (tx.kind is ldk.PaymentKind.
+
+      transactions[tx.id.toString()] = LightningTransactionInfo(
+        isPending: pending,
+        id: tx.id.toString(),
+        amount: amount,
+        fee: 0, // not available
+        date: DateTime.fromMillisecondsSinceEpoch(tx.latestUpdateTimestamp.toInt() * 1000),
+        direction: isSend ? TransactionDirection.outgoing : TransactionDirection.incoming,
+        isChannelClose: isChannelClose,
+      );
+    }
+    return transactions;
+  }
 
   @override
   Future<Map<String, LightningTransactionInfo>> fetchTransactions() async {
-    // final payments = await _sdk.listPayments(req: ListPaymentsRequest());
-    // final transactions = convertToTxInfo(payments);
+    if (_node == null) {
+      return {};
+    }
 
-    // return transactions;
-    return {};
+    final payments = await _node!.listPayments();
+    print(payments);
+    final transactions = convertToTxInfo(payments);
+    return transactions;
   }
 
   @override
@@ -622,9 +670,12 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
   Future<void> init() async {
     await super.init();
     try {
-      await setupLightningNode(mnemonic);
+      print("starting lightning node!");
+      // await setupLightningNode(mnemonic);
+      await setupLightningNode(
+          "puppy interest whip tonight dad never sudden response push zone pig patch");
     } catch (e) {
-      print("Error initializing Breez: $e");
+      print("Error initializing node: $e");
     }
   }
 
@@ -639,10 +690,6 @@ abstract class LightningWalletBase extends ElectrumWallet with Store {
         'balance': balance[currency]?.toJSON(),
         'network_type': network == BitcoinNetwork.testnet ? 'testnet' : 'mainnet',
       });
-
-  Future<void> updateBalance() async {
-    // await _handleNodeState(await _sdk.nodeInfo());
-  }
 
   Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 

@@ -177,3 +177,15 @@ class InvoiceSoftLimitsResult {
     required this.balance,
   });
 }
+
+class LightningInvoice {
+  final String bolt11;
+  final BigInt amountSat;
+  final String? description;
+
+  LightningInvoice({
+    required this.bolt11,
+    required this.amountSat,
+    this.description,
+  });
+}

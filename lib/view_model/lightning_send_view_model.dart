@@ -1,7 +1,4 @@
 import 'dart:async';
-// import 'package:breez_sdk/breez_sdk.dart';
-// import 'package:breez_sdk/bridge_generated.dart' as BZG;
-// import 'package:breez_sdk/sdk.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -9,6 +6,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/lightning_view_model.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -16,6 +14,7 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_lightning/lightning_wallet.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 import 'package:collection/collection.dart';
@@ -70,8 +69,8 @@ abstract class LightningSendViewModelBase with Store {
   @observable
   String btcAddress = "";
 
-  // @observable
-  // LNInvoice? invoice;
+  @observable
+  LightningInvoice? invoice;
 
   @action
   void setLoading(bool value) {
@@ -165,73 +164,78 @@ abstract class LightningSendViewModelBase with Store {
     return amount;
   }
 
-  // @action
-  // Future<void> sendInvoice(BZG.LNInvoice invoice, int satAmount) async {
-  //   try {
-  //     setLoading(true);
-  //     late BZG.SendPaymentRequest req;
+  @action
+  Future<void> sendInvoice(LightningInvoice invoice, BigInt satAmount) async {
+    try {
+      setLoading(true);
+      // late BZG.SendPaymentRequest req;
 
-  //     if (invoice.amountMsat == null) {
-  //       req = BZG.SendPaymentRequest(
-  //         bolt11: invoice.bolt11,
-  //         amountMsat: satAmount * 1000,
-  //       );
-  //     } else {
-  //       req = BZG.SendPaymentRequest(bolt11: invoice.bolt11);
-  //     }
+      // if (invoice.amountMsat == null) {
+      //   req = BZG.SendPaymentRequest(
+      //     bolt11: invoice.bolt11,
+      //     amountMsat: satAmount * 1000,
+      //   );
+      // } else {
+      //   req = BZG.SendPaymentRequest(bolt11: invoice.bolt11);
+      // }
 
-  //     final response = await _sdk.sendPayment(req: req);
-  //     if (response.payment.error != null) {
-  //       throw Exception(response.payment.error);
-  //     }
+      // final response = await _sdk.sendPayment(req: req);
+      // if (response.payment.error != null) {
+      //   throw Exception(response.payment.error);
+      // }
 
-  //     if (response.payment.status == BZG.PaymentStatus.Failed) {
-  //       throw Exception("Payment failed");
-  //     }
+      // if (response.payment.status == BZG.PaymentStatus.Failed) {
+      //   throw Exception("Payment failed");
+      // }
 
-  //     setLoading(false);
-  //   } catch (e) {
-  //     setLoading(false);
-  //     rethrow;
-  //   }
-  // }
+      throw Exception("Not implemented yet!");
+
+      setLoading(false);
+    } catch (e) {
+      setLoading(false);
+      rethrow;
+    }
+  }
 
   @action
-  Future<void> sendBtc(String address, int satAmount) async {
-    // try {
-    //   setLoading(true);
+  Future<void> sendBtc(String address, BigInt satAmount) async {
+    try {
+      setLoading(true);
 
-    //   if (satAmount < minSats || (satAmount > maxSats && maxSats != 0)) {
-    //     throw Exception("Amount is outside of liquidity limits!");
-    //   }
+      // if (satAmount < minSats || (satAmount > maxSats && maxSats != 0)) {
+      //   throw Exception("Amount is outside of liquidity limits!");
+      // }
 
-    //   BZG.PrepareOnchainPaymentResponse prepareRes = await _sdk.prepareOnchainPayment(
-    //     req: BZG.PrepareOnchainPaymentRequest(
-    //       amountSat: satAmount,
-    //       amountType: BZG.SwapAmountType.Send,
-    //       claimTxFeerate: feeRate,
-    //     ),
-    //   );
+      // TODO: use proxy layer:
+      (wallet as LightningWallet).sendToOnchainAddress(address: address, amountSats: satAmount);
 
-    //   print("Sender amount: ${prepareRes.senderAmountSat} sats");
-    //   print("Recipient amount: ${prepareRes.recipientAmountSat} sats");
-    //   print("Total fees: ${prepareRes.totalFees} sats");
+      // BZG.PrepareOnchainPaymentResponse prepareRes = await _sdk.prepareOnchainPayment(
+      //   req: BZG.PrepareOnchainPaymentRequest(
+      //     amountSat: satAmount,
+      //     amountType: BZG.SwapAmountType.Send,
+      //     claimTxFeerate: feeRate,
+      //   ),
+      // );
 
-    //   BZG.PayOnchainRequest req = BZG.PayOnchainRequest(
-    //     recipientAddress: address,
-    //     prepareRes: prepareRes,
-    //   );
-    //   BZG.PayOnchainResponse res = await _sdk.payOnchain(req: req);
+      // print("Sender amount: ${prepareRes.senderAmountSat} sats");
+      // print("Recipient amount: ${prepareRes.recipientAmountSat} sats");
+      // print("Total fees: ${prepareRes.totalFees} sats");
 
-    //   if (res.reverseSwapInfo.status == BZG.ReverseSwapStatus.Cancelled) {
-    //     throw Exception("Payment cancelled / error");
-    //   }
+      // BZG.PayOnchainRequest req = BZG.PayOnchainRequest(
+      //   recipientAddress: address,
+      //   prepareRes: prepareRes,
+      // );
+      // BZG.PayOnchainResponse res = await _sdk.payOnchain(req: req);
 
-    //   setLoading(false);
-    // } catch (e) {
-    //   setLoading(false);
-    //   rethrow;
-    // }
+      // if (res.reverseSwapInfo.status == BZG.ReverseSwapStatus.Cancelled) {
+      //   throw Exception("Payment cancelled / error");
+      // }
+
+      setLoading(false);
+    } catch (e) {
+      setLoading(false);
+      rethrow;
+    }
   }
 
   int get feeRate {
