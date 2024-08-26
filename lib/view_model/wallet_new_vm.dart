@@ -1,6 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -43,28 +44,30 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   String selectedMnemonicLanguage;
 
   bool get hasLanguageSelector =>
-      type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero;
+      [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
 
   int get seedPhraseWordsLength {
     switch (type) {
       case WalletType.monero:
       case WalletType.wownero:
-        if (advancedPrivacySettingsViewModel.isPolySeed) {
-          return 16;
-        }
-        return 25;
+        return advancedPrivacySettingsViewModel.isPolySeed ? 16 : 25;
       case WalletType.tron:
       case WalletType.solana:
       case WalletType.polygon:
       case WalletType.ethereum:
       case WalletType.bitcoinCash:
         return advancedPrivacySettingsViewModel.seedPhraseLength.value;
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return seedSettingsViewModel.bitcoinSeedType == BitcoinSeedType.bip39
+            ? advancedPrivacySettingsViewModel.seedPhraseLength.value
+            : 24;
       default:
         return 24;
     }
   }
 
-  bool get hasSeedType => type == WalletType.monero || type == WalletType.wownero;
+  bool get hasSeedType => [WalletType.monero, WalletType.wownero].contains(type);
 
   @override
   WalletCredentials getCredentials(dynamic _options) {
@@ -80,17 +83,19 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             password: walletPassword,
             isPolyseed: options.last as bool);
       case WalletType.bitcoin:
-        return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword, passphrase: passphrase);
+        return bitcoin!.createBitcoinNewWalletCredentials(
+            name: name, password: walletPassword, passphrase: passphrase);
       case WalletType.litecoin:
-        return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword, passphrase: passphrase);
+        return bitcoin!.createBitcoinNewWalletCredentials(
+            name: name, password: walletPassword, passphrase: passphrase);
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
             name: name, language: options!.first as String, password: walletPassword);
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.bitcoinCash:
-        return bitcoinCash!
-            .createBitcoinCashNewWalletCredentials(name: name, password: walletPassword, passphrase: passphrase);
+        return bitcoinCash!.createBitcoinCashNewWalletCredentials(
+            name: name, password: walletPassword, passphrase: passphrase);
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoNewWalletCredentials(name: name);

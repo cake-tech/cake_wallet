@@ -9,7 +9,6 @@ import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
-import 'package:cake_wallet/entities/derivation_type_setting.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -58,7 +57,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialSaveRecipientAddress,
       required AutoGenerateSubaddressStatus initialAutoGenerateSubaddressStatus,
       required MoneroSeedType initialMoneroSeedType,
-      required BitcoinSeedTypeSetting initialBitcoinSeedType,
+      required BitcoinSeedType initialBitcoinSeedType,
       required bool initialAppSecure,
       required bool initialDisableBuy,
       required bool initialDisableSell,
@@ -338,7 +337,7 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => bitcoinSeedType,
-        (BitcoinSeedTypeSetting bitcoinSeedType) => sharedPreferences.setInt(
+        (BitcoinSeedType bitcoinSeedType) => sharedPreferences.setInt(
             PreferencesKey.bitcoinSeedType, bitcoinSeedType.raw));
 
     reaction(
@@ -565,7 +564,7 @@ abstract class SettingsStoreBase with Store {
   static final walletPasswordDirectInput = Platform.isLinux;
   static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;
   static const defaultMoneroSeedType = MoneroSeedType.defaultSeedType;
-  static const defaultBitcoinSeedType = BitcoinSeedTypeSetting.defaultDerivationType;
+  static const defaultBitcoinSeedType = BitcoinSeedType.defaultDerivationType;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -598,7 +597,7 @@ abstract class SettingsStoreBase with Store {
   MoneroSeedType moneroSeedType;
 
   @observable
-  BitcoinSeedTypeSetting bitcoinSeedType;
+  BitcoinSeedType bitcoinSeedType;
 
   @observable
   bool isAppSecure;
@@ -964,7 +963,7 @@ abstract class SettingsStoreBase with Store {
     final _bitcoinSeedType = sharedPreferences.getInt(PreferencesKey.bitcoinSeedType);
 
     final bitcoinSeedType = _bitcoinSeedType != null
-        ? BitcoinSeedTypeSetting.deserialize(raw: _bitcoinSeedType)
+        ? BitcoinSeedType.deserialize(raw: _bitcoinSeedType)
         : defaultBitcoinSeedType;
 
     final nodes = <WalletType, Node>{};
@@ -1259,7 +1258,7 @@ abstract class SettingsStoreBase with Store {
     final _bitcoinSeedType = sharedPreferences.getInt(PreferencesKey.bitcoinSeedType);
 
     bitcoinSeedType = _bitcoinSeedType != null
-        ? BitcoinSeedTypeSetting.deserialize(raw: _bitcoinSeedType)
+        ? BitcoinSeedType.deserialize(raw: _bitcoinSeedType)
         : defaultBitcoinSeedType;
 
     balanceDisplayMode = BalanceDisplayMode.deserialize(

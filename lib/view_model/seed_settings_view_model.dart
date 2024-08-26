@@ -1,4 +1,3 @@
-import 'package:cake_wallet/entities/derivation_type_setting.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/seed_settings_store.dart';
@@ -18,10 +17,10 @@ abstract class SeedSettingsViewModelBase with Store {
   void setMoneroSeedType(MoneroSeedType seedType) => _appStore.settingsStore.moneroSeedType = seedType;
 
   @computed
-  BitcoinSeedTypeSetting get bitcoinSeedType => _appStore.settingsStore.bitcoinSeedType;
+  BitcoinSeedType get bitcoinSeedType => _appStore.settingsStore.bitcoinSeedType;
 
   @action
-  void setBitcoinSeedType(BitcoinSeedTypeSetting derivationType) =>
+  void setBitcoinSeedType(BitcoinSeedType derivationType) =>
       _appStore.settingsStore.bitcoinSeedType = derivationType;
 
   @computed

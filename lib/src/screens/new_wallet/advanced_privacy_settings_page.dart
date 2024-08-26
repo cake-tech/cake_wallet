@@ -1,5 +1,4 @@
 import 'package:cake_wallet/entities/default_settings_migration.dart';
-import 'package:cake_wallet/entities/derivation_type_setting.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
@@ -115,6 +114,52 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 ),
               );
             }),
+            if (widget.privacySettingsViewModel.hasSeedTypeOption)
+              Observer(builder: (_) {
+                return SettingsChoicesCell(
+                  ChoicesListItem<MoneroSeedType>(
+                    title: S.current.seedtype,
+                    items: MoneroSeedType.all,
+                    selectedItem: widget.seedTypeViewModel.moneroSeedType,
+                    onItemSelected: widget.seedTypeViewModel.setMoneroSeedType,
+                  ),
+                );
+              }),
+            if ([WalletType.bitcoin, WalletType.litecoin]
+                .contains(widget.privacySettingsViewModel.type))
+              Observer(builder: (_) {
+                return SettingsChoicesCell(
+                  ChoicesListItem<BitcoinSeedType>(
+                    title: S.current.derivationpath,
+                    items: BitcoinSeedType.all,
+                    selectedItem: widget.seedTypeViewModel.bitcoinSeedType,
+                    onItemSelected: widget.seedTypeViewModel.setBitcoinSeedType,
+                  ),
+                );
+              }),
+            if (!widget.isFromRestore) ...[
+                Observer(builder: (_) {
+              if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
+                return SettingsPickerCell<SeedPhraseLength>(
+                  title: S.current.seed_phrase_length,
+                  items: SeedPhraseLength.values,
+                  selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
+                  onItemSelected: (SeedPhraseLength length) {
+                    widget.privacySettingsViewModel.setSeedPhraseLength(length);
+                  },
+                );
+              return Container();
+            }),
+            if (widget.privacySettingsViewModel.hasPassphraseOption)
+              Padding(
+                padding: EdgeInsets.all(24),
+                child: BaseTextFormField(
+                  hintText: S.current.passphrase,
+                  controller: passphraseController,
+                  obscureText: true,
+                ),
+              ),
+            ],
             Observer(builder: (_) {
               return Column(
                 children: [
@@ -140,51 +185,6 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 ],
               );
             }),
-            if (!widget.isFromRestore && widget.privacySettingsViewModel.hasPassphraseOption)
-              Observer(builder: (_) {
-                return Padding(
-                  padding: EdgeInsets.all(24),
-                  child: BaseTextFormField(
-                    hintText: S.current.passphrase,
-                    controller: passphraseController,
-                    obscureText: true,
-                  ),
-                );
-              }),
-            if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
-              Observer(builder: (_) {
-                return SettingsPickerCell<SeedPhraseLength>(
-                  title: S.current.seed_phrase_length,
-                  items: SeedPhraseLength.values,
-                  selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
-                  onItemSelected: (SeedPhraseLength length) {
-                    widget.privacySettingsViewModel.setSeedPhraseLength(length);
-                  },
-                );
-              }),
-            if (widget.privacySettingsViewModel.hasSeedTypeOption)
-              Observer(builder: (_) {
-                return SettingsChoicesCell(
-                  ChoicesListItem<MoneroSeedType>(
-                    title: S.current.seedtype,
-                    items: MoneroSeedType.all,
-                    selectedItem: widget.seedTypeViewModel.moneroSeedType,
-                    onItemSelected: widget.seedTypeViewModel.setMoneroSeedType,
-                  ),
-                );
-              }),
-            if ([WalletType.bitcoin, WalletType.litecoin]
-                .contains(widget.privacySettingsViewModel.type))
-              Observer(builder: (_) {
-                return SettingsChoicesCell(
-                  ChoicesListItem<BitcoinSeedTypeSetting>(
-                    title: S.current.derivationpath,
-                    items: BitcoinSeedTypeSetting.all,
-                    selectedItem: widget.seedTypeViewModel.bitcoinSeedType,
-                    onItemSelected: widget.seedTypeViewModel.setBitcoinSeedType,
-                  ),
-                );
-              }),
             if (widget.privacySettingsViewModel.type == WalletType.bitcoin)
               Builder(builder: (_) {
                 final val = testnetValue ?? false;

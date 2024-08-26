@@ -39,7 +39,9 @@ class BitcoinWalletService extends WalletService<
     final String mnemonic;
     switch ( credentials.walletInfo?.derivationInfo?.derivationType) {
       case DerivationType.bip39:
-        mnemonic = await MnemonicBip39.generate();
+        final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+
+        mnemonic = await MnemonicBip39.generate(strength: strength);
         break;
       case DerivationType.electrum:
       default:

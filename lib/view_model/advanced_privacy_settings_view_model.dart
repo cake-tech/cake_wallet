@@ -30,6 +30,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   final SettingsStore _settingsStore;
 
+  @computed
   bool get hasSeedPhraseLengthOption {
     // convert to switch case so that it give a syntax error when adding a new wallet type
     // thus we don't forget about it
@@ -40,11 +41,14 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.solana:
       case WalletType.tron:
         return true;
+
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return _settingsStore.bitcoinSeedType == BitcoinSeedType.bip39;
+
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.none:
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
       case WalletType.haven:
       case WalletType.nano:
       case WalletType.banano:
