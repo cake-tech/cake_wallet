@@ -81,7 +81,7 @@ Future<void> runAppWithZone() async {
 }
 
 Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
-  if (reInitializing) await setDefaultMinimumWindowSize();
+  if (!reInitializing) await setDefaultMinimumWindowSize();
   await CakeHive.close();
   await initializeAppConfigs();
 }
