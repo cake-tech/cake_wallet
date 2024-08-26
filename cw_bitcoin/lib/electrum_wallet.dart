@@ -460,7 +460,7 @@ abstract class ElectrumWalletBase
     if (await checkIfMempoolAPIIsEnabled()) {
       try {
         final response =
-            await http.get(Uri.parse("http://198.58.115.71:8999/api/v1/fees/recommended"));
+            await http.get(Uri.parse("http://mempool.cakewallet.com:8999/api/v1/fees/recommended"));
 
         final result = json.decode(response.body) as Map<String, num>;
         final slowFee = result['economyFee']?.toInt() ?? 0;
