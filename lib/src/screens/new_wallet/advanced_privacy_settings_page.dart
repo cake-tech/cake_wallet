@@ -130,7 +130,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
               Observer(builder: (_) {
                 return SettingsChoicesCell(
                   ChoicesListItem<BitcoinSeedType>(
-                    title: S.current.derivationpath,
+                    title: S.current.seedtype,
                     items: BitcoinSeedType.all,
                     selectedItem: widget.seedTypeViewModel.bitcoinSeedType,
                     onItemSelected: widget.seedTypeViewModel.setBitcoinSeedType,
