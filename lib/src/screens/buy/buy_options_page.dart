@@ -39,7 +39,7 @@ class BuySellOptionsPage extends BasePage {
                     child: OptionTile(
                       imagePath: isLightMode ? provider.lightIcon : provider.darkIcon,
                       title: provider.toString(),
-                      leftSubTitle: provider.providerDescription,
+                      subTitle: provider.providerDescription,
                       onPressed: () => provider.launchProvider(context, isBuyAction),
                     ),
                   );

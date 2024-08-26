@@ -71,7 +71,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       ProviderType.dfx,
       ProviderType.onramper,
       ProviderType.moonpay,
-      ProviderType.meld
     ];
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
@@ -87,7 +86,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       ProviderType.dfx,
       ProviderType.onramper,
       ProviderType.moonpay,
-      ProviderType.meld
     ];
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))

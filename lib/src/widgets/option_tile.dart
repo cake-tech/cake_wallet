@@ -1,5 +1,6 @@
 import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -8,16 +9,16 @@ class OptionTile extends StatelessWidget {
     required this.onPressed,
     required this.imagePath,
     required this.title,
-    this.leftSubTitle,
-    this.rightSubTitle,
+    this.subTitle,
     this.description,
     this.firstBadgeName,
     this.secondBadgeName,
     this.borderRadius,
+    this.imageHeight,
+    this.imageWidth,
     this.padding,
     this.titleTextStyle,
-    this.leftSubTitleMaxLines,
-    this.leftSubTitleTextStyle,
+    this.subTitleTextStyle,
     this.leadingIcon,
     this.selectedBackgroundColor,
     this.isSelected = false,
@@ -27,16 +28,16 @@ class OptionTile extends StatelessWidget {
   final VoidCallback onPressed;
   final String imagePath;
   final String title;
-  final String? leftSubTitle;
-  final String? rightSubTitle;
+  final String? subTitle;
   final String? description;
   final String? firstBadgeName;
   final String? secondBadgeName;
   final double? borderRadius;
+  final double? imageHeight;
+  final double? imageWidth;
   final EdgeInsets? padding;
   final TextStyle? titleTextStyle;
-  final int? leftSubTitleMaxLines;
-  final TextStyle? leftSubTitleTextStyle;
+  final TextStyle? subTitleTextStyle;
   final IconData? leadingIcon;
   final Color? selectedBackgroundColor;
   final bool isSelected;
@@ -50,132 +51,77 @@ class OptionTile extends StatelessWidget {
             : Theme.of(context).extension<OptionTileTheme>()!.titleColor
         : Theme.of(context).cardColor;
 
-    final titleColor = isSelected
-        ? Theme.of(context).cardColor
+    final textColor = isSelected
+        ? Colors.white
         : Theme.of(context).extension<OptionTileTheme>()!.titleColor;
 
     return GestureDetector(
       onTap: onPressed,
       child: Container(
         width: double.infinity,
-        padding: padding ?? EdgeInsets.all(24),
+        padding: padding,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(borderRadius ?? 12)),
           color: backgroundColor,
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                getImage(imagePath),
+              children: [
+                getImage(imagePath, height: imageHeight, width: imageWidth),
                 SizedBox(width: 8),
                 Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                        height: 35,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                title,
+                  child: Container(
+                    child: Row(
+                      children: [
+                        Expanded(
+                            child: Text(title,
                                 style: titleTextStyle ??
-                                    TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                      color: titleColor,
-                                    ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                if (firstBadgeName != null)
-                                  Badge(
-                                    title: firstBadgeName!,
-                                    textColor: backgroundColor,
-                                    backgroundColor: titleColor,
-                                  ),
-                                if (secondBadgeName != null)
-                                  Badge(
-                                    title: secondBadgeName!,
-                                    textColor: backgroundColor,
-                                    backgroundColor: titleColor,
-                                  ),
-                                if (leadingIcon != null)
-                                  Icon(
-                                    leadingIcon,
-                                    size: 16,
-                                    color: titleColor,
-                                  ),
-                              ],
-                            )
+                                    textLargeBold(
+                                        color: textColor))),
+                        Row(
+                          children: [
+                            if (leadingIcon != null) Icon(leadingIcon, size: 16, color: textColor),
                           ],
-                        ),
-                      ),
-                    ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (leftSubTitle != null)
-                  Padding(
-                    padding: EdgeInsets.only(top: 5),
-                    child: Text(
-                      leftSubTitle!,
-                      maxLines: leftSubTitleMaxLines,
-                      style: leftSubTitleTextStyle ??
-                          TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: titleColor,
-                          ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                if (rightSubTitle != null)
-                  Padding(
-                    padding: EdgeInsets.only(top: 5),
-                    child: Text(
-                      rightSubTitle!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: titleColor,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-              ],
-            ),
-            if (description != null)
-              Padding(
-                padding: EdgeInsets.only(top: 16),
-                child: Text(
-                  description!,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                    color: titleColor,
-                  ),
-                ),
+            if (subTitle != null)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    subTitle!,
+                    style: subTitleTextStyle ??
+                        TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: textColor),
+                  )
+                ],
               ),
+            if(firstBadgeName != null || secondBadgeName != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Row(children: [
+                if (firstBadgeName != null)
+                  Badge(
+                      title: firstBadgeName!,
+                      textColor: Theme.of(context).cardColor,
+                      backgroundColor: Theme.of(context).extension<OptionTileTheme>()!.titleColor),
+                if (secondBadgeName != null)
+                  Badge(
+                      title: secondBadgeName!,
+                      textColor: Theme.of(context).cardColor,
+                      backgroundColor: Theme.of(context).extension<OptionTileTheme>()!.titleColor),
+              ]),
+            )
           ],
         ),
       ),
@@ -193,7 +139,7 @@ class Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      padding: const EdgeInsets.only(right: 8),
       child: FittedBox(
         fit: BoxFit.fitHeight,
         child: Container(
@@ -205,7 +151,7 @@ class Badge extends StatelessWidget {
             title,
             style: TextStyle(
               color: textColor,
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -215,19 +161,21 @@ class Badge extends StatelessWidget {
   }
 }
 
-Widget getImage(String imagePath) {
+Widget getImage(String imagePath, {double? height, double? width}) {
   final bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
   final bool isSvg = imagePath.endsWith('.svg');
+  final double imageHeight = height ?? 35;
+  final double imageWidth = width ?? 35;
 
   if (isNetworkImage) {
     return isSvg
         ? SvgPicture.network(
             imagePath,
-            height: 35,
-            width: 35,
+            height: imageHeight,
+            width: imageWidth,
             placeholderBuilder: (BuildContext context) => Container(
-              height: 35,
-              width: 35,
+              height: imageHeight,
+              width: imageWidth,
               child: Center(
                 child: CircularProgressIndicator(),
               ),
@@ -235,15 +183,15 @@ Widget getImage(String imagePath) {
           )
         : Image.network(
             imagePath,
-            height: 35,
-            width: 35,
+            height: imageHeight,
+            width: imageWidth,
             loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
               if (loadingProgress == null) {
                 return child;
               }
               return Container(
-                height: 35,
-                width: 35,
+                height: imageHeight,
+                width: imageWidth,
                 child: Center(
                   child: CircularProgressIndicator(
                     value: loadingProgress.expectedTotalBytes != null
@@ -256,15 +204,15 @@ Widget getImage(String imagePath) {
             },
             errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
               return Container(
-                height: 35,
-                width: 35,
+                height: imageHeight,
+                width: imageWidth,
               );
             },
           );
   } else {
     return isSvg
-        ? SvgPicture.asset(imagePath, height: 35, width: 35)
-        : Image.asset(imagePath, height: 35, width: 35);
+        ? SvgPicture.asset(imagePath, height: imageHeight, width: imageWidth)
+        : Image.asset(imagePath, height: imageHeight, width: imageWidth);
   }
 }
 

@@ -31,6 +31,8 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
+import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
@@ -58,7 +60,7 @@ import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
-import 'package:cake_wallet/src/screens/buy/select_options_page.dart';
+import 'package:cake_wallet/src/screens/select_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
@@ -1114,18 +1116,21 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuySellPage(getIt.get<BuySellViewModel>()));
 
-  getIt.registerFactoryParam<SelectOptionsPage<SelectableOption>, List<dynamic>, void>(
-        (List<dynamic> args, _) {
-      final title = args[0] as String;
-      final options = args[1] as List<SelectableOption>;
-      final onOptionTap = args[2] as void Function(SelectableOption);
-      return SelectOptionsPage<SelectableOption>(
-        title: title,
-        options: options,
-        onOptionTap: onOptionTap,
-      );
-    },
-  );
+  getIt.registerFactoryParam<BuyOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
+    final options = args.first as List<SelectableOption>;
+    final pickAnOption = args[1] as void Function(SelectableOption option)?;
+
+    return BuyOptionsPage(
+        options: options, pickAnOption: pickAnOption);
+  });
+
+  getIt.registerFactoryParam<PaymentMethodOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
+    final options = args.first as List<SelectableOption>;
+    final pickAnOption = args[1] as void Function(SelectableOption option)?;
+
+    return PaymentMethodOptionsPage(
+        options: options, pickAnOption: pickAnOption);
+  });
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;

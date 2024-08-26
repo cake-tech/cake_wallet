@@ -200,9 +200,9 @@ class BuySellPage extends BasePage {
           onPressed: () => _pickPaymentMethod(context),
           leadingIcon: Icons.arrow_forward_ios,
           borderRadius: 30,
-          padding: EdgeInsets.fromLTRB(8, 12, 24, 12),
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           titleTextStyle:
-              textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+          textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
         );
       });
     }
@@ -225,20 +225,15 @@ class BuySellPage extends BasePage {
         return OptionTile(
             imagePath: selectedQuote.provider!.lightIcon,
             title: selectedQuote.provider!.title,
-            firstBadgeName: selectedQuote.firstBadgeName,
-            secondBadgeName: selectedQuote.secondBadgeName,
-            leftSubTitle: selectedQuote.leftSubTitle,
-            leftSubTitleMaxLines: 1,
-            leftSubTitleTextStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-            ),
-            rightSubTitle: selectedQuote.rightSubTitle,
+            firstBadgeName: selectedQuote.firstBadgeTitle,
+            secondBadgeName: selectedQuote.secondBadgeTitle,
+            imageHeight: 70,
+            imageWidth: 70,
+            subTitle: selectedQuote.subTitle,
             onPressed: () => _pickQuote(context),
             leadingIcon: Icons.arrow_forward_ios,
             borderRadius: 30,
-            padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
+            padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
             titleTextStyle:
                 textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor));
       });
@@ -249,9 +244,8 @@ class BuySellPage extends BasePage {
   void _pickPaymentMethod(BuildContext context) async {
     final currentOption = buySellViewModel.selectedPaymentMethod;
     await Navigator.of(context).pushNamed(
-      Routes.selectOptions,
+      Routes.paymentMethodOptionsPage,
       arguments: [
-        'Choose a payment method',
         buySellViewModel.paymentMethods,
         buySellViewModel.changeOption,
       ],
@@ -267,9 +261,8 @@ class BuySellPage extends BasePage {
 
   void _pickQuote(BuildContext context) async {
     await Navigator.of(context).pushNamed(
-      Routes.selectOptions,
+      Routes.buyOptionsPage,
       arguments: [
-        'Choose a provider',
         buySellViewModel.sortedAvailableQuotes,
         buySellViewModel.changeOption
       ],

@@ -1,6 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/InfoPage.dart';
+import 'package:cake_wallet/src/screens/Info_page.dart';
 import 'package:flutter/cupertino.dart';
 
 class Setup2FAInfoPage extends InfoPage {

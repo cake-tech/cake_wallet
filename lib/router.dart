@@ -15,8 +15,10 @@ import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
+import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
-import 'package:cake_wallet/src/screens/buy/select_options_page.dart';
+import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
+import 'package:cake_wallet/src/screens/select_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
@@ -497,17 +499,17 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
-    // case Routes.buySellPage:
-    //   final args = settings.arguments as bool;
-    //   return MaterialPageRoute<void>(builder: (_) => getIt.get<BuySellOptionsPage>(param1: args));
-
     case Routes.buySellPage:
       final args = settings.arguments as bool;
       return MaterialPageRoute<void>(builder: (_) => getIt.get<BuySellPage>(param1: args));
 
-    case Routes.selectOptions:
+    case Routes.buyOptionsPage:
       final args = settings.arguments as List;
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<SelectOptionsPage>(param1: args));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuyOptionsPage>(param1: args));
+
+    case Routes.paymentMethodOptionsPage:
+      final args = settings.arguments as List;
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<PaymentMethodOptionsPage>(param1: args));
 
     case Routes.buyWebView:
       final args = settings.arguments as List;

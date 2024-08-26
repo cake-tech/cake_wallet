@@ -16,6 +16,7 @@ class Quote extends SelectableOption {
   String destinationCurrency = '';
   bool isSelected = false;
   bool isBestRate = false;
+  bool isLowKYC = false;
   bool isBuyAction;
 
   Quote({
@@ -41,30 +42,24 @@ class Quote extends SelectableOption {
   String get iconPath => provider?.lightIcon ?? '';
 
   @override
-  String? get description => provider?.providerDescription;
+  String? get firstBadgeTitle => isBestRate ? 'BEST RATE' : null;
 
   @override
-  String? get firstBadgeName => isBestRate ? 'BEST RATE' : null;
+  String? get secondBadgeTitle => isLowKYC  ? 'LOW KYC' : null;
 
   @override
-  String? get secondBadgeName => provider?.isAggregator ?? false ? 'AGGREGATOR' : null;
-
-  @override
-  String? get leftSubTitle => this.rate > 0
+  String? get subTitle => this.rate > 0
       ? '1 ${isBuyAction ? destinationCurrency : sourceCurrency} = ${rate.toStringAsFixed(2)} ${isBuyAction ? sourceCurrency : destinationCurrency }'
       : null; //total fee = $formatedFee
 
-  @override
-  String? get rightSubTitle => this.ramp;
-
-  @override
-  double? get borderRadius => 30.0;
 
   String get formatedFee => '$feeAmount ${isBuyAction ? sourceCurrency : destinationCurrency}';
 
   void set setIsSelected(bool isSelected) => this.isSelected = isSelected;
 
   void set setIsBestRate(bool isBestRate) => this.isBestRate = isBestRate;
+
+  void set setIsLowKYC(bool isLowKYC) => this.isLowKYC = isLowKYC;
 
   void set setSourceCurrency(String sourceCurrency) => this.sourceCurrency = sourceCurrency;
 

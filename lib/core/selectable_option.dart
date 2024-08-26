@@ -1,6 +1,3 @@
-
-import 'dart:ui';
-
 abstract class SelectableOption {
   String get title;
 
@@ -8,21 +5,11 @@ abstract class SelectableOption {
 
   String? get description => null;
 
-  String? get leftSubTitle => null;
+  String? get subTitle => null;
 
-  String? get rightSubTitle => null;
+  String? get firstBadgeTitle => null;
 
-  String? get firstBadgeName => null;
-
-  String? get secondBadgeName => null;
-
-  double? borderRadius = null;
-
-  Color? selectedBackgroundColor = null;
-
-  TextStyle? titleTextStyle = null;
-
-  TextStyle? leftSubTitleTextStyle = null;
+  String? get secondBadgeTitle => null;
 
   bool get isOptionSelected => false;
 

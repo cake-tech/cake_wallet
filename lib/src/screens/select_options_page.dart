@@ -6,31 +6,52 @@ import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
-class SelectOptionsPage<T extends SelectableOption> extends BasePage {
-  SelectOptionsPage({
-    required this.title,
-    required this.options,
-    required this.onOptionTap,
-  });
+abstract class SelectOptionsPage<T extends SelectableOption> extends BasePage {
+  SelectOptionsPage();
 
-  final String title;
-  final List<T> options;
-  final void Function(T option)? onOptionTap;
+  String get pageTitle;
+
+  EdgeInsets? get contentPadding;
+
+  EdgeInsets? get tilePadding;
+
+  EdgeInsets? get innerPadding;
+
+  double? get imageHeight;
+
+  double? get imageWidth;
+
+  TextStyle? get subTitleTextStyle;
+
+  Color? get selectedBackgroundColor;
+
+  double? get tileBorderRadius;
+
+  String get bottomSectionText;
+
+  List<T> get options;
+
+  void Function(T option)? get onOptionTap;
 
   @override
-  AppBarStyle get appBarStyle => AppBarStyle.regular;
+  String get title => pageTitle;
 
   @override
   Widget body(BuildContext context) {
     return ScrollableWithBottomSection(
       content: BodySelectOptionsPage<T>(
-        options: options,
-        onOptionTap: onOptionTap,
-      ),
+          options: options,
+          onOptionTap: onOptionTap,
+          tilePadding: tilePadding,
+          tileBorderRadius: tileBorderRadius,
+          subTitleTextStyle: subTitleTextStyle,
+          imageHeight: imageHeight,
+          imageWidth: imageWidth,
+          innerPadding: innerPadding),
       bottomSection: Padding(
-        padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
+        padding: contentPadding ?? EdgeInsets.zero,
         child: Text(
-          '',
+          bottomSectionText,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
@@ -46,11 +67,23 @@ class SelectOptionsPage<T extends SelectableOption> extends BasePage {
 class BodySelectOptionsPage<T extends SelectableOption> extends StatefulWidget {
   const BodySelectOptionsPage({
     required this.options,
-    required this.onOptionTap,
+    this.onOptionTap,
+    this.tilePadding,
+    this.tileBorderRadius,
+    this.subTitleTextStyle,
+    this.imageHeight,
+    this.imageWidth,
+    this.innerPadding,
   });
 
   final List<T> options;
   final void Function(T option)? onOptionTap;
+  final EdgeInsets? tilePadding;
+  final double? tileBorderRadius;
+  final TextStyle? subTitleTextStyle;
+  final double? imageHeight;
+  final double? imageWidth;
+  final EdgeInsets? innerPadding;
 
   @override
   _BodySelectOptionsPageState<T> createState() => _BodySelectOptionsPageState<T>();
@@ -82,23 +115,26 @@ class _BodySelectOptionsPageState<T extends SelectableOption>
 
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: 330),
+        constraints: BoxConstraints(maxWidth: 350),
         child: Column(
           children: [
             ..._options
                 .map((option) => Padding(
-                    padding: EdgeInsets.only(top: 24),
+                    padding: widget.tilePadding ?? EdgeInsets.only(top: 24),
                     child: OptionTile(
+                      title: option.title,
                       imagePath: option.iconPath,
-                      title: option.title.toString(),
-                      leftSubTitle: option.leftSubTitle,
-                      rightSubTitle: option.rightSubTitle,
+                      imageHeight: widget.imageHeight,
+                      imageWidth: widget.imageWidth,
+                      padding: widget.innerPadding,
                       description: option.description,
-                      firstBadgeName: option.firstBadgeName,
-                      secondBadgeName: option.secondBadgeName,
+                      subTitle: option.subTitle,
+                      firstBadgeName: option.firstBadgeTitle,
+                      secondBadgeName: option.secondBadgeTitle,
                       isSelected: option.isOptionSelected,
+                      subTitleTextStyle: widget.subTitleTextStyle,
+                      borderRadius: widget.tileBorderRadius,
                       isLightMode: isLightMode,
-                      borderRadius: option.borderRadius,
                       onPressed: () => _handleOptionTap(option),
                     )))
                 .toList(),
