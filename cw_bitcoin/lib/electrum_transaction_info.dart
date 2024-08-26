@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -7,10 +9,12 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:hex/hex.dart';
 
 class ElectrumTransactionBundle {
   ElectrumTransactionBundle(this.originalTransaction,
       {required this.ins, required this.confirmations, this.time});
+
   final BtcTransaction originalTransaction;
   final List<BtcTransaction> ins;
   final int? time;
@@ -22,7 +26,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   ElectrumTransactionInfo(this.type,
       {required String id,
-      required int height,
+      int? height,
       required int amount,
       int? fee,
       List<String>? inputAddresses,
@@ -99,7 +103,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   factory ElectrumTransactionInfo.fromElectrumBundle(
       ElectrumTransactionBundle bundle, WalletType type, BasedUtxoNetwork network,
-      {required Set<String> addresses, required int height}) {
+      {required Set<String> addresses, int? height}) {
     final date = bundle.time != null
         ? DateTime.fromMillisecondsSinceEpoch(bundle.time! * 1000)
         : DateTime.now();
@@ -125,7 +129,24 @@ class ElectrumTransactionInfo extends TransactionInfo {
     for (final out in bundle.originalTransaction.outputs) {
       totalOutAmount += out.amount.toInt();
       final addressExists = addresses.contains(addressFromOutputScript(out.scriptPubKey, network));
-      outputAddresses.add(addressFromOutputScript(out.scriptPubKey, network));
+      final address = addressFromOutputScript(out.scriptPubKey, network);
+
+      if (address.isNotEmpty) outputAddresses.add(address);
+
+      // Check if the script contains OP_RETURN
+      final script = out.scriptPubKey.script;
+      if (script.contains('OP_RETURN')) {
+        final index = script.indexOf('OP_RETURN');
+        if (index + 1 <= script.length) {
+          try {
+            final opReturnData = script[index + 1].toString();
+            final decodedString = utf8.decode(HEX.decode(opReturnData));
+            outputAddresses.add('OP_RETURN:$decodedString');
+          } catch (_) {
+            outputAddresses.add('OP_RETURN:');
+          }
+        }
+      }
 
       if (addressExists) {
         receivedAmounts.add(out.amount.toInt());
@@ -235,6 +256,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
   }
 
   String toString() {
-    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, confirmations: $confirmations, to: $to, unspent: $unspents)';
+    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, confirmations: $confirmations, to: $to, unspent: $unspents, inputAddresses: $inputAddresses, outputAddresses: $outputAddresses)';
   }
 }

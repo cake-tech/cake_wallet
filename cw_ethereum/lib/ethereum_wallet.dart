@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_ethereum/default_ethereum_erc20_tokens.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_transaction_history.dart';
@@ -15,7 +17,6 @@ import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
-import 'package:cw_evm/file.dart';
 
 class EthereumWallet extends EVMChainWallet {
   EthereumWallet({
@@ -25,6 +26,7 @@ class EthereumWallet extends EVMChainWallet {
     super.mnemonic,
     super.initialBalance,
     super.privateKey,
+    required super.encryptionFileUtils,
   }) : super(nativeCurrency: CryptoCurrency.eth);
 
   @override
@@ -116,27 +118,57 @@ class EthereumWallet extends EVMChainWallet {
   }
 
   @override
-  EVMChainTransactionHistory setUpTransactionHistory(WalletInfo walletInfo, String password) {
-    return EthereumTransactionHistory(walletInfo: walletInfo, password: password);
+  EVMChainTransactionHistory setUpTransactionHistory(
+      WalletInfo walletInfo, String password, EncryptionFileUtils encryptionFileUtils) {
+    return EthereumTransactionHistory(
+        walletInfo: walletInfo, password: password, encryptionFileUtils: encryptionFileUtils);
   }
 
-  static Future<EthereumWallet> open(
-      {required String name, required String password, required WalletInfo walletInfo}) async {
+  static Future<EthereumWallet> open({
+    required String name,
+    required String password,
+    required WalletInfo walletInfo,
+    required EncryptionFileUtils encryptionFileUtils,
+  }) async {
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
     final path = await pathForWallet(name: name, type: walletInfo.type);
-    final jsonSource = await read(path: path, password: password);
-    final data = json.decode(jsonSource) as Map;
-    final mnemonic = data['mnemonic'] as String?;
-    final privateKey = data['private_key'] as String?;
-    final balance = EVMChainERC20Balance.fromJSON(data['balance'] as String) ??
+
+    Map<String, dynamic>? data;
+    try {
+      final jsonSource = await encryptionFileUtils.read(path: path, password: password);
+
+      data = json.decode(jsonSource) as Map<String, dynamic>;
+    } catch (e) {
+      if (!hasKeysFile) rethrow;
+    }
+
+    final balance = EVMChainERC20Balance.fromJSON(data?['balance'] as String) ??
         EVMChainERC20Balance(BigInt.zero);
+
+    final WalletKeysData keysData;
+    // Migrate wallet from the old scheme to then new .keys file scheme
+    if (!hasKeysFile) {
+      final mnemonic = data!['mnemonic'] as String?;
+      final privateKey = data['private_key'] as String?;
+
+      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+    } else {
+      keysData = await WalletKeysFile.readKeysFile(
+        name,
+        walletInfo.type,
+        password,
+        encryptionFileUtils,
+      );
+    }
 
     return EthereumWallet(
       walletInfo: walletInfo,
       password: password,
-      mnemonic: mnemonic,
-      privateKey: privateKey,
+      mnemonic: keysData.mnemonic,
+      privateKey: keysData.privateKey,
       initialBalance: balance,
       client: EthereumClient(),
+      encryptionFileUtils: encryptionFileUtils,
     );
   }
 }

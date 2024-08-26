@@ -553,6 +553,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultActionsMode = 11;
   static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
   static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
+  static final walletPasswordDirectInput = Platform.isLinux;
   static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;
   static const defaultMoneroSeedType = SeedType.defaultSeedType;
 
@@ -1184,9 +1185,11 @@ abstract class SettingsStoreBase with Store {
             raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!) ??
         priority[WalletType.monero]!;
 
-    priority[WalletType.wownero] = wownero?.deserializeWowneroTransactionPriority(
-            raw: sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority)!) ??
-        priority[WalletType.wownero]!;
+    if (wownero != null &&
+        sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority) != null) {
+      priority[WalletType.wownero] = wownero!.deserializeWowneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority)!);
+    }
 
     if (bitcoin != null &&
         sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority) != null) {
@@ -1546,8 +1549,14 @@ abstract class SettingsStoreBase with Store {
       final macInfo = await deviceInfoPlugin.macOsInfo;
       deviceName = macInfo.computerName;
     } else if (Platform.isWindows) {
-      final windowsInfo = await deviceInfoPlugin.windowsInfo;
-      deviceName = windowsInfo.productName;
+      try {
+        final windowsInfo = await deviceInfoPlugin.windowsInfo;
+        deviceName = windowsInfo.productName;
+      } catch (e) {
+        print(e);
+        print('likely digitalProductId is null wait till https://github.com/fluttercommunity/plus_plugins/pull/3188 is merged');
+        deviceName = "Windows Device";
+      }
     }
 
     return deviceName;

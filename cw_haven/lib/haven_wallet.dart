@@ -10,10 +10,8 @@ import 'package:cw_haven/haven_transaction_info.dart';
 import 'package:cw_haven/haven_wallet_addresses.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_haven/api/structs/pending_transaction.dart';
-import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_haven/api/transaction_history.dart' as haven_transaction_history;
-//import 'package:cw_haven/wallet.dart';
 import 'package:cw_haven/api/wallet.dart' as haven_wallet;
 import 'package:cw_haven/api/transaction_history.dart' as transaction_history;
 import 'package:cw_haven/api/monero_output.dart';
@@ -38,9 +36,10 @@ class HavenWallet = HavenWalletBase with _$HavenWallet;
 
 abstract class HavenWalletBase
     extends WalletBase<MoneroBalance, HavenTransactionHistory, HavenTransactionInfo> with Store {
-  HavenWalletBase({required WalletInfo walletInfo})
+  HavenWalletBase({required WalletInfo walletInfo, String? password})
       : balance = ObservableMap.of(getHavenBalance(accountIndex: 0)),
         _isTransactionUpdating = false,
+        _password = password ?? '',
         _hasSyncAfterStartup = false,
         walletAddresses = HavenWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
@@ -56,6 +55,7 @@ abstract class HavenWalletBase
   }
 
   static const int _autoSaveInterval = 30;
+  final String _password;
 
   @override
   HavenWalletAddresses walletAddresses;
@@ -111,7 +111,7 @@ abstract class HavenWalletBase
     _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
-  
+
   @override
   Future<void> connectToNode({required Node node}) async {
     try {
@@ -121,7 +121,8 @@ abstract class HavenWalletBase
           login: node.login,
           password: node.password,
           useSSL: node.useSSL ?? false,
-          isLightWallet: false, // FIXME: hardcoded value
+          isLightWallet: false,
+          // FIXME: hardcoded value
           socksProxyAddress: node.socksProxyAddress);
 
       haven_wallet.setTrustedDaemon(node.trusted);
@@ -414,4 +415,15 @@ abstract class HavenWalletBase
       print(e.toString());
     }
   }
+
+  @override
+  String get password => _password;
+
+  @override
+  Future<String> signMessage(String message, {String? address = null}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) =>
+      throw UnimplementedError();
 }
