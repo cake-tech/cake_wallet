@@ -92,7 +92,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         break;
       case DerivationType.electrum:
       default:
-        seedBytes = await mnemonicToSeedBytes(mnemonic);
+        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
         break;
     }
     return LitecoinWallet(
@@ -167,7 +167,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           break;
         case DerivationType.electrum:
         default:
-          seedBytes = await mnemonicToSeedBytes(mnemonic);
+          seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
           break;
       }
     }

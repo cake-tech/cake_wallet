@@ -106,10 +106,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }) async {
     late Uint8List seedBytes;
 
-    print(walletInfo.derivationInfo?.derivationType);
     switch (walletInfo.derivationInfo?.derivationType) {
       case DerivationType.bip39:
-        print(passphrase);
         seedBytes = await bip39.mnemonicToSeed(
           mnemonic,
           passphrase: passphrase ?? "",
@@ -117,7 +115,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         break;
       case DerivationType.electrum:
       default:
-        seedBytes = await mnemonicToSeedBytes(mnemonic);
+        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
         break;
     }
     return BitcoinWallet(
@@ -197,7 +195,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     if (mnemonic != null) {
       switch (walletInfo.derivationInfo!.derivationType) {
         case DerivationType.electrum:
-          seedBytes = await mnemonicToSeedBytes(mnemonic);
+          seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
           break;
         case DerivationType.bip39:
         default:

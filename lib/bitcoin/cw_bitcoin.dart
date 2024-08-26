@@ -316,7 +316,7 @@ class CWBitcoin extends Bitcoin {
     for (DerivationType dType in electrum_derivations.keys) {
       late Uint8List seedBytes;
       if (dType == DerivationType.electrum) {
-        seedBytes = await mnemonicToSeedBytes(mnemonic);
+        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
       } else if (dType == DerivationType.bip39) {
         seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
       }
