@@ -43,6 +43,7 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
+import 'package:hex/hex.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -1427,6 +1428,7 @@ abstract class ElectrumWalletBase
       List<ECPrivate> privateKeys = [];
 
       var allInputsAmount = 0;
+      String? memo;
 
       // Add inputs
       for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
@@ -1465,6 +1467,22 @@ abstract class ElectrumWalletBase
       // Create a list of available outputs
       final outputs = <BitcoinOutput>[];
       for (final out in bundle.originalTransaction.outputs) {
+
+        // Check if the script contains OP_RETURN
+        final script = out.scriptPubKey.script;
+        if (script.contains('OP_RETURN') && memo == null) {
+          final index = script.indexOf('OP_RETURN');
+          if (index + 1 <= script.length) {
+            try {
+              final opReturnData = script[index + 1].toString();
+              memo = utf8.decode(HEX.decode(opReturnData));
+              continue;
+            } catch (_) {
+              throw Exception('Cannot decode OP_RETURN data');
+            }
+          }
+        }
+
         final address = addressFromOutputScript(out.scriptPubKey, network);
         final btcAddress = addressTypeFromStr(address, network);
         outputs.add(BitcoinOutput(address: btcAddress, value: BigInt.from(out.amount.toInt())));
@@ -1521,6 +1539,8 @@ abstract class ElectrumWalletBase
         outputs: outputs,
         fee: BigInt.from(newFee),
         network: network,
+        memo: memo,
+        outputOrdering: BitcoinOrdering.none,
         enableRBF: true,
       );
 
@@ -2041,27 +2061,13 @@ abstract class ElectrumWalletBase
         tx.inputAddresses!.isEmpty ||
         tx.outputAddresses == null ||
         tx.outputAddresses!.isEmpty) {
-      List<String> inputAddresses = [];
-      List<String> outputAddresses = [];
-
-      for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
-        final input = bundle.originalTransaction.inputs[i];
-        final inputTransaction = bundle.ins[i];
-        final vout = input.txIndex;
-        final outTransaction = inputTransaction.outputs[vout];
-        final address = addressFromOutputScript(outTransaction.scriptPubKey, network);
-
-        if (address.isNotEmpty) inputAddresses.add(address);
-      }
-
-      for (int i = 0; i < bundle.originalTransaction.outputs.length; i++) {
-        final out = bundle.originalTransaction.outputs[i];
-        final address = addressFromOutputScript(out.scriptPubKey, network);
-
-        if (address.isNotEmpty) outputAddresses.add(address);
-      }
-      tx.inputAddresses = inputAddresses;
-      tx.outputAddresses = outputAddresses;
+      tx = ElectrumTransactionInfo.fromElectrumBundle(
+        bundle,
+        walletInfo.type,
+        network,
+        addresses: addressesSet,
+        height: tx.height,
+      );
 
       transactionHistory.addOne(tx);
     }
