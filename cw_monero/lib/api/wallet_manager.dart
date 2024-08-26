@@ -91,7 +91,7 @@ void restoreWalletFromSeedSync(
     required String passphrase,
     required String seed,
     int nettype = 0,
-    int restoreHeight = 0}) {
+    int restoreHeight = 0}) async {
   txhistory = null;
   final newWptr = monero.WalletManager_recoveryWallet(
     wmPtr,
@@ -111,9 +111,13 @@ void restoreWalletFromSeedSync(
   }
   wptr = newWptr;
 
+  setRefreshFromBlockHeight(height: restoreHeight);
+
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase);
 
   openedWalletsByPath[path] = wptr!;
+
+  store();
 }
 
 void restoreWalletFromKeysSync(
