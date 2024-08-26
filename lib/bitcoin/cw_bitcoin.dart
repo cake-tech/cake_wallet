@@ -398,9 +398,10 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<bool> canReplaceByFee(Object wallet, String transactionHash) async {
+  Future<bool> canReplaceByFee(Object wallet, Object transactionInfo) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.canReplaceByFee(transactionHash);
+    final tx = transactionInfo as ElectrumTransactionInfo;
+    return bitcoinWallet.canReplaceByFee(tx);
   }
 
   @override
@@ -516,7 +517,7 @@ class CWBitcoin extends Bitcoin {
   @override
   bool isTestnet(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.isTestnet ?? false;
+    return bitcoinWallet.isTestnet;
   }
 
   @override
