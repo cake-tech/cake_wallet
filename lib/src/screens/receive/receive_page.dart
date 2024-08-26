@@ -84,7 +84,7 @@ class ReceivePage extends BasePage {
             iconSize: 25,
             onPressed: () {
               ShareUtil.share(
-                text: addressListViewModel.uri.toString(),
+                text: addressListViewModel.latestUri.toString(),
                 context: context,
               );
             },
@@ -121,7 +121,9 @@ class ReceivePage extends BasePage {
                     heroTag: _heroTag,
                     amountTextFieldFocusNode: _cryptoAmountFocus,
                     amountController: _amountController,
-                    isLight: currentTheme.type == ThemeType.light),
+                    isLight: currentTheme.type == ThemeType.light,
+                    showLatest: false,
+                  ),
               ),
               AddressList(addressListViewModel: addressListViewModel),
               Padding(

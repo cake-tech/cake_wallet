@@ -14,6 +14,8 @@ abstract class WalletAddresses {
 
   String get address;
 
+  String get latestAddress => addressesMap[addressesMap.keys.last]!;
+
   String? get primaryAddress => null;
 
   set address(String address);

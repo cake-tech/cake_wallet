@@ -54,6 +54,10 @@ List<Subaddress> getAllSubaddresses() {
   return list;
 }
 
+int numSubaddresses(int subaccountIndex) {
+  return monero.Wallet_numSubaddresses(wptr!, accountIndex: subaccountIndex);
+}
+
 void addSubaddressSync({required int accountIndex, required String label}) {
   monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex, label: label);
   refreshSubaddresses(accountIndex: accountIndex);

@@ -115,7 +115,7 @@ class AddressPage extends BasePage {
           iconSize: 25,
           onPressed: () {
             ShareUtil.share(
-              text: addressListViewModel.uri.toString(),
+              text: addressListViewModel.latestUri.toString(),
               context: context,
             );
           },
@@ -155,7 +155,9 @@ class AddressPage extends BasePage {
                           amountTextFieldFocusNode: _cryptoAmountFocus,
                           amountController: _amountController,
                           isLight: dashboardViewModel.settingsStore.currentTheme.type ==
-                              ThemeType.light))),
+                              ThemeType.light,
+                          showLatest: true,
+                        ))),
               SizedBox(height: 16),
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {

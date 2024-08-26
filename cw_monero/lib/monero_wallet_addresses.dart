@@ -3,6 +3,7 @@ import 'package:cw_core/address_info.dart';
 import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
 import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/monero_account_list.dart';
@@ -27,6 +28,15 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   @override
   @observable
   String address;
+
+  @override
+  @observable
+  String get latestAddress => getLastAddress(account?.id??0);
+
+  String getLastAddress(int accountIndex) {
+    final addressIndex = subaddress_list.numSubaddresses(accountIndex) - 1;
+    return getAddress(accountIndex: accountIndex,addressIndex: addressIndex);
+  }
 
   @observable
   Account? account;

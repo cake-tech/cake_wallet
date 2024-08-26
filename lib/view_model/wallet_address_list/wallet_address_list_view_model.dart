@@ -267,56 +267,81 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   WalletType get type => wallet.type;
 
   @computed
-  WalletAddressListItem get address =>
-      WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
+  WalletAddressListItem get latestAddress {
+    if (wallet.type == WalletType.monero && wallet.isEnabledAutoGenerateSubaddress) {
+      return WalletAddressListItem(address: wallet.walletAddresses.latestAddress, isPrimary: false);
+    }
+    return address;
+  }
+
+
+  @computed
+  WalletAddressListItem get address {
+    return WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
+  }
+
+  @computed
+  PaymentURI get latestUri {
+    switch (wallet.type) {
+      case WalletType.monero:
+        return MoneroURI(amount: amount, address: latestAddress.address);
+      case WalletType.haven:
+        return HavenURI(amount: amount, address: latestAddress.address);
+      case WalletType.bitcoin:
+        return BitcoinURI(amount: amount, address: latestAddress.address);
+      case WalletType.litecoin:
+        return LitecoinURI(amount: amount, address: latestAddress.address);
+      case WalletType.ethereum:
+        return EthereumURI(amount: amount, address: latestAddress.address);
+      case WalletType.bitcoinCash:
+        return BitcoinCashURI(amount: amount, address: latestAddress.address);
+      case WalletType.banano:
+        return NanoURI(amount: amount, address: latestAddress.address);
+      case WalletType.nano:
+        return NanoURI(amount: amount, address: latestAddress.address);
+      case WalletType.polygon:
+        return PolygonURI(amount: amount, address: latestAddress.address);
+      case WalletType.solana:
+        return SolanaURI(amount: amount, address: latestAddress.address);
+      case WalletType.tron:
+        return TronURI(amount: amount, address: latestAddress.address);
+      case WalletType.wownero:
+        return WowneroURI(amount: amount, address: latestAddress.address);
+      case WalletType.none:
+        throw Exception('Unexpected type: ${type.toString()}');
+    }
+  }
 
   @computed
   PaymentURI get uri {
-    if (wallet.type == WalletType.monero) {
-      return MoneroURI(amount: amount, address: address.address);
+    switch (wallet.type) {
+      case WalletType.monero:
+        return MoneroURI(amount: amount, address: address.address);
+      case WalletType.haven:
+        return HavenURI(amount: amount, address: address.address);
+      case WalletType.bitcoin:
+        return BitcoinURI(amount: amount, address: address.address);
+      case WalletType.litecoin:
+        return LitecoinURI(amount: amount, address: address.address);
+      case WalletType.ethereum:
+        return EthereumURI(amount: amount, address: address.address);
+      case WalletType.bitcoinCash:
+        return BitcoinCashURI(amount: amount, address: address.address);
+      case WalletType.banano:
+        return NanoURI(amount: amount, address: address.address);
+      case WalletType.nano:
+        return NanoURI(amount: amount, address: address.address);
+      case WalletType.polygon:
+        return PolygonURI(amount: amount, address: address.address);
+      case WalletType.solana:
+        return SolanaURI(amount: amount, address: address.address);
+      case WalletType.tron:
+        return TronURI(amount: amount, address: address.address);
+      case WalletType.wownero:
+        return WowneroURI(amount: amount, address: address.address);
+      case WalletType.none:
+        throw Exception('Unexpected type: ${type.toString()}');
     }
-
-    if (wallet.type == WalletType.haven) {
-      return HavenURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.bitcoin) {
-      return BitcoinURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.litecoin) {
-      return LitecoinURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.ethereum) {
-      return EthereumURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.bitcoinCash) {
-      return BitcoinCashURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.nano) {
-      return NanoURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.polygon) {
-      return PolygonURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.solana) {
-      return SolanaURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.tron) {
-      return TronURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.wownero) {
-      return WowneroURI(amount: amount, address: address.address);
-    }
-
-    throw Exception('Unexpected type: ${type.toString()}');
   }
 
   @computed
