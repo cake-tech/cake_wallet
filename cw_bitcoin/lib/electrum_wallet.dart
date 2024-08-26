@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
@@ -44,6 +45,7 @@ import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 import 'package:hex/hex.dart';
+import 'package:http/http.dart' as http;
 
 part 'electrum_wallet.g.dart';
 
@@ -101,6 +103,8 @@ abstract class ElectrumWalletBase
     );
 
     reaction((_) => syncStatus, _syncStatusReaction);
+
+    sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
   static Bip32Slip10Secp256k1 getAccountHDWallet(CryptoCurrency? currency, BasedUtxoNetwork network,
@@ -195,6 +199,13 @@ abstract class ElectrumWalletBase
   bool silentPaymentsScanningActive = false;
 
   bool _isTryingToConnect = false;
+
+  Completer<SharedPreferences> sharedPrefs = Completer();
+
+  Future<bool> checkIfMempoolAPIIsEnabled() async {
+    bool isMempoolAPIEnabled = (await sharedPrefs.future).getBool("use_mempool_fee_api") ?? true;
+    return isMempoolAPIEnabled;
+  }
 
   @action
   Future<void> setSilentPaymentsScanning(bool active) async {
@@ -448,6 +459,20 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> updateFeeRates() async {
+    if (await checkIfMempoolAPIIsEnabled()) {
+      try {
+        final response =
+            await http.get(Uri.parse("http://mempool.cakewallet.com:8999/api/v1/fees/recommended"));
+
+        final result = json.decode(response.body) as Map<String, num>;
+        final slowFee = result['economyFee']?.toInt() ?? 0;
+        final mediumFee = result['hourFee']?.toInt() ?? 0;
+        final fastFee = result['fastestFee']?.toInt() ?? 0;
+        _feeRates = [slowFee, mediumFee, fastFee];
+        return;
+      } catch (_) {}
+    }
+
     final feeRates = await electrumClient.feeRates(network: network);
     if (feeRates != [0, 0, 0]) {
       _feeRates = feeRates;
@@ -1455,7 +1480,6 @@ abstract class ElectrumWalletBase
       // Create a list of available outputs
       final outputs = <BitcoinOutput>[];
       for (final out in bundle.originalTransaction.outputs) {
-
         // Check if the script contains OP_RETURN
         final script = out.scriptPubKey.script;
         if (script.contains('OP_RETURN') && memo == null) {
@@ -2058,13 +2082,42 @@ abstract class ElectrumWalletBase
         tx.inputAddresses!.isEmpty ||
         tx.outputAddresses == null ||
         tx.outputAddresses!.isEmpty) {
-      tx = ElectrumTransactionInfo.fromElectrumBundle(
-        bundle,
-        walletInfo.type,
-        network,
-        addresses: addressesSet,
-        height: tx.height,
-      );
+      List<String> inputAddresses = [];
+      List<String> outputAddresses = [];
+
+      for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
+        final input = bundle.originalTransaction.inputs[i];
+        final inputTransaction = bundle.ins[i];
+        final vout = input.txIndex;
+        final outTransaction = inputTransaction.outputs[vout];
+        final address = addressFromOutputScript(outTransaction.scriptPubKey, network);
+
+        if (address.isNotEmpty) inputAddresses.add(address);
+      }
+
+      for (int i = 0; i < bundle.originalTransaction.outputs.length; i++) {
+        final out = bundle.originalTransaction.outputs[i];
+        final address = addressFromOutputScript(out.scriptPubKey, network);
+
+        if (address.isNotEmpty) outputAddresses.add(address);
+
+        // Check if the script contains OP_RETURN
+        final script = out.scriptPubKey.script;
+        if (script.contains('OP_RETURN')) {
+          final index = script.indexOf('OP_RETURN');
+          if (index + 1 <= script.length) {
+            try {
+              final opReturnData = script[index + 1].toString();
+              final decodedString = utf8.decode(HEX.decode(opReturnData));
+              outputAddresses.add('OP_RETURN:$decodedString');
+            } catch (_) {
+              outputAddresses.add('OP_RETURN:');
+            }
+          }
+        }
+      }
+      tx.inputAddresses = inputAddresses;
+      tx.outputAddresses = outputAddresses;
 
       transactionHistory.addOne(tx);
     }

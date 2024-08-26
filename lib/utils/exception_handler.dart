@@ -174,6 +174,13 @@ class ExceptionHandler {
     "ClientException: Write failed, uri=http",
     "Connection terminated during handshake",
     "Corrupted wallets seeds",
+    "bad_alloc",
+    "does not correspond",
+    "basic_string",
+    "input_stream",
+    "input stream error",
+    "invalid signature",
+    "invalid password",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
