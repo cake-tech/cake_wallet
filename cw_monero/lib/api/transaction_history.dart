@@ -140,11 +140,17 @@ PendingTransactionDescription createTransactionMultDestSync(
     int accountIndex = 0,
     List<String> preferredInputs = const []}) {
   
+  final dstAddrs = outputs.map((e) => e.address).toList();
+  final amounts = outputs.map((e) => monero.Wallet_amountFromString(e.amount)).toList();
+
+  // print("multDest: dstAddrs: $dstAddrs");
+  // print("multDest: amounts: $amounts");
+
   final txptr = monero.Wallet_createTransactionMultDest(
     wptr!,
-    dstAddr: outputs.map((e) => e.address).toList(),
+    dstAddr: dstAddrs,
     isSweepAll: false,
-    amounts: outputs.map((e) => monero.Wallet_amountFromString(e.amount)).toList(),
+    amounts: amounts,
     mixinCount: 0,
     pendingTransactionPriority: priorityRaw,
     subaddr_account: accountIndex,
