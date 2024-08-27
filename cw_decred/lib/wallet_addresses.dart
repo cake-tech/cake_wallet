@@ -7,13 +7,23 @@ import 'package:cw_decred/api/libdcrwallet.dart' as libdcrwallet;
 class DecredWalletAddresses extends WalletAddresses {
   DecredWalletAddresses(WalletInfo walletInfo) : super(walletInfo);
 
+  String currentAddr = '';
+
   @override
   String get address {
-    return libdcrwallet.currentReceiveAddress(walletInfo.name) ?? '';
+    final cAddr = libdcrwallet.currentReceiveAddress(walletInfo.name) ?? '';
+    if (cAddr != '') {
+      currentAddr = cAddr;
+    }
+    return currentAddr;
   }
 
   String generateNewAddress() {
-    return libdcrwallet.newExternalAddress(walletInfo.name) ?? '';
+    final nAddr = libdcrwallet.newExternalAddress(walletInfo.name) ?? '';
+    if (nAddr != '') {
+      currentAddr = nAddr;
+    }
+    return nAddr;
   }
 
   List<String> addresses() {

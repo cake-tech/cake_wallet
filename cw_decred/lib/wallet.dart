@@ -151,6 +151,10 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
     if (syncStatusCode > 4) {
       syncStatus = SyncedSyncStatus();
+      // Initiate a receive address in case we lose peers later.
+      if (walletAddresses.currentAddr == '') {
+        walletAddresses.address;
+      }
       return true;
     }
 
