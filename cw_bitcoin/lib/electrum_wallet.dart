@@ -276,7 +276,6 @@ abstract class ElectrumWalletBase
   Future<Isolate>? _isolate;
 
   void Function(FlutterErrorDetails)? _onError;
-  Timer? _reconnectTimer;
   Timer? _autoSaveTimer;
   Timer? _updateFeeRateTimer;
   static const int _autoSaveInterval = 1;
@@ -2059,8 +2058,7 @@ abstract class ElectrumWalletBase
 
       _isTryingToConnect = true;
 
-      _reconnectTimer?.cancel();
-      _reconnectTimer = Timer(Duration(seconds: 10), () {
+      Timer(Duration(seconds: 10), () {
         if (this.syncStatus is NotConnectedSyncStatus || this.syncStatus is LostConnectionSyncStatus) {
           this.electrumClient.connectToUri(
                 node!.uri,
