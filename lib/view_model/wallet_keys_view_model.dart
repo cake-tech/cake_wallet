@@ -83,8 +83,8 @@ abstract class WalletKeysViewModelBase with Store {
           StandartListItem(
               title: S.current.view_key_private,
               value: keys['privateViewKey']!),
-        StandartListItem(
-            title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+        if (_appStore.wallet!.seed!.isNotEmpty)
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
 
       if (_appStore.wallet?.seed != null &&
@@ -123,8 +123,8 @@ abstract class WalletKeysViewModelBase with Store {
           StandartListItem(
               title: S.current.view_key_private,
               value: keys['privateViewKey']!),
-        StandartListItem(
-            title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+        if (_appStore.wallet!.seed!.isNotEmpty)
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
 
@@ -147,8 +147,8 @@ abstract class WalletKeysViewModelBase with Store {
           StandartListItem(
               title: S.current.view_key_private,
               value: keys['privateViewKey']!),
-        StandartListItem(
-            title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+        if (_appStore.wallet!.seed!.isNotEmpty)
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
 
       if (_appStore.wallet?.seed != null &&
@@ -276,7 +276,8 @@ abstract class WalletKeysViewModelBase with Store {
       if (_appStore.wallet!.seed == null &&
           _appStore.wallet!.privateKey != null)
         'private_key': _appStore.wallet!.privateKey!,
-      if (restoreHeightResult != null) ...{'height': restoreHeightResult}
+      if (restoreHeightResult != null) ...{'height': restoreHeightResult},
+      if (_appStore.wallet!.passphrase != null) 'passphrase': _appStore.wallet!.passphrase!
     };
   }
 

@@ -3,6 +3,8 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/monero_amount_format.dart';
@@ -19,7 +21,6 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/coins_info.dart';
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
@@ -51,7 +52,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     MoneroTransactionHistory, MoneroTransactionInfo> with Store {
   MoneroWalletBase(
       {required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo})
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required String password})
       : balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
           CryptoCurrency.xmr: MoneroBalance(
               fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
@@ -60,6 +62,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
         isEnabledAutoGenerateSubaddress = false,
+        _password = password,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
         this.unspentCoinsInfo = unspentCoinsInfo,
@@ -84,6 +87,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
     reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
       _updateSubAddress(enabled, account: walletAddresses.account);
+    });
+    reaction((_) => transactionHistory, (__) {
+      _updateSubAddress(isEnabledAutoGenerateSubaddress, account: walletAddresses.account);
     });
   }
 
@@ -110,9 +116,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   String get seed => monero_wallet.getSeed();
-  String  seedLegacy(String? language) {
-    return monero_wallet.getSeedLegacy(language);
-  }
+  String seedLegacy(String? language) => monero_wallet.getSeedLegacy(language);
+
+  @override
+  String get password => _password;
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
@@ -126,10 +133,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   monero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
+  ReactionDisposer? _onTxHistoryChangeReaction;
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
   List<MoneroUnspent> unspentCoins;
+  String _password;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -164,6 +173,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   void close() async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
+    _onTxHistoryChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
 
@@ -191,12 +201,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   Future<void> startSync() async {
     try {
-      _setInitialHeight();
+      _assertInitialHeight();
     } catch (_) {
       // our restore height wasn't correct, so lets see if using the backup works:
       try {
-        await resetCache(name);
-        _setInitialHeight();
+        await resetCache(name); // Resetting the cache removes the TX Keys and Polyseed
+        _assertInitialHeight();
       } catch (e) {
         // we still couldn't get a valid height from the backup?!:
         // try to use the date instead:
@@ -636,18 +646,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     _listener = monero_wallet.setListeners(_onNewBlock, _onNewTransaction);
   }
 
-  // check if the height is correct:
-  void _setInitialHeight() {
-    if (walletInfo.isRecovery) {
-      return;
-    }
+  /// Asserts the current height to be above [MIN_RESTORE_HEIGHT]
+  void _assertInitialHeight() {
+    if (walletInfo.isRecovery) return;
 
     final height = monero_wallet.getCurrentHeight();
 
-    if (height > MIN_RESTORE_HEIGHT) {
-      // the restore height is probably correct, so we do nothing:
-      return;
-    }
+    // the restore height is probably correct, so we do nothing:
+    if (height > MIN_RESTORE_HEIGHT) return;
 
     throw Exception("height isn't > $MIN_RESTORE_HEIGHT!");
   }
@@ -782,4 +788,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final useAddress = address ?? "";
     return monero_wallet.signMessage(message, address: useAddress);
   }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
+    if (address == null) return false;
+
+    return monero_wallet.verifyMessage(message, address, signature);
+  }
+
 }

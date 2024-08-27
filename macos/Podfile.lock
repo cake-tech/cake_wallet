@@ -17,15 +17,13 @@ PODS:
   - in_app_review (0.2.0):
     - FlutterMacOS
   - OrderedSet (5.0.0)
-  - package_info (0.0.1):
-    - FlutterMacOS
   - package_info_plus (0.0.1):
     - FlutterMacOS
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
   - ReachabilitySwift (5.0.0)
-  - share_plus_macos (0.0.1):
+  - share_plus (0.0.1):
     - FlutterMacOS
   - shared_preferences_foundation (0.0.1):
     - Flutter
@@ -46,10 +44,9 @@ DEPENDENCIES:
   - flutter_secure_storage_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - in_app_review (from `Flutter/ephemeral/.symlinks/plugins/in_app_review/macos`)
-  - package_info (from `Flutter/ephemeral/.symlinks/plugins/package_info/macos`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
-  - share_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/share_plus_macos/macos`)
+  - share_plus (from `Flutter/ephemeral/.symlinks/plugins/share_plus/macos`)
   - shared_preferences_foundation (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sp_scanner (from `Flutter/ephemeral/.symlinks/plugins/sp_scanner/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
@@ -77,14 +74,12 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
   in_app_review:
     :path: Flutter/ephemeral/.symlinks/plugins/in_app_review/macos
-  package_info:
-    :path: Flutter/ephemeral/.symlinks/plugins/package_info/macos
   package_info_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
   path_provider_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
-  share_plus_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/share_plus_macos/macos
+  share_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/share_plus/macos
   shared_preferences_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_foundation/darwin
   sp_scanner:
@@ -104,11 +99,10 @@ SPEC CHECKSUMS:
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   in_app_review: a850789fad746e89bce03d4aeee8078b45a53fd0
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
-  package_info: 6eba2fd8d3371dda2d85c8db6fe97488f24b74b2
-  package_info_plus: 02d7a575e80f194102bef286361c6c326e4c29ce
+  package_info_plus: fa739dd842b393193c5ca93c26798dff6e3d0e0c
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
+  share_plus: 36537c04ce0c3e3f5bd297ce4318b6d5ee5fd6cf
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sp_scanner: 269d96e0ec3173e69156be7239b95182be3b8303
   url_launcher_macos: 5f437abeda8c85500ceb03f5c1938a8c5a705399

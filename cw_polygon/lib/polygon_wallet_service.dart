@@ -1,4 +1,5 @@
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -10,7 +11,7 @@ import 'package:cw_polygon/polygon_wallet.dart';
 
 class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
   PolygonWalletService(
-    super.walletInfoSource, {
+    super.walletInfoSource, super.isDirect, {
     required this.client,
   });
 
@@ -30,12 +31,12 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
       mnemonic: mnemonic,
       password: credentials.password!,
       client: client,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
     wallet.addInitialTokens();
     await wallet.save();
-
     return wallet;
   }
 
@@ -49,6 +50,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
         name: name,
         password: password,
         walletInfo: walletInfo,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
 
       await wallet.init();
@@ -62,6 +64,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
         name: name,
         password: password,
         walletInfo: walletInfo,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
 
       await wallet.init();
@@ -78,12 +81,12 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
       client: client,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
     wallet.addInitialTokens();
     await wallet.save();
-
     return wallet;
   }
 
@@ -101,6 +104,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
       walletInfo: credentials.walletInfo!,
       password: credentials.password!,
       client: client,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -122,6 +126,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       client: client,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -136,7 +141,11 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
     final currentWalletInfo = walletInfoSource.values
         .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
     final currentWallet = await PolygonWallet.open(
-        password: password, name: currentName, walletInfo: currentWalletInfo);
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
 
     await currentWallet.renameWalletFiles(newName);
     await saveBackup(newName);

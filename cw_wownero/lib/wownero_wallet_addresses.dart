@@ -3,6 +3,7 @@ import 'package:cw_core/address_info.dart';
 import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_wownero/api/transaction_history.dart';
 import 'package:cw_wownero/api/wallet.dart';
 import 'package:cw_wownero/wownero_account_list.dart';
 import 'package:cw_wownero/wownero_subaddress_list.dart';
@@ -36,7 +37,24 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   WowneroSubaddressList subaddressList;
 
   WowneroAccountList accountList;
+  @override
+  Set<String> get usedAddresses {
+    final txs = getAllTransactions();
+    final adds = _originalUsedAddresses.toList();
+    for (var i = 0; i < txs.length; i++) {
+      for (var j = 0; j < txs[i].addressList.length; j++) {
+        adds.add(txs[i].addressList[j]);
+      }
+    }
+    return adds.toSet();
+  }
 
+  Set<String> _originalUsedAddresses = Set();
+
+  @override
+  set usedAddresses(Set<String> _usedAddresses) {
+    _originalUsedAddresses = _usedAddresses;
+  }
   @override
   Future<void> init() async {
     accountList.update();
@@ -109,7 +127,7 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
         accountIndex: accountIndex,
         defaultLabel: defaultLabel,
         usedAddresses: usedAddresses.toList());
-    subaddress = subaddressList.subaddresses.last;
+    subaddress = (subaddressList.subaddresses.isEmpty) ? Subaddress(id: 0, address: address, label: defaultLabel) : subaddressList.subaddresses.last;
     address = subaddress!.address;
   }
 

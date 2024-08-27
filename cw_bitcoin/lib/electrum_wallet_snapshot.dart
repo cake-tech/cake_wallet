@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -32,22 +33,28 @@ class ElectrumWalletSnapshot {
   final WalletType type;
   final String? addressPageType;
 
+  @deprecated
   String? mnemonic;
+
+  @deprecated
   String? xpub;
+
+  @deprecated
+  String? passphrase;
+
   List<BitcoinAddressRecord> addresses;
   List<BitcoinSilentPaymentAddressRecord> silentAddresses;
   ElectrumBalance balance;
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
   int silentAddressIndex;
-  String? passphrase;
   DerivationType? derivationType;
   String? derivationPath;
 
   static Future<ElectrumWalletSnapshot> load(
-      String name, WalletType type, String password, BasedUtxoNetwork network) async {
+      EncryptionFileUtils encryptionFileUtils, String name, WalletType type, String password, BasedUtxoNetwork network) async {
     final path = await pathForWallet(name: name, type: type);
-    final jsonSource = await read(path: path, password: password);
+    final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final addressesTmp = data['addresses'] as List? ?? <Object>[];
     final mnemonic = data['mnemonic'] as String?;

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:package_info/package_info.dart' as __package_info__;
+import 'package:package_info_plus/package_info_plus.dart' as __package_info__;
 
 abstract class _EnvKeys {
     static const kWinAppName = 'CW_WIN_APP_NAME';

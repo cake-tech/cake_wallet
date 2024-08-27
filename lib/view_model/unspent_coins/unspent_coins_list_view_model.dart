@@ -38,6 +38,10 @@ abstract class UnspentCoinsListViewModelBase with Store {
       final info =
           getUnspentCoinInfo(item.hash, item.address, item.amountRaw, item.vout, item.keyImage);
 
+      if (info == null) {
+        return;
+      }
+
       info.isFrozen = item.isFrozen;
       info.isSending = item.isSending;
       info.note = item.note;
@@ -50,15 +54,21 @@ abstract class UnspentCoinsListViewModelBase with Store {
     }
   }
 
-  UnspentCoinsInfo getUnspentCoinInfo(
-          String hash, String address, int value, int vout, String? keyImage) =>
-      _unspentCoinsInfo.values.firstWhere((element) =>
+  UnspentCoinsInfo? getUnspentCoinInfo(
+      String hash, String address, int value, int vout, String? keyImage) {
+    try {
+      return _unspentCoinsInfo.values.firstWhere((element) =>
           element.walletId == wallet.id &&
           element.hash == hash &&
           element.address == address &&
           element.value == value &&
           element.vout == vout &&
           element.keyImage == keyImage);
+    } catch (e) {
+      print("UnspentCoinsInfo not found for coin: $e");
+      return null;
+    }
+  }
 
   String formatAmountToString(int fullBalance) {
     if (wallet.type == WalletType.monero)
@@ -108,6 +118,9 @@ abstract class UnspentCoinsListViewModelBase with Store {
       try {
         final info =
             getUnspentCoinInfo(elem.hash, elem.address, elem.value, elem.vout, elem.keyImage);
+        if (info == null) {
+          return;
+        }
 
         unspents.add(UnspentCoinsItem(
           address: elem.address,

@@ -7,6 +7,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -26,13 +27,13 @@ class WalletRestorationFromQRVM = WalletRestorationFromQRVMBase with _$WalletRes
 
 abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store {
   WalletRestorationFromQRVMBase(AppStore appStore, WalletCreationService walletCreationService,
-      Box<WalletInfo> walletInfoSource, WalletType type)
+      Box<WalletInfo> walletInfoSource, WalletType type, SeedSettingsViewModel seedSettingsViewModel)
       : height = 0,
         viewKey = '',
         spendKey = '',
         wif = '',
         address = '',
-        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
+        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel, type: type, isRecovery: true);
 
   @observable
   int height;
