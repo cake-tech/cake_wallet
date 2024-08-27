@@ -1341,6 +1341,8 @@ abstract class ElectrumWalletBase
     try {
       unspents = await electrumClient.getListUnspent(address.getScriptHash(network));
     } catch (e, s) {
+      print(e);
+      print(s);
       return [];
     }
 

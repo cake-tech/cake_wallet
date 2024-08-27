@@ -81,16 +81,15 @@ class ConnectionSyncPage extends BasePage {
                       }
                     });
               }),
+              Observer(builder: (context) {
+                return SettingsSwitcherCell(
+                  title: S.current.sync_all_wallets,
+                  value: dashboardViewModel.syncAll,
+                  onValueChange: (_, bool value) => dashboardViewModel.setSyncAll(value),
+                );
+              }),
             ],
-            Observer(builder: (context) {
-              return SettingsSwitcherCell(
-                title: S.current.sync_all_wallets,
-                value: dashboardViewModel.syncAll,
-                onValueChange: (_, bool value) => dashboardViewModel.setSyncAll(value),
-              );
-            }),
           ],
-          // ],
           SettingsCellWithArrow(
             title: S.current.manage_nodes,
             handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
@@ -110,8 +109,7 @@ class ConnectionSyncPage extends BasePage {
             },
           ),
           if (isWalletConnectCompatibleChain(dashboardViewModel.wallet.type) &&
-              !dashboardViewModel.wallet.isHardwareWallet) ...[
-            // ToDo: Remove this line once WalletConnect is implemented
+              !dashboardViewModel.wallet.isHardwareWallet) ...[ // ToDo: Remove this line once WalletConnect is implemented
             WalletConnectTile(
               onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
             ),
