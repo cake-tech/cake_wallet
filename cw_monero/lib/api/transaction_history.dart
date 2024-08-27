@@ -328,7 +328,34 @@ class Transaction {
         confirmations = monero.TransactionInfo_confirmations(txInfo),
         fee = monero.TransactionInfo_fee(txInfo),
         description = monero.TransactionInfo_description(txInfo),
-        key = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo));
+        key = getTxKey(txInfo);
+
+  static String getTxKey(monero.TransactionInfo txInfo) {
+    final txKey = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo));
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      return monero.Wallet_errorString(wptr!);
+    }
+    return breakTxKey(txKey);
+  }
+
+  static String breakTxKey(String input) {
+    final x = 64;
+    StringBuffer buffer = StringBuffer();
+
+    for (int i = 0; i < input.length; i += x) {
+      int endIndex = i + x;
+      if (endIndex > input.length) {
+        endIndex = input.length;
+      }
+      buffer.write(input.substring(i, endIndex));
+      if (endIndex != input.length) {
+        buffer.write('\n\n');
+      }
+    }
+
+    return buffer.toString().trim();
+  }
 
   Transaction.dummy({
     required this.displayLabel,
