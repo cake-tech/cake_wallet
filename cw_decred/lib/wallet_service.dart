@@ -41,13 +41,17 @@ class DecredWalletService extends WalletService<
   Future<bool> isWalletExit(String name) async =>
       File(await pathForWallet(name: name, type: getType())).existsSync();
 
-  Future<bool> checkIfWalletWithSeedExists(String walletName, String walletPassword,
+  Future<bool> checkIfWalletWithSeedExists(
+      String walletName,
+      String walletPassword,
       DecredRestoreWalletFromSeedCredentials credentials) async {
     final w = await openWallet(walletName, walletPassword);
     return credentials.mnemonic == w.seed; // TODO: Consider closing wallet.
   }
 
-  Future<bool> checkIfWalletWithKeyExists(String walletName, String walletPassword,
+  Future<bool> checkIfWalletWithKeyExists(
+      String walletName,
+      String walletPassword,
       DecredRestoreWalletFromPubkeyCredentials credentials) async {
     final w = await openWallet(walletName, walletPassword);
     return credentials.pubkey == w.pubkey; // TODO: Consider closing wallet.
