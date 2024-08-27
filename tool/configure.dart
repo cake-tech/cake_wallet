@@ -152,7 +152,7 @@ abstract class Bitcoin {
     String? passphrase,
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
-  WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password});
+  WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
   Map<String, String> getWalletKeys(Object wallet);
@@ -1026,10 +1026,10 @@ abstract class BitcoinCash {
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
 
   WalletCredentials createBitcoinCashNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo, String? password});
+      {required String name, WalletInfo? walletInfo, String? password, String? passphrase});
 
   WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
-      {required String name, required String mnemonic, required String password});
+      {required String name, required String mnemonic, required String password, String? passphrase});
 
   TransactionPriority deserializeBitcoinCashTransactionPriority(int raw);
 

@@ -19,11 +19,12 @@ import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_bitcoin/electrum_derivations.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
@@ -53,6 +54,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
     required EncryptionFileUtils encryptionFileUtils,
+    String? passphrase,
     String? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
@@ -123,7 +125,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         break;
       case DerivationType.electrum:
       default:
-        seedBytes = await mnemonicToSeedBytes(mnemonic);
+        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
         break;
     }
     return LitecoinWallet(
@@ -134,6 +136,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
       encryptionFileUtils: encryptionFileUtils,
+      passphrase: passphrase,
       seedBytes: seedBytes,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
@@ -179,6 +182,31 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       );
     }
 
+    walletInfo.derivationInfo ??= DerivationInfo();
+
+    // set the default if not present:
+    walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
+    walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
+
+    Uint8List? seedBytes = null;
+    final mnemonic = keysData.mnemonic;
+    final passphrase = keysData.passphrase;
+
+    if (mnemonic != null) {
+      switch (walletInfo.derivationInfo?.derivationType) {
+        case DerivationType.bip39:
+          seedBytes = await bip39.mnemonicToSeed(
+            mnemonic,
+            passphrase: passphrase ?? "",
+          );
+          break;
+        case DerivationType.electrum:
+        default:
+          seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+          break;
+      }
+    }
+
     return LitecoinWallet(
       mnemonic: keysData.mnemonic!,
       password: password,
@@ -186,7 +214,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses,
       initialBalance: snp?.balance,
-      seedBytes: await mnemonicToSeedBytes(keysData.mnemonic!),
+      seedBytes: seedBytes!,
+      passphrase: passphrase,
       encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: snp?.regularAddressIndex,
       initialChangeAddressIndex: snp?.changeAddressIndex,
@@ -306,10 +335,22 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     bool? doSingleScan,
     bool? usingElectrs,
   }) async {
-    await mwebUtxosBox.clear();
-    transactionHistory.clear();
     _syncTimer?.cancel();
+    int oldHeight = walletInfo.restoreHeight;
     await walletInfo.updateRestoreHeight(height);
+
+    // go through mwebUtxos and clear any that are above the new restore height:
+    if (height == 0) {
+      await mwebUtxosBox.clear();
+      transactionHistory.clear();
+    } else {
+      for (final utxo in mwebUtxosBox.values) {
+        if (utxo.height > height) {
+          await mwebUtxosBox.delete(utxo.outputId);
+        }
+      }
+      // TODO: remove transactions that are above the new restore height!
+    }
 
     // reset coin balances and txCount to 0:
     unspentCoins.forEach((coin) {

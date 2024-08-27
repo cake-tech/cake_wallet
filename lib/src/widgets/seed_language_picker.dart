@@ -11,36 +11,36 @@ class SeedLanguagePickerOption {
   final String name;
   final String nameLocalized;
   final Image image;
-  final List<SeedType> supportedSeedTypes;
+  final List<MoneroSeedType> supportedSeedTypes;
 }
 
 final List<SeedLanguagePickerOption> seedLanguages = [
   SeedLanguagePickerOption('English', S.current.seed_language_english,
-      Image.asset('assets/images/flags/usa.png'), [SeedType.legacy, SeedType.polyseed]),
+      Image.asset('assets/images/flags/usa.png'), [MoneroSeedType.legacy, MoneroSeedType.polyseed]),
   SeedLanguagePickerOption('Chinese (Simplified)', S.current.seed_language_chinese,
-      Image.asset('assets/images/flags/chn.png'), [SeedType.legacy, SeedType.polyseed]),
+      Image.asset('assets/images/flags/chn.png'), [MoneroSeedType.legacy, MoneroSeedType.polyseed]),
   SeedLanguagePickerOption('Chinese (Traditional)', S.current.seed_language_chinese_traditional,
-      Image.asset('assets/images/flags/chn.png'), [SeedType.polyseed]),
+      Image.asset('assets/images/flags/chn.png'), [MoneroSeedType.polyseed]),
   SeedLanguagePickerOption('Dutch', S.current.seed_language_dutch,
-      Image.asset('assets/images/flags/nld.png'), [SeedType.legacy]),
+      Image.asset('assets/images/flags/nld.png'), [MoneroSeedType.legacy]),
   SeedLanguagePickerOption('German', S.current.seed_language_german,
-      Image.asset('assets/images/flags/deu.png'), [SeedType.legacy]),
+      Image.asset('assets/images/flags/deu.png'), [MoneroSeedType.legacy]),
   SeedLanguagePickerOption('Japanese', S.current.seed_language_japanese,
-      Image.asset('assets/images/flags/jpn.png'), [SeedType.legacy, SeedType.polyseed]),
+      Image.asset('assets/images/flags/jpn.png'), [MoneroSeedType.legacy, MoneroSeedType.polyseed]),
   SeedLanguagePickerOption('Korean', S.current.seed_language_korean,
-      Image.asset('assets/images/flags/kor.png'), [SeedType.polyseed]),
+      Image.asset('assets/images/flags/kor.png'), [MoneroSeedType.polyseed]),
   SeedLanguagePickerOption('Portuguese', S.current.seed_language_portuguese,
-      Image.asset('assets/images/flags/prt.png'), [SeedType.legacy, SeedType.polyseed]),
+      Image.asset('assets/images/flags/prt.png'), [MoneroSeedType.legacy, MoneroSeedType.polyseed]),
   SeedLanguagePickerOption('Russian', S.current.seed_language_russian,
-      Image.asset('assets/images/flags/rus.png'), [SeedType.legacy]),
+      Image.asset('assets/images/flags/rus.png'), [MoneroSeedType.legacy]),
   SeedLanguagePickerOption('Czech', S.current.seed_language_czech,
-      Image.asset('assets/images/flags/czk.png'), [SeedType.polyseed]),
+      Image.asset('assets/images/flags/czk.png'), [MoneroSeedType.polyseed]),
   SeedLanguagePickerOption('Spanish', S.current.seed_language_spanish,
-      Image.asset('assets/images/flags/esp.png'), [SeedType.legacy, SeedType.polyseed]),
+      Image.asset('assets/images/flags/esp.png'), [MoneroSeedType.legacy, MoneroSeedType.polyseed]),
   SeedLanguagePickerOption('French', S.current.seed_language_french,
-      Image.asset('assets/images/flags/fra.png'), [SeedType.legacy, SeedType.polyseed]),
+      Image.asset('assets/images/flags/fra.png'), [MoneroSeedType.legacy, MoneroSeedType.polyseed]),
   SeedLanguagePickerOption('Italian', S.current.seed_language_italian,
-      Image.asset('assets/images/flags/ita.png'), [SeedType.legacy, SeedType.polyseed]),
+      Image.asset('assets/images/flags/ita.png'), [MoneroSeedType.legacy, MoneroSeedType.polyseed]),
 ];
 
 const defaultSeedLanguage = 'English';
@@ -51,11 +51,11 @@ class SeedLanguagePicker extends StatefulWidget {
   SeedLanguagePicker(
       {Key? key,
       this.selected = defaultSeedLanguage,
-      this.seedType = SeedType.defaultSeedType,
+      this.seedType = MoneroSeedType.defaultSeedType,
       required this.onItemSelected})
       : super(key: key);
 
-  final SeedType seedType;
+  final MoneroSeedType seedType;
   final String selected;
   final Function(String) onItemSelected;
 
@@ -68,7 +68,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
   SeedLanguagePickerState(
       {required this.selected, required this.onItemSelected, required this.seedType});
 
-  final SeedType seedType;
+  final MoneroSeedType seedType;
   final String selected;
   final Function(String) onItemSelected;
 
