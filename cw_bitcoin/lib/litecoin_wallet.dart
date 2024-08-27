@@ -226,40 +226,43 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await updateBalance();
 
     _syncTimer?.cancel();
-    _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
-      if (syncStatus is FailedSyncStatus) return;
-      final nodeHeight = await electrumClient.getCurrentBlockChainTip() ?? 0;
-      final resp = await _stub.status(StatusRequest());
+    // delay the timer by a second so we don't overrride the restoreheight if one is set
+    Timer(const Duration(seconds: 1), () async {
+      _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
+        if (syncStatus is FailedSyncStatus) return;
+        final nodeHeight = await electrumClient.getCurrentBlockChainTip() ?? 0;
+        final resp = await _stub.status(StatusRequest());
 
-      if (resp.blockHeaderHeight < nodeHeight) {
-        int h = resp.blockHeaderHeight;
-        syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
-      } else if (resp.mwebHeaderHeight < nodeHeight) {
-        int h = resp.mwebHeaderHeight;
-        syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
-      } else if (resp.mwebUtxosHeight < nodeHeight) {
-        syncStatus = SyncingSyncStatus(1, 0.999);
-      } else {
-        // prevent unnecessary reaction triggers:
-        if (syncStatus is! SyncedSyncStatus) {
-          syncStatus = SyncedSyncStatus();
-        }
-
-        if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
-          await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
-          await checkMwebUtxosSpent();
-          // update the confirmations for each transaction:
-          for (final transaction in transactionHistory.transactions.values) {
-            if (transaction.isPending) continue;
-            int txHeight = transaction.height ?? resp.mwebUtxosHeight;
-            final confirmations = (resp.mwebUtxosHeight - txHeight) + 1;
-            if (transaction.confirmations == confirmations) continue;
-            transaction.confirmations = confirmations;
-            transactionHistory.addOne(transaction);
+        if (resp.blockHeaderHeight < nodeHeight) {
+          int h = resp.blockHeaderHeight;
+          syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
+        } else if (resp.mwebHeaderHeight < nodeHeight) {
+          int h = resp.mwebHeaderHeight;
+          syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
+        } else if (resp.mwebUtxosHeight < nodeHeight) {
+          syncStatus = SyncingSyncStatus(1, 0.999);
+        } else {
+          // prevent unnecessary reaction triggers:
+          if (syncStatus is! SyncedSyncStatus) {
+            syncStatus = SyncedSyncStatus();
           }
-          await transactionHistory.save();
+
+          if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
+            await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
+            await checkMwebUtxosSpent();
+            // update the confirmations for each transaction:
+            for (final transaction in transactionHistory.transactions.values) {
+              if (transaction.isPending) continue;
+              int txHeight = transaction.height ?? resp.mwebUtxosHeight;
+              final confirmations = (resp.mwebUtxosHeight - txHeight) + 1;
+              if (transaction.confirmations == confirmations) continue;
+              transaction.confirmations = confirmations;
+              transactionHistory.addOne(transaction);
+            }
+            await transactionHistory.save();
+          }
         }
-      }
+      });
     });
     // this runs in the background and processes new utxos as they come in:
     processMwebUtxos();
@@ -305,6 +308,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }) async {
     await mwebUtxosBox.clear();
     transactionHistory.clear();
+    _syncTimer?.cancel();
     await walletInfo.updateRestoreHeight(height);
 
     // reset coin balances and txCount to 0:

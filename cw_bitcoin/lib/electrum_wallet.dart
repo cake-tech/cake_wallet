@@ -1262,23 +1262,20 @@ abstract class ElectrumWalletBase
       updatedUnspentCoins.addAll(await fetchUnspent(address));
     }));
 
+    unspentCoins = updatedUnspentCoins;
+
     if (unspentCoinsInfo.length != updatedUnspentCoins.length) {
-      updatedUnspentCoins.forEach((coin) => addCoinInfo(coin));
-    }
-
-    await updateCoins(updatedUnspentCoins, set: true);
-    await _refreshUnspentCoinsInfo();
-  }
-
-  Future<void> updateCoins(List<BitcoinUnspent> newUnspentCoins, {bool set = false}) async {
-    if (newUnspentCoins.isEmpty) {
+      unspentCoins.forEach((coin) => addCoinInfo(coin));
       return;
     }
 
-    if (set) {
-      unspentCoins = newUnspentCoins;
-    } else {
-      unspentCoins.addAll(newUnspentCoins);
+    await updateCoins(unspentCoins);
+    await _refreshUnspentCoinsInfo();
+  }
+
+  Future<void> updateCoins(List<BitcoinUnspent> newUnspentCoins) async {
+    if (newUnspentCoins.isEmpty) {
+      return;
     }
 
     newUnspentCoins.forEach((coin) {
@@ -1467,7 +1464,6 @@ abstract class ElectrumWalletBase
       // Create a list of available outputs
       final outputs = <BitcoinOutput>[];
       for (final out in bundle.originalTransaction.outputs) {
-
         // Check if the script contains OP_RETURN
         final script = out.scriptPubKey.script;
         if (script.contains('OP_RETURN') && memo == null) {
