@@ -284,7 +284,6 @@ abstract class ElectrumWalletBase
   Future<Isolate>? _isolate;
 
   void Function(FlutterErrorDetails)? _onError;
-  Timer? _reconnectTimer;
   Timer? _autoSaveTimer;
   StreamSubscription<dynamic>? _receiveStream;
   Timer? _updateFeeRateTimer;
@@ -439,6 +438,10 @@ abstract class ElectrumWalletBase
   @override
   Future<void> startSync() async {
     try {
+      if (syncStatus is SyncronizingSyncStatus) {
+        return;
+      }
+
       syncStatus = SyncronizingSyncStatus();
 
       if (hasSilentPaymentsScanning) {
@@ -2057,9 +2060,8 @@ abstract class ElectrumWalletBase
 
       _isTryingToConnect = true;
 
-      _reconnectTimer?.cancel();
-      _reconnectTimer = Timer(Duration(seconds: 10), () {
-        if (this.syncStatus is! SyncedSyncStatus && this.syncStatus is! SyncedTipSyncStatus) {
+      Timer(Duration(seconds: 10), () {
+        if (this.syncStatus is NotConnectedSyncStatus || this.syncStatus is LostConnectionSyncStatus) {
           this.electrumClient.connectToUri(
                 node!.uri,
                 useSSL: node!.useSSL ?? false,
