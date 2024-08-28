@@ -82,10 +82,6 @@ abstract class WowneroWalletBase
     reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
       _updateSubAddress(enabled, account: walletAddresses.account);
     });
-
-    _onTxHistoryChangeReaction = reaction((_) => transactionHistory, (__) {
-      _updateSubAddress(isEnabledAutoGenerateSubaddress, account: walletAddresses.account);
-    });
   }
 
   static const int _autoSaveInterval = 30;
@@ -127,7 +123,6 @@ abstract class WowneroWalletBase
 
   wownero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
-  ReactionDisposer? _onTxHistoryChangeReaction;
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
@@ -163,7 +158,6 @@ abstract class WowneroWalletBase
   void close() async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
-    _onTxHistoryChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
 
