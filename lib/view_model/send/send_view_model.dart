@@ -17,6 +17,7 @@ import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -49,7 +50,8 @@ part 'send_view_model.g.dart';
 
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
-abstract class SendViewModelBase extends WalletChangeListenerViewModel with Store {
+abstract class SendViewModelBase extends WalletChangeListenerViewModel
+    with Store {
   @override
   void onWalletChange(wallet) {
     currencies = wallet.balance.keys.toList();
@@ -78,17 +80,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         fiatFromSettings = appStore.settingsStore.fiatCurrency,
         super(appStore: appStore) {
     if (wallet.type == WalletType.bitcoin &&
-        _settingsStore.priority[wallet.type] == bitcoinTransactionPriorityCustom) {
+        _settingsStore.priority[wallet.type] ==
+            bitcoinTransactionPriorityCustom) {
       setTransactionPriority(bitcoinTransactionPriorityMedium);
     }
     final priority = _settingsStore.priority[wallet.type];
     final priorities = priorityForWalletType(wallet.type);
-    if (!priorityForWalletType(wallet.type).contains(priority) && priorities.isNotEmpty) {
+    if (!priorityForWalletType(wallet.type).contains(priority) &&
+        priorities.isNotEmpty) {
       _settingsStore.priority[wallet.type] = priorities.first;
     }
 
-    outputs
-        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+    outputs.add(Output(wallet, _settingsStore, _fiatConversationStore,
+        () => selectedCryptoCurrency));
   }
 
   @observable
@@ -98,8 +102,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   void addOutput() {
-    outputs
-        .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+    outputs.add(Output(wallet, _settingsStore, _fiatConversationStore,
+        () => selectedCryptoCurrency));
   }
 
   @action
@@ -179,8 +183,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   int? getCustomPriorityIndex(List<TransactionPriority> priorities) {
     if (wallet.type == WalletType.bitcoin) {
-      final customItem = priorities
-          .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
+      final customItem = priorities.firstWhereOrNull((element) =>
+          element == bitcoin!.getBitcoinTransactionPriorityCustom());
 
       return customItem != null ? priorities.indexOf(customItem) : null;
     }
@@ -197,7 +201,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   int get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate;
 
-  void set customBitcoinFeeRate(int value) => _settingsStore.customBitcoinFeeRate = value;
+  void set customBitcoinFeeRate(int value) =>
+      _settingsStore.customBitcoinFeeRate = value;
 
   CryptoCurrency get currency => wallet.currency;
 
@@ -206,7 +211,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   Validator<String> get allAmountValidator => AllAmountValidator();
 
-  Validator<String> get addressValidator => AddressValidator(type: selectedCryptoCurrency);
+  Validator<String> get addressValidator =>
+      AddressValidator(type: selectedCryptoCurrency);
 
   Validator<String> get textValidator => TextValidator();
 
@@ -216,7 +222,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   PendingTransaction? pendingTransaction;
 
   @computed
-  String get balance => wallet.balance[selectedCryptoCurrency]!.formattedAvailableBalance;
+  String get balance =>
+      wallet.balance[selectedCryptoCurrency]!.formattedAvailableBalance;
 
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
@@ -233,7 +240,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get isReadyForSend =>
       wallet.syncStatus is SyncedSyncStatus ||
       // If silent payments scanning, can still send payments
-      (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
+      (wallet.type == WalletType.bitcoin &&
+          wallet.syncStatus is SyncingSyncStatus);
 
   @computed
   List<Template> get templates => sendTemplateViewModel.templates
@@ -255,7 +263,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type == WalletType.bitcoinCash;
 
   @computed
-  bool get hasFees => wallet.type != WalletType.nano && wallet.type != WalletType.banano;
+  bool get hasFees =>
+      wallet.type != WalletType.nano && wallet.type != WalletType.banano;
 
   @computed
   bool get hasFeesPriority =>
@@ -269,12 +278,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   List<CryptoCurrency> currencies;
 
-  bool get hasYat => outputs
-      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
+  bool get hasYat => outputs.any((out) =>
+      out.isParsedAddress &&
+      out.parsedAddress.parseFrom == ParseFrom.yatRecord);
 
   WalletType get walletType => wallet.type;
 
-  String? get walletCurrencyName => wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
+  String? get walletCurrencyName =>
+      wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
 
   bool get hasCurrecyChanger => walletType == WalletType.haven;
 
@@ -298,27 +309,31 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       .toList();
 
   @computed
-  List<WalletContact> get walletContactsToShow => contactListViewModel.walletContacts
-      .where((element) => element.type == selectedCryptoCurrency)
-      .toList();
+  List<WalletContact> get walletContactsToShow =>
+      contactListViewModel.walletContacts
+          .where((element) => element.type == selectedCryptoCurrency)
+          .toList();
 
   @action
   bool checkIfAddressIsAContact(String address) {
-    final contactList = contactsToShow.where((element) => element.address == address).toList();
+    final contactList =
+        contactsToShow.where((element) => element.address == address).toList();
 
     return contactList.isNotEmpty;
   }
 
   @action
   bool checkIfWalletIsAnInternalWallet(String address) {
-    final walletContactList =
-        walletContactsToShow.where((element) => element.address == address).toList();
+    final walletContactList = walletContactsToShow
+        .where((element) => element.address == address)
+        .toList();
 
     return walletContactList.isNotEmpty;
   }
 
   @computed
-  bool get shouldDisplayTOTP2FAForContact => _settingsStore.shouldRequireTOTP2FAForSendsToContact;
+  bool get shouldDisplayTOTP2FAForContact =>
+      _settingsStore.shouldRequireTOTP2FAForSendsToContact;
 
   @computed
   bool get shouldDisplayTOTP2FAForNonContact =>
@@ -356,7 +371,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @action
-  Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
+  Future<PendingTransaction?> createTransaction(
+      {ExchangeProvider? provider}) async {
+    print('[+] send_vm || createTransaction()');
     try {
       state = IsExecutingState();
 
@@ -379,13 +396,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     } catch (e) {
       if (e is LedgerException) {
         final errorCode = e.errorCode.toRadixString(16);
-        final fallbackMsg =
-            e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
-        final errorMsg = ledgerViewModel!.interpretErrorCode(errorCode) ?? fallbackMsg;
+        final fallbackMsg = e.message.isNotEmpty
+            ? e.message
+            : "Unexpected Ledger Error Code: $errorCode";
+        final errorMsg =
+            ledgerViewModel!.interpretErrorCode(errorCode) ?? fallbackMsg;
 
         state = FailureState(errorMsg);
       } else {
-        state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
+        print(
+            '[!] createTransaction => e:$e | type:${wallet.type} | currency: ${wallet.currency}');
+        state = FailureState(
+            translateErrorMessage(e, wallet.type, wallet.currency));
       }
     }
     return null;
@@ -395,14 +417,16 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Future<void> replaceByFee(String txId, String newFee) async {
     state = IsExecutingState();
 
-    final isSufficient = await bitcoin!.isChangeSufficientForFee(wallet, txId, newFee);
+    final isSufficient =
+        await bitcoin!.isChangeSufficientForFee(wallet, txId, newFee);
 
     if (!isSufficient) {
       state = AwaitingConfirmationState(
           title: S.current.confirm_fee_deduction,
           message: S.current.confirm_fee_deduction_content,
           onConfirm: () async {
-            pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
+            pendingTransaction =
+                await bitcoin!.replaceByFee(wallet, txId, newFee);
             state = ExecutedSuccessfullyState();
           },
           onCancel: () {
@@ -416,8 +440,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   Future<void> commitTransaction() async {
+    print('[+] SendVM || commitTransaction()');
     if (pendingTransaction == null) {
-      throw Exception("Pending transaction doesn't exist. It should not be happened.");
+      throw Exception(
+          "Pending transaction doesn't exist. It should not be happened.");
     }
 
     String address = outputs.fold('', (acc, value) {
@@ -443,14 +469,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (pendingTransaction!.id.isNotEmpty) {
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction!.id, recipientAddress: address, transactionNote: note))
-            : await transactionDescriptionBox
-                .add(TransactionDescription(id: pendingTransaction!.id, transactionNote: note));
+                id: pendingTransaction!.id,
+                recipientAddress: address,
+                transactionNote: note))
+            : await transactionDescriptionBox.add(TransactionDescription(
+                id: pendingTransaction!.id, transactionNote: note));
       }
 
       state = TransactionCommitted();
     } catch (e) {
-      state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
+      state =
+          FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
     }
   }
 
@@ -459,6 +488,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       _settingsStore.priority[wallet.type] = priority;
 
   Object _credentials() {
+    print('[+] send_vm | _credentials()');
     final priority = _settingsStore.priority[wallet.type];
 
     if (priority == null &&
@@ -473,20 +503,24 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+        print(
+            '[+] _credentials() => balance: ${wallet.balance} | priority: ${priority} | feeRate: ${customBitcoinFeeRate}');
         return bitcoin!.createBitcoinTransactionCredentials(outputs,
             priority: priority!, feeRate: customBitcoinFeeRate);
 
       case WalletType.monero:
-        return monero!
-            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+        return monero!.createMoneroTransactionCreationCredentials(
+            outputs: outputs, priority: priority!);
 
       case WalletType.wownero:
-        return wownero!
-            .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+        return wownero!.createWowneroTransactionCreationCredentials(
+            outputs: outputs, priority: priority!);
 
       case WalletType.haven:
         return haven!.createHavenTransactionCreationCredentials(
-            outputs: outputs, priority: priority!, assetType: selectedCryptoCurrency.title);
+            outputs: outputs,
+            priority: priority!,
+            assetType: selectedCryptoCurrency.title);
 
       case WalletType.ethereum:
         return ethereum!.createEthereumTransactionCredentials(outputs,
@@ -497,10 +531,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return polygon!.createPolygonTransactionCredentials(outputs,
             priority: priority!, currency: selectedCryptoCurrency);
       case WalletType.solana:
-        return solana!
-            .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
+        return solana!.createSolanaTransactionCredentials(outputs,
+            currency: selectedCryptoCurrency);
       case WalletType.tron:
-        return tron!.createTronTransactionCredentials(outputs, currency: selectedCryptoCurrency);
+        return tron!.createTronTransactionCredentials(outputs,
+            currency: selectedCryptoCurrency);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }
@@ -511,7 +546,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     if (walletType == WalletType.bitcoin) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
-      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
+      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate,
+          customRate: customValue);
     }
 
     if (isElectrumWallet) {
@@ -522,8 +558,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return priority.toString();
   }
 
-  bool _isEqualCurrency(String currency) =>
-      wallet.balance.keys.any((e) => currency.toLowerCase() == e.title.toLowerCase());
+  bool _isEqualCurrency(String currency) => wallet.balance.keys
+      .any((e) => currency.toLowerCase() == e.title.toLowerCase());
 
   TransactionPriority get bitcoinTransactionPriorityCustom =>
       bitcoin!.getBitcoinTransactionPriorityCustom();
@@ -540,17 +576,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   void setSelectedCryptoCurrency(String cryptoCurrency) {
     try {
-      selectedCryptoCurrency = wallet.balance.keys
-          .firstWhere((e) => cryptoCurrency.toLowerCase() == e.title.toLowerCase());
+      selectedCryptoCurrency = wallet.balance.keys.firstWhere(
+          (e) => cryptoCurrency.toLowerCase() == e.title.toLowerCase());
     } catch (e) {
       selectedCryptoCurrency = wallet.currency;
     }
   }
 
   ContactRecord? newContactAddress() {
-    final Set<String> contactAddresses =
-        Set.from(contactListViewModel.contacts.map((contact) => contact.address))
-          ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
+    final Set<String> contactAddresses = Set.from(
+        contactListViewModel.contacts.map((contact) => contact.address))
+      ..addAll(contactListViewModel.walletContacts
+          .map((contact) => contact.address));
 
     for (var output in outputs) {
       String address;
@@ -599,8 +636,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           // 5000 lamport used here is the constant for sending a transaction on solana
           int lamportsPerSol = 1000000000;
 
-          solValueNeeded =
-              lamportsNeeded != null ? ((lamportsNeeded + 5000) / lamportsPerSol) : 0.0;
+          solValueNeeded = lamportsNeeded != null
+              ? ((lamportsNeeded + 5000) / lamportsPerSol)
+              : 0.0;
           return S.current.insufficient_lamports(solValueNeeded.toString());
         } else {
           print("No match found.");
@@ -639,8 +677,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         walletType == WalletType.bitcoinCash) {
       if (error is TransactionWrongBalanceException) {
         if (error.amount != null)
-          return S.current
-              .tx_wrong_balance_with_amount_exception(currency.toString(), error.amount.toString());
+          return S.current.tx_wrong_balance_with_amount_exception(
+              currency.toString(), error.amount.toString());
 
         return S.current.tx_wrong_balance_exception(currency.toString());
       }
@@ -672,7 +710,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.tx_rejected_bip68_final;
       }
       if (error is TransactionNoDustOnChangeException) {
-        return S.current.tx_commit_exception_no_dust_on_change(error.min, error.max);
+        return S.current
+            .tx_commit_exception_no_dust_on_change(error.min, error.max);
       }
       if (error is TransactionInputNotSupported) {
         return S.current.tx_invalid_input;
@@ -688,5 +727,60 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     return false;
+  }
+
+  @computed
+  dynamic pjUri;
+
+  @action
+  Future<void> stringToPjUri() async {
+    final address = outputs.first.address;
+    final uri = await bitcoin!.stringToPjUri(address);
+    pjUri = uri;
+  }
+
+  @action
+  Future<void> performPayjoinSend() async {
+    final credentials = _credentials() as BitcoinTransactionCredentials;
+    final amountToSend = credentials.outputs.first.sendAll
+        ? balance
+        : credentials.outputs.first.cryptoAmount;
+    final feeRate = bitcoin!
+        .getFeeRate(wallet, credentials.priority as TransactionPriority);
+
+    // Build the original PSBT for the Payjoin transaction
+    final originalPsbt = await bitcoin!.buildOriginalPsbt(
+      wallet,
+      pjUri,
+      feeRate,
+      double.parse(amountToSend!),
+    );
+
+    // Build the Payjoin request context from the original PSBT
+    final request = await bitcoin!.buildPayjoinRequest(
+      originalPsbt,
+      pjUri,
+      feeRate,
+    );
+
+    // Request and keep polling the payjoin directoy for the proposal
+    //  from the receiver
+    String psbt = originalPsbt;
+
+    try {
+      psbt = await bitcoin!.requestAndPollV2Proposal(
+        request,
+      );
+    } catch (e) {
+      rethrow;
+    }
+
+    // If a proposal is received, finalize the payjoin
+    final transaction = await bitcoin!.extractPjTx(wallet, psbt);
+
+    // Broadcast the finalized transaction to the blockchain
+    final txId = await blockchain.broadcast(transaction: transaction);
+
+    // TODO: Reset the Payjoin session state
   }
 }

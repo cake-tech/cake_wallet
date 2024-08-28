@@ -102,6 +102,7 @@ class CWBitcoin extends Bitcoin {
   @override
   Object createBitcoinTransactionCredentials(List<Output> outputs,
       {required TransactionPriority priority, int? feeRate}) {
+    print('[+] CWBitcoin => createBitcoinTransactionCredentials()');
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null
             ? feeRate
@@ -618,6 +619,60 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<String> getTxIdFromPsbt(String psbtBase64) async {
     final res = await payjoin.getTxIdFromPsbt(psbtBase64);
+    return res;
+  }
+
+  @override
+  Future<Uri?> stringToPjUri(String pj) async {
+    return await payjoin.stringToPjUri(pj);
+  }
+
+  @override
+  Future<String> buildOriginalPsbt(
+    Object wallet,
+    dynamic pjUri,
+    int fee,
+    double amount,
+  ) async {
+    final res = await payjoin.buildOriginalPsbt(
+      wallet,
+      pjUri,
+      fee,
+      amount,
+      isTestnet(wallet),
+    );
+
+    return res;
+  }
+
+  @override
+  Future<RequestContext> buildPayjoinRequest(
+    String originalPsbt,
+    dynamic pjUri,
+    int fee,
+  ) async {
+    final res = await payjoin.buildPayjoinRequest(
+      originalPsbt,
+      pjUri,
+      fee,
+    );
+    return res;
+  }
+
+  @override
+  Future<String> requestAndPollV2Proposal(
+    RequestContext requestContext,
+  ) async {
+    final res = await payjoin.requestAndPollV2Proposal(requestContext);
+    return res;
+  }
+
+  @override
+  Future<Object> extractPjTx(
+    Object wallet,
+    String psbtString,
+  ) async {
+    final res = await payjoin.extractPjTx(wallet, psbtString);
     return res;
   }
 }

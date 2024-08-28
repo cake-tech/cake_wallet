@@ -1,15 +1,18 @@
 import 'dart:typed_data';
 
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/receive/v2.dart' as v2;
 import 'package:payjoin_flutter/uri.dart' as pj_uri;
 import 'package:http/http.dart' as http;
 import 'package:payjoin_flutter/src/generated/utils/types.dart' as types;
 
-import 'electrum_wallet.dart';
+import 'package:payjoin_flutter/send.dart' as send;
 
 export 'package:payjoin_flutter/receive/v2.dart'
     show ActiveSession, UncheckedProposal, PayjoinProposal;
+
+export 'package:payjoin_flutter/uri.dart' show Uri;
 
 export 'package:payjoin_flutter/send.dart' show RequestContext;
 
@@ -34,6 +37,12 @@ class BitcoinPayjoin {
 
   Network get testnet => Network.testnet;
   Network get mainnet => Network.bitcoin;
+
+/*
++-------------------------+
+| Receiver starts from here |
++-------------------------+
+*/
 
   Future<Map<String, dynamic>> buildV2PjStr({
     int? amount,
@@ -183,7 +192,7 @@ class BitcoinPayjoin {
       // Extract the transaction bytes from the proposal to schedule it for broadcasting
       final originalTxBytes = await proposal.extractTxToScheduleBroadcast();
 
-      // TODO: Convert the extracted bytes into a Bitcoin Transaction object
+      // Convert the extracted bytes into a Bitcoin Transaction object
       final originalTx =
           await bdk.Transaction.fromBytes(transactionBytes: originalTxBytes);
 
@@ -269,18 +278,18 @@ class BitcoinPayjoin {
   }
 
   Future<bool> _isOwned(Uint8List bytes, Object wallet) async {
-    // TODO: Create a ScriptBuf object from the provided byte data
-    // Eg: final script = bdk.ScriptBuf(bytes: bytes);
+    // Create a ScriptBuf object from the provided byte data
+    final script = bdk.ScriptBuf(bytes: bytes);
 
-    // TODO: Check if the wallet recognizes the script as one of its own
-    // Eg: return wallet.isMine(script: script);
+    // Check if the wallet recognizes the script as one of its own
+    return wallet.isMine(script: script);
   }
 
   Future<String> _processPsbt(String preProcessed, Object wallet) async {
-    // TODO: Convert the provided string representation of a PSBT into a PartiallySignedTransaction object
+    // Convert the provided string representation of a PSBT into a PartiallySignedTransaction object
     final psbt = await bdk.PartiallySignedTransaction.fromString(preProcessed);
 
-    // TODO: Sign the PSBT using the wallet's private keys with specified signing options
+    // Sign the PSBT using the wallet's private keys with specified signing options
     await wallet.sign(
       psbt: psbt,
       signOptions: const bdk.SignOptions(
@@ -303,5 +312,157 @@ class BitcoinPayjoin {
     // Extract the transaction from the PSBT and get its transaction ID (txid)
     final txId = psbt.extractTx().txid();
     return txId;
+  }
+
+/*
++-------------------------+
+| Sender starts from here |
++-------------------------+
+*/
+
+  Future<pj_uri.Uri?> stringToPjUri(String pj) async {
+    try {
+      return await pj_uri.Uri.fromStr(pj);
+    } catch (e) {
+      print('[!] BitcoinPayjoin || stringToPjUri() => e: $e');
+      return null;
+    }
+  }
+
+  Future<String> buildOriginalPsbt(
+    Object wallet,
+    dynamic pjUri,
+    int fee,
+    double amount,
+    bool isTestnet,
+  ) async {
+    final uri = pjUri as pj_uri.Uri;
+    final txBuilder = bdk.TxBuilder();
+
+    // Get the scriptPubkey from the parsed address,
+    // which is needed for the transaction
+    final address = await bdk.Address.fromString(
+      s: uri.address(),
+      network: isTestnet ? Network.testnet : Network.bitcoin,
+    );
+    final script = address.scriptPubkey();
+
+    // Retrieve the amount to send from the Payjoin URI
+    double amountToSendBTC = uri.amount() ?? amount;
+
+    // Convert the amount to satoshis (1 BTC = 100,000,000 satoshis)
+    int amountToSendSats = (amountToSendBTC * 100000000.0).round();
+
+    // Build the original Partially Signed Bitcoin Transaction (PSBT)
+    // Add a recipient to the transaction with the amount in satoshis
+    // Set the transaction fee using the absolute fee provided
+    final tx = await txBuilder
+        .addRecipient(script, BigInt.from(amountToSendSats))
+        .feeAbsolute(BigInt.from(fee))
+        .finish(wallet);
+
+    // Sign the PSBT using the sender's wallet, specifying signing options
+    await wallet.sign(
+      psbt: tx.$0,
+      signOptions: const bdk.SignOptions(
+        trustWitnessUtxo: true,
+        allowAllSighashes: false,
+        removePartialSigs: true,
+        tryFinalize: true,
+        signWithTapInternalKey: true,
+        allowGrinding: false,
+      ),
+    );
+
+    // Convert the signed PSBT to a base64 string
+    final psbtBase64 = tx.$0.asString();
+
+    return psbtBase64;
+  }
+
+  Future<send.RequestContext> buildPayjoinRequest(
+    String originalPsbt,
+    dynamic pjUri,
+    int fee,
+  ) async {
+    final uri = pjUri as pj_uri.Uri;
+
+    // Create a RequestBuilder from the given original PSBT and Payjoin URI
+    // The Payjoin URI is checked for Payjoin support before proceeding
+    final requestBuilder = await send.RequestBuilder.fromPsbtAndUri(
+      psbtBase64: originalPsbt,
+      pjUri: uri.checkPjSupported(),
+    );
+
+    // Build a RequestContext using the RequestBuilder with a minimum fee rate
+    // Here, a minimum fee rate of 1 satoshi per byte is set
+    final requestContext = await requestBuilder.buildRecommended(
+      minFeeRate: BigInt.from(1),
+    );
+
+    return requestContext;
+  }
+
+  Future<String> requestAndPollV2Proposal(
+    send.RequestContext requestContext,
+  ) async {
+    // Keep polling for a V2 proposal
+    while (true) {
+      try {
+        // Extract the V2 request and context using the requestContext
+        // The extraction includes specifying the OHTTP proxy URL for Payjoin
+        final extractV2 = await requestContext.extractV2(
+          ohttpProxyUrl: await pj_uri.Url.fromStr(payjoinDirectory),
+        );
+
+        // Post the extracted request to the server
+        final response = await http.post(
+          Uri.parse(extractV2.$1.url.asString()),
+          headers: {
+            'Content-Type': v2ContentType,
+          },
+          body: extractV2.$1.body,
+        );
+
+        // Process the response from the server using the context
+        final checkedPayjoinProposal =
+            await extractV2.$2.processResponse(response: response.bodyBytes);
+
+        // If a valid Payjoin proposal is received, return it
+        if (checkedPayjoinProposal != null) {
+          return checkedPayjoinProposal;
+        }
+
+        // Add a 2-second delay before the next polling attempt
+        await Future.delayed(const Duration(seconds: 2));
+      } catch (e) {
+        // If the session times out or another error occurs, rethrow the error
+        rethrow;
+      }
+    }
+  }
+
+  Future<Object> extractPjTx(
+    Object wallet,
+    String psbtString,
+  ) async {
+    final psbt = await bdk.PartiallySignedTransaction.fromString(psbtString);
+
+    // Sign the PSBT using the sender's wallet with specific signing options
+    wallet.sign(
+      psbt: psbt,
+      signOptions: const bdk.SignOptions(
+          trustWitnessUtxo: true,
+          allowAllSighashes: false,
+          removePartialSigs: true,
+          tryFinalize: true,
+          signWithTapInternalKey: true,
+          allowGrinding: false),
+    );
+
+    // Extract the final transaction from the signed PSBT
+    var transaction = psbt.extractTx();
+
+    return transaction;
   }
 }

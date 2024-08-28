@@ -646,6 +646,7 @@ abstract class WalletAddressListViewModelBase
       // Poll for requests made by the sender to this payjoin uri
       final requestProposal = await bitcoin!.pollV2Request(session!);
 
+/*
       // Handle the request and send back the payjoin proposal
       final handleV2 = await bitcoin!.handleV2Request(
         uncheckedProposal: requestProposal,
@@ -665,7 +666,7 @@ abstract class WalletAddressListViewModelBase
         originalTxId: originalTxId,
         proposalTxId: proposalTxId,
       );
-
+*/
       disposePayjoinSession();
     } catch (e) {
       if (e is PayjoinException) {
