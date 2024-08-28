@@ -36,8 +36,12 @@ class NanoWalletService extends WalletService<
     String seedKey = NanoSeeds.generateSeed();
     String mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey);
 
-    // ensure default if not present:
-    credentials.walletInfo!.derivationInfo ??= DerivationInfo(derivationType: DerivationType.nano);
+    // should never happen but just in case:
+    if (credentials.walletInfo!.derivationInfo == null) {
+      credentials.walletInfo!.derivationInfo = DerivationInfo(derivationType: DerivationType.nano);
+    } else if (credentials.walletInfo!.derivationInfo!.derivationType == null) {
+      credentials.walletInfo!.derivationInfo!.derivationType = DerivationType.nano;
+    }
 
     final wallet = NanoWallet(
       walletInfo: credentials.walletInfo!,
@@ -109,10 +113,13 @@ class NanoWalletService extends WalletService<
         throw Exception("Wasn't a valid nano style seed!");
       }
     }
-    
-    DerivationType derivationType =
-        credentials.walletInfo?.derivationInfo?.derivationType ?? DerivationType.nano;
-    credentials.walletInfo!.derivationInfo ??= DerivationInfo(derivationType: derivationType);
+
+    // should never happen but just in case:
+    if (credentials.walletInfo!.derivationInfo == null) {
+      credentials.walletInfo!.derivationInfo = DerivationInfo(derivationType: DerivationType.nano);
+    } else if (credentials.walletInfo!.derivationInfo!.derivationType == null) {
+      credentials.walletInfo!.derivationInfo!.derivationType = DerivationType.nano;
+    }
 
     final wallet = await NanoWallet(
       password: credentials.password!,

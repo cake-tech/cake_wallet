@@ -296,7 +296,6 @@ class CWNanoUtil extends NanoUtil {
     } else if (seedKey?.length == 64) {
       try {
         mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey!);
-        return [DerivationType.nano];
       } catch (e) {
         print("not a valid 'nano' seed key");
       }
