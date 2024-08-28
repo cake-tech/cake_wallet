@@ -14,6 +14,7 @@ import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:cake_wallet/main.dart';
@@ -178,6 +179,24 @@ void callbackDispatcher() {
   });
 }
 
+Future<void> initializeService() async {
+  final service = FlutterBackgroundService();
+
+  await service.configure(
+    // iosConfiguration: IosConfiguration(
+    //   autoStart: true,
+    //   onForeground: onStart,
+    //   onBackground: onIosBackground,
+    // ),
+    androidConfiguration: AndroidConfiguration(
+      autoStart: true,
+      onStart: onStart,
+      isForegroundMode: false,
+      autoStartOnBoot: true,
+    ),
+  );
+}
+
 class BackgroundTasks {
   void registerSyncTask({bool changeExisting = false}) async {
     try {
@@ -206,39 +225,54 @@ class BackgroundTasks {
         return;
       }
 
-      await Workmanager().initialize(
-        callbackDispatcher,
-        isInDebugMode: true,
-      );
+      //     await service.configure(
+      // androidConfiguration: AndroidConfiguration(
+      //   // this will be executed when app is in foreground or background in separated isolate
+      //   onStart: onStart,
 
-      final inputData = <String, dynamic>{"sync_all": syncAll};
-      final constraints = Constraints(
-        networkType:
-            syncMode.type == SyncType.unobtrusive ? NetworkType.unmetered : NetworkType.connected,
-        requiresBatteryNotLow: syncMode.type == SyncType.unobtrusive,
-        requiresCharging: syncMode.type == SyncType.unobtrusive,
-        requiresDeviceIdle: syncMode.type == SyncType.unobtrusive,
-      );
+      //   // auto start service
+      //   autoStart: true,
+      //   isForegroundMode: true,
 
-      if (Platform.isIOS && syncMode.type == SyncType.unobtrusive) {
-        // await Workmanager().registerOneOffTask(
-        //   moneroSyncTaskKey,
-        //   moneroSyncTaskKey,
-        //   initialDelay: syncMode.frequency,
-        //   existingWorkPolicy: ExistingWorkPolicy.replace,
-        //   inputData: inputData,
-        //   constraints: constraints,
-        // );
-        await Workmanager().registerOneOffTask(
-          mwebSyncTaskKey,
-          mwebSyncTaskKey,
-          initialDelay: Duration(seconds: 30),
-          existingWorkPolicy: ExistingWorkPolicy.replace,
-          inputData: inputData,
-          constraints: constraints,
-        );
-        return;
-      }
+      //   notificationChannelId: notificationChannelId, // this must match with notification channel you created above.
+      //   initialNotificationTitle: 'AWESOME SERVICE',
+      //   initialNotificationContent: 'Initializing',
+      //   foregroundServiceNotificationId: notificationId,
+      // );
+
+      // await Workmanager().initialize(
+      //   callbackDispatcher,
+      //   isInDebugMode: true,
+      // );
+
+      // final inputData = <String, dynamic>{"sync_all": syncAll};
+      // final constraints = Constraints(
+      //   networkType:
+      //       syncMode.type == SyncType.unobtrusive ? NetworkType.unmetered : NetworkType.connected,
+      //   requiresBatteryNotLow: syncMode.type == SyncType.unobtrusive,
+      //   requiresCharging: syncMode.type == SyncType.unobtrusive,
+      //   requiresDeviceIdle: syncMode.type == SyncType.unobtrusive,
+      // );
+
+      // if (Platform.isIOS && syncMode.type == SyncType.unobtrusive) {
+      //   // await Workmanager().registerOneOffTask(
+      //   //   moneroSyncTaskKey,
+      //   //   moneroSyncTaskKey,
+      //   //   initialDelay: syncMode.frequency,
+      //   //   existingWorkPolicy: ExistingWorkPolicy.replace,
+      //   //   inputData: inputData,
+      //   //   constraints: constraints,
+      //   // );
+      //   await Workmanager().registerOneOffTask(
+      //     mwebSyncTaskKey,
+      //     mwebSyncTaskKey,
+      //     initialDelay: Duration(seconds: 30),
+      //     existingWorkPolicy: ExistingWorkPolicy.replace,
+      //     inputData: inputData,
+      //     constraints: constraints,
+      //   );
+      //   return;
+      // }
 
       // await Workmanager().registerPeriodicTask(
       //   moneroSyncTaskKey,
@@ -249,15 +283,15 @@ class BackgroundTasks {
       //   inputData: inputData,
       //   constraints: constraints,
       // );
-      await Workmanager().registerPeriodicTask(
-        mwebSyncTaskKey,
-        mwebSyncTaskKey,
-        initialDelay: syncMode.frequency,
-        frequency: syncMode.frequency,
-        existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
-        inputData: inputData,
-        constraints: constraints,
-      );
+      // await Workmanager().registerPeriodicTask(
+      //   mwebSyncTaskKey,
+      //   mwebSyncTaskKey,
+      //   initialDelay: syncMode.frequency,
+      //   frequency: syncMode.frequency,
+      //   existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
+      //   inputData: inputData,
+      //   constraints: constraints,
+      // );
     } catch (error, stackTrace) {
       print(error);
       print(stackTrace);
