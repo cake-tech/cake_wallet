@@ -14,8 +14,11 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:nanodart/nanodart.dart';
 import 'package:nanoutil/nanoutil.dart';
 
-class NanoWalletService extends WalletService<NanoNewWalletCredentials,
-    NanoRestoreWalletFromSeedCredentials, NanoRestoreWalletFromKeysCredentials, NanoNewWalletCredentials> {
+class NanoWalletService extends WalletService<
+    NanoNewWalletCredentials,
+    NanoRestoreWalletFromSeedCredentials,
+    NanoRestoreWalletFromKeysCredentials,
+    NanoNewWalletCredentials> {
   NanoWalletService(this.walletInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
@@ -86,7 +89,8 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
   }
 
   @override
-  Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials, {bool? isTestnet}) async {
+  Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials,
+      {bool? isTestnet}) async {
     if (credentials.seedKey.contains(' ')) {
       throw Exception("Invalid key!");
     } else {
@@ -105,6 +109,10 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
         throw Exception("Wasn't a valid nano style seed!");
       }
     }
+    
+    DerivationType derivationType =
+        credentials.walletInfo?.derivationInfo?.derivationType ?? DerivationType.nano;
+    credentials.walletInfo!.derivationInfo ??= DerivationInfo(derivationType: derivationType);
 
     final wallet = await NanoWallet(
       password: credentials.password!,
@@ -119,11 +127,13 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
   @override
   Future<NanoWallet> restoreFromHardwareWallet(NanoNewWalletCredentials credentials) {
-    throw UnimplementedError("Restoring a Nano wallet from a hardware wallet is not yet supported!");
+    throw UnimplementedError(
+        "Restoring a Nano wallet from a hardware wallet is not yet supported!");
   }
 
   @override
-  Future<NanoWallet> restoreFromSeed(NanoRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
+  Future<NanoWallet> restoreFromSeed(NanoRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
     if (credentials.mnemonic.contains(' ')) {
       if (!bip39.validateMnemonic(credentials.mnemonic)) {
         throw nm.NanoMnemonicIsIncorrectException();
