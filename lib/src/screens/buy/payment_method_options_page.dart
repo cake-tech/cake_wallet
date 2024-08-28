@@ -3,9 +3,9 @@ import 'package:cake_wallet/src/screens/select_options_page.dart';
 import 'package:flutter/cupertino.dart';
 
 class PaymentMethodOptionsPage extends SelectOptionsPage {
-  PaymentMethodOptionsPage({required this.options, this.pickAnOption});
+  PaymentMethodOptionsPage({required this.items, this.pickAnOption});
 
-  final List<SelectableOption> options;
+  final List<SelectableItem> items;
   final Function(SelectableOption option)? pickAnOption;
 
   @override

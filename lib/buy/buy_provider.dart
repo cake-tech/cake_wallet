@@ -43,13 +43,13 @@ abstract class BuyProvider {
           String fiatCurrency, String cryptoCurrency, bool isBuyAction) async =>
       [];
 
-  Future<Quote?> fetchQuote({
+  Future<List<Quote>?> fetchQuote({
     required String sourceCurrency,
     required String destinationCurrency,
     required double amount,
-    required PaymentType paymentType,
     required bool isBuyAction,
     required String walletAddress,
+    PaymentType? paymentType,
     String? countryCode,
   }) async =>
       null;

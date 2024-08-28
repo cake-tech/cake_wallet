@@ -35,7 +35,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         cryptoCurrency = appStore.wallet!.currency,
         fiatCurrency = appStore.settingsStore.fiatCurrency,
         providerList = [],
-        sortedAvailableQuotes = ObservableList<Quote>(),
+        sortedRecommendedQuotes = ObservableList<Quote>(),
+        sortedQuotes = ObservableList<Quote>(),
         paymentMethods = ObservableList<PaymentMethod>(),
         settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
@@ -111,6 +112,13 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   SettingsStore settingsStore;
 
+  List<SelectableItem> get quoteOptions => [
+        OptionTitle(title: 'Recommended'),
+        ...sortedRecommendedQuotes,
+        OptionTitle(title: 'All Providers'),
+        ...sortedQuotes
+      ];
+
   @observable
   bool isBuyAction = true;
 
@@ -118,7 +126,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   List<BuyProvider> providerList;
 
   @observable
-  ObservableList<Quote> sortedAvailableQuotes;
+  ObservableList<Quote> sortedRecommendedQuotes;
+
+  @observable
+  ObservableList<Quote> sortedQuotes;
 
   @observable
   ObservableList<PaymentMethod> paymentMethods;
@@ -239,7 +250,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @action
   void changeOption(SelectableOption option) {
     if (option is Quote) {
-      sortedAvailableQuotes.forEach((element) => element.isSelected = false);
+      sortedRecommendedQuotes.forEach((element) => element.isSelected = false);
+      sortedQuotes.forEach((element) => element.isSelected = false);
       option.isSelected = true;
       selectedQuote = option;
     } else if (option is PaymentMethod) {
@@ -264,10 +276,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     fiatAmount = '';
     paymentMethodState = InitialPaymentMethod();
     buySellQuotState = InitialBuySellQuotState();
-    await _getAvailablePaymentTypes();
-    if (selectedPaymentMethod != null) {
-      await calculateBestRate();
-    }
+    //await _getAvailablePaymentTypes();
+    await calculateBestRate();
   }
 
   @action
@@ -299,29 +309,54 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @action
   Future<void> calculateBestRate() async {
     buySellQuotState = BuySellQuotLoading();
-    final result = await Future.wait<Quote?>(providerList.map((element) => element.fetchQuote(
+
+    final result = await Future.wait<List<Quote>?>(providerList.map((element) => element.fetchQuote(
           sourceCurrency: isBuyAction ? fiatCurrency.title : cryptoCurrency.title,
           destinationCurrency: isBuyAction ? cryptoCurrency.title : fiatCurrency.title,
           amount: amount,
-          paymentType: selectedPaymentMethod!.paymentMethodType,
+          paymentType: null,
+          //selectedPaymentMethod!.paymentMethodType,
           isBuyAction: isBuyAction,
           walletAddress: wallet.walletAddresses.address,
         )));
 
-    final validQuotes = result.where((quote) => quote != null).cast<Quote>().toList();
+    sortedRecommendedQuotes.clear();
+    sortedQuotes.clear();
+
+    final validQuotes = result
+        .where((element) => element != null && element.isNotEmpty)
+        .expand((element) => element!)
+        .toList();
+
     if (validQuotes.isEmpty) {
       buySellQuotState = BuySellQuotFailed();
       return;
     }
+
     validQuotes.sort((a, b) => a.rate.compareTo(b.rate));
-    validQuotes.first
-      ..isBestRate = true
-      ..isSelected = true;
-    sortedAvailableQuotes
-      ..clear()
-      ..addAll(validQuotes);
-    bestRateQuote = validQuotes.first;
-    selectedQuote = validQuotes.first;
+
+    final Set<String> addedProviders = {};
+    final List<Quote> uniqueProviderQuotes = validQuotes.where((element) {
+      if (addedProviders.contains(element.provider.title)) return false;
+      addedProviders.add(element.provider.title);
+      return true;
+    }).toList();
+
+    sortedRecommendedQuotes.addAll(uniqueProviderQuotes);
+
+    sortedQuotes = ObservableList.of(
+        validQuotes.where((element) => !uniqueProviderQuotes.contains(element)).toList());
+
+
+    if (sortedRecommendedQuotes.isNotEmpty) {
+      sortedRecommendedQuotes.first
+        ..isBestRate = true
+        ..isSelected = true
+      ..recommendations.insert(0, ProviderRecommendation.bestRate);
+      bestRateQuote = sortedRecommendedQuotes.first;
+      selectedQuote = sortedRecommendedQuotes.first;
+    }
+
     buySellQuotState = BuySellQuotLoaded();
   }
 

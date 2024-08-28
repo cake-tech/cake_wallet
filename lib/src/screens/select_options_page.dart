@@ -6,7 +6,7 @@ import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
-abstract class SelectOptionsPage<T extends SelectableOption> extends BasePage {
+abstract class SelectOptionsPage extends BasePage {
   SelectOptionsPage();
 
   String get pageTitle;
@@ -29,9 +29,9 @@ abstract class SelectOptionsPage<T extends SelectableOption> extends BasePage {
 
   String get bottomSectionText;
 
-  List<T> get options;
+  List<SelectableItem> get items;
 
-  void Function(T option)? get onOptionTap;
+  void Function(SelectableOption option)? get onOptionTap;
 
   @override
   String get title => pageTitle;
@@ -39,8 +39,9 @@ abstract class SelectOptionsPage<T extends SelectableOption> extends BasePage {
   @override
   Widget body(BuildContext context) {
     return ScrollableWithBottomSection(
-      content: BodySelectOptionsPage<T>(
-          options: options,
+      content: BodySelectOptionsPage(
+          items: items,
+          // Updated to pass items list
           onOptionTap: onOptionTap,
           tilePadding: tilePadding,
           tileBorderRadius: tileBorderRadius,
@@ -64,9 +65,9 @@ abstract class SelectOptionsPage<T extends SelectableOption> extends BasePage {
   }
 }
 
-class BodySelectOptionsPage<T extends SelectableOption> extends StatefulWidget {
+class BodySelectOptionsPage extends StatefulWidget {
   const BodySelectOptionsPage({
-    required this.options,
+    required this.items,
     this.onOptionTap,
     this.tilePadding,
     this.tileBorderRadius,
@@ -76,8 +77,8 @@ class BodySelectOptionsPage<T extends SelectableOption> extends StatefulWidget {
     this.innerPadding,
   });
 
-  final List<T> options;
-  final void Function(T option)? onOptionTap;
+  final List<SelectableItem> items;
+  final void Function(SelectableOption option)? onOptionTap;
   final EdgeInsets? tilePadding;
   final double? tileBorderRadius;
   final TextStyle? subTitleTextStyle;
@@ -86,23 +87,24 @@ class BodySelectOptionsPage<T extends SelectableOption> extends StatefulWidget {
   final EdgeInsets? innerPadding;
 
   @override
-  _BodySelectOptionsPageState<T> createState() => _BodySelectOptionsPageState<T>();
+  _BodySelectOptionsPageState createState() => _BodySelectOptionsPageState();
 }
 
-class _BodySelectOptionsPageState<T extends SelectableOption>
-    extends State<BodySelectOptionsPage<T>> {
-  late List<T> _options;
+class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
+  late List<SelectableItem> _items;
 
   @override
   void initState() {
     super.initState();
-    _options = widget.options;
+    _items = widget.items;
   }
 
-  void _handleOptionTap(T option) {
+  void _handleOptionTap(SelectableOption option) {
     setState(() {
-      for (var opt in _options) {
-        opt.isOptionSelected = false;
+      for (var item in _items) {
+        if (item is SelectableOption) {
+          item.isOptionSelected = false;
+        }
       }
       option.isOptionSelected = true;
     });
@@ -113,32 +115,64 @@ class _BodySelectOptionsPageState<T extends SelectableOption>
   Widget build(BuildContext context) {
     final isLightMode = Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
 
+    Color titleColor =
+        isLightMode ? Theme.of(context).appBarTheme.titleTextStyle!.color! : Colors.white;
+
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: 350),
+        constraints: const BoxConstraints(maxWidth: 350),
         child: Column(
-          children: [
-            ..._options
-                .map((option) => Padding(
-                    padding: widget.tilePadding ?? EdgeInsets.only(top: 24),
-                    child: OptionTile(
-                      title: option.title,
-                      imagePath: option.iconPath,
-                      imageHeight: widget.imageHeight,
-                      imageWidth: widget.imageWidth,
-                      padding: widget.innerPadding,
-                      description: option.description,
-                      subTitle: option.subTitle,
-                      firstBadgeName: option.firstBadgeTitle,
-                      secondBadgeName: option.secondBadgeTitle,
-                      isSelected: option.isOptionSelected,
-                      subTitleTextStyle: widget.subTitleTextStyle,
-                      borderRadius: widget.tileBorderRadius,
-                      isLightMode: isLightMode,
-                      onPressed: () => _handleOptionTap(option),
-                    )))
-                .toList(),
-          ],
+          children: _items.map((item) {
+            if (item is OptionTitle) {
+              return Padding(
+                padding: const EdgeInsets.only(top: 18 , bottom: 8),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: titleColor,
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      item.title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: titleColor,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            } else if (item is SelectableOption) {
+              return Padding(
+                padding: widget.tilePadding ?? const EdgeInsets.only(top: 24),
+                child: OptionTile(
+                  title: item.title,
+                  imagePath: item.iconPath,
+                  imageHeight: widget.imageHeight,
+                  imageWidth: widget.imageWidth,
+                  padding: widget.innerPadding,
+                  description: item.description,
+                  leftSubTitle: item.leftSubTitle,
+                  rightSubTitle: item.rightSubTitle,
+                  rightSubTitleIconPath: item.rightSubTitleIconPath,
+                  badges: item.badges,
+                  isSelected: item.isOptionSelected,
+                  subTitleTextStyle: widget.subTitleTextStyle,
+                  borderRadius: widget.tileBorderRadius,
+                  isLightMode: isLightMode,
+                  onPressed: () => _handleOptionTap(item),
+                ),
+              );
+            }
+            return const SizedBox.shrink(); // Fallback for any unsupported items
+          }).toList(),
         ),
       ),
     );

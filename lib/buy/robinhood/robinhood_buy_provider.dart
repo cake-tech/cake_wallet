@@ -128,25 +128,25 @@ class RobinhoodBuyProvider extends BuyProvider {
   }
 
   @override
-  Future<Quote?> fetchQuote(
-      {required String sourceCurrency,
-      required String destinationCurrency,
-      required double amount,
-      required PaymentType paymentType,
-      required bool isBuyAction,
-      required String walletAddress,
-      String? countryCode}) async {
-    var paymentMethod = _normalizePaymentMethod(paymentType);
-    if (paymentMethod == null) paymentMethod = paymentType.name;
+  Future<List<Quote>?> fetchQuote({
+  required String sourceCurrency,
+  required String destinationCurrency,
+  required double amount,
+  required bool isBuyAction,
+  required String walletAddress,
+  PaymentType? paymentType,
+  String? countryCode}) async {
+   // var paymentMethod = _normalizePaymentMethod(paymentType);
+    // if (paymentMethod == null) paymentMethod = paymentType.name;
 
     final action = isBuyAction ? 'buy' : 'sell';
-    log('Robinhood: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
+    log('Robinhood: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
 
     final queryParams = {
       'applicationId': _applicationId,
       'fiatCode': sourceCurrency,
       'fiatAmount': amount.toString(),
-      'paymentMethod': paymentMethod,
+      //'paymentMethod': paymentMethod,
     };
 
     final uri =
@@ -160,7 +160,7 @@ class RobinhoodBuyProvider extends BuyProvider {
         final quote = Quote.fromRobinhoodJson(responseData, ProviderType.robinhood, isBuyAction);
         quote.setSourceCurrency = sourceCurrency;
         quote.setDestinationCurrency = destinationCurrency;
-        return quote;
+        return [quote];
       } else {
         if (responseData.containsKey('message')) {
           log('Robinhood Error: ${responseData['message']}');

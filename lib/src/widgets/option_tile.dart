@@ -9,10 +9,12 @@ class OptionTile extends StatelessWidget {
     required this.onPressed,
     required this.imagePath,
     required this.title,
-    this.subTitle,
+    this.leftSubTitle,
+    this.rightSubTitle,
+    this.leftSubTitleIconPath,
+    this.rightSubTitleIconPath,
     this.description,
-    this.firstBadgeName,
-    this.secondBadgeName,
+    this.badges,
     this.borderRadius,
     this.imageHeight,
     this.imageWidth,
@@ -28,10 +30,12 @@ class OptionTile extends StatelessWidget {
   final VoidCallback onPressed;
   final String imagePath;
   final String title;
-  final String? subTitle;
+  final String? leftSubTitle;
+  final String? rightSubTitle;
+  final String? leftSubTitleIconPath;
+  final String? rightSubTitleIconPath;
   final String? description;
-  final String? firstBadgeName;
-  final String? secondBadgeName;
+  final List<String>? badges;
   final double? borderRadius;
   final double? imageHeight;
   final double? imageWidth;
@@ -51,9 +55,8 @@ class OptionTile extends StatelessWidget {
             : Theme.of(context).extension<OptionTileTheme>()!.titleColor
         : Theme.of(context).cardColor;
 
-    final textColor = isSelected
-        ? Colors.white
-        : Theme.of(context).extension<OptionTileTheme>()!.titleColor;
+    final textColor =
+        isSelected ? Colors.white : Theme.of(context).extension<OptionTileTheme>()!.titleColor;
 
     return GestureDetector(
       onTap: onPressed,
@@ -78,9 +81,7 @@ class OptionTile extends StatelessWidget {
                       children: [
                         Expanded(
                             child: Text(title,
-                                style: titleTextStyle ??
-                                    textLargeBold(
-                                        color: textColor))),
+                                style: titleTextStyle ?? textLargeBold(color: textColor))),
                         Row(
                           children: [
                             if (leadingIcon != null) Icon(leadingIcon, size: 16, color: textColor),
@@ -92,36 +93,59 @@ class OptionTile extends StatelessWidget {
                 ),
               ],
             ),
-            if (subTitle != null)
+            if (leftSubTitle != null || rightSubTitle != null)
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    subTitle!,
-                    style: subTitleTextStyle ??
-                        TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: textColor),
-                  )
+                  leftSubTitle != null || leftSubTitleIconPath != null
+                      ? Row(
+                          children: [
+                            if (leftSubTitleIconPath != null && leftSubTitleIconPath!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 4),
+                                child: getImage(leftSubTitleIconPath!, height: 16, width: 16),
+                              ),
+                            Text(
+                              leftSubTitle ?? '',
+                              style: subTitleTextStyle ??
+                                  TextStyle(
+                                      fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+                            ),
+                          ],
+                        )
+                      : Container(),
+                  rightSubTitle != null || rightSubTitleIconPath != null
+                      ? Row(
+                          children: [
+                            if (rightSubTitleIconPath != null && rightSubTitleIconPath!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 4),
+                                child: getImage(rightSubTitleIconPath!),
+                              ),
+                            Text(
+                              rightSubTitle ?? '',
+                              style: subTitleTextStyle ??
+                                  TextStyle(
+                                      fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+                            ),
+                          ],
+                        )
+                      : Container(),
                 ],
               ),
-            if(firstBadgeName != null || secondBadgeName != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Row(children: [
-                if (firstBadgeName != null)
-                  Badge(
-                      title: firstBadgeName!,
-                      textColor: Theme.of(context).cardColor,
-                      backgroundColor: Theme.of(context).extension<OptionTileTheme>()!.titleColor),
-                if (secondBadgeName != null)
-                  Badge(
-                      title: secondBadgeName!,
-                      textColor: Theme.of(context).cardColor,
-                      backgroundColor: Theme.of(context).extension<OptionTileTheme>()!.titleColor),
-              ]),
-            )
+            if (badges != null && badges!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Row(children: [
+                  ...badges!
+                      .map((badge) => Badge(
+                          title: badge,
+                          textColor: Theme.of(context).cardColor,
+                          backgroundColor:
+                              Theme.of(context).extension<OptionTileTheme>()!.titleColor))
+                      .toList()
+                ]),
+              )
           ],
         ),
       ),

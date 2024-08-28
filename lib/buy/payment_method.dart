@@ -125,16 +125,13 @@ class PaymentMethod extends SelectableOption {
     required this.customTitle,
     required this.customIconPath,
     this.customDescription,
-  });
+  }) : super(title: paymentMethodType.title ?? customTitle);
 
   final PaymentType paymentMethodType;
   final String customTitle;
   final String customIconPath;
   final String? customDescription;
   bool isSelected = false;
-
-  @override
-  String get title => paymentMethodType.title ?? customTitle;
 
   @override
   String? get description => paymentMethodType.description ?? customDescription;
@@ -144,15 +141,6 @@ class PaymentMethod extends SelectableOption {
 
   @override
   bool get isOptionSelected => isSelected;
-
-  @override
-  double get borderRadius => 30.0;
-
-  @override
-  TextStyle? get titleTextStyle => null;
-
-  @override
-  TextStyle? get leftSubTitleTextStyle => null;
 
   factory PaymentMethod.fromOnramperJson(Map<String, dynamic> json) {
     final type = PaymentMethod.getPaymentTypeId(json['paymentTypeId'] as String?);

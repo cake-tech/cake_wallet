@@ -363,16 +363,17 @@ class MoonPayProvider extends BuyProvider {
     return paymentMethods;
   }
 
-  Future<Quote?> fetchQuote(
-      {required String sourceCurrency,
-      required String destinationCurrency,
-      required double amount,
-      required PaymentType paymentType,
-      required bool isBuyAction,
-      required String walletAddress,
-      String? countryCode}) async {
-    var paymentMethod = normalizePaymentMethod(paymentType);
-    if (paymentMethod == null) paymentMethod = paymentType.name;
+  @override
+  Future<List<Quote>?> fetchQuote({
+    required String sourceCurrency,
+    required String destinationCurrency,
+    required double amount,
+    required bool isBuyAction,
+    required String walletAddress,
+    PaymentType? paymentType,
+    String? countryCode}) async {
+   // var paymentMethod = normalizePaymentMethod(paymentType);
+    //if (paymentMethod == null) paymentMethod = paymentType.name;
 
     final action = isBuyAction ? 'buy' : 'sell';
 
@@ -380,12 +381,12 @@ class MoonPayProvider extends BuyProvider {
       'baseCurrencyCode': sourceCurrency.toLowerCase(),
       'baseCurrencyAmount': amount.toString(),
       'amount': amount.toString(),
-      'paymentMethod': paymentMethod,
+     // 'paymentMethod': paymentMethod,
       'areFeesIncluded': 'false',
       'apiKey': _apiKey,
     };
 
-    log('MoonPay: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
+    log('MoonPay: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
 
     final quotePath = isBuyAction ? _buyQuote : _sellQuote;
     final currency = (isBuyAction ? destinationCurrency : sourceCurrency).toLowerCase();
@@ -403,7 +404,7 @@ class MoonPayProvider extends BuyProvider {
         quote.setSourceCurrency = sourceCurrency;
         quote.setDestinationCurrency = destinationCurrency;
 
-        return quote;
+        return [quote];
       } else {
         print('Moon Pay: Error fetching buy quote: ');
         return null;

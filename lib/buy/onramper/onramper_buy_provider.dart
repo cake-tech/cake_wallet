@@ -156,23 +156,59 @@ class OnRamperBuyProvider extends BuyProvider {
     }
   }
 
-  Future<Quote?> fetchQuote({
-    required String sourceCurrency,
-    required String destinationCurrency,
-    required double amount,
-    required PaymentType paymentType,
-    required bool isBuyAction,
-    required String walletAddress,
-    String? countryCode
-  }) async {
-    var paymentMethod = normalizePaymentMethod(paymentType);
-    if (paymentMethod == null) paymentMethod = paymentType.name;
+  Future<Map<String, dynamic>> getOnrampMetadata() async {
+    final url = Uri.https(_baseApiUrl, '$supported/onramps/all');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': authorization,
+          'accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
+
+        final List<dynamic> onramps = data['message'] as List<dynamic>;
+
+        final Map<String, dynamic> result = {
+          for (var onramp in onramps)
+            (onramp['id'] as String): {
+              'displayName': onramp['displayName'] as String,
+              'svg': onramp['icons']['svg'] as String
+            }
+        };
+
+        return result;
+      } else {
+        print('Failed to fetch onramp metadata');
+        return {};
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      return {};
+    }
+  }
+
+  @override
+  Future<List<Quote>?> fetchQuote(
+      {required String sourceCurrency,
+      required String destinationCurrency,
+      required double amount,
+      required bool isBuyAction,
+      required String walletAddress,
+      PaymentType? paymentType,
+      String? countryCode}) async {
+    //var paymentMethod = normalizePaymentMethod(paymentType);
+    // if (paymentMethod == null) paymentMethod = paymentType.name;
 
     final actionType = isBuyAction ? 'buy' : 'sell';
 
     final params = {
       'amount': amount.toString(),
-      'paymentMethod': paymentMethod,
+      //'paymentMethod': paymentMethod,
       'uuid': 'acad3928-556f-48a1-a478-4e2ec76700cd',
       'clientName': 'CakeWallet',
       'type': actionType,
@@ -180,7 +216,7 @@ class OnRamperBuyProvider extends BuyProvider {
       'isRecurringPayment': 'false',
       'input': 'source',
     };
-    log('Onramper: Fetching $actionType quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
+    log('Onramper: Fetching $actionType quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
 
     final path = '$quotes/$sourceCurrency/$destinationCurrency';
     final url = Uri.https(_baseApiUrl, path, params);
@@ -195,9 +231,12 @@ class OnRamperBuyProvider extends BuyProvider {
 
         List<Quote> validQuotes = [];
 
+        final onrampMetadata = await getOnrampMetadata();
+
         for (var item in data) {
           if (item['errors'] != null) break;
-          final quote = Quote.fromOnramperJson(item as Map<String, dynamic>, ProviderType.onramper, isBuyAction);
+          final quote = Quote.fromOnramperJson(
+              item as Map<String, dynamic>, ProviderType.onramper, isBuyAction, onrampMetadata);
           quote.setSourceCurrency = sourceCurrency;
           quote.setDestinationCurrency = destinationCurrency;
           validQuotes.add(quote);
@@ -205,7 +244,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
         if (validQuotes.isEmpty) return null;
 
-        return validQuotes.first;
+        return validQuotes;
       } else {
         print('Onramper: Failed to fetch rate');
         return null;
@@ -218,12 +257,12 @@ class OnRamperBuyProvider extends BuyProvider {
 
   Future<void>? launchTrade(
       {required BuildContext context,
-        required Quote quote,
-        required PaymentMethod paymentMethod,
-        required double amount,
-        required bool isBuyAction,
-        required String cryptoCurrencyAddress,
-        String? countryCode})  async {
+      required Quote quote,
+      required PaymentMethod paymentMethod,
+      required double amount,
+      required bool isBuyAction,
+      required String cryptoCurrencyAddress,
+      String? countryCode}) async {
     final actionType = isBuyAction ? 'buy' : 'sell';
     final prefix = actionType == 'sell' ? actionType + '_' : '';
 

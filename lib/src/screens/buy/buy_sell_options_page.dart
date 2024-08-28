@@ -3,9 +3,9 @@ import 'package:cake_wallet/src/screens/select_options_page.dart';
 import 'package:flutter/cupertino.dart';
 
 class BuyOptionsPage extends SelectOptionsPage {
-  BuyOptionsPage({required this.options, this.pickAnOption});
+  BuyOptionsPage({required this.items, this.pickAnOption});
 
-  final List<SelectableOption> options;
+  final List<SelectableItem> items;
   final Function(SelectableOption option)? pickAnOption;
 
   @override
@@ -21,10 +21,10 @@ class BuyOptionsPage extends SelectOptionsPage {
   EdgeInsets? get innerPadding => EdgeInsets.symmetric(horizontal: 24, vertical: 8);
 
   @override
-  double? get imageHeight => 60;
+  double? get imageHeight => 40;
 
   @override
-  double? get imageWidth => 60;
+  double? get imageWidth => 40;
 
   @override
   TextStyle? get subTitleTextStyle => null;

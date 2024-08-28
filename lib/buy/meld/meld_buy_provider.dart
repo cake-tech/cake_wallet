@@ -85,19 +85,19 @@ class MeldBuyProvider extends BuyProvider {
     }
   }
 
-  Future<Quote?> fetchQuote({
+  @override
+  Future<List<Quote>?> fetchQuote({
     required String sourceCurrency,
     required String destinationCurrency,
     required double amount,
-    required PaymentType paymentType,
     required bool isBuyAction,
     required String walletAddress,
-    String? countryCode = 'US',
-  }) async {
-    var paymentMethod = normalizePaymentMethod(paymentType);
-    if (paymentMethod == null) paymentMethod = paymentType.name;
+    PaymentType? paymentType,
+    String? countryCode}) async {
+   // var paymentMethod = normalizePaymentMethod(paymentType);
+   // if (paymentMethod == null) paymentMethod = paymentType.name;
 
-    log('Meld: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
+    log('Meld: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
 
     final url = Uri.https(_baseUrl, _quotePath);
     final headers = {
@@ -111,7 +111,7 @@ class MeldBuyProvider extends BuyProvider {
       'destinationCurrencyCode': destinationCurrency,
       'sourceAmount': amount,
       'sourceCurrencyCode': sourceCurrency,
-      'paymentMethodType': paymentMethod,
+     // 'paymentMethodType': paymentMethod,
     });
 
     try {
@@ -124,7 +124,7 @@ class MeldBuyProvider extends BuyProvider {
         quote.setSourceCurrency = sourceCurrency;
         quote.setDestinationCurrency = destinationCurrency;
 
-        return quote;
+        return [quote];
       } else {
         return null;
       }

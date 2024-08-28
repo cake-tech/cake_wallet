@@ -211,7 +211,7 @@ class DFXBuyProvider extends BuyProvider {
         log('DFX does not support fiat: $fiatCurrency');
         return {};
       } else {
-        print('DFX Failed to fetch fiat currencies: ${response.statusCode}');
+        log('DFX Failed to fetch fiat currencies: ${response.statusCode}');
         return {};
       }
     } catch (e) {
@@ -239,10 +239,10 @@ class DFXBuyProvider extends BuyProvider {
           log('DFX: Does not support this asset name : ${blockchain.fullName}');
         }
       } else {
-        print('DFX: Failed to fetch assets: ${response.statusCode}');
+        log('DFX: Failed to fetch assets: ${response.statusCode}');
       }
     } catch (e) {
-      print('DFX: Error fetching assets: $e');
+      log('DFX: Error fetching assets: $e');
     }
     return {};
   }
@@ -289,16 +289,17 @@ class DFXBuyProvider extends BuyProvider {
     return paymentMethods;
   }
 
-  Future<Quote?> fetchQuote(
-      {required String sourceCurrency,
-      required String destinationCurrency,
-      required double amount,
-      required PaymentType paymentType,
-      required bool isBuyAction,
-      required String walletAddress,
-      String? countryCode}) async {
-    var paymentMethod = normalizePaymentMethod(paymentType);
-    if (paymentMethod == null) paymentMethod = paymentType.name;
+  @override
+  Future<List<Quote>?> fetchQuote({
+    required String sourceCurrency,
+    required String destinationCurrency,
+    required double amount,
+    required bool isBuyAction,
+    required String walletAddress,
+    PaymentType? paymentType,
+    String? countryCode}) async {
+   // var paymentMethod = normalizePaymentMethod(paymentType);
+    //if (paymentMethod == null) paymentMethod = paymentType.name;
 
     final action = isBuyAction ? 'buy' : 'sell';
 
@@ -311,7 +312,7 @@ class DFXBuyProvider extends BuyProvider {
     if (assetCredentials['id'] == null) return null;
 
     log(
-        'DFX: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
+        'DFX: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
 
     final url = Uri.parse('https://$_baseUrl/v1/$action/quote');
     final headers = {
@@ -327,7 +328,7 @@ class DFXBuyProvider extends BuyProvider {
       },
       'amount': amount,
       'targetAmount': 0,
-      'paymentMethod': paymentMethod,
+      //'paymentMethod': paymentMethod,
       'discountCode': '',
     });
 
@@ -340,7 +341,7 @@ class DFXBuyProvider extends BuyProvider {
           final quote = Quote.fromDFXJson(responseData, ProviderType.dfx, isBuyAction);
           quote.setSourceCurrency = sourceCurrency;
           quote.setDestinationCurrency = destinationCurrency;
-          return quote;
+          return [quote];
         } else {
           print('DFX: Unexpected data type: ${responseData.runtimeType}');
           return null;

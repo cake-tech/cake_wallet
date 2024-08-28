@@ -223,13 +223,13 @@ class BuySellPage extends BasePage {
       return Observer(builder: (_) {
         final selectedQuote = buySellViewModel.selectedQuote!;
         return OptionTile(
-            imagePath: selectedQuote.provider!.lightIcon,
-            title: selectedQuote.provider!.title,
-            firstBadgeName: selectedQuote.firstBadgeTitle,
-            secondBadgeName: selectedQuote.secondBadgeTitle,
-            imageHeight: 70,
-            imageWidth: 70,
-            subTitle: selectedQuote.subTitle,
+            imagePath: selectedQuote.iconPath,
+            title: selectedQuote.title,
+            badges: selectedQuote.badges,
+            imageWidth: 50,
+            imageHeight: 50,
+            leftSubTitle: selectedQuote.leftSubTitle,
+            rightSubTitleIconPath: selectedQuote.rightSubTitleIconPath,
             onPressed: () => _pickQuote(context),
             leadingIcon: Icons.arrow_forward_ios,
             borderRadius: 30,
@@ -263,7 +263,7 @@ class BuySellPage extends BasePage {
     await Navigator.of(context).pushNamed(
       Routes.buyOptionsPage,
       arguments: [
-        buySellViewModel.sortedAvailableQuotes,
+        buySellViewModel.quoteOptions,
         buySellViewModel.changeOption
       ],
     );

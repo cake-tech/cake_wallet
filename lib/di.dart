@@ -1109,27 +1109,24 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuyAmountViewModel());
 
-  // getIt.registerFactoryParam<BuySellOptionsPage, bool, void>(
-  //     (isBuyOption, _) => BuySellOptionsPage(getIt.get<DashboardViewModel>(), isBuyOption));
-
   getIt.registerFactory(() => BuySellViewModel(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => BuySellPage(getIt.get<BuySellViewModel>()));
 
   getIt.registerFactoryParam<BuyOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
-    final options = args.first as List<SelectableOption>;
+    final items = args.first as List<SelectableItem>;
     final pickAnOption = args[1] as void Function(SelectableOption option)?;
 
     return BuyOptionsPage(
-        options: options, pickAnOption: pickAnOption);
+        items: items, pickAnOption: pickAnOption);
   });
 
   getIt.registerFactoryParam<PaymentMethodOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
-    final options = args.first as List<SelectableOption>;
+    final items = args.first as List<SelectableOption>;
     final pickAnOption = args[1] as void Function(SelectableOption option)?;
 
     return PaymentMethodOptionsPage(
-        options: options, pickAnOption: pickAnOption);
+        items: items, pickAnOption: pickAnOption);
   });
 
   getIt.registerFactory(() {
