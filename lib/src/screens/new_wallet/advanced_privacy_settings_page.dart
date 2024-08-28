@@ -70,6 +70,8 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
   final _formKey = GlobalKey<FormState>();
   bool? testnetValue;
 
+  bool obscurePassphrase = true;
+
   @override
   void initState() {
     passphraseController.text = widget.seedTypeViewModel.passphrase ?? '';
@@ -138,27 +140,36 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 );
               }),
             if (!widget.isFromRestore) ...[
-                Observer(builder: (_) {
-              if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
-                return SettingsPickerCell<SeedPhraseLength>(
-                  title: S.current.seed_phrase_length,
-                  items: SeedPhraseLength.values,
-                  selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
-                  onItemSelected: (SeedPhraseLength length) {
-                    widget.privacySettingsViewModel.setSeedPhraseLength(length);
-                  },
-                );
-              return Container();
-            }),
-            if (widget.privacySettingsViewModel.hasPassphraseOption)
-              Padding(
-                padding: EdgeInsets.all(24),
-                child: BaseTextFormField(
-                  hintText: S.current.passphrase,
-                  controller: passphraseController,
-                  obscureText: true,
+              Observer(builder: (_) {
+                if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
+                  return SettingsPickerCell<SeedPhraseLength>(
+                    title: S.current.seed_phrase_length,
+                    items: SeedPhraseLength.values,
+                    selectedItem: widget.privacySettingsViewModel.seedPhraseLength,
+                    onItemSelected: (SeedPhraseLength length) {
+                      widget.privacySettingsViewModel.setSeedPhraseLength(length);
+                    },
+                  );
+                return Container();
+              }),
+              if (widget.privacySettingsViewModel.hasPassphraseOption)
+                Padding(
+                  padding: EdgeInsets.all(24),
+                  child: BaseTextFormField(
+                    hintText: S.current.passphrase,
+                    controller: passphraseController,
+                    obscureText: obscurePassphrase,
+                    suffixIcon: GestureDetector(
+                      onTap: () => setState(() {
+                        obscurePassphrase = !obscurePassphrase;
+                      }),
+                      child: Icon(
+                        Icons.remove_red_eye,
+                        color: obscurePassphrase ? Colors.black54 : Colors.black26,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
             ],
             Observer(builder: (_) {
               return Column(
