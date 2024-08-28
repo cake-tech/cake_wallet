@@ -276,7 +276,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     fiatAmount = '';
     paymentMethodState = InitialPaymentMethod();
     buySellQuotState = InitialBuySellQuotState();
-    //await _getAvailablePaymentTypes();
+    await _getAvailablePaymentTypes();
     await calculateBestRate();
   }
 
@@ -296,9 +296,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     paymentMethods = ObservableList<PaymentMethod>.of(uniquePaymentMethods.values);
     if (paymentMethods.isNotEmpty) {
-      selectedPaymentMethod = selectedPaymentMethod = paymentMethods.firstWhere(
-          (element) => element.paymentMethodType == PaymentType.creditCard,
-          orElse: () => paymentMethods.first);
+      paymentMethods.insert(0, PaymentMethod.all());
+      selectedPaymentMethod = paymentMethods.first;
       selectedPaymentMethod!.isSelected = true;
       paymentMethodState = PaymentMethodLoaded();
     } else {
@@ -314,8 +313,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           sourceCurrency: isBuyAction ? fiatCurrency.title : cryptoCurrency.title,
           destinationCurrency: isBuyAction ? cryptoCurrency.title : fiatCurrency.title,
           amount: amount,
-          paymentType: null,
-          //selectedPaymentMethod!.paymentMethodType,
+          paymentType: selectedPaymentMethod!.paymentMethodType == PaymentType.all
+              ? null
+              : selectedPaymentMethod!.paymentMethodType,
           isBuyAction: isBuyAction,
           walletAddress: wallet.walletAddresses.address,
         )));
@@ -347,12 +347,11 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     sortedQuotes = ObservableList.of(
         validQuotes.where((element) => !uniqueProviderQuotes.contains(element)).toList());
 
-
     if (sortedRecommendedQuotes.isNotEmpty) {
       sortedRecommendedQuotes.first
         ..isBestRate = true
         ..isSelected = true
-      ..recommendations.insert(0, ProviderRecommendation.bestRate);
+        ..recommendations.insert(0, ProviderRecommendation.bestRate);
       bestRateQuote = sortedRecommendedQuotes.first;
       selectedQuote = sortedRecommendedQuotes.first;
     }

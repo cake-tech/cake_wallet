@@ -128,16 +128,19 @@ class RobinhoodBuyProvider extends BuyProvider {
   }
 
   @override
-  Future<List<Quote>?> fetchQuote({
-  required String sourceCurrency,
-  required String destinationCurrency,
-  required double amount,
-  required bool isBuyAction,
-  required String walletAddress,
-  PaymentType? paymentType,
-  String? countryCode}) async {
-   // var paymentMethod = _normalizePaymentMethod(paymentType);
-    // if (paymentMethod == null) paymentMethod = paymentType.name;
+  Future<List<Quote>?> fetchQuote(
+      {required String sourceCurrency,
+      required String destinationCurrency,
+      required double amount,
+      required bool isBuyAction,
+      required String walletAddress,
+      PaymentType? paymentType,
+      String? countryCode}) async {
+    String? paymentMethod;
+    if (paymentType != null) {
+      paymentMethod = normalizePaymentMethod(paymentType);
+      if (paymentMethod == null) paymentMethod = paymentType.name;
+    }
 
     final action = isBuyAction ? 'buy' : 'sell';
     log('Robinhood: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
@@ -146,7 +149,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       'applicationId': _applicationId,
       'fiatCode': sourceCurrency,
       'fiatAmount': amount.toString(),
-      //'paymentMethod': paymentMethod,
+      if (paymentMethod != null) 'paymentMethod': paymentMethod,
     };
 
     final uri =
@@ -190,7 +193,7 @@ class RobinhoodBuyProvider extends BuyProvider {
           String? countryCode}) async =>
       launchProvider(context, isBuyAction);
 
-  String? _normalizePaymentMethod(PaymentType paymentMethod) {
+  String? normalizePaymentMethod(PaymentType paymentMethod) {
     switch (paymentMethod) {
       case PaymentType.creditCard:
         return 'debit_card';

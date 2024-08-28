@@ -364,16 +364,20 @@ class MoonPayProvider extends BuyProvider {
   }
 
   @override
-  Future<List<Quote>?> fetchQuote({
-    required String sourceCurrency,
-    required String destinationCurrency,
-    required double amount,
-    required bool isBuyAction,
-    required String walletAddress,
-    PaymentType? paymentType,
-    String? countryCode}) async {
-   // var paymentMethod = normalizePaymentMethod(paymentType);
-    //if (paymentMethod == null) paymentMethod = paymentType.name;
+  Future<List<Quote>?> fetchQuote(
+      {required String sourceCurrency,
+      required String destinationCurrency,
+      required double amount,
+      required bool isBuyAction,
+      required String walletAddress,
+      PaymentType? paymentType,
+      String? countryCode}) async {
+
+    String? paymentMethod;
+    if (paymentType != null) {
+      paymentMethod = normalizePaymentMethod(paymentType);
+      if (paymentMethod == null) paymentMethod = paymentType.name;
+    }
 
     final action = isBuyAction ? 'buy' : 'sell';
 
@@ -381,7 +385,7 @@ class MoonPayProvider extends BuyProvider {
       'baseCurrencyCode': sourceCurrency.toLowerCase(),
       'baseCurrencyAmount': amount.toString(),
       'amount': amount.toString(),
-     // 'paymentMethod': paymentMethod,
+      if (paymentMethod != null) 'paymentMethod': paymentMethod,
       'areFeesIncluded': 'false',
       'apiKey': _apiKey,
     };

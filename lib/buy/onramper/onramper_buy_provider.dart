@@ -201,14 +201,19 @@ class OnRamperBuyProvider extends BuyProvider {
       required String walletAddress,
       PaymentType? paymentType,
       String? countryCode}) async {
-    //var paymentMethod = normalizePaymentMethod(paymentType);
-    // if (paymentMethod == null) paymentMethod = paymentType.name;
+
+    String? paymentMethod;
+    if (paymentType != null) {
+      paymentMethod = normalizePaymentMethod(paymentType);
+      if (paymentMethod == null) paymentMethod = paymentType.name;
+    }
+
 
     final actionType = isBuyAction ? 'buy' : 'sell';
 
     final params = {
       'amount': amount.toString(),
-      //'paymentMethod': paymentMethod,
+     if (paymentMethod != null) 'paymentMethod': paymentMethod,
       'uuid': 'acad3928-556f-48a1-a478-4e2ec76700cd',
       'clientName': 'CakeWallet',
       'type': actionType,

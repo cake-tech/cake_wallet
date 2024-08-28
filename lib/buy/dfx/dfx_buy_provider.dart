@@ -298,8 +298,13 @@ class DFXBuyProvider extends BuyProvider {
     required String walletAddress,
     PaymentType? paymentType,
     String? countryCode}) async {
-   // var paymentMethod = normalizePaymentMethod(paymentType);
-    //if (paymentMethod == null) paymentMethod = paymentType.name;
+
+    String? paymentMethod;
+    if (paymentType != null) {
+      paymentMethod = normalizePaymentMethod(paymentType);
+      if (paymentMethod == null) paymentMethod = paymentType.name;
+    }
+
 
     final action = isBuyAction ? 'buy' : 'sell';
 
@@ -328,7 +333,7 @@ class DFXBuyProvider extends BuyProvider {
       },
       'amount': amount,
       'targetAmount': 0,
-      //'paymentMethod': paymentMethod,
+      if (paymentMethod != null) 'paymentMethod': paymentMethod,
       'discountCode': '',
     });
 

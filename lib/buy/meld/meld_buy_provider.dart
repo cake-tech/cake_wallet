@@ -94,8 +94,13 @@ class MeldBuyProvider extends BuyProvider {
     required String walletAddress,
     PaymentType? paymentType,
     String? countryCode}) async {
-   // var paymentMethod = normalizePaymentMethod(paymentType);
-   // if (paymentMethod == null) paymentMethod = paymentType.name;
+
+    String? paymentMethod;
+    if (paymentType != null) {
+      paymentMethod = normalizePaymentMethod(paymentType);
+      if (paymentMethod == null) paymentMethod = paymentType.name;
+    }
+
 
     log('Meld: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
 
@@ -111,7 +116,7 @@ class MeldBuyProvider extends BuyProvider {
       'destinationCurrencyCode': destinationCurrency,
       'sourceAmount': amount,
       'sourceCurrencyCode': sourceCurrency,
-     // 'paymentMethodType': paymentMethod,
+      if (paymentMethod != null) 'paymentMethod': paymentMethod,
     });
 
     try {

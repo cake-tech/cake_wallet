@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:cake_wallet/core/selectable_option.dart';
 
 enum PaymentType {
+  all,
   bankTransfer,
   creditCard,
   debitCard,
@@ -38,6 +39,8 @@ enum PaymentType {
 extension PaymentTypeTitle on PaymentType {
   String? get title {
     switch (this) {
+      case PaymentType.all:
+        return 'All Payment Methods';
       case PaymentType.bankTransfer:
         return 'Bank Transfer';
       case PaymentType.creditCard:
@@ -103,6 +106,8 @@ extension PaymentTypeTitle on PaymentType {
 
   String? get iconPath {
     switch (this) {
+      case PaymentType.all:
+        return 'assets/images/dollar_coin.svg';
       case PaymentType.creditCard:
       case PaymentType.debitCard:
         return 'assets/images/card.png';
@@ -141,6 +146,13 @@ class PaymentMethod extends SelectableOption {
 
   @override
   bool get isOptionSelected => isSelected;
+
+  factory PaymentMethod.all() {
+    return PaymentMethod(
+        paymentMethodType: PaymentType.all,
+        customTitle: 'All Payment Methods',
+        customIconPath: 'assets/images/dollar_coin.svg');
+  }
 
   factory PaymentMethod.fromOnramperJson(Map<String, dynamic> json) {
     final type = PaymentMethod.getPaymentTypeId(json['paymentTypeId'] as String?);
