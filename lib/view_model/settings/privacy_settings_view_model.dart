@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -76,6 +77,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get useTronGrid => _settingsStore.useTronGrid;
 
   @computed
+  bool get useMempoolFeeAPI => _settingsStore.useMempoolFeeAPI;
+
+  @computed
   bool get lookupTwitter => _settingsStore.lookupsTwitter;
 
   @computed
@@ -98,6 +102,8 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
 
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
+
+  bool get canUseMempoolFeeAPI => _wallet.type == WalletType.bitcoin;
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>
@@ -155,5 +161,10 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setUseTronGrid(bool value) {
     _settingsStore.useTronGrid = value;
     tron!.updateTronGridUsageState(_wallet, value);
+  }
+
+  @action
+  void setUseMempoolFeeAPI(bool value) {
+    _settingsStore.useMempoolFeeAPI = value;
   }
 }
