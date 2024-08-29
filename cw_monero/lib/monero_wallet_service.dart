@@ -9,11 +9,9 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/get_height_by_date.dart';
-import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/monero_wallet.dart';
-import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:polyseed/polyseed.dart';
 import 'package:monero/monero.dart' as monero;
@@ -120,7 +118,6 @@ class MoneroWalletService extends WalletService<
 
   @override
   Future<MoneroWallet> openWallet(String name, String password, {bool? retryOnFailure}) async {
-    MoneroWallet? wallet;
     try {
       final path = await pathForWallet(name: name, type: getType());
 
@@ -147,41 +144,10 @@ class MoneroWalletService extends WalletService<
       await wallet.init();
 
       return wallet;
-    } catch (e, s) {
+    } catch (e) {
       // TODO: Implement Exception for wallet list service.
 
-      final bool isBadAlloc = e.toString().contains('bad_alloc') ||
-          (e is WalletOpeningException &&
-              (e.message == 'std::bad_alloc' || e.message.contains('bad_alloc')));
-
-      final bool doesNotCorrespond = e.toString().contains('does not correspond') ||
-          (e is WalletOpeningException && e.message.contains('does not correspond'));
-
-      final bool isMissingCacheFilesIOS = e.toString().contains('basic_string') ||
-          (e is WalletOpeningException && e.message.contains('basic_string'));
-
-      final bool isMissingCacheFilesAndroid = e.toString().contains('input_stream') ||
-          e.toString().contains('input stream error') ||
-          (e is WalletOpeningException &&
-              (e.message.contains('input_stream') || e.message.contains('input stream error')));
-
-      final bool invalidSignature = e.toString().contains('invalid signature') ||
-          (e is WalletOpeningException && e.message.contains('invalid signature'));
-
-      final bool invalidPassword = e.toString().contains('invalid password') ||
-          (e is WalletOpeningException && e.message.contains('invalid password'));
-
-      if (!isBadAlloc &&
-          !doesNotCorrespond &&
-          !isMissingCacheFilesIOS &&
-          !isMissingCacheFilesAndroid &&
-          !invalidSignature &&
-          !invalidPassword &&
-          wallet != null &&
-          wallet.onError != null) {
-        wallet.onError!(FlutterErrorDetails(exception: e, stack: s));
-      }
-      if (invalidPassword || retryOnFailure == false) {
+      if (retryOnFailure == false) {
         rethrow;
       }
 
