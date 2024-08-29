@@ -394,6 +394,14 @@ Future<void> initializeService(FlutterBackgroundService bgService) async {
     ),
   );
 
+  try {
+    bool isServiceRunning = await bgService.isRunning();
+    if (isServiceRunning) {
+      print("Service is ALREADY running!");
+      return;
+    }
+  } catch (_) {}
+
   await bgService.configure(
     androidConfiguration: AndroidConfiguration(
       onStart: onStart,
