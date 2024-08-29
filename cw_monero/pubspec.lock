@@ -262,6 +262,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.1+1"
+  flutter_reactive_ble:
+    dependency: transitive
+    description:
+      name: flutter_reactive_ble
+      sha256: "247e2efa76de203d1ba11335c13754b5b9d0504b5423e5b0c93a600f016b24e0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -275,6 +283,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  functional_data:
+    dependency: transitive
+    description:
+      name: functional_data
+      sha256: "76d17dc707c40e552014f5a49c0afcc3f1e3f05e800cd6b7872940bfe41a5039"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   glob:
     dependency: transitive
     description:
@@ -403,6 +419,23 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  ledger_flutter:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: cake-v3
+      resolved-ref: "66469ff9dffe2417c70ae7287c9d76d2fe7157a4"
+      url: "https://github.com/cake-tech/ledger-flutter.git"
+    source: git
+    version: "1.0.2"
+  ledger_usb:
+    dependency: transitive
+    description:
+      name: ledger_usb
+      sha256: "52c92d03a4cffe06c82921c8e2f79f3cdad6e1cf78e1e9ca35444196ff8f14c2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   logging:
     dependency: transitive
     description:
@@ -463,8 +496,8 @@ packages:
     dependency: "direct main"
     description:
       path: "impls/monero.dart"
-      ref: bcb328a4956105dc182afd0ce2e48fe263f5f20b
-      resolved-ref: bcb328a4956105dc182afd0ce2e48fe263f5f20b
+      ref: ledger
+      resolved-ref: "35633848e26dcf8cdc928de8df31f14eb9ee918c"
       url: "https://github.com/mrcyjanek/monero_c"
     source: git
     version: "0.0.0"
@@ -588,6 +621,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.1"
+  protobuf:
+    dependency: transitive
+    description:
+      name: protobuf
+      sha256: "01dd9bd0fa02548bf2ceee13545d4a0ec6046459d847b6b061d8a27237108a08"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   provider:
     dependency: transitive
     description:
@@ -612,6 +653,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
+  reactive_ble_mobile:
+    dependency: transitive
+    description:
+      name: reactive_ble_mobile
+      sha256: "9ec2b4c9c725e439950838d551579750060258fbccd5536d0543b4d07d225798"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.1"
+  reactive_ble_platform_interface:
+    dependency: transitive
+    description:
+      name: reactive_ble_platform_interface
+      sha256: "632c92401a2d69c9b94bd48f8fd47488a7013f3d1f9b291884350291a4a81813"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.3.1"
   shelf:
     dependency: transitive
     description:

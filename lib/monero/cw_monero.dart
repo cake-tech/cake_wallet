@@ -215,6 +215,21 @@ class CWMonero extends Monero {
           height: height);
 
   @override
+  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({
+    required String name,
+    required String password,
+    required int height,
+    required Ledger ledger,
+    required LedgerDevice ledgerDevice,
+  }) =>
+      MoneroRestoreWalletFromHardwareCredentials(
+          name: name,
+          password: password,
+          height: height,
+          ledger: ledger,
+          ledgerDevice: ledgerDevice);
+
+  @override
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials(
           {required String name,
           required String password,

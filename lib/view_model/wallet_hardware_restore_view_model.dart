@@ -1,7 +1,9 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
@@ -51,20 +53,20 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
       List<HardwareAccountData> accounts;
       switch (type) {
         case WalletType.bitcoin:
-        accounts = await bitcoin!
-            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-        break;
-      case WalletType.ethereum:
-        accounts = await ethereum!
-            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-        break;
-      case WalletType.polygon:
-        accounts = await polygon!
-            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-        break;
-      default:
-        return;
-    }
+          accounts = await bitcoin!
+              .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+          break;
+        case WalletType.ethereum:
+          accounts = await ethereum!
+              .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+          break;
+        case WalletType.polygon:
+          accounts = await polygon!
+              .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+          break;
+        default:
+          return;
+      }
 
       availableAccounts.addAll(accounts);
       _nextIndex += limit;
@@ -83,16 +85,27 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     WalletCredentials credentials;
     switch (type) {
       case WalletType.bitcoin:
-        credentials =
-            bitcoin!.createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
+        credentials = bitcoin!
+            .createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
         break;
       case WalletType.ethereum:
-        credentials =
-            ethereum!.createEthereumHardwareWalletCredentials(name: name, hwAccountData: selectedAccount!);
+        credentials = ethereum!
+            .createEthereumHardwareWalletCredentials(name: name, hwAccountData: selectedAccount!);
         break;
       case WalletType.polygon:
-        credentials = polygon!.createPolygonHardwareWalletCredentials(name: name, hwAccountData: selectedAccount!);
+        credentials = polygon!
+            .createPolygonHardwareWalletCredentials(name: name, hwAccountData: selectedAccount!);
         break;
+      case WalletType.monero:
+        final password = walletPassword ?? generateWalletPassword();
+
+        credentials = monero!.createMoneroRestoreWalletFromHardwareCredentials(
+          name: name,
+          ledger: ledgerViewModel.ledger,
+          ledgerDevice: ledgerViewModel.device,
+          password: password,
+          height: _options['height'] as int? ?? 0,
+        );
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

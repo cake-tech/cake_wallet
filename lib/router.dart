@@ -18,6 +18,7 @@ import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
+import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
@@ -54,7 +55,6 @@ import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
-import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
@@ -73,7 +73,6 @@ import 'package:cake_wallet/src/screens/cake_pay/auth/cake_pay_account_page.dart
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
-import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
@@ -97,7 +96,6 @@ import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -171,6 +169,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final arguments = settings.arguments as List<dynamic>;
       final type = arguments[0] as WalletType;
       final walletVM = getIt.get<WalletHardwareRestoreViewModel>(param1: type);
+
+      if (type == WalletType.monero)
+        return CupertinoPageRoute<void>(builder: (_) => MoneroHardwareWalletOptionsPage(walletVM));
 
       return CupertinoPageRoute<void>(builder: (_) => SelectHardwareWalletAccountPage(walletVM));
 

@@ -25,9 +25,11 @@ dependencies:
   monero:
     git:
       url: https://github.com/mrcyjanek/monero_c
-      ref: bcb328a4956105dc182afd0ce2e48fe263f5f20b # monero_c hash
+      ref: ledger
+#      ref: bcb328a4956105dc182afd0ce2e48fe263f5f20b # monero_c hash
       path: impls/monero.dart
   mutex: ^3.1.0
+  ledger_flutter: ^1.0.1
 
 dev_dependencies:
   flutter_test:
@@ -39,6 +41,10 @@ dev_dependencies:
 
 dependency_overrides:
   watcher: ^1.1.0
+  ledger_flutter:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter.git
+      ref: cake-v3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
