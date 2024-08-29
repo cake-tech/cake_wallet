@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_s
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -194,7 +195,7 @@ class BuySellPage extends BasePage {
         buySellViewModel.selectedPaymentMethod != null) {
       return Observer(builder: (_) {
         final selectedPaymentMethod = buySellViewModel.selectedPaymentMethod!;
-        return OptionTile(
+        return ProviderOptionTile(
           imagePath: selectedPaymentMethod.iconPath,
           title: selectedPaymentMethod.title,
           onPressed: () => _pickPaymentMethod(context),
@@ -222,7 +223,7 @@ class BuySellPage extends BasePage {
         buySellViewModel.selectedQuote != null) {
       return Observer(builder: (_) {
         final selectedQuote = buySellViewModel.selectedQuote!;
-        return OptionTile(
+        return ProviderOptionTile(
             imagePath: selectedQuote.iconPath,
             title: selectedQuote.title,
             badges: selectedQuote.badges,

@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/option_tile.dart';
+import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
@@ -125,7 +125,7 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
           children: _items.map((item) {
             if (item is OptionTitle) {
               return Padding(
-                padding: const EdgeInsets.only(top: 18 , bottom: 8),
+                padding: const EdgeInsets.only(top: 18, bottom: 8),
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -152,7 +152,7 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
             } else if (item is SelectableOption) {
               return Padding(
                 padding: widget.tilePadding ?? const EdgeInsets.only(top: 24),
-                child: OptionTile(
+                child: ProviderOptionTile(
                   title: item.title,
                   imagePath: item.iconPath,
                   imageHeight: widget.imageHeight,

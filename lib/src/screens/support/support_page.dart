@@ -12,9 +12,9 @@ class SupportPage extends BasePage {
 
   final SupportViewModel supportViewModel;
 
-  final imageLiveSupport = 'assets/images/live_support.png';
-  final imageWalletGuides = 'assets/images/wallet_guides.png';
-  final imageMoreLinks = 'assets/images/more_links.png';
+  final imageLiveSupport = Image.asset('assets/images/live_support.png');
+  final imageWalletGuides = Image.asset('assets/images/wallet_guides.png');
+  final imageMoreLinks = Image.asset('assets/images/more_links.png');
 
   @override
   String get title => S.current.settings_support;
@@ -33,7 +33,7 @@ class SupportPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: OptionTile(
-                  imagePath: imageLiveSupport,
+                  image: imageLiveSupport,
                   title: S.of(context).support_title_live_chat,
                   description: S.of(context).support_description_live_chat,
                   onPressed: () {
@@ -48,7 +48,7 @@ class SupportPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: OptionTile(
-                  imagePath: imageWalletGuides,
+                  image: imageWalletGuides,
                   title: S.of(context).support_title_guides,
                   description: S.of(context).support_description_guides,
                   onPressed: () => _launchUrl(supportViewModel.guidesUrl),
@@ -57,7 +57,7 @@ class SupportPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: OptionTile(
-                  imagePath: imageMoreLinks,
+                  image: imageMoreLinks,
                   title: S.of(context).support_title_other_links,
                   description: S.of(context).support_description_other_links,
                   onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
