@@ -47,11 +47,21 @@ class StealthExExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
+
+    final curFrom = isFixedRateMode ? to : from;
+    final curTo = isFixedRateMode ? from: to;
+
     final headers = {'Authorization': apiKey, 'Content-Type': 'application/json'};
     final body = {
       'route': {
-        'from': {'symbol': isFixedRateMode ? to.name : from.name, 'network': 'mainnet'},
-        'to': {'symbol': isFixedRateMode ? from.name : to.name, 'network': 'mainnet'}
+        'from': {
+          'symbol': curFrom.title.toLowerCase(),
+          'network': curFrom.tag == null ? 'mainnet' : curFrom.tag!.toLowerCase()
+        },
+        'to': {
+          'symbol': curTo.title.toLowerCase(),
+          'network': curTo.tag == null ? 'mainnet' : curTo.tag!.toLowerCase()
+        }
       },
       'estimation': isFixedRateMode ? 'reversed' : 'direct',
       'rate': isFixedRateMode ? 'fixed' : 'floating'
