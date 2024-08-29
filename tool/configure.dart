@@ -386,7 +386,7 @@ abstract class Monero {
   WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
 
-  Map<String, List<int>> debugCallLength;
+  Map<String, List<int>> debugCallLength = {};
 }
 
 abstract class MoneroSubaddressList {
