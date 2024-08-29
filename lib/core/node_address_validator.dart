@@ -11,5 +11,9 @@ class NodeAddressValidator extends TextValidator {
 
 class NodePathValidator extends TextValidator {
   NodePathValidator()
-      : super(errorMessage: S.current.error_text_node_address, pattern: '^([/0-9a-zA-Z.\-]+)?\$');
+      : super(
+          errorMessage: S.current.error_text_node_address,
+          pattern: '^([/0-9a-zA-Z.\-]+)?\$',
+          isAutovalidate: true,
+        );
 }

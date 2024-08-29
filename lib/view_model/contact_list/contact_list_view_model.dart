@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -38,18 +39,21 @@ abstract class ContactListViewModelBase with Store {
             ));
           }
         });
-      } else if (info.addresses?.isNotEmpty == true) {
+      } else if (info.addresses?.isNotEmpty == true && info.addresses!.length > 1) {
         info.addresses!.forEach((address, label) {
+          if (label.isEmpty) {
+            return;
+          }
           final name = _createName(info.name, label);
           walletContacts.add(WalletContact(
             address,
             name,
-            walletTypeToCryptoCurrency(info.type),
+            walletTypeToCryptoCurrency(info.type,
+                isTestnet:
+                    info.network == null ? false : info.network!.toLowerCase().contains("testnet")),
           ));
-          // Only one contact address per wallet
-          return;
         });
-      } else if (info.address != null) {
+      } else {
         walletContacts.add(WalletContact(
           info.address,
           info.name,
@@ -64,7 +68,9 @@ abstract class ContactListViewModelBase with Store {
   }
 
   String _createName(String walletName, String label) {
-    return label.isNotEmpty ? '$walletName ($label)' : walletName;
+    return label.isNotEmpty
+        ? '$walletName (${label.replaceAll(RegExp(r'active', caseSensitive: false), S.current.active).replaceAll(RegExp(r'silent payments', caseSensitive: false), S.current.silent_payments)})'
+        : walletName;
   }
 
   final bool isAutoGenerateEnabled;

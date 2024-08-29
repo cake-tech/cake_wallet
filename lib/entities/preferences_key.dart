@@ -14,6 +14,8 @@ class PreferencesKey {
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentBitcoinCashNodeIdKey = 'current_node_id_bch';
   static const currentSolanaNodeIdKey = 'current_node_id_sol';
+  static const currentTronNodeIdKey = 'current_node_id_trx';
+  static const currentWowneroNodeIdKey = 'current_node_id_wow';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
@@ -42,7 +44,10 @@ class PreferencesKey {
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
+  static const wowneroTransactionPriority = 'current_fee_priority_wownero';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
+  static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
+  static const silentPaymentsAlwaysScan = 'silentPaymentsAlwaysScan';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const shouldShowRepWarning = 'should_show_rep_warning';
@@ -55,14 +60,17 @@ class PreferencesKey {
   static const pinNativeTokenAtTop = 'pin_native_token_at_top';
   static const useEtherscan = 'use_etherscan';
   static const usePolygonScan = 'use_polygonscan';
+  static const useTronGrid = 'use_trongrid';
+  static const useMempoolFeeAPI = 'use_mempool_fee_api';
   static const defaultNanoRep = 'default_nano_representative';
   static const defaultBananoRep = 'default_banano_representative';
   static const lookupsTwitter = 'looks_up_twitter';
   static const lookupsMastodon = 'looks_up_mastodon';
-  static const lookupsYatService = 'looks_up_mastodon';
-  static const lookupsUnstoppableDomains = 'looks_up_mastodon';
-  static const lookupsOpenAlias = 'looks_up_mastodon';
+  static const lookupsYatService = 'looks_up_yat';
+  static const lookupsUnstoppableDomains = 'looks_up_unstoppable_domain';
+  static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
+  static const showCameraConsent = 'show_camera_consent';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
@@ -70,8 +78,10 @@ class PreferencesKey {
   static const exchangeProvidersSelection = 'exchange-providers-selection';
   static const autoGenerateSubaddressStatusKey = 'auto_generate_subaddress_status';
   static const moneroSeedType = 'monero_seed_type';
+  static const bitcoinSeedType = 'bitcoin_seed_type';
   static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
+  static const donationLinkWalletName = 'donation_link_wallet_name';
   static const lastSeenAppVersion = 'last_seen_app_version';
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const isNewInstall = 'is_new_install';

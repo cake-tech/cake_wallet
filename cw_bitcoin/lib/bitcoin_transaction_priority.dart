@@ -37,7 +37,7 @@ class BitcoinTransactionPriority extends TransactionPriority {
 
     switch (this) {
       case BitcoinTransactionPriority.slow:
-        label = 'Slow ~24hrs'; // '${S.current.transaction_priority_slow} ~24hrs';
+        label = 'Slow ~24hrs+'; // '${S.current.transaction_priority_slow} ~24hrs';
         break;
       case BitcoinTransactionPriority.medium:
         label = 'Medium'; // S.current.transaction_priority_medium;

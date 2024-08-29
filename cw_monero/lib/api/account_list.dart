@@ -1,38 +1,28 @@
-import 'dart:ffi';
-import 'package:ffi/ffi.dart';
-import 'package:cw_monero/api/signatures.dart';
-import 'package:cw_monero/api/types.dart';
-import 'package:cw_monero/api/monero_api.dart';
-import 'package:cw_monero/api/structs/account_row.dart';
-import 'package:flutter/foundation.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:monero/monero.dart' as monero;
 
-final accountSizeNative = moneroApi
-    .lookup<NativeFunction<account_size>>('account_size')
-    .asFunction<SubaddressSize>();
+monero.wallet? wptr = null;
 
-final accountRefreshNative = moneroApi
-    .lookup<NativeFunction<account_refresh>>('account_refresh')
-    .asFunction<AccountRefresh>();
+int _wlptrForW = 0;
+monero.WalletListener? _wlptr = null;
 
-final accountGetAllNative = moneroApi
-    .lookup<NativeFunction<account_get_all>>('account_get_all')
-    .asFunction<AccountGetAll>();
+monero.WalletListener getWlptr() {
+  if (wptr!.address == _wlptrForW) return _wlptr!;
+  _wlptrForW = wptr!.address;
+  _wlptr = monero.MONERO_cw_getWalletListener(wptr!);
+  return _wlptr!;
+}
 
-final accountAddNewNative = moneroApi
-    .lookup<NativeFunction<account_add_new>>('account_add_row')
-    .asFunction<AccountAddNew>();
 
-final accountSetLabelNative = moneroApi
-    .lookup<NativeFunction<account_set_label>>('account_set_label_row')
-    .asFunction<AccountSetLabel>();
+monero.SubaddressAccount? subaddressAccount;
 
 bool isUpdating = false;
 
 void refreshAccounts() {
   try {
     isUpdating = true;
-    accountRefreshNative();
+    subaddressAccount = monero.Wallet_subaddressAccount(wptr!);
+    monero.SubaddressAccount_refresh(subaddressAccount!);
     isUpdating = false;
   } catch (e) {
     isUpdating = false;
@@ -40,26 +30,26 @@ void refreshAccounts() {
   }
 }
 
-List<AccountRow> getAllAccount() {
-  final size = accountSizeNative();
-  final accountAddressesPointer = accountGetAllNative();
-  final accountAddresses = accountAddressesPointer.asTypedList(size);
-
-  return accountAddresses
-      .map((addr) => Pointer<AccountRow>.fromAddress(addr).ref)
-      .toList();
+List<monero.SubaddressAccountRow> getAllAccount() {
+  // final size = monero.Wallet_numSubaddressAccounts(wptr!);
+  refreshAccounts();
+  int size = monero.SubaddressAccount_getAll_size(subaddressAccount!);
+  if (size == 0) {
+    monero.Wallet_addSubaddressAccount(wptr!);
+    return getAllAccount();
+  }
+  return List.generate(size, (index) {
+    return monero.SubaddressAccount_getAll_byIndex(subaddressAccount!, index: index);
+  });
 }
 
 void addAccountSync({required String label}) {
-  final labelPointer = label.toNativeUtf8();
-  accountAddNewNative(labelPointer);
-  calloc.free(labelPointer);
+  monero.Wallet_addSubaddressAccount(wptr!, label: label);
 }
 
 void setLabelForAccountSync({required int accountIndex, required String label}) {
-  final labelPointer = label.toNativeUtf8();
-  accountSetLabelNative(accountIndex, labelPointer);
-  calloc.free(labelPointer);
+  // TODO(mrcyjanek): this may be wrong function?
+  monero.Wallet_setSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: 0, label: label);
 }
 
 void _addAccount(String label) => addAccountSync(label: label);
@@ -72,12 +62,11 @@ void _setLabelForAccount(Map<String, dynamic> args) {
 }
 
 Future<void> addAccount({required String label}) async {
-  await compute(_addAccount, label);
+  _addAccount(label);
   await store();
 }
 
 Future<void> setLabelForAccount({required int accountIndex, required String label}) async {
-    await compute(
-        _setLabelForAccount, {'accountIndex': accountIndex, 'label': label});
+    _setLabelForAccount({'accountIndex': accountIndex, 'label': label});
     await store();
 }

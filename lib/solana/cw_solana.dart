@@ -4,8 +4,8 @@ class CWSolana extends Solana {
   @override
   List<String> getSolanaWordList(String language) => SolanaMnemonics.englishWordlist;
 
-  WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource) =>
-      SolanaWalletService(walletInfoSource);
+  WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
+      SolanaWalletService(walletInfoSource, isDirect);
 
   @override
   WalletCredentials createSolanaNewWalletCredentials({
@@ -13,12 +13,14 @@ class CWSolana extends Solana {
     String? mnemonic,
     String? parentAddress,
     WalletInfo? walletInfo,
+    String? password,
   }) =>
       SolanaNewWalletCredentials(
         name: name,
         walletInfo: walletInfo,
-        parentAddress: parentAddress,
+        password: password,
         mnemonic: mnemonic,
+        parentAddress: parentAddress,
       );
 
   @override
@@ -117,8 +119,10 @@ class CWSolana extends Solana {
     }
 
     wallet as SolanaWallet;
-    return wallet.splTokenCurrencies
-        .firstWhere((element) => transaction.tokenSymbol == element.symbol);
+
+    return wallet.splTokenCurrencies.firstWhere(
+      (element) => transaction.tokenSymbol == element.symbol,
+    );
   }
 
   @override

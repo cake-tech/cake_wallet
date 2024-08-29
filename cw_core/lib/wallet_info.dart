@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -17,50 +18,70 @@ enum DerivationType {
   @HiveField(3)
   bip39,
   @HiveField(4)
-  electrum1,
-  @HiveField(5)
-  electrum2,
+  electrum,
 }
 
-class DerivationInfo {
+@HiveType(typeId: HARDWARE_WALLET_TYPE_TYPE_ID)
+enum HardwareWalletType {
+  @HiveField(0)
+  ledger,
+}
+
+@HiveType(typeId: DerivationInfo.typeId)
+class DerivationInfo extends HiveObject {
   DerivationInfo({
-    required this.derivationType,
+    this.derivationType,
     this.derivationPath,
     this.balance = "",
     this.address = "",
-    this.height = 0,
-    this.script_type,
+    this.transactionsCount = 0,
+    this.scriptType,
     this.description,
   });
 
-  String balance;
+  static const typeId = DERIVATION_INFO_TYPE_ID;
+
+  @HiveField(0, defaultValue: '')
   String address;
-  int height;
-  final DerivationType derivationType;
-  final String? derivationPath;
-  final String? script_type;
+
+  @HiveField(1, defaultValue: '')
+  String balance;
+
+  @HiveField(2, defaultValue: 0)
+  int transactionsCount;
+
+  @HiveField(3)
+  DerivationType? derivationType;
+
+  @HiveField(4)
+  String? derivationPath;
+
+  @HiveField(5)
+  final String? scriptType;
+
+  @HiveField(6)
   final String? description;
 }
 
 @HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
   WalletInfo(
-      this.id,
-      this.name,
-      this.type,
-      this.isRecovery,
-      this.restoreHeight,
-      this.timestamp,
-      this.dirPath,
-      this.path,
-      this.address,
-      this.yatEid,
-      this.yatLastUsedAddressRaw,
-      this.showIntroCakePayCard,
-      this.derivationType,
-      this.derivationPath,
-      this.parentAddress)
-      : _yatLastUsedAddressController = StreamController<String>.broadcast();
+    this.id,
+    this.name,
+    this.type,
+    this.isRecovery,
+    this.restoreHeight,
+    this.timestamp,
+    this.dirPath,
+    this.path,
+    this.address,
+    this.yatEid,
+    this.yatLastUsedAddressRaw,
+    this.showIntroCakePayCard,
+    this.derivationInfo,
+    this.hardwareWalletType,
+    this.parentAddress,
+  ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
     required String id,
@@ -75,8 +96,8 @@ class WalletInfo extends HiveObject {
     bool? showIntroCakePayCard,
     String yatEid = '',
     String yatLastUsedAddressRaw = '',
-    DerivationType? derivationType,
-    String? derivationPath,
+    DerivationInfo? derivationInfo,
+    HardwareWalletType? hardwareWalletType,
     String? parentAddress,
   }) {
     return WalletInfo(
@@ -92,8 +113,8 @@ class WalletInfo extends HiveObject {
       yatEid,
       yatLastUsedAddressRaw,
       showIntroCakePayCard,
-      derivationType,
-      derivationPath,
+      derivationInfo,
+      hardwareWalletType,
       parentAddress,
     );
   }
@@ -146,11 +167,13 @@ class WalletInfo extends HiveObject {
   @HiveField(15)
   List<String>? usedAddresses;
 
+  @deprecated
   @HiveField(16)
-  DerivationType? derivationType;
+  DerivationType? derivationType; // no longer used
 
+  @deprecated
   @HiveField(17)
-  String? derivationPath;
+  String? derivationPath; // no longer used
 
   @HiveField(18)
   String? addressPageType;
@@ -159,6 +182,12 @@ class WalletInfo extends HiveObject {
   String? network;
 
   @HiveField(20)
+  DerivationInfo? derivationInfo;
+
+  @HiveField(21)
+  HardwareWalletType? hardwareWalletType;
+
+  @HiveField(22)
   String? parentAddress;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
@@ -177,9 +206,16 @@ class WalletInfo extends HiveObject {
     return showIntroCakePayCard!;
   }
 
+  bool get isHardwareWallet => hardwareWalletType != null;
+
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 
   Stream<String> get yatLastUsedAddressStream => _yatLastUsedAddressController.stream;
 
   StreamController<String> _yatLastUsedAddressController;
+
+  Future<void> updateRestoreHeight(int height) async {
+    restoreHeight = height;
+    await save();
+  }
 }

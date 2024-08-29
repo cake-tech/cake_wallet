@@ -56,6 +56,11 @@ Future<String> extractAddressFromParsed(
       profileImageUrl = parsedAddress.profileImageUrl;
       profileName = parsedAddress.profileName;
       break;
+    case ParseFrom.thorChain:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (ThorChain)');
+      address = parsedAddress.addresses.first;
+      break;
     case ParseFrom.yatRecord:
       if (parsedAddress.name.isEmpty) {
         title = S.of(context).yat_error;

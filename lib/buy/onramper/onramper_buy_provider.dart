@@ -13,7 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 class OnRamperBuyProvider extends BuyProvider {
   OnRamperBuyProvider(this._settingsStore,
       {required WalletBase wallet, bool isTestEnvironment = false})
-      : super(wallet: wallet, isTestEnvironment: isTestEnvironment);
+      : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
 
   static const _baseUrl = 'buy.onramper.com';
 

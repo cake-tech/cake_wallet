@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
@@ -164,62 +163,62 @@ const yoDateSymbols = {
     'ọjọ́ Àbámẹ́ta',
   ],
   'STANDALONEWEEKDAYS': <dynamic>[
-'Ọjọ́ Ajé',
-'Ọjọ́ Ìsẹ́gun',
-'Ọjọ́ Ìsẹ́gun-Ẹtì',
-'Ọjọ́ Ìsẹ́gun-Ọ̀rú',
-'Ọjọ́ Àìkú',
-'Ọjọ́ Jímọ̀',
-'Ọjọ́ Àbámẹ́ta',
-],
-'SHORTWEEKDAYS': <dynamic>[
-'Ajé',
-'Ìsẹ́gun',
-'Ìsẹ́gun-Ẹtì',
-'Ìsẹ́gun-Ọ̀rú',
-'Àìkú',
-'Jímọ̀',
-'Àbámẹ́ta',
-],
-'STANDALONESHORTWEEKDAYS': <dynamic>[
-'Ajé',
-'Ìsẹ́gun',
-'Ìsẹ́gun-Ẹtì',
-'Ìsẹ́gun-Ọ̀rú',
-'Àìkú',
-'Jímọ̀',
-'Àbámẹ́ta',
-],
-'NARROWWEEKDAYS': <dynamic>[
-'A',
-'A',
-'Ì',
-'A',
-'À',
-'J',
-'À',
-],
-'STANDALONENARROWWEEKDAYS': <dynamic>[
-'A',
-'A',
-'Ì',
-'A',
-'À',
-'J',
-'À',
-],
-'SHORTQUARTERS': <dynamic>[
-'K1',
-'K2',
-'K3',
-'K4',
-],
-'QUARTERS': <dynamic>[
-'1. kwata',
-'2. kwata',
-'3. kwata',
-'4. kwata',
-],
+    'Ọjọ́ Ajé',
+    'Ọjọ́ Ìsẹ́gun',
+    'Ọjọ́ Ìsẹ́gun-Ẹtì',
+    'Ọjọ́ Ìsẹ́gun-Ọ̀rú',
+    'Ọjọ́ Àìkú',
+    'Ọjọ́ Jímọ̀',
+    'Ọjọ́ Àbámẹ́ta',
+  ],
+  'SHORTWEEKDAYS': <dynamic>[
+    'Ajé',
+    'Ìsẹ́gun',
+    'Ìsẹ́gun-Ẹtì',
+    'Ìsẹ́gun-Ọ̀rú',
+    'Àìkú',
+    'Jímọ̀',
+    'Àbámẹ́ta',
+  ],
+  'STANDALONESHORTWEEKDAYS': <dynamic>[
+    'Ajé',
+    'Ìsẹ́gun',
+    'Ìsẹ́gun-Ẹtì',
+    'Ìsẹ́gun-Ọ̀rú',
+    'Àìkú',
+    'Jímọ̀',
+    'Àbámẹ́ta',
+  ],
+  'NARROWWEEKDAYS': <dynamic>[
+    'A',
+    'A',
+    'Ì',
+    'A',
+    'À',
+    'J',
+    'À',
+  ],
+  'STANDALONENARROWWEEKDAYS': <dynamic>[
+    'A',
+    'A',
+    'Ì',
+    'A',
+    'À',
+    'J',
+    'À',
+  ],
+  'SHORTQUARTERS': <dynamic>[
+    'K1',
+    'K2',
+    'K3',
+    'K4',
+  ],
+  'QUARTERS': <dynamic>[
+    '1. kwata',
+    '2. kwata',
+    '3. kwata',
+    '4. kwata',
+  ],
   'AMPMS': <dynamic>[
     'a.m.',
     'p.m.',
@@ -316,339 +315,339 @@ class YoMaterialLocalizations extends GlobalMaterialLocalizations {
   });
 
 // #docregion Getters
-@override
-String get moreButtonTooltip => r'Kò sí ìròhùn tí ó múni';
+  @override
+  String get moreButtonTooltip => r'Kò sí ìròhùn tí ó múni';
 
-@override
-String get aboutListTileTitleRaw => r'Fun Àpótí àwọn $applicationname';
+  @override
+  String get aboutListTileTitleRaw => r'Fun Àpótí àwọn $applicationname';
 
-@override
-String get alertDialogLabel => r'Ìròhùn Àlàyé';
+  @override
+  String get alertDialogLabel => r'Ìròhùn Àlàyé';
 
 // #enddocregion Getters
 
-@override
-String get anteMeridiemAbbreviation => r'AM';
+  @override
+  String get anteMeridiemAbbreviation => r'AM';
 
-@override
-String get backButtonTooltip => r'Fíran';
+  @override
+  String get backButtonTooltip => r'Fíran';
 
-@override
-String get cancelButtonLabel => r'FAGILE';
+  @override
+  String get cancelButtonLabel => r'FAGILE';
 
-@override
-String get closeButtonLabel => r'KÚ';
+  @override
+  String get closeButtonLabel => r'KÚ';
 
-@override
-String get closeButtonTooltip => r'Kú';
+  @override
+  String get closeButtonTooltip => r'Kú';
 
-@override
-String get collapsedIconTapHint => r'Tá';
+  @override
+  String get collapsedIconTapHint => r'Tá';
 
-@override
-String get continueButtonLabel => r'TÓ WÁ';
+  @override
+  String get continueButtonLabel => r'TÓ WÁ';
 
-@override
-String get copyButtonLabel => r'DÚPLÍKÉTÍ';
+  @override
+  String get copyButtonLabel => r'DÚPLÍKÉTÍ';
 
-@override
-String get cutButtonLabel => r'TÒ';
+  @override
+  String get cutButtonLabel => r'TÒ';
 
-@override
-String get deleteButtonTooltip => r'Máa kú';
+  @override
+  String get deleteButtonTooltip => r'Máa kú';
 
-@override
-String get dialogLabel => r'Ìròhùn';
+  @override
+  String get dialogLabel => r'Ìròhùn';
 
-@override
-String get drawerLabel => r'Àgbèjọ àwọn àpọ̀tí';
+  @override
+  String get drawerLabel => r'Àgbèjọ àwọn àpọ̀tí';
 
-@override
-String get expandedIconTapHint => r'Tá';
+  @override
+  String get expandedIconTapHint => r'Tá';
 
-@override
-String get firstPageTooltip => r'Ojú ewe';
+  @override
+  String get firstPageTooltip => r'Ojú ewe';
 
-@override
-String get hideAccountsLabel => r'Fí èrò àpótí wáyé sílẹ̀';
+  @override
+  String get hideAccountsLabel => r'Fí èrò àpótí wáyé sílẹ̀';
 
-@override
-String get lastPageTooltip => r'Ojú ayé';
+  @override
+  String get lastPageTooltip => r'Ojú ayé';
 
-@override
-String get licensesPageTitle => r'Ìròhùn Ọdún';
+  @override
+  String get licensesPageTitle => r'Ìròhùn Ọdún';
 
-@override
-String get modalBarrierDismissLabel => r'Sọ';
+  @override
+  String get modalBarrierDismissLabel => r'Sọ';
 
-@override
-String get nextMonthTooltip => r'Oṣù kọja';
+  @override
+  String get nextMonthTooltip => r'Oṣù kọja';
 
-@override
-String get nextPageTooltip => r'Ojú ọjọ́ kẹta';
+  @override
+  String get nextPageTooltip => r'Ojú ọjọ́ kẹta';
 
-@override
-String get okButtonLabel => r'Ò daájú';
-@override
+  @override
+  String get okButtonLabel => r'Ò daájú';
+  @override
 // A custom drawer tooltip message.
-String get openAppDrawerTooltip => r'Aya ntọju Iwe Awọn Aka';
+  String get openAppDrawerTooltip => r'Aya ntọju Iwe Awọn Aka';
 
 // #docregion Raw
-@override
-String get pageRowsInfoTitleRaw => r'$firstRow–$lastRow lati $rowCount';
+  @override
+  String get pageRowsInfoTitleRaw => r'$firstRow–$lastRow lati $rowCount';
 
-@override
-String get pageRowsInfoTitleApproximateRaw => r'$firstRow–$lastRow lati kiakia $rowCount';
+  @override
+  String get pageRowsInfoTitleApproximateRaw => r'$firstRow–$lastRow lati kiakia $rowCount';
 // #enddocregion Raw
 
-@override
-String get pasteButtonLabel => r'TÌ';
-
-@override
-String get popupMenuLabel => r'Meniu Pop-up';
-
-@override
-String get menuBarMenuLabel => r'Meniu Akọkọ';
-
-@override
-String get postMeridiemAbbreviation => r'PM';
-
-@override
-String get previousMonthTooltip => r'Oṣu Kanakana';
-
-@override
-String get previousPageTooltip => r'Ojú ewé akọkọ kan';
-
-@override
-String get refreshIndicatorSemanticLabel => r'Gbiyanju';
-
-@override
-String? get remainingTextFieldCharacterCountFew => null;
-
-@override
-String? get remainingTextFieldCharacterCountMany => null;
-
-@override
-String get remainingTextFieldCharacterCountOne => r'1 àmì báálẹ̀';
-
-@override
-String get remainingTextFieldCharacterCountOther => r'$remainingCount àmì báálẹ̀';
-
-@override
-String? get remainingTextFieldCharacterCountTwo => null;
-
-@override
-String get remainingTextFieldCharacterCountZero => r'Kò sí ìwọlé létà láti ń ṣe';
-
-@override
-String get reorderItemDown => r'Jù sí ilẹ';
-
-@override
-String get reorderItemLeft => r'Jù sí àrà';
-
-@override
-String get reorderItemRight => r'Jù sí òtútù';
-
-@override
-String get reorderItemToEnd => r'Jù sí ìbẹ̀jì';
-
-@override
-String get reorderItemToStart => r'Jù sí àkọ́kọ́';
-
-@override
-String get reorderItemUp => r'Jù sí ọ̀rùn';
-
-@override
-String get rowsPerPageTitle => r'Ìlò Fún àwọn Ìtọ́kasíwájú:';
-
-@override
-ScriptCategory get scriptCategory => ScriptCategory.englishLike;
-
-@override
-String get searchFieldLabel => 'Ṣẹda';
-
-@override
-String get selectAllButtonLabel => 'FADỌHỌN DỌFÚN GBÁJÚMỌ̀';
-
-@override
-String? get selectedRowCountTitleFew => null;
-
-@override
-String? get selectedRowCountTitleMany => null;
-
-@override
-String get selectedRowCountTitleOne => '1 káyé';
-
-@override
-String get selectedRowCountTitleOther => r'$selectedRowCount káyé';
-
-@override
-String? get selectedRowCountTitleTwo => null;
-
-@override
-String get selectedRowCountTitleZero => 'Kò sí káyé ti o wọlé';
-
-@override
-String get showAccountsLabel => 'Fi iyipada mu kọ';
-
-@override
-String get showMenuTooltip => 'Fi Meniu mu kọ';
-
-@override
-String get signedInLabel => 'Ọ̀nà';
-
-@override
-String get tabLabelRaw => r'Àwọn tabin $tabIndex lati $tabCount';
-  
   @override
-TimeOfDayFormat get timeOfDayFormatRaw => TimeOfDayFormat.h_colon_mm_space_a;
-
-@override
-String get timePickerHourModeAnnouncement => 'Tuntun waqtu lọ';
-
-@override
-String get timePickerMinuteModeAnnouncement => 'Tuntun daɗi minti';
-
-@override
-String get viewLicensesButtonLabel => 'WO NIKI';
-
-@override
-List<String> get narrowWeekdays => const <String>['L', 'L', 'A', 'O', 'Ọ', 'Ẹ', 'Ẹ'];
-
-@override
-int get firstDayOfWeekIndex => 0;
-
-static const LocalizationsDelegate<MaterialLocalizations> delegate =
-_YoMaterialLocalizationsDelegate();
-
-@override
-String get calendarModeButtonLabel => 'Tọ́rọ̀ kálẹ̀ndà';
-
-@override
-String get dateHelpText => 'mm/dd/yyyy';
-
-@override
-String get dateInputLabel => 'Firanṣẹ̀ Ọjọ́';
-
-@override
-String get dateOutOfRangeLabel => 'Nínú iwọ̀ lọ́wọ́';
-
-@override
-String get datePickerHelpText => 'WÁSÍ';
-
-@override
-String get dateRangeEndDateSemanticLabelRaw => r'Ọjọ́ tuntun to ṣà';
-
-@override
-String get dateRangeEndLabel => 'Ọjọ́ tuntun to ṣà';
-
-@override
-String get dateRangePickerHelpText => 'WÁSÍ ÌGBÀ';
-
-@override
-String get dateRangeStartDateSemanticLabelRaw => 'Ọjọ́ tuntun ti dá';
-
-@override
-String get dateRangeStartLabel => 'Ọjọ́ tuntun ti dá';
-
-@override
-String get dateSeparator => '/';
-
-@override
-String get dialModeButtonLabel => 'Tọ́rọ̀ wakati';
-
-@override
-String get inputDateModeButtonLabel => 'Tọ́rọ̀ firanṣẹ̀ ọjọ́';
-
-@override
-String get inputTimeModeButtonLabel => 'Tọ́rọ̀ wakati bayi lọ́wọ́';
-
-@override
-String get invalidDateFormatLabel => 'Akọ́kọ́tọ́ tó jẹ́kúnrin';
-
-@override
-String get invalidDateRangeLabel => 'Àmì jẹ́ káàkiri lẹ́yìn ilé';
-
-@override
-String get invalidTimeLabel => 'Akọ́kọ́tọ́ àkójọ ìwádìí';
-
-@override
-String get licensesPackageDetailTextOther => r'$licenseCount àwọn níkí';
-
-@override
-String get saveButtonLabel => 'TÙN DÁRA';
-
-@override
-String get selectYearSemanticsLabel => 'Fọ́ọ̀ shẹ́kàrà';
-
-@override
-String get timePickerDialHelpText => 'WÁSÍ WÁKÀTÌ';
-
-@override
-String get timePickerHourLabel => 'Wákàtì àṣà';
-
-@override
-String get timePickerInputHelpText => 'Shìgárà wákàtì';
-
-@override
-String get timePickerMinuteLabel => 'Mìntì';
-
-@override
-String get unspecifiedDate => 'Ọjọ̀kúnrin';
-
-@override
-String get unspecifiedDateRange => 'Ọjọ̀kúnrin àdáyọ̀';
-
-@override
-String get keyboardKeyAlt => 'Alt';
-
-@override
-String get keyboardKeyAltGraph => 'AltGraph';
-
-@override
-String get keyboardKeyBackspace => 'Báckspàcè';
-
-@override
-String get keyboardKeyCapsLock => 'Caps Lock';
-
-@override
-String get keyboardKeyChannelDown => 'Báyàkàmmàlàsàké';
-
-@override
-String get keyboardKeyChannelUp => 'Yíkàmmàlàsàké';
-
-@override
-String get keyboardKeyControl => 'Kọ́ntírọ̀l';
-
-@override
-String get keyboardKeyDelete => 'Shápè';
-
-@override
-String get keyboardKeyEject => 'Èjẹ̀tì';
-
-@override
-String get keyboardKeyEnd => 'Tàbí';
-
-@override
-String get keyboardKeyEscape => 'Tòkè';
+  String get pasteButtonLabel => r'TÌ';
 
   @override
-String get keyboardKeyFn => 'Fn';
+  String get popupMenuLabel => r'Meniu Pop-up';
 
-@override
-String get keyboardKeyHome => 'Ile';
+  @override
+  String get menuBarMenuLabel => r'Meniu Akọkọ';
 
-@override
-String get keyboardKeyInsert => 'Fi sori';
+  @override
+  String get postMeridiemAbbreviation => r'PM';
 
-@override
-String get keyboardKeyMeta => 'Meta';
+  @override
+  String get previousMonthTooltip => r'Oṣu Kanakana';
 
-@override
-String get keyboardKeyMetaMacOs => 'Amfani pẹlu Command';
+  @override
+  String get previousPageTooltip => r'Ojú ewé akọkọ kan';
 
-@override
-String get keyboardKeyMetaWindows => 'Windows';
+  @override
+  String get refreshIndicatorSemanticLabel => r'Gbiyanju';
+
+  @override
+  String? get remainingTextFieldCharacterCountFew => null;
+
+  @override
+  String? get remainingTextFieldCharacterCountMany => null;
+
+  @override
+  String get remainingTextFieldCharacterCountOne => r'1 àmì báálẹ̀';
+
+  @override
+  String get remainingTextFieldCharacterCountOther => r'$remainingCount àmì báálẹ̀';
+
+  @override
+  String? get remainingTextFieldCharacterCountTwo => null;
+
+  @override
+  String get remainingTextFieldCharacterCountZero => r'Kò sí ìwọlé létà láti ń ṣe';
+
+  @override
+  String get reorderItemDown => r'Jù sí ilẹ';
+
+  @override
+  String get reorderItemLeft => r'Jù sí àrà';
+
+  @override
+  String get reorderItemRight => r'Jù sí òtútù';
+
+  @override
+  String get reorderItemToEnd => r'Jù sí ìbẹ̀jì';
+
+  @override
+  String get reorderItemToStart => r'Jù sí àkọ́kọ́';
+
+  @override
+  String get reorderItemUp => r'Jù sí ọ̀rùn';
+
+  @override
+  String get rowsPerPageTitle => r'Ìlò Fún àwọn Ìtọ́kasíwájú:';
+
+  @override
+  ScriptCategory get scriptCategory => ScriptCategory.englishLike;
+
+  @override
+  String get searchFieldLabel => 'Ṣẹda';
+
+  @override
+  String get selectAllButtonLabel => 'FADỌHỌN DỌFÚN GBÁJÚMỌ̀';
+
+  @override
+  String? get selectedRowCountTitleFew => null;
+
+  @override
+  String? get selectedRowCountTitleMany => null;
+
+  @override
+  String get selectedRowCountTitleOne => '1 káyé';
+
+  @override
+  String get selectedRowCountTitleOther => r'$selectedRowCount káyé';
+
+  @override
+  String? get selectedRowCountTitleTwo => null;
+
+  @override
+  String get selectedRowCountTitleZero => 'Kò sí káyé ti o wọlé';
+
+  @override
+  String get showAccountsLabel => 'Fi iyipada mu kọ';
+
+  @override
+  String get showMenuTooltip => 'Fi Meniu mu kọ';
+
+  @override
+  String get signedInLabel => 'Ọ̀nà';
+
+  @override
+  String get tabLabelRaw => r'Àwọn tabin $tabIndex lati $tabCount';
+
+  @override
+  TimeOfDayFormat get timeOfDayFormatRaw => TimeOfDayFormat.h_colon_mm_space_a;
+
+  @override
+  String get timePickerHourModeAnnouncement => 'Tuntun waqtu lọ';
+
+  @override
+  String get timePickerMinuteModeAnnouncement => 'Tuntun daɗi minti';
+
+  @override
+  String get viewLicensesButtonLabel => 'WO NIKI';
+
+  @override
+  List<String> get narrowWeekdays => const <String>['L', 'L', 'A', 'O', 'Ọ', 'Ẹ', 'Ẹ'];
+
+  @override
+  int get firstDayOfWeekIndex => 0;
+
+  static const LocalizationsDelegate<MaterialLocalizations> delegate =
+      _YoMaterialLocalizationsDelegate();
+
+  @override
+  String get calendarModeButtonLabel => 'Tọ́rọ̀ kálẹ̀ndà';
+
+  @override
+  String get dateHelpText => 'mm/dd/yyyy';
+
+  @override
+  String get dateInputLabel => 'Firanṣẹ̀ Ọjọ́';
+
+  @override
+  String get dateOutOfRangeLabel => 'Nínú iwọ̀ lọ́wọ́';
+
+  @override
+  String get datePickerHelpText => 'WÁSÍ';
+
+  @override
+  String get dateRangeEndDateSemanticLabelRaw => r'Ọjọ́ tuntun to ṣà';
+
+  @override
+  String get dateRangeEndLabel => 'Ọjọ́ tuntun to ṣà';
+
+  @override
+  String get dateRangePickerHelpText => 'WÁSÍ ÌGBÀ';
+
+  @override
+  String get dateRangeStartDateSemanticLabelRaw => 'Ọjọ́ tuntun ti dá';
+
+  @override
+  String get dateRangeStartLabel => 'Ọjọ́ tuntun ti dá';
+
+  @override
+  String get dateSeparator => '/';
+
+  @override
+  String get dialModeButtonLabel => 'Tọ́rọ̀ wakati';
+
+  @override
+  String get inputDateModeButtonLabel => 'Tọ́rọ̀ firanṣẹ̀ ọjọ́';
+
+  @override
+  String get inputTimeModeButtonLabel => 'Tọ́rọ̀ wakati bayi lọ́wọ́';
+
+  @override
+  String get invalidDateFormatLabel => 'Akọ́kọ́tọ́ tó jẹ́kúnrin';
+
+  @override
+  String get invalidDateRangeLabel => 'Àmì jẹ́ káàkiri lẹ́yìn ilé';
+
+  @override
+  String get invalidTimeLabel => 'Akọ́kọ́tọ́ àkójọ ìwádìí';
+
+  @override
+  String get licensesPackageDetailTextOther => r'$licenseCount àwọn níkí';
+
+  @override
+  String get saveButtonLabel => 'TÙN DÁRA';
+
+  @override
+  String get selectYearSemanticsLabel => 'Fọ́ọ̀ shẹ́kàrà';
+
+  @override
+  String get timePickerDialHelpText => 'WÁSÍ WÁKÀTÌ';
+
+  @override
+  String get timePickerHourLabel => 'Wákàtì àṣà';
+
+  @override
+  String get timePickerInputHelpText => 'Shìgárà wákàtì';
+
+  @override
+  String get timePickerMinuteLabel => 'Mìntì';
+
+  @override
+  String get unspecifiedDate => 'Ọjọ̀kúnrin';
+
+  @override
+  String get unspecifiedDateRange => 'Ọjọ̀kúnrin àdáyọ̀';
+
+  @override
+  String get keyboardKeyAlt => 'Alt';
+
+  @override
+  String get keyboardKeyAltGraph => 'AltGraph';
+
+  @override
+  String get keyboardKeyBackspace => 'Báckspàcè';
+
+  @override
+  String get keyboardKeyCapsLock => 'Caps Lock';
+
+  @override
+  String get keyboardKeyChannelDown => 'Báyàkàmmàlàsàké';
+
+  @override
+  String get keyboardKeyChannelUp => 'Yíkàmmàlàsàké';
+
+  @override
+  String get keyboardKeyControl => 'Kọ́ntírọ̀l';
+
+  @override
+  String get keyboardKeyDelete => 'Shápè';
+
+  @override
+  String get keyboardKeyEject => 'Èjẹ̀tì';
+
+  @override
+  String get keyboardKeyEnd => 'Tàbí';
+
+  @override
+  String get keyboardKeyEscape => 'Tòkè';
+
+  @override
+  String get keyboardKeyFn => 'Fn';
+
+  @override
+  String get keyboardKeyHome => 'Ile';
+
+  @override
+  String get keyboardKeyInsert => 'Fi sori';
+
+  @override
+  String get keyboardKeyMeta => 'Meta';
+
+  @override
+  String get keyboardKeyMetaMacOs => 'Amfani pẹlu Command';
+
+  @override
+  String get keyboardKeyMetaWindows => 'Windows';
 
   @override
   String get keyboardKeyNumLock => 'Num Lock';
@@ -751,6 +750,50 @@ String get keyboardKeyMetaWindows => 'Windows';
 
   @override
   String get scrimOnTapHintRaw => "Scrip on Tap";
+
+  @override
+  // TODO: implement collapsedHint
+  String get collapsedHint => "collapsedHint";
+
+  @override
+  // TODO: implement expandedHint
+  String get expandedHint => "expandedHint";
+
+  @override
+  // TODO: implement expansionTileCollapsedHint
+  String get expansionTileCollapsedHint => "expansionTileCollapsedHint";
+
+  @override
+  // TODO: implement expansionTileCollapsedTapHint
+  String get expansionTileCollapsedTapHint => "expansionTileCollapsedTapHint";
+
+  @override
+  // TODO: implement expansionTileExpandedHint
+  String get expansionTileExpandedHint => "expansionTileExpandedHint";
+
+  @override
+  // TODO: implement expansionTileExpandedTapHint
+  String get expansionTileExpandedTapHint => "expansionTileExpandedTapHint";
+
+  @override
+  // TODO: implement scanTextButtonLabel
+  String get scanTextButtonLabel => "scanTextButtonLabel";
+
+  @override
+  // TODO: implement lookUpButtonLabel
+  String get lookUpButtonLabel => "lookUpButtonLabel";
+
+  @override
+  // TODO: implement menuDismissLabel
+  String get menuDismissLabel => "menuDismissLabel";
+
+  @override
+  // TODO: implement searchWebButtonLabel
+  String get searchWebButtonLabel => "searchWebButtonLabel";
+
+  @override
+  // TODO: implement shareButtonLabel
+  String get shareButtonLabel => "shareButtonLabel";
 }
 
 /// Cupertino Support
@@ -821,138 +864,158 @@ class YoCupertinoLocalizations extends GlobalCupertinoLocalizations {
     required super.singleDigitSecondFormat,
   });
 
-@override
-String get alertDialogLabel => 'Àdàkárò';
+  @override
+  String get alertDialogLabel => 'Àdàkárò';
 
-@override
-String get anteMeridiemAbbreviation => 'AM';
+  @override
+  String get anteMeridiemAbbreviation => 'AM';
 
-@override
-String get copyButtonLabel => 'Kòpy';
+  @override
+  String get copyButtonLabel => 'Kòpy';
 
-@override
-String get cutButtonLabel => 'Kọ́t';
+  @override
+  String get cutButtonLabel => 'Kọ́t';
 
-@override
-String get datePickerDateOrderString => 'mdy';
+  @override
+  String get datePickerDateOrderString => 'mdy';
 
-@override
-String get datePickerDateTimeOrderString => 'date_time_dayPeriod';
+  @override
+  String get datePickerDateTimeOrderString => 'date_time_dayPeriod';
 
-@override
-String? get datePickerHourSemanticsLabelFew => null;
+  @override
+  String? get datePickerHourSemanticsLabelFew => null;
 
-@override
-String? get datePickerHourSemanticsLabelMany => null;
+  @override
+  String? get datePickerHourSemanticsLabelMany => null;
 
-@override
-String? get datePickerHourSemanticsLabelOne => r"$hour o'clock";
+  @override
+  String? get datePickerHourSemanticsLabelOne => r"$hour o'clock";
 
-@override
-String get datePickerHourSemanticsLabelOther => r"$hour o'clock";
+  @override
+  String get datePickerHourSemanticsLabelOther => r"$hour o'clock";
 
-@override
-String? get datePickerHourSemanticsLabelTwo => null;
+  @override
+  String? get datePickerHourSemanticsLabelTwo => null;
 
-@override
-String? get datePickerHourSemanticsLabelZero => null;
+  @override
+  String? get datePickerHourSemanticsLabelZero => null;
 
-@override
-String? get datePickerMinuteSemanticsLabelFew => null;
+  @override
+  String? get datePickerMinuteSemanticsLabelFew => null;
 
-@override
-String? get datePickerMinuteSemanticsLabelMany => null;
+  @override
+  String? get datePickerMinuteSemanticsLabelMany => null;
 
-@override
-String? get datePickerMinuteSemanticsLabelOne => '1 wakati';
+  @override
+  String? get datePickerMinuteSemanticsLabelOne => '1 wakati';
 
-@override
-String get datePickerMinuteSemanticsLabelOther => r'$minute wakati';
+  @override
+  String get datePickerMinuteSemanticsLabelOther => r'$minute wakati';
 
-@override
-String? get datePickerMinuteSemanticsLabelTwo => null;
+  @override
+  String? get datePickerMinuteSemanticsLabelTwo => null;
 
-@override
-String? get datePickerMinuteSemanticsLabelZero => null;
+  @override
+  String? get datePickerMinuteSemanticsLabelZero => null;
 
-@override
-String get modalBarrierDismissLabel => 'Búta';
+  @override
+  String get modalBarrierDismissLabel => 'Búta';
 
-@override
-String get pasteButtonLabel => 'Tẹ́ẹ́';
+  @override
+  String get pasteButtonLabel => 'Tẹ́ẹ́';
 
-@override
-String get postMeridiemAbbreviation => 'PM';
+  @override
+  String get postMeridiemAbbreviation => 'PM';
 
-@override
-String get searchTextFieldPlaceholderLabel => 'Wúró àtúntà';
+  @override
+  String get searchTextFieldPlaceholderLabel => 'Wúró àtúntà';
 
-@override
-String get selectAllButtonLabel => 'Fírànsé gbógbo';
+  @override
+  String get selectAllButtonLabel => 'Fírànsé gbógbo';
 
-@override
-String get tabSemanticsLabelRaw => r'Tab $tabIndex nínú $tabCount';
+  @override
+  String get tabSemanticsLabelRaw => r'Tab $tabIndex nínú $tabCount';
 
-@override
-String? get timerPickerHourLabelFew => null;
+  @override
+  String? get timerPickerHourLabelFew => null;
 
-@override
-String? get timerPickerHourLabelMany => null;
+  @override
+  String? get timerPickerHourLabelMany => null;
 
-@override
-String? get timerPickerHourLabelOne => 'òǹdì';
+  @override
+  String? get timerPickerHourLabelOne => 'òǹdì';
 
-@override
-String get timerPickerHourLabelOther => 'òǹdì';
+  @override
+  String get timerPickerHourLabelOther => 'òǹdì';
 
-@override
-String? get timerPickerHourLabelTwo => null;
+  @override
+  String? get timerPickerHourLabelTwo => null;
 
-@override
-String? get timerPickerHourLabelZero => null;
+  @override
+  String? get timerPickerHourLabelZero => null;
 
-@override
-String? get timerPickerMinuteLabelFew => null;
+  @override
+  String? get timerPickerMinuteLabelFew => null;
 
-@override
-String? get timerPickerMinuteLabelMany => null;
+  @override
+  String? get timerPickerMinuteLabelMany => null;
 
-@override
-String? get timerPickerMinuteLabelOne => 'wakati.';
+  @override
+  String? get timerPickerMinuteLabelOne => 'wakati.';
 
-@override
-String get timerPickerMinuteLabelOther => 'wakati.';
+  @override
+  String get timerPickerMinuteLabelOther => 'wakati.';
 
-@override
-String? get timerPickerMinuteLabelTwo => null;
+  @override
+  String? get timerPickerMinuteLabelTwo => null;
 
-@override
-String? get timerPickerMinuteLabelZero => null;
+  @override
+  String? get timerPickerMinuteLabelZero => null;
 
-@override
-String? get timerPickerSecondLabelFew => null;
+  @override
+  String? get timerPickerSecondLabelFew => null;
 
-@override
-String? get timerPickerSecondLabelMany => null;
+  @override
+  String? get timerPickerSecondLabelMany => null;
 
-@override
-String? get timerPickerSecondLabelOne => 'dákìkà.';
+  @override
+  String? get timerPickerSecondLabelOne => 'dákìkà.';
 
-@override
-String get timerPickerSecondLabelOther => 'dákìkà.';
+  @override
+  String get timerPickerSecondLabelOther => 'dákìkà.';
 
-@override
-String? get timerPickerSecondLabelTwo => null;
+  @override
+  String? get timerPickerSecondLabelTwo => null;
 
-@override
-String? get timerPickerSecondLabelZero => null;
+  @override
+  String? get timerPickerSecondLabelZero => null;
 
-@override
-String get todayLabel => 'Oyọ';
+  @override
+  String get todayLabel => 'Oyọ';
 
   static const LocalizationsDelegate<CupertinoLocalizations> delegate =
       _YoCupertinoLocalizationsDelegate();
 
   @override
   String get noSpellCheckReplacementsLabel => "";
+
+  @override
+  // TODO: implement clearButtonLabel
+  String get clearButtonLabel => "clearButtonLabel";
+
+  @override
+  // TODO: implement lookUpButtonLabel
+  String get lookUpButtonLabel => "lookUpButtonLabel";
+
+  @override
+  // TODO: implement menuDismissLabel
+  String get menuDismissLabel => "menuDismissLabel";
+
+  @override
+  // TODO: implement searchWebButtonLabel
+  String get searchWebButtonLabel => "searchWebButtonLabel";
+
+  @override
+  // TODO: implement shareButtonLabel
+  String get shareButtonLabel => "shareButtonLabel";
 }

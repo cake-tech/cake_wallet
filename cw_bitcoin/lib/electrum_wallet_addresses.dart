@@ -1,7 +1,6 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -24,15 +23,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     WalletInfo walletInfo, {
     required this.mainHd,
     required this.sideHd,
-    required this.electrumClient,
     required this.network,
     List<BitcoinAddressRecord>? initialAddresses,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
+    List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
+    int initialSilentAddressIndex = 0,
+    Bip32Slip10Secp256k1? masterHd,
     BitcoinAddressType? initialAddressPageType,
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         addressesByReceiveType =
-            ObservableList<BitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
+            ObservableList<BaseBitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
         receiveAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
             .where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed)
             .toSet()),
@@ -45,7 +46,39 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
             (walletInfo.addressPageType != null
                 ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
                 : SegwitAddresType.p2wpkh),
+        silentAddresses = ObservableList<BitcoinSilentPaymentAddressRecord>.of(
+            (initialSilentAddresses ?? []).toSet()),
+        currentSilentAddressIndex = initialSilentAddressIndex,
         super(walletInfo) {
+    if (masterHd != null) {
+      silentAddress = SilentPaymentOwner.fromPrivateKeys(
+        b_scan: ECPrivate.fromHex(masterHd.derivePath(SCAN_PATH).privateKey.toHex()),
+        b_spend: ECPrivate.fromHex(masterHd.derivePath(SPEND_PATH).privateKey.toHex()),
+        network: network,
+      );
+
+      if (silentAddresses.length == 0) {
+        silentAddresses.add(BitcoinSilentPaymentAddressRecord(
+          silentAddress.toString(),
+          index: 0,
+          isHidden: false,
+          name: "",
+          silentPaymentTweak: null,
+          network: network,
+          type: SilentPaymentsAddresType.p2sp,
+        ));
+        silentAddresses.add(BitcoinSilentPaymentAddressRecord(
+          silentAddress!.toLabeledSilentPaymentAddress(0).toString(),
+          index: 0,
+          isHidden: true,
+          name: "",
+          silentPaymentTweak: BytesUtils.toHexString(silentAddress!.generateLabel(0)),
+          network: network,
+          type: SilentPaymentsAddresType.p2sp,
+        ));
+      }
+    }
+
     updateAddressesByMatch();
   }
 
@@ -54,14 +87,16 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const gap = 20;
 
   final ObservableList<BitcoinAddressRecord> _addresses;
-  // Matched by addressPageType
-  late ObservableList<BitcoinAddressRecord> addressesByReceiveType;
+  late ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
-  final ElectrumClient electrumClient;
+  final ObservableList<BitcoinSilentPaymentAddressRecord> silentAddresses;
   final BasedUtxoNetwork network;
-  final bitcoin.HDWallet mainHd;
-  final bitcoin.HDWallet sideHd;
+  final Bip32Slip10Secp256k1 mainHd;
+  final Bip32Slip10Secp256k1 sideHd;
+
+  @observable
+  SilentPaymentOwner? silentAddress;
 
   @observable
   late BitcoinAddressType _addressPageType;
@@ -69,12 +104,23 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @computed
   BitcoinAddressType get addressPageType => _addressPageType;
 
+  @observable
+  String? activeSilentAddress;
+
   @computed
   List<BitcoinAddressRecord> get allAddresses => _addresses;
 
   @override
   @computed
   String get address {
+    if (addressPageType == SilentPaymentsAddresType.p2sp) {
+      if (activeSilentAddress != null) {
+        return activeSilentAddress!;
+      }
+
+      return silentAddress.toString();
+    }
+
     String receiveAddress;
 
     final typeMatchingReceiveAddresses =
@@ -103,6 +149,18 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   set address(String addr) {
+    if (addressPageType == SilentPaymentsAddresType.p2sp) {
+      final selected = silentAddresses.firstWhere((addressRecord) => addressRecord.address == addr);
+
+      if (selected.silentPaymentTweak != null && silentAddress != null) {
+        activeSilentAddress =
+            silentAddress!.toLabeledSilentPaymentAddress(selected.index).toString();
+      } else {
+        activeSilentAddress = silentAddress!.toString();
+      }
+      return;
+    }
+
     final addressRecord = _addresses.firstWhere((addressRecord) => addressRecord.address == addr);
 
     previousAddressRecord = addressRecord;
@@ -128,6 +186,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   void set currentChangeAddressIndex(int index) =>
       currentChangeAddressIndexByType[_addressPageType.toString()] = index;
+
+  int currentSilentAddressIndex;
 
   @observable
   BitcoinAddressRecord? previousAddressRecord;
@@ -164,6 +224,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
     updateReceiveAddresses();
     updateChangeAddresses();
+    _validateAddresses();
     await updateAddressesInBox();
 
     if (currentReceiveAddressIndex >= receiveAddresses.length) {
@@ -196,7 +257,50 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return address;
   }
 
-  BitcoinAddressRecord generateNewAddress({String label = ''}) {
+  Map<String, String> get labels {
+    final G = ECPublic.fromBytes(BigintUtils.toBytes(Curves.generatorSecp256k1.x, length: 32));
+    final labels = <String, String>{};
+    for (int i = 0; i < silentAddresses.length; i++) {
+      final silentAddressRecord = silentAddresses[i];
+      final silentPaymentTweak = silentAddressRecord.silentPaymentTweak;
+
+      if (silentPaymentTweak != null &&
+          SilentPaymentAddress.regex.hasMatch(silentAddressRecord.address)) {
+        labels[G
+            .tweakMul(BigintUtils.fromBytes(BytesUtils.fromHexString(silentPaymentTweak)))
+            .toHex()] = silentPaymentTweak;
+      }
+    }
+    return labels;
+  }
+
+  @action
+  BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
+    if (addressPageType == SilentPaymentsAddresType.p2sp && silentAddress != null) {
+      final currentSilentAddressIndex = silentAddresses
+              .where((addressRecord) => addressRecord.type != SegwitAddresType.p2tr)
+              .length -
+          1;
+
+      this.currentSilentAddressIndex = currentSilentAddressIndex;
+
+      final address = BitcoinSilentPaymentAddressRecord(
+        silentAddress!.toLabeledSilentPaymentAddress(currentSilentAddressIndex).toString(),
+        index: currentSilentAddressIndex,
+        isHidden: false,
+        name: label,
+        silentPaymentTweak:
+            BytesUtils.toHexString(silentAddress!.generateLabel(currentSilentAddressIndex)),
+        network: network,
+        type: SilentPaymentsAddresType.p2sp,
+      );
+
+      silentAddresses.add(address);
+      updateAddressesByMatch();
+
+      return address;
+    }
+
     final newAddressIndex = addressesByReceiveType.fold(
         0, (int acc, addressRecord) => addressRecord.isHidden == false ? acc + 1 : acc);
 
@@ -214,19 +318,79 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   String getAddress(
-          {required int index, required bitcoin.HDWallet hd, BitcoinAddressType? addressType}) =>
+          {required int index,
+          required Bip32Slip10Secp256k1 hd,
+          BitcoinAddressType? addressType}) =>
       '';
 
   @override
   Future<void> updateAddressesInBox() async {
     try {
       addressesMap.clear();
-      addressesMap[address] = '';
+      addressesMap[address] = 'Active';
 
       allAddressesMap.clear();
       _addresses.forEach((addressRecord) {
         allAddressesMap[addressRecord.address] = addressRecord.name;
       });
+
+      final lastP2wpkh = _addresses
+          .where((addressRecord) =>
+              _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
+          .toList()
+          .last;
+      if (lastP2wpkh.address != address) {
+        addressesMap[lastP2wpkh.address] = 'P2WPKH';
+      } else {
+        addressesMap[address] = 'Active - P2WPKH';
+      }
+
+      final lastP2pkh = _addresses.firstWhere(
+          (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
+      if (lastP2pkh.address != address) {
+        addressesMap[lastP2pkh.address] = 'P2PKH';
+      } else {
+        addressesMap[address] = 'Active - P2PKH';
+      }
+
+      final lastP2sh = _addresses.firstWhere((addressRecord) =>
+          _isUnusedReceiveAddressByType(addressRecord, P2shAddressType.p2wpkhInP2sh));
+      if (lastP2sh.address != address) {
+        addressesMap[lastP2sh.address] = 'P2SH';
+      } else {
+        addressesMap[address] = 'Active - P2SH';
+      }
+
+      final lastP2tr = _addresses.firstWhere(
+          (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2tr));
+      if (lastP2tr.address != address) {
+        addressesMap[lastP2tr.address] = 'P2TR';
+      } else {
+        addressesMap[address] = 'Active - P2TR';
+      }
+
+      final lastP2wsh = _addresses.firstWhere(
+          (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wsh));
+      if (lastP2wsh.address != address) {
+        addressesMap[lastP2wsh.address] = 'P2WSH';
+      } else {
+        addressesMap[address] = 'Active - P2WSH';
+      }
+
+      silentAddresses.forEach((addressRecord) {
+        if (addressRecord.type != SilentPaymentsAddresType.p2sp || addressRecord.isHidden) {
+          return;
+        }
+
+        if (addressRecord.address != address) {
+          addressesMap[addressRecord.address] = addressRecord.name.isEmpty
+              ? "Silent Payments"
+              : "Silent Payments - " + addressRecord.name;
+        } else {
+          addressesMap[address] = 'Active - Silent Payments';
+        }
+      });
+
       await saveAddressesInBox();
     } catch (e) {
       print(e.toString());
@@ -235,18 +399,41 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   void updateAddress(String address, String label) {
-    final addressRecord =
-        _addresses.firstWhere((addressRecord) => addressRecord.address == address);
-    addressRecord.setNewName(label);
-    final index = _addresses.indexOf(addressRecord);
-    _addresses.remove(addressRecord);
-    _addresses.insert(index, addressRecord);
+    BaseBitcoinAddressRecord? foundAddress;
+    _addresses.forEach((addressRecord) {
+      if (addressRecord.address == address) {
+        foundAddress = addressRecord;
+      }
+    });
+    silentAddresses.forEach((addressRecord) {
+      if (addressRecord.address == address) {
+        foundAddress = addressRecord;
+      }
+    });
 
-    updateAddressesByMatch();
+    if (foundAddress != null) {
+      foundAddress!.setNewName(label);
+
+      if (foundAddress is BitcoinAddressRecord) {
+        final index = _addresses.indexOf(foundAddress);
+        _addresses.remove(foundAddress);
+        _addresses.insert(index, foundAddress as BitcoinAddressRecord);
+      } else {
+        final index = silentAddresses.indexOf(foundAddress as BitcoinSilentPaymentAddressRecord);
+        silentAddresses.remove(foundAddress);
+        silentAddresses.insert(index, foundAddress as BitcoinSilentPaymentAddressRecord);
+      }
+    }
   }
 
   @action
   void updateAddressesByMatch() {
+    if (addressPageType == SilentPaymentsAddresType.p2sp) {
+      addressesByReceiveType.clear();
+      addressesByReceiveType.addAll(silentAddresses);
+      return;
+    }
+
     addressesByReceiveType.clear();
     addressesByReceiveType.addAll(_addresses.where(_isAddressPageTypeMatch).toList());
   }
@@ -272,18 +459,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   Future<void> discoverAddresses(List<BitcoinAddressRecord> addressList, bool isHidden,
-      Future<String?> Function(BitcoinAddressRecord, Set<String>) getAddressHistory,
+      Future<String?> Function(BitcoinAddressRecord) getAddressHistory,
       {BitcoinAddressType type = SegwitAddresType.p2wpkh}) async {
-    if (!isHidden) {
-      _validateSideHdAddresses(addressList.toList());
-    }
-
     final newAddresses = await _createNewAddresses(gap,
         startIndex: addressList.length, isHidden: isHidden, type: type);
     addAddresses(newAddresses);
 
-    final addressesWithHistory = await Future.wait(newAddresses
-        .map((addr) => getAddressHistory(addr, _addresses.map((e) => e.address).toSet())));
+    final addressesWithHistory = await Future.wait(newAddresses.map(getAddressHistory));
     final isLastAddressUsed = addressesWithHistory.last == addressList.last.address;
 
     if (isLastAddressUsed) {
@@ -349,11 +531,26 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
   }
 
-  void _validateSideHdAddresses(List<BitcoinAddressRecord> addrWithTransactions) {
-    addrWithTransactions.forEach((element) {
-      if (element.address !=
-          getAddress(index: element.index, hd: mainHd, addressType: element.type))
+  @action
+  void addSilentAddresses(Iterable<BitcoinSilentPaymentAddressRecord> addresses) {
+    final addressesSet = this.silentAddresses.toSet();
+    addressesSet.addAll(addresses);
+    this.silentAddresses.clear();
+    this.silentAddresses.addAll(addressesSet);
+    updateAddressesByMatch();
+  }
+
+  void _validateAddresses() {
+    _addresses.forEach((element) {
+      if (!element.isHidden &&
+          element.address !=
+              getAddress(index: element.index, hd: mainHd, addressType: element.type)) {
         element.isHidden = true;
+      } else if (element.isHidden &&
+          element.address !=
+              getAddress(index: element.index, hd: sideHd, addressType: element.type)) {
+        element.isHidden = false;
+      }
     });
   }
 
@@ -369,6 +566,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return _isAddressByType(addressRecord, addressPageType);
   }
 
-  bitcoin.HDWallet _getHd(bool isHidden) => isHidden ? sideHd : mainHd;
+  Bip32Slip10Secp256k1 _getHd(bool isHidden) => isHidden ? sideHd : mainHd;
   bool _isAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) => addr.type == type;
+  bool _isUnusedReceiveAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) =>
+      !addr.isHidden && !addr.isUsed && addr.type == type;
+
+  @action
+  void deleteSilentPaymentAddress(String address) {
+    final addressRecord = silentAddresses.firstWhere((addressRecord) =>
+        addressRecord.type == SilentPaymentsAddresType.p2sp && addressRecord.address == address);
+
+    silentAddresses.remove(addressRecord);
+    updateAddressesByMatch();
+  }
 }

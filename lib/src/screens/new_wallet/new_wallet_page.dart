@@ -1,35 +1,35 @@
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
-import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/seed_type_view_model.dart';
-import 'package:mobx/mobx.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/core/wallet_name_validator.dart';
-import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 class NewWalletPage extends BasePage {
-  NewWalletPage(this._walletNewVM, this._seedTypeViewModel);
+  NewWalletPage(this._walletNewVM, this._seedSettingsViewModel);
 
   final WalletNewVM _walletNewVM;
-  final SeedTypeViewModel _seedTypeViewModel;
+  final SeedSettingsViewModel _seedSettingsViewModel;
 
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
 
@@ -39,18 +39,26 @@ class NewWalletPage extends BasePage {
   String get title => S.current.new_wallet;
 
   @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
+
+  @override
   Widget body(BuildContext context) => WalletNameForm(
       _walletNewVM,
       currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage,
-      _seedTypeViewModel);
+      _seedSettingsViewModel);
 }
 
 class WalletNameForm extends StatefulWidget {
-  WalletNameForm(this._walletNewVM, this.walletImage, this._seedTypeViewModel);
+  WalletNameForm(this._walletNewVM, this.walletImage, this._seedSettingsViewModel);
 
   final WalletNewVM _walletNewVM;
   final Image walletImage;
-  final SeedTypeViewModel _seedTypeViewModel;
+  final SeedSettingsViewModel _seedSettingsViewModel;
 
   @override
   _WalletNameFormState createState() => _WalletNameFormState(_walletNewVM);
@@ -60,40 +68,48 @@ class _WalletNameFormState extends State<WalletNameForm> {
   _WalletNameFormState(this._walletNewVM)
       : _formKey = GlobalKey<FormState>(),
         _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>(),
-        _controller = TextEditingController();
+        _nameController = TextEditingController(),
+        _passwordController = _walletNewVM.hasWalletPassword ? TextEditingController() : null,
+        _repeatedPasswordController =
+            _walletNewVM.hasWalletPassword ? TextEditingController() : null;
 
   static const aspectRatioImage = 1.22;
+  bool _formProcessing = false;
 
   final GlobalKey<FormState> _formKey;
   final GlobalKey<SeedLanguageSelectorState> _languageSelectorKey;
   final WalletNewVM _walletNewVM;
-  final TextEditingController _controller;
+  final TextEditingController _nameController;
+  final TextEditingController? _passwordController;
+  final TextEditingController? _repeatedPasswordController;
   ReactionDisposer? _stateReaction;
 
   @override
   void initState() {
     _stateReaction ??= reaction((_) => _walletNewVM.state, (ExecutionState state) async {
       if (state is ExecutedSuccessfullyState) {
-        Navigator.of(navigatorKey.currentContext!)
+        Navigator.of(navigatorKey.currentContext ?? context)
             .pushNamed(Routes.preSeedPage, arguments: _walletNewVM.seedPhraseWordsLength);
       }
 
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (_) {
-                return AlertWithOneAction(
-                    alertTitle: S.current.new_wallet,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
+          if (mounted) {
+            showPopUp<void>(
+                context: context,
+                builder: (_) {
+                  return AlertWithOneAction(
+                      alertTitle: S.current.new_wallet,
+                      alertContent: state.error,
+                      buttonText: S.of(context).ok,
+                      buttonAction: () => Navigator.of(context).pop());
+                });
+          }
         });
       }
     });
 
-    _setSeedType(SeedType.defaultSeedType);
+    _setSeedType(MoneroSeedType.defaultSeedType);
     super.initState();
   }
 
@@ -120,12 +136,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
                     padding: EdgeInsets.only(top: 24),
                     child: Form(
                       key: _formKey,
-                      child: Stack(
-                        alignment: Alignment.centerRight,
+                      child: Column(
                         children: [
                           TextFormField(
                             onChanged: (value) => _walletNewVM.name = value,
-                            controller: _controller,
+                            controller: _nameController,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 fontSize: 20.0,
@@ -159,10 +174,10 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                     FocusManager.instance.primaryFocus?.unfocus();
 
                                     setState(() {
-                                      _controller.text = rName;
+                                      _nameController.text = rName;
                                       _walletNewVM.name = rName;
-                                      _controller.selection = TextSelection.fromPosition(
-                                          TextPosition(offset: _controller.text.length));
+                                      _nameController.selection = TextSelection.fromPosition(
+                                          TextPosition(offset: _nameController.text.length));
                                     });
                                   },
                                   icon: Container(
@@ -185,6 +200,80 @@ class _WalletNameFormState extends State<WalletNameForm> {
                             ),
                             validator: WalletNameValidator(),
                           ),
+                          if (_walletNewVM.hasWalletPassword) ...[
+                            TextFormField(
+                              onChanged: (value) => _walletNewVM.walletPassword = value,
+                              controller: _passwordController,
+                              textAlign: TextAlign.center,
+                              obscureText: true,
+                              style: TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              ),
+                              decoration: InputDecoration(
+                                hintStyle: TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                                ),
+                                hintText: S.of(context).password,
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TextFormField(
+                              onChanged: (value) => _walletNewVM.repeatedWalletPassword = value,
+                              controller: _repeatedPasswordController,
+                              textAlign: TextAlign.center,
+                              obscureText: true,
+                              style: TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              ),
+                              decoration: InputDecoration(
+                                hintStyle: TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                                ),
+                                hintText: S.of(context).repeat_wallet_password,
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .extension<NewWalletTheme>()!
+                                        .underlineColor,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -195,12 +284,12 @@ class _WalletNameFormState extends State<WalletNameForm> {
                         builder: (BuildContext build) => Padding(
                           padding: EdgeInsets.only(top: 24),
                           child: SelectButton(
-                            text: widget._seedTypeViewModel.moneroSeedType.title,
+                            text: widget._seedSettingsViewModel.moneroSeedType.title,
                             onTap: () async {
                               await showPopUp<void>(
                                 context: context,
                                 builder: (_) => Picker(
-                                  items: SeedType.all,
+                                  items: MoneroSeedType.all,
                                   selectedAtIndex: isPolyseed ? 1 : 0,
                                   onItemSelected: _setSeedType,
                                   isSeparated: false,
@@ -218,8 +307,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
                           key: _languageSelectorKey,
                           initialSelected: defaultSeedLanguage,
                           seedType: _walletNewVM.hasSeedType
-                              ? widget._seedTypeViewModel.moneroSeedType
-                              : SeedType.legacy,
+                              ? widget._seedSettingsViewModel.moneroSeedType
+                              : MoneroSeedType.legacy,
                         ),
                       ),
                     )
@@ -259,32 +348,41 @@ class _WalletNameFormState extends State<WalletNameForm> {
     );
   }
 
-  void _confirmForm() {
-    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-      return;
+  void _confirmForm() async {
+    if (_formProcessing) return;
+    _formProcessing = true;
+    try {
+      if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+        _formProcessing = false;
+        return;
+      }
+      if (_walletNewVM.nameExists(_walletNewVM.name)) {
+        await showPopUp<void>(
+            context: context,
+            builder: (_) {
+              return AlertWithOneAction(
+                  alertTitle: '',
+                  alertContent: S.of(context).wallet_name_exists,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+      } else {
+        await _walletNewVM.create(
+            options: _walletNewVM.hasLanguageSelector
+                ? [_languageSelectorKey.currentState!.selected, isPolyseed]
+                : null);
+      }
+    } catch (e) {
+      _formProcessing = false;
+      rethrow;
     }
-    if (_walletNewVM.nameExists(_walletNewVM.name)) {
-      showPopUp<void>(
-          context: context,
-          builder: (_) {
-            return AlertWithOneAction(
-                alertTitle: '',
-                alertContent: S.of(context).wallet_name_exists,
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-    } else {
-      _walletNewVM.create(
-          options: _walletNewVM.hasLanguageSelector
-              ? [_languageSelectorKey.currentState!.selected, isPolyseed]
-              : null);
-    }
+    _formProcessing = false;
   }
 
-  bool get isPolyseed => widget._seedTypeViewModel.moneroSeedType == SeedType.polyseed;
+  bool get isPolyseed => widget._seedSettingsViewModel.moneroSeedType == MoneroSeedType.polyseed;
 
-  void _setSeedType(SeedType item) {
-    widget._seedTypeViewModel.setMoneroSeedType(item);
+  void _setSeedType(MoneroSeedType item) {
+    widget._seedSettingsViewModel.setMoneroSeedType(item);
     _languageSelectorKey.currentState?.selected = defaultSeedLanguage; // Reset Seed language
   }
 }

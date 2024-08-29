@@ -27,14 +27,21 @@ class Picker<Item> extends StatefulWidget {
     this.headerEnabled = true,
     this.closeOnItemSelected = true,
     this.sliderValue,
+    this.minValue,
+    this.maxValue,
     this.customItemIndex,
     this.isWrapped = true,
     this.borderColor,
     this.onSliderChanged,
     this.matchingCriteria,
-  }) : assert(hintText == null ||
-            matchingCriteria !=
-                null); // make sure that if the search field is enabled then there is a searching criteria provided
+  }) : assert(hintText == null || matchingCriteria != null) {
+    // make sure that if the search field is enabled then there is a searching criteria provided
+    if (sliderValue != null && maxValue != null) {
+      if (sliderValue! > maxValue!) {
+        sliderValue = maxValue;
+      }
+    }
+  }
 
   final int selectedAtIndex;
   final List<Item> items;
@@ -49,12 +56,14 @@ class Picker<Item> extends StatefulWidget {
   final String? hintText;
   final bool headerEnabled;
   final bool closeOnItemSelected;
-  final double? sliderValue;
+  double? sliderValue;
+  final double? minValue;
   final int? customItemIndex;
   final bool isWrapped;
   final Color? borderColor;
   final Function(double)? onSliderChanged;
   final bool Function(Item, String)? matchingCriteria;
+  final double? maxValue;
 
   @override
   _PickerState<Item> createState() => _PickerState<Item>(items, images, onItemSelected);
@@ -138,7 +147,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       containerHeight = height * 0.75;
     }
 
-    final content = Column (
+    final content = Column(
       children: [
         if (widget.title?.isNotEmpty ?? false)
           Container(
@@ -211,8 +220,9 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                         fontWeight: FontWeight.w500,
                                         fontFamily: 'Lato',
                                         decoration: TextDecoration.none,
-                                        color:
-                                            Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                        color: Theme.of(context)
+                                            .extension<CakeTextTheme>()!
+                                            .titleColor,
                                       ),
                                     ),
                                   )
@@ -489,10 +499,10 @@ class _PickerState<Item> extends State<Picker<Item>> {
       children: <Widget>[
         Expanded(
           child: Slider(
-            value: widget.sliderValue ?? 1,
+            value: widget.sliderValue == null || widget.sliderValue! < 1 ? 1 : widget.sliderValue!,
             onChanged: isActivated ? widget.onSliderChanged : null,
-            min: 1,
-            max: 100,
+            min: widget.minValue ?? 1,
+            max: (widget.maxValue == null || widget.maxValue! < 1) ? 100 : widget.maxValue!,
             divisions: 100,
           ),
         ),

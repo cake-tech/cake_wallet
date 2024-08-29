@@ -52,7 +52,7 @@ abstract class NodeListViewModelBase with Store {
 
     switch (_appStore.wallet!.type) {
       case WalletType.bitcoin:
-        if (_appStore.wallet!.isTestnet == true) {
+        if (_appStore.wallet!.isTestnet) {
           node = getBitcoinTestnetDefaultElectrumServer(nodes: _nodeSource)!;
         } else {
           node = getBitcoinDefaultElectrumServer(nodes: _nodeSource)!;
@@ -81,6 +81,12 @@ abstract class NodeListViewModelBase with Store {
         break;
       case WalletType.solana:
         node = getSolanaDefaultNode(nodes: _nodeSource)!;
+        break;
+      case WalletType.tron:
+        node = getTronDefaultNode(nodes: _nodeSource)!;
+        break;
+      case WalletType.wownero:
+        node = getWowneroDefaultNode(nodes: _nodeSource);
         break;
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');

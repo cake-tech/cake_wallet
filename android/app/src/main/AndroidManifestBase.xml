@@ -9,6 +9,26 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+    <!--bibo01 : hardware option-->
+    <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
+
+    <!-- required for API 18 - 30 -->
+    <uses-permission
+            android:name="android.permission.BLUETOOTH"
+            android:maxSdkVersion="30" />
+    <uses-permission
+            android:name="android.permission.BLUETOOTH_ADMIN"
+            android:maxSdkVersion="30" />
+
+    <!-- API 31+ -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission
+            android:name="android.permission.BLUETOOTH_SCAN"
+            android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
 
     <application
         android:name=".Application"
@@ -18,7 +38,8 @@
         android:fullBackupContent="false"
         android:versionCode="__versionCode__"
         android:versionName="__versionName__"
-        android:requestLegacyExternalStorage="true">
+        android:requestLegacyExternalStorage="true"
+        android:extractNativeLibs="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleInstance"
@@ -67,6 +88,19 @@
                 <data android:scheme="polygon-wallet" />
                 <data android:scheme="polygon_wallet" />
                 <data android:scheme="solana-wallet" />
+                <data android:scheme="tron" />
+                <data android:scheme="tron-wallet" />
+                <data android:scheme="tron_wallet" />
+                <data android:scheme="wownero" />
+                <data android:scheme="wownero-wallet" />
+                <data android:scheme="wownero_wallet" />
+            </intent-filter>
+            <!-- nano-gpt link scheme -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="nano-gpt" />
             </intent-filter>
         </activity>
         <meta-data

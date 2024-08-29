@@ -1,10 +1,14 @@
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WebViewPage extends BasePage {
   WebViewPage(this._title, this._url);
@@ -42,8 +46,9 @@ class WebViewPageBodyState extends State<WebViewPageBody> {
       ),
       initialUrlRequest: URLRequest(url: WebUri.uri(widget.uri)),
       onPermissionRequest: (controller, request) async {
-        bool permissionGranted = await Permission.camera.status == PermissionStatus.granted;
-        if (!permissionGranted) {
+        final sharedPrefs = getIt.get<SharedPreferences>();
+
+        if (sharedPrefs.getBool(PreferencesKey.showCameraConsent) ?? true) {
           final bool userConsent = await showPopUp<bool>(
                   context: context,
                   builder: (BuildContext context) {
@@ -65,8 +70,11 @@ class WebViewPageBodyState extends State<WebViewPageBody> {
             );
           }
 
-          permissionGranted = await Permission.camera.request().isGranted;
+          sharedPrefs.setBool(PreferencesKey.showCameraConsent, false);
         }
+
+        bool permissionGranted =
+            await PermissionHandler.checkPermission(Permission.camera, context);
 
         return PermissionResponse(
           resources: request.resources,

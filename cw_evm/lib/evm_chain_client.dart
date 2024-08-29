@@ -2,21 +2,20 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:cw_core/node.dart';
-import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/crypto_currency.dart';
-
-import 'package:cw_evm/evm_erc20_balance.dart';
+import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
-import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
+import 'package:cw_evm/evm_erc20_balance.dart';
+import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/.secrets.g.dart' as secrets;
-import 'package:flutter/services.dart';
-
-import 'package:http/http.dart';
-import 'package:erc20/erc20.dart';
-import 'package:web3dart/web3dart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart' as hex;
+import 'package:http/http.dart';
+import 'package:web3dart/web3dart.dart';
+
+import 'contract/erc20.dart';
 
 abstract class EVMChainClient {
   final httpClient = Client();
@@ -66,26 +65,75 @@ abstract class EVMChainClient {
   Future<int> getGasUnitPrice() async {
     try {
       final gasPrice = await _client!.getGasPrice();
+    
       return gasPrice.getInWei.toInt();
     } catch (_) {
       return 0;
     }
   }
 
-  Future<int> getEstimatedGas() async {
+  Future<int?> getGasBaseFee() async {
     try {
-      final estimatedGas = await _client!.estimateGas();
-      return estimatedGas.toInt();
+      final blockInfo = await _client!.getBlockInformation(isContainFullObj: false);
+      final baseFee = blockInfo.baseFeePerGas;
+
+      return baseFee?.getInWei.toInt();
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  Future<int> getEstimatedGas({
+    String? contractAddress,
+    required EthereumAddress toAddress,
+    required EthereumAddress senderAddress,
+    required EtherAmount value,
+    EtherAmount? gasPrice,
+    // EtherAmount? maxFeePerGas,
+    // EtherAmount? maxPriorityFeePerGas,
+  }) async {
+    try {
+      if (contractAddress == null) {
+        final estimatedGas = await _client!.estimateGas(
+          sender: senderAddress,
+          gasPrice: gasPrice,
+          to: toAddress,
+          value: value,
+          // maxPriorityFeePerGas: maxPriorityFeePerGas,
+          // maxFeePerGas: maxFeePerGas,
+        );
+
+        return estimatedGas.toInt();
+      } else {
+        final contract = DeployedContract(
+          ethereumContractAbi,
+          EthereumAddress.fromHex(contractAddress),
+        );
+
+        final transfer = contract.function('transfer');
+
+        // Estimate gas units
+        final gasEstimate = await _client!.estimateGas(
+          sender: senderAddress,
+          to: EthereumAddress.fromHex(contractAddress),
+          data: transfer.encodeCall([
+            toAddress,
+            value.getInWei,
+          ]),
+        );
+
+        return gasEstimate.toInt();
+      }
     } catch (_) {
       return 0;
     }
   }
 
   Future<PendingEVMChainTransaction> signTransaction({
-    required EthPrivateKey privateKey,
+    required Credentials privateKey,
     required String toAddress,
     required BigInt amount,
-    required int gas,
+    required BigInt gas,
     required EVMChainTransactionPriority priority,
     required CryptoCurrency currency,
     required int exponent,
@@ -96,26 +144,22 @@ abstract class EVMChainClient {
         currency == CryptoCurrency.maticpoly ||
         contractAddress != null);
 
-    bool isEVMCompatibleChain =
-        currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
-
-    final price = _client!.getGasPrice();
+    bool isNativeToken = currency == CryptoCurrency.eth || currency == CryptoCurrency.maticpoly;
 
     final Transaction transaction = createTransaction(
       from: privateKey.address,
       to: EthereumAddress.fromHex(toAddress),
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
-      amount: isEVMCompatibleChain ? EtherAmount.inWei(amount) : EtherAmount.zero(),
+      amount: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
       data: data != null ? hexToBytes(data) : null,
     );
 
-    final signedTransaction =
-        await _client!.signTransaction(privateKey, transaction, chainId: chainId);
+    Uint8List signedTransaction;
 
     final Function _sendTransaction;
 
-    if (isEVMCompatibleChain) {
-      _sendTransaction = () async => await sendTransaction(signedTransaction);
+    if (isNativeToken) {
+      signedTransaction = await _client!.signTransaction(privateKey, transaction, chainId: chainId);
     } else {
       final erc20 = ERC20(
         client: _client!,
@@ -123,20 +167,20 @@ abstract class EVMChainClient {
         chainId: chainId,
       );
 
-      _sendTransaction = () async {
-        await erc20.transfer(
-          EthereumAddress.fromHex(toAddress),
-          amount,
-          credentials: privateKey,
-          transaction: transaction,
-        );
-      };
+      signedTransaction = await erc20.transfer(
+        EthereumAddress.fromHex(toAddress),
+        amount,
+        credentials: privateKey,
+        transaction: transaction,
+      );
     }
+
+    _sendTransaction = () async => await sendTransaction(signedTransaction);
 
     return PendingEVMChainTransaction(
       signedTransaction: signedTransaction,
       amount: amount.toString(),
-      fee: BigInt.from(gas) * (await price).getInWei,
+      fee: gas,
       sendTransaction: _sendTransaction,
       exponent: exponent,
     );
@@ -158,8 +202,9 @@ abstract class EVMChainClient {
     );
   }
 
-  Future<String> sendTransaction(Uint8List signedTransaction) async =>
-      await _client!.sendRawTransaction(prepareSignedTransactionForSending(signedTransaction));
+  Future<String> sendTransaction(Uint8List signedTransaction) async {
+    return await _client!.sendRawTransaction(prepareSignedTransactionForSending(signedTransaction));
+  }
 
   Future getTransactionDetails(String transactionHash) async {
     // Wait for the transaction receipt to become available
@@ -234,14 +279,16 @@ abstract class EVMChainClient {
 
       final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
 
+      final symbol = (decodedResponse['symbol'] ?? '') as String;
+      String filteredSymbol = symbol.replaceFirst(RegExp('^\\\$'), '');
+
       final name = decodedResponse['name'] ?? '';
-      final symbol = decodedResponse['symbol'] ?? '';
       final decimal = decodedResponse['decimals'] ?? '0';
       final iconPath = decodedResponse['logo'] ?? '';
 
       return Erc20Token(
         name: name,
-        symbol: symbol,
+        symbol: filteredSymbol,
         contractAddress: contractAddress,
         decimal: int.tryParse(decimal) ?? 0,
         iconPath: iconPath,

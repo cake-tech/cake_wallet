@@ -1,2 +1,2 @@
-Exchange flow enhancements and fixes
-Generic enhancements and bug fixes
+Enhance auto-address generation for Monero
+Bug fixes and enhancements

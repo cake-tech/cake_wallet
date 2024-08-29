@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/debounce.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -43,7 +44,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class ExchangePage extends BasePage {
-  ExchangePage(this.exchangeViewModel, this.authService) {
+  ExchangePage(this.exchangeViewModel, this.authService, this.initialPaymentRequest) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
         : null;
@@ -54,6 +55,7 @@ class ExchangePage extends BasePage {
 
   final ExchangeViewModel exchangeViewModel;
   final AuthService authService;
+  final PaymentRequest? initialPaymentRequest;
   final depositKey = GlobalKey<ExchangeCardState>();
   final receiveKey = GlobalKey<ExchangeCardState>();
   final _formKey = GlobalKey<FormState>();
@@ -64,17 +66,6 @@ class ExchangePage extends BasePage {
   final _receiveAmountDebounce = Debounce(Duration(milliseconds: 500));
   Debounce _depositAmountDebounce = Debounce(Duration(milliseconds: 500));
   var _isReactionsSet = false;
-
-  final arrowBottomPurple = Image.asset(
-    'assets/images/arrow_bottom_purple_icon.png',
-    color: Colors.white,
-    height: 8,
-  );
-  final arrowBottomCakeGreen = Image.asset(
-    'assets/images/arrow_bottom_cake_green.png',
-    color: Colors.white,
-    height: 8,
-  );
 
   late final String? depositWalletName;
   late final String? receiveWalletName;
@@ -96,6 +87,14 @@ class ExchangePage extends BasePage {
 
   @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
+
+  @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
 
   @override
   Widget middle(BuildContext context) => Row(
@@ -330,10 +329,11 @@ class ExchangePage extends BasePage {
 
   void applyTemplate(
       BuildContext context, ExchangeViewModel exchangeViewModel, ExchangeTemplate template) async {
-    exchangeViewModel.changeDepositCurrency(
-        currency: CryptoCurrency.fromString(template.depositCurrency));
-    exchangeViewModel.changeReceiveCurrency(
-        currency: CryptoCurrency.fromString(template.receiveCurrency));
+    final depositCryptoCurrency = CryptoCurrency.fromString(template.depositCurrency);
+    final receiveCryptoCurrency = CryptoCurrency.fromString(template.receiveCurrency);
+
+    exchangeViewModel.changeDepositCurrency(currency: depositCryptoCurrency);
+    exchangeViewModel.changeReceiveCurrency(currency: receiveCryptoCurrency);
 
     exchangeViewModel.changeDepositAmount(amount: template.amount);
     exchangeViewModel.depositAddress = template.depositAddress;
@@ -342,12 +342,12 @@ class ExchangePage extends BasePage {
     exchangeViewModel.isFixedRateMode = false;
 
     var domain = template.depositAddress;
-    var ticker = template.depositCurrency.toLowerCase();
-    exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, ticker);
+    exchangeViewModel.depositAddress =
+        await fetchParsedAddress(context, domain, depositCryptoCurrency);
 
     domain = template.receiveAddress;
-    ticker = template.receiveCurrency.toLowerCase();
-    exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, ticker);
+    exchangeViewModel.receiveAddress =
+        await fetchParsedAddress(context, domain, receiveCryptoCurrency);
   }
 
   void _setReactions(BuildContext context, ExchangeViewModel exchangeViewModel) {
@@ -519,16 +519,16 @@ class ExchangePage extends BasePage {
     _depositAddressFocus.addListener(() async {
       if (!_depositAddressFocus.hasFocus && depositAddressController.text.isNotEmpty) {
         final domain = depositAddressController.text;
-        final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
-        exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, ticker);
+        exchangeViewModel.depositAddress =
+            await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
       }
     });
 
     _receiveAddressFocus.addListener(() async {
       if (!_receiveAddressFocus.hasFocus && receiveAddressController.text.isNotEmpty) {
         final domain = receiveAddressController.text;
-        final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
-        exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, ticker);
+        exchangeViewModel.receiveAddress =
+            await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
       }
     });
 
@@ -544,6 +544,12 @@ class ExchangePage extends BasePage {
       // exchangeViewModel.changeDepositAmount(
       //   amount: depositAmountController.text);
     });
+
+    if (initialPaymentRequest != null) {
+      exchangeViewModel.receiveCurrency = CryptoCurrency.fromString(initialPaymentRequest!.scheme);
+      exchangeViewModel.depositAmount = initialPaymentRequest!.amount;
+      exchangeViewModel.receiveAddress = initialPaymentRequest!.address;
+    }
 
     _isReactionsSet = true;
   }
@@ -575,8 +581,9 @@ class ExchangePage extends BasePage {
     }
   }
 
-  Future<String> fetchParsedAddress(BuildContext context, String domain, String ticker) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, ticker);
+  Future<String> fetchParsedAddress(
+      BuildContext context, String domain, CryptoCurrency currency) async {
+    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }
@@ -644,7 +651,6 @@ class ExchangePage extends BasePage {
 
                 exchangeViewModel.changeDepositCurrency(currency: currency);
               },
-              imageArrow: arrowBottomPurple,
               currencyButtonColor: Colors.transparent,
               addressButtonsColor:
                   Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
@@ -663,15 +669,13 @@ class ExchangePage extends BasePage {
               addressTextFieldValidator: AddressValidator(type: exchangeViewModel.depositCurrency),
               onPushPasteButton: (context) async {
                 final domain = exchangeViewModel.depositAddress;
-                final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
                 exchangeViewModel.depositAddress =
-                    await fetchParsedAddress(context, domain, ticker);
+                    await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
               },
               onPushAddressBookButton: (context) async {
                 final domain = exchangeViewModel.depositAddress;
-                final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
                 exchangeViewModel.depositAddress =
-                    await fetchParsedAddress(context, domain, ticker);
+                    await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
               },
             ));
 
@@ -693,7 +697,6 @@ class ExchangePage extends BasePage {
               currencies: exchangeViewModel.receiveCurrencies,
               onCurrencySelected: (currency) =>
                   exchangeViewModel.changeReceiveCurrency(currency: currency),
-              imageArrow: arrowBottomCakeGreen,
               currencyButtonColor: Colors.transparent,
               addressButtonsColor:
                   Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
@@ -712,15 +715,13 @@ class ExchangePage extends BasePage {
               addressTextFieldValidator: AddressValidator(type: exchangeViewModel.receiveCurrency),
               onPushPasteButton: (context) async {
                 final domain = exchangeViewModel.receiveAddress;
-                final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
                 exchangeViewModel.receiveAddress =
-                    await fetchParsedAddress(context, domain, ticker);
+                    await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
               },
               onPushAddressBookButton: (context) async {
                 final domain = exchangeViewModel.receiveAddress;
-                final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
                 exchangeViewModel.receiveAddress =
-                    await fetchParsedAddress(context, domain, ticker);
+                    await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
               },
             ));
 

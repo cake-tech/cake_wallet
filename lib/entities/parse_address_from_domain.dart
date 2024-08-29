@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
+import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
 import 'package:cake_wallet/nostr/nostr_api.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -51,10 +52,12 @@ class AddressResolver {
     }
 
     final match = RegExp(addressPattern).firstMatch(raw);
-    return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_'),
+    return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'),
         (Match match) {
       String group = match.group(0)!;
-      if (group.startsWith('bitcoincash:') || group.startsWith('nano_')) {
+      if (group.startsWith('bitcoincash:') ||
+          group.startsWith('nano_') ||
+          group.startsWith('ban_')) {
         return group;
       }
       return '';
@@ -69,8 +72,8 @@ class AddressResolver {
     return emailRegex.hasMatch(address);
   }
 
-  // TODO: refactor this to take Crypto currency instead of ticker, or at least pass in the tag as well
-  Future<ParsedAddress> resolve(BuildContext context, String text, String ticker) async {
+  Future<ParsedAddress> resolve(BuildContext context, String text, CryptoCurrency currency) async {
+    final ticker = currency.title;
     try {
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
         if (settingsStore.lookupsTwitter) {
@@ -114,8 +117,7 @@ class AddressResolver {
               await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
 
           if (mastodonUser != null) {
-            String? addressFromBio = extractAddressByType(
-                raw: mastodonUser.note, type: CryptoCurrency.fromString(ticker));
+            String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency);
 
             if (addressFromBio != null) {
               return ParsedAddress.fetchMastodonAddress(
@@ -129,8 +131,8 @@ class AddressResolver {
 
               if (pinnedPosts.isNotEmpty) {
                 final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
-                String? addressFromPinnedPost = extractAddressByType(
-                    raw: userPinnedPostsText, type: CryptoCurrency.fromString(ticker));
+                String? addressFromPinnedPost =
+                    extractAddressByType(raw: userPinnedPostsText, type: currency);
 
                 if (addressFromPinnedPost != null) {
                   return ParsedAddress.fetchMastodonAddress(
@@ -160,6 +162,16 @@ class AddressResolver {
           }
         }
       }
+
+      final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
+      if (thorChainAddress != null) {
+        String? address =
+            thorChainAddress[ticker] ?? (ticker == 'RUNE' ? thorChainAddress['THOR'] : null);
+        if (address != null) {
+          return ParsedAddress.thorChainAddress(address: address, name: text);
+        }
+      }
+
       final formattedName = OpenaliasRecord.formatDomainName(text);
       final domainParts = formattedName.split('.');
       final name = domainParts.last;
@@ -189,7 +201,7 @@ class AddressResolver {
           final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
           if (txtRecord != null) {
             final record = await OpenaliasRecord.fetchAddressAndName(
-                formattedName: formattedName, ticker: ticker, txtRecord: txtRecord);
+                formattedName: formattedName, ticker: ticker.toLowerCase(), txtRecord: txtRecord);
             return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
           }
         }
@@ -202,7 +214,7 @@ class AddressResolver {
 
           if (nostrUserData != null) {
             String? addressFromBio = extractAddressByType(
-                raw: nostrUserData.about, type: CryptoCurrency.fromString(ticker));
+                raw: nostrUserData.about, type: currency);
             if (addressFromBio != null) {
               return ParsedAddress.nostrAddress(
                   address: addressFromBio,

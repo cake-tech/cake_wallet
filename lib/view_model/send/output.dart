@@ -8,6 +8,8 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -36,6 +38,7 @@ abstract class OutputBase with Store {
         key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
+        cryptoFullBalance = '',
         fiatAmount = '',
         address = '',
         note = '',
@@ -51,6 +54,9 @@ abstract class OutputBase with Store {
 
   @observable
   String cryptoAmount;
+
+  @observable
+  String cryptoFullBalance;
 
   @observable
   String address;
@@ -99,6 +105,9 @@ abstract class OutputBase with Store {
           case WalletType.polygon:
             _amount = polygon!.formatterPolygonParseAmount(_cryptoAmount);
             break;
+          case WalletType.wownero:
+            _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
+            break;
           default:
             break;
         }
@@ -117,6 +126,17 @@ abstract class OutputBase with Store {
   @computed
   double get estimatedFee {
     try {
+      if (_wallet.type == WalletType.tron) {
+        if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
+          final nativeEstimatedFee = tron!.getTronNativeEstimatedFee(_wallet) ?? 0;
+          return double.parse(nativeEstimatedFee.toString());
+        } else {
+          final trc20EstimatedFee = tron!.getTronTRC20EstimatedFee(_wallet) ?? 0;
+          return double.parse(trc20EstimatedFee.toString());
+        }
+
+      }
+      
       if (_wallet.type == WalletType.solana) {
         return solana!.getEstimateFees(_wallet) ?? 0.0;
       }
@@ -126,8 +146,8 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.bitcoin) {
         if (_settingsStore.priority[_wallet.type] == bitcoin!.getBitcoinTransactionPriorityCustom()) {
-          fee = bitcoin!.getFeeAmountWithFeeRate(
-              _settingsStore.customBitcoinFeeRate, formattedCryptoAmount, 1, 1);
+          fee = bitcoin!.getEstimatedFeeWithFeeRate(_wallet,
+              _settingsStore.customBitcoinFeeRate,formattedCryptoAmount);
         }
 
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
@@ -140,6 +160,10 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.monero) {
         return monero!.formatterMoneroAmountToDouble(amount: fee);
+      }
+
+      if (_wallet.type == WalletType.wownero) {
+        return wownero!.formatterWowneroAmountToDouble(amount: fee);
       }
 
       if (_wallet.type == WalletType.haven) {
@@ -163,8 +187,11 @@ abstract class OutputBase with Store {
   @computed
   String get estimatedFeeFiatAmount {
     try {
-      final currency =
-          isEVMCompatibleChain(_wallet.type) ? _wallet.currency : cryptoCurrencyHandler();
+      final currency = (isEVMCompatibleChain(_wallet.type) ||
+              _wallet.type == WalletType.solana ||
+              _wallet.type == WalletType.tron)
+          ? _wallet.currency
+          : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
           price: _fiatConversationStore.prices[currency]!, cryptoAmount: estimatedFee);
       return fiat;
@@ -179,9 +206,11 @@ abstract class OutputBase with Store {
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
   final NumberFormat _cryptoNumberFormat;
-
   @action
-  void setSendAll() => sendAll = true;
+  void setSendAll(String fullBalance) {
+    cryptoFullBalance = fullBalance;
+    sendAll = true;
+  }
 
   @action
   void reset() {
@@ -220,7 +249,7 @@ abstract class OutputBase with Store {
     try {
       final fiat = calculateFiatAmount(
           price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
-          cryptoAmount: cryptoAmount.replaceAll(',', '.'));
+          cryptoAmount: sendAll ? cryptoFullBalance.replaceAll(",", ".") : cryptoAmount.replaceAll(',', '.'));
       if (fiatAmount != fiat) {
         fiatAmount = fiat;
       }
@@ -269,6 +298,12 @@ abstract class OutputBase with Store {
       case WalletType.solana:
         maximumFractionDigits = 12;
         break;
+      case WalletType.tron:
+        maximumFractionDigits = 12;
+        break;
+      case WalletType.wownero:
+        maximumFractionDigits = 11;
+        break;
       default:
         break;
     }
@@ -278,8 +313,8 @@ abstract class OutputBase with Store {
 
   Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
-    final ticker = cryptoCurrencyHandler().title.toLowerCase();
-    parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, ticker);
+    final currency = cryptoCurrencyHandler();
+    parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
     extractedAddress = await extractAddressFromParsed(context, parsedAddress);
     note = parsedAddress.description;
   }

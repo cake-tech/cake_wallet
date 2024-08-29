@@ -22,7 +22,7 @@ extension ProviderTypeName on ProviderType {
       case ProviderType.robinhood:
         return 'Robinhood Connect';
       case ProviderType.dfx:
-        return 'DFX Connect';
+        return 'DFX.swiss';
       case ProviderType.onramper:
         return 'Onramper';
       case ProviderType.moonpay:
@@ -51,6 +51,7 @@ class ProvidersHelper {
     switch (walletType) {
       case WalletType.nano:
       case WalletType.banano:
+      case WalletType.wownero:
         return [ProviderType.askEachTime, ProviderType.onramper];
       case WalletType.monero:
         return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.dfx];
@@ -66,9 +67,15 @@ class ProvidersHelper {
         ];
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.robinhood, ProviderType.moonpay];
       case WalletType.solana:
-        return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.robinhood];
+        return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.robinhood, ProviderType.moonpay];
+      case WalletType.tron:
+        return [
+          ProviderType.askEachTime,
+          ProviderType.onramper,
+          ProviderType.robinhood,
+          ProviderType.moonpay,
+        ];
       case WalletType.none:
       case WalletType.haven:
         return [];
@@ -96,11 +103,18 @@ class ProvidersHelper {
           ProviderType.robinhood,
           ProviderType.moonpay,
         ];
+      case WalletType.tron:
+        return [
+          ProviderType.askEachTime,
+          ProviderType.robinhood,
+          ProviderType.moonpay,
+        ];
       case WalletType.monero:
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.none:
       case WalletType.haven:
+      case WalletType.wownero:
         return [];
     }
   }

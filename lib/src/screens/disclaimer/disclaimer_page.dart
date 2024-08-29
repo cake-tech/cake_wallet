@@ -46,10 +46,6 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
   bool _checked = false;
   String _fileText = '';
 
-  Future<void> launchUrl(String url) async {
-    if (await canLaunch(url)) await launch(url);
-  }
-
   Future getFileLines() async {
     _fileText = await rootBundle.loadString(
       isMoneroOnly
@@ -152,7 +148,11 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                           children: <Widget>[
                             Expanded(
                                 child: GestureDetector(
-                              onTap: () => launchUrl(changenowUrl),
+                                  onTap: () async {
+                                    final uri = Uri.parse(changenowUrl);
+                                    if (await canLaunchUrl(uri))
+                                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  },
                               child: Text(
                                 changenowUrl,
                                 textAlign: TextAlign.left,

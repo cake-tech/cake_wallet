@@ -45,6 +45,7 @@ class SideMenuItem extends StatelessWidget {
         ? Icon(
             icon,
             color: _setColor(context),
+            size: 30,
           )
         : Image.asset(
             imagePath ?? '',

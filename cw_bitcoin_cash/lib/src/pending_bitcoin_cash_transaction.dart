@@ -62,7 +62,9 @@ class PendingBitcoinCashTransaction with PendingTransaction {
         if (error.contains("bad-txns-vout-negative")) {
           throw BitcoinTransactionCommitFailedVoutNegative();
         }
+        throw BitcoinTransactionCommitFailed(errorMessage: error);
       }
+
       throw BitcoinTransactionCommitFailed();
     }
 

@@ -19,26 +19,28 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     ...(CryptoCurrency.all
         .where((element) => ![
               CryptoCurrency.btc,
-              CryptoCurrency.eth,
+              // CryptoCurrency.eth,
               CryptoCurrency.ltc,
               CryptoCurrency.bch,
-              CryptoCurrency.aave,
-              CryptoCurrency.dai,
-              CryptoCurrency.gusd,
-              CryptoCurrency.usdc,
-              CryptoCurrency.usdterc20,
-              CryptoCurrency.wbtc,
+              // CryptoCurrency.aave,
+              // CryptoCurrency.dai,
+              // CryptoCurrency.gusd,
+              // CryptoCurrency.usdc,
+              // CryptoCurrency.usdterc20,
+              // CryptoCurrency.wbtc, // TODO: temporarily commented until https://github.com/cake-tech/cake_wallet/pull/1436 is merged
             ].contains(element))
         .toList())
   ];
 
   static final isRefundAddressSupported = [CryptoCurrency.eth];
 
-  static const _baseURL = 'thornode.ninerealms.com';
+  static const _baseNodeURL = 'thornode.ninerealms.com';
+  static const _baseURL = 'midgard.ninerealms.com';
   static const _quotePath = '/thorchain/quote/swap';
   static const _txInfoPath = '/thorchain/tx/status/';
   static const _affiliateName = 'cakewallet';
   static const _affiliateBps = '175';
+  static const _nameLookUpPath = 'v2/thorname/lookup/';
 
   final Box<Trade> tradesStore;
 
@@ -135,26 +137,34 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     final inputAddress = responseJSON['inbound_address'] as String?;
     final memo = responseJSON['memo'] as String?;
+    final directAmountOutResponse = responseJSON['expected_amount_out'] as String?;
+
+    String? receiveAmount;
+    if (directAmountOutResponse != null) {
+      receiveAmount = _thorChainAmountToDouble(directAmountOutResponse).toString();
+    }
 
     return Trade(
-        id: '',
-        from: request.fromCurrency,
-        to: request.toCurrency,
-        provider: description,
-        inputAddress: inputAddress,
-        createdAt: DateTime.now(),
-        amount: request.fromAmount,
-        state: TradeState.notFound,
-        payoutAddress: request.toAddress,
-        memo: memo,
-        isSendAll: isSendAll);
+      id: '',
+      from: request.fromCurrency,
+      to: request.toCurrency,
+      provider: description,
+      inputAddress: inputAddress,
+      createdAt: DateTime.now(),
+      amount: request.fromAmount,
+      receiveAmount: receiveAmount ?? request.toAmount,
+      state: TradeState.notFound,
+      payoutAddress: request.toAddress,
+      memo: memo,
+      isSendAll: isSendAll,
+    );
   }
 
   @override
   Future<Trade> findTradeById({required String id}) async {
     if (id.isEmpty) throw Exception('Trade id is empty');
     final formattedId = id.startsWith('0x') ? id.substring(2) : id;
-    final uri = Uri.https(_baseURL, '$_txInfoPath$formattedId');
+    final uri = Uri.https(_baseNodeURL, '$_txInfoPath$formattedId');
     final response = await http.get(uri);
 
     if (response.statusCode == 404) {
@@ -206,8 +216,34 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     );
   }
 
+  static Future<Map<String, String>?>? lookupAddressByName(String name) async {
+    final uri = Uri.https(_baseURL, '$_nameLookUpPath$name');
+    final response = await http.get(uri);
+
+    if (response.statusCode != 200) {
+      return null;
+    }
+
+    final body = json.decode(response.body) as Map<String, dynamic>;
+    final entries = body['entries'] as List<dynamic>?;
+
+    if (entries == null || entries.isEmpty) {
+      return null;
+    }
+
+    Map<String, String> chainToAddressMap = {};
+
+    for (final entry in entries) {
+      final chain = entry['chain'] as String;
+      final address = entry['address'] as String;
+      chainToAddressMap[chain] = address;
+    }
+
+    return chainToAddressMap;
+  }
+
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
-    Uri uri = Uri.https(_baseURL, _quotePath, params);
+    Uri uri = Uri.https(_baseNodeURL, _quotePath, params);
 
     final response = await http.get(uri);
 

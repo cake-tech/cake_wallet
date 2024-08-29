@@ -46,6 +46,7 @@ class ContactPage extends BasePage {
   final TextEditingController _nameController;
   final TextEditingController _currencyTypeController;
   final TextEditingController _addressController;
+  bool _isEffectsApplied = false;
 
   @override
   Widget body(BuildContext context) {
@@ -53,15 +54,7 @@ class ContactPage extends BasePage {
         color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
         height: 8);
 
-    reaction((_) => contactViewModel.state, (ExecutionState state) {
-      if (state is FailureState) {
-        _onContactSavingFailure(context, state.error);
-      }
-
-      if (state is ExecutedSuccessfullyState) {
-        _onContactSavedSuccessfully(context);
-      }
-    });
+    _setEffects(context);
 
     return Observer(
       builder: (_) => ScrollableWithBottomSection(
@@ -177,4 +170,22 @@ class ContactPage extends BasePage {
 
   void _onContactSavedSuccessfully(BuildContext context) =>
       Navigator.of(context).pop();
+
+  void _setEffects(BuildContext context) {
+    if (_isEffectsApplied) {
+      return;
+    }
+
+    _isEffectsApplied = true;
+
+    reaction((_) => contactViewModel.state, (ExecutionState state) {
+      if (state is FailureState) {
+        _onContactSavingFailure(context, state.error);
+      }
+
+      if (state is ExecutedSuccessfullyState) {
+        _onContactSavedSuccessfully(context);
+      }
+    });
+  }
 }

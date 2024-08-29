@@ -24,7 +24,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   WalletType get type => walletInfo.type;
 
-  CryptoCurrency get currency => currencyForWalletType(type);
+  CryptoCurrency get currency => currencyForWalletType(type, isTestnet: isTestnet);
 
   String get id => walletInfo.id;
 
@@ -46,6 +46,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   String? get hexSeed => null;
 
+  String? get passphrase => null;
+
   Object get keys;
 
   WalletAddresses get walletAddresses;
@@ -55,6 +57,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   set isEnabledAutoGenerateSubaddress(bool value) {}
 
   bool get isEnabledAutoGenerateSubaddress => false;
+
+  bool get isHardwareWallet => walletInfo.isHardwareWallet;
 
   Future<void> connectToNode({required Node node});
 
@@ -66,7 +70,6 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   Future<PendingTransaction> createTransaction(Object credentials);
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);
-
 
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,
@@ -82,13 +85,17 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> changePassword(String password);
 
+  String get password;
+
   Future<void>? updateBalance();
 
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;
 
   Future<void> renameWalletFiles(String newWalletName);
 
-  String signMessage(String message, {String? address = null}) => throw UnimplementedError();
+  Future<String> signMessage(String message, {String? address = null});
 
-  bool? isTestnet;
+  Future<bool> verifyMessage(String message, String signature, {String? address = null});
+
+  bool isTestnet = false;
 }

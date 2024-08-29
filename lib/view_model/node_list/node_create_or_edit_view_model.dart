@@ -65,9 +65,29 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool get isReady => address.isNotEmpty && port.isNotEmpty;
 
   bool get hasAuthCredentials =>
-      _walletType == WalletType.monero || _walletType == WalletType.haven;
+      _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
 
   bool get hasTestnetSupport => _walletType == WalletType.bitcoin;
+
+  bool get hasPathSupport {
+    switch (_walletType) {
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.banano:
+      case WalletType.nano:
+      case WalletType.tron:
+        return true;
+      case WalletType.none:
+      case WalletType.monero:
+      case WalletType.wownero:
+      case WalletType.haven:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+      case WalletType.bitcoin:
+        return false;
+    }
+  }
 
   String get uri {
     var uri = address;
@@ -216,7 +236,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       final ipAddress = uri.host;
       final port = uri.port.toString();
       final path = uri.path;
-
 
       setAddress(ipAddress);
       setPath(path);

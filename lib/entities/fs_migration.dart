@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -10,8 +10,7 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/ios_legacy_helper.dart'
-    as ios_legacy_helper;
+import 'package:cake_wallet/entities/ios_legacy_helper.dart' as ios_legacy_helper;
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -29,8 +28,8 @@ Future<void> migrate_android_v1() async {
   await android_migrate_wallets(appDocDir: appDocDir);
 }
 
-Future<void> ios_migrate_v1(Box<WalletInfo> walletInfoSource,
-    Box<Trade> tradeSource, Box<Contact> contactSource) async {
+Future<void> ios_migrate_v1(
+    Box<WalletInfo> walletInfoSource, Box<Trade> tradeSource, Box<Contact> contactSource) async {
   final prefs = await SharedPreferences.getInstance();
 
   if (prefs.getBool('ios_migration_v1_completed') ?? false) {
@@ -66,10 +65,7 @@ Future<void> ios_migrate_user_defaults() async {
   if (activeCurrency != null) {
     final convertedCurrency = convertFiatLegacy(activeCurrency);
 
-    if (convertedCurrency != null) {
-      await prefs.setString(
-        'current_fiat_currency', convertedCurrency.serialize());
-    }
+    await prefs.setString('current_fiat_currency', convertedCurrency.serialize());
   }
 
   //translate fee priority
@@ -80,24 +76,21 @@ Future<void> ios_migrate_user_defaults() async {
   }
 
   //translate current balance mode
-  final currentBalanceMode =
-      await ios_legacy_helper.getInt('display_balance_mode');
+  final currentBalanceMode = await ios_legacy_helper.getInt('display_balance_mode');
   if (currentBalanceMode != null) {
     await prefs.setInt('current_balance_display_mode', currentBalanceMode);
   }
 
   //translate should save recipient address
-  final shouldSave =
-      await ios_legacy_helper.getBool('should_save_recipient_address');
-  
+  final shouldSave = await ios_legacy_helper.getBool('should_save_recipient_address');
+
   if (shouldSave != null) {
     await prefs.setBool('save_recipient_address', shouldSave);
   }
 
   //translate biometric
-  final biometricOn =
-      await ios_legacy_helper.getBool('biometric_authentication_on');
-  
+  final biometricOn = await ios_legacy_helper.getBool('biometric_authentication_on');
+
   if (biometricOn != null) {
     await prefs.setBool('allow_biometrical_authentication', biometricOn);
   }
@@ -136,9 +129,8 @@ Future<void> ios_migrate_pin() async {
     return;
   }
 
-  final flutterSecureStorage = FlutterSecureStorage();
-  final pinPassword = await flutterSecureStorage.read(
-      key: 'pin_password', iOptions: IOSOptions());
+  final flutterSecureStorage = secureStorageShared;
+  final pinPassword = await flutterSecureStorage.readNoIOptions(key: 'pin_password');
   // No pin
   if (pinPassword == null) {
     await prefs.setBool('ios_migration_pin_completed', true);
@@ -147,8 +139,8 @@ Future<void> ios_migrate_pin() async {
 
   final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
   final encodedPassword = encodedPinCode(pin: pinPassword);
-  await flutterSecureStorage.delete(key: key);
   await flutterSecureStorage.write(key: key, value: encodedPassword);
+
   await prefs.setBool('ios_migration_pin_completed', true);
 }
 
@@ -160,7 +152,7 @@ Future<void> ios_migrate_wallet_passwords() async {
   }
 
   final appDocDir = await getApplicationDocumentsDirectory();
-  final flutterSecureStorage = FlutterSecureStorage();
+  final flutterSecureStorage = secureStorageShared;
   final keyService = KeyService(flutterSecureStorage);
   final walletsDir = Directory('${appDocDir.path}/wallets');
   final moneroWalletsDir = Directory('${walletsDir.path}/monero');
@@ -175,10 +167,8 @@ Future<void> ios_migrate_wallet_passwords() async {
       if (item is Directory) {
         final name = item.path.split('/').last;
         final oldKey = 'wallet_monero_' + name + '_password';
-        final password = await flutterSecureStorage.read(
-            key: oldKey, iOptions: IOSOptions());
-        await keyService.saveWalletPassword(
-            walletName: name, password: password!);
+        final password = await flutterSecureStorage.readNoIOptions(key: oldKey);
+        await keyService.saveWalletPassword(walletName: name, password: password!);
       }
     } catch (e) {
       print(e.toString());
@@ -310,18 +300,14 @@ Future<void> ios_migrate_wallet_info(Box<WalletInfo> walletsInfoSource) async {
                 return null;
               }
 
-              final config = json.decode(configFile.readAsStringSync())
-                  as Map<String, dynamic>;
-              final isRecovery = config['isRecovery'] as bool ?? false;
+              final config = json.decode(configFile.readAsStringSync()) as Map<String, dynamic>;
+              final isRecovery = config['isRecovery'] as bool? ?? false;
               final dateAsDouble = config['date'] as double;
               final timestamp = dateAsDouble.toInt() * 1000;
               final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-              final id = walletTypeToString(WalletType.monero).toLowerCase() +
-                  '_' +
-                  name;
-              final exist = walletsInfoSource.values
-                      .firstWhereOrNull((el) => el.id == id) != null;
-                      
+              final id = walletTypeToString(WalletType.monero).toLowerCase() + '_' + name;
+              final exist = walletsInfoSource.values.firstWhereOrNull((el) => el.id == id) != null;
+
               if (exist) {
                 return null;
               }
@@ -372,12 +358,10 @@ Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
     }
 
     final content = file.readAsBytesSync();
-    final flutterSecureStorage = FlutterSecureStorage();
-    final masterPassword = await flutterSecureStorage.read(
-        key: 'master_password', iOptions: IOSOptions());
+    final flutterSecureStorage = secureStorageShared;
+    final masterPassword = await flutterSecureStorage.readNoIOptions(key: 'master_password');
     final key = masterPassword!.replaceAll('-', '');
-    final decoded =
-        await ios_legacy_helper.decrypt(content, key: key, salt: secrets.salt);
+    final decoded = await ios_legacy_helper.decrypt(content, key: key, salt: secrets.salt);
     final decodedJson = json.decode(decoded) as List<dynamic>;
     final trades = decodedJson.map((dynamic el) {
       final elAsMap = el as Map<String, dynamic>;
@@ -407,7 +391,14 @@ Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
       }
 
       return Trade(
-          id: tradeId, provider: provider!, from: from, to: to, createdAt: date, amount: '');
+        id: tradeId,
+        provider: provider!,
+        from: from,
+        to: to,
+        createdAt: date,
+        amount: '',
+        receiveAmount: '',
+      );
     });
     await tradeSource.addAll(trades);
     await prefs.setBool('ios_migration_trade_list_completed', true);
@@ -440,8 +431,7 @@ Future<void> ios_migrate_address_book(Box<Contact> contactSource) async {
       final address = _item["address"] as String;
       final name = _item["name"] as String;
 
-      return Contact(
-          address: address, name: name, type: CryptoCurrency.fromString(type));
+      return Contact(address: address, name: name, type: CryptoCurrency.fromString(type));
     });
 
     await contactSource.addAll(contacts);

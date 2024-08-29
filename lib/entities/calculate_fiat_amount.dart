@@ -3,6 +3,8 @@ String calculateFiatAmount({double? price, String? cryptoAmount}) {
     return '0.00';
   }
 
+  cryptoAmount = cryptoAmount.replaceAll(',', '.');
+  
   final _amount = double.parse(cryptoAmount);
   final _result = price * _amount;
   final result = _result < 0 ? _result * -1 : _result;
