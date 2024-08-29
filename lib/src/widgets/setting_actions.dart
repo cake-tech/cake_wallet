@@ -1,16 +1,19 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/monero_performance_debug.dart';
 import 'package:flutter/material.dart';
 
 class SettingActions {
   final String Function(BuildContext) name;
   final String image;
   final void Function(BuildContext) onTap;
+  final void Function(BuildContext)? onLongPress;
 
   SettingActions._({
     required this.name,
     required this.image,
     required this.onTap,
+    this.onLongPress = null,
   });
 
   static List<SettingActions> all = [
@@ -106,7 +109,7 @@ class SettingActions {
     onTap: (BuildContext context) {
       Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.otherSettingsPage);
-    },
+    }
   );
 
   static SettingActions supportSettingAction = SettingActions._(
@@ -116,5 +119,16 @@ class SettingActions {
       Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.support);
     },
+    onLongPress: (BuildContext context) {
+      print("a");
+      Navigator.of(context).pop();
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder:(context) {
+            return PerformanceDebug();
+          },
+        ),
+      );
+    }
   );
 }

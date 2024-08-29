@@ -311,7 +311,12 @@ class CWMonero extends Monero {
   WalletService createMoneroWalletService(
           Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) =>
       MoneroWalletService(walletInfoSource, unspentCoinSource);
-
+  
+  @override
+  Map<String, List<int>> get debugCallLength {
+    return monero_wallet_api.getDebugCallLength();
+  }
+  
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
     final moneroWallet = wallet as MoneroWallet;

@@ -8,6 +8,7 @@ class SettingActionButton extends StatelessWidget {
   final bool isArrowVisible;
   final bool selectionActive;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   final String image;
   final String title;
   final double fromBottomEdge;
@@ -20,6 +21,7 @@ class SettingActionButton extends StatelessWidget {
     this.selectionActive = true,
     this.isArrowVisible = false,
     required this.onTap,
+    this.onLongPress = null,
     required this.image,
     required this.title,
     this.tileHeight = 60,
@@ -36,6 +38,7 @@ class SettingActionButton extends StatelessWidget {
             : Theme.of(context).extension<CakeMenuTheme>()!.settingTitleColor;
     return InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       hoverColor: Colors.transparent,
       child: Container(
         height: tileHeight,

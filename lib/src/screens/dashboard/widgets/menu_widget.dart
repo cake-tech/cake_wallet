@@ -197,6 +197,7 @@ class MenuWidgetState extends State<MenuWidget> {
                     fromBottomEdge: fromBottomEdge,
                     fromTopEdge: fromTopEdge,
                     onTap: () => item.onTap.call(context),
+                    onLongPress: () => item.onLongPress?.call(context),
                     image: item.image,
                     title: item.name.call(context),
                   );

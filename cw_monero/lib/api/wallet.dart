@@ -14,6 +14,10 @@ int getSyncingHeight() {
   return h2;
 }
 
+Map<String, List<int>> getDebugCallLength() {
+  return monero.debugCallLength;
+}
+
 bool isNeededToRefresh() {
   final ret = monero.MONERO_cw_WalletListener_isNeedToRefresh(getWlptr());
   monero.MONERO_cw_WalletListener_resetNeedToRefresh(getWlptr());
