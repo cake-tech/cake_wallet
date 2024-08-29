@@ -3,7 +3,7 @@ import 'dart:core';
 import 'dart:developer';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_evm/file.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_tron/tron_transaction_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -14,7 +14,8 @@ class TronTransactionHistory = TronTransactionHistoryBase with _$TronTransaction
 
 abstract class TronTransactionHistoryBase extends TransactionHistoryBase<TronTransactionInfo>
     with Store {
-  TronTransactionHistoryBase({required this.walletInfo, required String password})
+  TronTransactionHistoryBase(
+      {required this.walletInfo, required String password, required this.encryptionFileUtils})
       : _password = password {
     transactions = ObservableMap<String, TronTransactionInfo>();
   }
@@ -22,6 +23,7 @@ abstract class TronTransactionHistoryBase extends TransactionHistoryBase<TronTra
   String _password;
 
   final WalletInfo walletInfo;
+  final EncryptionFileUtils encryptionFileUtils;
 
   Future<void> init() async => await _load();
 
@@ -33,7 +35,7 @@ abstract class TronTransactionHistoryBase extends TransactionHistoryBase<TronTra
       String path = '$dirPath/$transactionsHistoryFileNameForWallet';
       final transactionMaps = transactions.map((key, value) => MapEntry(key, value.toJson()));
       final data = json.encode({'transactions': transactionMaps});
-      await writeData(path: path, password: _password, data: data);
+      await encryptionFileUtils.write(path: path, password: _password, data: data);
     } catch (e, s) {
       log('Error while saving ${walletInfo.type.name} transaction history: ${e.toString()}');
       log(s.toString());
@@ -51,7 +53,7 @@ abstract class TronTransactionHistoryBase extends TransactionHistoryBase<TronTra
     String transactionsHistoryFileNameForWallet = 'tron_transactions.json';
     final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
     String path = '$dirPath/$transactionsHistoryFileNameForWallet';
-    final content = await read(path: path, password: _password);
+    final content = await encryptionFileUtils.read(path: path, password: _password);
     if (content.isEmpty) {
       return {};
     }

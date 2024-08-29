@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
@@ -6,6 +5,7 @@ import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 import 'package:hex/hex.dart';
 import 'package:bs58check/bs58check.dart' as bs58check;
 import 'package:convert/convert.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 
 bitcoin.PaymentData generatePaymentData({
   required bitcoin.HDWallet hd,
@@ -16,52 +16,50 @@ bitcoin.PaymentData generatePaymentData({
 }
 
 ECPrivate generateECPrivate({
-  required bitcoin.HDWallet hd,
+  required Bip32Slip10Secp256k1 hd,
   required BasedUtxoNetwork network,
   required int index,
-}) {
-  final wif = hd.derive(index).wif!;
-  return ECPrivate.fromWif(wif, netVersion: network.wifNetVer);
-}
+}) =>
+    ECPrivate(hd.childKey(Bip32KeyIndex(index)).privateKey);
 
 String generateP2WPKHAddress({
-  required bitcoin.HDWallet hd,
+  required Bip32Slip10Secp256k1 hd,
   required BasedUtxoNetwork network,
   required int index,
-}) {
-  final pubKey = hd.derive(index).pubKey!;
-  return ECPublic.fromHex(pubKey).toP2wpkhAddress().toAddress(network);
-}
+}) =>
+    ECPublic.fromBip32(hd.childKey(Bip32KeyIndex(index)).publicKey)
+        .toP2wpkhAddress()
+        .toAddress(network);
 
 String generateP2SHAddress({
-  required bitcoin.HDWallet hd,
+  required Bip32Slip10Secp256k1 hd,
   required BasedUtxoNetwork network,
   required int index,
-}) {
-  final pubKey = hd.derive(index).pubKey!;
-  return ECPublic.fromHex(pubKey).toP2wpkhInP2sh().toAddress(network);
-}
+}) =>
+    ECPublic.fromBip32(hd.childKey(Bip32KeyIndex(index)).publicKey)
+        .toP2wpkhInP2sh()
+        .toAddress(network);
 
 String generateP2WSHAddress({
-  required bitcoin.HDWallet hd,
+  required Bip32Slip10Secp256k1 hd,
   required BasedUtxoNetwork network,
   required int index,
-}) {
-  final pubKey = hd.derive(index).pubKey!;
-  return ECPublic.fromHex(pubKey).toP2wshAddress().toAddress(network);
-}
+}) =>
+    ECPublic.fromBip32(hd.childKey(Bip32KeyIndex(index)).publicKey)
+        .toP2wshAddress()
+        .toAddress(network);
 
 String generateP2PKHAddress({
-  required bitcoin.HDWallet hd,
+  required Bip32Slip10Secp256k1 hd,
   required BasedUtxoNetwork network,
   required int index,
-}) {
-  final pubKey = hd.derive(index).pubKey!;
-  return ECPublic.fromHex(pubKey).toP2pkhAddress().toAddress(network);
-}
+}) =>
+    ECPublic.fromBip32(hd.childKey(Bip32KeyIndex(index)).publicKey)
+        .toP2pkhAddress()
+        .toAddress(network);
 
 String generateP2TRAddress({
-  required bitcoin.HDWallet hd,
+  required Bip32Slip10Secp256k1 hd,
   required BasedUtxoNetwork network,
   required int index,
 }) {

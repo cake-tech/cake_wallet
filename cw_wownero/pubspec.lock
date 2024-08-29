@@ -113,6 +113,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "8.4.3"
+  cake_backup:
+    dependency: transitive
+    description:
+      path: "."
+      ref: main
+      resolved-ref: "3aba867dcab6737f6707782f5db15d71f303db38"
+      url: "https://github.com/cake-tech/cake_backup.git"
+    source: git
+    version: "1.0.0+1"
   characters:
     dependency: transitive
     description:
@@ -169,6 +178,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
+  cryptography:
+    dependency: transitive
+    description:
+      name: cryptography
+      sha256: df156c5109286340817d21fa7b62f9140f17915077127dd70f8bd7a2a0997a35
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.0"
+  cupertino_icons:
+    dependency: transitive
+    description:
+      name: cupertino_icons
+      sha256: ba631d1c7f7bef6b729a622b7b752645a2d076dba9976925b8f25725a30e1ee6
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.8"
   cw_core:
     dependency: "direct main"
     description:
@@ -254,10 +279,10 @@ packages:
     dependency: transitive
     description:
       name: glob
-      sha256: "4515b5b6ddb505ebdd242a5f2cc5d22d3d6a80013789debfbda7777f47ea308c"
+      sha256: "0e7014b3b7d4dac1ca4d6114f82bf1782ee86745b9b42a92c9289c23d8a0ab63"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.2"
   graphs:
     dependency: transitive
     description:
@@ -270,18 +295,18 @@ packages:
     dependency: transitive
     description:
       name: hashlib
-      sha256: "71bf102329ddb8e50c8a995ee4645ae7f1728bb65e575c17196b4d8262121a96"
+      sha256: d41795742c10947930630118c6836608deeb9047cd05aee32d2baeb697afd66a
       url: "https://pub.dev"
     source: hosted
-    version: "1.12.0"
+    version: "1.19.2"
   hashlib_codecs:
     dependency: transitive
     description:
       name: hashlib_codecs
-      sha256: "49e2a471f74b15f1854263e58c2ac11f2b631b5b12c836f9708a35397d36d626"
+      sha256: "2b570061f5a4b378425be28a576c1e11783450355ad4345a19f606ff3d96db0f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.5.0"
   hive:
     dependency: transitive
     description:
@@ -437,10 +462,10 @@ packages:
   monero:
     dependency: "direct main"
     description:
-      path: "."
-      ref: d46753eca865e9e56c2f0ef6fe485c42e11982c5
-      resolved-ref: d46753eca865e9e56c2f0ef6fe485c42e11982c5
-      url: "https://github.com/mrcyjanek/monero.dart"
+      path: "impls/monero.dart"
+      ref: bcb328a4956105dc182afd0ce2e48fe263f5f20b
+      resolved-ref: bcb328a4956105dc182afd0ce2e48fe263f5f20b
+      url: "https://github.com/mrcyjanek/monero_c"
     source: git
     version: "0.0.0"
   mutex:
@@ -543,10 +568,10 @@ packages:
     dependency: "direct main"
     description:
       name: polyseed
-      sha256: edf28042e7b0b28f97a0469aa98e6e4015937cef6b9340cd6ad2822139c95217
+      sha256: "11d4dbee409db053c5e9cd77382b2f5115f43fc2529158a826a96f3ba505d770"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.5"
+    version: "0.0.6"
   pool:
     dependency: transitive
     description:
@@ -555,14 +580,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.1"
-  process:
-    dependency: transitive
-    description:
-      name: process
-      sha256: "53fd8db9cec1d37b0574e12f07520d582019cb6c44abf5479a01505099a34a09"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.2.4"
   pub_semver:
     dependency: transitive
     description:
@@ -688,6 +705,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   typed_data:
     dependency: transitive
     description:
@@ -748,10 +773,10 @@ packages:
     dependency: transitive
     description:
       name: xdg_directories
-      sha256: bd512f03919aac5f1313eb8249f223bacf4927031bf60b02601f81f687689e86
+      sha256: faea9dee56b520b55a566385b84f2e8de55e7496104adada9962e0bd11bcff1d
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0+3"
+    version: "1.0.4"
   yaml:
     dependency: transitive
     description:

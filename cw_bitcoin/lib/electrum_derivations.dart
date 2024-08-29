@@ -109,5 +109,4 @@ Map<DerivationType, List<DerivationInfo>> electrum_derivations = {
   ],
 };
 
-
 String electrum_path = electrum_derivations[DerivationType.electrum]!.first.derivationPath!;

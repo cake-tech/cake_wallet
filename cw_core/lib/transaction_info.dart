@@ -3,12 +3,13 @@ import 'package:cw_core/keyable.dart';
 
 abstract class TransactionInfo extends Object with Keyable {
   late String id;
+  late String txHash = id;
   late int amount;
   int? fee;
   late TransactionDirection direction;
   late bool isPending;
   late DateTime date;
-  late int height;
+  int? height;
   late int confirmations;
   String amountFormatted();
   String fiatAmount();
@@ -25,3 +26,4 @@ abstract class TransactionInfo extends Object with Keyable {
 
   late Map<String, dynamic> additionalInfo;
 }
+

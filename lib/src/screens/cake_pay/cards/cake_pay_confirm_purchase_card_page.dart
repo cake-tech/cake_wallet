@@ -9,18 +9,18 @@ import 'package:cake_wallet/src/screens/cake_pay/widgets/link_extractor.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_purchase_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
@@ -34,7 +34,7 @@ class CakePayBuyCardDetailPage extends BasePage {
 
   @override
   Widget? middle(BuildContext context) {
-    return  Text(
+    return Text(
       title,
       textAlign: TextAlign.center,
       maxLines: 2,
@@ -322,31 +322,31 @@ class CakePayBuyCardDetailPage extends BasePage {
 
     await showPopUp<void>(
       context: context,
-      builder: (_) {
+      builder: (popupContext) {
         return Observer(
             builder: (_) => ConfirmSendingAlert(
-                alertTitle: S.of(context).confirm_sending,
-                paymentId: S.of(context).payment_id,
+                alertTitle: S.of(popupContext).confirm_sending,
+                paymentId: S.of(popupContext).payment_id,
                 paymentIdValue: order?.orderId,
                 expirationTime: cakePayPurchaseViewModel.formattedRemainingTime,
                 onDispose: () => _handleDispose(disposer),
-                amount: S.of(context).send_amount,
+                amount: S.of(popupContext).send_amount,
                 amountValue: pendingTransaction.amountFormatted,
                 fiatAmountValue:
                     cakePayPurchaseViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
-                fee: S.of(context).send_fee,
+                fee: S.of(popupContext).send_fee,
                 feeValue: pendingTransaction.feeFormatted,
                 feeFiatAmount:
                     cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                 feeRate: pendingTransaction.feeRate,
                 outputs: cakePayPurchaseViewModel.sendViewModel.outputs,
-                rightButtonText: S.of(context).send,
-                leftButtonText: S.of(context).cancel,
+                rightButtonText: S.of(popupContext).send,
+                leftButtonText: S.of(popupContext).cancel,
                 actionRightButton: () async {
-                  Navigator.of(context).pop();
+                  Navigator.of(popupContext).pop();
                   await cakePayPurchaseViewModel.sendViewModel.commitTransaction();
                 },
-                actionLeftButton: () => Navigator.of(context).pop()));
+                actionLeftButton: () => Navigator.of(popupContext).pop()));
       },
     );
   }
@@ -359,7 +359,7 @@ class CakePayBuyCardDetailPage extends BasePage {
     reaction((_) => cakePayPurchaseViewModel.sendViewModel.state, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showStateAlert(context, S.of(context).error, state.error);
+          if (context.mounted) showStateAlert(context, S.of(context).error, state.error);
         });
       }
 
@@ -372,9 +372,7 @@ class CakePayBuyCardDetailPage extends BasePage {
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           cakePayPurchaseViewModel.sendViewModel.clearOutputs();
-          if (context.mounted) {
-            showStateAlert(context, S.of(context).sending, S.of(context).transaction_sent);
-          }
+          if (context.mounted) showSentAlert(context);
         });
       }
     });
@@ -383,15 +381,40 @@ class CakePayBuyCardDetailPage extends BasePage {
   }
 
   void showStateAlert(BuildContext context, String title, String content) {
-    showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
-              alertTitle: title,
-              alertContent: content,
-              buttonText: S.of(context).ok,
-              buttonAction: () => Navigator.of(context).pop());
-        });
+    if (context.mounted) {
+      showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: title,
+                alertContent: content,
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+    }
+  }
+
+  Future<void> showSentAlert(BuildContext context) async {
+    if (!context.mounted) {
+      return;
+    }
+    final order = cakePayPurchaseViewModel.order!.orderId;
+    final isCopy = await showPopUp<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithTwoActions(
+                  alertTitle: S.of(context).transaction_sent,
+                  alertContent: S.of(context).cake_pay_save_order + '\n${order}',
+                  leftButtonText: S.of(context).ignor,
+                  rightButtonText: S.of(context).copy,
+                  actionLeftButton: () => Navigator.of(context).pop(false),
+                  actionRightButton: () => Navigator.of(context).pop(true));
+            }) ??
+        false;
+
+    if (isCopy) {
+      await Clipboard.setData(ClipboardData(text: order));
+    }
   }
 
   void _handleDispose(ReactionDisposer? disposer) {

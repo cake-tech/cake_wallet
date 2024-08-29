@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -243,7 +244,8 @@ abstract class WalletKeysViewModelBase with Store {
         'hexSeed': _appStore.wallet!.hexSeed!,
       if (_appStore.wallet!.seed == null && _appStore.wallet!.privateKey != null)
         'private_key': _appStore.wallet!.privateKey!,
-      if (restoreHeightResult != null) ...{'height': restoreHeightResult}
+      if (restoreHeightResult != null) ...{'height': restoreHeightResult},
+      if (_appStore.wallet!.passphrase != null) 'passphrase': _appStore.wallet!.passphrase!
     };
   }
 

@@ -7,6 +7,7 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -16,9 +17,9 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_tron/default_tron_tokens.dart';
-import 'package:cw_tron/file.dart';
 import 'package:cw_tron/tron_abi.dart';
 import 'package:cw_tron/tron_balance.dart';
 import 'package:cw_tron/tron_client.dart';
@@ -37,13 +38,15 @@ part 'tron_wallet.g.dart';
 class TronWallet = TronWalletBase with _$TronWallet;
 
 abstract class TronWalletBase
-    extends WalletBase<TronBalance, TronTransactionHistory, TronTransactionInfo> with Store {
+    extends WalletBase<TronBalance, TronTransactionHistory, TronTransactionInfo>
+    with Store, WalletKeysFile {
   TronWalletBase({
     required WalletInfo walletInfo,
     String? mnemonic,
     String? privateKey,
     required String password,
     TronBalance? initialBalance,
+    required this.encryptionFileUtils,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -55,7 +58,8 @@ abstract class TronWalletBase
         ),
         super(walletInfo) {
     this.walletInfo = walletInfo;
-    transactionHistory = TronTransactionHistory(walletInfo: walletInfo, password: password);
+    transactionHistory = TronTransactionHistory(
+        walletInfo: walletInfo, password: password, encryptionFileUtils: encryptionFileUtils);
 
     if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
       CakeHive.registerAdapter(TronTokenAdapter());
@@ -65,6 +69,7 @@ abstract class TronWalletBase
   final String? _mnemonic;
   final String? _hexPrivateKey;
   final String _password;
+  final EncryptionFileUtils encryptionFileUtils;
 
   late final Box<TronToken> tronTokensBox;
 
@@ -123,20 +128,45 @@ abstract class TronWalletBase
     required String name,
     required String password,
     required WalletInfo walletInfo,
+    required EncryptionFileUtils encryptionFileUtils,
   }) async {
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
     final path = await pathForWallet(name: name, type: walletInfo.type);
-    final jsonSource = await read(path: path, password: password);
-    final data = json.decode(jsonSource) as Map;
-    final mnemonic = data['mnemonic'] as String?;
-    final privateKey = data['private_key'] as String?;
-    final balance = TronBalance.fromJSON(data['balance'] as String) ?? TronBalance(BigInt.zero);
+
+    Map<String, dynamic>? data;
+    try {
+      final jsonSource = await encryptionFileUtils.read(path: path, password: password);
+
+      data = json.decode(jsonSource) as Map<String, dynamic>;
+    } catch (e) {
+      if (!hasKeysFile) rethrow;
+    }
+
+    final balance = TronBalance.fromJSON(data?['balance'] as String) ?? TronBalance(BigInt.zero);
+
+    final WalletKeysData keysData;
+    // Migrate wallet from the old scheme to then new .keys file scheme
+    if (!hasKeysFile) {
+      final mnemonic = data!['mnemonic'] as String?;
+      final privateKey = data['private_key'] as String?;
+
+      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+    } else {
+      keysData = await WalletKeysFile.readKeysFile(
+        name,
+        walletInfo.type,
+        password,
+        encryptionFileUtils,
+      );
+    }
 
     return TronWallet(
       walletInfo: walletInfo,
       password: password,
-      mnemonic: mnemonic,
-      privateKey: privateKey,
+      mnemonic: keysData.mnemonic,
+      privateKey: keysData.privateKey,
       initialBalance: balance,
+      encryptionFileUtils: encryptionFileUtils,
     );
   }
 
@@ -163,9 +193,7 @@ abstract class TronWalletBase
   }) async {
     assert(mnemonic != null || privateKey != null);
 
-    if (privateKey != null) {
-      return TronPrivateKey(privateKey);
-    }
+    if (privateKey != null) return TronPrivateKey(privateKey);
 
     final seed = bip39.mnemonicToSeed(mnemonic!);
 
@@ -181,14 +209,10 @@ abstract class TronWalletBase
   int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
 
   @override
-  Future<void> changePassword(String password) {
-    throw UnimplementedError("changePassword");
-  }
+  Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  void close() {
-    _transactionsUpdateTimer?.cancel();
-  }
+  void close() => _transactionsUpdateTimer?.cancel();
 
   @action
   @override
@@ -335,6 +359,11 @@ abstract class TronWalletBase
         continue;
       }
 
+      // Filter out spam transaactions that involve receiving TRC10 assets transaction, we deal with TRX and TRC20 transactions
+      if (transactionModel.contracts?.first.type == "TransferAssetContract") {
+        continue;
+      }
+
       String? tokenSymbol;
       if (transactionModel.contractAddress != null) {
         final tokenAddress = TronAddress(transactionModel.contractAddress!);
@@ -406,15 +435,18 @@ abstract class TronWalletBase
   Object get keys => throw UnimplementedError("keys");
 
   @override
-  Future<void> rescan({required int height}) {
-    throw UnimplementedError("rescan");
-  }
+  Future<void> rescan({required int height}) => throw UnimplementedError("rescan");
 
   @override
   Future<void> save() async {
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+      await saveKeysFile(_password, encryptionFileUtils);
+      saveKeysFile(_password, encryptionFileUtils, true);
+    }
+
     await walletAddresses.updateAddressesInBox();
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
+    await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
 
@@ -424,7 +456,8 @@ abstract class TronWalletBase
   @override
   String get privateKey => _tronPrivateKey.toHex();
 
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
+  @override
+  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
 
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
@@ -512,7 +545,7 @@ abstract class TronWalletBase
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    String transactionHistoryFileNameForWallet = 'tron_transactions.json';
+    const transactionHistoryFileNameForWallet = 'tron_transactions.json';
 
     final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
     final currentWalletFile = File(currentWalletPath);
@@ -547,12 +580,20 @@ abstract class TronWalletBase
   }
 
   @override
-  Future<String> signMessage(String message, {String? address}) async =>
-      _tronPrivateKey.signPersonalMessage(ascii.encode(message));
-
-  String getTronBase58AddressFromHex(String hexAddress) {
-    return TronAddress(hexAddress).toAddress();
+  Future<String> signMessage(String message, {String? address}) async {
+    return _tronPrivateKey.signPersonalMessage(ascii.encode(message));
   }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address}) async {
+    if (address == null) {
+      return false;
+    }
+    TronPublicKey pubKey = TronPublicKey.fromPersonalSignature(ascii.encode(message), signature)!;
+    return pubKey.toAddress().toString() == address;
+  }
+
+  String getTronBase58AddressFromHex(String hexAddress) => TronAddress(hexAddress).toAddress();
 
   void updateScanProviderUsageState(bool isEnabled) {
     if (isEnabled) {
@@ -563,4 +604,7 @@ abstract class TronWalletBase
       _transactionsUpdateTimer?.cancel();
     }
   }
+
+  @override
+  String get password => _password;
 }

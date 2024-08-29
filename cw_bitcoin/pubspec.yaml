@@ -17,34 +17,27 @@ dependencies:
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1
   intl: ^0.18.0
+  shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core
-  bitcoin_flutter:
-    git:
-      url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake-update-v4
   bitbox:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
       ref: Add-Support-For-OP-Return-data
   rxdart: ^0.27.5
   cryptography: ^2.0.5
-  bitcoin_base:
-    git:
-      url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v3
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v1
+      ref: cake-update-v2
   ledger_flutter: ^1.0.1
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-bitcoin
   sp_scanner:
     git:
-      url: https://github.com/cake-tech/sp_scanner
-      ref: sp_v2.0.0
+      url: https://github.com/rafael-xmr/sp_scanner
+      ref: sp_v4.0.0
 
 
 dev_dependencies:
@@ -56,7 +49,15 @@ dev_dependencies:
   hive_generator: ^1.1.3
 
 dependency_overrides:
+  ledger_flutter:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter.git
+      ref: cake-v3
   watcher: ^1.1.0
+  bitcoin_base:
+    git:
+      url: https://github.com/cake-tech/bitcoin_base
+      ref: cake-update-v5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

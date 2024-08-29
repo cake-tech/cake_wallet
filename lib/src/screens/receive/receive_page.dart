@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/address_list.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
@@ -122,107 +123,7 @@ class ReceivePage extends BasePage {
                     amountController: _amountController,
                     isLight: currentTheme.type == ThemeType.light),
               ),
-              Observer(
-                  builder: (_) => ListView.separated(
-                      padding: EdgeInsets.all(0),
-                      separatorBuilder: (context, _) => const HorizontalSectionDivider(),
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: addressListViewModel.items.length,
-                      itemBuilder: (context, index) {
-                        final item = addressListViewModel.items[index];
-                        Widget cell = Container();
-
-                        if (item is WalletAccountListHeader) {
-                          cell = HeaderTile(
-                              showTrailingButton: true,
-                              walletAddressListViewModel: addressListViewModel,
-                              trailingButtonTap: () async {
-                                if (addressListViewModel.type == WalletType.monero ||
-                                    addressListViewModel.type == WalletType.haven) {
-                                  await showPopUp<void>(
-                                      context: context,
-                                      builder: (_) => getIt.get<MoneroAccountListPage>());
-                                } else {
-                                  await showPopUp<void>(
-                                      context: context,
-                                      builder: (_) => getIt.get<NanoAccountListPage>());
-                                }
-                              },
-                              title: S.of(context).accounts,
-                              trailingIcon: Icon(
-                                Icons.arrow_forward_ios,
-                                size: 14,
-                                color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
-                              ));
-                        }
-
-                        if (item is WalletAddressListHeader) {
-                          final hasTitle = item.title != null;
-
-                          cell = HeaderTile(
-                            title: hasTitle ? item.title! : S.of(context).addresses,
-                            walletAddressListViewModel: addressListViewModel,
-                            showTrailingButton:
-                                !addressListViewModel.isAutoGenerateSubaddressEnabled && !hasTitle,
-                            showSearchButton: true,
-                            trailingButtonTap: () =>
-                                Navigator.of(context).pushNamed(Routes.newSubaddress),
-                            trailingIcon: hasTitle
-                                ? null
-                                : Icon(
-                                    Icons.add,
-                                    size: 20,
-                                    color:
-                                        Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
-                                  ),
-                          );
-                        }
-
-                        if (item is WalletAddressListItem) {
-                          cell = Observer(builder: (_) {
-                            final isCurrent = item.address == addressListViewModel.address.address;
-                            final backgroundColor = isCurrent
-                                ? Theme.of(context)
-                                    .extension<ReceivePageTheme>()!
-                                    .currentTileBackgroundColor
-                                : Theme.of(context)
-                                    .extension<ReceivePageTheme>()!
-                                    .tilesBackgroundColor;
-                            final textColor = isCurrent
-                                ? Theme.of(context)
-                                    .extension<ReceivePageTheme>()!
-                                    .currentTileTextColor
-                                : Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor;
-
-                            return AddressCell.fromItem(
-                              item,
-                              isCurrent: isCurrent,
-                              hasBalance: addressListViewModel.isElectrumWallet,
-                              backgroundColor: backgroundColor,
-                              textColor: textColor,
-                              onTap: item.isOneTimeReceiveAddress == true
-                                  ? null
-                                  : (_) => addressListViewModel.setAddress(item),
-                              onEdit: item.isOneTimeReceiveAddress == true || item.isPrimary
-                                  ? null
-                                  : () => Navigator.of(context)
-                                      .pushNamed(Routes.newSubaddress, arguments: item),
-                              onDelete: !addressListViewModel.isSilentPayments || item.isPrimary
-                                  ? null
-                                  : () => addressListViewModel.deleteAddress(item),
-                            );
-                          });
-                        }
-
-                        return index != 0
-                            ? cell
-                            : ClipRRect(
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(30), topRight: Radius.circular(30)),
-                                child: cell,
-                              );
-                      })),
+              AddressList(addressListViewModel: addressListViewModel),
               Padding(
                 padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
                 child: Text(
