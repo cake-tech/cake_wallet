@@ -102,11 +102,11 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="nano-gpt" />
             </intent-filter>
-            <service
-                android:name="id.flutter.flutter_background_service.BackgroundService"
-                android:foregroundServiceType="dataSync"
-            />
         </activity>
+        <service
+            android:name="id.flutter.flutter_background_service.BackgroundService"
+            android:foregroundServiceType="dataSync"
+        />
         <meta-data
                 android:name="flutterEmbedding"
                 android:value="2" />

@@ -82,3 +82,11 @@ class LostConnectionSyncStatus extends NotConnectedSyncStatus {
   @override
   String toString() => 'Reconnecting';
 }
+
+class NotSyncingSyncStatus extends SyncStatus {
+  @override
+  double progress() => 0.0;
+  
+  @override
+  String toString() => 'stopped';
+}
