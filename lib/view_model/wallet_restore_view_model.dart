@@ -19,6 +19,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 
 part 'wallet_restore_view_model.g.dart';
@@ -54,6 +55,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.decred:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       case WalletType.bitcoin:
@@ -70,6 +72,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   static const moneroSeedMnemonicLength = 25;
   static const electrumSeedMnemonicLength = 24;
   static const electrumShortSeedMnemonicLength = 12;
+  static const decredSeedMnemonicLength = 15;
 
   late List<WalletRestoreMode> availableModes;
   final bool hasSeedLanguageSelector;
@@ -150,6 +153,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             password: password,
             height: height,
           );
+        case WalletType.decred:
+          return decred!.createDecredRestoreWalletFromSeedCredentials(
+              name: name,
+              mnemonic: seed,
+              password: password,
+          );
         case WalletType.none:
           break;
       }
@@ -223,6 +232,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             address: address!,
             password: password,
             language: 'English',
+          );
+        case WalletType.decred:
+          return decred!.createDecredRestoreWalletFromPubkeyCredentials(
+            name: name,
+            password: password,
+            pubkey: viewKey!,
           );
         default:
           break;

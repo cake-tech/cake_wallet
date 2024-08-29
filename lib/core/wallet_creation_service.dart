@@ -44,6 +44,34 @@ class WalletCreationService {
     return walletInfoSource.values.any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
   }
 
+  Future<bool> checkIfWalletWithSeedExists(
+      WalletCredentials seed, WalletType walletType) async {
+    bool walletExists = false;
+    for (final w in walletInfoSource.values) {
+      if (walletType == w.type) {
+        final password = await keyService.getWalletPassword(walletName: w.name);
+        walletExists =
+            await _service!.checkIfWalletWithSeedExists(w.name, password, seed);
+        if (walletExists) break;
+      }
+    }
+    return walletExists;
+  }
+
+  Future<bool> checkIfWalletWithKeyExists(
+      WalletCredentials credentials, WalletType walletType) async {
+    bool walletExists = false;
+    for (final w in walletInfoSource.values) {
+      if (walletType == w.type) {
+        final password = await keyService.getWalletPassword(walletName: w.name);
+        walletExists =
+            await _service!.checkIfWalletWithKeyExists(w.name, password, credentials);
+        if (walletExists) break;
+      }
+    }
+    return walletExists;
+  }
+
   bool typeExists(WalletType type) {
     return walletInfoSource.values.any((walletInfo) => walletInfo.type == type);
   }
@@ -88,12 +116,15 @@ class WalletCreationService {
       case WalletType.haven:
       case WalletType.nano:
       case WalletType.banano:
+      case WalletType.decred:
         return false;
     }
   }
 
   Future<WalletBase> restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) async {
     checkIfExists(credentials.name);
+    final walletExists = await checkIfWalletWithKeyExists(credentials, credentials.walletInfo!.type);
+    if (walletExists) throw Exception('Wallet with public key already exists!');
     final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);
@@ -109,6 +140,8 @@ class WalletCreationService {
 
   Future<WalletBase> restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) async {
     checkIfExists(credentials.name);
+    final walletExists = await checkIfWalletWithSeedExists(credentials, credentials.walletInfo!.type);
+    if (walletExists) throw Exception('Wallet with seed already exists!');
     final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(password: password, walletName: credentials.name);

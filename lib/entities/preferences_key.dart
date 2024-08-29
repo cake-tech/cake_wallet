@@ -9,6 +9,7 @@ class PreferencesKey {
   static const currentPolygonNodeIdKey = 'current_node_id_matic';
   static const currentNanoNodeIdKey = 'current_node_id_nano';
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
+  static const currentDecredNodeIdKey = 'current_node_id_decred';
   static const currentBananoNodeIdKey = 'current_node_id_banano';
   static const currentBananoPowNodeIdKey = 'current_node_id_banano_pow';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
@@ -48,6 +49,7 @@ class PreferencesKey {
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
   static const silentPaymentsAlwaysScan = 'silentPaymentsAlwaysScan';
+  static const decredTransactionPriority = 'current_fee_priority_decred';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const shouldShowRepWarning = 'should_show_rep_warning';

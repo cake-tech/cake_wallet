@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import "package:yaml/yaml.dart";
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -200,6 +201,12 @@ Future<List<Node>> loadDefaultWowneroNodes() async {
   return nodes;
 }
 
+Future<List<Node>> loadDefaultDecredNodes() async {
+  final decredMainnetPort = ":9108";
+  final node = Node(uri: decredMainnetPort, type: WalletType.decred);
+  return <Node>[node];
+}
+
 Future<void> resetToDefault(Box<Node> nodeSource) async {
   final moneroNodes = await loadDefaultNodes();
   final bitcoinElectrumServerList = await loadBitcoinElectrumServerList();
@@ -211,6 +218,7 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
   final polygonNodes = await loadDefaultPolygonNodes();
   final solanaNodes = await loadDefaultSolanaNodes();
   final tronNodes = await loadDefaultTronNodes();
+  final decredNodes = await loadDefaultDecredNodes();
 
   final nodes = moneroNodes +
       bitcoinElectrumServerList +
@@ -220,7 +228,9 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
       bitcoinCashElectrumServerList +
       nanoNodes +
       polygonNodes +
-      solanaNodes + tronNodes;
+      solanaNodes +
+      tronNodes +
+      decredNodes;
 
   await nodeSource.clear();
   await nodeSource.addAll(nodes);

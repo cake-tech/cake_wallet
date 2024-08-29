@@ -21,6 +21,14 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
 
   Future<bool> isWalletExit(String name);
 
+  Future<bool> checkIfWalletWithSeedExists(String name, String password, RFS credentials) async {
+    return false;
+  }
+
+  Future<bool> checkIfWalletWithKeyExists(String name, String password, RFK credentials) async {
+    return false;
+  }
+
   Future<void> remove(String wallet);
 
   Future<void> rename(String currentName, String password, String newName);

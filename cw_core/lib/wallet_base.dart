@@ -58,6 +58,13 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool get isHardwareWallet => walletInfo.isHardwareWallet;
 
+  bool get hasRescan =>
+      walletInfo.type == WalletType.bitcoin ||
+      walletInfo.type == WalletType.monero ||
+      walletInfo.type == WalletType.wownero ||
+      walletInfo.type == WalletType.decred ||
+      walletInfo.type == WalletType.haven;
+
   Future<void> connectToNode({required Node node});
 
   // there is a default definition here because only coins with a pow node (nano based) need to override this
