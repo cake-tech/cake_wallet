@@ -187,76 +187,31 @@ void callbackDispatcher() {
 Future<void> onStart(ServiceInstance service) async {
   print("BACKGROUND SERVICE STARTED!");
 
-  // Only available for flutter 3.0.0 and later
-  DartPluginRegistrant.ensureInitialized();
+  // commented because the behavior appears to be bugged:
+  // DartPluginRegistrant.ensureInitialized();
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-// this will be used as notification channel id
+  // this will be used as notification channel id
+  // this will be used for notification id, So you can update your custom notification with this id.
   const notificationChannelId = 'my_foreground';
-
-// this will be used for notification id, So you can update your custom notification with this id.
+  const notificationChannelName = 'MY FOREGROUND SERVICE';
   const notificationId = 888;
-
-  if (service is AndroidServiceInstance) {
-    service.on('setAsForeground').listen((event) {
-      service.setAsForegroundService();
-    });
-
-    service.on('setAsBackground').listen((event) {
-      service.setAsBackgroundService();
-    });
-  }
 
   service.on('stopService').listen((event) {
     service.stopSelf();
   });
-
-  // // bring to foreground
-  // Timer.periodic(const Duration(seconds: 1), (timer) async {
-  //   if (service is AndroidServiceInstance) {
-  //     if (await service.isForegroundService()) {
-  //       flutterLocalNotificationsPlugin.show(
-  //         notificationId,
-  //         'COOL SERVICE',
-  //         'Awesome ${DateTime.now()}',
-  //         const NotificationDetails(
-  //           android: AndroidNotificationDetails(
-  //             notificationChannelId,
-  //             'MY FOREGROUND SERVICE',
-  //             icon: 'ic_bg_service_small',
-  //             ongoing: true,
-  //           ),
-  //         ),
-  //       );
-  //     } else {
-  //       flutterLocalNotificationsPlugin.show(
-  //         notificationId,
-  //         'BACKGROUND SERVICE?',
-  //         'Awesome ${DateTime.now()}',
-  //         const NotificationDetails(
-  //           android: AndroidNotificationDetails(
-  //             notificationChannelId,
-  //             'MY FOREGROUND SERVICE',
-  //             icon: 'ic_bg_service_small',
-  //             ongoing: true,
-  //           ),
-  //         ),
-  //       );
-  //     }
-  //   }
-  // });
-
-  // /// The work manager runs on a separate isolate from the main flutter isolate.
-  // /// thus we initialize app configs first; hive, getIt, etc...
-  // await initializeAppConfigs();
 
   service.on('status').listen((event) async {
     print(event);
   });
 
   bool bgSyncStarted = false;
+
+  service.on('foreground').listen((event) async {
+    bgSyncStarted = false;
+  });
 
   service.on('startBgSync').listen((event) async {
     if (bgSyncStarted) {
@@ -271,22 +226,29 @@ Future<void> onStart(ServiceInstance service) async {
 
     Timer.periodic(const Duration(milliseconds: 1500), (timer) {
       final wallet = getIt.get<AppStore>().wallet;
-      final syncProgress = wallet?.syncStatus.progress();
+      final syncProgress = ((wallet?.syncStatus.progress() ?? 0) * 100).toStringAsPrecision(3);
 
       flutterLocalNotificationsPlugin.show(
         notificationId,
-        "${syncProgress}",
-        'Awesome ${DateTime.now()}',
+        "${syncProgress}% Synced",
+        'Mweb background sync - ${DateTime.now()}',
         const NotificationDetails(
           android: AndroidNotificationDetails(
             notificationChannelId,
-            'MY FOREGROUND SERVICE',
+            notificationChannelName,
             icon: 'ic_bg_service_small',
             ongoing: true,
           ),
         ),
       );
     });
+
+    // print("stopping in ten seconds!");
+    // Timer(const Duration(seconds: 10), () {
+    //   // stop the service after 10 seconds
+    //   print("stopping now!");
+    //   service.stopSelf();
+    // });
   });
 
   // final List<WalletListItem> ltcWallets = getIt
@@ -385,23 +347,6 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 }
 
 Future<void> initializeService(FlutterBackgroundService bgService) async {
-  // final service = FlutterBackgroundService();
-
-  // await service.configure(
-  //   iosConfiguration: IosConfiguration(
-  //     autoStart: true,
-  //     onForeground: onStart,
-  //     onBackground: onIosBackground,
-  //   ),
-  //   androidConfiguration: AndroidConfiguration(
-  //     autoStart: true,
-  //     onStart: onStart,
-  //     isForegroundMode: false,
-  //     autoStartOnBoot: true,
-  //   ),
-  // );
-
-  /// OPTIONAL, using custom notification channel id
   const AndroidNotificationChannel channel = AndroidNotificationChannel(
     'my_foreground', // id
     'MY FOREGROUND SERVICE', // title
@@ -429,40 +374,52 @@ Future<void> initializeService(FlutterBackgroundService bgService) async {
       .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
       ?.requestNotificationsPermission();
 
+  const initialNotificationTitle = 'Cake Background Sync';
+  const initialNotificationContent = 'On standby - app is in the foreground';
+  const notificationId = 888;
+  const notificationChannelId = 'my_foreground';
+  const notificationChannelName = 'MY FOREGROUND SERVICE';
+
+  flutterLocalNotificationsPlugin.show(
+    notificationId,
+    initialNotificationTitle,
+    initialNotificationContent,
+    const NotificationDetails(
+      android: AndroidNotificationDetails(
+        notificationChannelId,
+        notificationChannelName,
+        icon: 'ic_bg_service_small',
+        ongoing: true,
+      ),
+    ),
+  );
+
   await bgService.configure(
     androidConfiguration: AndroidConfiguration(
-      // this will be executed when app is in foreground or background in separated isolate
       onStart: onStart,
-
-      // auto start service
       autoStart: true,
       isForegroundMode: true,
-
-      notificationChannelId: 'my_foreground',
-      initialNotificationTitle: 'AWESOME SERVICE',
-      initialNotificationContent: 'Initializing',
-      foregroundServiceNotificationId: 888,
+      notificationChannelId: notificationChannelId,
+      initialNotificationTitle: initialNotificationTitle,
+      initialNotificationContent: initialNotificationContent,
+      foregroundServiceNotificationId: notificationId,
       foregroundServiceTypes: [AndroidForegroundType.dataSync],
     ),
     iosConfiguration: IosConfiguration(
-      // auto start service
       autoStart: true,
-
-      // this will be executed when app is in foreground in separated isolate
       onForeground: onStart,
-
-      // you have to enable background fetch capability on xcode project
       onBackground: onIosBackground,
     ),
   );
 
-  var wallet = getIt.get<AppStore>().wallet;
+  bgService.invoke("foreground");
 
   Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+    var wallet = getIt.get<AppStore>().wallet;
     if (wallet?.syncStatus.toString() == "stopped") {
       bgService.invoke("startBgSync");
+      timer.cancel();
     }
-    // bgService.invoke("status", {"status": wallet?.syncStatus.toString()});
   });
 }
 
@@ -496,93 +453,19 @@ class BackgroundTasks {
         return;
       }
 
+      // try {
+      //   bool isServiceRunning = await bgService.isRunning();
+      //   if (isServiceRunning) {
+      //     return;
+      //     // print("Service is ALREADY running!");
+      //     // bgService.invoke('stopService');
+      //   }
+      // } catch (_) {}
+
       await initializeService(bgService);
-
-      //     await service.configure(
-      // androidConfiguration: AndroidConfiguration(
-      //   // this will be executed when app is in foreground or background in separated isolate
-      //   onStart: onStart,
-
-      //   // auto start service
-      //   autoStart: true,
-      //   isForegroundMode: true,
-
-      //   notificationChannelId: notificationChannelId, // this must match with notification channel you created above.
-      //   initialNotificationTitle: 'AWESOME SERVICE',
-      //   initialNotificationContent: 'Initializing',
-      //   foregroundServiceNotificationId: notificationId,
-      // );
-
-      // await Workmanager().initialize(
-      //   callbackDispatcher,
-      //   isInDebugMode: true,
-      // );
-
-      // final inputData = <String, dynamic>{"sync_all": syncAll};
-      // final constraints = Constraints(
-      //   networkType:
-      //       syncMode.type == SyncType.unobtrusive ? NetworkType.unmetered : NetworkType.connected,
-      //   requiresBatteryNotLow: syncMode.type == SyncType.unobtrusive,
-      //   requiresCharging: syncMode.type == SyncType.unobtrusive,
-      //   requiresDeviceIdle: syncMode.type == SyncType.unobtrusive,
-      // );
-
-      // if (Platform.isIOS && syncMode.type == SyncType.unobtrusive) {
-      //   // await Workmanager().registerOneOffTask(
-      //   //   moneroSyncTaskKey,
-      //   //   moneroSyncTaskKey,
-      //   //   initialDelay: syncMode.frequency,
-      //   //   existingWorkPolicy: ExistingWorkPolicy.replace,
-      //   //   inputData: inputData,
-      //   //   constraints: constraints,
-      //   // );
-      //   await Workmanager().registerOneOffTask(
-      //     mwebSyncTaskKey,
-      //     mwebSyncTaskKey,
-      //     initialDelay: Duration(seconds: 30),
-      //     existingWorkPolicy: ExistingWorkPolicy.replace,
-      //     inputData: inputData,
-      //     constraints: constraints,
-      //   );
-      //   return;
-      // }
-
-      // await Workmanager().registerPeriodicTask(
-      //   moneroSyncTaskKey,
-      //   moneroSyncTaskKey,
-      //   initialDelay: syncMode.frequency,
-      //   frequency: syncMode.frequency,
-      //   existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
-      //   inputData: inputData,
-      //   constraints: constraints,
-      // );
-      // await Workmanager().registerPeriodicTask(
-      //   mwebSyncTaskKey,
-      //   mwebSyncTaskKey,
-      //   initialDelay: syncMode.frequency,
-      //   frequency: syncMode.frequency,
-      //   existingWorkPolicy: changeExisting ? ExistingWorkPolicy.replace : ExistingWorkPolicy.keep,
-      //   inputData: inputData,
-      //   constraints: constraints,
-      // );
     } catch (error, stackTrace) {
       print(error);
       print(stackTrace);
     }
-  }
-
-  void cancelSyncTask() {
-    // try {
-    //   Workmanager().cancelByUniqueName(moneroSyncTaskKey);
-    // } catch (error, stackTrace) {
-    //   print(error);
-    //   print(stackTrace);
-    // }
-    // try {
-    //   Workmanager().cancelByUniqueName(mwebSyncTaskKey);
-    // } catch (error, stackTrace) {
-    //   print(error);
-    //   print(stackTrace);
-    // }
   }
 }

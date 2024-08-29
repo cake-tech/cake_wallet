@@ -43,13 +43,15 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       : _isInactiveController = StreamController<bool>.broadcast(),
         _isInactive = false,
         _requestAuth = true,
-        _postFrameCallback = false;
+        _postFrameCallback = false,
+        _previousState = AppLifecycleState.resumed;
 
   Stream<bool> get isInactive => _isInactiveController.stream;
   StreamController<bool> _isInactiveController;
   bool _isInactive;
   bool _postFrameCallback;
   bool _requestAuth;
+  AppLifecycleState _previousState;
 
   StreamSubscription<Uri?>? stream;
   ReactionDisposer? _walletReactionDisposer;
@@ -148,13 +150,18 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             });
           }
         });
-        if (widget.appStore.wallet?.type == WalletType.litecoin) {
-          widget.appStore.wallet?.startSync();
+
+        // prevent triggering startSync from the notifications menu on android / other non-paused states:
+        if (_previousState == AppLifecycleState.paused) {
+          if (widget.appStore.wallet?.type == WalletType.litecoin) {
+            widget.appStore.wallet?.startSync();
+          }
         }
         break;
       default:
         break;
     }
+    _previousState = state;
   }
 
   @override

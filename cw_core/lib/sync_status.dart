@@ -83,10 +83,11 @@ class LostConnectionSyncStatus extends NotConnectedSyncStatus {
   String toString() => 'Reconnecting';
 }
 
-class NotSyncingSyncStatus extends SyncStatus {
+// when the application has been paused by the OS:
+class StoppedSyncingSyncStatus extends SyncStatus {
   @override
   double progress() => 0.0;
-  
+
   @override
   String toString() => 'stopped';
 }

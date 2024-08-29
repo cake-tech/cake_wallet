@@ -300,10 +300,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> stopSync() async {
+    print("STOPPING SYNC");
     _syncTimer?.cancel();
     _utxoStream?.cancel();
     await CwMweb.stop();
-    syncStatus = NotSyncingSyncStatus();
+    syncStatus = StoppedSyncingSyncStatus();
   }
 
   Future<void> initMwebUtxosBox() async {
@@ -888,7 +889,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       // generate inital mweb addresses:
       (walletAddresses as LitecoinWalletAddresses).topUpMweb(0);
     }
-    stopSync();
     startSync();
   }
 

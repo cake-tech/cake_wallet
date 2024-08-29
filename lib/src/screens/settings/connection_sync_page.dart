@@ -56,29 +56,26 @@ class ConnectionSyncPage extends BasePage {
 
                       if (Platform.isIOS) return;
 
-                      if (syncMode.type != SyncType.disabled) {
-                        final isDisabled = await isBatteryOptimizationDisabled();
-
-                        if (isDisabled) return;
-
-                        await showPopUp<void>(
-                          context: context,
-                          builder: (BuildContext dialogContext) {
-                            return AlertWithTwoActions(
-                              alertTitle: S.current.disableBatteryOptimization,
-                              alertContent: S.current.disableBatteryOptimizationDescription,
-                              leftButtonText: S.of(context).cancel,
-                              rightButtonText: S.of(context).ok,
-                              actionLeftButton: () => Navigator.of(dialogContext).pop(),
-                              actionRightButton: () async {
-                                await requestDisableBatteryOptimization();
-
-                                Navigator.of(dialogContext).pop();
-                              },
-                            );
-                          },
-                        );
-                      }
+                      // if (syncMode.type != SyncType.disabled) {
+                      //   final isDisabled = await isBatteryOptimizationDisabled();
+                      //   if (isDisabled) return;
+                      //   await showPopUp<void>(
+                      //     context: context,
+                      //     builder: (BuildContext dialogContext) {
+                      //       return AlertWithTwoActions(
+                      //         alertTitle: S.current.disableBatteryOptimization,
+                      //         alertContent: S.current.disableBatteryOptimizationDescription,
+                      //         leftButtonText: S.of(context).cancel,
+                      //         rightButtonText: S.of(context).ok,
+                      //         actionLeftButton: () => Navigator.of(dialogContext).pop(),
+                      //         actionRightButton: () async {
+                      //           await requestDisableBatteryOptimization();
+                      //           Navigator.of(dialogContext).pop();
+                      //         },
+                      //       );
+                      //     },
+                      //   );
+                      // }
                     });
               }),
               Observer(builder: (context) {
