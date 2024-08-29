@@ -27,7 +27,6 @@ import 'package:cw_nano/nano_wallet_addresses.dart';
 import 'package:cw_nano/nano_wallet_keys.dart';
 import 'package:cw_nano/pending_nano_transaction.dart';
 import 'package:mobx/mobx.dart';
-import 'package:nanodart/nanodart.dart';
 import 'package:nanoutil/nanoutil.dart';
 
 part 'nano_wallet.g.dart';
@@ -107,7 +106,6 @@ abstract class NanoWalletBase
     if (_derivationType == DerivationType.unknown) {
       _derivationType = DerivationType.nano;
     }
-    final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
 
     // our "mnemonic" is actually a hex form seed:
     if (!_mnemonic.contains(' ')) {
@@ -122,8 +120,10 @@ abstract class NanoWalletBase
         _hexSeed = await NanoDerivations.hdMnemonicListToSeed(_mnemonic.split(' '));
       }
     }
-    NanoDerivationType derivationType =
-        type == "standard" ? NanoDerivationType.STANDARD : NanoDerivationType.HD;
+
+    final String type = (_derivationType == DerivationType.nano) ? "standard" : "hd";
+    NanoDerivationType derivationType = NanoDerivations.stringToType(type);
+
     _privateKey = await NanoDerivations.universalSeedToPrivate(
       _hexSeed!,
       index: 0,
@@ -216,8 +216,8 @@ abstract class NanoWalletBase
         balanceAfterTx: runningBalance,
         previousHash: previousHash,
       );
-      previousHash = NanoBlocks.computeStateHash(
-        NanoAccountType.NANO,
+      previousHash = NanoSignatures.computeStateHash(
+        NanoBasedCurrency.NANO,
         block["account"]!,
         block["previous"]!,
         block["representative"]!,
@@ -534,5 +534,18 @@ abstract class NanoWalletBase
 
     // Delete old name's dir and files
     await Directory(currentDirPath).delete(recursive: true);
+  }
+
+  @override
+  Future<String> signMessage(String message, {String? address = null}) async {
+    return NanoSignatures.signMessage(message, privateKey!);
+  }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
+    if (address == null) {
+      return false;
+    }
+    return await NanoSignatures.verifyMessage(message, signature, address);
   }
 }
