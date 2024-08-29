@@ -290,23 +290,33 @@ class DFXBuyProvider extends BuyProvider {
   }
 
   @override
-  Future<List<Quote>?> fetchQuote({
-    required String sourceCurrency,
-    required String destinationCurrency,
-    required double amount,
-    required bool isBuyAction,
-    required String walletAddress,
-    PaymentType? paymentType,
-    String? countryCode}) async {
-
+  Future<List<Quote>?> fetchQuote(
+      {required String sourceCurrency,
+      required String destinationCurrency,
+      required double amount,
+      required bool isBuyAction,
+      required String walletAddress,
+      PaymentType? paymentType,
+      String? countryCode}) async {
     String? paymentMethod;
     if (paymentType != null) {
       paymentMethod = normalizePaymentMethod(paymentType);
       if (paymentMethod == null) paymentMethod = paymentType.name;
     }
 
-
     final action = isBuyAction ? 'buy' : 'sell';
+
+    if (isBuyAction) {
+      if (destinationCurrency != wallet.currency.title) {
+        return null;
+      }
+    }
+
+    if (!isBuyAction) {
+      if (sourceCurrency != wallet.currency.title) {
+        return null;
+      }
+    }
 
     final fiatCredentials =
         await fetchFiatCredentials(isBuyAction ? sourceCurrency : destinationCurrency);
@@ -316,8 +326,7 @@ class DFXBuyProvider extends BuyProvider {
         await fetchAssetCredential(isBuyAction ? destinationCurrency : sourceCurrency);
     if (assetCredentials['id'] == null) return null;
 
-    log(
-        'DFX: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
+    log('DFX: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
 
     final url = Uri.parse('https://$_baseUrl/v1/$action/quote');
     final headers = {
@@ -367,12 +376,12 @@ class DFXBuyProvider extends BuyProvider {
 
   Future<void>? launchProvider(
       {required BuildContext context,
-        required Quote quote,
-        required PaymentMethod paymentMethod,
-        required double amount,
-        required bool isBuyAction,
-        required String cryptoCurrencyAddress,
-        String? countryCode})  async {
+      required Quote quote,
+      required PaymentMethod? paymentMethod,
+      required double amount,
+      required bool isBuyAction,
+      required String cryptoCurrencyAddress,
+      String? countryCode}) async {
     if (wallet.isHardwareWallet) {
       if (!ledgerVM!.isConnected) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
@@ -404,7 +413,7 @@ class DFXBuyProvider extends BuyProvider {
       });
 
       if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         throw Exception('Could not launch URL');
       }

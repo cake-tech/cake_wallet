@@ -110,7 +110,8 @@ extension PaymentTypeTitle on PaymentType {
         return 'assets/images/dollar_coin.svg';
       case PaymentType.creditCard:
       case PaymentType.debitCard:
-        return 'assets/images/card.png';
+      case PaymentType.yellowCardBankTransfer:
+        return 'assets/images/card.svg';
       default:
         return null;
     }

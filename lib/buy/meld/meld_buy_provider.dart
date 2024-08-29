@@ -142,7 +142,7 @@ class MeldBuyProvider extends BuyProvider {
   Future<void>? launchProvider(
       {required BuildContext context,
       required Quote quote,
-      required PaymentMethod paymentMethod,
+      required PaymentMethod? paymentMethod,
       required double amount,
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
@@ -152,7 +152,7 @@ class MeldBuyProvider extends BuyProvider {
     final params = {
       'publicKey': _isProduction ? '' : _testPublicKey,
       'countryCode': countryCode,
-      'paymentMethodType': normalizePaymentMethod(paymentMethod.paymentMethodType),
+      //'paymentMethodType': normalizePaymentMethod(paymentMethod.paymentMethodType),
       'sourceAmount': amount.toString(),
       'sourceCurrencyCode': quote.sourceCurrency,
       'destinationCurrencyCode': quote.destinationCurrency,

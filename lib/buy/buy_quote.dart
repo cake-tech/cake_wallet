@@ -170,7 +170,7 @@ class Quote extends SelectableOption {
       transactionFee: fees['rate'] as double? ?? 0.0,
       payout: json['payout'] as double? ?? 0.0,
       paymentMethod: json['paymentMethod'] as String? ?? '',
-      recommendations: [],
+      recommendations: [ProviderRecommendation.lowKyc],
       provider: ProvidersHelper.getProviderByType(providerType)!,
       isBuyAction: isBuyAction,
     );

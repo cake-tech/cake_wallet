@@ -51,12 +51,23 @@ class ProviderOptionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final backgroundColor = isSelected
         ? isLightMode
-        ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor
-        : Theme.of(context).extension<OptionTileTheme>()!.titleColor
+            ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor
+            : Theme.of(context).extension<OptionTileTheme>()!.titleColor
         : Theme.of(context).cardColor;
 
-    final textColor =
-    isSelected ? Colors.white : Theme.of(context).extension<OptionTileTheme>()!.titleColor;
+    final textColor = isSelected
+        ? isLightMode
+            ? Colors.white
+            : Theme.of(context).cardColor
+        : Theme.of(context).extension<OptionTileTheme>()!.titleColor;
+
+    final badgeColor = isSelected
+        ? Theme.of(context).cardColor
+        : Theme.of(context).extension<OptionTileTheme>()!.titleColor;
+
+    final badgeTextColor = isSelected
+        ? Theme.of(context).extension<OptionTileTheme>()!.titleColor
+        : Theme.of(context).cardColor;
 
     return GestureDetector(
       onTap: onPressed,
@@ -66,6 +77,7 @@ class ProviderOptionTile extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(borderRadius ?? 12)),
+          border:  isSelected && !isLightMode ? Border.all(color: textColor) : null,
           color: backgroundColor,
         ),
         child: Column(
@@ -99,37 +111,37 @@ class ProviderOptionTile extends StatelessWidget {
                 children: [
                   leftSubTitle != null || leftSubTitleIconPath != null
                       ? Row(
-                    children: [
-                      if (leftSubTitleIconPath != null && leftSubTitleIconPath!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 4),
-                          child: getImage(leftSubTitleIconPath!, height: 16, width: 16),
-                        ),
-                      Text(
-                        leftSubTitle ?? '',
-                        style: subTitleTextStyle ??
-                            TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
-                      ),
-                    ],
-                  )
+                          children: [
+                            if (leftSubTitleIconPath != null && leftSubTitleIconPath!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 4),
+                                child: getImage(leftSubTitleIconPath!, height: 16, width: 16),
+                              ),
+                            Text(
+                              leftSubTitle ?? '',
+                              style: subTitleTextStyle ??
+                                  TextStyle(
+                                      fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+                            ),
+                          ],
+                        )
                       : Container(),
                   rightSubTitle != null || rightSubTitleIconPath != null
                       ? Row(
-                    children: [
-                      if (rightSubTitleIconPath != null && rightSubTitleIconPath!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 4),
-                          child: getImage(rightSubTitleIconPath!),
-                        ),
-                      Text(
-                        rightSubTitle ?? '',
-                        style: subTitleTextStyle ??
-                            TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
-                      ),
-                    ],
-                  )
+                          children: [
+                            if (rightSubTitleIconPath != null && rightSubTitleIconPath!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 4),
+                                child: getImage(rightSubTitleIconPath!, imageColor: textColor),
+                              ),
+                            Text(
+                              rightSubTitle ?? '',
+                              style: subTitleTextStyle ??
+                                  TextStyle(
+                                      fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+                            ),
+                          ],
+                        )
                       : Container(),
                 ],
               ),
@@ -138,11 +150,8 @@ class ProviderOptionTile extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 12),
                 child: Row(children: [
                   ...badges!
-                      .map((badge) => Badge(
-                      title: badge,
-                      textColor: Theme.of(context).cardColor,
-                      backgroundColor:
-                      Theme.of(context).extension<OptionTileTheme>()!.titleColor))
+                      .map((badge) =>
+                          Badge(title: badge, textColor: badgeTextColor, backgroundColor: badgeColor))
                       .toList()
                 ]),
               )
@@ -185,7 +194,7 @@ class Badge extends StatelessWidget {
   }
 }
 
-Widget getImage(String imagePath, {double? height, double? width}) {
+Widget getImage(String imagePath, {double? height, double? width, Color? imageColor}) {
   final bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
   final bool isSvg = imagePath.endsWith('.svg');
   final double imageHeight = height ?? 35;
@@ -194,48 +203,54 @@ Widget getImage(String imagePath, {double? height, double? width}) {
   if (isNetworkImage) {
     return isSvg
         ? SvgPicture.network(
-      imagePath,
-      height: imageHeight,
-      width: imageWidth,
-      placeholderBuilder: (BuildContext context) => Container(
-        height: imageHeight,
-        width: imageWidth,
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
-    )
-        : Image.network(
-      imagePath,
-      height: imageHeight,
-      width: imageWidth,
-      loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-        if (loadingProgress == null) {
-          return child;
-        }
-        return Container(
-          height: imageHeight,
-          width: imageWidth,
-          child: Center(
-            child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded /
-                  loadingProgress.expectedTotalBytes!
-                  : null,
+            imagePath,
+            height: imageHeight,
+            width: imageWidth,
+            colorFilter: imageColor != null ? ColorFilter.mode(imageColor, BlendMode.srcIn) : null,
+            placeholderBuilder: (BuildContext context) => Container(
+              height: imageHeight,
+              width: imageWidth,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
-          ),
-        );
-      },
-      errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-        return Container(
-          height: imageHeight,
-          width: imageWidth,
-        );
-      },
-    );
+          )
+        : Image.network(
+            imagePath,
+            height: imageHeight,
+            width: imageWidth,
+            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+              if (loadingProgress == null) {
+                return child;
+              }
+              return Container(
+                height: imageHeight,
+                width: imageWidth,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+                  ),
+                ),
+              );
+            },
+            errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+              return Container(
+                height: imageHeight,
+                width: imageWidth,
+              );
+            },
+          );
   } else {
     return isSvg
-        ? SvgPicture.asset(imagePath, height: imageHeight, width: imageWidth)
+        ? SvgPicture.asset(
+            imagePath,
+            height: imageHeight,
+            width: imageWidth,
+            colorFilter: imageColor != null ? ColorFilter.mode(imageColor, BlendMode.srcIn) : null,
+          )
         : Image.asset(imagePath, height: imageHeight, width: imageWidth);
   }
 }
@@ -243,6 +258,8 @@ Widget getImage(String imagePath, {double? height, double? width}) {
 class OptionTilePlaceholder extends StatefulWidget {
   OptionTilePlaceholder({
     this.borderRadius,
+    this.imageHeight,
+    this.imageWidth,
     this.padding,
     this.leadingIcon,
     this.withBadge = true,
@@ -252,6 +269,8 @@ class OptionTilePlaceholder extends StatefulWidget {
   });
 
   final double? borderRadius;
+  final double? imageHeight;
+  final double? imageWidth;
   final EdgeInsets? padding;
   final IconData? leadingIcon;
   final bool withBadge;
@@ -296,152 +315,150 @@ class _OptionTilePlaceholderState extends State<OptionTilePlaceholder>
 
     return widget.errorText != null
         ? Container(
-      width: double.infinity,
-      padding: widget.padding ?? EdgeInsets.all(24),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius ?? 12)),
-        color: backgroundColor,
-      ),
-      child: Column(
-        children: [
-          Text(
-            widget.errorText!,
-            style: TextStyle(
-              color: titleColor,
-              fontSize: 16,
+            width: double.infinity,
+            padding: widget.padding ?? EdgeInsets.all(16),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius ?? 12)),
+              color: backgroundColor,
             ),
-          ),
-          if (widget.withSubtitle)
-            Text(
-              '',
-              style: TextStyle(
-                color: titleColor,
-                fontSize: 16,
-              ),
+            child: Column(
+              children: [
+                Text(
+                  widget.errorText!,
+                  style: TextStyle(
+                    color: titleColor,
+                    fontSize: 16,
+                  ),
+                ),
+                if (widget.withSubtitle) SizedBox(height: 8),
+                Text(
+                  '',
+                  style: TextStyle(
+                    color: titleColor,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
             ),
-        ],
-      ),
-    )
+          )
         : AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Stack(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: widget.padding ?? EdgeInsets.all(24),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius ?? 12)),
-                  color: backgroundColor),
-              child: Column(
+            animation: _animation,
+            builder: (context, child) {
+              return Stack(
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                        height: 35,
-                        width: 35,
-                        decoration: BoxDecoration(
-                          color: titleColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
+                  Container(
+                    width: double.infinity,
+                    padding: widget.padding ?? EdgeInsets.all(16),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius ?? 12)),
+                      color: backgroundColor,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
                             Container(
-                              height: 35,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    child: Container(
+                              height: widget.imageHeight ?? 35,
+                              width: widget.imageWidth ?? 35,
+                              decoration: BoxDecoration(
+                                color: titleColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Container(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
                                       height: 20,
-                                      width: 100,
+                                      width: 70,
                                       decoration: BoxDecoration(
                                         color: titleColor,
                                         borderRadius: BorderRadius.all(Radius.circular(8)),
                                       ),
                                     ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      if (widget.withBadge)
-                                        Container(
-                                          height: 20,
-                                          width: 70,
-                                          decoration: BoxDecoration(
-                                            color: titleColor,
-                                            borderRadius:
-                                            BorderRadius.all(Radius.circular(8)),
-                                          ),
-                                        ),
-                                      if (widget.leadingIcon != null)
-                                        Icon(widget.leadingIcon, size: 16, color: titleColor),
-                                    ],
-                                  ),
-                                ],
+                                    if (widget.leadingIcon != null)
+                                      Icon(widget.leadingIcon, size: 16, color: titleColor),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      if (widget.withSubtitle)
-                        Padding(
-                          padding: EdgeInsets.only(top: 5),
-                          child: Container(
-                            height: 20,
-                            width: 170,
-                            decoration: BoxDecoration(
-                              color: titleColor,
-                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                        if (widget.withSubtitle)
+                          Padding(
+                            padding: EdgeInsets.only(top: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  height: 20,
+                                  width: 170,
+                                  decoration: BoxDecoration(
+                                    color: titleColor,
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+                        if (widget.withBadge)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16.0),
+                            child: Row(
+                              children: [
+                                Container(
+                                  height: 30,
+                                  width: 70,
+                                  decoration: BoxDecoration(
+                                    color: titleColor,
+                                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Container(
+                                  height: 30,
+                                  width: 70,
+                                  decoration: BoxDecoration(
+                                    color: titleColor,
+                                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius ?? 12)),
+                        gradient: LinearGradient(
+                          begin: Alignment(-2, -4),
+                          end: Alignment(2, 4),
+                          stops: [
+                            _animation.value - 0.2,
+                            _animation.value,
+                            _animation.value + 0.2,
+                          ],
+                          colors: [
+                            backgroundColor.withOpacity(widget.isDarkTheme ? 0.4 : 0.7),
+                            backgroundColor.withOpacity(widget.isDarkTheme ? 0.7 : 0.4),
+                            backgroundColor.withOpacity(widget.isDarkTheme ? 0.4 : 0.7),
+                          ],
                         ),
-                    ],
+                      ),
+                    ),
                   ),
                 ],
-              ),
-            ),
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius ?? 12)),
-                  gradient: LinearGradient(
-                    begin: Alignment(-2, -4),
-                    end: Alignment(2, 4),
-                    stops: [
-                      _animation.value - 0.2,
-                      _animation.value,
-                      _animation.value + 0.2,
-                    ],
-                    colors: [
-                      backgroundColor.withOpacity(widget.isDarkTheme ? 0.4 : 0.7),
-                      backgroundColor.withOpacity(widget.isDarkTheme ? 0.7 : 0.4),
-                      backgroundColor.withOpacity(widget.isDarkTheme ? 0.4 : 0.7),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+              );
+            },
+          );
   }
 }

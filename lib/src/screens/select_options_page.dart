@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
@@ -29,6 +30,8 @@ abstract class SelectOptionsPage extends BasePage {
 
   String get bottomSectionText;
 
+  bool get confirmButtonEnabled => true;
+
   List<SelectableItem> get items;
 
   void Function(SelectableOption option)? get onOptionTap;
@@ -51,14 +54,26 @@ abstract class SelectOptionsPage extends BasePage {
           innerPadding: innerPadding),
       bottomSection: Padding(
         padding: contentPadding ?? EdgeInsets.zero,
-        child: Text(
-          bottomSectionText,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.normal,
-            color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
-          ),
+        child: Column(
+          children: [
+            Text(
+              bottomSectionText,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+                color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+              ),
+            ),
+            if (confirmButtonEnabled)
+              LoadingPrimaryButton(
+                  text: 'Confirm',
+                  onPressed: () => Navigator.pop(context),
+                  color: Theme.of(context).primaryColor,
+                  textColor: Colors.white,
+                  isDisabled: false,
+                  isLoading: false)
+          ],
         ),
       ),
     );

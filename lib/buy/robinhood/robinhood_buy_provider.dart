@@ -99,7 +99,7 @@ class RobinhoodBuyProvider extends BuyProvider {
   Future<void>? launchProvider(
       {required BuildContext context,
         required Quote quote,
-        required PaymentMethod paymentMethod,
+        required PaymentMethod? paymentMethod,
         required double amount,
         required bool isBuyAction,
         required String cryptoCurrencyAddress,

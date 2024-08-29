@@ -219,7 +219,7 @@ class OnRamperBuyProvider extends BuyProvider {
       'isRecurringPayment': 'false',
       'input': 'source',
     };
-    log('Onramper: Fetching $actionType quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
+    log('Onramper: Fetching $actionType quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
     final path = '$quotes/$sourceCurrency/$destinationCurrency';
     final url = Uri.https(_baseApiUrl, path, params);
@@ -261,7 +261,7 @@ class OnRamperBuyProvider extends BuyProvider {
   Future<void>? launchProvider(
       {required BuildContext context,
       required Quote quote,
-      required PaymentMethod paymentMethod,
+      required PaymentMethod? paymentMethod,
       required double amount,
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
@@ -269,15 +269,23 @@ class OnRamperBuyProvider extends BuyProvider {
     final actionType = isBuyAction ? 'buy' : 'sell';
     final prefix = actionType == 'sell' ? actionType + '_' : '';
 
+    String? paymentMethodString;
+    if (paymentMethod != null) {
+      paymentMethodString = normalizePaymentMethod(paymentMethod.paymentMethodType);
+    } else {
+      paymentMethodString = 'creditcard';
+    }
+
+    print('Onramper: Launching  paymentMethod: $paymentMethodString ');
+
     final uri = Uri.https(_baseUrl, '', {
       'apiKey': _apiKey,
       'mode': actionType,
       '${prefix}defaultFiat': isBuyAction ? quote.sourceCurrency : quote.destinationCurrency,
       '${prefix}defaultCrypto': isBuyAction ? quote.destinationCurrency : quote.sourceCurrency,
       '${prefix}defaultAmount': amount.toString(),
-      '${prefix}defaultPaymentMethod': normalizePaymentMethod(paymentMethod.paymentMethodType) ??
-          paymentMethod.paymentMethodType.title ??
-          'creditcard',
+      '${prefix}defaultPaymentMethod': paymentMethodString,
+      'onlyOnramps': quote.rampId,
     });
 
     if (await canLaunchUrl(uri)) {

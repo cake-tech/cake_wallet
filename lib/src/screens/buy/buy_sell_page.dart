@@ -216,6 +216,8 @@ class BuySellPage extends BasePage {
       return OptionTilePlaceholder(
           leadingIcon: Icons.arrow_forward_ios,
           borderRadius: 30,
+          imageWidth: 50,
+          imageHeight: 50,
           padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
           isDarkTheme: buySellViewModel.isDarkTheme);
     }

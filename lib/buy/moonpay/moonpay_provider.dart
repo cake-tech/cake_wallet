@@ -423,7 +423,7 @@ class MoonPayProvider extends BuyProvider {
   Future<void>? launchProvider(
       {required BuildContext context,
       required Quote quote,
-      required PaymentMethod paymentMethod,
+      required PaymentMethod? paymentMethod,
       required double amount,
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
@@ -443,9 +443,7 @@ class MoonPayProvider extends BuyProvider {
       'lockAmount': 'false',
       'showAllCurrencies': 'false',
       'showWalletAddressForm': 'false',
-      'enabledPaymentMethods': normalizePaymentMethod(paymentMethod.paymentMethodType) ??
-          paymentMethod.paymentMethodType.title ??
-          'credit_debit_card',
+
     };
 
     if (isBuyAction) extraParams['currencyCode'] = quote.destinationCurrency;

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
+import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/buy/sell_buy_states.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
@@ -361,13 +362,14 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @action
   Future<void> launchTrade(BuildContext context) async {
-
     final provider = selectedQuote!.provider;
 
     provider.launchProvider(
       context: context,
       quote: selectedQuote!,
-      paymentMethod: selectedPaymentMethod!,
+      paymentMethod: selectedPaymentMethod!.paymentMethodType == PaymentType.all
+          ? null
+          : selectedPaymentMethod,
       amount: amount,
       isBuyAction: isBuyAction,
       cryptoCurrencyAddress: cryptoCurrencyAddress,
