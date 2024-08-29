@@ -3,6 +3,7 @@ import 'package:cw_core/address_info.dart';
 import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_wownero/api/subaddress_list.dart' as subaddress_list;
 import 'package:cw_wownero/api/wallet.dart';
 import 'package:cw_wownero/wownero_account_list.dart';
 import 'package:cw_wownero/wownero_subaddress_list.dart';
@@ -36,7 +37,21 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   WowneroSubaddressList subaddressList;
 
   WowneroAccountList accountList;
+  @override
+  @override
+  Set<String> get usedAddresses {
+    final adds = _originalUsedAddresses.toList()
+      ..addAll(subaddress_list.getUsedAddrsses());
+    final ret = adds.toSet();
+    _originalUsedAddresses = ret;
+    return ret;
+  }
+  Set<String> _originalUsedAddresses = Set();
 
+  @override
+  set usedAddresses(Set<String> _usedAddresses) {
+    _originalUsedAddresses = _usedAddresses;
+  }
   @override
   Future<void> init() async {
     accountList.update();

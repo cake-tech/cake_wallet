@@ -1,4 +1,5 @@
 import 'package:cw_wownero/api/account_list.dart';
+import 'package:cw_wownero/api/transaction_history.dart';
 import 'package:cw_wownero/api/wallet.dart';
 import 'package:monero/wownero.dart' as wownero;
 
@@ -92,4 +93,29 @@ Future<void> setLabelForSubaddress(
     'label': label
   });
   await store();
+}
+
+
+
+List<String> getUsedAddrsses() {
+  List<String> addresses = [];
+
+  txhistory ??= wownero.Wallet_history(wptr!);
+  wownero.TransactionHistory_refresh(txhistory!);
+  int size = countOfTransactions();
+  for (var i = 0; i < size; i++) {
+    final txPtr = wownero.TransactionHistory_transaction(txhistory!, index: i);
+    final subaddrAccount = wownero.TransactionInfo_subaddrAccount(txPtr);
+    final subaddrAddress = wownero.TransactionInfo_subaddrIndex(txPtr).split(", ").map((e) => int.parse(e));
+    for (var j = 0; j < subaddrAddress.length; j++) {
+      addresses.add(
+        wownero.Wallet_address(wptr!,
+          accountIndex: subaddrAccount,
+          addressIndex: subaddrAddress.elementAt(j)
+        )
+      );
+    }
+  }
+
+  return addresses;
 }

@@ -1,5 +1,6 @@
 
 import 'package:cw_monero/api/account_list.dart';
+import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:monero/monero.dart' as monero;
 
@@ -93,4 +94,29 @@ Future<void> setLabelForSubaddress(
     'label': label
   });
   await store();
+}
+
+
+
+List<String> getUsedAddrsses() {
+  List<String> addresses = [];
+
+  txhistory ??= monero.Wallet_history(wptr!);
+  monero.TransactionHistory_refresh(txhistory!);
+  int size = countOfTransactions();
+  for (var i = 0; i < size; i++) {
+    final txPtr = monero.TransactionHistory_transaction(txhistory!, index: i);
+    final subaddrAccount = monero.TransactionInfo_subaddrAccount(txPtr);
+    final subaddrAddress = monero.TransactionInfo_subaddrIndex(txPtr).split(", ").map((e) => int.parse(e));
+    for (var j = 0; j < subaddrAddress.length; j++) {
+      addresses.add(
+        monero.Wallet_address(wptr!,
+          accountIndex: subaddrAccount,
+          addressIndex: subaddrAddress.elementAt(j)
+        )
+      );
+    }
+  }
+
+  return addresses;
 }
