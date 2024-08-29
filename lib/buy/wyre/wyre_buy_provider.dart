@@ -151,10 +151,4 @@ class WyreBuyProvider extends BuyProvider {
         receiveAddress: wallet.walletAddresses.address,
         walletId: wallet.id);
   }
-
-  @override
-  Future<void> launchProvider(BuildContext context, bool? isBuyAction) {
-    // TODO: implement launchProvider
-    throw UnimplementedError();
-  }
 }

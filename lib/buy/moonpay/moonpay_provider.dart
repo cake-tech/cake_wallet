@@ -268,49 +268,49 @@ class MoonPayProvider extends BuyProvider {
     return isBuyEnable;
   }
 
-  @override
-  Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
-    try {
-      late final Uri uri;
-      if (isBuyAction ?? true) {
-        uri = await requestBuyMoonPayUrl(
-          currency: wallet.currency,
-          walletAddress: wallet.walletAddresses.address,
-          settingsStore: _settingsStore,
-        );
-      } else {
-        uri = await requestSellMoonPayUrl(
-          currency: wallet.currency,
-          refundWalletAddress: wallet.walletAddresses.address,
-          settingsStore: _settingsStore,
-        );
-      }
-
-      if (await canLaunchUrl(uri)) {
-        if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: ['MoonPay', uri]);
-        } else {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
-      } else {
-        throw Exception('Could not launch URL');
-      }
-    } catch (e) {
-      if (context.mounted) {
-        await showDialog<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-              alertTitle: 'MoonPay',
-              alertContent: 'The MoonPay service is currently unavailable: $e',
-              buttonText: S.of(context).ok,
-              buttonAction: () => Navigator.of(context).pop(),
-            );
-          },
-        );
-      }
-    }
-  }
+  // @override
+  // Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
+  //   try {
+  //     late final Uri uri;
+  //     if (isBuyAction ?? true) {
+  //       uri = await requestBuyMoonPayUrl(
+  //         currency: wallet.currency,
+  //         walletAddress: wallet.walletAddresses.address,
+  //         settingsStore: _settingsStore,
+  //       );
+  //     } else {
+  //       uri = await requestSellMoonPayUrl(
+  //         currency: wallet.currency,
+  //         refundWalletAddress: wallet.walletAddresses.address,
+  //         settingsStore: _settingsStore,
+  //       );
+  //     }
+  //
+  //     if (await canLaunchUrl(uri)) {
+  //       if (DeviceInfo.instance.isMobile) {
+  //         Navigator.of(context).pushNamed(Routes.webViewPage, arguments: ['MoonPay', uri]);
+  //       } else {
+  //         await launchUrl(uri, mode: LaunchMode.externalApplication);
+  //       }
+  //     } else {
+  //       throw Exception('Could not launch URL');
+  //     }
+  //   } catch (e) {
+  //     if (context.mounted) {
+  //       await showDialog<void>(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertWithOneAction(
+  //             alertTitle: 'MoonPay',
+  //             alertContent: 'The MoonPay service is currently unavailable: $e',
+  //             buttonText: S.of(context).ok,
+  //             buttonAction: () => Navigator.of(context).pop(),
+  //           );
+  //         },
+  //       );
+  //     }
+  //   }
+  // }
 
   String _normalizeCurrency(CryptoCurrency currency) {
     if (currency == CryptoCurrency.maticpoly) {
@@ -420,7 +420,7 @@ class MoonPayProvider extends BuyProvider {
   }
 
   @override
-  Future<void>? launchTrade(
+  Future<void>? launchProvider(
       {required BuildContext context,
       required Quote quote,
       required PaymentMethod paymentMethod,
@@ -470,11 +470,7 @@ class MoonPayProvider extends BuyProvider {
       }
 
       if (await canLaunchUrl(uri)) {
-        if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: ['MoonPay', uri]);
-        } else {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
       } else {
         throw Exception('Could not launch URL');
       }

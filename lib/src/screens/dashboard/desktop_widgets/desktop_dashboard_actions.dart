@@ -55,20 +55,11 @@ class DesktopDashboardActions extends StatelessWidget {
                 children: [
                   Expanded(
                     child: DesktopActionButton(
-                      title: MainActions.buyAction.name(context),
-                      image: MainActions.buyAction.image,
-                      canShow: MainActions.buyAction.canShow?.call(dashboardViewModel),
-                      isEnabled: MainActions.buyAction.isEnabled?.call(dashboardViewModel),
-                      onTap: () async => await MainActions.buyAction.onTap(context, dashboardViewModel),
-                    ),
-                  ),
-                  Expanded(
-                    child: DesktopActionButton(
-                      title: MainActions.sellAction.name(context),
-                      image: MainActions.sellAction.image,
-                      canShow: MainActions.sellAction.canShow?.call(dashboardViewModel),
-                      isEnabled: MainActions.sellAction.isEnabled?.call(dashboardViewModel),
-                      onTap: () async => await MainActions.sellAction.onTap(context, dashboardViewModel),
+                      title: MainActions.tradeAction.name(context),
+                      image: MainActions.tradeAction.image,
+                      canShow: MainActions.tradeAction.canShow?.call(dashboardViewModel),
+                      isEnabled: MainActions.tradeAction.isEnabled?.call(dashboardViewModel),
+                      onTap: () async => await MainActions.tradeAction.onTap(context, dashboardViewModel),
                     ),
                   ),
                 ],

@@ -361,11 +361,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @action
   Future<void> launchTrade(BuildContext context) async {
-    if (selectedQuote!.provider == null) return;
 
-    final provider = selectedQuote!.provider!;
+    final provider = selectedQuote!.provider;
 
-    provider.launchTrade(
+    provider.launchProvider(
       context: context,
       quote: selectedQuote!,
       paymentMethod: selectedPaymentMethod!,

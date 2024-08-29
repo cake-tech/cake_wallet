@@ -110,14 +110,14 @@ class OnRamperBuyProvider extends BuyProvider {
     });
   }
 
-  Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
-    final uri = requestOnramperUrl(context, isBuyAction);
-    if (DeviceInfo.instance.isMobile) {
-      Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
-    } else {
-      await launchUrl(uri);
-    }
-  }
+  // Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
+  //   final uri = requestOnramperUrl(context, isBuyAction);
+  //   if (DeviceInfo.instance.isMobile) {
+  //     Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
+  //   } else {
+  //     await launchUrl(uri);
+  //   }
+  // }
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
       String fiatCurrency, String cryptoCurrency, bool isBuyAction) async {
@@ -201,19 +201,17 @@ class OnRamperBuyProvider extends BuyProvider {
       required String walletAddress,
       PaymentType? paymentType,
       String? countryCode}) async {
-
     String? paymentMethod;
     if (paymentType != null) {
       paymentMethod = normalizePaymentMethod(paymentType);
       if (paymentMethod == null) paymentMethod = paymentType.name;
     }
 
-
     final actionType = isBuyAction ? 'buy' : 'sell';
 
     final params = {
       'amount': amount.toString(),
-     if (paymentMethod != null) 'paymentMethod': paymentMethod,
+      if (paymentMethod != null) 'paymentMethod': paymentMethod,
       'uuid': 'acad3928-556f-48a1-a478-4e2ec76700cd',
       'clientName': 'CakeWallet',
       'type': actionType,
@@ -260,7 +258,7 @@ class OnRamperBuyProvider extends BuyProvider {
     }
   }
 
-  Future<void>? launchTrade(
+  Future<void>? launchProvider(
       {required BuildContext context,
       required Quote quote,
       required PaymentMethod paymentMethod,
@@ -282,10 +280,10 @@ class OnRamperBuyProvider extends BuyProvider {
           'creditcard',
     });
 
-    if (DeviceInfo.instance.isMobile) {
-      Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      await launchUrl(uri);
+      throw Exception('Could not launch URL');
     }
   }
 

@@ -96,7 +96,14 @@ class RobinhoodBuyProvider extends BuyProvider {
     });
   }
 
-  Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
+  Future<void>? launchProvider(
+      {required BuildContext context,
+        required Quote quote,
+        required PaymentMethod paymentMethod,
+        required double amount,
+        required bool isBuyAction,
+        required String cryptoCurrencyAddress,
+        String? countryCode}) async {
     if (wallet.isHardwareWallet) {
       if (!ledgerVM!.isConnected) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
@@ -182,16 +189,6 @@ class RobinhoodBuyProvider extends BuyProvider {
     // ● debit_card
     // ● bank_transfer
   }
-
-  Future<void>? launchTrade(
-          {required BuildContext context,
-          required Quote quote,
-          required PaymentMethod paymentMethod,
-          required double amount,
-          required bool isBuyAction,
-          required String cryptoCurrencyAddress,
-          String? countryCode}) async =>
-      launchProvider(context, isBuyAction);
 
   String? normalizePaymentMethod(PaymentType paymentMethod) {
     switch (paymentMethod) {

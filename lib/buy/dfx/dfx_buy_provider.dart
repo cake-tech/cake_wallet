@@ -144,58 +144,58 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  @override
-  Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
-    if (wallet.isHardwareWallet) {
-      if (!ledgerVM!.isConnected) {
-        await Navigator.of(context).pushNamed(Routes.connectDevices,
-            arguments: ConnectDevicePageParams(
-                walletType: wallet.walletInfo.type,
-                onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
-                  ledgerVM.setLedger(wallet);
-                  Navigator.of(context).pop();
-                }));
-      } else {
-        ledgerVM!.setLedger(wallet);
-      }
-    }
-
-    try {
-      final assetOut = this.assetOut;
-      final blockchain = this.blockchain;
-      final actionType = isBuyAction == true ? '/buy' : '/sell';
-
-      final accessToken = await auth();
-
-      final uri = Uri.https('services.dfx.swiss', actionType, {
-        'session': accessToken,
-        'lang': 'en',
-        'asset-out': assetOut,
-        'blockchain': blockchain,
-        'asset-in': 'EUR',
-      });
-
-      if (await canLaunchUrl(uri)) {
-        if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
-        } else {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
-      } else {
-        throw Exception('Could not launch URL');
-      }
-    } catch (e) {
-      await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-                alertTitle: "DFX.swiss",
-                alertContent: S.of(context).buy_provider_unavailable + ': $e',
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-    }
-  }
+  // @override
+  // Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
+  //   if (wallet.isHardwareWallet) {
+  //     if (!ledgerVM!.isConnected) {
+  //       await Navigator.of(context).pushNamed(Routes.connectDevices,
+  //           arguments: ConnectDevicePageParams(
+  //               walletType: wallet.walletInfo.type,
+  //               onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
+  //                 ledgerVM.setLedger(wallet);
+  //                 Navigator.of(context).pop();
+  //               }));
+  //     } else {
+  //       ledgerVM!.setLedger(wallet);
+  //     }
+  //   }
+  //
+  //   try {
+  //     final assetOut = this.assetOut;
+  //     final blockchain = this.blockchain;
+  //     final actionType = isBuyAction == true ? '/buy' : '/sell';
+  //
+  //     final accessToken = await auth();
+  //
+  //     final uri = Uri.https('services.dfx.swiss', actionType, {
+  //       'session': accessToken,
+  //       'lang': 'en',
+  //       'asset-out': assetOut,
+  //       'blockchain': blockchain,
+  //       'asset-in': 'EUR',
+  //     });
+  //
+  //     if (await canLaunchUrl(uri)) {
+  //       if (DeviceInfo.instance.isMobile) {
+  //         Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
+  //       } else {
+  //         await launchUrl(uri, mode: LaunchMode.externalApplication);
+  //       }
+  //     } else {
+  //       throw Exception('Could not launch URL');
+  //     }
+  //   } catch (e) {
+  //     await showPopUp<void>(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertWithOneAction(
+  //               alertTitle: "DFX.swiss",
+  //               alertContent: S.of(context).buy_provider_unavailable + ': $e',
+  //               buttonText: S.of(context).ok,
+  //               buttonAction: () => Navigator.of(context).pop());
+  //         });
+  //   }
+  // }
 
   Future<Map<String, dynamic>> fetchFiatCredentials(String fiatCurrency) async {
     final url = Uri.https(_baseUrl, '/v1/fiat');
@@ -365,7 +365,7 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  Future<void>? launchTrade(
+  Future<void>? launchProvider(
       {required BuildContext context,
         required Quote quote,
         required PaymentMethod paymentMethod,
@@ -404,11 +404,7 @@ class DFXBuyProvider extends BuyProvider {
       });
 
       if (await canLaunchUrl(uri)) {
-        if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
-        } else {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
       } else {
         throw Exception('Could not launch URL');
       }

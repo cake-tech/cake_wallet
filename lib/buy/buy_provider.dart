@@ -30,7 +30,13 @@ abstract class BuyProvider {
   @override
   String toString() => title;
 
-  Future<void> launchProvider(BuildContext context, bool? isBuyAction);
+  Future<void>? launchProvider({required BuildContext context,
+    required Quote quote,
+    required PaymentMethod paymentMethod,
+    required double amount,
+    required bool isBuyAction,
+    required String cryptoCurrencyAddress,
+    String? countryCode}) => null;
 
   Future<String> requestUrl(String amount, String sourceCurrency) => throw UnimplementedError();
 
@@ -39,8 +45,8 @@ abstract class BuyProvider {
   Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) =>
       throw UnimplementedError();
 
-  Future<List<PaymentMethod>> getAvailablePaymentTypes(
-          String fiatCurrency, String cryptoCurrency, bool isBuyAction) async =>
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String cryptoCurrency,
+      bool isBuyAction) async =>
       [];
 
   Future<List<Quote>?> fetchQuote({
@@ -50,17 +56,8 @@ abstract class BuyProvider {
     required bool isBuyAction,
     required String walletAddress,
     PaymentType? paymentType,
-    String? countryCode,
+    String? countryCode
   }) async =>
       null;
 
-  Future<void>? launchTrade(
-      {required BuildContext context,
-        required Quote quote,
-        required PaymentMethod paymentMethod,
-        required double amount,
-        required bool isBuyAction,
-        required String cryptoCurrencyAddress,
-        String? countryCode}) =>
-      null;
 }

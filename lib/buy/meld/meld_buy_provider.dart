@@ -139,7 +139,7 @@ class MeldBuyProvider extends BuyProvider {
     }
   }
 
-  Future<void>? launchTrade(
+  Future<void>? launchProvider(
       {required BuildContext context,
       required Quote quote,
       required PaymentMethod paymentMethod,
@@ -164,11 +164,7 @@ class MeldBuyProvider extends BuyProvider {
 
     try {
       if (await canLaunchUrl(uri)) {
-        if (DeviceInfo.instance.isMobile) {
-          Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
-        } else {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
       } else {
         throw Exception('Could not launch URL');
       }
@@ -224,11 +220,5 @@ class MeldBuyProvider extends BuyProvider {
       default:
         return null;
     }
-  }
-
-  @override
-  Future<void> launchProvider(BuildContext context, bool? isBuyAction) {
-    // TODO: implement launchProvider
-    throw UnimplementedError();
   }
 }

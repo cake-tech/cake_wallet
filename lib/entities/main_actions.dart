@@ -23,33 +23,11 @@ class MainActions {
   });
 
   static List<MainActions> all = [
-   // buyAction, //TODO: remove buyAction
     receiveAction,
     exchangeAction,
     sendAction,
-    sellAction,
+    tradeAction,
   ];
-
-  static MainActions buyAction = MainActions._(
-    name: (context) => S.of(context).buy,
-    image: 'assets/images/buy.png',
-    isEnabled: (viewModel) => viewModel.isEnabledBuyAction,
-    canShow: (viewModel) => viewModel.hasBuyAction,
-    onTap: (BuildContext context, DashboardViewModel viewModel) async {
-      if (!viewModel.isEnabledBuyAction) {
-        return;
-      }
-
-      final defaultBuyProvider = viewModel.defaultBuyProvider;
-      try {
-        defaultBuyProvider != null
-            ? await defaultBuyProvider.launchProvider(context, true)
-            : await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: true);
-      } catch (e) {
-        await _showErrorDialog(context, defaultBuyProvider.toString(), e.toString());
-      }
-    },
-  );
 
   static MainActions receiveAction = MainActions._(
     name: (context) => S.of(context).receive,
@@ -79,7 +57,7 @@ class MainActions {
     },
   );
 
-  static MainActions sellAction = MainActions._(
+  static MainActions tradeAction = MainActions._(
     name: (context) => '${S.of(context).sell} / ${S.of(context).buy}',
     image: 'assets/images/buy_sell.png',
     isEnabled: (viewModel) => viewModel.isEnabledSellAction || viewModel.isEnabledBuyAction,
@@ -89,14 +67,15 @@ class MainActions {
         return;
       }
 
-      final defaultSellProvider = viewModel.defaultSellProvider;
-      try {
-        defaultSellProvider != null
-            ? await defaultSellProvider.launchProvider(context, false)
-            : await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: false);
-      } catch (e) {
-        await _showErrorDialog(context, defaultSellProvider.toString(), e.toString());
-      }
+      // final defaultSellProvider = viewModel.defaultSellProvider;
+      // try {
+      //   defaultSellProvider != null
+      //       ? await defaultSellProvider.launchProvider(context, false)
+      //       : await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: false);
+      // } catch (e) {
+      //   await _showErrorDialog(context, defaultSellProvider.toString(), e.toString());
+      // }
+      await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: false);
     },
   );
 
