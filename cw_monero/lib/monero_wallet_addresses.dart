@@ -30,12 +30,37 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   String address;
 
   @override
-  @observable
-  String get latestAddress => getLastAddress(account?.id??0);
+  String get latestAddress {
+    final accountIndex = 0;
+    var addressIndex = subaddress_list.numSubaddresses(accountIndex) - 1;
+    var address = getAddress(accountIndex: accountIndex,addressIndex: addressIndex);
+    while (hiddenAddresses.contains(address)) {
+      addressIndex++;
+      address = getAddress(accountIndex: 0, addressIndex: addressIndex);
+    }
+    return address;
+  }
+
+  @override
+  String get addressForExchange {
+    final accountIndex = 0;
+    var addressIndex = subaddress_list.numSubaddresses(accountIndex) - 1;
+    var address = getAddress(accountIndex: accountIndex,addressIndex: addressIndex);
+    while (hiddenAddresses.contains(address) || manualAddresses.contains(address)) {
+      addressIndex++;
+      address = getAddress(accountIndex: 0, addressIndex: addressIndex);
+    }
+    return address;
+  }
 
   String getLastAddress(int accountIndex) {
-    final addressIndex = subaddress_list.numSubaddresses(accountIndex) - 1;
-    return getAddress(accountIndex: accountIndex,addressIndex: addressIndex);
+    var addressIndex = subaddress_list.numSubaddresses(accountIndex) - 1;
+    var address = getAddress(accountIndex: accountIndex,addressIndex: addressIndex);
+    while (hiddenAddresses.contains(address)) {
+      addressIndex++;
+      address = getAddress(accountIndex: 0, addressIndex: addressIndex);
+    }
+    return address;
   }
 
   @observable
@@ -139,7 +164,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
         accountIndex: accountIndex,
         defaultLabel: defaultLabel,
         usedAddresses: usedAddresses.toList());
-    subaddress = (subaddressList.subaddresses.isEmpty) ? Subaddress(id: 0, address: address, label: defaultLabel) : subaddressList.subaddresses.last;
+    subaddress = (subaddressList.subaddresses.isEmpty) ? Subaddress(id: 0, address: address, label: defaultLabel, balance: '0', txCount: 0) : subaddressList.subaddresses.last;
     address = subaddress!.address;
   }
 

@@ -506,7 +506,7 @@ class ExchangePage extends BasePage {
       }
     });
 
-    reaction((_) => exchangeViewModel.wallet.walletAddresses.address, (String address) {
+    reaction((_) => exchangeViewModel.wallet.walletAddresses.addressForExchange, (String address) {
       if (exchangeViewModel.depositCurrency == CryptoCurrency.xmr) {
         depositKey.currentState!.changeAddress(address: address);
       }
@@ -562,7 +562,7 @@ class ExchangePage extends BasePage {
     key.currentState!.changeWalletName(isCurrentTypeWallet ? exchangeViewModel.wallet.name : '');
 
     key.currentState!.changeAddress(
-        address: isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.address : '');
+        address: isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.addressForExchange : '');
 
     key.currentState!.changeAmount(amount: '');
   }
@@ -573,9 +573,9 @@ class ExchangePage extends BasePage {
 
     if (isCurrentTypeWallet) {
       key.currentState!.changeWalletName(exchangeViewModel.wallet.name);
-      key.currentState!.addressController.text = exchangeViewModel.wallet.walletAddresses.address;
+      key.currentState!.addressController.text = exchangeViewModel.wallet.walletAddresses.addressForExchange;
     } else if (key.currentState!.addressController.text ==
-        exchangeViewModel.wallet.walletAddresses.address) {
+        exchangeViewModel.wallet.walletAddresses.addressForExchange) {
       key.currentState!.changeWalletName('');
       key.currentState!.addressController.text = '';
     }
@@ -625,7 +625,7 @@ class ExchangePage extends BasePage {
               initialCurrency: exchangeViewModel.depositCurrency,
               initialWalletName: depositWalletName ?? '',
               initialAddress: exchangeViewModel.depositCurrency == exchangeViewModel.wallet.currency
-                  ? exchangeViewModel.wallet.walletAddresses.address
+                  ? exchangeViewModel.wallet.walletAddresses.addressForExchange
                   : exchangeViewModel.depositAddress,
               initialIsAmountEditable: true,
               initialIsAddressEditable: exchangeViewModel.isDepositAddressEnabled,
@@ -689,7 +689,7 @@ class ExchangePage extends BasePage {
               initialCurrency: exchangeViewModel.receiveCurrency,
               initialWalletName: receiveWalletName ?? '',
               initialAddress: exchangeViewModel.receiveCurrency == exchangeViewModel.wallet.currency
-                  ? exchangeViewModel.wallet.walletAddresses.address
+                  ? exchangeViewModel.wallet.walletAddresses.addressForExchange
                   : exchangeViewModel.receiveAddress,
               initialIsAmountEditable: exchangeViewModel.isReceiveAmountEditable,
               isAmountEstimated: true,

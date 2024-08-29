@@ -16,6 +16,7 @@ import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_hidden_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -362,7 +363,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             id: subaddress.id,
             isPrimary: isPrimary,
             name: subaddress.label,
-            address: subaddress.address);
+            address: subaddress.address,
+            balance: subaddress.received,
+            txCount: subaddress.txCount,
+          );
       });
       addressList.addAll(addressItems);
     }
@@ -500,11 +504,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       }
     }
 
-    if (!kDebugMode) {
-      addressList.removeWhere((element) {
-        if (!(element is WalletAddressListItem)) return false;
-        return wallet.walletAddresses.manualAddresses.contains(element.address);
-      });
+    if (kDebugMode) {
+      for (var i = 0; i < addressList.length; i++) {
+        if (!(addressList[i] is WalletAddressListItem)) continue;
+        (addressList[i] as WalletAddressListItem).isManual = wallet.walletAddresses.manualAddresses.contains((addressList[i] as WalletAddressListItem).address);
+      }
     }
 
     return addressList;
@@ -546,6 +550,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoinCash;
 
   @computed
+  bool get isBalanceAvailable =>
+      isElectrumWallet ||
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.wownero;
+
+  @computed
   bool get isSilentPayments =>
       wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
 
@@ -571,6 +581,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   void _init() {
     _baseItems = [];
+
+    if (wallet.walletAddresses.hiddenAddresses.isNotEmpty) {
+      _baseItems.add(WalletAddressHiddenListHeader());
+    }
 
     if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero || wallet.type == WalletType.haven) {
       _baseItems.add(WalletAccountListHeader());

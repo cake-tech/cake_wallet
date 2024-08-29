@@ -1,4 +1,5 @@
 import 'package:cw_wownero/api/account_list.dart';
+import 'package:cw_wownero/api/transaction_history.dart';
 import 'package:cw_wownero/api/wallet.dart';
 import 'package:monero/wownero.dart' as wownero;
 
@@ -28,6 +29,8 @@ class Subaddress {
   Subaddress({
     required this.addressIndex,
     required this.accountIndex,
+    required this.txCount,
+    required this.received,
   });
   String get address => wownero.Wallet_address(
         wptr!,
@@ -37,18 +40,58 @@ class Subaddress {
   final int addressIndex;
   final int accountIndex;
   String get label => wownero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
+  final int txCount;
+  final int received;
+}
+
+class TinyTransactionDetails {
+  TinyTransactionDetails({
+    required this.address,
+    required this.amount,
+  });
+  final String address;
+  final int amount;
 }
 
 List<Subaddress> getAllSubaddresses() {
+  txhistory = wownero.Wallet_history(wptr!);
+  final txCount = wownero.TransactionHistory_count(txhistory!);
+  final ttDetails = <TinyTransactionDetails>[];
+  for (var i = 0; i < txCount; i++) {
+    final tx = wownero.TransactionHistory_transaction(txhistory!, index: i);
+    ttDetails.add(TinyTransactionDetails(
+      address: wownero.Wallet_address(
+        wptr!, 
+        accountIndex: wownero.TransactionInfo_subaddrAccount(tx), 
+        addressIndex: int.parse(wownero.TransactionInfo_subaddrIndex(tx).split(",")[0],
+      )),
+      amount: wownero.TransactionInfo_amount(tx),
+    ));
+  }
   final size = wownero.Wallet_numSubaddresses(wptr!, accountIndex: subaddress!.accountIndex);
   final list = List.generate(size, (index) {
+    final ttDetailsLocal = ttDetails.where((element) {
+      final address = wownero.Wallet_address(
+        wptr!, 
+        accountIndex: subaddress!.accountIndex, 
+        addressIndex: index,
+      );
+      if (address == element.address) return true;
+      return false;
+    }).toList();
+    int received = 0;
+    for (var i = 0; i < ttDetailsLocal.length; i++) {
+      received += ttDetailsLocal[i].amount;
+    }
     return Subaddress(
       accountIndex: subaddress!.accountIndex,
       addressIndex: index,
+      received: received,
+      txCount: ttDetailsLocal.length,
     );
   }).reversed.toList();
   if (list.isEmpty) {
-    list.add(Subaddress(addressIndex: 0, accountIndex: subaddress!.accountIndex));
+    list.add(Subaddress(addressIndex: 0, accountIndex: subaddress!.accountIndex, txCount: 0, received: 0));
   }
   return list;
 }

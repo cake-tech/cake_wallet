@@ -128,7 +128,7 @@ class ExchangeTemplatePage extends BasePage {
                                 initialWalletName: depositWalletName ?? '',
                                 initialAddress: exchangeViewModel.depositCurrency ==
                                         exchangeViewModel.wallet.currency
-                                    ? exchangeViewModel.wallet.walletAddresses.address
+                                    ? exchangeViewModel.wallet.walletAddresses.addressForExchange
                                     : exchangeViewModel.depositAddress,
                                 initialIsAmountEditable: true,
                                 initialIsAddressEditable: exchangeViewModel.isDepositAddressEnabled,
@@ -164,7 +164,7 @@ class ExchangeTemplatePage extends BasePage {
                                       initialWalletName: receiveWalletName ?? '',
                                       initialAddress: exchangeViewModel.receiveCurrency ==
                                               exchangeViewModel.wallet.currency
-                                          ? exchangeViewModel.wallet.walletAddresses.address
+                                          ? exchangeViewModel.wallet.walletAddresses.addressForExchange
                                           : exchangeViewModel.receiveAddress,
                                       initialIsAmountEditable: false,
                                       isAmountEstimated: true,

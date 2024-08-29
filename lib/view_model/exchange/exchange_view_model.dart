@@ -119,7 +119,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     depositAmount = '';
     receiveAmount = '';
     receiveAddress = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.address : '';
+    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     provider = providersForCurrentPair().first;
     final initialProvider = provider;
     provider!.checkIsAvailable().then((bool isAvailable) {
@@ -602,8 +602,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     isReceiveAmountEntered = false;
     depositAmount = '';
     receiveAmount = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.address : '';
-    receiveAddress = receiveCurrency == wallet.currency ? wallet.walletAddresses.address : '';
+    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
+    receiveAddress = receiveCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isFixedRateMode = false;
     _onPairChange();

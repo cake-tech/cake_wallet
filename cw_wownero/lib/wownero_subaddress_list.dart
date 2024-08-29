@@ -62,6 +62,8 @@ abstract class WowneroSubaddressListBase with Store {
       return Subaddress(
           id: id,
           address: address,
+          balance: (s.received/1e12).toStringAsFixed(6),
+          txCount: s.txCount,
           label: isPrimaryAddress
               ? 'Primary address'
               : hasDefaultAddressName
@@ -144,6 +146,8 @@ abstract class WowneroSubaddressListBase with Store {
           return Subaddress(
             id: id,
             address: address,
+            balance: (s.received/1e12).toStringAsFixed(6),
+            txCount: s.txCount,
             label: id == 0 &&
                     label.toLowerCase() == 'Primary account'.toLowerCase()
                 ? 'Primary address'

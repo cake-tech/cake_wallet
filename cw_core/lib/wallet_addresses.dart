@@ -14,11 +14,14 @@ abstract class WalletAddresses {
 
   String get address;
 
+  @override
   String get latestAddress => addressesMap[addressesMap.keys.last]!;
 
   String? get primaryAddress => null;
 
   set address(String address);
+
+  String get addressForExchange => address;
 
   Map<String, String> addressesMap;
   Map<String, String> allAddressesMap;

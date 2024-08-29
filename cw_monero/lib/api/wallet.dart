@@ -66,9 +66,14 @@ String getSeedLegacy(String? language) {
   return legacy;
 }
 
-String getAddress({int accountIndex = 0, int addressIndex = 0}) =>
-    monero.Wallet_address(wptr!,
+String getAddress({int accountIndex = 0, int addressIndex = 0}) {
+  while (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)-1 < addressIndex) {
+    print("adding subaddress");
+    monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
+  }
+  return monero.Wallet_address(wptr!,
         accountIndex: accountIndex, addressIndex: addressIndex);
+}
 
 int getFullBalance({int accountIndex = 0}) =>
     monero.Wallet_balance(wptr!, accountIndex: accountIndex);
