@@ -11,7 +11,7 @@ List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
 
     if (lastDate == null) {
       lastDate = transaction.date;
-      formattedList.add(DateSectionItem(transaction.date));
+      formattedList.add(DateSectionItem(transaction.date, key: transaction.key));
       formattedList.add(transaction);
       continue;
     }
@@ -26,7 +26,7 @@ List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
     }
 
     lastDate = transaction.date;
-    formattedList.add(DateSectionItem(transaction.date));
+    formattedList.add(DateSectionItem(transaction.date, key: transaction.key));
     formattedList.add(transaction);
   }
 

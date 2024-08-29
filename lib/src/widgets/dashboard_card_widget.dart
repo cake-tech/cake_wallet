@@ -14,6 +14,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
     this.icon,
     this.onClose,
     this.customBorder,
+    super.key,
   });
 
   final VoidCallback onTap;

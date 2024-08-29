@@ -22,8 +22,12 @@ import 'package:cw_core/keyable.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class TransactionListItem extends ActionListItem with Keyable {
-  TransactionListItem(
-      {required this.transaction, required this.balanceViewModel, required this.settingsStore});
+  TransactionListItem({
+    required this.transaction,
+    required this.balanceViewModel,
+    required this.settingsStore,
+    required super.key,
+  });
 
   final TransactionInfo transaction;
   final BalanceViewModel balanceViewModel;

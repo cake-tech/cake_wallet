@@ -51,28 +51,35 @@ class DashboardPageRobot {
     commonTestCases.hasValueKey('dashboard_page_wallet_menu_button_key');
   }
 
-  Future<void> confirmRightCryptoAssetTitleDisplaysPerPageView(WalletType type,
-      {bool isHaven = false}) async {
+  Future<void> confirmRightCryptoAssetTitleDisplaysPerPageView(
+    WalletType type, {
+    bool isHaven = false,
+  }) async {
     //Balance Page
     await confirmWalletTypeIsDisplayedCorrectly(type, isHaven: isHaven);
 
     // Swipe to Cake features Page
-    await commonTestCases.swipeByPageKey(key: 'dashboard_page_view_key', swipeRight: false);
-    await commonTestCases.defaultSleepTime();
+    await swipeDashboardTab(false);
     commonTestCases.hasText('Cake ${S.current.features}');
 
     // Swipe back to balance
-    await commonTestCases.swipeByPageKey(key: 'dashboard_page_view_key');
-    await commonTestCases.defaultSleepTime();
+    await swipeDashboardTab(true);
 
     // Swipe to Transactions Page
-    await commonTestCases.swipeByPageKey(key: 'dashboard_page_view_key');
-    await commonTestCases.defaultSleepTime();
+    await swipeDashboardTab(true);
     commonTestCases.hasText(S.current.transactions);
 
     // Swipe back to balance
-    await commonTestCases.swipeByPageKey(key: 'dashboard_page_view_key', swipeRight: false);
-    await commonTestCases.defaultSleepTime(seconds: 5);
+    await swipeDashboardTab(false);
+    await commonTestCases.defaultSleepTime(seconds: 3);
+  }
+
+  Future<void> swipeDashboardTab(bool swipeRight) async {
+    await commonTestCases.swipeByPageKey(
+      key: 'dashboard_page_view_key',
+      swipeRight: swipeRight,
+    );
+    await commonTestCases.defaultSleepTime();
   }
 
   Future<void> openDrawerMenu() async {
