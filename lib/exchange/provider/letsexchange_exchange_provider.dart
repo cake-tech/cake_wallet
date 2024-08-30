@@ -64,7 +64,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         'affiliate_id': _affiliateId
       };
 
-      print(params);
       final responseJSON = await _getInfo(params, isFixedRateMode);
       final min = double.tryParse(responseJSON['min_amount'] as String);
       final max = double.tryParse(responseJSON['max_amount'] as String);
