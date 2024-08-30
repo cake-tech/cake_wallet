@@ -24,7 +24,9 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
         return;
       }
 
-      if (wallet.syncStatus is LostConnectionSyncStatus || wallet.syncStatus is FailedSyncStatus) {
+      if (wallet.type != WalletType.bitcoin &&
+          (wallet.syncStatus is LostConnectionSyncStatus ||
+              wallet.syncStatus is FailedSyncStatus)) {
         final alive = await settingsStore.getCurrentNode(wallet.type).requestNode();
 
         if (alive) {
