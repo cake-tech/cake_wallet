@@ -19,6 +19,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
   static const List<CryptoCurrency> _notSupported = [];
 
   static final apiKey = secrets.stealthExBearerToken;
+  static final _additionalFeePercent = double.tryParse(secrets.stealthExAdditionalFeePercent);
   static const _baseUrl = 'https://api.stealthex.io';
   static const _rangePath = '/v4/rates/range';
   static const _amountPath = '/v4/rates/estimated-amount';
@@ -64,7 +65,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
         }
       },
       'estimation': isFixedRateMode ? 'reversed' : 'direct',
-      'rate': isFixedRateMode ? 'fixed' : 'floating'
+      'rate': isFixedRateMode ? 'fixed' : 'floating',
+      'additional_fee_percent': _additionalFeePercent,
     };
 
     try {
@@ -133,6 +135,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
             isFixedRateMode ? double.parse(request.toAmount) : double.parse(request.fromAmount),
         'address': request.toAddress,
         'refund_address': request.refundAddress,
+        'additional_fee_percent': _additionalFeePercent,
       };
 
       final response = await http.post(Uri.parse(_baseUrl + _exchangesPath),

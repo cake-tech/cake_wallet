@@ -44,6 +44,7 @@ class SecretKey {
     SecretKey('CSRFToken', () => ''),
     SecretKey('authorization', () => ''),
     SecretKey('stealthExBearerToken', () => ''),
+    SecretKey('stealthExAdditionalFeePercent', () => ''),
   ];
 
   static final evmChainsSecrets = [
