@@ -56,13 +56,15 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     try {
       final params = {
-        'from': from.name,
-        'to': to.name,
+        'from': from.title.toLowerCase(),
+        'to': to.title.toLowerCase(),
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
         'amount': '1',
         'affiliate_id': _affiliateId
       };
+
+      print(params);
       final responseJSON = await _getInfo(params, isFixedRateMode);
       final min = double.tryParse(responseJSON['min_amount'] as String);
       final max = double.tryParse(responseJSON['max_amount'] as String);
@@ -84,8 +86,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final networkTo = _getNetworkType(to);
     try {
       final params = {
-        'from': from.name,
-        'to': to.name,
+        'from': from.title.toLowerCase(),
+        'to': to.title.toLowerCase(),
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
         'amount': amount.toString(),
@@ -112,8 +114,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final networkTo = _getNetworkType(request.toCurrency);
     try {
       final params = {
-        'from': request.fromCurrency.name,
-        'to': request.toCurrency.name,
+        'from': request.fromCurrency.title.toLowerCase(),
+        'to': request.toCurrency.title.toLowerCase(),
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
         'amount': isFixedRateMode ? request.toAmount.toString() : request.fromAmount.toString(),
@@ -124,8 +126,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       final rateId = responseInfoJSON['rate_id'] as String;
 
       final tradeParams = {
-        'coin_from': request.fromCurrency.name.toUpperCase(),
-        'coin_to': request.toCurrency.name.toUpperCase(),
+        'coin_from': request.fromCurrency.title.toLowerCase(),
+        'coin_to': request.toCurrency.title.toLowerCase(),
         if (!isFixedRateMode) 'deposit_amount': request.fromAmount.toString(),
         'withdrawal': request.toAddress,
         if (isFixedRateMode) 'withdrawal_amount': request.toAmount.toString(),
@@ -252,8 +254,18 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   }
 
   String? _getNetworkType(CryptoCurrency currency) {
-    return currency.tag != null && currency.tag!.isNotEmpty
-        ? currency.tag!.toUpperCase()
-        : currency.name.toUpperCase();
+    if (currency.tag != null && currency.tag!.isNotEmpty) {
+      switch (currency.tag!.toLowerCase()) {
+        case 'trx':
+          return 'trc20';
+        case 'eth':
+          return 'erc20';
+        case 'bnb':
+          return 'bep20';
+        default:
+          return currency.tag!.toLowerCase();
+      }
+    }
+    return currency.title.toLowerCase();
   }
 }
