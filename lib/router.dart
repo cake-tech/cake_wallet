@@ -156,7 +156,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true);
 
     case Routes.newWalletType:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<NewWalletTypePage>());
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<NewWalletTypePage>(
+          param1: (BuildContext context, WalletType type) =>
+              Navigator.of(context).pushNamed(Routes.newWallet, arguments: type),
+          param2: [true, false],
+        ),
+      );
 
     case Routes.preExistingSeedsPage:
       final type = settings.arguments as WalletType;
@@ -167,7 +173,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWallet:
       final args = settings.arguments as NewWalletArguments;
 
-      final walletNewVM = getIt.get<WalletNewVM>(param1: args.type);
+      final walletNewVM = getIt.get<WalletNewVM>(param1: args);
       final seedSettingsViewModel = getIt.get<SeedSettingsViewModel>();
 
       return CupertinoPageRoute<void>(
@@ -275,8 +281,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWalletTypeFromQR:
       return CupertinoPageRoute<void>(
         builder: (_) => getIt.get<NewWalletTypePage>(
-          param1: false,
-          param2: (BuildContext context, WalletType type) => Navigator.of(context).pop(type),
+          param1: (BuildContext context, WalletType type) => Navigator.of(context).pop(type),
+          param2: [false, false],
         ),
       );
 

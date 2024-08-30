@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/widgets/grouped_wallet_expansion_tile.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -56,23 +57,22 @@ class PreExistingSeedBody extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      ...preExistingSeedsViewModel.wallets.map(
-                        (wallet) => Padding(
-                          padding: EdgeInsets.only(top: 12),
-                          child: SelectButton(
-                            image: Image.asset(
-                              walletTypeToCryptoCurrency(wallet.type).iconPath ?? '',
-                              height: 24,
-                              width: 24,
+                      ...preExistingSeedsViewModel.wallets.entries.map(
+                        (entry) {
+                          return GroupedWalletExpansionTile(
+                            leadingWidget: Image.asset(
+                              walletTypeToCryptoCurrency(entry.key.type).iconPath!,
+                              width: 32,
+                              height: 32,
                             ),
-                            text:
-                                '${wallet.name} (${walletTypeToCryptoCurrency(wallet.type).title})',
-                            isSelected: preExistingSeedsViewModel.selectedWallet == wallet,
-                            onTap: () => preExistingSeedsViewModel.selectWallet(wallet),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 12),
+                            title: entry.key.name,
+                            childWallets: entry.value,
+                            isSelected:
+                                preExistingSeedsViewModel.selectedWallet?.name == entry.key.name,
+                            onTap: () => preExistingSeedsViewModel.selectWallet(entry.key),
+                          );
+                        },
+                      ).toList(),
                       SelectButton(
                         text: S.current.newSeed,
                         isSelected: preExistingSeedsViewModel.useNewSeed == true,
