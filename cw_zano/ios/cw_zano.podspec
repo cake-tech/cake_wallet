@@ -21,29 +21,22 @@ Pod::Spec.new do |s|
   s.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/Classes/*.h" }
 
   s.subspec 'OpenSSL' do |openssl|
-    openssl.preserve_paths = '../../../../../cw_shared_external/ios/External/ios/include/**/*.h'
-    openssl.vendored_libraries = '../../../../../cw_shared_external/ios/External/ios/lib/libcrypto.a', '../../../../../cw_shared_external/ios/External/ios/lib/libssl.a'
+    openssl.preserve_paths = 'External/ios/include/**/*.h'
+    openssl.vendored_libraries = 'External/ios/lib/libcrypto.a', 'External/ios/lib/libssl.a'
     openssl.libraries = 'ssl', 'crypto'
     openssl.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/External/ios/include/**" }
   end
 
-  s.subspec 'Sodium' do |sodium|
-    sodium.preserve_paths = '../../../../../cw_shared_external/ios/External/ios/include/**/*.h'
-    sodium.vendored_libraries = '../../../../../cw_shared_external/ios/External/ios/lib/libsodium.a'
-    sodium.libraries = 'sodium'
-    sodium.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/External/ios/include/**" }
-  end
-
   s.subspec 'Boost' do |boost|
-    boost.preserve_paths = '../../../../../cw_shared_external/ios/External/ios/include/**/*.h',
-    boost.vendored_libraries =  '../../../../../cw_shared_external/ios/External/ios/lib/libboost.a',
+    boost.preserve_paths = 'External/ios/include/**/*.h',
+    boost.vendored_libraries =  'External/ios/lib/libboost.a',
     boost.libraries = ''
     boost.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/External/ios/include/**" }
   end
 
   s.subspec 'Zano' do |zano|
     zano.preserve_paths = 'External/ios/include/**/*.h'
-    zano.vendored_libraries = '../../../../../cw_shared_external/ios/External/ios/lib/zano/libcommon.a', '../../../../../cw_shared_external/ios/External/ios/lib/zano/libcrypto.a', '../../../../../cw_shared_external/ios/External/ios/lib/zano/libcurrency_core.a', '../../../../../cw_shared_external/ios/External/ios/lib/zano/libwallet.a' , '../../../../../cw_shared_external/ios/External/ios/lib/zano/libz.a' 
+    zano.vendored_libraries = 'External/ios/lib/libzano.a'
     zano.libraries = ''
     zano.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/External/ios/include" }
   end

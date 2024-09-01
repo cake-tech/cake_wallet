@@ -11,14 +11,11 @@ PODS:
   - cw_zano (0.0.1):
     - cw_zano/Boost (= 0.0.1)
     - cw_zano/OpenSSL (= 0.0.1)
-    - cw_zano/Sodium (= 0.0.1)
     - cw_zano/Zano (= 0.0.1)
     - Flutter
   - cw_zano/Boost (0.0.1):
     - Flutter
   - cw_zano/OpenSSL (0.0.1):
-    - Flutter
-  - cw_zano/Sodium (0.0.1):
     - Flutter
   - cw_zano/Zano (0.0.1):
     - Flutter
@@ -233,7 +230,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   CryptoSwift: 967f37cea5a3294d9cce358f78861652155be483
-  cw_zano: 8fee0e1d14163be13c0ee6f08f3cfafa72905710
+  cw_zano: e13e2987734da2e94770540121762c288cdcf5b3
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   devicelocale: b22617f40038496deffba44747101255cee005b0

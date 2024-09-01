@@ -126,7 +126,7 @@ cw_shared_external/ios/External/
 cw_haven/ios/External/
 cw_haven/android/.externalNativeBuild/
 cw_haven/android/.cxx/
-
+cw_zano/ios/External/
 lib/bitcoin/bitcoin.dart
 lib/monero/monero.dart
 lib/haven/haven.dart
