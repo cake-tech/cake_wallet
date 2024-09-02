@@ -63,6 +63,14 @@ final monero.WalletManager wmPtr = Pointer.fromAddress((() {
   return _wmPtr!.address;
 })());
 
+
+void createWalletPointer() {
+  final newWptr = monero.WalletManager_createWallet(wmPtr,
+      path: "", password: "", language: "", networkType: 0);
+
+  wptr = newWptr;
+}
+
 void createWalletSync(
     {required String path, required String password, required String language, int nettype = 0}) {
   txhistory = null;

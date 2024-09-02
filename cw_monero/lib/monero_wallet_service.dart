@@ -1,6 +1,5 @@
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:isolate';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -286,13 +285,14 @@ class MoneroWalletService extends WalletService<
       final password = credentials.password;
       final height = credentials.height;
 
+      if (wptr == null ) monero_wallet_manager.createWalletPointer();
+
       monero_ledger.enableLedgerExchange(wptr!, credentials.ledger, credentials.ledgerDevice);
-      await monero_wallet_manager.restoreWalletFromWalletSync(
+      await monero_wallet_manager.restoreWalletFromWallet(
             path: path,
             password: password!,
             restoreHeight: height!,
             deviceName: 'Ledger');
-      monero_ledger.disableLedgerExchange();
 
       final wallet = MoneroWallet(
           walletInfo: credentials.walletInfo!,
