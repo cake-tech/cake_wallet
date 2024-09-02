@@ -1,23 +1,7 @@
-import 'package:cake_wallet/core/wallet_name_validator.dart';
-import 'package:cake_wallet/entities/generate_name.dart';
-import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
-import 'package:cake_wallet/src/widgets/seed_widget.dart';
-import 'package:cake_wallet/themes/extensions/address_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:mobx/mobx.dart';
-import 'package:polyseed/polyseed.dart';
 
 class VerifyForm extends StatefulWidget {
   VerifyForm({

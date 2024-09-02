@@ -1,3 +1,2 @@
-Scan and verify messages
-Synchronization enhancements
-Bug fixes
+Enhance auto-address generation for Monero
+Bug fixes and enhancements
