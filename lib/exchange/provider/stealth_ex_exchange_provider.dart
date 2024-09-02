@@ -48,21 +48,14 @@ class StealthExExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
-
     final curFrom = isFixedRateMode ? to : from;
-    final curTo = isFixedRateMode ? from: to;
+    final curTo = isFixedRateMode ? from : to;
 
     final headers = {'Authorization': apiKey, 'Content-Type': 'application/json'};
     final body = {
       'route': {
-        'from': {
-          'symbol': curFrom.title.toLowerCase(),
-          'network': curFrom.tag == null ? 'mainnet' : curFrom.tag!.toLowerCase()
-        },
-        'to': {
-          'symbol': curTo.title.toLowerCase(),
-          'network': curTo.tag == null ? 'mainnet' : curTo.tag!.toLowerCase()
-        }
+        'from': {'symbol': _getName(curFrom), 'network': _getNetwork(curFrom)},
+        'to': {'symbol': _getName(curTo), 'network': _getNetwork(curTo)}
       },
       'estimation': isFixedRateMode ? 'reversed' : 'direct',
       'rate': isFixedRateMode ? 'fixed' : 'floating',
@@ -125,8 +118,11 @@ class StealthExExchangeProvider extends ExchangeProvider {
       final headers = {'Authorization': apiKey, 'Content-Type': 'application/json'};
       final body = {
         'route': {
-          'from': {'symbol': request.fromCurrency.name, 'network': 'mainnet'},
-          'to': {'symbol': request.toCurrency.name, 'network': 'mainnet'}
+          'from': {
+            'symbol': _getName(request.fromCurrency),
+            'network': _getNetwork(request.fromCurrency)
+          },
+          'to': {'symbol': _getName(request.toCurrency), 'network': _getNetwork(request.toCurrency)}
         },
         'estimation': isFixedRateMode ? 'reversed' : 'direct',
         'rate': isFixedRateMode ? 'fixed' : 'floating',
@@ -235,8 +231,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
     final body = {
       'route': {
-        'from': {'symbol': from.name, 'network': 'mainnet'},
-        'to': {'symbol': to.name, 'network': 'mainnet'}
+        'from': {'symbol': _getName(from), 'network': _getNetwork(from)},
+        'to': {'symbol': _getName(to), 'network': _getNetwork(to)}
       },
       'estimation': isFixedRateMode ? 'reversed' : 'direct',
       'rate': isFixedRateMode ? 'fixed' : 'floating',
@@ -268,5 +264,20 @@ class StealthExExchangeProvider extends ExchangeProvider {
     } else {
       return 0.0;
     }
+  }
+
+  String _getName(CryptoCurrency currency) {
+    if (currency == CryptoCurrency.usdcEPoly) return 'usdce';
+    return currency.title.toLowerCase();
+  }
+
+  String _getNetwork(CryptoCurrency currency) {
+    if (currency.tag == null) return 'mainnet';
+
+    if (currency == CryptoCurrency.maticpoly) return 'mainnet';
+
+    if (currency.tag == 'POLY') return 'matic';
+
+    return currency.tag!.toLowerCase();
   }
 }
