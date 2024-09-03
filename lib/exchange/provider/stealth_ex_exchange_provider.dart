@@ -160,10 +160,25 @@ class StealthExExchangeProvider extends ExchangeProvider {
           ? DateTime.parse(validUntil)
           : DateTime.now().add(Duration(minutes: 5));
 
+
+      CryptoCurrency fromCurrency;
+      if (request.fromCurrency.tag != null && request.fromCurrency.title.toLowerCase() == from) {
+          fromCurrency = request.fromCurrency;
+        } else {
+          fromCurrency = CryptoCurrency.fromString(from);
+        }
+
+      CryptoCurrency toCurrency;
+      if (request.toCurrency.tag != null && request.toCurrency.title.toLowerCase() == to) {
+          toCurrency = request.toCurrency;
+        } else {
+          toCurrency = CryptoCurrency.fromString(to);
+        }
+
       return Trade(
         id: id,
-        from: CryptoCurrency.fromString(from),
-        to: CryptoCurrency.fromString(to),
+        from: fromCurrency,
+        to: toCurrency,
         provider: description,
         inputAddress: depositAddress,
         payoutAddress: payoutAddress,
@@ -236,7 +251,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
       },
       'estimation': isFixedRateMode ? 'reversed' : 'direct',
       'rate': isFixedRateMode ? 'fixed' : 'floating',
-      'amount': amount
+      'amount': amount,
+     'additional_fee_percent': _additionalFeePercent,
     };
 
     try {
