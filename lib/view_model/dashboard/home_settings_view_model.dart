@@ -221,7 +221,7 @@ abstract class HomeSettingsViewModelBase with Store {
         "module": "token",
         "action": "tokeninfo",
         "contractaddress": contractAddress,
-        "apikey": isEthereum ? secrets.etherScanApiKey : secrets.polgonScanApiKey,
+        "apikey": isEthereum ? secrets.etherScanApiKey : secrets.polygonScanApiKey,
       },
     );
 
@@ -269,7 +269,7 @@ abstract class HomeSettingsViewModelBase with Store {
         "module": "contract",
         "action": "getsourcecode",
         "contractaddress": contractAddress,
-        "apikey": isEthereum ? secrets.etherScanApiKey : secrets.polgonScanApiKey,
+        "apikey": isEthereum ? secrets.etherScanApiKey : secrets.polygonScanApiKey,
       },
     );
 
