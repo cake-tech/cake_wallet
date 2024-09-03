@@ -2,14 +2,16 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/erc20_token.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -79,7 +81,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
     if (widget.token != null) {
       address = widget.homeSettingsViewModel.getTokenAddressBasedOnWallet(widget.token!);
-      
+
       _contractAddressController.text = address ?? '';
       _tokenNameController.text = widget.token!.name;
       _tokenSymbolController.text = widget.token!.title;
@@ -135,8 +137,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             S.of(context).warning,
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).dialogTheme.backgroundColor,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                             ),
                           ),
                           Padding(
@@ -145,7 +147,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                               S.of(context).add_token_warning,
                               style: TextStyle(
                                 fontSize: 14,
-                                fontWeight: FontWeight.normal,
+                                fontWeight: FontWeight.bold,
                                 color: Theme.of(context)
                                     .extension<TransactionTradeTheme>()!
                                     .detailsTitlesColor,
@@ -167,6 +169,15 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
         bottomSection: Column(
           children: [
             if (_showDisclaimer) ...[
+              Text(
+                'NOTE: Do not send funds to this address!!!\n\nThis is just an identifier for the token, any funds sent to this address will be lost.',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.0,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                ),
+              ),
+              SizedBox(height: 20),
               CheckboxWidget(
                 value: _disclaimerChecked,
                 caption: S.of(context).add_token_disclaimer_check,
@@ -197,17 +208,52 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate() &&
                           (!_showDisclaimer || _disclaimerChecked)) {
-                        await widget.homeSettingsViewModel.addToken(
-                          token: CryptoCurrency(
-                            name: _tokenNameController.text,
-                            title: _tokenSymbolController.text.toUpperCase(),
-                            decimals: int.parse(_tokenDecimalController.text),
-                            iconPath: _tokenIconPathController.text,
-                          ),
-                          contractAddress: _contractAddressController.text,
+                        final hasPotentialError = await widget.homeSettingsViewModel
+                            .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
+                          _contractAddressController.text,
                         );
-                        if (mounted) {
-                          Navigator.pop(context);
+                        final actionCall = () async {
+                          await widget.homeSettingsViewModel.addToken(
+                            token: CryptoCurrency(
+                              name: _tokenNameController.text,
+                              title: _tokenSymbolController.text.toUpperCase(),
+                              decimals: int.parse(_tokenDecimalController.text),
+                              iconPath: _tokenIconPathController.text,
+                            ),
+                            contractAddress: _contractAddressController.text,
+                          );
+                        };
+
+                        if (hasPotentialError) {
+                          showPopUp<void>(
+                            context: context,
+                            builder: (dialogContext) {
+                              return AlertWithTwoActions(
+                                alertTitle: 'Warning: Suspicious Token Address Detected',
+                                alertContent:
+                                    '''The contract address you are trying to add for a new ERC20 token has been flagged as potentially risky. This token may be associated with fraudulent activity.\n\n'''
+                                    ''' - Unverified Contract: This contract may not be verified, or its verification status is questionable.\n\n'''
+                                    ''' - Suspicious Activity: Unusual transaction patterns have been detected, suggesting possible fraudulent behavior.\n\n'''
+                                    '''Please proceed with caution. We recommend thoroughly researching this token and ensuring its legitimacy before adding it to your app. If you are unsure, it may be safer not to add this token.\n\n'''
+                                    '''Stay Safe: Always double-check token details and avoid interacting with suspicious contracts.''',
+                                rightButtonText: S.of(context).continue_text,
+                                leftButtonText: S.of(context).cancel,
+                                actionRightButton: () async {
+                                  Navigator.of(dialogContext).pop();
+                                  await actionCall();
+                                  if (mounted) {
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                actionLeftButton: () => Navigator.of(dialogContext).pop(),
+                              );
+                            },
+                          );
+                        } else {
+                          await actionCall();
+                          if (mounted) {
+                            Navigator.pop(context);
+                          }
                         }
                       }
                     },
