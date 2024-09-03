@@ -89,6 +89,8 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://track.ninerealms.com/${trade.id}';
       case ExchangeProviderDescription.quantex:
         return 'https://myquantex.com/send/${trade.id}';
+      case ExchangeProviderDescription.letsExchange:
+        return 'https://letsexchange.io/transaction-status';
     }
     return null;
   }

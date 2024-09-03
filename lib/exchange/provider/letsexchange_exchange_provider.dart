@@ -56,8 +56,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     try {
       final params = {
-        'from': from.title.toLowerCase(),
-        'to': to.title.toLowerCase(),
+        'from': from.title,
+        'to': to.title,
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
         'amount': '1',
@@ -85,8 +85,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final networkTo = _getNetworkType(to);
     try {
       final params = {
-        'from': from.title.toLowerCase(),
-        'to': to.title.toLowerCase(),
+        'from': from.title,
+        'to': to.title,
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
         'amount': amount.toString(),
@@ -113,8 +113,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final networkTo = _getNetworkType(request.toCurrency);
     try {
       final params = {
-        'from': request.fromCurrency.title.toLowerCase(),
-        'to': request.toCurrency.title.toLowerCase(),
+        'from': request.fromCurrency.title,
+        'to': request.toCurrency.title,
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
         'amount': isFixedRateMode ? request.toAmount.toString() : request.fromAmount.toString(),
@@ -125,8 +125,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       final rateId = responseInfoJSON['rate_id'] as String;
 
       final tradeParams = {
-        'coin_from': request.fromCurrency.title.toLowerCase(),
-        'coin_to': request.toCurrency.title.toLowerCase(),
+        'coin_from': request.fromCurrency.title,
+        'coin_to': request.toCurrency.title,
         if (!isFixedRateMode) 'deposit_amount': request.fromAmount.toString(),
         'withdrawal': request.toAddress,
         if (isFixedRateMode) 'withdrawal_amount': request.toAmount.toString(),
@@ -167,10 +167,24 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       final createdAt = DateTime.parse(createdAtString);
       final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000);
 
+      CryptoCurrency fromCurrency;
+      if (request.fromCurrency.tag != null && request.fromCurrency.title == from) {
+        fromCurrency = request.fromCurrency;
+      } else {
+        fromCurrency = CryptoCurrency.fromString(from);
+      }
+
+      CryptoCurrency toCurrency;
+      if (request.toCurrency.tag != null && request.toCurrency.title == to) {
+        toCurrency = request.toCurrency;
+      } else {
+        toCurrency = CryptoCurrency.fromString(to);
+      }
+
       return Trade(
         id: id,
-        from: CryptoCurrency.fromString(from),
-        to: CryptoCurrency.fromString(to),
+        from: fromCurrency,
+        to: toCurrency,
         provider: description,
         inputAddress: depositAddress,
         payoutAddress: payoutAddress,
@@ -254,17 +268,19 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
   String? _getNetworkType(CryptoCurrency currency) {
     if (currency.tag != null && currency.tag!.isNotEmpty) {
-      switch (currency.tag!.toLowerCase()) {
-        case 'trx':
-          return 'trc20';
-        case 'eth':
-          return 'erc20';
-        case 'bnb':
-          return 'bep20';
+      switch (currency.tag!) {
+        case 'TRX':
+          return 'TRC20';
+        case 'ETH':
+          return 'ERC20';
+        case 'BSC':
+          return 'BEP20';
+        case 'POLY':
+          return 'MATIC';
         default:
-          return currency.tag!.toLowerCase();
+          return currency.tag!;
       }
     }
-    return currency.title.toLowerCase();
+    return currency.title;
   }
 }
