@@ -45,8 +45,6 @@ List<Transaction> getAllTransactions() {
             confirmations: 0,
             blockheight: 0,
             accountIndex: i,
-            addressIndex: 0,
-            addressIndexList: [0],
             paymentId: "",
             amount: fullBalance - availBalance,
             isSpend: false,
@@ -247,30 +245,19 @@ Future<PendingTransactionDescription> createTransactionMultDest(
 
 class Transaction {
   final String displayLabel;
-  String get subaddressLabel => monero.Wallet_getSubaddressLabel(
+  String subaddressLabel = monero.Wallet_getSubaddressLabel(wptr!, accountIndex: 0, addressIndex: 0);
+  late final String address = monero.Wallet_address(
     wptr!,
-    accountIndex: accountIndex,
-    addressIndex: addressIndex,
+    accountIndex: 0,
+    addressIndex: 0,
   );
-  String get address => monero.Wallet_address(
-    wptr!,
-    accountIndex: accountIndex,
-    addressIndex: addressIndex,
-  );
-  List<String> get addressList => List.generate(addressIndexList.length, (index) =>
-    monero.Wallet_address(
-      wptr!,
-      accountIndex: accountIndex,
-      addressIndex: addressIndexList[index],
-    ));
   final String description;
   final int fee;
   final int confirmations;
   late final bool isPending = confirmations < 10;
   final int blockheight;
-  final int addressIndex;
+  final int addressIndex = 0;
   final int accountIndex;
-  final List<int> addressIndexList;
   final String paymentId;
   final int amount;
   final bool isSpend;
@@ -316,8 +303,6 @@ class Transaction {
         amount = monero.TransactionInfo_amount(txInfo),
         paymentId = monero.TransactionInfo_paymentId(txInfo),
         accountIndex = monero.TransactionInfo_subaddrAccount(txInfo),
-        addressIndex = int.tryParse(monero.TransactionInfo_subaddrIndex(txInfo).split(", ")[0]) ?? 0,
-        addressIndexList = monero.TransactionInfo_subaddrIndex(txInfo).split(", ").map((e) => int.tryParse(e) ?? 0).toList(),
         blockheight = monero.TransactionInfo_blockHeight(txInfo),
         confirmations = monero.TransactionInfo_confirmations(txInfo),
         fee = monero.TransactionInfo_fee(txInfo),
@@ -331,8 +316,6 @@ class Transaction {
     required this.confirmations,
     required this.blockheight,
     required this.accountIndex,
-    required this.addressIndexList,
-    required this.addressIndex,
     required this.paymentId,
     required this.amount,
     required this.isSpend,
