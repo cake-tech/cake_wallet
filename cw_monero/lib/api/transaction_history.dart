@@ -247,17 +247,17 @@ Future<PendingTransactionDescription> createTransactionMultDest(
 
 class Transaction {
   final String displayLabel;
-  String get subaddressLabel => monero.Wallet_getSubaddressLabel(
+  late String subaddressLabel = monero.Wallet_getSubaddressLabel(
     wptr!,
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
-  String get address => monero.Wallet_address(
+  late String address = monero.Wallet_address(
     wptr!,
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
-  List<String> get addressList => List.generate(addressIndexList.length, (index) =>
+  late List<String> addressList = List.generate(addressIndexList.length, (index) =>
     monero.Wallet_address(
       wptr!,
       accountIndex: accountIndex,
@@ -266,7 +266,7 @@ class Transaction {
   final String description;
   final int fee;
   final int confirmations;
-  late final bool isPending = confirmations < 10;
+  bool get isPending => confirmations < 10;
   final int blockheight;
   final int addressIndex;
   final int accountIndex;
@@ -303,10 +303,13 @@ class Transaction {
   // final SubAddress? subAddress;
   // List<Transfer> transfers = [];
   // final int txIndex;
+  final Stopwatch? stopwatch;
+  final Stopwatch? stopwatch2 = Stopwatch()..start();
   final monero.TransactionInfo txInfo;
   Transaction({
     required this.txInfo,
-  })  : displayLabel = monero.TransactionInfo_label(txInfo),
+  })  : stopwatch = Stopwatch()..start(),
+        displayLabel = monero.TransactionInfo_label(txInfo),
         hash = monero.TransactionInfo_hash(txInfo),
         timeStamp = DateTime.fromMillisecondsSinceEpoch(
           monero.TransactionInfo_timestamp(txInfo) * 1000,
@@ -322,7 +325,10 @@ class Transaction {
         confirmations = monero.TransactionInfo_confirmations(txInfo),
         fee = monero.TransactionInfo_fee(txInfo),
         description = monero.TransactionInfo_description(txInfo),
-        key = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo));
+        key = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo)) {
+          monero.debugCallLength["CW_Transaction_construct"]!.add(stopwatch?.elapsedMicroseconds??0);
+          monero.debugCallLength["CW_Transaction_construct2"]!.add(stopwatch2?.elapsedMicroseconds??0);
+        }
 
   Transaction.dummy({
     required this.displayLabel,
@@ -338,6 +344,7 @@ class Transaction {
     required this.isSpend,
     required this.hash,
     required this.key,
-    required this.txInfo
+    required this.txInfo,
+    this.stopwatch = null,
   });
 }
