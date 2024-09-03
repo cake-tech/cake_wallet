@@ -89,6 +89,31 @@ jobs:
           cd /opt/android/cake_wallet
           flutter pub get
 
+      - name: Install go and gomobile
+        run: |
+          # install go > 1.21:
+          wget https://go.dev/dl/go1.22.4.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.22.4.linux-amd64.tar.gz
+          export PATH=$PATH:/usr/local/go/bin
+          export PATH=$PATH:~/go/bin
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          gomobile init
+
+      - name: Build mwebd TODO for linux!
+        run: |
+          # paths are reset after each step, so we need to set them again:
+          export PATH=$PATH:/usr/local/go/bin
+          export PATH=$PATH:~/go/bin
+          # build mwebd:
+          cd /opt/android/cake_wallet
+          git clone https://github.com/ltcmweb/mwebd
+          cd /opt/android/cake_wallet/mwebd
+          gomobile bind -target=android -androidapi 21 .
+          mkdir -p /opt/android/cake_wallet/cw_mweb/android/libs/
+          mv ./mwebd.aar $_
+          cd ..
+          rm -rf mwebd
+
       - name: Generate localization
         run: |
           cd /opt/android/cake_wallet
