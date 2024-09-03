@@ -46,6 +46,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   String? get hexSeed => null;
 
+  String? get passphrase => null;
+
   Object get keys;
 
   WalletAddresses get walletAddresses;
@@ -95,5 +97,5 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<bool> verifyMessage(String message, String signature, {String? address = null});
 
-  bool? isTestnet;
+  bool isTestnet = false;
 }
