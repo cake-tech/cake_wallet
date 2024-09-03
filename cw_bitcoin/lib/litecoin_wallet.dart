@@ -7,6 +7,7 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -36,6 +37,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
     required EncryptionFileUtils encryptionFileUtils,
+    String? passphrase,
     String? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
@@ -51,6 +53,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             initialBalance: initialBalance,
             seedBytes: seedBytes,
             encryptionFileUtils: encryptionFileUtils,
+            passphrase: passphrase,
             currency: CryptoCurrency.ltc) {
     walletAddresses = LitecoinWalletAddresses(
       walletInfo,
@@ -89,7 +92,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         break;
       case DerivationType.electrum:
       default:
-        seedBytes = await mnemonicToSeedBytes(mnemonic);
+        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
         break;
     }
     return LitecoinWallet(
@@ -100,6 +103,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
       encryptionFileUtils: encryptionFileUtils,
+      passphrase: passphrase,
       seedBytes: seedBytes,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
@@ -143,6 +147,31 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       );
     }
 
+    walletInfo.derivationInfo ??= DerivationInfo();
+
+    // set the default if not present:
+    walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
+    walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
+
+    Uint8List? seedBytes = null;
+    final mnemonic = keysData.mnemonic;
+    final passphrase = keysData.passphrase;
+
+    if (mnemonic != null) {
+      switch (walletInfo.derivationInfo?.derivationType) {
+        case DerivationType.bip39:
+          seedBytes = await bip39.mnemonicToSeed(
+            mnemonic,
+            passphrase: passphrase ?? "",
+          );
+          break;
+        case DerivationType.electrum:
+        default:
+          seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+          break;
+      }
+    }
+
     return LitecoinWallet(
       mnemonic: keysData.mnemonic!,
       password: password,
@@ -150,7 +179,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses,
       initialBalance: snp?.balance,
-      seedBytes: await mnemonicToSeedBytes(keysData.mnemonic!),
+      seedBytes: seedBytes!,
+      passphrase: passphrase,
       encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: snp?.regularAddressIndex,
       initialChangeAddressIndex: snp?.changeAddressIndex,
