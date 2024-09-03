@@ -150,9 +150,9 @@ class LitecoinWalletService extends WalletService<
   @override
   Future<LitecoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
-      throw LitecoinMnemonicIsIncorrectException();
-    }
+    // if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
+    //   throw LitecoinMnemonicIsIncorrectException();
+    // }
 
     final wallet = await LitecoinWalletBase.create(
       password: credentials.password!,

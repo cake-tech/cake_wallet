@@ -445,6 +445,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> processMwebUtxos() async {
+    if (!mwebEnabled) {
+      return;
+    }
+
     int restoreHeight = walletInfo.restoreHeight;
     print("SCANNING FROM HEIGHT: $restoreHeight");
     final req = UtxosRequest(scanSecret: scanSecret, fromHeight: restoreHeight);
@@ -504,6 +508,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> checkMwebUtxosSpent() async {
+    if (!mwebEnabled) {
+      return;
+    }
+
     while ((await Future.wait(transactionHistory.transactions.values
             .where((tx) => tx.direction == TransactionDirection.outgoing && tx.isPending)
             .map(checkPendingTransaction)))
@@ -559,6 +567,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<bool> checkPendingTransaction(ElectrumTransactionInfo tx) async {
+    if (!mwebEnabled) return false;
     if (!tx.isPending) return false;
     final outputId = <String>[], target = <String>{};
     final isHash = RegExp(r'^[a-f0-9]{64}$').hasMatch;
@@ -757,6 +766,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         vinOutpoints: vinOutpoints,
       );
     }
+
+    if (!mwebEnabled) {
+      throw Exception("MWEB is not enabled! can't calculate fee without starting the mweb server!");
+    }
+
     if (outputs.length == 1 && outputs[0].toOutput.amount == BigInt.zero) {
       outputs = [
         BitcoinScriptOutput(

@@ -172,7 +172,6 @@ class ExceptionHandler {
     "Error while launching http",
     "OS Error: Network is unreachable",
     "ClientException: Write failed, uri=http",
-    "Connection terminated during handshake",
     "Corrupted wallets seeds",
     "bad_alloc",
     "does not correspond",

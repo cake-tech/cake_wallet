@@ -1,7 +1,6 @@
 import 'package:cw_core/subaddress.dart';
 import 'package:cw_monero/api/coins_info.dart';
 import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
-import 'package:cw_monero/api/wallet.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 
@@ -104,9 +103,6 @@ abstract class MoneroSubaddressListBase with Store {
     required List<String> usedAddresses,
   }) async {
     _usedAddresses.addAll(usedAddresses);
-    final _all = _usedAddresses.toSet().toList();
-    _usedAddresses.clear();
-    _usedAddresses.addAll(_all);
     if (_isUpdating) {
       return;
     }
@@ -128,7 +124,7 @@ abstract class MoneroSubaddressListBase with Store {
   Future<List<Subaddress>> _getAllUnusedAddresses(
       {required int accountIndex, required String label}) async {
     final allAddresses = subaddress_list.getAllSubaddresses();
-    if (allAddresses.isEmpty || _usedAddresses.contains(allAddresses.first.address)) {
+    if (allAddresses.isEmpty || _usedAddresses.contains(allAddresses.last)) {
       final isAddressUnused = await _newSubaddress(accountIndex: accountIndex, label: label);
       if (!isAddressUnused) {
         return await _getAllUnusedAddresses(accountIndex: accountIndex, label: label);
@@ -147,7 +143,8 @@ abstract class MoneroSubaddressListBase with Store {
                     label.toLowerCase() == 'Primary account'.toLowerCase()
                 ? 'Primary address'
                 : label);
-      }).toList().reversed.toList();
+      })
+        .toList();
   }
 
   Future<bool> _newSubaddress({required int accountIndex, required String label}) async {

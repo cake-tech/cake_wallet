@@ -25,7 +25,10 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     super.initialChangeAddressIndex,
   }) : super(walletInfo) {
     if (mwebEnabled) {
-      topUpMweb(0);
+      // give the server a few seconds to start up before trying to get the addresses:
+      Future.delayed(const Duration(seconds: 5), () async {
+        await topUpMweb(0);
+      });
     }
   }
 
@@ -39,9 +42,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   List<String> mwebAddrs = [];
 
   Future<void> topUpMweb(int index) async {
+    final stub = await CwMweb.stub();
     while (mwebAddrs.length - index < 1000) {
       final length = mwebAddrs.length;
-      final stub = await CwMweb.stub();
       final resp = await stub.addresses(AddressRequest(
         fromIndex: length,
         toIndex: index + 1000,
