@@ -29,7 +29,10 @@ List<Transaction> getAllTransactions() {
   txhistory ??= monero.Wallet_history(wptr!);
   monero.TransactionHistory_refresh(txhistory!);
   int size = countOfTransactions();
+  monero.debugCallLength["CW_Transaction_list_construct"] ??= <int>[];
+  final Stopwatch? stopwatch = Stopwatch()..start();
   final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
+  monero.debugCallLength["CW_Transaction_list_construct"]!.add(stopwatch?.elapsedMicroseconds??0);
 
   final accts = monero.Wallet_numSubaddressAccounts(wptr!);
   for (var i = 0; i < accts; i++) {  
@@ -326,6 +329,8 @@ class Transaction {
         fee = monero.TransactionInfo_fee(txInfo),
         description = monero.TransactionInfo_description(txInfo),
         key = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo)) {
+          monero.debugCallLength["CW_Transaction_construct"] ??= <int>[];
+          monero.debugCallLength["CW_Transaction_construct2"] ??= <int>[];
           monero.debugCallLength["CW_Transaction_construct"]!.add(stopwatch?.elapsedMicroseconds??0);
           monero.debugCallLength["CW_Transaction_construct2"]!.add(stopwatch2?.elapsedMicroseconds??0);
         }
