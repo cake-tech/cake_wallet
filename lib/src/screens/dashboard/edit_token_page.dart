@@ -170,7 +170,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
           children: [
             if (_showDisclaimer) ...[
               Text(
-                'NOTE: Do not send funds to this address!!!\n\nThis is just an identifier for the token, any funds sent to this address will be lost.',
+                'Do not send funds to this address!!!\n\nThis is just an identifier for the token, any funds sent to this address will be lost.\n\nNOTE: Cake would never ask you to add a contract address!',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14.0,
