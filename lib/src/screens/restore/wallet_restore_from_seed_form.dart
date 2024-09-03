@@ -81,7 +81,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   @override
   void initState() {
     // _setSeedType(widget.seedTypeViewModel.moneroSeedType);
-    _setSeedType(SeedType.defaultSeedType);
+    _setSeedType(MoneroSeedType.defaultSeedType);
     _setLanguageLabel(language);
 
     if (passwordTextEditingController != null) {
@@ -208,9 +208,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                               : seedTypeController.value.text.contains("14") && widget.type == WalletType.wownero
                                   ? 2
                                   : 0,
-                              : seedTypeController.value.text.contains("14")
-                              ? 2
-                              : 0,
                           mainAxisAlignment: MainAxisAlignment.start,
                           onItemSelected: _changeSeedType,
                           isSeparated: false,
