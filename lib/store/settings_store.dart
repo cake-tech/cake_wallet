@@ -384,13 +384,13 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => currentSyncMode, (SyncMode syncMode) {
       sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
 
-      _backgroundTasks.registerSyncTask(changeExisting: true);
+      _backgroundTasks.registerBackgroundService();
     });
 
     reaction((_) => currentSyncAll, (bool syncAll) {
       sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
-      _backgroundTasks.registerSyncTask(changeExisting: true);
+      _backgroundTasks.registerBackgroundService();
     });
 
     reaction(
