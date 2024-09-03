@@ -65,7 +65,7 @@ class CakeFeaturesPage extends StatelessWidget {
                       subTitle: S.of(context).nanogpt_subtitle,
                       onTap: () => _launchUrl("cake.nano-gpt.com"),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 10),
                     Observer(
                       builder: (context) {
                         if (!dashboardViewModel.hasSignMessages) {
