@@ -23,6 +23,9 @@ void refreshTransactions() {
 
 int countOfTransactions() => monero.TransactionHistory_count(txhistory!);
 
+List<Transaction> cachedAllTxList = [];
+int cachedForWptr = 0;
+
 List<Transaction> getAllTransactions() {
   List<Transaction> dummyTxs = [];
 
@@ -31,7 +34,20 @@ List<Transaction> getAllTransactions() {
   int size = countOfTransactions();
   monero.debugCallLength["CW_Transaction_list_construct"] ??= <int>[];
   final Stopwatch? stopwatch = Stopwatch()..start();
-  final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
+  final List<Transaction> list = [];
+  if (cachedAllTxList.length == size && cachedForWptr == wptr!.address) {
+    list.addAll(cachedAllTxList);
+    monero.debugCallLength["CW_Transaction_list_construct_cached"] ??= <int>[];
+    monero.debugCallLength["CW_Transaction_list_construct_cached"]!.add(stopwatch?.elapsedMicroseconds??0);
+  } else {
+    final newList = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
+    cachedAllTxList.clear();
+    cachedAllTxList.addAll(newList);
+    list.addAll(newList);
+    cachedForWptr == wptr!.address;
+    monero.debugCallLength["CW_Transaction_list_construct_real"] ??= <int>[];
+    monero.debugCallLength["CW_Transaction_list_construct_real"]!.add(stopwatch?.elapsedMicroseconds??0);
+  }
   monero.debugCallLength["CW_Transaction_list_construct"]!.add(stopwatch?.elapsedMicroseconds??0);
 
   final accts = monero.Wallet_numSubaddressAccounts(wptr!);

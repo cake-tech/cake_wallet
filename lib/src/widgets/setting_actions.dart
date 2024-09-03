@@ -120,7 +120,6 @@ class SettingActions {
       Navigator.of(context).pushNamed(Routes.support);
     },
     onLongPress: (BuildContext context) {
-      print("a");
       Navigator.of(context).pop();
       Navigator.of(context).push(
         MaterialPageRoute(

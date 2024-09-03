@@ -72,9 +72,9 @@ Color? perfc(num frame) {
   if (frame < frameBlueTier) return Colors.blue;
   if (frame < frameBlueGreyTier) return Colors.blueGrey;
   if (frame < frameGreenTier) return Colors.green;
-  if (frame < frameYellowTier) return Colors.yellow;
-  if (frame < frameOrangeTier) return Colors.orange;
-  return Colors.red;
+  if (frame < frameYellowTier) return Colors.yellow.shade900;
+  if (frame < frameOrangeTier) return Colors.orange.shade900;
+  return Colors.red.shade900;
 }
 
 class _PerformanceDebugState extends State<PerformanceDebug> {
@@ -104,9 +104,9 @@ class _PerformanceDebugState extends State<PerformanceDebug> {
         cw("<   1% of a frame (max: $frameGreenTierµs)", Colors.green),
         cw("<  10% of a frame (max: $frameBlueTierµs)", Colors.blue),
         cw("<  50% of a frame (max: $frameBlueGreyTierµs)", Colors.blueGrey),
-        cw("< 100% of a frame (max: $frameYellowTierµs)", Colors.yellow),
-        cw("< 200% of a frame (max: $frameOrangeTierµs)", Colors.orange),
-        cw("> 200% of a frame (UI junk visible)", Colors.red),
+        cw("< 100% of a frame (max: $frameYellowTierµs)", Colors.yellow.shade900),
+        cw("< 200% of a frame (max: $frameOrangeTierµs)", Colors.orange.shade900),
+        cw("> 200% of a frame (UI junk visible)", Colors.red.shade900),
       ],
     ));
     final keys = coin.debugCallLength.keys.toList();
