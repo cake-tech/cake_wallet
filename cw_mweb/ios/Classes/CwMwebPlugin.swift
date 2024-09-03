@@ -18,6 +18,7 @@ public class CwMwebPlugin: NSObject, FlutterPlugin {
         case "getPlatformVersion":
             result("iOS " + UIDevice.current.systemVersion)
         case "start":
+            stopServer()
             let args = call.arguments as? [String: String]
             let dataDir = args?["dataDir"]
             CwMwebPlugin.dataDir = dataDir

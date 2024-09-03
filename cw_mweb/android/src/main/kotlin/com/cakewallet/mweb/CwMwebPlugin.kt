@@ -28,9 +28,12 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
     if (call.method == "start") {
+      server?.stop()
       val dataDir = call.argument("dataDir") ?: ""
+      // server = server ?: Mwebd.newServer("", dataDir, "")
+      // port = port ?: server?.start(0)
       server = server ?: Mwebd.newServer("", dataDir, "")
-      port = port ?: server?.start(0)
+      port = server?.start(0)
       result.success(port)
     } else if (call.method == "stop") {
       server?.stop()
