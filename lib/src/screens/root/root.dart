@@ -129,13 +129,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     );
   }
 
-  void setPaused() {
-    wasInBackground = true;
-  }
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    print("previous state: $_previousState current state: $state");
     switch (state) {
       case AppLifecycleState.paused:
         if (isQrScannerShown) {
@@ -190,7 +185,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         // if we enter any state other than resumed start a timer for 30 seconds
         // after which we'll consider the app to be in the background
         _stateTimer?.cancel();
-        _stateTimer = Timer(const Duration(seconds: 5), () async {
+        _stateTimer = Timer(const Duration(seconds: 10), () async {
           wasInBackground = true;
           getIt.get<BackgroundTasks>().updateServiceState(false);
         });

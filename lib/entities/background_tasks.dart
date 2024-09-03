@@ -2,28 +2,18 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:workmanager/workmanager.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:http/http.dart' as http;
 
 const moneroSyncTaskKey = "com.fotolockr.cakewallet.monero_sync_task";
 const mwebSyncTaskKey = "com.fotolockr.cakewallet.mweb_sync_task";
@@ -32,11 +22,9 @@ const initialNotificationTitle = 'Cake Background Sync';
 const initialNotificationContent = 'On standby - app is in the foreground';
 const notificationId = 888;
 const notificationChannelId = 'cake_service';
-const notificationChannelName = 'CAKE BG SERVICE';
+const notificationChannelName = 'CAKE BACKGROUND SERVICE';
 const notificationChannelDescription = 'Cake Wallet Background Service';
-
-@pragma('vm:entry-point')
-void callbackDispatcher() {}
+const DELAY_SECONDS_BEFORE_SYNC_START = 15;
 
 void setNotificationStandby(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
   flutterLocalNotificationsPlugin.show(
@@ -67,7 +55,7 @@ Future<void> onStart(ServiceInstance service) async {
       FlutterLocalNotificationsPlugin();
 
   service.on('stopService').listen((event) async {
-    print("STOPPING SERVICE!");
+    print("STOPPING BACKGROUND SERVICE!");
     _syncTimer?.cancel();
     await service.stopSelf();
   });
@@ -79,14 +67,7 @@ Future<void> onStart(ServiceInstance service) async {
   service.on('setForeground').listen((event) async {
     bgSyncStarted = false;
     _syncTimer?.cancel();
-    // try {
-    //   final wallet = getIt.get<AppStore>().wallet;
-    //   wallet?.close();
-    // } catch (_) {
-    //   // this throws a few errors
-    // }
-
-    // setNotificationStandby(flutterLocalNotificationsPlugin);
+    setNotificationStandby(flutterLocalNotificationsPlugin);
   });
 
   // we have entered the background, start the sync:
@@ -96,13 +77,13 @@ Future<void> onStart(ServiceInstance service) async {
     }
     bgSyncStarted = true;
 
-    await Future.delayed(const Duration(seconds: 30));
+    await Future.delayed(const Duration(seconds: DELAY_SECONDS_BEFORE_SYNC_START));
     print("STARTING SYNC FROM BG!!");
 
     try {
       await initializeAppConfigs();
     } catch (_) {
-      // this throws a few errors
+      // these errors still show up in logs which doesn't really make sense to me
     }
 
     print("initialized app configs");
@@ -126,13 +107,6 @@ Future<void> onStart(ServiceInstance service) async {
         ),
       );
     });
-
-    // print("stopping in ten seconds!");
-    // Timer(const Duration(seconds: 10), () {
-    //   // stop the service after 10 seconds
-    //   print("stopping now!");
-    //   service.stopSelf();
-    // });
   });
 }
 
@@ -209,7 +183,6 @@ class BackgroundTasks {
 
   void updateServiceState(bool foreground) {
     if (foreground) {
-      // bgService.invoke("setForeground");
       bgService.invoke('stopService');
       initializeService(bgService);
     } else {
