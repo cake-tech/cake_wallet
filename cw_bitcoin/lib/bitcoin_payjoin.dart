@@ -60,6 +60,8 @@ class BitcoinPayjoin {
     required Network network,
     required int expireAfter,
   }) async {
+    print(
+        '[+] BitcoinPayjoin || buildV2PjStr => address: $address \n amount: $amount \n network: $network');
     // Start a Payjoin receive session with the given parameters
     final session = await _startV2ReceiveSession(
       address: address,
@@ -67,11 +69,21 @@ class BitcoinPayjoin {
       expireAfter: expireAfter,
     );
 
+    String pjUriStr;
+
     // Get the Payjoin URI builder from the session
     final pjUriBuilder = session.pjUriBuilder();
+
     // Build the URI
-    final pjUri = pjUriBuilder.build();
-    final pjUriStr = pjUri.asString();
+    if (amount != null) {
+      final pjUriBuilderWithAmount =
+          pjUriBuilder.amount(amount: BigInt.from(amount));
+      final pjUri = pjUriBuilderWithAmount.build();
+      pjUriStr = pjUri.asString();
+    } else {
+      final pjUri = pjUriBuilder.build();
+      pjUriStr = pjUri.asString();
+    }
 
     return {'pjUri': pjUriStr, 'session': session};
   }

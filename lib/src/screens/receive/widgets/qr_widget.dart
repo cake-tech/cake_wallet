@@ -134,19 +134,20 @@ class QRWidget extends StatelessWidget {
                   children: <Widget>[
                     Expanded(
                       child: Form(
-                          key: formKey,
-                          child: CurrencyAmountTextField(
-                              selectedCurrency: _currencyName,
-                              amountFocusNode: amountTextFieldFocusNode,
-                              amountController: amountController,
-                              padding:
-                                  EdgeInsets.only(top: 20, left: _width / 4),
-                              currentTheme:
-                                  isLight ? ThemeType.light : ThemeType.dark,
-                              isAmountEditable: true,
-                              tag: addressListViewModel.selectedCurrency.tag,
-                              onTapPicker: () => _presentPicker(context),
-                              isPickerEnable: true)),
+                        key: formKey,
+                        child: CurrencyAmountTextField(
+                          selectedCurrency: _currencyName,
+                          amountFocusNode: amountTextFieldFocusNode,
+                          amountController: amountController,
+                          padding: EdgeInsets.only(top: 20, left: _width / 4),
+                          currentTheme:
+                              isLight ? ThemeType.light : ThemeType.dark,
+                          isAmountEditable: true,
+                          tag: addressListViewModel.selectedCurrency.tag,
+                          onTapPicker: () => _presentPicker(context),
+                          isPickerEnable: true,
+                        ),
+                      ),
                     ),
                   ],
                 ),

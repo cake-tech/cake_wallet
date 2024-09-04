@@ -295,6 +295,17 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
+  Future<BtcTransaction> getBtcTransactionFromPsbt(
+      String preProcessedPsbt) async {
+    final psbt = PsbtV2()..deserialize(base64.decode(preProcessedPsbt));
+    final rawHex = await _bitcoinLedgerApp!.signPsbt(
+      _ledgerDevice!,
+      psbt: psbt,
+    );
+    return BtcTransaction.fromRaw(BytesUtils.toHexString(rawHex));
+  }
+
+  @override
   Future<String> signMessage(String message, {String? address = null}) async {
     if (walletInfo.isHardwareWallet) {
       final addressEntry = address != null

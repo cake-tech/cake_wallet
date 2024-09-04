@@ -87,8 +87,8 @@ class BitcoinURI extends PaymentURI {
 }
 
 class PayjoinBitcoinURI extends PaymentURI {
-  PayjoinBitcoinURI({required String address})
-      : super(amount: '', address: address);
+  PayjoinBitcoinURI({required String amount, required String address})
+      : super(amount: amount, address: address);
 
   @override
   String toString() {
@@ -301,7 +301,7 @@ abstract class WalletAddressListViewModelBase
     if (wallet.type == WalletType.bitcoin && isPayjoinOption) {
       print(
           '[+] wallet_address_list_view_model.dart || PaymentURI => isPayjoinOption: $isPayjoinOption');
-      return PayjoinBitcoinURI(address: payjoinUri);
+      return PayjoinBitcoinURI(amount: amount, address: payjoinUri);
     }
 
     if (wallet.type == WalletType.bitcoin) {
@@ -586,6 +586,8 @@ abstract class WalletAddressListViewModelBase
     this.amount = amount;
     if (selectedCurrency is FiatCurrency) {
       _convertAmountToCrypto();
+    } else if (isPayjoinOption) {
+      buildV2PjStr();
     }
   }
 
@@ -630,13 +632,22 @@ abstract class WalletAddressListViewModelBase
   @action
   Future<void> buildV2PjStr() async {
     print('[+] wallet_address_list_view_model.dart || buildV2PjStr()');
+    final btcAmount =
+        !(selectedCurrency is FiatCurrency) ? double.tryParse(amount) : null;
+    final satsAmount =
+        btcAmount != null ? (btcAmount * 100000000).round() : null;
+
+    print(
+        '[+] wallet_address_list_view_model.dart || buildV2PjStr() => satsAmount: $satsAmount');
 
     try {
       final expireAfter = 60 * 5; // 5 minutes
       final res = await bitcoin!.buildV2PjStr(
-          address: address.address,
-          isTestnet: wallet.isTestnet,
-          expireAfter: expireAfter);
+        amount: satsAmount,
+        address: address.address,
+        isTestnet: wallet.isTestnet,
+        expireAfter: expireAfter,
+      );
       payjoinUri = res['pjUri'] as String;
       session = res['session'] as ActiveSession;
 

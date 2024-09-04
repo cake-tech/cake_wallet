@@ -585,12 +585,14 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<Map<String, dynamic>> buildV2PjStr(
-      {int? amount,
-      required String address,
-      required bool isTestnet,
-      required int expireAfter}) async {
+  Future<Map<String, dynamic>> buildV2PjStr({
+    int? amount,
+    required String address,
+    required bool isTestnet,
+    required int expireAfter,
+  }) async {
     final res = await payjoin.buildV2PjStr(
+      amount: amount,
       address: address,
       network: isTestnet ? payjoin.testnet : payjoin.mainnet,
       expireAfter: expireAfter,
