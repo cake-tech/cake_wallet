@@ -669,7 +669,7 @@
   "show_seed": "Mostrar semente",
   "sign_message": "Mensagem de assinar",
   "sign_up": "Inscrever-se",
-  "sign_verify_message": "Assinar ou verificar mensagem",
+  "sign_verify_message": "Assinar / verificar",
   "sign_verify_message_sub": "Assine ou verifique uma mensagem usando sua chave privada",
   "sign_verify_title": "Assinar / verificar",
   "signature": "Assinatura",

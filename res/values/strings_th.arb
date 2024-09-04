@@ -667,7 +667,7 @@
   "show_seed": "แสดงซีด",
   "sign_message": "ลงนามข้อความ",
   "sign_up": "สมัครสมาชิก",
-  "sign_verify_message": "ลงชื่อเข้าใช้หรือตรวจสอบข้อความ",
+  "sign_verify_message": "ลงชื่อ / ตรวจสอบ",
   "sign_verify_message_sub": "ลงชื่อเข้าใช้หรือตรวจสอบข้อความโดยใช้คีย์ส่วนตัวของคุณ",
   "sign_verify_title": "ลงชื่อ / ตรวจสอบ",
   "signature": "ลายเซ็น",

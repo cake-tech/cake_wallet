@@ -668,7 +668,7 @@
   "show_seed": "Show seed",
   "sign_message": "Sign Message",
   "sign_up": "Sign Up",
-  "sign_verify_message": "Sign or verify message",
+  "sign_verify_message": "Sign / Verify",
   "sign_verify_message_sub": "Sign or verify a message using your private key",
   "sign_verify_title": "Sign / Verify",
   "signature": "Signature",

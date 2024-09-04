@@ -667,7 +667,7 @@
   "show_seed": "Visualiser la phrase secrète (seed)",
   "sign_message": "Signer le message",
   "sign_up": "S'inscrire",
-  "sign_verify_message": "Signer ou vérifier le message",
+  "sign_verify_message": "Signe / vérifier",
   "sign_verify_message_sub": "Signez ou vérifiez un message en utilisant votre clé privée",
   "sign_verify_title": "Signe / vérifier",
   "signature": "Signature",

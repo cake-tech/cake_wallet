@@ -669,7 +669,7 @@
   "show_seed": "Mostra seme",
   "sign_message": "Messaggio di firma",
   "sign_up": "Registrati",
-  "sign_verify_message": "Firmare o verificare il messaggio",
+  "sign_verify_message": "Firmare / verificare",
   "sign_verify_message_sub": "Firma o verifica un messaggio utilizzando la chiave privata",
   "sign_verify_title": "Firmare / verificare",
   "signature": "Firma",

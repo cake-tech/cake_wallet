@@ -668,7 +668,7 @@
   "show_seed": "シードを表示",
   "sign_message": "署名メッセージ",
   "sign_up": "サインアップ",
-  "sign_verify_message": "メッセージに署名または確認します",
+  "sign_verify_message": "署名 /検証",
   "sign_verify_message_sub": "秘密鍵を使用してメッセージに署名または確認します",
   "sign_verify_title": "署名 /検証",
   "signature": "サイン",

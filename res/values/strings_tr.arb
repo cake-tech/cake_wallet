@@ -667,7 +667,7 @@
   "show_seed": "Tohumları göster",
   "sign_message": "İşaret mesajı",
   "sign_up": "Kaydol",
-  "sign_verify_message": "Mesajı işaretleyin veya doğrulayın",
+  "sign_verify_message": "İşaretle / Doğrula",
   "sign_verify_message_sub": "Özel anahtarınızı kullanarak bir mesajı imzalayın veya doğrulayın",
   "sign_verify_title": "İşaretle / Doğrula",
   "signature": "İmza",

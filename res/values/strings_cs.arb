@@ -667,7 +667,7 @@
   "show_seed": "Zobrazit seed",
   "sign_message": "Podepsat zprávu",
   "sign_up": "Registrovat se",
-  "sign_verify_message": "Podepište nebo ověřte zprávu",
+  "sign_verify_message": "Podepsat / ověřit",
   "sign_verify_message_sub": "Podepište nebo ověřte zprávu pomocí soukromého klíče",
   "sign_verify_title": "Podepsat / ověřit",
   "signature": "Podpis",

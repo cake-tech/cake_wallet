@@ -667,7 +667,7 @@
   "show_seed": "Ipakita ang seed",
   "sign_message": "Mag -sign Message",
   "sign_up": "Mag-sign Up",
-  "sign_verify_message": "Mag -sign o i -verify ang mensahe",
+  "sign_verify_message": "Mag -sign / Mag -verify",
   "sign_verify_message_sub": "Mag -sign o i -verify ang isang mensahe gamit ang iyong pribadong key",
   "sign_verify_title": "Mag -sign / Mag -verify",
   "signature": "Lagda",

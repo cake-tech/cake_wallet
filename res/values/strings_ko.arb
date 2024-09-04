@@ -668,7 +668,7 @@
   "show_seed": "종자 표시",
   "sign_message": "서명 메시지",
   "sign_up": "가입",
-  "sign_verify_message": "메시지에 서명하거나 확인하십시오",
+  "sign_verify_message": "서명 / 확인",
   "sign_verify_message_sub": "개인 키를 사용하여 메시지에 서명하거나 확인하십시오",
   "sign_verify_title": "서명 / 확인",
   "signature": "서명",

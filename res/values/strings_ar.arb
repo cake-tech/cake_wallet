@@ -667,7 +667,7 @@
   "show_seed": "عرض السييد",
   "sign_message": "تسجيل رسالة",
   "sign_up": "اشتراك",
-  "sign_verify_message": "توقيع أو التحقق من الرسالة",
+  "sign_verify_message": "تسجيل / تحقق",
   "sign_verify_message_sub": "قم بتوقيع أو التحقق من رسالة باستخدام المفتاح الخاص بك",
   "sign_verify_title": "تسجيل / تحقق",
   "signature": "إمضاء",

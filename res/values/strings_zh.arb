@@ -667,7 +667,7 @@
   "show_seed": "显示种子",
   "sign_message": "标志消息",
   "sign_up": "注册",
-  "sign_verify_message": "签名或验证消息",
+  "sign_verify_message": "签名 /验证",
   "sign_verify_message_sub": "使用您的私钥签名或验证消息",
   "sign_verify_title": "签名 /验证",
   "signature": "签名",
