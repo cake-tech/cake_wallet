@@ -635,7 +635,7 @@ abstract class WalletAddressListViewModelBase
       final expireAfter = 60 * 5; // 5 minutes
       final res = await bitcoin!.buildV2PjStr(
           address: address.address,
-          isTestnet: wallet.isTestnet ?? false,
+          isTestnet: wallet.isTestnet,
           expireAfter: expireAfter);
       payjoinUri = res['pjUri'] as String;
       session = res['session'] as ActiveSession;
@@ -646,7 +646,6 @@ abstract class WalletAddressListViewModelBase
       // Poll for requests made by the sender to this payjoin uri
       final requestProposal = await bitcoin!.pollV2Request(session!);
 
-/*
       // Handle the request and send back the payjoin proposal
       final handleV2 = await bitcoin!.handleV2Request(
         uncheckedProposal: requestProposal,
@@ -666,7 +665,7 @@ abstract class WalletAddressListViewModelBase
         originalTxId: originalTxId,
         proposalTxId: proposalTxId,
       );
-*/
+
       disposePayjoinSession();
     } catch (e) {
       if (e is PayjoinException) {

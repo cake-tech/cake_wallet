@@ -633,6 +633,7 @@ class CWBitcoin extends Bitcoin {
     dynamic pjUri,
     int fee,
     double amount,
+    Object credentials,
   ) async {
     final res = await payjoin.buildOriginalPsbt(
       wallet,
@@ -640,6 +641,7 @@ class CWBitcoin extends Bitcoin {
       fee,
       amount,
       isTestnet(wallet),
+      credentials,
     );
 
     return res;
@@ -668,11 +670,16 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<Object> extractPjTx(
+  Future<PendingBitcoinTransaction> extractPjTx(
     Object wallet,
     String psbtString,
+    Object credentials,
   ) async {
-    final res = await payjoin.extractPjTx(wallet, psbtString);
+    final res = await payjoin.extractPjTx(
+      wallet,
+      psbtString,
+      credentials,
+    );
     return res;
   }
 }

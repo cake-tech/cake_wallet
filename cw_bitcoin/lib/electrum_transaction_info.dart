@@ -46,7 +46,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.to = to;
   }
 
-  factory ElectrumTransactionInfo.fromElectrumVerbose(Map<String, Object> obj, WalletType type,
+  factory ElectrumTransactionInfo.fromElectrumVerbose(
+      Map<String, Object> obj, WalletType type,
       {required List<BitcoinAddressRecord> addresses, required int height}) {
     final addressesSet = addresses.map((addr) => addr.address).toSet();
     final id = obj['txid'] as String;
@@ -64,8 +65,10 @@ class ElectrumTransactionInfo extends TransactionInfo {
     for (dynamic vin in vins) {
       final vout = vin['vout'] as int;
       final out = vin['tx']['vout'][vout] as Map;
-      final outAddresses = (out['scriptPubKey']['addresses'] as List<Object>?)?.toSet();
-      inputsAmount += stringDoubleToBitcoinAmount((out['value'] as double? ?? 0).toString());
+      final outAddresses =
+          (out['scriptPubKey']['addresses'] as List<Object>?)?.toSet();
+      inputsAmount += stringDoubleToBitcoinAmount(
+          (out['value'] as double? ?? 0).toString());
 
       if (outAddresses?.intersection(addressesSet).isNotEmpty ?? false) {
         direction = TransactionDirection.outgoing;
@@ -73,9 +76,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
     }
 
     for (dynamic out in vout) {
-      final outAddresses = out['scriptPubKey']['addresses'] as List<Object>? ?? [];
+      final outAddresses =
+          out['scriptPubKey']['addresses'] as List<Object>? ?? [];
       final ntrs = outAddresses.toSet().intersection(addressesSet);
-      final value = stringDoubleToBitcoinAmount((out['value'] as double? ?? 0.0).toString());
+      final value = stringDoubleToBitcoinAmount(
+          (out['value'] as double? ?? 0.0).toString());
       totalOutAmount += value;
 
       if ((direction == TransactionDirection.incoming && ntrs.isNotEmpty) ||
@@ -97,9 +102,21 @@ class ElectrumTransactionInfo extends TransactionInfo {
         confirmations: confirmations);
   }
 
+  static bool isMine(
+    Script script,
+    BasedUtxoNetwork network, {
+    required Set<String> addresses,
+  }) {
+    final derivedAddress = addressFromOutputScript(script, network);
+    return addresses.contains(derivedAddress);
+  }
+
   factory ElectrumTransactionInfo.fromElectrumBundle(
-      ElectrumTransactionBundle bundle, WalletType type, BasedUtxoNetwork network,
-      {required Set<String> addresses, int? height}) {
+      ElectrumTransactionBundle bundle,
+      WalletType type,
+      BasedUtxoNetwork network,
+      {required Set<String> addresses,
+      int? height}) {
     final date = bundle.time != null
         ? DateTime.fromMillisecondsSinceEpoch(bundle.time! * 1000)
         : DateTime.now();
@@ -115,16 +132,19 @@ class ElectrumTransactionInfo extends TransactionInfo {
       final inputTransaction = bundle.ins[i];
       final outTransaction = inputTransaction.outputs[input.txIndex];
       inputAmount += outTransaction.amount.toInt();
-      if (addresses.contains(addressFromOutputScript(outTransaction.scriptPubKey, network))) {
+      if (addresses.contains(
+          addressFromOutputScript(outTransaction.scriptPubKey, network))) {
         direction = TransactionDirection.outgoing;
-        inputAddresses.add(addressFromOutputScript(outTransaction.scriptPubKey, network));
+        inputAddresses
+            .add(addressFromOutputScript(outTransaction.scriptPubKey, network));
       }
     }
 
     final receivedAmounts = <int>[];
     for (final out in bundle.originalTransaction.outputs) {
       totalOutAmount += out.amount.toInt();
-      final addressExists = addresses.contains(addressFromOutputScript(out.scriptPubKey, network));
+      final addressExists = addresses
+          .contains(addressFromOutputScript(out.scriptPubKey, network));
       outputAddresses.add(addressFromOutputScript(out.scriptPubKey, network));
 
       if (addressExists) {
@@ -157,7 +177,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
         confirmations: bundle.confirmations);
   }
 
-  factory ElectrumTransactionInfo.fromJson(Map<String, dynamic> data, WalletType type) {
+  factory ElectrumTransactionInfo.fromJson(
+      Map<String, dynamic> data, WalletType type) {
     final inputAddresses = data['inputAddresses'] as List<dynamic>? ?? [];
     final outputAddresses = data['outputAddresses'] as List<dynamic>? ?? [];
     final unspents = data['unspents'] as List<dynamic>? ?? [];
@@ -172,14 +193,16 @@ class ElectrumTransactionInfo extends TransactionInfo {
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       isPending: data['isPending'] as bool,
       confirmations: data['confirmations'] as int,
-      inputAddresses:
-          inputAddresses.isEmpty ? [] : inputAddresses.map((e) => e.toString()).toList(),
-      outputAddresses:
-          outputAddresses.isEmpty ? [] : outputAddresses.map((e) => e.toString()).toList(),
+      inputAddresses: inputAddresses.isEmpty
+          ? []
+          : inputAddresses.map((e) => e.toString()).toList(),
+      outputAddresses: outputAddresses.isEmpty
+          ? []
+          : outputAddresses.map((e) => e.toString()).toList(),
       to: data['to'] as String?,
       unspents: unspents
-          .map((unspent) =>
-              BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
+          .map((unspent) => BitcoinSilentPaymentsUnspent.fromJSON(
+              null, unspent as Map<String, dynamic>))
           .toList(),
     );
   }

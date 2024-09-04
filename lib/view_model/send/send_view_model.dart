@@ -754,6 +754,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
       pjUri,
       feeRate,
       double.parse(amountToSend!),
+      _credentials(),
     );
 
     // Build the Payjoin request context from the original PSBT
@@ -776,10 +777,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
     }
 
     // If a proposal is received, finalize the payjoin
-    final transaction = await bitcoin!.extractPjTx(wallet, psbt);
+    final transaction = await bitcoin!.extractPjTx(
+      wallet,
+      psbt,
+      _credentials(),
+    );
 
     // Broadcast the finalized transaction to the blockchain
-    final txId = await blockchain.broadcast(transaction: transaction);
+    // final txId = await blockchain.broadcast(transaction: transaction);
+    await transaction.commit();
+
+    final txId = transaction.id;
 
     // TODO: Reset the Payjoin session state
   }
