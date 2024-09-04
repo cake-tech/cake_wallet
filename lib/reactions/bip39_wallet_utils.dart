@@ -6,6 +6,7 @@ bool isBIP39Wallet(WalletType walletType) {
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.bitcoin:
         return true;
       default:
         return false;
