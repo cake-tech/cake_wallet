@@ -57,19 +57,21 @@ class PreExistingSeedBody extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      ...preExistingSeedsViewModel.wallets.entries.map(
-                        (entry) {
+                      ...preExistingSeedsViewModel.wallets.map(
+                        (group) {
                           return GroupedWalletExpansionTile(
                             leadingWidget: Image.asset(
-                              walletTypeToCryptoCurrency(entry.key.type).iconPath!,
+                              walletTypeToCryptoCurrency(group.leadWallet!.type).iconPath!,
                               width: 32,
                               height: 32,
                             ),
-                            title: entry.key.name,
-                            childWallets: entry.value,
-                            isSelected:
-                                preExistingSeedsViewModel.selectedWallet?.name == entry.key.name,
-                            onTap: () => preExistingSeedsViewModel.selectWallet(entry.key),
+                            title: group.leadWallet!.name,
+                            childWallets: group.wallets.map((walletInfo) {
+                              return preExistingSeedsViewModel
+                                  .convertWalletInfoToWalletListItem(walletInfo);
+                            }).toList(),
+                            isSelected: preExistingSeedsViewModel.selectedWalletGroup == group,
+                            onTap: () => preExistingSeedsViewModel.selectWalletGroup(group),
                           );
                         },
                       ).toList(),
@@ -90,9 +92,9 @@ class PreExistingSeedBody extends StatelessWidget {
               text: S.of(context).seed_language_next,
               color: Theme.of(context).primaryColor,
               textColor: Colors.white,
-              isDisabled: (preExistingSeedsViewModel.selectedWallet == null &&
+              isDisabled: (preExistingSeedsViewModel.selectedWalletGroup == null &&
                       !preExistingSeedsViewModel.useNewSeed) ||
-                  (preExistingSeedsViewModel.selectedWallet != null &&
+                  (preExistingSeedsViewModel.selectedWalletGroup != null &&
                       preExistingSeedsViewModel.useNewSeed),
             );
           }),

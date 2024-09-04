@@ -1,11 +1,11 @@
 import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
+import 'package:cake_wallet/entities/wallet_group.dart';
+import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'pre_existing_seeds_view_model.g.dart';
@@ -15,25 +15,25 @@ class PreExistingSeedsViewModel = PreExistingSeedsViewModelBase with _$PreExisti
 abstract class PreExistingSeedsViewModelBase with Store {
   PreExistingSeedsViewModelBase(
     this._appStore,
-    this._walletInfoSource,
-    this._walletLoadingService, {
+    this._walletLoadingService,
+    this._walletManager, {
     required this.type,
   })  : useNewSeed = false,
-        wallets = ObservableMap<WalletListItem, List<WalletListItem>>() {
+        wallets = ObservableList<WalletGroup>() {
     reaction((_) => _appStore.wallet, (_) => updateWalletInfoSourceList());
     updateWalletInfoSourceList();
   }
 
   final WalletType type;
   final AppStore _appStore;
-  final Box<WalletInfo> _walletInfoSource;
+  final WalletManager _walletManager;
   final WalletLoadingService _walletLoadingService;
 
   @observable
-  ObservableMap<WalletListItem, List<WalletListItem>> wallets;
+  ObservableList<WalletGroup> wallets;
 
   @observable
-  WalletListItem? selectedWallet;
+  WalletGroup? selectedWalletGroup;
 
   @observable
   bool useNewSeed;
@@ -43,9 +43,12 @@ abstract class PreExistingSeedsViewModelBase with Store {
 
   @action
   Future<String?> getSelectedWalletMnemonic() async {
-    if (selectedWallet == null) return null;
+    if (selectedWalletGroup == null) return null;
 
-    final wallet = await _walletLoadingService.load(selectedWallet!.type, selectedWallet!.name);
+    final wallet = await _walletLoadingService.load(
+      selectedWalletGroup!.leadWallet!.type,
+      selectedWalletGroup!.leadWallet!.name,
+    );
 
     parentAddress = wallet.walletAddresses.address;
 
@@ -53,110 +56,60 @@ abstract class PreExistingSeedsViewModelBase with Store {
   }
 
   @action
-  void selectWallet(WalletListItem wallet) {
-    selectedWallet = wallet;
+  void selectWalletGroup(WalletGroup wallet) {
+    selectedWalletGroup = wallet;
     useNewSeed = false;
   }
 
   @action
   void selectNewSeed() {
     useNewSeed = true;
-    selectedWallet = null;
+    selectedWalletGroup = null;
   }
 
   @action
   void updateWalletInfoSourceList() {
     wallets.clear();
 
-    // Separate lists for parent and child wallets
-    List<WalletInfo> parentWallets = [];
-    List<WalletInfo> childWallets = [];
+    _walletManager.updateWalletGroups();
 
-    // Get a list of all wallet info objects
-    final walletInfos = _walletInfoSource.values.toList();
+    final walletGroups = _walletManager.walletGroups;
 
-    // Categorize wallets as parent or child based on criteria
-    for (var walletInfo in walletInfos) {
-      if (isBIP39Wallet(walletInfo.type) && walletInfo.parentAddress == null) {
-        parentWallets.add(walletInfo);
-      } else {
-        childWallets.add(walletInfo);
-      }
-    }
+    // Iterate through the wallet groups to filter and categorize wallets
+    for (var group in walletGroups) {
+      // Get the lead wallet (which could be the parent or the first child wallet)
+      WalletInfo? leadWalletInfo = group.leadWallet;
 
-    // Filter out parent wallets that don't meet the additional criteria
-    parentWallets = parentWallets.where((parentWallet) {
-      // Condition 1: The parent wallet should not be of the same type as the selected wallet type
-      bool isSameTypeAsSelectedWallet = parentWallet.type == type;
+      // If no lead wallet, skip this group
+      if (leadWalletInfo == null) continue;
 
-      // Condition 2: The parent wallet should not have been used to create the selected type before
-      bool isUsedSeed = _walletInfoSource.values.any(
-        (info) =>  info.type == type && info.parentAddress == parentWallet.address,
+      // Check if the lead wallet meets the filtering criteria
+      bool isSameTypeAsSelectedWallet = leadWalletInfo.type == type;
+
+      bool isUsedSeed = _walletManager.walletGroups.any(
+        (walletGroup) => walletGroup.wallets.any(
+          (info) => info.type == type && info.parentAddress == leadWalletInfo.address,
+        ),
       );
 
-      // Exclude wallets that meet either condition
-      return !isSameTypeAsSelectedWallet && !isUsedSeed;
-    }).toList();
+      // Exclude wallets that don't meet the criteria
+      if (isSameTypeAsSelectedWallet || isUsedSeed) continue;
 
-    // // Handle deletion of a parent wallet: promote its child to parent if no other parent wallet exists for that child
-    // for (var parentWallet in parentWallets) {
-    //   // Get the children of this specific parent wallet
-    //   final childrenOfParent =
-    //       childWallets.where((child) => child.parentAddress == parentWallet.address).toList();
+      // Remove the lead wallet from the list of child wallets
+      group.wallets.removeWhere((wallet) => wallet.name == group.leadWallet!.name);
 
-    //   // If there are no parent wallets left for this child wallet's parent address, promote the child
-    //   if (childrenOfParent.isNotEmpty) {
-    //     for (var childWallet in childrenOfParent) {
-    //       final parentExists =
-    //           parentWallets.any((parent) => parent.address == childWallet.parentAddress);
-
-    //       // If no parent exists for this child, promote it to a parent wallet
-    //       if (!parentExists) {
-    //         // Promote the child wallet by making its parentAddress null
-    //         final promotedChild = childWallet.copyWith(parentAddress: null);
-    //         parentWallets.add(promotedChild);
-
-    //         // Update _walletInfoSource to reflect the promotion
-    //         _walletInfoSource[promotedChild.key] = promotedChild;
-
-    //         // Remove the promoted wallet from the childWallets list
-    //         childWallets.remove(childWallet);
-    //       }
-    //     }
-    //   }
-    // }
-
-    // Map to link parent wallets to their respective child wallets
-    Map<WalletListItem, List<WalletListItem>> parentToChildWalletMap = {};
-
-    for (var parentWallet in parentWallets) {
-      final parent = WalletListItem(
-        name: parentWallet.name,
-        type: parentWallet.type,
-        key: parentWallet.key,
-        isCurrent: parentWallet.name == _appStore.wallet?.name &&
-            parentWallet.type == _appStore.wallet?.type,
-        isEnabled: availableWalletTypes.contains(parentWallet.type),
-      );
-
-      // Find child wallets associated with the current parent wallet
-      final associatedChildWallets = childWallets
-          .where((childWallet) => childWallet.parentAddress == parentWallet.address)
-          .map((childWalletInfo) => WalletListItem(
-                name: childWalletInfo.name,
-                type: childWalletInfo.type,
-                key: childWalletInfo.key,
-                isCurrent: childWalletInfo.name == _appStore.wallet?.name &&
-                    childWalletInfo.type == _appStore.wallet?.type,
-                isEnabled: availableWalletTypes.contains(childWalletInfo.type),
-              ))
-          .toList();
-
-      // Add the parent-child wallet relationship to the map
-      parentToChildWalletMap[parent] = associatedChildWallets;
+      // If the group passes the filters, add it to the wallets list
+      wallets.add(group);
     }
+  }
 
-    // Add all the mapped wallets to the main map
-    wallets.addAll(parentToChildWalletMap);
+  WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) {
+    return WalletListItem(
+      name: info.name,
+      type: info.type,
+      key: info.key,
+      isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
+      isEnabled: availableWalletTypes.contains(info.type),
+    );
   }
 }

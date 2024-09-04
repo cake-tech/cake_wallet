@@ -31,6 +31,7 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
@@ -373,11 +374,13 @@ Future<void> setup({
 
   getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
 
+  getIt.registerSingleton<WalletManager>(WalletManager(_walletInfoSource));
+
   getIt.registerFactoryParam<PreExistingSeedsViewModel, WalletType, void>(
     (type, _) => PreExistingSeedsViewModel(
       getIt.get<AppStore>(),
-      _walletInfoSource,
       getIt.get<WalletLoadingService>(),
+      getIt.get<WalletManager>(),
       type: type,
     ),
   );

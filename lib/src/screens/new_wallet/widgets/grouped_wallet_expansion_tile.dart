@@ -57,6 +57,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
           iconColor: effectiveArrowColor,
           collapsedIconColor: effectiveArrowColor,
           leading: leadingWidget,
+          trailing: childWallets.isEmpty ? SizedBox.shrink() : null,
           title: GestureDetector(
             onTap: onTap,
             child: Text(
@@ -72,32 +73,20 @@ class GroupedWalletExpansionTile extends StatelessWidget {
           children: childWallets.map(
             (item) {
               final walletTypeToCrypto = walletTypeToCryptoCurrency(item.type);
-              return GestureDetector(
+              return ListTile(
                 onTap: item.onTap ?? onTap,
-                child: Container(
-                  padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-                  margin: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Row(
-                      children: [
-                        Image.asset(
-                          walletTypeToCrypto.iconPath!,
-                          width: 32,
-                          height: 32,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          item.name,
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: effectiveTextColor,
-                          ),
-                        ),
-                      ],
-                    ),
+                leading: Image.asset(
+                  walletTypeToCrypto.iconPath!,
+                  width: 32,
+                  height: 32,
+                ),
+                title: Text(
+                  item.name,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: effectiveTextColor,
                   ),
                 ),
               );
