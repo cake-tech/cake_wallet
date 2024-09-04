@@ -165,10 +165,10 @@ class Quote extends SelectableOption {
     final fees = json['fees'] as Map<String, dynamic>;
     return Quote(
       rate: isBuyAction ? rate : 1 / rate,
-      feeAmount: json['feeAmount'] as double? ?? 0.0,
-      networkFee: fees['network'] as double? ?? 0.0,
-      transactionFee: fees['rate'] as double? ?? 0.0,
-      payout: json['payout'] as double? ?? 0.0,
+      feeAmount: _toDouble(json['feeAmount']) ?? 0.0,
+      networkFee: _toDouble(fees['networkFee']) ?? 0.0,
+      transactionFee: _toDouble(fees['rate']) ?? 0.0,
+      payout: _toDouble(json['payout']) ?? 0.0,
       paymentMethod: json['paymentMethod'] as String? ?? '',
       recommendations: [ProviderRecommendation.lowKyc],
       provider: ProvidersHelper.getProviderByType(providerType)!,

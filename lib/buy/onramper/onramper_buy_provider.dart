@@ -6,10 +6,8 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -23,16 +21,12 @@ class OnRamperBuyProvider extends BuyProvider {
       : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
 
   static const _baseUrl = 'buy.onramper.com';
-
   static const _baseApiUrl = 'api.onramper.com';
-
-  static const authorization = 'pk_prod_01HETEQF46GSK6BS5JWKDF31BT';
-
   static const quotes = '/quotes';
-
   static const paymentTypes = '/payment-types';
-
   static const supported = '/supported';
+
+  String get _apiKey => secrets.onramperApiKey;
 
   final SettingsStore _settingsStore;
 
@@ -51,94 +45,19 @@ class OnRamperBuyProvider extends BuyProvider {
   @override
   bool get isAggregator => true;
 
-  String get _apiKey => secrets.onramperApiKey;
-
-  String get _normalizeCryptoCurrency {
-    switch (wallet.currency) {
-      case CryptoCurrency.ltc:
-        return "LTC_LITECOIN";
-      case CryptoCurrency.xmr:
-        return "XMR_MONERO";
-      case CryptoCurrency.bch:
-        return "BCH_BITCOINCASH";
-      case CryptoCurrency.nano:
-        return "XNO_NANO";
-      default:
-        return wallet.currency.title;
-    }
-  }
-
-  String getColorStr(Color color) {
-    return color.value.toRadixString(16).replaceAll(RegExp(r'^ff'), "");
-  }
-
-  Uri requestOnramperUrl(BuildContext context, bool? isBuyAction) {
-    String primaryColor,
-        secondaryColor,
-        primaryTextColor,
-        secondaryTextColor,
-        containerColor,
-        cardColor;
-
-    primaryColor = getColorStr(Theme.of(context).primaryColor);
-    secondaryColor = getColorStr(Theme.of(context).colorScheme.background);
-    primaryTextColor = getColorStr(Theme.of(context).extension<CakeTextTheme>()!.titleColor);
-    secondaryTextColor =
-        getColorStr(Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor);
-    containerColor = getColorStr(Theme.of(context).colorScheme.background);
-    cardColor = getColorStr(Theme.of(context).cardColor);
-
-    if (_settingsStore.currentTheme.title == S.current.high_contrast_theme) {
-      cardColor = getColorStr(Colors.white);
-    }
-
-    final networkName = wallet.currency.fullName?.toUpperCase().replaceAll(" ", "");
-
-    return Uri.https(_baseUrl, '', <String, dynamic>{
-      'apiKey': _apiKey,
-      'defaultCrypto': _normalizeCryptoCurrency,
-      'sell_defaultCrypto': _normalizeCryptoCurrency,
-      'networkWallets': '${networkName}:${wallet.walletAddresses.address}',
-      'supportSwap': "false",
-      'primaryColor': primaryColor,
-      'secondaryColor': secondaryColor,
-      'primaryTextColor': primaryTextColor,
-      'secondaryTextColor': secondaryTextColor,
-      'containerColor': containerColor,
-      'cardColor': cardColor,
-      'mode': isBuyAction == true ? 'buy' : 'sell',
-    });
-  }
-
-  // Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
-  //   final uri = requestOnramperUrl(context, isBuyAction);
-  //   if (DeviceInfo.instance.isMobile) {
-  //     Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
-  //   } else {
-  //     await launchUrl(uri);
-  //   }
-  // }
-
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
       String fiatCurrency, String cryptoCurrency, bool isBuyAction) async {
     final params = {
       'fiatCurrency': fiatCurrency,
       'type': isBuyAction ? 'buy' : 'sell',
-      'isRecurringPayment': 'false',
+      'isRecurringPayment': 'false'
     };
 
-    final path = '$supported$paymentTypes/$fiatCurrency';
-
-    final url = Uri.https(_baseApiUrl, path, params);
+    final url = Uri.https(_baseApiUrl, '$supported$paymentTypes/$fiatCurrency', params);
 
     try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': authorization,
-          'accept': 'application/json',
-        },
-      );
+      final response =
+          await http.get(url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -160,13 +79,8 @@ class OnRamperBuyProvider extends BuyProvider {
     final url = Uri.https(_baseApiUrl, '$supported/onramps/all');
 
     try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': authorization,
-          'accept': 'application/json',
-        },
-      );
+      final response =
+          await http.get(url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -209,6 +123,9 @@ class OnRamperBuyProvider extends BuyProvider {
 
     final actionType = isBuyAction ? 'buy' : 'sell';
 
+    final normalizedSourceCurrency = _getNormalizeCryptoCurrency(sourceCurrency);
+    final normalizedDestinationCurrency = _getNormalizeCryptoCurrency(destinationCurrency);
+
     final params = {
       'amount': amount.toString(),
       if (paymentMethod != null) 'paymentMethod': paymentMethod,
@@ -219,11 +136,12 @@ class OnRamperBuyProvider extends BuyProvider {
       'isRecurringPayment': 'false',
       'input': 'source',
     };
-    log('Onramper: Fetching $actionType quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
-    final path = '$quotes/$sourceCurrency/$destinationCurrency';
-    final url = Uri.https(_baseApiUrl, path, params);
-    final headers = {'Authorization': authorization, 'accept': 'application/json'};
+    log('Onramper: Fetching $actionType quote: $normalizedSourceCurrency -> $normalizedDestinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
+
+    final url = Uri.https(
+        _baseApiUrl, '$quotes/$normalizedSourceCurrency/$normalizedDestinationCurrency', params);
+    final headers = {'Authorization': _apiKey, 'accept': 'application/json'};
 
     try {
       final response = await http.get(url, headers: headers);
@@ -276,22 +194,73 @@ class OnRamperBuyProvider extends BuyProvider {
       paymentMethodString = 'creditcard';
     }
 
-    print('Onramper: Launching  paymentMethod: $paymentMethodString ');
+    final primaryColor = getColorStr(Theme.of(context).primaryColor);
+    final secondaryColor = getColorStr(Theme.of(context).colorScheme.background);
+    final primaryTextColor = getColorStr(Theme.of(context).extension<CakeTextTheme>()!.titleColor);
+    final secondaryTextColor =
+        getColorStr(Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor);
+    final containerColor = getColorStr(Theme.of(context).colorScheme.background);
+    var cardColor = getColorStr(Theme.of(context).cardColor);
+
+    if (_settingsStore.currentTheme.title == S.current.high_contrast_theme) {
+      cardColor = getColorStr(Colors.white);
+    }
+
+    final networkName = wallet.currency.fullName?.toUpperCase().replaceAll(" ", "");
+
+    final defaultFiat = isBuyAction
+        ? _getNormalizeCryptoCurrency(quote.sourceCurrency)
+        : _getNormalizeCryptoCurrency(quote.destinationCurrency);
+    final defaultCrypto = isBuyAction
+        ? _getNormalizeCryptoCurrency(quote.destinationCurrency)
+        : _getNormalizeCryptoCurrency(quote.sourceCurrency);
 
     final uri = Uri.https(_baseUrl, '', {
       'apiKey': _apiKey,
       'mode': actionType,
-      '${prefix}defaultFiat': isBuyAction ? quote.sourceCurrency : quote.destinationCurrency,
-      '${prefix}defaultCrypto': isBuyAction ? quote.destinationCurrency : quote.sourceCurrency,
+      '${prefix}defaultFiat': defaultFiat,
+      '${prefix}defaultCrypto': defaultCrypto,
       '${prefix}defaultAmount': amount.toString(),
       '${prefix}defaultPaymentMethod': paymentMethodString,
       'onlyOnramps': quote.rampId,
+      'networkWallets': '${networkName}:${wallet.walletAddresses.address}',
+      'supportSwap': "false",
+      'primaryColor': primaryColor,
+      'secondaryColor': secondaryColor,
+      'containerColor': containerColor,
+      'primaryTextColor': primaryTextColor,
+      'secondaryTextColor': secondaryTextColor,
+      'cardColor': cardColor,
     });
 
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       throw Exception('Could not launch URL');
+    }
+  }
+
+  String _getNormalizeCryptoCurrency(String currencyTitle) {
+    //TODO: make it for all currencies
+    switch (currencyTitle) {
+      case 'LTC':
+        return "LTC_LITECOIN";
+      case 'XMR':
+        return "XMR_MONERO";
+      case 'BCH':
+        return "BCH_BITCOINCASH";
+      case 'XNO':
+        return "XNO_NANO";
+      case 'ADA':
+        return "ADA_CARDANO";
+      case 'DAI':
+        return "DAI_ETHEREUM";
+      case 'MATIC':
+        return "MATIC_POLYGON";
+      case 'TRX':
+        return "TRX_TRON";
+      default:
+        return currencyTitle;
     }
   }
 
@@ -343,4 +312,6 @@ class OnRamperBuyProvider extends BuyProvider {
         return null;
     }
   }
+
+  String getColorStr(Color color) => color.value.toRadixString(16).replaceAll(RegExp(r'^ff'), "");
 }

@@ -12,11 +12,9 @@ import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -88,14 +86,9 @@ class MoonPayProvider extends BuyProvider {
   Future<String> getMoonpaySignature(String query) async {
     final uri = Uri.https(_cIdBaseUrl, "/api/moonpay");
 
-    final response = await post(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': _exchangeHelperApiKey,
-      },
-      body: json.encode({'query': query}),
-    );
+    final response = await post(uri,
+        headers: {'Content-Type': 'application/json', 'x-api-key': _exchangeHelperApiKey},
+        body: json.encode({'query': query}));
 
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['signature'] as String;
@@ -372,7 +365,6 @@ class MoonPayProvider extends BuyProvider {
       required String walletAddress,
       PaymentType? paymentType,
       String? countryCode}) async {
-
     String? paymentMethod;
     if (paymentType != null) {
       paymentMethod = normalizePaymentMethod(paymentType);
@@ -443,7 +435,6 @@ class MoonPayProvider extends BuyProvider {
       'lockAmount': 'false',
       'showAllCurrencies': 'false',
       'showWalletAddressForm': 'false',
-
     };
 
     if (isBuyAction) extraParams['currencyCode'] = quote.destinationCurrency;
@@ -468,7 +459,7 @@ class MoonPayProvider extends BuyProvider {
       }
 
       if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         throw Exception('Could not launch URL');
       }

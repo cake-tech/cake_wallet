@@ -7,10 +7,8 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -44,39 +42,14 @@ class DFXBuyProvider extends BuyProvider {
   @override
   bool get isAggregator => false;
 
-  String get assetOut {
-    switch (wallet.type) {
-      case WalletType.bitcoin:
-        return 'BTC';
-      case WalletType.bitcoinCash:
-        return 'BCH';
-      case WalletType.litecoin:
-        return 'LTC';
-      case WalletType.monero:
-        return 'XMR';
-      case WalletType.ethereum:
-        return 'ETH';
-      case WalletType.polygon:
-        return 'MATIC';
-      default:
-        throw Exception("WalletType is not available for DFX ${wallet.type}");
-    }
-  }
-
   String get blockchain {
     switch (wallet.type) {
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
       case WalletType.litecoin:
         return 'Bitcoin';
-      case WalletType.monero:
-        return 'Monero';
-      case WalletType.ethereum:
-        return 'Ethereum';
-      case WalletType.polygon:
-        return 'Polygon';
       default:
-        throw Exception("WalletType is not available for DFX ${wallet.type}");
+        return walletTypeToString(wallet.type);
     }
   }
 
@@ -102,7 +75,8 @@ class DFXBuyProvider extends BuyProvider {
   // }
 
   Future<String> auth() async {
-    final signMessage = await getSignature(await getSignMessage());
+    final signMessage = await getSignature(
+        await getSignMessage()); //TODO: Sign message does not work for LTC and BCH
 
     final requestBody = jsonEncode({
       'wallet': walletName,
@@ -144,59 +118,6 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  // @override
-  // Future<void> launchProvider(BuildContext context, bool? isBuyAction) async {
-  //   if (wallet.isHardwareWallet) {
-  //     if (!ledgerVM!.isConnected) {
-  //       await Navigator.of(context).pushNamed(Routes.connectDevices,
-  //           arguments: ConnectDevicePageParams(
-  //               walletType: wallet.walletInfo.type,
-  //               onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
-  //                 ledgerVM.setLedger(wallet);
-  //                 Navigator.of(context).pop();
-  //               }));
-  //     } else {
-  //       ledgerVM!.setLedger(wallet);
-  //     }
-  //   }
-  //
-  //   try {
-  //     final assetOut = this.assetOut;
-  //     final blockchain = this.blockchain;
-  //     final actionType = isBuyAction == true ? '/buy' : '/sell';
-  //
-  //     final accessToken = await auth();
-  //
-  //     final uri = Uri.https('services.dfx.swiss', actionType, {
-  //       'session': accessToken,
-  //       'lang': 'en',
-  //       'asset-out': assetOut,
-  //       'blockchain': blockchain,
-  //       'asset-in': 'EUR',
-  //     });
-  //
-  //     if (await canLaunchUrl(uri)) {
-  //       if (DeviceInfo.instance.isMobile) {
-  //         Navigator.of(context).pushNamed(Routes.webViewPage, arguments: [title, uri]);
-  //       } else {
-  //         await launchUrl(uri, mode: LaunchMode.externalApplication);
-  //       }
-  //     } else {
-  //       throw Exception('Could not launch URL');
-  //     }
-  //   } catch (e) {
-  //     await showPopUp<void>(
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertWithOneAction(
-  //               alertTitle: "DFX.swiss",
-  //               alertContent: S.of(context).buy_provider_unavailable + ': $e',
-  //               buttonText: S.of(context).ok,
-  //               buttonAction: () => Navigator.of(context).pop());
-  //         });
-  //   }
-  // }
-
   Future<Map<String, dynamic>> fetchFiatCredentials(String fiatCurrency) async {
     final url = Uri.https(_baseUrl, '/v1/fiat');
 
@@ -221,9 +142,7 @@ class DFXBuyProvider extends BuyProvider {
   }
 
   Future<Map<String, dynamic>> fetchAssetCredential(String assetsName) async {
-    final blockchain = CryptoCurrency.fromString(assetsName);
-
-    final url = Uri.https(_baseUrl, '/v1/asset', {'blockchains': blockchain.fullName});
+    final url = Uri.https(_baseUrl, '/v1/asset', {'blockchains': blockchain});
 
     try {
       final response = await http.get(url, headers: {'accept': 'application/json'});
@@ -236,7 +155,7 @@ class DFXBuyProvider extends BuyProvider {
         } else if (responseData is Map<String, dynamic>) {
           return responseData;
         } else {
-          log('DFX: Does not support this asset name : ${blockchain.fullName}');
+          log('DFX: Does not support this asset name : ${blockchain}');
         }
       } else {
         log('DFX: Failed to fetch assets: ${response.statusCode}');
@@ -326,24 +245,17 @@ class DFXBuyProvider extends BuyProvider {
         await fetchAssetCredential(isBuyAction ? destinationCurrency : sourceCurrency);
     if (assetCredentials['id'] == null) return null;
 
-    log('DFX: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
+    log('DFX: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
     final url = Uri.parse('https://$_baseUrl/v1/$action/quote');
-    final headers = {
-      'accept': 'application/json',
-      'Content-Type': 'application/json',
-    };
+    final headers = {'accept': 'application/json', 'Content-Type': 'application/json'};
     final body = jsonEncode({
-      'currency': {
-        'id': fiatCredentials['id'] as int,
-      },
-      'asset': {
-        'id': assetCredentials['id'],
-      },
+      'currency': {'id': fiatCredentials['id'] as int},
+      'asset': {'id': assetCredentials['id']},
       'amount': amount,
       'targetAmount': 0,
       if (paymentMethod != null) 'paymentMethod': paymentMethod,
-      'discountCode': '',
+      'discountCode': ''
     });
 
     try {
@@ -398,9 +310,6 @@ class DFXBuyProvider extends BuyProvider {
 
     try {
       final actionType = isBuyAction ? '/buy' : '/sell';
-      final blockchain =
-          CryptoCurrency.fromString(isBuyAction ? quote.destinationCurrency : quote.sourceCurrency)
-              .fullName;
 
       final accessToken = await auth();
 
@@ -410,6 +319,7 @@ class DFXBuyProvider extends BuyProvider {
         'asset-out': quote.destinationCurrency,
         'blockchain': blockchain,
         'asset-in': quote.sourceCurrency,
+        'amount': amount.toString() //TODO: Amount does not work
       });
 
       if (await canLaunchUrl(uri)) {
