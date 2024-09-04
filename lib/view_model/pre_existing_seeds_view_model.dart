@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
+import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
@@ -83,10 +84,13 @@ abstract class PreExistingSeedsViewModelBase with Store {
       // If no lead wallet, skip this group
       if (leadWalletInfo == null) continue;
 
-      // Check if the lead wallet meets the filtering criteria
+      if (!isBIP39Wallet(leadWalletInfo.type)) continue;
+
+      // Check if the lead wallet type is not the same as the selected type
       bool isSameTypeAsSelectedWallet = leadWalletInfo.type == type;
 
-      bool isUsedSeed = _walletManager.walletGroups.any(
+      // Check if the any of the child wallets in the group has the same type as the selected type
+      bool isUsedSeed = walletGroups.any(
         (walletGroup) => walletGroup.wallets.any(
           (info) => info.type == type && info.parentAddress == leadWalletInfo.address,
         ),
