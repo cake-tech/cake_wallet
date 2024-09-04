@@ -1,4 +1,3 @@
-import 'package:convert/convert.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/utils.dart';
@@ -8,10 +7,88 @@ import 'package:cw_mweb/cw_mweb.dart';
 import 'package:cw_mweb/mwebd.pb.dart';
 import 'package:mobx/mobx.dart';
 
+import 'dart:typed_data';
+import 'package:bech32/bech32.dart';
+import 'package:r_crypto/r_crypto.dart';
+
 part 'litecoin_wallet_addresses.g.dart';
 
-class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalletAddresses;
 
+
+
+class Keychain {
+  final ECPrivate scan;
+  ECPrivate? spend;
+  ECPublic? spendPubKey;
+
+
+  Keychain({required this.scan, this.spend, this.spendPubKey}) {
+    if (this.spend != null) {
+      spendPubKey = this.spend!.getPublic();
+    }
+  }
+
+
+  static const HashTagAddress = 'A';
+
+  ECPrivate mi(int index) {
+    final input = BytesBuilder();
+
+    // Write HashTagAddress to the input
+    input.addByte(HashTagAddress.codeUnitAt(0));
+
+    // Write index to the input in little endian
+    final indexBytes = Uint8List(4);
+    final byteData = ByteData.view(indexBytes.buffer);
+    byteData.setUint32(0, index, Endian.little);
+    input.add(indexBytes);
+
+    // Write scan to the input
+    input.add(scan.prive.raw);
+
+    // Hash the input using Blake3 with a length of 32 bytes
+    final hash = rHash.hashString(HashType.blake3(length: 32), input.toString());
+
+    // Return the hash digest
+    var res = Uint8List.fromList(hash);
+    return ECPrivate.fromBytes(res);
+  }
+
+  Keychain address(int index) {
+
+    final miPub = this.mi(index).getPublic();
+    final Bi = spendPubKey!.pubkeyAdd(miPub);
+    final Ai = Bi.pubkeyMult(ECPublic.fromBytes(scan.toBytes()));
+    // final miPubKey = ECCurve_secp256k1().G * BigInt.parse(hex.encode(mi), radix: 16);
+    // final Bi = spendPubKey + miPubKey;
+    // return Uint8List.fromList(Ai.getEncoded(compressed: true) + Bi.getEncoded(compressed: true));
+    final AiPriv = ECPrivate.fromBytes(Ai.toBytes());
+    final BiPriv = ECPrivate.fromBytes(Bi.toBytes());
+
+    return Keychain(scan: AiPriv, spend: BiPriv);
+  }
+
+  String addressString(int index) {
+    final address = this.address(index);
+    List<int> bytes = [];
+    bytes.addAll(address.scan.toBytes());
+    bytes.addAll(address.spend!.toBytes());
+    return encodeMwebAddress(bytes);
+  }
+
+  // Uint8List spendKey(int index) {
+  //   final mi = this.mi(index);
+  //   final spendKey = spend + ECCurve_secp256k1().G * BigInt.parse(hex.encode(mi), radix: 16);
+  //   return spendKey.getEncoded(compressed: true);
+  // }
+
+  String encodeMwebAddress(List<int> scriptPubKey) {
+    return bech32.encode(Bech32("ltcmweb", scriptPubKey));
+  }
+}
+
+
+class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalletAddresses;
 abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
@@ -40,21 +117,34 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       mwebHd.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
 
   List<String> mwebAddrs = [];
+  List<String> oldMwebAddrs = [];
+
 
   Future<void> topUpMweb(int index) async {
     final stub = await CwMweb.stub();
-    while (mwebAddrs.length - index < 1000) {
-      final length = mwebAddrs.length;
+    while (oldMwebAddrs.length - index < 1000) {
+      final length = oldMwebAddrs.length;
       final resp = await stub.addresses(AddressRequest(
         fromIndex: length,
         toIndex: index + 1000,
         scanSecret: scanSecret,
         spendPubkey: spendPubkey,
       ));
-      if (mwebAddrs.length == length) {
-        mwebAddrs.addAll(resp.address);
+      if (oldMwebAddrs.length == length) {
+        oldMwebAddrs.addAll(resp.address);
       }
     }
+
+
+    Keychain k = Keychain(scan: ECPrivate.fromBytes(scanSecret), spendPubKey: ECPublic.fromBytes(spendPubkey),);
+
+
+    for (int i = 0; i < 10; i++) {
+      final address = k.addressString(i + 1000);
+      mwebAddrs.add(address);
+    }
+    print("old function: ${oldMwebAddrs.first} new function!: ${mwebAddrs.first}");
+
   }
 
   @override
