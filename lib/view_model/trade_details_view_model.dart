@@ -90,7 +90,7 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.quantex:
         return 'https://myquantex.com/send/${trade.id}';
       case ExchangeProviderDescription.letsExchange:
-        return 'https://letsexchange.io/transaction-status';
+        return 'https://letsexchange.io/?transactionId=${trade.id}';
     }
     return null;
   }
