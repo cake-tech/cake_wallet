@@ -26,7 +26,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
   static const _exchangesPath = '/v4/exchanges';
 
   @override
-  String get title => 'StealthEx';
+  String get title => 'StealthEX';
 
   @override
   bool get isAvailable => true;
