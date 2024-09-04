@@ -19,4 +19,14 @@ class MethodChannelCwMweb extends CwMwebPlatform {
   Future<void> stop() async {
     await methodChannel.invokeMethod<void>('stop');
   }
+
+  @override
+  Future<String?> address(String scanSecret, String spendPub, int index) async {
+    final result = await methodChannel.invokeMethod<String>('address', {
+      'scanSecret': scanSecret,
+      'spendPub': spendPub,
+      'index': index,
+    });
+    return result;
+  }
 }

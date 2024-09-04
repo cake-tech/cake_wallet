@@ -40,6 +40,12 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
       server = null
       port = null
       result.success(null)
+    } else if (call.method == "address") {
+      val scanSecret: String = call.argument<String>("scanSecret") ?: ""
+      val spendPub: String = call.argument<String>("spendPub") ?: ""
+      val index: Int = call.argument<Int>("index") ?: 0
+      val res = Mwebd.addressIndex(scanSecret, spendPub)
+      result.success(res)
     } else {
       result.notImplemented()
     }

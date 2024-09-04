@@ -53,6 +53,15 @@ class CwMweb {
     await cleanup();
   }
 
+  static Future<String?> address(String scanSecret, String spendPub, int index) async {
+    // try {
+    //   return (await CwMwebPlatform.instance.address(scan, spendPub, index))!;
+    // } catch (e) {
+    //   print("error generating address!: $e");
+    // }
+    return CwMwebPlatform.instance.address(scanSecret, spendPub, index);
+  }
+
   static Future<void> cleanup() async {
     await _clientChannel?.terminate();
     _rpcClient = null;

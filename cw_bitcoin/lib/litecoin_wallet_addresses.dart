@@ -1,4 +1,6 @@
+import 'package:bech32/bech32.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:blockchain_utils/bech32/bech32_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -7,88 +9,91 @@ import 'package:cw_mweb/cw_mweb.dart';
 import 'package:cw_mweb/mwebd.pb.dart';
 import 'package:mobx/mobx.dart';
 
-import 'dart:typed_data';
-import 'package:bech32/bech32.dart';
-import 'package:r_crypto/r_crypto.dart';
+// import 'dart:typed_data';
+// import 'package:bech32/bech32.dart';
+// import 'package:r_crypto/r_crypto.dart';
 
 part 'litecoin_wallet_addresses.g.dart';
 
+// class Keychain {
+//   // ECPrivate scan;
+//   // ECPrivate? spend;
+//   ECPrivate scan;
+//   ECPrivate? spend;
+//   ECPublic? spendPubKey;
 
+//   Keychain({required this.scan, this.spend, this.spendPubKey}) {
+//     if (this.spend != null) {
+//       spendPubKey = this.spend!.getPublic();
+//     }
+//   }
 
+//   static const HashTagAddress = 'A';
 
-class Keychain {
-  final ECPrivate scan;
-  ECPrivate? spend;
-  ECPublic? spendPubKey;
+//   ECPrivate mi(int index) {
+//     final input = BytesBuilder();
 
+//     // Write HashTagAddress to the input
+//     input.addByte(HashTagAddress.codeUnitAt(0));
 
-  Keychain({required this.scan, this.spend, this.spendPubKey}) {
-    if (this.spend != null) {
-      spendPubKey = this.spend!.getPublic();
-    }
-  }
+//     // Write index to the input in little endian
+//     final indexBytes = Uint8List(4);
+//     final byteData = ByteData.view(indexBytes.buffer);
+//     byteData.setUint32(0, index, Endian.little);
+//     input.add(indexBytes);
 
+//     // Write scan to the input
+//     input.add(scan.prive.raw);
 
-  static const HashTagAddress = 'A';
+//     // Hash the input using Blake3 with a length of 32 bytes
+//     final hash = rHash.hashString(HashType.blake3(length: 32), input.toString());
 
-  ECPrivate mi(int index) {
-    final input = BytesBuilder();
+//     // Return the hash digest
+//     var res = Uint8List.fromList(hash);
+//     return ECPrivate.fromBytes(res);
+//   }
 
-    // Write HashTagAddress to the input
-    input.addByte(HashTagAddress.codeUnitAt(0));
+//   Keychain address(int index) {
 
-    // Write index to the input in little endian
-    final indexBytes = Uint8List(4);
-    final byteData = ByteData.view(indexBytes.buffer);
-    byteData.setUint32(0, index, Endian.little);
-    input.add(indexBytes);
+//     final miPub = this.mi(index).getPublic();
+//     final Bi = spendPubKey!.pubkeyAdd(miPub);
+//     // final Ai = Bi.pubkeyMult(ECPublic.fromBytes(scan.toBytes()));
+//     final Ai = Bi.tweakMul(scan.toBigInt());
 
-    // Write scan to the input
-    input.add(scan.prive.raw);
+//     // final miPubKey = ECCurve_secp256k1().G * BigInt.parse(hex.encode(mi), radix: 16);
+//     // final Bi = spendPubKey + miPubKey;
+//     // return Uint8List.fromList(Ai.getEncoded(compressed: true) + Bi.getEncoded(compressed: true));
+//     final AiPriv = ECPrivate.fromBytes(Ai.toBytes());
+//     final BiPriv = ECPrivate.fromBytes(Bi.toBytes());
 
-    // Hash the input using Blake3 with a length of 32 bytes
-    final hash = rHash.hashString(HashType.blake3(length: 32), input.toString());
+//     return Keychain(scan: AiPriv, spend: BiPriv);
+//   }
 
-    // Return the hash digest
-    var res = Uint8List.fromList(hash);
-    return ECPrivate.fromBytes(res);
-  }
+//   String addressString(int index) {
+//     final address = this.address(index);
+//     List<int> bytes = [];
+//     bytes.addAll(address.scan.toBytes());
+//     bytes.addAll(address.spend!.toBytes());
+//     return encodeMwebAddress(bytes);
+//   }
 
-  Keychain address(int index) {
+//   // Uint8List spendKey(int index) {
+//   //   final mi = this.mi(index);
+//   //   final spendKey = spend + ECCurve_secp256k1().G * BigInt.parse(hex.encode(mi), radix: 16);
+//   //   return spendKey.getEncoded(compressed: true);
+//   // }
 
-    final miPub = this.mi(index).getPublic();
-    final Bi = spendPubKey!.pubkeyAdd(miPub);
-    final Ai = Bi.pubkeyMult(ECPublic.fromBytes(scan.toBytes()));
-    // final miPubKey = ECCurve_secp256k1().G * BigInt.parse(hex.encode(mi), radix: 16);
-    // final Bi = spendPubKey + miPubKey;
-    // return Uint8List.fromList(Ai.getEncoded(compressed: true) + Bi.getEncoded(compressed: true));
-    final AiPriv = ECPrivate.fromBytes(Ai.toBytes());
-    final BiPriv = ECPrivate.fromBytes(Bi.toBytes());
+//   String encodeMwebAddress(List<int> scriptPubKey) {
+//     return bech32.encode(Bech32("ltcmweb", scriptPubKey));
+//   }
+// }
 
-    return Keychain(scan: AiPriv, spend: BiPriv);
-  }
-
-  String addressString(int index) {
-    final address = this.address(index);
-    List<int> bytes = [];
-    bytes.addAll(address.scan.toBytes());
-    bytes.addAll(address.spend!.toBytes());
-    return encodeMwebAddress(bytes);
-  }
-
-  // Uint8List spendKey(int index) {
-  //   final mi = this.mi(index);
-  //   final spendKey = spend + ECCurve_secp256k1().G * BigInt.parse(hex.encode(mi), radix: 16);
-  //   return spendKey.getEncoded(compressed: true);
-  // }
-
-  String encodeMwebAddress(List<int> scriptPubKey) {
-    return bech32.encode(Bech32("ltcmweb", scriptPubKey));
-  }
+String encodeMwebAddress(List<int> scriptPubKey) {
+  return bech32.encode(Bech32("ltcmweb1", scriptPubKey), 250);
 }
 
-
 class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalletAddresses;
+
 abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
@@ -119,7 +124,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   List<String> mwebAddrs = [];
   List<String> oldMwebAddrs = [];
 
-
   Future<void> topUpMweb(int index) async {
     final stub = await CwMweb.stub();
     while (oldMwebAddrs.length - index < 1000) {
@@ -135,16 +139,19 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       }
     }
 
-
-    Keychain k = Keychain(scan: ECPrivate.fromBytes(scanSecret), spendPubKey: ECPublic.fromBytes(spendPubkey),);
-
+    // Keychain k = Keychain(scan: ECPrivate.fromBytes(scanSecret), spendPubKey: ECPublic.fromBytes(spendPubkey),);
 
     for (int i = 0; i < 10; i++) {
-      final address = k.addressString(i + 1000);
+      // final address = k.addressString(i + 1000);
+      final addressHex =
+          await CwMweb.address(hex.encode(scanSecret), hex.encode(spendPubkey), index);
+      // print(addressHex);
+      // print(hex.decode(addressHex!).length);
+      // return;
+      final address = encodeMwebAddress(hex.decode(addressHex!));
       mwebAddrs.add(address);
     }
     print("old function: ${oldMwebAddrs.first} new function!: ${mwebAddrs.first}");
-
   }
 
   @override

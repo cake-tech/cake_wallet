@@ -30,4 +30,8 @@ abstract class CwMwebPlatform extends PlatformInterface {
   Future<void> stop() {
     throw UnimplementedError('stop() has not been implemented.');
   }
+
+  Future<String?> address(String scanSecret, String spendPub, int index) {
+    throw UnimplementedError('address(int) has not been implemented.');
+  }
 }
