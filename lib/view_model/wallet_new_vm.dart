@@ -85,13 +85,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             password: walletPassword,
             isPolyseed: options.last as bool);
       case WalletType.bitcoin:
-        return bitcoin!.createBitcoinNewWalletCredentials(
-          name: name,
-          password: walletPassword,
-          passphrase: passphrase,
-          mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
-        );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(
           name: name,
@@ -120,7 +113,11 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.nano:
       case WalletType.banano:
-        return nano!.createNanoNewWalletCredentials(name: name);
+        return nano!.createNanoNewWalletCredentials(
+          name: name,
+          mnemonic: newWalletArguments!.mnemonic,
+          parentAddress: newWalletArguments!.parentAddress,
+        );
       case WalletType.polygon:
         return polygon!.createPolygonNewWalletCredentials(
           name: name,

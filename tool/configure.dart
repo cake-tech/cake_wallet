@@ -1103,6 +1103,8 @@ abstract class Nano {
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
     String? password,
+    String? mnemonic,
+    String? parentAddress,
   });
   
   WalletCredentials createNanoRestoreWalletFromSeedCredentials({
