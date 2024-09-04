@@ -33,6 +33,7 @@ enum PaymentType {
   pixInstantPayment,
   yellowCardBankTransfer,
   fiatBalance,
+  bancontact,
   unknown
 }
 
@@ -99,6 +100,8 @@ extension PaymentTypeTitle on PaymentType {
         return 'Yellow Card Bank Transfer';
       case PaymentType.fiatBalance:
         return 'Fiat Balance';
+      case PaymentType.bancontact:
+        return 'Bancontact';
       default:
         return null;
     }
@@ -107,11 +110,15 @@ extension PaymentTypeTitle on PaymentType {
   String? get iconPath {
     switch (this) {
       case PaymentType.all:
-        return 'assets/images/dollar_coin.svg';
+        return 'assets/images/usd-circle.svg';
       case PaymentType.creditCard:
       case PaymentType.debitCard:
       case PaymentType.yellowCardBankTransfer:
         return 'assets/images/card.svg';
+      case PaymentType.bankTransfer:
+        return 'assets/images/bank.png';
+      case PaymentType.skrill:
+        return 'assets/images/skrill.svg';
       default:
         return null;
     }
@@ -260,6 +267,8 @@ class PaymentMethod extends SelectableOption {
         return PaymentType.paypal;
       case 'sepa_open_banking_payment':
         return PaymentType.sepaOpenBankingPayment;
+      case 'bancontact':
+        return PaymentType.bancontact;
       default:
         return PaymentType.unknown;
     }

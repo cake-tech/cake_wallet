@@ -343,7 +343,7 @@ class MoonPayProvider extends BuyProvider {
     if (isBuyAction) {
       final fiatBuyCredentials = await fetchFiatCredentials(fiatCurrency, cryptoCurrency, null);
       if (fiatBuyCredentials.isNotEmpty) {
-        final paymentMethod = fiatBuyCredentials['paymentMethods'] as String?;
+        final paymentMethod = fiatBuyCredentials['paymentMethod'] as String?;
         paymentMethods
             .add(PaymentMethod.fromMoonPayJson(fiatBuyCredentials, getPaymentType(paymentMethod)));
         return paymentMethods;
