@@ -15,10 +15,10 @@ class PaymentMethodOptionsPage extends SelectOptionsPage {
   EdgeInsets? get contentPadding => null;
 
   @override
-  EdgeInsets? get tilePadding => EdgeInsets.only(top: 8);
+  EdgeInsets? get tilePadding => EdgeInsets.only(top: 12);
 
   @override
-  EdgeInsets? get innerPadding => EdgeInsets.symmetric(horizontal: 8, vertical: 12);
+  EdgeInsets? get innerPadding => EdgeInsets.symmetric(horizontal: 24, vertical: 12);
 
   @override
   double? get imageHeight => null;

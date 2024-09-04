@@ -73,89 +73,94 @@ class ProviderOptionTile extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         width: double.infinity,
-        padding: padding,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(borderRadius ?? 12)),
           border:  isSelected && !isLightMode ? Border.all(color: textColor) : null,
           color: backgroundColor,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              children: [
-                getImage(imagePath, height: imageHeight, width: imageWidth),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Container(
-                    child: Row(
-                      children: [
-                        Expanded(
-                            child: Text(title,
-                                style: titleTextStyle ?? textLargeBold(color: textColor))),
-                        Row(
-                          children: [
-                            if (leadingIcon != null) Icon(leadingIcon, size: 16, color: textColor),
-                          ],
-                        )
-                      ],
+        child: Padding(
+          padding: padding ?? const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  getImage(imagePath, height: imageHeight, width: imageWidth),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Container(
+                      child: Row(
+                        children: [
+                          Expanded(
+                              child: Text(title,
+                                  style: titleTextStyle ?? textLargeBold(color: textColor))),
+                          Row(
+                            children: [
+                              if (leadingIcon != null) Icon(leadingIcon, size: 16, color: textColor),
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            if (leftSubTitle != null || rightSubTitle != null)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  leftSubTitle != null || leftSubTitleIconPath != null
-                      ? Row(
-                          children: [
-                            if (leftSubTitleIconPath != null && leftSubTitleIconPath!.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 4),
-                                child: getImage(leftSubTitleIconPath!, height: 16, width: 16),
-                              ),
-                            Text(
-                              leftSubTitle ?? '',
-                              style: subTitleTextStyle ??
-                                  TextStyle(
-                                      fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
-                            ),
-                          ],
-                        )
-                      : Container(),
-                  rightSubTitle != null || rightSubTitleIconPath != null
-                      ? Row(
-                          children: [
-                            if (rightSubTitleIconPath != null && rightSubTitleIconPath!.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 4),
-                                child: getImage(rightSubTitleIconPath!, imageColor: textColor),
-                              ),
-                            Text(
-                              rightSubTitle ?? '',
-                              style: subTitleTextStyle ??
-                                  TextStyle(
-                                      fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
-                            ),
-                          ],
-                        )
-                      : Container(),
                 ],
               ),
-            if (badges != null && badges!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Row(children: [
-                  ...badges!
-                      .map((badge) =>
-                          Badge(title: badge, textColor: badgeTextColor, backgroundColor: badgeColor))
-                      .toList()
-                ]),
-              )
-          ],
+              if (leftSubTitle != null || rightSubTitle != null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    leftSubTitle != null || leftSubTitleIconPath != null
+                        ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                              children: [
+                                if (leftSubTitleIconPath != null && leftSubTitleIconPath!.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 6),
+                                    child: getImage(leftSubTitleIconPath!),
+                                  ),
+                                Text(
+                                  leftSubTitle ?? '',
+                                  style: subTitleTextStyle ??
+                                      TextStyle(
+                                          fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+                                ),
+                              ],
+                            ),
+                        )
+                        : Container(),
+                    rightSubTitle != null || rightSubTitleIconPath != null
+                        ? Row(
+                            children: [
+                              if (rightSubTitleIconPath != null && rightSubTitleIconPath!.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 4),
+                                  child: getImage(rightSubTitleIconPath!, imageColor: textColor),
+                                ),
+                              Text(
+                                rightSubTitle ?? '',
+                                style: subTitleTextStyle ??
+                                    TextStyle(
+                                        fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ],
+                ),
+              if (badges != null && badges!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Row(children: [
+                    ...badges!
+                        .map((badge) =>
+                            Badge(title: badge, textColor: badgeTextColor, backgroundColor: badgeColor))
+                        .toList()
+                  ]),
+                )
+            ],
+          ),
         ),
       ),
     );
@@ -392,7 +397,7 @@ class _OptionTilePlaceholderState extends State<OptionTilePlaceholder>
                         ),
                         if (widget.withSubtitle)
                           Padding(
-                            padding: EdgeInsets.only(top: 8),
+                            padding: EdgeInsets.symmetric(vertical: 8),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [

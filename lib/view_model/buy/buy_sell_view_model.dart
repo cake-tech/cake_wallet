@@ -211,7 +211,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     if (bestRateQuote == null) {
       cryptoAmount = S.current.fetching;
-      await calculateBestRate();
     }
 
     if (bestRateQuote != null) {
@@ -221,6 +220,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           .toString()
           .replaceAll(RegExp('\\,'), '');
     }
+
+    await calculateBestRate();
   }
 
   @action
@@ -237,7 +238,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     if (bestRateQuote == null) {
       fiatAmount = S.current.fetching;
-      await calculateBestRate();
     }
 
     if (bestRateQuote != null) {
@@ -246,6 +246,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           .toString()
           .replaceAll(RegExp('\\,'), '');
     }
+    await calculateBestRate();
   }
 
   @action

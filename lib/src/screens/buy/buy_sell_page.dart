@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_
 import 'package:cake_wallet/src/screens/exchange/widgets/exchange_card.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -184,7 +183,7 @@ class BuySellPage extends BasePage {
           withBadge: false,
           withSubtitle: false,
           borderRadius: 30,
-          padding: EdgeInsets.fromLTRB(8, 12, 24, 12),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           leadingIcon: Icons.arrow_forward_ios,
           isDarkTheme: buySellViewModel.isDarkTheme);
     }
@@ -201,7 +200,7 @@ class BuySellPage extends BasePage {
           onPressed: () => _pickPaymentMethod(context),
           leadingIcon: Icons.arrow_forward_ios,
           borderRadius: 30,
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           titleTextStyle:
           textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
         );
@@ -218,7 +217,7 @@ class BuySellPage extends BasePage {
           borderRadius: 30,
           imageWidth: 50,
           imageHeight: 50,
-          padding: EdgeInsets.fromLTRB(8, 12, 24, 24),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           isDarkTheme: buySellViewModel.isDarkTheme);
     }
     if (buySellViewModel.buySellQuotState is BuySellQuotLoaded &&
@@ -236,7 +235,7 @@ class BuySellPage extends BasePage {
             onPressed: () => _pickQuote(context),
             leadingIcon: Icons.arrow_forward_ios,
             borderRadius: 30,
-            padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             titleTextStyle:
                 textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor));
       });
