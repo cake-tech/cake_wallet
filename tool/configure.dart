@@ -1021,7 +1021,7 @@ abstract class BitcoinCash {
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
 
   WalletCredentials createBitcoinCashNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo, String? password, String? passphrase});
+      {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic, String? parentAddress});
 
   WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
       {required String name, required String mnemonic, required String password, String? passphrase});

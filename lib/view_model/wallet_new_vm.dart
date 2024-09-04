@@ -115,6 +115,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
           passphrase: passphrase,
+          mnemonic: newWalletArguments!.mnemonic,
+          parentAddress: newWalletArguments!.parentAddress,
         );
       case WalletType.nano:
       case WalletType.banano:
