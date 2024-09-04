@@ -94,7 +94,12 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(
-            name: name, password: walletPassword, passphrase: passphrase);
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+          mnemonic: newWalletArguments!.mnemonic,
+          parentAddress: newWalletArguments!.parentAddress,
+        );
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
             name: name, language: options!.first as String, password: walletPassword);
