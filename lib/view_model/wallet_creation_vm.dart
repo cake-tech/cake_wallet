@@ -97,7 +97,7 @@ abstract class WalletCreationVMBase with Store {
         dirPath: dirPath,
         address: '',
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
-        derivationInfo: credentials.derivationInfo ?? getDefaultDerivation(),
+        derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
         hardwareWalletType: credentials.hardwareWalletType,
         parentAddress: credentials.parentAddress,
       );
@@ -117,7 +117,7 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
-  DerivationInfo? getDefaultDerivation() {
+  DerivationInfo? getDefaultCreateDerivation() {
     final useBip39 = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.bip39;
     switch (type) {
       case WalletType.nano:
@@ -148,10 +148,14 @@ abstract class WalletCreationVMBase with Store {
   }
 
   DerivationInfo? getCommonRestoreDerivation() {
+    final useElectrum = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.electrum;
     switch (this.type) {
       case WalletType.nano:
         return DerivationInfo(derivationType: DerivationType.nano);
       case WalletType.bitcoin:
+        if (useElectrum) {
+          return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+        }
         return DerivationInfo(
           derivationType: DerivationType.bip39,
           derivationPath: "m/84'/0'/0'/0",
@@ -159,6 +163,9 @@ abstract class WalletCreationVMBase with Store {
           scriptType: "p2wpkh",
         );
       case WalletType.litecoin:
+        if (useElectrum) {
+          return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+        }
         return DerivationInfo(
           derivationType: DerivationType.bip39,
           derivationPath: "m/84'/2'/0'/0",
