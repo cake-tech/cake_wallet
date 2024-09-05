@@ -38,8 +38,9 @@ class WalletEditPage extends BasePage {
   final WalletEditViewModel walletEditViewModel;
 
   @override
-  String get title =>
-      pageArguments.isWalletGroup ? 'Edit Group Name' : S.current.wallet_list_edit_wallet;
+  String get title => pageArguments.isWalletGroup
+      ? S.current.wallet_list_edit_group_name
+      : S.current.wallet_list_edit_wallet;
 
   Flushbar<void>? _progressBar;
 
