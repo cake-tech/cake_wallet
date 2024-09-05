@@ -14,6 +14,7 @@ import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class EditTokenPage extends BasePage {
   EditTokenPage({
@@ -170,7 +171,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
           children: [
             if (_showDisclaimer) ...[
               Text(
-                'Do not send funds to this address!!!\n\nThis is just an identifier for the token, any funds sent to this address will be lost.\n\nNOTE: Cake would never ask you to add a contract address!',
+                S.current.do_not_send_funds_to_contract_address_warning,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14.0,
@@ -187,82 +188,84 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               ),
               SizedBox(height: 20),
             ],
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: PrimaryButton(
-                    onPressed: () async {
-                      if (widget.token != null) {
-                        await widget.homeSettingsViewModel.deleteToken(widget.token!);
-                      }
-                      Navigator.pop(context);
-                    },
-                    text: widget.token != null ? S.of(context).delete : S.of(context).cancel,
-                    color: Colors.red,
-                    textColor: Colors.white,
-                  ),
-                ),
-                SizedBox(width: 20),
-                Expanded(
-                  child: PrimaryButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate() &&
-                          (!_showDisclaimer || _disclaimerChecked)) {
-                        final hasPotentialError = await widget.homeSettingsViewModel
-                            .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
-                          _contractAddressController.text,
-                        );
-                        final actionCall = () async {
-                          await widget.homeSettingsViewModel.addToken(
-                            token: CryptoCurrency(
-                              name: _tokenNameController.text,
-                              title: _tokenSymbolController.text.toUpperCase(),
-                              decimals: int.parse(_tokenDecimalController.text),
-                              iconPath: _tokenIconPathController.text,
-                            ),
-                            contractAddress: _contractAddressController.text,
-                          );
-                        };
-
-                        if (hasPotentialError) {
-                          showPopUp<void>(
-                            context: context,
-                            builder: (dialogContext) {
-                              return AlertWithTwoActions(
-                                alertTitle: 'Warning: Suspicious Token Address Detected',
-                                alertContent:
-                                    '''The contract address you are trying to add for a new ERC20 token has been flagged as potentially risky. This token may be associated with fraudulent activity.\n\n'''
-                                    ''' - Unverified Contract: This contract may not be verified, or its verification status is questionable.\n\n'''
-                                    ''' - Suspicious Activity: Unusual transaction patterns have been detected, suggesting possible fraudulent behavior.\n\n'''
-                                    '''Please proceed with caution. We recommend thoroughly researching this token and ensuring its legitimacy before adding it to your app. If you are unsure, it may be safer not to add this token.\n\n'''
-                                    '''Stay Safe: Always double-check token details and avoid interacting with suspicious contracts.''',
-                                rightButtonText: S.of(context).continue_text,
-                                leftButtonText: S.of(context).cancel,
-                                actionRightButton: () async {
-                                  Navigator.of(dialogContext).pop();
-                                  await actionCall();
-                                  if (mounted) {
-                                    Navigator.pop(context);
-                                  }
-                                },
-                                actionLeftButton: () => Navigator.of(dialogContext).pop(),
-                              );
-                            },
-                          );
-                        } else {
-                          await actionCall();
-                          if (mounted) {
-                            Navigator.pop(context);
+            Observer(
+              builder: (context) {
+                return Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: LoadingPrimaryButton(
+                        isLoading: widget.homeSettingsViewModel.isDeletingToken,
+                        onPressed: () async {
+                          if (widget.token != null) {
+                            await widget.homeSettingsViewModel.deleteToken(widget.token!);
                           }
-                        }
-                      }
-                    },
-                    text: S.of(context).save,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
-                  ),
-                ),
-              ],
+                          Navigator.pop(context);
+                        },
+                        text: widget.token != null ? S.of(context).delete : S.of(context).cancel,
+                        color: Colors.red,
+                        textColor: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    Expanded(
+                      child: LoadingPrimaryButton(
+                        isLoading: widget.homeSettingsViewModel.isAddingToken ||
+                            widget.homeSettingsViewModel.isValidatingContractAddress,
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate() &&
+                              (!_showDisclaimer || _disclaimerChecked)) {
+                            final hasPotentialError = await widget.homeSettingsViewModel
+                                .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
+                              _contractAddressController.text,
+                            );
+                            final actionCall = () async {
+                              await widget.homeSettingsViewModel.addToken(
+                                token: CryptoCurrency(
+                                  name: _tokenNameController.text,
+                                  title: _tokenSymbolController.text.toUpperCase(),
+                                  decimals: int.parse(_tokenDecimalController.text),
+                                  iconPath: _tokenIconPathController.text,
+                                ),
+                                contractAddress: _contractAddressController.text,
+                              );
+                            };
+
+                            if (hasPotentialError) {
+                              showPopUp<void>(
+                                context: context,
+                                builder: (dialogContext) {
+                                  return AlertWithTwoActions(
+                                    alertTitle: S.current.suspicious_token_detected_alert_title,
+                                    alertContent: S.current.suspicious_token_detected,
+                                    rightButtonText: S.of(context).continue_text,
+                                    leftButtonText: S.of(context).cancel,
+                                    actionRightButton: () async {
+                                      Navigator.of(dialogContext).pop();
+                                      await actionCall();
+                                      if (mounted) {
+                                        Navigator.pop(context);
+                                      }
+                                    },
+                                    actionLeftButton: () => Navigator.of(dialogContext).pop(),
+                                  );
+                                },
+                              );
+                            } else {
+                              await actionCall();
+                              if (mounted) {
+                                Navigator.pop(context);
+                              }
+                            }
+                          }
+                        },
+                        text: S.of(context).save,
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),

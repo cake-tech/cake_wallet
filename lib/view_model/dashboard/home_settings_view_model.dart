@@ -26,7 +26,10 @@ class HomeSettingsViewModel = HomeSettingsViewModelBase with _$HomeSettingsViewM
 
 abstract class HomeSettingsViewModelBase with Store {
   HomeSettingsViewModelBase(this._settingsStore, this._balanceViewModel)
-      : tokens = ObservableSet<CryptoCurrency>() {
+      : tokens = ObservableSet<CryptoCurrency>(),
+        isAddingToken = false,
+        isDeletingToken = false,
+        isValidatingContractAddress = false {
     _updateTokensList();
   }
 
@@ -34,6 +37,15 @@ abstract class HomeSettingsViewModelBase with Store {
   final BalanceViewModel _balanceViewModel;
 
   final ObservableSet<CryptoCurrency> tokens;
+
+  @observable
+  bool isAddingToken;
+
+  @observable
+  bool isDeletingToken;
+
+  @observable
+  bool isValidatingContractAddress;
 
   @observable
   String searchText = '';
@@ -53,96 +65,114 @@ abstract class HomeSettingsViewModelBase with Store {
   @action
   void setPinNativeToken(bool value) => _settingsStore.pinNativeTokenAtTop = value;
 
+  @action
   Future<void> addToken({
     required String contractAddress,
     required CryptoCurrency token,
   }) async {
-    if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-      final erc20token = Erc20Token(
-        name: token.name,
-        symbol: token.title,
-        decimal: token.decimals,
-        contractAddress: contractAddress,
-        iconPath: token.iconPath,
-      );
+    try {
+      isAddingToken = true;
+      if (_balanceViewModel.wallet.type == WalletType.ethereum) {
+        final erc20token = Erc20Token(
+          name: token.name,
+          symbol: token.title,
+          decimal: token.decimals,
+          contractAddress: contractAddress,
+          iconPath: token.iconPath,
+        );
 
-      await ethereum!.addErc20Token(_balanceViewModel.wallet, erc20token);
+        await ethereum!.addErc20Token(_balanceViewModel.wallet, erc20token);
+      }
+
+      if (_balanceViewModel.wallet.type == WalletType.polygon) {
+        final polygonToken = Erc20Token(
+          name: token.name,
+          symbol: token.title,
+          decimal: token.decimals,
+          contractAddress: contractAddress,
+          iconPath: token.iconPath,
+        );
+        await polygon!.addErc20Token(_balanceViewModel.wallet, polygonToken);
+      }
+
+      if (_balanceViewModel.wallet.type == WalletType.solana) {
+        await solana!.addSPLToken(
+          _balanceViewModel.wallet,
+          token,
+          contractAddress,
+        );
+      }
+
+      if (_balanceViewModel.wallet.type == WalletType.tron) {
+        await tron!.addTronToken(_balanceViewModel.wallet, token, contractAddress);
+      }
+
+      _updateTokensList();
+      _updateFiatPrices(token);
+    } finally {
+      isAddingToken = false;
     }
-
-    if (_balanceViewModel.wallet.type == WalletType.polygon) {
-      final polygonToken = Erc20Token(
-        name: token.name,
-        symbol: token.title,
-        decimal: token.decimals,
-        contractAddress: contractAddress,
-        iconPath: token.iconPath,
-      );
-      await polygon!.addErc20Token(_balanceViewModel.wallet, polygonToken);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.solana) {
-      await solana!.addSPLToken(
-        _balanceViewModel.wallet,
-        token,
-        contractAddress,
-      );
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.tron) {
-      await tron!.addTronToken(_balanceViewModel.wallet, token, contractAddress);
-    }
-
-    _updateTokensList();
-    _updateFiatPrices(token);
   }
 
+  @action
   Future<void> deleteToken(CryptoCurrency token) async {
-    if (_balanceViewModel.wallet.type == WalletType.ethereum) {
-      await ethereum!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
-    }
+    try {
+      isDeletingToken = true;
+      if (_balanceViewModel.wallet.type == WalletType.ethereum) {
+        await ethereum!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
+      }
 
-    if (_balanceViewModel.wallet.type == WalletType.polygon) {
-      await polygon!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
-    }
+      if (_balanceViewModel.wallet.type == WalletType.polygon) {
+        await polygon!.deleteErc20Token(_balanceViewModel.wallet, token as Erc20Token);
+      }
 
-    if (_balanceViewModel.wallet.type == WalletType.solana) {
-      await solana!.deleteSPLToken(_balanceViewModel.wallet, token);
-    }
+      if (_balanceViewModel.wallet.type == WalletType.solana) {
+        await solana!.deleteSPLToken(_balanceViewModel.wallet, token);
+      }
 
-    if (_balanceViewModel.wallet.type == WalletType.tron) {
-      await tron!.deleteTronToken(_balanceViewModel.wallet, token);
+      if (_balanceViewModel.wallet.type == WalletType.tron) {
+        await tron!.deleteTronToken(_balanceViewModel.wallet, token);
+      }
+      _updateTokensList();
+    } finally {
+      isDeletingToken = false;
     }
-    _updateTokensList();
   }
 
   Future<bool> checkIfERC20TokenContractAddressIsAPotentialScamAddress(
     String contractAddress,
   ) async {
-    if (!isEVMCompatibleChain(_balanceViewModel.wallet.type)) {
-      return false;
+    try {
+      isValidatingContractAddress = true;
+
+      if (!isEVMCompatibleChain(_balanceViewModel.wallet.type)) {
+        return false;
+      }
+
+      bool isEthereum = _balanceViewModel.wallet.type == WalletType.ethereum;
+
+      bool isPotentialScamViaMoralis = await _isPotentialScamTokenViaMoralis(
+        contractAddress,
+        isEthereum ? 'eth' : 'polygon',
+      );
+
+      bool isPotentialScamViaExplorers = await _isPotentialScamTokenViaExplorers(
+        contractAddress,
+        isEthereum: isEthereum,
+      );
+
+      bool isUnverifiedContract = await _isContractUnverified(
+        contractAddress,
+        isEthereum: isEthereum,
+      );
+
+      final showWarningForContractAddress =
+          isPotentialScamViaMoralis || isUnverifiedContract || isPotentialScamViaExplorers;
+
+      return showWarningForContractAddress;
+    } finally {
+      isValidatingContractAddress = false;
     }
-
-    bool isEthereum = _balanceViewModel.wallet.type == WalletType.ethereum;
-
-    bool isPotentialScamViaMoralis = await _isPotentialScamTokenViaMoralis(
-      contractAddress,
-      isEthereum ? 'eth' : 'polygon',
-    );
-
-    bool isPotentialScamViaExplorers = await _isPotentialScamTokenViaExplorers(
-      contractAddress,
-      isEthereum: isEthereum,
-    );
-
-    bool isUnverifiedContract = await _isContractUnverified(
-      contractAddress,
-      isEthereum: isEthereum,
-    );
-
-    final showWarningForContractAddress =
-        isPotentialScamViaMoralis || isUnverifiedContract || isPotentialScamViaExplorers;
-
-    return showWarningForContractAddress;
   }
 
   Future<bool> _isPotentialScamTokenViaMoralis(
