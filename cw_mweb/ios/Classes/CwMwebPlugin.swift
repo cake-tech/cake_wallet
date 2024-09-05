@@ -30,11 +30,11 @@ public static func register(with registrar: FlutterPluginRegistrar) {
                 result(nil)
                 break
             case "address":
-                let args = call.arguments as? [String: String]
+                let args = call.arguments as? [String: Any]
                 let scanSecret = args?["scanSecret"]
                 let spendPub = args?["spendPub"]
                 let index = args?["index"]
-                result(address(scanSecret, spendPub, index))
+                result(MwebdAddressIndex(scanSecret, spendPub, index))
                 break
             default:
                 result(FlutterMethodNotImplemented)
@@ -75,15 +75,6 @@ public static func register(with registrar: FlutterPluginRegistrar) {
         CwMwebPlugin.server?.stop()
         CwMwebPlugin.server = nil
         CwMwebPlugin.port = 0
-    }
-
-    private func address(_ scanSecret: String?, _ spendPub: String?, _ index: Int?) -> String? {
-        guard let scanSecret = scanSecret, let spendPub = spendPub, let index = index else {
-            print("Invalid arguments for address function")
-            return nil
-        }
-
-        return MwebdAddressIndex(scanSecret, spendPub, UInt32(index))
     }
 
     deinit {

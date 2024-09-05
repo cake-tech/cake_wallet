@@ -21,7 +21,7 @@ class MethodChannelCwMweb extends CwMwebPlatform {
   }
 
   @override
-  Future<String?> address(String scanSecret, String spendPub, int index) async {
+  Future<String?> address(Uint8List scanSecret, Uint8List spendPub, int index) async {
     final result = await methodChannel.invokeMethod<String>('address', {
       'scanSecret': scanSecret,
       'spendPub': spendPub,

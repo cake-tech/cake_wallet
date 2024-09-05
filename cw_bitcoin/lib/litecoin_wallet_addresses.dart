@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:bech32/bech32.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/bech32/bech32_base.dart';
@@ -50,32 +52,18 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       mwebHd.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
 
   List<String> mwebAddrs = [];
-  List<String> oldMwebAddrs = [];
 
   Future<void> topUpMweb(int index) async {
-    final stub = await CwMweb.stub();
+    // generate up to index + 1000 addresses:
     while (mwebAddrs.length - index < 1000) {
       final length = mwebAddrs.length;
-      final resp = await stub.addresses(AddressRequest(
-        fromIndex: length,
-        toIndex: index + 1000,
-        scanSecret: scanSecret,
-        spendPubkey: spendPubkey,
-      ));
-      if (mwebAddrs.length == length) {
-        mwebAddrs.addAll(resp.address);
-      }
+      final address = await CwMweb.address(
+        Uint8List.fromList(scanSecret),
+        Uint8List.fromList(spendPubkey),
+        length,
+      );
+      mwebAddrs.add(address!);
     }
-
-    // for (int i = 0; i < 10; i++) {
-    //   final address = await CwMweb.address(
-    //     hex.encode(scanSecret),
-    //     hex.encode(spendPubkey),
-    //     index + 1000,
-    //   );
-    //   mwebAddrs.add(address!);
-    // }
-    // print("old function: ${oldMwebAddrs.first} new function!: ${mwebAddrs.first}");
   }
 
   @override
@@ -84,7 +72,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) {
-    if (addressType == SegwitAddresType.mweb && mwebEnabled) {
+    if (addressType == SegwitAddresType.mweb) {
       topUpMweb(index);
       return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
@@ -97,11 +85,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) async {
-    // if mweb isn't enabled we'll just return the regular address type which does effectively nothing
-    // sort of a hack but easier than trying to pull the mweb setting into the electrum_wallet_addresses initialization code
-    // (we want to avoid initializing the mweb.stub() if it's not enabled or we'd be starting the whole server for no reason and it's slow)
-    // TODO: find a way to do address generation without starting the whole mweb server
-    if (addressType == SegwitAddresType.mweb && mwebEnabled) {
+    if (addressType == SegwitAddresType.mweb) {
       await topUpMweb(index);
     }
     return getAddress(index: index, hd: hd, addressType: addressType);
