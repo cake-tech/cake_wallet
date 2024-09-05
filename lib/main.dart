@@ -48,11 +48,14 @@ final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
 Future<void> main() async {
+  await runAppWithZone();
+}
 
+Future<void> runAppWithZone() async {
   bool isAppRunning = false;
+
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
-
     FlutterError.onError = ExceptionHandler.onError;
 
     /// A callback that is invoked when an unhandled error occurs in the root
@@ -62,47 +65,25 @@ Future<void> main() async {
 
       return true;
     };
-
-    await setDefaultMinimumWindowSize();
-
-    await CakeHive.close();
-
-    await initializeAppConfigs();
+    await initializeAppAtRoot();
 
     runApp(App());
-
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
       runApp(
-        MaterialApp(
-          debugShowCheckedModeBanner: false,
-          scrollBehavior: AppScrollBehavior(),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: Container(
-                margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
-                child: Column(
-                  children: [
-                    Text(
-                      'Error:\n${error.toString()}',
-                      style: TextStyle(fontSize: 22),
-                    ),
-                    Text(
-                      'Stack trace:\n${stackTrace.toString()}',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+        TopLevelErrorWidget(error: error, stackTrace: stackTrace),
       );
     }
 
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
+}
+
+Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
+  if (!reInitializing) await setDefaultMinimumWindowSize();
+  await CakeHive.close();
+  await initializeAppConfigs();
 }
 
 Future<void> initializeAppConfigs() async {
@@ -336,5 +317,43 @@ class _HomeState extends State<_Home> {
   @override
   Widget build(BuildContext context) {
     return const SizedBox.shrink();
+  }
+}
+
+class TopLevelErrorWidget extends StatelessWidget {
+  const TopLevelErrorWidget({
+    required this.error,
+    required this.stackTrace,
+    super.key,
+  });
+
+  final Object error;
+  final StackTrace stackTrace;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      scrollBehavior: AppScrollBehavior(),
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: Container(
+            margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
+            child: Column(
+              children: [
+                Text(
+                  'Error:\n${error.toString()}',
+                  style: TextStyle(fontSize: 22),
+                ),
+                Text(
+                  'Stack trace:\n${stackTrace.toString()}',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
