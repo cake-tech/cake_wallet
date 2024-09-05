@@ -133,17 +133,18 @@ class WalletListBodyState extends State<WalletListBody> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 24),
-                    child: Text(
-                      'Shared Seed Wallet Groups',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  if (widget.walletListViewModel.multiWalletGroups.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 24),
+                      child: Text(
+                        'Shared Seed Wallet Groups',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        ),
                       ),
                     ),
-                  ),
                   SizedBox(height: 16),
                   Container(
                     child: Observer(
@@ -194,17 +195,13 @@ class WalletListBodyState extends State<WalletListBody> {
                                   ? SizedBox.shrink()
                                   : EditWalletButtonWidget(
                                       width: 44,
-                                      onTap: () {
-                                        final wallet = widget.walletListViewModel
-                                            .convertWalletInfoToWalletListItem(group.leadWallet!);
-                                        Navigator.of(context).pushNamed(
-                                          Routes.walletEdit,
-                                          arguments: WalletEditPageArguments(
-                                            walletListViewModel: widget.walletListViewModel,
-                                            editingWallet: wallet,
-                                          ),
-                                        );
-                                      },
+                                      onTap: () => Navigator.of(context).pushNamed(
+                                        Routes.walletEdit,
+                                        arguments: WalletEditPageArguments(
+                                          walletListViewModel: widget.walletListViewModel,
+                                          editingWallet: item,
+                                        ),
+                                      ),
                                     );
                             },
                           );
