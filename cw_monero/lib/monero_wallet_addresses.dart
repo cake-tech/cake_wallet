@@ -40,8 +40,9 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   Set<String> get usedAddresses {
+    final used = subaddress_list.getUsedAddrsses();
     final adds = _originalUsedAddresses.toList()
-      ..addAll(subaddress_list.getUsedAddrsses());
+      ..addAll(used);
     final ret = adds.toSet();
     _originalUsedAddresses = ret;
     return ret;

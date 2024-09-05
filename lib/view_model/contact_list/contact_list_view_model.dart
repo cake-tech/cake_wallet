@@ -26,10 +26,11 @@ abstract class ContactListViewModelBase with Store {
         isAutoGenerateEnabled =
             settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
     walletInfoSource.values.forEach((info) {
+      final addresses = info.usedAddresses?.toList();
       if (isAutoGenerateEnabled && info.type == WalletType.monero && info.addressInfos != null) {
         info.addressInfos!.forEach((key, value) {
           final nextUnusedAddress = value.firstWhereOrNull(
-              (addressInfo) => !(info.usedAddresses?.contains(addressInfo.address) ?? false));
+              (addressInfo) => !(addresses?.contains(addressInfo.address) ?? false));
           if (nextUnusedAddress != null) {
             final name = _createName(info.name, nextUnusedAddress.label);
             walletContacts.add(WalletContact(

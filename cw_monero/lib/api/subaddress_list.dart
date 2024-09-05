@@ -111,6 +111,7 @@ List<String> getUsedAddrsses() {
   }
   if (txHistoryMutex.isLocked) return cachedAddresses;
   unawaited(txHistoryMutex.acquire()); // I KNOW
+  final Stopwatch stopwatch = Stopwatch()..start();
 
   for (var i = 0; i < size; i++) {
     final txPtr = monero.TransactionHistory_transaction(txhistory!, index: i);
@@ -125,9 +126,12 @@ List<String> getUsedAddrsses() {
       );
     }
   }
+  cachedAddresses.clear();
   cachedAddresses.addAll(addresses);
   cachedTxCount = size;
   cachedWptrAddress = wptr!.address;
   txHistoryMutex.release();
+  monero.debugCallLength["CW_getUsedAddrsses"] ??= <int>[];
+  monero.debugCallLength["CW_getUsedAddrsses"]!.add(stopwatch!.elapsedMicroseconds);
   return addresses;
 }

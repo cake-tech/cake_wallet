@@ -86,7 +86,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
       _updateSubAddress(enabled, account: walletAddresses.account);
     });
-    reaction((_) => transactionHistory, (__) {
+    _onTxHistoryChangeReaction = reaction((_) => transactionHistory, (__) {
       _updateSubAddress(isEnabledAutoGenerateSubaddress, account: walletAddresses.account);
     });
   }

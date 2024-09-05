@@ -9,6 +9,7 @@ import 'package:cw_monero/api/exceptions/wallet_restore_from_keys_exception.dart
 import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/api/transaction_history.dart';
+import 'package:flutter/foundation.dart';
 import 'package:monero/monero.dart' as monero;
 
 class MoneroCException implements Exception {
@@ -239,8 +240,10 @@ Map<String, monero.wallet> openedWalletsByPath = {};
 
 void loadWallet(
     {required String path, required String password, int nettype = 0}) {
-  monero.debugStart = null;
-  monero.debugEnd = null;
+  if (!kDebugMode) {
+    monero.debugStart = null;
+    monero.debugEnd = null;
+  }
   if (openedWalletsByPath[path] != null) {
     txhistory = null;
     wptr = openedWalletsByPath[path]!;
