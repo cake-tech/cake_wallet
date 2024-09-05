@@ -247,7 +247,7 @@ Future<void> defaultSettingsMigration(
           await changeDefaultNanoNode(nodes, sharedPreferences);
           break;
         case 40:
-          await removeMoneroWorld(sharedPreferences: sharedPreferences, nodes: nodes, nodeSource: nodes);
+          await removeMoneroWorld(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         default:
           break;
@@ -1258,14 +1258,13 @@ Future<void> replaceTronDefaultNode({
 }
 
 Future<void> removeMoneroWorld(
-    {required SharedPreferences sharedPreferences, required Box<Node> nodes, required Box<Node> nodeSource}) async {
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
   const cakeWalletMoneroNodeUriPattern = '.moneroworld.com';
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
-  final currentMoneroNode = nodeSource.values.firstWhere((node) => node.key == currentMoneroNodeId);
-  final needToReplaceCurrentMoneroNode =
-  currentMoneroNode.uri.toString().contains(cakeWalletMoneroNodeUriPattern);
+  final currentMoneroNode = nodes.values.firstWhere((node) => node.key == currentMoneroNodeId);
+  final needToReplaceCurrentMoneroNode = currentMoneroNode.uri.toString().contains(cakeWalletMoneroNodeUriPattern);
 
-  nodeSource.values.forEach((node) async {
+  nodes.values.forEach((node) async {
     if (node.type == WalletType.monero &&
         node.uri.toString().contains(cakeWalletMoneroNodeUriPattern)) {
       await node.delete();
