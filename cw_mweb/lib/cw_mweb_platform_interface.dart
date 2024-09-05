@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'cw_mweb_method_channel.dart';
@@ -29,5 +31,9 @@ abstract class CwMwebPlatform extends PlatformInterface {
 
   Future<void> stop() {
     throw UnimplementedError('stop() has not been implemented.');
+  }
+
+  Future<String?> address(Uint8List scanSecret, Uint8List spendPub, int index) {
+    throw UnimplementedError('address(int) has not been implemented.');
   }
 }

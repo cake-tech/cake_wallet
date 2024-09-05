@@ -1,6 +1,10 @@
-import 'package:convert/convert.dart';
+import 'dart:typed_data';
+
+import 'package:bech32/bech32.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:blockchain_utils/bech32/bech32_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -8,7 +12,15 @@ import 'package:cw_mweb/cw_mweb.dart';
 import 'package:cw_mweb/mwebd.pb.dart';
 import 'package:mobx/mobx.dart';
 
+// import 'dart:typed_data';
+// import 'package:bech32/bech32.dart';
+// import 'package:r_crypto/r_crypto.dart';
+
 part 'litecoin_wallet_addresses.g.dart';
+
+String encodeMwebAddress(List<int> scriptPubKey) {
+  return bech32.encode(Bech32("ltcmweb1", scriptPubKey), 250);
+}
 
 class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalletAddresses;
 
@@ -42,18 +54,15 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   List<String> mwebAddrs = [];
 
   Future<void> topUpMweb(int index) async {
-    final stub = await CwMweb.stub();
+    // generate up to index + 1000 addresses:
     while (mwebAddrs.length - index < 1000) {
       final length = mwebAddrs.length;
-      final resp = await stub.addresses(AddressRequest(
-        fromIndex: length,
-        toIndex: index + 1000,
-        scanSecret: scanSecret,
-        spendPubkey: spendPubkey,
-      ));
-      if (mwebAddrs.length == length) {
-        mwebAddrs.addAll(resp.address);
-      }
+      final address = await CwMweb.address(
+        Uint8List.fromList(scanSecret),
+        Uint8List.fromList(spendPubkey),
+        length,
+      );
+      mwebAddrs.add(address!);
     }
   }
 
@@ -63,7 +72,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) {
-    if (addressType == SegwitAddresType.mweb && mwebEnabled) {
+    if (addressType == SegwitAddresType.mweb) {
       topUpMweb(index);
       return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
@@ -76,11 +85,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) async {
-    // if mweb isn't enabled we'll just return the regular address type which does effectively nothing
-    // sort of a hack but easier than trying to pull the mweb setting into the electrum_wallet_addresses initialization code
-    // (we want to avoid initializing the mweb.stub() if it's not enabled or we'd be starting the whole server for no reason and it's slow)
-    // TODO: find a way to do address generation without starting the whole mweb server
-    if (addressType == SegwitAddresType.mweb && mwebEnabled) {
+    if (addressType == SegwitAddresType.mweb) {
       await topUpMweb(index);
     }
     return getAddress(index: index, hd: hd, addressType: addressType);
@@ -88,11 +93,38 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @action
   @override
-  Future<String> getChangeAddress() async {
+  Future<String> getChangeAddress({List<BitcoinOutput>? outputs, UtxoDetails? utxoDetails}) async {
+    // use regular change address on peg in, otherwise use mweb for change address:
+
+    if (outputs != null && utxoDetails != null) {
+      // check if this is a PEGIN:
+      bool outputsToMweb = false;
+      bool comesFromMweb = false;
+
+      for (var i = 0; i < outputs.length; i++) {
+        // TODO: probably not the best way to tell if this is an mweb address
+        // (but it doesn't contain the "mweb" text at this stage)
+        if (outputs[i].address.toAddress(network).length > 110) {
+          outputsToMweb = true;
+        }
+      }
+      utxoDetails.availableInputs.forEach((element) {
+        if (element.address.contains("mweb")) {
+          comesFromMweb = true;
+        }
+      });
+
+      bool isPegIn = !comesFromMweb && outputsToMweb;
+      if (isPegIn && mwebEnabled) {
+        return super.getChangeAddress();
+      }
+    }
+
     if (mwebEnabled) {
       await topUpMweb(0);
       return mwebAddrs[0];
     }
+
     return super.getChangeAddress();
   }
 }

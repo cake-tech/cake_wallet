@@ -30,8 +30,6 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
     if (call.method == "start") {
       server?.stop()
       val dataDir = call.argument("dataDir") ?: ""
-      // server = server ?: Mwebd.newServer("", dataDir, "")
-      // port = port ?: server?.start(0)
       server = server ?: Mwebd.newServer("", dataDir, "")
       port = server?.start(0)
       result.success(port)
@@ -40,6 +38,12 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
       server = null
       port = null
       result.success(null)
+    } else if (call.method == "address") {
+      val scanSecret: ByteArray = call.argument<ByteArray>("scanSecret") ?: ByteArray(0)
+      val spendPub: ByteArray = call.argument<ByteArray>("spendPub") ?: ByteArray(0)
+      val index: Int = call.argument<Int>("index") ?: 0
+      val res = Mwebd.address(scanSecret, spendPub, index)
+      result.success(res)
     } else {
       result.notImplemented()
     }
