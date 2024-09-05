@@ -239,6 +239,8 @@ Map<String, monero.wallet> openedWalletsByPath = {};
 
 void loadWallet(
     {required String path, required String password, int nettype = 0}) {
+  monero.debugStart = null;
+  monero.debugEnd = null;
   if (openedWalletsByPath[path] != null) {
     txhistory = null;
     wptr = openedWalletsByPath[path]!;

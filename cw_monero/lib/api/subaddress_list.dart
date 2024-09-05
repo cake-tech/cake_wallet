@@ -97,26 +97,34 @@ Future<void> setLabelForSubaddress(
 }
 
 
-
+List<String> cachedAddresses = [];
+int cachedTxCount = 0;
+int cachedWptrAddress = 0;
 List<String> getUsedAddrsses() {
   List<String> addresses = [];
-
+  
   txhistory ??= monero.Wallet_history(wptr!);
   monero.TransactionHistory_refresh(txhistory!);
   int size = countOfTransactions();
+  if (cachedTxCount == size && cachedWptrAddress == wptr!.address) {
+    return cachedAddresses;
+  }
+
   for (var i = 0; i < size; i++) {
     final txPtr = monero.TransactionHistory_transaction(txhistory!, index: i);
     final subaddrAccount = monero.TransactionInfo_subaddrAccount(txPtr);
-    final subaddrAddress = monero.TransactionInfo_subaddrIndex(txPtr).split(", ").map((e) => int.parse(e));
+    final subaddrAddress = monero.TransactionInfo_subaddrIndex(txPtr).split(", ").map((e) => int.tryParse(e)??0).toList();
     for (var j = 0; j < subaddrAddress.length; j++) {
       addresses.add(
-        monero.Wallet_address(wptr!,
+        getAddress(
           accountIndex: subaddrAccount,
-          addressIndex: subaddrAddress.elementAt(j)
+          addressIndex: subaddrAddress[j],
         )
       );
     }
   }
-
+  cachedAddresses.addAll(addresses);
+  cachedTxCount = size;
+  cachedWptrAddress = wptr!.address;
   return addresses;
 }

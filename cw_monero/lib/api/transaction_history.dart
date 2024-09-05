@@ -5,6 +5,7 @@ import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/creation_transaction_exception.dart';
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
+import 'package:cw_monero/api/wallet.dart';
 import 'package:ffi/ffi.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
@@ -64,13 +65,11 @@ List<Transaction> getAllTransactions() {
             confirmations: 0,
             blockheight: 0,
             accountIndex: i,
-            addressIndex: 0,
             addressIndexList: [0],
             paymentId: "",
             amount: fullBalance - availBalance,
             isSpend: false,
             hash: "pending",
-            key: "",
             txInfo: Pointer.fromAddress(0),
           )..timeStamp = DateTime.now()
         );
@@ -271,23 +270,18 @@ class Transaction {
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
-  late String address = monero.Wallet_address(
-    wptr!,
+  late String address = getAddress(
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
   late List<String> addressList = List.generate(addressIndexList.length, (index) =>
-    monero.Wallet_address(
-      wptr!,
-      accountIndex: accountIndex,
-      addressIndex: addressIndexList[index],
-    ));
+    getAddress(accountIndex: accountIndex, addressIndex: addressIndex));
   final String description;
   final int fee;
   final int confirmations;
   bool get isPending => confirmations < 10;
   final int blockheight;
-  final int addressIndex;
+  late final int addressIndex = addressIndexList[0];
   final int accountIndex;
   final List<int> addressIndexList;
   final String paymentId;
@@ -296,7 +290,7 @@ class Transaction {
   late DateTime timeStamp;
   late final bool isConfirmed = !isPending;
   final String hash;
-  final String key;
+  late final String key = monero.Wallet_getTxKey(wptr!, txid: hash);
 
   Map<String, dynamic> toJson() {
     return {
@@ -323,7 +317,6 @@ class Transaction {
   // List<Transfer> transfers = [];
   // final int txIndex;
   final Stopwatch? stopwatch;
-  final Stopwatch? stopwatch2 = Stopwatch()..start();
   final monero.TransactionInfo txInfo;
   Transaction({
     required this.txInfo,
@@ -338,17 +331,13 @@ class Transaction {
         amount = monero.TransactionInfo_amount(txInfo),
         paymentId = monero.TransactionInfo_paymentId(txInfo),
         accountIndex = monero.TransactionInfo_subaddrAccount(txInfo),
-        addressIndex = int.tryParse(monero.TransactionInfo_subaddrIndex(txInfo).split(", ")[0]) ?? 0,
-        addressIndexList = monero.TransactionInfo_subaddrIndex(txInfo).split(", ").map((e) => int.tryParse(e) ?? 0).toList(),
+        addressIndexList = monero.TransactionInfo_subaddrIndex(txInfo).split(", ").toList().map((e) => int.tryParse(e) ?? 0).toList(),
         blockheight = monero.TransactionInfo_blockHeight(txInfo),
         confirmations = monero.TransactionInfo_confirmations(txInfo),
         fee = monero.TransactionInfo_fee(txInfo),
-        description = monero.TransactionInfo_description(txInfo),
-        key = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo)) {
+        description = monero.TransactionInfo_description(txInfo) {
           monero.debugCallLength["CW_Transaction_construct"] ??= <int>[];
-          monero.debugCallLength["CW_Transaction_construct2"] ??= <int>[];
           monero.debugCallLength["CW_Transaction_construct"]!.add(stopwatch?.elapsedMicroseconds??0);
-          monero.debugCallLength["CW_Transaction_construct2"]!.add(stopwatch2?.elapsedMicroseconds??0);
         }
 
   Transaction.dummy({
@@ -357,14 +346,12 @@ class Transaction {
     required this.fee,
     required this.confirmations,
     required this.blockheight,
-    required this.accountIndex,
     required this.addressIndexList,
-    required this.addressIndex,
+    required this.accountIndex,
     required this.paymentId,
     required this.amount,
     required this.isSpend,
     required this.hash,
-    required this.key,
     required this.txInfo,
     this.stopwatch = null,
   });
