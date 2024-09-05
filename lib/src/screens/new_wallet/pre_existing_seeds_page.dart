@@ -71,7 +71,9 @@ class PreExistingSeedBody extends StatelessWidget {
                                   .convertWalletInfoToWalletListItem(walletInfo);
                             }).toList(),
                             isSelected: preExistingSeedsViewModel.selectedWalletGroup == group,
-                            onTap: () => preExistingSeedsViewModel.selectWalletGroup(group),
+                            onTitleTapped: () => preExistingSeedsViewModel.selectWalletGroup(group),
+                            onChildItemTapped: (_) =>
+                                preExistingSeedsViewModel.selectWalletGroup(group),
                           );
                         },
                       ).toList(),

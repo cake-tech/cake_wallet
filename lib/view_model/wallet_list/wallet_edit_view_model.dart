@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/di.dart';
@@ -32,11 +33,26 @@ abstract class WalletEditViewModelBase with Store {
   final WalletLoadingService _walletLoadingService;
 
   @action
-  Future<void> changeName(WalletListItem walletItem, {String? password}) async {
+  Future<void> changeName(
+    WalletListItem walletItem, {
+    String? password,
+    String? groupParentAddress,
+    bool isWalletGroup = false,
+  }) async {
     state = WalletEditRenamePending();
-    await _walletLoadingService.renameWallet(
-        walletItem.type, walletItem.name, newName,
-        password: password);
+
+    if (isWalletGroup) {
+      final walletManager = getIt.get<WalletManager>();
+      walletManager.setGroupName(groupParentAddress ?? '', newName);
+    } else {
+      await _walletLoadingService.renameWallet(
+        walletItem.type,
+        walletItem.name,
+        newName,
+        password: password,
+      );
+    }
+
     _walletListViewModel.updateList();
   }
 

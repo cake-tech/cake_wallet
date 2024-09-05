@@ -12,7 +12,10 @@ class WalletGroup {
   /// Child wallets that share the same parent address within this group
   List<WalletInfo> wallets;
 
-  // Update the leadWallet based on whether the parent wallet exists
+  /// Custom name for the group, editable for multi-child wallet groups
+  String? groupName;
+
+  /// Update the leadWallet based on whether the parent wallet exists.
   void updateLeadWallet() {
     if (wallets.isEmpty) {
       // No wallets left, leadWallet should be null
@@ -24,6 +27,13 @@ class WalletGroup {
         // Use the first child wallet if no parent exists
         orElse: () => wallets.first,
       );
+    }
+  }
+
+  /// Allows editing of the group name (only for multi-child groups).
+  void setCustomName(String name) {
+    if (wallets.length > 1) {
+      groupName = name;
     }
   }
 }

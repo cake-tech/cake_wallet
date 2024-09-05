@@ -8,27 +8,43 @@ import 'package:flutter/material.dart';
 class GroupedWalletExpansionTile extends StatelessWidget {
   GroupedWalletExpansionTile({
     required this.title,
-    required this.childWallets,
     required this.isSelected,
-    required this.onTap,
+    this.childWallets = const [],
+    this.onTitleTapped,
+    this.onChildItemTapped = _defaultVoidCallback,
     this.leadingWidget,
+    this.trailingWidget,
+    this.childTrailingWidget,
     this.decoration,
     this.color,
     this.textColor,
     this.arrowColor,
-  });
+    this.borderRadius,
+    this.margin,
+    this.tileKey,
+  }) : super(key: tileKey);
 
+  final Key? tileKey;
   final bool isSelected;
-  final VoidCallback onTap;
+
+  final VoidCallback? onTitleTapped;
+  final void Function(WalletListItem item) onChildItemTapped;
 
   final String title;
   final Widget? leadingWidget;
+  final Widget? trailingWidget;
+  final Widget Function(WalletListItem)? childTrailingWidget;
+
   final List<WalletListItem> childWallets;
 
   final Color? color;
   final Color? textColor;
   final Color? arrowColor;
+  final EdgeInsets? margin;
   final Decoration? decoration;
+  final BorderRadius? borderRadius;
+
+  static void _defaultVoidCallback(WalletListItem ITEM) {}
 
   @override
   Widget build(BuildContext context) {
@@ -44,22 +60,23 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             : Theme.of(context).extension<FilterTheme>()!.titlesColor);
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(30)),
+        borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(30)),
         color: backgroundColor,
       ),
-      margin: const EdgeInsets.only(bottom: 12.0),
+      margin: margin ?? const EdgeInsets.only(bottom: 12.0),
       child: Theme(
         data: Theme.of(context).copyWith(
           dividerColor: Colors.transparent,
           splashFactory: NoSplash.splashFactory,
         ),
         child: ExpansionTile(
+          key: tileKey,
           iconColor: effectiveArrowColor,
           collapsedIconColor: effectiveArrowColor,
           leading: leadingWidget,
-          trailing: childWallets.isEmpty ? SizedBox.shrink() : null,
+          trailing: trailingWidget ?? (childWallets.isEmpty ? SizedBox.shrink() : null),
           title: GestureDetector(
-            onTap: onTap,
+            onTap: onTitleTapped,
             child: Text(
               title,
               style: TextStyle(
@@ -74,7 +91,9 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             (item) {
               final walletTypeToCrypto = walletTypeToCryptoCurrency(item.type);
               return ListTile(
-                onTap: item.onTap ?? onTap,
+                key: ValueKey(item.name),
+                trailing: childTrailingWidget?.call(item),
+                onTap: () => onChildItemTapped(item),
                 leading: Image.asset(
                   walletTypeToCrypto.iconPath!,
                   width: 32,

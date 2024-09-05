@@ -1,5 +1,4 @@
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/foundation.dart';
 
 class WalletListItem {
   const WalletListItem({
@@ -9,7 +8,6 @@ class WalletListItem {
     this.isCurrent = false,
     this.isEnabled = true,
     this.isTestnet = false,
-    this.onTap,
   });
 
   final String name;
@@ -18,5 +16,4 @@ class WalletListItem {
   final dynamic key;
   final bool isEnabled;
   final bool isTestnet;
-  final VoidCallback? onTap;
 }

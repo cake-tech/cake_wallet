@@ -1,11 +1,17 @@
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletManager {
-  WalletManager(this._walletInfoSource);
+  WalletManager(
+    this._walletInfoSource,
+    this._sharedPreferences,
+  );
 
   final Box<WalletInfo> _walletInfoSource;
+  final SharedPreferences _sharedPreferences;
+
   final List<WalletGroup> walletGroups = [];
 
   /// Categorize wallets into groups based on their parentAddress.
@@ -25,6 +31,8 @@ class WalletManager {
 
       return group.leadWallet == null;
     });
+
+    _loadCustomGroupNames();
   }
 
   /// Function to determine the correct parentAddress for a wallet.
@@ -92,5 +100,29 @@ class WalletManager {
           orElse: () => WalletGroup(parentAddress),
         )
         .leadWallet;
+  }
+
+  /// Iterate through all groups and load their custom names from storage
+  void _loadCustomGroupNames() {
+    for (var group in walletGroups) {
+      final groupName = _sharedPreferences.getString('wallet_group_name_${group.parentAddress}');
+      if (groupName != null && group.wallets.length > 1) {
+        group.groupName = groupName; // Restore custom name
+      }
+    }
+  }
+
+  /// Save custom name for a group
+  void _saveCustomGroupName(String parentAddress, String name) {
+    _sharedPreferences.setString('wallet_group_name_$parentAddress', name);
+  }
+
+  // Set custom group name and persist it
+  void setGroupName(String parentAddress, String name) {
+    if (parentAddress.isEmpty || name.isEmpty) return;
+    
+    final group = walletGroups.firstWhere((group) => group.parentAddress == parentAddress);
+    group.setCustomName(name);
+    _saveCustomGroupName(parentAddress, name); // Persist the custom name
   }
 }

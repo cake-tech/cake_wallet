@@ -31,6 +31,7 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
@@ -161,7 +162,6 @@ import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -374,7 +374,9 @@ Future<void> setup({
 
   getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
 
-  getIt.registerSingleton<WalletManager>(WalletManager(_walletInfoSource));
+  getIt.registerSingleton<WalletManager>(
+    WalletManager(_walletInfoSource, getIt.get<SharedPreferences>()),
+  );
 
   getIt.registerFactoryParam<PreExistingSeedsViewModel, WalletType, void>(
     (type, _) => PreExistingSeedsViewModel(
@@ -742,6 +744,7 @@ Future<void> setup({
         _walletInfoSource,
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
+        getIt.get<WalletManager>(),
       ),
     );
   } else {
@@ -752,6 +755,7 @@ Future<void> setup({
         _walletInfoSource,
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
+        getIt.get<WalletManager>(),
       ),
     );
   }
@@ -765,14 +769,21 @@ Future<void> setup({
       (WalletListViewModel walletListViewModel, _) =>
           WalletEditViewModel(walletListViewModel, getIt.get<WalletLoadingService>()));
 
-  getIt.registerFactoryParam<WalletEditPage, List<dynamic>, void>((args, _) {
-    final walletListViewModel = args.first as WalletListViewModel;
-    final editingWallet = args.last as WalletListItem;
+  getIt.registerFactoryParam<WalletEditPage, WalletEditPageArguments, void>((arguments, _) {
+
     return WalletEditPage(
-        walletEditViewModel: getIt.get<WalletEditViewModel>(param1: walletListViewModel),
+      pageArguments: WalletEditPageArguments(
+        walletEditViewModel: getIt.get<WalletEditViewModel>(param1: arguments.walletListViewModel),
         authService: getIt.get<AuthService>(),
-        walletNewVM: getIt.get<WalletNewVM>(param1: NewWalletArguments(type: editingWallet.type)),
-        editingWallet: editingWallet);
+        walletNewVM: getIt.get<WalletNewVM>(
+          param1: NewWalletArguments(type: arguments.editingWallet.type),
+        ),
+        editingWallet: arguments.editingWallet,
+        isWalletGroup: arguments.isWalletGroup,
+        groupName: arguments.groupName,
+        parentAddress: arguments.parentAddress,
+      ),
+    );
   });
 
   getIt.registerFactory<NanoAccountListViewModel>(() {

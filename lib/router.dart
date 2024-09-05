@@ -7,6 +7,7 @@ import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_nft_response.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -357,8 +358,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.walletEdit:
       return MaterialPageRoute<void>(
-          fullscreenDialog: true,
-          builder: (_) => getIt.get<WalletEditPage>(param1: settings.arguments as List<dynamic>));
+        fullscreenDialog: true,
+        builder: (_) =>
+            getIt.get<WalletEditPage>(param1: settings.arguments as WalletEditPageArguments),
+      );
 
     case Routes.auth:
       return MaterialPageRoute<void>(
