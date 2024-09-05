@@ -31,10 +31,10 @@ public static func register(with registrar: FlutterPluginRegistrar) {
                 break
             case "address":
                 let args = call.arguments as? [String: Any]
-                let scanSecret = args?["scanSecret"]
-                let spendPub = args?["spendPub"]
-                let index = args?["index"]
-                result(MwebdAddressIndex(scanSecret, spendPub, index))
+                let scanSecret = args?["scanSecret"] as! Data
+                let spendPub = args?["spendPub"] as! Data
+                let index = args?["index"] as! Int32
+                result(MwebdAddress(scanSecret, spendPub, index))
                 break
             default:
                 result(FlutterMethodNotImplemented)
