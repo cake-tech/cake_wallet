@@ -583,8 +583,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
     transaction_history.refreshTransactions();
-    return _getAllTransactionsOfAccount(walletAddresses.account?.id)
-        .fold<Map<String, MoneroTransactionInfo>>(
+    final hist = await _getAllTransactionsOfAccount(walletAddresses.account?.id);
+    return hist.fold<Map<String, MoneroTransactionInfo>>(
             <String, MoneroTransactionInfo>{},
             (Map<String, MoneroTransactionInfo> acc, MoneroTransactionInfo tx) {
       acc[tx.id] = tx;
@@ -599,10 +599,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       }
 
       _isTransactionUpdating = true;
-      transactionHistory.clear();
       final transactions = await fetchTransactions();
-      transactionHistory.addMany(transactions);
-      await transactionHistory.save();
+      if (transactions.length != transactionHistory.transactions.length) {
+        transactionHistory.clear();
+        transactionHistory.addMany(transactions);
+        await transactionHistory.save();
+      }
       _isTransactionUpdating = false;
     } catch (e) {
       print(e);
@@ -613,10 +615,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   String getSubaddressLabel(int accountIndex, int addressIndex) =>
       monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
-  List<MoneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) =>
-      transaction_history
-          .getAllTransactions()
-          .map(
+  Future<List<MoneroTransactionInfo>> _getAllTransactionsOfAccount(int? accountIndex) async {
+    final hist = await transaction_history.getAllTransactions(enableDelay: true);
+    return hist.map(
             (row) => MoneroTransactionInfo(
               row.hash,
               row.blockheight,
@@ -638,6 +639,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           )
           .where((element) => element.accountIndex == (accountIndex ?? 0))
           .toList();
+  }
 
   void _setListeners() {
     _listener?.stop();

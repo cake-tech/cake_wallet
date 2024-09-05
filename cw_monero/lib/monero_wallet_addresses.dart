@@ -110,14 +110,24 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     address = subaddress!.address;
   }
 
+  bool isSubaddressUpdating = false;
+  int lastTxCount = 0;
   Future<void> updateUsedSubaddress() async {
+    if (isSubaddressUpdating) return;
+    isSubaddressUpdating = true;
     final transactions = _moneroTransactionHistory.transactions.values.toList();
-
-    transactions.forEach((element) {
+    if (lastTxCount == transactions.length) {
+      isSubaddressUpdating = false;
+      return;
+    }
+    lastTxCount = transactions.length;
+    for (var element in transactions) {
       final accountIndex = element.accountIndex;
       final addressIndex = element.addressIndex;
       usedAddresses.add(getAddress(accountIndex: accountIndex, addressIndex: addressIndex));
-    });
+      await Future.delayed(Duration.zero);
+    }
+    isSubaddressUpdating = false;
   }
 
   Future<void> updateUnusedSubaddress(

@@ -104,7 +104,6 @@ List<String> getUsedAddrsses() {
   List<String> addresses = [];
   
   txhistory ??= monero.Wallet_history(wptr!);
-  monero.TransactionHistory_refresh(txhistory!);
   int size = countOfTransactions();
   if (cachedTxCount == size && cachedWptrAddress == wptr!.address) {
     return cachedAddresses;

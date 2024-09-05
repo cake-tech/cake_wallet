@@ -573,9 +573,8 @@ abstract class DashboardViewModelBase with Store {
       // FIX-ME: Check for side effects
       // subname = null;
       subname = '';
-
+      print("onWalletUdate");
       transactions.clear();
-
       transactions.addAll(wallet.transactionHistory.transactions.values.map((transaction) =>
           TransactionListItem(
               transaction: transaction,
@@ -619,7 +618,7 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void _onMoneroTransactionsUpdate(WalletBase wallet) {
-    transactions.clear();
+    print("onMoneroTransactionsUpdate");
     if (wallet.type == WalletType.monero) {
       final _accountTransactions = monero!
           .getTransactionHistory(wallet)
@@ -628,11 +627,12 @@ abstract class DashboardViewModelBase with Store {
           .where((tx) =>
               monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
-
-      transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
+      final txList = _accountTransactions.map((transaction) => TransactionListItem(
           transaction: transaction,
           balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+          settingsStore: appStore.settingsStore));
+      transactions.clear();
+      transactions.addAll(txList);
     } else if (wallet.type == WalletType.wownero) {
       final _accountTransactions = wow.wownero!
           .getTransactionHistory(wallet)
@@ -642,11 +642,12 @@ abstract class DashboardViewModelBase with Store {
               wow.wownero!.getTransactionInfoAccountId(tx) ==
               wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
-
-      transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
+      final txList = _accountTransactions.map((transaction) => TransactionListItem(
           transaction: transaction,
           balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+          settingsStore: appStore.settingsStore));
+      transactions.clear();
+      transactions.addAll(txList);
     }
   }
 
