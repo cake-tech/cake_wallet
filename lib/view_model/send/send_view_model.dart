@@ -729,7 +729,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
     return false;
   }
 
-  @computed
+  @observable
   dynamic pjUri;
 
   @action
@@ -748,6 +748,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
     final feeRate = bitcoin!
         .getFeeRate(wallet, credentials.priority as TransactionPriority);
 
+    print(
+        '[+] SendVM || performPjSend => amountToSend: $amountToSend feeRate: $feeRate, pjUri: $pjUri');
+
+    /*
     // Build the original PSBT for the Payjoin transaction
     final originalPsbt = await bitcoin!.buildOriginalPsbt(
       wallet,
@@ -790,5 +794,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
     final txId = transaction.id;
 
     // TODO: Reset the Payjoin session state
+    */
   }
 }

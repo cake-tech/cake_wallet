@@ -9,12 +9,15 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/src/screens/cake_pay/widgets/cake_pay_alert_modal.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/list_item.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
@@ -23,6 +26,7 @@ import 'package:cw_bitcoin/bitcoin_payjoin.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 
@@ -626,6 +630,9 @@ abstract class WalletAddressListViewModelBase
   @observable
   RequestContext? reqCtx;
 
+  @observable
+  PayjoinException? pjException;
+
   @computed
   bool get isPayjoinOption => payjoinUri.trim().isNotEmpty && session != null;
 
@@ -678,20 +685,24 @@ abstract class WalletAddressListViewModelBase
       );
 
       disposePayjoinSession();
-    } catch (e) {
+    } catch (e, st) {
       if (e is PayjoinException) {
         // TODO: Handle the error appropriately
-        print('[!] wallet_address_list_vm.dart || buildV2PjStr() => e: $e');
+        print(
+            '[!] wallet_address_list_vm.dart || buildV2PjStr() => e: $e, st: $st');
+        pjException = e;
         disposePayjoinSession();
       } else {
-        print('[!] wallet_address_list_vm.dart || buildV2PjStr() => e: $e');
+        print(
+            '[!] wallet_address_list_vm.dart || buildV2PjStr() => e: $e, st: $st');
+        disposePayjoinSession();
       }
     }
   }
 
   @action
   void disposePayjoinSession() {
-    payjoinUri = '';
+    // payjoinUri = '';
     session = null;
     reqCtx = null;
   }
