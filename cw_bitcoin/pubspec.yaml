@@ -44,7 +44,6 @@ dependencies:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
-  r_crypto: ^0.5.0
 
 dev_dependencies:
   flutter_test:

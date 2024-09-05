@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -795,7 +796,10 @@ abstract class ElectrumWalletBase
       throw BitcoinTransactionWrongBalanceException();
     }
 
-    final changeAddress = await walletAddresses.getChangeAddress();
+    final changeAddress = await walletAddresses.getChangeAddress(
+      outputs: outputs,
+      utxoDetails: utxoDetails,
+    );
     final address = addressTypeFromStr(changeAddress, network);
     outputs.add(BitcoinOutput(
       address: address,
@@ -2061,7 +2065,8 @@ abstract class ElectrumWalletBase
       _isTryingToConnect = true;
 
       Timer(Duration(seconds: 10), () {
-        if (this.syncStatus is NotConnectedSyncStatus || this.syncStatus is LostConnectionSyncStatus) {
+        if (this.syncStatus is NotConnectedSyncStatus ||
+            this.syncStatus is LostConnectionSyncStatus) {
           this.electrumClient.connectToUri(
                 node!.uri,
                 useSSL: node!.useSSL ?? false,
@@ -2387,6 +2392,8 @@ class PublicKeyWithDerivationPath {
 }
 
 BitcoinBaseAddress addressTypeFromStr(String address, BasedUtxoNetwork network) {
+  // print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+  // print(network);
   if (network is BitcoinCashNetwork) {
     if (!address.startsWith("bitcoincash:") &&
         (address.startsWith("q") || address.startsWith("p"))) {
