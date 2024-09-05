@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
@@ -102,12 +104,13 @@ int cachedTxCount = 0;
 int cachedWptrAddress = 0;
 List<String> getUsedAddrsses() {
   List<String> addresses = [];
-  
   txhistory ??= monero.Wallet_history(wptr!);
   int size = countOfTransactions();
   if (cachedTxCount == size && cachedWptrAddress == wptr!.address) {
     return cachedAddresses;
   }
+  if (txHistoryMutex.isLocked) return cachedAddresses;
+  unawaited(txHistoryMutex.acquire()); // I KNOW
 
   for (var i = 0; i < size; i++) {
     final txPtr = monero.TransactionHistory_transaction(txhistory!, index: i);
@@ -125,5 +128,6 @@ List<String> getUsedAddrsses() {
   cachedAddresses.addAll(addresses);
   cachedTxCount = size;
   cachedWptrAddress = wptr!.address;
+  txHistoryMutex.release();
   return addresses;
 }

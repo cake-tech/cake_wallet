@@ -9,6 +9,7 @@ import 'package:cw_monero/api/wallet.dart';
 import 'package:ffi/ffi.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
+import 'package:mutex/mutex.dart';
 
 
 String getTxKey(String txId) {
@@ -21,6 +22,7 @@ bool isRefreshingTx = false;
 
 Future<void> refreshTransactions() async {
   if (isRefreshingTx == true) return;
+  await txHistoryMutex.acquire();
   isRefreshingTx = true;
   txhistory ??= monero.Wallet_history(wptr!);
   final ptr = txhistory!.address;
@@ -28,25 +30,27 @@ Future<void> refreshTransactions() async {
     monero.TransactionHistory_refresh(Pointer.fromAddress(ptr));
   });
   isRefreshingTx = false;
+  txHistoryMutex.release();
 }
 
 int countOfTransactions() => monero.TransactionHistory_count(txhistory!);
 
 List<Transaction> cachedAllTxList = [];
 int cachedForWptr = 0;
-
+final txHistoryMutex = Mutex();
 Future<List<Transaction>> getAllTransactions({bool enableDelay = false}) async {
   List<Transaction> dummyTxs = [];
 
+  await txHistoryMutex.acquire();
   txhistory ??= monero.Wallet_history(wptr!);
   int size = countOfTransactions();
-  monero.debugCallLength["CW_Transaction_list_construct"] ??= <int>[];
   final Stopwatch? stopwatch = Stopwatch()..start();
   final List<Transaction> list = [];
   if (cachedAllTxList.length == size && cachedForWptr == wptr!.address) {
     list.addAll(cachedAllTxList);
     monero.debugCallLength["CW_Transaction_list_construct_cached"] ??= <int>[];
     monero.debugCallLength["CW_Transaction_list_construct_cached"]!.add(stopwatch?.elapsedMicroseconds??0);
+    txHistoryMutex.release();
   } else {
     final List<Transaction> newList = [];
     for (var i = 0; i < size; i++) {
@@ -63,7 +67,9 @@ Future<List<Transaction>> getAllTransactions({bool enableDelay = false}) async {
     cachedForWptr == wptr!.address;
     monero.debugCallLength["CW_Transaction_list_construct_real"] ??= <int>[];
     monero.debugCallLength["CW_Transaction_list_construct_real"]!.add(stopwatch?.elapsedMicroseconds??0);
+    txHistoryMutex.release();
   }
+  monero.debugCallLength["CW_Transaction_list_construct"] ??= <int>[];
   monero.debugCallLength["CW_Transaction_list_construct"]!.add(stopwatch?.elapsedMicroseconds??0);
 
   final accts = monero.Wallet_numSubaddressAccounts(wptr!);
