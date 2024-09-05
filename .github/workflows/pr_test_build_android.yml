@@ -112,15 +112,13 @@ jobs:
           # build mwebd:
           cd /opt/android/cake_wallet
           git clone https://github.com/ltcmweb/mwebd
-          git reset --hard 49c42597ce5036fe1065200c3c056d0aba5f1a58
+          git reset --hard 7f31c84eeb2e954f2c5f385b39db3b8e3b6389e3
           cd /opt/android/cake_wallet/mwebd
           gomobile bind -target=android -androidapi 21 .
           mkdir -p /opt/android/cake_wallet/cw_mweb/android/libs/
           mv ./mwebd.aar $_
           cd ..
           rm -rf mwebd
-
-
 
       - name: Generate KeyStore
         run: |

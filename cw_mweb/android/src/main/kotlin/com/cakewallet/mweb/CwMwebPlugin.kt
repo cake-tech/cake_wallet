@@ -42,7 +42,7 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
       val scanSecret: ByteArray = call.argument<ByteArray>("scanSecret") ?: ByteArray(0)
       val spendPub: ByteArray = call.argument<ByteArray>("spendPub") ?: ByteArray(0)
       val index: Int = call.argument<Int>("index") ?: 0
-      val res = Mwebd.addressIndex(scanSecret, spendPub, index.toLong())
+      val res = Mwebd.addressIndex(scanSecret, spendPub, index)
       result.success(res)
     } else {
       result.notImplemented()
