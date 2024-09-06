@@ -4,6 +4,9 @@ abstract class SyncStatus {
 }
 
 class StartingScanSyncStatus extends SyncStatus {
+  StartingScanSyncStatus(this.beginHeight);
+
+  final int beginHeight;
   @override
   double progress() => 0.0;
 }

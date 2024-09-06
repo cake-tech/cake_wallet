@@ -51,8 +51,6 @@ part 'electrum_wallet.g.dart';
 
 class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 
-const int TWEAKS_COUNT = 25;
-
 abstract class ElectrumWalletBase
     extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
     with Store, WalletKeysFile {
@@ -212,7 +210,7 @@ abstract class ElectrumWalletBase
     silentPaymentsScanningActive = active;
 
     if (active) {
-      syncStatus = StartingScanSyncStatus();
+      syncStatus = StartingScanSyncStatus(walletInfo.restoreHeight);
 
       final tip = await getUpdatedChainTip();
 
@@ -303,7 +301,7 @@ abstract class ElectrumWalletBase
       return;
     }
 
-    syncStatus = StartingScanSyncStatus();
+    syncStatus = StartingScanSyncStatus(height);
 
     if (_isolate != null) {
       final runningIsolate = await _isolate!;
@@ -1595,8 +1593,6 @@ abstract class ElectrumWalletBase
   Future<ElectrumTransactionBundle> getTransactionExpanded(
       {required String hash, int? height}) async {
     String transactionHex;
-    // TODO: time is not always available, and calculating it from height is not always accurate.
-    // Add settings to choose API provider and use and http server instead of electrum for this.
     int? time;
     int? confirmations;
 
@@ -1604,6 +1600,22 @@ abstract class ElectrumWalletBase
 
     if (verboseTransaction.isEmpty) {
       transactionHex = await electrumClient.getTransactionHex(hash: hash);
+
+      final blockHash = await http.get(
+        Uri.parse(
+          "http://mempool.cakewallet.com:8999/api/v1/block-height/$height",
+        ),
+      );
+      final blockResponse = await http.get(
+        Uri.parse(
+          "http://mempool.cakewallet.com:8999/api/v1/block/${blockHash.body}",
+        ),
+      );
+      if (blockResponse.statusCode == 200 &&
+          blockResponse.body.isNotEmpty &&
+          jsonDecode(blockResponse.body)['timestamp'] != null) {
+        time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
+      }
     } else {
       transactionHex = verboseTransaction['hex'] as String;
       time = verboseTransaction['time'] as int?;
@@ -2059,7 +2071,8 @@ abstract class ElectrumWalletBase
       _isTryingToConnect = true;
 
       Timer(Duration(seconds: 10), () {
-        if (this.syncStatus is NotConnectedSyncStatus || this.syncStatus is LostConnectionSyncStatus) {
+        if (this.syncStatus is NotConnectedSyncStatus ||
+            this.syncStatus is LostConnectionSyncStatus) {
           this.electrumClient.connectToUri(
                 node!.uri,
                 useSSL: node!.useSSL ?? false,
@@ -2190,21 +2203,22 @@ Future<void> startRefresh(ScanData scanData) async {
 
   BehaviorSubject<Object>? tweaksSubscription = null;
 
-  final syncingStatus = scanData.isSingleScan
-      ? SyncingSyncStatus(1, 0)
-      : SyncingSyncStatus.fromHeightValues(scanData.chainTip, initialSyncHeight, syncHeight);
-
-  // Initial status UI update, send how many blocks left to scan
-  scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
-
   final electrumClient = scanData.electrumClient;
   await electrumClient.connectToUri(
     scanData.node?.uri ?? Uri.parse("tcp://electrs.cakewallet.com:50001"),
     useSSL: scanData.node?.useSSL ?? false,
   );
 
+  int getCountPerRequest(int syncHeight) {
+    if (scanData.isSingleScan) {
+      return 1;
+    }
+
+    final amountLeft = scanData.chainTip - syncHeight + 1;
+    return amountLeft;
+  }
+
   if (tweaksSubscription == null) {
-    final count = scanData.isSingleScan ? 1 : TWEAKS_COUNT;
     final receiver = Receiver(
       scanData.silentAddress.b_scan.toHex(),
       scanData.silentAddress.B_spend.toHex(),
@@ -2213,13 +2227,27 @@ Future<void> startRefresh(ScanData scanData) async {
       scanData.labelIndexes.length,
     );
 
-    tweaksSubscription = await electrumClient.tweaksSubscribe(height: syncHeight, count: count);
+    tweaksSubscription = await electrumClient.tweaksSubscribe(
+      height: syncHeight,
+      count: getCountPerRequest(syncHeight),
+    );
     tweaksSubscription?.listen((t) async {
+      final syncingStatus = scanData.isSingleScan
+          ? SyncingSyncStatus(1, 0)
+          : SyncingSyncStatus.fromHeightValues(scanData.chainTip, initialSyncHeight, syncHeight);
+
+      // Initial status UI update, send how many blocks left to scan
+      scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
+
       final tweaks = t as Map<String, dynamic>;
 
       if (tweaks["message"] != null) {
         // re-subscribe to continue receiving messages, starting from the next unscanned height
-        electrumClient.tweaksSubscribe(height: syncHeight + 1, count: count);
+        final newSyncHeight = syncHeight + 1;
+        electrumClient.tweaksSubscribe(
+          height: newSyncHeight,
+          count: getCountPerRequest(newSyncHeight),
+        );
         return;
       }
 
@@ -2316,16 +2344,6 @@ Future<void> startRefresh(ScanData scanData) async {
       } catch (_) {}
 
       syncHeight = tweakHeight;
-      scanData.sendPort.send(
-        SyncResponse(
-          syncHeight,
-          SyncingSyncStatus.fromHeightValues(
-            scanData.chainTip,
-            initialSyncHeight,
-            syncHeight,
-          ),
-        ),
-      );
 
       if (tweakHeight >= scanData.chainTip || scanData.isSingleScan) {
         if (tweakHeight >= scanData.chainTip)

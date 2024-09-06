@@ -711,7 +711,7 @@
   "sync_status_connecting": "ՄԻԱՑՎՈՒՄ Է",
   "sync_status_failed_connect": "ՉՄԻԱՑԱՎ",
   "sync_status_not_connected": "ՄԻԱՑՎԱԾ ՉԷ",
-  "sync_status_starting_scan": "ՍԿԱՆԱՎՈՐՈՒՄԸ ՍԿՍՎՈՒՄ Է",
+  "sync_status_starting_scan": "Սկսած սկան (${height})",
   "sync_status_starting_sync": "ՀԱՄԱԺԱՄԵՑՈՒՄԸ ՍԿՍՎՈՒՄ Է",
   "sync_status_syncronized": "ՀԱՄԱԺԱՄԵՑՎԱԾԷ",
   "sync_status_syncronizing": "ՀԱՄԱԺԱՄԵՑՎՈՒՄ Է",

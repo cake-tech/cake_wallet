@@ -268,16 +268,12 @@ class ElectrumClient {
     try {
       final result = await callWithTimeout(
           method: 'blockchain.transaction.get', params: [hash, verbose], timeout: 10000);
-      if (result is Map<String, dynamic>) {
-        return result;
-      }
+      return result;
     } on RequestFailedTimeoutException catch (_) {
       return <String, dynamic>{};
     } catch (e) {
-      print("getTransaction: ${e.toString()}");
       return <String, dynamic>{};
     }
-    return <String, dynamic>{};
   }
 
   Future<Map<String, dynamic>> getTransactionVerbose({required String hash}) =>

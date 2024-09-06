@@ -522,7 +522,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  int getHeightByDate({required DateTime date}) => getBitcoinHeightByDate(date: date);
+  Future<int> getHeightByDate({required DateTime date}) async =>
+      await getBitcoinHeightByDateAPI(date: date);
 
   @override
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
