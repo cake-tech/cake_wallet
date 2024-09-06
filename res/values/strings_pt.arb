@@ -601,6 +601,8 @@
   "seed_share": "Compartilhar semente",
   "seed_title": "Semente",
   "seedtype": "SeedType",
+  "seedtype_alert_content": "Compartilhar sementes com outras carteiras só é possível com o BIP39 SeedType.",
+  "seedtype_alert_title": "Alerta de SeedType",
   "seedtype_legacy": "Legado (25 palavras)",
   "seedtype_polyseed": "Polyseed (16 palavras)",
   "select_backup_file": "Selecione o arquivo de backup",

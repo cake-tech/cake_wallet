@@ -600,6 +600,8 @@
   "seed_share": "Compartir semillas",
   "seed_title": "Semilla",
   "seedtype": "Type de semillas",
+  "seedtype_alert_content": "Compartir semillas con otras billeteras solo es posible con Bip39 Seed Type.",
+  "seedtype_alert_title": "Alerta de type de semillas",
   "seedtype_legacy": "Legado (25 palabras)",
   "seedtype_polyseed": "Polieta (16 palabras)",
   "select_backup_file": "Seleccionar archivo de respaldo",

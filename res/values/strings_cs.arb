@@ -599,6 +599,8 @@
   "seed_share": "Sdílet seed",
   "seed_title": "Seed",
   "seedtype": "SeedType",
+  "seedtype_alert_content": "Sdílení semen s jinými peněženkami je možné pouze u BIP39 SeedType.",
+  "seedtype_alert_title": "Upozornění seedtype",
   "seedtype_legacy": "Legacy (25 slov)",
   "seedtype_polyseed": "Polyseed (16 slov)",
   "select_backup_file": "Vybrat soubor se zálohou",

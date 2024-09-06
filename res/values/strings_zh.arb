@@ -599,6 +599,8 @@
   "seed_share": "分享种子",
   "seed_title": "种子",
   "seedtype": "籽粒",
+  "seedtype_alert_content": "只有BIP39籽粒可以与其他钱包共享种子。",
+  "seedtype_alert_title": "籽粒警报",
   "seedtype_legacy": "遗产（25个单词）",
   "seedtype_polyseed": "多种物品（16个单词）",
   "select_backup_file": "选择备份文件",

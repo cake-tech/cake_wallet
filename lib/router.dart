@@ -138,7 +138,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
       if (SettingsStoreBase.walletPasswordDirectInput) {
         if (availableWalletTypes.length == 1) {
           return createRoute(
-              RouteSettings(name: Routes.newWallet, arguments: availableWalletTypes.first));
+            RouteSettings(
+              name: Routes.newWallet,
+              arguments: NewWalletArguments(type: availableWalletTypes.first),
+            ),
+          );
         } else {
           return createRoute(RouteSettings(name: Routes.newWalletType));
         }
@@ -148,8 +152,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) =>
               getIt.get<SetupPinCodePage>(param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
                 if (availableWalletTypes.length == 1) {
-                  Navigator.of(context.context)
-                      .pushNamed(Routes.newWallet, arguments: availableWalletTypes.first);
+                  Navigator.of(context.context).pushNamed(
+                    Routes.newWallet,
+                    arguments: NewWalletArguments(type: availableWalletTypes.first),
+                  );
                 } else {
                   Navigator.of(context.context).pushNamed(Routes.newWalletType);
                 }
@@ -159,8 +165,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWalletType:
       return CupertinoPageRoute<void>(
         builder: (_) => getIt.get<NewWalletTypePage>(
-          param1: (BuildContext context, WalletType type) =>
-              Navigator.of(context).pushNamed(Routes.newWallet, arguments: type),
+          param1: (BuildContext context, WalletType type) => Navigator.of(context).pushNamed(
+            Routes.newWallet,
+            arguments: NewWalletArguments(type: type),
+          ),
           param2: [true, false],
         ),
       );
@@ -178,7 +186,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final seedSettingsViewModel = getIt.get<SeedSettingsViewModel>();
 
       return CupertinoPageRoute<void>(
-          builder: (_) => NewWalletPage(walletNewVM, seedSettingsViewModel));
+        builder: (_) => NewWalletPage(
+          walletNewVM,
+          seedSettingsViewModel,
+          isChildWallet: args.isChildWallet,
+        ),
+      );
 
     case Routes.chooseHardwareWalletAccount:
       final arguments = settings.arguments as List<dynamic>;
@@ -611,12 +624,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final args = settings.arguments as Map<String, dynamic>;
       final type = args['type'] as WalletType;
       final isFromRestore = args['isFromRestore'] as bool? ?? false;
+      final isChildWallet = args['isChildWallet'] as bool? ?? false;
       final useTestnet = args['useTestnet'] as bool;
       final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
                 isFromRestore: isFromRestore,
+                isChildWallet: isChildWallet,
                 useTestnet: useTestnet,
                 toggleUseTestnet: toggleTestnet,
                 advancedPrivacySettingsViewModel:

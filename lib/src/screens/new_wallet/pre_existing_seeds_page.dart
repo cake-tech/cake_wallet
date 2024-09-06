@@ -120,6 +120,7 @@ class PreExistingSeedBody extends StatelessWidget {
           type: preExistingSeedsViewModel.type,
           mnemonic: mnemonic,
           parentAddress: preExistingSeedsViewModel.parentAddress,
+          isChildWallet: true,
         ),
       );
     }

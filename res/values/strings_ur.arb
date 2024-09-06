@@ -601,6 +601,8 @@
   "seed_share": "بیج بانٹیں۔",
   "seed_title": "بیج",
   "seedtype": "سیڈ ٹائپ",
+  "seedtype_alert_content": "دوسرے بٹوے کے ساتھ بیجوں کا اشتراک صرف BIP39 بیج ٹائپ کے ساتھ ہی ممکن ہے۔",
+  "seedtype_alert_title": "سیڈ ٹائپ الرٹ",
   "seedtype_legacy": "میراث (25 الفاظ)",
   "seedtype_polyseed": "پالیسیڈ (16 الفاظ)",
   "select_backup_file": "بیک اپ فائل کو منتخب کریں۔",

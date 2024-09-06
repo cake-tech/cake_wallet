@@ -602,6 +602,8 @@
   "seed_share": "Bagikan bibit",
   "seed_title": "Bibit",
   "seedtype": "Seedtype",
+  "seedtype_alert_content": "Berbagi biji dengan dompet lain hanya dimungkinkan dengan BIP39 seedtype.",
+  "seedtype_alert_title": "Peringatan seedtype",
   "seedtype_legacy": "Legacy (25 kata)",
   "seedtype_polyseed": "Polyseed (16 kata)",
   "select_backup_file": "Pilih file cadangan",

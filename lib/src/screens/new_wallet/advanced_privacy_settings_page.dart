@@ -9,10 +9,12 @@ import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -24,6 +26,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 class AdvancedPrivacySettingsPage extends BasePage {
   AdvancedPrivacySettingsPage({
     required this.isFromRestore,
+    required this.isChildWallet,
     required this.useTestnet,
     required this.toggleUseTestnet,
     required this.advancedPrivacySettingsViewModel,
@@ -39,25 +42,40 @@ class AdvancedPrivacySettingsPage extends BasePage {
   String get title => S.current.privacy_settings;
 
   final bool isFromRestore;
+  final bool isChildWallet;
   final bool useTestnet;
   final Function(bool? val) toggleUseTestnet;
 
   @override
-  Widget body(BuildContext context) => _AdvancedPrivacySettingsBody(isFromRestore, useTestnet,
-      toggleUseTestnet, advancedPrivacySettingsViewModel, nodeViewModel, seedSettingsViewModel);
+  Widget body(BuildContext context) => _AdvancedPrivacySettingsBody(
+        isFromRestore,
+        isChildWallet,
+        useTestnet,
+        toggleUseTestnet,
+        advancedPrivacySettingsViewModel,
+        nodeViewModel,
+        seedSettingsViewModel,
+      );
 }
 
 class _AdvancedPrivacySettingsBody extends StatefulWidget {
-  const _AdvancedPrivacySettingsBody(this.isFromRestore, this.useTestnet, this.toggleUseTestnet,
-      this.privacySettingsViewModel, this.nodeViewModel, this.seedTypeViewModel,
-      {Key? key})
-      : super(key: key);
+  const _AdvancedPrivacySettingsBody(
+    this.isFromRestore,
+    this.isChildWallet,
+    this.useTestnet,
+    this.toggleUseTestnet,
+    this.privacySettingsViewModel,
+    this.nodeViewModel,
+    this.seedTypeViewModel, {
+    Key? key,
+  }) : super(key: key);
 
   final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
   final SeedSettingsViewModel seedTypeViewModel;
 
   final bool isFromRestore;
+  final bool isChildWallet;
   final bool useTestnet;
   final Function(bool? val) toggleUseTestnet;
 
@@ -134,7 +152,13 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                     title: S.current.seedtype,
                     items: BitcoinSeedType.all,
                     selectedItem: widget.seedTypeViewModel.bitcoinSeedType,
-                    onItemSelected: widget.seedTypeViewModel.setBitcoinSeedType,
+                    onItemSelected: (type) {
+                      if (widget.isChildWallet && type != BitcoinSeedType.bip39) {
+                        showAlertForSelectingNonBIP39DerivationTypeForChildWallets();
+                      } else {
+                        widget.seedTypeViewModel.setBitcoinSeedType(type);
+                      }
+                    },
                   ),
                 );
               }),
@@ -145,7 +169,13 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                     title: S.current.seedtype,
                     items: NanoSeedType.all,
                     selectedItem: widget.seedTypeViewModel.nanoSeedType,
-                    onItemSelected: widget.seedTypeViewModel.setNanoSeedType,
+                    onItemSelected: (type) {
+                      if (widget.isChildWallet && type != NanoSeedType.bip39) {
+                        showAlertForSelectingNonBIP39DerivationTypeForChildWallets();
+                      } else {
+                        widget.seedTypeViewModel.setNanoSeedType(type);
+                      }
+                    },
                   ),
                 );
               }),
@@ -264,6 +294,19 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
         ),
       ),
     );
+  }
+
+  void showAlertForSelectingNonBIP39DerivationTypeForChildWallets() {
+    showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+            alertTitle: S.current.seedtype_alert_title,
+            alertContent: S.current.seedtype_alert_content,
+            buttonText: S.of(context).ok,
+            buttonAction: () => Navigator.of(context).pop(),
+          );
+        });
   }
 
   @override

@@ -599,6 +599,8 @@
   "seed_share": "Tohumu paylaş",
   "seed_title": "Tohum",
   "seedtype": "Tohum",
+  "seedtype_alert_content": "Tohumları diğer cüzdanlarla paylaşmak sadece BIP39 tohumu ile mümkündür.",
+  "seedtype_alert_title": "SeedType uyarısı",
   "seedtype_legacy": "Miras (25 kelime)",
   "seedtype_polyseed": "Polyseed (16 kelime)",
   "select_backup_file": "Yedek dosyası seç",

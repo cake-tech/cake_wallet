@@ -601,6 +601,8 @@
   "seed_share": "बीज साझा करें",
   "seed_title": "बीज",
   "seedtype": "बीज",
+  "seedtype_alert_content": "अन्य बटुए के साथ बीज साझा करना केवल BIP39 SEEDTYPE के साथ संभव है।",
+  "seedtype_alert_title": "बीजगणित अलर्ट",
   "seedtype_legacy": "विरासत (25 शब्द)",
   "seedtype_polyseed": "पॉलीसीड (16 शब्द)",
   "select_backup_file": "बैकअप फ़ाइल का चयन करें",

@@ -599,6 +599,8 @@
   "seed_share": "Udostępnij seed",
   "seed_title": "Seed",
   "seedtype": "Sedtype",
+  "seedtype_alert_content": "Dzielenie się nasionami z innymi portfelami jest możliwe tylko z BIP39 sededType.",
+  "seedtype_alert_title": "Ustanowienie typu sedype",
   "seedtype_legacy": "Dziedzictwo (25 słów)",
   "seedtype_polyseed": "Poliqueed (16 słów)",
   "select_backup_file": "Wybierz plik kopii zapasowej",

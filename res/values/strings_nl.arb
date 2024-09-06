@@ -599,6 +599,8 @@
   "seed_share": "Deel zaad",
   "seed_title": "Zaad",
   "seedtype": "Zaadtype",
+  "seedtype_alert_content": "Het delen van zaden met andere portefeuilles is alleen mogelijk met BIP39 SeedType.",
+  "seedtype_alert_title": "Zaadtype alert",
   "seedtype_legacy": "Legacy (25 woorden)",
   "seedtype_polyseed": "Polyseed (16 woorden)",
   "select_backup_file": "Selecteer een back-upbestand",

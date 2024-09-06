@@ -600,6 +600,8 @@
   "seed_share": "シードを共有する",
   "seed_title": "シード",
   "seedtype": "SeedType",
+  "seedtype_alert_content": "他の財布と種子を共有することは、BIP39 SeedTypeでのみ可能です。",
+  "seedtype_alert_title": "SeedTypeアラート",
   "seedtype_legacy": "レガシー（25語）",
   "seedtype_polyseed": "ポリシード（16語）",
   "select_backup_file": "バックアップファイルを選択",

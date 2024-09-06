@@ -51,7 +51,7 @@ abstract class PreExistingSeedsViewModelBase with Store {
       selectedWalletGroup!.leadWallet!.name,
     );
 
-    parentAddress = wallet.walletAddresses.address;
+    parentAddress = selectedWalletGroup!.parentAddress;
 
     return wallet.seed;
   }
@@ -85,6 +85,9 @@ abstract class PreExistingSeedsViewModelBase with Store {
       if (leadWalletInfo == null) continue;
 
       if (!isBIP39Wallet(leadWalletInfo.type)) continue;
+
+      if (leadWalletInfo.type == WalletType.nano &&
+          leadWalletInfo.derivationInfo?.derivationType == DerivationType.nano) continue;
 
       // Check if the lead wallet type is not the same as the selected type
       bool isSameTypeAsSelectedWallet = leadWalletInfo.type == type;

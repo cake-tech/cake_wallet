@@ -48,7 +48,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
       case WalletType.nano:
       case WalletType.banano:
-        return _settingsStore.bitcoinSeedType == BitcoinSeedType.bip39;
+        return _settingsStore.nanoSeedType == NanoSeedType.bip39;
 
       case WalletType.monero:
       case WalletType.wownero:

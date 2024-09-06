@@ -599,6 +599,8 @@
   "seed_share": "Споделяне на seed",
   "seed_title": "Seed",
   "seedtype": "Семенна тип",
+  "seedtype_alert_content": "Споделянето на семена с други портфейли е възможно само с BIP39 Seedtype.",
+  "seedtype_alert_title": "Сигнал за семена",
   "seedtype_legacy": "Наследство (25 думи)",
   "seedtype_polyseed": "Поли семе (16 думи)",
   "select_backup_file": "Избор на резервно копие",

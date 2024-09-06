@@ -599,6 +599,8 @@
   "seed_share": "မျိုးစေ့မျှဝေပါ။",
   "seed_title": "မျိုးစေ့",
   "seedtype": "မျိုးပွားခြင်း",
+  "seedtype_alert_content": "အခြားပိုက်ဆံအိတ်များနှင့်မျိုးစေ့များကိုမျှဝေခြင်းသည် BIP39 sebyspe ဖြင့်သာဖြစ်သည်။",
+  "seedtype_alert_title": "ပျိုးပင်သတိပေးချက်",
   "seedtype_legacy": "အမွေအနှစ် (စကားလုံး 25 လုံး)",
   "seedtype_polyseed": "polyseed (စကားလုံး 16 လုံး)",
   "select_backup_file": "အရန်ဖိုင်ကို ရွေးပါ။",

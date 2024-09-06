@@ -600,6 +600,8 @@
   "seed_share": "Поделиться мнемонической фразой",
   "seed_title": "Мнемоническая фраза",
   "seedtype": "SEEDTYPE",
+  "seedtype_alert_content": "Обмен семенами с другими кошельками возможно только с BIP39 SeedType.",
+  "seedtype_alert_title": "SEEDTYPE ALERT",
   "seedtype_legacy": "Наследие (25 слов)",
   "seedtype_polyseed": "Полиса (16 слов)",
   "select_backup_file": "Выберите файл резервной копии",

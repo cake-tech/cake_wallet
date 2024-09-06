@@ -595,6 +595,8 @@
   "seed_share": "Կիսվել սերմով",
   "seed_title": "Սերմ",
   "seedtype": "Սերմի տեսակ",
+  "seedtype_alert_content": "Այլ դրամապանակներով սերմերի փոխանակումը հնարավոր է միայն BIP39 SEEDTYPE- ով:",
+  "seedtype_alert_title": "SEEDTYPE ALERT",
   "seedtype_legacy": "Legacy (25 բառ)",
   "seedtype_polyseed": "Polyseed (16 բառ)",
   "seedtype_wownero": "Wownero (14 բառ)",

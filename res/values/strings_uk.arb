@@ -600,6 +600,8 @@
   "seed_share": "Поділитися мнемонічною фразою",
   "seed_title": "Мнемонічна фраза",
   "seedtype": "Насіннєвий тип",
+  "seedtype_alert_content": "Спільний доступ до інших гаманців можливе лише за допомогою BIP39 Seedtype.",
+  "seedtype_alert_title": "Попередження насінника",
   "seedtype_legacy": "Спадщина (25 слів)",
   "seedtype_polyseed": "Полісей (16 слів)",
   "select_backup_file": "Виберіть файл резервної копії",

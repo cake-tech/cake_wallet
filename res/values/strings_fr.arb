@@ -599,6 +599,8 @@
   "seed_share": "Partager la phrase secrète (seed)",
   "seed_title": "Phrase secrète (seed)",
   "seedtype": "Type de type graine",
+  "seedtype_alert_content": "Le partage de graines avec d'autres portefeuilles n'est possible qu'avec Bip39 SeedType.",
+  "seedtype_alert_title": "Alerte de type SeedType",
   "seedtype_legacy": "Héritage (25 mots)",
   "seedtype_polyseed": "Polyseed (16 mots)",
   "select_backup_file": "Sélectionnez le fichier de sauvegarde",

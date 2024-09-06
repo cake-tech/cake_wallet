@@ -599,6 +599,8 @@
   "seed_share": "Podijeli pristupni izraz",
   "seed_title": "Prisupni izraz",
   "seedtype": "Sjemenska vrsta",
+  "seedtype_alert_content": "Dijeljenje sjemena s drugim novčanicima moguće je samo s BIP39 sjemenom.",
+  "seedtype_alert_title": "Upozorenje o sjemenu",
   "seedtype_legacy": "Nasljeđe (25 riječi)",
   "seedtype_polyseed": "Poliseed (16 riječi)",
   "select_backup_file": "Odaberite datoteku sigurnosne kopije",

@@ -601,6 +601,8 @@
   "seed_share": "Condividi seme",
   "seed_title": "Seme",
   "seedtype": "Seedtype",
+  "seedtype_alert_content": "La condivisione di semi con altri portafogli è possibile solo con Bip39 SeedType.",
+  "seedtype_alert_title": "Avviso seedType",
   "seedtype_legacy": "Legacy (25 parole)",
   "seedtype_polyseed": "Polyseed (16 parole)",
   "select_backup_file": "Seleziona file di backup",

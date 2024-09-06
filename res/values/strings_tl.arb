@@ -599,6 +599,8 @@
   "seed_share": "Ibahagi ang seed",
   "seed_title": "Seed",
   "seedtype": "Seed type",
+  "seedtype_alert_content": "Ang pagbabahagi ng mga buto sa iba pang mga pitaka ay posible lamang sa bip39 seedtype.",
+  "seedtype_alert_title": "Alerto ng Seedtype",
   "seedtype_legacy": "Legacy (25 na salita)",
   "seedtype_polyseed": "Polyseed (16 na salita)",
   "select_backup_file": "Piliin ang backup na file",

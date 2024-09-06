@@ -600,6 +600,8 @@
   "seed_share": "시드 공유",
   "seed_title": "씨",
   "seedtype": "시드 타입",
+  "seedtype_alert_content": "다른 지갑과 씨앗을 공유하는 것은 BIP39 SeedType에서만 가능합니다.",
+  "seedtype_alert_title": "종자 경보",
   "seedtype_legacy": "레거시 (25 단어)",
   "seedtype_polyseed": "다문 (16 단어)",
   "select_backup_file": "백업 파일 선택",

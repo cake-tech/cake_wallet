@@ -599,6 +599,8 @@
   "seed_share": "แบ่งปัน seed",
   "seed_title": "Seed",
   "seedtype": "เมล็ดพันธุ์",
+  "seedtype_alert_content": "การแบ่งปันเมล็ดกับกระเป๋าเงินอื่น ๆ เป็นไปได้เฉพาะกับ bip39 seedtype",
+  "seedtype_alert_title": "การแจ้งเตือน seedtype",
   "seedtype_legacy": "มรดก (25 คำ)",
   "seedtype_polyseed": "โพลีส (16 คำ)",
   "select_backup_file": "เลือกไฟล์สำรอง",

@@ -599,6 +599,8 @@
   "seed_share": "Share seed",
   "seed_title": "Seed",
   "seedtype": "Seedtype",
+  "seedtype_alert_content": "Sharing seeds with other wallets is only possible with BIP39 SeedType.",
+  "seedtype_alert_title": "SeedType Alert",
   "seedtype_legacy": "Legacy (25 words)",
   "seedtype_polyseed": "Polyseed (16 words)",
   "seedtype_wownero": "Wownero (14 words)",

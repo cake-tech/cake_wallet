@@ -600,6 +600,8 @@
   "seed_share": "Seed teilen",
   "seed_title": "Seed",
   "seedtype": "Seedtyp",
+  "seedtype_alert_content": "Das Teilen von Samen mit anderen Brieftaschen ist nur mit bip39 Seedype möglich.",
+  "seedtype_alert_title": "Seedype -Alarm",
   "seedtype_legacy": "Veraltet (25 Wörter)",
   "seedtype_polyseed": "Polyseed (16 Wörter)",
   "select_backup_file": "Sicherungsdatei auswählen",
