@@ -96,9 +96,9 @@ jobs:
 
       - name: Install go and gomobile
         run: |
-          # install go > 1.21:
-          wget https://go.dev/dl/go1.22.4.linux-amd64.tar.gz
-          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.22.4.linux-amd64.tar.gz
+          # install go > 1.23:
+          wget https://go.dev/dl/go1.23.1.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.23.1.linux-amd64.tar.gz
           export PATH=$PATH:/usr/local/go/bin
           export PATH=$PATH:~/go/bin
           go install golang.org/x/mobile/cmd/gomobile@latest
@@ -113,7 +113,7 @@ jobs:
           cd /opt/android/cake_wallet
           git clone https://github.com/ltcmweb/mwebd
           cd /opt/android/cake_wallet/mwebd
-          git reset --hard 7f31c84eeb2e954f2c5f385b39db3b8e3b6389e3
+          git reset --hard f6ea8a9e3d348b01bb44f03a1cc4ad65b0abe935
           gomobile bind -target=android -androidapi 21 .
           mkdir -p /opt/android/cake_wallet/cw_mweb/android/libs/
           mv ./mwebd.aar $_
