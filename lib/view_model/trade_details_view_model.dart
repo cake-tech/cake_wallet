@@ -8,6 +8,7 @@ import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dar
 import 'package:cake_wallet/exchange/provider/quantex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -63,6 +64,9 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.letsExchange:
         _provider = LetsExchangeExchangeProvider();
         break;
+      case ExchangeProviderDescription.stealthEx:
+        _provider = StealthExExchangeProvider();
+        break;
     }
 
     _updateItems();
@@ -91,6 +95,8 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://myquantex.com/send/${trade.id}';
       case ExchangeProviderDescription.letsExchange:
         return 'https://letsexchange.io/?transactionId=${trade.id}';
+      case ExchangeProviderDescription.stealthEx:
+        return 'https://stealthex.io/exchange/?id=${trade.id}';
     }
     return null;
   }
