@@ -116,7 +116,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 ),
               );
             }),
-            if (widget.privacySettingsViewModel.hasSeedTypeOption)
+            if (widget.privacySettingsViewModel.isMoneroSeedTypeOptionsEnabled)
               Observer(builder: (_) {
                 return SettingsChoicesCell(
                   ChoicesListItem<MoneroSeedType>(
@@ -127,8 +127,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   ),
                 );
               }),
-            if ([WalletType.bitcoin, WalletType.litecoin]
-                .contains(widget.privacySettingsViewModel.type))
+            if (widget.privacySettingsViewModel.isBitcoinSeedTypeOptionsEnabled)
               Observer(builder: (_) {
                 return SettingsChoicesCell(
                   ChoicesListItem<BitcoinSeedType>(
@@ -136,6 +135,17 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                     items: BitcoinSeedType.all,
                     selectedItem: widget.seedTypeViewModel.bitcoinSeedType,
                     onItemSelected: widget.seedTypeViewModel.setBitcoinSeedType,
+                  ),
+                );
+              }),
+            if (widget.privacySettingsViewModel.isNanoSeedTypeOptionsEnabled)
+              Observer(builder: (_) {
+                return SettingsChoicesCell(
+                  ChoicesListItem<NanoSeedType>(
+                    title: S.current.seedtype,
+                    items: NanoSeedType.all,
+                    selectedItem: widget.seedTypeViewModel.nanoSeedType,
+                    onItemSelected: widget.seedTypeViewModel.setNanoSeedType,
                   ),
                 );
               }),

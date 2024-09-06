@@ -289,7 +289,8 @@ class WalletRestorePage extends BasePage {
 
     // bip39:
     const validSeedLengths = [12, 18, 24];
-    if (walletRestoreViewModel.type == WalletType.bitcoin &&
+    if ((walletRestoreViewModel.type == WalletType.bitcoin ||
+            walletRestoreViewModel.type == WalletType.nano) &&
         !(validSeedLengths.contains(seedWords.length))) {
       return false;
     }
