@@ -853,6 +853,7 @@
   "voting_weight": "Stimmgewicht",
   "waitFewSecondForTxUpdate": "Bitte warten Sie einige Sekunden, bis die Transaktion im Transaktionsverlauf angezeigt wird",
   "waiting_payment_confirmation": "Warte auf Zahlungsbestätigung",
+  "wallet_group": "Brieftaschengruppe",
   "wallet_keys": "Wallet-Seed/-Schlüssel",
   "wallet_list_create_new_wallet": "Neue Wallet erstellen",
   "wallet_list_edit_group_name": "Gruppenname bearbeiten",

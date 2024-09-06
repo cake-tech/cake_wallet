@@ -161,10 +161,9 @@ class WalletListBodyState extends State<WalletListBody> {
                               margin: EdgeInsets.only(left: 20, right: 20, bottom: 12),
                               title: groupName,
                               tileKey: ValueKey('group_wallets_expansion_tile_widget_$int'),
-                              leadingWidget: Image.asset(
-                                'assets/images/cakewallet_logo.png',
-                                width: 32,
-                                height: 32,
+                              leadingWidget: Icon(
+                                Icons.account_balance_wallet_outlined,
+                                size: 28,
                               ),
                               trailingWidget: EditWalletButtonWidget(
                                 width: 74,

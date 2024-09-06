@@ -851,6 +851,7 @@
   "view_transaction_on": "View Transaction on ",
   "voting_weight": "Вага голосування",
   "waitFewSecondForTxUpdate": "Будь ласка, зачекайте кілька секунд, поки транзакція відобразиться в історії транзакцій",
+  "wallet_group": "Група гаманців",
   "wallet_keys": "Мнемонічна фраза/ключі гаманця",
   "wallet_list_create_new_wallet": "Створити новий гаманець",
   "wallet_list_edit_group_name": "Назва групи редагування",

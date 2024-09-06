@@ -851,6 +851,7 @@
   "view_transaction_on": "View Transaction on ",
   "voting_weight": "투표 중량",
   "waitFewSecondForTxUpdate": "거래 내역에 거래가 반영될 때까지 몇 초 정도 기다려 주세요.",
+  "wallet_group": "지갑 그룹",
   "wallet_keys": "지갑 시드 / 키",
   "wallet_list_create_new_wallet": "새 월렛 만들기",
   "wallet_list_edit_group_name": "그룹 이름 편집",

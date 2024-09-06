@@ -851,6 +851,7 @@
   "voting_weight": "Stemgewicht",
   "waitFewSecondForTxUpdate": "Wacht een paar seconden totdat de transactie wordt weergegeven in de transactiegeschiedenis",
   "waiting_payment_confirmation": "In afwachting van betalingsbevestiging",
+  "wallet_group": "Portemonnee",
   "wallet_keys": "Portemonnee zaad/sleutels",
   "wallet_list_create_new_wallet": "Maak een nieuwe portemonnee",
   "wallet_list_edit_group_name": "Groepsnaam bewerken",

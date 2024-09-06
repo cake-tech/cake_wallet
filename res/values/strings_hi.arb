@@ -852,6 +852,7 @@
   "view_transaction_on": "View Transaction on ",
   "voting_weight": "वोटिंग वेट",
   "waitFewSecondForTxUpdate": "लेन-देन इतिहास में लेन-देन प्रतिबिंबित होने के लिए कृपया कुछ सेकंड प्रतीक्षा करें",
+  "wallet_group": "बटुए समूह",
   "wallet_keys": "बटुआ बीज / चाबियाँ",
   "wallet_list_create_new_wallet": "नया बटुआ बनाएँ",
   "wallet_list_edit_group_name": "समूह का नाम संपादित करें",

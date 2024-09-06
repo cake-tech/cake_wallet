@@ -851,6 +851,7 @@
   "view_transaction_on": "View Transaction on ",
   "voting_weight": "Вес голоса",
   "waitFewSecondForTxUpdate": "Пожалуйста, подождите несколько секунд, чтобы транзакция отразилась в истории транзакций.",
+  "wallet_group": "Группа кошелька",
   "wallet_keys": "Мнемоническая фраза/ключи кошелька",
   "wallet_list_create_new_wallet": "Создать новый кошелёк",
   "wallet_list_edit_group_name": "Редактировать название группы",

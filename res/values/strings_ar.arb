@@ -850,6 +850,7 @@
   "view_transaction_on": "عرض العملية على",
   "voting_weight": "وزن التصويت",
   "waitFewSecondForTxUpdate": "ﺕﻼ﻿ﻣﺎﻌﻤﻟﺍ ﻞﺠﺳ ﻲﻓ ﺔﻠﻣﺎﻌﻤﻟﺍ ﺲﻜﻌﻨﺗ ﻰﺘﺣ ﻥﺍﻮﺛ ﻊﻀﺒﻟ ﺭﺎﻈﺘﻧﻻ﻿ﺍ ﻰﺟﺮﻳ",
+  "wallet_group": "مجموعة محفظة",
   "wallet_keys": "سييد المحفظة / المفاتيح",
   "wallet_list_create_new_wallet": "إنشاء محفظة جديدة",
   "wallet_list_edit_group_name": "تحرير اسم المجموعة",

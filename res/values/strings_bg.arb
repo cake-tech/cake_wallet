@@ -850,6 +850,7 @@
   "view_transaction_on": "Вижте транзакция на ",
   "voting_weight": "Тегло на гласуване",
   "waitFewSecondForTxUpdate": "Моля, изчакайте няколко секунди, докато транзакцията се отрази в историята на транзакциите",
+  "wallet_group": "Група на портфейла",
   "wallet_keys": "Seed/keys на портфейла",
   "wallet_list_create_new_wallet": "Създаване на нов портфейл",
   "wallet_list_edit_group_name": "Редактиране на име на групата",

@@ -853,6 +853,7 @@
   "voting_weight": "Peso di voto",
   "waitFewSecondForTxUpdate": "Attendi qualche secondo affinché la transazione venga riflessa nella cronologia delle transazioni",
   "waiting_payment_confirmation": "In attesa di conferma del pagamento",
+  "wallet_group": "Gruppo di portafoglio",
   "wallet_keys": "Seme Portafoglio /chiavi",
   "wallet_list_create_new_wallet": "Crea Nuovo Portafoglio",
   "wallet_list_edit_group_name": "Modifica nome del gruppo",

@@ -852,6 +852,7 @@
   "view_transaction_on": "لین دین دیکھیں آن",
   "voting_weight": "ووٹ کا وزن",
   "waitFewSecondForTxUpdate": "۔ﮟﯾﺮﮐ ﺭﺎﻈﺘﻧﺍ ﺎﮐ ﮉﻨﮑﯿﺳ ﺪﻨﭼ ﻡﺮﮐ ﮦﺍﺮﺑ ﮯﯿﻟ ﮯﮐ ﮯﻧﺮﮐ ﯽﺳﺎﮑﻋ ﯽﮐ ﻦﯾﺩ ﻦﯿﻟ ﮟﯿﻣ ﺦﯾﺭﺎﺗ ﯽﮐ ﻦ",
+  "wallet_group": "پرس گروپ",
   "wallet_keys": "بٹوے کے بیج / چابیاں",
   "wallet_list_create_new_wallet": "نیا والیٹ بنائیں",
   "wallet_list_edit_group_name": "گروپ کے نام میں ترمیم کریں",

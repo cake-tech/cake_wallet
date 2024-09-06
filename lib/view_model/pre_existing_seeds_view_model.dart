@@ -102,9 +102,6 @@ abstract class PreExistingSeedsViewModelBase with Store {
       // Exclude wallets that don't meet the criteria
       if (isSameTypeAsSelectedWallet || isUsedSeed) continue;
 
-      // Remove the lead wallet from the list of child wallets
-      group.wallets.removeWhere((wallet) => wallet.name == group.leadWallet!.name);
-
       // If the group passes the filters, add it to the wallets list
       wallets.add(group);
     }

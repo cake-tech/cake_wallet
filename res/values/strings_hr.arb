@@ -850,6 +850,7 @@
   "view_transaction_on": "View Transaction on ",
   "voting_weight": "Težina glasanja",
   "waitFewSecondForTxUpdate": "Pričekajte nekoliko sekundi da se transakcija prikaže u povijesti transakcija",
+  "wallet_group": "Skupina novčanika",
   "wallet_keys": "Pristupni izraz/ključ novčanika",
   "wallet_list_create_new_wallet": "Izradi novi novčanik",
   "wallet_list_edit_group_name": "Uredi naziv grupe",

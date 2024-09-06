@@ -850,6 +850,7 @@
   "view_transaction_on": "Zobacz transakcje na ",
   "voting_weight": "Waga głosu",
   "waitFewSecondForTxUpdate": "Poczekaj kilka sekund, aż transakcja zostanie odzwierciedlona w historii transakcji",
+  "wallet_group": "Grupa portfela",
   "wallet_keys": "Klucze portfela",
   "wallet_list_create_new_wallet": "Utwórz nowy portfel",
   "wallet_list_edit_group_name": "Edytuj nazwę grupy",

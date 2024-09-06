@@ -850,6 +850,7 @@
   "view_transaction_on": "ငွေလွှဲခြင်းကို ဖွင့်ကြည့်ပါ။",
   "voting_weight": "မဲပေးအလေးချိန်",
   "waitFewSecondForTxUpdate": "ငွေပေးငွေယူ မှတ်တမ်းတွင် ရောင်ပြန်ဟပ်ရန် စက္ကန့်အနည်းငယ်စောင့်ပါ။",
+  "wallet_group": "ပိုက်ဆံအိတ်အုပ်စု",
   "wallet_keys": "ပိုက်ဆံအိတ် အစေ့/သော့များ",
   "wallet_list_create_new_wallet": "Wallet အသစ်ဖန်တီးပါ။",
   "wallet_list_edit_group_name": "အုပ်စုအမည်ကိုတည်းဖြတ်ပါ",

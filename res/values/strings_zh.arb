@@ -850,6 +850,7 @@
   "view_transaction_on": "View Transaction on ",
   "voting_weight": "投票权重",
   "waitFewSecondForTxUpdate": "请等待几秒钟，交易才会反映在交易历史记录中",
+  "wallet_group": "钱包组",
   "wallet_keys": "钱包种子/密钥",
   "wallet_list_create_new_wallet": "创建新钱包",
   "wallet_list_edit_group_name": "编辑组名称",

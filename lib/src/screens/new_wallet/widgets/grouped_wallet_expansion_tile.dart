@@ -71,6 +71,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
         ),
         child: ExpansionTile(
           key: tileKey,
+          tilePadding: EdgeInsets.symmetric(vertical: 1, horizontal: 16),
           iconColor: effectiveArrowColor,
           collapsedIconColor: effectiveArrowColor,
           leading: leadingWidget,

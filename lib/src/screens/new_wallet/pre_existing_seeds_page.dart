@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/view_model/pre_existing_seeds_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -60,12 +59,9 @@ class PreExistingSeedBody extends StatelessWidget {
                       ...preExistingSeedsViewModel.wallets.map(
                         (group) {
                           return GroupedWalletExpansionTile(
-                            leadingWidget: Image.asset(
-                              walletTypeToCryptoCurrency(group.leadWallet!.type).iconPath!,
-                              width: 32,
-                              height: 32,
-                            ),
-                            title: group.leadWallet!.name,
+                            leadingWidget: Icon(Icons.account_balance_wallet_outlined, size: 28),
+                            borderRadius: BorderRadius.all(Radius.circular(16)),
+                            title: S.current.wallet_group,
                             childWallets: group.wallets.map((walletInfo) {
                               return preExistingSeedsViewModel
                                   .convertWalletInfoToWalletListItem(walletInfo);
@@ -79,8 +75,17 @@ class PreExistingSeedBody extends StatelessWidget {
                       ).toList(),
                       SelectButton(
                         text: S.current.newSeed,
+                        height: 60,
+                        image: Icon(
+                          Icons.add_circle,
+                          size: 28,
+                          color: preExistingSeedsViewModel.useNewSeed ? Colors.white : null,
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(16)),
                         isSelected: preExistingSeedsViewModel.useNewSeed == true,
                         onTap: () => preExistingSeedsViewModel.selectNewSeed(),
+                        padding: EdgeInsets.only(left: 16, right: 30),
+                        showTrailingIcon: false,
                       ),
                     ],
                   ),

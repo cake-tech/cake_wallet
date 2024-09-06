@@ -850,6 +850,7 @@
   "view_transaction_on": "ดูการทำธุรกรรมบน ",
   "voting_weight": "น้ำหนักโหวต",
   "waitFewSecondForTxUpdate": "กรุณารอสักครู่เพื่อให้ธุรกรรมปรากฏในประวัติการทำธุรกรรม",
+  "wallet_group": "กลุ่มกระเป๋าเงิน",
   "wallet_keys": "ซีดของกระเป๋า/คีย์",
   "wallet_list_create_new_wallet": "สร้างกระเป๋าใหม่",
   "wallet_list_edit_group_name": "แก้ไขชื่อกลุ่ม",

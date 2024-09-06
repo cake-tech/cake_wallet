@@ -851,6 +851,7 @@
   "view_transaction_on": "View Transaction on ",
   "voting_weight": "Voting Weight",
   "waitFewSecondForTxUpdate": "Kindly wait for a few seconds for transaction to reflect in transactions history",
+  "wallet_group": "Wallet Group",
   "wallet_keys": "Wallet seed/keys",
   "wallet_list_create_new_wallet": "Create New Wallet",
   "wallet_list_edit_group_name": "Edit Group Name",

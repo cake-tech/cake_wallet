@@ -850,6 +850,7 @@
   "view_transaction_on": "Tingnan ang transaksyon sa ",
   "voting_weight": "Bigat ng pagboto",
   "waitFewSecondForTxUpdate": "Mangyaring maghintay ng ilang segundo para makita ang transaksyon sa history ng mga transaksyon",
+  "wallet_group": "Group ng Wallet",
   "wallet_keys": "Wallet seed/keys",
   "wallet_list_create_new_wallet": "Lumikha ng bagong wallet",
   "wallet_list_edit_group_name": "I -edit ang Pangalan ng Grupo",

@@ -847,6 +847,7 @@
   "view_transaction_on": "Դիտել Գործարքը ",
   "voting_weight": "Քվեարկության Քաշ",
   "waitFewSecondForTxUpdate": "Խնդրում ենք սպասել մի քանի վայրկյան, որպեսզի գործարքը արտացոլվի գործարքների պատմության մեջ",
+  "wallet_group": "Դրամապանակների խումբ",
   "wallet_keys": "Դրամապանակի սերմ/բանալիներ",
   "wallet_list_create_new_wallet": "Ստեղծել Նոր Դրամապանակ",
   "wallet_list_edit_group_name": "Խմբագրել խմբի անվանումը",
