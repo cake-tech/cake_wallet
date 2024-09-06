@@ -113,7 +113,7 @@ jobs:
           cd /opt/android/cake_wallet
           git clone https://github.com/ltcmweb/mwebd
           cd /opt/android/cake_wallet/mwebd
-          git reset --hard 7f31c84eeb2e954f2c5f385b39db3b8e3b6389e3
+          git reset --hard 8dc343cf555e30ea909c5905bc8d6ac67b7fefcf
           gomobile bind -target=android -androidapi 21 .
           mkdir -p /opt/android/cake_wallet/cw_mweb/android/libs/
           mv ./mwebd.aar $_
