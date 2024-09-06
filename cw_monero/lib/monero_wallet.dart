@@ -13,11 +13,9 @@ import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/monero_wallet_keys.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -783,4 +781,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final useAddress = address ?? "";
     return monero_wallet.signMessage(message, address: useAddress);
   }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
+    if (address == null) return false;
+
+    return monero_wallet.verifyMessage(message, address, signature);
+  }
+
 }

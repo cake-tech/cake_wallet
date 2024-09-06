@@ -1,4 +1,3 @@
-import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -57,9 +56,9 @@ class WalletCreationService {
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
-      await keyService.saveWalletPassword(
-        password: credentials.password!, walletName: credentials.name);
     }
+    await keyService.saveWalletPassword(
+        password: credentials.password!, walletName: credentials.name);
 
     if (_hasSeedPhraseLengthOption) {
       credentials.seedPhraseLength = settingsStore.seedPhraseLength.value;
@@ -76,8 +75,10 @@ class WalletCreationService {
 
   bool get _hasSeedPhraseLengthOption {
     switch (type) {
-      case WalletType.ethereum:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
@@ -85,8 +86,6 @@ class WalletCreationService {
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.none:
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
       case WalletType.haven:
       case WalletType.nano:
       case WalletType.banano:
@@ -99,9 +98,9 @@ class WalletCreationService {
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
-      await keyService.saveWalletPassword(
-        password: credentials.password!, walletName: credentials.name);
     }
+    await keyService.saveWalletPassword(
+        password: credentials.password!, walletName: credentials.name);
 
     final wallet = await _service!.restoreFromKeys(credentials, isTestnet: isTestnet);
 
@@ -118,9 +117,9 @@ class WalletCreationService {
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
-      await keyService.saveWalletPassword(
-        password: credentials.password!, walletName: credentials.name);
     }
+    await keyService.saveWalletPassword(
+        password: credentials.password!, walletName: credentials.name);
 
     final wallet = await _service!.restoreFromSeed(credentials, isTestnet: isTestnet);
 

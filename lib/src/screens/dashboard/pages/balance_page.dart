@@ -287,8 +287,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: DashBoardRoundedCardWidget(
                         customBorder: 30,
-                        title: "Monero wallet is broken",
-                        subTitle: "Here are the things that are broken:\n - "
+                        title: "This wallet has encountered an issue",
+                        subTitle: "Here are the things that you should note:\n - "
                         +dashboardViewModel.isMoneroWalletBrokenReasons.join("\n - ")
                         +"\n\nPlease restart your wallet and if it doesn't help contact our support.",
                         onTap: () {},

@@ -82,7 +82,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     if (initialPaymentRequest != null &&
         sendViewModel.walletCurrencyName != initialPaymentRequest!.scheme.toLowerCase()) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        if (context.mounted) {
+        if (mounted) {
           showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
