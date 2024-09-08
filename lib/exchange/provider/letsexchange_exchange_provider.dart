@@ -124,14 +124,17 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       final responseInfoJSON = await _getInfo(params, isFixedRateMode);
       final rateId = responseInfoJSON['rate_id'] as String;
 
+      final withdrawalAddress = _normalizeBchAddress(request.toAddress);
+      final returnAddress = _normalizeBchAddress(request.refundAddress);
+
       final tradeParams = {
         'coin_from': request.fromCurrency.title,
         'coin_to': request.toCurrency.title,
         if (!isFixedRateMode) 'deposit_amount': request.fromAmount.toString(),
-        'withdrawal': request.toAddress,
+        'withdrawal': withdrawalAddress,
         if (isFixedRateMode) 'withdrawal_amount': request.toAmount.toString(),
         'withdrawal_extra_id': '',
-        'return': request.refundAddress,
+        'return': returnAddress,
         'rate_id': rateId,
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
@@ -283,4 +286,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     }
     return currency.title;
   }
+
+  String _normalizeBchAddress(String address) =>
+      address.startsWith('bitcoincash:') ? address.substring(12) : address;
 }
