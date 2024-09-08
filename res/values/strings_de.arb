@@ -293,6 +293,7 @@
   "failed_authentication": "Authentifizierung fehlgeschlagen. ${state_error}",
   "faq": "Häufig gestellte Fragen",
   "features": "Merkmale",
+  "fee_less_than_min": "Die ausgewählte Gebühr ist geringer als das Minimum. Bitte erhöhen Sie die Gebühren, um die Transaktion senden zu können",
   "fetching": "Frage ab",
   "fiat_api": "Fiat API",
   "fiat_balance": "Fiat Balance",

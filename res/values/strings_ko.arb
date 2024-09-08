@@ -293,6 +293,7 @@
   "failed_authentication": "인증 실패. ${state_error}",
   "faq": "FAQ",
   "features": "특징",
+  "fee_less_than_min": "선택된 수수료는 최소값보다 적습니다. 거래를 보낼 수있는 수수료를 늘리십시오.",
   "fetching": "가져 오는 중",
   "fiat_api": "명목 화폐 API",
   "fiat_balance": "피아트 잔액",

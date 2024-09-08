@@ -293,6 +293,7 @@
   "failed_authentication": "Autentifikacija neuspješna. ${state_error}",
   "faq": "FAQ",
   "features": "Značajke",
+  "fee_less_than_min": "Odabrana naknada je manja od minimalnog, povećajte naknade kako biste mogli poslati transakciju",
   "fetching": "Dohvaćanje",
   "fiat_api": "Fiat API",
   "fiat_balance": "Fiat Bilans",

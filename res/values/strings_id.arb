@@ -293,6 +293,7 @@
   "failed_authentication": "Otentikasi gagal. ${state_error}",
   "faq": "Pertanyaan yang Sering Diajukan",
   "features": "Fitur",
+  "fee_less_than_min": "Biaya yang dipilih kurang dari minimum, harap tingkatkan biaya untuk dapat mengirim transaksi",
   "fetching": "Mengambil",
   "fiat_api": "API fiat",
   "fiat_balance": "Saldo Fiat",

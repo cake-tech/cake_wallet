@@ -293,6 +293,7 @@
   "failed_authentication": "${state_error} فشل المصادقة.",
   "faq": "الأسئلة الشائعة",
   "features": "سمات",
+  "fee_less_than_min": "الرسوم المحددة أقل من الحد الأدنى ، يرجى زيادة الرسوم لتكون قادرة على إرسال المعاملة",
   "fetching": "جار الجلب",
   "fiat_api": "Fiat API",
   "fiat_balance": "الرصيد فيات",

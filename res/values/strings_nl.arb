@@ -293,6 +293,7 @@
   "failed_authentication": "Mislukte authenticatie. ${state_error}",
   "faq": "FAQ",
   "features": "Functies",
+  "fee_less_than_min": "Geselecteerde vergoeding is lager dan het minimum, verhoog de kosten om de transactie te kunnen verzenden",
   "fetching": "Ophalen",
   "fiat_api": "Fiat API",
   "fiat_balance": "Fiat Balans",
