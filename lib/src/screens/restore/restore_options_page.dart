@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
-import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -20,6 +19,7 @@ import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class RestoreOptionsPage extends BasePage {
   RestoreOptionsPage({required this.isNewInstall});
@@ -44,7 +44,7 @@ class RestoreOptionsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final imageColor = Theme.of(context).extension<OptionTileTheme>()!.titleColor;
+    final imageColor = Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor;
     final imageLedger = Image.asset('assets/images/ledger_nano.png', width: 40, color: imageColor);
     final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png', color: imageColor);
     final imageBackup = Image.asset('assets/images/backup.png', color: imageColor);
@@ -92,6 +92,11 @@ class RestoreOptionsPage extends BasePage {
                   child: OptionTile(
                       onPressed: () => _onScanQRCode(context),
                       image: qrCode,
+                      icon: Icon(
+                          Icons.qr_code_rounded,
+                          color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                          size: 50,
+                      ),
                       title: S.of(context).scan_qr_code,
                       description: S.of(context).cold_or_recover_wallet),
                 )

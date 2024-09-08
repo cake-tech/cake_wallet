@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 class OptionTile extends StatelessWidget {
   const OptionTile(
       {required this.onPressed,
-      required this.image,
+       this.image,
+        this.icon,
       required this.title,
-      required this.description});
+      required this.description})
+  : assert(image!=null || icon!=null);
 
   final VoidCallback onPressed;
-  final Image image;
+  final Image? image;
+  final Icon? icon;
   final String title;
   final String description;
 
@@ -30,7 +33,7 @@ class OptionTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            image,
+             icon ?? image!,
             Expanded(
               child: Padding(
                 padding: EdgeInsets.only(left: 16),

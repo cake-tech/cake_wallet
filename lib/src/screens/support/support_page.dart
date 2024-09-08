@@ -6,13 +6,14 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class SupportPage extends BasePage {
   SupportPage(this.supportViewModel);
 
   final SupportViewModel supportViewModel;
 
-  final imageLiveSupport = Image.asset('assets/images/live_support.png');
+  final imageLiveSupport = Image.asset('assets/images/cake_icon.png');
   final imageWalletGuides = Image.asset('assets/images/wallet_guides.png');
   final imageMoreLinks = Image.asset('assets/images/more_links.png');
 
@@ -33,7 +34,11 @@ class SupportPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: OptionTile(
-                  image: imageLiveSupport,
+                  icon: Icon(
+                    Icons.support_agent,
+                    color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                    size: 50,
+                  ),
                   title: S.of(context).support_title_live_chat,
                   description: S.of(context).support_description_live_chat,
                   onPressed: () {
@@ -48,7 +53,11 @@ class SupportPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: OptionTile(
-                  image: imageWalletGuides,
+                  icon: Icon(
+                      Icons.find_in_page,
+                      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                    size: 50,
+                  ),
                   title: S.of(context).support_title_guides,
                   description: S.of(context).support_description_guides,
                   onPressed: () => _launchUrl(supportViewModel.guidesUrl),
@@ -57,7 +66,11 @@ class SupportPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(top: 24),
                 child: OptionTile(
-                  image: imageMoreLinks,
+                  icon: Icon(
+                    Icons.contact_support,
+                    color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                    size: 50,
+                  ),
                   title: S.of(context).support_title_other_links,
                   description: S.of(context).support_description_other_links,
                   onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
