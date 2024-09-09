@@ -62,7 +62,7 @@ class LanguageService {
     'ha': 'hau',
     'tl': 'phl',
     'hy': 'arm',
-    'vi': 'vie',
+    'vi': 'vnm',
   };
 
   static final list = <String, String>{};
