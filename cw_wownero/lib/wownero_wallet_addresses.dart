@@ -40,8 +40,9 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   @override
   @override
   Set<String> get usedAddresses {
+    final used = subaddress_list.getUsedAddrsses();
     final adds = _originalUsedAddresses.toList()
-      ..addAll(subaddress_list.getUsedAddrsses());
+      ..addAll(used);
     final ret = adds.toSet();
     _originalUsedAddresses = ret;
     return ret;
@@ -107,15 +108,20 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
     subaddress = subaddressList.subaddresses.first;
     address = subaddress!.address;
   }
-
+  bool isSubaddressUpdating = false;
+  int lastTxCount = 0;
   Future<void> updateUsedSubaddress() async {
+    if (isSubaddressUpdating) return;
+    isSubaddressUpdating = true;
     final transactions = _wowneroTransactionHistory.transactions.values.toList();
-
-    transactions.forEach((element) {
+    lastTxCount = transactions.length;
+    for (var element in transactions) {
       final accountIndex = element.accountIndex;
       final addressIndex = element.addressIndex;
       usedAddresses.add(getAddress(accountIndex: accountIndex, addressIndex: addressIndex));
-    });
+      await Future.delayed(Duration.zero);
+      isSubaddressUpdating = false;
+    }
   }
 
   Future<void> updateUnusedSubaddress(

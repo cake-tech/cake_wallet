@@ -128,8 +128,8 @@ abstract class WowneroSubaddressListBase with Store {
   Future<List<Subaddress>> _getAllUnusedAddresses(
       {required int accountIndex, required String label}) async {
     final allAddresses = subaddress_list.getAllSubaddresses();
-    final lastAddress = allAddresses.last.address;
-    if (allAddresses.isEmpty || _usedAddresses.contains(lastAddress)) {
+    final firstAddress = allAddresses.first.address;
+    if (allAddresses.isEmpty || _usedAddresses.contains(firstAddress)) {
       final isAddressUnused = await _newSubaddress(accountIndex: accountIndex, label: label);
       if (!isAddressUnused) {
         return await _getAllUnusedAddresses(accountIndex: accountIndex, label: label);
@@ -149,7 +149,7 @@ abstract class WowneroSubaddressListBase with Store {
                 ? 'Primary address'
                 : label);
       })
-        .toList();
+        .toList().reversed.toList();
   }
 
   Future<bool> _newSubaddress({required int accountIndex, required String label}) async {

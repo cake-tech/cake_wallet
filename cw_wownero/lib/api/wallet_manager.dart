@@ -256,6 +256,10 @@ Map<String, wownero.wallet> openedWalletsByPath = {};
 
 void loadWallet(
     {required String path, required String password, int nettype = 0}) {
+  if (!kDebugMode) {
+    wownero.debugStart = null;
+    wownero.debugEnd = null;
+  }
   if (openedWalletsByPath[path] != null) {
     txhistory = null;
     wptr = openedWalletsByPath[path]!;

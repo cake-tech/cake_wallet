@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/transaction_history.dart';
 import 'package:cw_wownero/api/wallet.dart';
@@ -97,25 +99,39 @@ Future<void> setLabelForSubaddress(
 
 
 
+List<String> cachedAddresses = [];
+int cachedTxCount = 0;
+int cachedWptrAddress = 0;
 List<String> getUsedAddrsses() {
   List<String> addresses = [];
-
   txhistory ??= wownero.Wallet_history(wptr!);
-  wownero.TransactionHistory_refresh(txhistory!);
   int size = countOfTransactions();
+  if (cachedTxCount == size && cachedWptrAddress == wptr!.address) {
+    return cachedAddresses;
+  }
+  if (txHistoryMutex.isLocked) return cachedAddresses;
+  unawaited(txHistoryMutex.acquire()); // I KNOW
+  final Stopwatch stopwatch = Stopwatch()..start();
+
   for (var i = 0; i < size; i++) {
     final txPtr = wownero.TransactionHistory_transaction(txhistory!, index: i);
     final subaddrAccount = wownero.TransactionInfo_subaddrAccount(txPtr);
-    final subaddrAddress = wownero.TransactionInfo_subaddrIndex(txPtr).split(", ").map((e) => int.parse(e));
+    final subaddrAddress = wownero.TransactionInfo_subaddrIndex(txPtr).split(", ").map((e) => int.tryParse(e)??0).toList();
     for (var j = 0; j < subaddrAddress.length; j++) {
       addresses.add(
-        wownero.Wallet_address(wptr!,
+        getAddress(
           accountIndex: subaddrAccount,
-          addressIndex: subaddrAddress.elementAt(j)
+          addressIndex: subaddrAddress[j],
         )
       );
     }
   }
-
+  cachedAddresses.clear();
+  cachedAddresses.addAll(addresses);
+  cachedTxCount = size;
+  cachedWptrAddress = wptr!.address;
+  txHistoryMutex.release();
+  wownero.debugCallLength["CW_getUsedAddrsses"] ??= <int>[];
+  wownero.debugCallLength["CW_getUsedAddrsses"]!.add(stopwatch!.elapsedMicroseconds);
   return addresses;
 }

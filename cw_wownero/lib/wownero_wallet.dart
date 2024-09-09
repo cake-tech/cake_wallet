@@ -554,8 +554,9 @@ abstract class WowneroWalletBase
 
   @override
   Future<Map<String, WowneroTransactionInfo>> fetchTransactions() async {
-    transaction_history.refreshTransactions();
-    return _getAllTransactionsOfAccount(walletAddresses.account?.id)
+    await transaction_history.refreshTransactions();
+    final hist = await _getAllTransactionsOfAccount(walletAddresses.account?.id);
+    return hist
         .fold<Map<String, WowneroTransactionInfo>>(<String, WowneroTransactionInfo>{},
             (Map<String, WowneroTransactionInfo> acc, WowneroTransactionInfo tx) {
       acc[tx.id] = tx;
@@ -572,8 +573,12 @@ abstract class WowneroWalletBase
       _isTransactionUpdating = true;
       transactionHistory.clear();
       final transactions = await fetchTransactions();
-      transactionHistory.addMany(transactions);
+      if (transactions.length != transactionHistory.transactions.length) {
       await transactionHistory.save();
+        transactionHistory.clear();
+        transactionHistory.addMany(transactions);
+        await transactionHistory.save();
+      }
       _isTransactionUpdating = false;
     } catch (e) {
       print(e);
@@ -584,10 +589,9 @@ abstract class WowneroWalletBase
   String getSubaddressLabel(int accountIndex, int addressIndex) =>
       wownero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
-  List<WowneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) =>
-      transaction_history
-          .getAllTransactions()
-          .map(
+  Future<List<WowneroTransactionInfo>> _getAllTransactionsOfAccount(int? accountIndex) async {
+    final hist = await transaction_history.getAllTransactions(enableDelay: true);
+    return hist.map(
             (row) => WowneroTransactionInfo(
               row.hash,
               row.blockheight,
@@ -607,6 +611,7 @@ abstract class WowneroWalletBase
           )
           .where((element) => element.accountIndex == (accountIndex ?? 0))
           .toList();
+  }
 
   void _setListeners() {
     _listener?.stop();
