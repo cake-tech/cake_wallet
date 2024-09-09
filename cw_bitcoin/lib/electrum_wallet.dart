@@ -1694,7 +1694,6 @@ abstract class ElectrumWalletBase
       } else if (type == WalletType.bitcoinCash) {
         await Future.wait(BITCOIN_CASH_ADDRESS_TYPES
             .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
-        await fetchTransactionsForAddressType(historiesWithDetails, P2pkhAddressType.p2pkh);
       } else if (type == WalletType.litecoin) {
         await Future.wait(LITECOIN_ADDRESS_TYPES
             .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
