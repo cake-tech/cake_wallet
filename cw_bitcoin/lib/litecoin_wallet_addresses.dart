@@ -62,8 +62,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     BitcoinAddressType? addressType,
   }) {
     if (addressType == SegwitAddresType.mweb) {
-      topUpMweb(index);
-      return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
+      topUpMweb(index).then((value) {
+        return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
+      });
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
