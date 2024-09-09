@@ -11,13 +11,21 @@ part 'electrum_wallet_addresses.g.dart';
 
 class ElectrumWalletAddresses = ElectrumWalletAddressesBase with _$ElectrumWalletAddresses;
 
-const List<BitcoinAddressType> ADDRESS_TYPES = [
+const List<BitcoinAddressType> BITCOIN_ADDRESS_TYPES = [
   SegwitAddresType.p2wpkh,
   P2pkhAddressType.p2pkh,
   SegwitAddresType.p2tr,
   SegwitAddresType.p2wsh,
-  SegwitAddresType.mweb,
   P2shAddressType.p2wpkhInP2sh,
+];
+
+const List<BitcoinAddressType> LITECOIN_ADDRESS_TYPES = [
+  SegwitAddresType.p2wpkh,
+  SegwitAddresType.mweb,
+];
+
+const List<BitcoinAddressType> BITCOIN_CASH_ADDRESS_TYPES = [
+  P2pkhAddressType.p2pkh,
 ];
 
 abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
@@ -327,13 +335,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }) =>
       '';
 
-  Future<String> getAddressAsync({
-    required int index,
-    required Bip32Slip10Secp256k1 hd,
-    BitcoinAddressType? addressType,
-  }) async =>
-      getAddress(index: index, hd: hd, addressType: addressType);
-
   void addBitcoinAddressTypes() {
     final lastP2wpkh = _addresses
         .where((addressRecord) =>
@@ -393,6 +394,37 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     });
   }
 
+  void addLitecoinAddressTypes() {
+    final lastP2wpkh = _addresses
+        .where((addressRecord) =>
+            _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
+        .toList()
+        .last;
+    if (lastP2wpkh.address != address) {
+      addressesMap[lastP2wpkh.address] = 'P2WPKH';
+    } else {
+      addressesMap[address] = 'Active - P2WPKH';
+    }
+
+    final lastMweb = _addresses.firstWhere(
+        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
+    if (lastMweb.address != address) {
+      addressesMap[lastMweb.address] = 'MWEB';
+    } else {
+      addressesMap[address] = 'Active - MWEB';
+    }
+  }
+
+  void addBitcoinCashAddressTypes() {
+    final lastP2pkh = _addresses.firstWhere(
+        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
+    if (lastP2pkh.address != address) {
+      addressesMap[lastP2pkh.address] = 'P2PKH';
+    } else {
+      addressesMap[address] = 'Active - P2PKH';
+    }
+  }
+
   @override
   Future<void> updateAddressesInBox() async {
     try {
@@ -404,29 +436,18 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         allAddressesMap[addressRecord.address] = addressRecord.name;
       });
 
-      if (walletInfo.type == WalletType.bitcoin) {
-        addBitcoinAddressTypes();
-      }
-
-      if (walletInfo.type == WalletType.litecoin) {
-        final lastP2wpkh = _addresses
-            .where((addressRecord) =>
-                _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
-            .toList()
-            .last;
-        if (lastP2wpkh.address != address) {
-          addressesMap[lastP2wpkh.address] = 'P2WPKH';
-        } else {
-          addressesMap[address] = 'Active - P2WPKH';
-        }
-
-        final lastMweb = _addresses.firstWhere(
-            (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
-        if (lastMweb.address != address) {
-          addressesMap[lastMweb.address] = 'MWEB';
-        } else {
-          addressesMap[address] = 'Active - MWEB';
-        }
+      switch (walletInfo.type) {
+        case WalletType.bitcoin:
+          addBitcoinAddressTypes();
+          break;
+        case WalletType.litecoin:
+          addLitecoinAddressTypes();
+          break;
+        case WalletType.bitcoinCash:
+          addBitcoinCashAddressTypes();
+          break;
+        default:
+          break;
       }
 
       await saveAddressesInBox();
@@ -548,7 +569,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     for (var i = startIndex; i < count + startIndex; i++) {
       final address = BitcoinAddressRecord(
-        await getAddressAsync(index: i, hd: _getHd(isHidden), addressType: type ?? addressPageType),
+        getAddress(index: i, hd: _getHd(isHidden), addressType: type ?? addressPageType),
         index: i,
         isHidden: isHidden,
         type: type ?? addressPageType,

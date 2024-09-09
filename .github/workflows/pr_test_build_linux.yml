@@ -105,15 +105,8 @@ jobs:
           export PATH=$PATH:/usr/local/go/bin
           export PATH=$PATH:~/go/bin
           # build mwebd:
-          cd /opt/android/cake_wallet
-          git clone https://github.com/ltcmweb/mwebd
-          cd /opt/android/cake_wallet/mwebd
-          git reset --hard f6ea8a9e3d348b01bb44f03a1cc4ad65b0abe935
-          gomobile bind -target=android -androidapi 21 .
-          mkdir -p /opt/android/cake_wallet/cw_mweb/android/libs/
-          mv ./mwebd.aar $_
-          cd ..
-          rm -rf mwebd
+          cd /opt/android/cake_wallet/scripts/android/
+          ./build_mwebd.sh
 
       - name: Generate localization
         run: |

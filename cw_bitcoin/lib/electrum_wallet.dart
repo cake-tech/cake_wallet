@@ -1689,12 +1689,15 @@ abstract class ElectrumWalletBase
       final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
 
       if (type == WalletType.bitcoin) {
-        await Future.wait(ADDRESS_TYPES
+        await Future.wait(BITCOIN_ADDRESS_TYPES
             .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       } else if (type == WalletType.bitcoinCash) {
+        await Future.wait(BITCOIN_CASH_ADDRESS_TYPES
+            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
         await fetchTransactionsForAddressType(historiesWithDetails, P2pkhAddressType.p2pkh);
       } else if (type == WalletType.litecoin) {
-        await fetchTransactionsForAddressType(historiesWithDetails, SegwitAddresType.p2wpkh);
+        await Future.wait(LITECOIN_ADDRESS_TYPES
+            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       }
 
       transactionHistory.transactions.values.forEach((tx) async {
