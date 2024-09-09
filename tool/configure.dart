@@ -224,7 +224,7 @@ abstract class Bitcoin {
   void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 
-  void setMwebEnabled(Object wallet, bool enabled);
+  Future<void> setMwebEnabled(Object wallet, bool enabled);
   bool getMwebEnabled(Object wallet);
 }
   """;
