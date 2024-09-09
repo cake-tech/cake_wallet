@@ -149,7 +149,8 @@ void restoreWalletFromKeysSync(
         message: monero.Wallet_errorString(newWptr));
   }
 
-  // CW-712 - Try to restore deterministic wallet first, if the view key
+  // CW-712 - Try to restore deterministic wallet first, if the view key doesn't
+  // match the view key provided
   if (spendKey != "") {
     final viewKeyRestored = monero.Wallet_secretViewKey(newWptr);
     if (viewKey != viewKeyRestored && viewKey != "") {
