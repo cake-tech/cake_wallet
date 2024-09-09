@@ -1689,12 +1689,14 @@ abstract class ElectrumWalletBase
       final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
 
       if (type == WalletType.bitcoin) {
-        await Future.wait(ADDRESS_TYPES
+        await Future.wait(BITCOIN_ADDRESS_TYPES
             .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       } else if (type == WalletType.bitcoinCash) {
-        await fetchTransactionsForAddressType(historiesWithDetails, P2pkhAddressType.p2pkh);
+        await Future.wait(BITCOIN_CASH_ADDRESS_TYPES
+            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       } else if (type == WalletType.litecoin) {
-        await fetchTransactionsForAddressType(historiesWithDetails, SegwitAddresType.p2wpkh);
+        await Future.wait(LITECOIN_ADDRESS_TYPES
+            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       }
 
       transactionHistory.transactions.values.forEach((tx) async {
@@ -2064,9 +2066,8 @@ abstract class ElectrumWalletBase
 
       _isTryingToConnect = true;
 
-      Timer(Duration(seconds: 10), () {
-        if (this.syncStatus is NotConnectedSyncStatus ||
-            this.syncStatus is LostConnectionSyncStatus) {
+      Timer(Duration(seconds: 5), () {
+        if (this.syncStatus is NotConnectedSyncStatus || this.syncStatus is LostConnectionSyncStatus) {
           this.electrumClient.connectToUri(
                 node!.uri,
                 useSSL: node!.useSSL ?? false,

@@ -950,7 +950,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
     final mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     final mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
-    final mwebEnabled = sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
+    final mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
     final hasEnabledMwebBefore =
         sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
 

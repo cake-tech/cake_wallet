@@ -2,19 +2,13 @@ import 'dart:typed_data';
 
 import 'package:bech32/bech32.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils/bech32/bech32_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_mweb/cw_mweb.dart';
-import 'package:cw_mweb/mwebd.pb.dart';
 import 'package:mobx/mobx.dart';
-
-// import 'dart:typed_data';
-// import 'package:bech32/bech32.dart';
-// import 'package:r_crypto/r_crypto.dart';
 
 part 'litecoin_wallet_addresses.g.dart';
 
@@ -36,12 +30,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
   }) : super(walletInfo) {
-    if (mwebEnabled) {
-      // give the server a few seconds to start up before trying to get the addresses:
-      Future.delayed(const Duration(seconds: 5), () async {
-        await topUpMweb(0);
-      });
-    }
+    topUpMweb(0);
   }
 
   final Bip32Slip10Secp256k1 mwebHd;
@@ -73,22 +62,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     BitcoinAddressType? addressType,
   }) {
     if (addressType == SegwitAddresType.mweb) {
-      topUpMweb(index);
-      return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
+      topUpMweb(index).then((value) {
+        return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
+      });
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
-  }
-
-  @override
-  Future<String> getAddressAsync({
-    required int index,
-    required Bip32Slip10Secp256k1 hd,
-    BitcoinAddressType? addressType,
-  }) async {
-    if (addressType == SegwitAddresType.mweb) {
-      await topUpMweb(index);
-    }
-    return getAddress(index: index, hd: hd, addressType: addressType);
   }
 
   @action

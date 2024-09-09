@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
+import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -150,9 +150,9 @@ class LitecoinWalletService extends WalletService<
   @override
   Future<LitecoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    // if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
-    //   throw LitecoinMnemonicIsIncorrectException();
-    // }
+    if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
+      throw LitecoinMnemonicIsIncorrectException();
+    }
 
     final wallet = await LitecoinWalletBase.create(
       password: credentials.password!,

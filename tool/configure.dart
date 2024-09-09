@@ -214,6 +214,7 @@ abstract class Bitcoin {
       {int? outputsCount, int? size});
   int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
   int getHeightByDate({required DateTime date});
+  int getLitecoinHeightByDate({required DateTime date});
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan});
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet);
   void deleteSilentPaymentAddress(Object wallet, String address);
@@ -224,7 +225,7 @@ abstract class Bitcoin {
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 
   dynamic getStatusRequest(Object wallet);
-  void setMwebEnabled(Object wallet, bool enabled);
+  Future<void> setMwebEnabled(Object wallet, bool enabled);
   bool getMwebEnabled(Object wallet);
 }
   """;

@@ -319,11 +319,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final oldBoxName = "${walletInfo.name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
     final newBoxName = "${newWalletName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
 
-    final oldBox = await Hive.openBox<MwebUtxo>(oldBoxName);
+    final oldBox = await CakeHive.openBox<MwebUtxo>(oldBoxName);
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
     for (final key in oldBox.keys) {
       await mwebUtxosBox.put(key, oldBox.get(key)!);
     }
+    oldBox.deleteFromDisk();
 
     await super.renameWalletFiles(newWalletName);
   }
@@ -777,6 +778,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             script: outputs[0].toOutput.scriptPubKey, value: utxos.sumOfUtxosValue())
       ];
     }
+    // https://github.com/ltcmweb/mwebd?tab=readme-ov-file#fee-estimation
     final preOutputSum =
         outputs.fold<BigInt>(BigInt.zero, (acc, output) => acc + output.toOutput.amount);
     final fee = utxos.sumOfUtxosValue() - preOutputSum;
@@ -892,18 +894,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _utxoStream?.cancel();
   }
 
-  void setMwebEnabled(bool enabled) {
+  Future<void> setMwebEnabled(bool enabled) async {
     if (mwebEnabled == enabled) {
       return;
     }
 
     mwebEnabled = enabled;
     (walletAddresses as LitecoinWalletAddresses).mwebEnabled = enabled;
-    if (enabled) {
-      // generate inital mweb addresses:
-      (walletAddresses as LitecoinWalletAddresses).topUpMweb(0);
-    }
-    startSync();
+    await stopSync();
+    await startSync();
   }
 
   Future<RpcClient> getStub() async {
