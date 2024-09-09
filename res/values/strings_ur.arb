@@ -293,6 +293,7 @@
   "failed_authentication": "ناکام تصدیق۔ ${state_error}",
   "faq": "عمومی سوالات",
   "features": "خصوصیات",
+  "fee_less_than_min": "منتخب فیس کم سے کم سے کم ہے ، براہ کرم لین دین بھیجنے کے قابل فیس میں اضافہ کریں",
   "fetching": "لا رہا ہے۔",
   "fiat_api": "Fiat API",
   "fiat_balance": "فیاٹ بیلنس",

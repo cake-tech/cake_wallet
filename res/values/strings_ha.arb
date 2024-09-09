@@ -293,6 +293,7 @@
   "failed_authentication": "Binne wajen shiga. ${state_error}",
   "faq": "FAQ",
   "features": "Fasas",
+  "fee_less_than_min": "Kudin da aka zaba kasa da mafi karancin, don Allah ƙara kudaden don samun damar aika ma'amala",
   "fetching": "Daukewa",
   "fiat_api": "API ɗin Fiat",
   "fiat_balance": "Fiat Balance",

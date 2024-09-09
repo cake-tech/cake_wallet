@@ -294,6 +294,7 @@
   "failed_authentication": "Ìfẹ̀rílàdí pipòfo. ${state_error}",
   "faq": "Àwọn ìbéèrè l'a máa ń bèèrè",
   "features": "Awọn ẹya",
+  "fee_less_than_min": "Owo ti a ti yan kere ju ti o kere ju, jọwọ mu awọn owo naa pọ si lati ni anfani lati firanṣẹ iṣowo naa",
   "fetching": "ń wá",
   "fiat_api": "Ojú ètò áàpù owó tí ìjọba pàṣẹ wa lò",
   "fiat_balance": "Fiat Iwontunws.funfun",

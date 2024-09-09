@@ -294,6 +294,7 @@
   "failed_authentication": "Autenticazione fallita. ${state_error}",
   "faq": "Domande Frequenti",
   "features": "Caratteristiche",
+  "fee_less_than_min": "La commissione selezionata è inferiore al minimo, aumenta le commissioni per poter inviare la transazione",
   "fetching": "Recupero",
   "fiat_api": "Fiat API",
   "fiat_balance": "Equilibrio fiat",

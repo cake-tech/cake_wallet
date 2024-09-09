@@ -293,6 +293,7 @@
   "failed_authentication": "認証失敗. ${state_error}",
   "faq": "FAQ",
   "features": "特徴",
+  "fee_less_than_min": "選択した料金は最低額よりも少ないので、取引を送信できるように料金を引き上げてください",
   "fetching": "フェッチング",
   "fiat_api": "不換紙幣 API",
   "fiat_balance": "フィアットバランス",

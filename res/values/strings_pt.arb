@@ -293,6 +293,7 @@
   "failed_authentication": "Falha na autenticação. ${state_error}",
   "faq": "FAQ",
   "features": "Funcionalidades",
+  "fee_less_than_min": "A taxa selecionada é menor que o mínimo, aumente as taxas para poder enviar a transação",
   "fetching": "Buscando",
   "fiat_api": "API da Fiat",
   "fiat_balance": "Equilíbrio Fiat",

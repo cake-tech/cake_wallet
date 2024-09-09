@@ -293,6 +293,7 @@
   "failed_authentication": "Ověřování selhalo. ${state_error}",
   "faq": "FAQ",
   "features": "Funkce",
+  "fee_less_than_min": "Vybraný poplatek je menší než minimum, zvýšit poplatky, abyste mohli transakci odeslat",
   "fetching": "Načítá se",
   "fiat_api": "Fiat API",
   "fiat_balance": "Fiat Balance",

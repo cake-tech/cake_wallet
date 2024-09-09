@@ -293,6 +293,7 @@
   "failed_authentication": "Nieudane uwierzytelnienie. ${state_error}",
   "faq": "FAQ",
   "features": "Cechy",
+  "fee_less_than_min": "Wybrana opłata jest niższa niż minimum, proszę zwiększyć opłaty, aby móc wysłać transakcję",
   "fetching": "Pobieranie",
   "fiat_api": "API Walut FIAT",
   "fiat_balance": "Bilans Fiata",

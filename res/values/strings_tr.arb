@@ -293,6 +293,7 @@
   "failed_authentication": "Doğrulama başarısız oldu. ${state_error}",
   "faq": "SSS",
   "features": "Özellikler",
+  "fee_less_than_min": "Seçilen ücret asgari düzeyden azdır, lütfen işlemi gönderebilmek için ücretleri artırın",
   "fetching": "Getiriliyor",
   "fiat_api": "İtibari Para API",
   "fiat_balance": "Fiat Bakiyesi",

@@ -293,6 +293,7 @@
   "failed_authentication": "प्रमाणीकरण विफल. ${state_error}",
   "faq": "FAQ",
   "features": "विशेषताएँ",
+  "fee_less_than_min": "चयनित शुल्क न्यूनतम से कम है, कृपया लेन -देन भेजने में सक्षम होने के लिए शुल्क बढ़ाएं",
   "fetching": "ला रहा है",
   "fiat_api": "फिएट पैसे API",
   "fiat_balance": "फिएट बैलेंस",

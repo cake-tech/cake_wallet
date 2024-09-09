@@ -293,6 +293,7 @@
   "failed_authentication": "Échec d'authentification. ${state_error}",
   "faq": "FAQ",
   "features": "Caractéristiques",
+  "fee_less_than_min": "Les frais sélectionnés sont inférieurs au minimum, veuillez augmenter les frais pour pouvoir envoyer la transaction",
   "fetching": "Récupération",
   "fiat_api": "Fiat API",
   "fiat_balance": "Solde fiat",
