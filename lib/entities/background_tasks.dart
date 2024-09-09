@@ -151,12 +151,13 @@ Future<void> onStart(ServiceInstance service) async {
 
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) {
-      final wallet = getIt.get<AppStore>().wallet;
+      // final wallet = getIt.get<AppStore>().wallet;
+      final wallet = syncingWallets.first;
       final syncProgress = ((wallet?.syncStatus.progress() ?? 0) * 100).toStringAsPrecision(5);
 
       flutterLocalNotificationsPlugin.show(
         notificationId,
-        "${syncProgress}% Synced",
+        "${wallet.name} ${syncProgress}% Synced",
         'Background sync - ${DateTime.now()}',
         const NotificationDetails(
           android: AndroidNotificationDetails(
