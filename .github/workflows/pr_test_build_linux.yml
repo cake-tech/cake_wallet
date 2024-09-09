@@ -106,7 +106,7 @@ jobs:
           export PATH=$PATH:~/go/bin
           # build mwebd:
           cd /opt/android/cake_wallet/scripts/android/
-          ./build_mwebd.sh
+          ./build_mwebd.sh --dont-install
 
       - name: Generate localization
         run: |
