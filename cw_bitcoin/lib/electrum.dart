@@ -113,8 +113,13 @@ class ElectrumClient {
       },
       onDone: () {
         unterminatedString = '';
-        if (host == socket?.address.host) {
-          _setConnectionStatus(ConnectionStatus.disconnected);
+        try {
+          if (host == socket?.address.host) {
+            socket?.destroy();
+            _setConnectionStatus(ConnectionStatus.disconnected);
+          }
+        } catch(e) {
+          print(e.toString());
         }
       },
       cancelOnError: true,
