@@ -317,11 +317,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final oldBoxName = "${walletInfo.name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
     final newBoxName = "${newWalletName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
 
-    final oldBox = await Hive.openBox<MwebUtxo>(oldBoxName);
+    final oldBox = await CakeHive.openBox<MwebUtxo>(oldBoxName);
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
     for (final key in oldBox.keys) {
       await mwebUtxosBox.put(key, oldBox.get(key)!);
     }
+    oldBox.deleteFromDisk();
 
     await super.renameWalletFiles(newWalletName);
   }
