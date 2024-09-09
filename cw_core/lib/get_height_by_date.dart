@@ -267,6 +267,11 @@ const bitcoinDates = {
   "2023-01": 769810,
 };
 
+
+const Map<String, int> litecoinDates = {
+  // TODO: add litecoin dates
+};
+
 int getBitcoinHeightByDate({required DateTime date}) {
   String dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
   final closestKey = bitcoinDates.keys
@@ -298,6 +303,21 @@ DateTime getDateByBitcoinHeight(int height) {
   }
 
   return estimatedDate;
+}
+
+int getLitecoinHeightByDate({required DateTime date}) {
+  String dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
+  final closestKey = litecoinDates.keys
+      .firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => litecoinDates.keys.last);
+  final beginningBlock = litecoinDates[dateKey] ?? litecoinDates[closestKey]!;
+
+  final startOfMonth = DateTime(date.year, date.month);
+  final daysDifference = date.difference(startOfMonth).inDays;
+
+  // approximately 6 blocks per hour, 24 hours per day
+  int estimatedBlocksSinceStartOfMonth = (daysDifference * 24 * 6);
+
+  return beginningBlock + estimatedBlocksSinceStartOfMonth;
 }
 
 // TODO: enhance all of this global const lists

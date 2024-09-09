@@ -168,8 +168,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
     if (date != null) {
       int height;
       if (widget.isMwebScan) {
-        throw UnimplementedError();
-        // height = bitcoin!.getMwebHeightByDate(date: date);
+        height = bitcoin!.getLitecoinHeightByDate(date: date);
       } else if (widget.isSilentPaymentsScan) {
         height = bitcoin!.getHeightByDate(date: date);
       } else {

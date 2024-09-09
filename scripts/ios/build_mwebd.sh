@@ -1,9 +1,12 @@
 #!/bin/bash
-# install go > 1.23:
-brew install go
-export PATH=$PATH:~/go/bin
-go install golang.org/x/mobile/cmd/gomobile@latest
-gomobile init
+if [[ "$1" == "--install" ]]; then
+  # install go > 1.23:
+  brew install go
+  export PATH=$PATH:~/go/bin
+  go install golang.org/x/mobile/cmd/gomobile@latest
+  gomobile init
+fi
+
 # build mwebd:
 git clone https://github.com/ltcmweb/mwebd
 cd mwebd
