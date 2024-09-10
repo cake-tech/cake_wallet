@@ -75,6 +75,10 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   Future<void> initMwebAddresses() async {
     print("Initializing MWEB address timer!");
     Timer.periodic(const Duration(seconds: 2), (timer) async {
+      if (super.allAddresses.length > 1000) {
+        timer.cancel();
+        return;
+      }
       print("Generating MWEB addresses...");
       await generateNumAddresses(250);
       await Future.delayed(const Duration(milliseconds: 1500));
@@ -95,6 +99,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         addAddresses(mwebAddresses);
         print("MWEB addresses initialized ${mwebAddrs.length}");
         timer.cancel();
+        return;
       }
     });
   }
