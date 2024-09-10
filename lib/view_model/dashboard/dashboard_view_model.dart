@@ -248,6 +248,11 @@ abstract class DashboardViewModelBase with Store {
 
     if (hasMweb) {
       mwebScanningActive = bitcoin!.getMwebEnabled(wallet);
+      reaction((_) => settingsStore.mwebAlwaysScan, (bool alwaysScan) {
+        if (alwaysScan) {
+          mwebScanningActive = true;
+        }
+      });
     }
   }
 
@@ -376,12 +381,15 @@ abstract class DashboardViewModelBase with Store {
       // to not cause work duplication, this will do the job as well, it will be slightly less precise
       // about what happened - but still enough.
       // if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
-      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("")) "private view key is 0",
+      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join(""))
+        "private view key is 0",
       // if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
-      if (keys['publicViewKey'] == List.generate(64, (index) => "0").join("")) "public view key is 0",
+      if (keys['publicViewKey'] == List.generate(64, (index) => "0").join(""))
+        "public view key is 0",
       // if (wallet.seed == null) "wallet seed is null",
       // if (wallet.seed == "") "wallet seed is empty",
-      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address == "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4") 
+      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
+          "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
         "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
@@ -414,8 +422,8 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay;
 
-  @computed
-  bool get mwebScanningActive => settingsStore.mwebEnabled;
+  @observable
+  bool mwebScanningActive = false;
 
   @computed
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
@@ -430,7 +438,7 @@ abstract class DashboardViewModelBase with Store {
       settingsStore.hasEnabledMwebBefore = true;
     }
 
-    settingsStore.mwebEnabled = active;
+    mwebScanningActive = active;
     bitcoin!.setMwebEnabled(wallet, active);
   }
 
