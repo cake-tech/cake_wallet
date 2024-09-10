@@ -21,12 +21,12 @@ class LitecoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials,
     BitcoinNewWalletCredentials> {
-  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect, this.alwaysScan);
+  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
-  final bool isDirect;
   final bool alwaysScan;
+  final bool isDirect;
 
   @override
   WalletType getType() => WalletType.litecoin;

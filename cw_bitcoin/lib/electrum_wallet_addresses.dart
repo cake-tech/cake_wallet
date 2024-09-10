@@ -223,8 +223,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (walletInfo.type == WalletType.bitcoinCash) {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.litecoin) {
-      await _generateInitialAddresses();
-      await _generateInitialAddresses(type: SegwitAddresType.mweb);
+      // await _generateInitialAddresses();
+      // await _generateInitialAddresses(type: SegwitAddresType.mweb);
     } else if (walletInfo.type == WalletType.bitcoin) {
       await _generateInitialAddresses();
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
@@ -232,6 +232,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       await _generateInitialAddresses(type: SegwitAddresType.p2tr);
       await _generateInitialAddresses(type: SegwitAddresType.p2wsh);
     }
+
     updateAddressesByMatch();
     updateReceiveAddresses();
     updateChangeAddresses();
@@ -334,6 +335,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     BitcoinAddressType? addressType,
   }) =>
       '';
+
+  Future<String> getAddressAsync({
+    required int index,
+    required Bip32Slip10Secp256k1 hd,
+    BitcoinAddressType? addressType,
+  }) async =>
+      getAddress(index: index, hd: hd, addressType: addressType);
 
   void addBitcoinAddressTypes() {
     final lastP2wpkh = _addresses
@@ -569,7 +577,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     for (var i = startIndex; i < count + startIndex; i++) {
       final address = BitcoinAddressRecord(
-        getAddress(index: i, hd: _getHd(isHidden), addressType: type ?? addressPageType),
+        await getAddressAsync(index: i, hd: _getHd(isHidden), addressType: type ?? addressPageType),
         index: i,
         isHidden: isHidden,
         type: type ?? addressPageType,
@@ -600,14 +608,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   void _validateAddresses() {
-    _addresses.forEach((element) {
+    _addresses.forEach((element) async {
       if (!element.isHidden &&
           element.address !=
-              getAddress(index: element.index, hd: mainHd, addressType: element.type)) {
+              await getAddressAsync(index: element.index, hd: mainHd, addressType: element.type)) {
         element.isHidden = true;
       } else if (element.isHidden &&
           element.address !=
-              getAddress(index: element.index, hd: sideHd, addressType: element.type)) {
+              await getAddressAsync(index: element.index, hd: sideHd, addressType: element.type)) {
         element.isHidden = false;
       }
     });

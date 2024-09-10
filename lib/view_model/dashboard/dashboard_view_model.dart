@@ -414,8 +414,8 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay;
 
-  @observable
-  bool mwebScanningActive = false;
+  @computed
+  bool get mwebScanningActive => settingsStore.mwebEnabled;
 
   @computed
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
@@ -430,7 +430,7 @@ abstract class DashboardViewModelBase with Store {
       settingsStore.hasEnabledMwebBefore = true;
     }
 
-    mwebScanningActive = active;
+    settingsStore.mwebEnabled = active;
     bitcoin!.setMwebEnabled(wallet, active);
   }
 

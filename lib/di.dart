@@ -1000,8 +1000,8 @@ Future<void> setup({
         return bitcoin!.createLitecoinWalletService(
           _walletInfoSource,
           _unspentCoinsInfoSource,
-          SettingsStoreBase.walletPasswordDirectInput,
           getIt.get<SettingsStore>().mwebAlwaysScan,
+          SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.ethereum:
         return ethereum!.createEthereumWalletService(
