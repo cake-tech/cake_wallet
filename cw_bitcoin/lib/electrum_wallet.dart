@@ -1113,6 +1113,8 @@ abstract class ElectrumWalletBase
             });
           }
 
+          unspentCoins.removeWhere((utxo) => estimatedTx.utxos.any((e) => e.utxo.txHash == utxo.hash));
+
           await updateBalance();
         });
     } catch (e) {
