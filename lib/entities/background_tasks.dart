@@ -136,6 +136,21 @@ Future<void> onStart(ServiceInstance service) async {
         await wallet.startSync();
         syncingWallets.add(wallet);
       }
+
+      final List<WalletListItem> bitcoinWallets = getIt
+          .get<WalletListViewModel>()
+          .wallets
+          .where((element) => element.type == WalletType.bitcoin)
+          .toList();
+
+      for (int i = 0; i < bitcoinWallets.length; i++) {
+        final wallet =
+            await walletLoadingService.load(bitcoinWallets[i].type, bitcoinWallets[i].name);
+        final node = getIt.get<SettingsStore>().getCurrentNode(bitcoinWallets[i].type);
+        await wallet.connectToNode(node: node);
+        await wallet.startSync();
+        syncingWallets.add(wallet);
+      }
     } else {
       // /// if the user chose to sync only active wallet
       // /// if the current wallet is monero; sync it only
@@ -152,12 +167,25 @@ Future<void> onStart(ServiceInstance service) async {
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) {
       // final wallet = getIt.get<AppStore>().wallet;
+      if (syncingWallets.isEmpty) {
+        return;
+      }
+
       final wallet = syncingWallets.first!;
-      final syncProgress = ((wallet?.syncStatus.progress() ?? 0) * 100).toStringAsPrecision(5);
+      final syncProgress = ((wallet.syncStatus.progress() ?? 0) * 100).toStringAsPrecision(5);
+
+      // String title = "${wallet!.name} ${syncProgress}% Synced";
+      String title = "";
+
+      for (int i = 0; i < syncingWallets.length; i++) {
+        final wallet = syncingWallets[i];
+        final syncProgress = ((wallet!.syncStatus.progress()) * 100).toStringAsPrecision(5);
+        title += "${wallet.name}-${syncProgress}% ";
+      }
 
       flutterLocalNotificationsPlugin.show(
         notificationId,
-        "${wallet!.name} ${syncProgress}% Synced",
+        title,
         'Background sync - ${DateTime.now()}',
         const NotificationDetails(
           android: AndroidNotificationDetails(
