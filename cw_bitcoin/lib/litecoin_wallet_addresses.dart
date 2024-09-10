@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:bech32/bech32.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -33,7 +34,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     super.initialChangeAddressIndex,
   }) : super(walletInfo) {
     // start generating mweb addresses in the background:
-    initMwebAddresses();
+    // initMwebAddresses();
   }
 
   final Bip32Slip10Secp256k1 mwebHd;
@@ -45,6 +46,12 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendPubkey =>
       mwebHd.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
+
+  @override
+  Future<void> init() async {
+    await super.init();
+    initMwebAddresses();
+  }
 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
     Uint8List scan = Uint8List.fromList(scanSecret);
@@ -66,10 +73,30 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   Future<void> initMwebAddresses() async {
-    for (int i = 0; i < 4; i++) {
+    print("Initializing MWEB address timer!");
+    Timer.periodic(const Duration(seconds: 2), (timer) async {
+      print("Generating MWEB addresses...");
       await generateNumAddresses(250);
       await Future.delayed(const Duration(milliseconds: 1500));
-    }
+
+      if (mwebAddrs.length > 1000) {
+        // convert mwebAddrs to BitcoinAddressRecords:
+        List<BitcoinAddressRecord> mwebAddresses = mwebAddrs
+            .asMap()
+            .entries
+            .map((e) => BitcoinAddressRecord(
+                  e.value,
+                  index: e.key,
+                  type: SegwitAddresType.mweb,
+                  network: network,
+                ))
+            .toList();
+        // add them to the list of all addresses:
+        addAddresses(mwebAddresses);
+        print("MWEB addresses initialized ${mwebAddrs.length}");
+        timer.cancel();
+      }
+    });
   }
 
   @override
@@ -126,6 +153,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
 
     if (mwebEnabled) {
+      await ensureMwebAddressUpToIndexExists(1);
       return mwebAddrs[0];
     }
 

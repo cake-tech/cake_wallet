@@ -2395,8 +2395,6 @@ class PublicKeyWithDerivationPath {
 }
 
 BitcoinBaseAddress addressTypeFromStr(String address, BasedUtxoNetwork network) {
-  // print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-  // print(network);
   if (network is BitcoinCashNetwork) {
     if (!address.startsWith("bitcoincash:") &&
         (address.startsWith("q") || address.startsWith("p"))) {

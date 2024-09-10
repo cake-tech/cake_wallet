@@ -250,6 +250,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return;
     }
 
+    final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
+    while (mwebAddrs.length < 1000) {
+      print("waiting for mweb addresses to finish generating...");
+      await Future.delayed(const Duration(milliseconds: 1000));
+    }
+
     await getStub();
     await updateUnspent();
     await updateBalance();
