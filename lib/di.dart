@@ -374,8 +374,8 @@ Future<void> setup({
 
   getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
 
-  getIt.registerSingleton<WalletManager>(
-    WalletManager(_walletInfoSource, getIt.get<SharedPreferences>()),
+  getIt.registerFactory<WalletManager>(
+    () => WalletManager(_walletInfoSource, getIt.get<SharedPreferences>()),
   );
 
   getIt.registerFactoryParam<PreExistingSeedsViewModel, WalletType, void>(
