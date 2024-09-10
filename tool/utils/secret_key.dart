@@ -45,6 +45,8 @@ class SecretKey {
     SecretKey('authorization', () => ''),
     SecretKey('meldTestApiKey', () => ''),
     SecretKey('meldTestPublicKey', () => ''),
+    SecretKey('stealthExBearerToken', () => ''),
+    SecretKey('stealthExAdditionalFeePercent', () => ''),
   ];
 
   static final evmChainsSecrets = [

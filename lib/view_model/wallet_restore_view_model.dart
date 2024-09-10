@@ -42,7 +42,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             type == WalletType.tron,
         isButtonEnabled = false,
         mode = WalletRestoreMode.seed,
-        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel, type: type, isRecovery: true) {
+        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
+            type: type, isRecovery: true) {
     switch (type) {
       case WalletType.monero:
         availableModes = WalletRestoreMode.values;
@@ -194,10 +195,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
         case WalletType.nano:
           return nano!.createNanoRestoreWalletFromKeysCredentials(
-              name: name,
-              password: password,
-              seedKey: options['private_key'] as String,
-              derivationType: options["derivationType"] as DerivationType);
+            name: name,
+            password: password,
+            seedKey: options['private_key'] as String,
+            derivationType: derivationInfo!.derivationType!,
+          );
         case WalletType.polygon:
           return polygon!.createPolygonRestoreWalletFromPrivateKey(
             name: name,
