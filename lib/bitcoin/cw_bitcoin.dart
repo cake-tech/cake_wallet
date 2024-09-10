@@ -210,7 +210,7 @@ class CWBitcoin extends Bitcoin {
 
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource,
       Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
-    return LitecoinWalletService(walletInfoSource, unspentCoinSource, isDirect, alwaysScan);
+    return LitecoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
   }
 
   @override
@@ -530,7 +530,7 @@ class CWBitcoin extends Bitcoin {
   int getHeightByDate({required DateTime date}) => getBitcoinHeightByDate(date: date);
 
   @override
-  int getLitecoinHeightByDate({required DateTime date}) => getLitecoinHeightByDate(date: date);
+  int getLitecoinHeightByDate({required DateTime date}) => getLtcHeightByDate(date: date);
 
   @override
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {

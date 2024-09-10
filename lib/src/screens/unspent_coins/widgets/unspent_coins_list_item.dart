@@ -103,10 +103,10 @@ class UnspentCoinsListItem extends StatelessWidget {
                           ),
                           maxLines: 1,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            if (isChange)
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        //   children: [
+                            if (isChange || true)
                               Container(
                                 height: 17,
                                 padding: EdgeInsets.only(left: 6, right: 6),
@@ -123,7 +123,7 @@ class UnspentCoinsListItem extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                            if (address.toLowerCase().contains("mweb"))
+                            if (address.toLowerCase().contains("mweb") || true)
                               Container(
                                 height: 17,
                                 padding: EdgeInsets.only(left: 6, right: 6),
@@ -141,7 +141,7 @@ class UnspentCoinsListItem extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                            if (isSilentPayment)
+                            if (isSilentPayment || true)
                               Container(
                                 height: 17,
                                 padding: EdgeInsets.only(left: 6, right: 6),
@@ -158,8 +158,8 @@ class UnspentCoinsListItem extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                          ],
-                        ),
+                          // ],
+                        // ),
                       ],
                     ),
                   ),

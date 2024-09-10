@@ -35,7 +35,7 @@ class RescanPage extends BasePage {
                     isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
                     isMwebScan: _rescanViewModel.isMwebScan,
                     doSingleScan: _rescanViewModel.doSingleScan,
-                    hasDatePicker: !_rescanViewModel.isMwebScan,
+                    hasDatePicker: !_rescanViewModel.isMwebScan,// disable date picker for mweb for now
                     toggleSingleScan: () =>
                         _rescanViewModel.doSingleScan = !_rescanViewModel.doSingleScan,
                     walletType: _rescanViewModel.wallet.type,

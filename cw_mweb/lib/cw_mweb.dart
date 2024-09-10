@@ -55,11 +55,6 @@ class CwMweb {
   }
 
   static Future<String?> address(Uint8List scanSecret, Uint8List spendPub, int index) async {
-    // try {
-    //   return (await CwMwebPlatform.instance.address(scan, spendPub, index))!;
-    // } catch (e) {
-    //   print("error generating address!: $e");
-    // }
     return CwMwebPlatform.instance.address(scanSecret, spendPub, index);
   }
 
