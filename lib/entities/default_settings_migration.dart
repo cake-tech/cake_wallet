@@ -40,6 +40,7 @@ const solanaDefaultNodeUri = 'rpc.ankr.com';
 const tronDefaultNodeUri = 'trx.nownodes.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
+const moneroWorldNodeUri = '.moneroworld.com';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -244,6 +245,9 @@ Future<void> defaultSettingsMigration(
         case 39:
           _fixNodesUseSSLFlag(nodes);
           await changeDefaultNanoNode(nodes, sharedPreferences);
+          break;
+        case 40:
+          await removeMoneroWorld(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         default:
           break;
@@ -488,15 +492,7 @@ Node? getBitcoinCashDefaultElectrumServer({required Box<Node> nodes}) {
 
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
   final timeZone = DateTime.now().timeZoneOffset.inHours;
-  var nodeUri = '';
-
-  if (timeZone >= 1) {
-    // Eurasia
-    nodeUri = 'xmr-node-eu.cakewallet.com:18081';
-  } else if (timeZone <= -4) {
-    // America
-    nodeUri = 'xmr-node-usa-east.cakewallet.com:18081';
-  }
+  var nodeUri = newCakeWalletMoneroUri;
 
   try {
     return nodes.values.firstWhere((Node node) => node.uriRaw == nodeUri);
@@ -1259,4 +1255,23 @@ Future<void> replaceTronDefaultNode({
 
   // If it's not, we switch user to the new default node: NowNodes
   await changeTronCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+}
+
+Future<void> removeMoneroWorld(
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  const cakeWalletMoneroNodeUriPattern = '.moneroworld.com';
+  final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
+  final currentMoneroNode = nodes.values.firstWhere((node) => node.key == currentMoneroNodeId);
+  final needToReplaceCurrentMoneroNode = currentMoneroNode.uri.toString().contains(cakeWalletMoneroNodeUriPattern);
+
+  nodes.values.forEach((node) async {
+    if (node.type == WalletType.monero &&
+        node.uri.toString().contains(cakeWalletMoneroNodeUriPattern)) {
+      await node.delete();
+    }
+  });
+
+  if (needToReplaceCurrentMoneroNode) {
+    await changeMoneroCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+  }
 }
