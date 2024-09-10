@@ -40,13 +40,11 @@ class NanoChangeRepPage extends BasePage {
       (node) => node.account == currentRepAccount,
       orElse: () => N2Node(
         account: currentRepAccount,
-        alias: currentRepAccount,
         score: 0,
         uptime: "???",
         weight: 0,
       ),
     );
-
     return currentNode;
   }
 
@@ -57,9 +55,7 @@ class NanoChangeRepPage extends BasePage {
       child: FutureBuilder(
         future: nano!.getN2Reps(_wallet),
         builder: (context, snapshot) {
-          if (snapshot.data == null) {
-            return SizedBox();
-          }
+          final reps = snapshot.data ?? [];
 
           return Container(
             padding: EdgeInsets.only(left: 24, right: 24),
@@ -101,29 +97,35 @@ class NanoChangeRepPage extends BasePage {
                       ),
                       _buildSingleRepresentative(
                         context,
-                        getCurrentRepNode(snapshot.data as List<N2Node>),
+                        getCurrentRepNode(reps),
                         isList: false,
+                        divider: false,
                       ),
-                      Divider(height: 20),
-                      Container(
-                        margin: EdgeInsets.only(top: 12),
-                        child: Text(
-                          S.current.nano_pick_new_rep,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                      if (reps.isNotEmpty) ...[
+                        Divider(height: 20),
+                        Container(
+                          margin: EdgeInsets.only(top: 12),
+                          child: Text(
+                            S.current.nano_pick_new_rep,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
-                      ),
+                        Divider(height: 20),
+                      ],
                     ],
                   ),
                 ],
               ),
               contentPadding: EdgeInsets.only(bottom: 24),
               content: Container(
-                child: Column(
-                  children: _getRepresentativeWidgets(context, snapshot.data as List<N2Node>),
-                ),
+                child: reps.isNotEmpty
+                    ? Column(
+                        children: _getRepresentativeWidgets(context, reps),
+                      )
+                    : SizedBox(),
               ),
               bottomSectionPadding: EdgeInsets.only(bottom: 24),
               bottomSection: Observer(
@@ -207,19 +209,22 @@ class NanoChangeRepPage extends BasePage {
     final List<Widget> ret = [];
     for (final N2Node node in list) {
       if (node.alias != null && node.alias!.trim().isNotEmpty) {
-        ret.add(_buildSingleRepresentative(context, node));
+        bool divider = node != list.first;
+        ret.add(_buildSingleRepresentative(context, node, divider: divider, isList: true));
       }
     }
     return ret;
   }
 
-  Widget _buildSingleRepresentative(BuildContext context, N2Node rep, {bool isList = true}) {
+  Widget _buildSingleRepresentative(
+    BuildContext context,
+    N2Node rep, {
+    bool isList = true,
+    bool divider = false,
+  }) {
     return Column(
       children: <Widget>[
-        if (isList)
-          Divider(
-            height: 2,
-          ),
+        if (divider) Divider(height: 2),
         TextButton(
           style: TextButton.styleFrom(
             padding: EdgeInsets.zero,
@@ -244,11 +249,11 @@ class NanoChangeRepPage extends BasePage {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        _sanitizeAlias(rep.alias),
+                        rep.alias ?? rep.account!,
                         style: TextStyle(
                           color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           fontWeight: FontWeight.w700,
-                          fontSize: 18,
+                          fontSize: rep.alias == null ? 14 : 18,
                         ),
                       ),
                       Container(
@@ -336,12 +341,5 @@ class NanoChangeRepPage extends BasePage {
         ),
       ],
     );
-  }
-
-  String _sanitizeAlias(String? alias) {
-    if (alias != null) {
-      return alias.replaceAll(RegExp(r'[^a-zA-Z_.!?_;:-]'), '');
-    }
-    return '';
   }
 }
