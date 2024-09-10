@@ -16,9 +16,16 @@ String getTxKey(String txId) {
 
 wownero.TransactionHistory? txhistory;
 
-void refreshTransactions() {
+bool isRefreshingTx = false;
+Future<void> refreshTransactions() async {
+  if (isRefreshingTx == true) return;
+  isRefreshingTx = true;
   txhistory ??= wownero.Wallet_history(wptr!);
-  wownero.TransactionHistory_refresh(txhistory!);
+  final ptr = txhistory!.address;
+  await Isolate.run(() {
+    wownero.TransactionHistory_refresh(Pointer.fromAddress(ptr));
+  });
+  isRefreshingTx = false;
 }
 
 int countOfTransactions() => wownero.TransactionHistory_count(txhistory!);

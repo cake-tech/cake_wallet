@@ -50,46 +50,45 @@ class TinyTransactionDetails {
     required this.address,
     required this.amount,
   });
-  final String address;
+  final List<String> address;
   final int amount;
 }
+
+int lastWptr = 0;
+int lastTxCount = 0;
+List<TinyTransactionDetails> ttDetails = [];
 
 List<Subaddress> getAllSubaddresses() {
   txhistory = monero.Wallet_history(wptr!);
   final txCount = monero.TransactionHistory_count(txhistory!);
-  final ttDetails = <TinyTransactionDetails>[];
-  for (var i = 0; i < txCount; i++) {
-    final tx = monero.TransactionHistory_transaction(txhistory!, index: i);
-    ttDetails.add(TinyTransactionDetails(
-      address: monero.Wallet_address(
-        wptr!, 
-        accountIndex: monero.TransactionInfo_subaddrAccount(tx), 
-        addressIndex: int.parse(monero.TransactionInfo_subaddrIndex(tx).split(",")[0],
-      )),
-      amount: monero.TransactionInfo_amount(tx),
-    ));
+  if (lastTxCount != txCount && lastWptr != wptr!.address) {
+    ttDetails.clear();
+    lastTxCount = txCount;
+    lastWptr = wptr!.address;
+    for (var i = 0; i < txCount; i++) {
+      final tx = monero.TransactionHistory_transaction(txhistory!, index: i);
+      final subaddrs = monero.TransactionInfo_subaddrIndex(tx).split(",");
+      final account = monero.TransactionInfo_subaddrAccount(tx);
+      ttDetails.add(TinyTransactionDetails(
+        address: List.generate(subaddrs.length, (index) => getAddress(accountIndex: account, addressIndex:  int.tryParse(subaddrs[index])??0)),
+        amount: monero.TransactionInfo_amount(tx),
+      ));
+    }
   }
   final size = monero.Wallet_numSubaddresses(wptr!, accountIndex: subaddress!.accountIndex);
   final list = List.generate(size, (index) {
     final ttDetailsLocal = ttDetails.where((element) {
-      final address = monero.Wallet_address(
-        wptr!, 
+      final address = getAddress(
         accountIndex: subaddress!.accountIndex, 
         addressIndex: index,
       );
-      if (address == element.address) return true;
+      if (element.address.contains(address)) return true;
       return false;
     }).toList();
     int received = 0;
     for (var i = 0; i < ttDetailsLocal.length; i++) {
       received += ttDetailsLocal[i].amount;
     }
-    print("ttDetailsLocal: ${ttDetailsLocal.length}");
-    for (var i = 0; i < ttDetailsLocal.length; i++) {
-      print("\t- ${ttDetailsLocal[i].address}: ${ttDetailsLocal[i].amount}");
-    }
-    print("received: ${received}");
-    print("txCount: ${ttDetailsLocal.length}");
     return Subaddress(
       accountIndex: subaddress!.accountIndex,
       addressIndex: index,

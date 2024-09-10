@@ -49,24 +49,30 @@ class TinyTransactionDetails {
     required this.address,
     required this.amount,
   });
-  final String address;
+  final List<String> address;
   final int amount;
 }
+
+int lastWptr = 0;
+int lastTxCount = 0;
+List<TinyTransactionDetails> ttDetails = [];
 
 List<Subaddress> getAllSubaddresses() {
   txhistory = wownero.Wallet_history(wptr!);
   final txCount = wownero.TransactionHistory_count(txhistory!);
-  final ttDetails = <TinyTransactionDetails>[];
-  for (var i = 0; i < txCount; i++) {
-    final tx = wownero.TransactionHistory_transaction(txhistory!, index: i);
-    ttDetails.add(TinyTransactionDetails(
-      address: wownero.Wallet_address(
-        wptr!, 
-        accountIndex: wownero.TransactionInfo_subaddrAccount(tx), 
-        addressIndex: int.parse(wownero.TransactionInfo_subaddrIndex(tx).split(",")[0],
-      )),
-      amount: wownero.TransactionInfo_amount(tx),
-    ));
+  if (lastTxCount != txCount && lastWptr != wptr!.address) {
+    ttDetails.clear();
+    lastTxCount = txCount;
+    lastWptr = wptr!.address;
+    for (var i = 0; i < txCount; i++) {
+      final tx = wownero.TransactionHistory_transaction(txhistory!, index: i);
+      final subaddrs = wownero.TransactionInfo_subaddrIndex(tx).split(",");
+      final account = wownero.TransactionInfo_subaddrAccount(tx);
+      ttDetails.add(TinyTransactionDetails(
+        address: List.generate(subaddrs.length, (index) => getAddress(accountIndex: account, addressIndex:  int.tryParse(subaddrs[index])??0)),
+        amount: wownero.TransactionInfo_amount(tx),
+      ));
+    }
   }
   final size = wownero.Wallet_numSubaddresses(wptr!, accountIndex: subaddress!.accountIndex);
   final list = List.generate(size, (index) {

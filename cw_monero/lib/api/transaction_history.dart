@@ -15,10 +15,16 @@ String getTxKey(String txId) {
 }
 
 monero.TransactionHistory? txhistory;
-
-void refreshTransactions() {
+bool isRefreshingTx = false;
+Future<void> refreshTransactions() async {
+  if (isRefreshingTx == true) return;
+  isRefreshingTx = true;
   txhistory ??= monero.Wallet_history(wptr!);
-  monero.TransactionHistory_refresh(txhistory!);
+  final ptr = txhistory!.address;
+  await Isolate.run(() {
+    monero.TransactionHistory_refresh(Pointer.fromAddress(ptr));
+  });
+  isRefreshingTx = false;
 }
 
 int countOfTransactions() => monero.TransactionHistory_count(txhistory!);
@@ -27,7 +33,6 @@ List<Transaction> getAllTransactions() {
   List<Transaction> dummyTxs = [];
 
   txhistory ??= monero.Wallet_history(wptr!);
-  monero.TransactionHistory_refresh(txhistory!);
   int size = countOfTransactions();
   final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
 
