@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:bech32/bech32.dart';
@@ -30,29 +31,63 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
   }) : super(walletInfo) {
-    topUpMweb(0);
+    initMwebAddresses();
+    // topUpMweb(0);
+    print("initialized LitecoinWalletAddressesBase");
   }
 
   final Bip32Slip10Secp256k1 mwebHd;
   bool mwebEnabled;
+  int mwebTopUpIndex = 1000;
+  List<String> mwebAddrs = [];
+  static Timer? mwebTopUpTimer;
 
   List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendPubkey =>
       mwebHd.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
 
-  List<String> mwebAddrs = [];
+  // Future<void> topUpMweb(int index) async {
+  //   // generate up to index + 1000 addresses:
+  //   while (mwebAddrs.length - index < 1000) {
+  //     final length = mwebAddrs.length;
+  //     final address = await CwMweb.address(
+  //       Uint8List.fromList(scanSecret),
+  //       Uint8List.fromList(spendPubkey),
+  //       length,
+  //     );
+  //     mwebAddrs.add(address!);
+  //   }
+  // }
 
-  Future<void> topUpMweb(int index) async {
-    // generate up to index + 1000 addresses:
-    while (mwebAddrs.length - index < 1000) {
-      final length = mwebAddrs.length;
+  Future<void> initMwebAddresses() async {
+    print("mweb addresses: ${mwebAddrs.length}");
+    const int INITIAL_MWEB_ADDRESSES = 25;
+    // make sure we have at least 20 addresses:
+    while (mwebAddrs.length < INITIAL_MWEB_ADDRESSES) {
       final address = await CwMweb.address(
         Uint8List.fromList(scanSecret),
         Uint8List.fromList(spendPubkey),
-        length,
+        mwebAddrs.length,
       );
       mwebAddrs.add(address!);
     }
+
+    // set up a periodic task to fill up the mweb addresses to 1000:
+    mwebTopUpTimer?.cancel();
+    mwebTopUpTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
+      if (mwebAddrs.length >= mwebTopUpIndex) {
+        return;
+      }
+      for (int i = 0; i < 10; i++) {
+        final address = await CwMweb.address(
+          Uint8List.fromList(scanSecret),
+          Uint8List.fromList(spendPubkey),
+          mwebAddrs.length,
+        );
+        mwebAddrs.add(address!);
+      }
+      print("mweb addresses: ${mwebAddrs.length}");
+    });
   }
 
   @override
@@ -62,11 +97,26 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     BitcoinAddressType? addressType,
   }) {
     if (addressType == SegwitAddresType.mweb) {
-      topUpMweb(index).then((value) {
-        return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
-      });
+      return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
+  }
+
+  @override
+  Future<String> getAddressAsync({
+    required int index,
+    required Bip32Slip10Secp256k1 hd,
+    BitcoinAddressType? addressType,
+  }) async {
+    if (addressType == SegwitAddresType.mweb) {
+      if (index + 1000 > mwebTopUpIndex) {
+        mwebTopUpIndex = index + 1000;
+      }
+      while (mwebAddrs.length <= index) {
+        await Future.delayed(const Duration(seconds: 1));
+      }
+    }
+    return getAddress(index: index, hd: hd, addressType: addressType);
   }
 
   @action
@@ -99,7 +149,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
 
     if (mwebEnabled) {
-      await topUpMweb(0);
       return mwebAddrs[0];
     }
 
