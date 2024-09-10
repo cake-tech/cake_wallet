@@ -1,6 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/monero_performance_debug.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class SettingActions {
@@ -119,7 +120,7 @@ class SettingActions {
       Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.support);
     },
-    onLongPress: (BuildContext context) {
+    onLongPress: kDebugMode ? null : (BuildContext context) {
       Navigator.of(context).pop();
       Navigator.of(context).push(
         MaterialPageRoute(
