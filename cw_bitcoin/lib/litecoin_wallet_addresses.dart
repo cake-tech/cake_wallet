@@ -33,9 +33,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       mwebAddrs.add(mwebAddresses[i].address);
     }
     print("initialized with ${mwebAddrs.length} mweb addresses");
-    if (mwebAddrs.length < 1000) {
-      initMwebAddresses();
-    }
+    initMwebAddresses();
   }
 
   final Bip32Slip10Secp256k1 mwebHd;
@@ -73,36 +71,56 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   Future<void> initMwebAddresses() async {
-    print("Initializing MWEB address timer!");
-    Timer.periodic(const Duration(seconds: 2), (timer) async {
-      if (super.allAddresses.length > 1000) {
-        timer.cancel();
-        return;
-      }
-      print("Generating MWEB addresses...");
-      await generateNumAddresses(250);
-      await Future.delayed(const Duration(milliseconds: 1500));
+    print("Initializing MWEB addresses!");
 
-      if (mwebAddrs.length > 1000) {
-        // convert mwebAddrs to BitcoinAddressRecords:
-        List<BitcoinAddressRecord> mwebAddresses = mwebAddrs
-            .asMap()
-            .entries
-            .map((e) => BitcoinAddressRecord(
-                  e.value,
-                  index: e.key,
-                  type: SegwitAddresType.mweb,
-                  network: network,
-                ))
-            .toList();
-        // add them to the list of all addresses:
-        addAddresses(mwebAddresses);
-        addMwebAddresses(mwebAddresses);
-        print("MWEB addresses initialized ${mwebAddrs.length}");
-        timer.cancel();
-        return;
-      }
-    });
+    if (mwebAddrs.length < 1000) {
+      print("Generating MWEB addresses...");
+      await ensureMwebAddressUpToIndexExists(1020);
+      List<BitcoinAddressRecord> addressRecords = mwebAddrs
+          .asMap()
+          .entries
+          .map((e) => BitcoinAddressRecord(
+                e.value,
+                index: e.key,
+                type: SegwitAddresType.mweb,
+                network: network,
+              ))
+          .toList();
+      addAddresses(addressRecords);
+      addMwebAddresses(addressRecords);
+      print("added ${addressRecords.length} mweb addresses");
+      return;
+    }
+
+    // Timer.periodic(const Duration(seconds: 2), (timer) async {
+    //   if (super.allAddresses.length > 1000) {
+    //     timer.cancel();
+    //     return;
+    //   }
+    //   print("Generating MWEB addresses...");
+    //   await generateNumAddresses(250);
+    //   await Future.delayed(const Duration(milliseconds: 1500));
+
+    //   if (mwebAddrs.length > 1000) {
+    //     // convert mwebAddrs to BitcoinAddressRecords:
+    //     List<BitcoinAddressRecord> mwebAddresses = mwebAddrs
+    //         .asMap()
+    //         .entries
+    //         .map((e) => BitcoinAddressRecord(
+    //               e.value,
+    //               index: e.key,
+    //               type: SegwitAddresType.mweb,
+    //               network: network,
+    //             ))
+    //         .toList();
+    //     // add them to the list of all addresses:
+    //     addAddresses(mwebAddresses);
+    //     addMwebAddresses(mwebAddresses);
+    //     print("MWEB addresses initialized ${mwebAddrs.length}");
+    //     timer.cancel();
+    //     return;
+    //   }
+    // });
   }
 
   @override

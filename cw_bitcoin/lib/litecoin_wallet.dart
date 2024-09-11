@@ -70,7 +70,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           unspentCoinsInfo: unspentCoinsInfo,
           network: LitecoinNetwork.mainnet,
           initialAddresses: initialAddresses,
-          initialMwebAddresses: initialMwebAddresses,
           initialBalance: initialBalance,
           seedBytes: seedBytes,
           encryptionFileUtils: encryptionFileUtils,
