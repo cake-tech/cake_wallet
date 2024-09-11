@@ -131,6 +131,11 @@ abstract class DashboardViewModelBase with Store {
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
             FilterItem(
+                value: () => tradeFilterStore.displayLetsExchange,
+                caption: ExchangeProviderDescription.letsExchange.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+            FilterItem(
                 value: () => tradeFilterStore.displayStealthEx,
                 caption: ExchangeProviderDescription.stealthEx.title,
                 onChanged: () =>

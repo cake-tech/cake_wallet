@@ -69,7 +69,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
         throw Exception('StealthEx fetch limits failed: ${response.body}');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final min = responseJSON['min_amount'] as double?;
+      final min = toDouble(responseJSON['min_amount']);
       final max = responseJSON['max_amount'] as double?;
       return Limits(min: min, max: max);
     } catch (e) {
