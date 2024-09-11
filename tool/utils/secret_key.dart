@@ -43,8 +43,13 @@ class SecretKey {
     SecretKey('cakePayApiKey', () => ''),
     SecretKey('CSRFToken', () => ''),
     SecretKey('authorization', () => ''),
+<<<<<<< Warning-when-adding-contract-address
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
+=======
+    SecretKey('letsExchangeBearerToken', () => ''),
+    SecretKey('letsExchangeAffiliateId', () => ''),
+>>>>>>> main
     SecretKey('stealthExBearerToken', () => ''),
     SecretKey('stealthExAdditionalFeePercent', () => ''),
   ];

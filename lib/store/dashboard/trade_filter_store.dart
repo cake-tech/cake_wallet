@@ -17,6 +17,7 @@ abstract class TradeFilterStoreBase with Store {
         displayTrocador = true,
         displayExolix = true,
         displayThorChain = true,
+        displayLetsExchange = true,
         displayStealthEx = true;
 
   @observable
@@ -44,6 +45,9 @@ abstract class TradeFilterStoreBase with Store {
   bool displayThorChain;
 
   @observable
+  bool displayLetsExchange;
+
+  @observable
   bool displayStealthEx;
 
   @computed
@@ -54,6 +58,7 @@ abstract class TradeFilterStoreBase with Store {
       displayTrocador &&
       displayExolix &&
       displayThorChain &&
+      displayLetsExchange &&
       displayStealthEx;
 
   @action
@@ -83,6 +88,8 @@ abstract class TradeFilterStoreBase with Store {
       case ExchangeProviderDescription.thorChain:
         displayThorChain = !displayThorChain;
         break;
+      case ExchangeProviderDescription.letsExchange:
+        displayLetsExchange = !displayLetsExchange;
       case ExchangeProviderDescription.stealthEx:
         displayStealthEx = !displayStealthEx;
         break;
@@ -96,6 +103,7 @@ abstract class TradeFilterStoreBase with Store {
           displayTrocador = false;
           displayExolix = false;
           displayThorChain = false;
+          displayLetsExchange = false;
           displayStealthEx = false;
         } else {
           displayChangeNow = true;
@@ -106,6 +114,7 @@ abstract class TradeFilterStoreBase with Store {
           displayTrocador = true;
           displayExolix = true;
           displayThorChain = true;
+          displayLetsExchange = true;
           displayStealthEx = true;
         }
         break;
@@ -134,6 +143,8 @@ abstract class TradeFilterStoreBase with Store {
                 (displayExolix && item.trade.provider == ExchangeProviderDescription.exolix) ||
                 (displayThorChain &&
                     item.trade.provider == ExchangeProviderDescription.thorChain) ||
+                (displayLetsExchange &&
+                    item.trade.provider == ExchangeProviderDescription.letsExchange) ||
                 (displayStealthEx && item.trade.provider == ExchangeProviderDescription.stealthEx))
             .toList()
         : _trades;
