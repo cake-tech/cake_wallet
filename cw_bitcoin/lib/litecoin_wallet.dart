@@ -250,6 +250,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return;
     }
 
+    final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
+    while (mwebAddrs.length < 1000) {
+      print("waiting for mweb addresses to finish generating...");
+      await Future.delayed(const Duration(milliseconds: 1000));
+    }
+
     await getStub();
     await updateUnspent();
     await updateBalance();
@@ -403,14 +409,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       );
     }
 
-    bool isNew = transactionHistory.transactions[tx.id] == null;
-
     // don't update the confirmations if the tx is updated by electrum:
     if (tx.confirmations == 0 || utxo.height != 0) {
       tx.height = utxo.height;
       tx.isPending = utxo.height == 0;
       tx.confirmations = confirmations;
     }
+
+    bool isNew = transactionHistory.transactions[tx.id] == null;
 
     if (!(tx.outputAddresses?.contains(utxo.address) ?? false)) {
       tx.outputAddresses?.add(utxo.address);
@@ -454,22 +460,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     print("SCANNING FROM HEIGHT: $restoreHeight");
     final req = UtxosRequest(scanSecret: scanSecret, fromHeight: restoreHeight);
 
-    // process old utxos:
-    // for (final utxo in mwebUtxosBox.values) {
-    //   if (utxo.address.isEmpty) {
-    //     continue;
-    //   }
-
-    //   // if (walletInfo.restoreHeight > utxo.height) {
-    //   //   continue;
-    //   // }
-    //   // await handleIncoming(utxo, _stub);
-
-    //   if (utxo.height > walletInfo.restoreHeight) {
-    //     await walletInfo.updateRestoreHeight(utxo.height);
-    //   }
-    // }
-
     // process new utxos as they come in:
     _utxoStream?.cancel();
     _utxoStream = _stub.utxos(req).listen((Utxo sUtxo) async {
@@ -484,12 +474,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       // if (mwebUtxosBox.containsKey(utxo.outputId)) {
       //   // we've already stored this utxo, skip it:
       //   return;
-      // }
-
-      // if (utxo.address.isEmpty) {
-      //   await updateUnspent();
-      //   await updateBalance();
-      //   initDone = true;
       // }
 
       await updateUnspent();
@@ -517,6 +501,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             .where((tx) => tx.direction == TransactionDirection.outgoing && tx.isPending)
             .map(checkPendingTransaction)))
         .any((x) => x));
+
     final outputIds =
         mwebUtxosBox.values.where((utxo) => utxo.height > 0).map((utxo) => utxo.outputId).toList();
 
@@ -527,10 +512,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final height = await electrumClient.getCurrentBlockChainTip();
     if (height == null || status.blockHeaderHeight != height) return;
     if (status.mwebUtxosHeight != height) return;
+
     int amount = 0;
     Set<String> inputAddresses = {};
     var output = convert.AccumulatorSink<Digest>();
     var input = sha256.startChunkedConversion(output);
+
     for (final outputId in spent) {
       final utxo = mwebUtxosBox.get(outputId);
       await mwebUtxosBox.delete(outputId);
@@ -545,6 +532,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       inputAddresses.add(utxo.address);
       input.add(hex.decode(outputId));
     }
+
     if (inputAddresses.isEmpty) return;
     input.close();
     var digest = output.events.single;
@@ -561,7 +549,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       inputAddresses: inputAddresses.toList(),
       outputAddresses: [],
     );
-    print("BEING ADDED HERE@@@@@@@@@@@@@@@@@@@@@@@2");
 
     transactionHistory.addOne(tx);
     await transactionHistory.save();
@@ -670,14 +657,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     } catch (_) {}
 
     // update unspent balances:
-
-    // reset coin balances and txCount to 0:
-    // unspentCoins.forEach((coin) {
-    //   if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
-    //     coin.bitcoinAddressRecord.balance = 0;
-    //   coin.bitcoinAddressRecord.txCount = 0;
-    // });
-
     await updateUnspent();
 
     for (var addressRecord in walletAddresses.allAddresses) {

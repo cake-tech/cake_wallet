@@ -223,8 +223,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (walletInfo.type == WalletType.bitcoinCash) {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.litecoin) {
-      // await _generateInitialAddresses();
-      // await _generateInitialAddresses(type: SegwitAddresType.mweb);
+      await _generateInitialAddresses(type: SegwitAddresType.p2wpkh);
+      await _generateInitialAddresses(type: SegwitAddresType.mweb);
     } else if (walletInfo.type == WalletType.bitcoin) {
       await _generateInitialAddresses();
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
