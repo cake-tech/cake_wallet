@@ -23,6 +23,7 @@ class ElectrumWalletSnapshot {
     required this.addressPageType,
     required this.silentAddresses,
     required this.silentAddressIndex,
+    required this.mwebAddresses,
     this.passphrase,
     this.derivationType,
     this.derivationPath,
@@ -44,6 +45,8 @@ class ElectrumWalletSnapshot {
 
   List<BitcoinAddressRecord> addresses;
   List<BitcoinSilentPaymentAddressRecord> silentAddresses;
+  List<BitcoinAddressRecord> mwebAddresses;
+
   ElectrumBalance balance;
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
@@ -69,6 +72,12 @@ class ElectrumWalletSnapshot {
     final silentAddresses = silentAddressesTmp
         .whereType<String>()
         .map((addr) => BitcoinSilentPaymentAddressRecord.fromJSON(addr, network: network))
+        .toList();
+
+    final mwebAddressTmp = data['mweb_addresses'] as List? ?? <Object>[];
+    final mwebAddresses = mwebAddressTmp
+        .whereType<String>()
+        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network: network))
         .toList();
 
     final balance = ElectrumBalance.fromJSON(data['balance'] as String?) ??
@@ -113,6 +122,7 @@ class ElectrumWalletSnapshot {
       derivationPath: derivationPath,
       silentAddresses: silentAddresses,
       silentAddressIndex: silentAddressIndex,
+      mwebAddresses: mwebAddresses,
     );
   }
 }

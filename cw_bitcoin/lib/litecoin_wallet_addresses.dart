@@ -25,15 +25,23 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required this.mwebHd,
     required this.mwebEnabled,
     super.initialAddresses,
+    super.initialMwebAddresses,
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
-  }) : super(walletInfo) {}
+  }) : super(walletInfo) {
+    for (int i = 0; i < mwebAddresses.length; i++) {
+      mwebAddrs.add(mwebAddresses[i].address);
+    }
+    print("initialized with ${mwebAddrs.length} mweb addresses");
+    if (mwebAddrs.length < 1000) {
+      initMwebAddresses();
+    }
+  }
 
   final Bip32Slip10Secp256k1 mwebHd;
   bool mwebEnabled;
   int mwebTopUpIndex = 1000;
   List<String> mwebAddrs = [];
-  static Timer? mwebTopUpTimer;
 
   List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendPubkey =>
@@ -89,6 +97,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
             .toList();
         // add them to the list of all addresses:
         addAddresses(mwebAddresses);
+        addMwebAddresses(mwebAddresses);
         print("MWEB addresses initialized ${mwebAddrs.length}");
         timer.cancel();
         return;
