@@ -65,6 +65,10 @@ class SecretKey {
     SecretKey('tronTestWalletReceiveAddress', () => ''),
     SecretKey('nanoTestWalletReceiveAddress', () => ''),
     SecretKey('wowneroTestWalletReceiveAddress', () => ''),
+    SecretKey('letsExchangeBearerToken', () => ''),
+    SecretKey('letsExchangeAffiliateId', () => ''),
+    SecretKey('stealthExBearerToken', () => ''),
+    SecretKey('stealthExAdditionalFeePercent', () => ''),
   ];
 
   static final evmChainsSecrets = [
