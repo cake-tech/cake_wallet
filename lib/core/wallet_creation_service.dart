@@ -75,8 +75,10 @@ class WalletCreationService {
 
   bool get _hasSeedPhraseLengthOption {
     switch (type) {
-      case WalletType.ethereum:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
@@ -84,8 +86,6 @@ class WalletCreationService {
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.none:
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
       case WalletType.haven:
       case WalletType.nano:
       case WalletType.banano:

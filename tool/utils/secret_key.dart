@@ -44,6 +44,10 @@ class SecretKey {
     SecretKey('cakePayApiKey', () => ''),
     SecretKey('CSRFToken', () => ''),
     SecretKey('authorization', () => ''),
+    SecretKey('letsExchangeBearerToken', () => ''),
+    SecretKey('letsExchangeAffiliateId', () => ''),
+    SecretKey('stealthExBearerToken', () => ''),
+    SecretKey('stealthExAdditionalFeePercent', () => ''),
   ];
 
   static final evmChainsSecrets = [
