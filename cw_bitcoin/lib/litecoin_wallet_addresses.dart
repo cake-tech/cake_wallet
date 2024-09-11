@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:bech32/bech32.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -14,10 +13,6 @@ import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 
 part 'litecoin_wallet_addresses.g.dart';
-
-String encodeMwebAddress(List<int> scriptPubKey) {
-  return bech32.encode(Bech32("ltcmweb1", scriptPubKey), 250);
-}
 
 class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalletAddresses;
 
@@ -32,10 +27,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     super.initialAddresses,
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
-  }) : super(walletInfo) {
-    // start generating mweb addresses in the background:
-    // initMwebAddresses();
-  }
+  }) : super(walletInfo) {}
 
   final Bip32Slip10Secp256k1 mwebHd;
   bool mwebEnabled;
