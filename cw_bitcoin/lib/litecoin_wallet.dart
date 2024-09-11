@@ -272,10 +272,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     _syncTimer?.cancel();
     // delay the timer by a second so we don't overrride the restoreheight if one is set
-    Timer(const Duration(seconds: 1), () async {
+    Timer(const Duration(seconds: 2), () async {
       _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
         if (syncStatus is FailedSyncStatus) return;
-        final nodeHeight = await electrumClient.getCurrentBlockChainTip() ?? 0;
+
+        final nodeHeight =
+            await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
         final resp = await _stub.status(StatusRequest());
 
         if (resp.blockHeaderHeight < nodeHeight) {
@@ -306,6 +308,26 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             }
             await transactionHistory.save();
           }
+        }
+      });
+
+      // setup a watch dog to restart the sync process if it gets stuck:
+      List<double> lastFewProgresses = [];
+      Timer.periodic(const Duration(seconds: 10), (timer) async {
+        if (syncStatus is! SyncingSyncStatus) return;
+        if (syncStatus.progress() > 0.98) return;
+        lastFewProgresses.add(syncStatus.progress());
+        if (lastFewProgresses.length < 4) return;
+        // limit list size to 4:
+        while(lastFewProgresses.length > 4) {
+          lastFewProgresses.removeAt(0);
+        }
+        // if the progress is the same over the last 40 seconds, restart the sync:
+        if (lastFewProgresses.every((p) => p == lastFewProgresses.first)) {
+          print("mweb syncing is stuck, restarting...");
+          await stopSync();
+          startSync();
+          timer.cancel();
         }
       });
     });

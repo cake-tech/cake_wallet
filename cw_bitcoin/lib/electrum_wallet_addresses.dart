@@ -481,6 +481,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         foundAddress = addressRecord;
       }
     });
+    mwebAddresses.forEach((addressRecord) {
+      if (addressRecord.address == address) {
+        foundAddress = addressRecord;
+      }
+    });
 
     if (foundAddress != null) {
       foundAddress!.setNewName(label);

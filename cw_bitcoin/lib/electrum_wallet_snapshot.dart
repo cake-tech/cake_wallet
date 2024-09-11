@@ -59,10 +59,11 @@ class ElectrumWalletSnapshot {
     final path = await pathForWallet(name: name, type: type);
     final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
-    final addressesTmp = data['addresses'] as List? ?? <Object>[];
     final mnemonic = data['mnemonic'] as String?;
     final xpub = data['xpub'] as String?;
     final passphrase = data['passphrase'] as String? ?? '';
+    
+    final addressesTmp = data['addresses'] as List? ?? <Object>[];
     final addresses = addressesTmp
         .whereType<String>()
         .map((addr) => BitcoinAddressRecord.fromJSON(addr, network: network))
