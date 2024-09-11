@@ -106,6 +106,7 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'waitingAuthorization':
         return waitingAuthorization;
       case 'failed':
+      case 'error':
         return failed;
       case 'completed':
         return completed;
@@ -125,6 +126,7 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'exchanging':
         return exchanging;
       case 'sending':
+      case 'sending_confirmation':
         return sending;
       case 'success':
       case 'done':
