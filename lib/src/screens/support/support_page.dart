@@ -2,11 +2,13 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
+import 'package:cake_wallet/themes/extensions/info_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 
 class SupportPage extends BasePage {
   SupportPage(this.supportViewModel);
@@ -23,8 +25,16 @@ class SupportPage extends BasePage {
   @override
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
+
+
   @override
   Widget body(BuildContext context) {
+
+    final mainColor = Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor;
+    final brightColor = Theme.of(context).extension<InfoTheme>()!.textColor;
+
+    final iconColor = currentTheme.type == ThemeType.bright ? brightColor : mainColor;
+
     return Container(
       child: Center(
         child: ConstrainedBox(
@@ -36,7 +46,7 @@ class SupportPage extends BasePage {
                 child: OptionTile(
                   icon: Icon(
                     Icons.support_agent,
-                    color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                    color: iconColor,
                     size: 50,
                   ),
                   title: S.of(context).support_title_live_chat,
@@ -55,7 +65,7 @@ class SupportPage extends BasePage {
                 child: OptionTile(
                   icon: Icon(
                       Icons.find_in_page,
-                      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                      color: iconColor,
                     size: 50,
                   ),
                   title: S.of(context).support_title_guides,
@@ -68,7 +78,7 @@ class SupportPage extends BasePage {
                 child: OptionTile(
                   icon: Icon(
                     Icons.contact_support,
-                    color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                    color: iconColor,
                     size: 50,
                   ),
                   title: S.of(context).support_title_other_links,
