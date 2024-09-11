@@ -132,6 +132,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    final syncingWalletTypes = [WalletType.litecoin, WalletType.monero, WalletType.bitcoin];
     switch (state) {
       case AppLifecycleState.paused:
         if (isQrScannerShown) {
@@ -142,7 +143,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           setState(() => _setInactive(true));
         }
 
-        if (widget.appStore.wallet?.type == WalletType.litecoin) {
+        if (syncingWalletTypes.contains(widget.appStore.wallet?.type)) {
           widget.appStore.wallet?.stopSync();
         }
 
@@ -172,7 +173,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
         wasInBackground = false;
-        if (widget.appStore.wallet?.type == WalletType.litecoin) {
+        if (syncingWalletTypes.contains(widget.appStore.wallet?.type)) {
           // wait a few seconds before starting the sync make sure the background service is fully exited:
           Future.delayed(const Duration(seconds: 3), () {
             widget.appStore.wallet?.startSync();
@@ -180,13 +181,15 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         }
         break;
       case AppLifecycleState.paused:
-        getIt.get<BackgroundTasks>().updateServiceState(false, showNotifications);
+        // TODO: experimental: maybe should uncomment this:
+        // getIt.get<BackgroundTasks>().updateServiceState(false, showNotifications);
       case AppLifecycleState.inactive:
       case AppLifecycleState.detached:
       default:
         // if we enter any state other than resumed start a timer for 30 seconds
         // after which we'll consider the app to be in the background
         _stateTimer?.cancel();
+        // TODO: bump this to > 30 seconds when testing is done:
         _stateTimer = Timer(const Duration(seconds: 10), () async {
           wasInBackground = true;
           getIt.get<BackgroundTasks>().updateServiceState(false, showNotifications);

@@ -456,7 +456,8 @@ abstract class ElectrumWalletBase
       await updateBalance();
       await updateFeeRates();
 
-      _updateFeeRateTimer ??=
+      _updateFeeRateTimer?.cancel();
+      _updateFeeRateTimer =
           Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
       if (alwaysScan == true) {
@@ -469,6 +470,13 @@ abstract class ElectrumWalletBase
       print(e.toString());
       syncStatus = FailedSyncStatus();
     }
+  }
+
+  @action
+  @override
+  Future<void> stopSync() async {
+    syncStatus = StoppedSyncingSyncStatus();
+    _updateFeeRateTimer?.cancel();
   }
 
   @action
@@ -1113,7 +1121,8 @@ abstract class ElectrumWalletBase
             });
           }
 
-          unspentCoins.removeWhere((utxo) => estimatedTx.utxos.any((e) => e.utxo.txHash == utxo.hash));
+          unspentCoins
+              .removeWhere((utxo) => estimatedTx.utxos.any((e) => e.utxo.txHash == utxo.hash));
 
           await updateBalance();
         });
@@ -2069,7 +2078,8 @@ abstract class ElectrumWalletBase
       _isTryingToConnect = true;
 
       Timer(Duration(seconds: 5), () {
-        if (this.syncStatus is NotConnectedSyncStatus || this.syncStatus is LostConnectionSyncStatus) {
+        if (this.syncStatus is NotConnectedSyncStatus ||
+            this.syncStatus is LostConnectionSyncStatus) {
           this.electrumClient.connectToUri(
                 node!.uri,
                 useSSL: node!.useSSL ?? false,

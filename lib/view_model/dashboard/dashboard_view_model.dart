@@ -715,6 +715,12 @@ abstract class DashboardViewModelBase with Store {
   bool get syncAll => settingsStore.currentSyncAll;
 
   @action
+  void setShowSyncNotification(bool value) => settingsStore.showSyncNotification = value;
+
+  @computed
+  bool get showSyncNotification => settingsStore.showSyncNotification;
+
+  @action
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
   Future<List<String>> checkForHavenWallets() async {

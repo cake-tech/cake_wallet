@@ -32,6 +32,7 @@ const notificationChannelDescription = 'Cake Wallet Background Service';
 const DELAY_SECONDS_BEFORE_SYNC_START = 15;
 
 void setNotificationStandby(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+  flutterLocalNotificationsPlugin.cancelAll();
   flutterLocalNotificationsPlugin.show(
     notificationId,
     initialNotificationTitle,
@@ -181,22 +182,37 @@ Future<void> onStart(ServiceInstance service) async {
       for (int i = 0; i < syncingWallets.length; i++) {
         final wallet = syncingWallets[i];
         final syncProgress = ((wallet!.syncStatus.progress()) * 100).toStringAsPrecision(5);
-        title += "${wallet.name}-${syncProgress}% ";
+        // title += "${wallet.name}-${syncProgress}% ";
+        String title = "${wallet.type} - ${wallet.name} - ${syncProgress}% Synced";
+
+        flutterLocalNotificationsPlugin.show(
+          notificationId,
+          title,
+          'Background sync - ${DateTime.now()}',
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              "${notificationChannelId}_$i",
+              "${notificationChannelName}_$i",
+              icon: 'ic_bg_service_small',
+              ongoing: true,
+            ),
+          ),
+        );
       }
 
-      flutterLocalNotificationsPlugin.show(
-        notificationId,
-        title,
-        'Background sync - ${DateTime.now()}',
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            notificationChannelId,
-            notificationChannelName,
-            icon: 'ic_bg_service_small',
-            ongoing: true,
-          ),
-        ),
-      );
+      // flutterLocalNotificationsPlugin.show(
+      //   notificationId,
+      //   title,
+      //   'Background sync - ${DateTime.now()}',
+      //   const NotificationDetails(
+      //     android: AndroidNotificationDetails(
+      //       notificationChannelId,
+      //       notificationChannelName,
+      //       icon: 'ic_bg_service_small',
+      //       ongoing: true,
+      //     ),
+      //   ),
+      // );
     });
   });
 }
@@ -211,14 +227,7 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 
 Future<void> initializeService(FlutterBackgroundService bgService, bool useNotifications) async {
   if (useNotifications) {
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      notificationChannelId,
-      notificationChannelName,
-      description: notificationChannelDescription,
-      importance: Importance.low,
-    );
-
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
 
     if (Platform.isIOS || Platform.isAndroid) {
@@ -230,13 +239,17 @@ Future<void> initializeService(FlutterBackgroundService bgService, bool useNotif
       );
     }
 
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-
-    flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
+    for (int i = 0; i < 10; i++) {
+      AndroidNotificationChannel channel = AndroidNotificationChannel(
+        "${notificationChannelId}_$i",
+        "${notificationChannelName}_$i",
+        description: notificationChannelDescription,
+        importance: Importance.low,
+      );
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channel);
+    }
 
     setNotificationStandby(flutterLocalNotificationsPlugin);
   }
@@ -273,10 +286,13 @@ Future<void> initializeService(FlutterBackgroundService bgService, bool useNotif
 
 class BackgroundTasks {
   FlutterBackgroundService bgService = FlutterBackgroundService();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   void updateServiceState(bool foreground, bool useNotifications) async {
     if (foreground) {
       bgService.invoke('stopService');
+      await Future.delayed(const Duration(seconds: 2));
       initializeService(bgService, useNotifications);
     } else {
       bgService.invoke("setBackground");
@@ -313,9 +329,14 @@ class BackgroundTasks {
         return;
       }
 
-
       final SyncMode syncMode = settingsStore.currentSyncMode;
       final bool syncAll = settingsStore.currentSyncAll;
+
+      if (settingsStore.showSyncNotification) {
+        flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+            ?.requestNotificationsPermission();
+      }
 
       if (syncMode.type == SyncType.disabled || !FeatureFlag.isBackgroundSyncEnabled) {
         bgService.invoke('stopService');
