@@ -186,7 +186,7 @@ Future<void> onStart(ServiceInstance service) async {
         String title = "${wallet.type} - ${wallet.name} - ${syncProgress}% Synced";
 
         flutterLocalNotificationsPlugin.show(
-          notificationId,
+          notificationId + i,
           title,
           'Background sync - ${DateTime.now()}',
           NotificationDetails(
