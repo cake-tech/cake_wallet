@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:archive/archive_io.dart';
 
@@ -46,5 +48,13 @@ Future<void> main() async {
       final outputStream = OutputFileStream(localFilename.replaceAll(".xz", ""));
       outputStream.writeBytes(archive);
     }
+  }
+  if (Platform.isMacOS) {
+    print("Generating ios framework");
+    final result = Process.runSync("bash", [
+      "-c",
+      "cd scripts/ios && ./gen_framework.sh && cd ../.."
+    ]);
+    print((result.stdout+result.stderr).toString().trim());
   }
 }

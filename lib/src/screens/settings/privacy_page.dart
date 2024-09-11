@@ -6,7 +6,9 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:flutter/material.dart';
@@ -109,6 +111,33 @@ class PrivacyPage extends BasePage {
                   value: _privacySettingsViewModel.useTronGrid,
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setUseTronGrid(value);
+                  },
+                ),
+              if (_privacySettingsViewModel.canUseMempoolFeeAPI)
+                SettingsSwitcherCell(
+                  title: S.current.live_fee_rates,
+                  value: _privacySettingsViewModel.useMempoolFeeAPI,
+                  onValueChange: (BuildContext _, bool isEnabled) async {
+                    if (!isEnabled) {
+                      final bool confirmation = await showPopUp<bool>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertWithTwoActions(
+                                alertTitle: S.of(context).warning,
+                                alertContent: S.of(context).disable_fee_api_warning,
+                                rightButtonText: S.of(context).confirm,
+                                leftButtonText: S.of(context).cancel,
+                                actionRightButton: () => Navigator.of(context).pop(true),
+                                actionLeftButton: () => Navigator.of(context).pop(false));
+                          }) ??
+                          false;
+                      if (confirmation) {
+                        _privacySettingsViewModel.setUseMempoolFeeAPI(isEnabled);
+                      }
+                      return;
+                    }
+
+                    _privacySettingsViewModel.setUseMempoolFeeAPI(isEnabled);
                   },
                 ),
               SettingsCellWithArrow(
