@@ -67,7 +67,8 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     };
     await initializeAppAtRoot();
 
-    runApp(App());
+    runApp(App(key: topLevelKey));
+
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
