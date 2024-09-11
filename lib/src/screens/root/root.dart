@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -161,10 +162,11 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     }
 
     // background service handling:
+    bool showNotifications = getIt.get<SettingsStore>().showSyncNotification;
     switch (state) {
       case AppLifecycleState.resumed:
         // restart the background service if it was running before:
-        getIt.get<BackgroundTasks>().updateServiceState(true);
+        getIt.get<BackgroundTasks>().updateServiceState(true, showNotifications);
         _stateTimer?.cancel();
         if (!wasInBackground) {
           return;
@@ -178,7 +180,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         }
         break;
       case AppLifecycleState.paused:
-        getIt.get<BackgroundTasks>().updateServiceState(false);
+        getIt.get<BackgroundTasks>().updateServiceState(false, showNotifications);
       case AppLifecycleState.inactive:
       case AppLifecycleState.detached:
       default:
@@ -187,7 +189,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         _stateTimer?.cancel();
         _stateTimer = Timer(const Duration(seconds: 10), () async {
           wasInBackground = true;
-          getIt.get<BackgroundTasks>().updateServiceState(false);
+          getIt.get<BackgroundTasks>().updateServiceState(false, showNotifications);
         });
         break;
     }

@@ -75,6 +75,7 @@ abstract class SettingsStoreBase with Store {
       required String initialLanguageCode,
       required SyncMode initialSyncMode,
       required bool initialSyncAll,
+      required bool initialShowSyncNotification,
       // required String initialCurrentLocale,
       required this.appVersion,
       required this.deviceName,
@@ -169,6 +170,7 @@ abstract class SettingsStoreBase with Store {
             initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
+        showSyncNotification = initialShowSyncNotification,
         priority = ObservableMap<WalletType, TransactionPriority>(),
         defaultBuyProviders = ObservableMap<WalletType, ProviderType>(),
         defaultSellProviders = ObservableMap<WalletType, ProviderType>() {
@@ -389,7 +391,11 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => currentSyncAll, (bool syncAll) {
       sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+      _backgroundTasks.registerBackgroundService();
+    });
 
+    reaction((_) => showSyncNotification, (bool value) {
+      sharedPreferences.setBool(PreferencesKey.showSyncNotificationKey, value);
       _backgroundTasks.registerBackgroundService();
     });
 
@@ -766,6 +772,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool currentSyncAll;
 
+  @observable
+  bool showSyncNotification;
+
   String appVersion;
 
   String deviceName;
@@ -1068,6 +1077,7 @@ abstract class SettingsStoreBase with Store {
       return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 0);
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
+    final savedShowSyncNotification = sharedPreferences.getBool(PreferencesKey.showSyncNotificationKey) ?? false;
 
     // migrated to secure:
     final timeOutDuration = await SecureKey.getInt(
@@ -1241,6 +1251,7 @@ abstract class SettingsStoreBase with Store {
       backgroundTasks: backgroundTasks,
       initialSyncMode: savedSyncMode,
       initialSyncAll: savedSyncAll,
+      initialShowSyncNotification: savedShowSyncNotification,
       shouldShowYatPopup: shouldShowYatPopup,
       shouldShowRepWarning: shouldShowRepWarning,
     );

@@ -98,6 +98,7 @@ Future<void> onStart(ServiceInstance service) async {
     await currentWallet?.stopSync();
 
     final walletLoadingService = getIt.get<WalletLoadingService>();
+    final settingsStore = getIt.get<SettingsStore>();
     final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType);
 
     bool syncAll = true;
@@ -171,10 +172,10 @@ Future<void> onStart(ServiceInstance service) async {
         return;
       }
 
-      final wallet = syncingWallets.first!;
-      final syncProgress = ((wallet.syncStatus.progress() ?? 0) * 100).toStringAsPrecision(5);
-
+      // final wallet = syncingWallets.first!;
+      // final syncProgress = ((wallet.syncStatus.progress() ?? 0) * 100).toStringAsPrecision(5);
       // String title = "${wallet!.name} ${syncProgress}% Synced";
+
       String title = "";
 
       for (int i = 0; i < syncingWallets.length; i++) {
@@ -208,35 +209,37 @@ Future<bool> onIosBackground(ServiceInstance service) async {
   return true;
 }
 
-Future<void> initializeService(FlutterBackgroundService bgService) async {
-  const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    notificationChannelId,
-    notificationChannelName,
-    description: notificationChannelDescription,
-    importance: Importance.low,
-  );
-
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
-  if (Platform.isIOS || Platform.isAndroid) {
-    await flutterLocalNotificationsPlugin.initialize(
-      const InitializationSettings(
-        iOS: DarwinInitializationSettings(),
-        android: AndroidInitializationSettings('ic_bg_service_small'),
-      ),
+Future<void> initializeService(FlutterBackgroundService bgService, bool useNotifications) async {
+  if (useNotifications) {
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      notificationChannelId,
+      notificationChannelName,
+      description: notificationChannelDescription,
+      importance: Importance.low,
     );
+
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+
+    if (Platform.isIOS || Platform.isAndroid) {
+      await flutterLocalNotificationsPlugin.initialize(
+        const InitializationSettings(
+          iOS: DarwinInitializationSettings(),
+          android: AndroidInitializationSettings('ic_bg_service_small'),
+        ),
+      );
+    }
+
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+
+    flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+
+    setNotificationStandby(flutterLocalNotificationsPlugin);
   }
-
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
-
-  flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-      ?.requestNotificationsPermission();
-
-  setNotificationStandby(flutterLocalNotificationsPlugin);
 
   // notify the service that we are in the foreground:
   bgService.invoke("setForeground");
@@ -271,10 +274,10 @@ Future<void> initializeService(FlutterBackgroundService bgService) async {
 class BackgroundTasks {
   FlutterBackgroundService bgService = FlutterBackgroundService();
 
-  void updateServiceState(bool foreground) {
+  void updateServiceState(bool foreground, bool useNotifications) async {
     if (foreground) {
       bgService.invoke('stopService');
-      initializeService(bgService);
+      initializeService(bgService, useNotifications);
     } else {
       bgService.invoke("setBackground");
     }
@@ -292,12 +295,24 @@ class BackgroundTasks {
           .wallets
           .any((element) => element.type == WalletType.litecoin);
 
+      bool hasBitcoin = getIt
+          .get<WalletListViewModel>()
+          .wallets
+          .any((element) => element.type == WalletType.bitcoin);
+
+      final settingsStore = getIt.get<SettingsStore>();
+      if (!settingsStore.silentPaymentsAlwaysScan) {
+        hasBitcoin = false;
+      }
+      if (!settingsStore.mwebAlwaysScan) {
+        hasLitecoin = false;
+      }
+
       /// if its not android nor ios, or the user has no monero wallets; exit
-      if (!DeviceInfo.instance.isMobile || (!hasMonero && !hasLitecoin)) {
+      if (!DeviceInfo.instance.isMobile || (!hasMonero && !hasLitecoin && !hasBitcoin)) {
         return;
       }
 
-      final settingsStore = getIt.get<SettingsStore>();
 
       final SyncMode syncMode = settingsStore.currentSyncMode;
       final bool syncAll = settingsStore.currentSyncAll;
@@ -309,7 +324,7 @@ class BackgroundTasks {
 
       bgService.invoke('stopService');
 
-      await initializeService(bgService);
+      await initializeService(bgService, settingsStore.showSyncNotification);
     } catch (error, stackTrace) {
       print(error);
       print(stackTrace);
