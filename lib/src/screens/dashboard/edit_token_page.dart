@@ -235,8 +235,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                 context: context,
                                 builder: (dialogContext) {
                                   return AlertWithTwoActions(
-                                    alertTitle: S.current.suspicious_token_detected_alert_title,
-                                    alertContent: S.current.suspicious_token_detected,
+                                    alertTitle: S.current.warning,
+                                    alertContent: S.current.contract_warning,
                                     rightButtonText: S.of(context).continue_text,
                                     leftButtonText: S.of(context).cancel,
                                     actionRightButton: () async {
