@@ -62,7 +62,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
       derivationInfo = options["derivationInfo"] as DerivationInfo?;
       passphrase = options["passphrase"] as String?;
     }
-    derivationInfo ??= getDefaultDerivation();
+    derivationInfo ??= getDefaultCreateDerivation();
 
     switch (restoreWallet.restoreMode) {
       case WalletRestoreMode.keys:

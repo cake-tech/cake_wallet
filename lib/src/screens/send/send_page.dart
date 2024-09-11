@@ -273,6 +273,7 @@ class SendPage extends BasePage {
                                         ? template.cryptoCurrency
                                         : template.fiatCurrency,
                                     onTap: () async {
+                                      sendViewModel.state = IsExecutingState();
                                       if (template.additionalRecipients?.isNotEmpty ?? false) {
                                         sendViewModel.clearOutputs();
 
@@ -301,6 +302,7 @@ class SendPage extends BasePage {
                                           template: template,
                                         );
                                       }
+                                      sendViewModel.state = InitialExecutionState();
                                     },
                                     onRemove: () {
                                       showPopUp<void>(
@@ -368,6 +370,7 @@ class SendPage extends BasePage {
                   builder: (_) {
                     return LoadingPrimaryButton(
                       onPressed: () async {
+                        if (sendViewModel.state is IsExecutingState) return;
                         if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                           if (sendViewModel.outputs.length > 1) {
                             showErrorValidationAlert(context);
