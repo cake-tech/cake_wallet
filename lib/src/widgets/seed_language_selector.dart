@@ -8,13 +8,13 @@ import 'package:flutter/material.dart';
 class SeedLanguageSelector extends StatefulWidget {
   SeedLanguageSelector({
     required this.initialSelected,
-    this.seedType = SeedType.defaultSeedType,
+    this.seedType =  MoneroSeedType.defaultSeedType,
     this.buttonKey,
     Key? key,
   }) : super(key: key);
 
   final String initialSelected;
-  final SeedType seedType;
+  final  MoneroSeedType seedType;
   final Key? buttonKey;
 
   @override

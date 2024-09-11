@@ -107,22 +107,19 @@ class ElectrumClient {
         }
       },
       onError: (Object error) {
-        socket = null;
         final errorMsg = error.toString();
         print(errorMsg);
         unterminatedString = '';
-
-        final currentHost = socket?.address.host;
-        final isErrorForCurrentHost = errorMsg.contains(" ${currentHost} ");
-
-        if (currentHost != null && isErrorForCurrentHost)
-          _setConnectionStatus(ConnectionStatus.failed);
       },
       onDone: () {
         unterminatedString = '';
-        if (host == socket?.address.host) {
-          socket = null;
-          _setConnectionStatus(ConnectionStatus.disconnected);
+        try {
+          if (host == socket?.address.host) {
+            socket?.destroy();
+            _setConnectionStatus(ConnectionStatus.disconnected);
+          }
+        } catch(e) {
+          print(e.toString());
         }
       },
       cancelOnError: true,
@@ -436,7 +433,6 @@ class ElectrumClient {
       {required String id, required String method, List<Object> params = const []}) {
     try {
       if (socket == null) {
-        _setConnectionStatus(ConnectionStatus.failed);
         return null;
       }
       final subscription = BehaviorSubject<T>();
@@ -453,7 +449,6 @@ class ElectrumClient {
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
     if (socket == null) {
-      _setConnectionStatus(ConnectionStatus.failed);
       return null;
     }
     final completer = Completer<dynamic>();
@@ -467,10 +462,9 @@ class ElectrumClient {
   }
 
   Future<dynamic> callWithTimeout(
-      {required String method, List<Object> params = const [], int timeout = 4000}) async {
+      {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
       if (socket == null) {
-        _setConnectionStatus(ConnectionStatus.failed);
         return null;
       }
       final completer = Completer<dynamic>();
