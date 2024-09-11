@@ -361,7 +361,7 @@ class CWBitcoin extends Bitcoin {
               continue;
           }
 
-          final sh = scriptHash(address, network: network);
+          final sh = BitcoinAddressUtils.scriptHash(address, network: network);
           final history = await electrumClient.getHistory(sh);
 
           final balance = await electrumClient.getBalance(sh);
@@ -547,5 +547,35 @@ class CWBitcoin extends Bitcoin {
   Future<void> updateFeeRates(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     await bitcoinWallet.updateFeeRates();
+  }
+
+  @override
+  List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
+    final pendingTx = pendingTransaction as PendingBitcoinTransaction;
+
+    if (!pendingTx.hasSilentPayment) {
+      return outputs;
+    }
+
+    final updatedOutputs = outputs.map((output) {
+      final pendingOut = pendingTx!.outputs[outputs.indexOf(output)];
+      final updatedOutput = output;
+
+      try {
+        updatedOutput.stealthAddress = P2trAddress.fromScriptPubkey(script: pendingOut.scriptPubKey)
+            .toAddress(BitcoinNetwork.mainnet);
+        return updatedOutput;
+      } catch (_) {}
+
+      return output;
+    }).toList();
+
+    return updatedOutputs;
+  }
+
+  @override
+  bool txIsReceivedSilentPayment(TransactionInfo txInfo) {
+    final tx = txInfo as ElectrumTransactionInfo;
+    return tx.isReceivedSilentPayment;
   }
 }

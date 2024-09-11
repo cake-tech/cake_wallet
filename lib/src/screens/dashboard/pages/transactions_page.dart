@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
@@ -52,7 +53,7 @@ class TransactionsPage extends StatelessWidget {
                       try {
                         final uri = Uri.parse(
                             "https://guides.cakewallet.com/docs/FAQ/why_are_my_funds_not_appearing/");
-                          launchUrl(uri, mode: LaunchMode.externalApplication);
+                        launchUrl(uri, mode: LaunchMode.externalApplication);
                       } catch (_) {}
                     },
                     title: S.of(context).syncing_wallet_alert_title,
@@ -84,7 +85,7 @@ class TransactionsPage extends StatelessWidget {
 
                           final transaction = item.transaction;
                           final transactionType = dashboardViewModel.type == WalletType.ethereum &&
-                              transaction.evmSignatureName == 'approval'
+                                  transaction.evmSignatureName == 'approval'
                               ? ' (${transaction.evmSignatureName})'
                               : '';
 
@@ -100,8 +101,11 @@ class TransactionsPage extends StatelessWidget {
                                       ? ''
                                       : item.formattedFiatAmount,
                               isPending: transaction.isPending,
-                              title: item.formattedTitle +
-                                  item.formattedStatus + ' $transactionType',
+                              title:
+                                  item.formattedTitle + item.formattedStatus + ' $transactionType',
+                              isReceivedSilentPayment:
+                                  dashboardViewModel.type == WalletType.bitcoin &&
+                                      bitcoin!.txIsReceivedSilentPayment(transaction),
                             ),
                           );
                         }

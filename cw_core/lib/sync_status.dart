@@ -62,6 +62,11 @@ class AttemptingSyncStatus extends SyncStatus {
   double progress() => 0.0;
 }
 
+class AttemptingScanSyncStatus extends SyncStatus {
+  @override
+  double progress() => 0.0;
+}
+
 class FailedSyncStatus extends NotConnectedSyncStatus {}
 
 class ConnectingSyncStatus extends SyncStatus {

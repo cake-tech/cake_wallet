@@ -116,7 +116,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_core/get_height_by_date.dart';
-import 'package:cw_bitcoin/script_hash.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_bitcoin/bitcoin_hardware_wallet_service.dart';
 import 'package:mobx/mobx.dart';
 """;
@@ -220,6 +220,8 @@ abstract class Bitcoin {
 
   void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
+  List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
+  bool txIsReceivedSilentPayment(TransactionInfo txInfo);
 }
   """;
 

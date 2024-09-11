@@ -23,20 +23,24 @@ class ElectrumTransactionBundle {
 
 class ElectrumTransactionInfo extends TransactionInfo {
   List<BitcoinSilentPaymentsUnspent>? unspents;
+  bool isReceivedSilentPayment;
 
-  ElectrumTransactionInfo(this.type,
-      {required String id,
-      int? height,
-      required int amount,
-      int? fee,
-      List<String>? inputAddresses,
-      List<String>? outputAddresses,
-      required TransactionDirection direction,
-      required bool isPending,
-      required DateTime date,
-      required int confirmations,
-      String? to,
-      this.unspents}) {
+  ElectrumTransactionInfo(
+    this.type, {
+    required String id,
+    int? height,
+    required int amount,
+    int? fee,
+    List<String>? inputAddresses,
+    List<String>? outputAddresses,
+    required TransactionDirection direction,
+    required bool isPending,
+    required DateTime date,
+    required int confirmations,
+    String? to,
+    this.unspents,
+    this.isReceivedSilentPayment = false,
+  }) {
     this.id = id;
     this.height = height;
     this.amount = amount;
@@ -202,6 +206,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
           .map((unspent) =>
               BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
+      isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
     );
   }
 
@@ -252,6 +257,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['unspents'] = unspents?.map((e) => e.toJson()).toList() ?? [];
     m['inputAddresses'] = inputAddresses;
     m['outputAddresses'] = outputAddresses;
+    m['isReceivedSilentPayment'] = isReceivedSilentPayment;
     return m;
   }
 

@@ -301,7 +301,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     List<int> possibleRecoverIds = [0, 1];
 
-    final baseAddress = addressTypeFromStr(address, network);
+    final baseAddress = RegexUtils.addressTypeFromStr(address, network);
 
     for (int recoveryId in possibleRecoverIds) {
       final pubKey = sig.recoverPublicKey(messageHash, Curves.generatorSecp256k1, recoveryId);
