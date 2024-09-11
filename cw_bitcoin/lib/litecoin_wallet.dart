@@ -224,6 +224,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     );
   }
 
+  Future<void> waitForMwebAddresses() async {
+    // ensure that we have the full 1000 mweb addresses generated before continuing:
+    final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
+    while (mwebAddrs.length < 1000) {
+      print("waiting for mweb addresses to finish generating...");
+      await Future.delayed(const Duration(milliseconds: 1000));
+    }
+  }
+
   @action
   @override
   Future<void> startSync() async {
@@ -250,11 +259,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return;
     }
 
-    final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
-    while (mwebAddrs.length < 1000) {
-      print("waiting for mweb addresses to finish generating...");
-      await Future.delayed(const Duration(milliseconds: 1000));
-    }
+    await waitForMwebAddresses();
 
     await getStub();
     await updateUnspent();
@@ -802,6 +807,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (!mwebEnabled) {
         return tx;
       }
+      await waitForMwebAddresses();
       await getStub();
 
       final resp = await _stub.create(CreateRequest(
