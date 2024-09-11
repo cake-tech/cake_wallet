@@ -29,6 +29,7 @@ void startAuthenticationStateChange(
 
     if (state == AuthenticationState.installed && !SettingsStoreBase.walletPasswordDirectInput) {
       try {
+        print("LOADING CURRENT WALLET");
         await loadCurrentWallet();
       } catch (error, stack) {
         loginError = error;

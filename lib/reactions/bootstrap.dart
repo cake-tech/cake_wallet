@@ -15,7 +15,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 
-Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey) async {
+Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey, {bool loadWallet = true}) async {
   final appStore = getIt.get<AppStore>();
   final authenticationStore = getIt.get<AuthenticationStore>();
   final settingsStore = getIt.get<SettingsStore>();
@@ -27,7 +27,9 @@ Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey) async {
     authenticationStore.installed();
   }
 
-  startAuthenticationStateChange(authenticationStore, navigatorKey);
+  if (loadWallet) {
+    startAuthenticationStateChange(authenticationStore, navigatorKey);
+  }
   startCurrentWalletChangeReaction(appStore, settingsStore, fiatConversionStore);
   startCurrentFiatChangeReaction(appStore, settingsStore, fiatConversionStore);
   startCurrentFiatApiModeChangeReaction(appStore, settingsStore, fiatConversionStore);

@@ -87,7 +87,7 @@ Future<void> onStart(ServiceInstance service) async {
     print("STARTING SYNC FROM BG!!");
 
     try {
-      await initializeAppConfigs();
+      await initializeAppConfigs(loadWallet: false);
     } catch (_) {
       // these errors still show up in logs which doesn't really make sense to me
     }
@@ -131,7 +131,7 @@ Future<void> onStart(ServiceInstance service) async {
 
       // we only need to sync the first litecoin wallet since they share the same collection of blocks
       if (litecoinWallets.isNotEmpty) {
-        var firstWallet = litecoinWallets.first;
+        final firstWallet = litecoinWallets.first;
         final wallet = await walletLoadingService.load(firstWallet.type, firstWallet.name);
         final node = getIt.get<SettingsStore>().getCurrentNode(firstWallet.type);
         await wallet.connectToNode(node: node);
@@ -167,7 +167,7 @@ Future<void> onStart(ServiceInstance service) async {
     }
 
     _syncTimer?.cancel();
-    _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) {
+    _syncTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) {
       // final wallet = getIt.get<AppStore>().wallet;
       if (syncingWallets.isEmpty) {
         return;
@@ -176,14 +176,24 @@ Future<void> onStart(ServiceInstance service) async {
       // final wallet = syncingWallets.first!;
       // final syncProgress = ((wallet.syncStatus.progress() ?? 0) * 100).toStringAsPrecision(5);
       // String title = "${wallet!.name} ${syncProgress}% Synced";
-
-      String title = "";
+      // flutterLocalNotificationsPlugin.show(
+      //   notificationId,
+      //   title,
+      //   'Background sync - ${DateTime.now()}',
+      //   const NotificationDetails(
+      //     android: AndroidNotificationDetails(
+      //       notificationChannelId,
+      //       notificationChannelName,
+      //       icon: 'ic_bg_service_small',
+      //       ongoing: true,
+      //     ),
+      //   ),
+      // );
 
       for (int i = 0; i < syncingWallets.length; i++) {
         final wallet = syncingWallets[i];
         final syncProgress = ((wallet!.syncStatus.progress()) * 100).toStringAsPrecision(5);
-        // title += "${wallet.name}-${syncProgress}% ";
-        String title = "${wallet.type} - ${wallet.name} - ${syncProgress}% Synced";
+        String title = "${wallet.name}-${syncProgress}% Synced";
 
         flutterLocalNotificationsPlugin.show(
           notificationId + i,
@@ -200,19 +210,7 @@ Future<void> onStart(ServiceInstance service) async {
         );
       }
 
-      // flutterLocalNotificationsPlugin.show(
-      //   notificationId,
-      //   title,
-      //   'Background sync - ${DateTime.now()}',
-      //   const NotificationDetails(
-      //     android: AndroidNotificationDetails(
-      //       notificationChannelId,
-      //       notificationChannelName,
-      //       icon: 'ic_bg_service_small',
-      //       ongoing: true,
-      //     ),
-      //   ),
-      // );
+
     });
   });
 }
