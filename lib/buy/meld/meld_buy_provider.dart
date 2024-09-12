@@ -41,7 +41,7 @@ class MeldBuyProvider extends BuyProvider {
   String get title => 'Meld';
 
   @override
-  String get providerDescription => 'Meld Buy Provider Description';
+  String get providerDescription => 'Meld Buy Provider';
 
   @override
   String get lightIcon => 'assets/images/meld_logo.svg';
