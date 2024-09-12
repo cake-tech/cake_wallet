@@ -28,13 +28,13 @@ abstract class WalletAddresses {
 
   Map<String, String> get usableAddressesMap {
     final tmp = addressesMap.map((key, value) => MapEntry(key, value)); // copy address map
-    tmp.removeWhere((key, value) => hiddenAddresses.contains(key));
+    tmp.removeWhere((key, value) => hiddenAddresses.contains(key) || manualAddresses.contains(key));
     return tmp;
   }
 
   Map<String, String> get usableAllAddressesMap {
     final tmp = allAddressesMap.map((key, value) => MapEntry(key, value)); // copy address map
-    tmp.removeWhere((key, value) => hiddenAddresses.contains(key));
+    tmp.removeWhere((key, value) => hiddenAddresses.contains(key) || manualAddresses.contains(key));
     return tmp;
   }
 
