@@ -21,10 +21,14 @@ class BalanceRecord {
   const BalanceRecord(
       {required this.availableBalance,
       required this.additionalBalance,
+      required this.secondAvailableBalance,
+      required this.secondAdditionalBalance,
       required this.frozenBalance,
       required this.fiatAvailableBalance,
       required this.fiatAdditionalBalance,
       required this.fiatFrozenBalance,
+      required this.fiatSecondAvailableBalance,
+      required this.fiatSecondAdditionalBalance,
       required this.asset,
       required this.formattedAssetTitle});
   final String fiatAdditionalBalance;
@@ -33,6 +37,10 @@ class BalanceRecord {
   final String additionalBalance;
   final String availableBalance;
   final String frozenBalance;
+  final String secondAvailableBalance;
+  final String secondAdditionalBalance;
+  final String fiatSecondAdditionalBalance;
+  final String fiatSecondAvailableBalance;
   final CryptoCurrency asset;
   final String formattedAssetTitle;
 }
@@ -243,9 +251,13 @@ abstract class BalanceViewModelBase with Store {
                 availableBalance: '---',
                 additionalBalance: '---',
                 frozenBalance: '---',
+                secondAvailableBalance: '---',
+                secondAdditionalBalance: '---',
                 fiatAdditionalBalance: isFiatDisabled ? '' : '---',
                 fiatAvailableBalance: isFiatDisabled ? '' : '---',
                 fiatFrozenBalance: isFiatDisabled ? '' : '---',
+                fiatSecondAvailableBalance: isFiatDisabled ? '' : '---',
+                fiatSecondAdditionalBalance: isFiatDisabled ? '' : '---',
                 asset: key,
                 formattedAssetTitle: _formatterAsset(key)));
       }
@@ -274,15 +286,31 @@ abstract class BalanceViewModelBase with Store {
               ' ' +
               _getFiatBalance(price: price, cryptoAmount: getFormattedFrozenBalance(value)));
 
+      final secondAdditionalFiatBalance = isFiatDisabled
+          ? ''
+          : (fiatCurrency.toString() +
+              ' ' +
+              _getFiatBalance(price: price, cryptoAmount: value.formattedSecondAdditionalBalance));
+
+      final secondAvailableFiatBalance = isFiatDisabled
+          ? ''
+          : (fiatCurrency.toString() +
+              ' ' +
+              _getFiatBalance(price: price, cryptoAmount: value.formattedSecondAvailableBalance));
+
       return MapEntry(
           key,
           BalanceRecord(
               availableBalance: value.formattedAvailableBalance,
               additionalBalance: value.formattedAdditionalBalance,
               frozenBalance: getFormattedFrozenBalance(value),
+              secondAvailableBalance: value.formattedSecondAvailableBalance,
+              secondAdditionalBalance: value.formattedSecondAdditionalBalance,
               fiatAdditionalBalance: additionalFiatBalance,
               fiatAvailableBalance: availableFiatBalance,
               fiatFrozenBalance: frozenFiatBalance,
+              fiatSecondAvailableBalance: secondAvailableFiatBalance,
+              fiatSecondAdditionalBalance: secondAdditionalFiatBalance,
               asset: key,
               formattedAssetTitle: _formatterAsset(key)));
     });
@@ -290,6 +318,12 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   bool get hasAdditionalBalance => _hasAdditionBalanceForWalletType(wallet.type);
+
+  @computed
+  bool get hasSecondAdditionalBalance => _hasSecondAddtionalBalanceForWalletType(wallet.type);
+
+  @computed
+  bool get hasSecondAvailableBalance => _hasSecondAvailableBalanceForWalletType(wallet.type);
 
   bool _hasAdditionBalanceForWalletType(WalletType type) {
     switch (type) {
@@ -300,6 +334,24 @@ abstract class BalanceViewModelBase with Store {
         return false;
       default:
         return true;
+    }
+  }
+
+  bool _hasSecondAddtionalBalanceForWalletType(WalletType type) {
+    switch (type) {
+      case WalletType.litecoin:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  bool _hasSecondAvailableBalanceForWalletType(WalletType type) {
+    switch (type) {
+      case WalletType.litecoin:
+        return true;
+      default:
+        return false;
     }
   }
 

@@ -131,7 +131,7 @@ class CryptoBalanceWidget extends StatelessWidget {
               builder: (_) {
                 if (dashboardViewModel.getMoneroError != null) {
                   return Padding(
-                    padding: const EdgeInsets.fromLTRB(16,0,16,16),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     child: DashBoardRoundedCardWidget(
                       title: "Invalid monero bindings",
                       subTitle: dashboardViewModel.getMoneroError.toString(),
@@ -146,13 +146,12 @@ class CryptoBalanceWidget extends StatelessWidget {
               builder: (_) {
                 if (dashboardViewModel.getWowneroError != null) {
                   return Padding(
-                    padding: const EdgeInsets.fromLTRB(16,0,16,16),
-                    child: DashBoardRoundedCardWidget(
-                      title: "Invalid wownero bindings",
-                      subTitle: dashboardViewModel.getWowneroError.toString(),
-                      onTap: () {},
-                    )
-                  );
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: DashBoardRoundedCardWidget(
+                        title: "Invalid wownero bindings",
+                        subTitle: dashboardViewModel.getWowneroError.toString(),
+                        onTap: () {},
+                      ));
                 }
                 return Container();
               },
@@ -273,6 +272,19 @@ class CryptoBalanceWidget extends StatelessWidget {
                         currency: balance.asset,
                         hasAdditionalBalance:
                             dashboardViewModel.balanceViewModel.hasAdditionalBalance,
+                        hasSecondAdditionalBalance:
+                            dashboardViewModel.balanceViewModel.hasSecondAdditionalBalance,
+                        hasSecondAvailableBalance:
+                            dashboardViewModel.balanceViewModel.hasSecondAvailableBalance,
+                        secondAdditionalBalance: balance.secondAdditionalBalance,
+                        secondAdditionalFiatBalance: balance.fiatSecondAdditionalBalance,
+                        secondAvailableBalance: balance.secondAvailableBalance,
+                        secondAvailableFiatBalance: balance.fiatSecondAvailableBalance,
+                        secondAdditionalBalanceLabel:
+                            '${dashboardViewModel.balanceViewModel.additionalBalanceLabel}',
+                        secondAvailableBalanceLabel:
+                            '${dashboardViewModel.balanceViewModel.availableBalanceLabel}',
+
                         isTestnet: dashboardViewModel.isTestnet,
                       );
                     });
@@ -286,16 +298,15 @@ class CryptoBalanceWidget extends StatelessWidget {
                   if (dashboardViewModel.isMoneroWalletBrokenReasons.isNotEmpty) ...[
                     SizedBox(height: 10),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                      child: DashBoardRoundedCardWidget(
-                        customBorder: 30,
-                        title: "This wallet has encountered an issue",
-                        subTitle: "Here are the things that you should note:\n - "
-                        +dashboardViewModel.isMoneroWalletBrokenReasons.join("\n - ")
-                        +"\n\nPlease restart your wallet and if it doesn't help contact our support.",
-                        onTap: () {},
-                      )
-                    )
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                        child: DashBoardRoundedCardWidget(
+                          customBorder: 30,
+                          title: "This wallet has encountered an issue",
+                          subTitle: "Here are the things that you should note:\n - " +
+                              dashboardViewModel.isMoneroWalletBrokenReasons.join("\n - ") +
+                              "\n\nPlease restart your wallet and if it doesn't help contact our support.",
+                          onTap: () {},
+                        ))
                   ],
                   if (dashboardViewModel.showSilentPaymentsCard) ...[
                     SizedBox(height: 10),
@@ -494,10 +505,18 @@ class BalanceRowWidget extends StatelessWidget {
     required this.additionalBalanceLabel,
     required this.additionalBalance,
     required this.additionalFiatBalance,
+    required this.secondAvailableBalanceLabel,
+    required this.secondAvailableBalance,
+    required this.secondAvailableFiatBalance,
+    required this.secondAdditionalBalanceLabel,
+    required this.secondAdditionalBalance,
+    required this.secondAdditionalFiatBalance,
     required this.frozenBalance,
     required this.frozenFiatBalance,
     required this.currency,
     required this.hasAdditionalBalance,
+    required this.hasSecondAvailableBalance,
+    required this.hasSecondAdditionalBalance,
     required this.isTestnet,
     super.key,
   });
@@ -508,10 +527,18 @@ class BalanceRowWidget extends StatelessWidget {
   final String additionalBalanceLabel;
   final String additionalBalance;
   final String additionalFiatBalance;
+  final String secondAvailableBalanceLabel;
+  final String secondAvailableBalance;
+  final String secondAvailableFiatBalance;
+  final String secondAdditionalBalanceLabel;
+  final String secondAdditionalBalance;
+  final String secondAdditionalFiatBalance;
   final String frozenBalance;
   final String frozenFiatBalance;
   final CryptoCurrency currency;
   final bool hasAdditionalBalance;
+  final bool hasSecondAvailableBalance;
+  final bool hasSecondAdditionalBalance;
   final bool isTestnet;
 
   // void _showBalanceDescription(BuildContext context) {
@@ -716,6 +743,94 @@ class BalanceRowWidget extends StatelessWidget {
                 ),
               ),
             if (hasAdditionalBalance)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 24),
+                  Text(
+                    '${additionalBalanceLabel}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                      height: 1,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  AutoSizeText(
+                    additionalBalance,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                      height: 1,
+                    ),
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 4),
+                  if (!isTestnet)
+                    Text(
+                      '${additionalFiatBalance}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                        height: 1,
+                      ),
+                    ),
+                ],
+              ),
+            if (hasSecondAvailableBalance)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 24),
+                  Text(
+                    '${additionalBalanceLabel}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                      height: 1,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  AutoSizeText(
+                    additionalBalance,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                      height: 1,
+                    ),
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 4),
+                  if (!isTestnet)
+                    Text(
+                      '${additionalFiatBalance}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                        height: 1,
+                      ),
+                    ),
+                ],
+              ),
+            if (hasSecondAdditionalBalance)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -7,7 +7,14 @@ class ElectrumBalance extends Balance {
     required this.confirmed,
     required this.unconfirmed,
     required this.frozen,
-  }) : super(confirmed, unconfirmed);
+    this.secondConfirmed,
+    this.secondUnconfirmed,
+  }) : super(
+          confirmed,
+          unconfirmed,
+          secondAvailable: secondConfirmed,
+          secondAdditional: secondUnconfirmed,
+        );
 
   static ElectrumBalance? fromJSON(String? jsonSource) {
     if (jsonSource == null) {
@@ -25,6 +32,8 @@ class ElectrumBalance extends Balance {
   int confirmed;
   int unconfirmed;
   final int frozen;
+  int? secondConfirmed;
+  int? secondUnconfirmed;
 
   @override
   String get formattedAvailableBalance => bitcoinAmountToString(amount: confirmed - frozen);
@@ -38,6 +47,17 @@ class ElectrumBalance extends Balance {
     return frozenFormatted == '0.0' ? '' : frozenFormatted;
   }
 
-  String toJSON() =>
-      json.encode({'confirmed': confirmed, 'unconfirmed': unconfirmed, 'frozen': frozen});
+  @override
+  String get formattedSecondAvailableBalance => bitcoinAmountToString(amount: secondConfirmed ?? 0);
+
+  @override
+  String get formattedSecondAdditionalBalance => bitcoinAmountToString(amount: secondUnconfirmed ?? 0);
+
+  String toJSON() => json.encode({
+        'confirmed': confirmed,
+        'unconfirmed': unconfirmed,
+        'frozen': frozen,
+        'secondConfirmed': secondConfirmed,
+        'secondUnconfirmed': secondUnconfirmed
+      });
 }
