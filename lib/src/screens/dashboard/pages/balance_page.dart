@@ -281,10 +281,9 @@ class CryptoBalanceWidget extends StatelessWidget {
                         secondAvailableBalance: balance.secondAvailableBalance,
                         secondAvailableFiatBalance: balance.fiatSecondAvailableBalance,
                         secondAdditionalBalanceLabel:
-                            '${dashboardViewModel.balanceViewModel.additionalBalanceLabel}',
+                            '${dashboardViewModel.balanceViewModel.secondAdditionalBalanceLabel}',
                         secondAvailableBalanceLabel:
-                            '${dashboardViewModel.balanceViewModel.availableBalanceLabel}',
-
+                            '${dashboardViewModel.balanceViewModel.secondAvailableBalanceLabel}',
                         isTestnet: dashboardViewModel.isTestnet,
                       );
                     });
@@ -792,7 +791,7 @@ class BalanceRowWidget extends StatelessWidget {
                 children: [
                   SizedBox(height: 24),
                   Text(
-                    '${additionalBalanceLabel}',
+                    '${secondAvailableBalanceLabel}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 12,
@@ -804,7 +803,7 @@ class BalanceRowWidget extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   AutoSizeText(
-                    additionalBalance,
+                    secondAvailableBalance,
                     style: TextStyle(
                       fontSize: 20,
                       fontFamily: 'Lato',
@@ -818,7 +817,7 @@ class BalanceRowWidget extends StatelessWidget {
                   SizedBox(height: 4),
                   if (!isTestnet)
                     Text(
-                      '${additionalFiatBalance}',
+                      '${secondAvailableFiatBalance}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,
@@ -836,7 +835,7 @@ class BalanceRowWidget extends StatelessWidget {
                 children: [
                   SizedBox(height: 24),
                   Text(
-                    '${additionalBalanceLabel}',
+                    '${secondAdditionalBalanceLabel}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 12,
@@ -848,7 +847,7 @@ class BalanceRowWidget extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   AutoSizeText(
-                    additionalBalance,
+                    secondAdditionalBalance,
                     style: TextStyle(
                       fontSize: 20,
                       fontFamily: 'Lato',
@@ -862,7 +861,7 @@ class BalanceRowWidget extends StatelessWidget {
                   SizedBox(height: 4),
                   if (!isTestnet)
                     Text(
-                      '${additionalFiatBalance}',
+                      '${secondAdditionalFiatBalance}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,

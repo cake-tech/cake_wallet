@@ -167,6 +167,26 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
+  String get secondAvailableBalanceLabel {
+    switch (wallet.type) {
+      case WalletType.litecoin:
+        return "T: mweb confirmed";
+      default:
+        return S.current.confirmed;
+    }
+  }
+
+  @computed
+  String get secondAdditionalBalanceLabel {
+    switch (wallet.type) {
+      case WalletType.litecoin:
+        return "T: mweb unconfirmed";
+      default:
+        return S.current.unconfirmed;
+    }
+  }
+
+  @computed
   bool get hasMultiBalance => appStore.wallet!.type == WalletType.haven;
 
   @computed
@@ -213,6 +233,17 @@ abstract class BalanceViewModelBase with Store {
     }
 
     return walletBalance.formattedAdditionalBalance;
+  }
+
+  @computed
+  String get secondAdditionalBalance {
+    final walletBalance = _walletBalance;
+
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
+      return '---';
+    }
+
+    return walletBalance.formattedSecondAdditionalBalance;
   }
 
   @computed
@@ -317,15 +348,15 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  bool get hasAdditionalBalance => _hasAdditionBalanceForWalletType(wallet.type);
+  bool get hasAdditionalBalance => _hasAdditionalBalanceForWalletType(wallet.type);
 
   @computed
-  bool get hasSecondAdditionalBalance => _hasSecondAddtionalBalanceForWalletType(wallet.type);
+  bool get hasSecondAdditionalBalance => _hasSecondAdditionalBalanceForWalletType(wallet.type);
 
   @computed
   bool get hasSecondAvailableBalance => _hasSecondAvailableBalanceForWalletType(wallet.type);
 
-  bool _hasAdditionBalanceForWalletType(WalletType type) {
+  bool _hasAdditionalBalanceForWalletType(WalletType type) {
     switch (type) {
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -337,22 +368,22 @@ abstract class BalanceViewModelBase with Store {
     }
   }
 
-  bool _hasSecondAddtionalBalanceForWalletType(WalletType type) {
-    switch (type) {
-      case WalletType.litecoin:
-        return true;
-      default:
-        return false;
-    }
+  bool _hasSecondAdditionalBalanceForWalletType(WalletType type) {
+    // return _walletBalance.secondAdditional != null && _walletBalance.secondAdditional! != 0;
+    // if (wallet.type == WalletType.litecoin && settingsStore.mwebEnabled) {
+    //   return true;
+    // }
+    // return false;
+    return true;
   }
 
   bool _hasSecondAvailableBalanceForWalletType(WalletType type) {
-    switch (type) {
-      case WalletType.litecoin:
-        return true;
-      default:
-        return false;
-    }
+    // return _walletBalance.secondAdditional != null && _walletBalance.secondAdditional! != 0;
+    // if (wallet.type == WalletType.litecoin && settingsStore.mwebEnabled) {
+    //   return true;
+    // }
+    // return false;
+    return true;
   }
 
   @computed

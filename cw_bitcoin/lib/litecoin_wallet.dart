@@ -319,7 +319,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         lastFewProgresses.add(syncStatus.progress());
         if (lastFewProgresses.length < 4) return;
         // limit list size to 4:
-        while(lastFewProgresses.length > 4) {
+        while (lastFewProgresses.length > 4) {
           lastFewProgresses.removeAt(0);
         }
         // if the progress is the same over the last 40 seconds, restart the sync:
@@ -676,12 +676,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     int confirmed = balance.confirmed;
     int unconfirmed = balance.unconfirmed;
+    int confirmedMweb = 0;
+    int unconfirmedMweb = 0;
     try {
       mwebUtxosBox.values.forEach((utxo) {
         if (utxo.height > 0) {
-          confirmed += utxo.value.toInt();
+          confirmedMweb += utxo.value.toInt();
         } else {
-          unconfirmed += utxo.value.toInt();
+          unconfirmedMweb += utxo.value.toInt();
         }
       });
     } catch (_) {}
@@ -733,7 +735,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    return ElectrumBalance(confirmed: confirmed, unconfirmed: unconfirmed, frozen: balance.frozen);
+    return ElectrumBalance(
+      confirmed: confirmed,
+      unconfirmed: unconfirmed,
+      frozen: balance.frozen,
+      secondConfirmed: confirmedMweb,
+      secondUnconfirmed: unconfirmedMweb,
+    );
   }
 
   @override
