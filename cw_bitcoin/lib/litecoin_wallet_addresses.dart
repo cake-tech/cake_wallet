@@ -87,7 +87,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
                 network: network,
               ))
           .toList();
-      print("converted to list");
       addMwebAddresses(addressRecords);
       print("added ${addressRecords.length} mweb addresses");
       return;
@@ -112,7 +111,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) async {
-    print("getting address for index $index");
     if (addressType == SegwitAddresType.mweb) {
       await ensureMwebAddressUpToIndexExists(index);
     }
