@@ -627,6 +627,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   void _validateAddresses() {
     _addresses.forEach((element) async {
+      if (element.type == SegwitAddresType.mweb) {
+        // this would add a ton of startup lag for mweb addresses since we have 1000 of them
+        return;
+      }
       if (!element.isHidden &&
           element.address !=
               await getAddressAsync(index: element.index, hd: mainHd, addressType: element.type)) {

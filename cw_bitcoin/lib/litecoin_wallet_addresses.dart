@@ -59,18 +59,24 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
     Uint8List scan = Uint8List.fromList(scanSecret);
     Uint8List spend = Uint8List.fromList(spendPubkey);
+    int count = 0;
     while (mwebAddrs.length <= (index + 1)) {
       final address = await CwMweb.address(scan, spend, mwebAddrs.length);
       mwebAddrs.add(address!);
+      count++;
+      // sleep for a bit to avoid making the main thread unresponsive:
+      if (count > 50) {
+        count = 0;
+        await Future.delayed(Duration(milliseconds: 100));
+      }
     }
   }
 
   Future<void> initMwebAddresses() async {
-    print("Initializing MWEB addresses!");
-
     if (mwebAddrs.length < 1000) {
       print("Generating MWEB addresses...");
       await ensureMwebAddressUpToIndexExists(1020);
+      print("done generating MWEB addresses");
       List<BitcoinAddressRecord> addressRecords = mwebAddrs
           .asMap()
           .entries
@@ -81,6 +87,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
                 network: network,
               ))
           .toList();
+      print("converted to list");
       addMwebAddresses(addressRecords);
       print("added ${addressRecords.length} mweb addresses");
       return;
@@ -105,6 +112,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) async {
+    print("getting address for index $index");
     if (addressType == SegwitAddresType.mweb) {
       await ensureMwebAddressUpToIndexExists(index);
     }
