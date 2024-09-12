@@ -155,7 +155,7 @@ class WalletListBodyState extends State<WalletListBody> {
                           itemBuilder: (context, int) {
                             final group = widget.walletListViewModel.multiWalletGroups[int];
                             final groupName = group.groupName ??
-                                '${S.current.shared_seed_group_identifier} ${int + 1}';
+                                '${S.current.wallet_group} ${int + 1}';
                             return GroupedWalletExpansionTile(
                               borderRadius: BorderRadius.all(Radius.circular(16)),
                               margin: EdgeInsets.only(left: 20, right: 20, bottom: 12),

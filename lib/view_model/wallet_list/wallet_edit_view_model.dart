@@ -43,7 +43,9 @@ abstract class WalletEditViewModelBase with Store {
 
     if (isWalletGroup) {
       final walletManager = getIt.get<WalletManager>();
-      walletManager.setGroupName(groupParentAddress ?? '', newName);
+      walletManager.updateWalletGroups();
+      
+      walletManager.setGroupName(groupParentAddress!, newName);
     } else {
       await _walletLoadingService.renameWallet(
         walletItem.type,

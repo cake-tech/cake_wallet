@@ -669,7 +669,6 @@
   "setup_your_debit_card": "デビットカードを設定してください",
   "share": "共有",
   "share_address": "住所を共有する",
-  "shared_seed_group_identifier": "共有シードグループ",
   "shared_seed_wallet_groups": "共有シードウォレットグループ",
   "show_details": "詳細を表示",
   "show_keys": "シード/キーを表示する",
