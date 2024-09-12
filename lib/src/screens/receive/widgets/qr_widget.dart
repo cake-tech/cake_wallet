@@ -27,7 +27,6 @@ class QRWidget extends StatelessWidget {
     required this.amountController,
     required this.formKey,
     this.amountTextFieldFocusNode,
-    required this.showLatest,
   });
 
   final WalletAddressListViewModel addressListViewModel;
@@ -37,10 +36,8 @@ class QRWidget extends StatelessWidget {
   final bool isLight;
   final int? qrVersion;
   final String? heroTag;
-  final bool showLatest;
 
   PaymentURI get addressUri {
-    if (showLatest) return addressListViewModel.latestUri;
     return addressListViewModel.uri;
   }
 

@@ -268,49 +268,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   WalletType get type => wallet.type;
 
   @computed
-  WalletAddressListItem get latestAddress {
-    if (wallet.type == WalletType.monero && wallet.isEnabledAutoGenerateSubaddress) {
-      return WalletAddressListItem(address: wallet.walletAddresses.latestAddress, isPrimary: false);
-    }
-    return address;
-  }
-
-
-  @computed
   WalletAddressListItem get address {
     return WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
-  }
-
-  @computed
-  PaymentURI get latestUri {
-    switch (wallet.type) {
-      case WalletType.monero:
-        return MoneroURI(amount: amount, address: latestAddress.address);
-      case WalletType.haven:
-        return HavenURI(amount: amount, address: latestAddress.address);
-      case WalletType.bitcoin:
-        return BitcoinURI(amount: amount, address: latestAddress.address);
-      case WalletType.litecoin:
-        return LitecoinURI(amount: amount, address: latestAddress.address);
-      case WalletType.ethereum:
-        return EthereumURI(amount: amount, address: latestAddress.address);
-      case WalletType.bitcoinCash:
-        return BitcoinCashURI(amount: amount, address: latestAddress.address);
-      case WalletType.banano:
-        return NanoURI(amount: amount, address: latestAddress.address);
-      case WalletType.nano:
-        return NanoURI(amount: amount, address: latestAddress.address);
-      case WalletType.polygon:
-        return PolygonURI(amount: amount, address: latestAddress.address);
-      case WalletType.solana:
-        return SolanaURI(amount: amount, address: latestAddress.address);
-      case WalletType.tron:
-        return TronURI(amount: amount, address: latestAddress.address);
-      case WalletType.wownero:
-        return WowneroURI(amount: amount, address: latestAddress.address);
-      case WalletType.none:
-        throw Exception('Unexpected type: ${type.toString()}');
-    }
   }
 
   @computed
@@ -593,6 +552,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (wallet.type != WalletType.nano && wallet.type != WalletType.banano) {
       _baseItems.add(WalletAddressListHeader());
     }
+    wallet.walletAddresses.address = wallet.walletAddresses.latestAddress;
   }
 
   @action

@@ -73,24 +73,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   MoneroAccountList accountList;
 
-  @override
-  Set<String> get usedAddresses {
-    final txs = getAllTransactions();
-    final adds = _originalUsedAddresses.toList();
-    for (var i = 0; i < txs.length; i++) {
-      for (var j = 0; j < txs[i].addressList.length; j++) {
-        adds.add(txs[i].addressList[j]);
-      }
-    }
-    return adds.toSet();
-  }
-
-  Set<String> _originalUsedAddresses = Set();
-
-  @override
-  set usedAddresses(Set<String> _usedAddresses) {
-    _originalUsedAddresses = _usedAddresses;
-  }
+  Set<String> usedAddresses = Set();
 
   @override
   Future<void> init() async {

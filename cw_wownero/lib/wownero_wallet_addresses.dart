@@ -37,24 +37,10 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   WowneroSubaddressList subaddressList;
 
   WowneroAccountList accountList;
+  
   @override
-  Set<String> get usedAddresses {
-    final txs = getAllTransactions();
-    final adds = _originalUsedAddresses.toList();
-    for (var i = 0; i < txs.length; i++) {
-      for (var j = 0; j < txs[i].addressList.length; j++) {
-        adds.add(txs[i].addressList[j]);
-      }
-    }
-    return adds.toSet();
-  }
+  Set<String> usedAddresses = Set();
 
-  Set<String> _originalUsedAddresses = Set();
-
-  @override
-  set usedAddresses(Set<String> _usedAddresses) {
-    _originalUsedAddresses = _usedAddresses;
-  }
   @override
   Future<void> init() async {
     accountList.update();

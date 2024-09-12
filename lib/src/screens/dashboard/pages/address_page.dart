@@ -115,7 +115,7 @@ class AddressPage extends BasePage {
           iconSize: 25,
           onPressed: () {
             ShareUtil.share(
-              text: addressListViewModel.latestUri.toString(),
+              text: addressListViewModel.uri.toString(),
               context: context,
             );
           },
@@ -156,14 +156,13 @@ class AddressPage extends BasePage {
                           amountController: _amountController,
                           isLight: dashboardViewModel.settingsStore.currentTheme.type ==
                               ThemeType.light,
-                          showLatest: true,
                         ))),
               SizedBox(height: 16),
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
                   return SelectButton(
                     text: addressListViewModel.buttonTitle,
-                    onTap: () async => Navigator.of(context).pushNamed(Routes.receive),
+                    onTap: () => Navigator.of(context).pushNamed(Routes.receive),
                     textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
                     color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                     borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,

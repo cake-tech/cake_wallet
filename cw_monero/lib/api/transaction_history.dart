@@ -8,12 +8,13 @@ import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:ffi/ffi.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
+import 'package:mutex/mutex.dart';
 
 
 String getTxKey(String txId) {
   return monero.Wallet_getTxKey(wptr!, txid: txId);
 }
-
+final txHistoryMutex = Mutex();
 monero.TransactionHistory? txhistory;
 bool isRefreshingTx = false;
 Future<void> refreshTransactions() async {
@@ -21,21 +22,24 @@ Future<void> refreshTransactions() async {
   isRefreshingTx = true;
   txhistory ??= monero.Wallet_history(wptr!);
   final ptr = txhistory!.address;
+  await txHistoryMutex.acquire();
   await Isolate.run(() {
     monero.TransactionHistory_refresh(Pointer.fromAddress(ptr));
   });
+  txHistoryMutex.release();
   isRefreshingTx = false;
 }
 
 int countOfTransactions() => monero.TransactionHistory_count(txhistory!);
 
-List<Transaction> getAllTransactions() {
+Future<List<Transaction>> getAllTransactions() async {
   List<Transaction> dummyTxs = [];
 
   txhistory ??= monero.Wallet_history(wptr!);
   int size = countOfTransactions();
+  await txHistoryMutex.acquire();
   final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
-
+  txHistoryMutex.release();
   final accts = monero.Wallet_numSubaddressAccounts(wptr!);
   for (var i = 0; i < accts; i++) {  
     final fullBalance = monero.Wallet_balance(wptr!, accountIndex: i);
