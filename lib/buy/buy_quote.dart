@@ -1,6 +1,8 @@
 import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
+import 'package:cw_core/currency.dart';
 
 enum ProviderRecommendation { bestRate, lowKyc, successRate }
 
@@ -38,7 +40,7 @@ class Quote extends SelectableOption {
     required this.transactionFee,
     required this.payout,
     required this.provider,
-    required this.paymentMethod,
+    required this.paymentType,
     required this.recommendations,
     this.isBuyAction = true,
     this.quoteId,
@@ -52,18 +54,19 @@ class Quote extends SelectableOption {
   final double networkFee;
   final double transactionFee;
   final double payout;
-  final String paymentMethod;
+  final PaymentType paymentType;
   final BuyProvider provider;
   final String? quoteId;
   final List<ProviderRecommendation> recommendations;
   String? rampId;
   String? rampName;
   String? rampIconPath;
-  String sourceCurrency = '';
-  String destinationCurrency = '';
   bool isSelected = false;
   bool isBestRate = false;
   bool isBuyAction;
+
+  late Currency sourceCurrency;
+  late Currency destinationCurrency;
 
   @override
   bool get isOptionSelected => this.isSelected;
@@ -86,7 +89,7 @@ class Quote extends SelectableOption {
   @override
   String get rightSubTitleIconPath => provider.isAggregator ? provider.lightIcon : '';
 
-  String get quoteTitle => '${provider.title} - $paymentMethod';
+  String get quoteTitle => '${provider.title} - ${paymentType.name}';
 
   String get formatedFee => '$feeAmount ${isBuyAction ? sourceCurrency : destinationCurrency}';
 
@@ -94,13 +97,13 @@ class Quote extends SelectableOption {
 
   void set setIsBestRate(bool isBestRate) => this.isBestRate = isBestRate;
 
-  void set setSourceCurrency(String sourceCurrency) => this.sourceCurrency = sourceCurrency;
+  void set setSourceCurrency(Currency sourceCurrency) => this.sourceCurrency = sourceCurrency;
 
-  void set setDestinationCurrency(String destinationCurrency) =>
+  void set setDestinationCurrency(Currency destinationCurrency) =>
       this.destinationCurrency = destinationCurrency;
 
-  factory Quote.fromOnramperJson(Map<String, dynamic> json, ProviderType providerType,
-      bool isBuyAction, Map<String, dynamic> metaData) {
+  factory Quote.fromOnramperJson(Map<String, dynamic> json,
+      bool isBuyAction, Map<String, dynamic> metaData, PaymentType paymentType) {
     final rate = _toDouble(json['rate']) ?? 0.0;
     final networkFee = _toDouble(json['networkFee']) ?? 0.0;
     final transactionFee = _toDouble(json['transactionFee']) ?? 0.0;
@@ -128,16 +131,16 @@ class Quote extends SelectableOption {
       rampId: rampId,
       rampName: rampName,
       rampIconPath: rampIconPath,
-      paymentMethod: json['paymentMethod'] as String? ?? '',
+      paymentType: paymentType,
       quoteId: json['quoteId'] as String? ?? '',
       recommendations: enumRecommendations,
-      provider: ProvidersHelper.getProviderByType(providerType)!,
+      provider: ProvidersHelper.getProviderByType(ProviderType.onramper)!,
       isBuyAction: isBuyAction,
     );
   }
 
   factory Quote.fromMoonPayJson(
-      Map<String, dynamic> json, ProviderType providerType, bool isBuyAction) {
+      Map<String, dynamic> json, bool isBuyAction, PaymentType paymentType) {
     final rate = isBuyAction
         ? json['quoteCurrencyPrice'] as double? ?? 0.0
         : json['baseCurrencyPrice'] as double? ?? 0.0;
@@ -151,16 +154,16 @@ class Quote extends SelectableOption {
       networkFee: networkFee,
       transactionFee: transactionFee,
       payout: _toDouble(json['quoteCurrencyAmount']) ?? 0.0,
-      paymentMethod: json['paymentMethod'] as String? ?? '',
+      paymentType: paymentType,
       recommendations: [],
       quoteId: json['signature'] as String? ?? '',
-      provider: ProvidersHelper.getProviderByType(providerType)!,
+      provider: ProvidersHelper.getProviderByType(ProviderType.moonpay)!,
       isBuyAction: isBuyAction,
     );
   }
 
   factory Quote.fromDFXJson(
-      Map<String, dynamic> json, ProviderType providerType, bool isBuyAction) {
+      Map<String, dynamic> json, bool isBuyAction, PaymentType paymentType) {
     final rate = _toDouble(json['exchangeRate']) ?? 0.0;
     final fees = json['fees'] as Map<String, dynamic>;
     return Quote(
@@ -169,15 +172,15 @@ class Quote extends SelectableOption {
       networkFee: _toDouble(fees['networkFee']) ?? 0.0,
       transactionFee: _toDouble(fees['rate']) ?? 0.0,
       payout: _toDouble(json['payout']) ?? 0.0,
-      paymentMethod: json['paymentMethod'] as String? ?? '',
+      paymentType: paymentType,
       recommendations: [ProviderRecommendation.lowKyc],
-      provider: ProvidersHelper.getProviderByType(providerType)!,
+      provider: ProvidersHelper.getProviderByType(ProviderType.dfx)!,
       isBuyAction: isBuyAction,
     );
   }
 
   factory Quote.fromRobinhoodJson(
-      Map<String, dynamic> json, ProviderType providerType, bool isBuyAction) {
+      Map<String, dynamic> json, bool isBuyAction, PaymentType paymentType) {
     final networkFee = json['networkFee'] as Map<String, dynamic>;
     final processingFee = json['processingFee'] as Map<String, dynamic>;
     final networkFeeAmount = _toDouble(networkFee['fiatAmount']) ?? 0.0;
@@ -190,15 +193,15 @@ class Quote extends SelectableOption {
       networkFee: _toDouble(networkFee['fiatAmount']) ?? 0.0,
       transactionFee: _toDouble(processingFee['fiatAmount']) ?? 0.0,
       payout: _toDouble(json['cryptoAmount']) ?? 0.0,
-      paymentMethod: json['paymentMethod'] as String? ?? '',
+      paymentType: paymentType,
       recommendations: [],
-      provider: ProvidersHelper.getProviderByType(providerType)!,
+      provider: ProvidersHelper.getProviderByType(ProviderType.robinhood)!,
       isBuyAction: isBuyAction,
     );
   }
 
   factory Quote.fromMeldJson(
-      Map<String, dynamic> json, ProviderType providerType, bool isBuyAction) {
+      Map<String, dynamic> json, bool isBuyAction, PaymentType paymentType) {
     final quotes = json['quotes'][0] as Map<String, dynamic>;
     return Quote(
       rate: quotes['exchangeRate'] as double? ?? 0.0,
@@ -206,9 +209,9 @@ class Quote extends SelectableOption {
       networkFee: quotes['networkFee'] as double? ?? 0.0,
       transactionFee: quotes['transactionFee'] as double? ?? 0.0,
       payout: quotes['payout'] as double? ?? 0.0,
-      paymentMethod: quotes['paymentMethodType'] as String? ?? '',
+      paymentType: paymentType,
       recommendations: [],
-      provider: ProvidersHelper.getProviderByType(providerType)!,
+      provider: ProvidersHelper.getProviderByType(ProviderType.meld)!,
       isBuyAction: isBuyAction,
     );
   }

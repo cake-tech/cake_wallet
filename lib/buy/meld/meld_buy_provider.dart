@@ -10,6 +10,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
@@ -86,21 +87,19 @@ class MeldBuyProvider extends BuyProvider {
   }
 
   @override
-  Future<List<Quote>?> fetchQuote({
-    required String sourceCurrency,
-    required String destinationCurrency,
-    required double amount,
-    required bool isBuyAction,
-    required String walletAddress,
-    PaymentType? paymentType,
-    String? countryCode}) async {
-
+  Future<List<Quote>?> fetchQuote(
+      {required Currency sourceCurrency,
+      required Currency destinationCurrency,
+      required double amount,
+      required bool isBuyAction,
+      required String walletAddress,
+      PaymentType? paymentType,
+      String? countryCode}) async {
     String? paymentMethod;
     if (paymentType != null) {
       paymentMethod = normalizePaymentMethod(paymentType);
       if (paymentMethod == null) paymentMethod = paymentType.name;
     }
-
 
     log('Meld: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
 
@@ -124,7 +123,8 @@ class MeldBuyProvider extends BuyProvider {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final quote = Quote.fromMeldJson(data, ProviderType.meld, isBuyAction);
+        final paymentType = _getPaymentTypeByString(data['paymentMethodType'] as String?);
+        final quote = Quote.fromMeldJson(data, isBuyAction, paymentType);
 
         quote.setSourceCurrency = sourceCurrency;
         quote.setDestinationCurrency = destinationCurrency;
@@ -142,7 +142,6 @@ class MeldBuyProvider extends BuyProvider {
   Future<void>? launchProvider(
       {required BuildContext context,
       required Quote quote,
-      required PaymentMethod? paymentMethod,
       required double amount,
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
@@ -164,7 +163,7 @@ class MeldBuyProvider extends BuyProvider {
 
     try {
       if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         throw Exception('Could not launch URL');
       }
@@ -219,6 +218,47 @@ class MeldBuyProvider extends BuyProvider {
         return 'IDEAL';
       default:
         return null;
+    }
+  }
+
+  PaymentType _getPaymentTypeByString(String? paymentMethod) {
+    switch (paymentMethod?.toUpperCase()) {
+      case 'CREDIT_DEBIT_CARD':
+        return PaymentType.creditCard;
+      case 'APPLE_PAY':
+        return PaymentType.applePay;
+      case 'GOOGLE_PAY':
+        return PaymentType.googlePay;
+      case 'NETELLER':
+        return PaymentType.neteller;
+      case 'SKRILL':
+        return PaymentType.skrill;
+      case 'SEPA':
+        return PaymentType.sepa;
+      case 'SEPA_INSTANT':
+        return PaymentType.sepaInstant;
+      case 'ACH':
+        return PaymentType.ach;
+      case 'INSTANT_ACH':
+        return PaymentType.achInstant;
+      case 'KHIPU':
+        return PaymentType.Khipu;
+      case 'OVO':
+        return PaymentType.ovo;
+      case 'ZALOPAY':
+        return PaymentType.zaloPay;
+      case 'ZA_BANK_TRANSFER':
+        return PaymentType.zaloBankTransfer;
+      case 'GCASH':
+        return PaymentType.gcash;
+      case 'IMPS':
+        return PaymentType.imps;
+      case 'DANA':
+        return PaymentType.dana;
+      case 'IDEAL':
+        return PaymentType.ideal;
+      default:
+        return PaymentType.all;
     }
   }
 }

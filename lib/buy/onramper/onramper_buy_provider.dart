@@ -9,6 +9,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -26,9 +27,9 @@ class OnRamperBuyProvider extends BuyProvider {
   static const paymentTypes = '/payment-types';
   static const supported = '/supported';
 
-  String get _apiKey => secrets.onramperApiKey;
-
   final SettingsStore _settingsStore;
+
+  String get _apiKey => secrets.onramperApiKey;
 
   @override
   String get title => 'Onramper';
@@ -108,14 +109,15 @@ class OnRamperBuyProvider extends BuyProvider {
 
   @override
   Future<List<Quote>?> fetchQuote(
-      {required String sourceCurrency,
-      required String destinationCurrency,
+      {required Currency sourceCurrency,
+      required Currency destinationCurrency,
       required double amount,
       required bool isBuyAction,
       required String walletAddress,
       PaymentType? paymentType,
       String? countryCode}) async {
     String? paymentMethod;
+
     if (paymentType != null) {
       paymentMethod = normalizePaymentMethod(paymentType);
       if (paymentMethod == null) paymentMethod = paymentType.name;
@@ -156,8 +158,16 @@ class OnRamperBuyProvider extends BuyProvider {
 
         for (var item in data) {
           if (item['errors'] != null) break;
+
+          final paymentMethod = (item as Map<String, dynamic>)['paymentMethod'] as String;
+
+          final rampId = item['ramp'] as String?;
+          final rampMetaData = onrampMetadata[rampId] as Map<String, dynamic>?;
+
+          if (rampMetaData == null) break;
+
           final quote = Quote.fromOnramperJson(
-              item as Map<String, dynamic>, ProviderType.onramper, isBuyAction, onrampMetadata);
+              item, isBuyAction, onrampMetadata, _getPaymentTypeByString(paymentMethod));
           quote.setSourceCurrency = sourceCurrency;
           quote.setDestinationCurrency = destinationCurrency;
           validQuotes.add(quote);
@@ -179,20 +189,12 @@ class OnRamperBuyProvider extends BuyProvider {
   Future<void>? launchProvider(
       {required BuildContext context,
       required Quote quote,
-      required PaymentMethod? paymentMethod,
       required double amount,
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
     final actionType = isBuyAction ? 'buy' : 'sell';
     final prefix = actionType == 'sell' ? actionType + '_' : '';
-
-    String? paymentMethodString;
-    if (paymentMethod != null) {
-      paymentMethodString = normalizePaymentMethod(paymentMethod.paymentMethodType);
-    } else {
-      paymentMethodString = 'creditcard';
-    }
 
     final primaryColor = getColorStr(Theme.of(context).primaryColor);
     final secondaryColor = getColorStr(Theme.of(context).colorScheme.background);
@@ -208,12 +210,12 @@ class OnRamperBuyProvider extends BuyProvider {
 
     final networkName = wallet.currency.fullName?.toUpperCase().replaceAll(" ", "");
 
-    final defaultFiat = isBuyAction
-        ? _getNormalizeCryptoCurrency(quote.sourceCurrency)
-        : _getNormalizeCryptoCurrency(quote.destinationCurrency);
+    final defaultFiat = isBuyAction ? quote.sourceCurrency.name : quote.destinationCurrency.name;
     final defaultCrypto = isBuyAction
         ? _getNormalizeCryptoCurrency(quote.destinationCurrency)
         : _getNormalizeCryptoCurrency(quote.sourceCurrency);
+
+    final paymentMethod = normalizePaymentMethod(quote.paymentType);
 
     final uri = Uri.https(_baseUrl, '', {
       'apiKey': _apiKey,
@@ -221,7 +223,7 @@ class OnRamperBuyProvider extends BuyProvider {
       '${prefix}defaultFiat': defaultFiat,
       '${prefix}defaultCrypto': defaultCrypto,
       '${prefix}defaultAmount': amount.toString(),
-      '${prefix}defaultPaymentMethod': paymentMethodString,
+      if (paymentMethod != null) '${prefix}defaultPaymentMethod': paymentMethod,
       'onlyOnramps': quote.rampId,
       'networkWallets': '${networkName}:${wallet.walletAddresses.address}',
       'supportSwap': "false",
@@ -240,28 +242,32 @@ class OnRamperBuyProvider extends BuyProvider {
     }
   }
 
-  String _getNormalizeCryptoCurrency(String currencyTitle) {
-    //TODO: make it for all currencies
-    switch (currencyTitle) {
-      case 'LTC':
-        return "LTC_LITECOIN";
-      case 'XMR':
-        return "XMR_MONERO";
-      case 'BCH':
-        return "BCH_BITCOINCASH";
-      case 'XNO':
-        return "XNO_NANO";
-      case 'ADA':
-        return "ADA_CARDANO";
-      case 'DAI':
-        return "DAI_ETHEREUM";
-      case 'MATIC':
-        return "MATIC_POLYGON";
-      case 'TRX':
-        return "TRX_TRON";
+  List<CryptoCurrency> mainCurrency = [
+    CryptoCurrency.btc,
+    CryptoCurrency.eth,
+    CryptoCurrency.sol,
+  ];
+
+  String _tagToNetwork(String tag) {
+    switch (tag) {
+      case 'OMNI':
+        return tag;
+      case 'POLY':
+        return 'POLYGON';
       default:
-        return currencyTitle;
+        return CryptoCurrency.fromString(tag).fullName ?? tag;
     }
+  }
+
+  String _getNormalizeCryptoCurrency(Currency currency) {
+    if (currency is CryptoCurrency) {
+      if (!mainCurrency.contains(currency)) {
+        final network = currency.tag == null ? currency.fullName : _tagToNetwork(currency.tag!);
+        return '${currency.title}_${network?.replaceAll(' ', '')}'.toUpperCase();
+      }
+      return currency.title.toUpperCase();
+    }
+    return currency.name.toUpperCase();
   }
 
   String? normalizePaymentMethod(PaymentType paymentType) {
@@ -310,6 +316,55 @@ class OnRamperBuyProvider extends BuyProvider {
         return 'ideal';
       default:
         return null;
+    }
+  }
+
+  PaymentType _getPaymentTypeByString(String paymentMethod) {
+    switch (paymentMethod.toLowerCase()) {
+      case 'banktransfer':
+        return PaymentType.bankTransfer;
+      case 'creditcard':
+        return PaymentType.creditCard;
+      case 'debitcard':
+        return PaymentType.debitCard;
+      case 'applepay':
+        return PaymentType.applePay;
+      case 'googlepay':
+        return PaymentType.googlePay;
+      case 'revolutpay':
+        return PaymentType.revolutPay;
+      case 'neteller':
+        return PaymentType.neteller;
+      case 'skrill':
+        return PaymentType.skrill;
+      case 'sepabanktransfer':
+        return PaymentType.sepa;
+      case 'sepainstant':
+        return PaymentType.sepaInstant;
+      case 'ach':
+        return PaymentType.ach;
+      case 'iach':
+        return PaymentType.achInstant;
+      case 'khipu':
+        return PaymentType.Khipu;
+      case 'palomabanktransfer':
+        return PaymentType.palomaBanktTansfer;
+      case 'ovo':
+        return PaymentType.ovo;
+      case 'zalopay':
+        return PaymentType.zaloPay;
+      case 'zalobanktransfer':
+        return PaymentType.zaloBankTransfer;
+      case 'gcash':
+        return PaymentType.gcash;
+      case 'imps':
+        return PaymentType.imps;
+      case 'dana':
+        return PaymentType.dana;
+      case 'ideal':
+        return PaymentType.ideal;
+      default:
+        return PaymentType.all;
     }
   }
 

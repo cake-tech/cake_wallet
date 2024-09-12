@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart'
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -181,7 +182,7 @@ class DFXBuyProvider extends BuyProvider {
               final max = _toDouble(paymentMethodValue['maxVolume']);
               if (min != null && max != null && min > 0 && max > 0) {
                 final paymentMethod =
-                    PaymentMethod.fromDFX(paymentMethodKey, getPaymentType(paymentMethodKey));
+                    PaymentMethod.fromDFX(paymentMethodKey, _getPaymentTypeByString(paymentMethodKey));
                 paymentMethods.add(paymentMethod);
               }
             });
@@ -210,39 +211,42 @@ class DFXBuyProvider extends BuyProvider {
 
   @override
   Future<List<Quote>?> fetchQuote(
-      {required String sourceCurrency,
-      required String destinationCurrency,
+      {required Currency sourceCurrency,
+      required Currency destinationCurrency,
       required double amount,
       required bool isBuyAction,
       required String walletAddress,
       PaymentType? paymentType,
       String? countryCode}) async {
+
     String? paymentMethod;
     if (paymentType != null) {
       paymentMethod = normalizePaymentMethod(paymentType);
       if (paymentMethod == null) paymentMethod = paymentType.name;
+    } else {
+      paymentMethod = 'Card';
     }
 
     final action = isBuyAction ? 'buy' : 'sell';
 
     if (isBuyAction) {
-      if (destinationCurrency != wallet.currency.title) {
+      if (destinationCurrency.toString() != wallet.currency.title) {
         return null;
       }
     }
 
     if (!isBuyAction) {
-      if (sourceCurrency != wallet.currency.title) {
+      if (sourceCurrency.toString() != wallet.currency.title) {
         return null;
       }
     }
 
     final fiatCredentials =
-        await fetchFiatCredentials(isBuyAction ? sourceCurrency : destinationCurrency);
+        await fetchFiatCredentials((isBuyAction ? sourceCurrency : destinationCurrency).toString());
     if (fiatCredentials['id'] == null) return null;
 
     final assetCredentials =
-        await fetchAssetCredential(isBuyAction ? destinationCurrency : sourceCurrency);
+        await fetchAssetCredential((isBuyAction ? destinationCurrency : sourceCurrency).toString());
     if (assetCredentials['id'] == null) return null;
 
     log('DFX: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
@@ -254,7 +258,7 @@ class DFXBuyProvider extends BuyProvider {
       'asset': {'id': assetCredentials['id']},
       'amount': amount,
       'targetAmount': 0,
-      if (paymentMethod != null) 'paymentMethod': paymentMethod,
+      'paymentMethod': paymentMethod,
       'discountCode': ''
     });
 
@@ -264,7 +268,8 @@ class DFXBuyProvider extends BuyProvider {
 
       if (response.statusCode == 200) {
         if (responseData is Map<String, dynamic>) {
-          final quote = Quote.fromDFXJson(responseData, ProviderType.dfx, isBuyAction);
+          final paymentType = _getPaymentTypeByString(responseData['paymentMethod'] as String?);
+          final quote = Quote.fromDFXJson(responseData, isBuyAction, paymentType);
           quote.setSourceCurrency = sourceCurrency;
           quote.setDestinationCurrency = destinationCurrency;
           return [quote];
@@ -289,7 +294,6 @@ class DFXBuyProvider extends BuyProvider {
   Future<void>? launchProvider(
       {required BuildContext context,
       required Quote quote,
-      required PaymentMethod? paymentMethod,
       required double amount,
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
@@ -316,9 +320,9 @@ class DFXBuyProvider extends BuyProvider {
       final uri = Uri.https('services.dfx.swiss', actionType, {
         'session': accessToken,
         'lang': 'en',
-        'asset-out': quote.destinationCurrency,
+        'asset-out': quote.destinationCurrency.toString(),
         'blockchain': blockchain,
-        'asset-in': quote.sourceCurrency,
+        'asset-in': quote.sourceCurrency.toString(),
         'amount': amount.toString() //TODO: Amount does not work
       });
 
@@ -353,7 +357,7 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  PaymentType getPaymentType(String? paymentMethod) {
+  PaymentType _getPaymentTypeByString(String? paymentMethod) {
     switch (paymentMethod) {
       case 'Bank':
         return PaymentType.bankTransfer;
@@ -362,7 +366,7 @@ class DFXBuyProvider extends BuyProvider {
       case 'Instant':
         return PaymentType.sepa;
       default:
-        return PaymentType.unknown;
+        return PaymentType.all;
     }
   }
 

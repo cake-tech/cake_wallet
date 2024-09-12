@@ -3,6 +3,7 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 
@@ -32,7 +33,6 @@ abstract class BuyProvider {
 
   Future<void>? launchProvider({required BuildContext context,
     required Quote quote,
-    required PaymentMethod? paymentMethod,
     required double amount,
     required bool isBuyAction,
     required String cryptoCurrencyAddress,
@@ -50,8 +50,8 @@ abstract class BuyProvider {
       [];
 
   Future<List<Quote>?> fetchQuote({
-    required String sourceCurrency,
-    required String destinationCurrency,
+    required Currency sourceCurrency,
+    required Currency destinationCurrency,
     required double amount,
     required bool isBuyAction,
     required String walletAddress,

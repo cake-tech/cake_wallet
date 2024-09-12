@@ -34,7 +34,6 @@ enum PaymentType {
   yellowCardBankTransfer,
   fiatBalance,
   bancontact,
-  unknown
 }
 
 extension PaymentTypeTitle on PaymentType {
@@ -270,7 +269,7 @@ class PaymentMethod extends SelectableOption {
       case 'bancontact':
         return PaymentType.bancontact;
       default:
-        return PaymentType.unknown;
+        return PaymentType.all;
     }
   }
 }
