@@ -145,7 +145,7 @@ class RobinhoodBuyProvider extends BuyProvider {
 
     String? paymentMethod;
 
-    if (paymentType != null) {
+    if (paymentType != null && paymentType != PaymentType.all) {
       paymentMethod = normalizePaymentMethod(paymentType);
       if (paymentMethod == null) paymentMethod = paymentType.name;
     }

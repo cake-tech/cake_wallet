@@ -315,9 +315,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           sourceCurrency: isBuyAction ? fiatCurrency : cryptoCurrency,
           destinationCurrency: isBuyAction ? cryptoCurrency : fiatCurrency,
           amount: amount,
-          paymentType: selectedPaymentMethod!.paymentMethodType == PaymentType.all
-              ? null
-              : selectedPaymentMethod!.paymentMethodType,
+          paymentType: selectedPaymentMethod?.paymentMethodType,
           isBuyAction: isBuyAction,
           walletAddress: wallet.walletAddresses.address,
         )));
