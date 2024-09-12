@@ -45,6 +45,10 @@ class SecretKey {
     SecretKey('authorization', () => ''),
     SecretKey('meldTestApiKey', () => ''),
     SecretKey('meldTestPublicKey', () => ''),
+    SecretKey('etherScanApiKey', () => ''),
+    SecretKey('polygonScanApiKey', () => ''),
+    SecretKey('letsExchangeBearerToken', () => ''),
+    SecretKey('letsExchangeAffiliateId', () => ''),
     SecretKey('stealthExBearerToken', () => ''),
     SecretKey('stealthExAdditionalFeePercent', () => ''),
   ];
