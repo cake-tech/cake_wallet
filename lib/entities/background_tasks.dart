@@ -207,14 +207,16 @@ Future<void> onStart(ServiceInstance service) async {
       for (int i = 0; i < syncingWallets.length; i++) {
         final wallet = syncingWallets[i];
         final syncProgress = ((wallet!.syncStatus.progress()) * 100).toStringAsPrecision(5);
-        String title = "${wallet.name} - ${wallet.type}";
+
+        String prefix = walletTypeToCryptoCurrency(wallet.type).title;
+        String title = "$prefix - ${wallet.name}";
         late String content;
         try {
           final blocksLeft = (wallet.syncStatus as SyncingSyncStatus).blocksLeft;
           content = "${blocksLeft} Blocks Left";
         } catch (e) {
           print(e);
-          content = "${wallet.name} ${syncProgress}% Synced";
+          content = "${syncProgress}% Synced";
         }
         content += " - ${DateTime.now()}";
 
