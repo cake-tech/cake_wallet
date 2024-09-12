@@ -35,7 +35,7 @@ class MeldBuyProvider extends BuyProvider {
 
   static String get _testApiKey => secrets.meldTestApiKey;
 
-  static String get _testPublicKey => secrets.meldTestPublicKey;
+  static String get _testPublicKey => '' ; //secrets.meldTestPublicKey;
 
   @override
   String get title => 'Meld';
