@@ -122,6 +122,8 @@
   "change_rep_successful": "Berhasil mengubah perwakilan",
   "change_wallet_alert_content": "Apakah Anda ingin mengganti dompet saat ini ke ${wallet_name}?",
   "change_wallet_alert_title": "Ganti dompet saat ini",
+  "choose_a_payment_method": "Pilih metode pembayaran",
+  "choose_a_provider": "Pilih penyedia",
   "choose_account": "Pilih akun",
   "choose_address": "\n\nSilakan pilih alamat:",
   "choose_card_value": "Pilih nilai kartu",

@@ -122,6 +122,8 @@
   "change_rep_successful": "تم تغيير ممثل بنجاح",
   "change_wallet_alert_content": "هل تريد تغيير المحفظة الحالية إلى ${wallet_name}؟",
   "change_wallet_alert_title": "تغيير المحفظة الحالية",
+  "choose_a_payment_method": "اختر طريقة الدفع",
+  "choose_a_provider": "اختر مزودًا",
   "choose_account": "اختر حساب",
   "choose_address": "\n\nالرجاء اختيار عنوان:",
   "choose_card_value": "اختر قيمة بطاقة",

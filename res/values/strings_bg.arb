@@ -122,6 +122,8 @@
   "change_rep_successful": "Успешно промени представител",
   "change_wallet_alert_content": "Искате ли да смените сегашния портфейл на ${wallet_name}?",
   "change_wallet_alert_title": "Смяна на сегашния портфейл",
+  "choose_a_payment_method": "Изберете начин на плащане",
+  "choose_a_provider": "Изберете доставчик",
   "choose_account": "Избиране на профил",
   "choose_address": "\n\nМоля, изберете адреса:",
   "choose_card_value": "Изберете стойност на картата",

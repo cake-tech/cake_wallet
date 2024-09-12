@@ -122,6 +122,8 @@
   "change_rep_successful": "Úspěšně změnil zástupce",
   "change_wallet_alert_content": "Opravdu chcete změnit aktivní peněženku na ${wallet_name}?",
   "change_wallet_alert_title": "Přepnout peněženku",
+  "choose_a_payment_method": "Vyberte metodu platby",
+  "choose_a_provider": "Vyberte poskytovatele",
   "choose_account": "Zvolte částku",
   "choose_address": "\n\nProsím vyberte adresu:",
   "choose_card_value": "Vyberte hodnotu karty",

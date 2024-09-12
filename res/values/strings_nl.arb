@@ -122,6 +122,8 @@
   "change_rep_successful": "Met succes veranderde vertegenwoordiger",
   "change_wallet_alert_content": "Wilt u de huidige portemonnee wijzigen in ${wallet_name}?",
   "change_wallet_alert_title": "Wijzig huidige portemonnee",
+  "choose_a_payment_method": "Kies een betaalmethode",
+  "choose_a_provider": "Kies een provider",
   "choose_account": "Kies account",
   "choose_address": "\n\nKies het adres:",
   "choose_card_value": "Kies een kaartwaarde",

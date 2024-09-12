@@ -251,7 +251,7 @@ class DFXBuyProvider extends BuyProvider {
 
     log('DFX: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
 
-    final url = Uri.parse('https://$_baseUrl/v1/$action/quote');
+    final url = Uri.https(_baseUrl, '/v1/$action/quote');
     final headers = {'accept': 'application/json', 'Content-Type': 'application/json'};
     final body = jsonEncode({
       'currency': {'id': fiatCredentials['id'] as int},

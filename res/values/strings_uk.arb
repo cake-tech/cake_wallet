@@ -122,6 +122,8 @@
   "change_rep_successful": "Успішно змінив представник",
   "change_wallet_alert_content": "Ви хочете змінити поточний гаманець на ${wallet_name}?",
   "change_wallet_alert_title": "Змінити поточний гаманець",
+  "choose_a_payment_method": "Виберіть метод оплати",
+  "choose_a_provider": "Виберіть постачальника",
   "choose_account": "Оберіть акаунт",
   "choose_address": "\n\nБудь ласка, оберіть адресу:",
   "choose_card_value": "Виберіть значення картки",

@@ -122,6 +122,8 @@
   "change_rep_successful": "Успешно изменил представитель",
   "change_wallet_alert_content": "Вы хотите изменить текущий кошелек на ${wallet_name}?",
   "change_wallet_alert_title": "Изменить текущий кошелек",
+  "choose_a_payment_method": "Выберите способ оплаты",
+  "choose_a_provider": "Выберите поставщика",
   "choose_account": "Выберите аккаунт",
   "choose_address": "\n\nПожалуйста, выберите адрес:",
   "choose_card_value": "Выберите значение карты",

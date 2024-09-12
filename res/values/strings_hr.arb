@@ -122,6 +122,8 @@
   "change_rep_successful": "Uspješno promijenjena reprezentativna",
   "change_wallet_alert_content": "Želite li promijeniti trenutni novčanik u ${wallet_name}?",
   "change_wallet_alert_title": "Izmijeni trenutni novčanik",
+  "choose_a_payment_method": "Odaberite način plaćanja",
+  "choose_a_provider": "Odaberite davatelja usluga",
   "choose_account": "Odaberi račun",
   "choose_address": "\n\nOdaberite adresu:",
   "choose_card_value": "Odaberite vrijednost kartice",

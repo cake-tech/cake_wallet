@@ -122,6 +122,8 @@
   "change_rep_successful": "Ներկայացուցչի փոփոխությունը հաջողությամբ կատարվեց",
   "change_wallet_alert_content": "Ցանկանում եք փոխել ընթացիկ դրամապանակը ${wallet_name}?",
   "change_wallet_alert_title": "Փոխել ընթացիկ դրամապանակը",
+  "choose_a_payment_method": "Ընտրեք վճարման եղանակ",
+  "choose_a_provider": "Ընտրեք մատակարար",
   "choose_account": "Ընտրեք հաշիվը",
   "choose_address": "\n\nԽնդրում ենք ընտրեք հասցեն",
   "choose_card_value": "Ընտրեք քարտի արժեք",

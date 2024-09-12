@@ -122,6 +122,8 @@
   "change_rep_successful": "Temsilciyi başarıyla değiştirdi",
   "change_wallet_alert_content": "Şimdiki cüzdanı ${wallet_name} cüzdanı ile değiştirmek istediğinden emin misin?",
   "change_wallet_alert_title": "Şimdiki cüzdanı değiştir",
+  "choose_a_payment_method": "Bir Ödeme Yöntemi Seçin",
+  "choose_a_provider": "Bir Sağlayıcı Seçin",
   "choose_account": "Hesabı seç",
   "choose_address": "\n\nLütfen adresi seçin:",
   "choose_card_value": "Bir kart değeri seçin",

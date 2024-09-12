@@ -239,7 +239,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                                       .hintTextColor))
                           : Offstage()
                     ]))
-                : Container()),
+                : Offstage()),
         !_isAddressEditable && widget.hasRefundAddress
             ? Padding(
                 padding: EdgeInsets.only(top: 20),
@@ -293,7 +293,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                           selectedCurrency: _selectedCurrency),
                     ),
                   )
-                : Container()
+                : Offstage()
             : Padding(
                 padding: EdgeInsets.only(top: 10),
                 child: Builder(

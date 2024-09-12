@@ -122,6 +122,8 @@
   "change_rep_successful": "Matagumpay na nagbago ng representative",
   "change_wallet_alert_content": "Gusto mo bang palitan ang kasalukuyang wallet sa ${wallet_name}?",
   "change_wallet_alert_title": "Baguhin ang kasalukuyang wallet",
+  "choose_a_payment_method": "Pumili ng isang paraan ng pagbabayad",
+  "choose_a_provider": "Pumili ng isang provider",
   "choose_account": "Pumili ng account",
   "choose_address": "Mangyaring piliin ang address:",
   "choose_card_value": "Pumili ng isang halaga ng card",

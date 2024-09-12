@@ -122,6 +122,8 @@
   "change_rep_successful": "အောင်မြင်စွာကိုယ်စားလှယ်ပြောင်းလဲသွားတယ်",
   "change_wallet_alert_content": "လက်ရှိပိုက်ဆံအိတ်ကို ${wallet_name} သို့ ပြောင်းလိုပါသလား။",
   "change_wallet_alert_title": "လက်ရှိပိုက်ဆံအိတ်ကို ပြောင်းပါ။",
+  "choose_a_payment_method": "ငွေပေးချေမှုနည်းလမ်းကိုရွေးချယ်ပါ",
+  "choose_a_provider": "ပံ့ပိုးပေးရွေးချယ်ပါ",
   "choose_account": "အကောင့်ကို ရွေးပါ။",
   "choose_address": "\n\nလိပ်စာကို ရွေးပါ-",
   "choose_card_value": "ကဒ်တန်ဖိုးတစ်ခုရွေးပါ",

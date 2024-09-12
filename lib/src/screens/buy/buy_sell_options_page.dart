@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/selectable_option.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/select_options_page.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -9,7 +10,7 @@ class BuyOptionsPage extends SelectOptionsPage {
   final Function(SelectableOption option)? pickAnOption;
 
   @override
-  String get pageTitle => 'Choose a provider';
+  String get pageTitle => S.current.choose_a_provider;
 
   @override
   EdgeInsets? get contentPadding => null;

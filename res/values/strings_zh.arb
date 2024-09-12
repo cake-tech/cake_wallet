@@ -122,6 +122,8 @@
   "change_rep_successful": "成功改变了代表",
   "change_wallet_alert_content": "您是否想将当前钱包改为 ${wallet_name}?",
   "change_wallet_alert_title": "更换当前钱包",
+  "choose_a_payment_method": "选择付款方式",
+  "choose_a_provider": "选择一个提供商",
   "choose_account": "选择账户",
   "choose_address": "\n\n請選擇地址：",
   "choose_card_value": "选择卡值",

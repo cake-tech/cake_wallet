@@ -122,6 +122,8 @@
   "change_rep_successful": "Vertreter erfolgreich gerändert",
   "change_wallet_alert_content": "Möchten Sie die aktuelle Wallet zu ${wallet_name} ändern?",
   "change_wallet_alert_title": "Aktuelle Wallet ändern",
+  "choose_a_payment_method": "Wählen Sie eine Zahlungsmethode",
+  "choose_a_provider": "Wählen Sie einen Anbieter",
   "choose_account": "Konto auswählen",
   "choose_address": "\n\nBitte wählen Sie die Adresse:",
   "choose_card_value": "Wählen Sie einen Kartenwert",

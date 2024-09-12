@@ -129,7 +129,7 @@ class ProviderOptionTile extends StatelessWidget {
                               ],
                             ),
                         )
-                        : Container(),
+                        : Offstage(),
                     rightSubTitle != null || rightSubTitleIconPath != null
                         ? Row(
                             children: [
@@ -146,7 +146,7 @@ class ProviderOptionTile extends StatelessWidget {
                               ),
                             ],
                           )
-                        : Container(),
+                        : Offstage(),
                   ],
                 ),
               if (badges != null && badges!.isNotEmpty)
