@@ -406,6 +406,8 @@ abstract class ElectrumWalletBase
           nodeSupportsSilentPayments = false;
         }
 
+        print("sp sync: ${message.syncStatus.progress() * 100}%");
+
         syncStatus = message.syncStatus;
         await walletInfo.updateRestoreHeight(message.height);
       }
@@ -476,7 +478,12 @@ abstract class ElectrumWalletBase
   @override
   Future<void> stopSync() async {
     syncStatus = StoppedSyncingSyncStatus();
+    try {
+      await _receiveStream?.cancel();
+      await electrumClient.close();
+    } catch (_) {}
     _updateFeeRateTimer?.cancel();
+    _autoSaveTimer?.cancel();
   }
 
   @action

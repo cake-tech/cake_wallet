@@ -21,5 +21,6 @@ Future<void> loadCurrentWallet({String? password}) async {
   final walletLoadingService = getIt.get<WalletLoadingService>();
   final wallet = await walletLoadingService.load(type, name, password: password);
   await appStore.changeCurrentWallet(wallet);
-  getIt.get<BackgroundTasks>().registerBackgroundService();
+  // TODO: re-enable (need to figure out how to prevent current wallet from being loaded in the background service!)
+  // getIt.get<BackgroundTasks>().registerBackgroundService();
 }

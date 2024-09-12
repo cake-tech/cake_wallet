@@ -12,6 +12,7 @@ import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/widgets.dart';
@@ -25,7 +26,9 @@ const moneroSyncTaskKey = "com.fotolockr.cakewallet.monero_sync_task";
 const mwebSyncTaskKey = "com.fotolockr.cakewallet.mweb_sync_task";
 
 const initialNotificationTitle = 'Cake Background Sync';
-const initialNotificationContent = 'On standby - app is in the foreground';
+const standbyMessage = 'On standby - app is in the foreground';
+const readyMessage = 'Ready to sync - waiting until the app has been in the background for a while';
+
 const notificationId = 888;
 const notificationChannelId = 'cake_service';
 const notificationChannelName = 'CAKE BACKGROUND SERVICE';
@@ -37,7 +40,24 @@ void setNotificationStandby(FlutterLocalNotificationsPlugin flutterLocalNotifica
   flutterLocalNotificationsPlugin.show(
     notificationId,
     initialNotificationTitle,
-    initialNotificationContent,
+    standbyMessage,
+    const NotificationDetails(
+      android: AndroidNotificationDetails(
+        notificationChannelId,
+        notificationChannelName,
+        icon: 'ic_bg_service_small',
+        ongoing: true,
+      ),
+    ),
+  );
+}
+
+void setNotificationReady(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+  flutterLocalNotificationsPlugin.cancelAll();
+  flutterLocalNotificationsPlugin.show(
+    notificationId,
+    initialNotificationTitle,
+    readyMessage,
     const NotificationDetails(
       android: AndroidNotificationDetails(
         notificationChannelId,
@@ -77,6 +97,10 @@ Future<void> onStart(ServiceInstance service) async {
     setNotificationStandby(flutterLocalNotificationsPlugin);
   });
 
+  service.on('setReady').listen((event) async {
+    setNotificationReady(flutterLocalNotificationsPlugin);
+  });
+
   // we have entered the background, start the sync:
   service.on('setBackground').listen((event) async {
     if (bgSyncStarted) {
@@ -93,7 +117,7 @@ Future<void> onStart(ServiceInstance service) async {
       // these errors still show up in logs which doesn't really make sense to me
     }
 
-    print("initialized app configs");
+    print("INITIALIZED APP CONFIGS");
 
     final currentWallet = getIt.get<AppStore>().wallet;
     // don't start syncing immediately:
@@ -101,6 +125,7 @@ Future<void> onStart(ServiceInstance service) async {
 
     final walletLoadingService = getIt.get<WalletLoadingService>();
     final settingsStore = getIt.get<SettingsStore>();
+    final walletListViewModel = getIt.get<WalletListViewModel>();
     final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType);
 
     bool syncAll = true;
@@ -108,101 +133,95 @@ Future<void> onStart(ServiceInstance service) async {
 
     if (syncAll) {
       /// get all Monero wallets of the user and sync them
-      final List<WalletListItem> moneroWallets = getIt
-          .get<WalletListViewModel>()
-          .wallets
+      final List<WalletListItem> moneroWallets = walletListViewModel.wallets
           .where((element) => [WalletType.monero, WalletType.wownero].contains(element.type))
           .toList();
 
       for (int i = 0; i < moneroWallets.length; i++) {
         final wallet =
             await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
-        final node = getIt.get<SettingsStore>().getCurrentNode(moneroWallets[i].type);
+        final node = settingsStore.getCurrentNode(moneroWallets[i].type);
         await wallet.connectToNode(node: node);
         await wallet.startSync();
         syncingWallets.add(wallet);
       }
 
       // get all litecoin wallets and sync them:
-      final List<WalletListItem> litecoinWallets = getIt
-          .get<WalletListViewModel>()
-          .wallets
+      final List<WalletListItem> litecoinWallets = walletListViewModel.wallets
           .where((element) => element.type == WalletType.litecoin)
           .toList();
 
       // we only need to sync the first litecoin wallet since they share the same collection of blocks
       if (litecoinWallets.isNotEmpty) {
-        final firstWallet = litecoinWallets.first;
-        final wallet = await walletLoadingService.load(firstWallet.type, firstWallet.name);
-        final node = getIt.get<SettingsStore>().getCurrentNode(firstWallet.type);
-        await wallet.connectToNode(node: node);
-        await wallet.startSync();
-        syncingWallets.add(wallet);
+        try {
+          final firstWallet = litecoinWallets.first;
+          final wallet = await walletLoadingService.load(firstWallet.type, firstWallet.name);
+          final node = settingsStore.getCurrentNode(firstWallet.type);
+          await wallet.connectToNode(node: node);
+          await wallet.startSync();
+          syncingWallets.add(wallet);
+        } catch (e) {
+          // couldn't connect to mwebd (most likely)
+          print("error syncing litecoin wallet: $e");
+        }
       }
 
-      final List<WalletListItem> bitcoinWallets = getIt
-          .get<WalletListViewModel>()
-          .wallets
+      final List<WalletListItem> bitcoinWallets = walletListViewModel.wallets
           .where((element) => element.type == WalletType.bitcoin)
           .toList();
 
       for (int i = 0; i < bitcoinWallets.length; i++) {
-        final wallet =
-            await walletLoadingService.load(bitcoinWallets[i].type, bitcoinWallets[i].name);
-        final node = getIt.get<SettingsStore>().getCurrentNode(bitcoinWallets[i].type);
-        await wallet.connectToNode(node: node);
-        await wallet.startSync();
-        // TODO: use proxy layer:
-        await (wallet as ElectrumWallet).setSilentPaymentsScanning(true);
-        syncingWallets.add(wallet);
+        try {
+          final wallet =
+              await walletLoadingService.load(bitcoinWallets[i].type, bitcoinWallets[i].name);
+          final node = settingsStore.getCurrentNode(bitcoinWallets[i].type);
+          await wallet.connectToNode(node: node);
+          await wallet.startSync();
+          // TODO: use proxy layer:
+          await (wallet as ElectrumWallet).rescan(height: 1);
+          syncingWallets.add(wallet);
+        } catch (e) {
+          print("error syncing bitcoin wallet: $e");
+        }
       }
     } else {
-      // /// if the user chose to sync only active wallet
-      // /// if the current wallet is monero; sync it only
-      // if (typeRaw == WalletType.monero.index || typeRaw == WalletType.wownero.index) {
-      //   final name = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
-      //   wallet = await walletLoadingService.load(WalletType.values[typeRaw!], name!);
-      //   final node = getIt.get<SettingsStore>().getCurrentNode(WalletType.values[typeRaw]);
-      //   await wallet.connectToNode(node: node);
-      //   await wallet.startSync();
-      //   syncingWallets.add(wallet);
-      // }
+      /// if the user chose to sync only active wallet
+      /// if the current wallet is monero; sync it only
+      if (typeRaw == WalletType.monero.index || typeRaw == WalletType.wownero.index) {
+        final name = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
+        final wallet = await walletLoadingService.load(WalletType.values[typeRaw!], name!);
+        final node = getIt.get<SettingsStore>().getCurrentNode(WalletType.values[typeRaw]);
+        await wallet.connectToNode(node: node);
+        await wallet.startSync();
+        syncingWallets.add(wallet);
+      }
     }
 
     print("STARTING SYNC TIMER");
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) {
-      // final wallet = getIt.get<AppStore>().wallet;
       if (syncingWallets.isEmpty) {
         return;
       }
 
-      // final wallet = syncingWallets.first!;
-      // final syncProgress = ((wallet.syncStatus.progress() ?? 0) * 100).toStringAsPrecision(5);
-      // String title = "${wallet!.name} ${syncProgress}% Synced";
-      // flutterLocalNotificationsPlugin.show(
-      //   notificationId,
-      //   title,
-      //   'Background sync - ${DateTime.now()}',
-      //   const NotificationDetails(
-      //     android: AndroidNotificationDetails(
-      //       notificationChannelId,
-      //       notificationChannelName,
-      //       icon: 'ic_bg_service_small',
-      //       ongoing: true,
-      //     ),
-      //   ),
-      // );
-
       for (int i = 0; i < syncingWallets.length; i++) {
         final wallet = syncingWallets[i];
         final syncProgress = ((wallet!.syncStatus.progress()) * 100).toStringAsPrecision(5);
-        String title = "${wallet.name}-${syncProgress}% Synced";
+        String title = "${wallet.name} - ${wallet.type}";
+        late String content;
+        try {
+          final blocksLeft = (wallet.syncStatus as SyncingSyncStatus).blocksLeft;
+          content = "${blocksLeft} Blocks Left";
+        } catch (e) {
+          print(e);
+          content = "${wallet.name} ${syncProgress}% Synced";
+        }
+        content += " - ${DateTime.now()}";
 
         flutterLocalNotificationsPlugin.show(
           notificationId + i,
           title,
-          'Background sync - ${DateTime.now()}',
+          content,
           NotificationDetails(
             android: AndroidNotificationDetails(
               "${notificationChannelId}_$i",
@@ -274,7 +293,7 @@ Future<void> initializeService(FlutterBackgroundService bgService, bool useNotif
       isForegroundMode: true,
       notificationChannelId: notificationChannelId,
       initialNotificationTitle: initialNotificationTitle,
-      initialNotificationContent: initialNotificationContent,
+      initialNotificationContent: standbyMessage,
       foregroundServiceNotificationId: notificationId,
       foregroundServiceTypes: [AndroidForegroundType.dataSync],
     ),
@@ -291,34 +310,40 @@ class BackgroundTasks {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  void updateServiceState(bool foreground, bool useNotifications) async {
-    if (foreground) {
-      bgService.invoke('stopService');
-      await Future.delayed(const Duration(seconds: 2));
-      initializeService(bgService, useNotifications);
-    } else {
-      bgService.invoke("setBackground");
+  void serviceBackground() {
+    bgService.invoke("setBackground");
+  }
+
+  Future<void> serviceForeground() async {
+    final settingsStore = getIt.get<SettingsStore>();
+    bool showNotifications = settingsStore.showSyncNotification;
+    bgService.invoke('stopService');
+    await Future.delayed(const Duration(seconds: 2));
+    initializeService(bgService, showNotifications);
+  }
+
+  void serviceReady() {
+    final settingsStore = getIt.get<SettingsStore>();
+    bool showNotifications = settingsStore.showSyncNotification;
+    if (showNotifications) {
+      bgService.invoke('setReady');
     }
   }
 
   void registerBackgroundService() async {
+    print("REGISTER BACKGROUND SERVICE");
     try {
-      bool hasMonero = getIt
-          .get<WalletListViewModel>()
-          .wallets
-          .any((element) => element.type == WalletType.monero);
-
-      bool hasLitecoin = getIt
-          .get<WalletListViewModel>()
-          .wallets
-          .any((element) => element.type == WalletType.litecoin);
-
-      bool hasBitcoin = getIt
-          .get<WalletListViewModel>()
-          .wallets
-          .any((element) => element.type == WalletType.bitcoin);
-
       final settingsStore = getIt.get<SettingsStore>();
+      final walletListViewModel = getIt.get<WalletListViewModel>();
+      bool hasMonero =
+          walletListViewModel.wallets.any((element) => element.type == WalletType.monero);
+
+      bool hasLitecoin =
+          walletListViewModel.wallets.any((element) => element.type == WalletType.litecoin);
+
+      bool hasBitcoin =
+          walletListViewModel.wallets.any((element) => element.type == WalletType.bitcoin);
+
       if (!settingsStore.silentPaymentsAlwaysScan) {
         hasBitcoin = false;
       }

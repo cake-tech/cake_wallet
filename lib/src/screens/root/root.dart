@@ -163,11 +163,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     }
 
     // background service handling:
-    bool showNotifications = getIt.get<SettingsStore>().showSyncNotification;
     switch (state) {
       case AppLifecycleState.resumed:
         // restart the background service if it was running before:
-        getIt.get<BackgroundTasks>().updateServiceState(true, showNotifications);
+        getIt.get<BackgroundTasks>().serviceForeground();
         _stateTimer?.cancel();
         if (!wasInBackground) {
           return;
@@ -182,17 +181,19 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.paused:
         // TODO: experimental: maybe should uncomment this:
-        // getIt.get<BackgroundTasks>().updateServiceState(false, showNotifications);
+        // getIt.get<BackgroundTasks>().serviceBackground(false, showNotifications);
       case AppLifecycleState.inactive:
       case AppLifecycleState.detached:
       default:
+        // anything other than resumed update the notification to say we're in the "ready" state:
+        getIt.get<BackgroundTasks>().serviceReady();
         // if we enter any state other than resumed start a timer for 30 seconds
         // after which we'll consider the app to be in the background
         _stateTimer?.cancel();
         // TODO: bump this to > 30 seconds when testing is done:
         _stateTimer = Timer(const Duration(seconds: 10), () async {
           wasInBackground = true;
-          getIt.get<BackgroundTasks>().updateServiceState(false, showNotifications);
+          getIt.get<BackgroundTasks>().serviceBackground();
         });
         break;
     }
