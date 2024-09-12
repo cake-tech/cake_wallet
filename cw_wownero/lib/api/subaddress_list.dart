@@ -107,6 +107,10 @@ void addSubaddressSync({required int accountIndex, required String label}) {
   refreshSubaddresses(accountIndex: accountIndex);
 }
 
+int numSubaddresses(int subaccountIndex) {
+  return wownero.Wallet_numSubaddresses(wptr!, accountIndex: subaccountIndex);
+}
+
 void setLabelForSubaddressSync(
     {required int accountIndex, required int addressIndex, required String label}) {
   wownero.Wallet_setSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex, label: label);

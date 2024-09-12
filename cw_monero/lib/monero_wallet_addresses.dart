@@ -31,9 +31,8 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   String get latestAddress {
-    final accountIndex = 0;
-    var addressIndex = subaddress_list.numSubaddresses(accountIndex) - 1;
-    var address = getAddress(accountIndex: accountIndex,addressIndex: addressIndex);
+    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
+    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
     while (hiddenAddresses.contains(address)) {
       addressIndex++;
       address = getAddress(accountIndex: 0, addressIndex: addressIndex);
@@ -43,20 +42,9 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   String get addressForExchange {
-    final accountIndex = 0;
-    var addressIndex = subaddress_list.numSubaddresses(accountIndex) - 1;
-    var address = getAddress(accountIndex: accountIndex,addressIndex: addressIndex);
+    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
+    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
     while (hiddenAddresses.contains(address) || manualAddresses.contains(address)) {
-      addressIndex++;
-      address = getAddress(accountIndex: 0, addressIndex: addressIndex);
-    }
-    return address;
-  }
-
-  String getLastAddress(int accountIndex) {
-    var addressIndex = subaddress_list.numSubaddresses(accountIndex) - 1;
-    var address = getAddress(accountIndex: accountIndex,addressIndex: addressIndex);
-    while (hiddenAddresses.contains(address)) {
       addressIndex++;
       address = getAddress(accountIndex: 0, addressIndex: addressIndex);
     }

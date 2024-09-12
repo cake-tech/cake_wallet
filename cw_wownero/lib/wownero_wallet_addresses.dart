@@ -4,6 +4,7 @@ import 'package:cw_core/subaddress.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_wownero/api/transaction_history.dart';
+import 'package:cw_wownero/api/subaddress_list.dart' as subaddress_list;
 import 'package:cw_wownero/api/wallet.dart';
 import 'package:cw_wownero/wownero_account_list.dart';
 import 'package:cw_wownero/wownero_subaddress_list.dart';
@@ -28,6 +29,27 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   @observable
   String address;
 
+  @override
+  String get latestAddress {
+    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
+    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+    while (hiddenAddresses.contains(address)) {
+      addressIndex++;
+      address = getAddress(accountIndex: 0, addressIndex: addressIndex);
+    }
+    return address;
+  }
+
+  @override
+  String get addressForExchange {
+    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
+    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+    while (hiddenAddresses.contains(address) || manualAddresses.contains(address)) {
+      addressIndex++;
+      address = getAddress(accountIndex: 0, addressIndex: addressIndex);
+    }
+    return address;
+  }
   @observable
   Account? account;
 
