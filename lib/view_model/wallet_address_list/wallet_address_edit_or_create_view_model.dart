@@ -79,10 +79,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
             accountIndex: monero!.getCurrentAccount(wallet).id,
             label: label);
       final addr = await monero!.getSubaddressList(wallet).subaddresses.last.address;
-      wallet.walletAddresses.manualAddresses.add(
-        addr
-      );
-      await wallet.walletAddresses.saveAddressesInBox();
+      wallet.walletAddresses.manualAddresses.add(addr);
       await wallet.save();
     }
 
