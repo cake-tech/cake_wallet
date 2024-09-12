@@ -25,15 +25,20 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required this.mwebHd,
     required this.mwebEnabled,
     super.initialAddresses,
+    super.initialMwebAddresses,
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
-  }) : super(walletInfo) {}
+  }) : super(walletInfo) {
+    for (int i = 0; i < mwebAddresses.length; i++) {
+      mwebAddrs.add(mwebAddresses[i].address);
+    }
+    print("initialized with ${mwebAddrs.length} mweb addresses");
+  }
 
   final Bip32Slip10Secp256k1 mwebHd;
   bool mwebEnabled;
   int mwebTopUpIndex = 1000;
   List<String> mwebAddrs = [];
-  static Timer? mwebTopUpTimer;
 
   List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendPubkey =>
@@ -41,59 +46,52 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @override
   Future<void> init() async {
+    await initMwebAddresses();
     await super.init();
-    initMwebAddresses();
+  }
+
+  @computed
+  @override
+  List<BitcoinAddressRecord> get allAddresses {
+    return List.from(super.allAddresses)..addAll(mwebAddresses);
   }
 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
     Uint8List scan = Uint8List.fromList(scanSecret);
     Uint8List spend = Uint8List.fromList(spendPubkey);
+    int count = 0;
     while (mwebAddrs.length <= (index + 1)) {
       final address = await CwMweb.address(scan, spend, mwebAddrs.length);
       mwebAddrs.add(address!);
-    }
-  }
-
-  Future<void> generateNumAddresses(int num) async {
-    Uint8List scan = Uint8List.fromList(scanSecret);
-    Uint8List spend = Uint8List.fromList(spendPubkey);
-    for (int i = 0; i < num; i++) {
-      final address = await CwMweb.address(scan, spend, mwebAddrs.length);
-      mwebAddrs.add(address!);
-      await Future.delayed(Duration.zero);
+      count++;
+      // sleep for a bit to avoid making the main thread unresponsive:
+      if (count > 50) {
+        count = 0;
+        await Future.delayed(Duration(milliseconds: 100));
+      }
     }
   }
 
   Future<void> initMwebAddresses() async {
-    print("Initializing MWEB address timer!");
-    Timer.periodic(const Duration(seconds: 2), (timer) async {
-      if (super.allAddresses.length > 1000) {
-        timer.cancel();
-        return;
-      }
+    if (mwebAddrs.length < 1000) {
       print("Generating MWEB addresses...");
-      await generateNumAddresses(250);
-      await Future.delayed(const Duration(milliseconds: 1500));
-
-      if (mwebAddrs.length > 1000) {
-        // convert mwebAddrs to BitcoinAddressRecords:
-        List<BitcoinAddressRecord> mwebAddresses = mwebAddrs
-            .asMap()
-            .entries
-            .map((e) => BitcoinAddressRecord(
-                  e.value,
-                  index: e.key,
-                  type: SegwitAddresType.mweb,
-                  network: network,
-                ))
-            .toList();
-        // add them to the list of all addresses:
-        addAddresses(mwebAddresses);
-        print("MWEB addresses initialized ${mwebAddrs.length}");
-        timer.cancel();
-        return;
-      }
-    });
+      await ensureMwebAddressUpToIndexExists(1020);
+      print("done generating MWEB addresses");
+      List<BitcoinAddressRecord> addressRecords = mwebAddrs
+          .asMap()
+          .entries
+          .map((e) => BitcoinAddressRecord(
+                e.value,
+                index: e.key,
+                type: SegwitAddresType.mweb,
+                network: network,
+              ))
+          .toList();
+      print("converted to list");
+      addMwebAddresses(addressRecords);
+      print("added ${addressRecords.length} mweb addresses");
+      return;
+    }
   }
 
   @override
@@ -114,6 +112,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) async {
+    print("getting address for index $index");
     if (addressType == SegwitAddresType.mweb) {
       await ensureMwebAddressUpToIndexExists(index);
     }

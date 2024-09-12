@@ -1159,6 +1159,7 @@ abstract class ElectrumWalletBase
         'derivationPath': walletInfo.derivationInfo?.derivationPath,
         'silent_addresses': walletAddresses.silentAddresses.map((addr) => addr.toJSON()).toList(),
         'silent_address_index': walletAddresses.currentSilentAddressIndex.toString(),
+        'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
       });
 
   int feeRate(TransactionPriority priority) {

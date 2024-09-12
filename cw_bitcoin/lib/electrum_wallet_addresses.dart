@@ -39,6 +39,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     Map<String, int>? initialChangeAddressIndex,
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     int initialSilentAddressIndex = 0,
+    List<BitcoinAddressRecord>? initialMwebAddresses,
     Bip32Slip10Secp256k1? masterHd,
     BitcoinAddressType? initialAddressPageType,
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
@@ -59,6 +60,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         silentAddresses = ObservableList<BitcoinSilentPaymentAddressRecord>.of(
             (initialSilentAddresses ?? []).toSet()),
         currentSilentAddressIndex = initialSilentAddressIndex,
+        mwebAddresses =
+            ObservableList<BitcoinAddressRecord>.of((initialMwebAddresses ?? []).toSet()),
         super(walletInfo) {
     if (masterHd != null) {
       silentAddress = SilentPaymentOwner.fromPrivateKeys(
@@ -101,6 +104,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
   final ObservableList<BitcoinSilentPaymentAddressRecord> silentAddresses;
+  final ObservableList<BitcoinAddressRecord> mwebAddresses;
   final BasedUtxoNetwork network;
   final Bip32Slip10Secp256k1 mainHd;
   final Bip32Slip10Secp256k1 sideHd;
@@ -477,6 +481,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         foundAddress = addressRecord;
       }
     });
+    mwebAddresses.forEach((addressRecord) {
+      if (addressRecord.address == address) {
+        foundAddress = addressRecord;
+      }
+    });
 
     if (foundAddress != null) {
       foundAddress!.setNewName(label);
@@ -607,8 +616,21 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
   }
 
+  @action
+  void addMwebAddresses(Iterable<BitcoinAddressRecord> addresses) {
+    final addressesSet = this.mwebAddresses.toSet();
+    addressesSet.addAll(addresses);
+    this.mwebAddresses.clear();
+    this.mwebAddresses.addAll(addressesSet);
+    updateAddressesByMatch();
+  }
+
   void _validateAddresses() {
     _addresses.forEach((element) async {
+      if (element.type == SegwitAddresType.mweb) {
+        // this would add a ton of startup lag for mweb addresses since we have 1000 of them
+        return;
+      }
       if (!element.isHidden &&
           element.address !=
               await getAddressAsync(index: element.index, hd: mainHd, addressType: element.type)) {
