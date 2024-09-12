@@ -65,6 +65,8 @@ class SecretKey {
     SecretKey('tronTestWalletReceiveAddress', () => ''),
     SecretKey('nanoTestWalletReceiveAddress', () => ''),
     SecretKey('wowneroTestWalletReceiveAddress', () => ''),
+    SecretKey('etherScanApiKey', () => ''),
+    SecretKey('polygonScanApiKey', () => ''),
     SecretKey('letsExchangeBearerToken', () => ''),
     SecretKey('letsExchangeAffiliateId', () => ''),
     SecretKey('stealthExBearerToken', () => ''),
