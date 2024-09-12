@@ -11,6 +11,7 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/widgets.dart';
@@ -151,6 +152,8 @@ Future<void> onStart(ServiceInstance service) async {
         final node = getIt.get<SettingsStore>().getCurrentNode(bitcoinWallets[i].type);
         await wallet.connectToNode(node: node);
         await wallet.startSync();
+        // TODO: use proxy layer:
+        await (wallet as ElectrumWallet).setSilentPaymentsScanning(true);
         syncingWallets.add(wallet);
       }
     } else {
@@ -166,6 +169,7 @@ Future<void> onStart(ServiceInstance service) async {
       // }
     }
 
+    print("STARTING SYNC TIMER");
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) {
       // final wallet = getIt.get<AppStore>().wallet;
@@ -209,8 +213,6 @@ Future<void> onStart(ServiceInstance service) async {
           ),
         );
       }
-
-
     });
   });
 }
@@ -262,6 +264,8 @@ Future<void> initializeService(FlutterBackgroundService bgService, bool useNotif
       return;
     }
   } catch (_) {}
+
+  print("INITIALIZING SERVICE");
 
   await bgService.configure(
     androidConfiguration: AndroidConfiguration(
