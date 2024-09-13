@@ -676,13 +676,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     try {
       mwebUtxosBox.values.forEach((utxo) {
         if (utxo.height > 0) {
-          // confirmed += utxo.value.toInt();
           confirmedMweb += utxo.value.toInt();
         } else {
-          // unconfirmed += utxo.value.toInt();
           unconfirmedMweb += utxo.value.toInt();
         }
       });
+      if (confirmedMweb > 0 && unconfirmedMweb > 0) {
+        unconfirmedMweb = -1 * (confirmedMweb - unconfirmedMweb);
+      }
     } catch (_) {}
 
     // update unspent balances:
@@ -872,7 +873,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           final addresses = <String>{};
           transaction.inputAddresses?.forEach((id) async {
             final utxo = mwebUtxosBox.get(id);
-            await mwebUtxosBox.delete(id);
+            // await mwebUtxosBox.delete(id);
             if (utxo == null) return;
             final addressRecord = walletAddresses.allAddresses
                 .firstWhere((addressRecord) => addressRecord.address == utxo.address);
