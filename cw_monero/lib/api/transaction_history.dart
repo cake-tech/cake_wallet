@@ -34,10 +34,10 @@ int countOfTransactions() => monero.TransactionHistory_count(txhistory!);
 
 Future<List<Transaction>> getAllTransactions() async {
   List<Transaction> dummyTxs = [];
-
+  
+  await txHistoryMutex.acquire();
   txhistory ??= monero.Wallet_history(wptr!);
   int size = countOfTransactions();
-  await txHistoryMutex.acquire();
   final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
   txHistoryMutex.release();
   final accts = monero.Wallet_numSubaddressAccounts(wptr!);
