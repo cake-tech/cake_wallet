@@ -406,24 +406,16 @@ class WalletRestorePage extends BasePage {
         ) as DerivationInfo?;
       } else if (derivationsWithHistory == 1) {
         dInfo = derivations[derivationWithHistoryIndex];
-      }
-
-      // get the default derivation for this wallet type:
-      if (dInfo == null) {
+      } else if (derivations.length == 1) {
         // we only return 1 derivation if we're pretty sure we know which one to use:
-        if (derivations.length == 1) {
-          dInfo = derivations.first;
-        } else {
-          // if we have multiple possible derivations, and none have histories
-          // we just default to the most common one:
-          dInfo = walletRestoreViewModel.getCommonRestoreDerivation();
-        }
+        dInfo = derivations.first;
+      } else {
+        // if we have multiple possible derivations, and none (or multiple) have histories
+        // we just default to the most common one:
+        dInfo = walletRestoreViewModel.getCommonRestoreDerivation();
       }
 
       this.derivationInfo = dInfo;
-      if (this.derivationInfo == null) {
-        this.derivationInfo = walletRestoreViewModel.getDefaultDerivation();
-      }
 
       await walletRestoreViewModel.create(options: _credentials());
       seedSettingsViewModel.setPassphrase(null);

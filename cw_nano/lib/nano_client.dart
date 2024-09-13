@@ -466,21 +466,25 @@ class NanoClient {
 
     blocks = blocks as Map<String, dynamic>;
 
-    // confirm all receivable blocks:
-    for (final blockHash in blocks.keys) {
-      final block = blocks[blockHash];
-      final String amountRaw = block["amount"] as String;
-      await receiveBlock(
-        blockHash: blockHash,
-        amountRaw: amountRaw,
-        privateKey: privateKey,
-        destinationAddress: destinationAddress,
-      );
-      // a bit of a hack:
-      await Future<void>.delayed(const Duration(seconds: 2));
+    try {
+      // confirm all receivable blocks:
+      for (final blockHash in blocks.keys) {
+        final block = blocks[blockHash];
+        final String amountRaw = block["amount"] as String;
+        await receiveBlock(
+          blockHash: blockHash,
+          amountRaw: amountRaw,
+          privateKey: privateKey,
+          destinationAddress: destinationAddress,
+        );
+        // a bit of a hack:
+        await Future<void>.delayed(const Duration(seconds: 2));
+      }
+      return blocks.keys.length;
+    } catch (_) {
+      // we failed to confirm all receivable blocks for w/e reason (PoW / node outage / etc)
+      return 0;
     }
-
-    return blocks.keys.length;
   }
 
   void stop() {}
