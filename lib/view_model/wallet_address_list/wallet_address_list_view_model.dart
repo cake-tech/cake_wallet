@@ -442,6 +442,16 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
 
+    for (var i = 0; i < addressList.length; i++) {
+      if (!(addressList[i] is WalletAddressListItem)) continue;
+      (addressList[i] as WalletAddressListItem).isHidden = wallet.walletAddresses.hiddenAddresses.contains((addressList[i] as WalletAddressListItem).address);
+    }
+
+    for (var i = 0; i < addressList.length; i++) {
+      if (!(addressList[i] is WalletAddressListItem)) continue;
+      (addressList[i] as WalletAddressListItem).isManual = wallet.walletAddresses.manualAddresses.contains((addressList[i] as WalletAddressListItem).address);
+    }
+    
     if (searchText.isNotEmpty) {
       return ObservableList.of(addressList.where((item) {
         if (item is WalletAddressListItem) {
@@ -449,25 +459,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         }
         return false;
       }));
-    }
-
-    if (!kDebugMode) {
-      addressList.removeWhere((element) {
-        if (!(element is WalletAddressListItem)) return false;
-        return wallet.walletAddresses.hiddenAddresses.contains(element.address);
-      });
-    } else {
-      for (var i = 0; i < addressList.length; i++) {
-        if (!(addressList[i] is WalletAddressListItem)) continue;
-        (addressList[i] as WalletAddressListItem).isHidden = wallet.walletAddresses.hiddenAddresses.contains((addressList[i] as WalletAddressListItem).address);
-      }
-    }
-
-    if (kDebugMode) {
-      for (var i = 0; i < addressList.length; i++) {
-        if (!(addressList[i] is WalletAddressListItem)) continue;
-        (addressList[i] as WalletAddressListItem).isManual = wallet.walletAddresses.manualAddresses.contains((addressList[i] as WalletAddressListItem).address);
-      }
     }
 
     return addressList;

@@ -33,16 +33,15 @@ class Subaddress {
     required this.received,
     required this.txCount,
   });
-  String get address => monero.Wallet_address(
-        wptr!,
-        accountIndex: accountIndex,
-        addressIndex: addressIndex,
-    );
+  late String address = getAddress(
+    accountIndex: accountIndex,
+    addressIndex: addressIndex,
+  );
   final int addressIndex;
   final int accountIndex;
   final int received;
   final int txCount;
-  String get label => monero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
+  String get label => "#$addressIndex ${monero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}".trim();
 }
 
 class TinyTransactionDetails {
@@ -67,10 +66,11 @@ List<Subaddress> getAllSubaddresses() {
     lastWptr = wptr!.address;
     for (var i = 0; i < txCount; i++) {
       final tx = monero.TransactionHistory_transaction(txhistory!, index: i);
+      if (monero.TransactionInfo_direction(tx) == monero.TransactionInfo_Direction.Out) continue;
       final subaddrs = monero.TransactionInfo_subaddrIndex(tx).split(",");
       final account = monero.TransactionInfo_subaddrAccount(tx);
       ttDetails.add(TinyTransactionDetails(
-        address: List.generate(subaddrs.length, (index) => getAddress(accountIndex: account, addressIndex:  int.tryParse(subaddrs[index])??0)),
+        address: List.generate(subaddrs.length, (index) => getAddress(accountIndex: account, addressIndex: int.tryParse(subaddrs[index])??0)),
         amount: monero.TransactionInfo_amount(tx),
       ));
     }

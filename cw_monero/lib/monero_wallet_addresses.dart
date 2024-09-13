@@ -136,6 +136,9 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
         defaultLabel: defaultLabel,
         usedAddresses: usedAddresses.toList());
     subaddress = (subaddressList.subaddresses.isEmpty) ? Subaddress(id: 0, address: address, label: defaultLabel, balance: '0', txCount: 0) : subaddressList.subaddresses.last;
+    if (num.tryParse(subaddress!.balance??'0') != 0) {
+      getAddress(accountIndex: accountIndex, addressIndex: (subaddress?.id??0)+1);
+    }
     address = subaddress!.address;
   }
 

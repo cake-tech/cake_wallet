@@ -55,20 +55,12 @@ abstract class MoneroSubaddressListBase with Store {
       final address = s.address;
       final label = s.label;
       final id = s.addressIndex;
-      final hasDefaultAddressName =
-          label.toLowerCase() == 'Primary account'.toLowerCase() ||
-              label.toLowerCase() == 'Untitled account'.toLowerCase();
-      final isPrimaryAddress = id == 0 && hasDefaultAddressName;
       return Subaddress(
           id: id,
           address: address,
           balance: (s.received/1e12).toStringAsFixed(6),
           txCount: s.txCount,
-          label: isPrimaryAddress
-              ? 'Primary address'
-              : hasDefaultAddressName
-                  ? ''
-                  : label);
+          label: label);
     }).toList();
   }
 

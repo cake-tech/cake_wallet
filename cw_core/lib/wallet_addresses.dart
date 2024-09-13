@@ -14,8 +14,10 @@ abstract class WalletAddresses {
 
   String get address;
 
-  @override
-  String get latestAddress => addressesMap[addressesMap.keys.last]!;
+  String get latestAddress {
+    if (addressesMap.keys.length == 0) return address;
+    return addressesMap[addressesMap.keys.last] ?? address;
+  }
 
   String? get primaryAddress => null;
 

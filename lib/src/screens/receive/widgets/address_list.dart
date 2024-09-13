@@ -40,6 +40,7 @@ class _AddressListState extends State<AddressList> {
     setState(() {
       showHiddenAddresses = !showHiddenAddresses;
     });
+    updateItems();
   }
 
   List<ListItem> getItems(List<ListItem> list, bool showHidden) {
@@ -53,10 +54,17 @@ class _AddressListState extends State<AddressList> {
     }).toList();
   }
 
+  late List<ListItem> items = getItems(widget.addressListViewModel.items, showHiddenAddresses);
+
+  void updateItems() {
+    setState(() {
+      items = getItems(widget.addressListViewModel.items, showHiddenAddresses);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     bool editable = widget.onSelect == null;
-    final items = getItems(widget.addressListViewModel.items, showHiddenAddresses);
     return Observer(
       builder: (_) => ListView.separated(
         padding: EdgeInsets.all(0),
@@ -110,6 +118,7 @@ class _AddressListState extends State<AddressList> {
                 walletAddressListViewModel: widget.addressListViewModel,
                 showTrailingButton: !widget.addressListViewModel.isAutoGenerateSubaddressEnabled,
                 showSearchButton: true,
+                onSearchCallback: updateItems,
                 trailingButtonTap: () => Navigator.of(context).pushNamed(Routes.newSubaddress),
                 trailingIcon: Icon(
                   Icons.add,
