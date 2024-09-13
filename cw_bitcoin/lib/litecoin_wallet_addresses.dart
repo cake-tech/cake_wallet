@@ -122,6 +122,10 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   Future<String> getChangeAddress({List<BitcoinOutput>? outputs, UtxoDetails? utxoDetails}) async {
     // use regular change address on peg in, otherwise use mweb for change address:
 
+    if (!mwebEnabled) {
+      return super.getChangeAddress();
+    }
+
     if (outputs != null && utxoDetails != null) {
       // check if this is a PEGIN:
       bool outputsToMweb = false;
@@ -134,6 +138,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
           outputsToMweb = true;
         }
       }
+      // TODO: this doesn't respect coin control because it doesn't know which available inputs are selected
       utxoDetails.availableInputs.forEach((element) {
         if (element.address.contains("mweb")) {
           comesFromMweb = true;
@@ -142,6 +147,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
       bool isPegIn = !comesFromMweb && outputsToMweb;
       if (isPegIn && mwebEnabled) {
+        return super.getChangeAddress();
+      }
+
+      // use regular change address if it's not an mweb tx:
+      if (!comesFromMweb && !outputsToMweb) {
         return super.getChangeAddress();
       }
     }

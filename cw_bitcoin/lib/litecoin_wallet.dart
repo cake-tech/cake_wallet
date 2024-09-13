@@ -676,8 +676,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     try {
       mwebUtxosBox.values.forEach((utxo) {
         if (utxo.height > 0) {
+          // confirmed += utxo.value.toInt();
           confirmedMweb += utxo.value.toInt();
         } else {
+          // unconfirmed += utxo.value.toInt();
           unconfirmedMweb += utxo.value.toInt();
         }
       });
