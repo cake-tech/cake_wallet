@@ -396,6 +396,8 @@
   "monero_light_theme": "Monero Hafif Tema",
   "moonpay_alert_text": "Tutar ${minAmount} ${fiatCurrency} miktarına eşit veya daha fazla olmalıdır",
   "more_options": "Daha Fazla Seçenek",
+  "mweb_confirmed": "Onaylanmış mweb",
+  "mweb_unconfirmed": "Doğrulanmamış mweb",
   "name": "İsim",
   "nano_current_rep": "Mevcut temsilci",
   "nano_gpt_thanks_message": "Nanogpt kullandığınız için teşekkürler! İşleminiz tamamlandıktan sonra tarayıcıya geri dönmeyi unutmayın!",

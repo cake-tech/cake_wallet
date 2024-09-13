@@ -170,7 +170,7 @@ abstract class BalanceViewModelBase with Store {
   String get secondAvailableBalanceLabel {
     switch (wallet.type) {
       case WalletType.litecoin:
-        return "T: mweb confirmed";
+        return S.current.mweb_confirmed;
       default:
         return S.current.confirmed;
     }
@@ -180,7 +180,7 @@ abstract class BalanceViewModelBase with Store {
   String get secondAdditionalBalanceLabel {
     switch (wallet.type) {
       case WalletType.litecoin:
-        return "T: mweb unconfirmed";
+        return S.current.mweb_unconfirmed;
       default:
         return S.current.unconfirmed;
     }

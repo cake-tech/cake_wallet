@@ -397,6 +397,8 @@
   "monero_light_theme": "Monero Light Theme",
   "moonpay_alert_text": "O valor do montante deve ser maior ou igual a ${minAmount} ${fiatCurrency}",
   "more_options": "Mais opções",
+  "mweb_confirmed": "MWEB confirmado",
+  "mweb_unconfirmed": "MWEB não confirmado",
   "name": "Nome",
   "nano_current_rep": "Representante atual",
   "nano_gpt_thanks_message": "Obrigado por usar o Nanogpt! Lembre -se de voltar para o navegador após a conclusão da transação!",

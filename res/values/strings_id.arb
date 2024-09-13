@@ -396,6 +396,8 @@
   "monero_light_theme": "Tema Cahaya Monero",
   "moonpay_alert_text": "Nilai jumlah harus lebih atau sama dengan ${minAmount} ${fiatCurrency}",
   "more_options": "Opsi Lainnya",
+  "mweb_confirmed": "Mengkonfirmasi mWeb",
+  "mweb_unconfirmed": "MWEB yang belum dikonfirmasi",
   "name": "Nama",
   "nano_current_rep": "Perwakilan saat ini",
   "nano_gpt_thanks_message": "Terima kasih telah menggunakan Nanogpt! Ingatlah untuk kembali ke browser setelah transaksi Anda selesai!",

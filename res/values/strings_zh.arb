@@ -396,6 +396,8 @@
   "monero_light_theme": "门罗币浅色主题",
   "moonpay_alert_text": "金额的价值必须大于或等于 ${minAmount} ${fiatCurrency}",
   "more_options": "更多选项",
+  "mweb_confirmed": "确认的MWEB",
+  "mweb_unconfirmed": "未经证实的MWEB",
   "name": "姓名",
   "nano_current_rep": "当前代表",
   "nano_gpt_thanks_message": "感谢您使用Nanogpt！事务完成后，请记住回到浏览器！",
