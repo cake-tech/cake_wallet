@@ -231,7 +231,7 @@
   "electrum_address_disclaimer": "Za każdym razem, gdy wykorzystasz adres, dla wiekszej prywatności generujemy nowy, ale poprzednie adresy nadal działają, i moga odbierać środki",
   "email_address": "Adres e-mail",
   "enable_replace_by_fee": "Włącz wymianę po lewej",
-  "enable_silent_payments_scanning": "Włącz skanowanie cichych płatności",
+  "enable_silent_payments_scanning": "Zacznij skanować ciche płatności, aż do osiągnięcia wskazówki",
   "enabled": "Włączone",
   "enter_amount": "Wprowadź kwotę",
   "enter_backup_password": "Wprowadź tutaj hasło kopii zapasowej",

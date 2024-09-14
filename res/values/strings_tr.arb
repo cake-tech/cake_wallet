@@ -231,7 +231,7 @@
   "electrum_address_disclaimer": "Adresini her kullandığında yeni adres oluşturuyoruz, ancak önceki adresler de çalışmaya devam eder",
   "email_address": "E-posta Adresi",
   "enable_replace_by_fee": "Farklı Değiştir'i Etkinleştir",
-  "enable_silent_payments_scanning": "Sessiz ödeme taramasını etkinleştirin",
+  "enable_silent_payments_scanning": "Bahşiş ulaşılıncaya kadar sessiz ödemeleri taramaya başlayın",
   "enabled": "Etkin",
   "enter_amount": "Miktar Girin",
   "enter_backup_password": "Yedekleme parolasını buraya gir",

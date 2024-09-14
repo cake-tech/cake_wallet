@@ -232,7 +232,7 @@
   "electrum_address_disclaimer": "A dá àwọn àdírẹ́sì títun ní gbogbo àwọn ìgbà t'ẹ́ lo ó kan ṣùgbọ́n ẹ lè tẹ̀síwájú lo àwọn àdírẹ́sì tẹ́lẹ̀tẹ́lẹ̀.",
   "email_address": "Àdírẹ́sì ímeèlì",
   "enable_replace_by_fee": "Mu ki o rọpo",
-  "enable_silent_payments_scanning": "Mu ki awọn sisanwo ipalọlọ",
+  "enable_silent_payments_scanning": "Bẹrẹ awọn sisanwo ipalọlọ, titi ti o fi de opin",
   "enabled": "Wọ́n tíwọn ti tan",
   "enter_amount": "Tẹ̀ iye",
   "enter_backup_password": "Tẹ̀ ọ̀rọ̀ aṣínà ti ẹ̀dà ḿbí",

@@ -231,7 +231,7 @@
   "electrum_address_disclaimer": "Minden egyes alkalommal új címeket generálunk, de a korábbi címek továbbra is működnek",
   "email_address": "Adresa e-pošte",
   "enable_replace_by_fee": "Omogući zamjenu",
-  "enable_silent_payments_scanning": "Omogući skeniranje tihih plaćanja",
+  "enable_silent_payments_scanning": "Započnite skeniranje tihih plaćanja, dok se ne postigne savjet",
   "enabled": "Omogućeno",
   "enter_amount": "Unesite iznos",
   "enter_backup_password": "Unesite svoju lozinku za sigurnosnu kopiju ovdje",

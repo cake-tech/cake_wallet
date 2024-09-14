@@ -131,7 +131,7 @@ class ElectrumClient {
             socket?.destroy();
             _setConnectionStatus(ConnectionStatus.disconnected);
           }
-        } catch(e) {
+        } catch (e) {
           print(e.toString());
         }
       },
@@ -316,9 +316,8 @@ class ElectrumClient {
       await call(method: 'blockchain.block.get_header', params: [height]) as Map<String, dynamic>;
 
   BehaviorSubject<Object>? tweaksSubscribe({required int height, required int count}) {
-    _id += 1;
     return subscribe<Object>(
-      id: 'blockchain.tweaks.subscribe:${height + count}',
+      id: 'blockchain.tweaks.subscribe',
       method: 'blockchain.tweaks.subscribe',
       params: [height, count, false],
     );

@@ -231,7 +231,7 @@
   "electrum_address_disclaimer": "เราสร้างที่อยู่ใหม่ทุกครั้งที่คุณใช้หนึ่งอย่าง แต่ที่อยู่เก่ายังสามารถใช้ได้ต่อไป",
   "email_address": "ที่อยู่อีเมล",
   "enable_replace_by_fee": "เปิดใช้งานการเปลี่ยนโดยค่าธรรมเนียม",
-  "enable_silent_payments_scanning": "เปิดใช้งานการสแกนการชำระเงินแบบเงียบ",
+  "enable_silent_payments_scanning": "เริ่มสแกนการชำระเงินแบบเงียบจนกว่าจะถึงปลาย",
   "enabled": "เปิดใช้งาน",
   "enter_amount": "กรอกจำนวน",
   "enter_backup_password": "ป้อนรหัสผ่านสำรองที่นี่",

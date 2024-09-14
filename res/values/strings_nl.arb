@@ -231,7 +231,7 @@
   "electrum_address_disclaimer": "We genereren nieuwe adressen elke keer dat u er een gebruikt, maar eerdere adressen blijven werken",
   "email_address": "E-mailadres",
   "enable_replace_by_fee": "Schakel vervangen door een fee",
-  "enable_silent_payments_scanning": "Schakel stille betalingen in scannen in",
+  "enable_silent_payments_scanning": "Begin met het scannen van stille betalingen, totdat de tip is bereikt",
   "enabled": "Ingeschakeld",
   "enter_amount": "Voer Bedrag in",
   "enter_backup_password": "Voer hier een back-upwachtwoord in",

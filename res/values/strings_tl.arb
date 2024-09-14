@@ -231,7 +231,7 @@
   "electrum_address_disclaimer": "Bumubuo kami ng mga bagong address sa tuwing gagamit ka ng isa, ngunit ang mga nakaraang address ay patuloy na gumagana",
   "email_address": "Email Address",
   "enable_replace_by_fee": "Paganahin ang  Replace-By-Fee",
-  "enable_silent_payments_scanning": "Paganahin ang pag-scan ng mga tahimik na pagbabayad",
+  "enable_silent_payments_scanning": "Simulan ang pag -scan ng tahimik na pagbabayad, hanggang sa maabot ang tip",
   "enabled": "Pinagana",
   "enter_amount": "Ipasok ang halaga",
   "enter_backup_password": "Ipasok ang backup na password dito",

@@ -231,7 +231,7 @@
   "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
   "email_address": "Email Address",
   "enable_replace_by_fee": "Enable Replace-By-Fee",
-  "enable_silent_payments_scanning": "Enable silent payments scanning",
+  "enable_silent_payments_scanning": "Start scanning silent payments, until the tip is reached",
   "enabled": "Enabled",
   "enter_amount": "Enter Amount",
   "enter_backup_password": "Enter backup password here",

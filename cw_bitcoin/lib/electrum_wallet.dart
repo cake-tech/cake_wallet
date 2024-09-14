@@ -5,7 +5,6 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_base/src/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -288,12 +287,7 @@ abstract class ElectrumWalletBase
   }
 
   @action
-  Future<void> _setListeners(
-    int height, {
-    int? chainTipParam,
-    bool? doSingleScan,
-    bool? usingSupportedNode,
-  }) async {
+  Future<void> _setListeners(int height, {int? chainTipParam, bool? doSingleScan}) async {
     final chainTip = chainTipParam ?? await getUpdatedChainTip();
 
     if (chainTip == height) {
@@ -1251,12 +1245,7 @@ abstract class ElectrumWalletBase
 
   @action
   @override
-  Future<void> rescan({
-    required int height,
-    int? chainTip,
-    ScanData? scanData,
-    bool? doSingleScan,
-  }) async {
+  Future<void> rescan({required int height, bool? doSingleScan}) async {
     silentPaymentsScanningActive = true;
     _setListeners(height, doSingleScan: doSingleScan);
   }
@@ -2256,10 +2245,20 @@ Future<void> startRefresh(ScanData scanData) async {
       height: syncHeight,
       count: initialCount,
     );
-    tweaksSubscription?.listen((t) async {
+
+    Future<void> listenFn(t) async {
       final tweaks = t as Map<String, dynamic>;
 
       if (tweaks["message"] != null) {
+        // re-subscribe to continue receiving messages, starting from the next unscanned height
+        final nextHeight = syncHeight + 1;
+        print("nextHeight $nextHeight");
+        print("getCountPerRequest(nextHeight) ${getCountPerRequest(nextHeight)}");
+        final tweaksSubscription = electrumClient.tweaksSubscribe(
+          height: nextHeight,
+          count: getCountPerRequest(nextHeight),
+        );
+        tweaksSubscription?.listen(listenFn);
         return;
       }
 
@@ -2378,7 +2377,9 @@ Future<void> startRefresh(ScanData scanData) async {
         await tweaksSubscription!.close();
         await electrumClient.close();
       }
-    });
+    }
+
+    tweaksSubscription?.listen(listenFn);
   }
 
   if (tweaksSubscription == null) {

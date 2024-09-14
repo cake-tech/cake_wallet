@@ -231,7 +231,7 @@
   "electrum_address_disclaimer": "جب بھی آپ ایک کا استعمال کرتے ہیں تو ہم نئے پتے تیار کرتے ہیں، لیکن پچھلے پتے کام کرتے رہتے ہیں۔",
   "email_address": "ای میل اڈریس",
   "enable_replace_by_fee": "فی فیس کو تبدیل کریں",
-  "enable_silent_payments_scanning": "خاموش ادائیگیوں کو اسکیننگ کے قابل بنائیں",
+  "enable_silent_payments_scanning": "خاموش ادائیگیوں کو اسکین کرنا شروع کریں ، جب تک کہ نوک نہ پہنچ جائے",
   "enabled": "فعال",
   "enter_amount": "رقم درج کریں۔",
   "enter_backup_password": "یہاں بیک اپ پاس ورڈ درج کریں۔",

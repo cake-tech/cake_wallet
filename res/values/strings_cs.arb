@@ -231,7 +231,7 @@
   "electrum_address_disclaimer": "Po každém použití je generována nová adresa, ale předchozí adresy také stále fungují",
   "email_address": "E-mailová adresa",
   "enable_replace_by_fee": "Povolit výměnu podle poplatku",
-  "enable_silent_payments_scanning": "Povolte skenování tichých plateb",
+  "enable_silent_payments_scanning": "Začněte skenovat tiché platby, dokud není dosaženo špičky",
   "enabled": "Povoleno",
   "enter_amount": "Zadejte částku",
   "enter_backup_password": "Zde zadejte své heslo pro zálohy",

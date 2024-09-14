@@ -231,7 +231,7 @@
   "electrum_address_disclaimer": "نقوم بإنشاء عناوين جديدة في كل مرة تستخدم فيها عنوانًا ، لكن العناوين السابقة تستمر في العمل",
   "email_address": "عنوان البريد الالكترونى",
   "enable_replace_by_fee": "تمكين الاستبدال",
-  "enable_silent_payments_scanning": "تمكين المسح الضوئي للمدفوعات الصامتة",
+  "enable_silent_payments_scanning": "ابدأ في مسح المدفوعات الصامتة ، حتى يتم الوصول إلى الطرف",
   "enabled": "ممكنة",
   "enter_amount": "أدخل المبلغ",
   "enter_backup_password": "أدخل كلمة المرور الاحتياطية هنا",

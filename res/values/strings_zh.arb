@@ -231,7 +231,7 @@
   "electrum_address_disclaimer": "每次您使用一个地址时，我们都会生成新地址，但之前的地址仍然有效",
   "email_address": "电子邮件地址",
   "enable_replace_by_fee": "启用by-Fee替换",
-  "enable_silent_payments_scanning": "启用无声付款扫描",
+  "enable_silent_payments_scanning": "开始扫描无声付款，直到达到提示",
   "enabled": "启用",
   "enter_amount": "输入金额",
   "enter_backup_password": "在此处输入備用密码",

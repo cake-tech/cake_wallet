@@ -231,7 +231,7 @@
   "electrum_address_disclaimer": "使用するたびに新しいアドレスが生成されますが、以前のアドレスは引き続き機能します",
   "email_address": "メールアドレス",
   "enable_replace_by_fee": "交換ごとに有効にします",
-  "enable_silent_payments_scanning": "サイレントペイメントスキャンを有効にします",
+  "enable_silent_payments_scanning": "先端に達するまで、サイレント決済のスキャンを開始します",
   "enabled": "有効",
   "enter_amount": "金額を入力",
   "enter_backup_password": "ここにバックアップパスワードを入力してください",
