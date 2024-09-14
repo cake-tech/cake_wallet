@@ -75,7 +75,7 @@ class TransactionDetailsPage extends BasePage {
                   text: S.of(context).bump_fee,
                   onTap: () async {
                     Navigator.of(context).pushNamed(Routes.bumpFeePage,
-                        arguments: transactionDetailsViewModel.transactionInfo);
+                        arguments: [transactionDetailsViewModel.transactionInfo, transactionDetailsViewModel.rawTransaction]);
                   },
                 ),
               );
