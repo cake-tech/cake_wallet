@@ -1681,9 +1681,6 @@ abstract class ElectrumWalletBase
         await Future.delayed(const Duration(seconds: 2));
         return fetchTransactionInfo(hash: hash, height: height);
       }
-      if (e.toString().contains('RangeError (end): Invalid value:')) {
-        transactionHistory.transactions.remove(hash);
-      }
       return null;
     }
   }
