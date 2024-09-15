@@ -1601,6 +1601,13 @@ abstract class ElectrumWalletBase
         feeRate: newFee.toString(),
       )
         ..addListener((transaction) async {
+          transactionHistory.transactions.values.forEach((tx) {
+            if (tx.id == hash) {
+              tx.isReplaced = true;
+              tx.isPending = false;
+              transactionHistory.addOne(tx);
+            }
+          });
           transactionHistory.addOne(transaction);
           await updateBalance();
         });
@@ -2277,6 +2284,7 @@ Future<void> startRefresh(ScanData scanData) async {
               fee: 0,
               direction: TransactionDirection.incoming,
               isPending: false,
+              isReplaced: false,
               date: scanData.network == BitcoinNetwork.mainnet
                   ? getDateByBitcoinHeight(tweakHeight)
                   : DateTime.now(),
