@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -42,6 +43,7 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
+import 'package:logging/logging.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -68,6 +70,15 @@ Future<void> main() async {
     await CakeHive.close();
 
     await initializeAppConfigs();
+
+    final appDocDir = await getAppDir();
+
+    final ledgerFile = File('${appDocDir.path}/ledger_log.txt');
+    if (!ledgerFile.existsSync()) ledgerFile.createSync();
+    Logger.root.onRecord.listen((event) async {
+      final content = ledgerFile.readAsStringSync();
+      ledgerFile.writeAsStringSync("$content\n${event.message}");
+    });
 
     runApp(App());
 

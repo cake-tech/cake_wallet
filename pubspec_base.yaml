@@ -12,7 +12,7 @@ dependencies:
       version: 4.0.2
   shared_preferences: ^2.0.15
   # provider: ^6.0.3
-  rxdart: ^0.27.4
+  rxdart: ^0.28.0
   yaml: ^3.1.1
   #barcode_scan: any
   barcode_scan2: ^4.2.1
@@ -102,6 +102,11 @@ dependencies:
       url: https://github.com/cake-tech/bitcoin_base
       ref: cake-update-v4
   ledger_flutter: ^1.0.1
+  ledger_flutter_plus:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter-plus
+      ref: cake-v1
+#    path: ../ledger-flutter-plus
   hashlib: 1.12.0
 
 dev_dependencies:
@@ -126,10 +131,6 @@ dependency_overrides:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
-  ledger_flutter:
-    git:
-      url: https://github.com/cake-tech/ledger-flutter.git
-      ref: cake-v3
   web3dart:
     git:
       url: https://github.com/cake-tech/web3dart.git

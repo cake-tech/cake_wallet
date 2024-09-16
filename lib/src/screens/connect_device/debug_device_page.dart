@@ -7,7 +7,7 @@
 // import 'package:cake_wallet/src/widgets/primary_button.dart';
 // import 'package:cake_wallet/utils/responsive_layout_util.dart';
 // import 'package:flutter/material.dart';
-// import 'package:ledger_flutter/ledger_flutter.dart';
+// import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 // import 'package:ledger_litecoin/ledger_litecoin.dart';
 // import 'package:permission_handler/permission_handler.dart';
 //

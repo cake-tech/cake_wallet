@@ -9,8 +9,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 
 typedef OnConnectDevice = void Function(BuildContext, LedgerViewModel);
 
@@ -51,21 +50,21 @@ class ConnectDevicePageBody extends StatefulWidget {
 class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   final imageLedger = 'assets/images/ledger_nano.png';
 
-  final ledger = Ledger(
-    options: LedgerOptions(
-      scanMode: ScanMode.balanced,
-      maxScanDuration: const Duration(minutes: 5),
-    ),
-    onPermissionRequest: (_) async {
-      Map<Permission, PermissionStatus> statuses = await [
-        Permission.bluetoothScan,
-        Permission.bluetoothConnect,
-        Permission.bluetoothAdvertise,
-      ].request();
-
-      return statuses.values.where((status) => status.isDenied).isEmpty;
-    },
-  );
+  // final ledger = Ledger(
+  //   options: LedgerOptions(
+  //     scanMode: ScanMode.balanced,
+  //     maxScanDuration: const Duration(minutes: 5),
+  //   ),
+  //   onPermissionRequest: (_) async {
+  //     Map<Permission, PermissionStatus> statuses = await [
+  //       Permission.bluetoothScan,
+  //       Permission.bluetoothConnect,
+  //       Permission.bluetoothAdvertise,
+  //     ].request();
+  //
+  //     return statuses.values.where((status) => status.isDenied).isEmpty;
+  //   },
+  // );
 
   var bleIsEnabled = true;
   var bleDevices = <LedgerDevice>[];
@@ -81,9 +80,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _bleRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
 
-      if (Platform.isAndroid) {
-        _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
-      }
+      // if (Platform.isAndroid) {
+      //   _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
+      // }
     });
   }
 
@@ -95,14 +94,14 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     super.dispose();
   }
 
-  Future<void> _refreshUsbDevices() async {
-    final dev = await ledger.listUsbDevices();
-    if (usbDevices.length != dev.length) setState(() => usbDevices = dev);
-  }
+  // Future<void> _refreshUsbDevices() async {
+  //   final dev = await ledger.listUsbDevices();
+  //   if (usbDevices.length != dev.length) setState(() => usbDevices = dev);
+  // }
 
   Future<void> _refreshBleDevices() async {
     try {
-      _bleRefresh = ledger.scan().listen((device) => setState(() => bleDevices.add(device)))
+      _bleRefresh = widget.ledgerVM.scanForDevices().listen((device) => setState(() => bleDevices.add(device)))
         ..onError((e) {
           throw e.toString();
         });
