@@ -94,20 +94,19 @@ dependencies:
 #      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
-  polyseed: ^0.0.5
+  polyseed: ^0.0.6
   nostr_tools: ^1.0.9
   solana: ^0.30.1
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v4
+      ref: cake-update-v5
   ledger_flutter: ^1.0.1
   ledger_flutter_plus:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus
       ref: cake-v1
-#    path: ../ledger-flutter-plus
-  hashlib: 1.12.0
+  hashlib: ^1.19.2
 
 dev_dependencies:
   flutter_test:
@@ -136,6 +135,10 @@ dependency_overrides:
       url: https://github.com/cake-tech/web3dart.git
       ref: cake
   flutter_secure_storage_platform_interface: 1.0.2
+  bitcoin_base:
+    git:
+      url: https://github.com/cake-tech/bitcoin_base
+      ref: cake-update-v5
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

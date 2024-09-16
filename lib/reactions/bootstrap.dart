@@ -21,16 +21,14 @@ Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey) async {
   final settingsStore = getIt.get<SettingsStore>();
   final fiatConversionStore = getIt.get<FiatConversionStore>();
 
-  final currentWalletName = getIt
-      .get<SharedPreferences>()
-      .getString(PreferencesKey.currentWalletName);
+  final currentWalletName =
+      getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
   if (currentWalletName != null) {
     authenticationStore.installed();
   }
 
   startAuthenticationStateChange(authenticationStore, navigatorKey);
-  startCurrentWalletChangeReaction(
-      appStore, settingsStore, fiatConversionStore);
+  startCurrentWalletChangeReaction(appStore, settingsStore, fiatConversionStore);
   startCurrentFiatChangeReaction(appStore, settingsStore, fiatConversionStore);
   startCurrentFiatApiModeChangeReaction(appStore, settingsStore, fiatConversionStore);
   startOnCurrentNodeChangeReaction(appStore);
