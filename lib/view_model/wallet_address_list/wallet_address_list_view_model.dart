@@ -514,6 +514,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled &&
       !isSilentPayments;
 
+  @computed
+  bool get showAddManualAddresses =>
+    !isAutoGenerateSubaddressEnabled ||
+    wallet.type == WalletType.monero ||
+    wallet.type == WalletType.wownero;
+
   List<ListItem> _baseItems;
 
   final YatStore yatStore;

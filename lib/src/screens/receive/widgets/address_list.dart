@@ -15,6 +15,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_h
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -116,7 +117,7 @@ class _AddressListState extends State<AddressList> {
             cell = HeaderTile(
                 title: S.of(context).addresses,
                 walletAddressListViewModel: widget.addressListViewModel,
-                showTrailingButton: !widget.addressListViewModel.isAutoGenerateSubaddressEnabled,
+                showTrailingButton: widget.addressListViewModel.showAddManualAddresses,
                 showSearchButton: true,
                 onSearchCallback: updateItems,
                 trailingButtonTap: () => Navigator.of(context).pushNamed(Routes.newSubaddress),
@@ -146,9 +147,9 @@ class _AddressListState extends State<AddressList> {
                   item,
                   isCurrent: isCurrent,
                   hasBalance: widget.addressListViewModel.isBalanceAvailable,
-                  backgroundColor: item.isHidden ?
+                  backgroundColor: (kDebugMode && item.isHidden) ?
                     Theme.of(context).colorScheme.error :
-                    item.isManual ? Theme.of(context).colorScheme.error.withBlue(255) :
+                    (kDebugMode && item.isManual) ? Theme.of(context).colorScheme.error.withBlue(255) :
                     backgroundColor,
                   textColor: textColor,
                   onTap: (_) {
