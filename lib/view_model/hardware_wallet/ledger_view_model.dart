@@ -15,7 +15,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 class LedgerViewModel {
   // late final Ledger ledger;
-  late final sdk.LedgerInterface ledgerPlusBle;
+  late final sdk.LedgerInterface ledgerPlusBLE;
+  late final sdk.LedgerInterface ledgerPlusUSB;
 
   bool get _doesSupportHardwareWallets {
     if (!DeviceInfo.instance.isMobile) {
@@ -33,7 +34,7 @@ class LedgerViewModel {
 
   LedgerViewModel() {
     if (_doesSupportHardwareWallets) {
-      ledgerPlusBle = sdk.LedgerInterface.ble(onPermissionRequest: (_) async {
+      ledgerPlusBLE = sdk.LedgerInterface.ble(onPermissionRequest: (_) async {
         Map<Permission, PermissionStatus> statuses = await [
           Permission.bluetoothScan,
           Permission.bluetoothConnect,
@@ -42,14 +43,23 @@ class LedgerViewModel {
 
         return statuses.values.where((status) => status.isDenied).isEmpty;
       });
+
+      if (!Platform.isIOS) {
+        ledgerPlusUSB = sdk.LedgerInterface.usb();
+      }
     }
   }
 
-  Stream<sdk.LedgerDevice> scanForDevices() => ledgerPlusBle.scan();
+  Stream<sdk.LedgerDevice> scanForBleDevices() => ledgerPlusBLE.scan();
+
+  Stream<sdk.LedgerDevice> scanForUsbDevices() => ledgerPlusUSB.scan();
 
   Future<void> connectLedger(sdk.LedgerDevice device) async {
     if (isConnected) await _connection!.disconnect();
-    _connection = await ledgerPlusBle.connect(device);
+    final ledger = device.connectionType == sdk.ConnectionType.ble
+        ? ledgerPlusBLE
+        : ledgerPlusUSB;
+    _connection = await ledger.connect(device);
     print("Connected");
   }
 

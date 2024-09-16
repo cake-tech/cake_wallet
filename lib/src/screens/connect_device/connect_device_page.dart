@@ -17,7 +17,8 @@ class ConnectDevicePageParams {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
 
-  ConnectDevicePageParams({required this.walletType, required this.onConnectDevice});
+  ConnectDevicePageParams(
+      {required this.walletType, required this.onConnectDevice});
 }
 
 class ConnectDevicePage extends BasePage {
@@ -33,7 +34,8 @@ class ConnectDevicePage extends BasePage {
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) => ConnectDevicePageBody(walletType, onConnectDevice, ledgerVM);
+  Widget body(BuildContext context) =>
+      ConnectDevicePageBody(walletType, onConnectDevice, ledgerVM);
 }
 
 class ConnectDevicePageBody extends StatefulWidget {
@@ -41,7 +43,8 @@ class ConnectDevicePageBody extends StatefulWidget {
   final OnConnectDevice onConnectDevice;
   final LedgerViewModel ledgerVM;
 
-  const ConnectDevicePageBody(this.walletType, this.onConnectDevice, this.ledgerVM);
+  const ConnectDevicePageBody(
+      this.walletType, this.onConnectDevice, this.ledgerVM);
 
   @override
   ConnectDevicePageBodyState createState() => ConnectDevicePageBodyState();
@@ -73,16 +76,18 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   late Timer? _usbRefreshTimer = null;
   late Timer? _bleRefreshTimer = null;
   late StreamSubscription<LedgerDevice>? _bleRefresh = null;
+  late StreamSubscription<LedgerDevice>? _usbRefresh = null;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _bleRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
+      _bleRefreshTimer =
+          Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
 
-      // if (Platform.isAndroid) {
-      //   _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
-      // }
+      if (Platform.isAndroid) {
+        _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
+      }
     });
   }
 
@@ -91,17 +96,26 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     _bleRefreshTimer?.cancel();
     _usbRefreshTimer?.cancel();
     _bleRefresh?.cancel();
+    _usbRefresh?.cancel();
     super.dispose();
   }
 
-  // Future<void> _refreshUsbDevices() async {
-  //   final dev = await ledger.listUsbDevices();
-  //   if (usbDevices.length != dev.length) setState(() => usbDevices = dev);
-  // }
+  Future<void> _refreshUsbDevices() async {
+    _usbRefresh = widget.ledgerVM
+        .scanForUsbDevices()
+        .listen((device) => setState(() => usbDevices.add(device)))
+      ..onError((e) {
+        throw e.toString();
+      });
+    _usbRefreshTimer?.cancel();
+    _usbRefreshTimer = null;
+  }
 
   Future<void> _refreshBleDevices() async {
     try {
-      _bleRefresh = widget.ledgerVM.scanForDevices().listen((device) => setState(() => bleDevices.add(device)))
+      _bleRefresh = widget.ledgerVM
+          .scanForBleDevices()
+          .listen((device) => setState(() => bleDevices.add(device)))
         ..onError((e) {
           throw e.toString();
         });
@@ -137,7 +151,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                      color: Theme.of(context)
+                          .extension<CakeTextTheme>()!
+                          .titleColor),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -158,7 +174,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                        color: Theme.of(context)
+                            .extension<CakeTextTheme>()!
+                            .titleColor),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -172,7 +190,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        color: Theme.of(context)
+                            .extension<CakeTextTheme>()!
+                            .titleColor,
                       ),
                     ),
                   ),
@@ -201,7 +221,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        color: Theme.of(context)
+                            .extension<CakeTextTheme>()!
+                            .titleColor,
                       ),
                     ),
                   ),
