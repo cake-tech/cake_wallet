@@ -884,7 +884,7 @@ abstract class ElectrumWalletBase
 
     final totalAmount = amount + fee;
 
-    if (totalAmount > balance[currency]!.confirmed) {
+    if (totalAmount > (balance[currency]!.confirmed + balance[currency]!.secondConfirmed)) {
       throw BitcoinTransactionWrongBalanceException();
     }
 

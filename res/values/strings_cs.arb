@@ -396,6 +396,8 @@
   "monero_light_theme": "Světlé téma Monero",
   "moonpay_alert_text": "Částka musí být větší nebo rovna ${minAmount} ${fiatCurrency}",
   "more_options": "Více možností",
+  "mweb_confirmed": "Potvrzený mweb",
+  "mweb_unconfirmed": "Nepotvrzené mWeb",
   "name": "název",
   "nano_current_rep": "Současný zástupce",
   "nano_gpt_thanks_message": "Děkujeme za používání Nanogpt! Nezapomeňte se po dokončení transakce vydat zpět do prohlížeče!",

@@ -244,9 +244,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     print("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
     syncStatus = SyncronizingSyncStatus();
     await subscribeForUpdates();
-    await updateTransactions();
-    await updateFeeRates();
 
+    await updateFeeRates();
     _feeRatesTimer?.cancel();
     _feeRatesTimer =
         Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
@@ -265,74 +264,70 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     await waitForMwebAddresses();
-
     await getStub();
+    await processMwebUtxos();
+    await updateTransactions();
     await updateUnspent();
     await updateBalance();
 
     _syncTimer?.cancel();
-    // delay the timer by a second so we don't overrride the restoreheight if one is set
-    Timer(const Duration(seconds: 2), () async {
-      _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
-        if (syncStatus is FailedSyncStatus) return;
+    _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
+      if (syncStatus is FailedSyncStatus) return;
 
-        final nodeHeight =
-            await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
-        final resp = await _stub.status(StatusRequest());
+      final nodeHeight =
+          await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
+      final resp = await _stub.status(StatusRequest());
 
-        if (resp.blockHeaderHeight < nodeHeight) {
-          int h = resp.blockHeaderHeight;
-          syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
-        } else if (resp.mwebHeaderHeight < nodeHeight) {
-          int h = resp.mwebHeaderHeight;
-          syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
-        } else if (resp.mwebUtxosHeight < nodeHeight) {
-          syncStatus = SyncingSyncStatus(1, 0.999);
-        } else {
-          // prevent unnecessary reaction triggers:
-          if (syncStatus is! SyncedSyncStatus) {
-            syncStatus = SyncedSyncStatus();
+      if (resp.blockHeaderHeight < nodeHeight) {
+        int h = resp.blockHeaderHeight;
+        syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
+      } else if (resp.mwebHeaderHeight < nodeHeight) {
+        int h = resp.mwebHeaderHeight;
+        syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
+      } else if (resp.mwebUtxosHeight < nodeHeight) {
+        syncStatus = SyncingSyncStatus(1, 0.999);
+      } else {
+        // prevent unnecessary reaction triggers:
+        if (syncStatus is! SyncedSyncStatus) {
+          syncStatus = SyncedSyncStatus();
+        }
+
+        if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
+          await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
+          await checkMwebUtxosSpent();
+          // update the confirmations for each transaction:
+          for (final transaction in transactionHistory.transactions.values) {
+            if (transaction.isPending) continue;
+            int txHeight = transaction.height ?? resp.mwebUtxosHeight;
+            final confirmations = (resp.mwebUtxosHeight - txHeight) + 1;
+            if (transaction.confirmations == confirmations) continue;
+            transaction.confirmations = confirmations;
+            transactionHistory.addOne(transaction);
           }
-
-          if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
-            await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
-            await checkMwebUtxosSpent();
-            // update the confirmations for each transaction:
-            for (final transaction in transactionHistory.transactions.values) {
-              if (transaction.isPending) continue;
-              int txHeight = transaction.height ?? resp.mwebUtxosHeight;
-              final confirmations = (resp.mwebUtxosHeight - txHeight) + 1;
-              if (transaction.confirmations == confirmations) continue;
-              transaction.confirmations = confirmations;
-              transactionHistory.addOne(transaction);
-            }
-            await transactionHistory.save();
-          }
+          await transactionHistory.save();
         }
-      });
-
-      // setup a watch dog to restart the sync process if it gets stuck:
-      List<double> lastFewProgresses = [];
-      Timer.periodic(const Duration(seconds: 10), (timer) async {
-        if (syncStatus is! SyncingSyncStatus) return;
-        if (syncStatus.progress() > 0.98) return;
-        lastFewProgresses.add(syncStatus.progress());
-        if (lastFewProgresses.length < 4) return;
-        // limit list size to 4:
-        while(lastFewProgresses.length > 4) {
-          lastFewProgresses.removeAt(0);
-        }
-        // if the progress is the same over the last 40 seconds, restart the sync:
-        if (lastFewProgresses.every((p) => p == lastFewProgresses.first)) {
-          print("mweb syncing is stuck, restarting...");
-          await stopSync();
-          startSync();
-          timer.cancel();
-        }
-      });
+      }
     });
-    // this runs in the background and processes new utxos as they come in:
-    processMwebUtxos();
+
+    // setup a watch dog to restart the sync process if it gets stuck:
+    List<double> lastFewProgresses = [];
+    Timer.periodic(const Duration(seconds: 10), (timer) async {
+      if (syncStatus is! SyncingSyncStatus) return;
+      if (syncStatus.progress() > 0.98) return;
+      lastFewProgresses.add(syncStatus.progress());
+      if (lastFewProgresses.length < 4) return;
+      // limit list size to 4:
+      while (lastFewProgresses.length > 4) {
+        lastFewProgresses.removeAt(0);
+      }
+      // if the progress is the same over the last 40 seconds, restart the sync:
+      if (lastFewProgresses.every((p) => p == lastFewProgresses.first)) {
+        print("mweb syncing is stuck, restarting...");
+        await stopSync();
+        startSync();
+        timer.cancel();
+      }
+    });
   }
 
   @action
@@ -678,14 +673,19 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     int confirmed = balance.confirmed;
     int unconfirmed = balance.unconfirmed;
+    int confirmedMweb = 0;
+    int unconfirmedMweb = 0;
     try {
       mwebUtxosBox.values.forEach((utxo) {
         if (utxo.height > 0) {
-          confirmed += utxo.value.toInt();
+          confirmedMweb += utxo.value.toInt();
         } else {
-          unconfirmed += utxo.value.toInt();
+          unconfirmedMweb += utxo.value.toInt();
         }
       });
+      if (/*confirmedMweb > 0 &&*/ unconfirmedMweb > 0) {
+        unconfirmedMweb = -1 * (confirmedMweb - unconfirmedMweb);
+      }
     } catch (_) {}
 
     // update unspent balances:
@@ -735,7 +735,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    return ElectrumBalance(confirmed: confirmed, unconfirmed: unconfirmed, frozen: balance.frozen);
+    return ElectrumBalance(
+      confirmed: confirmed,
+      unconfirmed: unconfirmed,
+      frozen: balance.frozen,
+      secondConfirmed: confirmedMweb,
+      secondUnconfirmed: unconfirmedMweb,
+    );
   }
 
   @override
@@ -869,7 +875,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           final addresses = <String>{};
           transaction.inputAddresses?.forEach((id) async {
             final utxo = mwebUtxosBox.get(id);
-            await mwebUtxosBox.delete(id);
+            // await mwebUtxosBox.delete(id);
             if (utxo == null) return;
             final addressRecord = walletAddresses.allAddresses
                 .firstWhere((addressRecord) => addressRecord.address == utxo.address);

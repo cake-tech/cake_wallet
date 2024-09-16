@@ -1,3 +1,6 @@
+
+import 'dart:math';
+
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -35,7 +38,7 @@ class AddressList extends StatelessWidget {
         separatorBuilder: (context, _) => const HorizontalSectionDivider(),
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
-        itemCount: addressListViewModel.items.length,
+        itemCount: min(addressListViewModel.items.length, 100),// TODO: don't show all 1000 mweb addresses
         itemBuilder: (context, index) {
           final item = addressListViewModel.items[index];
           Widget cell = Container();

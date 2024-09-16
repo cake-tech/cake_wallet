@@ -396,6 +396,8 @@
   "monero_light_theme": "모네로 라이트 테마",
   "moonpay_alert_text": "금액은 다음보다 크거나 같아야합니다 ${minAmount} ${fiatCurrency}",
   "more_options": "추가 옵션",
+  "mweb_confirmed": "확인 mweb",
+  "mweb_unconfirmed": "확인되지 않은 mweb",
   "name": "이름",
   "nano_current_rep": "현재 대표",
   "nano_gpt_thanks_message": "Nanogpt를 사용해 주셔서 감사합니다! 거래가 완료된 후 브라우저로 돌아가는 것을 잊지 마십시오!",

@@ -396,6 +396,8 @@
   "monero_light_theme": "Monero Light Theme",
   "moonpay_alert_text": "Ang halaga ay dapat na higit pa o katumbas ng ${minAmount} ${fiatCurrency}",
   "more_options": "Higit pang mga Pagpipilian",
+  "mweb_confirmed": "Nakumpirma na MWeb",
+  "mweb_unconfirmed": "Hindi nakumpirma si Mweb",
   "name": "Pangalan",
   "nano_current_rep": "Kasalukuyang Representative",
   "nano_gpt_thanks_message": "Salamat sa paggamit ng NanoGPT! Tandaan na bumalik sa browser matapos makumpleto ang iyong transaksyon!",
