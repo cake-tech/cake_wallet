@@ -1,5 +1,6 @@
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletAddresses {
   WalletAddresses(this.walletInfo)
@@ -15,13 +16,18 @@ abstract class WalletAddresses {
   String get address;
 
   String get latestAddress {
-    if (addressesMap.keys.length == 0) return address;
-    return addressesMap[addressesMap.keys.last] ?? address;
+    if (walletInfo.type == WalletType.monero || walletInfo.type == WalletType.wownero) {
+      if (addressesMap.keys.length == 0) return address;
+      return addressesMap[addressesMap.keys.last] ?? address;
+    }
+    return _localAddress ?? address;
   }
 
   String? get primaryAddress => null;
 
-  set address(String address);
+  String? _localAddress;
+
+  set address(String address) => _localAddress = address;
 
   String get addressForExchange => address;
 
