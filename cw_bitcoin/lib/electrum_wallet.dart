@@ -2175,7 +2175,7 @@ abstract class ElectrumWalletBase extends WalletBase<
 
       Timer(Duration(seconds: 10), () {
         if (this.syncStatus is NotConnectedSyncStatus ||
-            this.syncStatus isLostConnectionSyncStatus) {
+            this.syncStatus is LostConnectionSyncStatus) {
           this.electrumClient.connectToUri(
                 node!.uri,
                 useSSL: node!.useSSL ?? false,

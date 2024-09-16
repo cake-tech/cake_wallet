@@ -93,7 +93,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 """;
@@ -219,7 +219,7 @@ abstract class Bitcoin {
   Future<void> updateFeeRates(Object wallet);
   int getMaxCustomFeeRate(Object wallet);
 
-  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
   Future<List<HardwareAccountData>> getHardwareWalletBitcoinAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
   Future<List<HardwareAccountData>> getHardwareWalletLitecoinAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 }
@@ -805,7 +805,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:web3dart/web3dart.dart';
 
 """;
@@ -871,7 +871,7 @@ abstract class Ethereum {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
   
-  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 }
   """;
@@ -909,7 +909,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:web3dart/web3dart.dart';
 
 """;
@@ -975,7 +975,7 @@ abstract class Polygon {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
   
-  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 }
   """;
