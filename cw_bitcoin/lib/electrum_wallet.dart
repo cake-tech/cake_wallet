@@ -2248,17 +2248,20 @@ Future<void> startRefresh(ScanData scanData) async {
 
     Future<void> listenFn(t) async {
       final tweaks = t as Map<String, dynamic>;
+      final msg = tweaks["message"];
+      // success or error msg
+      final noData = msg != null;
 
-      if (tweaks["message"] != null) {
+      if (noData) {
         // re-subscribe to continue receiving messages, starting from the next unscanned height
         final nextHeight = syncHeight + 1;
-        print("nextHeight $nextHeight");
-        print("getCountPerRequest(nextHeight) ${getCountPerRequest(nextHeight)}");
-        final tweaksSubscription = electrumClient.tweaksSubscribe(
+        tweaksSubscription?.close();
+
+        final nextTweaksSubscription = electrumClient.tweaksSubscribe(
           height: nextHeight,
           count: getCountPerRequest(nextHeight),
         );
-        tweaksSubscription?.listen(listenFn);
+        nextTweaksSubscription?.listen(listenFn);
         return;
       }
 
