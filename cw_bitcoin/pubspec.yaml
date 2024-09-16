@@ -32,7 +32,7 @@ dependencies:
       ref: cake-update-v2
   sp_scanner:
     git:
-      url: https://github.com/rafael-xmr/sp_scanner
+      url: https://github.com/cake-tech/sp_scanner
       ref: sp_v4.0.0
   ledger_flutter_plus:
     git:

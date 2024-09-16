@@ -68,11 +68,11 @@ class SendPage extends BasePage {
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
-        FocusScopeNode currentFocus = FocusScope.of(context);
-        if (!currentFocus.hasPrimaryFocus) {
-          currentFocus.focusedChild?.unfocus();
-        }
-      };
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
 
   @override
   Widget? leading(BuildContext context) {
@@ -81,9 +81,8 @@ class SendPage extends BasePage {
       color: titleColor(context),
       size: 16,
     );
-    final _closeButton = currentTheme.type == ThemeType.dark
-        ? closeButtonImageDarkTheme
-        : closeButtonImage;
+    final _closeButton =
+        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -94,9 +93,7 @@ class SendPage extends BasePage {
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
-            label: !isMobileView
-                ? S.of(context).close
-                : S.of(context).seed_alert_back,
+            label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
                 overlayColor: MaterialStateColor.resolveWith(
@@ -281,6 +278,7 @@ class SendPage extends BasePage {
                                         ? template.cryptoCurrency
                                         : template.fiatCurrency,
                                     onTap: () async {
+                                      sendViewModel.state = IsExecutingState();
                                       if (template.additionalRecipients
                                               ?.isNotEmpty ??
                                           false) {
@@ -314,6 +312,7 @@ class SendPage extends BasePage {
                                           template: template,
                                         );
                                       }
+                                      sendViewModel.state = InitialExecutionState();
                                     },
                                     onRemove: () {
                                       showPopUp<void>(
@@ -397,6 +396,7 @@ class SendPage extends BasePage {
                   builder: (_) {
                     return LoadingPrimaryButton(
                       onPressed: () async {
+                        if (sendViewModel.state is IsExecutingState) return;
                         if (_formKey.currentState != null &&
                             !_formKey.currentState!.validate()) {
                           if (sendViewModel.outputs.length > 1) {
