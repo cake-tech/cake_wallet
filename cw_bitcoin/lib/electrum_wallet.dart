@@ -306,8 +306,10 @@ abstract class ElectrumWalletBase
     bool? doSingleScan,
     bool? usingSupportedNode,
   }) async {
-    final chainTip = chainTipParam ?? await getUpdatedChainTip();
-
+    // final chainTip = chainTipParam ?? await getUpdatedChainTip();
+    final chainTip = 861586;
+    print("chainTip: $chainTip");
+    
     if (chainTip == height) {
       syncStatus = SyncedSyncStatus();
       return;
@@ -406,7 +408,10 @@ abstract class ElectrumWalletBase
           nodeSupportsSilentPayments = false;
         }
 
-        print("sp sync: ${message.syncStatus.progress() * 100}%");
+        if (message.syncStatus is SyncingSyncStatus) {
+          print("sp sync: ${(message.syncStatus as SyncingSyncStatus).blocksLeft} blocks left");
+        }
+
 
         syncStatus = message.syncStatus;
         await walletInfo.updateRestoreHeight(message.height);

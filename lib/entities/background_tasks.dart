@@ -35,6 +35,10 @@ const notificationChannelName = 'CAKE BACKGROUND SERVICE';
 const notificationChannelDescription = 'Cake Wallet Background Service';
 const DELAY_SECONDS_BEFORE_SYNC_START = 15;
 
+const spNotificationId = 888;
+const spNodeNotificationMessage = "Currently configured Bitcoin node does not support Silent Payments. skipping wallet";
+
+
 void setNotificationStandby(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
   flutterLocalNotificationsPlugin.cancelAll();
   flutterLocalNotificationsPlugin.show(
@@ -58,6 +62,23 @@ void setNotificationReady(FlutterLocalNotificationsPlugin flutterLocalNotificati
     notificationId,
     initialNotificationTitle,
     readyMessage,
+    const NotificationDetails(
+      android: AndroidNotificationDetails(
+        notificationChannelId,
+        notificationChannelName,
+        icon: 'ic_bg_service_small',
+        ongoing: true,
+      ),
+    ),
+  );
+}
+
+void setSpNodeWarningNotification(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+  flutterLocalNotificationsPlugin.cancelAll();
+  flutterLocalNotificationsPlugin.show(
+    notificationId,
+    initialNotificationTitle,
+    spNodeNotificationMessage,
     const NotificationDetails(
       android: AndroidNotificationDetails(
         notificationChannelId,
@@ -152,19 +173,19 @@ Future<void> onStart(ServiceInstance service) async {
           .toList();
 
       // we only need to sync the first litecoin wallet since they share the same collection of blocks
-      if (litecoinWallets.isNotEmpty) {
-        try {
-          final firstWallet = litecoinWallets.first;
-          final wallet = await walletLoadingService.load(firstWallet.type, firstWallet.name);
-          final node = settingsStore.getCurrentNode(firstWallet.type);
-          await wallet.connectToNode(node: node);
-          await wallet.startSync();
-          syncingWallets.add(wallet);
-        } catch (e) {
-          // couldn't connect to mwebd (most likely)
-          print("error syncing litecoin wallet: $e");
-        }
-      }
+      // if (litecoinWallets.isNotEmpty) {
+      //   try {
+      //     final firstWallet = litecoinWallets.first;
+      //     final wallet = await walletLoadingService.load(firstWallet.type, firstWallet.name);
+      //     final node = settingsStore.getCurrentNode(firstWallet.type);
+      //     await wallet.connectToNode(node: node);
+      //     // calling start sync isn't necessary since it's called after connecting to the node
+      //     syncingWallets.add(wallet);
+      //   } catch (e) {
+      //     // couldn't connect to mwebd (most likely)
+      //     print("error syncing litecoin wallet: $e");
+      //   }
+      // }
 
       final List<WalletListItem> bitcoinWallets = walletListViewModel.wallets
           .where((element) => element.type == WalletType.bitcoin)
@@ -175,10 +196,18 @@ Future<void> onStart(ServiceInstance service) async {
           final wallet =
               await walletLoadingService.load(bitcoinWallets[i].type, bitcoinWallets[i].name);
           final node = settingsStore.getCurrentNode(bitcoinWallets[i].type);
-          await wallet.connectToNode(node: node);
-          await wallet.startSync();
-          // TODO: use proxy layer:
-          await (wallet as ElectrumWallet).rescan(height: 1);
+
+          // bool nodeSupportsSP = await (wallet as ElectrumWallet).getNodeSupportsSilentPayments();
+          // TODO: fix this:
+          bool nodeSupportsSP = node.uriRaw.contains("electrs");
+          if (!nodeSupportsSP) {
+            print("Configured node does not support silent payments, skipping wallet");
+            setSpNodeWarningNotification(flutterLocalNotificationsPlugin);
+            continue;
+          }
+          // await wallet.connectToNode(node: node);
+          // (wallet as ElectrumWallet).setSilentPaymentsScanning(true);
+          (wallet as ElectrumWallet).rescan(height: 1);
           syncingWallets.add(wallet);
         } catch (e) {
           print("error syncing bitcoin wallet: $e");
@@ -361,15 +390,15 @@ class BackgroundTasks {
       final SyncMode syncMode = settingsStore.currentSyncMode;
       final bool syncAll = settingsStore.currentSyncAll;
 
+      if (syncMode.type == SyncType.disabled || !FeatureFlag.isBackgroundSyncEnabled) {
+        bgService.invoke('stopService');
+        return;
+      }
+
       if (settingsStore.showSyncNotification) {
         flutterLocalNotificationsPlugin
             .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
             ?.requestNotificationsPermission();
-      }
-
-      if (syncMode.type == SyncType.disabled || !FeatureFlag.isBackgroundSyncEnabled) {
-        bgService.invoke('stopService');
-        return;
       }
 
       bgService.invoke('stopService');
