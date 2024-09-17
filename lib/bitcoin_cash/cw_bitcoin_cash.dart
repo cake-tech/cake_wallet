@@ -52,8 +52,8 @@ class CWBitcoinCash extends BitcoinCash {
     final hardwareWalletService = BitcoinCashHardwareWalletService(ledgerVM.connection);
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } on LedgerException catch (err) {
-      print(err.message);
+    } catch (err) {
+      print(err);
       throw err;
     }
   }
