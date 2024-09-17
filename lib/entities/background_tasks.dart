@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:cake_wallet/core/sync_status_title.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -159,7 +161,7 @@ Future<void> onStart(ServiceInstance service) async {
     for (int i = 0; i < moneroWallets.length; i++) {
       final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
       final node = settingsStore.getCurrentNode(moneroWallets[i].type);
-      await wallet.connectToNode(node: node);
+      wallet.connectToNode(node: node);
       wallet.startSync();
       syncingWallets.add(wallet);
     }
@@ -194,6 +196,7 @@ Future<void> onStart(ServiceInstance service) async {
         final wallet =
             await walletLoadingService.load(bitcoinWallets[i].type, bitcoinWallets[i].name);
         final node = settingsStore.getCurrentNode(WalletType.bitcoin);
+        await wallet.connectToNode(node: node);
 
         bool nodeSupportsSP = await (wallet as ElectrumWallet).getNodeSupportsSilentPayments();
         if (!nodeSupportsSP) {
@@ -204,7 +207,6 @@ Future<void> onStart(ServiceInstance service) async {
           continue;
         }
 
-        await wallet.connectToNode(node: node);
         syncingWallets.add(wallet);
       } catch (e) {
         print("error syncing bitcoin wallet_$i: $e");
@@ -228,9 +230,26 @@ Future<void> onStart(ServiceInstance service) async {
         String title = "$prefix - ${wallet.name}";
         late String content;
         try {
-          final blocksLeft = (wallet.syncStatus as SyncingSyncStatus).blocksLeft;
-          content = "${blocksLeft} Blocks Left";
+          // TODO: not sure how to do locatization from the service since buildcontext is null:
+          // content = syncStatusTitle(wallet.syncStatus);
+
+          if (wallet.syncStatus is SyncingSyncStatus) {
+            final blocksLeft = (wallet.syncStatus as SyncingSyncStatus).blocksLeft;
+            content = "${blocksLeft} Blocks Left";
+          } else if (wallet.syncStatus is SyncedSyncStatus) {
+            content = "Synced";
+          } else if (wallet.syncStatus is SyncedTipSyncStatus) {
+            final tip = (wallet.syncStatus as SyncedTipSyncStatus).tip;
+            content = "Scanned Tip: $tip";
+          } else if (wallet.syncStatus is NotConnectedSyncStatus) {
+            content = "Not Connected";
+          } else if (wallet.syncStatus is AttemptingSyncStatus) {
+            content = "Attempting Sync";
+          } else {
+            throw Exception("sync type not covered");
+          }
         } catch (e) {
+          print(e);
           content = "${syncProgress}% Synced";
         }
         content += " - ${DateTime.now().toIso8601String()}";

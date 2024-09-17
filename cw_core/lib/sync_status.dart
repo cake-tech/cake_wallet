@@ -84,7 +84,7 @@ class LostConnectionSyncStatus extends NotConnectedSyncStatus {
 }
 
 // when the application has been paused by the OS:
-class StoppedSyncingSyncStatus extends SyncStatus {
+class StoppedSyncingSyncStatus extends NotConnectedSyncStatus {
   @override
   double progress() => 0.0;
 

@@ -533,15 +533,6 @@ abstract class ElectrumWalletBase
   }
 
   Future<bool> getNodeSupportsSilentPayments() async {
-    int secondsWaited = 0;
-    while (!electrumClient.isConnected) {
-      await Future.delayed(const Duration(seconds: 1));
-      secondsWaited++;
-      if (secondsWaited > 5) {
-        return false;
-      }
-    }
-
     // As of today (august 2024), only ElectrumRS supports silent payments
     if (!(await getNodeIsElectrs())) {
       return false;
