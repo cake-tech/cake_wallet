@@ -49,7 +49,7 @@ class CWBitcoinCash extends BitcoinCash {
   @override
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
       {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = BitcoinCashHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+    final hardwareWalletService = BitcoinCashHardwareWalletService(ledgerVM.connection);
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } on LedgerException catch (err) {
