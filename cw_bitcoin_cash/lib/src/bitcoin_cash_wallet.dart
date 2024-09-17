@@ -15,7 +15,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:ledger_litecoin/ledger_litecoin.dart';
 import 'package:mobx/mobx.dart';
 
@@ -227,16 +227,14 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     return priv.signMessage(StringUtils.encode(message));
   }
 
-  Ledger? _ledger;
-  LedgerDevice? _ledgerDevice;
+  LedgerConnection? _ledgerConnection;
   LitecoinLedgerApp? _bitcoinCashLedgerApp;
 
   @override
-  void setLedger(Ledger setLedger, LedgerDevice setLedgerDevice) {
-    _ledger = setLedger;
-    _ledgerDevice = setLedgerDevice;
+  void setLedgerConnection(LedgerConnection connection) {
+    _ledgerConnection = connection;
     _bitcoinCashLedgerApp =
-        LitecoinLedgerApp(_ledger!, derivationPath: walletInfo.derivationInfo!.derivationPath!);
+        LitecoinLedgerApp(_ledgerConnection!, derivationPath: walletInfo.derivationInfo!.derivationPath!);
   }
 
   @override
@@ -274,7 +272,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
 
 
     final rawHex = await _bitcoinCashLedgerApp!.createTransaction(
-        _ledgerDevice!,
         inputs: readyInputs,
         outputs: outputs
             .map((e) => TransactionOutput.fromBigInt(
