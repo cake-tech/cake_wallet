@@ -162,7 +162,7 @@ Future<void> onStart(ServiceInstance service) async {
       final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
       final node = settingsStore.getCurrentNode(moneroWallets[i].type);
       wallet.connectToNode(node: node);
-      wallet.startSync();
+      wallet.stopSync();
       syncingWallets.add(wallet);
     }
 
@@ -178,6 +178,7 @@ Future<void> onStart(ServiceInstance service) async {
         final wallet = await walletLoadingService.load(firstWallet.type, firstWallet.name);
         final node = settingsStore.getCurrentNode(WalletType.litecoin);
         wallet.connectToNode(node: node);
+        wallet.stopSync();
         // calling start sync isn't necessary since it's called after connecting to the node
         syncingWallets.add(wallet);
       } catch (e) {
@@ -207,6 +208,8 @@ Future<void> onStart(ServiceInstance service) async {
           continue;
         }
 
+        wallet.stopSync();
+
         syncingWallets.add(wallet);
       } catch (e) {
         print("error syncing bitcoin wallet_$i: $e");
@@ -214,15 +217,25 @@ Future<void> onStart(ServiceInstance service) async {
     }
 
     print("STARTING SYNC TIMER");
+    int currentSyncingWallet = 0;
     _syncTimer?.cancel();
+    if (syncingWallets.isEmpty) return;
+    syncingWallets.first!.startSync();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) {
-      if (syncingWallets.isEmpty) {
-        return;
-      }
-
       for (int i = 0; i < syncingWallets.length; i++) {
         final wallet = syncingWallets[i];
         if (wallet == null) continue;
+
+        if (wallet.syncStatus.progress() > 0.99) {
+          print("WALLET $i SYNCED");
+          wallet.stopSync();
+          currentSyncingWallet++;
+          if (currentSyncingWallet < syncingWallets.length) {
+            syncingWallets[currentSyncingWallet]!.startSync();
+          } else {
+            currentSyncingWallet = 0;
+          }
+        }
 
         final syncProgress = ((wallet.syncStatus.progress()) * 100).toStringAsPrecision(5);
 
@@ -253,6 +266,10 @@ Future<void> onStart(ServiceInstance service) async {
           content = "${syncProgress}% Synced";
         }
         content += " - ${DateTime.now().toIso8601String()}";
+
+        if (i != currentSyncingWallet) {
+          content = "${syncProgress}% PAUSED - Waiting for other wallets to finish";
+        }
 
         flutterLocalNotificationsPlugin.show(
           notificationId + i,
