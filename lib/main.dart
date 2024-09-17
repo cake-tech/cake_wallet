@@ -238,7 +238,7 @@ Future<void> initialSetup(
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
-  await bootstrap(navigatorKey);
+  await bootstrap(navigatorKey, loadWallet: loadWallet);
 }
 
 class App extends StatefulWidget {

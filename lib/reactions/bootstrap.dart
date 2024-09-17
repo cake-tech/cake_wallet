@@ -27,6 +27,7 @@ Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey, {bool loadWallet 
     authenticationStore.installed();
   }
 
+  // we need to NOT automatically load the default wallet inside the background service:
   if (loadWallet) {
     startAuthenticationStateChange(authenticationStore, navigatorKey);
   }

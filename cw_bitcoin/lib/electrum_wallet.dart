@@ -306,10 +306,8 @@ abstract class ElectrumWalletBase
     bool? doSingleScan,
     bool? usingSupportedNode,
   }) async {
-    // final chainTip = chainTipParam ?? await getUpdatedChainTip();
-    final chainTip = 861586;
-    print("chainTip: $chainTip");
-    
+    final chainTip = chainTipParam ?? await getUpdatedChainTip();
+
     if (chainTip == height) {
       syncStatus = SyncedSyncStatus();
       return;
@@ -407,11 +405,6 @@ abstract class ElectrumWalletBase
         if (message.syncStatus is UnsupportedSyncStatus) {
           nodeSupportsSilentPayments = false;
         }
-
-        if (message.syncStatus is SyncingSyncStatus) {
-          print("sp sync: ${(message.syncStatus as SyncingSyncStatus).blocksLeft} blocks left");
-        }
-
 
         syncStatus = message.syncStatus;
         await walletInfo.updateRestoreHeight(message.height);
@@ -540,6 +533,15 @@ abstract class ElectrumWalletBase
   }
 
   Future<bool> getNodeSupportsSilentPayments() async {
+    int secondsWaited = 0;
+    while (!electrumClient.isConnected) {
+      await Future.delayed(const Duration(seconds: 1));
+      secondsWaited++;
+      if (secondsWaited > 5) {
+        return false;
+      }
+    }
+
     // As of today (august 2024), only ElectrumRS supports silent payments
     if (!(await getNodeIsElectrs())) {
       return false;
@@ -582,8 +584,16 @@ abstract class ElectrumWalletBase
       electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
 
       await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
+
+      int secondsWaited = 0;
+      while (!electrumClient.isConnected) {
+        await Future.delayed(const Duration(seconds: 1));
+        secondsWaited++;
+        if (secondsWaited > 5) {
+          break;
+        }
+      }
     } catch (e) {
-      print(e.toString());
       syncStatus = FailedSyncStatus();
     }
   }

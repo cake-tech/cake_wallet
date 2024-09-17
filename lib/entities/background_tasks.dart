@@ -3,8 +3,6 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -20,7 +18,6 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 const moneroSyncTaskKey = "com.fotolockr.cakewallet.monero_sync_task";
 const mwebSyncTaskKey = "com.fotolockr.cakewallet.mweb_sync_task";
@@ -34,17 +31,18 @@ const notificationChannelId = 'cake_service';
 const notificationChannelName = 'CAKE BACKGROUND SERVICE';
 const notificationChannelDescription = 'Cake Wallet Background Service';
 const DELAY_SECONDS_BEFORE_SYNC_START = 15;
+const spNodeNotificationMessage =
+    "Currently configured Bitcoin node does not support Silent Payments. skipping wallet";
 
-const spNotificationId = 888;
-const spNodeNotificationMessage = "Currently configured Bitcoin node does not support Silent Payments. skipping wallet";
-
-
-void setNotificationStandby(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
-  flutterLocalNotificationsPlugin.cancelAll();
+void setMainNotification(
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, {
+  required String title,
+  required String content,
+}) async {
   flutterLocalNotificationsPlugin.show(
     notificationId,
-    initialNotificationTitle,
-    standbyMessage,
+    title,
+    content,
     const NotificationDetails(
       android: AndroidNotificationDetails(
         notificationChannelId,
@@ -53,38 +51,39 @@ void setNotificationStandby(FlutterLocalNotificationsPlugin flutterLocalNotifica
         ongoing: true,
       ),
     ),
+  );
+}
+
+void setNotificationStandby(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+  flutterLocalNotificationsPlugin.cancelAll();
+  setMainNotification(
+    flutterLocalNotificationsPlugin,
+    title: initialNotificationTitle,
+    content: standbyMessage,
   );
 }
 
 void setNotificationReady(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
   flutterLocalNotificationsPlugin.cancelAll();
-  flutterLocalNotificationsPlugin.show(
-    notificationId,
-    initialNotificationTitle,
-    readyMessage,
-    const NotificationDetails(
-      android: AndroidNotificationDetails(
-        notificationChannelId,
-        notificationChannelName,
-        icon: 'ic_bg_service_small',
-        ongoing: true,
-      ),
-    ),
+  setMainNotification(
+    flutterLocalNotificationsPlugin,
+    title: initialNotificationTitle,
+    content: readyMessage,
   );
 }
 
-void setSpNodeWarningNotification(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
-  flutterLocalNotificationsPlugin.cancelAll();
+void setSpNodeWarningNotification(
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, int walletNum) async {
   flutterLocalNotificationsPlugin.show(
-    notificationId,
+    notificationId + walletNum,
     initialNotificationTitle,
     spNodeNotificationMessage,
-    const NotificationDetails(
+    NotificationDetails(
       android: AndroidNotificationDetails(
-        notificationChannelId,
-        notificationChannelName,
+        "${notificationChannelId}_$walletNum",
+        "${notificationChannelName}_$walletNum",
         icon: 'ic_bg_service_small',
-        ongoing: true,
+        ongoing: false,
       ),
     ),
   );
@@ -92,7 +91,7 @@ void setSpNodeWarningNotification(FlutterLocalNotificationsPlugin flutterLocalNo
 
 @pragma('vm:entry-point')
 Future<void> onStart(ServiceInstance service) async {
-  print("BACKGROUND SERVICE STARTED!");
+  print("BACKGROUND SERVICE STARTED");
   bool bgSyncStarted = false;
   Timer? _syncTimer;
 
@@ -103,7 +102,7 @@ Future<void> onStart(ServiceInstance service) async {
       FlutterLocalNotificationsPlugin();
 
   service.on('stopService').listen((event) async {
-    print("STOPPING BACKGROUND SERVICE!");
+    print("STOPPING BACKGROUND SERVICE");
     _syncTimer?.cancel();
     await service.stopSelf();
   });
@@ -130,7 +129,7 @@ Future<void> onStart(ServiceInstance service) async {
     bgSyncStarted = true;
 
     await Future.delayed(const Duration(seconds: DELAY_SECONDS_BEFORE_SYNC_START));
-    print("STARTING SYNC FROM BG!!");
+    print("STARTING SYNC FROM BG");
 
     try {
       await initializeAppConfigs(loadWallet: false);
@@ -140,89 +139,73 @@ Future<void> onStart(ServiceInstance service) async {
 
     print("INITIALIZED APP CONFIGS");
 
-    final currentWallet = getIt.get<AppStore>().wallet;
-    // don't start syncing immediately:
-    await currentWallet?.stopSync();
+    // final currentWallet = getIt.get<AppStore>().wallet;
+    // // don't start syncing immediately:
+    // await currentWallet?.stopSync();
 
     final walletLoadingService = getIt.get<WalletLoadingService>();
     final settingsStore = getIt.get<SettingsStore>();
     final walletListViewModel = getIt.get<WalletListViewModel>();
-    final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType);
 
-    bool syncAll = true;
     List<WalletBase?> syncingWallets = [];
 
-    if (syncAll) {
-      /// get all Monero wallets of the user and sync them
-      final List<WalletListItem> moneroWallets = walletListViewModel.wallets
-          .where((element) => [WalletType.monero, WalletType.wownero].contains(element.type))
-          .toList();
+    // get all Monero / Wownero wallets and sync them
+    final List<WalletListItem> moneroWallets = walletListViewModel.wallets
+        .where((element) => [WalletType.monero, WalletType.wownero].contains(element.type))
+        .toList();
 
-      for (int i = 0; i < moneroWallets.length; i++) {
+    for (int i = 0; i < moneroWallets.length; i++) {
+      final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
+      final node = settingsStore.getCurrentNode(moneroWallets[i].type);
+      await wallet.connectToNode(node: node);
+      wallet.startSync();
+      syncingWallets.add(wallet);
+    }
+
+    // get all litecoin wallets and sync them:
+    final List<WalletListItem> litecoinWallets = walletListViewModel.wallets
+        .where((element) => element.type == WalletType.litecoin)
+        .toList();
+
+    // we only need to sync the first litecoin wallet since they share the same collection of blocks
+    if (litecoinWallets.isNotEmpty) {
+      try {
+        final firstWallet = litecoinWallets.first;
+        final wallet = await walletLoadingService.load(firstWallet.type, firstWallet.name);
+        final node = settingsStore.getCurrentNode(WalletType.litecoin);
+        wallet.connectToNode(node: node);
+        // calling start sync isn't necessary since it's called after connecting to the node
+        syncingWallets.add(wallet);
+      } catch (e) {
+        // couldn't connect to mwebd (most likely)
+        print("error syncing litecoin wallet: $e");
+      }
+    }
+
+    // get all bitcoin wallets and sync them:
+    final List<WalletListItem> bitcoinWallets =
+        walletListViewModel.wallets.where((element) => element.type == WalletType.bitcoin).toList();
+    bool spSupported = true;
+    for (int i = 0; i < bitcoinWallets.length; i++) {
+      try {
+        if (!spSupported) continue;
         final wallet =
-            await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
-        final node = settingsStore.getCurrentNode(moneroWallets[i].type);
-        await wallet.connectToNode(node: node);
-        await wallet.startSync();
-        syncingWallets.add(wallet);
-      }
+            await walletLoadingService.load(bitcoinWallets[i].type, bitcoinWallets[i].name);
+        final node = settingsStore.getCurrentNode(WalletType.bitcoin);
 
-      // get all litecoin wallets and sync them:
-      final List<WalletListItem> litecoinWallets = walletListViewModel.wallets
-          .where((element) => element.type == WalletType.litecoin)
-          .toList();
-
-      // we only need to sync the first litecoin wallet since they share the same collection of blocks
-      // if (litecoinWallets.isNotEmpty) {
-      //   try {
-      //     final firstWallet = litecoinWallets.first;
-      //     final wallet = await walletLoadingService.load(firstWallet.type, firstWallet.name);
-      //     final node = settingsStore.getCurrentNode(firstWallet.type);
-      //     await wallet.connectToNode(node: node);
-      //     // calling start sync isn't necessary since it's called after connecting to the node
-      //     syncingWallets.add(wallet);
-      //   } catch (e) {
-      //     // couldn't connect to mwebd (most likely)
-      //     print("error syncing litecoin wallet: $e");
-      //   }
-      // }
-
-      final List<WalletListItem> bitcoinWallets = walletListViewModel.wallets
-          .where((element) => element.type == WalletType.bitcoin)
-          .toList();
-
-      for (int i = 0; i < bitcoinWallets.length; i++) {
-        try {
-          final wallet =
-              await walletLoadingService.load(bitcoinWallets[i].type, bitcoinWallets[i].name);
-          final node = settingsStore.getCurrentNode(bitcoinWallets[i].type);
-
-          // bool nodeSupportsSP = await (wallet as ElectrumWallet).getNodeSupportsSilentPayments();
-          // TODO: fix this:
-          bool nodeSupportsSP = node.uriRaw.contains("electrs");
-          if (!nodeSupportsSP) {
-            print("Configured node does not support silent payments, skipping wallet");
-            setSpNodeWarningNotification(flutterLocalNotificationsPlugin);
-            continue;
-          }
-          // await wallet.connectToNode(node: node);
-          // (wallet as ElectrumWallet).setSilentPaymentsScanning(true);
-          (wallet as ElectrumWallet).rescan(height: 1);
-          syncingWallets.add(wallet);
-        } catch (e) {
-          print("error syncing bitcoin wallet: $e");
+        bool nodeSupportsSP = await (wallet as ElectrumWallet).getNodeSupportsSilentPayments();
+        if (!nodeSupportsSP) {
+          print("Configured node does not support silent payments, skipping wallet");
+          syncingWallets.add(null);
+          setSpNodeWarningNotification(flutterLocalNotificationsPlugin, syncingWallets.length - 1);
+          spSupported = false;
+          continue;
         }
-      }
-    } else {
-      /// if the user chose to sync only active wallet
-      /// if the current wallet is monero; sync it only
-      if (typeRaw == WalletType.monero.index || typeRaw == WalletType.wownero.index) {
-        final name = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
-        final wallet = await walletLoadingService.load(WalletType.values[typeRaw!], name!);
-        final node = getIt.get<SettingsStore>().getCurrentNode(WalletType.values[typeRaw]);
+        
         await wallet.connectToNode(node: node);
-        await wallet.startSync();
         syncingWallets.add(wallet);
+      } catch (e) {
+        print("error syncing bitcoin wallet_$i: $e");
       }
     }
 
@@ -235,7 +218,9 @@ Future<void> onStart(ServiceInstance service) async {
 
       for (int i = 0; i < syncingWallets.length; i++) {
         final wallet = syncingWallets[i];
-        final syncProgress = ((wallet!.syncStatus.progress()) * 100).toStringAsPrecision(5);
+        if (wallet == null) continue;
+
+        final syncProgress = ((wallet.syncStatus.progress()) * 100).toStringAsPrecision(5);
 
         String prefix = walletTypeToCryptoCurrency(wallet.type).title;
         String title = "$prefix - ${wallet.name}";
@@ -244,10 +229,9 @@ Future<void> onStart(ServiceInstance service) async {
           final blocksLeft = (wallet.syncStatus as SyncingSyncStatus).blocksLeft;
           content = "${blocksLeft} Blocks Left";
         } catch (e) {
-          print(e);
           content = "${syncProgress}% Synced";
         }
-        content += " - ${DateTime.now()}";
+        content += " - ${DateTime.now().toIso8601String()}";
 
         flutterLocalNotificationsPlugin.show(
           notificationId + i,
@@ -388,22 +372,21 @@ class BackgroundTasks {
       }
 
       final SyncMode syncMode = settingsStore.currentSyncMode;
-      final bool syncAll = settingsStore.currentSyncAll;
+      final bool useNotifications = settingsStore.showSyncNotification;
 
-      if (syncMode.type == SyncType.disabled || !FeatureFlag.isBackgroundSyncEnabled) {
-        bgService.invoke('stopService');
-        return;
-      }
-
-      if (settingsStore.showSyncNotification) {
+      if (useNotifications) {
         flutterLocalNotificationsPlugin
             .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
             ?.requestNotificationsPermission();
       }
 
-      bgService.invoke('stopService');
+      bgService.invoke("stopService");
 
-      await initializeService(bgService, settingsStore.showSyncNotification);
+      if (syncMode.type == SyncType.disabled || !FeatureFlag.isBackgroundSyncEnabled) {
+        return;
+      }
+
+      await initializeService(bgService, useNotifications);
     } catch (error, stackTrace) {
       print(error);
       print(stackTrace);
