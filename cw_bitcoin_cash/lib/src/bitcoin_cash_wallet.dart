@@ -15,6 +15,8 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
+import 'package:ledger_litecoin/ledger_litecoin.dart';
 import 'package:mobx/mobx.dart';
 
 import 'bitcoin_cash_base.dart';
@@ -25,12 +27,13 @@ class BitcoinCashWallet = BitcoinCashWalletBase with _$BitcoinCashWallet;
 
 abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   BitcoinCashWalletBase({
-    required String mnemonic,
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Uint8List seedBytes,
     required EncryptionFileUtils encryptionFileUtils,
+    Uint8List? seedBytes,
+    String? mnemonic,
+    String? xpub,
     String? passphrase,
     BitcoinAddressType? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
@@ -40,6 +43,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   }) : super(
             mnemonic: mnemonic,
             password: password,
+            xpub: xpub,
             walletInfo: walletInfo,
             unspentCoinsInfo: unspentCoinsInfo,
             network: BitcoinCashNetwork.mainnet,
@@ -130,7 +134,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     }
 
     return BitcoinCashWallet(
-      mnemonic: keysData.mnemonic!,
+      mnemonic: keysData.mnemonic,
+      xpub: keysData.xPub,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
@@ -155,7 +160,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         }
       }).toList(),
       initialBalance: snp?.balance,
-      seedBytes: await MnemonicBip39.toSeed(keysData.mnemonic!, passphrase: keysData.passphrase),
+      seedBytes: keysData.mnemonic != null ? await MnemonicBip39.toSeed(keysData.mnemonic!, passphrase: keysData.passphrase) : null,
       encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: snp?.regularAddressIndex,
       initialChangeAddressIndex: snp?.changeAddressIndex,
@@ -220,5 +225,65 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       netVersion: network.wifNetVer,
     );
     return priv.signMessage(StringUtils.encode(message));
+  }
+
+  LedgerConnection? _ledgerConnection;
+  LitecoinLedgerApp? _bitcoinCashLedgerApp;
+
+  @override
+  void setLedgerConnection(LedgerConnection connection) {
+    _ledgerConnection = connection;
+    _bitcoinCashLedgerApp =
+        LitecoinLedgerApp(_ledgerConnection!, derivationPath: walletInfo.derivationInfo!.derivationPath!);
+  }
+
+  @override
+  Future<BtcTransaction> buildHardwareWalletTransaction({
+    required List<BitcoinBaseOutput> outputs,
+    required BigInt fee,
+    required BasedUtxoNetwork network,
+    required List<UtxoWithAddress> utxos,
+    required Map<String, PublicKeyWithDerivationPath> publicKeys,
+    String? memo,
+    bool enableRBF = false,
+    BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
+    BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
+  }) async {
+    final readyInputs = <LedgerTransaction>[];
+    for (final utxo in utxos) {
+      final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+      final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
+
+      readyInputs.add(LedgerTransaction(
+        rawTx: rawTx,
+        outputIndex: utxo.utxo.vout,
+        ownerPublicKey: Uint8List.fromList(hex.decode(publicKeyAndDerivationPath.publicKey)),
+        ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
+        // sequence: enableRBF ? 0x1 : 0xffffffff,
+        sequence: 0xffffffff,
+      ));
+    }
+
+    String? changePath;
+    for (final output in outputs) {
+      final maybeChangePath = publicKeys[(output as BitcoinOutput).address.pubKeyHash()];
+      if (maybeChangePath != null) changePath ??= maybeChangePath.derivationPath;
+    }
+
+
+    final rawHex = await _bitcoinCashLedgerApp!.createTransaction(
+        inputs: readyInputs,
+        outputs: outputs
+            .map((e) => TransactionOutput.fromBigInt(
+            (e as BitcoinOutput).value, Uint8List.fromList(e.address.toScriptPubKey().toBytes())))
+            .toList(),
+        changePath: changePath,
+        sigHashType: 0x01,
+        additionals: ["cashaddr"],
+        isSegWit: false,
+        useTrustedInputForSegwit: false
+    );
+
+    return BtcTransaction.fromRaw(rawHex);
   }
 }

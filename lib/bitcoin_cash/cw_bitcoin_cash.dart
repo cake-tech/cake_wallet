@@ -27,6 +27,12 @@ class CWBitcoinCash extends BitcoinCash {
           name: name, mnemonic: mnemonic, password: password, passphrase: passphrase);
 
   @override
+  WalletCredentials createBitcoinCashHardwareWalletCredentials(
+      {required String name, required HardwareAccountData accountData, WalletInfo? walletInfo}) =>
+      BitcoinCashRestoreWalletFromHardware(
+          name: name, hwAccountData: accountData, walletInfo: walletInfo);
+
+  @override
   TransactionPriority deserializeBitcoinCashTransactionPriority(int raw) =>
       BitcoinCashTransactionPriority.deserialize(raw: raw);
 
@@ -39,4 +45,16 @@ class CWBitcoinCash extends BitcoinCash {
   @override
   TransactionPriority getBitcoinCashTransactionPrioritySlow() =>
       BitcoinCashTransactionPriority.slow;
+
+  @override
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
+      {int index = 0, int limit = 5}) async {
+    final hardwareWalletService = BitcoinCashHardwareWalletService(ledgerVM.connection);
+    try {
+      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+    } catch (err) {
+      print(err);
+      throw err;
+    }
+  }
 }

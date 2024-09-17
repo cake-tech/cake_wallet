@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -19,7 +20,7 @@ class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials,
-    BitcoinNewWalletCredentials> {
+    BitcoinRestoreWalletFromHardware> {
   LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
@@ -123,9 +124,23 @@ class LitecoinWalletService extends WalletService<
   }
 
   @override
-  Future<LitecoinWallet> restoreFromHardwareWallet(BitcoinNewWalletCredentials credentials) {
-    throw UnimplementedError(
-        "Restoring a Litecoin wallet from a hardware wallet is not yet supported!");
+  Future<LitecoinWallet> restoreFromHardwareWallet(BitcoinRestoreWalletFromHardware credentials,
+      {bool? isTestnet}) async {
+    final network = isTestnet == true ? LitecoinNetwork.testnet : LitecoinNetwork.mainnet;
+    credentials.walletInfo?.network = network.value;
+    credentials.walletInfo?.derivationInfo?.derivationPath =
+        credentials.hwAccountData.derivationPath;
+
+    final wallet = await LitecoinWallet(
+      password: credentials.password!,
+      xpub: credentials.hwAccountData.xpub,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
+    await wallet.save();
+    await wallet.init();
+    return wallet;
   }
 
   @override

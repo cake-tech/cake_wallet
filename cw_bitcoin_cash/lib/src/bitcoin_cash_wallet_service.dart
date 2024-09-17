@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
@@ -17,7 +18,7 @@ class BitcoinCashWalletService extends WalletService<
     BitcoinCashNewWalletCredentials,
     BitcoinCashRestoreWalletFromSeedCredentials,
     BitcoinCashRestoreWalletFromWIFCredentials,
-    BitcoinCashNewWalletCredentials> {
+    BitcoinCashRestoreWalletFromHardware> {
   BitcoinCashWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
@@ -109,9 +110,24 @@ class BitcoinCashWalletService extends WalletService<
   }
 
   @override
-  Future<BitcoinCashWallet> restoreFromHardwareWallet(BitcoinCashNewWalletCredentials credentials) {
-    throw UnimplementedError(
-        "Restoring a Bitcoin Cash wallet from a hardware wallet is not yet supported!");
+  Future<BitcoinCashWallet> restoreFromHardwareWallet(
+      BitcoinCashRestoreWalletFromHardware credentials,
+      {bool? isTestnet}) async {
+    final network = isTestnet == true ? BitcoinCashNetwork.testnet : BitcoinCashNetwork.mainnet;
+    credentials.walletInfo?.network = network.value;
+    credentials.walletInfo?.derivationInfo?.derivationPath =
+        credentials.hwAccountData.derivationPath;
+
+    final wallet = await BitcoinCashWallet(
+      password: credentials.password!,
+      xpub: credentials.hwAccountData.xpub,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
+    await wallet.save();
+    await wallet.init();
+    return wallet;
   }
 
   @override

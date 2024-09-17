@@ -237,7 +237,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<String> getChangeAddress() async {
+  Future<BitcoinAddressRecord> getChangeAddress() async {
     updateChangeAddresses();
 
     if (changeAddresses.isEmpty) {
@@ -252,7 +252,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     updateChangeAddresses();
-    final address = changeAddresses[currentChangeAddressIndex].address;
+    final address = changeAddresses[currentChangeAddressIndex];
     currentChangeAddressIndex += 1;
     return address;
   }
@@ -567,7 +567,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   Bip32Slip10Secp256k1 _getHd(bool isHidden) => isHidden ? sideHd : mainHd;
+
   bool _isAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) => addr.type == type;
+
   bool _isUnusedReceiveAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) =>
       !addr.isHidden && !addr.isUsed && addr.type == type;
 

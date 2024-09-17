@@ -159,7 +159,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                 Observer(
                   builder: (context) => Column(
                     children: _walletHardwareRestoreVM.availableAccounts.map((acc) {
-                      final address = acc.address;
+                      final address = acc.address.split(":").last;
                       return Padding(
                         padding: EdgeInsets.only(top: 10),
                         child: SelectButton(

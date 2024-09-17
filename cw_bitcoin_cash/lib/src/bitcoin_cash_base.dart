@@ -1,3 +1,4 @@
+export 'bitcoin_cash_hardware_wallet_service.dart';
 export 'bitcoin_cash_wallet.dart';
 export 'bitcoin_cash_wallet_addresses.dart';
 export 'bitcoin_cash_wallet_creation_credentials.dart';
