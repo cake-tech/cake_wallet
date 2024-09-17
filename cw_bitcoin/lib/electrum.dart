@@ -66,6 +66,7 @@ class ElectrumClient {
 
     try {
       await socket?.close();
+      socket = null;
     } catch (_) {}
 
     try {
@@ -90,33 +91,39 @@ class ElectrumClient {
     }
     _setConnectionStatus(ConnectionStatus.connected);
 
-    socket!.listen((Uint8List event) {
-      try {
-        final msg = utf8.decode(event.toList());
-        final messagesList = msg.split("\n");
-        for (var message in messagesList) {
-          if (message.isEmpty) {
-            continue;
+    socket!.listen(
+      (Uint8List event) {
+        try {
+          final msg = utf8.decode(event.toList());
+          final messagesList = msg.split("\n");
+          for (var message in messagesList) {
+            if (message.isEmpty) {
+              continue;
+            }
+            _parseResponse(message);
           }
-          _parseResponse(message);
+        } catch (e) {
+          print(e.toString());
         }
-      } catch (e) {
-        print(e.toString());
-      }
-    }, onError: (Object error) {
-      final errorMsg = error.toString();
-      print(errorMsg);
-      unterminatedString = '';
-
-      final currentHost = socket?.address.host;
-      final isErrorForCurrentHost = errorMsg.contains(" ${currentHost} ");
-
-      if (currentHost != null && isErrorForCurrentHost)
-        _setConnectionStatus(ConnectionStatus.failed);
-    }, onDone: () {
-      unterminatedString = '';
-      if (host == socket?.address.host) _setConnectionStatus(ConnectionStatus.disconnected);
-    });
+      },
+      onError: (Object error) {
+        final errorMsg = error.toString();
+        print(errorMsg);
+        unterminatedString = '';
+      },
+      onDone: () {
+        unterminatedString = '';
+        try {
+          if (host == socket?.address.host) {
+            socket?.destroy();
+            _setConnectionStatus(ConnectionStatus.disconnected);
+          }
+        } catch(e) {
+          print(e.toString());
+        }
+      },
+      cancelOnError: true,
+    );
 
     keepAlive();
   }
@@ -426,7 +433,6 @@ class ElectrumClient {
       {required String id, required String method, List<Object> params = const []}) {
     try {
       if (socket == null) {
-        _setConnectionStatus(ConnectionStatus.failed);
         return null;
       }
       final subscription = BehaviorSubject<T>();
@@ -443,7 +449,6 @@ class ElectrumClient {
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
     if (socket == null) {
-      _setConnectionStatus(ConnectionStatus.failed);
       return null;
     }
     final completer = Completer<dynamic>();
@@ -457,10 +462,9 @@ class ElectrumClient {
   }
 
   Future<dynamic> callWithTimeout(
-      {required String method, List<Object> params = const [], int timeout = 4000}) async {
+      {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
       if (socket == null) {
-        _setConnectionStatus(ConnectionStatus.failed);
         return null;
       }
       final completer = Completer<dynamic>();

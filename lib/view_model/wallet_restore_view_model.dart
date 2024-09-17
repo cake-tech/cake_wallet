@@ -1,25 +1,26 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/tron/tron.dart';
-import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
-import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
 
 part 'wallet_restore_view_model.g.dart';
 
@@ -27,7 +28,7 @@ class WalletRestoreViewModel = WalletRestoreViewModelBase with _$WalletRestoreVi
 
 abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
-      Box<WalletInfo> walletInfoSource,
+      Box<WalletInfo> walletInfoSource, SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type})
       : hasSeedLanguageSelector =
             type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero,
@@ -41,7 +42,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             type == WalletType.tron,
         isButtonEnabled = false,
         mode = WalletRestoreMode.seed,
-        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
+        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
+            type: type, isRecovery: true) {
     switch (type) {
       case WalletType.monero:
         availableModes = WalletRestoreMode.values;
@@ -76,7 +78,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   final bool hasBlockchainHeightLanguageSelector;
   final bool hasRestoreFromPrivateKey;
 
-  bool get hasPassphrase => [WalletType.bitcoin, WalletType.litecoin].contains(type);
+  bool get hasPassphrase =>
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(type);
 
   @observable
   WalletRestoreMode mode;
@@ -192,10 +195,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
         case WalletType.nano:
           return nano!.createNanoRestoreWalletFromKeysCredentials(
-              name: name,
-              password: password,
-              seedKey: options['private_key'] as String,
-              derivationType: options["derivationType"] as DerivationType);
+            name: name,
+            password: password,
+            seedKey: options['private_key'] as String,
+            derivationType: derivationInfo!.derivationType!,
+          );
         case WalletType.polygon:
           return polygon!.createPolygonRestoreWalletFromPrivateKey(
             name: name,

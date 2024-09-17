@@ -29,8 +29,9 @@ class CWBitcoin extends Bitcoin {
 
   @override
   WalletCredentials createBitcoinNewWalletCredentials(
-          {required String name, WalletInfo? walletInfo, String? password}) =>
-      BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
+          {required String name, WalletInfo? walletInfo, String? password, String? passphrase}) =>
+      BitcoinNewWalletCredentials(
+          name: name, walletInfo: walletInfo, password: password, passphrase: passphrase);
 
   @override
   WalletCredentials createBitcoinHardwareWalletCredentials(
@@ -202,8 +203,8 @@ class CWBitcoin extends Bitcoin {
     await bitcoinWallet.updateAllUnspents();
   }
 
-  WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
+  WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource,
+      Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
     return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
   }
 
@@ -275,7 +276,7 @@ class CWBitcoin extends Bitcoin {
     return [DerivationType.bip39, DerivationType.electrum];
   }
 
-  int _countOccurrences(String str, String charToCount) {
+  int _countCharOccurrences(String str, String charToCount) {
     int count = 0;
     for (int i = 0; i < str.length; i++) {
       if (str[i] == charToCount) {
@@ -315,7 +316,7 @@ class CWBitcoin extends Bitcoin {
     for (DerivationType dType in electrum_derivations.keys) {
       late Uint8List seedBytes;
       if (dType == DerivationType.electrum) {
-        seedBytes = await mnemonicToSeedBytes(mnemonic);
+        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
       } else if (dType == DerivationType.bip39) {
         seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
       }
@@ -330,7 +331,7 @@ class CWBitcoin extends Bitcoin {
           );
 
           String balancePath = dInfoCopy.derivationPath!;
-          int derivationDepth = _countOccurrences(balancePath, "/");
+          int derivationDepth = _countCharOccurrences(balancePath, '/');
 
           // for BIP44
           if (derivationDepth == 3 || derivationDepth == 1) {
@@ -398,9 +399,10 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<bool> canReplaceByFee(Object wallet, String transactionHash) async {
+  Future<bool> canReplaceByFee(Object wallet, Object transactionInfo) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.canReplaceByFee(transactionHash);
+    final tx = transactionInfo as ElectrumTransactionInfo;
+    return bitcoinWallet.canReplaceByFee(tx);
   }
 
   @override
@@ -444,18 +446,18 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
-    (wallet as ElectrumWallet).setLedger(ledger, device);
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) {
+    (wallet as ElectrumWallet).setLedgerConnection(connection);
   }
 
   @override
   Future<List<HardwareAccountData>> getHardwareWalletBitcoinAccounts(LedgerViewModel ledgerVM,
       {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.connection);
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } on LedgerException catch (err) {
-      print(err.message);
+    } catch (err) {
+      print(err);
       throw err;
     }
   }
@@ -463,11 +465,11 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<List<HardwareAccountData>> getHardwareWalletLitecoinAccounts(LedgerViewModel ledgerVM,
       {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = LitecoinHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+    final hardwareWalletService = LitecoinHardwareWalletService(ledgerVM.connection);
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } on LedgerException catch (err) {
-      print(err.message);
+    } catch (err) {
+      print(err);
       throw err;
     }
   }
@@ -528,7 +530,7 @@ class CWBitcoin extends Bitcoin {
   @override
   bool isTestnet(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.isTestnet ?? false;
+    return bitcoinWallet.isTestnet;
   }
 
   @override

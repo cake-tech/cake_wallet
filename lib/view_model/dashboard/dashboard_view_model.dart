@@ -1,12 +1,14 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
-import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -32,7 +34,6 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -46,11 +47,9 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/services.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'dashboard_view_model.g.dart';
 
@@ -130,6 +129,16 @@ abstract class DashboardViewModelBase with Store {
                 caption: ExchangeProviderDescription.thorChain.title,
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
+            FilterItem(
+                value: () => tradeFilterStore.displayLetsExchange,
+                caption: ExchangeProviderDescription.letsExchange.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+            FilterItem(
+                value: () => tradeFilterStore.displayStealthEx,
+                caption: ExchangeProviderDescription.stealthEx.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.stealthEx)),
           ]
         },
         subname = '',
@@ -182,7 +191,8 @@ abstract class DashboardViewModelBase with Store {
 
       final _accountTransactions = _wallet.transactionHistory.transactions.values
           .where((tx) =>
-              wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+              wow.wownero!.getTransactionInfoAccountId(tx) ==
+              wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
       final sortedTransactions = [..._accountTransactions];
@@ -482,6 +492,30 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
+  @computed
+  bool get hasSignMessages {
+    if (wallet.isHardwareWallet) {
+      return false;
+    }
+    switch (wallet.type) {
+      case WalletType.monero:
+      case WalletType.litecoin:
+      case WalletType.bitcoin:
+      case WalletType.bitcoinCash:
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.nano:
+      case WalletType.banano:
+      case WalletType.tron:
+      case WalletType.wownero:
+        return true;
+      case WalletType.haven:
+      case WalletType.none:
+        return false;
+    }
+  }
+
   bool get showRepWarning {
     if (wallet.type != WalletType.nano) {
       return false;
@@ -575,7 +609,8 @@ abstract class DashboardViewModelBase with Store {
       }
 
       if (wallet.type == WalletType.wownero) {
-        return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
+        return wow.wownero!.getTransactionInfoAccountId(tx) ==
+            wow.wownero!.getCurrentAccount(wallet).id;
       }
 
       return true;
@@ -600,8 +635,8 @@ abstract class DashboardViewModelBase with Store {
           .getTransactionHistory(wallet)
           .transactions
           .values
-          .where(
-              (tx) => monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
+          .where((tx) =>
+              monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
@@ -613,8 +648,9 @@ abstract class DashboardViewModelBase with Store {
           .getTransactionHistory(wallet)
           .transactions
           .values
-          .where(
-              (tx) => wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id)
+          .where((tx) =>
+              wow.wownero!.getTransactionInfoAccountId(tx) ==
+              wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
       transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(

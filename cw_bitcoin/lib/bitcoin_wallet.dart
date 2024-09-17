@@ -5,13 +5,13 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
-import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -19,7 +19,7 @@ import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_bitcoin/ledger_bitcoin.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
 
 part 'bitcoin_wallet.g.dart';
@@ -61,8 +61,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           initialBalance: initialBalance,
           seedBytes: seedBytes,
           encryptionFileUtils: encryptionFileUtils,
-          currency:
-              networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
+          currency: networkParam == BitcoinNetwork.testnet
+              ? CryptoCurrency.tbtc
+              : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
@@ -80,11 +81,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       mainHd: hd,
       sideHd: accountHD.childKey(Bip32KeyIndex(1)),
       network: networkParam ?? network,
-      masterHd: seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
+      masterHd:
+          seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
     );
 
     autorun((_) {
-      this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
+      this.walletAddresses.isEnabledAutoGenerateSubaddress =
+          this.isEnabledAutoGenerateSubaddress;
     });
   }
 
@@ -115,7 +118,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         break;
       case DerivationType.electrum:
       default:
-        seedBytes = await mnemonicToSeedBytes(mnemonic);
+        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
         break;
     }
     return BitcoinWallet(
@@ -185,8 +188,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     walletInfo.derivationInfo ??= DerivationInfo();
 
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
-    walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
+    walletInfo.derivationInfo!.derivationPath ??=
+        snp?.derivationPath ?? electrum_path;
+    walletInfo.derivationInfo!.derivationType ??=
+        snp?.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
     final mnemonic = keysData.mnemonic;
@@ -195,7 +200,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     if (mnemonic != null) {
       switch (walletInfo.derivationInfo!.derivationType) {
         case DerivationType.electrum:
-          seedBytes = await mnemonicToSeedBytes(mnemonic);
+          seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
           break;
         case DerivationType.bip39:
         default:
@@ -228,16 +233,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
   }
 
-  Ledger? _ledger;
-  LedgerDevice? _ledgerDevice;
+  LedgerConnection? _ledgerConnection;
   BitcoinLedgerApp? _bitcoinLedgerApp;
 
   @override
-  void setLedger(Ledger setLedger, LedgerDevice setLedgerDevice) {
-    _ledger = setLedger;
-    _ledgerDevice = setLedgerDevice;
-    _bitcoinLedgerApp =
-        BitcoinLedgerApp(_ledger!, derivationPath: walletInfo.derivationInfo!.derivationPath!);
+  void setLedgerConnection(LedgerConnection connection) {
+    _ledgerConnection = connection;
+    _bitcoinLedgerApp = BitcoinLedgerApp(_ledgerConnection!,
+        derivationPath: walletInfo.derivationInfo!.derivationPath!);
   }
 
   @override
@@ -252,12 +255,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
     BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
   }) async {
-    final masterFingerprint = await _bitcoinLedgerApp!.getMasterFingerprint(_ledgerDevice!);
+    final masterFingerprint = await _bitcoinLedgerApp!.getMasterFingerprint();
 
     final psbtReadyInputs = <PSBTReadyUtxoWithAddress>[];
     for (final utxo in utxos) {
-      final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
-      final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
+      final rawTx =
+          await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+      final publicKeyAndDerivationPath =
+          publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
       psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
         utxo: utxo.utxo,
@@ -269,10 +274,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       ));
     }
 
-    final psbt =
-        PSBTTransactionBuild(inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF);
+    final psbt = PSBTTransactionBuild(
+        inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF);
 
-    final rawHex = await _bitcoinLedgerApp!.signPsbt(_ledgerDevice!, psbt: psbt.psbt);
+    final rawHex = await _bitcoinLedgerApp!.signPsbt(psbt: psbt.psbt);
     return BtcTransaction.fromRaw(BytesUtils.toHexString(rawHex));
   }
 
@@ -280,14 +285,16 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<String> signMessage(String message, {String? address = null}) async {
     if (walletInfo.isHardwareWallet) {
       final addressEntry = address != null
-          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address)
+          ? walletAddresses.allAddresses
+              .firstWhere((element) => element.address == address)
           : null;
       final index = addressEntry?.index ?? 0;
       final isChange = addressEntry?.isHidden == true ? 1 : 0;
       final accountPath = walletInfo.derivationInfo?.derivationPath;
-      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
+      final derivationPath =
+          accountPath != null ? "$accountPath/$isChange/$index" : null;
 
-      final signature = await _bitcoinLedgerApp!.signMessage(_ledgerDevice!,
+      final signature = await _bitcoinLedgerApp!.signMessage(
           message: ascii.encode(message), signDerivationPath: derivationPath);
       return base64Encode(signature);
     }

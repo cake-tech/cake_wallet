@@ -237,10 +237,10 @@ packages:
     dependency: transitive
     description:
       name: file
-      sha256: "1b92bec4fc2a72f59a8e15af5f52cd441e4a7860b49499d69dfa817af20e925d"
+      sha256: "5fc22d7c25582e38ad9a8515372cd9a93834027aacf1801cf01164dac0ffa08c"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.4"
+    version: "7.0.0"
   fixnum:
     dependency: transitive
     description:
@@ -295,18 +295,18 @@ packages:
     dependency: transitive
     description:
       name: hashlib
-      sha256: "71bf102329ddb8e50c8a995ee4645ae7f1728bb65e575c17196b4d8262121a96"
+      sha256: d41795742c10947930630118c6836608deeb9047cd05aee32d2baeb697afd66a
       url: "https://pub.dev"
     source: hosted
-    version: "1.12.0"
+    version: "1.19.2"
   hashlib_codecs:
     dependency: transitive
     description:
       name: hashlib_codecs
-      sha256: "49e2a471f74b15f1854263e58c2ac11f2b631b5b12c836f9708a35397d36d626"
+      sha256: "2b570061f5a4b378425be28a576c1e11783450355ad4345a19f606ff3d96db0f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.5.0"
   hive:
     dependency: transitive
     description:
@@ -463,8 +463,8 @@ packages:
     dependency: "direct main"
     description:
       path: "impls/monero.dart"
-      ref: bcb328a4956105dc182afd0ce2e48fe263f5f20b
-      resolved-ref: bcb328a4956105dc182afd0ce2e48fe263f5f20b
+      ref: "3cb38bee9385faf46b03fd73aab85f3ac4115bf7"
+      resolved-ref: "3cb38bee9385faf46b03fd73aab85f3ac4115bf7"
       url: "https://github.com/mrcyjanek/monero_c"
     source: git
     version: "0.0.0"
@@ -568,10 +568,10 @@ packages:
     dependency: "direct main"
     description:
       name: polyseed
-      sha256: edf28042e7b0b28f97a0469aa98e6e4015937cef6b9340cd6ad2822139c95217
+      sha256: "11d4dbee409db053c5e9cd77382b2f5115f43fc2529158a826a96f3ba505d770"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.5"
+    version: "0.0.6"
   pool:
     dependency: transitive
     description:

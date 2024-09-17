@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bip39/bip39.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -41,6 +42,7 @@ class BitcoinCashWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      passphrase: credentials.passphrase,
     );
     await wallet.save();
     await wallet.init();
@@ -146,7 +148,9 @@ class BitcoinCashWalletService extends WalletService<
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+        passphrase: credentials.passphrase
+    );
     await wallet.save();
     await wallet.init();
     return wallet;

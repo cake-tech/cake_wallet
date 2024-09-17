@@ -12,7 +12,7 @@ import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
-import 'package:cake_wallet/view_model/seed_type_view_model.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -23,7 +23,7 @@ import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class WalletRestorePage extends BasePage {
-  WalletRestorePage(this.walletRestoreViewModel, this.seedTypeViewModel)
+  WalletRestorePage(this.walletRestoreViewModel, this.seedSettingsViewModel)
       : walletRestoreFromSeedFormKey = GlobalKey<WalletRestoreFromSeedFormState>(),
         walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFromState>(),
         _pages = [],
@@ -33,7 +33,7 @@ class WalletRestorePage extends BasePage {
       switch (mode) {
         case WalletRestoreMode.seed:
           _pages.add(WalletRestoreFromSeedForm(
-              seedTypeViewModel: seedTypeViewModel,
+              seedSettingsViewModel: seedSettingsViewModel,
               displayBlockHeightSelector:
                   walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
               displayLanguageSelector: walletRestoreViewModel.hasSeedLanguageSelector,
@@ -96,7 +96,7 @@ class WalletRestorePage extends BasePage {
           ));
 
   final WalletRestoreViewModel walletRestoreViewModel;
-  final SeedTypeViewModel seedTypeViewModel;
+  final SeedSettingsViewModel seedSettingsViewModel;
   final PageController _controller;
   final List<Widget> _pages;
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
@@ -233,6 +233,7 @@ class WalletRestorePage extends BasePage {
                         onTap: () {
                           Navigator.of(context)
                               .pushNamed(Routes.advancedPrivacySettings, arguments: {
+                            'isFromRestore': true,
                             'type': walletRestoreViewModel.type,
                             'useTestnet': walletRestoreViewModel.useTestnet,
                             'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
@@ -322,8 +323,7 @@ class WalletRestorePage extends BasePage {
       }
 
       if (walletRestoreViewModel.hasPassphrase) {
-        credentials['passphrase'] =
-            walletRestoreFromSeedFormKey.currentState!.passphraseController.text;
+        credentials['passphrase'] = seedSettingsViewModel.passphrase;
       }
 
       credentials['name'] =
@@ -406,26 +406,19 @@ class WalletRestorePage extends BasePage {
         ) as DerivationInfo?;
       } else if (derivationsWithHistory == 1) {
         dInfo = derivations[derivationWithHistoryIndex];
-      }
-
-      // get the default derivation for this wallet type:
-      if (dInfo == null) {
+      } else if (derivations.length == 1) {
         // we only return 1 derivation if we're pretty sure we know which one to use:
-        if (derivations.length == 1) {
-          dInfo = derivations.first;
-        } else {
-          // if we have multiple possible derivations, and none have histories
-          // we just default to the most common one:
-          dInfo = walletRestoreViewModel.getCommonRestoreDerivation();
-        }
+        dInfo = derivations.first;
+      } else {
+        // if we have multiple possible derivations, and none (or multiple) have histories
+        // we just default to the most common one:
+        dInfo = walletRestoreViewModel.getCommonRestoreDerivation();
       }
 
       this.derivationInfo = dInfo;
-      if (this.derivationInfo == null) {
-        this.derivationInfo = walletRestoreViewModel.getDefaultDerivation();
-      }
 
       await walletRestoreViewModel.create(options: _credentials());
+      seedSettingsViewModel.setPassphrase(null);
     } catch (e) {
       _formProcessing = false;
       rethrow;

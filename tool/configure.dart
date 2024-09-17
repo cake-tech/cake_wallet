@@ -93,7 +93,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 """;
@@ -101,6 +101,7 @@ import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
@@ -151,7 +152,7 @@ abstract class Bitcoin {
     String? passphrase,
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
-  WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password});
+  WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
   Map<String, String> getWalletKeys(Object wallet);
@@ -205,7 +206,7 @@ abstract class Bitcoin {
   bool isTestnet(Object wallet);
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
-  Future<bool> canReplaceByFee(Object wallet, String transactionHash);
+  Future<bool> canReplaceByFee(Object wallet, Object tx);
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
   int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
   int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
@@ -218,7 +219,7 @@ abstract class Bitcoin {
   Future<void> updateFeeRates(Object wallet);
   int getMaxCustomFeeRate(Object wallet);
 
-  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
   Future<List<HardwareAccountData>> getHardwareWalletBitcoinAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
   Future<List<HardwareAccountData>> getHardwareWalletLitecoinAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 }
@@ -804,7 +805,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:web3dart/web3dart.dart';
 
 """;
@@ -870,7 +871,7 @@ abstract class Ethereum {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
   
-  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 }
   """;
@@ -908,7 +909,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:web3dart/web3dart.dart';
 
 """;
@@ -974,7 +975,7 @@ abstract class Polygon {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
   
-  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
 }
   """;
@@ -1025,10 +1026,10 @@ abstract class BitcoinCash {
       Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
 
   WalletCredentials createBitcoinCashNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo, String? password});
+      {required String name, WalletInfo? walletInfo, String? password, String? passphrase});
 
   WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
-      {required String name, required String mnemonic, required String password});
+      {required String name, required String mnemonic, required String password, String? passphrase});
 
   WalletCredentials createBitcoinCashHardwareWalletCredentials(
       {required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -42,17 +43,21 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
+import 'package:logging/logging.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
 Future<void> main() async {
+  await runAppWithZone();
+}
 
+Future<void> runAppWithZone() async {
   bool isAppRunning = false;
+
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
-
     FlutterError.onError = ExceptionHandler.onError;
 
     /// A callback that is invoked when an unhandled error occurs in the root
@@ -62,47 +67,34 @@ Future<void> main() async {
 
       return true;
     };
+    await initializeAppAtRoot();
 
-    await setDefaultMinimumWindowSize();
+    final appDocDir = await getAppDir();
 
-    await CakeHive.close();
-
-    await initializeAppConfigs();
+    final ledgerFile = File('${appDocDir.path}/ledger_log.txt');
+    if (!ledgerFile.existsSync()) ledgerFile.createSync();
+    Logger.root.onRecord.listen((event) async {
+      final content = ledgerFile.readAsStringSync();
+      ledgerFile.writeAsStringSync("$content\n${event.message}");
+    });
 
     runApp(App());
-
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
       runApp(
-        MaterialApp(
-          debugShowCheckedModeBanner: false,
-          scrollBehavior: AppScrollBehavior(),
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: Container(
-                margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
-                child: Column(
-                  children: [
-                    Text(
-                      'Error:\n${error.toString()}',
-                      style: TextStyle(fontSize: 22),
-                    ),
-                    Text(
-                      'Stack trace:\n${stackTrace.toString()}',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+        TopLevelErrorWidget(error: error, stackTrace: stackTrace),
       );
     }
 
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
+}
+
+Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
+  if (!reInitializing) await setDefaultMinimumWindowSize();
+  await CakeHive.close();
+  await initializeAppConfigs();
 }
 
 Future<void> initializeAppConfigs() async {
@@ -205,7 +197,7 @@ Future<void> initializeAppConfigs() async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 39,
+    initialMigrationVersion: 40,
   );
 }
 
@@ -336,5 +328,43 @@ class _HomeState extends State<_Home> {
   @override
   Widget build(BuildContext context) {
     return const SizedBox.shrink();
+  }
+}
+
+class TopLevelErrorWidget extends StatelessWidget {
+  const TopLevelErrorWidget({
+    required this.error,
+    required this.stackTrace,
+    super.key,
+  });
+
+  final Object error;
+  final StackTrace stackTrace;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      scrollBehavior: AppScrollBehavior(),
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: Container(
+            margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
+            child: Column(
+              children: [
+                Text(
+                  'Error:\n${error.toString()}',
+                  style: TextStyle(fontSize: 22),
+                ),
+                Text(
+                  'Stack trace:\n${stackTrace.toString()}',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

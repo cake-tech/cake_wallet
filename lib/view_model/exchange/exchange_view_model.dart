@@ -4,6 +4,8 @@ import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
+import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -142,7 +144,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       _bestRate = 0;
       _calculateBestRate();
     });
+
+    if (isElectrumWallet) {
+      bitcoin!.updateFeeRates(wallet);
+    }
   }
+
+  bool get isElectrumWallet =>
+      wallet.type == WalletType.bitcoin ||
+      wallet.type == WalletType.litecoin ||
+      wallet.type == WalletType.bitcoinCash;
 
   bool _useTorOnly;
   final Box<Trade> trades;
@@ -151,15 +162,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   final SharedPreferences sharedPreferences;
 
   List<ExchangeProvider> get _allProviders => [
-        ChangeNowExchangeProvider(settingsStore: _settingsStore),
-        SideShiftExchangeProvider(),
-        SimpleSwapExchangeProvider(),
-        ThorChainExchangeProvider(tradesStore: trades),
-        if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
-        QuantexExchangeProvider(),
-        TrocadorExchangeProvider(
-            useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
-      ];
+    ChangeNowExchangeProvider(settingsStore: _settingsStore),
+    SideShiftExchangeProvider(),
+    SimpleSwapExchangeProvider(),
+    ThorChainExchangeProvider(tradesStore: trades),
+    if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
+    QuantexExchangeProvider(),
+    LetsExchangeExchangeProvider(),
+    StealthExExchangeProvider(),
+    TrocadorExchangeProvider(
+        useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
+  ];
 
   @observable
   ExchangeProvider? provider;
@@ -833,6 +846,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         return CreateTradeResult(
           result: false,
           errorMessage: S.current.thorchain_taproot_address_not_supported,
+        );
+      }
+
+      if ((trade.memo == null || trade.memo!.isEmpty)) {
+        return CreateTradeResult(
+          result: false,
+          errorMessage: 'Memo is required for Thorchain trade',
         );
       }
 
