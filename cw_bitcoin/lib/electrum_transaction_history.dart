@@ -76,8 +76,13 @@ abstract class ElectrumTransactionHistoryBase
         final val = entry.value;
 
         if (val is Map<String, dynamic>) {
-          final tx = ElectrumTransactionInfo.fromJson(val, walletInfo.type);
-          _update(tx);
+          // removing transactions with invalid date
+          if (val['date'] == 1168650000) {
+            transactions.remove(entry.key);
+          } else {
+            final tx = ElectrumTransactionInfo.fromJson(val, walletInfo.type);
+            _update(tx);
+          }
         }
       });
 
