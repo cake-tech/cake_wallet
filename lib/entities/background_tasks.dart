@@ -49,6 +49,7 @@ void setMainNotification(
         notificationChannelName,
         icon: 'ic_bg_service_small',
         ongoing: true,
+        silent: true,
       ),
     ),
   );
@@ -84,6 +85,7 @@ void setSpNodeWarningNotification(
         "${notificationChannelName}_$walletNum",
         icon: 'ic_bg_service_small',
         ongoing: false,
+        silent: true,
       ),
     ),
   );
@@ -201,7 +203,7 @@ Future<void> onStart(ServiceInstance service) async {
           spSupported = false;
           continue;
         }
-        
+
         await wallet.connectToNode(node: node);
         syncingWallets.add(wallet);
       } catch (e) {
@@ -243,6 +245,7 @@ Future<void> onStart(ServiceInstance service) async {
               "${notificationChannelName}_$i",
               icon: 'ic_bg_service_small',
               ongoing: true,
+              silent: true,
             ),
           ),
         );
@@ -278,7 +281,7 @@ Future<void> initializeService(FlutterBackgroundService bgService, bool useNotif
         "${notificationChannelId}_$i",
         "${notificationChannelName}_$i",
         description: notificationChannelDescription,
-        importance: Importance.low,
+        importance: Importance.min,
       );
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
