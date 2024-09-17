@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -11,6 +12,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as sdk;
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class LedgerViewModel {
@@ -34,6 +36,18 @@ class LedgerViewModel {
 
   LedgerViewModel() {
     if (_doesSupportHardwareWallets) {
+      _initBLE();
+
+      if (!Platform.isIOS) {
+        ledgerPlusUSB = sdk.LedgerInterface.usb();
+      }
+    }
+  }
+
+  Future<void> _initBLE() async {
+    final bleState = await UniversalBle.getBluetoothAvailabilityState();
+
+    if (bleState == sdk.AvailabilityState.poweredOn) {
       ledgerPlusBLE = sdk.LedgerInterface.ble(onPermissionRequest: (_) async {
         Map<Permission, PermissionStatus> statuses = await [
           Permission.bluetoothScan,
@@ -41,12 +55,10 @@ class LedgerViewModel {
           Permission.bluetoothAdvertise,
         ].request();
 
-        return statuses.values.where((status) => status.isDenied).isEmpty;
+        return statuses.values
+            .where((status) => status.isDenied)
+            .isEmpty;
       });
-
-      if (!Platform.isIOS) {
-        ledgerPlusUSB = sdk.LedgerInterface.usb();
-      }
     }
   }
 
@@ -60,9 +72,18 @@ class LedgerViewModel {
         ? ledgerPlusBLE
         : ledgerPlusUSB;
     _connection = await ledger.connect(device);
-    print("Connected");
+    if (_connectionChangeListener == null) {
+      _connectionChangeListener = ledger.deviceStateChanges.listen((event) {
+        print('Ledger Device State Changed: $event');
+        if (event == sdk.BleConnectionState.disconnected) {
+          _connection = null;
+          _connectionChangeListener?.cancel();
+        }
+      });
+    }
   }
 
+  StreamSubscription<sdk.BleConnectionState>? _connectionChangeListener;
   sdk.LedgerConnection? _connection;
 
   bool get isConnected => _connection != null && !(_connection!.isDisconnected);
