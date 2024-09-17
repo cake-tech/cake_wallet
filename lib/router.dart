@@ -175,9 +175,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.preExistingSeedsPage:
       final type = settings.arguments as WalletType;
-      final walletNewVM = getIt.get<PreExistingSeedsViewModel>(param1: type);
+      final preExistingSeedsVM = getIt.get<PreExistingSeedsViewModel>(param1: type);
 
-      return CupertinoPageRoute<void>(builder: (_) => PreExistingSeedsPage(walletNewVM));
+      return CupertinoPageRoute<void>(builder: (_) => PreExistingSeedsPage(preExistingSeedsVM));
 
     case Routes.newWallet:
       final args = settings.arguments as NewWalletArguments;
