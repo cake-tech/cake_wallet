@@ -42,12 +42,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
     const excludeFiatCurrencies = [];
-    const excludeCryptoCurrencies = [
-      CryptoCurrency.xlm,
-      CryptoCurrency.xrp,
-      CryptoCurrency.bnb,
-      CryptoCurrency.btt
-    ];
+    const excludeCryptoCurrencies = [];
 
     fiatCurrencies =
         FiatCurrency.all.where((currency) => !excludeFiatCurrencies.contains(currency)).toList();
@@ -67,13 +62,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   late Timer bestRateSync;
 
   List<BuyProvider> get availableBuyProviders {
-    // final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(wallet.type);
-    final providerTypes = [
-      ProviderType.robinhood,
-      ProviderType.dfx,
-      ProviderType.onramper,
-      ProviderType.moonpay,
-    ];
+    final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(wallet.type);
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
@@ -82,13 +71,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   List<BuyProvider> get availableSellProviders {
-    // final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
-    final providerTypes = [
-      ProviderType.robinhood,
-      ProviderType.dfx,
-      ProviderType.onramper,
-      ProviderType.moonpay,
-    ];
+    final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)

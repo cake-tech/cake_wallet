@@ -59,7 +59,6 @@ class ProvidersHelper {
           ProviderType.dfx,
           ProviderType.robinhood,
           ProviderType.moonpay,
-          ProviderType.meld,
         ];
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
