@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "من خلال إيقاف تشغيل هذا ، قد تكون معدلات الرسوم غير دقيقة في بعض الحالات ، لذلك قد ينتهي بك الأمر إلى دفع مبالغ زائدة أو دفع رسوم المعاملات الخاصة بك",
   "disable_fiat": "تعطيل fiat",
   "disable_sell": "قم بتعطيل إجراء البيع",
+  "disable_trade_option": "تعطيل خيار التجارة",
   "disableBatteryOptimization": "تعطيل تحسين البطارية",
   "disableBatteryOptimizationDescription": "هل تريد تعطيل تحسين البطارية من أجل جعل الخلفية مزامنة تعمل بحرية وسلاسة؟",
   "disabled": "معطلة",

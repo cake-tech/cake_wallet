@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "Tímto vypnutím by sazby poplatků mohly být v některých případech nepřesné, takže byste mohli skončit přepláváním nebo nedoplatkem poplatků za vaše transakce",
   "disable_fiat": "Zakázat fiat",
   "disable_sell": "Zakázat akci prodeje",
+  "disable_trade_option": "Zakázat možnost TRADE",
   "disableBatteryOptimization": "Zakázat optimalizaci baterie",
   "disableBatteryOptimizationDescription": "Chcete deaktivovat optimalizaci baterie, aby se synchronizovala pozadí volně a hladce?",
   "disabled": "Zakázáno",

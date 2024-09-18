@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "Wenn dies ausgeschaltet wird, sind die Gebührenquoten in einigen Fällen möglicherweise ungenau, sodass Sie die Gebühren für Ihre Transaktionen möglicherweise überbezahlt oder unterzahlt",
   "disable_fiat": "Fiat deaktivieren",
   "disable_sell": "Verkaufsaktion deaktivieren",
+  "disable_trade_option": "Handelsoption deaktivieren",
   "disableBatteryOptimization": "Batterieoptimierung deaktivieren",
   "disableBatteryOptimizationDescription": "Möchten Sie die Batterieoptimierung deaktivieren, um die Hintergrundsynchronisierung reibungsloser zu gestalten?",
   "disabled": "Deaktiviert",

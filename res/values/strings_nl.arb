@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "Door dit uit te schakelen, kunnen de tarieven in sommige gevallen onnauwkeurig zijn, dus u kunt de vergoedingen voor uw transacties te veel betalen of te weinig betalen",
   "disable_fiat": "Schakel Fiat uit",
   "disable_sell": "Verkoopactie uitschakelen",
+  "disable_trade_option": "Schakel handelsoptie uit",
   "disableBatteryOptimization": "Schakel de batterijoptimalisatie uit",
   "disableBatteryOptimizationDescription": "Wilt u de optimalisatie van de batterij uitschakelen om achtergrondsynchronisatie te laten werken, vrijer en soepeler?",
   "disabled": "Gehandicapt",

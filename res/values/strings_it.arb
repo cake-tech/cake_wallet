@@ -215,6 +215,7 @@
   "disable_fee_api_warning": "Disattivando questo, i tassi delle commissioni potrebbero essere inaccurati in alcuni casi, quindi potresti finire in eccesso o sostenere le commissioni per le transazioni",
   "disable_fiat": "Disabilita fiat",
   "disable_sell": "Disabilita l'azione di vendita",
+  "disable_trade_option": "Disabilita l'opzione commerciale",
   "disableBatteryOptimization": "Disabilita l'ottimizzazione della batteria",
   "disableBatteryOptimizationDescription": "Vuoi disabilitare l'ottimizzazione della batteria per far funzionare la sincronizzazione in background più libera e senza intoppi?",
   "disabled": "Disabilitato",

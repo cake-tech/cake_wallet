@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "En désactivant cela, les taux de frais peuvent être inexacts dans certains cas, vous pourriez donc finir par payer trop ou sous-paiement les frais pour vos transactions",
   "disable_fiat": "Désactiver les montants en fiat",
   "disable_sell": "Désactiver l'action de vente",
+  "disable_trade_option": "Désactiver l'option de commerce",
   "disableBatteryOptimization": "Désactiver l'optimisation de la batterie",
   "disableBatteryOptimizationDescription": "Voulez-vous désactiver l'optimisation de la batterie afin de faire fonctionner la synchronisation d'arrière-plan plus librement et en douceur?",
   "disabled": "Désactivé",

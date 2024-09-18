@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "By turning this off, the fee rates might be inaccurate in some cases, so you might end up overpaying or underpaying the fees for your transactions",
   "disable_fiat": "Disable fiat",
   "disable_sell": "Disable sell action",
+  "disable_trade_option": "Disable trade option",
   "disableBatteryOptimization": "Disable Battery Optimization",
   "disableBatteryOptimizationDescription": "Do you want to disable battery optimization in order to make background sync run more freely and smoothly?",
   "disabled": "Disabled",

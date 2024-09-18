@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "Ta hanyar juya wannan kashe, kudaden da zai iya zama ba daidai ba a wasu halaye, saboda haka zaku iya ƙare da overpaying ko a ƙarƙashin kudaden don ma'amaloli",
   "disable_fiat": "Dakatar da fiat",
   "disable_sell": "Kashe karbuwa",
+  "disable_trade_option": "Musaki zaɓi na kasuwanci",
   "disableBatteryOptimization": "Kashe ingantawa baturi",
   "disableBatteryOptimizationDescription": "Shin kana son kashe ingantawa baturi don yin setnc bankwali gudu da yar kyauta da kyau?",
   "disabled": "tsaya",

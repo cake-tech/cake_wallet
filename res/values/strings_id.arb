@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "Dengan mematikan ini, tarif biaya mungkin tidak akurat dalam beberapa kasus, jadi Anda mungkin akan membayar lebih atau membayar biaya untuk transaksi Anda",
   "disable_fiat": "Nonaktifkan fiat",
   "disable_sell": "Nonaktifkan aksi jual",
+  "disable_trade_option": "Nonaktifkan opsi perdagangan",
   "disableBatteryOptimization": "Nonaktifkan optimasi baterai",
   "disableBatteryOptimizationDescription": "Apakah Anda ingin menonaktifkan optimasi baterai untuk membuat sinkronisasi latar belakang berjalan lebih bebas dan lancar?",
   "disabled": "Dinonaktifkan",

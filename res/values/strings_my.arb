@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "ဤအရာကိုဖွင့်ခြင်းအားဖြင့်အချို့သောကိစ္စရပ်များတွင်အခကြေးငွေနှုန်းထားများသည်တိကျမှုရှိနိုင်သည်,",
   "disable_fiat": "Fiat ကိုပိတ်ပါ။",
   "disable_sell": "ရောင်းချခြင်းလုပ်ဆောင်ချက်ကို ပိတ်ပါ။",
+  "disable_trade_option": "ကုန်သွယ်ရေး option ကိုပိတ်ပါ",
   "disableBatteryOptimization": "ဘက်ထရီ optimization ကိုပိတ်ပါ",
   "disableBatteryOptimizationDescription": "နောက်ခံထပ်တူပြုခြင်းနှင့်ချောချောမွေ့မွေ့ပြုလုပ်နိုင်ရန်ဘက်ထရီ optimization ကိုသင်ပိတ်ထားလိုပါသလား။",
   "disabled": "မသန်စွမ်း",

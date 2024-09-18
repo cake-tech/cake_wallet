@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "Ao desativar isso, as taxas de taxas podem ser imprecisas em alguns casos, para que você possa acabar pagando demais ou pagando as taxas por suas transações",
   "disable_fiat": "Desativar fiat",
   "disable_sell": "Desativar ação de venda",
+  "disable_trade_option": "Desativar a opção comercial",
   "disableBatteryOptimization": "Desative a otimização da bateria",
   "disableBatteryOptimizationDescription": "Deseja desativar a otimização da bateria para fazer a sincronização de fundo funcionar de forma mais livre e suave?",
   "disabled": "Desabilitado",

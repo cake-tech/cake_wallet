@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "Isključivanjem ovoga, stope naknade u nekim bi slučajevima mogle biti netočne, tako da biste mogli preplatiti ili predati naknadu za vaše transakcije",
   "disable_fiat": "Isključi, fiat",
   "disable_sell": "Onemogući akciju prodaje",
+  "disable_trade_option": "Onemogući trgovinsku opciju",
   "disableBatteryOptimization": "Onemogući optimizaciju baterije",
   "disableBatteryOptimizationDescription": "Želite li onemogućiti optimizaciju baterije kako bi se pozadinska sinkronizacija radila slobodnije i glatko?",
   "disabled": "Onemogućeno",

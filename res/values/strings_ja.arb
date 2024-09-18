@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "これをオフにすることで、料金金利は場合によっては不正確になる可能性があるため、取引の費用が過払いまたは不足している可能性があります",
   "disable_fiat": "フィアットを無効にする",
   "disable_sell": "販売アクションを無効にする",
+  "disable_trade_option": "取引オプションを無効にします",
   "disableBatteryOptimization": "バッテリーの最適化を無効にします",
   "disableBatteryOptimizationDescription": "バックグラウンドシンクをより自由かつスムーズに実行するために、バッテリーの最適化を無効にしたいですか？",
   "disabled": "無効",

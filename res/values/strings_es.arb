@@ -214,6 +214,7 @@
   "disable_fee_api_warning": "Al apagar esto, las tasas de tarifas pueden ser inexactas en algunos casos, por lo que puede terminar pagando en exceso o pagando menos las tarifas por sus transacciones",
   "disable_fiat": "Deshabilitar fiat",
   "disable_sell": "Desactivar acción de venta",
+  "disable_trade_option": "Deshabilitar la opción de comercio",
   "disableBatteryOptimization": "Deshabilitar la optimización de la batería",
   "disableBatteryOptimizationDescription": "¿Desea deshabilitar la optimización de la batería para que la sincronización de fondo se ejecute más libremente y sin problemas?",
   "disabled": "Desactivado",
