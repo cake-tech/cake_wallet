@@ -190,12 +190,7 @@ class MenuWidgetState extends State<MenuWidget> {
 
                   index--;
 
-                  final item = SettingActions.all[index];
-
-                  if (!widget.dashboardViewModel.hasSilentPayments &&
-                      item.name(context) == S.of(context).silent_payments_settings) {
-                    return Container();
-                  }
+                  final item = items[index];
 
                   final isLastTile = index == itemCount - 1;
 
