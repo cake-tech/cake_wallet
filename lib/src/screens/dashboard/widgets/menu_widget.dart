@@ -101,11 +101,11 @@ class MenuWidgetState extends State<MenuWidget> {
     if (!widget.dashboardViewModel.hasSilentPayments) {
       items.removeWhere((element) => element.name(context) == S.of(context).silent_payments_settings);
     }
-    int itemCount = items.length;
     // if (!widget.dashboardViewModel.hasMweb) {
     //   itemCount--;
     //   items.removeWhere((element) => element.name(context) == S.of(context).litecoin_mweb_settings);
     // }
+    int itemCount = items.length;
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
         color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
