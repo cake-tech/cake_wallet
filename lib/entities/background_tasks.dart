@@ -20,6 +20,7 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:intl/intl.dart';
 
 const moneroSyncTaskKey = "com.fotolockr.cakewallet.monero_sync_task";
 const mwebSyncTaskKey = "com.fotolockr.cakewallet.mweb_sync_task";
@@ -221,8 +222,6 @@ Future<void> onStart(ServiceInstance service) async {
 
     print("STARTING SYNC TIMER");
     _syncTimer?.cancel();
-    if (syncingWallets.isEmpty) return;
-    syncingWallets.first!.startSync();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) async {
       for (int i = 0; i < syncingWallets.length; i++) {
         final wallet = syncingWallets[i];
@@ -235,6 +234,7 @@ Future<void> onStart(ServiceInstance service) async {
           wallet.stopSync();
           // pop the first wallet from the list
           standbyWallets.add(syncingWallets.removeAt(i));
+          flutterLocalNotificationsPlugin.cancelAll();
           continue;
         }
 
@@ -244,16 +244,18 @@ Future<void> onStart(ServiceInstance service) async {
 
         if (shouldSync) {
           if (syncStatus is NotConnectedSyncStatus) {
+            print("${wallet.name} NOT CONNECTED");
             final node = settingsStore.getCurrentNode(wallet.type);
             await wallet.connectToNode(node: node);
-            await wallet.startSync();
+            wallet.startSync();
+            print("STARTED SYNC");
             // wait a few seconds before checking progress
             // await Future.delayed(const Duration(seconds: 10));
           }
 
           if (syncStatus is SyncingSyncStatus) {
             final blocksLeft = syncStatus.blocksLeft;
-            content = "${blocksLeft} Blocks Left";
+            content = "$blocksLeft Blocks Left";
           } else if (syncStatus is SyncedSyncStatus) {
             content = "Synced";
           } else if (syncStatus is SyncedTipSyncStatus) {
@@ -285,7 +287,7 @@ Future<void> onStart(ServiceInstance service) async {
           }
         }
 
-        content += " - ${DateTime.now().millisecondsSinceEpoch * 1000}";
+        content += " - ${DateFormat("hh:mm:ss").format(DateTime.now())}";
 
         setWalletNotification(
           flutterLocalNotificationsPlugin,
@@ -298,9 +300,6 @@ Future<void> onStart(ServiceInstance service) async {
       for (int i = 0; i < standbyWallets.length; i++) {
         int notificationIndex = syncingWallets.length + i + 1;
         final wallet = standbyWallets[i];
-
-        final syncStatus = wallet.syncStatus;
-
         final title = "${walletTypeToCryptoCurrency(wallet.type).title} - ${wallet.name}";
         String content = "Synced - on standby until next queue refresh";
 
