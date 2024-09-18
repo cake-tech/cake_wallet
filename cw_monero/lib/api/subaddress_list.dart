@@ -15,6 +15,10 @@ class SubaddressInfoMetadata {
 
 SubaddressInfoMetadata? subaddress = null;
 
+String getRawLabel({required int accountIndex, required int addressIndex}) {
+  return monero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
+}
+
 void refreshSubaddresses({required int accountIndex}) {
   try {
     isUpdating = true;
@@ -41,7 +45,11 @@ class Subaddress {
   final int accountIndex;
   final int received;
   final int txCount;
-  String get label => "#$addressIndex ${monero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}".trim();
+  String get label {
+    final localLabel = monero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
+    if (localLabel.startsWith("#$addressIndex")) return localLabel; // don't duplicate the ID if it was user-providen
+    return "#$addressIndex ${localLabel}".trim();
+  }
 }
 
 class TinyTransactionDetails {

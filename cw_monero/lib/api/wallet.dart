@@ -69,6 +69,7 @@ String getSeedLegacy(String? language) {
 Map<int, Map<int, Map<int, String>>> addressCache = {};
 
 String getAddress({int accountIndex = 0, int addressIndex = 0}) {
+  // print("getaddress: ${accountIndex}/${addressIndex}: ${monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)}: ${monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}");
   while (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)-1 < addressIndex) {
     print("adding subaddress");
     monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);

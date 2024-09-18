@@ -36,6 +36,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     while (hiddenAddresses.contains(address)) {
       addressIndex++;
       address = getAddress(accountIndex: 0, addressIndex: addressIndex);
+      subaddressList.update(accountIndex: account?.id??0);
     }
     return address;
   }
@@ -44,9 +45,10 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   String get addressForExchange {
     var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
     var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
-    while (hiddenAddresses.contains(address) || manualAddresses.contains(address)) {
+    while (hiddenAddresses.contains(address) || manualAddresses.contains(address) || subaddress_list.getRawLabel(accountIndex: account?.id??0, addressIndex: addressIndex).isNotEmpty) {
       addressIndex++;
       address = getAddress(accountIndex: 0, addressIndex: addressIndex);
+      subaddressList.update(accountIndex: account?.id??0);
     }
     return address;
   }
