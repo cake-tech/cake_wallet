@@ -36,7 +36,7 @@ dependencies:
       url: https://github.com/cake-tech/ledger-bitcoin
   sp_scanner:
     git:
-      url: https://github.com/rafael-xmr/sp_scanner
+      url: https://github.com/cake-tech/sp_scanner
       ref: sp_v4.0.0
 
 
