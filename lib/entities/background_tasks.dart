@@ -35,6 +35,7 @@ const notificationChannelDescription = 'Cake Wallet Background Service';
 const DELAY_SECONDS_BEFORE_SYNC_START = 15;
 const spNodeNotificationMessage =
     "Currently configured Bitcoin node does not support Silent Payments. skipping wallet";
+const SYNC_THRESHOLD = 0.98;
 
 void setMainNotification(
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, {
@@ -98,6 +99,7 @@ Future<void> onStart(ServiceInstance service) async {
   print("BACKGROUND SERVICE STARTED");
   bool bgSyncStarted = false;
   Timer? _syncTimer;
+  Timer? _queueTimer;
 
   // commented because the behavior appears to be bugged:
   // DartPluginRegistrant.ensureInitialized();
@@ -151,9 +153,10 @@ Future<void> onStart(ServiceInstance service) async {
     final settingsStore = getIt.get<SettingsStore>();
     final walletListViewModel = getIt.get<WalletListViewModel>();
 
-    List<WalletBase?> syncingWallets = [];
+    List<WalletBase> syncingWallets = [];
+    List<WalletBase> standbyWallets = [];
 
-    // get all Monero / Wownero wallets and sync them
+    // get all Monero / Wownero wallets and add them
     final List<WalletListItem> moneroWallets = walletListViewModel.wallets
         .where((element) => [WalletType.monero, WalletType.wownero].contains(element.type))
         .toList();
@@ -161,12 +164,11 @@ Future<void> onStart(ServiceInstance service) async {
     for (int i = 0; i < moneroWallets.length; i++) {
       final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
       final node = settingsStore.getCurrentNode(moneroWallets[i].type);
-      wallet.connectToNode(node: node);
-      wallet.stopSync();
+      await wallet.stopSync();
       syncingWallets.add(wallet);
     }
 
-    // get all litecoin wallets and sync them:
+    // get all litecoin wallets and add them:
     final List<WalletListItem> litecoinWallets = walletListViewModel.wallets
         .where((element) => element.type == WalletType.litecoin)
         .toList();
@@ -176,10 +178,7 @@ Future<void> onStart(ServiceInstance service) async {
       try {
         final firstWallet = litecoinWallets.first;
         final wallet = await walletLoadingService.load(firstWallet.type, firstWallet.name);
-        final node = settingsStore.getCurrentNode(WalletType.litecoin);
-        wallet.connectToNode(node: node);
-        wallet.stopSync();
-        // calling start sync isn't necessary since it's called after connecting to the node
+        await wallet.stopSync();
         syncingWallets.add(wallet);
       } catch (e) {
         // couldn't connect to mwebd (most likely)
@@ -187,7 +186,7 @@ Future<void> onStart(ServiceInstance service) async {
       }
     }
 
-    // get all bitcoin wallets and sync them:
+    // get all bitcoin wallets and add them:
     final List<WalletListItem> bitcoinWallets =
         walletListViewModel.wallets.where((element) => element.type == WalletType.bitcoin).toList();
     bool spSupported = true;
@@ -202,12 +201,11 @@ Future<void> onStart(ServiceInstance service) async {
         bool nodeSupportsSP = await (wallet as ElectrumWallet).getNodeSupportsSilentPayments();
         if (!nodeSupportsSP) {
           print("Configured node does not support silent payments, skipping wallet");
-          syncingWallets.add(null);
           setWalletNotification(
             flutterLocalNotificationsPlugin,
             title: initialNotificationTitle,
             content: spNodeNotificationMessage,
-            walletNum: syncingWallets.length - 1,
+            walletNum: syncingWallets.length + 1,
           );
           spSupported = false;
           continue;
@@ -222,83 +220,117 @@ Future<void> onStart(ServiceInstance service) async {
     }
 
     print("STARTING SYNC TIMER");
-    int currentSyncingWallet = 0;
     _syncTimer?.cancel();
     if (syncingWallets.isEmpty) return;
     syncingWallets.first!.startSync();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) async {
       for (int i = 0; i < syncingWallets.length; i++) {
         final wallet = syncingWallets[i];
-        if (wallet == null) continue;
+        final syncStatus = wallet.syncStatus;
+        final progress = wallet.syncStatus.progress();
+        final progressPercent = (progress * 100).toStringAsPrecision(5) + "%";
 
-        if (wallet.syncStatus.progress() > 0.99) {
+        if (progress > 0.999) {
           print("WALLET $i SYNCED");
-          await wallet.stopSync();
-          currentSyncingWallet++;
-          if (currentSyncingWallet < syncingWallets.length) {
-            syncingWallets[currentSyncingWallet]!.startSync();
-          } else {
-            for (int j = 0; j < syncingWallets.length; j++) {
-              setWalletNotification(
-                flutterLocalNotificationsPlugin,
-                title: initialNotificationTitle,
-                content: "Synced",
-                walletNum: j,
-              );
-            }
-            timer.cancel();
-            currentSyncingWallet = 0;
-          }
+          wallet.stopSync();
+          // pop the first wallet from the list
+          standbyWallets.add(syncingWallets.removeAt(i));
           continue;
         }
 
-        final syncProgress = ((wallet.syncStatus.progress()) * 100).toStringAsPrecision(5);
-
-        String prefix = walletTypeToCryptoCurrency(wallet.type).title;
-        String title = "$prefix - ${wallet.name}";
+        bool shouldSync = i == 0;
+        String title = "${walletTypeToCryptoCurrency(wallet.type).title} - ${wallet.name}";
         late String content;
-        try {
-          // TODO: not sure how to do locatization from the service since buildcontext is null:
-          // content = syncStatusTitle(wallet.syncStatus);
 
-          if (wallet.syncStatus is SyncingSyncStatus) {
-            final blocksLeft = (wallet.syncStatus as SyncingSyncStatus).blocksLeft;
+        if (shouldSync) {
+          if (syncStatus is NotConnectedSyncStatus) {
+            final node = settingsStore.getCurrentNode(wallet.type);
+            await wallet.connectToNode(node: node);
+            await wallet.startSync();
+            // wait a few seconds before checking progress
+            // await Future.delayed(const Duration(seconds: 10));
+          }
+
+          if (syncStatus is SyncingSyncStatus) {
+            final blocksLeft = syncStatus.blocksLeft;
             content = "${blocksLeft} Blocks Left";
-          } else if (wallet.syncStatus is SyncedSyncStatus) {
+          } else if (syncStatus is SyncedSyncStatus) {
             content = "Synced";
-          } else if (wallet.syncStatus is SyncedTipSyncStatus) {
-            final tip = (wallet.syncStatus as SyncedTipSyncStatus).tip;
+          } else if (syncStatus is SyncedTipSyncStatus) {
+            final tip = syncStatus.tip;
             content = "Scanned Tip: $tip";
-          } else if (wallet.syncStatus is NotConnectedSyncStatus) {
-            content = "Not Connected";
-          } else if (wallet.syncStatus is AttemptingSyncStatus) {
+          } else if (syncStatus is NotConnectedSyncStatus) {
+            content = "Still Not Connected";
+          } else if (syncStatus is AttemptingSyncStatus) {
             content = "Attempting Sync";
+          } else if (syncStatus is StartingScanSyncStatus) {
+            content = "Starting Scan";
+          } else if (syncStatus is SyncronizingSyncStatus) {
+            content = "Syncronizing";
+          } else if (syncStatus is FailedSyncStatus) {
+            content = "Failed Sync";
+          } else if (syncStatus is ConnectingSyncStatus) {
+            content = "Connecting";
           } else {
             throw Exception("sync type not covered");
           }
-        } catch (e) {
-          content = "${syncProgress}% Synced";
+        } else {
+          if (syncStatus is! NotConnectedSyncStatus) {
+            wallet.stopSync();
+          }
+          if (progress < SYNC_THRESHOLD) {
+            content = "$progressPercent - Waiting in sync queue";
+          } else {
+            content = "$progressPercent - This shouldn't happen, wallet is > SYNC_THRESHOLD";
+          }
         }
-        content += " - ${DateTime.now().toIso8601String()}";
 
-        if (i != currentSyncingWallet) {
-          content = "${syncProgress}% PAUSED - Waiting for other wallets to finish";
-        }
+        content += " - ${DateTime.now().millisecondsSinceEpoch * 1000}";
 
-        flutterLocalNotificationsPlugin.show(
-          notificationId + i,
-          title,
-          content,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              "${notificationChannelId}_$i",
-              "${notificationChannelName}_$i",
-              icon: 'ic_bg_service_small',
-              ongoing: true,
-              silent: true,
-            ),
-          ),
+        setWalletNotification(
+          flutterLocalNotificationsPlugin,
+          title: title,
+          content: content,
+          walletNum: i,
         );
+      }
+
+      for (int i = 0; i < standbyWallets.length; i++) {
+        int notificationIndex = syncingWallets.length + i + 1;
+        final wallet = standbyWallets[i];
+
+        final syncStatus = wallet.syncStatus;
+
+        final title = "${walletTypeToCryptoCurrency(wallet.type).title} - ${wallet.name}";
+        String content = "Synced - on standby until next queue refresh";
+
+        setWalletNotification(
+          flutterLocalNotificationsPlugin,
+          title: title,
+          content: content,
+          walletNum: notificationIndex,
+        );
+      }
+    });
+
+    _queueTimer?.cancel();
+    // add a timer that checks all wallets and adds them to the queue if they are less than SYNC_THRESHOLD synced:
+    _queueTimer = Timer.periodic(const Duration(hours: 1), (timer) async {
+      for (int i = 0; i < standbyWallets.length; i++) {
+        final wallet = standbyWallets[i];
+        final syncStatus = wallet.syncStatus;
+        // connect to the node if we haven't already:
+        if (syncStatus is NotConnectedSyncStatus) {
+          final node = settingsStore.getCurrentNode(wallet.type);
+          await wallet.connectToNode(node: node);
+          await wallet.startSync();
+          await Future.delayed(
+              const Duration(seconds: 10)); // wait a few seconds before checking progress
+        }
+
+        if (syncStatus.progress() < SYNC_THRESHOLD) {
+          syncingWallets.add(standbyWallets.removeAt(i));
+        }
       }
     });
   });

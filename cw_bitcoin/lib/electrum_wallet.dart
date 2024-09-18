@@ -475,9 +475,10 @@ abstract class ElectrumWalletBase
   @action
   @override
   Future<void> stopSync() async {
-    syncStatus = StoppedSyncingSyncStatus();
+    syncStatus = NotConnectedSyncStatus();
     try {
       await _receiveStream?.cancel();
+      electrumClient.onConnectionStatusChange = null;
       await electrumClient.close();
     } catch (_) {}
     _updateFeeRateTimer?.cancel();
