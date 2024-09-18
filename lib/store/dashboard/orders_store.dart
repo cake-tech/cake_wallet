@@ -41,7 +41,7 @@ abstract class OrdersStoreBase with Store {
       .map((order) => OrderListItem(
             order: order,
             settingsStore: settingsStore,
-            key: ValueKey('orders_transaction_history_item_${order.id}_key'),
+            key: ValueKey('order_list_item_${order.id}_key'),
           ))
       .toList();
 }

@@ -30,7 +30,7 @@ abstract class AnonpayTransactionsStoreBase with Store {
         .map(
           (transaction) => AnonpayTransactionListItem(
             transaction: transaction,
-            key: ValueKey('anonpay_invoice_transaction_history_item_${transaction.invoiceId}_key'),
+            key: ValueKey('anonpay_invoice_transaction_list_item_${transaction.invoiceId}_key'),
           ),
         )
         .toList();

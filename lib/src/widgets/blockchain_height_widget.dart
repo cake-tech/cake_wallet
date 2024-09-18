@@ -21,6 +21,7 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.toggleSingleScan,
     this.doSingleScan = false,
     required this.walletType,
+    this.blockHeightTextFieldKey,
   }) : super(key: key);
 
   final Function(int)? onHeightChange;
@@ -31,6 +32,7 @@ class BlockchainHeightWidget extends StatefulWidget {
   final bool doSingleScan;
   final Function()? toggleSingleScan;
   final WalletType walletType;
+  final Key? blockHeightTextFieldKey;
 
   @override
   State<StatefulWidget> createState() => BlockchainHeightState();
@@ -77,6 +79,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                   child: Container(
                       padding: EdgeInsets.only(top: 20.0, bottom: 10.0),
                       child: BaseTextFormField(
+                        key: widget.blockHeightTextFieldKey,
                         focusNode: widget.focusNode,
                         controller: restoreHeightController,
                         keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),

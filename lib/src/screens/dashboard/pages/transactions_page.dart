@@ -64,7 +64,10 @@ class TransactionsPage extends StatelessWidget {
                 return Container();
               }
             }),
-            HeaderRow(dashboardViewModel: dashboardViewModel),
+            HeaderRow(
+              dashboardViewModel: dashboardViewModel,
+              key: ValueKey('transactions_page_header_row_key'),
+            ),
             Expanded(
               child: Observer(
                 builder: (_) {
@@ -72,6 +75,7 @@ class TransactionsPage extends StatelessWidget {
 
                   return items.isNotEmpty
                       ? ListView.builder(
+                          key: ValueKey('transactions_page_list_view_builder_key'),
                           itemCount: items.length,
                           itemBuilder: (context, index) {
                             final item = items[index];

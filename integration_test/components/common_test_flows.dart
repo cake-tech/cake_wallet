@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -83,7 +84,7 @@ class CommonTestFlows {
     List<int> walletPin,
   ) async {
     await _welcomeToRestoreFromSeedsOrKeysPath(walletTypeToRestore, walletPin);
-    await _restoreFromSeeds(walletSeed);
+    await _restoreFromSeeds(walletTypeToRestore, walletSeed);
   }
 
   //* ========== Handles flow from welcome to restoring wallet from keys ===============
@@ -132,7 +133,7 @@ class CommonTestFlows {
     await _selectWalletTypeForWallet(walletType);
     await _commonTestCases.defaultSleepTime();
 
-    await _restoreFromSeeds(walletSeed);
+    await _restoreFromSeeds(walletType, walletSeed);
     await _commonTestCases.defaultSleepTime();
   }
 
@@ -142,8 +143,8 @@ class CommonTestFlows {
     // Confirm initial defaults - Widgets to be displayed etc
     await _setupPinCodeRobot.isSetupPinCodePage();
 
-    await _setupPinCodeRobot.enterPinCode(pin, true);
-    await _setupPinCodeRobot.enterPinCode(pin, false);
+    await _setupPinCodeRobot.enterPinCode(pin);
+    await _setupPinCodeRobot.enterPinCode(pin);
     await _setupPinCodeRobot.tapSuccessButton();
   }
 
@@ -214,11 +215,22 @@ class CommonTestFlows {
   }
 
   //* Main Restore Actions - On the RestoreFromSeed/Keys Page - Restore from Seeds Action
-  Future<void> _restoreFromSeeds(String walletSeed) async {
+  Future<void> _restoreFromSeeds(WalletType type, String walletSeed) async {
     // ----------- RestoreFromSeedOrKeys Page -------------
 
     await _restoreFromSeedOrKeysPageRobot.selectWalletNameFromAvailableOptions();
     await _restoreFromSeedOrKeysPageRobot.enterSeedPhraseForWalletRestore(walletSeed);
+
+    final numberOfWords = walletSeed.split(' ').length;
+
+    if (numberOfWords == 25 && (type == WalletType.monero)) {
+      await _restoreFromSeedOrKeysPageRobot
+          .chooseSeedTypeForMoneroOrWowneroWallets(MoneroSeedType.legacy);
+
+      // Using a constant value of 2831400 for the blockheight as its the restore blockheight for our testing wallet
+      await _restoreFromSeedOrKeysPageRobot.enterBlockHeightForWalletRestore('2831400');
+    }
+
     await _restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonPressed();
   }
 

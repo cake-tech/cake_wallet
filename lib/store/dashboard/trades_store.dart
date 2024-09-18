@@ -35,7 +35,7 @@ abstract class TradesStoreBase with Store {
       .map((trade) => TradeListItem(
             trade: trade,
             settingsStore: settingsStore,
-            key: ValueKey('trade_transaction_history_item_${trade.id}_key'),
+            key: ValueKey('trade_list_item_${trade.id}_key'),
           ))
       .toList();
 }

@@ -123,7 +123,7 @@ class ExchangePageRobot {
       return;
     }
 
-    await commonTestCases.scrollUntilVisible(
+    await commonTestCases.dragUntilVisible(
       'picker_items_index_${depositCurrency.name}_button_key',
       'picker_scrollbar_key',
     );
@@ -149,7 +149,7 @@ class ExchangePageRobot {
       return;
     }
 
-    await commonTestCases.scrollUntilVisible(
+    await commonTestCases.dragUntilVisible(
       'picker_items_index_${receiveCurrency.name}_button_key',
       'picker_scrollbar_key',
     );

@@ -47,6 +47,7 @@ void main() {
         dashboardPageRobot,
         securityAndBackupPageRobot,
         walletKeysAndSeedPageRobot,
+        tester,
       );
 
       // Do the same for other available wallet types
@@ -67,6 +68,7 @@ void main() {
           dashboardPageRobot,
           securityAndBackupPageRobot,
           walletKeysAndSeedPageRobot,
+          tester,
         );
       }
 
@@ -81,6 +83,7 @@ Future<void> _confirmSeedsFlowForWalletType(
   DashboardPageRobot dashboardPageRobot,
   SecurityAndBackupPageRobot securityAndBackupPageRobot,
   WalletKeysAndSeedPageRobot walletKeysAndSeedPageRobot,
+  WidgetTester tester,
 ) async {
   await dashboardPageRobot.openDrawerMenu();
   await dashboardPageRobot.dashboardMenuWidgetRobot.navigateToSecurityAndBackupPage();
@@ -89,8 +92,10 @@ Future<void> _confirmSeedsFlowForWalletType(
 
   final onAuthPage = authPageRobot.onAuthPage();
   if (onAuthPage) {
-    await authPageRobot.enterPinCode(CommonTestConstants.pin, false);
+    await authPageRobot.enterPinCode(CommonTestConstants.pin);
   }
+
+  await tester.pumpAndSettle();
 
   await walletKeysAndSeedPageRobot.isWalletKeysAndSeedPage();
   walletKeysAndSeedPageRobot.hasTitle();

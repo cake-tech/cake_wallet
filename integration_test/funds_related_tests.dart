@@ -64,7 +64,7 @@ void main() {
 
       final onAuthPage = authPageRobot.onAuthPage();
       if (onAuthPage) {
-        await authPageRobot.enterPinCode(CommonTestConstants.pin, false);
+        await authPageRobot.enterPinCode(CommonTestConstants.pin);
       }
 
       // ----------- Exchange Confirm Page -------------
