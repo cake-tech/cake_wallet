@@ -75,18 +75,18 @@ void setNotificationReady(FlutterLocalNotificationsPlugin flutterLocalNotificati
   );
 }
 
-void setSpNodeWarningNotification(
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, int walletNum) async {
+void setWalletNotification(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+    {required String title, required String content, required int walletNum}) async {
   flutterLocalNotificationsPlugin.show(
     notificationId + walletNum,
-    initialNotificationTitle,
-    spNodeNotificationMessage,
+    title,
+    content,
     NotificationDetails(
       android: AndroidNotificationDetails(
         "${notificationChannelId}_$walletNum",
         "${notificationChannelName}_$walletNum",
         icon: 'ic_bg_service_small',
-        ongoing: false,
+        ongoing: true,
         silent: true,
       ),
     ),
@@ -203,12 +203,17 @@ Future<void> onStart(ServiceInstance service) async {
         if (!nodeSupportsSP) {
           print("Configured node does not support silent payments, skipping wallet");
           syncingWallets.add(null);
-          setSpNodeWarningNotification(flutterLocalNotificationsPlugin, syncingWallets.length - 1);
+          setWalletNotification(
+            flutterLocalNotificationsPlugin,
+            title: initialNotificationTitle,
+            content: spNodeNotificationMessage,
+            walletNum: syncingWallets.length - 1,
+          );
           spSupported = false;
           continue;
         }
 
-        wallet.stopSync();
+        await wallet.stopSync();
 
         syncingWallets.add(wallet);
       } catch (e) {
@@ -221,20 +226,30 @@ Future<void> onStart(ServiceInstance service) async {
     _syncTimer?.cancel();
     if (syncingWallets.isEmpty) return;
     syncingWallets.first!.startSync();
-    _syncTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) {
+    _syncTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) async {
       for (int i = 0; i < syncingWallets.length; i++) {
         final wallet = syncingWallets[i];
         if (wallet == null) continue;
 
         if (wallet.syncStatus.progress() > 0.99) {
           print("WALLET $i SYNCED");
-          wallet.stopSync();
+          await wallet.stopSync();
           currentSyncingWallet++;
           if (currentSyncingWallet < syncingWallets.length) {
             syncingWallets[currentSyncingWallet]!.startSync();
           } else {
+            for (int j = 0; j < syncingWallets.length; j++) {
+              setWalletNotification(
+                flutterLocalNotificationsPlugin,
+                title: initialNotificationTitle,
+                content: "Synced",
+                walletNum: j,
+              );
+            }
+            timer.cancel();
             currentSyncingWallet = 0;
           }
+          continue;
         }
 
         final syncProgress = ((wallet.syncStatus.progress()) * 100).toStringAsPrecision(5);
@@ -262,7 +277,6 @@ Future<void> onStart(ServiceInstance service) async {
             throw Exception("sync type not covered");
           }
         } catch (e) {
-          print(e);
           content = "${syncProgress}% Synced";
         }
         content += " - ${DateTime.now().toIso8601String()}";
