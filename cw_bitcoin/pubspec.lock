@@ -855,8 +855,8 @@ packages:
     description:
       path: "."
       ref: "sp_v4.0.0"
-      resolved-ref: "3b8ae38592c0584f53560071dc18bc570758fe13"
-      url: "https://github.com/rafael-xmr/sp_scanner"
+      resolved-ref: "9b04f4b0af80dd7dae9274b496a53c23dcc80ea5"
+      url: "https://github.com/cake-tech/sp_scanner"
     source: git
     version: "0.0.1"
   stack_trace:
