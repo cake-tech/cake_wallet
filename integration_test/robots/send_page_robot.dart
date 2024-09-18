@@ -140,20 +140,25 @@ class SendPageRobot {
   }
 
   Future<void> _waitForSendTransactionCompletion() async {
+    await tester.pump();
     final Completer<void> completer = Completer<void>();
 
     // Loop to wait for the async operation to complete
     while (true) {
       await Future.delayed(Duration(seconds: 1));
 
-      tester.printToConsole('Before in auth');
+      tester.printToConsole('Before _handleAuth');
 
       await _handleAuthPage();
 
-      tester.printToConsole('After in auth');
+      tester.printToConsole('After _handleAuth');
+
+      await tester.pump();
 
       final sendPage = tester.widget<SendPage>(find.byType(SendPage));
       final state = sendPage.sendViewModel.state;
+
+      await tester.pump();
 
       bool isDone = state is ExecutedSuccessfullyState;
       bool isFailed = state is FailureState;
@@ -180,10 +185,18 @@ class SendPageRobot {
   }
 
   Future<void> _handleAuthPage() async {
+    tester.printToConsole('Inside _handleAuth');
+    await tester.pump();
+    tester.printToConsole('starting auth checks');
+
     final authPage = authPageRobot.onAuthPage();
+
+    tester.printToConsole('hasAuth:$authPage');
+
     if (authPage) {
-      tester.printToConsole('Auth');
       await tester.pump();
+      tester.printToConsole('Starting inner _handleAuth loop checks');
+
       try {
         await authPageRobot.enterPinCode(CommonTestConstants.pin, false);
         tester.printToConsole('Auth done');
