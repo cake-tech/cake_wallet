@@ -26,7 +26,6 @@ class MainActions {
     showWalletsAction,
     receiveAction,
     exchangeAction,
-    sendAction,
     tradeAction,
   ];
 
@@ -58,48 +57,14 @@ class MainActions {
     },
   );
 
-  static MainActions sendAction = MainActions._(
-    name: (context) => S.of(context).send,
-    image: 'assets/images/upload.png',
-    onTap: (BuildContext context, DashboardViewModel viewModel) async {
-      Navigator.pushNamed(context, Routes.send);
-    },
-  );
-
   static MainActions tradeAction = MainActions._(
     name: (context) => '${S.of(context).buy} / ${S.of(context).sell}',
     image: 'assets/images/buy_sell.png',
-    isEnabled: (viewModel) => viewModel.isEnabledSellAction || viewModel.isEnabledBuyAction,
-    canShow: (viewModel) => viewModel.hasSellAction || viewModel.hasBuyAction,
+    isEnabled: (viewModel) => viewModel.isEnabledTradeAction,
+    canShow: (viewModel) => viewModel.hasTradeAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
-      if (!viewModel.isEnabledSellAction && !viewModel.isEnabledBuyAction) {
-        return;
-      }
-
-      // final defaultSellProvider = viewModel.defaultSellProvider;
-      // try {
-      //   defaultSellProvider != null
-      //       ? await defaultSellProvider.launchProvider(context, false)
-      //       : await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: false);
-      // } catch (e) {
-      //   await _showErrorDialog(context, defaultSellProvider.toString(), e.toString());
-      // }
+      if (!viewModel.isEnabledTradeAction) return;
       await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: false);
     },
   );
-
-  static Future<void> _showErrorDialog(
-      BuildContext context, String title, String errorMessage) async {
-    await showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertWithOneAction(
-          alertTitle: title,
-          alertContent: errorMessage,
-          buttonText: S.of(context).ok,
-          buttonAction: () => Navigator.of(context).pop(),
-        );
-      },
-    );
-  }
 }

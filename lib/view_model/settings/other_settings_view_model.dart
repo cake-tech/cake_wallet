@@ -65,29 +65,6 @@ abstract class OtherSettingsViewModelBase with Store {
       _wallet.type == WalletType.solana ||
       _wallet.type == WalletType.tron);
 
-  @computed
-  bool get isEnabledBuyAction =>
-      !_settingsStore.disableBuy && _wallet.type != WalletType.haven;
-
-  @computed
-  bool get isEnabledSellAction =>
-      !_settingsStore.disableSell && _wallet.type != WalletType.haven;
-
-  List<ProviderType> get availableBuyProvidersTypes {
-    return ProvidersHelper.getAvailableBuyProviderTypes(walletType);
-  }
-
-  List<ProviderType> get availableSellProvidersTypes =>
-      ProvidersHelper.getAvailableSellProviderTypes(walletType);
-
-  ProviderType get buyProviderType =>
-      _settingsStore.defaultBuyProviders[walletType] ??
-      ProviderType.askEachTime;
-
-  ProviderType get sellProviderType =>
-      _settingsStore.defaultSellProviders[walletType] ??
-      ProviderType.askEachTime;
-
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
 
@@ -113,20 +90,6 @@ abstract class OtherSettingsViewModelBase with Store {
     }
 
     return priority.toString();
-  }
-
-  String getBuyProviderType(dynamic buyProviderType) {
-    final _buyProviderType = buyProviderType as ProviderType;
-    return _buyProviderType == ProviderType.askEachTime
-        ? S.current.ask_each_time
-        : _buyProviderType.title;
-  }
-
-  String getSellProviderType(dynamic sellProviderType) {
-    final _sellProviderType = sellProviderType as ProviderType;
-    return _sellProviderType == ProviderType.askEachTime
-        ? S.current.ask_each_time
-        : _sellProviderType.title;
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
@@ -157,12 +120,4 @@ abstract class OtherSettingsViewModelBase with Store {
     }
     return null;
   }
-
-  @action
-  ProviderType onBuyProviderTypeSelected(ProviderType buyProviderType) =>
-      _settingsStore.defaultBuyProviders[walletType] = buyProviderType;
-
-  @action
-  ProviderType onSellProviderTypeSelected(ProviderType sellProviderType) =>
-      _settingsStore.defaultSellProviders[walletType] = sellProviderType;
 }

@@ -48,15 +48,6 @@ class DesktopDashboardActions extends StatelessWidget {
                           await MainActions.receiveAction.onTap(context, dashboardViewModel),
                     ),
                   ),
-                  Expanded(
-                    child: DesktopActionButton(
-                      title: MainActions.sendAction.name(context),
-                      image: MainActions.sendAction.image,
-                      canShow: MainActions.sendAction.canShow?.call(dashboardViewModel),
-                      isEnabled: MainActions.sendAction.isEnabled?.call(dashboardViewModel),
-                      onTap: () async => await MainActions.sendAction.onTap(context, dashboardViewModel),
-                    ),
-                  ),
                 ],
               ),
               Row(

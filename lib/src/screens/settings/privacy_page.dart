@@ -74,15 +74,9 @@ class PrivacyPage extends BasePage {
                     }),
               SettingsSwitcherCell(
                   title: S.current.disable_buy,
-                  value: _privacySettingsViewModel.disableBuy,
+                  value: _privacySettingsViewModel.disableTradeOption,
                   onValueChange: (BuildContext _, bool value) {
-                    _privacySettingsViewModel.setDisableBuy(value);
-                  }),
-              SettingsSwitcherCell(
-                  title: S.current.disable_sell,
-                  value: _privacySettingsViewModel.disableSell,
-                  onValueChange: (BuildContext _, bool value) {
-                    _privacySettingsViewModel.setDisableSell(value);
+                    _privacySettingsViewModel.setDisableTradeOption(value);
                   }),
               SettingsSwitcherCell(
                   title: S.current.disable_bulletin,
