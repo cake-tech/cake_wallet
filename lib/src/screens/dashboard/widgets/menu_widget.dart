@@ -97,7 +97,16 @@ class MenuWidgetState extends State<MenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final itemCount = SettingActions.all.length;
+    int itemCount = SettingActions.all.length;
+    List<SettingActions> items = SettingActions.all;
+    if (!widget.dashboardViewModel.hasSilentPayments) {
+      itemCount--;
+      items.removeWhere((element) => element.name(context) == S.of(context).silent_payments_settings);
+    }
+    // if (!widget.dashboardViewModel.hasMweb) {
+    //   itemCount--;
+    //   items.removeWhere((element) => element.name(context) == S.of(context).litecoin_mweb_settings);
+    // }
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
         color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
