@@ -1651,7 +1651,7 @@ abstract class ElectrumWalletBase
     }
 
     if (height != null) {
-      if (time == null) {
+      if (time == null && height > 0) {
         time = (getDateByBitcoinHeight(height).millisecondsSinceEpoch / 1000).round();
       }
 
