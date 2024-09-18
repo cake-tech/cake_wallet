@@ -28,6 +28,7 @@ const mwebSyncTaskKey = "com.fotolockr.cakewallet.mweb_sync_task";
 const initialNotificationTitle = 'Cake Background Sync';
 const standbyMessage = 'On standby - app is in the foreground';
 const readyMessage = 'Ready to sync - waiting until the app has been in the background for a while';
+const startMessage = 'Starting sync - app is in the background';
 
 const notificationId = 888;
 const notificationChannelId = 'cake_service';
@@ -37,6 +38,7 @@ const DELAY_SECONDS_BEFORE_SYNC_START = 15;
 const spNodeNotificationMessage =
     "Currently configured Bitcoin node does not support Silent Payments. skipping wallet";
 const SYNC_THRESHOLD = 0.98;
+const REFRESH_QUEUE_HOURS = 1;
 
 void setMainNotification(
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, {
@@ -74,6 +76,15 @@ void setNotificationReady(FlutterLocalNotificationsPlugin flutterLocalNotificati
     flutterLocalNotificationsPlugin,
     title: initialNotificationTitle,
     content: readyMessage,
+  );
+}
+
+void setNotificationStarting(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+  flutterLocalNotificationsPlugin.cancelAll();
+  setMainNotification(
+    flutterLocalNotificationsPlugin,
+    title: initialNotificationTitle,
+    content: startMessage,
   );
 }
 
@@ -137,6 +148,7 @@ Future<void> onStart(ServiceInstance service) async {
 
     await Future.delayed(const Duration(seconds: DELAY_SECONDS_BEFORE_SYNC_START));
     print("STARTING SYNC FROM BG");
+    setNotificationStarting(flutterLocalNotificationsPlugin);
 
     try {
       await initializeAppConfigs(loadWallet: false);
@@ -314,7 +326,7 @@ Future<void> onStart(ServiceInstance service) async {
 
     _queueTimer?.cancel();
     // add a timer that checks all wallets and adds them to the queue if they are less than SYNC_THRESHOLD synced:
-    _queueTimer = Timer.periodic(const Duration(hours: 1), (timer) async {
+    _queueTimer = Timer.periodic(const Duration(hours: REFRESH_QUEUE_HOURS), (timer) async {
       for (int i = 0; i < standbyWallets.length; i++) {
         final wallet = standbyWallets[i];
         final syncStatus = wallet.syncStatus;
