@@ -1,5 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
@@ -167,6 +168,8 @@ class _AddressListState extends State<AddressList> {
                       updateItems(); // refresh the new address
                     })
                     : null,
+                isHidden: item.isHidden,
+                onHide: () => _hideAddress(item),
               );
             });
           }
@@ -182,4 +185,10 @@ class _AddressListState extends State<AddressList> {
       },
     );
   }
+
+  void _hideAddress(WalletAddressListItem item) async {
+    await widget.addressListViewModel.toggleHideAddress(item);
+    updateItems();
+  }
+
 }

@@ -22,7 +22,9 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/currency.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_monero/api/wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -463,7 +465,21 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     return addressList;
   }
-
+  Future<void> toggleHideAddress(WalletAddressListItem item) async {
+    if (item.isHidden) {
+      wallet.walletAddresses.hiddenAddresses.removeWhere((element) => element == item.address);
+    } else {
+      wallet.walletAddresses.hiddenAddresses.add(item.address);
+    }
+    await wallet.walletAddresses.saveAddressesInBox();
+    if (wallet.type == WalletType.monero) {
+      monero!.getSubaddressList(wallet).update(wallet, accountIndex: monero!.getCurrentAccount(wallet).id);
+    } else if (wallet.type == WalletType.wownero) {
+      wownero!.getSubaddressList(wallet).update(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id);
+    } else if (wallet.type == WalletType.haven) {
+      haven!.getSubaddressList(wallet).update(wallet, accountIndex: haven!.getCurrentAccount(wallet).id);
+    }
+  }
   @observable
   bool hasAccounts;
 
