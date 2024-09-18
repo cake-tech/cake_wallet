@@ -97,12 +97,11 @@ class MenuWidgetState extends State<MenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    int itemCount = SettingActions.all.length;
     List<SettingActions> items = SettingActions.all;
     if (!widget.dashboardViewModel.hasSilentPayments) {
-      itemCount--;
       items.removeWhere((element) => element.name(context) == S.of(context).silent_payments_settings);
     }
+    int itemCount = items.length;
     // if (!widget.dashboardViewModel.hasMweb) {
     //   itemCount--;
     //   items.removeWhere((element) => element.name(context) == S.of(context).litecoin_mweb_settings);
