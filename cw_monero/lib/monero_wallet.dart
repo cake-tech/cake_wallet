@@ -162,6 +162,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
     _autoSaveTimer = Timer.periodic(
         Duration(seconds: _autoSaveInterval), (_) async => await save());
+    // update transaction details after restore
+    walletAddresses.subaddressList.update(accountIndex: walletAddresses.account?.id??0);
   }
 
   @override
