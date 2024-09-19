@@ -17,6 +17,7 @@ import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
@@ -1090,15 +1091,10 @@ Future<void> setup({
           transactionDetailsViewModel:
               getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
-  getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType),
-      List<bool>?>((param1, additionalParams) {
-    final isCreate = additionalParams?[0] ?? true;
-    final isHardwareWallet = additionalParams?[1] ?? false;
-
+  getIt.registerFactoryParam<NewWalletTypePage, NewWalletTypeArguments, void>(
+      (newWalletTypeArguments, _) {
     return NewWalletTypePage(
-      onTypeSelected: param1,
-      isCreate: isCreate,
-      isHardwareWallet: isHardwareWallet,
+      newWalletTypeArguments: newWalletTypeArguments,
       newWalletTypeViewModel: getIt.get<NewWalletTypeViewModel>(),
     );
   });

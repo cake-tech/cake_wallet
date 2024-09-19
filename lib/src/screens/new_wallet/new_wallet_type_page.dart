@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'dart:io';
 
 import 'package:cake_wallet/generated/i18n.dart';
@@ -23,22 +24,19 @@ import 'package:flutter/material.dart';
 class NewWalletTypePage extends BasePage {
   NewWalletTypePage({
     required this.newWalletTypeViewModel,
-    required this.isCreate,
-    required this.onTypeSelected,
-    required this.isHardwareWallet,
+    required this.newWalletTypeArguments,
   });
 
   final NewWalletTypeViewModel newWalletTypeViewModel;
-  final void Function(BuildContext, WalletType)? onTypeSelected;
-  final bool isCreate;
-  final bool isHardwareWallet;
+  final NewWalletTypeArguments newWalletTypeArguments;
 
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');
   final walletTypeLightImage = Image.asset('assets/images/wallet_type_light.png');
 
   @override
-  String get title =>
-      isCreate ? S.current.wallet_list_create_new_wallet : S.current.wallet_list_restore_wallet;
+  String get title => newWalletTypeArguments.isCreate
+      ? S.current.wallet_list_create_new_wallet
+      : S.current.wallet_list_restore_wallet;
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
@@ -51,10 +49,10 @@ class NewWalletTypePage extends BasePage {
   @override
   Widget body(BuildContext context) => WalletTypeForm(
         walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage,
-        isCreate: isCreate,
+        isCreate: newWalletTypeArguments.isCreate,
         newWalletTypeViewModel: newWalletTypeViewModel,
-        onTypeSelected: onTypeSelected,
-        isHardwareWallet: isHardwareWallet,
+        onTypeSelected: newWalletTypeArguments.onTypeSelected,
+        isHardwareWallet: newWalletTypeArguments.isHardwareWallet,
       );
 }
 
