@@ -34,6 +34,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
+import 'package:grpc/grpc.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -264,11 +265,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     await waitForMwebAddresses();
-    await getStub();
-    await processMwebUtxos();
-    await updateTransactions();
-    await updateUnspent();
-    await updateBalance();
+    try {
+      await getStub();
+      await processMwebUtxos();
+      await updateTransactions();
+      await updateUnspent();
+      await updateBalance();
+    } catch (e) {
+      print("failed to start mweb sync: $e");
+      syncStatus = FailedSyncStatus();
+      return;
+    }
 
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
@@ -276,7 +283,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       final nodeHeight =
           await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
-      final resp = await _stub.status(StatusRequest());
+      final resp = await CwMweb.status(StatusRequest());
 
       if (resp.blockHeaderHeight < nodeHeight) {
         int h = resp.blockHeaderHeight;
@@ -487,7 +494,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     // process new utxos as they come in:
     _utxoStream?.cancel();
-    _utxoStream = _stub.utxos(req).listen((Utxo sUtxo) async {
+    ResponseStream<Utxo>? responseStream = await CwMweb.utxos(req);
+    if (responseStream == null) {
+      throw Exception("failed to get utxos stream!");
+    }
+    _utxoStream = responseStream.listen((Utxo sUtxo) async {
       final utxo = MwebUtxo(
         address: sUtxo.address,
         blockTime: sUtxo.blockTime,
@@ -530,10 +541,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final outputIds =
         mwebUtxosBox.values.where((utxo) => utxo.height > 0).map((utxo) => utxo.outputId).toList();
 
-    final resp = await _stub.spent(SpentRequest(outputId: outputIds));
+    final resp = await CwMweb.spent(SpentRequest(outputId: outputIds));
     final spent = resp.outputId;
     if (spent.isEmpty) return;
-    final status = await _stub.status(StatusRequest());
+    final status = await CwMweb.status(StatusRequest());
     final height = await electrumClient.getCurrentBlockChainTip();
     if (height == null || status.blockHeaderHeight != height) return;
     if (status.mwebUtxosHeight != height) return;
@@ -599,9 +610,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (outputId.isEmpty) {
       return false;
     }
-    final resp = await _stub.spent(SpentRequest(outputId: outputId));
+    final resp = await CwMweb.spent(SpentRequest(outputId: outputId));
     if (!setEquals(resp.outputId.toSet(), target)) return false;
-    final status = await _stub.status(StatusRequest());
+    final status = await CwMweb.status(StatusRequest());
     if (!tx.isPending) return false;
     tx.height = status.mwebUtxosHeight;
     tx.confirmations = 1;
@@ -799,7 +810,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final fee = utxos.sumOfUtxosValue() - preOutputSum;
     final txb =
         BitcoinTransactionBuilder(utxos: utxos, outputs: outputs, fee: fee, network: network);
-    final resp = await _stub.create(CreateRequest(
+    final resp = await CwMweb.create(CreateRequest(
         rawTx: txb.buildTransaction((a, b, c, d) => '').toBytes(),
         scanSecret: scanSecret,
         spendSecret: spendSecret,
@@ -841,7 +852,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       await waitForMwebAddresses();
       await getStub();
 
-      final resp = await _stub.create(CreateRequest(
+      final resp = await CwMweb.create(CreateRequest(
         rawTx: hex.decode(tx.hex),
         scanSecret: scanSecret,
         spendSecret: spendSecret,
@@ -927,8 +938,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<StatusResponse> getStatusRequest() async {
-    await getStub();
-    final resp = await _stub.status(StatusRequest());
+    final resp = await CwMweb.status(StatusRequest());
     return resp;
   }
 
