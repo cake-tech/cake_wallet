@@ -3,7 +3,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/grouped_wallet_expansion_tile.dart';
-import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/view_model/pre_existing_seeds_view_model.dart';
@@ -49,50 +48,28 @@ class PreExistingSeedBody extends StatelessWidget {
               ),
             ),
             SizedBox(height: 16),
-            Observer(
-              builder: (context) {
-                return Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        ...preExistingSeedsViewModel.wallets.map(
-                          (group) {
-                            return GroupedWalletExpansionTile(
-                              leadingWidget: Icon(Icons.account_balance_wallet_outlined, size: 28),
-                              borderRadius: BorderRadius.all(Radius.circular(16)),
-                              title: S.current.wallet_group,
-                              childWallets: group.wallets.map((walletInfo) {
-                                return preExistingSeedsViewModel
-                                    .convertWalletInfoToWalletListItem(walletInfo);
-                              }).toList(),
-                              isSelected: preExistingSeedsViewModel.selectedWalletGroup == group,
-                              onTitleTapped: () =>
-                                  preExistingSeedsViewModel.selectWalletGroup(group),
-                              onChildItemTapped: (_) =>
-                                  preExistingSeedsViewModel.selectWalletGroup(group),
-                            );
-                          },
-                        ).toList(),
-                        SelectButton(
-                          text: S.current.newSeed,
-                          height: 60,
-                          image: Icon(
-                            Icons.add_circle,
-                            size: 28,
-                            color: preExistingSeedsViewModel.useNewSeed ? Colors.white : null,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(16)),
-                          isSelected: preExistingSeedsViewModel.useNewSeed == true,
-                          onTap: () => preExistingSeedsViewModel.selectNewSeed(),
-                          padding: EdgeInsets.only(left: 16, right: 30),
-                          showTrailingIcon: false,
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+            Expanded(
+              child: ListView.builder(
+                itemCount: preExistingSeedsViewModel.wallets.length,
+                itemBuilder: (context, index) {
+                  return Observer(builder: (context) {
+                    final group = preExistingSeedsViewModel.wallets[index];
+                    final groupNames = preExistingSeedsViewModel.groupNames[index];
+                    return GroupedWalletExpansionTile(
+                      leadingWidget: Icon(Icons.account_balance_wallet_outlined, size: 28),
+                      borderRadius: BorderRadius.all(Radius.circular(16)),
+                      title: groupNames,
+                      childWallets: group.wallets.map((walletInfo) {
+                        return preExistingSeedsViewModel
+                            .convertWalletInfoToWalletListItem(walletInfo);
+                      }).toList(),
+                      isSelected: preExistingSeedsViewModel.selectedWalletGroup == group,
+                      onTitleTapped: () => preExistingSeedsViewModel.selectWalletGroup(group),
+                      onChildItemTapped: (_) => preExistingSeedsViewModel.selectWalletGroup(group),
+                    );
+                  });
+                },
+              ),
             ),
             Observer(
               builder: (context) {
