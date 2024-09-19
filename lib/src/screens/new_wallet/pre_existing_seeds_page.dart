@@ -9,27 +9,27 @@ import 'package:cake_wallet/view_model/pre_existing_seeds_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-class PreExistingSeedsPage extends BasePage {
-  PreExistingSeedsPage(this.preExistingSeedsViewModel);
+class WalletGroupsDisplayPage extends BasePage {
+  WalletGroupsDisplayPage(this.walletGroupsDisplayViewModel);
 
-  final PreExistingSeedsViewModel preExistingSeedsViewModel;
+  final WalletGroupsDisplayViewModel walletGroupsDisplayViewModel;
 
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');
   final walletTypeLightImage = Image.asset('assets/images/wallet_type_light.png');
 
   @override
-  String get title => S.current.preExistingSeeds;
+  String get title => S.current.wallet_group;
 
   @override
-  Widget body(BuildContext context) => PreExistingSeedBody(
-        preExistingSeedsViewModel: preExistingSeedsViewModel,
+  Widget body(BuildContext context) => WalletGroupsDisplayBody(
+        walletGroupsDisplayViewModel: walletGroupsDisplayViewModel,
       );
 }
 
-class PreExistingSeedBody extends StatelessWidget {
-  PreExistingSeedBody({required this.preExistingSeedsViewModel});
+class WalletGroupsDisplayBody extends StatelessWidget {
+  WalletGroupsDisplayBody({required this.walletGroupsDisplayViewModel});
 
-  final PreExistingSeedsViewModel preExistingSeedsViewModel;
+  final WalletGroupsDisplayViewModel walletGroupsDisplayViewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -50,22 +50,22 @@ class PreExistingSeedBody extends StatelessWidget {
             SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
-                itemCount: preExistingSeedsViewModel.wallets.length,
+                itemCount: walletGroupsDisplayViewModel.wallets.length,
                 itemBuilder: (context, index) {
                   return Observer(builder: (context) {
-                    final group = preExistingSeedsViewModel.wallets[index];
-                    final groupNames = preExistingSeedsViewModel.groupNames[index];
+                    final group = walletGroupsDisplayViewModel.wallets[index];
+                    final groupNames = walletGroupsDisplayViewModel.groupNames[index];
                     return GroupedWalletExpansionTile(
                       leadingWidget: Icon(Icons.account_balance_wallet_outlined, size: 28),
                       borderRadius: BorderRadius.all(Radius.circular(16)),
                       title: groupNames,
                       childWallets: group.wallets.map((walletInfo) {
-                        return preExistingSeedsViewModel
+                        return walletGroupsDisplayViewModel
                             .convertWalletInfoToWalletListItem(walletInfo);
                       }).toList(),
-                      isSelected: preExistingSeedsViewModel.selectedWalletGroup == group,
-                      onTitleTapped: () => preExistingSeedsViewModel.selectWalletGroup(group),
-                      onChildItemTapped: (_) => preExistingSeedsViewModel.selectWalletGroup(group),
+                      isSelected: walletGroupsDisplayViewModel.selectedWalletGroup == group,
+                      onTitleTapped: () => walletGroupsDisplayViewModel.selectWalletGroup(group),
+                      onChildItemTapped: (_) => walletGroupsDisplayViewModel.selectWalletGroup(group),
                     );
                   });
                 },
@@ -74,15 +74,15 @@ class PreExistingSeedBody extends StatelessWidget {
             Observer(
               builder: (context) {
                 return LoadingPrimaryButton(
-                  isLoading: preExistingSeedsViewModel.isFetchingMnemonic,
+                  isLoading: walletGroupsDisplayViewModel.isFetchingMnemonic,
                   onPressed: () => onTypeSelected(context),
                   text: S.of(context).seed_language_next,
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
-                  isDisabled: (preExistingSeedsViewModel.selectedWalletGroup == null &&
-                          !preExistingSeedsViewModel.useNewSeed) ||
-                      (preExistingSeedsViewModel.selectedWalletGroup != null &&
-                          preExistingSeedsViewModel.useNewSeed),
+                  isDisabled: (walletGroupsDisplayViewModel.selectedWalletGroup == null &&
+                          !walletGroupsDisplayViewModel.useNewSeed) ||
+                      (walletGroupsDisplayViewModel.selectedWalletGroup != null &&
+                          walletGroupsDisplayViewModel.useNewSeed),
                 );
               },
             ),
@@ -94,19 +94,19 @@ class PreExistingSeedBody extends StatelessWidget {
   }
 
   Future<void> onTypeSelected(BuildContext context) async {
-    if (preExistingSeedsViewModel.useNewSeed) {
+    if (walletGroupsDisplayViewModel.useNewSeed) {
       Navigator.of(context).pushNamed(
         Routes.newWallet,
-        arguments: NewWalletArguments(type: preExistingSeedsViewModel.type),
+        arguments: NewWalletArguments(type: walletGroupsDisplayViewModel.type),
       );
     } else {
-      final mnemonic = await preExistingSeedsViewModel.getSelectedWalletMnemonic();
+      final mnemonic = await walletGroupsDisplayViewModel.getSelectedWalletMnemonic();
       Navigator.of(context).pushNamed(
         Routes.newWallet,
         arguments: NewWalletArguments(
-          type: preExistingSeedsViewModel.type,
+          type: walletGroupsDisplayViewModel.type,
           mnemonic: mnemonic,
-          parentAddress: preExistingSeedsViewModel.parentAddress,
+          parentAddress: walletGroupsDisplayViewModel.parentAddress,
           isChildWallet: true,
         ),
       );

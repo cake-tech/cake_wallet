@@ -475,7 +475,6 @@
   "pre_seed_button_text": "Saya mengerti. Tampilkan seed saya",
   "pre_seed_description": "Di halaman berikutnya Anda akan melihat serangkaian kata ${words}. Ini adalah seed unik dan pribadi Anda dan itu SATU-SATUNYA cara untuk mengembalikan dompet Anda jika hilang atau rusak. Ini adalah TANGGUNG JAWAB Anda untuk menuliskannya dan menyimpan di tempat yang aman di luar aplikasi Cake Wallet.",
   "pre_seed_title": "PENTING",
-  "preExistingSeeds": "Benih yang sudah ada sebelumnya",
   "prepaid_cards": "Kartu prabayar",
   "prevent_screenshots": "Cegah tangkapan layar dan perekaman layar",
   "privacy": "Privasi",

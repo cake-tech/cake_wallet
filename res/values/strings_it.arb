@@ -475,7 +475,6 @@
   "pre_seed_button_text": "Ho capito. Mostrami il seme",
   "pre_seed_description": "Nella pagina seguente ti sarà mostrata una serie di parole ${words}. Questo è il tuo seme unico e privato ed è l'UNICO modo per recuperare il tuo portafoglio in caso di perdita o malfunzionamento. E' TUA responsabilità trascriverlo e conservarlo in un posto sicuro fuori dall'app Cake Wallet.",
   "pre_seed_title": "IMPORTANTE",
-  "preExistingSeeds": "Semi preesistenti",
   "prepaid_cards": "Carte prepagata",
   "prevent_screenshots": "Impedisci screenshot e registrazione dello schermo",
   "privacy": "Privacy",

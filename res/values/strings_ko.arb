@@ -474,7 +474,6 @@
   "pre_seed_button_text": "이해 했어요. 내 씨앗을 보여줘",
   "pre_seed_description": "다음 페이지에서 ${words} 개의 단어를 볼 수 있습니다. 이것은 귀하의 고유하고 개인적인 시드이며 분실 또는 오작동시 지갑을 복구하는 유일한 방법입니다. 기록해두고 Cake Wallet 앱 외부의 안전한 장소에 보관하는 것은 귀하의 책임입니다.",
   "pre_seed_title": "중대한",
-  "preExistingSeeds": "기존 종자",
   "prepaid_cards": "선불 카드",
   "prevent_screenshots": "스크린샷 및 화면 녹화 방지",
   "privacy": "프라이버시",

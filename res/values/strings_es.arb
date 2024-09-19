@@ -474,7 +474,6 @@
   "pre_seed_button_text": "Entiendo. Muéstrame mi semilla",
   "pre_seed_description": "En la página siguiente verá una serie de ${words} palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.",
   "pre_seed_title": "IMPORTANTE",
-  "preExistingSeeds": "Semillas preexistentes",
   "prepaid_cards": "Tajetas prepagadas",
   "prevent_screenshots": "Evitar capturas de pantalla y grabación de pantalla",
   "privacy": "Privacidad",

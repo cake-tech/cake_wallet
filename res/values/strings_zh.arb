@@ -473,7 +473,6 @@
   "pre_seed_button_text": "我明白。 查看种子",
   "pre_seed_description": "在下一页上，您将看到${words}个文字。 这是您独有的种子，是丟失或出现故障时恢复钱包的唯一方法。 您有必须将其写下并储存在Cake Wallet应用程序以外的安全地方。",
   "pre_seed_title": "重要",
-  "preExistingSeeds": "预先存在的种子",
   "prepaid_cards": "预付费卡",
   "prevent_screenshots": "防止截屏和录屏",
   "privacy": "隐私",

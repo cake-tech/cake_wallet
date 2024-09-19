@@ -473,7 +473,6 @@
   "pre_seed_button_text": "Razumijem. Prikaži mi moj pristupni izraz",
   "pre_seed_description": "Na sljedećoj ćete stranici vidjeti niz ${words} riječi. Radi se o Vašem jedinstvenom i tajnom pristupnom izrazu koji je ujedno i JEDINI način na koji možete oporaviti svoj novčanik u slučaju gubitka ili kvara. VAŠA je odgovornost zapisati ga te pohraniti na sigurno mjesto izvan Cake Wallet aplikacije.",
   "pre_seed_title": "VAŽNO",
-  "preExistingSeeds": "Već postojeće sjeme",
   "prepaid_cards": "Unaprijed plaćene kartice",
   "prevent_screenshots": "Spriječite snimke zaslona i snimanje zaslona",
   "privacy": "Privatnost",

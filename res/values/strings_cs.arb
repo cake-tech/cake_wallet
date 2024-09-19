@@ -473,7 +473,6 @@
   "pre_seed_button_text": "Rozumím. Ukaž mi můj seed.",
   "pre_seed_description": "Na následující stránce uvidíte sérii ${words} slov. Je to váš tzv. seed a je to JEDINÁ možnost, jak můžete později obnovit svou peněženku v případě ztráty nebo poruchy. Je VAŠÍ zodpovědností zapsat si ho a uložit si ho na bezpečném místě mimo aplikaci Cake Wallet.",
   "pre_seed_title": "DŮLEŽITÉ",
-  "preExistingSeeds": "Již existující semena",
   "prepaid_cards": "Předplacené karty",
   "prevent_screenshots": "Zabránit vytváření snímků obrazovky a nahrávání obrazovky",
   "privacy": "Soukromí",

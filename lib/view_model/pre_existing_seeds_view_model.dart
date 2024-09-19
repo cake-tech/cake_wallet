@@ -12,10 +12,10 @@ import 'package:mobx/mobx.dart';
 
 part 'pre_existing_seeds_view_model.g.dart';
 
-class PreExistingSeedsViewModel = PreExistingSeedsViewModelBase with _$PreExistingSeedsViewModel;
+class WalletGroupsDisplayViewModel = WalletGroupsDisplayViewModelBase with _$WalletGroupsDisplayViewModel;
 
-abstract class PreExistingSeedsViewModelBase with Store {
-  PreExistingSeedsViewModelBase(
+abstract class WalletGroupsDisplayViewModelBase with Store {
+  WalletGroupsDisplayViewModelBase(
     this._appStore,
     this._walletLoadingService,
     this._walletManager, {

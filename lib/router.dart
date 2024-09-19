@@ -47,6 +47,7 @@ import 'package:cake_wallet/src/screens/new_wallet/pre_existing_seeds_page.dart'
 import 'package:cake_wallet/src/screens/new_wallet/advanced_privacy_settings_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/wallet_group_description_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
@@ -178,11 +179,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
         ),
       );
 
-    case Routes.preExistingSeedsPage:
+    case Routes.walletGroupsDisplayPage:
       final type = settings.arguments as WalletType;
-      final preExistingSeedsVM = getIt.get<PreExistingSeedsViewModel>(param1: type);
+      final walletGroupsDisplayVM = getIt.get<WalletGroupsDisplayViewModel>(param1: type);
 
-      return CupertinoPageRoute<void>(builder: (_) => PreExistingSeedsPage(preExistingSeedsVM));
+      return CupertinoPageRoute<void>(builder: (_) => WalletGroupsDisplayPage(walletGroupsDisplayVM));
 
     case Routes.newWallet:
       final args = settings.arguments as NewWalletArguments;
@@ -769,6 +770,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final params = settings.arguments as ConnectDevicePageParams;
       return MaterialPageRoute<void>(
           builder: (_) => ConnectDevicePage(params, getIt.get<LedgerViewModel>()));
+
+    case Routes.walletGroupDescription:
+      final walletType = settings.arguments as WalletType;
+      
+      return MaterialPageRoute<void>(
+        builder: (_) => WalletGroupDescriptionPage(
+          selectedWalletType: walletType,
+        ),
+      );
 
     default:
       return MaterialPageRoute<void>(

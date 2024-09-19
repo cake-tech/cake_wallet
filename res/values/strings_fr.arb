@@ -473,7 +473,6 @@
   "pre_seed_button_text": "J'ai compris. Montrez moi ma phrase secrète (seed)",
   "pre_seed_description": "Sur la page suivante vous allez voir une série de ${words} mots. Ils constituent votre phrase secrète (seed) unique et privée et sont le SEUL moyen de restaurer votre portefeuille (wallet) en cas de perte ou de dysfonctionnement. Il est de VOTRE responsabilité d'écrire cette série de mots et de la stocker dans un lieu sûr en dehors de l'application Cake Wallet.",
   "pre_seed_title": "IMPORTANT",
-  "preExistingSeeds": "Semences préexistantes",
   "prepaid_cards": "Cartes prépayées",
   "prevent_screenshots": "Empêcher les captures d'écran et l'enregistrement d'écran",
   "privacy": "Confidentialité",

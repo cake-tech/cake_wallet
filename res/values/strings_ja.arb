@@ -474,7 +474,6 @@
   "pre_seed_button_text": "わかります。 種を見せて",
   "pre_seed_description": "次のページでは、一連の${words}語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。",
   "pre_seed_title": "重要",
-  "preExistingSeeds": "既存のシード",
   "prepaid_cards": "プリペイドカード",
   "prevent_screenshots": "スクリーンショットと画面録画を防止する",
   "privacy": "プライバシー",

@@ -379,8 +379,8 @@ Future<void> setup({
     () => WalletManager(_walletInfoSource, getIt.get<SharedPreferences>()),
   );
 
-  getIt.registerFactoryParam<PreExistingSeedsViewModel, WalletType, void>(
-    (type, _) => PreExistingSeedsViewModel(
+  getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
+    (type, _) => WalletGroupsDisplayViewModel(
       getIt.get<AppStore>(),
       getIt.get<WalletLoadingService>(),
       getIt.get<WalletManager>(),

@@ -473,7 +473,6 @@
   "pre_seed_button_text": "Anladım. Bana tohumumu göster.",
   "pre_seed_description": "Bir sonraki sayfada ${words} kelime göreceksin. Bu senin benzersiz ve özel tohumundur, kaybetmen veya silinmesi durumunda cüzdanını kurtarmanın TEK YOLUDUR. Bunu yazmak ve Cake Wallet uygulaması dışında güvenli bir yerde saklamak tamamen SENİN sorumluluğunda.",
   "pre_seed_title": "UYARI",
-  "preExistingSeeds": "Önceden var olan tohumlar",
   "prepaid_cards": "Ön ödemeli kartlar",
   "prevent_screenshots": "Ekran görüntülerini ve ekran kaydını önleyin",
   "privacy": "Gizlilik",

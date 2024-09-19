@@ -197,7 +197,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         arguments: NewWalletArguments(type: selected!),
       );
     } else {
-      Navigator.of(context).pushNamed(Routes.preExistingSeedsPage, arguments: selected!);
+      Navigator.of(context).pushNamed(Routes.walletGroupDescription, arguments: selected!);
     }
   }
 }
