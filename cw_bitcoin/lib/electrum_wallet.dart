@@ -2255,13 +2255,18 @@ Future<void> startRefresh(ScanData scanData) async {
       if (noData) {
         // re-subscribe to continue receiving messages, starting from the next unscanned height
         final nextHeight = syncHeight + 1;
-        tweaksSubscription?.close();
+        final nextCount = getCountPerRequest(nextHeight);
 
-        final nextTweaksSubscription = electrumClient.tweaksSubscribe(
-          height: nextHeight,
-          count: getCountPerRequest(nextHeight),
-        );
-        nextTweaksSubscription?.listen(listenFn);
+        if (nextCount > 0) {
+          tweaksSubscription?.close();
+
+          final nextTweaksSubscription = electrumClient.tweaksSubscribe(
+            height: nextHeight,
+            count: nextCount,
+          );
+          nextTweaksSubscription?.listen(listenFn);
+        }
+
         return;
       }
 
