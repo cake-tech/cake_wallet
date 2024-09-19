@@ -70,11 +70,11 @@ class WalletGroupDescriptionPage extends BasePage {
               Routes.walletGroupsDisplayPage,
               arguments: selectedWalletType,
             ),
-            text: 'Choose Wallet',
+            text: S.of(context).choose_wallet,
             color: Theme.of(context).primaryColor,
             textColor: Colors.white,
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 32),
         ],
       ),
     );

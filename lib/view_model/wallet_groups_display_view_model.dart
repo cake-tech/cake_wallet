@@ -1,10 +1,10 @@
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -12,18 +12,19 @@ import 'package:mobx/mobx.dart';
 
 part 'wallet_groups_display_view_model.g.dart';
 
-class WalletGroupsDisplayViewModel = WalletGroupsDisplayViewModelBase with _$WalletGroupsDisplayViewModel;
+class WalletGroupsDisplayViewModel = WalletGroupsDisplayViewModelBase
+    with _$WalletGroupsDisplayViewModel;
 
 abstract class WalletGroupsDisplayViewModelBase with Store {
   WalletGroupsDisplayViewModelBase(
     this._appStore,
     this._walletLoadingService,
-    this._walletManager, {
+    this._walletManager,
+    this.walletListViewModel, {
     required this.type,
-  })  : useNewSeed = false,
-        isFetchingMnemonic = false,
-        wallets = ObservableList<WalletGroup>(),
-        groupNames = ObservableList<String>() {
+  })  : isFetchingMnemonic = false,
+        multiWalletGroups = ObservableList<WalletGroup>(),
+        singleWalletsList = ObservableList<WalletInfo>() {
     reaction((_) => _appStore.wallet, (_) => updateWalletInfoSourceList());
     updateWalletInfoSourceList();
   }
@@ -32,18 +33,19 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   final AppStore _appStore;
   final WalletManager _walletManager;
   final WalletLoadingService _walletLoadingService;
+  final WalletListViewModel walletListViewModel;
 
   @observable
-  ObservableList<WalletGroup> wallets;
+  ObservableList<WalletGroup> multiWalletGroups;
+
+  @observable
+  ObservableList<WalletInfo> singleWalletsList;
 
   @observable
   WalletGroup? selectedWalletGroup;
 
   @observable
-  ObservableList<String> groupNames;
-
-  @observable
-  bool useNewSeed;
+  WalletInfo? selectedSingleWallet;
 
   @observable
   String? parentAddress;
@@ -53,16 +55,25 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
   @action
   Future<String?> getSelectedWalletMnemonic() async {
-    if (selectedWalletGroup == null) return null;
+    WalletListItem walletToUse;
+
+    bool isGroupSelected = selectedWalletGroup != null;
+
+    if (isGroupSelected) {
+      walletToUse = convertWalletInfoToWalletListItem(selectedWalletGroup!.wallets.first);
+    } else {
+      walletToUse = convertWalletInfoToWalletListItem(selectedSingleWallet!);
+    }
 
     try {
       isFetchingMnemonic = true;
       final wallet = await _walletLoadingService.load(
-        selectedWalletGroup!.wallets.first.type,
-        selectedWalletGroup!.wallets.first.name,
+        walletToUse.type,
+        walletToUse.name,
       );
 
-      parentAddress = selectedWalletGroup!.parentAddress;
+      parentAddress =
+          isGroupSelected ? selectedWalletGroup!.parentAddress : selectedSingleWallet!.address;
 
       return wallet.seed;
     } catch (e) {
@@ -73,27 +84,27 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   }
 
   @action
-  void selectWalletGroup(WalletGroup wallet) {
-    selectedWalletGroup = wallet;
-    useNewSeed = false;
+  void selectWalletGroup(WalletGroup walletGroup) {
+    selectedWalletGroup = walletGroup;
+    selectedSingleWallet = null;
   }
 
   @action
-  void selectNewSeed() {
-    useNewSeed = true;
+  void selectSingleWallet(WalletInfo singleWallet) {
+    selectedSingleWallet = singleWallet;
     selectedWalletGroup = null;
   }
 
   @action
   void updateWalletInfoSourceList() {
-    wallets.clear();
+    List<WalletGroup> wallets = [];
+
+    multiWalletGroups.clear();
+    singleWalletsList.clear();
 
     _walletManager.updateWalletGroups();
 
     final walletGroups = _walletManager.walletGroups;
-
-    // Initialize a counter for default group names
-    int defaultGroupCounter = 1;
 
     // Iterate through the wallet groups to filter and categorize wallets
     for (var group in walletGroups) {
@@ -123,16 +134,16 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
       if (shouldExcludeGroup) continue;
 
-      // Handle group name display
-      if (group.groupName != null && group.groupName!.isNotEmpty) {
-        groupNames.add(group.groupName!);
-      } else {
-        groupNames.add('${S.current.wallet_group} ${defaultGroupCounter}');
-        defaultGroupCounter++;
-      }
-
       // If the group passes the filters, add it to the wallets list
       wallets.add(group);
+    }
+
+    for (var group in wallets) {
+      if (group.wallets.length == 1) {
+        singleWalletsList.add(group.wallets.first);
+      } else {
+        multiWalletGroups.add(group);
+      }
     }
   }
 

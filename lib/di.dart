@@ -384,6 +384,7 @@ Future<void> setup({
       getIt.get<AppStore>(),
       getIt.get<WalletLoadingService>(),
       getIt.get<WalletManager>(),
+      getIt.get<WalletListViewModel>(),
       type: type,
     ),
   );
