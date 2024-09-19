@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:grpc/grpc.dart';
@@ -43,7 +42,7 @@ class CwMweb {
       } catch (e) {
         print("Attempt $i failed: $e");
         await stop(); // call stop so we create a new instance before retrying
-        await Future.delayed(const Duration(seconds: 2)); // wait before retrying
+        await Future.delayed(const Duration(seconds: 4)); // wait before retrying
       }
     }
     throw Exception("Failed to connect after $maxRetries attempts");
