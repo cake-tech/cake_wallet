@@ -211,7 +211,8 @@ abstract class Bitcoin {
   int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
       {int? outputsCount, int? size});
   int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
-  Future<int> getHeightByDate({required DateTime date});
+  Future<bool> checkIfMempoolAPIIsEnabled(Object wallet);
+  Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled});
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan});
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet);
   void deleteSilentPaymentAddress(Object wallet, String address);
