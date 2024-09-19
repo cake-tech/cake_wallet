@@ -191,6 +191,11 @@ class MenuWidgetState extends State<MenuWidget> {
 
                   final item = items[index];
 
+                  if (!widget.dashboardViewModel.isMoneroViewOnly &&
+                      item.name(context) == "Export outputs") {
+                    return Container();
+                  }
+                  
                   final isLastTile = index == itemCount - 1;
 
                   return SettingActionButton(

@@ -1,43 +1,8 @@
 PODS:
-  - barcode_scan2 (0.0.1):
-    - Flutter
-    - MTBBarcodeScanner
-    - SwiftProtobuf
-  - BigInt (5.2.0)
   - connectivity_plus (0.0.1):
     - Flutter
     - ReachabilitySwift
   - CryptoSwift (1.8.2)
-  - cw_haven (0.0.1):
-    - cw_haven/Boost (= 0.0.1)
-    - cw_haven/Haven (= 0.0.1)
-    - cw_haven/OpenSSL (= 0.0.1)
-    - cw_haven/Sodium (= 0.0.1)
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Boost (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Haven (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/OpenSSL (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Sodium (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_shared_external (0.0.1):
-    - cw_shared_external/Boost (= 0.0.1)
-    - cw_shared_external/OpenSSL (= 0.0.1)
-    - cw_shared_external/Sodium (= 0.0.1)
-    - Flutter
-  - cw_shared_external/Boost (0.0.1):
-    - Flutter
-  - cw_shared_external/OpenSSL (0.0.1):
-    - Flutter
-  - cw_shared_external/Sodium (0.0.1):
-    - Flutter
   - device_display_brightness (0.0.1):
     - Flutter
   - device_info_plus (0.0.1):
@@ -75,6 +40,11 @@ PODS:
   - DKPhotoGallery/Resource (0.0.19):
     - SDWebImage
     - SwiftyGif
+  - fast_scanner (5.1.1):
+    - Flutter
+    - MLKitBarcodeScanning (~> 2.2.0)
+    - MLKitVision (~> 4.2.0)
+    - ZXingObjC (~> 3.6.9)
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
@@ -95,12 +65,63 @@ PODS:
   - fluttertoast (0.0.2):
     - Flutter
     - Toast
+  - GoogleDataTransport (9.4.1):
+    - GoogleUtilities/Environment (~> 7.7)
+    - nanopb (< 2.30911.0, >= 2.30908.0)
+    - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleToolboxForMac/DebugUtils (2.3.2):
+    - GoogleToolboxForMac/Defines (= 2.3.2)
+  - GoogleToolboxForMac/Defines (2.3.2)
+  - GoogleToolboxForMac/Logger (2.3.2):
+    - GoogleToolboxForMac/Defines (= 2.3.2)
+  - "GoogleToolboxForMac/NSData+zlib (2.3.2)":
+    - GoogleToolboxForMac/Defines (= 2.3.2)
+  - "GoogleToolboxForMac/NSDictionary+URLArguments (2.3.2)":
+    - GoogleToolboxForMac/DebugUtils (= 2.3.2)
+    - GoogleToolboxForMac/Defines (= 2.3.2)
+    - "GoogleToolboxForMac/NSString+URLArguments (= 2.3.2)"
+  - "GoogleToolboxForMac/NSString+URLArguments (2.3.2)"
+  - GoogleUtilities/Environment (7.13.3):
+    - GoogleUtilities/Privacy
+    - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleUtilities/Logger (7.13.3):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/Privacy (7.13.3)
+  - GoogleUtilities/UserDefaults (7.13.3):
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Privacy
+  - GoogleUtilitiesComponents (1.1.0):
+    - GoogleUtilities/Logger
+  - GTMSessionFetcher/Core (1.7.2)
   - in_app_review (0.2.0):
     - Flutter
-  - MTBBarcodeScanner (5.0.11)
+  - MLImage (1.0.0-beta3)
+  - MLKitBarcodeScanning (2.2.0):
+    - MLKitCommon (~> 8.0)
+    - MLKitVision (~> 4.2)
+  - MLKitCommon (8.0.0):
+    - GoogleDataTransport (~> 9.0)
+    - GoogleToolboxForMac/Logger (~> 2.1)
+    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
+    - "GoogleToolboxForMac/NSDictionary+URLArguments (~> 2.1)"
+    - GoogleUtilities/UserDefaults (~> 7.0)
+    - GoogleUtilitiesComponents (~> 1.0)
+    - GTMSessionFetcher/Core (~> 1.1)
+    - Protobuf (~> 3.12)
+  - MLKitVision (4.2.0):
+    - GoogleToolboxForMac/Logger (~> 2.1)
+    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
+    - GTMSessionFetcher/Core (~> 1.1)
+    - MLImage (= 1.0.0-beta3)
+    - MLKitCommon (~> 8.0)
+    - Protobuf (~> 3.12)
+  - nanopb (2.30910.0):
+    - nanopb/decode (= 2.30910.0)
+    - nanopb/encode (= 2.30910.0)
+  - nanopb/decode (2.30910.0)
+  - nanopb/encode (2.30910.0)
   - OrderedSet (5.0.0)
-  - package_info (0.0.1):
-    - Flutter
   - package_info_plus (0.4.5):
     - Flutter
   - path_provider_foundation (0.0.1):
@@ -108,6 +129,7 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.1.1):
     - Flutter
+  - PromisesObjC (2.4.0)
   - Protobuf (3.27.2)
   - ReachabilitySwift (5.2.3)
   - reactive_ble_mobile (0.0.1):
@@ -131,25 +153,23 @@ PODS:
   - Toast (4.1.1)
   - uni_links (0.0.1):
     - Flutter
-  - UnstoppableDomainsResolution (4.0.0):
-    - BigInt
-    - CryptoSwift
   - url_launcher_ios (0.0.1):
     - Flutter
   - wakelock_plus (0.0.1):
     - Flutter
   - workmanager (0.0.1):
     - Flutter
+  - ZXingObjC (3.6.9):
+    - ZXingObjC/All (= 3.6.9)
+  - ZXingObjC/All (3.6.9)
 
 DEPENDENCIES:
-  - barcode_scan2 (from `.symlinks/plugins/barcode_scan2/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
-  - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
-  - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
+  - fast_scanner (from `.symlinks/plugins/fast_scanner/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
   - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
@@ -158,7 +178,6 @@ DEPENDENCIES:
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
-  - package_info (from `.symlinks/plugins/package_info/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
@@ -168,42 +187,46 @@ DEPENDENCIES:
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sp_scanner (from `.symlinks/plugins/sp_scanner/ios`)
   - uni_links (from `.symlinks/plugins/uni_links/ios`)
-  - UnstoppableDomainsResolution (~> 4.0.0)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
   - workmanager (from `.symlinks/plugins/workmanager/ios`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
-    - BigInt
     - CryptoSwift
     - DKImagePickerController
     - DKPhotoGallery
-    - MTBBarcodeScanner
+    - GoogleDataTransport
+    - GoogleToolboxForMac
+    - GoogleUtilities
+    - GoogleUtilitiesComponents
+    - GTMSessionFetcher
+    - MLImage
+    - MLKitBarcodeScanning
+    - MLKitCommon
+    - MLKitVision
+    - nanopb
     - OrderedSet
+    - PromisesObjC
     - Protobuf
     - ReachabilitySwift
     - SDWebImage
     - SwiftProtobuf
     - SwiftyGif
     - Toast
-    - UnstoppableDomainsResolution
+    - ZXingObjC
 
 EXTERNAL SOURCES:
-  barcode_scan2:
-    :path: ".symlinks/plugins/barcode_scan2/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
-  cw_haven:
-    :path: ".symlinks/plugins/cw_haven/ios"
-  cw_shared_external:
-    :path: ".symlinks/plugins/cw_shared_external/ios"
   device_display_brightness:
     :path: ".symlinks/plugins/device_display_brightness/ios"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
   devicelocale:
     :path: ".symlinks/plugins/devicelocale/ios"
+  fast_scanner:
+    :path: ".symlinks/plugins/fast_scanner/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
@@ -220,8 +243,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fluttertoast/ios"
   in_app_review:
     :path: ".symlinks/plugins/in_app_review/ios"
-  package_info:
-    :path: ".symlinks/plugins/package_info/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
@@ -248,17 +269,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/workmanager/ios"
 
 SPEC CHECKSUMS:
-  barcode_scan2: 0af2bb63c81b4565aab6cd78278e4c0fa136dbb0
-  BigInt: f668a80089607f521586bbe29513d708491ef2f7
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   CryptoSwift: c63a805d8bb5e5538e88af4e44bb537776af11ea
-  cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
-  cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   devicelocale: b22617f40038496deffba44747101255cee005b0
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
+  fast_scanner: 1ad229b44ff785c324177bdb3617602c4b867403
   file_picker: 15fd9539e4eb735dc54bae8c0534a7a9511a03de
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_inappwebview_ios: 97215cf7d4677db55df76782dbd2930c5e1c1ea0
@@ -266,13 +284,22 @@ SPEC CHECKSUMS:
   flutter_mailer: 2ef5a67087bc8c6c4cefd04a178bf1ae2c94cd83
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
   fluttertoast: 48c57db1b71b0ce9e6bba9f31c940ff4b001293c
+  GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
+  GoogleToolboxForMac: 8bef7c7c5cf7291c687cf5354f39f9db6399ad34
+  GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
+  GoogleUtilitiesComponents: 679b2c881db3b615a2777504623df6122dd20afe
+  GTMSessionFetcher: 5595ec75acf5be50814f81e9189490412bad82ba
   in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
-  MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
+  MLImage: 489dfec109f21da8621b28d476401aaf7a0d4ff4
+  MLKitBarcodeScanning: d92fe1911001ec36870162c5a0eb206f612b7169
+  MLKitCommon: f6da6c5659618c070b50a80db01248ebe2964175
+  MLKitVision: 96c96571190b7f63eddf4a12068ce8a8689e0d2c
+  nanopb: 438bc412db1928dac798aa6fd75726007be04262
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
-  package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
+  PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   Protobuf: fb2c13674723f76ff6eede14f78847a776455fa2
   ReachabilitySwift: 7f151ff156cea1481a8411701195ac6a984f4979
   reactive_ble_mobile: 9ce6723d37ccf701dbffd202d487f23f5de03b4c
@@ -285,11 +312,11 @@ SPEC CHECKSUMS:
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
-  UnstoppableDomainsResolution: c3c67f4d0a5e2437cb00d4bd50c2e00d6e743841
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
   workmanager: 0afdcf5628bbde6924c21af7836fed07b42e30e6
+  ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: a2fe518be61cdbdc5b0e2da085ab543d556af2d3
+PODFILE CHECKSUM: e448f662d4c41f0c0b1ccbb78afd57dbf895a597
 
 COCOAPODS: 1.15.2
