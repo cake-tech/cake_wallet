@@ -35,80 +35,85 @@ class PreExistingSeedBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Padding(
-      padding: EdgeInsets.all(24),
-      child: Column(
-        children: [
-          Text(
-            S.current.chooseWalletToShareSeedWith,
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Text(
+              S.current.chooseWalletToShareSeedWith,
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              ),
             ),
-          ),
-          SizedBox(height: 16),
-          Observer(
-            builder: (context) {
-              return Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      ...preExistingSeedsViewModel.wallets.map(
-                        (group) {
-                          return GroupedWalletExpansionTile(
-                            leadingWidget: Icon(Icons.account_balance_wallet_outlined, size: 28),
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                            title: S.current.wallet_group,
-                            childWallets: group.wallets.map((walletInfo) {
-                              return preExistingSeedsViewModel
-                                  .convertWalletInfoToWalletListItem(walletInfo);
-                            }).toList(),
-                            isSelected: preExistingSeedsViewModel.selectedWalletGroup == group,
-                            onTitleTapped: () => preExistingSeedsViewModel.selectWalletGroup(group),
-                            onChildItemTapped: (_) =>
-                                preExistingSeedsViewModel.selectWalletGroup(group),
-                          );
-                        },
-                      ).toList(),
-                      SelectButton(
-                        text: S.current.newSeed,
-                        height: 60,
-                        image: Icon(
-                          Icons.add_circle,
-                          size: 28,
-                          color: preExistingSeedsViewModel.useNewSeed ? Colors.white : null,
+            SizedBox(height: 16),
+            Observer(
+              builder: (context) {
+                return Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        ...preExistingSeedsViewModel.wallets.map(
+                          (group) {
+                            return GroupedWalletExpansionTile(
+                              leadingWidget: Icon(Icons.account_balance_wallet_outlined, size: 28),
+                              borderRadius: BorderRadius.all(Radius.circular(16)),
+                              title: S.current.wallet_group,
+                              childWallets: group.wallets.map((walletInfo) {
+                                return preExistingSeedsViewModel
+                                    .convertWalletInfoToWalletListItem(walletInfo);
+                              }).toList(),
+                              isSelected: preExistingSeedsViewModel.selectedWalletGroup == group,
+                              onTitleTapped: () =>
+                                  preExistingSeedsViewModel.selectWalletGroup(group),
+                              onChildItemTapped: (_) =>
+                                  preExistingSeedsViewModel.selectWalletGroup(group),
+                            );
+                          },
+                        ).toList(),
+                        SelectButton(
+                          text: S.current.newSeed,
+                          height: 60,
+                          image: Icon(
+                            Icons.add_circle,
+                            size: 28,
+                            color: preExistingSeedsViewModel.useNewSeed ? Colors.white : null,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                          isSelected: preExistingSeedsViewModel.useNewSeed == true,
+                          onTap: () => preExistingSeedsViewModel.selectNewSeed(),
+                          padding: EdgeInsets.only(left: 16, right: 30),
+                          showTrailingIcon: false,
                         ),
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        isSelected: preExistingSeedsViewModel.useNewSeed == true,
-                        onTap: () => preExistingSeedsViewModel.selectNewSeed(),
-                        padding: EdgeInsets.only(left: 16, right: 30),
-                        showTrailingIcon: false,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-          Observer(builder: (context) {
-            return PrimaryButton(
-              onPressed: () => onTypeSelected(context),
-              text: S.of(context).seed_language_next,
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              isDisabled: (preExistingSeedsViewModel.selectedWalletGroup == null &&
-                      !preExistingSeedsViewModel.useNewSeed) ||
-                  (preExistingSeedsViewModel.selectedWalletGroup != null &&
-                      preExistingSeedsViewModel.useNewSeed),
-            );
-          }),
-          SizedBox(height: 32),
-        ],
+                );
+              },
+            ),
+            Observer(
+              builder: (context) {
+                return LoadingPrimaryButton(
+                  isLoading: preExistingSeedsViewModel.isFetchingMnemonic,
+                  onPressed: () => onTypeSelected(context),
+                  text: S.of(context).seed_language_next,
+                  color: Theme.of(context).primaryColor,
+                  textColor: Colors.white,
+                  isDisabled: (preExistingSeedsViewModel.selectedWalletGroup == null &&
+                          !preExistingSeedsViewModel.useNewSeed) ||
+                      (preExistingSeedsViewModel.selectedWalletGroup != null &&
+                          preExistingSeedsViewModel.useNewSeed),
+                );
+              },
+            ),
+            SizedBox(height: 32),
+          ],
+        ),
       ),
-    ));
+    );
   }
 
   Future<void> onTypeSelected(BuildContext context) async {

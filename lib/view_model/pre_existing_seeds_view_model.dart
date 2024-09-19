@@ -20,6 +20,7 @@ abstract class PreExistingSeedsViewModelBase with Store {
     this._walletManager, {
     required this.type,
   })  : useNewSeed = false,
+        isFetchingMnemonic = false,
         wallets = ObservableList<WalletGroup>() {
     reaction((_) => _appStore.wallet, (_) => updateWalletInfoSourceList());
     updateWalletInfoSourceList();
@@ -42,11 +43,15 @@ abstract class PreExistingSeedsViewModelBase with Store {
   @observable
   String? parentAddress;
 
+  @observable
+  bool isFetchingMnemonic;
+
   @action
   Future<String?> getSelectedWalletMnemonic() async {
     if (selectedWalletGroup == null) return null;
 
     try {
+      isFetchingMnemonic = true;
       final wallet = await _walletLoadingService.load(
         selectedWalletGroup!.leadWallet!.type,
         selectedWalletGroup!.leadWallet!.name,
@@ -57,6 +62,8 @@ abstract class PreExistingSeedsViewModelBase with Store {
       return wallet.seed;
     } catch (e) {
       return null;
+    } finally {
+      isFetchingMnemonic = false;
     }
   }
 
