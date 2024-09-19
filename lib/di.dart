@@ -767,8 +767,12 @@ Future<void> setup({
       ));
 
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
-      (WalletListViewModel walletListViewModel, _) =>
-          WalletEditViewModel(walletListViewModel, getIt.get<WalletLoadingService>()));
+    (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
+      walletListViewModel,
+      getIt.get<WalletLoadingService>(),
+      getIt.get<WalletManager>(),
+    ),
+  );
 
   getIt.registerFactoryParam<WalletEditPage, WalletEditPageArguments, void>((arguments, _) {
 

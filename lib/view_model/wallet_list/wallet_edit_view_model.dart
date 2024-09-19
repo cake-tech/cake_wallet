@@ -19,8 +19,11 @@ class WalletEditRenamePending extends WalletEditViewModelState {}
 class WalletEditDeletePending extends WalletEditViewModelState {}
 
 abstract class WalletEditViewModelBase with Store {
-  WalletEditViewModelBase(this._walletListViewModel, this._walletLoadingService)
-      : state = WalletEditViewModelInitialState(),
+  WalletEditViewModelBase(
+    this._walletListViewModel,
+    this._walletLoadingService,
+    this._walletManager,
+  )   : state = WalletEditViewModelInitialState(),
         newName = '';
 
   @observable
@@ -31,6 +34,7 @@ abstract class WalletEditViewModelBase with Store {
 
   final WalletListViewModel _walletListViewModel;
   final WalletLoadingService _walletLoadingService;
+  final WalletManager _walletManager;
 
   @action
   Future<void> changeName(
@@ -42,10 +46,9 @@ abstract class WalletEditViewModelBase with Store {
     state = WalletEditRenamePending();
 
     if (isWalletGroup) {
-      final walletManager = getIt.get<WalletManager>();
-      walletManager.updateWalletGroups();
-      
-      walletManager.setGroupName(groupParentAddress!, newName);
+      _walletManager.updateWalletGroups();
+
+      _walletManager.setGroupName(groupParentAddress!, newName);
     } else {
       await _walletLoadingService.renameWallet(
         walletItem.type,
