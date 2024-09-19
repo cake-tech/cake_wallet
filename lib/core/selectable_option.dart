@@ -11,7 +11,9 @@ class OptionTitle extends SelectableItem {
 abstract class SelectableOption extends SelectableItem {
   SelectableOption({required String title}) : super(title: title);
 
-  String get iconPath;
+  String get lightIconPath;
+
+  String get darkIconPath;
 
   String? get description => null;
 
@@ -21,7 +23,9 @@ abstract class SelectableOption extends SelectableItem {
 
   String? get rightSubTitle => null;
 
-  String? get rightSubTitleIconPath => null;
+  String? get rightSubTitleLightIconPath => null;
+
+  String? get rightSubTitleDarkIconPath => null;
 
   List<String> get badges => [];
 

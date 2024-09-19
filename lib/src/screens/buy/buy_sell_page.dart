@@ -195,10 +195,12 @@ class BuySellPage extends BasePage {
       return Observer(builder: (_) {
         final selectedPaymentMethod = buySellViewModel.selectedPaymentMethod!;
         return ProviderOptionTile(
-          imagePath: selectedPaymentMethod.iconPath,
+          lightImagePath: selectedPaymentMethod.lightIconPath,
+          darkImagePath: selectedPaymentMethod.darkIconPath,
           title: selectedPaymentMethod.title,
           onPressed: () => _pickPaymentMethod(context),
           leadingIcon: Icons.arrow_forward_ios,
+          isLightMode: !buySellViewModel.isDarkTheme,
           borderRadius: 30,
           padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           titleTextStyle:
@@ -225,15 +227,18 @@ class BuySellPage extends BasePage {
       return Observer(builder: (_) {
         final selectedQuote = buySellViewModel.selectedQuote!;
         return ProviderOptionTile(
-            imagePath: selectedQuote.iconPath,
+            lightImagePath: selectedQuote.lightIconPath,
+            darkImagePath: selectedQuote.darkIconPath,
             title: selectedQuote.title,
             badges: selectedQuote.badges,
             imageWidth: 50,
             imageHeight: 50,
             leftSubTitle: selectedQuote.leftSubTitle,
-            rightSubTitleIconPath: selectedQuote.rightSubTitleIconPath,
+            rightSubTitleLightIconPath: selectedQuote.rightSubTitleLightIconPath,
+            rightSubTitleDarkIconPath: selectedQuote.rightSubTitleDarkIconPath,
             onPressed: () => _pickQuote(context),
             leadingIcon: Icons.arrow_forward_ios,
+            isLightMode: !buySellViewModel.isDarkTheme,
             borderRadius: 30,
             padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             titleTextStyle:

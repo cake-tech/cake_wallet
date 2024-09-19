@@ -129,6 +129,7 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
   @override
   Widget build(BuildContext context) {
     final isLightMode = Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
+    print(isLightMode);
 
     Color titleColor =
         isLightMode ? Theme.of(context).appBarTheme.titleTextStyle!.color! : Colors.white;
@@ -169,14 +170,16 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
                 padding: widget.tilePadding ?? const EdgeInsets.only(top: 24),
                 child: ProviderOptionTile(
                   title: item.title,
-                  imagePath: item.iconPath,
+                  lightImagePath: item.lightIconPath,
+                  darkImagePath: item.darkIconPath,
                   imageHeight: widget.imageHeight,
                   imageWidth: widget.imageWidth,
                   padding: widget.innerPadding,
                   description: item.description,
                   leftSubTitle: item.leftSubTitle,
                   rightSubTitle: item.rightSubTitle,
-                  rightSubTitleIconPath: item.rightSubTitleIconPath,
+                  rightSubTitleLightIconPath: item.rightSubTitleLightIconPath,
+                  rightSubTitleDarkIconPath: item.rightSubTitleDarkIconPath,
                   badges: item.badges,
                   isSelected: item.isOptionSelected,
                   subTitleTextStyle: widget.subTitleTextStyle,

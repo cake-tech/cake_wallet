@@ -72,8 +72,12 @@ class Quote extends SelectableOption {
   bool get isOptionSelected => this.isSelected;
 
   @override
-  String get iconPath =>
+  String get lightIconPath =>
       provider.isAggregator ? rampIconPath ?? provider.lightIcon : provider.lightIcon;
+
+  @override
+  String get darkIconPath =>
+      provider.isAggregator ? rampIconPath ?? provider.darkIcon : provider.darkIcon;
 
   @override
   List<String> get badges => recommendations.map((e) => e.title).toList();
@@ -87,7 +91,10 @@ class Quote extends SelectableOption {
   String? get rightSubTitle => '';
 
   @override
-  String get rightSubTitleIconPath => provider.isAggregator ? provider.lightIcon : '';
+  String get rightSubTitleLightIconPath => provider.isAggregator ? provider.lightIcon : '';
+
+  @override
+  String get rightSubTitleDarkIconPath => provider.isAggregator ? provider.darkIcon : '';
 
   String get quoteTitle => '${provider.title} - ${paymentType.name}';
 

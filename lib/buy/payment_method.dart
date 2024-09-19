@@ -106,18 +106,39 @@ extension PaymentTypeTitle on PaymentType {
     }
   }
 
-  String? get iconPath {
+  String? get lightIconPath {
     switch (this) {
       case PaymentType.all:
-        return 'assets/images/usd-circle.svg';
+        return 'assets/images/usd_round_light.svg';
       case PaymentType.creditCard:
       case PaymentType.debitCard:
       case PaymentType.yellowCardBankTransfer:
         return 'assets/images/card.svg';
       case PaymentType.bankTransfer:
-        return 'assets/images/bank.png';
+        return 'assets/images/bank_light.svg';
       case PaymentType.skrill:
         return 'assets/images/skrill.svg';
+      case PaymentType.applePay:
+        return 'assets/images/apple_pay_round_light.svg';
+      default:
+        return null;
+    }
+  }
+
+  String? get darkIconPath {
+    switch (this) {
+      case PaymentType.all:
+        return 'assets/images/usd_round_dark.svg';
+      case PaymentType.creditCard:
+      case PaymentType.debitCard:
+      case PaymentType.yellowCardBankTransfer:
+        return 'assets/images/card_dark.svg';
+      case PaymentType.bankTransfer:
+        return 'assets/images/bank_dark.svg';
+      case PaymentType.skrill:
+        return 'assets/images/skrill.svg';
+      case PaymentType.applePay:
+        return 'assets/images/apple_pay_round_dark.svg';
       default:
         return null;
     }
@@ -149,7 +170,10 @@ class PaymentMethod extends SelectableOption {
   String? get description => paymentMethodType.description ?? customDescription;
 
   @override
-  String get iconPath => paymentMethodType.iconPath ?? customIconPath;
+  String get lightIconPath => paymentMethodType.lightIconPath ?? customIconPath;
+
+  @override
+  String get darkIconPath => paymentMethodType.darkIconPath ?? customIconPath;
 
   @override
   bool get isOptionSelected => isSelected;

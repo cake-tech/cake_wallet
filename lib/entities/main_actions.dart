@@ -26,12 +26,13 @@ class MainActions {
     showWalletsAction,
     receiveAction,
     exchangeAction,
+    sendAction,
     tradeAction,
   ];
 
   static MainActions showWalletsAction = MainActions._(
     name: (context) => S.of(context).wallets,
-    image: 'assets/images/wallet_icon.png',
+    image: 'assets/images/wallet_new.png',
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       Navigator.pushNamed(context, Routes.walletList);
     },
@@ -56,6 +57,15 @@ class MainActions {
       }
     },
   );
+
+  static MainActions sendAction = MainActions._(
+    name: (context) => S.of(context).send,
+    image: 'assets/images/upload.png',
+    onTap: (BuildContext context, DashboardViewModel viewModel) async {
+      Navigator.pushNamed(context, Routes.send);
+    },
+  );
+
 
   static MainActions tradeAction = MainActions._(
     name: (context) => '${S.of(context).buy} / ${S.of(context).sell}',

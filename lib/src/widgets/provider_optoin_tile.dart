@@ -7,12 +7,14 @@ import 'package:flutter_svg/svg.dart';
 class ProviderOptionTile extends StatelessWidget {
   const ProviderOptionTile({
     required this.onPressed,
-    required this.imagePath,
+    required this.lightImagePath,
+    required this.darkImagePath,
     required this.title,
     this.leftSubTitle,
     this.rightSubTitle,
     this.leftSubTitleIconPath,
-    this.rightSubTitleIconPath,
+    this.rightSubTitleLightIconPath,
+    this.rightSubTitleDarkIconPath,
     this.description,
     this.badges,
     this.borderRadius,
@@ -24,16 +26,18 @@ class ProviderOptionTile extends StatelessWidget {
     this.leadingIcon,
     this.selectedBackgroundColor,
     this.isSelected = false,
-    this.isLightMode = true,
+    required this.isLightMode,
   });
 
   final VoidCallback onPressed;
-  final String imagePath;
+  final String lightImagePath;
+  final String darkImagePath;
   final String title;
   final String? leftSubTitle;
   final String? rightSubTitle;
   final String? leftSubTitleIconPath;
-  final String? rightSubTitleIconPath;
+  final String? rightSubTitleLightIconPath;
+  final String? rightSubTitleDarkIconPath;
   final String? description;
   final List<String>? badges;
   final double? borderRadius;
@@ -69,6 +73,23 @@ class ProviderOptionTile extends StatelessWidget {
         ? Theme.of(context).extension<OptionTileTheme>()!.titleColor
         : Theme.of(context).cardColor;
 
+
+    final imagePath = isSelected
+        ? isLightMode
+            ? darkImagePath
+            : lightImagePath
+        : isLightMode
+            ? lightImagePath
+            : darkImagePath;
+
+    final rightSubTitleIconPath = isSelected
+        ? isLightMode
+            ? rightSubTitleDarkIconPath
+            : rightSubTitleLightIconPath
+        : isLightMode
+            ? rightSubTitleLightIconPath
+            : rightSubTitleDarkIconPath;
+
     return GestureDetector(
       onTap: onPressed,
       child: Container(
@@ -76,7 +97,7 @@ class ProviderOptionTile extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(borderRadius ?? 12)),
-          border:  isSelected && !isLightMode ? Border.all(color: textColor) : null,
+          border: isSelected && !isLightMode ? Border.all(color: textColor) : null,
           color: backgroundColor,
         ),
         child: Padding(
@@ -97,7 +118,8 @@ class ProviderOptionTile extends StatelessWidget {
                                   style: titleTextStyle ?? textLargeBold(color: textColor))),
                           Row(
                             children: [
-                              if (leadingIcon != null) Icon(leadingIcon, size: 16, color: textColor),
+                              if (leadingIcon != null)
+                                Icon(leadingIcon, size: 16, color: textColor),
                             ],
                           )
                         ],
@@ -112,10 +134,11 @@ class ProviderOptionTile extends StatelessWidget {
                   children: [
                     leftSubTitle != null || leftSubTitleIconPath != null
                         ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
                               children: [
-                                if (leftSubTitleIconPath != null && leftSubTitleIconPath!.isNotEmpty)
+                                if (leftSubTitleIconPath != null &&
+                                    leftSubTitleIconPath!.isNotEmpty)
                                   Padding(
                                     padding: const EdgeInsets.only(right: 6),
                                     child: getImage(leftSubTitleIconPath!),
@@ -124,25 +147,29 @@ class ProviderOptionTile extends StatelessWidget {
                                   leftSubTitle ?? '',
                                   style: subTitleTextStyle ??
                                       TextStyle(
-                                          fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: textColor),
                                 ),
                               ],
                             ),
-                        )
+                          )
                         : Offstage(),
                     rightSubTitle != null || rightSubTitleIconPath != null
                         ? Row(
                             children: [
-                              if (rightSubTitleIconPath != null && rightSubTitleIconPath!.isNotEmpty)
+                              if (rightSubTitleIconPath != null && rightSubTitleIconPath.isNotEmpty)
                                 Padding(
                                   padding: const EdgeInsets.only(right: 4),
-                                  child: getImage(rightSubTitleIconPath!, imageColor: textColor),
+                                  child: getImage(rightSubTitleIconPath, imageColor: textColor),
                                 ),
                               Text(
                                 rightSubTitle ?? '',
                                 style: subTitleTextStyle ??
                                     TextStyle(
-                                        fontSize: 16, fontWeight: FontWeight.w700, color: textColor),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: textColor),
                               ),
                             ],
                           )
@@ -154,8 +181,8 @@ class ProviderOptionTile extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 12),
                   child: Row(children: [
                     ...badges!
-                        .map((badge) =>
-                            Badge(title: badge, textColor: badgeTextColor, backgroundColor: badgeColor))
+                        .map((badge) => Badge(
+                            title: badge, textColor: badgeTextColor, backgroundColor: badgeColor))
                         .toList()
                   ]),
                 )
