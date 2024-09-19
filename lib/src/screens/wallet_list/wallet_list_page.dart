@@ -152,15 +152,15 @@ class WalletListBodyState extends State<WalletListBody> {
                           shrinkWrap: true,
                           list: widget.walletListViewModel.multiWalletGroups,
                           updateFunction: widget.walletListViewModel.reorderAccordingToWalletList,
-                          itemBuilder: (context, int) {
-                            final group = widget.walletListViewModel.multiWalletGroups[int];
+                          itemBuilder: (context, index) {
+                            final group = widget.walletListViewModel.multiWalletGroups[index];
                             final groupName = group.groupName ??
-                                '${S.current.wallet_group} ${int + 1}';
+                                '${S.current.wallet_group} ${index + 1}';
                             return GroupedWalletExpansionTile(
                               borderRadius: BorderRadius.all(Radius.circular(16)),
                               margin: EdgeInsets.only(left: 20, right: 20, bottom: 12),
                               title: groupName,
-                              tileKey: ValueKey('group_wallets_expansion_tile_widget_$int'),
+                              tileKey: ValueKey('group_wallets_expansion_tile_widget_$index'),
                               leadingWidget: Icon(
                                 Icons.account_balance_wallet_outlined,
                                 size: 28,
@@ -230,11 +230,11 @@ class WalletListBodyState extends State<WalletListBody> {
                           shrinkWrap: true,
                           list: widget.walletListViewModel.singleWalletsList,
                           updateFunction: widget.walletListViewModel.reorderAccordingToWalletList,
-                          itemBuilder: (context, int) {
-                            final wallet = widget.walletListViewModel.singleWalletsList[int];
+                          itemBuilder: (context, index) {
+                            final wallet = widget.walletListViewModel.singleWalletsList[index];
 
                             return GroupedWalletExpansionTile(
-                              tileKey: ValueKey('single_wallets_expansion_tile_widget_$int'),
+                              tileKey: ValueKey('single_wallets_expansion_tile_widget_$index'),
                               leadingWidget: Image.asset(
                                 walletTypeToCryptoCurrency(wallet.type).iconPath!,
                                 width: 32,
