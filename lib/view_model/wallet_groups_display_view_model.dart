@@ -10,7 +10,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
-part 'pre_existing_seeds_view_model.g.dart';
+part 'wallet_groups_display_view_model.g.dart';
 
 class WalletGroupsDisplayViewModel = WalletGroupsDisplayViewModelBase with _$WalletGroupsDisplayViewModel;
 
