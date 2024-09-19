@@ -810,6 +810,7 @@
   "trusted": "de confiance",
   "tx_commit_exception_no_dust_on_change": "La transaction est rejetée avec ce montant. Avec ces pièces, vous pouvez envoyer ${min} sans changement ou ${max} qui renvoie le changement.",
   "tx_commit_failed": "La validation de la transaction a échoué. Veuillez contacter l'assistance.",
+  "tx_commit_failed_no_peers": "La transaction n'a pas été diffusée, veuillez réessayer dans une seconde environ",
   "tx_invalid_input": "Vous utilisez le mauvais type d'entrée pour ce type de paiement",
   "tx_no_dust_exception": "La transaction est rejetée en envoyant un montant trop faible. Veuillez essayer d'augmenter le montant.",
   "tx_not_enough_inputs_exception": "Pas assez d'entrées disponibles. Veuillez sélectionner plus sous Control Control",

@@ -810,6 +810,7 @@
   "trusted": "值得信赖",
   "tx_commit_exception_no_dust_on_change": "交易被此金额拒绝。使用这些硬币，您可以发送${min}无需更改或返回${max}的变化。",
   "tx_commit_failed": "交易承诺失败。请联系支持。",
+  "tx_commit_failed_no_peers": "交易无法广播，请在一秒钟左右的时间内重试",
   "tx_invalid_input": "您正在使用错误的输入类型进行此类付款",
   "tx_no_dust_exception": "通过发送太小的金额来拒绝交易。请尝试增加金额。",
   "tx_not_enough_inputs_exception": "没有足够的输入。请在硬币控制下选择更多",

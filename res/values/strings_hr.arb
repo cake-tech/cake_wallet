@@ -810,6 +810,7 @@
   "trusted": "vjerovao",
   "tx_commit_exception_no_dust_on_change": "Transakcija se odbija s tim iznosom. Pomoću ovih kovanica možete poslati ${min} bez promjene ili ${max} koja vraća promjenu.",
   "tx_commit_failed": "Obveza transakcije nije uspjela. Molimo kontaktirajte podršku.",
+  "tx_commit_failed_no_peers": "Transakcija nije uspjela emitirati, pokušajte ponovo u sekundi ili tako",
   "tx_invalid_input": "Koristite pogrešnu vrstu ulaza za ovu vrstu plaćanja",
   "tx_no_dust_exception": "Transakcija se odbija slanjem iznosa premalo. Pokušajte povećati iznos.",
   "tx_not_enough_inputs_exception": "Nema dovoljno unosa. Molimo odaberite više pod kontrolom novčića",

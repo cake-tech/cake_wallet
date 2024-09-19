@@ -812,6 +812,7 @@
   "trusted": "Amintacce",
   "tx_commit_exception_no_dust_on_change": "An ƙi ma'amala da wannan adadin. Tare da waɗannan tsabar kudi Zaka iya aika ${min}, ba tare da canji ba ko ${max} wanda ya dawo canzawa.",
   "tx_commit_failed": "Ma'amala ya kasa. Da fatan za a tuntuɓi goyan baya.",
+  "tx_commit_failed_no_peers": "Kasuwanci ya kasa watsa, don Allah sake gwadawa a cikin na biyu ko",
   "tx_invalid_input": "Kuna amfani da nau'in shigar da ba daidai ba don wannan nau'in biyan kuɗi",
   "tx_no_dust_exception": "An ƙi ma'amala ta hanyar aika adadin ƙarami. Da fatan za a gwada ƙara adadin.",
   "tx_not_enough_inputs_exception": "Bai isa ba hanyoyin da ake samu. Da fatan za selectiari a karkashin Kwarewar Coin",
