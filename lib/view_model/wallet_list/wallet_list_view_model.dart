@@ -72,16 +72,7 @@ abstract class WalletListViewModelBase with Store {
     singleWalletsList.clear();
 
     wallets.addAll(
-      _walletInfoSource.values.map(
-        (info) => WalletListItem(
-          name: info.name,
-          type: info.type,
-          key: info.key,
-          isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
-          isEnabled: availableWalletTypes.contains(info.type),
-          isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
-        ),
-      ),
+      _walletInfoSource.values.map((info) => convertWalletInfoToWalletListItem(info)),
     );
 
     //========== Split into shared seed groups and single wallets list
@@ -89,18 +80,7 @@ abstract class WalletListViewModelBase with Store {
 
     for (var group in _walletManager.walletGroups) {
       if (group.wallets.length == 1) {
-        final wallet = group.wallets.first;
-        singleWalletsList.add(
-          WalletListItem(
-            name: wallet.name,
-            type: wallet.type,
-            key: wallet.key,
-            isCurrent:
-                wallet.name == _appStore.wallet?.name && wallet.type == _appStore.wallet?.type,
-            isEnabled: availableWalletTypes.contains(wallet.type),
-            isTestnet: wallet.network?.toLowerCase().contains('testnet') ?? false,
-          ),
-        );
+        singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
       } else {
         multiWalletGroups.add(group);
       }
@@ -206,6 +186,7 @@ abstract class WalletListViewModelBase with Store {
       key: info.key,
       isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
+      isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
     );
   }
 }
