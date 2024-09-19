@@ -124,7 +124,7 @@ class CwMweb {
         await _initializeClient();
       }
       // this is a stream, so we should have an effectively infinite timeout:
-      return _rpcClient!.utxos(request, options: CallOptions(timeout: const Duration(days: 99)));
+      return _rpcClient!.utxos(request, options: CallOptions(timeout: const Duration(days: 1000 * 365)));
     } catch (e) {
       print("Error getting utxos: $e");
       return null;
