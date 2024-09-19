@@ -46,14 +46,18 @@ abstract class PreExistingSeedsViewModelBase with Store {
   Future<String?> getSelectedWalletMnemonic() async {
     if (selectedWalletGroup == null) return null;
 
-    final wallet = await _walletLoadingService.load(
-      selectedWalletGroup!.leadWallet!.type,
-      selectedWalletGroup!.leadWallet!.name,
-    );
+    try {
+      final wallet = await _walletLoadingService.load(
+        selectedWalletGroup!.leadWallet!.type,
+        selectedWalletGroup!.leadWallet!.name,
+      );
 
-    parentAddress = selectedWalletGroup!.parentAddress;
+      parentAddress = selectedWalletGroup!.parentAddress;
 
-    return wallet.seed;
+      return wallet.seed;
+    } catch (e) {
+      return null;
+    }
   }
 
   @action
