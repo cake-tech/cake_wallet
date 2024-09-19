@@ -12,12 +12,10 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 ReactionDisposer? _onWalletSyncStatusChangeReaction;
 
 void startWalletSyncStatusChangeReaction(
-    WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-            TransactionInfo> wallet,
+    WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
     FiatConversionStore fiatConversionStore) {
   _onWalletSyncStatusChangeReaction?.reaction.dispose();
-  _onWalletSyncStatusChangeReaction =
-      reaction((_) => wallet.syncStatus, (SyncStatus status) async {
+  _onWalletSyncStatusChangeReaction = reaction((_) => wallet.syncStatus, (SyncStatus status) async {
     try {
       if (status is ConnectedSyncStatus) {
         await wallet.startSync();
@@ -32,7 +30,7 @@ void startWalletSyncStatusChangeReaction(
       if (status is SyncedSyncStatus || status is FailedSyncStatus) {
         await WakelockPlus.disable();
       }
-    } catch(e) {
+    } catch (e) {
       print(e.toString());
     }
   });

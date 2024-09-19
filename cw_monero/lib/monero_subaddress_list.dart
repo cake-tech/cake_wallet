@@ -1,8 +1,8 @@
-import 'package:flutter/services.dart';
-import 'package:mobx/mobx.dart';
+import 'package:cw_core/subaddress.dart';
 import 'package:cw_monero/api/coins_info.dart';
 import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
-import 'package:cw_core/subaddress.dart';
+import 'package:flutter/services.dart';
+import 'package:mobx/mobx.dart';
 
 part 'monero_subaddress_list.g.dart';
 
@@ -50,19 +50,22 @@ abstract class MoneroSubaddressListBase with Store {
       subaddresses = [primary] + rest.toList();
     }
 
-    return subaddresses.map((subaddressRow) {
+    return subaddresses.map((s) {
+      final address = s.address;
+      final label = s.label;
+      final id = s.addressIndex;
       final hasDefaultAddressName =
-          subaddressRow.getLabel().toLowerCase() == 'Primary account'.toLowerCase() ||
-              subaddressRow.getLabel().toLowerCase() == 'Untitled account'.toLowerCase();
-      final isPrimaryAddress = subaddressRow.getId() == 0 && hasDefaultAddressName;
+          label.toLowerCase() == 'Primary account'.toLowerCase() ||
+              label.toLowerCase() == 'Untitled account'.toLowerCase();
+      final isPrimaryAddress = id == 0 && hasDefaultAddressName;
       return Subaddress(
-          id: subaddressRow.getId(),
-          address: subaddressRow.getAddress(),
+          id: id,
+          address: address,
           label: isPrimaryAddress
               ? 'Primary address'
               : hasDefaultAddressName
                   ? ''
-                  : subaddressRow.getLabel());
+                  : label);
     }).toList();
   }
 
@@ -121,8 +124,7 @@ abstract class MoneroSubaddressListBase with Store {
   Future<List<Subaddress>> _getAllUnusedAddresses(
       {required int accountIndex, required String label}) async {
     final allAddresses = subaddress_list.getAllSubaddresses();
-
-    if (allAddresses.isEmpty || _usedAddresses.contains(allAddresses.last.getAddress())) {
+    if (allAddresses.isEmpty || _usedAddresses.contains(allAddresses.last)) {
       final isAddressUnused = await _newSubaddress(accountIndex: accountIndex, label: label);
       if (!isAddressUnused) {
         return await _getAllUnusedAddresses(accountIndex: accountIndex, label: label);
@@ -130,13 +132,18 @@ abstract class MoneroSubaddressListBase with Store {
     }
 
     return allAddresses
-        .map((subaddressRow) => Subaddress(
-            id: subaddressRow.getId(),
-            address: subaddressRow.getAddress(),
-            label: subaddressRow.getId() == 0 &&
-                    subaddressRow.getLabel().toLowerCase() == 'Primary account'.toLowerCase()
+        .map((s) {
+          final id = s.addressIndex;
+          final address = s.address;
+          final label = s.label;
+          return Subaddress(
+            id: id,
+            address: address,
+            label: id == 0 &&
+                    label.toLowerCase() == 'Primary account'.toLowerCase()
                 ? 'Primary address'
-                : subaddressRow.getLabel()))
+                : label);
+      })
         .toList();
   }
 
@@ -145,7 +152,10 @@ abstract class MoneroSubaddressListBase with Store {
 
     return subaddress_list
         .getAllSubaddresses()
-        .where((subaddressRow) => !_usedAddresses.contains(subaddressRow.getAddress()))
+        .where((s) {
+          final address = s.address;
+          return !_usedAddresses.contains(address);
+        })
         .isNotEmpty;
   }
 }

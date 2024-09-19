@@ -1,2 +1,19 @@
 -
   uri: ltc-electrum.cakewallet.com:50002
+  useSSL: true
+  isDefault: true
+-
+  uri: litecoin.stackwallet.com:20063
+  useSSL: true
+-
+  uri: electrum-ltc.bysh.me:50002
+  useSSL: true
+-
+  uri: lightweight.fiatfaucet.com:50002
+  useSSL: true
+-
+  uri: electrum.ltc.xurious.com:50002
+  useSSL: true
+-
+  uri: backup.electrum-ltc.org:443
+  useSSL: true

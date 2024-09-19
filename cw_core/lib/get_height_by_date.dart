@@ -242,3 +242,139 @@ Future<int> getHavenCurrentHeight() async {
     throw Exception('Failed to load current blockchain height');
   }
 }
+
+// Data taken from https://timechaincalendar.com/
+const bitcoinDates = {
+  "2024-08": 854889,
+  "2024-07": 850182,
+  "2024-06": 846005,
+  "2024-05": 841590,
+  "2024-04": 837182,
+  "2024-03": 832623,
+  "2024-02": 828319,
+  "2024-01": 823807,
+  "2023-12": 819206,
+  "2023-11": 814765,
+  "2023-10": 810098,
+  "2023-09": 805675,
+  "2023-08": 801140,
+  "2023-07": 796640,
+  "2023-06": 792330,
+  "2023-05": 787733,
+  "2023-04": 783403,
+  "2023-03": 778740,
+  "2023-02": 774525,
+  "2023-01": 769810,
+};
+
+int getBitcoinHeightByDate({required DateTime date}) {
+  String dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
+  final closestKey = bitcoinDates.keys
+      .firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => bitcoinDates.keys.last);
+  final beginningBlock = bitcoinDates[dateKey] ?? bitcoinDates[closestKey]!;
+
+  final startOfMonth = DateTime(date.year, date.month);
+  final daysDifference = date.difference(startOfMonth).inDays;
+
+  // approximately 6 blocks per hour, 24 hours per day
+  int estimatedBlocksSinceStartOfMonth = (daysDifference * 24 * 6);
+
+  return beginningBlock + estimatedBlocksSinceStartOfMonth;
+}
+
+DateTime getDateByBitcoinHeight(int height) {
+  final closestEntry = bitcoinDates.entries
+      .lastWhere((entry) => entry.value >= height, orElse: () => bitcoinDates.entries.first);
+  final beginningBlock = closestEntry.value;
+
+  final startOfMonth = formatMapKey(closestEntry.key);
+  final blocksDifference = height - beginningBlock;
+  final hoursDifference = blocksDifference / 5.5;
+
+  final estimatedDate = startOfMonth.add(Duration(hours: hoursDifference.ceil()));
+
+  if (estimatedDate.isAfter(DateTime.now())) {
+    return DateTime.now();
+  }
+
+  return estimatedDate;
+}
+
+// TODO: enhance all of this global const lists
+const wowDates = {
+  "2023-12": 583048,
+  "2023-11": 575048,
+  "2023-10": 566048,
+  "2023-09": 558048,
+  "2023-08": 549048,
+  "2023-07": 540048,
+  "2023-06": 532048,
+  "2023-05": 523048,
+  "2023-04": 514048,
+  "2023-03": 505048,
+  "2023-02": 497048,
+  "2023-01": 488048,
+  "2022-12": 479048,
+  "2022-11": 471048,
+  "2022-10": 462048,
+  "2022-09": 453048,
+  "2022-08": 444048,
+  "2022-07": 435048,
+  "2022-06": 427048,
+  "2022-05": 418048,
+  "2022-04": 410048,
+  "2022-03": 401048,
+  "2022-02": 393048,
+  "2022-01": 384048,
+  "2021-12": 375048,
+  "2021-11": 367048,
+  "2021-10": 358048,
+  "2021-09": 349048,
+  "2021-08": 340048,
+  "2021-07": 331048,
+  "2021-06": 322048,
+  "2021-05": 313048,
+  "2021-04": 305048,
+  "2021-03": 295048,
+  "2021-02": 287048,
+  "2021-01": 279148,
+  "2020-10": 252000,
+  "2020-09": 243000,
+  "2020-08": 234000,
+  "2020-07": 225000,
+  "2020-06": 217500,
+  "2020-05": 208500,
+  "2020-04": 199500,
+  "2020-03": 190500,
+  "2020-02": 183000,
+  "2020-01": 174000,
+  "2019-12": 165000,
+  "2019-11": 156000,
+  "2019-10": 147000,
+  "2019-09": 138000,
+  "2019-08": 129000,
+  "2019-07": 120000,
+  "2019-06": 112500,
+  "2019-05": 103500,
+  "2019-04": 94500,
+  "2019-03": 85500,
+  "2019-02": 79500,
+  "2019-01": 73500,
+  "2018-12": 67500,
+  "2018-11": 61500,
+  "2018-10": 52500,
+  "2018-09": 45000,
+  "2018-08": 36000,
+  "2018-07": 27000,
+  "2018-06": 18000,
+  "2018-05": 9000,
+  "2018-04": 1
+};
+
+int getWowneroHeightByDate({required DateTime date}) {
+  String closestKey =
+      wowDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
+
+  return wowDates[closestKey] ?? 0;
+}
+

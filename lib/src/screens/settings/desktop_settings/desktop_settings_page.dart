@@ -3,6 +3,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:cake_wallet/typography.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
@@ -10,7 +11,9 @@ import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 final _settingsNavigatorKey = GlobalKey<NavigatorState>();
 
 class DesktopSettingsPage extends StatefulWidget {
-  const DesktopSettingsPage({super.key});
+  const DesktopSettingsPage(this.dashboardViewModel, {super.key});
+
+  final DashboardViewModel dashboardViewModel;
 
   @override
   State<DesktopSettingsPage> createState() => _DesktopSettingsPageState();
@@ -51,6 +54,12 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                       padding: EdgeInsets.only(top: 0),
                       itemBuilder: (_, index) {
                         final item = SettingActions.desktopSettings[index];
+
+                        if (!widget.dashboardViewModel.hasSilentPayments &&
+                            item.name(context) == S.of(context).silent_payments_settings) {
+                          return Container();
+                        }
+
                         final isLastTile = index == itemCount - 1;
                         return SettingActionButton(
                           isLastTile: isLastTile,

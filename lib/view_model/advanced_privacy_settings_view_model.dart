@@ -30,6 +30,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   final SettingsStore _settingsStore;
 
+  @computed
   bool get hasSeedPhraseLengthOption {
     // convert to switch case so that it give a syntax error when adding a new wallet type
     // thus we don't forget about it
@@ -40,10 +41,14 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.solana:
       case WalletType.tron:
         return true;
-      case WalletType.monero:
-      case WalletType.none:
+
       case WalletType.bitcoin:
       case WalletType.litecoin:
+        return _settingsStore.bitcoinSeedType == BitcoinSeedType.bip39;
+
+      case WalletType.monero:
+      case WalletType.wownero:
+      case WalletType.none:
       case WalletType.haven:
       case WalletType.nano:
       case WalletType.banano:
@@ -51,7 +56,13 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
     }
   }
 
-  bool get hasSeedTypeOption => type == WalletType.monero;
+  bool get hasSeedTypeOption => [WalletType.monero, WalletType.wownero].contains(type);
+
+  bool get hasPassphraseOption => [
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.bitcoinCash,
+      ].contains(type);
 
   @computed
   bool get addCustomNode => _addCustomNode;
@@ -60,7 +71,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   SeedPhraseLength get seedPhraseLength => _settingsStore.seedPhraseLength;
 
   @computed
-  bool get isPolySeed => _settingsStore.moneroSeedType == SeedType.polyseed;
+  bool get isPolySeed => _settingsStore.moneroSeedType == MoneroSeedType.polyseed;
 
   @action
   void setFiatApiMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;

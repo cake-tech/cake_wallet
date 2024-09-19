@@ -456,7 +456,7 @@ class SolanaWalletClient {
         funder: ownerKeypair,
       );
     } catch (e) {
-      throw Exception('Insufficient lamports balance to complete this transaction');
+      throw Exception('Insufficient SOL balance to complete this transaction: ${e.toString()}');
     }
 
     // Input by the user

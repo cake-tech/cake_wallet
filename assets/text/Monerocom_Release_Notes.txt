@@ -1,1 +1,2 @@
-Bug fixes and generic enhancements
+Enhance auto-address generation for Monero
+Bug fixes and enhancements

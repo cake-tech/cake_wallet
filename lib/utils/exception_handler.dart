@@ -4,13 +4,15 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
-import 'package:package_info/package_info.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:cake_wallet/utils/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
@@ -20,7 +22,7 @@ class ExceptionHandler {
 
   static void _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
     if (_file == null) {
-      final appDocDir = await getApplicationDocumentsDirectory();
+      final appDocDir = await getAppDir();
 
       _file = File('${appDocDir.path}/error.txt');
     }
@@ -53,7 +55,7 @@ class ExceptionHandler {
   static void _sendExceptionFile() async {
     try {
       if (_file == null) {
-        final appDocDir = await getApplicationDocumentsDirectory();
+        final appDocDir = await getAppDir();
 
         _file = File('${appDocDir.path}/error.txt');
       }
@@ -118,25 +120,27 @@ class ExceptionHandler {
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
-        await showPopUp<void>(
-          context: navigatorKey.currentContext!,
-          builder: (context) {
-            return AlertWithTwoActions(
-              isDividerExist: true,
-              alertTitle: S.of(context).error,
-              alertContent: S.of(context).error_dialog_content,
-              rightButtonText: S.of(context).send,
-              leftButtonText: S.of(context).do_not_send,
-              actionRightButton: () {
-                Navigator.of(context).pop();
-                _sendExceptionFile();
-              },
-              actionLeftButton: () {
-                Navigator.of(context).pop();
-              },
-            );
-          },
-        );
+        if (navigatorKey.currentContext != null) {
+          await showPopUp<void>(
+            context: navigatorKey.currentContext!,
+            builder: (context) {
+              return AlertWithTwoActions(
+                isDividerExist: true,
+                alertTitle: S.of(context).error,
+                alertContent: S.of(context).error_dialog_content,
+                rightButtonText: S.of(context).send,
+                leftButtonText: S.of(context).do_not_send,
+                actionRightButton: () {
+                  Navigator.of(context).pop();
+                  _sendExceptionFile();
+                },
+                actionLeftButton: () {
+                  Navigator.of(context).pop();
+                },
+              );
+            },
+          );
+        }
 
         _hasError = false;
       },
@@ -168,7 +172,14 @@ class ExceptionHandler {
     "Error while launching http",
     "OS Error: Network is unreachable",
     "ClientException: Write failed, uri=http",
-    "Connection terminated during handshake",
+    "Corrupted wallets seeds",
+    "bad_alloc",
+    "does not correspond",
+    "basic_string",
+    "input_stream",
+    "input stream error",
+    "invalid signature",
+    "invalid password",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
@@ -251,5 +262,54 @@ class ExceptionHandler {
       'productType': data.productType,
       'productName': data.productName,
     };
+  }
+
+  static void showError(String error, {int? delayInSeconds}) async {
+    if (_hasError) {
+      return;
+    }
+    _hasError = true;
+
+    if (delayInSeconds != null) {
+      Future.delayed(Duration(seconds: delayInSeconds), () => _showCopyPopup(error));
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) async => _showCopyPopup(error),
+    );
+  }
+
+  static Future<void> _showCopyPopup(String content) async {
+    if (navigatorKey.currentContext != null) {
+      final shouldCopy = await showPopUp<bool?>(
+        context: navigatorKey.currentContext!,
+        builder: (context) {
+          return AlertWithTwoActions(
+            isDividerExist: true,
+            alertTitle: S.of(context).error,
+            alertContent: content,
+            rightButtonText: S.of(context).copy,
+            leftButtonText: S.of(context).close,
+            actionRightButton: () {
+              Navigator.of(context).pop(true);
+            },
+            actionLeftButton: () {
+              Navigator.of(context).pop();
+            },
+          );
+        },
+      );
+
+      if (shouldCopy == true) {
+        await Clipboard.setData(ClipboardData(text: content));
+        await showBar<void>(
+          navigatorKey.currentContext!,
+          S.of(navigatorKey.currentContext!).copied_to_clipboard,
+        );
+      }
+    }
+
+    _hasError = false;
   }
 }

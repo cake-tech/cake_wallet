@@ -1,22 +1,28 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart';
+import 'package:collection/collection.dart';
+import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
 
-class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredentials,
-    BitcoinCashRestoreWalletFromSeedCredentials, BitcoinCashRestoreWalletFromWIFCredentials, BitcoinCashNewWalletCredentials> {
-  BitcoinCashWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
+class BitcoinCashWalletService extends WalletService<
+    BitcoinCashNewWalletCredentials,
+    BitcoinCashRestoreWalletFromSeedCredentials,
+    BitcoinCashRestoreWalletFromWIFCredentials,
+    BitcoinCashNewWalletCredentials> {
+  BitcoinCashWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+  final bool isDirect;
 
   @override
   WalletType getType() => WalletType.bitcoinCash;
@@ -30,12 +36,16 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final wallet = await BitcoinCashWalletBase.create(
-        mnemonic: await Mnemonic.generate(strength: strength),
-        password: credentials.password!,
-        walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+      mnemonic: await MnemonicBip39.generate(strength: strength),
+      password: credentials.password!,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      passphrase: credentials.passphrase,
+    );
     await wallet.save();
     await wallet.init();
+
     return wallet;
   }
 
@@ -46,20 +56,24 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
 
     try {
       final wallet = await BitcoinCashWalletBase.open(
-          password: password,
-          name: name,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource);
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      );
       await wallet.init();
       saveBackup(name);
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
       final wallet = await BitcoinCashWalletBase.open(
-          password: password,
-          name: name,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource);
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      );
       await wallet.init();
       return wallet;
     }
@@ -81,7 +95,8 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
         password: password,
         name: currentName,
         walletInfo: currentWalletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
 
     await currentWallet.renameWalletFiles(newName);
     await saveBackup(newName);
@@ -95,7 +110,8 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
 
   @override
   Future<BitcoinCashWallet> restoreFromHardwareWallet(BitcoinCashNewWalletCredentials credentials) {
-    throw UnimplementedError("Restoring a Bitcoin Cash wallet from a hardware wallet is not yet supported!");
+    throw UnimplementedError(
+        "Restoring a Bitcoin Cash wallet from a hardware wallet is not yet supported!");
   }
 
   @override
@@ -115,7 +131,10 @@ class BitcoinCashWalletService extends WalletService<BitcoinCashNewWalletCredent
         password: credentials.password!,
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource);
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+        passphrase: credentials.passphrase
+    );
     await wallet.save();
     await wallet.init();
     return wallet;

@@ -7,6 +7,8 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -25,13 +27,13 @@ class WalletRestorationFromQRVM = WalletRestorationFromQRVMBase with _$WalletRes
 
 abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store {
   WalletRestorationFromQRVMBase(AppStore appStore, WalletCreationService walletCreationService,
-      Box<WalletInfo> walletInfoSource, WalletType type)
+      Box<WalletInfo> walletInfoSource, WalletType type, SeedSettingsViewModel seedSettingsViewModel)
       : height = 0,
         viewKey = '',
         spendKey = '',
         wif = '',
         address = '',
-        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
+        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel, type: type, isRecovery: true);
 
   @observable
   int height;
@@ -48,7 +50,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   @observable
   String address;
 
-  bool get hasRestorationHeight => type == WalletType.monero;
+  bool get hasRestorationHeight => type == WalletType.monero || type == WalletType.wownero;
 
   @override
   WalletCredentials getCredentialsFromRestoredWallet(
@@ -60,13 +62,22 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
       derivationInfo = options["derivationInfo"] as DerivationInfo?;
       passphrase = options["passphrase"] as String?;
     }
-    derivationInfo ??= getDefaultDerivation();
+    derivationInfo ??= getDefaultCreateDerivation();
 
     switch (restoreWallet.restoreMode) {
       case WalletRestoreMode.keys:
         switch (restoreWallet.type) {
           case WalletType.monero:
             return monero!.createMoneroRestoreWalletFromKeysCredentials(
+                name: name,
+                password: password,
+                language: 'English',
+                address: restoreWallet.address ?? '',
+                viewKey: restoreWallet.viewKey ?? '',
+                spendKey: restoreWallet.spendKey ?? '',
+                height: restoreWallet.height ?? 0);
+          case WalletType.wownero:
+            return wownero!.createWowneroRestoreWalletFromKeysCredentials(
                 name: name,
                 password: password,
                 language: 'English',
@@ -137,6 +148,13 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
           case WalletType.tron:
             return tron!.createTronRestoreWalletFromSeedCredentials(
                 name: name, mnemonic: restoreWallet.mnemonicSeed ?? '', password: password);
+          case WalletType.wownero:
+            return wownero!.createWowneroRestoreWalletFromSeedCredentials(
+              name: name,
+              height: restoreWallet.height ?? 0,
+              mnemonic: restoreWallet.mnemonicSeed ?? '',
+              password: password,
+            );
           default:
             throw Exception('Unexpected type: ${type.toString()}');
         }

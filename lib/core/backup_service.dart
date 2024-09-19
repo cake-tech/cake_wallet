@@ -3,7 +3,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -19,7 +21,6 @@ import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
-
 import 'package:cake_backup/backup.dart' as cake_backup;
 
 Future<Uint8List> _createZipData(Map<String, dynamic> message) async {
@@ -166,8 +167,12 @@ class BackupService {
   // }
 
   Future<Uint8List> _exportBackupV2(String password) async {
-    final appDir = await getApplicationDocumentsDirectory();
-
+    final zipEncoder = ZipFileEncoder();
+    final appDir = await getAppDir();
+    final now = DateTime.now();
+    final tmpDir = Directory('${appDir.path}/~_BACKUP_TMP');
+    final archivePath = '${tmpDir.path}/backup_${now.toString()}.zip';
+    final fileEntities = appDir.listSync(recursive: false);
     final keychainDump = await _exportKeychainDumpV2(password);
     final preferencesDump = await _exportPreferencesJSON();
 
@@ -185,7 +190,7 @@ class BackupService {
   }
 
   Future<void> _importBackupV1(Uint8List data, String password, {required String nonce}) async {
-    final appDir = await getApplicationDocumentsDirectory();
+    final appDir = await getAppDir();
     final decryptedData = await _decryptV1(data, password, nonce);
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
@@ -208,7 +213,7 @@ class BackupService {
   }
 
   Future<void> _importBackupV2(Uint8List data, String password) async {
-    final appDir = await getApplicationDocumentsDirectory();
+    final appDir = await getAppDir();
     final decryptedData = await _decryptV2(data, password);
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
@@ -241,7 +246,7 @@ class BackupService {
   }
 
   Future<Box<WalletInfo>> _reloadHiveWalletInfoBox() async {
-    final appDir = await getApplicationDocumentsDirectory();
+    final appDir = await getAppDir();
     await CakeHive.close();
     CakeHive.init(appDir.path);
 
@@ -253,7 +258,7 @@ class BackupService {
   }
 
   Future<void> _importPreferencesDump() async {
-    final appDir = await getApplicationDocumentsDirectory();
+    final appDir = await getAppDir();
     final preferencesFile = File('${appDir.path}/~_preferences_dump');
 
     if (!preferencesFile.existsSync()) {
@@ -438,7 +443,7 @@ class BackupService {
 
   Future<void> _importKeychainDumpV1(String password,
       {required String nonce, String keychainSalt = secrets.backupKeychainSalt}) async {
-    final appDir = await getApplicationDocumentsDirectory();
+    final appDir = await getAppDir();
     final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
     final decryptedKeychainDumpFileData =
         await _decryptV1(keychainDumpFile.readAsBytesSync(), '$keychainSalt$password', nonce);
@@ -464,7 +469,7 @@ class BackupService {
 
   Future<void> _importKeychainDumpV2(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
-    final appDir = await getApplicationDocumentsDirectory();
+    final appDir = await getAppDir();
     final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
     final decryptedKeychainDumpFileData =
         await _decryptV2(keychainDumpFile.readAsBytesSync(), '$keychainSalt$password');

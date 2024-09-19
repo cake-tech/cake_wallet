@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -64,6 +65,14 @@ class SendPage extends BasePage {
 
   @override
   bool get extendBodyBehindAppBar => true;
+
+  @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
 
   @override
   Widget? leading(BuildContext context) {
@@ -203,7 +212,12 @@ class SendPage extends BasePage {
                           final count = sendViewModel.outputs.length;
 
                           return count > 1
-                              ? SmoothPageIndicator(
+                              ? Semantics (
+                          label: 'Page Indicator',
+                          hint: 'Swipe to change receiver',
+                              excludeSemantics: true,
+                                child:
+                          SmoothPageIndicator(
                                   controller: controller,
                                   count: count,
                                   effect: ScrollingDotsEffect(
@@ -217,7 +231,7 @@ class SendPage extends BasePage {
                                       activeDotColor: Theme.of(context)
                                           .extension<SendPageTheme>()!
                                           .templateBackgroundColor),
-                                )
+                                ))
                               : Offstage();
                         },
                       ),
@@ -259,6 +273,7 @@ class SendPage extends BasePage {
                                         ? template.cryptoCurrency
                                         : template.fiatCurrency,
                                     onTap: () async {
+                                      sendViewModel.state = IsExecutingState();
                                       if (template.additionalRecipients?.isNotEmpty ?? false) {
                                         sendViewModel.clearOutputs();
 
@@ -287,6 +302,7 @@ class SendPage extends BasePage {
                                           template: template,
                                         );
                                       }
+                                      sendViewModel.state = InitialExecutionState();
                                     },
                                     onRemove: () {
                                       showPopUp<void>(
@@ -354,6 +370,7 @@ class SendPage extends BasePage {
                   builder: (_) {
                     return LoadingPrimaryButton(
                       onPressed: () async {
+                        if (sendViewModel.state is IsExecutingState) return;
                         if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                           if (sendViewModel.outputs.length > 1) {
                             showErrorValidationAlert(context);
@@ -418,6 +435,10 @@ class SendPage extends BasePage {
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
       return;
+    }
+
+    if (sendViewModel.isElectrumWallet) {
+      bitcoin!.updateFeeRates(sendViewModel.wallet);
     }
 
     reaction((_) => sendViewModel.state, (ExecutionState state) {

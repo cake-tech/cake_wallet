@@ -4,15 +4,16 @@ class CWPolygon extends Polygon {
   @override
   List<String> getPolygonWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource) =>
-      PolygonWalletService(walletInfoSource, client: PolygonClient());
+  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
+      PolygonWalletService(walletInfoSource, isDirect, client: PolygonClient());
 
   @override
   WalletCredentials createPolygonNewWalletCredentials({
     required String name,
     WalletInfo? walletInfo,
+    String? password
   }) =>
-      EVMChainNewWalletCredentials(name: name, walletInfo: walletInfo);
+      EVMChainNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
 
   @override
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({
@@ -134,6 +135,10 @@ class CWPolygon extends Polygon {
   @override
   Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token) async =>
       await (wallet as PolygonWallet).deleteErc20Token(token as Erc20Token);
+
+  @override
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as PolygonWallet).removeTokenTransactionsInHistory(token as Erc20Token);
 
   @override
   Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) async {

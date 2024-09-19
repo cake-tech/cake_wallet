@@ -16,7 +16,9 @@ abstract class TradeFilterStoreBase with Store {
         displaySimpleSwap = true,
         displayTrocador = true,
         displayExolix = true,
-        displayThorChain = true;
+        displayThorChain = true,
+        displayLetsExchange = true,
+        displayStealthEx = true;
 
   @observable
   bool displayXMRTO;
@@ -42,6 +44,12 @@ abstract class TradeFilterStoreBase with Store {
   @observable
   bool displayThorChain;
 
+  @observable
+  bool displayLetsExchange;
+
+  @observable
+  bool displayStealthEx;
+
   @computed
   bool get displayAllTrades =>
       displayChangeNow &&
@@ -49,7 +57,9 @@ abstract class TradeFilterStoreBase with Store {
       displaySimpleSwap &&
       displayTrocador &&
       displayExolix &&
-      displayThorChain;
+      displayThorChain &&
+      displayLetsExchange &&
+      displayStealthEx;
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
@@ -78,6 +88,11 @@ abstract class TradeFilterStoreBase with Store {
       case ExchangeProviderDescription.thorChain:
         displayThorChain = !displayThorChain;
         break;
+      case ExchangeProviderDescription.letsExchange:
+        displayLetsExchange = !displayLetsExchange;
+      case ExchangeProviderDescription.stealthEx:
+        displayStealthEx = !displayStealthEx;
+        break;
       case ExchangeProviderDescription.all:
         if (displayAllTrades) {
           displayChangeNow = false;
@@ -88,6 +103,8 @@ abstract class TradeFilterStoreBase with Store {
           displayTrocador = false;
           displayExolix = false;
           displayThorChain = false;
+          displayLetsExchange = false;
+          displayStealthEx = false;
         } else {
           displayChangeNow = true;
           displaySideShift = true;
@@ -97,6 +114,8 @@ abstract class TradeFilterStoreBase with Store {
           displayTrocador = true;
           displayExolix = true;
           displayThorChain = true;
+          displayLetsExchange = true;
+          displayStealthEx = true;
         }
         break;
     }
@@ -112,13 +131,21 @@ abstract class TradeFilterStoreBase with Store {
         ? _trades
             .where((item) =>
                 (displayXMRTO && item.trade.provider == ExchangeProviderDescription.xmrto) ||
-                (displaySideShift && item.trade.provider == ExchangeProviderDescription.sideShift) ||
-                (displayChangeNow && item.trade.provider == ExchangeProviderDescription.changeNow) ||
-                (displayMorphToken && item.trade.provider == ExchangeProviderDescription.morphToken) ||
-                (displaySimpleSwap && item.trade.provider == ExchangeProviderDescription.simpleSwap) ||
+                (displaySideShift &&
+                    item.trade.provider == ExchangeProviderDescription.sideShift) ||
+                (displayChangeNow &&
+                    item.trade.provider == ExchangeProviderDescription.changeNow) ||
+                (displayMorphToken &&
+                    item.trade.provider == ExchangeProviderDescription.morphToken) ||
+                (displaySimpleSwap &&
+                    item.trade.provider == ExchangeProviderDescription.simpleSwap) ||
                 (displayTrocador && item.trade.provider == ExchangeProviderDescription.trocador) ||
                 (displayExolix && item.trade.provider == ExchangeProviderDescription.exolix) ||
-                (displayThorChain && item.trade.provider == ExchangeProviderDescription.thorChain))
+                (displayThorChain &&
+                    item.trade.provider == ExchangeProviderDescription.thorChain) ||
+                (displayLetsExchange &&
+                    item.trade.provider == ExchangeProviderDescription.letsExchange) ||
+                (displayStealthEx && item.trade.provider == ExchangeProviderDescription.stealthEx))
             .toList()
         : _trades;
   }

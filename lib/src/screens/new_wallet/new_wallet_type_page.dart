@@ -35,6 +35,14 @@ class NewWalletTypePage extends BasePage {
       isCreate ? S.current.wallet_list_create_new_wallet : S.current.wallet_list_restore_wallet;
 
   @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.focusedChild?.unfocus();
+    }
+  };
+
+  @override
   Widget body(BuildContext context) => WalletTypeForm(
         onTypeSelected: onTypeSelected,
         walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage,

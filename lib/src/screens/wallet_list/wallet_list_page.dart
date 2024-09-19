@@ -1,7 +1,10 @@
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
@@ -96,6 +99,7 @@ class WalletListBody extends StatefulWidget {
 class WalletListBodyState extends State<WalletListBody> {
   final moneroIcon = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
   final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
+  final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
   final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
@@ -105,6 +109,7 @@ class WalletListBodyState extends State<WalletListBody> {
   final polygonIcon = Image.asset('assets/images/matic_icon.png', height: 24, width: 24);
   final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
   final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
+  final wowneroIcon = Image.asset('assets/images/wownero_icon.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
   Flushbar<void>? _progressBar;
@@ -162,7 +167,10 @@ class WalletListBodyState extends State<WalletListBody> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
                                     wallet.isEnabled
-                                        ? _imageFor(type: wallet.type)
+                                        ? _imageFor(
+                                            type: wallet.type,
+                                            isTestnet: wallet.isTestnet,
+                                          )
                                         : nonWalletTypeIcon,
                                     SizedBox(width: 10),
                                     Flexible(
@@ -297,9 +305,12 @@ class WalletListBodyState extends State<WalletListBody> {
     );
   }
 
-  Image _imageFor({required WalletType type}) {
+  Image _imageFor({required WalletType type, bool? isTestnet}) {
     switch (type) {
       case WalletType.bitcoin:
+        if (isTestnet == true) {
+          return tBitcoinIcon;
+        }
         return bitcoinIcon;
       case WalletType.monero:
         return moneroIcon;
@@ -312,6 +323,7 @@ class WalletListBodyState extends State<WalletListBody> {
       case WalletType.bitcoinCash:
         return bitcoinCashIcon;
       case WalletType.nano:
+      case WalletType.banano:
         return nanoIcon;
       case WalletType.polygon:
         return polygonIcon;
@@ -319,12 +331,28 @@ class WalletListBodyState extends State<WalletListBody> {
         return solanaIcon;
       case WalletType.tron:
         return tronIcon;
-      default:
+      case WalletType.wownero:
+        return wowneroIcon;
+      case WalletType.none:
         return nonWalletTypeIcon;
     }
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
+    if (SettingsStoreBase.walletPasswordDirectInput) {
+      Navigator.of(context).pushNamed(
+          Routes.walletUnlockLoadable,
+          arguments: WalletUnlockArguments(
+              callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+                if (isAuthenticatedSuccessfully) {
+                  auth.close();
+                  setState(() {});
+                }
+              }, walletName: wallet.name,
+              walletType: wallet.type));
+      return;
+    }
+
     await widget.authService.authenticateAction(
       context,
       onAuthSuccess: (isAuthenticatedSuccessfully) async {

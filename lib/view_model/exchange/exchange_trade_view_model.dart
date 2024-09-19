@@ -7,6 +7,7 @@ import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/quantex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -52,6 +53,8 @@ abstract class ExchangeTradeViewModelBase with Store {
       case ExchangeProviderDescription.quantex:
         _provider = QuantexExchangeProvider();
         break;
+      case ExchangeProviderDescription.stealthEx:
+        _provider = StealthExExchangeProvider();
       case ExchangeProviderDescription.thorChain:
         _provider = ThorChainExchangeProvider(tradesStore: trades);
         break;
@@ -147,8 +150,13 @@ abstract class ExchangeTradeViewModelBase with Store {
     items.clear();
 
     if (trade.provider != ExchangeProviderDescription.thorChain)
-      items.add(ExchangeTradeItem(
-          title: "${trade.provider.title} ${S.current.id}", data: '${trade.id}', isCopied: true));
+      items.add(
+        ExchangeTradeItem(
+          title: "${trade.provider.title} ${S.current.id}",
+          data: '${trade.id}',
+          isCopied: true,
+        ),
+      );
 
     if (trade.extraId != null) {
       final title = trade.from == CryptoCurrency.xrp
@@ -161,15 +169,26 @@ abstract class ExchangeTradeViewModelBase with Store {
     }
 
     items.addAll([
-      ExchangeTradeItem(title: S.current.amount, data: '${trade.amount}', isCopied: true),
       ExchangeTradeItem(
-          title: S.current.send_to_this_address('${tradesStore.trade!.from}', tagFrom) + ':',
-          data: trade.inputAddress ?? '',
-          isCopied: true),
+        title: S.current.amount,
+        data: '${trade.amount} ${trade.from}',
+        isCopied: true,
+      ),
       ExchangeTradeItem(
-          title: S.current.arrive_in_this_address('${tradesStore.trade!.to}', tagTo) + ':',
-          data: trade.payoutAddress ?? '',
-          isCopied: true),
+        title: S.current.estimated_receive_amount +':',
+        data: '${tradesStore.trade?.receiveAmount} ${trade.to}',
+        isCopied: true,
+      ),
+      ExchangeTradeItem(
+        title: S.current.send_to_this_address('${tradesStore.trade!.from}', tagFrom) + ':',
+        data: trade.inputAddress ?? '',
+        isCopied: true,
+      ),
+      ExchangeTradeItem(
+        title: S.current.arrive_in_this_address('${tradesStore.trade!.to}', tagTo) + ':',
+        data: trade.payoutAddress ?? '',
+        isCopied: true,
+      ),
     ]);
   }
 

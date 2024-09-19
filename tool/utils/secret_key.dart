@@ -39,6 +39,16 @@ class SecretKey {
     SecretKey('moralisApiKey', () => ''),
     SecretKey('ankrApiKey', () => ''),
     SecretKey('quantexExchangeMarkup', () => ''),
+    SecretKey('testCakePayApiKey', () => ''),
+    SecretKey('cakePayApiKey', () => ''),
+    SecretKey('CSRFToken', () => ''),
+    SecretKey('authorization', () => ''),
+    SecretKey('etherScanApiKey', () => ''),
+    SecretKey('polygonScanApiKey', () => ''),
+    SecretKey('letsExchangeBearerToken', () => ''),
+    SecretKey('letsExchangeAffiliateId', () => ''),
+    SecretKey('stealthExBearerToken', () => ''),
+    SecretKey('stealthExAdditionalFeePercent', () => ''),
   ];
 
   static final evmChainsSecrets = [
@@ -53,10 +63,12 @@ class SecretKey {
 
   static final nanoSecrets = [
     SecretKey('nano2ApiKey', () => ''),
+    SecretKey('nanoNowNodesApiKey', () => ''),
   ];
-  
+
   static final tronSecrets = [
     SecretKey('tronGridApiKey', () => ''),
+    SecretKey('tronNowNodesApiKey', () => ''),
   ];
 
   final String name;

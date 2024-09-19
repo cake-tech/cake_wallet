@@ -17,12 +17,15 @@ import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
+import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class SecurityBackupPage extends BasePage {
-  SecurityBackupPage(this._securitySettingsViewModel, this._authService);
+  SecurityBackupPage(this._securitySettingsViewModel, this._authService,
+      [this._isHardwareWallet = false]);
 
   final AuthService _authService;
 
@@ -31,6 +34,8 @@ class SecurityBackupPage extends BasePage {
 
   final SecuritySettingsViewModel _securitySettingsViewModel;
 
+  final bool _isHardwareWallet;
+
   @override
   Widget body(BuildContext context) {
     return Container(
@@ -38,15 +43,26 @@ class SecurityBackupPage extends BasePage {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SettingsCellWithArrow(
-            title: S.current.show_keys,
-            handler: (_) => _authService.authenticateAction(
-              context,
-              route: Routes.showKeys,
-              conditionToDetermineIfToUse2FA:
-                  _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+          if (!_isHardwareWallet)
+            SettingsCellWithArrow(
+              title: S.current.show_keys,
+              handler: (_) => _authService.authenticateAction(
+                context,
+                route: Routes.showKeys,
+                conditionToDetermineIfToUse2FA:
+                    _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              ),
             ),
-          ),
+          if (!SettingsStoreBase.walletPasswordDirectInput)
+            SettingsCellWithArrow(
+              title: S.current.create_backup,
+              handler: (_) => _authService.authenticateAction(
+                context,
+                route: Routes.backup,
+                conditionToDetermineIfToUse2FA:
+                    _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              ),
+            ),
           SettingsCellWithArrow(
             title: S.current.settings_change_pin,
             handler: (_) => _authService.authenticateAction(

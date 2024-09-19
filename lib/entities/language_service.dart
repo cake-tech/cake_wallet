@@ -29,7 +29,9 @@ class LanguageService {
     'id': 'Bahasa Indonesia (Indonesian)',
     'yo': 'Yorùbá (Yoruba)',
     'ha': 'Hausa Najeriya (Nigeria)',
-    'tl': 'Filipino (Tagalog)'
+    'tl': 'Filipino (Tagalog)',
+    'hy': 'Հայերեն (Armenian)',
+    'vi': 'Tiếng Việt (Vietnamese)',
   };
 
   static const Map<String, String> localeCountryCode = {
@@ -58,10 +60,14 @@ class LanguageService {
     'id': 'idn',
     'yo': 'nga',
     'ha': 'hau',
-    'tl': 'phl'
+    'tl': 'phl',
+    'hy': 'arm',
+    'vi': 'vnm',
   };
 
   static final list = <String, String>{};
+
+  static const defaultLocale = 'en';
 
   static void loadLocaleList() {
     supportedLocales.forEach((key, value) {
@@ -72,9 +78,16 @@ class LanguageService {
   }
 
   static Future<String> localeDetection() async {
-    var locale = await Devicelocale.currentLocale ?? '';
-    locale = Intl.shortLocale(locale);
+    try {
+        var locale = await Devicelocale.currentLocale ?? '';
+        locale = Intl.shortLocale(locale);
 
-    return list.keys.contains(locale) ? locale : 'en';
+        if (list.keys.contains(locale)) {
+            return locale;
+        }
+        return LanguageService.defaultLocale;
+    } catch(_) {
+        return LanguageService.defaultLocale;
+    }
   }
 }

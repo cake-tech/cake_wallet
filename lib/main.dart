@@ -1,45 +1,46 @@
 import 'dart:async';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/app_scroll_behavior.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/default_settings_migration.dart';
+import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/language_service.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/locales/locale.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/reactions/bootstrap.dart';
+import 'package:cake_wallet/router.dart' as Router;
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/root/root.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
-import 'package:cw_core/address_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/address_info.dart';
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/router.dart' as Router;
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/bootstrap.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/entities/get_encryption_key.dart';
-import 'package:cake_wallet/entities/contact.dart';
-import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cake_wallet/entities/default_settings_migration.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/entities/template.dart';
-import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/exchange/exchange_template.dart';
-import 'package:cake_wallet/src/screens/root/root.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cw_core/cake_hive.dart';
+import 'package:hive/hive.dart';
+import 'package:cw_core/root_dir.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -47,10 +48,14 @@ final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
 Future<void> main() async {
+  await runAppWithZone();
+}
+
+Future<void> runAppWithZone() async {
   bool isAppRunning = false;
+
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
-
     FlutterError.onError = ExceptionHandler.onError;
 
     /// A callback that is invoked when an unhandled error occurs in the root
@@ -60,41 +65,14 @@ Future<void> main() async {
 
       return true;
     };
-
-    await setDefaultMinimumWindowSize();
-
-    await CakeHive.close();
-
-    await initializeAppConfigs();
+    await initializeAppAtRoot();
 
     runApp(App());
-
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
       runApp(
-        MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: Container(
-                margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
-                child: Column(
-                  children: [
-                    Text(
-                      'Error:\n${error.toString()}',
-                      style: TextStyle(fontSize: 22),
-                    ),
-                    Text(
-                      'Stack trace:\n${stackTrace.toString()}',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+        TopLevelErrorWidget(error: error, stackTrace: stackTrace),
       );
     }
 
@@ -102,8 +80,15 @@ Future<void> main() async {
   });
 }
 
+Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
+  if (!reInitializing) await setDefaultMinimumWindowSize();
+  await CakeHive.close();
+  await initializeAppConfigs();
+}
+
 Future<void> initializeAppConfigs() async {
-  final appDir = await getApplicationDocumentsDirectory();
+  setRootDirFromEnv();
+  final appDir = await getAppDir();
   CakeHive.init(appDir.path);
 
   if (!CakeHive.isAdapterRegistered(Contact.typeId)) {
@@ -167,7 +152,6 @@ Future<void> initializeAppConfigs() async {
   }
 
   final secureStorage = secureStorageShared;
-
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
@@ -202,7 +186,7 @@ Future<void> initializeAppConfigs() async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 33,
+    initialMigrationVersion: 40,
   );
 }
 
@@ -244,8 +228,8 @@ Future<void> initialSetup(
     ordersSource: ordersSource,
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
-    secureStorage: secureStorage,
     navigatorKey: navigatorKey,
+    secureStorage: secureStorage,
   );
   await bootstrap(navigatorKey);
   monero?.onStartup();
@@ -296,6 +280,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             locale: Locale(settingsStore.languageCode),
             onGenerateRoute: (settings) => Router.createRoute(settings),
             initialRoute: initialRoute,
+            scrollBehavior: AppScrollBehavior(),
             home: _Home(),
           ));
     });
@@ -332,5 +317,43 @@ class _HomeState extends State<_Home> {
   @override
   Widget build(BuildContext context) {
     return const SizedBox.shrink();
+  }
+}
+
+class TopLevelErrorWidget extends StatelessWidget {
+  const TopLevelErrorWidget({
+    required this.error,
+    required this.stackTrace,
+    super.key,
+  });
+
+  final Object error;
+  final StackTrace stackTrace;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      scrollBehavior: AppScrollBehavior(),
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: Container(
+            margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
+            child: Column(
+              children: [
+                Text(
+                  'Error:\n${error.toString()}',
+                  style: TextStyle(fontSize: 22),
+                ),
+                Text(
+                  'Stack trace:\n${stackTrace.toString()}',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

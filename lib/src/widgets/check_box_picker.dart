@@ -113,10 +113,6 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
 
     return GestureDetector(
       onTap: () {
-        if (item.isDisabled) {
-          return;
-        }
-
         bool newValue = !item.value;
         item.value = newValue;
         widget.onChanged(index, newValue);
@@ -134,7 +130,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
               borderColor: Theme.of(context).dividerColor,
               iconColor: Colors.white,
               onChanged: (bool? value) {
-                if (value == null || item.isDisabled) {
+                if (value == null) {
                   return;
                 }
 

@@ -12,6 +12,7 @@ class UnspentCoinsListItem extends StatelessWidget {
     required this.isSending,
     required this.isFrozen,
     required this.isChange,
+    required this.isSilentPayment,
     this.onCheckBoxTap,
   });
 
@@ -21,18 +22,16 @@ class UnspentCoinsListItem extends StatelessWidget {
   final bool isSending;
   final bool isFrozen;
   final bool isChange;
+  final bool isSilentPayment;
   final Function()? onCheckBoxTap;
 
   @override
   Widget build(BuildContext context) {
     final unselectedItemColor = Theme.of(context).cardColor;
     final selectedItemColor = Theme.of(context).primaryColor;
-    final itemColor = isSending
-        ? selectedItemColor
-        : unselectedItemColor;
-    final amountColor = isSending
-        ? Colors.white
-        : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor;
+    final itemColor = isSending ? selectedItemColor : unselectedItemColor;
+    final amountColor =
+        isSending ? Colors.white : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor;
     final addressColor = isSending
         ? Colors.white.withOpacity(0.5)
         : Theme.of(context).extension<CakeTextTheme>()!.buttonSecondaryTextColor;
@@ -114,6 +113,23 @@ class UnspentCoinsListItem extends StatelessWidget {
                             alignment: Alignment.center,
                             child: Text(
                               S.of(context).unspent_change,
+                              style: TextStyle(
+                                color: itemColor,
+                                fontSize: 7,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        if (isSilentPayment)
+                          Container(
+                            height: 17,
+                            padding: EdgeInsets.only(left: 6, right: 6),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(Radius.circular(8.5)),
+                                color: Colors.white),
+                            alignment: Alignment.center,
+                            child: Text(
+                              S.of(context).silent_payments,
                               style: TextStyle(
                                 color: itemColor,
                                 fontSize: 7,

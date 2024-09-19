@@ -1,6 +1,5 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
-import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
@@ -10,7 +9,6 @@ import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/wallet_nft_response.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -19,6 +17,8 @@ import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
+import 'package:cake_wallet/src/screens/cake_pay/auth/cake_pay_account_page.dart';
+import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
@@ -30,20 +30,13 @@ import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
-import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.dart';
-import 'package:cake_wallet/src/screens/ionia/ionia.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
@@ -54,6 +47,7 @@ import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
+import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
@@ -76,6 +70,7 @@ import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
+import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
 import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
@@ -89,23 +84,27 @@ import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
 import 'package:cake_wallet/src/screens/support_other_links/support_other_links_page.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_page.dart';
-import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
+import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
 import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
-import 'package:cake_wallet/view_model/seed_type_view_model.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
@@ -132,6 +131,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => createWelcomePage());
 
     case Routes.newWalletFromWelcome:
+      if (SettingsStoreBase.walletPasswordDirectInput) {
+        if (availableWalletTypes.length == 1) {
+          return createRoute(
+              RouteSettings(name: Routes.newWallet, arguments: availableWalletTypes.first));
+        } else {
+          return createRoute(RouteSettings(name: Routes.newWalletType));
+        }
+      }
+
       return CupertinoPageRoute<void>(
           builder: (_) =>
               getIt.get<SetupPinCodePage>(param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
@@ -153,10 +161,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWallet:
       final type = settings.arguments as WalletType;
       final walletNewVM = getIt.get<WalletNewVM>(param1: type);
-      final seedTypeViewModel = getIt.get<SeedTypeViewModel>();
+      final seedSettingsViewModel = getIt.get<SeedSettingsViewModel>();
 
       return CupertinoPageRoute<void>(
-          builder: (_) => NewWalletPage(walletNewVM, seedTypeViewModel));
+          builder: (_) => NewWalletPage(walletNewVM, seedSettingsViewModel));
 
     case Routes.chooseHardwareWalletAccount:
       final arguments = settings.arguments as List<dynamic>;
@@ -183,6 +191,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
               param2: [false, false]));
 
     case Routes.restoreOptions:
+      if (SettingsStoreBase.walletPasswordDirectInput) {
+        return createRoute(RouteSettings(name: Routes.restoreWalletType));
+      }
+
       final isNewInstall = settings.arguments as bool;
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
@@ -335,8 +347,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.auth:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => getIt.get<AuthPage>(
-              param1: settings.arguments as OnAuthenticationFinished, param2: true));
+          builder: (_) => SettingsStoreBase.walletPasswordDirectInput
+              ? getIt.get<WalletUnlockPage>(
+                  param1: WalletUnlockArguments(
+                      callback: settings.arguments as OnAuthenticationFinished),
+                  instanceName: 'wallet_unlock_verifiable',
+                  param2: true)
+              : getIt.get<AuthPage>(
+                  param1: settings.arguments as OnAuthenticationFinished, param2: true));
 
     case Routes.totpAuthCodePage:
       final args = settings.arguments as TotpAuthArgumentsModel;
@@ -347,24 +365,33 @@ Route<dynamic> createRoute(RouteSettings settings) {
         ),
       );
 
-    case Routes.login:
-      return CupertinoPageRoute<void>(
-          builder: (context) => WillPopScope(
-                child: getIt.get<AuthPage>(instanceName: 'login'),
-                onWillPop: () async =>
-                    // FIX-ME: Additional check does it works correctly
-                    (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ??
-                        false),
-              ),
-          fullscreenDialog: true);
+    case Routes.walletUnlockLoadable:
+      return MaterialPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<WalletUnlockPage>(
+              param1: settings.arguments as WalletUnlockArguments,
+              instanceName: 'wallet_unlock_loadable',
+              param2: true));
 
     case Routes.unlock:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => WillPopScope(
-              child: getIt.get<AuthPage>(
-                  param1: settings.arguments as OnAuthenticationFinished, param2: false),
-              onWillPop: () async => false));
+          builder: (_) => SettingsStoreBase.walletPasswordDirectInput
+              ? WillPopScope(
+                  child: getIt.get<WalletUnlockPage>(
+                      param1: WalletUnlockArguments(
+                          callback: settings.arguments as OnAuthenticationFinished),
+                      param2: false,
+                      instanceName: 'wallet_unlock_verifiable'),
+                  onWillPop: () async => false)
+              : WillPopScope(
+                  child: getIt.get<AuthPage>(
+                      param1: settings.arguments as OnAuthenticationFinished, param2: false),
+                  onWillPop: () async => false));
+
+    case Routes.silentPaymentsSettings:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<SilentPaymentsSettingsPage>());
 
     case Routes.connectionSync:
       return CupertinoPageRoute<void>(
@@ -400,6 +427,18 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<NodeCreateOrEditPage>(
               param1: args?['editingNode'] as Node?, param2: args?['isSelected'] as bool?));
 
+    case Routes.login:
+      return CupertinoPageRoute<void>(
+          builder: (context) => WillPopScope(
+              child: SettingsStoreBase.walletPasswordDirectInput
+                  ? getIt.get<WalletUnlockPage>(instanceName: 'wallet_password_login')
+                  : getIt.get<AuthPage>(instanceName: 'login'),
+              onWillPop: () async =>
+                  // FIX-ME: Additional check does it works correctly
+                  (await SystemChannels.platform.invokeMethod<bool>('SystemNavigator.pop') ??
+                      false)),
+          fullscreenDialog: true);
+
     case Routes.newPowNode:
       final args = settings.arguments as Map<String, dynamic>?;
       return CupertinoPageRoute<void>(
@@ -424,6 +463,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final selectedCurrency = settings.arguments as CryptoCurrency?;
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<ContactListPage>(param1: selectedCurrency));
+
+    case Routes.pickerWalletAddress:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<AddressListPage>());
 
     case Routes.addressBookAddContact:
       return CupertinoPageRoute<void>(
@@ -489,7 +531,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true, builder: (_) => getIt.get<RestoreFromBackupPage>());
 
     case Routes.support:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<SupportPage>());
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<SupportPage>());
 
     case Routes.supportLiveChat:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<SupportChatPage>());
@@ -513,73 +556,30 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 param1: settings.arguments as QrViewData,
               ));
 
-    case Routes.ioniaWelcomePage:
+    case Routes.cakePayCardsPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayCardsPage>());
+
+    case Routes.cakePayBuyCardPage:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayBuyCardPage>(param1: args));
+
+    case Routes.cakePayBuyCardDetailPage:
+      final args = settings.arguments as List;
       return CupertinoPageRoute<void>(
-        fullscreenDialog: true,
-        builder: (_) => getIt.get<IoniaWelcomePage>(),
+          builder: (_) => getIt.get<CakePayBuyCardDetailPage>(param1: args));
+
+    case Routes.cakePayWelcomePage:
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<CakePayWelcomePage>(),
       );
 
-    case Routes.ioniaLoginPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaLoginPage>());
-
-    case Routes.ioniaCreateAccountPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaCreateAccountPage>());
-
-    case Routes.ioniaManageCardsPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaManageCardsPage>());
-
-    case Routes.ioniaBuyGiftCardPage:
+    case Routes.cakePayVerifyOtpPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaBuyGiftCardPage>(param1: args));
+          builder: (_) => getIt.get<CakePayVerifyOtpPage>(param1: args));
 
-    case Routes.ioniaBuyGiftCardDetailPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaBuyGiftCardDetailPage>(param1: args));
-
-    case Routes.ioniaVerifyIoniaOtpPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaVerifyIoniaOtp>(param1: args));
-
-    case Routes.ioniaDebitCardPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaDebitCardPage>());
-
-    case Routes.ioniaActivateDebitCardPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaActivateDebitCardPage>());
-
-    case Routes.ioniaAccountPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountPage>());
-
-    case Routes.ioniaAccountCardsPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountCardsPage>());
-
-    case Routes.ioniaCustomTipPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaCustomTipPage>(param1: args));
-
-    case Routes.ioniaGiftCardDetailPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaGiftCardDetailPage>(param1: args.first));
-
-    case Routes.ioniaCustomRedeemPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaCustomRedeemPage>(param1: args));
-
-    case Routes.ioniaMoreOptionsPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<IoniaMoreOptionsPage>(param1: args));
-
-    case Routes.ioniaPaymentStatusPage:
-      final args = settings.arguments as List;
-      final paymentInfo = args.first as IoniaAnyPayPaymentInfo;
-      final commitedInfo = args[1] as AnyPayPaymentCommittedInfo;
-      return CupertinoPageRoute<void>(
-          builder: (_) =>
-              getIt.get<IoniaPaymentStatusPage>(param1: paymentInfo, param2: commitedInfo));
+    case Routes.cakePayAccountPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayAccountPage>());
 
     case Routes.webViewPage:
       final args = settings.arguments as List;
@@ -591,16 +591,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.advancedPrivacySettings:
       final args = settings.arguments as Map<String, dynamic>;
       final type = args['type'] as WalletType;
+      final isFromRestore = args['isFromRestore'] as bool? ?? false;
       final useTestnet = args['useTestnet'] as bool;
       final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
-                useTestnet,
-                toggleTestnet,
-                getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
-                getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
-                getIt.get<SeedTypeViewModel>(),
+                isFromRestore: isFromRestore,
+                useTestnet: useTestnet,
+                toggleUseTestnet: toggleTestnet,
+                advancedPrivacySettingsViewModel:
+                    getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+                nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: type, param2: false),
+                seedSettingsViewModel: getIt.get<SeedSettingsViewModel>(),
               ));
 
     case Routes.anonPayInvoicePage:
@@ -696,6 +699,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.torPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
+
+    case Routes.signPage:
+      return MaterialPageRoute<void>(
+        builder: (_) => SignPage(
+          getIt.get<SignViewModel>(),
+        ),
+      );
 
     case Routes.connectDevices:
       final params = settings.arguments as ConnectDevicePageParams;

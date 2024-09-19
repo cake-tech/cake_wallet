@@ -67,17 +67,6 @@ class ExchangePage extends BasePage {
   Debounce _depositAmountDebounce = Debounce(Duration(milliseconds: 500));
   var _isReactionsSet = false;
 
-  final arrowBottomPurple = Image.asset(
-    'assets/images/arrow_bottom_purple_icon.png',
-    color: Colors.white,
-    height: 8,
-  );
-  final arrowBottomCakeGreen = Image.asset(
-    'assets/images/arrow_bottom_cake_green.png',
-    color: Colors.white,
-    height: 8,
-  );
-
   late final String? depositWalletName;
   late final String? receiveWalletName;
 
@@ -98,6 +87,14 @@ class ExchangePage extends BasePage {
 
   @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
+
+  @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
 
   @override
   Widget middle(BuildContext context) => Row(
@@ -332,7 +329,6 @@ class ExchangePage extends BasePage {
 
   void applyTemplate(
       BuildContext context, ExchangeViewModel exchangeViewModel, ExchangeTemplate template) async {
-
     final depositCryptoCurrency = CryptoCurrency.fromString(template.depositCurrency);
     final receiveCryptoCurrency = CryptoCurrency.fromString(template.receiveCurrency);
 
@@ -346,10 +342,12 @@ class ExchangePage extends BasePage {
     exchangeViewModel.isFixedRateMode = false;
 
     var domain = template.depositAddress;
-    exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, depositCryptoCurrency);
+    exchangeViewModel.depositAddress =
+        await fetchParsedAddress(context, domain, depositCryptoCurrency);
 
     domain = template.receiveAddress;
-    exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, receiveCryptoCurrency);
+    exchangeViewModel.receiveAddress =
+        await fetchParsedAddress(context, domain, receiveCryptoCurrency);
   }
 
   void _setReactions(BuildContext context, ExchangeViewModel exchangeViewModel) {
@@ -521,14 +519,16 @@ class ExchangePage extends BasePage {
     _depositAddressFocus.addListener(() async {
       if (!_depositAddressFocus.hasFocus && depositAddressController.text.isNotEmpty) {
         final domain = depositAddressController.text;
-        exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
+        exchangeViewModel.depositAddress =
+            await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
       }
     });
 
     _receiveAddressFocus.addListener(() async {
       if (!_receiveAddressFocus.hasFocus && receiveAddressController.text.isNotEmpty) {
         final domain = receiveAddressController.text;
-        exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
+        exchangeViewModel.receiveAddress =
+            await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
       }
     });
 
@@ -581,7 +581,8 @@ class ExchangePage extends BasePage {
     }
   }
 
-  Future<String> fetchParsedAddress(BuildContext context, String domain, CryptoCurrency currency) async {
+  Future<String> fetchParsedAddress(
+      BuildContext context, String domain, CryptoCurrency currency) async {
     final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
@@ -650,7 +651,6 @@ class ExchangePage extends BasePage {
 
                 exchangeViewModel.changeDepositCurrency(currency: currency);
               },
-              imageArrow: arrowBottomPurple,
               currencyButtonColor: Colors.transparent,
               addressButtonsColor:
                   Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
@@ -697,7 +697,6 @@ class ExchangePage extends BasePage {
               currencies: exchangeViewModel.receiveCurrencies,
               onCurrencySelected: (currency) =>
                   exchangeViewModel.changeReceiveCurrency(currency: currency),
-              imageArrow: arrowBottomCakeGreen,
               currencyButtonColor: Colors.transparent,
               addressButtonsColor:
                   Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,

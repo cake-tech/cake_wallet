@@ -6,7 +6,7 @@ author: Cake Wallet
 homepage: https://cakewallet.com
 
 environment:
-  sdk: ">=2.17.5 <3.0.0"
+  sdk: ">=2.19.0 <3.0.0"
   flutter: ">=1.20.0"
 
 dependencies:
@@ -19,9 +19,15 @@ dependencies:
   flutter_mobx: ^2.0.6+1
   intl: ^0.18.0
   encrypt: ^5.0.1
-  polyseed: ^0.0.2
+  polyseed: ^0.0.6
   cw_core:
     path: ../cw_core
+  monero:
+    git:
+      url: https://github.com/mrcyjanek/monero_c
+      ref: 3cb38bee9385faf46b03fd73aab85f3ac4115bf7 # monero_c hash
+      path: impls/monero.dart
+  mutex: ^3.1.0
 
 dev_dependencies:
   flutter_test:
@@ -43,16 +49,7 @@ flutter:
   # The androidPackage and pluginClass identifiers should not ordinarily
   # be modified. They are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
-  plugin:
-    platforms:
-      android:
-        package: com.cakewallet.monero
-        pluginClass: CwMoneroPlugin
-      ios:
-        pluginClass: CwMoneroPlugin
 
-      macos:
-        pluginClass: CwMoneroPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

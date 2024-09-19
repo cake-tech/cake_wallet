@@ -6,11 +6,12 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/market_place_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:cake_wallet/src/widgets/alert_with_three_actions.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
+import 'package:cake_wallet/src/widgets/haven_wallet_removal_popup.dart';
 import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
 import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
@@ -19,6 +20,7 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/view_model/auto_backup_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/market_place_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
@@ -42,7 +44,7 @@ import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart'
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   DashboardPage({
     required this.bottomSheetService,
     required this.balancePage,
@@ -56,43 +58,71 @@ class DashboardPage extends StatelessWidget {
   final WalletAddressListViewModel addressListViewModel;
 
   @override
-  Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    return Scaffold(
-      body: Builder(
-        builder: (_) {
-          final dashboardPageView = RefreshIndicator(
-            displacement: screenHeight * 0.1,
-            onRefresh: () async => await dashboardViewModel.refreshDashboard(),
-            child: SingleChildScrollView(
-              physics: AlwaysScrollableScrollPhysics(),
-              child: Container(
-                height: screenHeight,
-                child: _DashboardPageView(
-                  balancePage: balancePage,
-                  bottomSheetService: bottomSheetService,
-                  dashboardViewModel: dashboardViewModel,
-                  addressListViewModel: addressListViewModel,
-                ),
-              ),
-            ),
-          );
+  State<DashboardPage> createState() => _DashboardPageState();
+}
 
-          if (DeviceInfo.instance.isDesktop) {
-            if (responsiveLayoutUtil.screenWidth >
-                ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
-              return getIt.get<DesktopSidebarWrapper>();
-            } else {
-              return dashboardPageView;
-            }
-          } else if (responsiveLayoutUtil.shouldRenderMobileUI) {
-            return dashboardPageView;
-          } else {
-            return getIt.get<DesktopSidebarWrapper>();
-          }
-        },
+class _DashboardPageState extends State<DashboardPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    bool isMobileLayout =
+        responsiveLayoutUtil.screenWidth < ResponsiveLayoutUtilBase.kMobileThreshold;
+
+    reaction((_) => responsiveLayoutUtil.screenWidth, (screenWidth) {
+      // Check if it was previously in mobile layout, and now changing to desktop
+      if (isMobileLayout &&
+          screenWidth > ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
+        setState(() {
+          isMobileLayout = false;
+        });
+      }
+
+      // Check if it was previously in desktop layout, and now changing to mobile
+      if (!isMobileLayout &&
+          screenWidth <= ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
+        setState(() {
+          isMobileLayout = true;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget dashboardChild;
+
+    final dashboardPageView = RefreshIndicator(
+      displacement: responsiveLayoutUtil.screenHeight * 0.1,
+      onRefresh: () async => await widget.dashboardViewModel.refreshDashboard(),
+      child: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Container(
+          height: responsiveLayoutUtil.screenHeight,
+          child: _DashboardPageView(
+            balancePage: widget.balancePage,
+            bottomSheetService: widget.bottomSheetService,
+            dashboardViewModel: widget.dashboardViewModel,
+            addressListViewModel: widget.addressListViewModel,
+          ),
+        ),
       ),
     );
+
+    if (DeviceInfo.instance.isDesktop) {
+      if (responsiveLayoutUtil.screenWidth >
+          ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
+        dashboardChild = getIt.get<DesktopSidebarWrapper>();
+      } else {
+        dashboardChild = dashboardPageView;
+      }
+    } else if (responsiveLayoutUtil.shouldRenderMobileUI) {
+      dashboardChild = dashboardPageView;
+    } else {
+      dashboardChild = getIt.get<DesktopSidebarWrapper>();
+    }
+
+    return Scaffold(body: dashboardChild);
   }
 }
 
@@ -214,7 +244,11 @@ class _DashboardPageView extends BasePage {
               padding: EdgeInsets.only(bottom: 24, top: 10),
               child: Observer(
                 builder: (context) {
-                  return ExcludeSemantics(
+                  return Semantics(
+                    button: false,
+                    label: 'Page Indicator',
+                    hint: 'Swipe to change page',
+                    excludeSemantics: true,
                     child: SmoothPageIndicator(
                       controller: controller,
                       count: pages.length,
@@ -308,10 +342,10 @@ class _DashboardPageView extends BasePage {
     if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
       pages.add(
         Semantics(
-          label: S.of(context).market_place,
-          child: MarketPlacePage(
+          label: 'Cake ${S.of(context).features}',
+          child: CakeFeaturesPage(
             dashboardViewModel: dashboardViewModel,
-            marketPlaceViewModel: getIt.get<MarketPlaceViewModel>(),
+            cakeFeaturesViewModel: getIt.get<CakeFeaturesViewModel>(),
           ),
         ),
       );
@@ -331,10 +365,12 @@ class _DashboardPageView extends BasePage {
 
     _showBackupWarningPopup(context);
 
+    _showHavenPopup(context);
+
     var needToPresentYat = false;
     var isInactive = false;
 
-    _onInactiveSub = rootKey.currentState!.isInactive.listen(
+    _onInactiveSub = rootKey.currentState?.isInactive.listen(
       (inactive) {
         isInactive = inactive;
 
@@ -450,6 +486,24 @@ class _DashboardPageView extends BasePage {
               },
             );
           });
+    }
+  }
+
+  void _showHavenPopup(BuildContext context) async {
+    final List<String> havenWalletList = await dashboardViewModel.checkForHavenWallets();
+
+    if (havenWalletList.isNotEmpty) {
+      Future<void>.delayed(
+        Duration(seconds: 1),
+        () {
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return HavenWalletRemovalPopup(havenWalletList);
+            },
+          );
+        },
+      );
     }
   }
 }

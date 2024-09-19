@@ -1,23 +1,19 @@
-# Building CakeWallet for Android
+# Building Cake Wallet for Android
 
 ## Requirements and Setup
 
-The following are the system requirements to build CakeWallet for your Android device.
+The following are the system requirements to build Cake Wallet for your Android device.
 
 ```
 Ubuntu >= 20.04 
 Android SDK 29 or higher (better to have the latest one 33)
 Android NDK 17c
-Flutter 3.10.x or earlier
+Flutter 3.19.x
 ```
-
-## Building CakeWallet on Android
-
-These steps will help you configure and execute a build of CakeWallet from its source code.
 
 ### 1. Installing Package Dependencies
 
-CakeWallet cannot be built without the following packages installed on your build system.
+CakeWallet cannot be built without the following packages installed on your system.
 
 - curl
 
@@ -51,13 +47,17 @@ You may easily install them on your build system with the following command:
 
 ### 2. Installing Android Studio and Android toolchain
 
-You may download and install the latest version of Android Studio [here](https://developer.android.com/studio#downloads). After installing, start Android Studio, and go through the "Setup Wizard." This installs the latest Android SDK, Android SDK Command-line Tools, and Android SDK Build-Tools, which are required by CakeWallet. **Be sure you are installing SDK version 28 or later when stepping through the wizard**
+You may download and install the latest version of Android Studio [here](https://developer.android.com/studio#downloads). After installing, start Android Studio, and go through the "Setup Wizard." This installs the latest Android SDK, Android SDK Command-line Tools, and Android SDK Build-Tools, which are required by Cake Wallet. **Be sure you are installing SDK version 28 or later when stepping through the wizard**
 
 ### 3. Installing Flutter
 
-Need to install flutter with version `3.7.x`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
+Install Flutter with version `3.19.x`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
 
-### 4. Verify Installations
+### 4. Installing rustup
+
+Install rustup from the [rustup.rs](https://rustup.rs/) website.
+
+### 5. Verify Installations
 
 Verify that the Android toolchain, Flutter, and Android Studio have been correctly installed on your system with the following command:
 
@@ -66,20 +66,20 @@ Verify that the Android toolchain, Flutter, and Android Studio have been correct
 The output of this command will appear like this, indicating successful installations. If there are problems with your installation, they **must** be corrected before proceeding.
 ```
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 3.10.x, on Linux, locale en_US.UTF-8)
+[✓] Flutter (Channel stable, 3.19.x, on Linux, locale en_US.UTF-8)
 [✓] Android toolchain - develop for Android devices (Android SDK version 29 or higher)
 [✓] Android Studio (version 4.0 or higher)
 ```
 
-### 5. Generate a secure keystore for Android
+### 6. Generate a secure keystore for Android
 
 `$ keytool -genkey -v -keystore $HOME/key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias key`
 
 You will be prompted to create two passwords. First you will be prompted for the "store password", followed by a "key password" towards the end of the creation process. **TAKE NOTE OF THESE PASSWORDS!** You will need them in later steps. 
 
-### 6. Acquiring the CakeWallet Source Code
+### 7. Acquiring the Cake Wallet Source Code
 
-Create the directory that will be use to store the CakeWallet source...
+Create the directory that will be use to store the Cake Wallet source...
 
 ```
 $ sudo mkdir -p /opt/android
@@ -95,11 +95,11 @@ Proceed into the source code before proceeding with the next steps:
 
 `$ cd cake_wallet/scripts/android/`
 
-### 7. Installing Android NDK
+### 8. Installing Android NDK
 
 `$ ./install_ndk.sh`
 
-### 8. Execute Build & Setup Commands for CakeWallet
+### 9. Execute Build & Setup Commands for Cak eWallet
 
 We need to generate project settings like app name, app icon, package name, etc. For this need to setup environment variables and configure project files. 
 
@@ -116,11 +116,7 @@ Build the Monero libraries and their dependencies:
 
 `$ ./build_all.sh`
 
-Now the dependencies need to be copied into the CakeWallet project with this command:
-
-`$ ./copy_monero_deps.sh`
-
-It is now time to change back to the base directory of the CakeWallet source code:
+It is now time to change back to the base directory of the Cake Wallet source code:
 
 `$ cd ../../`
 
@@ -128,7 +124,7 @@ Install Flutter package dependencies with this command:
 
 `$ flutter pub get`
 
-Your CakeWallet binary will be built with cryptographic salts, which are used for secure encryption of your data. You may generate these secret salts with the following command:
+Your Cake Wallet binary will be built with cryptographic salts, which are used for secure encryption of your data. You may generate these secret salts with the following command:
 
 `$ flutter packages pub run tool/generate_new_secrets.dart`
 
@@ -142,30 +138,12 @@ Then we need to generate localization files.
 
 `$ flutter packages pub run tool/generate_localization.dart`
 
-Lastly, we will generate mobx models for the project.
-
-Generate mobx models for `cw_core`:
-
-`cd cw_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
-
-Generate mobx models for `cw_monero`:
-
-`cd cw_monero && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
-
-Generate mobx models for `cw_bitcoin`:
-
-`cd cw_bitcoin && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
-
-Generate mobx models for `cw_haven`:
-
-`cd cw_haven && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
-
 Finally build mobx models for the app:
 
-`$ flutter packages pub run build_runner build --delete-conflicting-outputs`
+`$ ./model_generator.sh`
 
-### 9. Build!
+### 10. Build!
 
 `$ flutter build apk --release`
 
-Copyright (c) 2022 Cake Technologies LLC.
+Copyright (c) 2024 Cake Labs LLC
