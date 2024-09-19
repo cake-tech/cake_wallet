@@ -119,6 +119,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.banano:
         return nano!.createNanoNewWalletCredentials(
           name: name,
+          password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
           parentAddress: newWalletArguments!.parentAddress,
         );
@@ -139,12 +140,17 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.tron:
         return tron!.createTronNewWalletCredentials(
           name: name,
+          password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
           parentAddress: newWalletArguments!.parentAddress,
         );
       case WalletType.wownero:
         return wownero!.createWowneroNewWalletCredentials(
-            name: name, language: options!.first as String, isPolyseed: options.last as bool);
+          name: name,
+          password: walletPassword,
+          language: options!.first as String,
+          isPolyseed: options.last as bool,
+        );
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
