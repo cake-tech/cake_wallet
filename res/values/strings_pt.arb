@@ -812,6 +812,7 @@
   "trusted": "confiável",
   "tx_commit_exception_no_dust_on_change": "A transação é rejeitada com esse valor. Com essas moedas, você pode enviar ${min} sem alteração ou ${max} que retorna alterações.",
   "tx_commit_failed": "A confirmação da transação falhou. Entre em contato com o suporte.",
+  "tx_commit_failed_no_peers": "A transação não foi transmitida, tente novamente em um segundo",
   "tx_invalid_input": "Você está usando o tipo de entrada errado para este tipo de pagamento",
   "tx_no_dust_exception": "A transação é rejeitada enviando uma quantia pequena demais. Por favor, tente aumentar o valor.",
   "tx_not_enough_inputs_exception": "Não há entradas disponíveis. Selecione mais sob controle de moedas",

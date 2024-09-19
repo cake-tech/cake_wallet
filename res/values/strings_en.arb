@@ -811,6 +811,7 @@
   "trusted": "Trusted",
   "tx_commit_exception_no_dust_on_change": "The transaction is rejected with this amount. With these coins you can send ${min} without change or ${max} that returns change.",
   "tx_commit_failed": "Transaction commit failed. Please contact support.",
+  "tx_commit_failed_no_peers": "Transaction failed to broadcast, please try again in a second or so",
   "tx_invalid_input": "You are using the wrong input type for this type of payment",
   "tx_no_dust_exception": "The transaction is rejected by sending an amount too small. Please try increasing the amount.",
   "tx_not_enough_inputs_exception": "Not enough inputs available. Please select more under Coin Control",

@@ -811,6 +811,7 @@
   "trusted": "A ti fọkàn ẹ̀ tán",
   "tx_commit_exception_no_dust_on_change": "Iṣowo naa ti kọ pẹlu iye yii. Pẹlu awọn owó wọnyi o le firanṣẹ ${min} laisi ayipada tabi ${max} ni iyipada iyipada.",
   "tx_commit_failed": "Idunadura iṣowo kuna. Jọwọ kan si atilẹyin.",
+  "tx_commit_failed_no_peers": "Idunadura kuna lati wa igbohungbe, jọwọ gbiyanju lẹẹkansi ni iṣẹju keji tabi bẹẹ",
   "tx_invalid_input": "O nlo iru titẹ nkan ti ko tọ fun iru isanwo yii",
   "tx_no_dust_exception": "Iṣowo naa ni kọ nipa fifiranṣẹ iye ti o kere ju. Jọwọ gbiyanju pọ si iye naa.",
   "tx_not_enough_inputs_exception": "Ko to awọn titẹsi to. Jọwọ yan diẹ sii labẹ iṣakoso owo",

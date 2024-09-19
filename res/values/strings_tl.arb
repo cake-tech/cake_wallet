@@ -810,6 +810,7 @@
   "trusted": "Pinagkakatiwalaan",
   "tx_commit_exception_no_dust_on_change": "Ang transaksyon ay tinanggihan sa halagang ito. Sa mga barya na ito maaari kang magpadala ng ${min} nang walang sukli o ${max} na nagbabalik ng sukli.",
   "tx_commit_failed": "Nabigo ang transaksyon. Mangyaring makipag-ugnay sa suporta.",
+  "tx_commit_failed_no_peers": "Nabigo ang transaksyon na mag -broadcast, mangyaring subukang muli sa isang segundo o higit pa",
   "tx_invalid_input": "Gumagamit ka ng maling uri ng pag-input para sa ganitong uri ng pagbabayad",
   "tx_no_dust_exception": "Ang transaksyon ay tinanggihan sa pamamagitan ng pagpapadala ng isang maliit na halaga. Mangyaring subukang dagdagan ang halaga.",
   "tx_not_enough_inputs_exception": "Hindi sapat na magagamit ang mga input. Mangyaring pumili ng higit pa sa ilalim ng Coin Control",

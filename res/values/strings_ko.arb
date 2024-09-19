@@ -811,6 +811,7 @@
   "trusted": "신뢰할 수 있는",
   "tx_commit_exception_no_dust_on_change": "이 금액으로 거래가 거부되었습니다. 이 코인을 사용하면 거스름돈 없이 ${min}를 보내거나 거스름돈을 반환하는 ${max}를 보낼 수 있습니다.",
   "tx_commit_failed": "거래 커밋이 실패했습니다. 지원에 연락하십시오.",
+  "tx_commit_failed_no_peers": "트랜잭션이 방송에 실패했는데 1 초 정도 후에 다시 시도하십시오.",
   "tx_invalid_input": "이 유형의 지불에 잘못 입력 유형을 사용하고 있습니다.",
   "tx_no_dust_exception": "너무 작은 금액을 보내면 거래가 거부됩니다. 금액을 늘리십시오.",
   "tx_not_enough_inputs_exception": "사용 가능한 입력이 충분하지 않습니다. 코인 컨트롤에서 더 많은 것을 선택하십시오",

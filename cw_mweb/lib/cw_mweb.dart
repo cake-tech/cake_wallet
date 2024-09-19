@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:grpc/grpc.dart';
@@ -10,8 +9,13 @@ class CwMweb {
   static RpcClient? _rpcClient;
   static ClientChannel? _clientChannel;
   static int? _port;
+  static const TIMEOUT_DURATION = Duration(seconds: 5);
 
   static Future<void> _initializeClient() async {
+    await stop();
+    // wait a few seconds to make sure the server is stopped
+    await Future.delayed(const Duration(seconds: 5));
+
     final appDir = await getApplicationSupportDirectory();
     _port = await CwMwebPlatform.instance.start(appDir.path);
     if (_port == null || _port == 0) {
@@ -19,8 +23,12 @@ class CwMweb {
     }
     print("Attempting to connect to server on port: $_port");
 
-    _clientChannel = ClientChannel('127.0.0.1',
-        port: _port!,
+    // wait for the server to finish starting up before we try to connect to it:
+    await Future.delayed(const Duration(seconds: 5));
+
+    _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
+      print("Channel shutdown!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    },
         options: const ChannelOptions(
           credentials: ChannelCredentials.insecure(),
           keepAlive: ClientKeepAliveOptions(permitWithoutCalls: true),
@@ -35,27 +43,35 @@ class CwMweb {
           await _initializeClient();
         }
         final status = await _rpcClient!
-            .status(StatusRequest(), options: CallOptions(timeout: const Duration(seconds: 3)));
+            .status(StatusRequest(), options: CallOptions(timeout: TIMEOUT_DURATION));
         if (status.blockTime == 0) {
           throw Exception("blockTime shouldn't be 0! (this connection is likely broken)");
         }
         return _rpcClient!;
       } catch (e) {
         print("Attempt $i failed: $e");
-        await stop(); // call stop so we create a new instance before retrying
-        await Future.delayed(const Duration(seconds: 2)); // wait before retrying
+        _rpcClient = null;
       }
     }
     throw Exception("Failed to connect after $maxRetries attempts");
   }
 
   static Future<void> stop() async {
-    await CwMwebPlatform.instance.stop();
-    await cleanup();
+    try {
+      await CwMwebPlatform.instance.stop();
+      await cleanup();
+    } catch (e) {
+      print("Error stopping server: $e");
+    }
   }
 
   static Future<String?> address(Uint8List scanSecret, Uint8List spendPub, int index) async {
-    return CwMwebPlatform.instance.address(scanSecret, spendPub, index);
+    try {
+      return CwMwebPlatform.instance.address(scanSecret, spendPub, index);
+    } catch (e) {
+      print("Error getting address: $e");
+      return null;
+    }
   }
 
   static Future<void> cleanup() async {
@@ -63,5 +79,55 @@ class CwMweb {
     _rpcClient = null;
     _clientChannel = null;
     _port = null;
+  }
+
+  // wrappers that handle the connection issues:
+  static Future<SpentResponse> spent(SpentRequest request) async {
+    try {
+      if (_rpcClient == null) {
+        await _initializeClient();
+      }
+      return await _rpcClient!.spent(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    } catch (e) {
+      print("Error getting spent: $e");
+      return SpentResponse();
+    }
+  }
+
+  static Future<StatusResponse> status(StatusRequest request) async {
+    try {
+      if (_rpcClient == null) {
+        await _initializeClient();
+      }
+      return await _rpcClient!.status(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    } catch (e) {
+      print("Error getting status: $e");
+      return StatusResponse();
+    }
+  }
+
+  static Future<CreateResponse> create(CreateRequest request) async {
+    try {
+      if (_rpcClient == null) {
+        await _initializeClient();
+      }
+      return await _rpcClient!.create(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    } catch (e) {
+      print("Error getting create: $e");
+      return CreateResponse();
+    }
+  }
+
+  static Future<ResponseStream<Utxo>?> utxos(UtxosRequest request) async {
+    try {
+      if (_rpcClient == null) {
+        await _initializeClient();
+      }
+      // this is a stream, so we should have an effectively infinite timeout:
+      return _rpcClient!.utxos(request, options: CallOptions(timeout: const Duration(days: 1000 * 365)));
+    } catch (e) {
+      print("Error getting utxos: $e");
+      return null;
+    }
   }
 }
