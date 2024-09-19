@@ -27,32 +27,45 @@ abstract class ContactListViewModelBase with Store {
             settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
     walletInfoSource.values.forEach((info) {
       if (isAutoGenerateEnabled && info.type == WalletType.monero && info.addressInfos != null) {
-        info.addressInfos!.forEach((key, value) {
-          final nextUnusedAddress = value.firstWhereOrNull(
-              (addressInfo) => !(info.usedAddresses?.contains(addressInfo.address) ?? false));
-          if (nextUnusedAddress != null) {
-            final name = _createName(info.name, nextUnusedAddress.label);
+        final key = info.addressInfos!.keys.last;
+        final value = info.addressInfos![key];
+        final address = value?.last;
+        if (address != null) {
+          final name = _createName(info.name, address.label);
+          walletContacts.add(WalletContact(
+            address.address,
+            name,
+            walletTypeToCryptoCurrency(info.type),
+          ));
+        }
+      } else if (info.addresses?.isNotEmpty == true && info.addresses!.length > 1) {
+        if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)) {
+          final key = info.addressInfos!.keys.first;
+          final value = info.addressInfos![key];
+          final address = value?.last;
+          if (address != null) {
+            final name = _createName(info.name, address.label);
             walletContacts.add(WalletContact(
-              nextUnusedAddress.address,
+              address.address,
               name,
               walletTypeToCryptoCurrency(info.type),
             ));
           }
-        });
-      } else if (info.addresses?.isNotEmpty == true && info.addresses!.length > 1) {
-        info.addresses!.forEach((address, label) {
-          if (label.isEmpty) {
-            return;
-          }
-          final name = _createName(info.name, label);
-          walletContacts.add(WalletContact(
-            address,
-            name,
-            walletTypeToCryptoCurrency(info.type,
-                isTestnet:
-                    info.network == null ? false : info.network!.toLowerCase().contains("testnet")),
-          ));
-        });
+        } else {
+          info.addresses!.forEach((address, label) {
+            if (label.isEmpty) {
+              return;
+            }
+            final name = _createName(info.name, label);
+            walletContacts.add(WalletContact(
+              address,
+              name,
+              walletTypeToCryptoCurrency(info.type,
+                  isTestnet:
+                      info.network == null ? false : info.network!.toLowerCase().contains("testnet")),
+            ));
+          });
+        }
       } else {
         walletContacts.add(WalletContact(
           info.address,
