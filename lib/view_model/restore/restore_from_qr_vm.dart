@@ -112,6 +112,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
               height: restoreWallet.height ?? 0,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
+              passphrase: passphrase ?? '',
             );
           case WalletType.bitcoin:
           case WalletType.litecoin:
@@ -154,6 +155,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
               height: restoreWallet.height ?? 0,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
+              passphrase: passphrase ?? '',
             );
           default:
             throw Exception('Unexpected type: ${type.toString()}');

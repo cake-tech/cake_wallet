@@ -78,8 +78,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   final bool hasBlockchainHeightLanguageSelector;
   final bool hasRestoreFromPrivateKey;
 
-  bool get hasPassphrase =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(type);
+  bool get hasPassphrase => [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.monero, WalletType.wownero].contains(type);
 
   @observable
   WalletRestoreMode mode;
@@ -100,7 +99,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       switch (type) {
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromSeedCredentials(
-              name: name, height: height, mnemonic: seed, password: password);
+              name: name, height: height, mnemonic: seed, password: password, passphrase: passphrase??'');
         case WalletType.bitcoin:
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
@@ -151,6 +150,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password,
+            passphrase: passphrase??'',
             height: height,
           );
         case WalletType.none:
