@@ -96,6 +96,16 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
 
     passphraseController
         .addListener(() => widget.seedTypeViewModel.setPassphrase(passphraseController.text));
+
+    if (widget.isChildWallet) {
+      if (widget.privacySettingsViewModel.type == WalletType.bitcoin) {
+        widget.seedTypeViewModel.setBitcoinSeedType(BitcoinSeedType.bip39);
+      }
+
+      if (widget.privacySettingsViewModel.type == WalletType.nano) {
+        widget.seedTypeViewModel.setNanoSeedType(NanoSeedType.bip39);
+      }
+    }
     super.initState();
   }
 

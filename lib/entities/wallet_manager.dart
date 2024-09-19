@@ -26,11 +26,7 @@ class WalletManager {
       group.wallets.add(walletInfo);
     }
 
-    walletGroups.removeWhere((group) {
-      group.updateLeadWallet();
-
-      return group.leadWallet == null;
-    });
+    walletGroups.removeWhere((group) => group.wallets.isEmpty);
 
     _loadCustomGroupNames();
   }
@@ -61,7 +57,6 @@ class WalletManager {
   void addWallet(WalletInfo walletInfo) {
     final group = _getOrCreateGroup(_resolveParentAddress(walletInfo));
     group.wallets.add(walletInfo);
-    group.updateLeadWallet();
   }
 
   /// Removes a wallet from a group i.e when it's deleted.
@@ -71,9 +66,8 @@ class WalletManager {
   void removeWallet(WalletInfo walletInfo) {
     final group = _getOrCreateGroup(_resolveParentAddress(walletInfo));
     group.wallets.remove(walletInfo);
-    group.updateLeadWallet();
 
-    if (group.leadWallet == null) {
+    if (group.wallets.isEmpty) {
       walletGroups.remove(group);
     }
   }
@@ -88,18 +82,6 @@ class WalletManager {
           orElse: () => WalletGroup(parentAddress),
         )
         .wallets;
-  }
-
-  /// Return the lead wallet within a group.
-  ///
-  /// Returns a null leadWallet if the group does not exist.
-  WalletInfo? getLeadWalletInGroup(String parentAddress) {
-    return walletGroups
-        .firstWhere(
-          (group) => group.parentAddress == parentAddress,
-          orElse: () => WalletGroup(parentAddress),
-        )
-        .leadWallet;
   }
 
   /// Iterate through all groups and load their custom names from storage
@@ -120,7 +102,7 @@ class WalletManager {
   // Set custom group name and persist it
   void setGroupName(String parentAddress, String name) {
     if (parentAddress.isEmpty || name.isEmpty) return;
-    
+
     final group = walletGroups.firstWhere((group) => group.parentAddress == parentAddress);
     group.setCustomName(name);
     _saveCustomGroupName(parentAddress, name); // Persist the custom name

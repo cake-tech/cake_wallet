@@ -53,8 +53,8 @@ abstract class PreExistingSeedsViewModelBase with Store {
     try {
       isFetchingMnemonic = true;
       final wallet = await _walletLoadingService.load(
-        selectedWalletGroup!.leadWallet!.type,
-        selectedWalletGroup!.leadWallet!.name,
+        selectedWalletGroup!.wallets.first.type,
+        selectedWalletGroup!.wallets.first.name,
       );
 
       parentAddress = selectedWalletGroup!.parentAddress;
@@ -89,29 +89,30 @@ abstract class PreExistingSeedsViewModelBase with Store {
 
     // Iterate through the wallet groups to filter and categorize wallets
     for (var group in walletGroups) {
-      // Get the lead wallet (which could be the parent or the first child wallet)
-      WalletInfo? leadWalletInfo = group.leadWallet;
+      bool shouldExcludeGroup = group.wallets.any((wallet) {
+        // Check for non-BIP39 wallet types
+        bool isNonBIP39Wallet = !isBIP39Wallet(wallet.type);
 
-      // If no lead wallet, skip this group
-      if (leadWalletInfo == null) continue;
+        // Check for nano derivation type
+        bool isNanoDerivationType = wallet.type == WalletType.nano &&
+            wallet.derivationInfo?.derivationType == DerivationType.nano;
 
-      if (!isBIP39Wallet(leadWalletInfo.type)) continue;
+        // Check for electrum derivation type
+        bool isElectrumDerivationType =
+            (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) &&
+                wallet.derivationInfo?.derivationType == DerivationType.electrum;
 
-      if (leadWalletInfo.type == WalletType.nano &&
-          leadWalletInfo.derivationInfo?.derivationType == DerivationType.nano) continue;
+        // Check that selected wallet type is not present already in group
+        bool isSameTypeAsSelectedWallet = wallet.type == type;
 
-      // Check if the lead wallet type is not the same as the selected type
-      bool isSameTypeAsSelectedWallet = leadWalletInfo.type == type;
+        // Exclude if any of these conditions are true
+        return isNonBIP39Wallet ||
+            isNanoDerivationType ||
+            isElectrumDerivationType ||
+            isSameTypeAsSelectedWallet;
+      });
 
-      // Check if the any of the child wallets in the group has the same type as the selected type
-      bool isUsedSeed = walletGroups.any(
-        (walletGroup) => walletGroup.wallets.any(
-          (info) => info.type == type && info.parentAddress == leadWalletInfo.address,
-        ),
-      );
-
-      // Exclude wallets that don't meet the criteria
-      if (isSameTypeAsSelectedWallet || isUsedSeed) continue;
+      if (shouldExcludeGroup) continue;
 
       // If the group passes the filters, add it to the wallets list
       wallets.add(group);

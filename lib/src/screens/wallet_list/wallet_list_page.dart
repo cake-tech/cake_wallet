@@ -170,7 +170,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 isGroup: true,
                                 onTap: () {
                                   final wallet = widget.walletListViewModel
-                                      .convertWalletInfoToWalletListItem(group.leadWallet!);
+                                      .convertWalletInfoToWalletListItem(group.wallets.first);
                                   Navigator.of(context).pushNamed(
                                     Routes.walletEdit,
                                     arguments: WalletEditPageArguments(
