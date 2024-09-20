@@ -32,18 +32,26 @@ class WalletGroupDescriptionPage extends BasePage {
             child: Text.rich(
               TextSpan(
                 children: [
-                  TextSpan(text: 'In Cake Wallet, you can create a '),
-                  TextSpan(text: 'wallet group ', style: TextStyle(fontWeight: FontWeight.w700)),
+                  TextSpan(text: '${S.of(context).wallet_group_description_one} '),
                   TextSpan(
-                    text:
-                        'by selecting an existing wallet to share a seed with. Each wallet group can contain a single wallet of each currency type.\n\nYou can select ',
+                    text: '${S.of(context).wallet_group.toLowerCase()} ',
+                    style: TextStyle(fontWeight: FontWeight.w700),
                   ),
-                  TextSpan(text: 'Choose Wallet ', style: TextStyle(fontWeight: FontWeight.w700)),
                   TextSpan(
-                    text: 'to see the available wallets and/or wallet groups screen. Or choose ',
+                    text: '${S.of(context).wallet_group_description_two} ',
                   ),
-                  TextSpan(text: 'New Seed ', style: TextStyle(fontWeight: FontWeight.w700)),
-                  TextSpan(text: 'to create a wallet with an entirely new seed.'),
+                  TextSpan(
+                    text: '${S.of(context).choose_wallet_group} ',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  TextSpan(
+                    text: '${S.of(context).wallet_group_description_three} ',
+                  ),
+                  TextSpan(
+                    text: '${S.of(context).create_new_seed} ',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  TextSpan(text: S.of(context).wallet_group_description_four),
                 ],
               ),
               textAlign: TextAlign.center,
@@ -60,7 +68,7 @@ class WalletGroupDescriptionPage extends BasePage {
               Routes.newWallet,
               arguments: NewWalletArguments(type: selectedWalletType),
             ),
-            text: S.of(context).newSeed,
+            text: S.of(context).create_new_seed,
             color: Theme.of(context).cardColor,
             textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
           ),
@@ -70,7 +78,7 @@ class WalletGroupDescriptionPage extends BasePage {
               Routes.walletGroupsDisplayPage,
               arguments: selectedWalletType,
             ),
-            text: S.of(context).choose_wallet,
+            text: S.of(context).choose_wallet_group,
             color: Theme.of(context).primaryColor,
             textColor: Colors.white,
           ),

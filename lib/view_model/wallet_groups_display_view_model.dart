@@ -53,6 +53,11 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   @observable
   bool isFetchingMnemonic;
 
+  @computed
+  bool get hasNoFilteredWallet {
+    return singleWalletsList.isEmpty && multiWalletGroups.isEmpty;
+  }
+
   @action
   Future<String?> getSelectedWalletMnemonic() async {
     WalletListItem walletToUse;
