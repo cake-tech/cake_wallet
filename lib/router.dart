@@ -375,7 +375,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.bumpFeePage:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => getIt.get<RBFDetailsPage>(param1: settings.arguments as TransactionInfo));
+          builder: (_) => getIt.get<RBFDetailsPage>(param1: settings.arguments as List<dynamic>));
 
     case Routes.newSubaddress:
       return CupertinoPageRoute<void>(

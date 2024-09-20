@@ -110,6 +110,7 @@ class PendingBitcoinTransaction with PendingTransaction {
       direction: TransactionDirection.outgoing,
       date: DateTime.now(),
       isPending: true,
+      isReplaced: false,
       confirmations: 0,
       fee: fee);
 }

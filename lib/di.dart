@@ -1080,21 +1080,40 @@ Future<void> setup({
             param1: derivations,
           )));
 
-  getIt.registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>(
-      (TransactionInfo transactionInfo, _) {
-    final wallet = getIt.get<AppStore>().wallet!;
-    return TransactionDetailsViewModel(
-        transactionInfo: transactionInfo,
-        transactionDescriptionBox: _transactionDescriptionBox,
-        wallet: wallet,
-        settingsStore: getIt.get<SettingsStore>(),
-        sendViewModel: getIt.get<SendViewModel>());
-  });
+  getIt.registerFactoryParam<TransactionDetailsViewModel, List<dynamic>, void>(
+          (params, _) {
+        final transactionInfo = params[0] as TransactionInfo;
+        final canReplaceByFee = params[1] as bool? ?? false;
+        final wallet = getIt.get<AppStore>().wallet!;
+
+        return TransactionDetailsViewModel(
+          transactionInfo: transactionInfo,
+          transactionDescriptionBox: _transactionDescriptionBox,
+          wallet: wallet,
+          settingsStore: getIt.get<SettingsStore>(),
+          sendViewModel: getIt.get<SendViewModel>(),
+          canReplaceByFee: canReplaceByFee,
+        );
+      }
+  );
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
-      (TransactionInfo transactionInfo, _) => TransactionDetailsPage(
-          transactionDetailsViewModel:
-              getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
+          (TransactionInfo transactionInfo, _) => TransactionDetailsPage(
+          transactionDetailsViewModel: getIt.get<TransactionDetailsViewModel>(
+              param1: [transactionInfo, false])));
+
+  getIt.registerFactoryParam<RBFDetailsPage, List<dynamic>, void>(
+          (params, _) {
+        final transactionInfo = params[0] as TransactionInfo;
+        final txHex = params[1] as String;
+        return RBFDetailsPage(
+          transactionDetailsViewModel: getIt.get<TransactionDetailsViewModel>(
+            param1: [transactionInfo, true],
+          ),
+          rawTransaction: txHex,
+        );
+      }
+  );
 
   getIt.registerFactoryParam<NewWalletTypePage, NewWalletTypeArguments, void>(
       (newWalletTypeArguments, _) {
@@ -1264,11 +1283,6 @@ Future<void> setup({
   getIt.registerFactory(() => CakePayCardsPage(getIt.get<CakePayCardsListViewModel>()));
 
   getIt.registerFactory(() => CakePayAccountPage(getIt.get<CakePayAccountViewModel>()));
-
-  getIt.registerFactoryParam<RBFDetailsPage, TransactionInfo, void>(
-      (TransactionInfo transactionInfo, _) => RBFDetailsPage(
-          transactionDetailsViewModel:
-              getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
   getIt.registerFactory(() => AnonPayApi(
       useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,

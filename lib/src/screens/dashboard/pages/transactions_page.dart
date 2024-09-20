@@ -84,10 +84,7 @@ class TransactionsPage extends StatelessWidget {
                           }
 
                           final transaction = item.transaction;
-                          final transactionType = dashboardViewModel.type == WalletType.ethereum &&
-                                  transaction.evmSignatureName == 'approval'
-                              ? ' (${transaction.evmSignatureName})'
-                              : '';
+                          final transactionType = dashboardViewModel.getTransactionType(transaction);
 
                           return Observer(
                             builder: (_) => TransactionRow(
@@ -102,7 +99,7 @@ class TransactionsPage extends StatelessWidget {
                                       : item.formattedFiatAmount,
                               isPending: transaction.isPending,
                               title:
-                                  item.formattedTitle + item.formattedStatus + ' $transactionType',
+                                  item.formattedTitle + item.formattedStatus + transactionType,
                               isReceivedSilentPayment:
                                   dashboardViewModel.type == WalletType.bitcoin &&
                                       bitcoin!.txIsReceivedSilentPayment(transaction),

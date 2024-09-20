@@ -205,7 +205,8 @@ abstract class Bitcoin {
   bool isTestnet(Object wallet);
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
-  Future<bool> canReplaceByFee(Object wallet, Object tx);
+  Future<String?> canReplaceByFee(Object wallet, Object tx);
+  int getTransactionVSize(Object wallet, String txHex);
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
   int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
   int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,

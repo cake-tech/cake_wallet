@@ -411,10 +411,16 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<bool> canReplaceByFee(Object wallet, Object transactionInfo) async {
+  Future<String?> canReplaceByFee(Object wallet, Object transactionInfo) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     final tx = transactionInfo as ElectrumTransactionInfo;
     return bitcoinWallet.canReplaceByFee(tx);
+  }
+
+  @override
+  int getTransactionVSize(Object wallet, String transactionHex) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.transactionVSize(transactionHex);
   }
 
   @override
