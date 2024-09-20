@@ -13,20 +13,20 @@ public static func register(with registrar: FlutterPluginRegistrar) {
     private static var port: Int = 0
     private static var dataDir: String?
 
-    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) async {
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
             case "getPlatformVersion":
                 result("iOS " + UIDevice.current.systemVersion)
                 break
             case "start":
-                await stopServer()
+                stopServer()
                 let args = call.arguments as? [String: String]
                 let dataDir = args?["dataDir"]
                 CwMwebPlugin.dataDir = dataDir
-                await startServer(result: result)
+                startServer(result: result)
                 break
             case "stop":
-                await stopServer()
+                stopServer()
                 result(nil)
                 break
             case "address":

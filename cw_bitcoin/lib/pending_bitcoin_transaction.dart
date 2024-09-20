@@ -39,7 +39,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   bool isMweb;
   String? idOverride;
   String? hexOverride;
-  List<String>? outputs;
+  List<String>? outputAddresses;
 
   @override
   String get id => idOverride ?? _tx.txId();
@@ -139,6 +139,6 @@ class PendingBitcoinTransaction with PendingTransaction {
       isPending: true,
       confirmations: 0,
       inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
-      outputAddresses: outputs,
+      outputAddresses: outputAddresses,
       fee: fee);
 }

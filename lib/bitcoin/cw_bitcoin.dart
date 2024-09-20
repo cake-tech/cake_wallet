@@ -614,12 +614,7 @@ class CWBitcoin extends Bitcoin {
   bool txIsMweb(TransactionInfo txInfo) {
     final tx = txInfo as ElectrumTransactionInfo;
 
-    List<String> addresses =
-        (transaction.inputAddresses ?? []) + (transaction.outputAddresses ?? []);
-    for (var address in addresses) {
-      if (address.toLowerCase().contains("mweb")) {
-        return true;
-      }
-    }
+    // return tx.isMweb;
+    return false;
   }
 }

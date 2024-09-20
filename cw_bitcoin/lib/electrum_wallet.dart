@@ -170,24 +170,15 @@ abstract class ElectrumWalletBase
   Set<String> get addressesSet => walletAddresses.allAddresses.map((addr) => addr.address).toSet();
 
   List<String> get scriptHashes => walletAddresses.addressesByReceiveType
+      .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)
       .map((addr) => (addr as BitcoinAddressRecord).getScriptHash(network))
       .toList();
 
   List<String> get publicScriptHashes => walletAddresses.allAddresses
       .where((addr) => !addr.isHidden)
+      .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)
       .map((addr) => addr.getScriptHash(network))
       .toList();
-
-  // TODO: remove this
-  // List<String> get scriptHashes => walletAddresses.addressesByReceiveType
-  //     .where((addr) => addressTypeFromStr(addr.address, network) is! MwebAddress)
-  //     .map((addr) => scriptHash(addr.address, network: network))
-  //     .toList();
-  // List<String> get publicScriptHashes => walletAddresses.allAddresses
-  //     .where((addr) => !addr.isHidden)
-  //     .where((addr) => addressTypeFromStr(addr.address, network) is! MwebAddress)
-  //     .map((addr) => scriptHash(addr.address, network: network))
-  //     .toList();
 
   String get xpub => accountHD.publicKey.toExtended;
 
@@ -1908,7 +1899,7 @@ abstract class ElectrumWalletBase
 
   Future<ElectrumBalance> fetchBalances() async {
     final addresses = walletAddresses.allAddresses
-        .where((address) => addressTypeFromStr(address.address, network) is! MwebAddress)
+        .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
         .toList();
     final balanceFutures = <Future<Map<String, dynamic>>>[];
     for (var i = 0; i < addresses.length; i++) {
