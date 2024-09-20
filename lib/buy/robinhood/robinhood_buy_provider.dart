@@ -4,8 +4,6 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
@@ -158,7 +156,8 @@ class RobinhoodBuyProvider extends BuyProvider {
 
     final queryParams = {
       'applicationId': _applicationId,
-      'fiatCode': sourceCurrencyName,
+      'fiatCode': isBuyAction ? sourceCurrencyName : destinationCurrencyName,
+      'assetCode': isBuyAction ? destinationCurrencyName : sourceCurrencyName,
       'fiatAmount': amount.toString(),
       if (paymentMethod != null) 'paymentMethod': paymentMethod,
     };

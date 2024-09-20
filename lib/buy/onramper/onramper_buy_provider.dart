@@ -226,6 +226,7 @@ class OnRamperBuyProvider extends BuyProvider {
       if (paymentMethod != null) '${prefix}defaultPaymentMethod': paymentMethod,
       'onlyOnramps': quote.rampId,
       'networkWallets': '${networkName}:${wallet.walletAddresses.address}',
+      if (cryptoCurrencyAddress.isNotEmpty)'walletAddress' : cryptoCurrencyAddress,
       'supportSwap': "false",
       'primaryColor': primaryColor,
       'secondaryColor': secondaryColor,

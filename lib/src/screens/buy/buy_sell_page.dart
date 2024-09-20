@@ -283,6 +283,7 @@ class BuySellPage extends BasePage {
 
     final fiatAmountController = fiatCurrencyKey.currentState!.amountController;
     final cryptoAmountController = cryptoCurrencyKey.currentState!.amountController;
+    final cryptoAddressController = cryptoCurrencyKey.currentState!.addressController;
 
     _onCryptoCurrencyChange(buySellViewModel.cryptoCurrency, buySellViewModel, cryptoCurrencyKey);
     _onFiatCurrencyChange(buySellViewModel.fiatCurrency, buySellViewModel, fiatCurrencyKey);
@@ -324,6 +325,11 @@ class BuySellPage extends BasePage {
         });
       }
     });
+
+    cryptoAddressController.addListener(() {
+      buySellViewModel.changeCryptoCurrencyAddress(cryptoAddressController.text);
+    });
+
 
     _isReactionsSet = true;
   }
@@ -391,7 +397,7 @@ class BuySellPage extends BasePage {
               key: cryptoCurrencyKey,
               title: 'Crypto ${S.of(context).amount}',
               initialCurrency: buySellViewModel.cryptoCurrency,
-              initialWalletName: 'receiveWalletName' ?? '',
+              initialWalletName: '',
               initialAddress: buySellViewModel.cryptoCurrency == buySellViewModel.wallet.currency
                   ? buySellViewModel.wallet.walletAddresses.address
                   : '',

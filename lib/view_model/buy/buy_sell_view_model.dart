@@ -181,6 +181,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   @action
+  void changeCryptoCurrencyAddress(String address) => cryptoCurrencyAddress = address;
+
+
+  @action
   Future<void> changeFiatAmount({required String amount}) async {
     fiatAmount = amount;
 
@@ -259,10 +263,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     _setProviders();
     cryptoAmount = '';
     fiatAmount = '';
+    cryptoCurrencyAddress = _getInitialCryptoCurrencyAddress();
     paymentMethodState = InitialPaymentMethod();
     buySellQuotState = InitialBuySellQuotState();
     await _getAvailablePaymentTypes();
     await calculateBestRate();
+  }
+
+  String _getInitialCryptoCurrencyAddress() {
+    return cryptoCurrency == wallet.currency
+        ? wallet.walletAddresses.address
+        : '';
   }
 
   @action
@@ -345,7 +356,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @action
   Future<void> launchTrade(BuildContext context) async {
     final provider = selectedQuote!.provider;
-
     provider.launchProvider(
       context: context,
       quote: selectedQuote!,

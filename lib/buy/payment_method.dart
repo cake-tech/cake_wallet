@@ -219,72 +219,60 @@ class PaymentMethod extends SelectableOption {
   }
 
   static PaymentType getPaymentTypeId(String? type) {
-    switch (type) {
+    switch (type?.toLowerCase()) {
       case 'banktransfer':
-      case 'Bank':
+      case 'bank':
       case 'yellow_card_bank_transfer':
         return PaymentType.bankTransfer;
       case 'creditcard':
-      case 'Card':
-      case 'CREDIT_DEBIT_CARD':
+      case 'card':
       case 'credit_debit_card':
         return PaymentType.creditCard;
       case 'debitcard':
         return PaymentType.debitCard;
       case 'applepay':
-      case 'APPLE_PAY':
       case 'apple_pay':
         return PaymentType.applePay;
       case 'googlepay':
-      case 'GOOGLE_PAY':
       case 'google_pay':
         return PaymentType.googlePay;
       case 'revolutpay':
         return PaymentType.revolutPay;
       case 'neteller':
-      case 'NETELLER':
         return PaymentType.neteller;
       case 'skrill':
-      case 'SKRILL':
         return PaymentType.skrill;
       case 'sepabanktransfer':
-      case 'SEPA':
+      case 'sepa':
       case 'sepa_bank_transfer':
         return PaymentType.sepa;
       case 'sepainstant':
-      case 'SEPA_INSTANT':
+      case 'sepa_instant':
         return PaymentType.sepaInstant;
-      case 'ACH':
+      case 'ach':
       case 'ach_bank_transfer':
         return PaymentType.ach;
       case 'iach':
-      case 'INSTANT_ACH':
+      case 'instant_ach':
         return PaymentType.achInstant;
       case 'khipu':
-      case 'KHIPU':
         return PaymentType.Khipu;
       case 'palomabanktransfer':
         return PaymentType.palomaBanktTansfer;
       case 'ovo':
-      case 'OVO':
         return PaymentType.ovo;
       case 'zalopay':
-      case 'ZALOPAY':
         return PaymentType.zaloPay;
       case 'zalobanktransfer':
-      case 'ZA_BANK_TRANSFER':
+      case 'za_bank_transfer':
         return PaymentType.zaloBankTransfer;
       case 'gcash':
-      case 'GCASH':
         return PaymentType.gcash;
       case 'imps':
-      case 'IMPS':
         return PaymentType.imps;
       case 'dana':
-      case 'DANA':
         return PaymentType.dana;
       case 'ideal':
-      case 'IDEAL':
         return PaymentType.ideal;
       case 'paypal':
         return PaymentType.paypal;

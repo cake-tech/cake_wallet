@@ -129,7 +129,6 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
   @override
   Widget build(BuildContext context) {
     final isLightMode = Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
-    print(isLightMode);
 
     Color titleColor =
         isLightMode ? Theme.of(context).appBarTheme.titleTextStyle!.color! : Colors.white;

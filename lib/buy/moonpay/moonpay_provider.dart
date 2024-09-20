@@ -8,6 +8,7 @@ import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -164,8 +165,13 @@ class MoonPayProvider extends BuyProvider {
 
     final action = isBuyAction ? 'buy' : 'sell';
 
-    final currency = (isBuyAction ? destinationCurrency : sourceCurrency).name.toLowerCase();
-    final baseCurrencyCode = sourceCurrency.name.toLowerCase();
+    if(!isBuyAction && destinationCurrency as FiatCurrency != FiatCurrency.eur) {
+      return null;
+    }
+
+    final currency = (isBuyAction ? destinationCurrency : sourceCurrency) as CryptoCurrency;
+    final formattedCurrency = _normalizeCurrency(currency);
+    final baseCurrencyCode = isBuyAction ? sourceCurrency.name.toLowerCase() : destinationCurrency.name.toLowerCase();
 
     final params = {
       'baseCurrencyCode': baseCurrencyCode,
@@ -177,13 +183,12 @@ class MoonPayProvider extends BuyProvider {
     };
 
     log(
-        'MoonPay: Fetching $action quote: $baseCurrencyCode -> $currency, amount: $amount, paymentMethod: $paymentMethod');
+        'MoonPay: Fetching $action quote: ${isBuyAction ? baseCurrencyCode : formattedCurrency} -> ${isBuyAction ? formattedCurrency : baseCurrencyCode}, amount: $amount, paymentMethod: $paymentMethod');
 
     final quotePath = isBuyAction ? _buyQuote : _sellQuote;
 
-    final path = '$_currenciesPath/$currency$quotePath';
+    final path = '$_currenciesPath/$formattedCurrency$quotePath';
     final url = Uri.https(_baseUrl, path, params);
-
     try {
       final response = await get(url);
 
@@ -321,8 +326,12 @@ class MoonPayProvider extends BuyProvider {
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
-    if (currency == CryptoCurrency.maticpoly) {
-      return "MATIC_POLYGON";
+    if (currency.tag == 'POLY') {
+      return '${currency.title.toLowerCase()}_polygon';
+    }
+
+    if (currency.tag == 'TRX') {
+      return '${currency.title.toLowerCase()}_trx';
     }
 
     return currency.toString().toLowerCase();

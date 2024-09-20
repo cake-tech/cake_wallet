@@ -89,10 +89,11 @@ class ProvidersHelper {
           ProviderType.onramper,
           ProviderType.moonpay,
           ProviderType.dfx,
+          ProviderType.robinhood,
         ];
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return [ProviderType.moonpay];
+        return [ProviderType.moonpay, ProviderType.robinhood];
       case WalletType.solana:
         return [
           ProviderType.onramper,
