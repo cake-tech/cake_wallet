@@ -169,7 +169,9 @@ class RBFDetailsPage extends BasePage {
                     actionRightButton: () async {
                       Navigator.of(popupContext).pop();
                       await transactionDetailsViewModel.sendViewModel.commitTransaction();
-                      Navigator.of(popupContext).pop();
+                      try {
+                        Navigator.of(popupContext).pop();
+                      } catch (_) {}
                     },
                     actionLeftButton: () => Navigator.of(popupContext).pop(),
                     feeFiatAmount:
