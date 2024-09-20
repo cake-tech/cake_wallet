@@ -51,8 +51,6 @@ class ConnectDevicePageBody extends StatefulWidget {
 }
 
 class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
-  final imageLedger = 'assets/images/ledger_nano.png';
-
   // final ledger = Ledger(
   //   options: LedgerOptions(
   //     scanMode: ScanMode.balanced,
@@ -86,7 +84,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
           Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
 
       if (Platform.isAndroid) {
-        _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
+        _usbRefreshTimer =
+            Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
       }
     });
   }
@@ -128,8 +127,21 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   }
 
   Future<void> _connectToDevice(LedgerDevice device) async {
-    await widget.ledgerVM.connectLedger(device);
+    await widget.ledgerVM.connectLedger(device, widget.walletType);
     widget.onConnectDevice(context, widget.ledgerVM);
+  }
+
+  String _getDeviceTileLeading(LedgerBleDeviceInfo? deviceInfo) {
+    switch (deviceInfo) {
+      case LedgerBleDeviceInfo.nanoX:
+        return 'assets/images/hardware_wallet/ledger_nano_x.png';
+      case LedgerBleDeviceInfo.stax:
+        return 'assets/images/hardware_wallet/ledger_stax.png';
+      case LedgerBleDeviceInfo.flex:
+        return 'assets/images/hardware_wallet/ledger_flex.png';
+      default:
+        return 'assets/images/hardware_wallet/ledger_nano_x.png';
+    }
   }
 
   @override
@@ -204,7 +216,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                         child: DeviceTile(
                           onPressed: () => _connectToDevice(device),
                           title: device.name,
-                          leading: imageLedger,
+                          leading: _getDeviceTileLeading(device.deviceInfo),
                           connectionType: device.connectionType,
                         ),
                       ),
@@ -235,7 +247,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                         child: DeviceTile(
                           onPressed: () => _connectToDevice(device),
                           title: device.name,
-                          leading: imageLedger,
+                          leading: _getDeviceTileLeading(device.deviceInfo),
                           connectionType: device.connectionType,
                         ),
                       ),
