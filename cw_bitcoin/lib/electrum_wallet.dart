@@ -1089,6 +1089,8 @@ abstract class ElectrumWalletBase
             });
           }
 
+          unspentCoins.removeWhere((utxo) => estimatedTx.utxos.any((e) => e.utxo.txHash == utxo.hash));
+
           await updateBalance();
         });
     } catch (e) {
@@ -1611,7 +1613,7 @@ abstract class ElectrumWalletBase
     }
 
     if (height != null) {
-      if (time == null) {
+      if (time == null && height > 0) {
         time = (getDateByBitcoinHeight(height).millisecondsSinceEpoch / 1000).round();
       }
 
@@ -2058,7 +2060,7 @@ abstract class ElectrumWalletBase
 
       _isTryingToConnect = true;
 
-      Timer(Duration(seconds: 10), () {
+      Timer(Duration(seconds: 5), () {
         if (this.syncStatus is NotConnectedSyncStatus || this.syncStatus is LostConnectionSyncStatus) {
           this.electrumClient.connectToUri(
                 node!.uri,
