@@ -12,10 +12,12 @@ import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
@@ -30,6 +32,8 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
+import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
@@ -145,7 +149,9 @@ import 'package:cake_wallet/view_model/cake_pay/cake_pay_cards_list_view_model.d
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_purchase_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
@@ -157,7 +163,6 @@ import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -358,13 +363,31 @@ Future<void> setup({
       getIt.get<KeyService>(),
       (WalletType type) => getIt.get<WalletService>(param1: type)));
 
-  getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) => WalletNewVM(
+  getIt.registerFactoryParam<WalletNewVM, NewWalletArguments, void>(
+    (newWalletArgs, _) => WalletNewVM(
       getIt.get<AppStore>(),
-      getIt.get<WalletCreationService>(param1: type),
+      getIt.get<WalletCreationService>(param1:newWalletArgs.type),
       _walletInfoSource,
-      getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+      getIt.get<AdvancedPrivacySettingsViewModel>(param1: newWalletArgs.type),
       getIt.get<SeedSettingsViewModel>(),
-      type: type));
+      newWalletArguments: newWalletArgs,));
+
+
+  getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
+
+  getIt.registerFactory<WalletManager>(
+    () => WalletManager(_walletInfoSource, getIt.get<SharedPreferences>()),
+  );
+
+  getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
+    (type, _) => WalletGroupsDisplayViewModel(
+      getIt.get<AppStore>(),
+      getIt.get<WalletLoadingService>(),
+      getIt.get<WalletManager>(),
+      getIt.get<WalletListViewModel>(),
+      type: type,
+    ),
+  );
 
   getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
     return WalletUnlockPage(
@@ -723,6 +746,7 @@ Future<void> setup({
         _walletInfoSource,
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
+        getIt.get<WalletManager>(),
       ),
     );
   } else {
@@ -733,6 +757,7 @@ Future<void> setup({
         _walletInfoSource,
         getIt.get<AppStore>(),
         getIt.get<WalletLoadingService>(),
+        getIt.get<WalletManager>(),
       ),
     );
   }
@@ -743,17 +768,28 @@ Future<void> setup({
       ));
 
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
-      (WalletListViewModel walletListViewModel, _) =>
-          WalletEditViewModel(walletListViewModel, getIt.get<WalletLoadingService>()));
+    (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
+      walletListViewModel,
+      getIt.get<WalletLoadingService>(),
+      getIt.get<WalletManager>(),
+    ),
+  );
 
-  getIt.registerFactoryParam<WalletEditPage, List<dynamic>, void>((args, _) {
-    final walletListViewModel = args.first as WalletListViewModel;
-    final editingWallet = args.last as WalletListItem;
+  getIt.registerFactoryParam<WalletEditPage, WalletEditPageArguments, void>((arguments, _) {
+
     return WalletEditPage(
-        walletEditViewModel: getIt.get<WalletEditViewModel>(param1: walletListViewModel),
+      pageArguments: WalletEditPageArguments(
+        walletEditViewModel: getIt.get<WalletEditViewModel>(param1: arguments.walletListViewModel),
         authService: getIt.get<AuthService>(),
-        walletNewVM: getIt.get<WalletNewVM>(param1: editingWallet.type),
-        editingWallet: editingWallet);
+        walletNewVM: getIt.get<WalletNewVM>(
+          param1: NewWalletArguments(type: arguments.editingWallet.type),
+        ),
+        editingWallet: arguments.editingWallet,
+        isWalletGroup: arguments.isWalletGroup,
+        groupName: arguments.groupName,
+        parentAddress: arguments.parentAddress,
+      ),
+    );
   });
 
   getIt.registerFactory<NanoAccountListViewModel>(() {
@@ -1060,15 +1096,11 @@ Future<void> setup({
           transactionDetailsViewModel:
               getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
-  getIt.registerFactoryParam<NewWalletTypePage, void Function(BuildContext, WalletType),
-      List<bool>?>((param1, additionalParams) {
-    final isCreate = additionalParams?[0] ?? true;
-    final isHardwareWallet = additionalParams?[1] ?? false;
-
+  getIt.registerFactoryParam<NewWalletTypePage, NewWalletTypeArguments, void>(
+      (newWalletTypeArguments, _) {
     return NewWalletTypePage(
-      onTypeSelected: param1,
-      isCreate: isCreate,
-      isHardwareWallet: isHardwareWallet,
+      newWalletTypeArguments: newWalletTypeArguments,
+      newWalletTypeViewModel: getIt.get<NewWalletTypeViewModel>(),
     );
   });
 

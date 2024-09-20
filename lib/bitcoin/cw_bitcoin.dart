@@ -28,10 +28,22 @@ class CWBitcoin extends Bitcoin {
           name: name, password: password, wif: wif, walletInfo: walletInfo);
 
   @override
-  WalletCredentials createBitcoinNewWalletCredentials(
-          {required String name, WalletInfo? walletInfo, String? password, String? passphrase}) =>
+  WalletCredentials createBitcoinNewWalletCredentials({
+    required String name,
+    WalletInfo? walletInfo,
+    String? password,
+    String? passphrase,
+    String? mnemonic,
+    String? parentAddress,
+  }) =>
       BitcoinNewWalletCredentials(
-          name: name, walletInfo: walletInfo, password: password, passphrase: passphrase);
+        name: name,
+        walletInfo: walletInfo,
+        password: password,
+        passphrase: passphrase,
+        mnemonic: mnemonic,
+        parentAddress: parentAddress,
+      );
 
   @override
   WalletCredentials createBitcoinHardwareWalletCredentials(

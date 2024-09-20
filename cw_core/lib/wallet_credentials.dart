@@ -10,6 +10,7 @@ abstract class WalletCredentials {
     this.passphrase,
     this.derivationInfo,
     this.hardwareWalletType,
+    this.parentAddress,
   }) {
     if (this.walletInfo != null && derivationInfo != null) {
       this.walletInfo!.derivationInfo = derivationInfo;
@@ -18,6 +19,7 @@ abstract class WalletCredentials {
 
   final String name;
   final int? height;
+  String? parentAddress;
   int? seedPhraseLength;
   String? password;
   String? passphrase;
