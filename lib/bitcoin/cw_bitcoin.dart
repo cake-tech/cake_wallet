@@ -361,7 +361,7 @@ class CWBitcoin extends Bitcoin {
               continue;
           }
 
-          final sh = scriptHash(address, network: network);
+          final sh = BitcoinAddressUtils.scriptHash(address, network: network);
           final history = await electrumClient.getHistory(sh);
 
           final balance = await electrumClient.getBalance(sh);
@@ -522,7 +522,20 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  int getHeightByDate({required DateTime date}) => getBitcoinHeightByDate(date: date);
+  Future<bool> checkIfMempoolAPIIsEnabled(Object wallet) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return await bitcoinWallet.checkIfMempoolAPIIsEnabled();
+  }
+
+  @override
+  Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled}) async {
+    if (bitcoinMempoolAPIEnabled ?? false) {
+      try {
+        return await getBitcoinHeightByDateAPI(date: date);
+      } catch (_) {}
+    }
+    return await getBitcoinHeightByDate(date: date);
+  }
 
   @override
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
@@ -546,5 +559,36 @@ class CWBitcoin extends Bitcoin {
   Future<void> updateFeeRates(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     await bitcoinWallet.updateFeeRates();
+  }
+
+  @override
+  List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
+    final pendingTx = pendingTransaction as PendingBitcoinTransaction;
+
+    if (!pendingTx.hasSilentPayment) {
+      return outputs;
+    }
+
+    final updatedOutputs = outputs.map((output) {
+
+      try {
+        final pendingOut = pendingTx!.outputs[outputs.indexOf(output)];
+        final updatedOutput = output;
+
+        updatedOutput.stealthAddress = P2trAddress.fromScriptPubkey(script: pendingOut.scriptPubKey)
+            .toAddress(BitcoinNetwork.mainnet);
+        return updatedOutput;
+      } catch (_) {}
+
+      return output;
+    }).toList();
+
+    return updatedOutputs;
+  }
+
+  @override
+  bool txIsReceivedSilentPayment(TransactionInfo txInfo) {
+    final tx = txInfo as ElectrumTransactionInfo;
+    return tx.isReceivedSilentPayment;
   }
 }
