@@ -887,8 +887,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         }
       });
 
-      throw Exception("Not finished!");
-
       tx.hexOverride = tx2
           .copyWith(
               witnesses: tx2.inputs.asMap().entries.map((e) {
