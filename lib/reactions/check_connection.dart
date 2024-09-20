@@ -16,11 +16,6 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
       return;
     }
 
-    if (wallet.syncStatus is ConnectingSyncStatus) {
-      await wallet.connectToNode(node: settingsStore.getCurrentNode(wallet.type));
-      return;
-    }
-
     try {
       final connectivityResult = await (Connectivity().checkConnectivity());
 

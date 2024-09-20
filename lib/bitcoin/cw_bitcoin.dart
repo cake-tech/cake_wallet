@@ -528,10 +528,14 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled}) async =>
-      (bitcoinMempoolAPIEnabled ?? false)
-          ? await getBitcoinHeightByDateAPI(date: date)
-          : await getBitcoinHeightByDate(date: date);
+  Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled}) async {
+    if (bitcoinMempoolAPIEnabled ?? false) {
+      try {
+        return await getBitcoinHeightByDateAPI(date: date);
+      } catch (_) {}
+    }
+    return await getBitcoinHeightByDate(date: date);
+  }
 
   @override
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
@@ -566,10 +570,11 @@ class CWBitcoin extends Bitcoin {
     }
 
     final updatedOutputs = outputs.map((output) {
-      final pendingOut = pendingTx!.outputs[outputs.indexOf(output)];
-      final updatedOutput = output;
 
       try {
+        final pendingOut = pendingTx!.outputs[outputs.indexOf(output)];
+        final updatedOutput = output;
+
         updatedOutput.stealthAddress = P2trAddress.fromScriptPubkey(script: pendingOut.scriptPubKey)
             .toAddress(BitcoinNetwork.mainnet);
         return updatedOutput;
