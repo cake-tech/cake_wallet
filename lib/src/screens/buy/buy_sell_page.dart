@@ -456,13 +456,13 @@ class BuySellPage extends BasePage {
       builder: (_) {
         if (buySellViewModel.isBuyAction) {
           return DesktopExchangeCardsSection(
-            firstExchangeCard: cryptoExchangeCard,
-            secondExchangeCard: fiatExchangeCard,
+            firstExchangeCard: fiatExchangeCard,
+            secondExchangeCard: cryptoExchangeCard,
           );
         } else {
           return DesktopExchangeCardsSection(
-            firstExchangeCard: fiatExchangeCard,
-            secondExchangeCard: cryptoExchangeCard,
+            firstExchangeCard: cryptoExchangeCard,
+            secondExchangeCard: fiatExchangeCard,
           );
         }
       },

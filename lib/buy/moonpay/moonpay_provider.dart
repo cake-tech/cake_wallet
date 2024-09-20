@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
@@ -139,8 +138,6 @@ class MoonPayProvider extends BuyProvider {
             fiatBuyCredentials, _getPaymentTypeByString(paymentMethod)));
         return paymentMethods;
       }
-    } else {
-      paymentMethods;
     }
 
     return paymentMethods;
