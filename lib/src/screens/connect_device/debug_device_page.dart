@@ -84,7 +84,7 @@
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     final imageLedger = 'assets/images/ledger_nano.png';
+//     final imageLedger = 'assets/images/hardware_wallet/ledger_nano_x.png';
 //
 //     return Center(
 //       child: Container(
