@@ -27,9 +27,9 @@ abstract class ContactListViewModelBase with Store {
             settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
     walletInfoSource.values.forEach((info) {
       if (isAutoGenerateEnabled && info.type == WalletType.monero && info.addressInfos != null) {
-        final key = info.addressInfos!.keys.last;
+        final key = info.addressInfos!.keys.first;
         final value = info.addressInfos![key];
-        final address = value?.last;
+        final address = value?.first;
         if (address != null) {
           final name = _createName(info.name, address.label);
           walletContacts.add(WalletContact(
@@ -40,17 +40,13 @@ abstract class ContactListViewModelBase with Store {
         }
       } else if (info.addresses?.isNotEmpty == true && info.addresses!.length > 1) {
         if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)) {
-          final key = info.addressInfos!.keys.first;
-          final value = info.addressInfos![key];
-          final address = value?.last;
-          if (address != null) {
-            final name = _createName(info.name, address.label);
-            walletContacts.add(WalletContact(
-              address.address,
-              name,
-              walletTypeToCryptoCurrency(info.type),
-            ));
-          }
+          final address = info.address;
+          final name = _createName(info.name, "");
+          walletContacts.add(WalletContact(
+            address,
+            name,
+            walletTypeToCryptoCurrency(info.type),
+          ));
         } else {
           info.addresses!.forEach((address, label) {
             if (label.isEmpty) {

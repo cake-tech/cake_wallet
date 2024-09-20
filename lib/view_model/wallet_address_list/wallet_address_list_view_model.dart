@@ -565,7 +565,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (wallet.type != WalletType.nano && wallet.type != WalletType.banano) {
       _baseItems.add(WalletAddressListHeader());
     }
-    wallet.walletAddresses.address = wallet.walletAddresses.latestAddress;
+    if (wallet.isEnabledAutoGenerateSubaddress) {
+      wallet.walletAddresses.address = wallet.walletAddresses.latestAddress;
+    }
   }
 
   @action
