@@ -859,6 +859,36 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         feeRatePerKb: Int64.parseInt(tx.feeRate) * 1000,
       ));
       final tx2 = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
+
+      // check if any of the inputs of this transaction are hog-ex:
+      tx2.inputs.forEach((txInput) {
+        bool isHogEx = true;
+
+        final utxo = unspentCoins
+            .firstWhere((utxo) => utxo.hash == txInput.txId && utxo.vout == txInput.txIndex);
+
+        if (txInput.sequence.isEmpty) {
+          isHogEx = false;
+        }
+
+        // TODO: detect actual hog-ex inputs
+        // print(txInput.sequence);
+        // print(txInput.txIndex);
+        // print(utxo.value);
+
+        if (!isHogEx) {
+          return;
+        }
+
+        int confirmations = utxo.confirmations ?? 0;
+        if (confirmations < 6) {
+          throw Exception(
+              "A transaction input has less than 6 confirmations, please try again later.");
+        }
+      });
+
+      throw Exception("Not finished!");
+
       tx.hexOverride = tx2
           .copyWith(
               witnesses: tx2.inputs.asMap().entries.map((e) {

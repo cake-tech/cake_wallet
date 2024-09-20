@@ -132,8 +132,8 @@ abstract class DashboardViewModelBase with Store {
             FilterItem(
                 value: () => tradeFilterStore.displayLetsExchange,
                 caption: ExchangeProviderDescription.letsExchange.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+                onChanged: () => tradeFilterStore
+                    .toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
             FilterItem(
                 value: () => tradeFilterStore.displayStealthEx,
                 caption: ExchangeProviderDescription.stealthEx.title,
@@ -443,6 +443,7 @@ abstract class DashboardViewModelBase with Store {
       settingsStore.hasEnabledMwebBefore = true;
     }
 
+    settingsStore.mwebEnabled = active;
     mwebScanningActive = active;
     bitcoin!.setMwebEnabled(wallet, active);
   }
