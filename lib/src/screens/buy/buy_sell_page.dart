@@ -391,7 +391,7 @@ class BuySellPage extends BasePage {
               key: cryptoCurrencyKey,
               title: 'Crypto ${S.of(context).amount}',
               initialCurrency: buySellViewModel.cryptoCurrency,
-              initialWalletName: 'receiveWalletName' ?? '',
+              initialWalletName: receiveWalletName ?? '',
               initialAddress: buySellViewModel.cryptoCurrency == buySellViewModel.wallet.currency
                   ? buySellViewModel.wallet.walletAddresses.address
                   : '',
@@ -450,13 +450,13 @@ class BuySellPage extends BasePage {
       builder: (_) {
         if (buySellViewModel.isBuyAction) {
           return DesktopExchangeCardsSection(
-            firstExchangeCard: cryptoExchangeCard,
-            secondExchangeCard: fiatExchangeCard,
+            firstExchangeCard: fiatExchangeCard,
+            secondExchangeCard: cryptoExchangeCard,
           );
         } else {
           return DesktopExchangeCardsSection(
-            firstExchangeCard: fiatExchangeCard,
-            secondExchangeCard: cryptoExchangeCard,
+            firstExchangeCard: cryptoExchangeCard,
+            secondExchangeCard: fiatExchangeCard,
           );
         }
       },

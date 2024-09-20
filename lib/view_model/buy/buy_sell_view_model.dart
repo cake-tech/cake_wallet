@@ -269,8 +269,12 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   Future<void> _getAvailablePaymentTypes() async {
     paymentMethodState = PaymentMethodLoading();
     selectedPaymentMethod = null;
-    final result = await Future.wait(providerList.map((element) =>
-        element.getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency.title, isBuyAction)));
+    final result = await Future.wait(providerList.map((element) => element
+        .getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency.title, isBuyAction)
+        .timeout(
+          Duration(seconds: 10),
+          onTimeout: () => [],
+        )));
 
     final Map<PaymentType, PaymentMethod> uniquePaymentMethods = {};
     for (var methods in result) {
@@ -294,13 +298,18 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   Future<void> calculateBestRate() async {
     buySellQuotState = BuySellQuotLoading();
 
-    final result = await Future.wait<List<Quote>?>(providerList.map((element) => element.fetchQuote(
+    final result = await Future.wait<List<Quote>?>(providerList.map((element) => element
+        .fetchQuote(
           sourceCurrency: isBuyAction ? fiatCurrency : cryptoCurrency,
           destinationCurrency: isBuyAction ? cryptoCurrency : fiatCurrency,
           amount: amount,
           paymentType: selectedPaymentMethod?.paymentMethodType,
           isBuyAction: isBuyAction,
           walletAddress: wallet.walletAddresses.address,
+        )
+        .timeout(
+          Duration(seconds: 10),
+          onTimeout: () => null,
         )));
 
     sortedRecommendedQuotes.clear();

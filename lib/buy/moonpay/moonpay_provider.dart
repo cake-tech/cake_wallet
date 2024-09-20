@@ -1,14 +1,12 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
@@ -138,8 +136,6 @@ class MoonPayProvider extends BuyProvider {
             fiatBuyCredentials, _getPaymentTypeByString(paymentMethod)));
         return paymentMethods;
       }
-    } else {
-      paymentMethods;
     }
 
     return paymentMethods;
