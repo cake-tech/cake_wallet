@@ -117,7 +117,7 @@ import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_core/get_height_by_date.dart';
-import 'package:cw_bitcoin/script_hash.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_bitcoin/bitcoin_hardware_wallet_service.dart';
 import 'package:mobx/mobx.dart';
 """;
@@ -213,17 +213,19 @@ abstract class Bitcoin {
   int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
       {int? outputsCount, int? size});
   int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
-  int getHeightByDate({required DateTime date});
+  Future<bool> checkIfMempoolAPIIsEnabled(Object wallet);
+  Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled});
   int getLitecoinHeightByDate({required DateTime date});
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan});
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet);
   void deleteSilentPaymentAddress(Object wallet, String address);
   Future<void> updateFeeRates(Object wallet);
   int getMaxCustomFeeRate(Object wallet);
-
   void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
-
+  List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
+  bool txIsReceivedSilentPayment(TransactionInfo txInfo);
+  bool txIsMweb(TransactionInfo txInfo);
   Future<void> setMwebEnabled(Object wallet, bool enabled);
   bool getMwebEnabled(Object wallet);
 }

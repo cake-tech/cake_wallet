@@ -88,6 +88,11 @@ abstract class DashboardViewModelBase with Store {
                 value: () => transactionFilterStore.displayOutgoing,
                 caption: S.current.outgoing,
                 onChanged: transactionFilterStore.toggleOutgoing),
+            FilterItem(
+              value: () => transactionFilterStore.displaySilentPayments,
+              caption: S.current.silent_payments,
+              onChanged: transactionFilterStore.toggleSilentPayments,
+            ),
             // FilterItem(
             //     value: () => false,
             //     caption: S.current.transactions_by_date,

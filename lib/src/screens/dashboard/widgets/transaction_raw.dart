@@ -11,9 +11,9 @@ class TransactionRow extends StatelessWidget {
     required this.formattedAmount,
     required this.formattedFiatAmount,
     required this.isPending,
+    required this.tags,
     required this.title,
     required this.onTap,
-    required this.tag,
   });
 
   final VoidCallback onTap;
@@ -23,7 +23,7 @@ class TransactionRow extends StatelessWidget {
   final String formattedFiatAmount;
   final bool isPending;
   final String title;
-  final String tag;
+  final List<String> tags;
 
   @override
   Widget build(BuildContext context) {
@@ -52,42 +52,22 @@ class TransactionRow extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    Text(
-                      title,
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
-                    ),
                     Row(
                       children: [
-                        if (tag.isNotEmpty)
-                        Container(
-                          height: 17,
-                          padding: EdgeInsets.only(left: 6, right: 6),
-                          margin: EdgeInsets.only(right: 6),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(8.5)),
-                              color: Colors.white),
-                          alignment: Alignment.center,
-                          child: Text(
-                            tag,
+                        Text(title,
                             style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 7,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          formattedAmount,
-                          style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
-                        ),
+                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                            )),
+                        ...tags.map((tag) => TxTag(tag: tag)).toList(),
                       ],
                     ),
+                    Text(formattedAmount,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor))
                   ]),
                   SizedBox(height: 5),
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
@@ -107,5 +87,34 @@ class TransactionRow extends StatelessWidget {
             ],
           ),
         ));
+  }
+}
+
+// A tag to add context to a transaction
+// example use: differ silent payments from regular txs
+class TxTag extends StatelessWidget {
+  TxTag({required this.tag});
+
+  final String tag;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 17,
+      padding: EdgeInsets.only(left: 6, right: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(8.5)),
+        color: Theme.of(context).extension<TransactionTradeTheme>()!.rowsColor,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        tag.toLowerCase(),
+        style: TextStyle(
+          color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+          fontSize: 9,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
   }
 }

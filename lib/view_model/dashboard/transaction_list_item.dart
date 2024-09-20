@@ -85,18 +85,6 @@ class TransactionListItem extends ActionListItem with Keyable {
     return '';
   }
 
-  String get tag {
-    List<String> addresses =
-        (transaction.inputAddresses ?? []) + (transaction.outputAddresses ?? []);
-    for (var address in addresses) {
-      if (address.toLowerCase().contains('mweb')) {
-        return 'MWEB';
-      }
-    }
-
-    return '';
-  }
-
   CryptoCurrency? get assetOfTransaction {
     try {
       if (balanceViewModel.wallet.type == WalletType.ethereum) {
