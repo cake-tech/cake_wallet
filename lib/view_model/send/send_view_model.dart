@@ -751,15 +751,16 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
     print(
         '[+] SendVM || performPjSend => amountToSend: $amountToSend feeRate: $feeRate, pjUri: $pjUri');
 
-    /*
     // Build the original PSBT for the Payjoin transaction
     final originalPsbt = await bitcoin!.buildOriginalPsbt(
       wallet,
       pjUri,
       feeRate,
       double.parse(amountToSend!),
-      _credentials(),
+      credentials,
     );
+
+    print('[+] SendVM || performPjSend => originalPsbt: $originalPsbt');
 
     // Build the Payjoin request context from the original PSBT
     final request = await bitcoin!.buildPayjoinRequest(
@@ -794,6 +795,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
     final txId = transaction.id;
 
     // TODO: Reset the Payjoin session state
-    */
+    print('[+] performPayjoinSend || txID: $txId');
   }
 }

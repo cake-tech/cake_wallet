@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:blockchain_utils/utils/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 import 'package:payjoin_flutter/common.dart';
@@ -26,7 +25,6 @@ export 'package:payjoin_flutter/send.dart' show RequestContext;
 export 'package:payjoin_flutter/src/exceptions.dart' show PayjoinException;
 
 import 'package:ledger_bitcoin/src/psbt/psbt_extractor.dart';
-import 'package:ledger_bitcoin/src/psbt/psbt_finalizer.dart';
 
 class BitcoinPayjoin {
   // Private constructor
@@ -220,8 +218,6 @@ class BitcoinPayjoin {
       final originalTxBytes = await proposal.extractTxToScheduleBroadcast();
 
       // Convert the extracted bytes into a Bitcoin Transaction object
-      // final originalTx =
-      //     await bdk.Transaction.fromBytes(transactionBytes: originalTxBytes);
       final originalTx = getTxIdFromTxBytes(originalTxBytes);
 
       // Check the suitability of the proposal for broadcasting
@@ -247,7 +243,6 @@ class BitcoinPayjoin {
       );
 
       // TODO: List all unspent outputs (UTXOs) available in the receiver's wallet
-      // final availableInputs = receiverWallet.listUnspent();
       final availableInputs = bitcoinWallet.unspentCoins;
 
       // Create a map of candidate inputs with their corresponding outpoints
@@ -269,9 +264,6 @@ class BitcoinPayjoin {
           (i) =>
               i.hash == selectedOutpoint.txid &&
               i.vout == selectedOutpoint.vout,
-          // (i) =>
-          //     i.outpoint.txid == selectedOutpoint.txid &&
-          //     i.outpoint.vout == selectedOutpoint.vout,
           orElse: () => throw Exception('UTXO not found'));
 
       // Create a TxOut object representing the selected UTXO's output
@@ -282,7 +274,6 @@ class BitcoinPayjoin {
 
       var txoToContribute = types.TxOut(
         value: BigInt.from(selectedUtxo.value),
-        // scriptPubkey: selectedUtxo.txout.scriptPubkey.bytes,
         scriptPubkey: Uint8List.fromList(scriptList),
       );
 
@@ -313,35 +304,17 @@ class BitcoinPayjoin {
 
   Future<bool> _isOwned(Uint8List bytes, ElectrumWallet wallet) async {
     // Create a ScriptBuf object from the provided byte data
-    // final script = bdk.ScriptBuf(bytes: bytes);
+    print('[+] BitcoinPayjoin || _isOwned');
     final script = Script(script: bytes);
 
     final isMine = wallet.isMine(script);
+    print('[+] BitcoinPayjoin || _isOwned => isMine: $isMine');
 
     return isMine;
-
-    // Check if the wallet recognizes the script as one of its own
-    // return wallet.isMine(script: script);
   }
 
   Future<String> _processPsbt(
       String preProcessed, ElectrumWallet wallet) async {
-    // Convert the provided string representation of a PSBT into a PartiallySignedTransaction object
-    // final psbt = await bdk.PartiallySignedTransaction.fromString(preProcessed);
-
-    // Sign the PSBT using the wallet's private keys with specified signing options
-    // await wallet.sign(
-    //   psbt: psbt,
-    //   signOptions: const bdk.SignOptions(
-    //     trustWitnessUtxo: true,
-    //     allowAllSighashes: false,
-    //     removePartialSigs: true,
-    //     tryFinalize: true,
-    //     signWithTapInternalKey: true,
-    //     allowGrinding: false,
-    //   ),
-    // );
-    // final signedPsbt = wallet.signMessage(preProcessed);
     final signedPsbt = wallet.signPsbt(preProcessed);
 
     // Return the string representation of the signed PSBT
@@ -349,13 +322,6 @@ class BitcoinPayjoin {
   }
 
   Future<String> getTxIdFromPsbt(String psbtBase64) async {
-    // Create a PartiallySignedTransaction object from the Base64-encoded PSBT string
-    // final psbt = await bdk.PartiallySignedTransaction.fromString(psbtBase64);
-    //
-    // final txId = psbt.extractTx().txid();
-
-    // return txId;
-    // Extract the transaction from the PSBT and get its transaction ID (txid)
     final psbt = PsbtV2()..deserialize(base64.decode(psbtBase64));
     final doubleSha256 = QuickCrypto.sha256DoubleHash(psbt.extract());
     final revert = Uint8List.fromList(doubleSha256);
@@ -387,54 +353,15 @@ class BitcoinPayjoin {
     Object credentials,
   ) async {
     final uri = pjUri as pj_uri.Uri;
-    // final txBuilder = bdk.TxBuilder();
     final bitcoinWallet = wallet as ElectrumWallet;
 
-    // Get the scriptPubkey from the parsed address,
-    // which is needed for the transaction
-    // final address = await bdk.Address.fromString(
-    //   s: uri.address(),
-    //   network: isTestnet ? Network.testnet : Network.bitcoin,
-    // );
-
-    // final script = address.scriptPubkey();
-
-    // Retrieve the amount to send from the Payjoin URI
-    double amountToSendBTC = uri.amount() ?? amount;
-
-    // Convert the amount to satoshis (1 BTC = 100,000,000 satoshis)
-    int amountToSendSats = (amountToSendBTC * 100000000.0).round();
-
-    // Build the original Partially Signed Bitcoin Transaction (PSBT)
-    // Add a recipient to the transaction with the amount in satoshis
-    // Set the transaction fee using the absolute fee provided
-    // final tx = await txBuilder
-    //     .addRecipient(script, BigInt.from(amountToSendSats))
-    //     .feeAbsolute(BigInt.from(fee))
-    //     .finish(wallet);
     final tx = await bitcoinWallet.createPayjoinTransaction(
       credentials,
-      uri.address(),
+      pjBtcAddress: uri.address(),
     );
 
-    // Sign the PSBT using the sender's wallet, specifying signing options
-    // await wallet.sign(
-    //   psbt: tx.$0,
-    //   signOptions: const bdk.SignOptions(
-    //     trustWitnessUtxo: true,
-    //     allowAllSighashes: false,
-    //     removePartialSigs: true,
-    //     tryFinalize: true,
-    //     signWithTapInternalKey: true,
-    //     allowGrinding: false,
-    //   ),
-    // );
-
     // Convert the signed PSBT to a base64 string
-    // final psbtBase64 = tx.$0.asString();
-
-    final psbt = PsbtV2()
-      ..deserialize(Uint8List.fromList(BytesUtils.fromHexString(tx.hex)));
+    final psbt = tx.psbt;
 
     return base64Encode(psbt.serialize());
   }
@@ -507,24 +434,6 @@ class BitcoinPayjoin {
     Object credentials,
   ) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    // final psbt = await bdk.PartiallySignedTransaction.fromString(psbtString);
-
-    // // Sign the PSBT using the sender's wallet with specific signing options
-    // wallet.sign(
-    //   psbt: psbt,
-    //   signOptions: const bdk.SignOptions(
-    //       trustWitnessUtxo: true,
-    //       allowAllSighashes: false,
-    //       removePartialSigs: true,
-    //       tryFinalize: true,
-    //       signWithTapInternalKey: true,
-    //       allowGrinding: false),
-    // );
-
-    // // Extract the final transaction from the signed PSBT
-    // var transaction = psbt.extractTx();
-
-    // return transaction;
 
     final pendingTx =
         await bitcoinWallet.psbtToPendingTx(psbtString, credentials);

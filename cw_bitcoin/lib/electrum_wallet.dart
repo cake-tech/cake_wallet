@@ -45,6 +45,8 @@ import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 
+import 'psbt_transaction_builder.dart';
+
 part 'electrum_wallet.g.dart';
 
 class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
@@ -784,6 +786,7 @@ abstract class ElectrumWalletBase extends WalletBase<
 
     if (amountLeftForChangeAndFee <= 0) {
       if (!spendingAllCoins) {
+        print('[+] ElectrumWallet || Recursive Call to estimateTx');
         return estimateTxForAmount(
           credentialsAmount,
           outputs,
@@ -799,6 +802,8 @@ abstract class ElectrumWalletBase extends WalletBase<
 
     final changeAddress = await walletAddresses.getChangeAddress();
     final address = addressTypeFromStr(changeAddress, network);
+    print(
+        '[+] ElectrumWallet || estimateTxForAmount => amountLeftForChangeAndFee: ${BigInt.from(amountLeftForChangeAndFee)}');
     outputs.add(BitcoinOutput(
       address: address,
       value: BigInt.from(amountLeftForChangeAndFee),
@@ -843,6 +848,7 @@ abstract class ElectrumWalletBase extends WalletBase<
 
       // Still has inputs to spend before failing
       if (!spendingAllCoins) {
+        print('[+] ElectrumWallet => Another recursive call to estimateTx');
         return estimateTxForAmount(
           credentialsAmount,
           outputs,
@@ -879,6 +885,11 @@ abstract class ElectrumWalletBase extends WalletBase<
 
     final totalAmount = amount + fee;
 
+    print(
+        '[+] ElectrumWallet || estimateTx => Amount: $amount, fee: $fee, totalAmount: $totalAmount');
+    print(
+        '[+] ElectrumWallet || estimateTx => balance: ${balance[currency]!.confirmed}');
+
     if (totalAmount > balance[currency]!.confirmed) {
       throw BitcoinTransactionWrongBalanceException();
     }
@@ -888,6 +899,7 @@ abstract class ElectrumWalletBase extends WalletBase<
         throw BitcoinTransactionWrongBalanceException();
       } else {
         outputs.removeLast();
+        print('[+] ElectrumWallet || estimateTx => Recursive call : 899');
         return estimateTxForAmount(
           credentialsAmount,
           outputs,
@@ -914,157 +926,151 @@ abstract class ElectrumWalletBase extends WalletBase<
     );
   }
 
-  // Future<void> createPayjoinTransaction(Object credentials) async {
-  //   print('[+] ElectrumWallet => createPayjoinTransaction()');
-
-  //   try {
-  //     final outputs = <BitcoinOutput>[];
-  //     final transactionCredentials =
-  //         credentials as BitcoinTransactionCredentials;
-  //     final hasMultiDestination = transactionCredentials.outputs.length > 1;
-  //     final sendAll =
-  //         !hasMultiDestination && transactionCredentials.outputs.first.sendAll;
-
-  //     int credentialsAmount = 0;
-
-  //     for (final out in transactionCredentials.outputs) {
-  //       final outputAmount = out.formattedCryptoAmount!;
-
-  //       if (!sendAll && _isBelowDust(outputAmount)) {
-  //         throw BitcoinTransactionNoDustException();
-  //       }
-
-  //       if (hasMultiDestination) {
-  //         if (out.sendAll) {
-  //           throw BitcoinTransactionWrongBalanceException();
-  //         }
-  //       }
-
-  //       credentialsAmount += outputAmount;
-
-  //       print(
-  //           '[+] createPayjoinTransaction() => credentialsAmount: $credentialsAmount');
-  //     }
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  Future<PendingTransaction> createPayjoinTransaction(
-      Object credentials, String pjBtcAddress) async {
-    print('[+] ElectrumWallet => createPayjoinTransaction()');
+  Future<PSBTTransactionBuild> createPayjoinTransaction(Object credentials,
+      {String? pjBtcAddress}) async {
     try {
       final outputs = <BitcoinOutput>[];
       final transactionCredentials =
           credentials as BitcoinTransactionCredentials;
+      final hasMultiDestination = transactionCredentials.outputs.length > 1;
+      final sendAll =
+          !hasMultiDestination && transactionCredentials.outputs.first.sendAll;
       final memo = transactionCredentials.outputs.first.memo;
 
       int credentialsAmount = 0;
+      bool hasSilentPayment = false;
 
       for (final out in transactionCredentials.outputs) {
         final outputAmount = out.formattedCryptoAmount!;
 
+        if (!sendAll && _isBelowDust(outputAmount)) {
+          throw BitcoinTransactionNoDustException();
+        }
+
+        if (hasMultiDestination) {
+          if (out.sendAll) {
+            throw BitcoinTransactionWrongBalanceException();
+          }
+        }
+
         credentialsAmount += outputAmount;
 
-        final address = addressTypeFromStr(pjBtcAddress, network);
+        final addressStr = (pjBtcAddress != null)
+            ? pjBtcAddress
+            : (out.isParsedAddress ? out.extractedAddress! : out.address);
 
-        outputs.add(
-          BitcoinOutput(address: address, value: BigInt.from(outputAmount)),
-        );
+        print('[+] ElectrumWallet || createTx => addressStr: $addressStr');
+
+        final address = addressTypeFromStr(addressStr, network);
+
+        if (address is SilentPaymentAddress) {
+          hasSilentPayment = true;
+        }
+        print('[+] ElectrumWallet => createTransaction() Running here');
+
+        if (sendAll) {
+          // The value will be changed after estimating the Tx size and deducting the fee from the total to be sent
+          outputs.add(BitcoinOutput(address: address, value: BigInt.from(0)));
+        } else {
+          outputs.add(BitcoinOutput(
+              address: address, value: BigInt.from(outputAmount)));
+        }
       }
 
       final feeRateInt = transactionCredentials.feeRate != null
           ? transactionCredentials.feeRate!
           : feeRate(transactionCredentials.priority!);
 
-      EstimatedTxResult estimatedTx = await estimateTxForAmount(
-        credentialsAmount,
-        outputs,
-        feeRateInt,
-        memo: memo,
-        hasSilentPayment: false,
-      );
+      EstimatedTxResult estimatedTx;
+      if (sendAll) {
+        estimatedTx = await estimateSendAllTx(
+          outputs,
+          feeRateInt,
+          memo: memo,
+          credentialsAmount: credentialsAmount,
+          hasSilentPayment: hasSilentPayment,
+        );
+      } else {
+        estimatedTx = await estimateTxForAmount(
+          credentialsAmount,
+          outputs,
+          feeRateInt,
+          memo: memo,
+          hasSilentPayment: hasSilentPayment,
+        );
+      }
 
-      BasedBitcoinTransacationBuilder txb = BitcoinTransactionBuilder(
+      final transaction = await buildPayjoinTransaction(
         utxos: estimatedTx.utxos,
         outputs: outputs,
+        publicKeys: estimatedTx.publicKeys,
         fee: BigInt.from(estimatedTx.fee),
         network: network,
         memo: estimatedTx.memo,
         outputOrdering: BitcoinOrdering.none,
-        enableRBF: !estimatedTx.spendsUnconfirmedTX,
+        enableRBF: true,
       );
 
-      bool hasTaprootInputs = false;
+      return transaction;
 
-      final transaction =
-          txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
-        String error = "Cannot find private key.";
+      // BasedBitcoinTransacationBuilder txb = BitcoinTransactionBuilder(
+      //   utxos: estimatedTx.utxos,
+      //   outputs: outputs,
+      //   fee: BigInt.from(estimatedTx.fee),
+      //   network: network,
+      //   memo: estimatedTx.memo,
+      //   outputOrdering: BitcoinOrdering.none,
+      //   enableRBF: !estimatedTx.spendsUnconfirmedTX,
+      // );
 
-        ECPrivateInfo? key;
+      // final transaction =
+      //     txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
+      //   String error = "Cannot find private key.";
 
-        if (estimatedTx.inputPrivKeyInfos.isEmpty) {
-          error += "\nNo private keys generated.";
-        } else {
-          error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
+      //   ECPrivateInfo? key;
 
-          key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
-            final elemPubkey = element.privkey.getPublic().toHex();
-            if (elemPubkey == publicKey) {
-              return true;
-            } else {
-              error += "\nExpected: $publicKey";
-              error += "\nPubkey: $elemPubkey";
-              return false;
-            }
-          });
-        }
+      //   if (estimatedTx.inputPrivKeyInfos.isEmpty) {
+      //     error += "\nNo private keys generated.";
+      //   } else {
+      //     error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
 
-        if (key == null) {
-          throw Exception(error);
-        }
+      //     key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
+      //       final elemPubkey = element.privkey.getPublic().toHex();
+      //       if (elemPubkey == publicKey) {
+      //         return true;
+      //       } else {
+      //         error += "\nExpected: $publicKey";
+      //         error += "\nPubkey: $elemPubkey";
+      //         return false;
+      //       }
+      //     });
+      //   }
 
-        hasTaprootInputs = true;
-        return key.privkey.signTapRoot(
-          txDigest,
-          sighash: sighash,
-          tweak: utxo.utxo.isSilentPayment != true,
-        );
-      });
+      //   if (key == null) {
+      //     throw Exception(error);
+      //   }
 
-      // final psbt = PsbtV2()
-      //   ..deserialize(BytesUtils.fromHexString(transaction.toBytes()));
+      //   if (utxo.utxo.isP2tr()) {
+      //     return key.privkey.signTapRoot(
+      //       txDigest,
+      //       sighash: sighash,
+      //       tweak: utxo.utxo.isSilentPayment != true,
+      //     );
+      //   } else {
+      //     return key.privkey.signInput(txDigest, sigHash: sighash);
+      //   }
+      // });
 
-      return PendingBitcoinTransaction(
-        transaction,
-        type,
-        electrumClient: electrumClient,
-        amount: estimatedTx.amount,
-        fee: estimatedTx.fee,
-        feeRate: feeRateInt.toString(),
-        network: network,
-        hasChange: estimatedTx.hasChange,
-        isSendAll: estimatedTx.isSendAll,
-        hasTaprootInputs: hasTaprootInputs,
-      )..addListener((transaction) async {
-          transactionHistory.addOne(transaction);
-          if (estimatedTx.spendsSilentPayment) {
-            transactionHistory.transactions.values.forEach((tx) {
-              tx.unspents?.removeWhere((unspent) =>
-                  estimatedTx.utxos.any((e) => e.utxo.txHash == unspent.hash));
-              transactionHistory.addOne(tx);
-            });
-          }
-
-          await updateBalance();
-        });
-    } catch (e) {
+      // return transaction;
+    } catch (e, st) {
+      print('[!] ElectrumWallet || e: $e and st: $st');
       throw e;
     }
   }
 
   @override
-  Future<PendingTransaction> createTransaction(Object credentials) async {
+  Future<PendingTransaction> createTransaction(Object credentials,
+      {String? pjBtcAddress}) async {
     print('[+] ElectrumWallet => createTransaction()');
     try {
       final outputs = <BitcoinOutput>[];
@@ -1093,8 +1099,13 @@ abstract class ElectrumWalletBase extends WalletBase<
 
         credentialsAmount += outputAmount;
 
-        final address = addressTypeFromStr(
-            out.isParsedAddress ? out.extractedAddress! : out.address, network);
+        final addressStr = (pjBtcAddress != null)
+            ? pjBtcAddress
+            : (out.isParsedAddress ? out.extractedAddress! : out.address);
+
+        print('[+] ElectrumWallet || createTx => addressStr: $addressStr');
+
+        final address = addressTypeFromStr(addressStr, network);
 
         if (address is SilentPaymentAddress) {
           hasSilentPayment = true;
@@ -1249,7 +1260,8 @@ abstract class ElectrumWalletBase extends WalletBase<
 
           await updateBalance();
         });
-    } catch (e) {
+    } catch (e, st) {
+      print('[!] ElectrumWallet || e: $e and st: $st');
       throw e;
     }
   }
@@ -1343,6 +1355,19 @@ abstract class ElectrumWalletBase extends WalletBase<
         },
       );
   }
+
+  Future<PSBTTransactionBuild> buildPayjoinTransaction({
+    required List<BitcoinBaseOutput> outputs,
+    required BigInt fee,
+    required BasedUtxoNetwork network,
+    required List<UtxoWithAddress> utxos,
+    required Map<String, PublicKeyWithDerivationPath> publicKeys,
+    String? memo,
+    bool enableRBF = false,
+    BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
+    BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
+  }) async =>
+      throw UnimplementedError();
 
   Future<BtcTransaction> buildHardwareWalletTransaction({
     required List<BitcoinBaseOutput> outputs,
