@@ -1,6 +1,10 @@
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'dart:io';
 
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_alert.dart';
@@ -11,6 +15,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -18,21 +23,20 @@ import 'package:flutter/material.dart';
 
 class NewWalletTypePage extends BasePage {
   NewWalletTypePage({
-    required this.onTypeSelected,
-    required this.isCreate,
-    required this.isHardwareWallet,
+    required this.newWalletTypeViewModel,
+    required this.newWalletTypeArguments,
   });
 
-  final void Function(BuildContext, WalletType) onTypeSelected;
-  final bool isCreate;
-  final bool isHardwareWallet;
+  final NewWalletTypeViewModel newWalletTypeViewModel;
+  final NewWalletTypeArguments newWalletTypeArguments;
 
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');
   final walletTypeLightImage = Image.asset('assets/images/wallet_type_light.png');
 
   @override
-  String get title =>
-      isCreate ? S.current.wallet_list_create_new_wallet : S.current.wallet_list_restore_wallet;
+  String get title => newWalletTypeArguments.isCreate
+      ? S.current.wallet_list_create_new_wallet
+      : S.current.wallet_list_restore_wallet;
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
@@ -44,24 +48,27 @@ class NewWalletTypePage extends BasePage {
 
   @override
   Widget body(BuildContext context) => WalletTypeForm(
-        onTypeSelected: onTypeSelected,
         walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage,
-        isCreate: isCreate,
-        isHardwareWallet: isHardwareWallet,
+        isCreate: newWalletTypeArguments.isCreate,
+        newWalletTypeViewModel: newWalletTypeViewModel,
+        onTypeSelected: newWalletTypeArguments.onTypeSelected,
+        isHardwareWallet: newWalletTypeArguments.isHardwareWallet,
       );
 }
 
 class WalletTypeForm extends StatefulWidget {
   WalletTypeForm({
-    required this.onTypeSelected,
     required this.walletImage,
     required this.isCreate,
+    required this.newWalletTypeViewModel,
+    this.onTypeSelected,
     required this.isHardwareWallet,
   });
 
-  final void Function(BuildContext, WalletType) onTypeSelected;
-  final Image walletImage;
   final bool isCreate;
+  final Image walletImage;
+  final NewWalletTypeViewModel newWalletTypeViewModel;
+  final void Function(BuildContext, WalletType)? onTypeSelected;
   final bool isHardwareWallet;
 
   @override
@@ -179,6 +186,18 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       );
     }
 
-    widget.onTypeSelected(context, selected!);
+    // If it's a restore flow, trigger the external callback
+    // If it's not a BIP39 Wallet or if there are no other wallets, route to the newWallet page
+    // Any other scenario, route to pre-existing seed page
+    if (!widget.isCreate) {
+      widget.onTypeSelected!(context, selected!);
+    } else if (!isBIP39Wallet(selected!) || !widget.newWalletTypeViewModel.hasExisitingWallet) {
+      Navigator.of(context).pushNamed(
+        Routes.newWallet,
+        arguments: NewWalletArguments(type: selected!),
+      );
+    } else {
+      Navigator.of(context).pushNamed(Routes.walletGroupDescription, arguments: selected!);
+    }
   }
 }

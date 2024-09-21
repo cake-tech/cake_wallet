@@ -58,6 +58,7 @@ abstract class SettingsStoreBase with Store {
       required AutoGenerateSubaddressStatus initialAutoGenerateSubaddressStatus,
       required MoneroSeedType initialMoneroSeedType,
       required BitcoinSeedType initialBitcoinSeedType,
+      required NanoSeedType initialNanoSeedType,
       required bool initialAppSecure,
       required bool initialDisableBuy,
       required bool initialDisableSell,
@@ -137,6 +138,7 @@ abstract class SettingsStoreBase with Store {
         autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
         moneroSeedType = initialMoneroSeedType,
         bitcoinSeedType = initialBitcoinSeedType,
+        nanoSeedType = initialNanoSeedType,
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
@@ -346,6 +348,11 @@ abstract class SettingsStoreBase with Store {
         (_) => bitcoinSeedType,
         (BitcoinSeedType bitcoinSeedType) => sharedPreferences.setInt(
             PreferencesKey.bitcoinSeedType, bitcoinSeedType.raw));
+
+    reaction(
+        (_) => nanoSeedType,
+        (NanoSeedType nanoSeedType) =>
+            sharedPreferences.setInt(PreferencesKey.nanoSeedType, nanoSeedType.raw));
 
     reaction(
         (_) => fiatApiMode,
@@ -597,6 +604,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;
   static const defaultMoneroSeedType = MoneroSeedType.defaultSeedType;
   static const defaultBitcoinSeedType = BitcoinSeedType.defaultDerivationType;
+  static const defaultNanoSeedType = NanoSeedType.defaultDerivationType;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -630,6 +638,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   BitcoinSeedType bitcoinSeedType;
+
+  @observable
+  NanoSeedType nanoSeedType;
 
   @observable
   bool isAppSecure;
@@ -1022,6 +1033,11 @@ abstract class SettingsStoreBase with Store {
         ? BitcoinSeedType.deserialize(raw: _bitcoinSeedType)
         : defaultBitcoinSeedType;
 
+    final _nanoSeedType = sharedPreferences.getInt(PreferencesKey.nanoSeedType);
+
+    final nanoSeedType =
+        _nanoSeedType != null ? NanoSeedType.deserialize(raw: _nanoSeedType) : defaultNanoSeedType;
+
     final nodes = <WalletType, Node>{};
     final powNodes = <WalletType, Node>{};
 
@@ -1187,6 +1203,7 @@ abstract class SettingsStoreBase with Store {
       initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
       initialMoneroSeedType: moneroSeedType,
       initialBitcoinSeedType: bitcoinSeedType,
+      initialNanoSeedType: nanoSeedType,
       initialAppSecure: isAppSecure,
       initialDisableBuy: disableBuy,
       initialDisableSell: disableSell,
@@ -1323,6 +1340,11 @@ abstract class SettingsStoreBase with Store {
     bitcoinSeedType = _bitcoinSeedType != null
         ? BitcoinSeedType.deserialize(raw: _bitcoinSeedType)
         : defaultBitcoinSeedType;
+
+    final _nanoSeedType = sharedPreferences.getInt(PreferencesKey.nanoSeedType);
+
+    nanoSeedType =
+        _nanoSeedType != null ? NanoSeedType.deserialize(raw: _nanoSeedType) : defaultNanoSeedType;
 
     balanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);

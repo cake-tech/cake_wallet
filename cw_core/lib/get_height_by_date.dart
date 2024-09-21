@@ -267,6 +267,16 @@ const bitcoinDates = {
   "2023-01": 769810,
 };
 
+Future<int> getBitcoinHeightByDateAPI({required DateTime date}) async {
+  final response = await http.get(
+    Uri.parse(
+      "http://mempool.cakewallet.com:8999/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}",
+    ),
+  );
+
+  return jsonDecode(response.body)['height'] as int;
+}
+
 int getBitcoinHeightByDate({required DateTime date}) {
   String dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
   final closestKey = bitcoinDates.keys

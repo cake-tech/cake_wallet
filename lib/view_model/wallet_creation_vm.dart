@@ -99,6 +99,7 @@ abstract class WalletCreationVMBase with Store {
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
         hardwareWalletType: credentials.hardwareWalletType,
+        parentAddress: credentials.parentAddress,
       );
 
       credentials.walletInfo = walletInfo;
@@ -117,12 +118,16 @@ abstract class WalletCreationVMBase with Store {
   }
 
   DerivationInfo? getDefaultCreateDerivation() {
-    final useBip39 = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.bip39;
+    final useBip39ForBitcoin = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.bip39;
+    final useBip39ForNano = seedSettingsViewModel.nanoSeedType.type == DerivationType.bip39;
     switch (type) {
       case WalletType.nano:
+        if (useBip39ForNano) {
+          return DerivationInfo(derivationType: DerivationType.bip39);
+        }
         return DerivationInfo(derivationType: DerivationType.nano);
       case WalletType.bitcoin:
-        if (useBip39) {
+        if (useBip39ForBitcoin) {
           return DerivationInfo(
             derivationType: DerivationType.bip39,
             derivationPath: "m/84'/0'/0'",
@@ -132,7 +137,7 @@ abstract class WalletCreationVMBase with Store {
         }
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       case WalletType.litecoin:
-        if (useBip39) {
+        if (useBip39ForBitcoin) {
           return DerivationInfo(
             derivationType: DerivationType.bip39,
             derivationPath: "m/84'/2'/0'",
@@ -148,9 +153,13 @@ abstract class WalletCreationVMBase with Store {
 
   DerivationInfo? getCommonRestoreDerivation() {
     final useElectrum = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.electrum;
+    final useNanoStandard = seedSettingsViewModel.nanoSeedType.type == DerivationType.nano;
     switch (this.type) {
       case WalletType.nano:
-        return DerivationInfo(derivationType: DerivationType.nano);
+        if (useNanoStandard) {
+          return DerivationInfo(derivationType: DerivationType.nano);
+        }
+        return DerivationInfo(derivationType: DerivationType.bip39);
       case WalletType.bitcoin:
         if (useElectrum) {
           return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;

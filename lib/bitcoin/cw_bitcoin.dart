@@ -28,10 +28,22 @@ class CWBitcoin extends Bitcoin {
           name: name, password: password, wif: wif, walletInfo: walletInfo);
 
   @override
-  WalletCredentials createBitcoinNewWalletCredentials(
-          {required String name, WalletInfo? walletInfo, String? password, String? passphrase}) =>
+  WalletCredentials createBitcoinNewWalletCredentials({
+    required String name,
+    WalletInfo? walletInfo,
+    String? password,
+    String? passphrase,
+    String? mnemonic,
+    String? parentAddress,
+  }) =>
       BitcoinNewWalletCredentials(
-          name: name, walletInfo: walletInfo, password: password, passphrase: passphrase);
+        name: name,
+        walletInfo: walletInfo,
+        password: password,
+        passphrase: passphrase,
+        mnemonic: mnemonic,
+        parentAddress: parentAddress,
+      );
 
   @override
   WalletCredentials createBitcoinHardwareWalletCredentials(
@@ -366,7 +378,7 @@ class CWBitcoin extends Bitcoin {
               continue;
           }
 
-          final sh = scriptHash(address, network: network);
+          final sh = BitcoinAddressUtils.scriptHash(address, network: network);
           final history = await electrumClient.getHistory(sh);
 
           final balance = await electrumClient.getBalance(sh);
@@ -404,10 +416,16 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<bool> canReplaceByFee(Object wallet, Object transactionInfo) async {
+  Future<String?> canReplaceByFee(Object wallet, Object transactionInfo) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     final tx = transactionInfo as ElectrumTransactionInfo;
     return bitcoinWallet.canReplaceByFee(tx);
+  }
+
+  @override
+  int getTransactionVSize(Object wallet, String transactionHex) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.transactionVSize(transactionHex);
   }
 
   @override
@@ -527,7 +545,20 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  int getHeightByDate({required DateTime date}) => getBitcoinHeightByDate(date: date);
+  Future<bool> checkIfMempoolAPIIsEnabled(Object wallet) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return await bitcoinWallet.checkIfMempoolAPIIsEnabled();
+  }
+
+  @override
+  Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled}) async {
+    if (bitcoinMempoolAPIEnabled ?? false) {
+      try {
+        return await getBitcoinHeightByDateAPI(date: date);
+      } catch (_) {}
+    }
+    return await getBitcoinHeightByDate(date: date);
+  }
 
   @override
   int getLitecoinHeightByDate({required DateTime date}) => getLtcHeightByDate(date: date);
@@ -578,5 +609,61 @@ class CWBitcoin extends Bitcoin {
   dynamic getStatusRequest(Object wallet) {
     final litecoinWallet = wallet as LitecoinWallet;
     return litecoinWallet.getStatusRequest();
+  }
+  
+  List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
+    final pendingTx = pendingTransaction as PendingBitcoinTransaction;
+
+    if (!pendingTx.hasSilentPayment) {
+      return outputs;
+    }
+
+    final updatedOutputs = outputs.map((output) {
+      try {
+        final pendingOut = pendingTx!.outputs[outputs.indexOf(output)];
+        final updatedOutput = output;
+
+        updatedOutput.stealthAddress = P2trAddress.fromScriptPubkey(script: pendingOut.scriptPubKey)
+            .toAddress(BitcoinNetwork.mainnet);
+        return updatedOutput;
+      } catch (_) {}
+
+      return output;
+    }).toList();
+
+    return updatedOutputs;
+  }
+
+  @override
+  bool txIsReceivedSilentPayment(TransactionInfo txInfo) {
+    final tx = txInfo as ElectrumTransactionInfo;
+    return tx.isReceivedSilentPayment;
+  }
+
+  @override
+  bool txIsMweb(TransactionInfo txInfo) {
+    final tx = txInfo as ElectrumTransactionInfo;
+
+    List<String> inputAddresses = tx.inputAddresses ?? [];
+    List<String> outputAddresses = tx.outputAddresses ?? [];
+    bool inputAddressesContainMweb = false;
+    bool outputAddressesContainMweb = false;
+
+    for (var address in inputAddresses) {
+      if (address.toLowerCase().contains('mweb')) {
+        inputAddressesContainMweb = true;
+        break;
+      }
+    }
+
+    for (var address in outputAddresses) {
+      if (address.toLowerCase().contains('mweb')) {
+        outputAddressesContainMweb = true;
+        break;
+      }
+    }
+
+    // TODO: this could be improved:
+    return inputAddressesContainMweb || outputAddressesContainMweb;
   }
 }

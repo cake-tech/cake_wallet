@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
@@ -83,6 +84,19 @@ class TransactionsPage extends StatelessWidget {
                           }
 
                           final transaction = item.transaction;
+                          final transactionType = dashboardViewModel.getTransactionType(transaction);
+
+                          List<String> tags = [];
+                          if (dashboardViewModel.type == WalletType.bitcoin) {
+                            if (bitcoin!.txIsReceivedSilentPayment(transaction)) {
+                              tags.add(S.of(context).silent_payment);
+                            }
+                          }
+                          if (dashboardViewModel.type == WalletType.litecoin) {
+                            if (bitcoin!.txIsMweb(transaction)) {
+                              tags.add("MWEB");
+                            }
+                          }
 
                           return Observer(
                             builder: (_) => TransactionRow(
@@ -96,10 +110,9 @@ class TransactionsPage extends StatelessWidget {
                                       ? ''
                                       : item.formattedFiatAmount,
                               isPending: transaction.isPending,
-                              title: item.formattedTitle +
-                                  item.formattedStatus +
-                                  ' ${item.formattedType}',
-                              tag: item.tag,
+                              title:
+                                  item.formattedTitle + item.formattedStatus + transactionType,
+                              tags: tags,
                             ),
                           );
                         }

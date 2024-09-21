@@ -88,6 +88,11 @@ abstract class DashboardViewModelBase with Store {
                 value: () => transactionFilterStore.displayOutgoing,
                 caption: S.current.outgoing,
                 onChanged: transactionFilterStore.toggleOutgoing),
+            FilterItem(
+              value: () => transactionFilterStore.displaySilentPayments,
+              caption: S.current.silent_payments,
+              onChanged: transactionFilterStore.toggleSilentPayments,
+            ),
             // FilterItem(
             //     value: () => false,
             //     caption: S.current.transactions_by_date,
@@ -132,8 +137,8 @@ abstract class DashboardViewModelBase with Store {
             FilterItem(
                 value: () => tradeFilterStore.displayLetsExchange,
                 caption: ExchangeProviderDescription.letsExchange.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+                onChanged: () => tradeFilterStore
+                    .toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
             FilterItem(
                 value: () => tradeFilterStore.displayStealthEx,
                 caption: ExchangeProviderDescription.stealthEx.title,
@@ -443,6 +448,7 @@ abstract class DashboardViewModelBase with Store {
       settingsStore.hasEnabledMwebBefore = true;
     }
 
+    settingsStore.mwebEnabled = active;
     mwebScanningActive = active;
     bitcoin!.setMwebEnabled(wallet, active);
   }
@@ -799,6 +805,16 @@ abstract class DashboardViewModelBase with Store {
     } catch (e) {
       return ServicesResponse([], false, '');
     }
+  }
+
+  String getTransactionType(TransactionInfo tx) {
+    if (wallet.type == WalletType.bitcoin) {
+      if (tx.isReplaced == true) return ' (replaced)';
+    }
+
+    if (wallet.type == WalletType.ethereum && tx.evmSignatureName == 'approval')
+      return ' (${tx.evmSignatureName})';
+    return '';
   }
 
   Future<void> refreshDashboard() async {

@@ -4,6 +4,9 @@ abstract class SyncStatus {
 }
 
 class StartingScanSyncStatus extends SyncStatus {
+  StartingScanSyncStatus(this.beginHeight);
+
+  final int beginHeight;
   @override
   double progress() => 0.0;
 }
@@ -55,6 +58,11 @@ class NotConnectedSyncStatus extends SyncStatus {
 }
 
 class AttemptingSyncStatus extends SyncStatus {
+  @override
+  double progress() => 0.0;
+}
+
+class AttemptingScanSyncStatus extends SyncStatus {
   @override
   double progress() => 0.0;
 }
