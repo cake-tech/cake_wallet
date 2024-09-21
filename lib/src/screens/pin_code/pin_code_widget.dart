@@ -14,14 +14,18 @@ class PinCodeWidget extends StatefulWidget {
     required this.initialPinLength,
     required this.onChangedPin,
     required this.hasLengthSwitcher,
+    required this.setPinRandomized,
+    required this.initialPinRandomized,
     this.onChangedPinLength,
   }) : super(key: key);
 
   final void Function(String pin, PinCodeState state) onFullPin;
   final void Function(String pin) onChangedPin;
   final void Function(int length)? onChangedPinLength;
+  final void Function(bool) setPinRandomized;
   final bool hasLengthSwitcher;
   final int initialPinLength;
+  final bool initialPinRandomized;
 
   @override
   State<StatefulWidget> createState() => PinCodeState();
@@ -44,6 +48,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   String title;
   double _aspectRatio;
   Flushbar<void>? _progressBar;
+  late List<int> numbers = [];
+  bool randomizePin = false;
 
   int currentPinLength() => pin.length;
 
@@ -54,6 +60,12 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
     pin = '';
     title = S.current.enter_your_pin;
     _aspectRatio = 0;
+
+    randomizePin = widget.initialPinRandomized;
+    numbers = List.generate(10, (index) => index);
+    if (randomizePin) {
+      numbers.shuffle();
+    }
     WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
   }
 
@@ -118,6 +130,10 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
       'assets/images/face.png',
       color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
     );
+    final shuffleImage = Image.asset(
+      'assets/images/shuffle.png',
+      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+    );
 
     return RawKeyboardListener(
       focusNode: FocusNode(),
@@ -144,8 +160,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
-                    color:
-                        Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
             Spacer(flex: 3),
             Container(
               width: 180,
@@ -162,7 +177,9 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                         shape: BoxShape.circle,
                         color: isFilled
                             ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
-                            : Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor
+                            : Theme.of(context)
+                                .extension<PinCodeTheme>()!
+                                .indicatorsColor
                                 .withOpacity(0.25),
                       ));
                 }),
@@ -208,9 +225,26 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                 const double marginLeft = 15;
 
                                 if (index == 9) {
-                                  // Empty container
-                                  return Container(
-                                    margin: EdgeInsets.only(left: marginLeft, right: marginRight),
+                                  // randomize button
+                                  return MergeSemantics(
+                                    child: Container(
+                                      margin: EdgeInsets.only(left: marginLeft, right: marginRight),
+                                      child: Semantics(
+                                        label: S.current.delete,
+                                        button: true,
+                                        onTap: () => _toggleRandomize(),
+                                        child: TextButton(
+                                          onPressed: () => _toggleRandomize(),
+                                          style: TextButton.styleFrom(
+                                            backgroundColor: randomizePin
+                                                ? Theme.of(context).colorScheme.onBackground
+                                                : Theme.of(context).colorScheme.background,
+                                            shape: CircleBorder(),
+                                          ),
+                                          child: shuffleImage,
+                                        ),
+                                      ),
+                                    ),
                                   );
                                 } else if (index == 10) {
                                   index = 0;
@@ -225,7 +259,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                         child: TextButton(
                                           onPressed: () => _pop(),
                                           style: TextButton.styleFrom(
-                                            backgroundColor: Theme.of(context).colorScheme.background,
+                                            backgroundColor:
+                                                Theme.of(context).colorScheme.background,
                                             shape: CircleBorder(),
                                           ),
                                           child: deleteIconImage,
@@ -240,16 +275,18 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                 return Container(
                                   margin: EdgeInsets.only(left: marginLeft, right: marginRight),
                                   child: TextButton(
-                                    onPressed: () => _push(index),
+                                    onPressed: () => _push(numbers[index]),
                                     style: TextButton.styleFrom(
                                       backgroundColor: Theme.of(context).colorScheme.background,
                                       shape: CircleBorder(),
                                     ),
-                                    child: Text('$index',
+                                    child: Text('${numbers[index]}',
                                         style: TextStyle(
                                             fontSize: 30.0,
                                             fontWeight: FontWeight.w600,
-                                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+                                            color: Theme.of(context)
+                                                .extension<CakeTextTheme>()!
+                                                .titleColor)),
                                   ),
                                 );
                               }),
@@ -288,6 +325,18 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
     }
 
     setState(() => pin = pin.substring(0, pin.length - 1));
+  }
+
+  void _toggleRandomize() {
+    setState(() {
+      randomizePin = !randomizePin;
+      widget.setPinRandomized(randomizePin);
+      if (!randomizePin) {
+        numbers = List.generate(10, (index) => index);
+      } else {
+        numbers.shuffle();
+      }
+    });
   }
 
   String _changePinLengthText() {

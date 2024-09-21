@@ -22,6 +22,8 @@ class SetupPinCodePage extends BasePage {
   Widget body(BuildContext context) => PinCodeWidget(
       key: pinCodeStateKey,
       hasLengthSwitcher: true,
+      setPinRandomized: pinCodeViewModel.setPinRandomized,
+      initialPinRandomized: pinCodeViewModel.pinRandomized,
       onFullPin: (String pin, PinCodeState<PinCodeWidget> state) async {
         if (pinCodeViewModel.isOriginalPinCodeFull &&
             !pinCodeViewModel.isRepeatedPinCodeFull) {
