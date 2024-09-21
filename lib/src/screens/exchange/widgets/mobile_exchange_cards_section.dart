@@ -106,7 +106,7 @@ class _BuySellOptionButtonsState extends State<BuySellOptionButtons> {
               showTrailingIcon: false,
               textColor: Colors.white,
               image: Image.asset('assets/images/buy.png', height: 25, width: 25),
-              mainPadding: EdgeInsets.only(left: 10, right: 30),
+              padding: EdgeInsets.only(left: 10, right: 30),
               color: isBuySelected
                   ? null
                   : Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
@@ -126,7 +126,7 @@ class _BuySellOptionButtonsState extends State<BuySellOptionButtons> {
               showTrailingIcon: false,
               textColor: Colors.white,
               image: Image.asset('assets/images/sell.png', height: 25, width: 25),
-              mainPadding: EdgeInsets.only(left: 10, right: 30),
+              padding: EdgeInsets.only(left: 10, right: 30),
               color: !isBuySelected
                   ? null
                   : Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
