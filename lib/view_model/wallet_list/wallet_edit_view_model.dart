@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/di.dart';
@@ -18,8 +19,11 @@ class WalletEditRenamePending extends WalletEditViewModelState {}
 class WalletEditDeletePending extends WalletEditViewModelState {}
 
 abstract class WalletEditViewModelBase with Store {
-  WalletEditViewModelBase(this._walletListViewModel, this._walletLoadingService)
-      : state = WalletEditViewModelInitialState(),
+  WalletEditViewModelBase(
+    this._walletListViewModel,
+    this._walletLoadingService,
+    this._walletManager,
+  )   : state = WalletEditViewModelInitialState(),
         newName = '';
 
   @observable
@@ -30,13 +34,30 @@ abstract class WalletEditViewModelBase with Store {
 
   final WalletListViewModel _walletListViewModel;
   final WalletLoadingService _walletLoadingService;
+  final WalletManager _walletManager;
 
   @action
-  Future<void> changeName(WalletListItem walletItem, {String? password}) async {
+  Future<void> changeName(
+    WalletListItem walletItem, {
+    String? password,
+    String? groupParentAddress,
+    bool isWalletGroup = false,
+  }) async {
     state = WalletEditRenamePending();
-    await _walletLoadingService.renameWallet(
-        walletItem.type, walletItem.name, newName,
-        password: password);
+
+    if (isWalletGroup) {
+      _walletManager.updateWalletGroups();
+
+      _walletManager.setGroupName(groupParentAddress!, newName);
+    } else {
+      await _walletLoadingService.renameWallet(
+        walletItem.type,
+        walletItem.name,
+        newName,
+        password: password,
+      );
+    }
+
     _walletListViewModel.updateList();
   }
 

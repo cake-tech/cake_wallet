@@ -13,8 +13,15 @@ class CWTron extends Tron {
     required String name,
     WalletInfo? walletInfo,
     String? password,
+    String? mnemonic,
+    String? parentAddress,
   }) =>
-      TronNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
+      TronNewWalletCredentials(
+          name: name,
+          walletInfo: walletInfo,
+          password: password,
+          mnemonic: mnemonic,
+          parentAddress: parentAddress);
 
   @override
   WalletCredentials createTronRestoreWalletFromSeedCredentials({
@@ -34,7 +41,7 @@ class CWTron extends Tron {
 
   @override
   String getAddress(WalletBase wallet) => (wallet as TronWallet).walletAddresses.address;
-  
+
   Object createTronTransactionCredentials(
     List<Output> outputs, {
     required CryptoCurrency currency,
@@ -63,10 +70,10 @@ class CWTron extends Tron {
 
   @override
   Future<void> addTronToken(WalletBase wallet, CryptoCurrency token, String contractAddress) async {
-      final tronToken = TronToken(
+    final tronToken = TronToken(
       name: token.name,
       symbol: token.title,
-     contractAddress: contractAddress,
+      contractAddress: contractAddress,
       decimal: token.decimals,
       enabled: token.enabled,
       iconPath: token.iconPath,

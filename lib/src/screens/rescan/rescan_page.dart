@@ -37,6 +37,7 @@ class RescanPage extends BasePage {
                     toggleSingleScan: () =>
                         _rescanViewModel.doSingleScan = !_rescanViewModel.doSingleScan,
                     walletType: _rescanViewModel.wallet.type,
+                    bitcoinMempoolAPIEnabled: _rescanViewModel.isBitcoinMempoolAPIEnabled,
                   )),
           Observer(
               builder: (_) => LoadingPrimaryButton(

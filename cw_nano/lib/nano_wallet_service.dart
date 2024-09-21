@@ -32,15 +32,17 @@ class NanoWalletService extends WalletService<
 
   @override
   Future<WalletBase> create(NanoNewWalletCredentials credentials, {bool? isTestnet}) async {
-    // nano standard:
-    String seedKey = NanoSeeds.generateSeed();
-    String mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey);
-
-    // should never happen but just in case:
-    if (credentials.walletInfo!.derivationInfo == null) {
-      credentials.walletInfo!.derivationInfo = DerivationInfo(derivationType: DerivationType.nano);
-    } else if (credentials.walletInfo!.derivationInfo!.derivationType == null) {
-      credentials.walletInfo!.derivationInfo!.derivationType = DerivationType.nano;
+    final String mnemonic;
+    switch (credentials.walletInfo?.derivationInfo?.derivationType) {
+      case DerivationType.nano:
+        String seedKey = NanoSeeds.generateSeed();
+        mnemonic = credentials.mnemonic ?? NanoDerivations.standardSeedToMnemonic(seedKey);
+        break;
+      case DerivationType.bip39:
+      default:
+        final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+        mnemonic = credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
+        break;
     }
 
     final wallet = NanoWallet(

@@ -8,12 +8,19 @@ class CWPolygon extends Polygon {
       PolygonWalletService(walletInfoSource, isDirect, client: PolygonClient());
 
   @override
-  WalletCredentials createPolygonNewWalletCredentials({
-    required String name,
-    WalletInfo? walletInfo,
-    String? password
-  }) =>
-      EVMChainNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
+  WalletCredentials createPolygonNewWalletCredentials(
+          {required String name,
+          String? mnemonic,
+          String? parentAddress,
+          WalletInfo? walletInfo,
+          String? password}) =>
+      EVMChainNewWalletCredentials(
+        name: name,
+        walletInfo: walletInfo,
+        password: password,
+        mnemonic: mnemonic,
+        parentAddress: parentAddress,
+      );
 
   @override
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({
@@ -77,21 +84,21 @@ class CWPolygon extends Polygon {
     int? feeRate,
   }) =>
       EVMChainTransactionCredentials(
-          outputs
-              .map((out) => OutputInfo(
-                  fiatAmount: out.fiatAmount,
-                  cryptoAmount: out.cryptoAmount,
-                  address: out.address,
-                  note: out.note,
-                  sendAll: out.sendAll,
-                  extractedAddress: out.extractedAddress,
-                  isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount))
-              .toList(),
-          priority: priority as EVMChainTransactionPriority,
-          currency: currency,
-          feeRate: feeRate,
-          );
+        outputs
+            .map((out) => OutputInfo(
+                fiatAmount: out.fiatAmount,
+                cryptoAmount: out.cryptoAmount,
+                address: out.address,
+                note: out.note,
+                sendAll: out.sendAll,
+                extractedAddress: out.extractedAddress,
+                isParsedAddress: out.isParsedAddress,
+                formattedCryptoAmount: out.formattedCryptoAmount))
+            .toList(),
+        priority: priority as EVMChainTransactionPriority,
+        currency: currency,
+        feeRate: feeRate,
+      );
 
   Object createPolygonTransactionCredentialsRaw(
     List<OutputInfo> outputs, {

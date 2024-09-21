@@ -68,11 +68,11 @@ class SendPage extends BasePage {
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.focusedChild?.unfocus();
-    }
-  };
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
 
   @override
   Widget? leading(BuildContext context) {
@@ -212,26 +212,25 @@ class SendPage extends BasePage {
                           final count = sendViewModel.outputs.length;
 
                           return count > 1
-                              ? Semantics (
-                          label: 'Page Indicator',
-                          hint: 'Swipe to change receiver',
-                              excludeSemantics: true,
-                                child:
-                          SmoothPageIndicator(
-                                  controller: controller,
-                                  count: count,
-                                  effect: ScrollingDotsEffect(
-                                      spacing: 6.0,
-                                      radius: 6.0,
-                                      dotWidth: 6.0,
-                                      dotHeight: 6.0,
-                                      dotColor: Theme.of(context)
-                                          .extension<SendPageTheme>()!
-                                          .indicatorDotColor,
-                                      activeDotColor: Theme.of(context)
-                                          .extension<SendPageTheme>()!
-                                          .templateBackgroundColor),
-                                ))
+                              ? Semantics(
+                                  label: 'Page Indicator',
+                                  hint: 'Swipe to change receiver',
+                                  excludeSemantics: true,
+                                  child: SmoothPageIndicator(
+                                    controller: controller,
+                                    count: count,
+                                    effect: ScrollingDotsEffect(
+                                        spacing: 6.0,
+                                        radius: 6.0,
+                                        dotWidth: 6.0,
+                                        dotHeight: 6.0,
+                                        dotColor: Theme.of(context)
+                                            .extension<SendPageTheme>()!
+                                            .indicatorDotColor,
+                                        activeDotColor: Theme.of(context)
+                                            .extension<SendPageTheme>()!
+                                            .templateBackgroundColor),
+                                  ))
                               : Offstage();
                         },
                       ),
@@ -478,6 +477,7 @@ class SendPage extends BasePage {
                       feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                       feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                       outputs: sendViewModel.outputs,
+                      change: sendViewModel.pendingTransaction!.change,
                       rightButtonText: S.of(_dialogContext).send,
                       leftButtonText: S.of(_dialogContext).cancel,
                       actionRightButton: () async {
