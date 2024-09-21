@@ -162,10 +162,6 @@ class MoonPayProvider extends BuyProvider {
 
     final action = isBuyAction ? 'buy' : 'sell';
 
-    if(!isBuyAction && destinationCurrency as FiatCurrency != FiatCurrency.eur) {
-      return null;
-    }
-
     final currency = (isBuyAction ? destinationCurrency : sourceCurrency) as CryptoCurrency;
     final formattedCurrency = _normalizeCurrency(currency);
     final baseCurrencyCode = isBuyAction ? sourceCurrency.name.toLowerCase() : destinationCurrency.name.toLowerCase();

@@ -14,6 +14,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -62,7 +63,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   late Timer bestRateSync;
 
   List<BuyProvider> get availableBuyProviders {
-    final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(wallet.type);
+    final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(
+        walletTypeForCurrency(cryptoCurrency) ?? wallet.type);
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
@@ -71,7 +73,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   List<BuyProvider> get availableSellProviders {
-    final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
+    final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(
+        walletTypeForCurrency(cryptoCurrency) ?? wallet.type);
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
@@ -183,7 +186,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @action
   void changeCryptoCurrencyAddress(String address) => cryptoCurrencyAddress = address;
 
-
   @action
   Future<void> changeFiatAmount({required String amount}) async {
     fiatAmount = amount;
@@ -271,9 +273,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   String _getInitialCryptoCurrencyAddress() {
-    return cryptoCurrency == wallet.currency
-        ? wallet.walletAddresses.address
-        : '';
+    return cryptoCurrency == wallet.currency ? wallet.walletAddresses.address : '';
   }
 
   @action

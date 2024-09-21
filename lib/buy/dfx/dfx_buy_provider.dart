@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
@@ -181,8 +181,8 @@ class DFXBuyProvider extends BuyProvider {
               final min = _toDouble(paymentMethodValue['minVolume']);
               final max = _toDouble(paymentMethodValue['maxVolume']);
               if (min != null && max != null && min > 0 && max > 0) {
-                final paymentMethod =
-                    PaymentMethod.fromDFX(paymentMethodKey, _getPaymentTypeByString(paymentMethodKey));
+                final paymentMethod = PaymentMethod.fromDFX(
+                    paymentMethodKey, _getPaymentTypeByString(paymentMethodKey));
                 paymentMethods.add(paymentMethod);
               }
             });
@@ -218,6 +218,10 @@ class DFXBuyProvider extends BuyProvider {
       required String walletAddress,
       PaymentType? paymentType,
       String? countryCode}) async {
+    /// if buying with any currency other than eur or chf then DFX is not supported
+    if (isBuyAction && (sourceCurrency != FiatCurrency.eur || sourceCurrency != FiatCurrency.chf)) {
+      return null;
+    }
 
     String? paymentMethod;
     if (paymentType != null && paymentType != PaymentType.all) {
