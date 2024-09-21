@@ -490,6 +490,7 @@
   "qr_payment_amount": "Mã QR này chứa số tiền thanh toán. Bạn có muốn ghi đè giá trị hiện tại không?",
   "quantity": "Số lượng",
   "question_to_disable_2fa": "Bạn có chắc chắn muốn tắt Cake 2FA không? Mã 2FA sẽ không còn cần thiết để truy cập ví và một số chức năng nhất định.",
+  "randomize": "ngẫu nhiên",
   "receivable_balance": "Số dư có thể nhận",
   "receive": "Nhận",
   "receive_amount": "Số lượng",

@@ -495,6 +495,7 @@
   "qr_payment_amount": "Wannan QR code yana da adadin kuɗi. Kuna so ku overwrite wannan adadi?",
   "quantity": "Yawa",
   "question_to_disable_2fa": "Ka tabbata cewa kana son kashe cake 2fa? Ba za a sake buƙatar lambar 2FA ba don samun damar yin walat da takamaiman ayyuka.",
+  "randomize": "ba da izini",
   "receivable_balance": "Daidaituwa da daidaituwa",
   "receive": "Samu",
   "receive_amount": "Adadi",

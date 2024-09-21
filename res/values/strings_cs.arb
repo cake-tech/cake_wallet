@@ -493,6 +493,7 @@
   "qr_payment_amount": "Tento QR kód obsahuje i částku. Chcete přepsat současnou hodnotu?",
   "quantity": "Množství",
   "question_to_disable_2fa": "Opravdu chcete deaktivovat Cake 2FA? Pro přístup k peněžence a některým funkcím již nebude potřeba kód 2FA.",
+  "randomize": "randomize",
   "receivable_balance": "Zůstatek pohledávek",
   "receive": "Přijmout",
   "receive_amount": "Částka",

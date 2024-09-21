@@ -228,16 +228,18 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                   // randomize button
                                   return MergeSemantics(
                                     child: Container(
-                                      margin: EdgeInsets.only(left: marginLeft, right: marginRight),
+                                      margin: EdgeInsets.only(left: 24, right: 24),
                                       child: Semantics(
-                                        label: S.current.delete,
+                                        label: S.current.randomize,
                                         button: true,
                                         onTap: () => _toggleRandomize(),
                                         child: TextButton(
                                           onPressed: () => _toggleRandomize(),
                                           style: TextButton.styleFrom(
                                             backgroundColor: randomizePin
-                                                ? Theme.of(context).colorScheme.onBackground
+                                                ? Theme.of(context)
+                                                    .extension<CakeTextTheme>()!
+                                                    .textfieldUnderlineColor
                                                 : Theme.of(context).colorScheme.background,
                                             shape: CircleBorder(),
                                           ),

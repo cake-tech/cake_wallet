@@ -494,6 +494,7 @@
   "qr_payment_amount": "This QR code contains a payment amount. Do you want to overwrite the current value?",
   "quantity": "Cantidad",
   "question_to_disable_2fa": "¿Está seguro de que desea deshabilitar Cake 2FA? Ya no se necesitará un código 2FA para acceder a la billetera y a ciertas funciones.",
+  "randomize": "aleatorizar",
   "receivable_balance": "Saldo de cuentas por cobrar",
   "receive": "Recibir",
   "receive_amount": "Cantidad",

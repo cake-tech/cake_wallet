@@ -494,6 +494,7 @@
   "qr_payment_amount": "This QR code contains a payment amount. Do you want to overwrite the current value?",
   "quantity": "量",
   "question_to_disable_2fa": "Cake 2FA を無効にしてもよろしいですか?ウォレットと特定の機能にアクセスするために 2FA コードは必要なくなります。",
+  "randomize": "ランダム化",
   "receivable_balance": "売掛金残高",
   "receive": "受け取る",
   "receive_amount": "量",

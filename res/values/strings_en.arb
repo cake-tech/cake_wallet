@@ -493,6 +493,7 @@
   "qr_payment_amount": "This QR code contains a payment amount. Do you want to overwrite the current value?",
   "quantity": "Quantity",
   "question_to_disable_2fa": "Are you sure that you want to disable Cake 2FA? A 2FA code will no longer be needed to access the wallet and certain functions.",
+  "randomize": "randomize",
   "receivable_balance": "Receivable Balance",
   "receive": "Receive",
   "receive_amount": "Amount",
