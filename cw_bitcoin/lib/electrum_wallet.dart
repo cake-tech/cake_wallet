@@ -1416,14 +1416,16 @@ abstract class ElectrumWalletBase
     }
   }
 
-  Future<bool> canReplaceByFee(ElectrumTransactionInfo tx) async {
+  int transactionVSize(String transactionHex) => BtcTransaction.fromRaw(transactionHex).getVSize();
+
+  Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
     try {
       final bundle = await getTransactionExpanded(hash: tx.txHash);
       _updateInputsAndOutputs(tx, bundle);
-      if (bundle.confirmations > 0) return false;
-      return bundle.originalTransaction.canReplaceByFee;
+      if (bundle.confirmations > 0) return null;
+      return bundle.originalTransaction.canReplaceByFee ? bundle.originalTransaction.toHex() : null;
     } catch (e) {
-      return false;
+      return null;
     }
   }
 
@@ -1605,6 +1607,13 @@ abstract class ElectrumWalletBase
         hasChange: changeOutputs.isNotEmpty,
         feeRate: newFee.toString(),
       )..addListener((transaction) async {
+          transactionHistory.transactions.values.forEach((tx) {
+            if (tx.id == hash) {
+              tx.isReplaced = true;
+              tx.isPending = false;
+              transactionHistory.addOne(tx);
+            }
+          });
           transactionHistory.addOne(transaction);
           await updateBalance();
         });
@@ -2326,6 +2335,7 @@ Future<void> startRefresh(ScanData scanData) async {
               fee: 0,
               direction: TransactionDirection.incoming,
               isPending: false,
+              isReplaced: false,
               date: scanData.network == BitcoinNetwork.mainnet
                   ? getDateByBitcoinHeight(tweakHeight)
                   : DateTime.now(),
@@ -2433,6 +2443,7 @@ class EstimatedTxResult {
   final int fee;
   final int amount;
   final bool spendsSilentPayment;
+
   // final bool sendsToSilentPayment;
   final bool hasChange;
   final bool isSendAll;

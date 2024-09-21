@@ -801,6 +801,16 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
+  String getTransactionType(TransactionInfo tx) {
+    if (wallet.type == WalletType.bitcoin) {
+      if (tx.isReplaced == true) return ' (replaced)';
+    }
+
+    if (wallet.type == WalletType.ethereum && tx.evmSignatureName == 'approval')
+      return ' (${tx.evmSignatureName})';
+    return '';
+  }
+
   Future<void> refreshDashboard() async {
     reconnect();
   }

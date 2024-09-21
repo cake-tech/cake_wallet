@@ -39,7 +39,7 @@ class TronWalletService extends WalletService<
   }) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
-    final mnemonic = bip39.generateMnemonic(strength: strength);
+    final mnemonic = credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
 
     final wallet = TronWallet(
       walletInfo: credentials.walletInfo!,
