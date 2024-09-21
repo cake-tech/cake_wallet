@@ -493,6 +493,7 @@
   "qr_payment_amount": "Ce QR code contient un montant de paiement. Voulez-vous remplacer la valeur actuelle ?",
   "quantity": "Quantité",
   "question_to_disable_2fa": "Êtes-vous sûr de vouloir désactiver Cake 2FA ? Un code 2FA ne sera plus nécessaire pour accéder au portefeuille (wallet) et à certaines fonctions.",
+  "randomize": "randomiser",
   "receivable_balance": "Solde de créances",
   "receive": "Recevoir",
   "receive_amount": "Montant",

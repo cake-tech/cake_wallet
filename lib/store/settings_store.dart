@@ -73,6 +73,7 @@ abstract class SettingsStoreBase with Store {
       required ExchangeApiMode initialExchangeStatus,
       required ThemeBase initialTheme,
       required int initialPinLength,
+      required bool initialRandomizePinCode,
       required String initialLanguageCode,
       required SyncMode initialSyncMode,
       required bool initialSyncAll,
@@ -150,6 +151,7 @@ abstract class SettingsStoreBase with Store {
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
         pinCodeLength = initialPinLength,
+        randomizePinCode = initialRandomizePinCode,
         languageCode = initialLanguageCode,
         shouldRequireTOTP2FAForAccessingWallet = initialShouldRequireTOTP2FAForAccessingWallet,
         shouldRequireTOTP2FAForSendsToContact = initialShouldRequireTOTP2FAForSendsToContact,
@@ -368,6 +370,9 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => pinCodeLength,
         (int pinLength) => sharedPreferences.setInt(PreferencesKey.currentPinLength, pinLength));
+
+    reaction((_) => randomizePinCode,
+        (bool randomizePinCode) => sharedPreferences.setBool(PreferencesKey.randomizePinCode, randomizePinCode));
 
     reaction(
         (_) => languageCode,
@@ -684,6 +689,9 @@ abstract class SettingsStoreBase with Store {
   int pinCodeLength;
 
   @observable
+  bool randomizePinCode;
+
+  @observable
   PinCodeRequiredDuration pinTimeOutDuration;
 
   @observable
@@ -931,6 +939,8 @@ abstract class SettingsStoreBase with Store {
       pinLength = defaultPinLength;
     }
 
+    final randomizePinCode = sharedPreferences.getBool(PreferencesKey.randomizePinCode) ?? false;
+
     final savedLanguageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ??
         await LanguageService.localeDetection();
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
@@ -1171,6 +1181,7 @@ abstract class SettingsStoreBase with Store {
       initialTheme: savedTheme,
       actionlistDisplayMode: actionListDisplayMode,
       initialPinLength: pinLength,
+      initialRandomizePinCode: randomizePinCode,
       pinTimeOutDuration: pinCodeTimeOutDuration,
       seedPhraseLength: seedPhraseWordCount,
       initialLanguageCode: savedLanguageCode,
@@ -1326,6 +1337,8 @@ abstract class SettingsStoreBase with Store {
       pinLength = pinCodeLength;
     }
     pinCodeLength = pinLength;
+
+    randomizePinCode = sharedPreferences.getBool(PreferencesKey.randomizePinCode) ?? false;
 
     languageCode = sharedPreferences.getString(PreferencesKey.currentLanguageCode) ?? languageCode;
     shouldShowYatPopup =

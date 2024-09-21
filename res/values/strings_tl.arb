@@ -493,6 +493,7 @@
   "qr_payment_amount": "Ang QR code na ito ay naglalaman ng halaga ng pagbabayad. Gusto mo bang i-overwrite ang kasalukuyang halaga?",
   "quantity": "Dami",
   "question_to_disable_2fa": "Sigurado ka bang nais mong huwag paganahin ang Cake 2FA? Ang isang 2FA code ay hindi na kinakailangan upang ma-access ang wallet at ilang mga pag-andar.",
+  "randomize": "Randomize",
   "receivable_balance": "Natatanggap na balanse",
   "receive": "Tumanggap",
   "receive_amount": "Halaga",

@@ -494,6 +494,7 @@
   "qr_payment_amount": "This QR code contains a payment amount. Do you want to overwrite the current value?",
   "quantity": "수량",
   "question_to_disable_2fa": "Cake 2FA를 비활성화하시겠습니까? 지갑 및 특정 기능에 액세스하는 데 더 이상 2FA 코드가 필요하지 않습니다.",
+  "randomize": "무작위 화",
   "receivable_balance": "채권 잔액",
   "receive": "받다",
   "receive_amount": "양",

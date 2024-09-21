@@ -19,9 +19,7 @@ abstract class AuthPageState<T extends StatefulWidget> extends State<T> {
 }
 
 class AuthPage extends StatefulWidget {
-  AuthPage(this.authViewModel,
-      {required this.onAuthenticationFinished,
-        this.closable = true});
+  AuthPage(this.authViewModel, {required this.onAuthenticationFinished, this.closable = true});
 
   final AuthViewModel authViewModel;
   final OnAuthenticationFinished onAuthenticationFinished;
@@ -34,16 +32,14 @@ class AuthPage extends StatefulWidget {
 class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
   final _key = GlobalKey<ScaffoldState>();
   final _pinCodeKey = GlobalKey<PinCodeState>();
-  final _backArrowImageDarkTheme =
-      Image.asset('assets/images/close_button.png');
+  final _backArrowImageDarkTheme = Image.asset('assets/images/close_button.png');
   ReactionDisposer? _reaction;
   Flushbar<void>? _authBar;
   Flushbar<void>? _progressBar;
 
   @override
   void initState() {
-    _reaction ??=
-        reaction((_) => widget.authViewModel.state, (ExecutionState state) {
+    _reaction ??= reaction((_) => widget.authViewModel.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           widget.onAuthenticationFinished(true, this);
@@ -54,9 +50,7 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
       if (state is IsExecutingState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           // null duration to make it indefinite until its disposed
-          _authBar =
-              createBar<void>(S.of(context).authentication, duration: null)
-                ..show(context);
+          _authBar = createBar<void>(S.of(context).authentication, duration: null)..show(context);
         });
       }
 
@@ -64,8 +58,7 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           _pinCodeKey.currentState?.clear();
           dismissFlushBar(_authBar);
-          showBar<void>(
-              context, S.of(context).failed_authentication(state.error));
+          showBar<void>(context, S.of(context).failed_authentication(state.error));
 
           widget.onAuthenticationFinished(false, this);
         });
@@ -75,8 +68,7 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           _pinCodeKey.currentState?.clear();
           dismissFlushBar(_authBar);
-          showBar<void>(
-              context, S.of(context).failed_authentication(state.error));
+          showBar<void>(context, S.of(context).failed_authentication(state.error));
 
           widget.onAuthenticationFinished(false, this);
         });
@@ -102,8 +94,7 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
   @override
   void changeProcessText(String text) {
     dismissFlushBar(_authBar);
-    _progressBar = createBar<void>(text, duration: null)
-      ..show(_key.currentContext!);
+    _progressBar = createBar<void>(text, duration: null)..show(_key.currentContext!);
   }
 
   @override
@@ -134,25 +125,33 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: _key,
-        appBar: CupertinoNavigationBar(
-            leading: widget.closable
-                ? Container(
-                    padding: EdgeInsets.only(top: 10),
-                    child: SizedBox(
-                      height: 37,
-                      width: 37,
-                      child: InkWell(
-                        onTap: () => Navigator.of(context).pop(),
-                        child:  _backArrowImageDarkTheme,
-                      ),
-                    ))
-                : Container(),
-            backgroundColor: Theme.of(context).colorScheme.background,
-            border: null),
-        resizeToAvoidBottomInset: false,
-        body: PinCode((pin, _) => widget.authViewModel.auth(password: pin),
-            (_) => null, widget.authViewModel.pinLength, false, _pinCodeKey));
+      key: _key,
+      appBar: CupertinoNavigationBar(
+          leading: widget.closable
+              ? Container(
+                  padding: EdgeInsets.only(top: 10),
+                  child: SizedBox(
+                    height: 37,
+                    width: 37,
+                    child: InkWell(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: _backArrowImageDarkTheme,
+                    ),
+                  ))
+              : Container(),
+          backgroundColor: Theme.of(context).colorScheme.background,
+          border: null),
+      resizeToAvoidBottomInset: false,
+      body: PinCode(
+        (pin, _) => widget.authViewModel.auth(password: pin),
+        (_) => null,
+        widget.authViewModel.setPinRandomized,
+        widget.authViewModel.pinLength,
+        widget.authViewModel.pinRandomized,
+        false,
+        _pinCodeKey,
+      ),
+    );
   }
 
   void dismissFlushBar(Flushbar<dynamic>? bar) {

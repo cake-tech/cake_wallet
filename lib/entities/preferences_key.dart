@@ -33,6 +33,7 @@ class PreferencesKey {
   static const currentTheme = 'current_theme';
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
+  static const randomizePinCode = 'randomize_pin_code';
   static const currentLanguageCode = 'language_code';
   static const currentSeedPhraseLength = 'current_seed_phrase_length';
   static const currentDefaultSettingsMigrationVersion =

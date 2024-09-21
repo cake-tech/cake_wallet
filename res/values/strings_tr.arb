@@ -493,6 +493,7 @@
   "qr_payment_amount": "Bu QR kodu ödeme tutarını içeriyor. Geçerli miktarın üzerine yazmak istediğine emin misin?",
   "quantity": "Miktar",
   "question_to_disable_2fa": "Cake 2FA'yı devre dışı bırakmak istediğinizden emin misiniz? M-cüzdana ve belirli işlevlere erişmek için artık 2FA koduna gerek kalmayacak.",
+  "randomize": "rastgeleleştirmek",
   "receivable_balance": "Alacak bakiyesi",
   "receive": "Para Al",
   "receive_amount": "Miktar",

@@ -493,6 +493,7 @@
   "qr_payment_amount": "This QR code contains a payment amount. Do you want to overwrite the current value?",
   "quantity": "数量",
   "question_to_disable_2fa": "您确定要禁用 Cake 2FA 吗？访问钱包和某些功能将不再需要 2FA 代码。",
+  "randomize": "随机化",
   "receivable_balance": "应收余额",
   "receive": "接收",
   "receive_amount": "金额",

@@ -67,4 +67,10 @@ class SetupPinCodeViewModel {
     await _authService.setPassword(repeatedPinCode);
     _settingsStore.pinCodeLength = pinCodeLength;
   }
+
+  bool get pinRandomized => _settingsStore.randomizePinCode;
+  
+  void setPinRandomized(bool randomized) {
+    _settingsStore.randomizePinCode = randomized;
+  }
 }

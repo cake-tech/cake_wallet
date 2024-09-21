@@ -493,6 +493,7 @@
   "qr_payment_amount": "This QR code contains a payment amount. Do you want to overwrite the current value?",
   "quantity": "Hoeveelheid",
   "question_to_disable_2fa": "Weet je zeker dat je Cake 2FA wilt uitschakelen? Er is geen 2FA-code meer nodig om toegang te krijgen tot de portemonnee en bepaalde functies.",
+  "randomize": "randomiseren",
   "receivable_balance": "Het saldo",
   "receive": "Krijgen",
   "receive_amount": "Bedrag",

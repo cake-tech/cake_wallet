@@ -30,7 +30,14 @@ abstract class AuthViewModelBase with Store {
 
   int get pinLength => _settingsStore.pinCodeLength;
 
+  bool get pinRandomized => _settingsStore.randomizePinCode;
+
   bool get isBiometricalAuthenticationAllowed => _settingsStore.allowBiometricalAuthentication;
+
+  @action
+  void setPinRandomized(bool randomized) {
+    _settingsStore.randomizePinCode = randomized;
+  }
 
   @observable
   int _failureCounter;

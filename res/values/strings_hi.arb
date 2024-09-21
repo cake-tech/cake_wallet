@@ -494,6 +494,7 @@
   "qr_payment_amount": "This QR code contains a payment amount. Do you want to overwrite the current value?",
   "quantity": "मात्रा",
   "question_to_disable_2fa": "क्या आप सुनिश्चित हैं कि आप Cake 2FA को अक्षम करना चाहते हैं? वॉलेट और कुछ कार्यों तक पहुँचने के लिए अब 2FA कोड की आवश्यकता नहीं होगी।",
+  "randomize": "अनियमित",
   "ready_have_account": "क्या आपके पास पहले से ही एक खाता है?",
   "receivable_balance": "प्राप्य शेष",
   "receive": "प्राप्त करना",

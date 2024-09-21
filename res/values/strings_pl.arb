@@ -493,6 +493,7 @@
   "qr_payment_amount": "Ten kod QR zawiera kwotę do zapłaty. Czy chcesz nadpisać obecną wartość?",
   "quantity": "Ilość",
   "question_to_disable_2fa": "Czy na pewno chcesz wyłączyć Cake 2FA? Kod 2FA nie będzie już potrzebny do uzyskania dostępu do portfela i niektórych funkcji.",
+  "randomize": "Randomizacja",
   "receivable_balance": "Saldo należności",
   "receive": "Otrzymaj",
   "receive_amount": "Ilość",

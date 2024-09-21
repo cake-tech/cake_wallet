@@ -495,6 +495,7 @@
   "qr_payment_amount": "QR code ini berisi jumlah pembayaran. Apakah Anda ingin menimpa nilai saat ini?",
   "quantity": "Kuantitas",
   "question_to_disable_2fa": "Apakah Anda yakin ingin menonaktifkan Cake 2FA? Kode 2FA tidak lagi diperlukan untuk mengakses dompet dan fungsi tertentu.",
+  "randomize": "mengacak",
   "receivable_balance": "Saldo piutang",
   "receive": "Menerima",
   "receive_amount": "Jumlah",
