@@ -8,8 +8,7 @@ class Routes {
   static const restoreWalletFromSeedKeys = '/restore_wallet_from_seeds_keys';
   static const restoreWalletFromHardwareWallet = '/restore/hardware_wallet';
   static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
-  static const restoreWalletChooseDerivation =
-      '/restore_wallet_choose_derivation';
+  static const restoreWalletChooseDerivation = '/restore_wallet_choose_derivation';
   static const chooseHardwareWalletAccount = '/restore/hardware_wallet/accounts';
   static const dashboard = '/dashboard';
   static const send = '/send';
@@ -101,11 +100,13 @@ class Routes {
   static const editToken = '/edit_token';
   static const manageNodes = '/manage_nodes';
   static const managePowNodes = '/manage_pow_nodes';
-  static const walletConnectConnectionsListing =
-      '/wallet-connect-connections-listing';
+  static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
   static const torPage = '/tor_page';
+
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
+  static const walletGroupsDisplayPage = '/wallet_groups_display_page';
+  static const walletGroupDescription = '/wallet_group_description';
 }

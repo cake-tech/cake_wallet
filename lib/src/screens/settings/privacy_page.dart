@@ -58,8 +58,8 @@ class PrivacyPage extends BasePage {
               if (_privacySettingsViewModel.isAutoGenerateSubaddressesVisible)
                 SettingsSwitcherCell(
                   title: _privacySettingsViewModel.isMoneroWallet
-                    ? S.current.auto_generate_subaddresses
-                    : S.current.auto_generate_addresses,
+                      ? S.current.auto_generate_subaddresses
+                      : S.current.auto_generate_addresses,
                   value: _privacySettingsViewModel.isAutoGenerateSubaddressesEnabled,
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setAutoGenerateSubaddresses(value);
@@ -109,21 +109,21 @@ class PrivacyPage extends BasePage {
                 ),
               if (_privacySettingsViewModel.canUseMempoolFeeAPI)
                 SettingsSwitcherCell(
-                  title: S.current.live_fee_rates,
+                  title: S.current.enable_mempool_api,
                   value: _privacySettingsViewModel.useMempoolFeeAPI,
                   onValueChange: (BuildContext _, bool isEnabled) async {
                     if (!isEnabled) {
                       final bool confirmation = await showPopUp<bool>(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertWithTwoActions(
-                                alertTitle: S.of(context).warning,
-                                alertContent: S.of(context).disable_fee_api_warning,
-                                rightButtonText: S.of(context).confirm,
-                                leftButtonText: S.of(context).cancel,
-                                actionRightButton: () => Navigator.of(context).pop(true),
-                                actionLeftButton: () => Navigator.of(context).pop(false));
-                          }) ??
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertWithTwoActions(
+                                    alertTitle: S.of(context).warning,
+                                    alertContent: S.of(context).disable_fee_api_warning,
+                                    rightButtonText: S.of(context).confirm,
+                                    leftButtonText: S.of(context).cancel,
+                                    actionRightButton: () => Navigator.of(context).pop(true),
+                                    actionLeftButton: () => Navigator.of(context).pop(false));
+                              }) ??
                           false;
                       if (confirmation) {
                         _privacySettingsViewModel.setUseMempoolFeeAPI(isEnabled);

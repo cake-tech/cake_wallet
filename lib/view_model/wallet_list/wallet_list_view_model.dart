@@ -1,5 +1,7 @@
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
+import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -17,7 +19,10 @@ abstract class WalletListViewModelBase with Store {
     this._walletInfoSource,
     this._appStore,
     this._walletLoadingService,
-  ) : wallets = ObservableList<WalletListItem>() {
+    this._walletManager,
+  )   : wallets = ObservableList<WalletListItem>(),
+        multiWalletGroups = ObservableList<WalletGroup>(),
+        singleWalletsList = ObservableList<WalletListItem>() {
     setOrderType(_appStore.settingsStore.walletListOrder);
     reaction((_) => _appStore.wallet, (_) => updateList());
     updateList();
@@ -25,6 +30,15 @@ abstract class WalletListViewModelBase with Store {
 
   @observable
   ObservableList<WalletListItem> wallets;
+
+  // @observable
+  // ObservableList<WalletGroup> walletGroups;
+
+  @observable
+  ObservableList<WalletGroup> multiWalletGroups;
+
+  @observable
+  ObservableList<WalletListItem> singleWalletsList;
 
   @computed
   bool get shouldRequireTOTP2FAForAccessingWallet =>
@@ -35,6 +49,7 @@ abstract class WalletListViewModelBase with Store {
       _appStore.settingsStore.shouldRequireTOTP2FAForCreatingNewWallets;
 
   final AppStore _appStore;
+  final WalletManager _walletManager;
   final Box<WalletInfo> _walletInfoSource;
   final WalletLoadingService _walletLoadingService;
 
@@ -53,18 +68,23 @@ abstract class WalletListViewModelBase with Store {
   @action
   void updateList() {
     wallets.clear();
+    multiWalletGroups.clear();
+    singleWalletsList.clear();
+
     wallets.addAll(
-      _walletInfoSource.values.map(
-        (info) => WalletListItem(
-          name: info.name,
-          type: info.type,
-          key: info.key,
-          isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
-          isEnabled: availableWalletTypes.contains(info.type),
-          isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
-        ),
-      ),
+      _walletInfoSource.values.map((info) => convertWalletInfoToWalletListItem(info)),
     );
+
+    //========== Split into shared seed groups and single wallets list
+    _walletManager.updateWalletGroups();
+
+    for (var group in _walletManager.walletGroups) {
+      if (group.wallets.length == 1) {
+        singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
+      } else {
+        multiWalletGroups.add(group);
+      }
+    }
   }
 
   Future<void> reorderAccordingToWalletList() async {
@@ -157,5 +177,16 @@ abstract class WalletListViewModelBase with Store {
         await reorderAccordingToWalletList();
         break;
     }
+  }
+
+  WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) {
+    return WalletListItem(
+      name: info.name,
+      type: info.type,
+      key: info.key,
+      isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
+      isEnabled: availableWalletTypes.contains(info.type),
+      isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
+    );
   }
 }

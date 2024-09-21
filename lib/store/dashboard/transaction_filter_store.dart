@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:mobx/mobx.dart';
@@ -6,12 +7,13 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 
 part 'transaction_filter_store.g.dart';
 
-class TransactionFilterStore = TransactionFilterStoreBase
-    with _$TransactionFilterStore;
+class TransactionFilterStore = TransactionFilterStoreBase with _$TransactionFilterStore;
 
 abstract class TransactionFilterStoreBase with Store {
-  TransactionFilterStoreBase() : displayIncoming = true,
-        displayOutgoing = true;
+  TransactionFilterStoreBase()
+      : displayIncoming = true,
+        displayOutgoing = true,
+        displaySilentPayments = true;
 
   @observable
   bool displayIncoming;
@@ -20,35 +22,43 @@ abstract class TransactionFilterStoreBase with Store {
   bool displayOutgoing;
 
   @observable
+  bool displaySilentPayments;
+
+  @observable
   DateTime? startDate;
 
   @observable
   DateTime? endDate;
 
   @computed
-  bool get displayAll => displayIncoming && displayOutgoing;
+  bool get displayAll => displayIncoming && displayOutgoing && displaySilentPayments;
 
   @action
   void toggleAll() {
     if (displayAll) {
       displayOutgoing = false;
       displayIncoming = false;
+      displaySilentPayments = false;
     } else {
       displayOutgoing = true;
       displayIncoming = true;
+      displaySilentPayments = true;
     }
   }
-
 
   @action
   void toggleIncoming() {
     displayIncoming = !displayIncoming;
   }
 
-
   @action
   void toggleOutgoing() {
     displayOutgoing = !displayOutgoing;
+  }
+
+  @action
+  void toggleSilentPayments() {
+    displaySilentPayments = !displaySilentPayments;
   }
 
   @action
@@ -59,34 +69,33 @@ abstract class TransactionFilterStoreBase with Store {
 
   List<ActionListItem> filtered({required List<ActionListItem> transactions}) {
     var _transactions = <ActionListItem>[];
-    final needToFilter = !displayAll ||
-        (startDate != null && endDate != null);
+    final needToFilter = !displayAll || (startDate != null && endDate != null);
 
     if (needToFilter) {
       _transactions = transactions.where((item) {
         var allowed = true;
 
         if (allowed && startDate != null && endDate != null) {
-          if(item is TransactionListItem){
-          allowed = (startDate?.isBefore(item.transaction.date) ?? false)
-              && (endDate?.isAfter(item.transaction.date) ?? false);
-           }else if(item is AnonpayTransactionListItem){
-            allowed = (startDate?.isBefore(item.transaction.createdAt) ?? false)
-                && (endDate?.isAfter(item.transaction.createdAt) ?? false);
-            }
+          if (item is TransactionListItem) {
+            allowed = (startDate?.isBefore(item.transaction.date) ?? false) &&
+                (endDate?.isAfter(item.transaction.date) ?? false);
+          } else if (item is AnonpayTransactionListItem) {
+            allowed = (startDate?.isBefore(item.transaction.createdAt) ?? false) &&
+                (endDate?.isAfter(item.transaction.createdAt) ?? false);
+          }
         }
 
         if (allowed && (!displayAll)) {
-          if(item is TransactionListItem){
-          allowed = (displayOutgoing &&
-              item.transaction.direction ==
-                  TransactionDirection.outgoing) ||
-              (displayIncoming &&
-                  item.transaction.direction == TransactionDirection.incoming);
-        } else if(item is AnonpayTransactionListItem){
+          if (item is TransactionListItem) {
+            allowed =
+                (displayOutgoing && item.transaction.direction == TransactionDirection.outgoing) ||
+                    (displayIncoming &&
+                        item.transaction.direction == TransactionDirection.incoming &&
+                        !bitcoin!.txIsReceivedSilentPayment(item.transaction)) ||
+                    (displaySilentPayments && bitcoin!.txIsReceivedSilentPayment(item.transaction));
+          } else if (item is AnonpayTransactionListItem) {
             allowed = displayIncoming;
           }
-        
         }
 
         return allowed;

@@ -24,6 +24,13 @@ abstract class SeedSettingsViewModelBase with Store {
       _appStore.settingsStore.bitcoinSeedType = derivationType;
 
   @computed
+  NanoSeedType get nanoSeedType => _appStore.settingsStore.nanoSeedType;
+
+  @action
+  void setNanoSeedType(NanoSeedType derivationType) =>
+      _appStore.settingsStore.nanoSeedType = derivationType;
+
+  @computed
   String? get passphrase => this._seedSettingsStore.passphrase;
 
   @action
