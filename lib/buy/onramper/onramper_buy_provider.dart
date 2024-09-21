@@ -164,7 +164,7 @@ class OnRamperBuyProvider extends BuyProvider {
           final rampId = item['ramp'] as String?;
           final rampMetaData = onrampMetadata[rampId] as Map<String, dynamic>?;
 
-          if (rampMetaData == null) break;
+          if (rampMetaData == null) continue;
 
           final quote = Quote.fromOnramperJson(
               item, isBuyAction, onrampMetadata, _getPaymentTypeByString(paymentMethod));
