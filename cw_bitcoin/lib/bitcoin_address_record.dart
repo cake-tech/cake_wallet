@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/script_hash.dart' as sh;
 
 abstract class BaseBitcoinAddressRecord {
   BaseBitcoinAddressRecord(
@@ -65,8 +64,8 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     required super.type,
     String? scriptHash,
     required super.network,
-  }) : scriptHash =
-            scriptHash ?? (network != null ? sh.scriptHash(address, network: network) : null);
+  }) : scriptHash = scriptHash ??
+            (network != null ? BitcoinAddressUtils.scriptHash(address, network: network) : null);
 
   factory BitcoinAddressRecord.fromJSON(String jsonSource, {BasedUtxoNetwork? network}) {
     final decoded = json.decode(jsonSource) as Map;
@@ -92,7 +91,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 
   String getScriptHash(BasedUtxoNetwork network) {
     if (scriptHash != null) return scriptHash!;
-    scriptHash = sh.scriptHash(address, network: network);
+    scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
     return scriptHash!;
   }
 

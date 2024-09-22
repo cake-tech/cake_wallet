@@ -24,19 +24,22 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class RBFDetailsPage extends BasePage {
-  RBFDetailsPage({required this.transactionDetailsViewModel});
+  RBFDetailsPage({required this.transactionDetailsViewModel, required this.rawTransaction}) {
+    transactionDetailsViewModel.addBumpFeesListItems(
+        transactionDetailsViewModel.transactionInfo, rawTransaction);
+  }
 
   @override
   String get title => S.current.bump_fee;
 
   final TransactionDetailsViewModel transactionDetailsViewModel;
+  final String rawTransaction;
 
   bool _effectsInstalled = false;
 
   @override
   Widget body(BuildContext context) {
     _setEffects(context);
-
     return Column(
       children: [
         Expanded(
@@ -166,7 +169,9 @@ class RBFDetailsPage extends BasePage {
                     actionRightButton: () async {
                       Navigator.of(popupContext).pop();
                       await transactionDetailsViewModel.sendViewModel.commitTransaction();
-                      // transactionStatePopup();
+                      try {
+                        Navigator.of(popupContext).pop();
+                      } catch (_) {}
                     },
                     actionLeftButton: () => Navigator.of(popupContext).pop(),
                     feeFiatAmount:
