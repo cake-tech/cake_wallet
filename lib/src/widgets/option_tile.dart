@@ -7,7 +7,8 @@ class OptionTile extends StatelessWidget {
        this.image,
         this.icon,
       required this.title,
-      required this.description})
+      required this.description,
+      super.key})
   : assert(image!=null || icon!=null);
 
   final VoidCallback onPressed;
