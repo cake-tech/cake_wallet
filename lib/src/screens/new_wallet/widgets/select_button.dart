@@ -20,6 +20,7 @@ class SelectButton extends StatelessWidget {
     this.deviceConnectionTypes,
     this.borderRadius,
     this.padding,
+    super.key,
   });
 
   final Widget? image;

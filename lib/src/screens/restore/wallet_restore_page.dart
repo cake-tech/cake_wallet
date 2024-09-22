@@ -213,6 +213,7 @@ class WalletRestorePage extends BasePage {
                       Observer(
                         builder: (context) {
                           return LoadingPrimaryButton(
+                            key: ValueKey('wallet_restore_seed_or_key_restore_button_key'),
                             onPressed: () async {
                               await _confirmForm(context);
                             },
@@ -230,6 +231,7 @@ class WalletRestorePage extends BasePage {
                       ),
                       const SizedBox(height: 25),
                       GestureDetector(
+                        key: ValueKey('wallet_restore_advanced_settings_button_key'),
                         onTap: () {
                           Navigator.of(context)
                               .pushNamed(Routes.advancedPrivacySettings, arguments: {
