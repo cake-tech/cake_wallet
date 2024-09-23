@@ -284,7 +284,6 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
   String _getName(CryptoCurrency currency) {
     if (currency == CryptoCurrency.usdcEPoly) return 'usdce';
-    if (currency == CryptoCurrency.maticpoly) return 'matic';
     return currency.title.toLowerCase();
   }
 
