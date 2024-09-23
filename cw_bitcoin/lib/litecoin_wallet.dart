@@ -97,6 +97,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   late final Bip32Slip10Secp256k1 mwebHd;
   late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;
+  Timer? _stuckSyncTimer;
   Timer? _feeRatesTimer;
   StreamSubscription<Utxo>? _utxoStream;
   late RpcClient _stub;
@@ -314,26 +315,27 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           }
           await transactionHistory.save();
         }
+        return;
       }
     });
 
     // setup a watch dog to restart the sync process if it gets stuck:
     List<double> lastFewProgresses = [];
-    Timer.periodic(const Duration(seconds: 10), (timer) async {
+    _stuckSyncTimer?.cancel();
+    _stuckSyncTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
       if (syncStatus is! SyncingSyncStatus) return;
-      if (syncStatus.progress() > 0.98) return;
+      if (syncStatus.progress() > 0.98) return; // don't check if we're close to synced
       lastFewProgresses.add(syncStatus.progress());
-      if (lastFewProgresses.length < 4) return;
-      // limit list size to 4:
-      while (lastFewProgresses.length > 4) {
+      if (lastFewProgresses.length < 10) return;
+      // limit list size to 10:
+      while (lastFewProgresses.length > 10) {
         lastFewProgresses.removeAt(0);
       }
-      // if the progress is the same over the last 40 seconds, restart the sync:
+      // if the progress is the same over the last 100 seconds, restart the sync:
       if (lastFewProgresses.every((p) => p == lastFewProgresses.first)) {
         print("mweb syncing is stuck, restarting...");
+        syncStatus = LostConnectionSyncStatus();
         await stopSync();
-        startSync();
-        timer.cancel();
       }
     });
   }
@@ -870,10 +872,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         final utxo = unspentCoins
             .firstWhere((utxo) => utxo.hash == txInput.txId && utxo.vout == txInput.txIndex);
 
-        if (txInput.sequence.isEmpty) {
-          isHogEx = false;
-        }
-
         // TODO: detect actual hog-ex inputs
         // print(txInput.sequence);
         // print(txInput.txIndex);
@@ -949,6 +947,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> close() async {
     await super.close();
+    await stopSync();
+    _stuckSyncTimer?.cancel();
+    _feeRatesTimer?.cancel();
     _syncTimer?.cancel();
     _utxoStream?.cancel();
   }
