@@ -36,4 +36,6 @@ class TransactionCommitFailedVoutNegative implements Exception {}
 
 class TransactionCommitFailedBIP68Final implements Exception {}
 
+class TransactionCommitFailedLessThanMin implements Exception {}
+
 class TransactionInputNotSupported implements Exception {}

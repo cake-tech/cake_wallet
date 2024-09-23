@@ -37,7 +37,6 @@ class SupportOtherLinksPage extends BasePage {
               itemCounter: (int _) => supportViewModel.items.length,
               itemBuilder: (_, index) {
                 final item = supportViewModel.items[index];
-
                 if (item is RegularListItem) {
                   return SettingsCellWithArrow(title: item.title, handler: item.handler);
                 }
