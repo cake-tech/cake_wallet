@@ -41,9 +41,8 @@ class SyncingSyncStatus extends SyncStatus {
 
   void updateEtaHistory(int blocksLeft) {
     blockHistory[DateTime.now()] = blocksLeft;
-
-    // Keep only the last 5 entries to limit memory usage
-    if (blockHistory.length > 5) {
+    // keep only the last 10 entries
+    if (blockHistory.length > 10) {
       var oldestKey = blockHistory.keys.reduce((a, b) => a.isBefore(b) ? a : b);
       blockHistory.remove(oldestKey);
     }
@@ -54,9 +53,20 @@ class SyncingSyncStatus extends SyncStatus {
   DateTime? estimatedCompletionTime;
   Duration? estimatedCompletionDuration;
 
+
+  DateTime calculateEta() {
+    double rate = _calculateBlockRate();
+    if (rate < 0.01) {
+      return DateTime.now().add(const Duration(days: 99));
+    }
+    int remainingBlocks = this.blocksLeft;
+    double timeRemainingSeconds = remainingBlocks / rate;
+    return DateTime.now().add(Duration(seconds: timeRemainingSeconds.round()));
+  }
+
   Duration getEtaDuration() {
     DateTime now = DateTime.now();
-    DateTime? completionTime = calculateETA();
+    DateTime? completionTime = calculateEta();
     return completionTime.difference(now);
   }
 
@@ -84,36 +94,26 @@ class SyncingSyncStatus extends SyncStatus {
   }
 
   // Calculate the rate of block processing (blocks per second)
-  double calculateRate() {
+  double _calculateBlockRate() {
     List<DateTime> timestamps = blockHistory.keys.toList();
     List<int> blockCounts = blockHistory.values.toList();
 
-    double totalTimeMinutes = 0;
+    double totalSeconds = 0;
     int totalBlocksProcessed = 0;
 
     for (int i = 0; i < blockCounts.length - 1; i++) {
-      int blocksProcessed = blockCounts[i + 1] - blockCounts[i];
-      Duration timeDifference = timestamps[i].difference(timestamps[i + 1]);
-      totalTimeMinutes += timeDifference.inSeconds;
+      int blocksProcessed = blockCounts[i] - blockCounts[i + 1];
+      Duration timeDifference = timestamps[i + 1].difference(timestamps[i]);
+      totalSeconds += timeDifference.inSeconds;
       totalBlocksProcessed += blocksProcessed;
     }
 
-    if (totalTimeMinutes == 0 || totalBlocksProcessed == 0) {
+    if (totalSeconds == 0 || totalBlocksProcessed == 0) {
       return 0;
     }
-
-    return totalBlocksProcessed / totalTimeMinutes; // Blocks per second
-  }
-
-  // Calculate the ETA
-  DateTime calculateETA() {
-    double rate = calculateRate();
-    if (rate < 0.01) {
-      return DateTime.now().add(const Duration(days: 1));
-    }
-    int remainingBlocks = this.blocksLeft;
-    double timeRemainingSeconds = remainingBlocks / rate;
-    return DateTime.now().add(Duration(seconds: timeRemainingSeconds.round()));
+    
+    double blocksPerSecond = totalBlocksProcessed / totalSeconds;
+    return blocksPerSecond;
   }
 }
 
