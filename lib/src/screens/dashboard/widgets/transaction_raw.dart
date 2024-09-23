@@ -60,7 +60,7 @@ class TransactionRow extends StatelessWidget {
                               fontWeight: FontWeight.w500,
                               color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                             )),
-                        ...tags.map((tag) => TxTag(tag: tag)).toList(),
+                        ...tags.map((tag) => Row(children: [SizedBox(width: 8), TxTag(tag: tag)])),
                       ],
                     ),
                     Text(formattedAmount,
