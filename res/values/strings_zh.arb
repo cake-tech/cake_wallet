@@ -222,7 +222,6 @@
   "displayable": "可显示",
   "do_not_have_enough_gas_asset": "您没有足够的 ${currency} 来在当前的区块链网络条件下进行交易。即使您发送的是不同的资产，您也需要更多的 ${currency} 来支付区块链网络费用。",
   "do_not_send": "不要发送",
-  "do_not_send_funds_to_contract_address_warning": "请勿将资金发送到此地址\n\n这只是令牌的标识符，任何发送到此地址的资金都将丢失。\n\n注意：蛋糕永远不会要求您添加合同地址",
   "do_not_share_warning_text": "请勿与其他任何人分享这些信息，包括支持人员。\n\n您的资金可能而且将会被盗！",
   "do_not_show_me": "不再提示",
   "domain_looks_up": "域名查找",
