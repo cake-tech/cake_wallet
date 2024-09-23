@@ -151,6 +151,8 @@ abstract class HomeSettingsViewModelBase with Store {
 
       bool isEthereum = _balanceViewModel.wallet.type == WalletType.ethereum;
 
+      print('An extra log for now');
+
       bool isPotentialScamViaMoralis = await _isPotentialScamTokenViaMoralis(
         contractAddress,
         isEthereum ? 'eth' : 'polygon',
