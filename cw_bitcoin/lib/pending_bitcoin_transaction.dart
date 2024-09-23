@@ -47,6 +47,19 @@ class PendingBitcoinTransaction with PendingTransaction {
   @override
   int? get outputCount => _tx.outputs.length;
 
+  List<TxOutput> get outputs => _tx.outputs;
+
+  bool get hasSilentPayment => _tx.hasSilentPayment;
+
+  PendingChange? get change {
+    try {
+      final change = _tx.outputs.firstWhere((out) => out.isChange);
+      return PendingChange(change.scriptPubKey.toAddress(), BtcUtils.fromSatoshi(change.amount));
+    } catch (_) {
+      return null;
+    }
+  }
+
   final List<void Function(ElectrumTransactionInfo transaction)> _listeners;
 
   @override
@@ -97,6 +110,7 @@ class PendingBitcoinTransaction with PendingTransaction {
       direction: TransactionDirection.outgoing,
       date: DateTime.now(),
       isPending: true,
+      isReplaced: false,
       confirmations: 0,
       fee: fee);
 }
