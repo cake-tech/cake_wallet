@@ -398,7 +398,13 @@ abstract class ElectrumWalletBase
           nodeSupportsSilentPayments = false;
         }
 
-        syncStatus = message.syncStatus;
+        if (message.syncStatus is SyncingSyncStatus) {
+          var status = message.syncStatus as SyncingSyncStatus;
+          syncStatus = SyncingSyncStatus(status.blocksLeft, status.ptc);
+        } else {
+          syncStatus = message.syncStatus;
+        }
+
         await walletInfo.updateRestoreHeight(message.height);
       }
     });

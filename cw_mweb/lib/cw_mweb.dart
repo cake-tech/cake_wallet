@@ -27,7 +27,7 @@ class CwMweb {
     await Future.delayed(const Duration(seconds: 5));
 
     _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
-      print("Channel shutdown!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      print("Channel is shutting down!");
     },
         options: const ChannelOptions(
           credentials: ChannelCredentials.insecure(),

@@ -34,30 +34,27 @@ class SyncingSyncStatus extends SyncStatus {
     final diff = track - (chainTip - syncHeight);
     final ptc = diff <= 0 ? 0.0 : diff / track;
     final left = chainTip - syncHeight;
+    updateEtaHistory(left + 1);
 
     // sum 1 because if at the chain tip, will say "0 blocks left"
     return SyncingSyncStatus(left + 1, ptc);
   }
 
-  void updateEtaHistory(int blocksLeft) {
+  static void updateEtaHistory(int blocksLeft) {
     blockHistory[DateTime.now()] = blocksLeft;
-    // keep only the last 10 entries
-    if (blockHistory.length > 10) {
-      var oldestKey = blockHistory.keys.reduce((a, b) => a.isBefore(b) ? a : b);
-      blockHistory.remove(oldestKey);
+    // keep only the last 25 entries
+    while (blockHistory.length > 25) {
+      blockHistory.remove(blockHistory.keys.first);
     }
   }
 
   static Map<DateTime, int> blockHistory = {};
-
-  DateTime? estimatedCompletionTime;
-  Duration? estimatedCompletionDuration;
-
+  static Duration? lastEtaDuration;
 
   DateTime calculateEta() {
     double rate = _calculateBlockRate();
-    if (rate < 0.01) {
-      return DateTime.now().add(const Duration(days: 99));
+    if (rate == 0) {
+      return DateTime.now().add(const Duration(days: 2));
     }
     int remainingBlocks = this.blocksLeft;
     double timeRemainingSeconds = remainingBlocks / rate;
@@ -75,12 +72,39 @@ class SyncingSyncStatus extends SyncStatus {
     blockHistory.removeWhere(
         (key, value) => key.isBefore(DateTime.now().subtract(const Duration(minutes: 1))));
 
-    if (blockHistory.length < 2) return null;
+    // don't show eta if we don't have enough data:
+    if (blockHistory.length < 3) {
+      return null;
+    }
+
     Duration? duration = getEtaDuration();
 
+    // just show the block count if it's really long:
     if (duration.inDays > 0) {
       return null;
     }
+
+    // show the blocks count if the eta is less than a minute or we only have a few blocks left:
+    if (duration.inMinutes < 1 || blocksLeft < 1000) {
+      return null;
+    }
+
+    // if our new eta is more than a minute off from the last one, only update the by 1 minute so it doesn't jump all over the place
+    if (lastEtaDuration != null) {
+      bool isIncreasing = duration.inSeconds > lastEtaDuration!.inSeconds;
+      bool diffMoreThanOneMinute = (duration.inSeconds - lastEtaDuration!.inSeconds).abs() > 60;
+      bool diffMoreThanOneHour = (duration.inSeconds - lastEtaDuration!.inSeconds).abs() > 3600;
+      if (diffMoreThanOneHour) {
+        duration = Duration(minutes: lastEtaDuration!.inMinutes + (isIncreasing ? 1 : -1));
+      } else if (diffMoreThanOneMinute) {
+        duration = Duration(seconds: lastEtaDuration!.inSeconds + (isIncreasing ? 1 : -1));
+      } else {
+        // if the diff is less than a minute don't change it:
+        duration = lastEtaDuration!;
+      }
+    }
+
+    lastEtaDuration = duration;
 
     String twoDigits(int n) => n.toString().padLeft(2, '0');
 
@@ -98,21 +122,21 @@ class SyncingSyncStatus extends SyncStatus {
     List<DateTime> timestamps = blockHistory.keys.toList();
     List<int> blockCounts = blockHistory.values.toList();
 
-    double totalSeconds = 0;
+    double totalTime = 0;
     int totalBlocksProcessed = 0;
 
     for (int i = 0; i < blockCounts.length - 1; i++) {
       int blocksProcessed = blockCounts[i] - blockCounts[i + 1];
       Duration timeDifference = timestamps[i + 1].difference(timestamps[i]);
-      totalSeconds += timeDifference.inSeconds;
+      totalTime += timeDifference.inMicroseconds;
       totalBlocksProcessed += blocksProcessed;
     }
 
-    if (totalSeconds == 0 || totalBlocksProcessed == 0) {
+    if (totalTime == 0 || totalBlocksProcessed == 0) {
       return 0;
     }
-    
-    double blocksPerSecond = totalBlocksProcessed / totalSeconds;
+
+    double blocksPerSecond = totalBlocksProcessed / (totalTime / 1000000);
     return blocksPerSecond;
   }
 }
