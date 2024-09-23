@@ -453,7 +453,7 @@
   "overwrite_amount": "Nadpisz ilość",
   "pairingInvalidEvent": "Nieprawidłowe zdarzenie parowania",
   "passphrase": "PassPhraza (opcjonalnie)",
-  "passphrases_doesnt_match": "Passhrazy nie pasują",
+  "passphrases_doesnt_match": "Passfrazy nie pasują, spróbuj ponownie",
   "password": "Hasło",
   "paste": "Wklej",
   "pause_wallet_creation": "Możliwość utworzenia Portfela Haven jest obecnie wstrzymana.",

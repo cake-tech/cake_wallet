@@ -453,7 +453,7 @@
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "Недійсна подія сполучення",
   "passphrase": "Пасофрази (необов’язково)",
-  "passphrases_doesnt_match": "Пасофрази не відповідають",
+  "passphrases_doesnt_match": "Пасофрази не відповідають, спробуйте ще раз",
   "password": "Пароль",
   "paste": "Вставити",
   "pause_wallet_creation": "Можливість створення гаманця Haven зараз призупинено.",

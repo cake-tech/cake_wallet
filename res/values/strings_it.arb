@@ -455,7 +455,7 @@
   "overwrite_amount": "Sovrascrivi quantità",
   "pairingInvalidEvent": "Associazione evento non valido",
   "passphrase": "Passphrase (opzionale)",
-  "passphrases_doesnt_match": "passphrasi non corrisponde",
+  "passphrases_doesnt_match": "Le passphrasi non corrispondono, riprova",
   "password": "Password",
   "paste": "Incolla",
   "pause_wallet_creation": "La possibilità di creare Haven Wallet è attualmente sospesa.",

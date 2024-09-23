@@ -453,7 +453,7 @@
   "overwrite_amount": "تغير المبلغ",
   "pairingInvalidEvent": "ﺢﻟﺎﺻ ﺮﻴﻏ ﺙﺪﺣ ﻥﺍﺮﻗﺇ",
   "passphrase": "عبارة الممر (اختياري)",
-  "passphrases_doesnt_match": "عبارات المرور لا تتطابق",
+  "passphrases_doesnt_match": "لا تتطابق عبارات المرور ، يرجى المحاولة مرة أخرى",
   "password": "كلمة المرور",
   "paste": "لصق",
   "pause_wallet_creation": ".ﺎﻴًﻟﺎﺣ ﺎﺘًﻗﺆﻣ ﺔﻔﻗﻮﺘﻣ Haven Wallet ءﺎﺸﻧﺇ ﻰﻠﻋ ﺓﺭﺪﻘﻟﺍ",

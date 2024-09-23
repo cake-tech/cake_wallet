@@ -453,7 +453,7 @@
   "overwrite_amount": "Miktarın üzerine yaz",
   "pairingInvalidEvent": "Geçersiz Etkinliği Eşleştirme",
   "passphrase": "Passfrase (isteğe bağlı)",
-  "passphrases_doesnt_match": "Passprases eşleşmiyor",
+  "passphrases_doesnt_match": "Passfrases eşleşmiyor, lütfen tekrar deneyin",
   "password": "Parola",
   "paste": "Yapıştır",
   "pause_wallet_creation": "Haven Cüzdanı oluşturma yeteneği şu anda duraklatıldı.",

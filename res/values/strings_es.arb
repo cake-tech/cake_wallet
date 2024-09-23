@@ -453,7 +453,7 @@
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "Evento de emparejamiento no válido",
   "passphrase": "Passfrase (opcional)",
-  "passphrases_doesnt_match": "Las frases de pases no coinciden",
+  "passphrases_doesnt_match": "Las frases de contrato no coinciden, intente nuevamente",
   "password": "Contraseña",
   "paste": "Pegar",
   "pause_wallet_creation": "La capacidad para crear Haven Wallet está actualmente pausada.",

@@ -453,7 +453,7 @@
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "अमान्य ईवेंट युग्मित करना",
   "passphrase": "पासफ्रेज़ (वैकल्पिक)",
-  "passphrases_doesnt_match": "PassPhrases मेल नहीं खाता है",
+  "passphrases_doesnt_match": "PassPhrases मेल नहीं खाता, कृपया पुनः प्रयास करें",
   "password": "पारण शब्द",
   "paste": "पेस्ट करें",
   "pause_wallet_creation": "हेवन वॉलेट बनाने की क्षमता फिलहाल रुकी हुई है।",

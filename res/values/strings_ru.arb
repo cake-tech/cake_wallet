@@ -454,7 +454,7 @@
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "Недействительное событие сопряжения",
   "passphrase": "Passfrase (необязательно)",
-  "passphrases_doesnt_match": "Passhphrase не совпадает",
+  "passphrases_doesnt_match": "Пасфразы не совпадают, попробуйте еще раз",
   "password": "Пароль",
   "paste": "Вставить",
   "pause_wallet_creation": "Возможность создания Haven Wallet в настоящее время приостановлена.",

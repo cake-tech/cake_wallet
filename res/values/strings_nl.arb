@@ -453,7 +453,7 @@
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "Koppelen Ongeldige gebeurtenis",
   "passphrase": "PassaspHRASE (optioneel)",
-  "passphrases_doesnt_match": "Passefrases komt niet overeen",
+  "passphrases_doesnt_match": "Passaspelfiaal komt niet overeen, probeer het opnieuw",
   "password": "Wachtwoord",
   "paste": "Plakken",
   "pause_wallet_creation": "De mogelijkheid om Haven Wallet te maken is momenteel onderbroken.",

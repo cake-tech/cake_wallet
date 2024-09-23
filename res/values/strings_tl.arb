@@ -453,7 +453,7 @@
   "overwrite_amount": "I-overwrite ang halaga",
   "pairingInvalidEvent": "Pairing Invalid Event",
   "passphrase": "Passphrase (opsyonal)",
-  "passphrases_doesnt_match": "Ang mga passphrases ay hindi tumutugma",
+  "passphrases_doesnt_match": "Ang mga passphrases ay hindi tumutugma, mangyaring subukang muli",
   "password": "Password",
   "paste": "I-paste",
   "pause_wallet_creation": "Kasalukuyang naka-pause ang kakayahang gumawa ng Haven Wallet.",

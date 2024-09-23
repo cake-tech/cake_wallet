@@ -453,7 +453,7 @@
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "配对无效事件",
   "passphrase": "密码（可选）",
-  "passphrases_doesnt_match": "密码不匹配",
+  "passphrases_doesnt_match": "密码不匹配，请重试",
   "password": "密码",
   "paste": "粘贴",
   "pause_wallet_creation": "创建 Haven 钱包的功能当前已暂停。",

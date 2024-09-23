@@ -453,7 +453,7 @@
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "잘못된 이벤트 페어링",
   "passphrase": "암호화 (선택 사항)",
-  "passphrases_doesnt_match": "패스 프레이즈는 일치하지 않습니다",
+  "passphrases_doesnt_match": "패스 프레이즈가 일치하지 않습니다. 다시 시도하십시오",
   "password": "암호",
   "paste": "풀",
   "pause_wallet_creation": "Haven Wallet 생성 기능이 현재 일시 중지되었습니다.",

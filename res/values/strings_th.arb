@@ -453,7 +453,7 @@
   "overwrite_amount": "เขียนทับจำนวน",
   "pairingInvalidEvent": "การจับคู่เหตุการณ์ที่ไม่ถูกต้อง",
   "passphrase": "ข้อความรหัสผ่าน (ไม่บังคับ)",
-  "passphrases_doesnt_match": "Passphrases ไม่ตรงกัน",
+  "passphrases_doesnt_match": "Passphrases ไม่ตรงกันโปรดลองอีกครั้ง",
   "password": "รหัสผ่าน",
   "paste": "วาง",
   "pause_wallet_creation": "ขณะนี้ความสามารถในการสร้าง Haven Wallet ถูกหยุดชั่วคราว",

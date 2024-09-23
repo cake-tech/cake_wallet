@@ -453,7 +453,7 @@
   "overwrite_amount": "Промени сума",
   "pairingInvalidEvent": "Невалидно събитие при сдвояване",
   "passphrase": "Passphrase (по избор)",
-  "passphrases_doesnt_match": "паролите не съвпадат",
+  "passphrases_doesnt_match": "Пасифрази не съвпадат, моля, опитайте отново",
   "password": "Парола",
   "paste": "Поставяне",
   "pause_wallet_creation": "Възможността за създаване на Haven Wallet в момента е на пауза.",

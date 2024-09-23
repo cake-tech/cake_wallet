@@ -453,7 +453,7 @@
   "overwrite_amount": "Գրեք գումարը",
   "pairingInvalidEvent": "Սխալ միացում",
   "passphrase": "Պարող արտահայտություն (Ոչ պարտադիր)",
-  "passphrases_doesnt_match": "Անհատականները չեն համընկնում",
+  "passphrases_doesnt_match": "Անհատները չեն համընկնում, խնդրում ենք կրկին փորձել",
   "password": "Գաղտնաբառ",
   "paste": "Տեղադրել",
   "pause_wallet_creation": "Հնարավորություն ստեղծել Haven Դրամապանակ ընթացիկ դադարեցված է",

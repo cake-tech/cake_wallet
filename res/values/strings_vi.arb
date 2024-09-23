@@ -454,7 +454,7 @@
   "overwrite_amount": "Ghi đè số tiền",
   "pairingInvalidEvent": "Sự kiện ghép nối không hợp lệ",
   "passphrase": "Cụm từ bảo mật (Tùy chọn)",
-  "passphrases_doesnt_match": "Vòng thông không khớp",
+  "passphrases_doesnt_match": "Vòng thông không khớp, vui lòng thử lại",
   "password": "Mật khẩu",
   "paste": "Dán",
   "pause_wallet_creation": "Khả năng tạo ví Haven hiện đang bị tạm dừng.",

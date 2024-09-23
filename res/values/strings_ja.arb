@@ -454,7 +454,7 @@
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "ペアリング無効イベント",
   "passphrase": "パスフレーズ（オプション）",
-  "passphrases_doesnt_match": "パスフレーズは一致しません",
+  "passphrases_doesnt_match": "パスフレーズは一致しません。もう一度やり直してください",
   "password": "パスワード",
   "paste": "ペースト",
   "pause_wallet_creation": "Haven Wallet を作成する機能は現在一時停止されています。",

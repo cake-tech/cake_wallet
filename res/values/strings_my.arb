@@ -453,7 +453,7 @@
   "overwrite_amount": "ပမာဏကို ထပ်ရေးပါ။",
   "pairingInvalidEvent": "မမှန်ကန်သောဖြစ်ရပ်ကို တွဲချိတ်ခြင်း။",
   "passphrase": "passphrase (optional)",
-  "passphrases_doesnt_match": "passphrases မကိုက်ညီပါ",
+  "passphrases_doesnt_match": "passphrases မကိုက်ညီဘူး, ကျေးဇူးပြုပြီးထပ်ကြိုးစားပါ",
   "password": "စကားဝှက်",
   "paste": "ငါးပိ",
   "pause_wallet_creation": "Haven Wallet ဖန်တီးနိုင်မှုကို လောလောဆယ် ခေတ္တရပ်ထားသည်။",

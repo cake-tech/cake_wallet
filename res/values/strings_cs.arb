@@ -453,7 +453,7 @@
   "overwrite_amount": "Přepsat částku",
   "pairingInvalidEvent": "Neplatná událost párování",
   "passphrase": "Passphrase (volitelné)",
-  "passphrases_doesnt_match": "Passphases se neshoduje",
+  "passphrases_doesnt_match": "Passfrázy se neshodují, zkuste to znovu",
   "password": "Heslo",
   "paste": "Vložit",
   "pause_wallet_creation": "Možnost vytvářet Haven Wallet je momentálně pozastavena.",
