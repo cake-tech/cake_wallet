@@ -9,7 +9,6 @@ import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_no_action.dart.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
-import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -22,6 +21,9 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/info_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 
 class RestoreOptionsPage extends BasePage {
   RestoreOptionsPage({required this.isNewInstall});
@@ -64,11 +66,15 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
 
   @override
   Widget build(BuildContext context) {
-    final imageColor = Theme.of(context).extension<OptionTileTheme>()!.titleColor;
+    final mainImageColor = Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor;
+    final brightImageColor = Theme.of(context).extension<InfoTheme>()!.textColor;
+    final imageColor = currentTheme.type == ThemeType.bright ? brightImageColor : mainImageColor;
     final imageLedger = Image.asset('assets/images/ledger_nano.png', width: 40, color: imageColor);
     final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png', color: imageColor);
     final imageBackup = Image.asset('assets/images/backup.png', color: imageColor);
     final qrCode = Image.asset('assets/images/restore_qr.png', color: imageColor);
+
+
 
     return Center(
       child: Container(
@@ -116,12 +122,15 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                 Padding(
                   padding: EdgeInsets.only(top: 24),
                   child: OptionTile(
-                    key: ValueKey('restore_options_from_qr_button_key'),
-                    onPressed: () => _onScanQRCode(context),
-                    image: qrCode,
-                    title: S.of(context).scan_qr_code,
-                    description: S.of(context).cold_or_recover_wallet,
-                  ),
+                      key: ValueKey('restore_options_from_qr_button_key'),
+                      onPressed: () => _onScanQRCode(context),
+                      icon: Icon(
+                          Icons.qr_code_rounded,
+                          color: imageColor,
+                          size: 50,
+                      ),
+                      title: S.of(context).scan_qr_code,
+                      description: S.of(context).cold_or_recover_wallet),
                 )
               ],
             ),
