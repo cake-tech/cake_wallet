@@ -171,6 +171,9 @@ macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png
 macos/Runner/Configs/AppInfo.xcconfig
 
+
+integration_test/playground.dart
+
 # Monero.dart (Monero_C)
 scripts/monero_c
 # iOS generated framework bin

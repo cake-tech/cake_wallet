@@ -156,7 +156,8 @@ class CWPolygon extends Polygon {
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
     transaction as EVMChainTransactionInfo;
-    if (transaction.tokenSymbol == CryptoCurrency.maticpoly.title) {
+    if (transaction.tokenSymbol == CryptoCurrency.maticpoly.title ||
+        transaction.tokenSymbol == "MATIC") {
       return CryptoCurrency.maticpoly;
     }
 

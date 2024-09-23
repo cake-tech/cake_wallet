@@ -133,6 +133,7 @@ class WelcomePage extends BasePage {
             Padding(
               padding: EdgeInsets.only(top: 24),
               child: PrimaryImageButton(
+                key: ValueKey('welcome_page_create_new_wallet_button_key'),
                 onPressed: () => Navigator.pushNamed(context, Routes.newWalletFromWelcome),
                 image: newWalletImage,
                 text: S.of(context).create_new,
@@ -146,6 +147,7 @@ class WelcomePage extends BasePage {
             Padding(
               padding: EdgeInsets.only(top: 10),
               child: PrimaryImageButton(
+                key: ValueKey('welcome_page_restore_wallet_button_key'),
                   onPressed: () {
                     Navigator.pushNamed(context, Routes.restoreOptions, arguments: true);
                   },
