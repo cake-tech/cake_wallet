@@ -14,13 +14,16 @@ class HardwareWalletDevice {
   factory HardwareWalletDevice.fromLedgerDevice(ledger.LedgerDevice device) =>
       HardwareWalletDevice(
         name: device.name,
-        type: device.deviceInfo?.toGeneric() ?? HardwareWalletDeviceType.ledgerNanoX,
+        type: device.deviceInfo.toGeneric(),
         connectionType: device.connectionType.toGeneric(),
       );
 }
 
 enum HardwareWalletDeviceType {
+  ledgerBlue,
+  ledgerNanoS,
   ledgerNanoX,
+  ledgerNanoSPlus,
   ledgerStax,
   ledgerFlex;
 }
@@ -31,14 +34,20 @@ enum HardwareWalletConnectionType {
   nfc;
 }
 
-extension ToGenericHardwareWalletDeviceType on ledger.LedgerBleDeviceInfo {
+extension ToGenericHardwareWalletDeviceType on ledger.LedgerDeviceType {
   HardwareWalletDeviceType toGeneric() {
     switch (this) {
-      case ledger.LedgerBleDeviceInfo.nanoX:
+      case ledger.LedgerDeviceType.blue:
+        return HardwareWalletDeviceType.ledgerBlue;
+      case ledger.LedgerDeviceType.nanoS:
+        return HardwareWalletDeviceType.ledgerNanoS;
+      case ledger.LedgerDeviceType.nanoSP:
+        return HardwareWalletDeviceType.ledgerNanoSPlus;
+      case ledger.LedgerDeviceType.nanoX:
         return HardwareWalletDeviceType.ledgerNanoX;
-      case ledger.LedgerBleDeviceInfo.stax:
+      case ledger.LedgerDeviceType.stax:
         return HardwareWalletDeviceType.ledgerStax;
-      case ledger.LedgerBleDeviceInfo.flex:
+      case ledger.LedgerDeviceType.flex:
         return HardwareWalletDeviceType.ledgerFlex;
     }
   }

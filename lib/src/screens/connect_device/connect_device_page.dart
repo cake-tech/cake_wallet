@@ -131,13 +131,13 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     widget.onConnectDevice(context, widget.ledgerVM);
   }
 
-  String _getDeviceTileLeading(LedgerBleDeviceInfo? deviceInfo) {
+  String _getDeviceTileLeading(LedgerDeviceType deviceInfo) {
     switch (deviceInfo) {
-      case LedgerBleDeviceInfo.nanoX:
+      case LedgerDeviceType.nanoX:
         return 'assets/images/hardware_wallet/ledger_nano_x.png';
-      case LedgerBleDeviceInfo.stax:
+      case LedgerDeviceType.stax:
         return 'assets/images/hardware_wallet/ledger_stax.png';
-      case LedgerBleDeviceInfo.flex:
+      case LedgerDeviceType.flex:
         return 'assets/images/hardware_wallet/ledger_flex.png';
       default:
         return 'assets/images/hardware_wallet/ledger_nano_x.png';
