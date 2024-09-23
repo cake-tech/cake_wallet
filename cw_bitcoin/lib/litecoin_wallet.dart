@@ -254,6 +254,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (!mwebEnabled) {
       try {
         await updateAllUnspents();
+        await updateTransactions();
         await updateBalance();
         syncStatus = SyncedSyncStatus();
       } catch (e, s) {
@@ -909,7 +910,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           }).toList())
           .toHex();
       tx.outputAddresses = resp.outputId;
-      
+
       return tx
         ..addListener((transaction) async {
           final addresses = <String>{};
