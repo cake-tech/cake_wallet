@@ -873,9 +873,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             .firstWhere((utxo) => utxo.hash == txInput.txId && utxo.vout == txInput.txIndex);
 
         // TODO: detect actual hog-ex inputs
-        // print(txInput.sequence);
-        // print(txInput.txIndex);
-        // print(utxo.value);
 
         if (!isHogEx) {
           return;
