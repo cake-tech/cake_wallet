@@ -298,7 +298,9 @@ class MoonPayProvider extends BuyProvider {
 
   String _normalizeCurrency(CryptoCurrency currency) {
     if (currency == CryptoCurrency.maticpoly) {
-      return "MATIC_POLYGON";
+      return "POL_POLYGON";
+    } else if (currency == CryptoCurrency.matic) {
+      return "POL";
     }
 
     return currency.toString().toLowerCase();
