@@ -133,9 +133,11 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.banano:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+      case WalletType.none:
         return S.current.xmr_available_balance;
-      default:
-        return S.current.confirmed;
     }
   }
 
@@ -302,6 +304,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.tron:
       case WalletType.monero:
       case WalletType.wownero:
+      case WalletType.bitcoin:
         return false;
       default:
         return true;

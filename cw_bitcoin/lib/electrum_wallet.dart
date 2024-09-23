@@ -1884,6 +1884,20 @@ abstract class ElectrumWalletBase
       });
     }
 
+    unspentCoinsInfo.values.forEach((info) {
+      unspentCoins.forEach((element) {
+        if (element.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) return;
+
+        if (element.hash == info.hash &&
+            element.vout == info.vout &&
+            info.isFrozen &&
+            element.bitcoinAddressRecord.address == info.address &&
+            element.value == info.value) {
+          totalFrozen += element.value;
+        }
+      });
+    });
+
     final balances = await Future.wait(balanceFutures);
 
     for (var i = 0; i < balances.length; i++) {
