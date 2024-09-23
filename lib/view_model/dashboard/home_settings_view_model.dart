@@ -268,19 +268,11 @@ abstract class HomeSettingsViewModelBase with Store {
       final tokenInfo =
           Erc20TokenInfoExplorers.fromJson(decodedResponse['result'][0] as Map<String, dynamic>);
 
-      // A token without an email to reach its creators is a potential red flag
-      if (tokenInfo.email?.isEmpty == true) {
-        return true;
-      }
 
       // A token without a website is a potential red flag
       if (tokenInfo.website?.isEmpty == true) {
         return true;
       }
-
-      // if (tokenInfo.whitepaper == null) {
-      //   return true;
-      // }
 
       return false;
     } catch (e) {
@@ -298,7 +290,7 @@ abstract class HomeSettingsViewModelBase with Store {
       {
         "module": "contract",
         "action": "getsourcecode",
-        "contractaddress": contractAddress,
+        "address": contractAddress,
         "apikey": isEthereum ? secrets.etherScanApiKey : secrets.polygonScanApiKey,
       },
     );
