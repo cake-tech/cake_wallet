@@ -213,6 +213,7 @@ class WalletRestorePage extends BasePage {
                       Observer(
                         builder: (context) {
                           return LoadingPrimaryButton(
+                            key: ValueKey('wallet_restore_seed_or_key_restore_button_key'),
                             onPressed: () async {
                               await _confirmForm(context);
                             },
@@ -230,6 +231,7 @@ class WalletRestorePage extends BasePage {
                       ),
                       const SizedBox(height: 25),
                       GestureDetector(
+                        key: ValueKey('wallet_restore_advanced_settings_button_key'),
                         onTap: () {
                           Navigator.of(context)
                               .pushNamed(Routes.advancedPrivacySettings, arguments: {
@@ -281,16 +283,9 @@ class WalletRestorePage extends BasePage {
       return false;
     }
 
-    if ((walletRestoreViewModel.type == WalletType.litecoin) &&
-        (seedWords.length != WalletRestoreViewModelBase.electrumSeedMnemonicLength &&
-            seedWords.length != WalletRestoreViewModelBase.electrumShortSeedMnemonicLength)) {
-      return false;
-    }
-
     // bip39:
     const validSeedLengths = [12, 18, 24];
-    if (walletRestoreViewModel.type == WalletType.bitcoin &&
-        !(validSeedLengths.contains(seedWords.length))) {
+    if (!(validSeedLengths.contains(seedWords.length))) {
       return false;
     }
 

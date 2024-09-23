@@ -91,12 +91,17 @@ class CWNano extends Nano {
   @override
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
+    WalletInfo? walletInfo,
     String? password,
+    String? mnemonic,
+    String? parentAddress,
   }) =>
       NanoNewWalletCredentials(
         name: name,
         password: password,
-        derivationType: DerivationType.nano,
+        mnemonic: mnemonic,
+        parentAddress: parentAddress,
+        walletInfo: walletInfo,
       );
 
   @override
