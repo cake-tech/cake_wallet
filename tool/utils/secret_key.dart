@@ -39,6 +39,7 @@ class SecretKey {
     SecretKey('moralisApiKey', () => ''),
     SecretKey('ankrApiKey', () => ''),
     SecretKey('quantexExchangeMarkup', () => ''),
+    SecretKey('seeds', () => ''),
     SecretKey('testCakePayApiKey', () => ''),
     SecretKey('cakePayApiKey', () => ''),
     SecretKey('CSRFToken', () => ''),

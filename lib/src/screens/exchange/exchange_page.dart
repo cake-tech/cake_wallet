@@ -228,6 +228,7 @@ class ExchangePage extends BasePage {
                   ),
                   Observer(
                       builder: (_) => LoadingPrimaryButton(
+                          key: ValueKey('exchange_page_exchange_button_key'),
                           text: S.of(context).exchange,
                           onPressed: () {
                             if (_formKey.currentState != null &&
@@ -430,6 +431,8 @@ class ExchangePage extends BasePage {
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
+                    key: ValueKey('exchange_page_trade_creation_failure_dialog_key'),
+                    buttonKey: ValueKey('exchange_page_trade_creation_failure_dialog_button_key'),
                     alertTitle: S.of(context).provider_error(state.title),
                     alertContent: state.error,
                     buttonText: S.of(context).ok,
@@ -612,6 +615,7 @@ class ExchangePage extends BasePage {
   Widget _exchangeCardsSection(BuildContext context) {
     final firstExchangeCard = Observer(
         builder: (_) => ExchangeCard(
+              cardInstanceName: 'deposit_exchange_card',
               onDispose: disposeBestRateSync,
               hasAllAmount: exchangeViewModel.hasAllAmount,
               allAmount: exchangeViewModel.hasAllAmount
@@ -681,6 +685,7 @@ class ExchangePage extends BasePage {
 
     final secondExchangeCard = Observer(
         builder: (_) => ExchangeCard(
+              cardInstanceName: 'receive_exchange_card',
               onDispose: disposeBestRateSync,
               amountFocusNode: _receiveAmountFocus,
               addressFocusNode: _receiveAddressFocus,

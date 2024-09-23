@@ -83,6 +83,7 @@ class ExchangeConfirmPage extends BasePage {
                       padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
                       child: Builder(
                         builder: (context) => PrimaryButton(
+                          key: ValueKey('exchange_confirm_page_copy_to_clipboard_button_key'),
                             onPressed: () {
                               Clipboard.setData(ClipboardData(text: trade.id));
                               showBar<void>(
@@ -117,6 +118,7 @@ class ExchangeConfirmPage extends BasePage {
             ],
           )),
           PrimaryButton(
+            key: ValueKey('exchange_confirm_page_saved_id_button_key'),
               onPressed: () => Navigator.of(context)
                   .pushReplacementNamed(Routes.exchangeTrade),
               text: S.of(context).saved_the_trade_id,
