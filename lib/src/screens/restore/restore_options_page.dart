@@ -6,7 +6,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
-import 'package:cake_wallet/src/widgets/alert_with_no_action.dart.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -19,7 +18,6 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/info_theme.dart';
@@ -35,22 +33,22 @@ class RestoreOptionsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return _RestoreOptionsBody(isNewInstall: isNewInstall);
+    return _RestoreOptionsBody(isNewInstall: isNewInstall, themeType: currentTheme.type);
   }
 }
 
 class _RestoreOptionsBody extends StatefulWidget {
-  const _RestoreOptionsBody({required this.isNewInstall});
+  const _RestoreOptionsBody({required this.isNewInstall, required this.themeType});
 
   final bool isNewInstall;
+  final ThemeType themeType;
 
   @override
   _RestoreOptionsBodyState createState() => _RestoreOptionsBodyState();
 }
 
 class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
-  ReactionDisposer? _reactionDisposer;
-  BuildContext? _restoringWalletContext;
+  bool isRestoring = false;
 
   bool get _doesSupportHardwareWallets {
     if (!DeviceInfo.instance.isMobile) {
@@ -68,13 +66,10 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
   Widget build(BuildContext context) {
     final mainImageColor = Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor;
     final brightImageColor = Theme.of(context).extension<InfoTheme>()!.textColor;
-    final imageColor = currentTheme.type == ThemeType.bright ? brightImageColor : mainImageColor;
+    final imageColor = widget.themeType == ThemeType.bright ? brightImageColor : mainImageColor;
     final imageLedger = Image.asset('assets/images/ledger_nano.png', width: 40, color: imageColor);
     final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png', color: imageColor);
     final imageBackup = Image.asset('assets/images/backup.png', color: imageColor);
-    final qrCode = Image.asset('assets/images/restore_qr.png', color: imageColor);
-
-
 
     return Center(
       child: Container(
@@ -139,20 +134,22 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
   }
 
   void _onWalletCreateFailure(BuildContext context, String error) {
-    if (_restoringWalletContext != null) {
-      Navigator.of(_restoringWalletContext!).pop();
-      _restoringWalletContext = null;
-    }
+    setState(() {
+      isRestoring = false;
+    });
 
-    showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
-              alertTitle: S.current.error,
-              alertContent: error,
-              buttonText: S.of(context).ok,
-              buttonAction: () => Navigator.of(context).pop());
-        });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: S.current.error,
+                alertContent: error,
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+    });
+
   }
 
   Future<void> _onScanQRCode(BuildContext context) async {
@@ -169,64 +166,24 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     }
     if (!widget.isNewInstall || isPinSet) {
       try {
+        if (isRestoring) {
+          return;
+        }
+        setState(() {
+          isRestoring = true;
+        });
         final restoreWallet = await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
 
         final restoreFromQRViewModel = getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
 
-        _disposePreviousReaction();
-        _setEffects(context, restoreFromQRViewModel);
-
         await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
+        if (restoreFromQRViewModel.state is FailureState) {
+          _onWalletCreateFailure(context,
+              'Create wallet state: ${(restoreFromQRViewModel.state as FailureState).error}');
+        }
       } catch (e) {
         _onWalletCreateFailure(context, e.toString());
       }
     }
-  }
-
-  void _setEffects(BuildContext context, WalletRestorationFromQRVM restoreFromQRViewModel) {
-    _reactionDisposer = reaction((_) => restoreFromQRViewModel.state, (ExecutionState state) async {
-      if (state is IsExecutingState) {
-        await showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              _restoringWalletContext = context;
-              return AlertWithNoAction(
-                  alertTitle: 'Restoring wallet',
-                  alertContent: S.current.please_wait,
-                  alertBarrierDismissible: false);
-            });
-      }
-
-      if (state is FailureState) {
-        if (_restoringWalletContext != null && Navigator.canPop(_restoringWalletContext!)) {
-          Navigator.of(_restoringWalletContext!).pop();
-          _restoringWalletContext = null;
-        }
-
-        await Future.delayed(const Duration(milliseconds: 100));
-
-        _onWalletCreateFailure(context, 'Create wallet state: ${(restoreFromQRViewModel.state as FailureState).error}');
-      }
-
-      if (state is ExecutedSuccessfullyState) {
-        if (_restoringWalletContext != null && Navigator.canPop(_restoringWalletContext!)) {
-          Navigator.of(_restoringWalletContext!).pop();
-          _restoringWalletContext = null;
-        }
-      }
-    });
-  }
-
-  void _disposePreviousReaction() {
-    if (_reactionDisposer != null) {
-      _reactionDisposer!();
-      _reactionDisposer = null;
-    }
-  }
-
-  @override
-  void dispose() {
-    _disposePreviousReaction();
-    super.dispose();
   }
 }
