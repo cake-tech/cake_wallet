@@ -3,6 +3,11 @@ import 'package:cw_core/exceptions.dart';
 
 class BitcoinTransactionWrongBalanceException extends TransactionWrongBalanceException {
   BitcoinTransactionWrongBalanceException({super.amount}) : super(CryptoCurrency.btc);
+
+  @override
+  String toString() {
+    return "BitcoinTransactionWrongBalanceException: $amount, $currency";
+  }
 }
 
 class BitcoinTransactionNoInputsException extends TransactionNoInputsException {}
@@ -13,10 +18,20 @@ class BitcoinTransactionNoDustException extends TransactionNoDustException {}
 
 class BitcoinTransactionNoDustOnChangeException extends TransactionNoDustOnChangeException {
   BitcoinTransactionNoDustOnChangeException(super.max, super.min);
+
+  @override
+  String toString() {
+    return "BitcoinTransactionNoDustOnChangeException: max: $max, min: $min";
+  }
 }
 
 class BitcoinTransactionCommitFailed extends TransactionCommitFailed {
   BitcoinTransactionCommitFailed({super.errorMessage});
+
+  @override
+  String toString() {
+    return errorMessage??"unknown error";
+  }
 }
 
 class BitcoinTransactionCommitFailedDustChange extends TransactionCommitFailedDustChange {}
