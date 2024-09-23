@@ -59,7 +59,7 @@ abstract class WowneroWalletBase
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
         _password = password,
-        isEnabledAutoGenerateSubaddress = false,
+        isEnabledAutoGenerateSubaddress = true,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
         this.unspentCoinsInfo = unspentCoinsInfo,
