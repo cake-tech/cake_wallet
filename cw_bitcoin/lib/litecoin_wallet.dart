@@ -438,6 +438,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         confirmations: confirmations,
         inputAddresses: [],
         outputAddresses: [utxo.outputId],
+        isReplaced: false,
       );
     }
 
@@ -584,6 +585,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       confirmations: 1,
       inputAddresses: inputAddresses.toList(),
       outputAddresses: [],
+      isReplaced: false,
     );
 
     transactionHistory.addOne(tx);
