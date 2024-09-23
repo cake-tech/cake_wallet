@@ -9,30 +9,34 @@ import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:flutter/scheduler.dart';
 
 class ConfirmSendingAlert extends BaseAlertDialog {
-  ConfirmSendingAlert(
-      {required this.alertTitle,
-      this.paymentId,
-      this.paymentIdValue,
-      this.expirationTime,
-      required this.amount,
-      required this.amountValue,
-      required this.fiatAmountValue,
-      required this.fee,
-      this.feeRate,
-      required this.feeValue,
-      required this.feeFiatAmount,
-      required this.outputs,
-      this.change,
-      required this.leftButtonText,
-      required this.rightButtonText,
-      required this.actionLeftButton,
-      required this.actionRightButton,
-      this.alertBarrierDismissible = true,
-      this.alertLeftActionButtonTextColor,
-      this.alertRightActionButtonTextColor,
-      this.alertLeftActionButtonColor,
-      this.alertRightActionButtonColor,
-      this.onDispose});
+  ConfirmSendingAlert({
+    required this.alertTitle,
+    this.paymentId,
+    this.paymentIdValue,
+    this.expirationTime,
+    required this.amount,
+    required this.amountValue,
+    required this.fiatAmountValue,
+    required this.fee,
+    this.feeRate,
+    required this.feeValue,
+    required this.feeFiatAmount,
+    required this.outputs,
+    this.change,
+    required this.leftButtonText,
+    required this.rightButtonText,
+    required this.actionLeftButton,
+    required this.actionRightButton,
+    this.alertBarrierDismissible = true,
+    this.alertLeftActionButtonTextColor,
+    this.alertRightActionButtonTextColor,
+    this.alertLeftActionButtonColor,
+    this.alertRightActionButtonColor,
+    this.onDispose,
+    this.alertLeftActionButtonKey,
+    this.alertRightActionButtonKey,
+    Key? key,
+  });
 
   final String alertTitle;
   final String? paymentId;
@@ -57,6 +61,8 @@ class ConfirmSendingAlert extends BaseAlertDialog {
   final Color? alertLeftActionButtonColor;
   final Color? alertRightActionButtonColor;
   final Function? onDispose;
+  final Key? alertRightActionButtonKey;
+  final Key? alertLeftActionButtonKey;
 
   @override
   String get titleText => alertTitle;
@@ -90,6 +96,12 @@ class ConfirmSendingAlert extends BaseAlertDialog {
 
   @override
   Color? get rightActionButtonColor => alertRightActionButtonColor;
+
+  @override
+  Key? get leftActionButtonKey => alertLeftActionButtonKey;
+
+  @override
+  Key? get rightActionButtonKey => alertLeftActionButtonKey;
 
   @override
   Widget content(BuildContext context) => ConfirmSendingAlertContent(
@@ -288,6 +300,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
+                            key: ValueKey('confirm_sending_dialog_amount_text_value_key'),
                             amountValue,
                             style: TextStyle(
                               fontSize: 18,

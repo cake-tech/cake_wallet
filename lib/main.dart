@@ -48,11 +48,11 @@ final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
-Future<void> main() async {
-  await runAppWithZone();
+Future<void> main({Key? topLevelKey}) async {
+  await runAppWithZone(topLevelKey: topLevelKey);
 }
 
-Future<void> runAppWithZone() async {
+Future<void> runAppWithZone({Key? topLevelKey}) async {
   bool isAppRunning = false;
 
   await runZonedGuarded(() async {
@@ -68,7 +68,8 @@ Future<void> runAppWithZone() async {
     };
     await initializeAppAtRoot();
 
-    runApp(App());
+    runApp(App(key: topLevelKey));
+
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
@@ -240,6 +241,9 @@ Future<void> initialSetup(
 }
 
 class App extends StatefulWidget {
+  App({this.key});
+
+  final Key? key;
   @override
   AppState createState() => AppState();
 }
@@ -268,7 +272,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           statusBarIconBrightness: statusBarIconBrightness));
 
       return Root(
-          key: rootKey,
+          key: widget.key ?? rootKey,
           appStore: appStore,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,

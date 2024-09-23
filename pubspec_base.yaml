@@ -103,11 +103,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
+  mocktail: ^1.0.4
   build_runner: ^2.3.3
   logging: ^1.2.0
   mobx_codegen: ^2.1.1
   build_resolvers: ^2.0.9
-  hive_generator: ^1.1.3
+  hive_generator: ^2.0.1
   # flutter_launcher_icons: ^0.11.0
   # check flutter_launcher_icons for usage
   pedantic: ^1.8.0
