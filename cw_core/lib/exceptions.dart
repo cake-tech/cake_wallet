@@ -24,6 +24,11 @@ class TransactionCommitFailed implements Exception {
   final String? errorMessage;
 
   TransactionCommitFailed({this.errorMessage});
+
+  @override
+  String toString() {
+    return errorMessage??"unknown error";
+  }
 }
 
 class TransactionCommitFailedDustChange implements Exception {}
