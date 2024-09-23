@@ -156,18 +156,26 @@ abstract class HomeSettingsViewModelBase with Store {
         isEthereum ? 'eth' : 'polygon',
       );
 
+      print('Is Potential Scam from Moralis: $isPotentialScamViaMoralis');
+
       bool isPotentialScamViaExplorers = await _isPotentialScamTokenViaExplorers(
         contractAddress,
         isEthereum: isEthereum,
       );
+
+      print('Is Potential Scam from Explorers: $isPotentialScamViaExplorers');
 
       bool isUnverifiedContract = await _isContractUnverified(
         contractAddress,
         isEthereum: isEthereum,
       );
 
+      print('Is Unverified Contract: $isUnverifiedContract');
+
       final showWarningForContractAddress =
           isPotentialScamViaMoralis || isUnverifiedContract || isPotentialScamViaExplorers;
+
+      print('Show Warning: $showWarningForContractAddress');
 
       return showWarningForContractAddress;
     } finally {
@@ -236,6 +244,7 @@ abstract class HomeSettingsViewModelBase with Store {
 
       return false;
     } catch (e) {
+      print('Error while checking scam via moralis: ${e.toString()}');
       return true;
     }
   }
@@ -268,7 +277,6 @@ abstract class HomeSettingsViewModelBase with Store {
       final tokenInfo =
           Erc20TokenInfoExplorers.fromJson(decodedResponse['result'][0] as Map<String, dynamic>);
 
-
       // A token without a website is a potential red flag
       if (tokenInfo.website?.isEmpty == true) {
         return true;
@@ -276,6 +284,7 @@ abstract class HomeSettingsViewModelBase with Store {
 
       return false;
     } catch (e) {
+      print('Error while checking scam via explorers: ${e.toString()}');
       return true;
     }
   }
@@ -312,6 +321,7 @@ abstract class HomeSettingsViewModelBase with Store {
         return false; // Contract is verified
       }
     } catch (e) {
+      print('Error while checking contract verification: ${e.toString()}');
       return true;
     }
   }
