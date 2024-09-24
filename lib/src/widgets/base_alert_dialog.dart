@@ -17,6 +17,8 @@ class BaseAlertDialog extends StatelessWidget {
 
   bool get isDividerExists => false;
 
+  bool get isBottomDividerExists => true;
+
   VoidCallback get actionLeft => () {};
 
   VoidCallback get actionRight => () {};
@@ -205,7 +207,7 @@ class BaseAlertDialog extends StatelessWidget {
                               )
                             ],
                           ),
-                          const HorizontalSectionDivider(),
+                          if (isBottomDividerExists) const HorizontalSectionDivider(),
                           ClipRRect(
                               borderRadius: BorderRadius.all(Radius.circular(30)),
                               child: actionButtons(context))

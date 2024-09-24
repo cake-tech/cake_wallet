@@ -222,7 +222,6 @@
   "displayable": "Visible",
   "do_not_have_enough_gas_asset": "Vous n'avez pas assez de ${currency} pour effectuer une transaction avec les conditions actuelles du réseau blockchain. Vous avez besoin de plus de ${currency} pour payer les frais du réseau blockchain, même si vous envoyez un actif différent.",
   "do_not_send": "Ne pas envoyer",
-  "do_not_send_funds_to_contract_address_warning": "N'envoyez pas de fonds à cette adresse \n\n Ceci est juste un identifiant pour le jeton, tous les fonds envoyés à cette adresse seront perdus. \n\n Remarque: Le gâteau ne vous demanderait jamais d'ajouter une adresse de contrat",
   "do_not_share_warning_text": "Ne les partagez avec personne, y compris avec l'assistance.\n\nVos fonds seraient inmanquablement volés !",
   "do_not_show_me": "Ne plus me montrer ceci à l'avenir",
   "domain_looks_up": "Résolution de nom",

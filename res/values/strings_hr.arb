@@ -222,7 +222,6 @@
   "displayable": "Dostupno za prikaz",
   "do_not_have_enough_gas_asset": "Nemate dovoljno ${currency} da izvršite transakciju s trenutačnim uvjetima blockchain mreže. Trebate više ${currency} da platite naknade za blockchain mrežu, čak i ako šaljete drugu imovinu.",
   "do_not_send": "Ne šalji",
-  "do_not_send_funds_to_contract_address_warning": "Ne šaljite sredstva na ovu adresu \n\n Ovo je samo identifikator za token, izgubit će se bilo koja sredstva poslana na ovu adresu. \n\n Napomena: Torta nikad ne bi tražila da dodate adresu ugovora",
   "do_not_share_warning_text": "Nemojte ih dijeliti ni s kim, uključujući podršku.\n\nVaša sredstva mogu i bit će ukradena!",
   "do_not_show_me": "Ne pokazuj mi ovo više",
   "domain_looks_up": "Pretraga domena",

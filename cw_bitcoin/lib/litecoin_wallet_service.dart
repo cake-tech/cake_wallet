@@ -21,7 +21,8 @@ class LitecoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials,
     BitcoinNewWalletCredentials> {
-  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan, this.isDirect);
+  LitecoinWalletService(
+      this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
@@ -66,6 +67,7 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> openWallet(String name, String password) async {
+
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
 
@@ -103,12 +105,20 @@ class LitecoinWalletService extends WalletService<
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
 
-    // if there are no more litecoin wallets left, delete the neutrino db:
+    // if there are no more litecoin wallets left, cleanup the neutrino db and other files created by mwebd:
     if (walletInfoSource.values.where((info) => info.type == WalletType.litecoin).isEmpty) {
-      final appDir = await getApplicationSupportDirectory();
-      File neturinoDb = File('${appDir.path}/neutrino.db');
+      final appDirPath = (await getApplicationSupportDirectory()).path;
+      File neturinoDb = File('$appDirPath/neutrino.db');
+      File blockHeaders = File('$appDirPath/block_headers.bin');
+      File regFilterHeaders = File('$appDirPath/reg_filter_headers.bin');
       if (neturinoDb.existsSync()) {
         neturinoDb.deleteSync();
+      }
+      if (blockHeaders.existsSync()) {
+        blockHeaders.deleteSync();
+      }
+      if (regFilterHeaders.existsSync()) {
+        regFilterHeaders.deleteSync();
       }
     }
   }

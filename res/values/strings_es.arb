@@ -222,7 +222,6 @@
   "displayable": "Visualizable",
   "do_not_have_enough_gas_asset": "No tienes suficiente ${currency} para realizar una transacción con las condiciones actuales de la red blockchain. Necesita más ${currency} para pagar las tarifas de la red blockchain, incluso si envía un activo diferente.",
   "do_not_send": "no enviar",
-  "do_not_send_funds_to_contract_address_warning": "No envíe fondos a esta dirección \n\n Esto es solo un identificador para el token, se perderán los fondos enviados a esta dirección. \n\n Nota: Cake nunca le pediría que agregue una dirección de contrato",
   "do_not_share_warning_text": "No comparta estos con nadie más, incluido el soporte.\n\n¡Sus fondos pueden ser y serán robados!",
   "do_not_show_me": "no me muestres esto otra vez",
   "domain_looks_up": "Búsquedas de dominio",

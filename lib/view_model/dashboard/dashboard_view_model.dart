@@ -258,6 +258,7 @@ abstract class DashboardViewModelBase with Store {
 
     if (hasMweb) {
       mwebScanningActive = bitcoin!.getMwebEnabled(wallet);
+      settingsStore.mwebEnabled = mwebScanningActive;
       reaction((_) => settingsStore.mwebAlwaysScan, (bool alwaysScan) {
         if (alwaysScan) {
           mwebScanningActive = true;
