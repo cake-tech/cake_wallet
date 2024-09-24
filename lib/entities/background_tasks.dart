@@ -79,7 +79,8 @@ void setNotificationReady(FlutterLocalNotificationsPlugin flutterLocalNotificati
   );
 }
 
-void setNotificationStarting(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+void setNotificationStarting(
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
   flutterLocalNotificationsPlugin.cancelAll();
   setMainNotification(
     flutterLocalNotificationsPlugin,
@@ -111,6 +112,7 @@ Future<void> onStart(ServiceInstance service) async {
   print("BACKGROUND SERVICE STARTED");
   bool bgSyncStarted = false;
   Timer? _syncTimer;
+  Timer? _stuckSyncTimer;
   Timer? _queueTimer;
 
   // commented because the behavior appears to be bugged:
@@ -343,6 +345,28 @@ Future<void> onStart(ServiceInstance service) async {
           syncingWallets.add(standbyWallets.removeAt(i));
         }
       }
+    });
+  
+  
+        // setup a watch dog to restart the sync process if it gets stuck:
+    List<double> lastFewProgresses = [];
+    _stuckSyncTimer?.cancel();
+    _stuckSyncTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+      // TODO: finish this
+      // if (syncStatus is! SyncingSyncStatus) return;
+      // if (syncStatus.progress() > 0.98) return; // don't check if we're close to synced
+      // lastFewProgresses.add(syncStatus.progress());
+      // if (lastFewProgresses.length < 10) return;
+      // // limit list size to 10:
+      // while (lastFewProgresses.length > 10) {
+      //   lastFewProgresses.removeAt(0);
+      // }
+      // // if the progress is the same over the last 100 seconds, restart the sync:
+      // if (lastFewProgresses.every((p) => p == lastFewProgresses.first)) {
+      //   print("mweb syncing is stuck, restarting...");
+      //   syncStatus = LostConnectionSyncStatus();
+      //   await stopSync();
+      // }
     });
   });
 }
