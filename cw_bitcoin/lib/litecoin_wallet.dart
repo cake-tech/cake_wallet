@@ -98,9 +98,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;
   Timer? _feeRatesTimer;
+  Timer? _processingTimer;
   StreamSubscription<Utxo>? _utxoStream;
   late RpcClient _stub;
   late bool mwebEnabled;
+  bool processingUtxos = false;
 
   List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendSecret => mwebHd.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;
@@ -251,7 +253,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       syncStatus = SyncronizingSyncStatus();
       await subscribeForUpdates();
       updateFeeRates();
-      
+
       _feeRatesTimer?.cancel();
       _feeRatesTimer =
           Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
@@ -289,6 +291,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       final nodeHeight =
           await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
       final resp = await CwMweb.status(StatusRequest());
+      print("MWEB: ${resp}");
 
       if (resp.blockHeaderHeight < nodeHeight) {
         int h = resp.blockHeaderHeight;
@@ -454,12 +457,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         return;
       }
 
-      // if our address isn't in the inputs, update the txCount:
-      final inputAddresses = tx.inputAddresses ?? [];
-      if (!inputAddresses.contains(utxo.address)) {
-        addressRecord.txCount++;
-      }
-
+      // update the txCount:
+      addressRecord.txCount++;
       addressRecord.balance += utxo.value.toInt();
       addressRecord.setAsUsed();
     }
@@ -491,9 +490,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
     _utxoStream = responseStream.listen((Utxo sUtxo) async {
       // we're processing utxos, so our balance could still be innacurate:
-      // if (syncStatus is! SyncronizingSyncStatus && syncStatus is! SyncingSyncStatus) {
-      //   syncStatus = SyncronizingSyncStatus();
-      // }
+      if (syncStatus is! SyncronizingSyncStatus && syncStatus is! SyncingSyncStatus) {
+        syncStatus = SyncronizingSyncStatus();
+        processingUtxos = true;
+        _processingTimer?.cancel();
+        _processingTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+          processingUtxos = false;
+          timer.cancel();
+        });
+      }
 
       final utxo = MwebUtxo(
         address: sUtxo.address,
@@ -535,7 +540,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // check if any of the pending outgoing transactions are now confirmed:
     bool updatedAny = false;
     for (final tx in pendingOutgoingTransactions) {
-      updatedAny = await checkPendingTransaction(tx) || updatedAny;
+      updatedAny = await isConfirmed(tx) || updatedAny;
     }
 
     // get output ids of all the mweb utxos that have > 0 height:
@@ -600,7 +605,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   // checks if a pending transaction is now confirmed, and updates the tx info accordingly:
-  Future<bool> checkPendingTransaction(ElectrumTransactionInfo tx) async {
+  Future<bool> isConfirmed(ElectrumTransactionInfo tx) async {
     if (!mwebEnabled) return false;
     if (!tx.isPending) return false;
 
@@ -957,6 +962,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _utxoStream?.cancel();
     _feeRatesTimer?.cancel();
     _syncTimer?.cancel();
+    _processingTimer?.cancel();
     await stopSync();
     await super.close();
   }

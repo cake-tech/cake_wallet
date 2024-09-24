@@ -36,7 +36,8 @@ class ElectrumBalance extends Balance {
   int secondUnconfirmed = 0;
 
   @override
-  String get formattedAvailableBalance => bitcoinAmountToString(amount: confirmed - frozen);
+  String get formattedAvailableBalance =>
+      bitcoinAmountToString(amount: confirmed + secondConfirmed - frozen);
 
   @override
   String get formattedAdditionalBalance => bitcoinAmountToString(amount: unconfirmed);
@@ -52,10 +53,6 @@ class ElectrumBalance extends Balance {
 
   @override
   String get formattedSecondAdditionalBalance => bitcoinAmountToString(amount: secondUnconfirmed);
-
-  @override
-  String get formattedFullAvailableBalance =>
-      bitcoinAmountToString(amount: confirmed + secondConfirmed - frozen);
 
   String toJSON() => json.encode({
         'confirmed': confirmed,
