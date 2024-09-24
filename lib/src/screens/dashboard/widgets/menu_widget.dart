@@ -22,7 +22,7 @@ class MenuWidgetState extends State<MenuWidget> {
       : this.menuWidth = 0,
         this.screenWidth = 0,
         this.screenHeight = 0,
-        this.headerHeight = 120,
+        this.headerHeight = 500,
         this.tileHeight = 60,
         this.fromTopEdge = 50,
         this.fromBottomEdge = 25,
@@ -137,6 +137,7 @@ class MenuWidgetState extends State<MenuWidget> {
                 itemBuilder: (_, index) {
                   if (index == 0) {
                     return Container(
+                      margin: EdgeInsets.only(bottom: 10),
                       height: headerHeight,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(colors: [
@@ -205,8 +206,8 @@ class MenuWidgetState extends State<MenuWidget> {
                   );
                 },
                 separatorBuilder: (_, index) => Container(
-                  height: 1,
-                  color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor,
+                  height: 0,
+                  color: Colors.transparent
                 ),
                 itemCount: itemCount + 1,
               ),
