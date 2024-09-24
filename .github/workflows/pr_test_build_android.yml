@@ -111,6 +111,11 @@ jobs:
           cd /opt/android/cake_wallet
           flutter packages pub run tool/generate_localization.dart
 
+      - name: Build generated code
+        run: |
+          cd /opt/android/cake_wallet
+          ./model_generator.sh
+
       - name: Add secrets
         run: |
           cd /opt/android/cake_wallet
@@ -172,11 +177,6 @@ jobs:
           echo "const letsExchangeAffiliateId = '${{ secrets.LETS_EXCHANGE_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
           echo "const stealthExBearerToken = '${{ secrets.STEALTH_EX_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const stealthExAdditionalFeePercent = '${{ secrets.STEALTH_EX_ADDITIONAL_FEE_PERCENT }}';" >> lib/.secrets.g.dart
-
-      - name: Build generated code
-        run: |
-          cd /opt/android/cake_wallet
-          ./model_generator.sh
 
       - name: Rename app
         run: |
