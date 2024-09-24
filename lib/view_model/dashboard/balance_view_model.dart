@@ -236,17 +236,6 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  String get secondAdditionalBalance {
-    final walletBalance = _walletBalance;
-
-    if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '---';
-    }
-
-    return walletBalance.formattedSecondAdditionalBalance;
-  }
-
-  @computed
   String get availableFiatBalance {
     final walletBalance = _walletBalance;
     final fiatCurrency = settingsStore.fiatCurrency;

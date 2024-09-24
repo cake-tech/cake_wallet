@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
@@ -217,8 +219,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   })  : _baseItems = <ListItem>[],
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
-        hasAccounts =
-            appStore.wallet!.type == WalletType.monero || appStore.wallet!.type ==  WalletType.wownero || appStore.wallet!.type == WalletType.haven,
+        hasAccounts = appStore.wallet!.type == WalletType.monero ||
+            appStore.wallet!.type == WalletType.wownero ||
+            appStore.wallet!.type == WalletType.haven,
         amount = '',
         _settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
@@ -230,7 +233,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _init();
 
     selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
-    hasAccounts = wallet.type == WalletType.monero || wallet.type == WalletType.wownero || wallet.type == WalletType.haven;
+    hasAccounts = wallet.type == WalletType.monero ||
+        wallet.type == WalletType.wownero ||
+        wallet.type == WalletType.haven;
   }
 
   static const String _cryptoNumberPattern = '0.00000000';
@@ -446,7 +451,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         address: wallet.walletAddresses.address,
       ));
     }
-    
+
     if (wallet.type == WalletType.tron) {
       final primaryAddress = tron!.getAddress(wallet);
 
@@ -519,8 +524,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   Future<void> setAddressType(dynamic option) async {
-    if (wallet.type == WalletType.bitcoin ||
-        wallet.type == WalletType.litecoin) {
+    if (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) {
       await bitcoin!.setAddressType(wallet, option);
     }
   }
@@ -528,7 +532,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void _init() {
     _baseItems = [];
 
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero || wallet.type == WalletType.haven) {
+    if (wallet.type == WalletType.monero ||
+        wallet.type == WalletType.wownero ||
+        wallet.type == WalletType.haven) {
       _baseItems.add(WalletAccountListHeader());
     }
 

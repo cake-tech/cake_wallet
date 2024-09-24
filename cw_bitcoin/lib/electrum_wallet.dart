@@ -1380,13 +1380,7 @@ abstract class ElectrumWalletBase
     List<Map<String, dynamic>> unspents = [];
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
-    try {
-      unspents = await electrumClient.getListUnspent(address.getScriptHash(network));
-    } catch (e, s) {
-      print(e);
-      print(s);
-      return [];
-    }
+    unspents = await electrumClient.getListUnspent(address.getScriptHash(network));
 
     await Future.wait(unspents.map((unspent) async {
       try {
