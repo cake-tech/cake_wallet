@@ -166,7 +166,10 @@ class BuySellPage extends BasePage {
                   Observer(
                       builder: (_) => LoadingPrimaryButton(
                           text: 'Next',
-                          onPressed: () async => await buySellViewModel.launchTrade(context),
+                          onPressed: () async {
+                            if(!_formKey.currentState!.validate()) return;
+                            await buySellViewModel.launchTrade(context);
+                          },
                           color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
                           isDisabled: !buySellViewModel.isReadyToTrade,
@@ -381,10 +384,6 @@ class BuySellPage extends BasePage {
                   Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
               borderColor:
                   Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderTopPanelColor,
-              currencyValueValidator: (value) {
-                return null;
-              },
-              addressTextFieldValidator: AddressValidator(type: buySellViewModel.cryptoCurrency),
               onPushPasteButton: (context) async {},
               onPushAddressBookButton: (context) async {},
             ));
@@ -416,10 +415,7 @@ class BuySellPage extends BasePage {
                   Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
               borderColor:
                   Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
-              currencyValueValidator: (value) {
-                return null;
-              },
-              addressTextFieldValidator: AddressValidator(type: CryptoCurrency.xmr),
+              addressTextFieldValidator: AddressValidator(type: buySellViewModel.cryptoCurrency),
               onPushPasteButton: (context) async {},
               onPushAddressBookButton: (context) async {},
             ));
