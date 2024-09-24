@@ -243,7 +243,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> startSync() async {
-    print("STARTING SYNC @@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
     if (syncStatus is SyncronizingSyncStatus) {
       return;
     }
@@ -251,8 +250,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     try {
       syncStatus = SyncronizingSyncStatus();
       await subscribeForUpdates();
-
-      await updateFeeRates();
+      updateFeeRates();
       _feeRatesTimer?.cancel();
       _feeRatesTimer =
           Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
@@ -317,6 +315,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
         // prevent unnecessary reaction triggers:
         if (syncStatus is! SyncedSyncStatus) {
+          // mwebd is synced, but we could still be processing incoming utxos (should only take a few seconds)
+          // so we wait a few seconds before marking the wallet as synced
+          await Future.delayed(const Duration(seconds: 3));
           syncStatus = SyncedSyncStatus();
         }
         return;
@@ -489,9 +490,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
     _utxoStream = responseStream.listen((Utxo sUtxo) async {
       // we're processing utxos, so our balance could still be innacurate:
-      if (syncStatus is! SyncronizingSyncStatus && syncStatus is! SyncingSyncStatus) {
-        syncStatus = SyncronizingSyncStatus();
-      }
+      // if (syncStatus is! SyncronizingSyncStatus && syncStatus is! SyncingSyncStatus) {
+      //   syncStatus = SyncronizingSyncStatus();
+      // }
 
       final utxo = MwebUtxo(
         address: sUtxo.address,
