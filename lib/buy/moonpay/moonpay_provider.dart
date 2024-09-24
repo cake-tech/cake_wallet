@@ -187,6 +187,17 @@ class MoonPayProvider extends BuyProvider {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
+
+        // Check if the response is for the correct fiat currency
+        if(isBuyAction) {
+          final fiatCurrencyCode = data['baseCurrencyCode'] as String?;
+          if(fiatCurrencyCode == null || fiatCurrencyCode != sourceCurrency.name.toLowerCase()) return null;
+        } else {
+          final quoteCurrency = data['quoteCurrency'] as Map<String, dynamic>?;
+          if(quoteCurrency == null || quoteCurrency['code'] != destinationCurrency.name.toLowerCase()) return null;
+        }
+
+
         final paymentMethods = data['paymentMethod'] as String?;
         final quote = Quote.fromMoonPayJson(
             data, isBuyAction, _getPaymentTypeByString(paymentMethods));
