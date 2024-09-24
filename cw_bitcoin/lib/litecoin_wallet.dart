@@ -300,11 +300,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       } else if (resp.mwebUtxosHeight < nodeHeight) {
         syncStatus = SyncingSyncStatus(1, 0.999);
       } else {
-        // prevent unnecessary reaction triggers:
-        if (syncStatus is! SyncedSyncStatus) {
-          syncStatus = SyncedSyncStatus();
-        }
-
         if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
           await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
           await checkMwebUtxosSpent();
@@ -318,6 +313,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             transactionHistory.addOne(transaction);
           }
           await transactionHistory.save();
+        }
+
+        // prevent unnecessary reaction triggers:
+        if (syncStatus is! SyncedSyncStatus) {
+          syncStatus = SyncedSyncStatus();
         }
         return;
       }
@@ -488,6 +488,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       throw Exception("failed to get utxos stream!");
     }
     _utxoStream = responseStream.listen((Utxo sUtxo) async {
+      // we're processing utxos, so our balance could still be innacurate:
+      if (syncStatus is! SyncronizingSyncStatus && syncStatus is! SyncingSyncStatus) {
+        syncStatus = SyncronizingSyncStatus();
+      }
+
       final utxo = MwebUtxo(
         address: sUtxo.address,
         blockTime: sUtxo.blockTime,
