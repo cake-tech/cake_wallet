@@ -97,7 +97,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   late final Bip32Slip10Secp256k1 mwebHd;
   late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;
-  Timer? _stuckSyncTimer;
   Timer? _feeRatesTimer;
   StreamSubscription<Utxo>? _utxoStream;
   late RpcClient _stub;
@@ -233,6 +232,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   Future<void> waitForMwebAddresses() async {
     // ensure that we have the full 1000 mweb addresses generated before continuing:
+    // should no longer be needed, but leaving here just in case
     final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
     while (mwebAddrs.length < 1000) {
       print("waiting for mweb addresses to finish generating...");
@@ -243,31 +243,35 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> startSync() async {
-    print("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
-    syncStatus = SyncronizingSyncStatus();
-    await subscribeForUpdates();
-
-    await updateFeeRates();
-    _feeRatesTimer?.cancel();
-    _feeRatesTimer =
-        Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
-
-    if (!mwebEnabled) {
-      try {
-        await updateAllUnspents();
-        await updateTransactions();
-        await updateBalance();
-        syncStatus = SyncedSyncStatus();
-      } catch (e, s) {
-        print(e);
-        print(s);
-        syncStatus = FailedSyncStatus();
-      }
+    print("STARTING SYNC @@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    if (syncStatus is SyncronizingSyncStatus) {
       return;
     }
-
-    await waitForMwebAddresses();
+    print("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
     try {
+      syncStatus = SyncronizingSyncStatus();
+      await subscribeForUpdates();
+
+      await updateFeeRates();
+      _feeRatesTimer?.cancel();
+      _feeRatesTimer =
+          Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
+
+      if (!mwebEnabled) {
+        try {
+          await updateAllUnspents();
+          await updateTransactions();
+          await updateBalance();
+          syncStatus = SyncedSyncStatus();
+        } catch (e, s) {
+          print(e);
+          print(s);
+          syncStatus = FailedSyncStatus();
+        }
+        return;
+      }
+
+      await waitForMwebAddresses();
       await getStub();
       await processMwebUtxos();
       await updateTransactions();
@@ -318,26 +322,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         return;
       }
     });
-
-    // setup a watch dog to restart the sync process if it gets stuck:
-    List<double> lastFewProgresses = [];
-    _stuckSyncTimer?.cancel();
-    _stuckSyncTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      if (syncStatus is! SyncingSyncStatus) return;
-      if (syncStatus.progress() > 0.98) return; // don't check if we're close to synced
-      lastFewProgresses.add(syncStatus.progress());
-      if (lastFewProgresses.length < 10) return;
-      // limit list size to 10:
-      while (lastFewProgresses.length > 10) {
-        lastFewProgresses.removeAt(0);
-      }
-      // if the progress is the same over the last 100 seconds, restart the sync:
-      if (lastFewProgresses.every((p) => p == lastFewProgresses.first)) {
-        print("mweb syncing is stuck, restarting...");
-        syncStatus = LostConnectionSyncStatus();
-        await stopSync();
-      }
-    });
   }
 
   @action
@@ -345,7 +329,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<void> stopSync() async {
     _syncTimer?.cancel();
     _utxoStream?.cancel();
-    _stuckSyncTimer?.cancel();
     _feeRatesTimer?.cancel();
     await CwMweb.stop();
   }
@@ -913,7 +896,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           final addresses = <String>{};
           transaction.inputAddresses?.forEach((id) async {
             final utxo = mwebUtxosBox.get(id);
-            // await mwebUtxosBox.delete(id);
+            // await mwebUtxosBox.delete(id);// gets deleted in checkMwebUtxosSpent
             if (utxo == null) return;
             final addressRecord = walletAddresses.allAddresses
                 .firstWhere((addressRecord) => addressRecord.address == utxo.address);
@@ -946,7 +929,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> close() async {
     _utxoStream?.cancel();
-    _stuckSyncTimer?.cancel();
     _feeRatesTimer?.cancel();
     _syncTimer?.cancel();
     await stopSync();

@@ -38,7 +38,7 @@ class AddressList extends StatelessWidget {
         separatorBuilder: (context, _) => const HorizontalSectionDivider(),
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
-        itemCount: min(addressListViewModel.items.length, 100),// TODO: don't show all 1000 mweb addresses
+        itemCount: addressListViewModel.items.length,
         itemBuilder: (context, index) {
           final item = addressListViewModel.items[index];
           Widget cell = Container();
