@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
@@ -10,13 +11,14 @@ import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart'
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
-import 'package:cw_core/currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:developer';
+
+import '../../entities/fiat_currency.dart';
 
 class RobinhoodBuyProvider extends BuyProvider {
   RobinhoodBuyProvider(
@@ -133,14 +135,13 @@ class RobinhoodBuyProvider extends BuyProvider {
 
   @override
   Future<List<Quote>?> fetchQuote(
-      {required Currency sourceCurrency,
-      required Currency destinationCurrency,
+      {required CryptoCurrency cryptoCurrency,
+      required FiatCurrency fiatCurrency,
       required double amount,
       required bool isBuyAction,
       required String walletAddress,
       PaymentType? paymentType,
       String? countryCode}) async {
-
     String? paymentMethod;
 
     if (paymentType != null && paymentType != PaymentType.all) {
@@ -148,22 +149,19 @@ class RobinhoodBuyProvider extends BuyProvider {
       if (paymentMethod == null) paymentMethod = paymentType.name;
     }
 
-    final sourceCurrencyName = sourceCurrency.name.toUpperCase();
-    final destinationCurrencyName = destinationCurrency.name.toUpperCase();
-
     final action = isBuyAction ? 'buy' : 'sell';
-    log('Robinhood: Fetching $action quote: $sourceCurrencyName -> $destinationCurrencyName, amount: $amount paymentMethod: $paymentMethod');
+    log('Robinhood: Fetching $action quote: ${isBuyAction ? cryptoCurrency.title : fiatCurrency.name.toUpperCase()} -> ${isBuyAction ? fiatCurrency.name.toUpperCase() : cryptoCurrency.title}, amount: $amount paymentMethod: $paymentMethod');
 
     final queryParams = {
       'applicationId': _applicationId,
-      'fiatCode': isBuyAction ? sourceCurrencyName : destinationCurrencyName,
-      'assetCode': isBuyAction ? destinationCurrencyName : sourceCurrencyName,
+      'fiatCode': isBuyAction ? fiatCurrency.name : cryptoCurrency.title,
+      'assetCode': isBuyAction ? cryptoCurrency.title : fiatCurrency.name,
       'fiatAmount': amount.toString(),
       if (paymentMethod != null) 'paymentMethod': paymentMethod,
     };
 
-    final uri = Uri.https(
-        'api.robinhood.com', '/catpay/v1/$destinationCurrencyName/quote/', queryParams);
+    final uri =
+        Uri.https('api.robinhood.com', '/catpay/v1/${cryptoCurrency.title}/quote/', queryParams);
 
     try {
       final response = await http.get(uri, headers: {'accept': 'application/json'});
@@ -172,8 +170,8 @@ class RobinhoodBuyProvider extends BuyProvider {
       if (response.statusCode == 200) {
         final paymentType = _getPaymentTypeByString(responseData['paymentMethod'] as String?);
         final quote = Quote.fromRobinhoodJson(responseData, isBuyAction, paymentType);
-        quote.setSourceCurrency = sourceCurrency;
-        quote.setDestinationCurrency = destinationCurrency;
+        quote.setSourceCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
+        quote.setDestinationCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
         return [quote];
       } else {
         if (responseData.containsKey('message')) {

@@ -4,12 +4,14 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -88,20 +90,20 @@ class MeldBuyProvider extends BuyProvider {
 
   @override
   Future<List<Quote>?> fetchQuote(
-      {required Currency sourceCurrency,
-      required Currency destinationCurrency,
-      required double amount,
-      required bool isBuyAction,
-      required String walletAddress,
-      PaymentType? paymentType,
-      String? countryCode}) async {
+      {required CryptoCurrency cryptoCurrency,
+        required FiatCurrency fiatCurrency,
+        required double amount,
+        required bool isBuyAction,
+        required String walletAddress,
+        PaymentType? paymentType,
+        String? countryCode}) async {
     String? paymentMethod;
     if (paymentType != null && paymentType != PaymentType.all) {
       paymentMethod = normalizePaymentMethod(paymentType);
       if (paymentMethod == null) paymentMethod = paymentType.name;
     }
 
-    log('Meld: Fetching buy quote: $sourceCurrency -> $destinationCurrency, amount: $amount');
+    log('Meld: Fetching buy quote: ${isBuyAction ? cryptoCurrency : fiatCurrency} -> ${isBuyAction ? fiatCurrency : cryptoCurrency}, amount: $amount');
 
     final url = Uri.https(_baseUrl, _quotePath);
     final headers = {
@@ -112,9 +114,9 @@ class MeldBuyProvider extends BuyProvider {
     };
     final body = jsonEncode({
       'countryCode': countryCode,
-      'destinationCurrencyCode': destinationCurrency,
+      'destinationCurrencyCode': isBuyAction ? fiatCurrency.name : cryptoCurrency.title,
       'sourceAmount': amount,
-      'sourceCurrencyCode': sourceCurrency,
+      'sourceCurrencyCode': isBuyAction ? cryptoCurrency.title : fiatCurrency.name,
       if (paymentMethod != null) 'paymentMethod': paymentMethod,
     });
 
@@ -126,8 +128,8 @@ class MeldBuyProvider extends BuyProvider {
         final paymentType = _getPaymentTypeByString(data['paymentMethodType'] as String?);
         final quote = Quote.fromMeldJson(data, isBuyAction, paymentType);
 
-        quote.setSourceCurrency = sourceCurrency;
-        quote.setDestinationCurrency = destinationCurrency;
+        quote.setSourceCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
+        quote.setDestinationCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
 
         return [quote];
       } else {

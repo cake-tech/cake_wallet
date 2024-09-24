@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -12,9 +13,8 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'dart:developer';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class OnRamperBuyProvider extends BuyProvider {
   OnRamperBuyProvider(this._settingsStore,
@@ -109,8 +109,8 @@ class OnRamperBuyProvider extends BuyProvider {
 
   @override
   Future<List<Quote>?> fetchQuote(
-      {required Currency sourceCurrency,
-      required Currency destinationCurrency,
+      {required CryptoCurrency cryptoCurrency,
+      required FiatCurrency fiatCurrency,
       required double amount,
       required bool isBuyAction,
       required String walletAddress,
@@ -125,8 +125,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
     final actionType = isBuyAction ? 'buy' : 'sell';
 
-    final normalizedSourceCurrency = _getNormalizeCryptoCurrency(sourceCurrency);
-    final normalizedDestinationCurrency = _getNormalizeCryptoCurrency(destinationCurrency);
+    final normalizedCryptoCurrency = _getNormalizeCryptoCurrency(cryptoCurrency);
 
     final params = {
       'amount': amount.toString(),
@@ -139,10 +138,12 @@ class OnRamperBuyProvider extends BuyProvider {
       'input': 'source',
     };
 
-    log('Onramper: Fetching $actionType quote: $normalizedSourceCurrency -> $normalizedDestinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
+    log('Onramper: Fetching $actionType quote: ${isBuyAction ? normalizedCryptoCurrency : fiatCurrency.name} -> ${isBuyAction ? fiatCurrency.name : normalizedCryptoCurrency}, amount: $amount, paymentMethod: $paymentMethod');
 
-    final url = Uri.https(
-        _baseApiUrl, '$quotes/$normalizedSourceCurrency/$normalizedDestinationCurrency', params);
+    final sourceCurrency = isBuyAction ? fiatCurrency.name : normalizedCryptoCurrency;
+    final destinationCurrency = isBuyAction ? normalizedCryptoCurrency : fiatCurrency.name;
+
+    final url = Uri.https(_baseApiUrl, '$quotes/${sourceCurrency}/${destinationCurrency}', params);
     final headers = {'Authorization': _apiKey, 'accept': 'application/json'};
 
     try {
@@ -168,8 +169,8 @@ class OnRamperBuyProvider extends BuyProvider {
 
           final quote = Quote.fromOnramperJson(
               item, isBuyAction, onrampMetadata, _getPaymentTypeByString(paymentMethod));
-          quote.setSourceCurrency = sourceCurrency;
-          quote.setDestinationCurrency = destinationCurrency;
+          quote.setSourceCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
+          quote.setDestinationCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
           validQuotes.add(quote);
         }
 
@@ -226,7 +227,7 @@ class OnRamperBuyProvider extends BuyProvider {
       if (paymentMethod != null) '${prefix}defaultPaymentMethod': paymentMethod,
       'onlyOnramps': quote.rampId,
       'networkWallets': '${networkName}:${wallet.walletAddresses.address}',
-      if (cryptoCurrencyAddress.isNotEmpty)'walletAddress' : cryptoCurrencyAddress,
+      if (cryptoCurrencyAddress.isNotEmpty) 'walletAddress': cryptoCurrencyAddress,
       'supportSwap': "false",
       'primaryColor': primaryColor,
       'secondaryColor': secondaryColor,

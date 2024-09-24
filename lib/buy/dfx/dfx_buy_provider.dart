@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:developer';
+
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
@@ -9,13 +11,12 @@ import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart'
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
-import 'package:cw_core/currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:developer';
 
 class DFXBuyProvider extends BuyProvider {
   DFXBuyProvider(
@@ -211,15 +212,16 @@ class DFXBuyProvider extends BuyProvider {
 
   @override
   Future<List<Quote>?> fetchQuote(
-      {required Currency sourceCurrency,
-      required Currency destinationCurrency,
+      {required CryptoCurrency cryptoCurrency,
+      required FiatCurrency fiatCurrency,
       required double amount,
       required bool isBuyAction,
       required String walletAddress,
       PaymentType? paymentType,
       String? countryCode}) async {
     /// if buying with any currency other than eur or chf then DFX is not supported
-    if (isBuyAction && (sourceCurrency != FiatCurrency.eur || sourceCurrency != FiatCurrency.chf)) {
+
+    if (isBuyAction && (fiatCurrency != FiatCurrency.eur && fiatCurrency != FiatCurrency.chf)) {
       return null;
     }
 
@@ -233,27 +235,15 @@ class DFXBuyProvider extends BuyProvider {
 
     final action = isBuyAction ? 'buy' : 'sell';
 
-    if (isBuyAction) {
-      if (destinationCurrency.toString() != wallet.currency.title) {
-        return null;
-      }
-    }
+    if (isBuyAction && cryptoCurrency != wallet.currency) return null;
 
-    if (!isBuyAction) {
-      if (sourceCurrency.toString() != wallet.currency.title) {
-        return null;
-      }
-    }
-
-    final fiatCredentials =
-        await fetchFiatCredentials((isBuyAction ? sourceCurrency : destinationCurrency).toString());
+    final fiatCredentials = await fetchFiatCredentials(fiatCurrency.name.toString());
     if (fiatCredentials['id'] == null) return null;
 
-    final assetCredentials =
-        await fetchAssetCredential((isBuyAction ? destinationCurrency : sourceCurrency).toString());
+    final assetCredentials = await fetchAssetCredential(cryptoCurrency.title.toString());
     if (assetCredentials['id'] == null) return null;
 
-    log('DFX: Fetching $action quote: $sourceCurrency -> $destinationCurrency, amount: $amount, paymentMethod: $paymentMethod');
+    log('DFX: Fetching $action quote: ${isBuyAction ? cryptoCurrency : fiatCurrency} -> ${isBuyAction ? fiatCurrency : cryptoCurrency}, amount: $amount, paymentMethod: $paymentMethod');
 
     final url = Uri.https(_baseUrl, '/v1/$action/quote');
     final headers = {'accept': 'application/json', 'Content-Type': 'application/json'};
@@ -274,8 +264,8 @@ class DFXBuyProvider extends BuyProvider {
         if (responseData is Map<String, dynamic>) {
           final paymentType = _getPaymentTypeByString(responseData['paymentMethod'] as String?);
           final quote = Quote.fromDFXJson(responseData, isBuyAction, paymentType);
-          quote.setSourceCurrency = sourceCurrency;
-          quote.setDestinationCurrency = destinationCurrency;
+          quote.setSourceCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
+          quote.setDestinationCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
           return [quote];
         } else {
           print('DFX: Unexpected data type: ${responseData.runtimeType}');

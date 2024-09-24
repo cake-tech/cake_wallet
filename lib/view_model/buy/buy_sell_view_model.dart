@@ -311,8 +311,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     final result = await Future.wait<List<Quote>?>(providerList.map((element) => element
         .fetchQuote(
-          sourceCurrency: isBuyAction ? fiatCurrency : cryptoCurrency,
-          destinationCurrency: isBuyAction ? cryptoCurrency : fiatCurrency,
+          cryptoCurrency: cryptoCurrency,
+          fiatCurrency: fiatCurrency,
           amount: amount,
           paymentType: selectedPaymentMethod?.paymentMethodType,
           isBuyAction: isBuyAction,

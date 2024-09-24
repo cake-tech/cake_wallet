@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_exception.dart';
@@ -8,7 +9,6 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
@@ -16,21 +16,18 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:developer';
 
 class MoonPayProvider extends BuyProvider {
   MoonPayProvider({
     required SettingsStore settingsStore,
     required WalletBase wallet,
     bool isTestEnvironment = false,
-  })
-      : baseSellUrl = isTestEnvironment ? _baseSellTestUrl : _baseSellProductUrl,
+  })  : baseSellUrl = isTestEnvironment ? _baseSellTestUrl : _baseSellProductUrl,
         baseBuyUrl = isTestEnvironment ? _baseBuyTestUrl : _baseBuyProductUrl,
         this._settingsStore = settingsStore,
         super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
@@ -102,8 +99,8 @@ class MoonPayProvider extends BuyProvider {
     }
   }
 
-  Future<Map<String, dynamic>> fetchFiatCredentials(String fiatCurrency, String cryptocurrency,
-      String? paymentMethod) async {
+  Future<Map<String, dynamic>> fetchFiatCredentials(
+      String fiatCurrency, String cryptocurrency, String? paymentMethod) async {
     final params = {'baseCurrencyCode': fiatCurrency.toLowerCase(), 'apiKey': _apiKey};
 
     if (paymentMethod != null) params['paymentMethod'] = paymentMethod;
@@ -125,16 +122,15 @@ class MoonPayProvider extends BuyProvider {
     }
   }
 
-  Future<List<PaymentMethod>> getAvailablePaymentTypes(String fiatCurrency, String cryptoCurrency,
-      bool isBuyAction) async {
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(
+      String fiatCurrency, String cryptoCurrency, bool isBuyAction) async {
     final List<PaymentMethod> paymentMethods = [];
 
     if (isBuyAction) {
       final fiatBuyCredentials = await fetchFiatCredentials(fiatCurrency, cryptoCurrency, null);
       if (fiatBuyCredentials.isNotEmpty) {
         final paymentMethod = fiatBuyCredentials['paymentMethod'] as String?;
-        paymentMethods
-            .add(PaymentMethod.fromMoonPayJson(
+        paymentMethods.add(PaymentMethod.fromMoonPayJson(
             fiatBuyCredentials, _getPaymentTypeByString(paymentMethod)));
         return paymentMethods;
       }
@@ -144,13 +140,14 @@ class MoonPayProvider extends BuyProvider {
   }
 
   @override
-  Future<List<Quote>?> fetchQuote({required Currency sourceCurrency,
-    required Currency destinationCurrency,
-    required double amount,
-    required bool isBuyAction,
-    required String walletAddress,
-    PaymentType? paymentType,
-    String? countryCode}) async {
+  Future<List<Quote>?> fetchQuote(
+      {required CryptoCurrency cryptoCurrency,
+      required FiatCurrency fiatCurrency,
+      required double amount,
+      required bool isBuyAction,
+      required String walletAddress,
+      PaymentType? paymentType,
+      String? countryCode}) async {
     String? paymentMethod;
 
     if (paymentType != null && paymentType != PaymentType.all) {
@@ -162,9 +159,9 @@ class MoonPayProvider extends BuyProvider {
 
     final action = isBuyAction ? 'buy' : 'sell';
 
-    final currency = (isBuyAction ? destinationCurrency : sourceCurrency) as CryptoCurrency;
-    final formattedCurrency = _normalizeCurrency(currency);
-    final baseCurrencyCode = isBuyAction ? sourceCurrency.name.toLowerCase() : destinationCurrency.name.toLowerCase();
+    final formattedCryptoCurrency = _normalizeCurrency(cryptoCurrency);
+    final baseCurrencyCode =
+        isBuyAction ? fiatCurrency.name.toLowerCase() : cryptoCurrency.title.toLowerCase();
 
     final params = {
       'baseCurrencyCode': baseCurrencyCode,
@@ -175,12 +172,11 @@ class MoonPayProvider extends BuyProvider {
       'apiKey': _apiKey
     };
 
-    log(
-        'MoonPay: Fetching $action quote: ${isBuyAction ? baseCurrencyCode : formattedCurrency} -> ${isBuyAction ? formattedCurrency : baseCurrencyCode}, amount: $amount, paymentMethod: $paymentMethod');
+    log('MoonPay: Fetching $action quote: ${isBuyAction ? formattedCryptoCurrency : fiatCurrency.name.toLowerCase()} -> ${isBuyAction ? baseCurrencyCode : formattedCryptoCurrency}, amount: $amount, paymentMethod: $paymentMethod');
 
     final quotePath = isBuyAction ? _buyQuote : _sellQuote;
 
-    final path = '$_currenciesPath/$formattedCurrency$quotePath';
+    final path = '$_currenciesPath/$formattedCryptoCurrency$quotePath';
     final url = Uri.https(_baseUrl, path, params);
     try {
       final response = await get(url);
@@ -189,21 +185,22 @@ class MoonPayProvider extends BuyProvider {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
 
         // Check if the response is for the correct fiat currency
-        if(isBuyAction) {
+        if (isBuyAction) {
           final fiatCurrencyCode = data['baseCurrencyCode'] as String?;
-          if(fiatCurrencyCode == null || fiatCurrencyCode != sourceCurrency.name.toLowerCase()) return null;
+          if (fiatCurrencyCode == null || fiatCurrencyCode != fiatCurrency.name.toLowerCase())
+            return null;
         } else {
           final quoteCurrency = data['quoteCurrency'] as Map<String, dynamic>?;
-          if(quoteCurrency == null || quoteCurrency['code'] != destinationCurrency.name.toLowerCase()) return null;
+          if (quoteCurrency == null || quoteCurrency['code'] != fiatCurrency.name.toLowerCase())
+            return null;
         }
 
-
         final paymentMethods = data['paymentMethod'] as String?;
-        final quote = Quote.fromMoonPayJson(
-            data, isBuyAction, _getPaymentTypeByString(paymentMethods));
+        final quote =
+            Quote.fromMoonPayJson(data, isBuyAction, _getPaymentTypeByString(paymentMethods));
 
-        quote.setSourceCurrency = sourceCurrency;
-        quote.setDestinationCurrency = destinationCurrency;
+        quote.setSourceCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
+        quote.setDestinationCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
 
         return [quote];
       } else {
@@ -217,12 +214,13 @@ class MoonPayProvider extends BuyProvider {
   }
 
   @override
-  Future<void>? launchProvider({required BuildContext context,
-    required Quote quote,
-    required double amount,
-    required bool isBuyAction,
-    required String cryptoCurrencyAddress,
-    String? countryCode}) async {
+  Future<void>? launchProvider(
+      {required BuildContext context,
+      required Quote quote,
+      required double amount,
+      required bool isBuyAction,
+      required String cryptoCurrencyAddress,
+      String? countryCode}) async {
     final currency = (isBuyAction ? quote.destinationCurrency : quote.sourceCurrency).name;
 
     final Map<String, String> params = {
@@ -237,8 +235,9 @@ class MoonPayProvider extends BuyProvider {
       'lockAmount': 'false',
       'showAllCurrencies': 'false',
       'showWalletAddressForm': 'false',
-      if (isBuyAction)'enabledPaymentMethods': normalizePaymentMethod(quote.paymentType) ??
-          'credit_debit_card,apple_pay,google_pay,samsung_pay,sepa_bank_transfer,gbp_bank_transfer,gbp_open_banking_payment',
+      if (isBuyAction)
+        'enabledPaymentMethods': normalizePaymentMethod(quote.paymentType) ??
+            'credit_debit_card,apple_pay,google_pay,samsung_pay,sepa_bank_transfer,gbp_bank_transfer,gbp_open_banking_payment',
       if (!isBuyAction) 'refundWalletAddress': cryptoCurrencyAddress
     };
 
@@ -269,9 +268,7 @@ class MoonPayProvider extends BuyProvider {
             return AlertWithOneAction(
               alertTitle: 'MoonPay',
               alertContent: 'The MoonPay service is currently unavailable: $e',
-              buttonText: S
-                  .of(context)
-                  .ok,
+              buttonText: S.of(context).ok,
               buttonAction: () => Navigator.of(context).pop(),
             );
           },
