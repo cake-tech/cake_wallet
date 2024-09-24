@@ -14,29 +14,29 @@ import 'package:permission_handler/permission_handler.dart';
 
 enum AddressTextFieldOption { paste, qrCode, addressBook, walletAddresses }
 
-class AddressTextField<T extends Currency> extends StatelessWidget {
-  AddressTextField(
-      {required this.controller,
-      this.isActive = true,
-      this.placeholder,
-      this.options = const [
-        AddressTextFieldOption.qrCode,
-        AddressTextFieldOption.addressBook
-      ],
-      this.onURIScanned,
-      this.focusNode,
-      this.isBorderExist = true,
-      this.buttonColor,
-      this.borderColor,
-      this.iconColor,
-      this.textStyle,
-      this.hintStyle,
-      this.validator,
-      this.onPushPasteButton,
-      this.onPushAddressBookButton,
-      this.onPushAddressPickerButton,
-      this.onSelectedContact,
-      this.selectedCurrency});
+
+class AddressTextField<T extends Currency> extends StatelessWidget{
+  AddressTextField({
+    required this.controller,
+    this.isActive = true,
+    this.placeholder,
+    this.options = const [AddressTextFieldOption.qrCode, AddressTextFieldOption.addressBook],
+    this.onURIScanned,
+    this.focusNode,
+    this.isBorderExist = true,
+    this.buttonColor,
+    this.borderColor,
+    this.iconColor,
+    this.textStyle,
+    this.hintStyle,
+    this.validator,
+    this.onPushPasteButton,
+    this.onPushAddressBookButton,
+    this.onPushAddressPickerButton,
+    this.onSelectedContact,
+    this.selectedCurrency,
+    this.addressKey,
+  });
 
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;
@@ -60,12 +60,14 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   final Function(BuildContext context)? onPushAddressPickerButton;
   final Function(ContactBase contact)? onSelectedContact;
   final T? selectedCurrency;
+  final Key? addressKey;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
         TextFormField(
+          key: addressKey,
           enableIMEPersonalizedLearning: false,
           keyboardType: TextInputType.visiblePassword,
           onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),

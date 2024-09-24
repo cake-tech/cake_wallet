@@ -21,9 +21,9 @@ class ExceptionHandler {
   static File? _file;
 
   static void _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
-    if (_file == null) {
-      final appDocDir = await getAppDir();
+    final appDocDir = await getAppDir();
 
+    if (_file == null) {
       _file = File('${appDocDir.path}/error.txt');
     }
 

@@ -14,14 +14,16 @@ abstract class SupportViewModelBase with Store {
   : items = [
       LinkListItem(
           title: 'Email',
+          icon: 'assets/images/support_icon.png',
           linkTitle: 'support@cakewallet.com',
           link: 'mailto:support@cakewallet.com'),
       if (!isMoneroOnly)
         LinkListItem(
             title: 'Website',
+            icon: 'assets/images/global.png',
             linkTitle: 'cakewallet.com',
             link: 'https://cakewallet.com'),
-      if (!isMoneroOnly)      
+      if (!isMoneroOnly)
         LinkListItem(
             title: 'GitHub',
             icon: 'assets/images/github.png',
@@ -29,7 +31,12 @@ abstract class SupportViewModelBase with Store {
             linkTitle: S.current.apk_update,
             link: 'https://github.com/cake-tech/cake_wallet/releases'),
       LinkListItem(
-          title: 'Telegram',
+          title: 'Telegram Community',
+          icon: 'assets/images/Telegram.png',
+          linkTitle: 't.me/cakewallet',
+          link: 'https://t.me/cakewallet'),
+      LinkListItem(
+          title: 'Telegram Support Bot',
           icon: 'assets/images/Telegram.png',
           linkTitle: '@cakewallet_bot',
           link: 'https://t.me/cakewallet_bot'),

@@ -523,7 +523,7 @@ abstract class SettingsStoreBase with Store {
 
   static const defaultPinLength = 4;
   static const defaultActionsMode = 11;
-  static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
+  static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenMinutes;
   static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
   static final walletPasswordDirectInput = Platform.isLinux;
   static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;

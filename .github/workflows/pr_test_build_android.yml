@@ -13,6 +13,9 @@ on:
 jobs:
   PR_test_build:
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        api-level: [29]
     env:
       STORE_PASS: test@cake_wallet
       KEY_PASS: test@cake_wallet

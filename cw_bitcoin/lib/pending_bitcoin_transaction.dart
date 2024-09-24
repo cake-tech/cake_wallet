@@ -91,6 +91,10 @@ class PendingBitcoinTransaction with PendingTransaction {
           throw BitcoinTransactionCommitFailedBIP68Final();
         }
 
+        if (error.contains("min fee not met")) {
+          throw BitcoinTransactionCommitFailedLessThanMin();
+        }
+
         throw BitcoinTransactionCommitFailed(errorMessage: error);
       }
 
