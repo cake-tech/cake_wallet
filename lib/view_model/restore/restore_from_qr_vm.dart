@@ -56,12 +56,8 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   WalletCredentials getCredentialsFromRestoredWallet(
       dynamic options, RestoredWallet restoreWallet) {
     final password = generateWalletPassword();
-    String? passphrase;
+
     DerivationInfo? derivationInfo;
-    if (options != null) {
-      derivationInfo = options["derivationInfo"] as DerivationInfo?;
-      passphrase = options["passphrase"] as String?;
-    }
     derivationInfo ??= getDefaultCreateDerivation();
 
     switch (restoreWallet.restoreMode) {
@@ -119,7 +115,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
               name: name,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
-              passphrase: passphrase,
+              passphrase: restoreWallet.passphrase,
               derivationType: derivationInfo!.derivationType!,
               derivationPath: derivationInfo.derivationPath!,
             );
