@@ -272,7 +272,8 @@ abstract class HomeSettingsViewModelBase with Store {
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (decodedResponse['status'] != '1') {
-        log('${decodedResponse['result']}');
+        print('${response.toString()}\n');
+        print('${decodedResponse['result']}\n');
         return true;
       }
 
@@ -312,14 +313,17 @@ abstract class HomeSettingsViewModelBase with Store {
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (decodedResponse['status'] == '0') {
-        log('${decodedResponse['result']}');
+        print('${response.toString()}\n');
+        print('${decodedResponse['result']}\n');
         return true;
       }
 
       if (decodedResponse['status'] == '1' &&
           decodedResponse['result'][0]['ABI'] == 'Contract source code not verified') {
+        print('Call is valid but contract is not verified');
         return true; // Contract is not verified
       } else {
+        print('Call is valid and contract is verified');
         return false; // Contract is verified
       }
     } catch (e) {
