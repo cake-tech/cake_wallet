@@ -34,10 +34,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/sp_scanner
       ref: sp_v4.0.0
-  ledger_flutter_plus:
-    git:
-      url: https://github.com/cake-tech/ledger-flutter-plus
-      ref: cake-v1
+  ledger_flutter_plus: ^1.2.4
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins

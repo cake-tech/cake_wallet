@@ -40,7 +40,10 @@ abstract class LedgerViewModelBase with Store {
 
   LedgerViewModelBase() {
     if (_doesSupportHardwareWallets) {
-      _initBLE();
+      reaction((_) => bleIsEnabled, (_) {
+        if (bleIsEnabled) _initBLE();
+      });
+      updateBleState();
 
       if (!Platform.isIOS) {
         ledgerPlusUSB = sdk.LedgerInterface.usb();
@@ -51,10 +54,9 @@ abstract class LedgerViewModelBase with Store {
   @observable
   bool bleIsEnabled = false;
 
+  bool _bleIsInitialized = false;
   Future<void> _initBLE() async {
-    await updateBleState();
-
-    if (bleIsEnabled) {
+    if (bleIsEnabled && !_bleIsInitialized) {
       ledgerPlusBLE = sdk.LedgerInterface.ble(onPermissionRequest: (_) async {
         Map<Permission, PermissionStatus> statuses = await [
           Permission.bluetoothScan,
@@ -64,13 +66,16 @@ abstract class LedgerViewModelBase with Store {
 
         return statuses.values.where((status) => status.isDenied).isEmpty;
       });
+      _bleIsInitialized = true;
     }
   }
 
   Future<void> updateBleState() async {
     final bleState = await sdk.UniversalBle.getBluetoothAvailabilityState();
 
-    bleIsEnabled = bleState == sdk.AvailabilityState.poweredOn;
+    final newState = bleState == sdk.AvailabilityState.poweredOn;
+
+    if (newState != bleIsEnabled) bleIsEnabled = newState;
   }
 
   Stream<sdk.LedgerDevice> scanForBleDevices() => ledgerPlusBLE.scan();
