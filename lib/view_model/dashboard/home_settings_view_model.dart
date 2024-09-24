@@ -151,23 +151,33 @@ abstract class HomeSettingsViewModelBase with Store {
 
       bool isEthereum = _balanceViewModel.wallet.type == WalletType.ethereum;
 
+      print('An extra log for now');
+
       bool isPotentialScamViaMoralis = await _isPotentialScamTokenViaMoralis(
         contractAddress,
         isEthereum ? 'eth' : 'polygon',
       );
+
+      print('Is Potential Scam from Moralis: $isPotentialScamViaMoralis');
 
       bool isPotentialScamViaExplorers = await _isPotentialScamTokenViaExplorers(
         contractAddress,
         isEthereum: isEthereum,
       );
 
+      print('Is Potential Scam from Explorers: $isPotentialScamViaExplorers');
+
       bool isUnverifiedContract = await _isContractUnverified(
         contractAddress,
         isEthereum: isEthereum,
       );
 
+      print('Is Unverified Contract: $isUnverifiedContract');
+
       final showWarningForContractAddress =
           isPotentialScamViaMoralis || isUnverifiedContract || isPotentialScamViaExplorers;
+
+      print('Show Warning: $showWarningForContractAddress');
 
       return showWarningForContractAddress;
     } finally {
@@ -236,6 +246,7 @@ abstract class HomeSettingsViewModelBase with Store {
 
       return false;
     } catch (e) {
+      print('Error while checking scam via moralis: ${e.toString()}');
       return true;
     }
   }
@@ -261,29 +272,22 @@ abstract class HomeSettingsViewModelBase with Store {
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (decodedResponse['status'] != '1') {
-        log('${decodedResponse['result']}');
+        print('${response.body}\n');
+        print('${decodedResponse['result']}\n');
         return true;
       }
 
       final tokenInfo =
           Erc20TokenInfoExplorers.fromJson(decodedResponse['result'][0] as Map<String, dynamic>);
 
-      // A token without an email to reach its creators is a potential red flag
-      if (tokenInfo.email?.isEmpty == true) {
-        return true;
-      }
-
       // A token without a website is a potential red flag
       if (tokenInfo.website?.isEmpty == true) {
         return true;
       }
 
-      // if (tokenInfo.whitepaper == null) {
-      //   return true;
-      // }
-
       return false;
     } catch (e) {
+      print('Error while checking scam via explorers: ${e.toString()}');
       return true;
     }
   }
@@ -298,7 +302,7 @@ abstract class HomeSettingsViewModelBase with Store {
       {
         "module": "contract",
         "action": "getsourcecode",
-        "contractaddress": contractAddress,
+        "address": contractAddress,
         "apikey": isEthereum ? secrets.etherScanApiKey : secrets.polygonScanApiKey,
       },
     );
@@ -309,17 +313,21 @@ abstract class HomeSettingsViewModelBase with Store {
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (decodedResponse['status'] == '0') {
-        log('${decodedResponse['result']}');
+        print('${response.body}\n');
+        print('${decodedResponse['result']}\n');
         return true;
       }
 
       if (decodedResponse['status'] == '1' &&
           decodedResponse['result'][0]['ABI'] == 'Contract source code not verified') {
+        print('Call is valid but contract is not verified');
         return true; // Contract is not verified
       } else {
+        print('Call is valid and contract is verified');
         return false; // Contract is verified
       }
     } catch (e) {
+      print('Error while checking contract verification: ${e.toString()}');
       return true;
     }
   }
