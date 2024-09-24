@@ -360,6 +360,7 @@ class BuySellPage extends BasePage {
   Widget _exchangeCardsSection(BuildContext context) {
     final fiatExchangeCard = Observer(
         builder: (_) => ExchangeCard(
+              cardInstanceName: 'fiat_currency_trade_card',
               onDispose: disposeBestRateSync,
               amountFocusNode: _fiatAmountFocus,
               addressFocusNode: _depositAddressFocus,
@@ -390,6 +391,7 @@ class BuySellPage extends BasePage {
 
     final cryptoExchangeCard = Observer(
         builder: (_) => ExchangeCard(
+              cardInstanceName: 'crypto_currency_trade_card',
               onDispose: disposeBestRateSync,
               amountFocusNode: _cryptoAmountFocus,
               addressFocusNode: _receiveAddressFocus,
