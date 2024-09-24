@@ -9,6 +9,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 
 typedef OnConnectDevice = void Function(BuildContext, LedgerViewModel);
@@ -51,22 +52,6 @@ class ConnectDevicePageBody extends StatefulWidget {
 }
 
 class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
-  // final ledger = Ledger(
-  //   options: LedgerOptions(
-  //     scanMode: ScanMode.balanced,
-  //     maxScanDuration: const Duration(minutes: 5),
-  //   ),
-  //   onPermissionRequest: (_) async {
-  //     Map<Permission, PermissionStatus> statuses = await [
-  //       Permission.bluetoothScan,
-  //       Permission.bluetoothConnect,
-  //       Permission.bluetoothAdvertise,
-  //     ].request();
-  //
-  //     return statuses.values.where((status) => status.isDenied).isEmpty;
-  //   },
-  // );
-
   var bleIsEnabled = true;
   var bleDevices = <LedgerDevice>[];
   var usbDevices = <LedgerDevice>[];
@@ -106,8 +91,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       ..onError((e) {
         throw e.toString();
       });
-    _usbRefreshTimer?.cancel();
-    _usbRefreshTimer = null;
+    // Keep polling until the lfp lib gets updated
+    // _usbRefreshTimer?.cancel();
+    // _usbRefreshTimer = null;
   }
 
   Future<void> _refreshBleDevices() async {
@@ -178,20 +164,25 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
               //   title: "Debug Ledger",
               //   leading: imageLedger,
               // ),
-              if (!bleIsEnabled)
-                Padding(
-                  padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                  child: Text(
-                    S.of(context).ledger_please_enable_bluetooth,
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context)
-                            .extension<CakeTextTheme>()!
-                            .titleColor),
-                    textAlign: TextAlign.center,
+              Observer(
+                builder: (_) => Offstage(
+                  offstage: widget.ledgerVM.bleIsEnabled,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                    child: Text(
+                      S.of(context).ledger_please_enable_bluetooth,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context)
+                              .extension<CakeTextTheme>()!
+                              .titleColor),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
+              ),
+
               if (bleDevices.length > 0) ...[
                 Padding(
                   padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),

@@ -12,9 +12,15 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as sdk;
+import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class LedgerViewModel {
+part 'ledger_view_model.g.dart';
+
+class LedgerViewModel = LedgerViewModelBase
+    with _$LedgerViewModel;
+
+abstract class LedgerViewModelBase with Store {
   // late final Ledger ledger;
   late final sdk.LedgerInterface ledgerPlusBLE;
   late final sdk.LedgerInterface ledgerPlusUSB;
@@ -33,7 +39,7 @@ class LedgerViewModel {
     return true;
   }
 
-  LedgerViewModel() {
+  LedgerViewModelBase() {
     if (_doesSupportHardwareWallets) {
       _initBLE();
 
@@ -42,6 +48,9 @@ class LedgerViewModel {
       }
     }
   }
+
+  @observable
+  bool bleIsEnabled = false;
 
   Future<void> _initBLE() async {
     final bleState = await sdk.UniversalBle.getBluetoothAvailabilityState();
@@ -56,6 +65,8 @@ class LedgerViewModel {
 
         return statuses.values.where((status) => status.isDenied).isEmpty;
       });
+    } else {
+      bleIsEnabled = false;
     }
   }
 
