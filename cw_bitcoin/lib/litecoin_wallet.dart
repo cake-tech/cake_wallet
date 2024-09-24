@@ -251,6 +251,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       syncStatus = SyncronizingSyncStatus();
       await subscribeForUpdates();
       updateFeeRates();
+      
       _feeRatesTimer?.cancel();
       _feeRatesTimer =
           Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
