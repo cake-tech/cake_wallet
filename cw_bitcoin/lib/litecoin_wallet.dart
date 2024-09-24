@@ -700,6 +700,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
     await getStub();
 
+    // update unspent balances:
+    await updateUnspent();
+
     int confirmed = balance.confirmed;
     int unconfirmed = balance.unconfirmed;
     int confirmedMweb = 0;
@@ -716,9 +719,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         unconfirmedMweb = -1 * (confirmedMweb - unconfirmedMweb);
       }
     } catch (_) {}
-
-    // update unspent balances:
-    await updateUnspent();
 
     for (var addressRecord in walletAddresses.allAddresses) {
       addressRecord.balance = 0;
