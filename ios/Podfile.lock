@@ -3,41 +3,10 @@ PODS:
     - Flutter
     - MTBBarcodeScanner
     - SwiftProtobuf
-  - BigInt (5.2.0)
   - connectivity_plus (0.0.1):
     - Flutter
     - ReachabilitySwift
   - CryptoSwift (1.8.2)
-  - cw_haven (0.0.1):
-    - cw_haven/Boost (= 0.0.1)
-    - cw_haven/Haven (= 0.0.1)
-    - cw_haven/OpenSSL (= 0.0.1)
-    - cw_haven/Sodium (= 0.0.1)
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Boost (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Haven (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/OpenSSL (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Sodium (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_shared_external (0.0.1):
-    - cw_shared_external/Boost (= 0.0.1)
-    - cw_shared_external/OpenSSL (= 0.0.1)
-    - cw_shared_external/Sodium (= 0.0.1)
-    - Flutter
-  - cw_shared_external/Boost (0.0.1):
-    - Flutter
-  - cw_shared_external/OpenSSL (0.0.1):
-    - Flutter
-  - cw_shared_external/Sodium (0.0.1):
-    - Flutter
   - device_display_brightness (0.0.1):
     - Flutter
   - device_info_plus (0.0.1):
@@ -97,10 +66,10 @@ PODS:
     - Toast
   - in_app_review (0.2.0):
     - Flutter
+  - integration_test (0.0.1):
+    - Flutter
   - MTBBarcodeScanner (5.0.11)
   - OrderedSet (5.0.0)
-  - package_info (0.0.1):
-    - Flutter
   - package_info_plus (0.4.5):
     - Flutter
   - path_provider_foundation (0.0.1):
@@ -131,9 +100,6 @@ PODS:
   - Toast (4.1.1)
   - uni_links (0.0.1):
     - Flutter
-  - UnstoppableDomainsResolution (4.0.0):
-    - BigInt
-    - CryptoSwift
   - url_launcher_ios (0.0.1):
     - Flutter
   - wakelock_plus (0.0.1):
@@ -145,8 +111,6 @@ DEPENDENCIES:
   - barcode_scan2 (from `.symlinks/plugins/barcode_scan2/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
-  - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
-  - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
@@ -158,6 +122,7 @@ DEPENDENCIES:
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -168,14 +133,12 @@ DEPENDENCIES:
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sp_scanner (from `.symlinks/plugins/sp_scanner/ios`)
   - uni_links (from `.symlinks/plugins/uni_links/ios`)
-  - UnstoppableDomainsResolution (~> 4.0.0)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
   - workmanager (from `.symlinks/plugins/workmanager/ios`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
-    - BigInt
     - CryptoSwift
     - DKImagePickerController
     - DKPhotoGallery
@@ -187,17 +150,12 @@ SPEC REPOS:
     - SwiftProtobuf
     - SwiftyGif
     - Toast
-    - UnstoppableDomainsResolution
 
 EXTERNAL SOURCES:
   barcode_scan2:
     :path: ".symlinks/plugins/barcode_scan2/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
-  cw_haven:
-    :path: ".symlinks/plugins/cw_haven/ios"
-  cw_shared_external:
-    :path: ".symlinks/plugins/cw_shared_external/ios"
   device_display_brightness:
     :path: ".symlinks/plugins/device_display_brightness/ios"
   device_info_plus:
@@ -220,6 +178,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fluttertoast/ios"
   in_app_review:
     :path: ".symlinks/plugins/in_app_review/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
   package_info:
     :path: ".symlinks/plugins/package_info/ios"
   package_info_plus:
@@ -249,11 +209,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   barcode_scan2: 0af2bb63c81b4565aab6cd78278e4c0fa136dbb0
-  BigInt: f668a80089607f521586bbe29513d708491ef2f7
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   CryptoSwift: c63a805d8bb5e5538e88af4e44bb537776af11ea
-  cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
-  cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   devicelocale: b22617f40038496deffba44747101255cee005b0
@@ -267,9 +224,9 @@ SPEC CHECKSUMS:
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
   fluttertoast: 48c57db1b71b0ce9e6bba9f31c940ff4b001293c
   in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
+  integration_test: 13825b8a9334a850581300559b8839134b124670
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
-  package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
@@ -285,11 +242,10 @@ SPEC CHECKSUMS:
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
-  UnstoppableDomainsResolution: c3c67f4d0a5e2437cb00d4bd50c2e00d6e743841
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
   workmanager: 0afdcf5628bbde6924c21af7836fed07b42e30e6
 
-PODFILE CHECKSUM: a2fe518be61cdbdc5b0e2da085ab543d556af2d3
+PODFILE CHECKSUM: e448f662d4c41f0c0b1ccbb78afd57dbf895a597
 
 COCOAPODS: 1.15.2

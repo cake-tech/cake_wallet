@@ -16,9 +16,17 @@ class CWBitcoinCash extends BitcoinCash {
     WalletInfo? walletInfo,
     String? password,
     String? passphrase,
+    String? mnemonic,
+    String? parentAddress,
   }) =>
       BitcoinCashNewWalletCredentials(
-          name: name, walletInfo: walletInfo, password: password, passphrase: passphrase);
+        name: name,
+        walletInfo: walletInfo,
+        password: password,
+        passphrase: passphrase,
+        parentAddress: parentAddress,
+        mnemonic: mnemonic,
+      );
 
   @override
   WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(

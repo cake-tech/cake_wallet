@@ -1,8 +1,9 @@
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -28,16 +29,17 @@ class WalletNewVM = WalletNewVMBase with _$WalletNewVM;
 
 abstract class WalletNewVMBase extends WalletCreationVM with Store {
   WalletNewVMBase(
-      AppStore appStore,
-      WalletCreationService walletCreationService,
-      Box<WalletInfo> walletInfoSource,
-      this.advancedPrivacySettingsViewModel,
-      SeedSettingsViewModel seedSettingsViewModel,
-      {required WalletType type})
-      : selectedMnemonicLanguage = '',
+    AppStore appStore,
+    WalletCreationService walletCreationService,
+    Box<WalletInfo> walletInfoSource,
+    this.advancedPrivacySettingsViewModel,
+    SeedSettingsViewModel seedSettingsViewModel, {
+    required this.newWalletArguments,
+  })  : selectedMnemonicLanguage = '',
         super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
-            type: type, isRecovery: false);
+            type: newWalletArguments!.type, isRecovery: false);
 
+  final NewWalletArguments? newWalletArguments;
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
 
   @observable
@@ -62,6 +64,10 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return seedSettingsViewModel.bitcoinSeedType == BitcoinSeedType.bip39
             ? advancedPrivacySettingsViewModel.seedPhraseLength.value
             : 24;
+      case WalletType.nano:
+        return seedSettingsViewModel.nanoSeedType == NanoSeedType.bip39
+            ? advancedPrivacySettingsViewModel.seedPhraseLength.value
+            : 24;
       default:
         return 24;
     }
@@ -83,31 +89,68 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             password: walletPassword,
             isPolyseed: options.last as bool);
       case WalletType.bitcoin:
-        return bitcoin!.createBitcoinNewWalletCredentials(
-            name: name, password: walletPassword, passphrase: passphrase);
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(
-            name: name, password: walletPassword, passphrase: passphrase);
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+          mnemonic: newWalletArguments!.mnemonic,
+          parentAddress: newWalletArguments!.parentAddress,
+        );
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
             name: name, language: options!.first as String, password: walletPassword);
       case WalletType.ethereum:
-        return ethereum!.createEthereumNewWalletCredentials(name: name, password: walletPassword);
+        return ethereum!.createEthereumNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          mnemonic: newWalletArguments!.mnemonic,
+          parentAddress: newWalletArguments!.parentAddress,
+        );
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashNewWalletCredentials(
-            name: name, password: walletPassword, passphrase: passphrase);
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+          mnemonic: newWalletArguments!.mnemonic,
+          parentAddress: newWalletArguments!.parentAddress,
+        );
       case WalletType.nano:
       case WalletType.banano:
-        return nano!.createNanoNewWalletCredentials(name: name);
+        return nano!.createNanoNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          mnemonic: newWalletArguments!.mnemonic,
+          parentAddress: newWalletArguments!.parentAddress,
+        );
       case WalletType.polygon:
-        return polygon!.createPolygonNewWalletCredentials(name: name, password: walletPassword);
+        return polygon!.createPolygonNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          mnemonic: newWalletArguments!.mnemonic,
+          parentAddress: newWalletArguments!.parentAddress,
+        );
       case WalletType.solana:
-        return solana!.createSolanaNewWalletCredentials(name: name, password: walletPassword);
+        return solana!.createSolanaNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          mnemonic: newWalletArguments!.mnemonic,
+          parentAddress: newWalletArguments!.parentAddress,
+        );
       case WalletType.tron:
-        return tron!.createTronNewWalletCredentials(name: name);
+        return tron!.createTronNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          mnemonic: newWalletArguments!.mnemonic,
+          parentAddress: newWalletArguments!.parentAddress,
+        );
       case WalletType.wownero:
         return wownero!.createWowneroNewWalletCredentials(
-            name: name, language: options!.first as String, isPolyseed: options.last as bool);
+          name: name,
+          password: walletPassword,
+          language: options!.first as String,
+          isPolyseed: options.last as bool,
+        );
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }

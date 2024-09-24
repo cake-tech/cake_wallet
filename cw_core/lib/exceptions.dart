@@ -24,6 +24,11 @@ class TransactionCommitFailed implements Exception {
   final String? errorMessage;
 
   TransactionCommitFailed({this.errorMessage});
+
+  @override
+  String toString() {
+    return errorMessage??"unknown error";
+  }
 }
 
 class TransactionCommitFailedDustChange implements Exception {}
@@ -35,5 +40,7 @@ class TransactionCommitFailedDustOutputSendAll implements Exception {}
 class TransactionCommitFailedVoutNegative implements Exception {}
 
 class TransactionCommitFailedBIP68Final implements Exception {}
+
+class TransactionCommitFailedLessThanMin implements Exception {}
 
 class TransactionInputNotSupported implements Exception {}

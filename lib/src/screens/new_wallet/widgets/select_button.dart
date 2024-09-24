@@ -18,9 +18,12 @@ class SelectButton extends StatelessWidget {
     this.arrowColor,
     this.borderColor,
     this.deviceConnectionTypes,
+    this.borderRadius,
+    this.padding,
+    super.key,
   });
 
-  final Image? image;
+  final Widget? image;
   final String text;
   final double textSize;
   final bool isSelected;
@@ -32,6 +35,8 @@ class SelectButton extends StatelessWidget {
   final Color? textColor;
   final Color? arrowColor;
   final Color? borderColor;
+  final BorderRadius? borderRadius;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +67,10 @@ class SelectButton extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: height,
-        padding: EdgeInsets.only(left: 30, right: 30),
+        padding: padding ?? EdgeInsets.only(left: 30, right: 30),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(30)),
+          borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(30)),
           color: backgroundColor,
           border: borderColor != null ? Border.all(color: borderColor!) : null,
         ),

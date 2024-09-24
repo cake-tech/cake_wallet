@@ -7,11 +7,13 @@ class FilteredList extends StatefulWidget {
     required this.list,
     required this.itemBuilder,
     required this.updateFunction,
+    this.shrinkWrap = false,
   });
 
   final ObservableList<dynamic> list;
   final Widget Function(BuildContext, int) itemBuilder;
   final Function updateFunction;
+  final bool shrinkWrap;
 
   @override
   FilteredListState createState() => FilteredListState();
@@ -22,6 +24,7 @@ class FilteredListState extends State<FilteredList> {
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) => ReorderableListView.builder(
+        shrinkWrap: widget.shrinkWrap,
         physics: const BouncingScrollPhysics(),
         itemBuilder: widget.itemBuilder,
         itemCount: widget.list.length,

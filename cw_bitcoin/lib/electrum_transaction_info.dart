@@ -23,20 +23,25 @@ class ElectrumTransactionBundle {
 
 class ElectrumTransactionInfo extends TransactionInfo {
   List<BitcoinSilentPaymentsUnspent>? unspents;
+  bool isReceivedSilentPayment;
 
-  ElectrumTransactionInfo(this.type,
-      {required String id,
-      int? height,
-      required int amount,
-      int? fee,
-      List<String>? inputAddresses,
-      List<String>? outputAddresses,
-      required TransactionDirection direction,
-      required bool isPending,
-      required DateTime date,
-      required int confirmations,
-      String? to,
-      this.unspents}) {
+  ElectrumTransactionInfo(
+    this.type, {
+    required String id,
+    int? height,
+    required int amount,
+    int? fee,
+    List<String>? inputAddresses,
+    List<String>? outputAddresses,
+    required TransactionDirection direction,
+    required bool isPending,
+    required bool isReplaced,
+    required DateTime date,
+    required int confirmations,
+    String? to,
+    this.unspents,
+    this.isReceivedSilentPayment = false,
+  }) {
     this.id = id;
     this.height = height;
     this.amount = amount;
@@ -46,6 +51,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.direction = direction;
     this.date = date;
     this.isPending = isPending;
+    this.isReplaced = isReplaced;
     this.confirmations = confirmations;
     this.to = to;
   }
@@ -94,6 +100,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         id: id,
         height: height,
         isPending: false,
+        isReplaced: false,
         fee: fee,
         direction: direction,
         amount: amount,
@@ -169,6 +176,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         id: bundle.originalTransaction.txId(),
         height: height,
         isPending: bundle.confirmations == 0,
+        isReplaced: false,
         inputAddresses: inputAddresses,
         outputAddresses: outputAddresses,
         fee: fee,
@@ -192,6 +200,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       isPending: data['isPending'] as bool,
+      isReplaced: data['isReplaced'] as bool? ?? false,
       confirmations: data['confirmations'] as int,
       inputAddresses:
           inputAddresses.isEmpty ? [] : inputAddresses.map((e) => e.toString()).toList(),
@@ -202,6 +211,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
           .map((unspent) =>
               BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
+      isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
     );
   }
 
@@ -233,6 +243,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         direction: direction,
         date: date,
         isPending: isPending,
+        isReplaced: isReplaced ?? false,
         inputAddresses: inputAddresses,
         outputAddresses: outputAddresses,
         confirmations: info.confirmations);
@@ -246,16 +257,18 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['direction'] = direction.index;
     m['date'] = date.millisecondsSinceEpoch;
     m['isPending'] = isPending;
+    m['isReplaced'] = isReplaced;
     m['confirmations'] = confirmations;
     m['fee'] = fee;
     m['to'] = to;
     m['unspents'] = unspents?.map((e) => e.toJson()).toList() ?? [];
     m['inputAddresses'] = inputAddresses;
     m['outputAddresses'] = outputAddresses;
+    m['isReceivedSilentPayment'] = isReceivedSilentPayment;
     return m;
   }
 
   String toString() {
-    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, confirmations: $confirmations, to: $to, unspent: $unspents, inputAddresses: $inputAddresses, outputAddresses: $outputAddresses)';
+    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, isReplaced: $isReplaced, confirmations: $confirmations, to: $to, unspent: $unspents, inputAddresses: $inputAddresses, outputAddresses: $outputAddresses)';
   }
 }

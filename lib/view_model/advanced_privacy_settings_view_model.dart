@@ -46,17 +46,30 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.litecoin:
         return _settingsStore.bitcoinSeedType == BitcoinSeedType.bip39;
 
+      case WalletType.nano:
+      case WalletType.banano:
+        return _settingsStore.nanoSeedType == NanoSeedType.bip39;
+
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.none:
       case WalletType.haven:
-      case WalletType.nano:
-      case WalletType.banano:
         return false;
     }
   }
 
-  bool get hasSeedTypeOption => [WalletType.monero, WalletType.wownero].contains(type);
+
+  bool get isMoneroSeedTypeOptionsEnabled => [
+        WalletType.monero,
+        WalletType.wownero,
+      ].contains(type);
+
+  bool get isBitcoinSeedTypeOptionsEnabled => [
+        WalletType.bitcoin,
+        WalletType.litecoin,
+      ].contains(type);
+
+  bool get isNanoSeedTypeOptionsEnabled => [WalletType.nano].contains(type);
 
   bool get hasPassphraseOption => [
         WalletType.bitcoin,

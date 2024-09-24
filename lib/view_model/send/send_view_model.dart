@@ -375,6 +375,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           throw Exception("THORChain does not support Taproot addresses");
         }
       }
+
+      if (wallet.type == WalletType.bitcoin) {
+        final updatedOutputs = bitcoin!.updateOutputs(pendingTransaction!, outputs);
+
+        if (outputs.length == updatedOutputs.length) {
+          outputs = ObservableList.of(updatedOutputs);
+        }
+      }
+
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
@@ -414,8 +423,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   Future<void> _executeReplaceByFee(TransactionInfo tx, String newFee) async {
-
-
     clearOutputs();
     final output = outputs.first;
     output.address = tx.outputAddresses?.first ?? '';
@@ -684,6 +691,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
       if (error is TransactionCommitFailedBIP68Final) {
         return S.current.tx_rejected_bip68_final;
+      }
+      if (error is TransactionCommitFailedLessThanMin) {
+        return S.current.fee_less_than_min;
       }
       if (error is TransactionNoDustOnChangeException) {
         return S.current.tx_commit_exception_no_dust_on_change(error.min, error.max);

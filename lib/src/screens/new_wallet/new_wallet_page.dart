@@ -26,10 +26,15 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class NewWalletPage extends BasePage {
-  NewWalletPage(this._walletNewVM, this._seedSettingsViewModel);
+  NewWalletPage(
+    this._walletNewVM,
+    this._seedSettingsViewModel, {
+    this.isChildWallet = false,
+  });
 
   final WalletNewVM _walletNewVM;
   final SeedSettingsViewModel _seedSettingsViewModel;
+  final bool isChildWallet;
 
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
 
@@ -48,15 +53,23 @@ class NewWalletPage extends BasePage {
 
   @override
   Widget body(BuildContext context) => WalletNameForm(
-      _walletNewVM,
-      currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage,
-      _seedSettingsViewModel);
+        _walletNewVM,
+        currentTheme.type == ThemeType.dark ? walletNameImage : walletNameLightImage,
+        _seedSettingsViewModel,
+        isChildWallet,
+      );
 }
 
 class WalletNameForm extends StatefulWidget {
-  WalletNameForm(this._walletNewVM, this.walletImage, this._seedSettingsViewModel);
+  WalletNameForm(
+    this._walletNewVM,
+    this.walletImage,
+    this._seedSettingsViewModel,
+    this.isChildWallet,
+  );
 
   final WalletNewVM _walletNewVM;
+  final bool isChildWallet;
   final Image walletImage;
   final SeedSettingsViewModel _seedSettingsViewModel;
 
@@ -338,7 +351,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   Navigator.of(context).pushNamed(Routes.advancedPrivacySettings, arguments: {
                     "type": _walletNewVM.type,
                     "useTestnet": _walletNewVM.useTestnet,
-                    "toggleTestnet": _walletNewVM.toggleUseTestnet
+                    "toggleTestnet": _walletNewVM.toggleUseTestnet,
+                    "isChildWallet": widget.isChildWallet,
                   });
                 },
                 child: Text(S.of(context).advanced_settings),
