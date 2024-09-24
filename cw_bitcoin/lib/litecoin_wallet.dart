@@ -319,10 +319,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
         // prevent unnecessary reaction triggers:
         if (syncStatus is! SyncedSyncStatus) {
-          // mwebd is synced, but we could still be processing incoming utxos (should only take a few seconds)
-          // so we wait a few seconds before marking the wallet as synced
-          await Future.delayed(const Duration(seconds: 3));
-          syncStatus = SyncedSyncStatus();
+          // mwebd is synced, but we could still be processing incoming utxos:
+          if (!processingUtxos) {
+            syncStatus = SyncedSyncStatus();
+          }
         }
         return;
       }
