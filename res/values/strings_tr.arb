@@ -222,7 +222,6 @@
   "displayable": "Gösterilebilir",
   "do_not_have_enough_gas_asset": "Mevcut blockchain ağ koşullarıyla işlem yapmak için yeterli ${currency} paranız yok. Farklı bir varlık gönderiyor olsanız bile blockchain ağ ücretlerini ödemek için daha fazla ${currency} miktarına ihtiyacınız var.",
   "do_not_send": "Gönderme",
-  "do_not_send_funds_to_contract_address_warning": "Bu adrese fon göndermeyin \n\n Bu sadece jeton için bir tanımlayıcıdır, bu adrese gönderilen fonlar kaybolacaktır. \n\n Not: Kekten asla bir sözleşme adresi eklemenizi istemez",
   "do_not_share_warning_text": "Bunları destek de dahil olmak üzere başka kimseyle paylaşma.\n\nParan çalınabilir ve çalınacaktır!",
   "do_not_show_me": "Bana bunu bir daha gösterme",
   "domain_looks_up": "Etki alanı aramaları",

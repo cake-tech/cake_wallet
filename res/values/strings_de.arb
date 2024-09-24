@@ -222,7 +222,6 @@
   "displayable": "Anzeigebar",
   "do_not_have_enough_gas_asset": "Sie verfügen nicht über genügend ${currency}, um eine Transaktion unter den aktuellen Bedingungen des Blockchain-Netzwerks durchzuführen. Sie benötigen mehr ${currency}, um die Gebühren für das Blockchain-Netzwerk zu bezahlen, auch wenn Sie einen anderen Vermögenswert senden.",
   "do_not_send": "Nicht senden",
-  "do_not_send_funds_to_contract_address_warning": "Senden Sie keine Mittel an diese Adresse \n\n Dies ist nur eine Kennung für das Token. Alle an diese Adresse gesendeten Mittel gehen verloren. \n\n Hinweis: Kuchen würde Sie niemals auffordern, eine Vertragsadresse hinzuzufügen",
   "do_not_share_warning_text": "Teilen Sie diese nicht mit anderen, einschließlich Support.\n\nIhr Geld kann und wird gestohlen werden!",
   "do_not_show_me": "Zeig mir das nicht noch einmal",
   "domain_looks_up": "Domain-Suchen",

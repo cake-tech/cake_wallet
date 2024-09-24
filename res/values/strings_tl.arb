@@ -222,7 +222,6 @@
   "displayable": "Maipapakita",
   "do_not_have_enough_gas_asset": "Wala kang sapat na ${currency} para gumawa ng transaksyon sa kasalukuyang kundisyon ng network ng blockchain. Kailangan mo ng higit pang ${currency} upang magbayad ng mga fee sa network ng blockchain, kahit na nagpapadala ka ng ibang asset.",
   "do_not_send": "Huwag ipadala",
-  "do_not_send_funds_to_contract_address_warning": "Huwag magpadala ng pondo sa address na ito\n\n Ito ay isang identifier lamang para sa token, ang anumang pondo na ipinadala sa address na ito ay mawawala.\n\n Tandaan: Ang cake ay hindi hihilingin sa iyo na magdagdag ng isang address ng kontrata",
   "do_not_share_warning_text": "Huwag ibahagi ang mga ito sa sinuman kasama ang tagatustos.\n\nMaaaring manakaw ang iyong mga pondo!",
   "do_not_show_me": "Huwag mo itong ipakita muli",
   "domain_looks_up": "Mga paghahanap ng domain",
