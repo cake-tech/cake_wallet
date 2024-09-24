@@ -272,7 +272,7 @@ abstract class HomeSettingsViewModelBase with Store {
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (decodedResponse['status'] != '1') {
-        print('${response.toString()}\n');
+        print('${response.body}\n');
         print('${decodedResponse['result']}\n');
         return true;
       }
@@ -313,7 +313,7 @@ abstract class HomeSettingsViewModelBase with Store {
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (decodedResponse['status'] == '0') {
-        print('${response.toString()}\n');
+        print('${response.body}\n');
         print('${decodedResponse['result']}\n');
         return true;
       }
