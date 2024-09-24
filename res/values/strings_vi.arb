@@ -223,7 +223,6 @@
   "displayable": "Có thể hiển thị",
   "do_not_have_enough_gas_asset": "Bạn không có đủ ${currency} để thực hiện giao dịch với điều kiện mạng blockchain hiện tại. Bạn cần thêm ${currency} để trả phí mạng blockchain, ngay cả khi bạn đang gửi tài sản khác.",
   "do_not_send": "Đừng gửi",
-  "do_not_send_funds_to_contract_address_warning": "Không gửi tiền đến địa chỉ này\n\n Đây chỉ là một mã định danh cho mã thông báo, bất kỳ khoản tiền nào được gửi đến địa chỉ này sẽ bị mất.\n\n Lưu ý: Bánh sẽ không bao giờ yêu cầu bạn thêm địa chỉ hợp đồng",
   "do_not_share_warning_text": "Không chia sẻ điều này với bất kỳ ai, bao gồm cả bộ phận hỗ trợ.\n\nTài sản của bạn có thể và sẽ bị đánh cắp!",
   "do_not_show_me": "Không hiển thị lại cho tôi",
   "domain_looks_up": "Tra cứu tên miền",

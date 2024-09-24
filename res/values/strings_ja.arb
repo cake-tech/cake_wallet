@@ -222,7 +222,6 @@
   "displayable": "表示可能",
   "do_not_have_enough_gas_asset": "現在のブロックチェーン ネットワークの状況では、トランザクションを行うのに十分な ${currency} がありません。別のアセットを送信する場合でも、ブロックチェーン ネットワーク料金を支払うにはさらに ${currency} が必要です。",
   "do_not_send": "送信しない",
-  "do_not_send_funds_to_contract_address_warning": "この住所に資金を送らないでください\n\nこれはトークンの識別子であり、この住所に送られた資金は失われます。",
   "do_not_share_warning_text": "サポートを含め、これらを他の誰とも共有しないでください。\n\nあなたの資金は盗まれる可能性があります!",
   "do_not_show_me": "また僕にこれを見せないでください",
   "domain_looks_up": "ドメイン検索",

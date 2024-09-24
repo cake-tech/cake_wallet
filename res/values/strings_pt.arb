@@ -222,7 +222,6 @@
   "displayable": "Exibível",
   "do_not_have_enough_gas_asset": "Você não tem ${currency} suficiente para fazer uma transação com as condições atuais da rede blockchain. Você precisa de mais ${currency} para pagar as taxas da rede blockchain, mesmo se estiver enviando um ativo diferente.",
   "do_not_send": "não envie",
-  "do_not_send_funds_to_contract_address_warning": "Não envie fundos para este endereço \n\n Este é apenas um identificador para o token, quaisquer fundos enviados para este endereço serão perdidos. \n\n NOTA: O bolo nunca solicitaria que você adicione um endereço de contrato",
   "do_not_share_warning_text": "Não os compartilhe com mais ninguém, incluindo suporte.\n\nSeus fundos podem e serão roubados!",
   "do_not_show_me": "não me mostre isso novamente",
   "domain_looks_up": "Pesquisas de domínio",
