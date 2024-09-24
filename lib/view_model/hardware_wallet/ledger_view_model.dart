@@ -17,8 +17,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 part 'ledger_view_model.g.dart';
 
-class LedgerViewModel = LedgerViewModelBase
-    with _$LedgerViewModel;
+class LedgerViewModel = LedgerViewModelBase with _$LedgerViewModel;
 
 abstract class LedgerViewModelBase with Store {
   // late final Ledger ledger;
@@ -53,9 +52,9 @@ abstract class LedgerViewModelBase with Store {
   bool bleIsEnabled = false;
 
   Future<void> _initBLE() async {
-    final bleState = await sdk.UniversalBle.getBluetoothAvailabilityState();
+    await updateBleState();
 
-    if (bleState == sdk.AvailabilityState.poweredOn) {
+    if (bleIsEnabled) {
       ledgerPlusBLE = sdk.LedgerInterface.ble(onPermissionRequest: (_) async {
         Map<Permission, PermissionStatus> statuses = await [
           Permission.bluetoothScan,
@@ -65,9 +64,13 @@ abstract class LedgerViewModelBase with Store {
 
         return statuses.values.where((status) => status.isDenied).isEmpty;
       });
-    } else {
-      bleIsEnabled = false;
     }
+  }
+
+  Future<void> updateBleState() async {
+    final bleState = await sdk.UniversalBle.getBluetoothAvailabilityState();
+
+    bleIsEnabled = bleState == sdk.AvailabilityState.poweredOn;
   }
 
   Stream<sdk.LedgerDevice> scanForBleDevices() => ledgerPlusBLE.scan();

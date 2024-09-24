@@ -52,12 +52,12 @@ class ConnectDevicePageBody extends StatefulWidget {
 }
 
 class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
-  var bleIsEnabled = true;
   var bleDevices = <LedgerDevice>[];
   var usbDevices = <LedgerDevice>[];
 
   late Timer? _usbRefreshTimer = null;
   late Timer? _bleRefreshTimer = null;
+  late Timer? _bleStateTimer = null;
   late StreamSubscription<LedgerDevice>? _bleRefresh = null;
   late StreamSubscription<LedgerDevice>? _usbRefresh = null;
 
@@ -65,6 +65,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _bleStateTimer = Timer.periodic(
+          Duration(seconds: 1), (_) => widget.ledgerVM.updateBleState());
+
       _bleRefreshTimer =
           Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
 
@@ -78,6 +81,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   @override
   void dispose() {
     _bleRefreshTimer?.cancel();
+    _bleStateTimer?.cancel();
     _usbRefreshTimer?.cancel();
     _bleRefresh?.cancel();
     _usbRefresh?.cancel();
@@ -104,11 +108,10 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
         ..onError((e) {
           throw e.toString();
         });
-      setState(() => bleIsEnabled = true);
       _bleRefreshTimer?.cancel();
       _bleRefreshTimer = null;
     } catch (e) {
-      setState(() => bleIsEnabled = false);
+      print(e);
     }
   }
 
