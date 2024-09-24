@@ -345,6 +345,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<void> stopSync() async {
     _syncTimer?.cancel();
     _utxoStream?.cancel();
+    _stuckSyncTimer?.cancel();
     await CwMweb.stop();
   }
 
