@@ -169,8 +169,8 @@ class OnRamperBuyProvider extends BuyProvider {
 
           final quote = Quote.fromOnramperJson(
               item, isBuyAction, onrampMetadata, _getPaymentTypeByString(paymentMethod));
-          quote.setSourceCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
-          quote.setDestinationCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
+          quote.setSourceCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
+          quote.setDestinationCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
           validQuotes.add(quote);
         }
 
