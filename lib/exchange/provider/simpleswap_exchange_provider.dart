@@ -236,7 +236,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       case CryptoCurrency.usdcsol:
         return 'usdcspl';
       case CryptoCurrency.matic:
-        return 'maticerc20';
+        return 'pol';
       case CryptoCurrency.maticpoly:
         return 'matic';
       default:

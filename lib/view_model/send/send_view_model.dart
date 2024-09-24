@@ -691,6 +691,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (error is TransactionCommitFailedBIP68Final) {
         return S.current.tx_rejected_bip68_final;
       }
+      if (error is TransactionCommitFailedLessThanMin) {
+        return S.current.fee_less_than_min;
+      }
       if (error is TransactionNoDustOnChangeException) {
         return S.current.tx_commit_exception_no_dust_on_change(error.min, error.max);
       }
