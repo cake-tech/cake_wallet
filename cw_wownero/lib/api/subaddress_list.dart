@@ -32,11 +32,10 @@ class Subaddress {
     required this.txCount,
     required this.received,
   });
-  String get address => wownero.Wallet_address(
-        wptr!,
-        accountIndex: accountIndex,
-        addressIndex: addressIndex,
-    );
+  late String address = getAddress(
+    accountIndex: accountIndex,
+    addressIndex: addressIndex,
+  );
   final int addressIndex;
   final int accountIndex;
   String get label => wownero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
@@ -79,8 +78,7 @@ List<Subaddress> getAllSubaddresses() {
   final size = wownero.Wallet_numSubaddresses(wptr!, accountIndex: subaddress!.accountIndex);
   final list = List.generate(size, (index) {
     final ttDetailsLocal = ttDetails.where((element) {
-      final address = wownero.Wallet_address(
-        wptr!, 
+      final address = getAddress(
         accountIndex: subaddress!.accountIndex, 
         addressIndex: index,
       );

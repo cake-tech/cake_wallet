@@ -5,6 +5,7 @@ import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/creation_transaction_exception.dart';
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
+import 'package:cw_monero/api/wallet.dart';
 import 'package:ffi/ffi.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
@@ -262,21 +263,19 @@ Future<PendingTransactionDescription> createTransactionMultDest(
 
 class Transaction {
   final String displayLabel;
-  String get subaddressLabel => monero.Wallet_getSubaddressLabel(
+  late String subaddressLabel = monero.Wallet_getSubaddressLabel(
     wptr!,
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
-  String get address => monero.Wallet_address(
-    wptr!,
+  late String address = getAddress(
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
-  List<String> get addressList => List.generate(addressIndexList.length, (index) =>
-    monero.Wallet_address(
-      wptr!,
-      accountIndex: accountIndex,
-      addressIndex: addressIndexList[index],
+  late List<String> addressList = List.generate(addressIndexList.length, (index) =>
+    getAddress(
+    accountIndex: accountIndex,
+    addressIndex: addressIndexList[index],
     ));
   final String description;
   final int fee;

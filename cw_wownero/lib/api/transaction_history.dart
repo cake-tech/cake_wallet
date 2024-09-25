@@ -3,6 +3,7 @@ import 'dart:isolate';
 
 import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/exceptions/creation_transaction_exception.dart';
+import 'package:cw_wownero/api/wallet.dart';
 import 'package:cw_wownero/api/wownero_output.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
 import 'package:ffi/ffi.dart';
@@ -252,15 +253,13 @@ Future<PendingTransactionDescription> createTransactionMultDest(
 
 class Transaction {
   final String displayLabel;
-  String get subaddressLabel => wownero.Wallet_getSubaddressLabel(wptr!, accountIndex: 0, addressIndex: 0);
-  String get address => wownero.Wallet_address(
-    wptr!,
+  late String subaddressLabel = wownero.Wallet_getSubaddressLabel(wptr!, accountIndex: 0, addressIndex: 0);
+  late String address = getAddress(
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
-  List<String> get addressList => List.generate(addressIndexList.length, (index) =>
-    wownero.Wallet_address(
-      wptr!,
+  late List<String> addressList = List.generate(addressIndexList.length, (index) =>
+    getAddress(
       accountIndex: accountIndex,
       addressIndex: addressIndexList[index],
     ));
