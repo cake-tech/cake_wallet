@@ -249,6 +249,9 @@ Future<void> defaultSettingsMigration(
         case 40:
           await removeMoneroWorld(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
+        case 41:
+          await addTronNodeList(nodes: nodes);
+          await replaceTronDefaultNode(sharedPreferences: sharedPreferences, nodes: nodes);
         default:
           break;
       }
@@ -1217,7 +1220,7 @@ Future<void> changeSolanaCurrentNodeToDefault(
 Future<void> addTronNodeList({required Box<Node> nodes}) async {
   final nodeList = await loadDefaultTronNodes();
   for (var node in nodeList) {
-    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+    if (!nodes.values.any((element) => element.uriRaw == node.uriRaw)) {
       await nodes.add(node);
     }
   }
