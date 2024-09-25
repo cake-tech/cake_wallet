@@ -58,62 +58,28 @@ String generateP2TRAddress({
 
 /// Enum representing different types of private keys.
 enum PrivateKeyType {
-  /// BIP32 extended private key (mainnet)
-  xprv,
-
-  /// BIP84 extended private key for native SegWit (P2WPKH) (mainnet)
-  zprv,
-
-  /// BIP49 extended private key for wrapped SegWit (P2SH-P2WPKH) (mainnet)
-  yprv,
-
-  /// BIP49 extended private key (upper Y variant)
-  Yprv,
-
-  /// BIP32 extended private key (testnet)
-  tprv,
-
-  /// BIP32 extended private key (alternative mainnet prefix)
-  uprv,
-
-  /// BIP32 extended private key (alternative mainnet prefix, upper U variant)
-  Uprv,
-
-  /// BIP84 extended private key (native SegWit, upper V variant)
-  vprv,
-
-  /// BIP84 extended private key (native SegWit, upper V variant, uppercase)
-  Vprv
+  xprv,/// BIP32 extended private key (default, used in legacy P2PKH and P2SH-P2WPKH)
+  yprv,/// BIP49 extended private key (used in P2SH-wrapped SegWit addresses)
+  Yprv,/// BIP49 extended private key (used in P2SH-wrapped SegWit addresses, uppercase Y variant)
+  zprv,/// BIP84 extended private key (native SegWit, mainnet)
+  tprv,/// BIP32 extended private key for testnet
+  uprv,/// BIP86 extended private key (Taproot, mainnet)
+  Uprv,/// BIP86 extended private key (Taproot, mainnet, uppercase U variant)
+  vprv,/// BIP84 extended private key (native SegWit v1 Taproot, mainnet)
+  Vprv/// BIP84 extended private key (native SegWit v1 Taproot, testnet)
 }
 
 /// Enum representing different types of public keys.
 enum PublicKeyType {
-  /// BIP32 extended public key (mainnet)
-  xpub,
-
-  /// BIP84 extended public key for native SegWit (P2WPKH) (mainnet)
-  zpub,
-
-  /// BIP49 extended public key for wrapped SegWit (P2SH-P2WPKH) (mainnet)
-  ypub,
-
-  /// BIP49 extended public key (upper Y variant)
-  Ypub,
-
-  /// BIP32 extended public key (testnet)
-  tpub,
-
-  /// BIP32 extended public key (alternative mainnet prefix)
-  upub,
-
-  /// BIP32 extended public key (alternative mainnet prefix, upper U variant)
-  Upub,
-
-  /// BIP84 extended public key (native SegWit, upper V variant)
-  vpub,
-
-  /// BIP84 extended public key (native SegWit, upper V variant, uppercase)
-  Vpub
+  xpub,/// BIP32 extended public key (mainnet)
+  zpub,/// BIP84 extended public key for native SegWit (P2WPKH) (mainnet)
+  ypub,/// BIP49 extended public key for wrapped SegWit (P2SH-P2WPKH) (mainnet)
+  Ypub,/// BIP49 extended public key (upper Y variant)
+  tpub,/// BIP32 extended public key (testnet)
+  upub,/// BIP32 extended public key (alternative mainnet prefix)
+  Upub,/// BIP32 extended public key (alternative mainnet prefix, upper U variant)
+  vpub,/// BIP84 extended public key (native SegWit, upper V variant)
+  Vpub/// BIP84 extended public key (native SegWit, upper V variant, uppercase)
 }
 
 
