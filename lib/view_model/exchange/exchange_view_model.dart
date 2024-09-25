@@ -115,6 +115,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _setAvailableProviders();
     _calculateBestRate();
 
+
+    autorun((_) {
+      if (selectedProviders.any((provider) => provider is TrocadorExchangeProvider)) {
+        final trocadorProvider =
+        selectedProviders.firstWhere((provider) => provider is TrocadorExchangeProvider)
+        as TrocadorExchangeProvider;
+
+        updateAllTrocadorProviderStates(trocadorProvider);
+      }
+    });
+
     bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) => _calculateBestRate());
 
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
@@ -170,7 +181,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     QuantexExchangeProvider(),
     LetsExchangeExchangeProvider(),
     StealthExExchangeProvider(),
-    TrocadorExchangeProvider(useTorOnly: _useTorOnly)
+    TrocadorExchangeProvider(
+        useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
   ];
 
 
@@ -553,11 +565,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           else {
             try {
               tradeState = TradeIsCreating();
-              if (provider is TrocadorExchangeProvider) {
-                updateAllTrocadorProviderStates(provider);
-                provider.providerStates =
-                    Map<String, bool>.from(_settingsStore.trocadorProviderStates);
-              }
               final trade = await provider.createTrade(
                 request: request,
                 isFixedRateMode: isFixedRateMode,

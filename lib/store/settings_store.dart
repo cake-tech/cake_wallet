@@ -1581,7 +1581,13 @@ abstract class SettingsStoreBase with Store {
     String? serializedData = await _sharedPreferences.getString(PreferencesKey.trocadorProviderStatesKey);
     Map<String, bool> regularMap = {};
 
-    if (serializedData != null) regularMap = json.decode(serializedData) as Map<String, bool>;
+    if (serializedData != null) {
+      Map<String, dynamic> decodedMap = json.decode(serializedData) as Map<String, dynamic>;
+
+      regularMap = decodedMap.map((key, value) {
+        return MapEntry(key, value == true);
+      });
+    }
 
     trocadorProviderStates.clear();
 
