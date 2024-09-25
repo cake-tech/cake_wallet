@@ -58,6 +58,7 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                               final groupName =
                                   group.groupName ?? '${S.of(context).wallet_group} ${index + 1}';
                               return GroupedWalletExpansionTile(
+                                shouldShowCurrentWalletPointer: false,
                                 leadingWidget:
                                     Icon(Icons.account_balance_wallet_outlined, size: 28),
                                 borderRadius: BorderRadius.all(Radius.circular(16)),

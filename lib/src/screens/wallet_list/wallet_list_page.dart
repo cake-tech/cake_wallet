@@ -11,6 +11,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -157,6 +158,7 @@ class WalletListBodyState extends State<WalletListBody> {
                             final groupName = group.groupName ??
                                 '${S.current.wallet_group} ${index + 1}';
                             return GroupedWalletExpansionTile(
+                              shouldShowCurrentWalletPointer: true,
                               borderRadius: BorderRadius.all(Radius.circular(16)),
                               margin: EdgeInsets.only(left: 20, right: 20, bottom: 12),
                               title: groupName,
@@ -232,13 +234,40 @@ class WalletListBodyState extends State<WalletListBody> {
                           updateFunction: widget.walletListViewModel.reorderAccordingToWalletList,
                           itemBuilder: (context, index) {
                             final wallet = widget.walletListViewModel.singleWalletsList[index];
+                            final currentColor = wallet.isCurrent
+                                ? Theme.of(context)
+                                    .extension<WalletListTheme>()!
+                                    .createNewWalletButtonBackgroundColor
+                                : Theme.of(context).colorScheme.background;
 
                             return GroupedWalletExpansionTile(
                               tileKey: ValueKey('single_wallets_expansion_tile_widget_$index'),
-                              leadingWidget: Image.asset(
-                                walletTypeToCryptoCurrency(wallet.type).iconPath!,
-                                width: 32,
-                                height: 32,
+                              isCurrentlySelectedWallet: wallet.isCurrent,
+                              leadingWidget: SizedBox(
+                                width: 60,
+                                child: Row(
+                                  children: [
+                                    wallet.isCurrent
+                                        ? Container(
+                                            height: 35,
+                                            width: 6,
+                                            margin: EdgeInsets.only(right: 16),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                topRight: Radius.circular(16),
+                                                bottomRight: Radius.circular(16),
+                                              ),
+                                              color: currentColor,
+                                            ),
+                                          )
+                                        : SizedBox(width: 6),
+                                    Image.asset(
+                                      walletTypeToCryptoCurrency(wallet.type).iconPath!,
+                                      width: 32,
+                                      height: 32,
+                                    ),
+                                  ],
+                                ),
                               ),
                               title: wallet.name,
                               isSelected: false,
