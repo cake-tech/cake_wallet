@@ -138,10 +138,10 @@ dependency_overrides:
     git:
       url: https://github.com/cake-tech/bitcoin_base
       ref: cake-update-v7
-  ledger_usb_plus:
-    git:
-      url: https://github.com/cake-tech/ledger-usb-plus
-      ref: cake-v1
+#  ledger_usb_plus:
+#    git:
+#      url: https://github.com/cake-tech/ledger-usb-plus
+#      ref: cake-v1
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
