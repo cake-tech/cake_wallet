@@ -18,6 +18,7 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/exceptions.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
@@ -118,7 +119,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get isBatchSending => outputs.length > 1;
 
-  bool get shouldDisplaySendALL => walletType != WalletType.solana || walletType != WalletType.tron;
+  bool get shouldDisplaySendALL => walletType != WalletType.solana;
 
   @computed
   String get pendingTransactionFiatAmount {
@@ -374,6 +375,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           throw Exception("THORChain does not support Taproot addresses");
         }
       }
+
+      if (wallet.type == WalletType.bitcoin) {
+        final updatedOutputs = bitcoin!.updateOutputs(pendingTransaction!, outputs);
+
+        if (outputs.length == updatedOutputs.length) {
+          outputs = ObservableList.of(updatedOutputs);
+        }
+      }
+
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
@@ -392,25 +402,36 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @action
-  Future<void> replaceByFee(String txId, String newFee) async {
+  Future<void> replaceByFee(TransactionInfo tx, String newFee) async {
     state = IsExecutingState();
 
-    final isSufficient = await bitcoin!.isChangeSufficientForFee(wallet, txId, newFee);
+    try {
+      final isSufficient = await bitcoin!.isChangeSufficientForFee(wallet, tx.id, newFee);
 
-    if (!isSufficient) {
-      state = AwaitingConfirmationState(
-          title: S.current.confirm_fee_deduction,
-          message: S.current.confirm_fee_deduction_content,
-          onConfirm: () async {
-            pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
-            state = ExecutedSuccessfullyState();
-          },
-          onCancel: () {
-            state = FailureState('Insufficient change for fee');
-          });
-    } else {
-      pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
+      if (!isSufficient) {
+        state = AwaitingConfirmationState(
+            title: S.current.confirm_fee_deduction,
+            message: S.current.confirm_fee_deduction_content,
+            onConfirm: () async => await _executeReplaceByFee(tx, newFee),
+            onCancel: () => state = FailureState('Insufficient change for fee'));
+      } else {
+        await _executeReplaceByFee(tx, newFee);
+      }
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
+  }
+
+  Future<void> _executeReplaceByFee(TransactionInfo tx, String newFee) async {
+    clearOutputs();
+    final output = outputs.first;
+    output.address = tx.outputAddresses?.first ?? '';
+
+    try {
+      pendingTransaction = await bitcoin!.replaceByFee(wallet, tx.id, newFee);
       state = ExecutedSuccessfullyState();
+    } catch (e) {
+      state = FailureState(e.toString());
     }
   }
 
@@ -582,9 +603,39 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   ) {
     String errorMessage = error.toString();
 
+    if (walletType == WalletType.solana) {
+      if (errorMessage.contains('insufficient lamports')) {
+        double solValueNeeded = 0.0;
+
+        // Regular expression to match the number after "need". This shows the exact lamports the user needs to perform the transaction.
+        RegExp regExp = RegExp(r'need (\d+)');
+
+        // Find the match
+        Match? match = regExp.firstMatch(errorMessage);
+
+        if (match != null) {
+          String neededAmount = match.group(1)!;
+          final lamportsNeeded = int.tryParse(neededAmount);
+
+          // 5000 lamport used here is the constant for sending a transaction on solana
+          int lamportsPerSol = 1000000000;
+
+          solValueNeeded =
+              lamportsNeeded != null ? ((lamportsNeeded + 5000) / lamportsPerSol) : 0.0;
+          return S.current.insufficient_lamports(solValueNeeded.toString());
+        } else {
+          print("No match found.");
+          return S.current.insufficient_lamport_for_tx;
+        }
+      }
+      if (errorMessage.contains('insufficient funds for rent')) {
+        return S.current.insufficientFundsForRentError;
+      }
+
+      return errorMessage;
+    }
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
-        walletType == WalletType.solana ||
         walletType == WalletType.haven) {
       if (errorMessage.contains('gas required exceeds allowance') ||
           errorMessage.contains('insufficient funds')) {
@@ -640,6 +691,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
       if (error is TransactionCommitFailedBIP68Final) {
         return S.current.tx_rejected_bip68_final;
+      }
+      if (error is TransactionCommitFailedLessThanMin) {
+        return S.current.fee_less_than_min;
       }
       if (error is TransactionNoDustOnChangeException) {
         return S.current.tx_commit_exception_no_dust_on_change(error.min, error.max);

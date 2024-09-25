@@ -4,15 +4,23 @@ class CWPolygon extends Polygon {
   @override
   List<String> getPolygonWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource) =>
-      PolygonWalletService(walletInfoSource, client: PolygonClient());
+  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
+      PolygonWalletService(walletInfoSource, isDirect, client: PolygonClient());
 
   @override
-  WalletCredentials createPolygonNewWalletCredentials({
-    required String name,
-    WalletInfo? walletInfo,
-  }) =>
-      EVMChainNewWalletCredentials(name: name, walletInfo: walletInfo);
+  WalletCredentials createPolygonNewWalletCredentials(
+          {required String name,
+          String? mnemonic,
+          String? parentAddress,
+          WalletInfo? walletInfo,
+          String? password}) =>
+      EVMChainNewWalletCredentials(
+        name: name,
+        walletInfo: walletInfo,
+        password: password,
+        mnemonic: mnemonic,
+        parentAddress: parentAddress,
+      );
 
   @override
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({
@@ -76,21 +84,21 @@ class CWPolygon extends Polygon {
     int? feeRate,
   }) =>
       EVMChainTransactionCredentials(
-          outputs
-              .map((out) => OutputInfo(
-                  fiatAmount: out.fiatAmount,
-                  cryptoAmount: out.cryptoAmount,
-                  address: out.address,
-                  note: out.note,
-                  sendAll: out.sendAll,
-                  extractedAddress: out.extractedAddress,
-                  isParsedAddress: out.isParsedAddress,
-                  formattedCryptoAmount: out.formattedCryptoAmount))
-              .toList(),
-          priority: priority as EVMChainTransactionPriority,
-          currency: currency,
-          feeRate: feeRate,
-          );
+        outputs
+            .map((out) => OutputInfo(
+                fiatAmount: out.fiatAmount,
+                cryptoAmount: out.cryptoAmount,
+                address: out.address,
+                note: out.note,
+                sendAll: out.sendAll,
+                extractedAddress: out.extractedAddress,
+                isParsedAddress: out.isParsedAddress,
+                formattedCryptoAmount: out.formattedCryptoAmount))
+            .toList(),
+        priority: priority as EVMChainTransactionPriority,
+        currency: currency,
+        feeRate: feeRate,
+      );
 
   Object createPolygonTransactionCredentialsRaw(
     List<OutputInfo> outputs, {
@@ -148,7 +156,8 @@ class CWPolygon extends Polygon {
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
     transaction as EVMChainTransactionInfo;
-    if (transaction.tokenSymbol == CryptoCurrency.maticpoly.title) {
+    if (transaction.tokenSymbol == CryptoCurrency.maticpoly.title ||
+        transaction.tokenSymbol == "MATIC") {
       return CryptoCurrency.maticpoly;
     }
 

@@ -50,7 +50,7 @@ abstract class WowneroWalletBase
     extends WalletBase<WowneroBalance, WowneroTransactionHistory, WowneroTransactionInfo>
     with Store {
   WowneroWalletBase(
-      {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo})
+      {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo, required String password})
       : balance = ObservableMap<CryptoCurrency, WowneroBalance>.of({
           CryptoCurrency.wow: WowneroBalance(
               fullBalance: wownero_wallet.getFullBalance(accountIndex: 0),
@@ -58,6 +58,7 @@ abstract class WowneroWalletBase
         }),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
+        _password = password,
         isEnabledAutoGenerateSubaddress = false,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
@@ -107,9 +108,11 @@ abstract class WowneroWalletBase
   @override
   String get seed => wownero_wallet.getSeed();
 
-  String seedLegacy(String? language) {
-    return wownero_wallet.getSeedLegacy(language);
-  }
+  String seedLegacy(String? language) => wownero_wallet.getSeedLegacy(language);
+
+  String get password => _password;
+
+  String _password;
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
@@ -182,12 +185,12 @@ abstract class WowneroWalletBase
   @override
   Future<void> startSync() async {
     try {
-      _setInitialHeight();
+      _assertInitialHeight();
     } catch (_) {
       // our restore height wasn't correct, so lets see if using the backup works:
       try {
         await resetCache(name);
-        _setInitialHeight();
+        _assertInitialHeight();
       } catch (e) {
         // we still couldn't get a valid height from the backup?!:
         // try to use the date instead:
@@ -604,18 +607,14 @@ abstract class WowneroWalletBase
     _listener = wownero_wallet.setListeners(_onNewBlock, _onNewTransaction);
   }
 
-  // check if the height is correct:
-  void _setInitialHeight() {
-    if (walletInfo.isRecovery) {
-      return;
-    }
+  /// Asserts the current height to be above [MIN_RESTORE_HEIGHT]
+  void _assertInitialHeight() {
+    if (walletInfo.isRecovery) return;
 
     final height = wownero_wallet.getCurrentHeight();
 
-    if (height > MIN_RESTORE_HEIGHT) {
-      // the restore height is probably correct, so we do nothing:
-      return;
-    }
+    // the restore height is probably correct, so we do nothing:
+    if (height > MIN_RESTORE_HEIGHT) return;
 
     throw Exception("height isn't > $MIN_RESTORE_HEIGHT!");
   }
@@ -743,5 +742,12 @@ abstract class WowneroWalletBase
   Future<String> signMessage(String message, {String? address}) async {
     final useAddress = address ?? "";
     return wownero_wallet.signMessage(message, address: useAddress);
+  }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
+    if (address == null) return false;
+
+    return wownero_wallet.verifyMessage(message, address, signature);
   }
 }

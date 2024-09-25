@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/app_scroll_behavior.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
@@ -46,11 +47,15 @@ final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
-Future<void> main() async {
+Future<void> main({Key? topLevelKey}) async {
+  await runAppWithZone(topLevelKey: topLevelKey);
+}
+
+Future<void> runAppWithZone({Key? topLevelKey}) async {
   bool isAppRunning = false;
+
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
-
     FlutterError.onError = ExceptionHandler.onError;
 
     /// A callback that is invoked when an unhandled error occurs in the root
@@ -60,46 +65,26 @@ Future<void> main() async {
 
       return true;
     };
+    await initializeAppAtRoot();
 
-    await setDefaultMinimumWindowSize();
-
-    await CakeHive.close();
-
-    await initializeAppConfigs();
-
-    runApp(App());
+    runApp(App(key: topLevelKey));
 
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
       runApp(
-        MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: Container(
-                margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
-                child: Column(
-                  children: [
-                    Text(
-                      'Error:\n${error.toString()}',
-                      style: TextStyle(fontSize: 22),
-                    ),
-                    Text(
-                      'Stack trace:\n${stackTrace.toString()}',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+        TopLevelErrorWidget(error: error, stackTrace: stackTrace),
       );
     }
 
     ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
+}
+
+Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
+  if (!reInitializing) await setDefaultMinimumWindowSize();
+  await CakeHive.close();
+  await initializeAppConfigs();
 }
 
 Future<void> initializeAppConfigs() async {
@@ -168,7 +153,6 @@ Future<void> initializeAppConfigs() async {
   }
 
   final secureStorage = secureStorageShared;
-
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
   final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
@@ -203,7 +187,7 @@ Future<void> initializeAppConfigs() async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 39,
+    initialMigrationVersion: 40,
   );
 }
 
@@ -245,14 +229,17 @@ Future<void> initialSetup(
     ordersSource: ordersSource,
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
-    secureStorage: secureStorage,
     navigatorKey: navigatorKey,
+    secureStorage: secureStorage,
   );
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }
 
 class App extends StatefulWidget {
+  App({this.key});
+
+  final Key? key;
   @override
   AppState createState() => AppState();
 }
@@ -281,7 +268,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           statusBarIconBrightness: statusBarIconBrightness));
 
       return Root(
-          key: rootKey,
+          key: widget.key ?? rootKey,
           appStore: appStore,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
@@ -297,6 +284,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
             locale: Locale(settingsStore.languageCode),
             onGenerateRoute: (settings) => Router.createRoute(settings),
             initialRoute: initialRoute,
+            scrollBehavior: AppScrollBehavior(),
             home: _Home(),
           ));
     });
@@ -333,5 +321,43 @@ class _HomeState extends State<_Home> {
   @override
   Widget build(BuildContext context) {
     return const SizedBox.shrink();
+  }
+}
+
+class TopLevelErrorWidget extends StatelessWidget {
+  const TopLevelErrorWidget({
+    required this.error,
+    required this.stackTrace,
+    super.key,
+  });
+
+  final Object error;
+  final StackTrace stackTrace;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      scrollBehavior: AppScrollBehavior(),
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: Container(
+            margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
+            child: Column(
+              children: [
+                Text(
+                  'Error:\n${error.toString()}',
+                  style: TextStyle(fontSize: 22),
+                ),
+                Text(
+                  'Stack trace:\n${stackTrace.toString()}',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -15,7 +16,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class TransactionDetailsPage extends BasePage {
-  TransactionDetailsPage({required this.transactionDetailsViewModel});
+  TransactionDetailsPage({required this.transactionDetailsViewModel}) {
+    if (transactionDetailsViewModel.sendViewModel.isElectrumWallet) {
+      bitcoin!.updateFeeRates(transactionDetailsViewModel.sendViewModel.wallet);
+    }
+  }
 
   @override
   String get title => S.current.transaction_details_title;
@@ -70,7 +75,7 @@ class TransactionDetailsPage extends BasePage {
                   text: S.of(context).bump_fee,
                   onTap: () async {
                     Navigator.of(context).pushNamed(Routes.bumpFeePage,
-                        arguments: transactionDetailsViewModel.transactionInfo);
+                        arguments: [transactionDetailsViewModel.transactionInfo, transactionDetailsViewModel.rawTransaction]);
                   },
                 ),
               );

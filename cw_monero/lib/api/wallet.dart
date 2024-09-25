@@ -39,15 +39,29 @@ String getSeed() {
   if (polyseed != "") {
     return polyseed;
   }
-  final legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  final legacy = getSeedLegacy("English");
   return legacy;
 }
 
 String getSeedLegacy(String? language) {
   var legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  switch (language) {
+    case "Chinese (Traditional)": language = "Chinese (simplified)"; break;
+    case "Chinese (Simplified)": language = "Chinese (simplified)"; break;
+    case "Korean": language = "English"; break;
+    case "Czech": language = "English"; break;
+    case "Japanese": language = "English"; break;
+  }
   if (monero.Wallet_status(wptr!) != 0) {
     monero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
     legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  }
+  if (monero.Wallet_status(wptr!) != 0) {
+    final err = monero.Wallet_errorString(wptr!);
+    if (legacy.isNotEmpty) {
+      return "$err\n\n$legacy";
+    }
+    return err;
   }
   return legacy;
 }
@@ -121,9 +135,23 @@ void setRecoveringFromSeed({required bool isRecovery}) =>
     monero.Wallet_setRecoveringFromSeed(wptr!, recoveringFromSeed: isRecovery);
 
 final storeMutex = Mutex();
+
+
+int lastStorePointer = 0;
+int lastStoreHeight = 0;
 void storeSync() async {
-  await storeMutex.acquire();
   final addr = wptr!.address;
+  final synchronized = await Isolate.run(() {
+    return monero.Wallet_synchronized(Pointer.fromAddress(addr));
+  });
+  if (lastStorePointer == wptr!.address &&
+      lastStoreHeight + 5000 > monero.Wallet_blockChainHeight(wptr!) &&
+      !synchronized) {
+    return;
+  }
+  lastStorePointer = wptr!.address;
+  lastStoreHeight = monero.Wallet_blockChainHeight(wptr!);
+  await storeMutex.acquire();
   await Isolate.run(() {
     monero.Wallet_store(Pointer.fromAddress(addr));
   });
@@ -287,4 +315,8 @@ Future<bool> trustedDaemon() async => monero.Wallet_trustedDaemon(wptr!);
 
 String signMessage(String message, {String address = ""}) {
   return monero.Wallet_signMessage(wptr!, message: message, address: address);
+}
+
+bool verifyMessage(String message, String address, String signature) {
+  return monero.Wallet_verifySignedMessage(wptr!, message: message, address: address, signature: signature);
 }

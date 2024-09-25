@@ -46,7 +46,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
       final data = await file.readAsBytes();
 
       await backupService.importBackup(data, password);
-      await main();
+      await initializeAppAtRoot(reInitializing: true);
 
       final store = getIt.get<AppStore>();
       ReactionDisposer? reaction;

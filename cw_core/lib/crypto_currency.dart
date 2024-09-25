@@ -178,7 +178,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const dcr = CryptoCurrency(title: 'DCR', fullName: 'Decred', raw: 47, name: 'dcr', iconPath: 'assets/images/dcr_icon.png', decimals: 8);
   static const kmd = CryptoCurrency(title: 'KMD', fullName: 'Komodo', raw: 48, name: 'kmd', iconPath: 'assets/images/kmd_icon.png', decimals: 8);
   static const mana = CryptoCurrency(title: 'MANA', tag: 'ETH', fullName: 'Decentraland', raw: 49, name: 'mana', iconPath: 'assets/images/mana_icon.png', decimals: 18);
-  static const maticpoly = CryptoCurrency(title: 'MATIC', tag: 'POLY', fullName: 'Polygon', raw: 50, name: 'maticpoly', iconPath: 'assets/images/matic_icon.png', decimals: 18);
+  static const maticpoly = CryptoCurrency(title: 'POL', tag: 'POLY', fullName: 'Polygon', raw: 50, name: 'maticpoly', iconPath: 'assets/images/matic_icon.png', decimals: 18);
   static const matic = CryptoCurrency(title: 'MATIC', tag: 'ETH', fullName: 'Polygon', raw: 51, name: 'matic', iconPath: 'assets/images/matic_icon.png', decimals: 18);
   static const mkr = CryptoCurrency(title: 'MKR', tag: 'ETH', fullName: 'Maker', raw: 52, name: 'mkr', iconPath: 'assets/images/mkr_icon.png', decimals: 18);
   static const near = CryptoCurrency(title: 'NEAR', fullName: 'NEAR Protocol', raw: 53, name: 'near', iconPath: 'assets/images/near_icon.png', decimals: 24);
@@ -281,7 +281,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       final s = 'Unexpected token: $name for CryptoCurrency fromFullName';
       throw  ArgumentError.value(name, 'Fullname', s);
     }
-    return CryptoCurrency._fullNameCurrencyMap[name.toLowerCase()]!;
+    return CryptoCurrency._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()]!;
   }
 
   @override

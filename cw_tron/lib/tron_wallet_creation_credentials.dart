@@ -2,8 +2,20 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 
 class TronNewWalletCredentials extends WalletCredentials {
-  TronNewWalletCredentials({required String name, WalletInfo? walletInfo})
-      : super(name: name, walletInfo: walletInfo);
+  TronNewWalletCredentials({
+    required String name,
+    WalletInfo? walletInfo,
+    String? password,
+    this.mnemonic,
+    String? parentAddress,
+  }) : super(
+          name: name,
+          walletInfo: walletInfo,
+          password: password,
+          parentAddress: parentAddress,
+        );
+
+  final String? mnemonic;
 }
 
 class TronRestoreWalletFromSeedCredentials extends WalletCredentials {

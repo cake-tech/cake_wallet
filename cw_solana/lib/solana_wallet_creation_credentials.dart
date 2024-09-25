@@ -2,8 +2,19 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 
 class SolanaNewWalletCredentials extends WalletCredentials {
-  SolanaNewWalletCredentials({required String name, WalletInfo? walletInfo})
-      : super(name: name, walletInfo: walletInfo);
+  SolanaNewWalletCredentials({
+    required String name,
+    WalletInfo? walletInfo,
+    String? password,
+    String? parentAddress,
+    this.mnemonic,
+  }) : super(
+          name: name,
+          walletInfo: walletInfo,
+          password: password,
+          parentAddress: parentAddress,
+        );
+  final String? mnemonic;
 }
 
 class SolanaRestoreWalletFromSeedCredentials extends WalletCredentials {

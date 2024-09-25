@@ -245,6 +245,8 @@ Future<int> getHavenCurrentHeight() async {
 
 // Data taken from https://timechaincalendar.com/
 const bitcoinDates = {
+  "2024-08": 854889,
+  "2024-07": 850182,
   "2024-06": 846005,
   "2024-05": 841590,
   "2024-04": 837182,
@@ -264,6 +266,16 @@ const bitcoinDates = {
   "2023-02": 774525,
   "2023-01": 769810,
 };
+
+Future<int> getBitcoinHeightByDateAPI({required DateTime date}) async {
+  final response = await http.get(
+    Uri.parse(
+      "http://mempool.cakewallet.com:8999/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}",
+    ),
+  );
+
+  return jsonDecode(response.body)['height'] as int;
+}
 
 int getBitcoinHeightByDate({required DateTime date}) {
   String dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
@@ -371,7 +383,7 @@ const wowDates = {
 
 int getWowneroHeightByDate({required DateTime date}) {
   String closestKey =
-  wowDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
+      wowDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
 
   return wowDates[closestKey] ?? 0;
 }

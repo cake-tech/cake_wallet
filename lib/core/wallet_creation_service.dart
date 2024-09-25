@@ -1,4 +1,3 @@
-import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -15,7 +14,6 @@ import 'package:cw_core/wallet_type.dart';
 class WalletCreationService {
   WalletCreationService(
       {required WalletType initialType,
-      required this.secureStorage,
       required this.keyService,
       required this.sharedPreferences,
       required this.settingsStore,
@@ -25,7 +23,6 @@ class WalletCreationService {
   }
 
   WalletType type;
-  final SecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
   final SettingsStore settingsStore;
   final KeyService keyService;
@@ -56,12 +53,16 @@ class WalletCreationService {
 
   Future<WalletBase> create(WalletCredentials credentials, {bool? isTestnet}) async {
     checkIfExists(credentials.name);
-    final password = generateWalletPassword();
-    credentials.password = password;
+
+    if (credentials.password == null) {
+      credentials.password = generateWalletPassword();
+    }
+    await keyService.saveWalletPassword(
+        password: credentials.password!, walletName: credentials.name);
+
     if (_hasSeedPhraseLengthOption) {
       credentials.seedPhraseLength = settingsStore.seedPhraseLength.value;
     }
-    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
     final wallet = await _service!.create(credentials, isTestnet: isTestnet);
 
     if (wallet.type == WalletType.monero) {
@@ -74,8 +75,10 @@ class WalletCreationService {
 
   bool get _hasSeedPhraseLengthOption {
     switch (type) {
-      case WalletType.ethereum:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
@@ -83,8 +86,6 @@ class WalletCreationService {
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.none:
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
       case WalletType.haven:
       case WalletType.nano:
       case WalletType.banano:
@@ -94,9 +95,13 @@ class WalletCreationService {
 
   Future<WalletBase> restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) async {
     checkIfExists(credentials.name);
-    final password = generateWalletPassword();
-    credentials.password = password;
-    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
+
+    if (credentials.password == null) {
+      credentials.password = generateWalletPassword();
+    }
+    await keyService.saveWalletPassword(
+        password: credentials.password!, walletName: credentials.name);
+
     final wallet = await _service!.restoreFromKeys(credentials, isTestnet: isTestnet);
 
     if (wallet.type == WalletType.monero) {
@@ -109,9 +114,13 @@ class WalletCreationService {
 
   Future<WalletBase> restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) async {
     checkIfExists(credentials.name);
-    final password = generateWalletPassword();
-    credentials.password = password;
-    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
+
+    if (credentials.password == null) {
+      credentials.password = generateWalletPassword();
+    }
+    await keyService.saveWalletPassword(
+        password: credentials.password!, walletName: credentials.name);
+
     final wallet = await _service!.restoreFromSeed(credentials, isTestnet: isTestnet);
 
     if (wallet.type == WalletType.monero) {

@@ -22,38 +22,43 @@ class RescanPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-      child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Observer(
-            builder: (_) => BlockchainHeightWidget(
-                  key: _blockchainHeightWidgetKey,
-                  onHeightOrDateEntered: (value) => _rescanViewModel.isButtonEnabled = value,
-                  isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
-                  doSingleScan: _rescanViewModel.doSingleScan,
-                  toggleSingleScan: () =>
-                      _rescanViewModel.doSingleScan = !_rescanViewModel.doSingleScan,
-                  walletType: _rescanViewModel.wallet.type,
-                )),
-        Observer(
-            builder: (_) => LoadingPrimaryButton(
-                  isLoading: _rescanViewModel.state == RescanWalletState.rescaning,
-                  text: S.of(context).rescan,
-                  onPressed: () async {
-                    if (_rescanViewModel.isSilentPaymentsScan) {
-                      return _toggleSilentPaymentsScanning(context);
-                    }
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Padding(
+        padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+        child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Observer(
+              builder: (_) => BlockchainHeightWidget(
+                    key: _blockchainHeightWidgetKey,
+                    onHeightOrDateEntered: (value) => _rescanViewModel.isButtonEnabled = value,
+                    isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
+                    doSingleScan: _rescanViewModel.doSingleScan,
+                    toggleSingleScan: () =>
+                        _rescanViewModel.doSingleScan = !_rescanViewModel.doSingleScan,
+                    walletType: _rescanViewModel.wallet.type,
+                    bitcoinMempoolAPIEnabled: _rescanViewModel.isBitcoinMempoolAPIEnabled,
+                  )),
+          Observer(
+              builder: (_) => LoadingPrimaryButton(
+                    isLoading: _rescanViewModel.state == RescanWalletState.rescaning,
+                    text: S.of(context).rescan,
+                    onPressed: () async {
+                      if (_rescanViewModel.isSilentPaymentsScan) {
+                        return _toggleSilentPaymentsScanning(context);
+                      }
 
-                    _rescanViewModel.rescanCurrentWallet(
-                        restoreHeight: _blockchainHeightWidgetKey.currentState!.height);
+                      _rescanViewModel.rescanCurrentWallet(
+                          restoreHeight: _blockchainHeightWidgetKey.currentState!.height);
 
-                    Navigator.of(context).pop();
-                  },
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
-                  isDisabled: !_rescanViewModel.isButtonEnabled,
-                ))
-      ]),
+                      Navigator.of(context).pop();
+                    },
+                    color: Theme.of(context).primaryColor,
+                    textColor: Colors.white,
+                    isDisabled: !_rescanViewModel.isButtonEnabled,
+                  ))
+        ]),
+      ),
     );
   }
 
@@ -71,7 +76,7 @@ class RescanPage extends BasePage {
           builder: (BuildContext _dialogContext) => AlertWithTwoActions(
                 alertTitle: S.of(_dialogContext).change_current_node_title,
                 alertContent: S.of(_dialogContext).confirm_silent_payments_switch_node,
-                rightButtonText: S.of(_dialogContext).ok,
+                rightButtonText: S.of(_dialogContext).confirm,
                 leftButtonText: S.of(_dialogContext).cancel,
                 actionRightButton: () async {
                   Navigator.of(_dialogContext).pop();

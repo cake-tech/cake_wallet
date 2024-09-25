@@ -1,4 +1,5 @@
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -9,7 +10,7 @@ import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:cw_evm/evm_chain_wallet_service.dart';
 
 class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
-  EthereumWalletService(super.walletInfoSource, {required this.client});
+  EthereumWalletService(super.walletInfoSource, super.isDirect, {required this.client});
 
   late EthereumClient client;
 
@@ -20,13 +21,14 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
   Future<EthereumWallet> create(EVMChainNewWalletCredentials credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
-    final mnemonic = bip39.generateMnemonic(strength: strength);
+    final mnemonic = credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
 
     final wallet = EthereumWallet(
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
       client: client,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -46,6 +48,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
         name: name,
         password: password,
         walletInfo: walletInfo,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
 
       await wallet.init();
@@ -59,6 +62,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
         name: name,
         password: password,
         walletInfo: walletInfo,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
       await wallet.save();
@@ -71,7 +75,11 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
     final currentWalletInfo = walletInfoSource.values
         .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
     final currentWallet = await EthereumWallet.open(
-        password: password, name: currentName, walletInfo: currentWalletInfo);
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
 
     await currentWallet.renameWalletFiles(newName);
     await saveBackup(newName);
@@ -97,6 +105,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
       walletInfo: credentials.walletInfo!,
       password: credentials.password!,
       client: client,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -114,6 +123,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
       client: client,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -135,6 +145,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       client: client,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();

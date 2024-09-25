@@ -1,4 +1,3 @@
-
 import 'dart:ffi';
 import 'dart:isolate';
 
@@ -110,7 +109,10 @@ Future<PendingTransactionDescription> createTransactionSync(
   })();
 
   if (error != null) {
-    final message = error;
+    String message = error;
+    if (message.contains("RPC error")) {
+      message = "Invalid node response, please try again or switch node\n\ntrace: $message";
+    }
     throw CreationTransactionException(message: message);
   }
 
@@ -136,11 +138,17 @@ PendingTransactionDescription createTransactionMultDestSync(
     int accountIndex = 0,
     List<String> preferredInputs = const []}) {
   
+  final dstAddrs = outputs.map((e) => e.address).toList();
+  final amounts = outputs.map((e) => monero.Wallet_amountFromString(e.amount)).toList();
+
+  // print("multDest: dstAddrs: $dstAddrs");
+  // print("multDest: amounts: $amounts");
+
   final txptr = monero.Wallet_createTransactionMultDest(
     wptr!,
-    dstAddr: outputs.map((e) => e.address).toList(),
+    dstAddr: dstAddrs,
     isSweepAll: false,
-    amounts: outputs.map((e) => monero.Wallet_amountFromString(e.amount)).toList(),
+    amounts: amounts,
     mixinCount: 0,
     pendingTransactionPriority: priorityRaw,
     subaddr_account: accountIndex,
@@ -285,7 +293,7 @@ class Transaction {
     };
   }
 
-  // S finalubAddress? subAddress;
+  // final SubAddress? subAddress;
   // List<Transfer> transfers = [];
   // final int txIndex;
   final monero.TransactionInfo txInfo;
@@ -305,7 +313,16 @@ class Transaction {
         confirmations = monero.TransactionInfo_confirmations(txInfo),
         fee = monero.TransactionInfo_fee(txInfo),
         description = monero.TransactionInfo_description(txInfo),
-        key = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo));
+        key = getTxKey(txInfo);
+
+  static String getTxKey(monero.TransactionInfo txInfo) {
+    final txKey = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo));
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      return "";
+    }
+    return txKey;
+  }
 
   Transaction.dummy({
     required this.displayLabel,

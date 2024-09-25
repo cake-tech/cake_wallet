@@ -75,8 +75,8 @@ class CWNano extends Nano {
   }
 
   @override
-  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource) {
-    return NanoWalletService(walletInfoSource);
+  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) {
+    return NanoWalletService(walletInfoSource, isDirect);
   }
 
   @override
@@ -91,12 +91,17 @@ class CWNano extends Nano {
   @override
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
+    WalletInfo? walletInfo,
     String? password,
+    String? mnemonic,
+    String? parentAddress,
   }) =>
       NanoNewWalletCredentials(
         name: name,
         password: password,
-        derivationType: DerivationType.nano,
+        mnemonic: mnemonic,
+        parentAddress: parentAddress,
+        walletInfo: walletInfo,
       );
 
   @override

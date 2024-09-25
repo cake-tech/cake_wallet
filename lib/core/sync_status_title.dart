@@ -52,5 +52,13 @@ String syncStatusTitle(SyncStatus syncStatus) {
     return S.current.sync_status_syncronizing;
   }
 
+  if (syncStatus is StartingScanSyncStatus) {
+    return S.current.sync_status_starting_scan(syncStatus.beginHeight.toString());
+  }
+
+  if (syncStatus is AttemptingScanSyncStatus) {
+    return S.current.sync_status_attempting_scan;
+  }
+
   return '';
 }

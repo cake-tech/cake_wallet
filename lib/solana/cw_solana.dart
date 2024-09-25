@@ -4,15 +4,24 @@ class CWSolana extends Solana {
   @override
   List<String> getSolanaWordList(String language) => SolanaMnemonics.englishWordlist;
 
-  WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource) =>
-      SolanaWalletService(walletInfoSource);
+  WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
+      SolanaWalletService(walletInfoSource, isDirect);
 
   @override
   WalletCredentials createSolanaNewWalletCredentials({
     required String name,
+    String? mnemonic,
+    String? parentAddress,
     WalletInfo? walletInfo,
+    String? password,
   }) =>
-      SolanaNewWalletCredentials(name: name, walletInfo: walletInfo);
+      SolanaNewWalletCredentials(
+        name: name,
+        walletInfo: walletInfo,
+        password: password,
+        mnemonic: mnemonic,
+        parentAddress: parentAddress,
+      );
 
   @override
   WalletCredentials createSolanaRestoreWalletFromSeedCredentials({
