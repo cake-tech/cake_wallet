@@ -66,7 +66,7 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   @override
   Future<void> init() async {
     accountList.update();
-    account = accountList.accounts.first;
+    account = accountList.accounts.isEmpty ? Account(id: 0, label: "Primary address") : accountList.accounts.first;
     updateSubaddressList(accountIndex: account?.id ?? 0);
     await updateAddressesInBox();
   }
@@ -115,8 +115,7 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
 
   void updateSubaddressList({required int accountIndex}) {
     subaddressList.update(accountIndex: accountIndex);
-    subaddress = subaddressList.subaddresses.first;
-    address = subaddress!.address;
+    address = subaddressList.subaddresses.isNotEmpty ? subaddress!.address : getAddress();
   }
 
   Future<void> updateUsedSubaddress() async {
