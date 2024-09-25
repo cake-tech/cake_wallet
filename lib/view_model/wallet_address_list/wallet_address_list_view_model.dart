@@ -409,7 +409,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         });
         addressList.addAll(receivedAddressItems);
       } else {
-        final addressItems = bitcoin!.getSubAddresses(wallet).map((subaddress) {
+        var addressItems = bitcoin!.getSubAddresses(wallet).map((subaddress) {
           final isPrimary = subaddress.id == 0;
 
           return WalletAddressListItem(
@@ -422,6 +422,16 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
                   walletTypeToCryptoCurrency(type), subaddress.balance),
               isChange: subaddress.isChange);
         });
+
+        // don't show all 1000+ mweb addresses:
+        if (wallet.type == WalletType.litecoin && addressItems.length >= 1000) {
+          // find the index of the last item with a txCount > 0
+          final addressItemsList = addressItems.toList();
+          final lastItemWithTxCount = addressItemsList.lastWhere((item) => (item.txCount ?? 0) > 0);
+          final index = addressItemsList.indexOf(lastItemWithTxCount);
+          // show only up to that index + 20:
+          addressItems = addressItemsList.sublist(0, index + 20);
+        }
         addressList.addAll(addressItems);
       }
     }
