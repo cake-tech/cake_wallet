@@ -253,7 +253,7 @@ Future<PendingTransactionDescription> createTransactionMultDest(
 
 class Transaction {
   final String displayLabel;
-  late String subaddressLabel = wownero.Wallet_getSubaddressLabel(wptr!, accountIndex: 0, addressIndex: 0);
+  late String subaddressLabel = wownero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
   late String address = getAddress(
     accountIndex: accountIndex,
     addressIndex: addressIndex,
