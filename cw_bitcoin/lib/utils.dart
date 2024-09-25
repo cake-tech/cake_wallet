@@ -1,19 +1,8 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:flutter/foundation.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 import 'package:hex/hex.dart';
 import 'package:bs58check/bs58check.dart' as bs58check;
-import 'package:convert/convert.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-
-bitcoin.PaymentData generatePaymentData({
-  required bitcoin.HDWallet hd,
-  required int index,
-}) {
-  final pubKey = hd.derive(index).pubKey!;
-  return PaymentData(pubkey: Uint8List.fromList(HEX.decode(pubKey)));
-}
 
 ECPrivate generateECPrivate({
   required Bip32Slip10Secp256k1 hd,
@@ -62,14 +51,71 @@ String generateP2TRAddress({
   required Bip32Slip10Secp256k1 hd,
   required BasedUtxoNetwork network,
   required int index,
-}) {
-  final pubKey = hd.derive(index).pubKey!;
-  return ECPublic.fromHex(pubKey).toTaprootAddress().toAddress(network);
+}) =>
+    ECPublic.fromBip32(hd.childKey(Bip32KeyIndex(index)).publicKey)
+        .toTaprootAddress()
+        .toAddress(network);
+
+/// Enum representing different types of private keys.
+enum PrivateKeyType {
+  /// BIP32 extended private key (mainnet)
+  xprv,
+
+  /// BIP84 extended private key for native SegWit (P2WPKH) (mainnet)
+  zprv,
+
+  /// BIP49 extended private key for wrapped SegWit (P2SH-P2WPKH) (mainnet)
+  yprv,
+
+  /// BIP49 extended private key (upper Y variant)
+  Yprv,
+
+  /// BIP32 extended private key (testnet)
+  tprv,
+
+  /// BIP32 extended private key (alternative mainnet prefix)
+  uprv,
+
+  /// BIP32 extended private key (alternative mainnet prefix, upper U variant)
+  Uprv,
+
+  /// BIP84 extended private key (native SegWit, upper V variant)
+  vprv,
+
+  /// BIP84 extended private key (native SegWit, upper V variant, uppercase)
+  Vprv
 }
 
-enum PrivateKeyType { xprv, zprv, yprv, Yprv, tprv, uprv, Uprv, vprv, Vprv }
+/// Enum representing different types of public keys.
+enum PublicKeyType {
+  /// BIP32 extended public key (mainnet)
+  xpub,
 
-enum PublicKeyType { xpub, zpub, ypub, Ypub, tpub, upub, Upub, vpub, Vpub }
+  /// BIP84 extended public key for native SegWit (P2WPKH) (mainnet)
+  zpub,
+
+  /// BIP49 extended public key for wrapped SegWit (P2SH-P2WPKH) (mainnet)
+  ypub,
+
+  /// BIP49 extended public key (upper Y variant)
+  Ypub,
+
+  /// BIP32 extended public key (testnet)
+  tpub,
+
+  /// BIP32 extended public key (alternative mainnet prefix)
+  upub,
+
+  /// BIP32 extended public key (alternative mainnet prefix, upper U variant)
+  Upub,
+
+  /// BIP84 extended public key (native SegWit, upper V variant)
+  vpub,
+
+  /// BIP84 extended public key (native SegWit, upper V variant, uppercase)
+  Vpub
+}
+
 
 class KeysVersionBytesConverter {
   static const prvKeyPrefixes = {
@@ -96,24 +142,27 @@ class KeysVersionBytesConverter {
     PublicKeyType.Vpub: '02575483',
   };
 
+  /// Converts an extended private key to the specified target type by changing its version bytes.
   static String? changePrivateKeyVersionBytes(
       {required String key, required PrivateKeyType targetType}) {
     if (!prvKeyPrefixes.containsKey(targetType)) throw Exception('Invalid target version');
     return _changeVersionBytes(key: key, prefixes: prvKeyPrefixes, targetType: targetType);
   }
 
+  /// Converts an extended public key to the specified target type by changing its version bytes.
   static String? changePublicKeyVersionBytes(
       {required String key, required PublicKeyType targetType}) {
     if (!pubKeyPrefixes.containsKey(targetType)) throw Exception('Invalid target version');
     return _changeVersionBytes(key: key, prefixes: pubKeyPrefixes, targetType: targetType);
   }
 
+  /// Internal method for changing version bytes of an extended key.
   static String? _changeVersionBytes<T>(
       {required String key, required Map<T, String> prefixes, required T targetType}) {
     try {
       Uint8List data = bs58check.decode(key);
       data = data.sublist(4);
-      Uint8List newData = Uint8List.fromList(hex.decode(prefixes[targetType]!) + data);
+      Uint8List newData = Uint8List.fromList(HEX.decode(prefixes[targetType]!) + data);
       return bs58check.encode(newData);
     } catch (e) {
       throw Exception(

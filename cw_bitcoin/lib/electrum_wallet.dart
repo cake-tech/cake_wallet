@@ -258,16 +258,21 @@ abstract class ElectrumWalletBase
 
   @override
   BitcoinWalletKeys get keys {
+    final extendedPrivateKey = accountHD.privateKey.toExtended;
+    final extendedPublicKey = accountHD.publicKey.toExtended;
+
     final p2wpkhMainnetPrivKey = KeysVersionBytesConverter.changePrivateKeyVersionBytes(
-        key: accountHD.base58Priv!, targetType: PrivateKeyType.zprv);
+        key: extendedPrivateKey, targetType: PrivateKeyType.zprv);
 
     final p2wpkhMainnetPubKey = KeysVersionBytesConverter.changePublicKeyVersionBytes(
-        key: accountHD.base58!, targetType: PublicKeyType.zpub);
+        key: extendedPublicKey, targetType: PublicKeyType.zpub);
+
+    final wif = WifEncoder.encode(accountHD.privateKey.raw, netVer: network.wifNetVer);
 
     return BitcoinWalletKeys(
-        wif: accountHD.wif!,
-        privateKey: accountHD.base58Priv!,
-        publicKey: accountHD.base58!,
+        wif: wif,
+        privateKey: extendedPrivateKey,
+        publicKey: extendedPublicKey,
         p2wpkhMainnetPubKey: p2wpkhMainnetPubKey,
         p2wpkhMainnetPrivKey: p2wpkhMainnetPrivKey);
   }
