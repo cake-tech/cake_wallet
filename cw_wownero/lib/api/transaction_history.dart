@@ -253,12 +253,12 @@ Future<PendingTransactionDescription> createTransactionMultDest(
 
 class Transaction {
   final String displayLabel;
-  late String subaddressLabel = wownero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
-  late String address = getAddress(
+  late final String subaddressLabel = wownero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
+  late final String address = getAddress(
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
-  late List<String> addressList = List.generate(addressIndexList.length, (index) =>
+  late final List<String> addressList = List.generate(addressIndexList.length, (index) =>
     getAddress(
       accountIndex: accountIndex,
       addressIndex: addressIndexList[index],
@@ -274,7 +274,7 @@ class Transaction {
   final String paymentId;
   final int amount;
   final bool isSpend;
-  late DateTime timeStamp;
+  late final DateTime timeStamp;
   late final bool isConfirmed = !isPending;
   final String hash;
   final String key;

@@ -263,16 +263,16 @@ Future<PendingTransactionDescription> createTransactionMultDest(
 
 class Transaction {
   final String displayLabel;
-  late String subaddressLabel = monero.Wallet_getSubaddressLabel(
+  late final String subaddressLabel = monero.Wallet_getSubaddressLabel(
     wptr!,
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
-  late String address = getAddress(
+  late final String address = getAddress(
     accountIndex: accountIndex,
     addressIndex: addressIndex,
   );
-  late List<String> addressList = List.generate(addressIndexList.length, (index) =>
+  late final List<String> addressList = List.generate(addressIndexList.length, (index) =>
     getAddress(
     accountIndex: accountIndex,
     addressIndex: addressIndexList[index],
