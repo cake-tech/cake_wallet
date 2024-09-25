@@ -155,6 +155,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.bitcoinCash;
 
+  bool get hideAddressAfterExchange =>
+    wallet.type == WalletType.monero ||
+    wallet.type == WalletType.wownero;
+
   bool _useTorOnly;
   final Box<Trade> trades;
   final ExchangeTemplateStore _exchangeTemplateStore;
@@ -540,8 +544,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           isFixedRate: isFixedRateMode,
         );
 
-        wallet.walletAddresses.hiddenAddresses.add(depositAddress);
-        await wallet.walletAddresses.saveAddressesInBox();
+        if (hideAddressAfterExchange) {
+          wallet.walletAddresses.hiddenAddresses.add(depositAddress);
+          await wallet.walletAddresses.saveAddressesInBox();
+        }
 
         var amount = isFixedRateMode ? receiveAmount : depositAmount;
         amount = amount.replaceAll(',', '.');
