@@ -4,6 +4,7 @@ import 'package:convert/convert.dart' as convert;
 import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
@@ -819,6 +820,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     if (outputs.length == 1 && outputs[0].toOutput.amount == BigInt.zero) {
+      // TODO: for some reason we can't type cast BitcoinScriptOutput to BitcoinBaseOutput (even though one implements the other)
+      // this breaks using the ALL button on litecoin mweb tx's:
       outputs = [
         BitcoinScriptOutput(
             script: outputs[0].toOutput.scriptPubKey, value: utxos.sumOfUtxosValue())
@@ -880,7 +883,29 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       ));
       final tx2 = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
 
+      // check if the transaction doesn't contain any mweb inputs or outputs:
+      final transactionCredentials = credentials as BitcoinTransactionCredentials;
+
+      bool hasMwebInput = false;
+      bool hasMwebOutput = false;
+
+      for (final output in transactionCredentials.outputs) {
+        if (output.extractedAddress?.toLowerCase().contains("mweb") ?? false) {
+          hasMwebOutput = true;
+          break;
+        }
+      }
+
+      if (tx2.mwebBytes != null && tx2.mwebBytes!.isNotEmpty) {
+        hasMwebInput = true;
+      }
+
+      if (!hasMwebInput && !hasMwebOutput) {
+        return tx;
+      }
+
       // check if any of the inputs of this transaction are hog-ex:
+      // this list is only non-mweb inputs:
       tx2.inputs.forEach((txInput) {
         bool isHogEx = true;
 
