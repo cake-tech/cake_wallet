@@ -112,12 +112,6 @@ abstract class ElectrumWalletBase
           "To create a Wallet you need either a seed or an xpub. This should not happen");
     }
 
-    print("currency: $currency");
-    print("network: $network");
-    print("seedBytes: $seedBytes");
-    print("xpub: $xpub");
-    print("derivationInfo: $derivationInfo");
-
     if (seedBytes != null) {
       switch (currency) {
         case CryptoCurrency.btc:
