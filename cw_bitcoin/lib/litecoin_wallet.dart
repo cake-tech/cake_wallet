@@ -4,6 +4,7 @@ import 'package:convert/convert.dart' as convert;
 import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
@@ -98,9 +99,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;
   Timer? _feeRatesTimer;
+  Timer? _processingTimer;
   StreamSubscription<Utxo>? _utxoStream;
   late RpcClient _stub;
   late bool mwebEnabled;
+  bool processingUtxos = false;
 
   List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendSecret => mwebHd.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;
@@ -243,7 +246,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> startSync() async {
-    print("STARTING SYNC @@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
     if (syncStatus is SyncronizingSyncStatus) {
       return;
     }
@@ -251,8 +253,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     try {
       syncStatus = SyncronizingSyncStatus();
       await subscribeForUpdates();
+      updateFeeRates();
 
-      await updateFeeRates();
       _feeRatesTimer?.cancel();
       _feeRatesTimer =
           Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
@@ -317,7 +319,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
         // prevent unnecessary reaction triggers:
         if (syncStatus is! SyncedSyncStatus) {
-          syncStatus = SyncedSyncStatus();
+          // mwebd is synced, but we could still be processing incoming utxos:
+          if (!processingUtxos) {
+            syncStatus = SyncedSyncStatus();
+          }
         }
         return;
       }
@@ -454,12 +459,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         return;
       }
 
-      // if our address isn't in the inputs, update the txCount:
-      final inputAddresses = tx.inputAddresses ?? [];
-      if (!inputAddresses.contains(utxo.address)) {
-        addressRecord.txCount++;
-      }
-
+      // update the txCount:
+      addressRecord.txCount++;
       addressRecord.balance += utxo.value.toInt();
       addressRecord.setAsUsed();
     }
@@ -493,6 +494,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       // we're processing utxos, so our balance could still be innacurate:
       if (syncStatus is! SyncronizingSyncStatus && syncStatus is! SyncingSyncStatus) {
         syncStatus = SyncronizingSyncStatus();
+        processingUtxos = true;
+        _processingTimer?.cancel();
+        _processingTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+          processingUtxos = false;
+          timer.cancel();
+        });
       }
 
       final utxo = MwebUtxo(
@@ -535,7 +542,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // check if any of the pending outgoing transactions are now confirmed:
     bool updatedAny = false;
     for (final tx in pendingOutgoingTransactions) {
-      updatedAny = await checkPendingTransaction(tx) || updatedAny;
+      updatedAny = await isConfirmed(tx) || updatedAny;
     }
 
     // get output ids of all the mweb utxos that have > 0 height:
@@ -600,7 +607,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   // checks if a pending transaction is now confirmed, and updates the tx info accordingly:
-  Future<bool> checkPendingTransaction(ElectrumTransactionInfo tx) async {
+  Future<bool> isConfirmed(ElectrumTransactionInfo tx) async {
     if (!mwebEnabled) return false;
     if (!tx.isPending) return false;
 
@@ -696,6 +703,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
     await getStub();
 
+    // update unspent balances:
+    await updateUnspent();
+
     int confirmed = balance.confirmed;
     int unconfirmed = balance.unconfirmed;
     int confirmedMweb = 0;
@@ -712,9 +722,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         unconfirmedMweb = -1 * (confirmedMweb - unconfirmedMweb);
       }
     } catch (_) {}
-
-    // update unspent balances:
-    await updateUnspent();
 
     for (var addressRecord in walletAddresses.allAddresses) {
       addressRecord.balance = 0;
@@ -815,6 +822,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     if (outputs.length == 1 && outputs[0].toOutput.amount == BigInt.zero) {
+      // TODO: for some reason we can't type cast BitcoinScriptOutput to BitcoinBaseOutput (even though one implements the other)
+      // this breaks using the ALL button on litecoin mweb tx's:
       outputs = [
         BitcoinScriptOutput(
             script: outputs[0].toOutput.scriptPubKey, value: utxos.sumOfUtxosValue())
@@ -876,7 +885,29 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       ));
       final tx2 = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
 
+      // check if the transaction doesn't contain any mweb inputs or outputs:
+      final transactionCredentials = credentials as BitcoinTransactionCredentials;
+
+      bool hasMwebInput = false;
+      bool hasMwebOutput = false;
+
+      for (final output in transactionCredentials.outputs) {
+        if (output.extractedAddress?.toLowerCase().contains("mweb") ?? false) {
+          hasMwebOutput = true;
+          break;
+        }
+      }
+
+      if (tx2.mwebBytes != null && tx2.mwebBytes!.isNotEmpty) {
+        hasMwebInput = true;
+      }
+
+      if (!hasMwebInput && !hasMwebOutput) {
+        return tx;
+      }
+
       // check if any of the inputs of this transaction are hog-ex:
+      // this list is only non-mweb inputs:
       tx2.inputs.forEach((txInput) {
         bool isHogEx = true;
 
@@ -957,6 +988,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _utxoStream?.cancel();
     _feeRatesTimer?.cancel();
     _syncTimer?.cancel();
+    _processingTimer?.cancel();
     await stopSync();
     await super.close();
   }

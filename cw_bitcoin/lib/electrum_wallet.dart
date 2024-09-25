@@ -116,6 +116,7 @@ abstract class ElectrumWalletBase
       switch (currency) {
         case CryptoCurrency.btc:
         case CryptoCurrency.ltc:
+        case CryptoCurrency.tbtc:
           return Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(
                   _hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path))
               as Bip32Slip10Secp256k1;
