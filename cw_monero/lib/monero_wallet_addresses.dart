@@ -47,7 +47,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
     while (hiddenAddresses.contains(address) || manualAddresses.contains(address) || subaddress_list.getRawLabel(accountIndex: account?.id??0, addressIndex: addressIndex).isNotEmpty) {
       addressIndex++;
-      address = getAddress(accountIndex: 0, addressIndex: addressIndex);
+      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
       subaddressList.update(accountIndex: account?.id??0);
     }
     return address;
