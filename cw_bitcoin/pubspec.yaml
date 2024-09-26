@@ -34,7 +34,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/sp_scanner
       ref: sp_v4.0.0
-  ledger_flutter_plus: ^1.2.4
+  ledger_flutter_plus: ^1.2.5
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
@@ -42,11 +42,7 @@ dependencies:
   ledger_litecoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
-      path: ./packages/ledger-litecoin
-#    path: ../../ledger-litecoin
-#    git:
-#      url: https://github.com/cake-tech/ledger-litecoin
-
+      path: packages/ledger-litecoin
 
 dev_dependencies:
   flutter_test:
