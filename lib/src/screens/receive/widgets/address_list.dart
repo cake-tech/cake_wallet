@@ -153,10 +153,13 @@ class _AddressListState extends State<AddressList> {
                   ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileTextColor
                   : Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor;
 
+
               return AddressCell.fromItem(
                 item,
                 isCurrent: isCurrent,
                 hasBalance: widget.addressListViewModel.isBalanceAvailable,
+                hasReceived: widget.addressListViewModel.isReceivedAvailable,
+                // hasReceived: 
                 backgroundColor: (kDebugMode && item.isHidden) ?
                   Theme.of(context).colorScheme.error :
                   (kDebugMode && item.isManual) ? Theme.of(context).colorScheme.error.withBlue(255) :

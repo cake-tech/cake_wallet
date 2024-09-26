@@ -22,7 +22,8 @@ class AddressCell extends StatelessWidget {
       this.txCount,
       this.balance,
       this.isChange = false,
-      this.hasBalance = false});
+      this.hasBalance = false,
+      this.hasReceived = false});
 
   factory AddressCell.fromItem(
     WalletAddressListItem item, {
@@ -31,6 +32,7 @@ class AddressCell extends StatelessWidget {
     required Color textColor,
     Function(String)? onTap,
     bool hasBalance = false,
+    bool hasReceived = false,
     Function()? onEdit,
     Function()? onHide,
     bool isHidden = false,
@@ -51,7 +53,8 @@ class AddressCell extends StatelessWidget {
           txCount: item.txCount,
           balance: item.balance,
           isChange: item.isChange,
-          hasBalance: hasBalance);
+          hasBalance: hasBalance,
+          hasReceived: hasReceived,);
 
   final String address;
   final String name;
@@ -68,6 +71,7 @@ class AddressCell extends StatelessWidget {
   final String? balance;
   final bool isChange;
   final bool hasBalance;
+  final bool hasReceived;
 
   static const int addressPreviewLength = 8;
 
@@ -147,7 +151,7 @@ class AddressCell extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (hasBalance)
+                    if (hasBalance || hasReceived)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Row(
@@ -155,7 +159,7 @@ class AddressCell extends StatelessWidget {
                           mainAxisSize: MainAxisSize.max,
                           children: [
                             Text(
-                              '${S.of(context).balance}: $balance',
+                              '${hasReceived ? S.of(context).received : S.of(context).balance}: $balance',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,

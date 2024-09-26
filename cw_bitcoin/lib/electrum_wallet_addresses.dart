@@ -163,15 +163,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
       return;
     }
-
+    try {
     final addressRecord = _addresses.firstWhere(
       (addressRecord) => addressRecord.address == addr,
-      orElse: () => BitcoinAddressRecord(addr, index: 0, type: SilentPaymentsAddresType.p2sp, network: network)
     );
 
     previousAddressRecord = addressRecord;
     receiveAddresses.remove(addressRecord);
     receiveAddresses.insert(0, addressRecord);
+    } catch (e) {
+      print("ElectrumWalletAddressBase: set address ($addr): $e");
+    }
   }
 
   @override

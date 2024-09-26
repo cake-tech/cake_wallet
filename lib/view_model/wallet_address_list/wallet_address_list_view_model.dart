@@ -516,8 +516,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoinCash;
 
   @computed
-  bool get isBalanceAvailable =>
-      isElectrumWallet ||
+  bool get isBalanceAvailable => isElectrumWallet;
+
+  @computed
+  bool get isReceivedAvailable =>
       wallet.type == WalletType.monero ||
       wallet.type == WalletType.wownero;
 
