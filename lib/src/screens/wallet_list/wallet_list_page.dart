@@ -157,7 +157,17 @@ class WalletListBodyState extends State<WalletListBody> {
                             final group = widget.walletListViewModel.multiWalletGroups[index];
                             final groupName = group.groupName ??
                                 '${S.current.wallet_group} ${index + 1}';
+
+                            widget.walletListViewModel.updateTileState(
+                              index,
+                              widget.walletListViewModel.expansionTileStateTrack[index] ?? false,
+                            );
+
                             return GroupedWalletExpansionTile(
+                              onExpansionChanged: (value) {
+                                widget.walletListViewModel.updateTileState(index, value);
+                                setState(() {});
+                              },
                               shouldShowCurrentWalletPointer: true,
                               borderRadius: BorderRadius.all(Radius.circular(16)),
                               margin: EdgeInsets.only(left: 20, right: 20, bottom: 12),
@@ -170,6 +180,8 @@ class WalletListBodyState extends State<WalletListBody> {
                               trailingWidget: EditWalletButtonWidget(
                                 width: 74,
                                 isGroup: true,
+                                isExpanded:
+                                    widget.walletListViewModel.expansionTileStateTrack[index]!,
                                 onTap: () {
                                   final wallet = widget.walletListViewModel
                                       .convertWalletInfoToWalletListItem(group.wallets.first);
@@ -195,13 +207,16 @@ class WalletListBodyState extends State<WalletListBody> {
                               childTrailingWidget: (item) {
                                 return item.isCurrent
                                     ? SizedBox.shrink()
-                                    : EditWalletButtonWidget(
-                                        width: 44,
-                                        onTap: () => Navigator.of(context).pushNamed(
-                                          Routes.walletEdit,
-                                          arguments: WalletEditPageArguments(
-                                            walletListViewModel: widget.walletListViewModel,
-                                            editingWallet: item,
+                                    : Padding(
+                                        padding: const EdgeInsets.only(right: 16),
+                                        child: EditWalletButtonWidget(
+                                          width: 44,
+                                          onTap: () => Navigator.of(context).pushNamed(
+                                            Routes.walletEdit,
+                                            arguments: WalletEditPageArguments(
+                                              walletListViewModel: widget.walletListViewModel,
+                                              editingWallet: item,
+                                            ),
                                           ),
                                         ),
                                       );

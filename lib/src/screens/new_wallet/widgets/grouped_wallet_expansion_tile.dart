@@ -12,6 +12,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
     this.childWallets = const [],
     this.onTitleTapped,
     this.onChildItemTapped = _defaultVoidCallback,
+    this.onExpansionChanged,
     this.leadingWidget,
     this.trailingWidget,
     this.childTrailingWidget,
@@ -33,6 +34,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
 
   final VoidCallback? onTitleTapped;
   final void Function(WalletListItem item) onChildItemTapped;
+  final void Function(bool)? onExpansionChanged;
 
   final String title;
   final Widget? leadingWidget;
@@ -74,6 +76,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
           splashFactory: NoSplash.splashFactory,
         ),
         child: ExpansionTile(
+          onExpansionChanged: onExpansionChanged,
           key: tileKey,
           tilePadding:
               EdgeInsets.symmetric(vertical: 1, horizontal: !isCurrentlySelectedWallet ? 16 : 0),
