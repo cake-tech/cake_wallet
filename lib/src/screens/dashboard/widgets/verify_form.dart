@@ -15,7 +15,7 @@ class VerifyForm extends StatefulWidget {
   VerifyFormState createState() => VerifyFormState();
 }
 
-class VerifyFormState extends State<VerifyForm> {
+class VerifyFormState extends State<VerifyForm> with AutomaticKeepAliveClientMixin {
   VerifyFormState()
       : formKey = GlobalKey<FormState>(),
         messageController = TextEditingController(),
@@ -36,9 +36,13 @@ class VerifyFormState extends State<VerifyForm> {
   void dispose() {
     super.dispose();
   }
+  
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Container(
       padding: EdgeInsets.only(left: 24, right: 24),
       child: Form(
