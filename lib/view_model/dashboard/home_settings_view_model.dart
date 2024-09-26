@@ -151,33 +151,23 @@ abstract class HomeSettingsViewModelBase with Store {
 
       bool isEthereum = _balanceViewModel.wallet.type == WalletType.ethereum;
 
-      print('An extra log for now');
-
       bool isPotentialScamViaMoralis = await _isPotentialScamTokenViaMoralis(
         contractAddress,
         isEthereum ? 'eth' : 'polygon',
       );
-
-      print('Is Potential Scam from Moralis: $isPotentialScamViaMoralis');
 
       bool isPotentialScamViaExplorers = await _isPotentialScamTokenViaExplorers(
         contractAddress,
         isEthereum: isEthereum,
       );
 
-      print('Is Potential Scam from Explorers: $isPotentialScamViaExplorers');
-
       bool isUnverifiedContract = await _isContractUnverified(
         contractAddress,
         isEthereum: isEthereum,
       );
 
-      print('Is Unverified Contract: $isUnverifiedContract');
-
       final showWarningForContractAddress =
           isPotentialScamViaMoralis || isUnverifiedContract || isPotentialScamViaExplorers;
-
-      print('Show Warning: $showWarningForContractAddress');
 
       return showWarningForContractAddress;
     } finally {
@@ -272,8 +262,8 @@ abstract class HomeSettingsViewModelBase with Store {
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (decodedResponse['status'] != '1') {
-        print('${response.body}\n');
-        print('${decodedResponse['result']}\n');
+        log('${response.body}\n');
+        log('${decodedResponse['result']}\n');
         return true;
       }
 

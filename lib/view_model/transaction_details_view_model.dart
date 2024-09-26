@@ -160,9 +160,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.ethereum:
         return 'https://etherscan.io/tx/${txId}';
       case WalletType.nano:
-        return 'https://nanolooker.com/block/${txId}';
+        return 'https://nanexplorer.com/nano/block/${txId}';
       case WalletType.banano:
-        return 'https://bananolooker.com/block/${txId}';
+        return 'https://nanexplorer.com/banano/block/${txId}';
       case WalletType.polygon:
         return 'https://polygonscan.com/tx/${txId}';
       case WalletType.solana:
@@ -190,9 +190,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.ethereum:
         return S.current.view_transaction_on + 'etherscan.io';
       case WalletType.nano:
-        return S.current.view_transaction_on + 'nanolooker.com';
+        return S.current.view_transaction_on + 'nanexplorer.com';
       case WalletType.banano:
-        return S.current.view_transaction_on + 'bananolooker.com';
+        return S.current.view_transaction_on + 'nanexplorer.com';
       case WalletType.polygon:
         return S.current.view_transaction_on + 'polygonscan.com';
       case WalletType.solana:
