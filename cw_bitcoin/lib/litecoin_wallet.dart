@@ -292,6 +292,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       final nodeHeight =
           await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
       final resp = await CwMweb.status(StatusRequest());
+      print("resp.mwebUtxosHeight: ${resp.mwebUtxosHeight}");
+      print("resp.mwebHeaderHeight: ${resp.mwebHeaderHeight}");
+      print("resp.blockHeaderHeight: ${resp.blockHeaderHeight}");
 
       if (resp.blockHeaderHeight < nodeHeight) {
         int h = resp.blockHeaderHeight;
@@ -820,13 +823,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     if (outputs.length == 1 && outputs[0].toOutput.amount == BigInt.zero) {
-      // TODO: for some reason we can't type cast BitcoinScriptOutput to BitcoinBaseOutput (even though one implements the other)
-      // this breaks using the ALL button on litecoin mweb tx's:
       outputs = [
         BitcoinScriptOutput(
             script: outputs[0].toOutput.scriptPubKey, value: utxos.sumOfUtxosValue())
       ];
     }
+
     // https://github.com/ltcmweb/mwebd?tab=readme-ov-file#fee-estimation
     final preOutputSum =
         outputs.fold<BigInt>(BigInt.zero, (acc, output) => acc + output.toOutput.amount);
