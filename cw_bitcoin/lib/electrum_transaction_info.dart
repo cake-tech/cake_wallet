@@ -35,7 +35,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     List<String>? outputAddresses,
     required TransactionDirection direction,
     required bool isPending,
-    required bool isReplaced,
+    bool isReplaced = false,
     required DateTime date,
     required int confirmations,
     String? to,
