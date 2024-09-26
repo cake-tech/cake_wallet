@@ -56,7 +56,7 @@ class _AddressListState extends State<AddressList> {
     }).toList();
   }
 
-  late List<ListItem> items = getItems(widget.addressListViewModel.items, showHiddenAddresses);
+  List<ListItem> items = getItems(widget.addressListViewModel.items, showHiddenAddresses);
 
   void updateItems() {
     setState(() {
