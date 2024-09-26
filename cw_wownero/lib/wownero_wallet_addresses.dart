@@ -35,7 +35,7 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
     var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
     while (hiddenAddresses.contains(address)) {
       addressIndex++;
-      address = getAddress(accountIndex: 0, addressIndex: addressIndex);
+      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
     }
     return address;
   }
