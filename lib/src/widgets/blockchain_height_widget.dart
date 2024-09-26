@@ -20,6 +20,7 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.isSilentPaymentsScan = false,
     this.toggleSingleScan,
     this.doSingleScan = false,
+    this.bitcoinMempoolAPIEnabled,
     required this.walletType,
     this.blockHeightTextFieldKey,
   }) : super(key: key);
@@ -30,6 +31,7 @@ class BlockchainHeightWidget extends StatefulWidget {
   final bool hasDatePicker;
   final bool isSilentPaymentsScan;
   final bool doSingleScan;
+  final Future<bool>? bitcoinMempoolAPIEnabled;
   final Function()? toggleSingleScan;
   final WalletType walletType;
   final Key? blockHeightTextFieldKey;
@@ -82,7 +84,8 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                         key: widget.blockHeightTextFieldKey,
                         focusNode: widget.focusNode,
                         controller: restoreHeightController,
-                        keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+                        keyboardType:
+                            TextInputType.numberWithOptions(signed: false, decimal: false),
                         hintText: widget.isSilentPaymentsScan
                             ? S.of(context).silent_payments_scan_from_height
                             : S.of(context).widgets_restore_from_blockheight,
@@ -149,7 +152,9 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                     : S.of(context).restore_from_date_or_blockheight,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.normal, color: Theme.of(context).hintColor),
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).hintColor),
               ),
             )
           ]
@@ -169,7 +174,10 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
     if (date != null) {
       int height;
       if (widget.isSilentPaymentsScan) {
-        height = bitcoin!.getHeightByDate(date: date);
+        height = await bitcoin!.getHeightByDate(
+          date: date,
+          bitcoinMempoolAPIEnabled: await widget.bitcoinMempoolAPIEnabled,
+        );
       } else {
         if (widget.walletType == WalletType.monero) {
           height = monero!.getHeightByDate(date: date);

@@ -37,7 +37,8 @@ abstract class TransactionDetailsViewModelBase with Store {
       required this.transactionDescriptionBox,
       required this.wallet,
       required this.settingsStore,
-      required this.sendViewModel})
+      required this.sendViewModel,
+      this.canReplaceByFee = false})
       : items = [],
         RBFListItems = [],
         newFee = 0,
@@ -52,8 +53,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.bitcoin:
         _addElectrumListItems(tx, dateFormat);
-        _addBumpFeesListItems(tx);
-        _checkForRBF(tx);
+        if(!canReplaceByFee)_checkForRBF(tx);
         break;
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
@@ -153,13 +153,11 @@ abstract class TransactionDetailsViewModelBase with Store {
   bool showRecipientAddress;
   bool isRecipientAddressShown;
   int newFee;
+  String? rawTransaction;
   TransactionPriority? transactionPriority;
 
   @observable
-  bool _canReplaceByFee = false;
-
-  @computed
-  bool get canReplaceByFee => _canReplaceByFee /*&& transactionInfo.confirmations <= 0*/;
+  bool canReplaceByFee;
 
   String _explorerUrl(WalletType type, String txId) {
     switch (type) {
@@ -176,9 +174,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.ethereum:
         return 'https://etherscan.io/tx/${txId}';
       case WalletType.nano:
-        return 'https://nanolooker.com/block/${txId}';
+        return 'https://nanexplorer.com/nano/block/${txId}';
       case WalletType.banano:
-        return 'https://bananolooker.com/block/${txId}';
+        return 'https://nanexplorer.com/banano/block/${txId}';
       case WalletType.polygon:
         return 'https://polygonscan.com/tx/${txId}';
       case WalletType.solana:
@@ -206,9 +204,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.ethereum:
         return S.current.view_transaction_on + 'etherscan.io';
       case WalletType.nano:
-        return S.current.view_transaction_on + 'nanolooker.com';
+        return S.current.view_transaction_on + 'nanexplorer.com';
       case WalletType.banano:
-        return S.current.view_transaction_on + 'bananolooker.com';
+        return S.current.view_transaction_on + 'nanexplorer.com';
       case WalletType.polygon:
         return S.current.view_transaction_on + 'polygonscan.com';
       case WalletType.solana:
@@ -546,7 +544,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.addAll(_items);
   }
 
-  void _addBumpFeesListItems(TransactionInfo tx) {
+  void addBumpFeesListItems(TransactionInfo tx, String rawTransaction) {
     transactionPriority = bitcoin!.getBitcoinTransactionPriorityMedium();
     final inputsCount = (transactionInfo.inputAddresses?.isEmpty ?? true)
         ? 1
@@ -565,6 +563,14 @@ abstract class TransactionDetailsViewModelBase with Store {
         key: ValueKey('standard_list_item_rbf_old_fee_key'),
       ),
     );
+
+    if (transactionInfo.fee != null && rawTransaction.isNotEmpty) {
+      final size = bitcoin!.getTransactionVSize(wallet, rawTransaction);
+      final recommendedRate = (transactionInfo.fee! / size).round() + 1;
+
+      RBFListItems.add(
+          StandartListItem(title: 'New recommended fee rate', value: '$recommendedRate sat/byte'));
+    }
 
     final priorities = priorityForWalletType(wallet.type);
     final selectedItem = priorities.indexOf(sendViewModel.transactionPriority);
@@ -667,8 +673,9 @@ abstract class TransactionDetailsViewModelBase with Store {
   Future<void> _checkForRBF(TransactionInfo tx) async {
     if (wallet.type == WalletType.bitcoin &&
         transactionInfo.direction == TransactionDirection.outgoing) {
-      if (await bitcoin!.canReplaceByFee(wallet, tx)) {
-        _canReplaceByFee = true;
+      rawTransaction = await bitcoin!.canReplaceByFee(wallet, tx);
+      if (rawTransaction != null) {
+        canReplaceByFee = true;
       }
     }
   }

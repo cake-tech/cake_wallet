@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
@@ -91,10 +92,7 @@ class TransactionsPage extends StatelessWidget {
 
                               final transaction = item.transaction;
                               final transactionType =
-                                  dashboardViewModel.type == WalletType.ethereum &&
-                                          transaction.evmSignatureName == 'approval'
-                                      ? ' (${transaction.evmSignatureName})'
-                                      : '';
+                                  dashboardViewModel.getTransactionType(transaction);
 
                               return Observer(
                                 builder: (_) => TransactionRow(
@@ -109,9 +107,11 @@ class TransactionsPage extends StatelessWidget {
                                           ? ''
                                           : item.formattedFiatAmount,
                                   isPending: transaction.isPending,
-                                  title: item.formattedTitle +
-                                      item.formattedStatus +
-                                      ' $transactionType',
+                                  title:
+                                      item.formattedTitle + item.formattedStatus + transactionType,
+                                  isReceivedSilentPayment:
+                                      dashboardViewModel.type == WalletType.bitcoin &&
+                                          bitcoin!.txIsReceivedSilentPayment(transaction),
                                 ),
                               );
                             }

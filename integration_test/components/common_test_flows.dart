@@ -19,6 +19,8 @@ import '../robots/welcome_page_robot.dart';
 import 'common_test_cases.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
+import 'common_test_constants.dart';
+
 class CommonTestFlows {
   CommonTestFlows(this._tester)
       : _commonTestCases = CommonTestCases(_tester),

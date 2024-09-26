@@ -36,7 +36,7 @@ class BitcoinCashWalletService extends WalletService<
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final wallet = await BitcoinCashWalletBase.create(
-      mnemonic: await MnemonicBip39.generate(strength: strength),
+      mnemonic: credentials.mnemonic ?? await MnemonicBip39.generate(strength: strength),
       password: credentials.password!,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
