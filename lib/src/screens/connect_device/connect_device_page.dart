@@ -59,7 +59,6 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   late Timer? _bleRefreshTimer = null;
   late Timer? _bleStateTimer = null;
   late StreamSubscription<LedgerDevice>? _bleRefresh = null;
-  late StreamSubscription<LedgerDevice>? _usbRefresh = null;
 
   @override
   void initState() {
@@ -84,17 +83,18 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     _bleStateTimer?.cancel();
     _usbRefreshTimer?.cancel();
     _bleRefresh?.cancel();
-    _usbRefresh?.cancel();
     super.dispose();
   }
 
   Future<void> _refreshUsbDevices() async {
-    _usbRefresh = widget.ledgerVM
-        .scanForUsbDevices()
-        .listen((device) => setState(() => usbDevices.add(device)))
-      ..onError((e) {
-        throw e.toString();
-      });
+    final dev = await widget.ledgerVM.ledgerPlusUSB.devices;
+    if (usbDevices.length != dev.length) setState(() => usbDevices = dev);
+    // _usbRefresh = widget.ledgerVM
+    //     .scanForUsbDevices()
+    //     .listen((device) => setState(() => usbDevices.add(device)))
+    //   ..onError((e) {
+    //     throw e.toString();
+    //   });
     // Keep polling until the lfp lib gets updated
     // _usbRefreshTimer?.cancel();
     // _usbRefreshTimer = null;
