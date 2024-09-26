@@ -17,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
   static bool _hasError = false;
-  static const _coolDownDurationInDays = 0;
+  static const _coolDownDurationInDays = 7;
   static File? _file;
 
   static void _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
@@ -54,9 +54,9 @@ class ExceptionHandler {
 
   static void _sendExceptionFile() async {
     try {
-      final appDocDir = await getAppDir();
-
       if (_file == null) {
+        final appDocDir = await getAppDir();
+
         _file = File('${appDocDir.path}/error.txt');
       }
 
@@ -64,8 +64,8 @@ class ExceptionHandler {
 
       final MailOptions mailOptions = MailOptions(
         subject: 'Mobile App Issue',
-        recipients: ['konstantin@cakewallet.com'],
-        attachments: [_file!.path, '${appDocDir.path}/ledger_log.txt'],
+        recipients: ['support@cakewallet.com'],
+        attachments: [_file!.path],
       );
 
       final result = await FlutterMailer.send(mailOptions);
