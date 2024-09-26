@@ -16,6 +16,7 @@ class AddressCell extends StatelessWidget {
       this.onTap,
       this.onEdit,
       this.onDelete,
+      this.onRescan,
       this.txCount,
       this.balance,
       this.isChange = false,
@@ -30,6 +31,7 @@ class AddressCell extends StatelessWidget {
     bool hasBalance = false,
     Function()? onEdit,
     Function()? onDelete,
+    Function()? onRescan,
   }) =>
       AddressCell(
           address: item.address,
@@ -41,6 +43,7 @@ class AddressCell extends StatelessWidget {
           onTap: onTap,
           onEdit: onEdit,
           onDelete: onDelete,
+          onRescan: onRescan,
           txCount: item.txCount,
           balance: item.balance,
           isChange: item.isChange,
@@ -55,6 +58,7 @@ class AddressCell extends StatelessWidget {
   final Function(String)? onTap;
   final Function()? onEdit;
   final Function()? onDelete;
+  final Function()? onRescan;
   final int? txCount;
   final String? balance;
   final bool isChange;
@@ -89,7 +93,9 @@ class AddressCell extends StatelessWidget {
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment: name.isNotEmpty ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                      mainAxisAlignment: name.isNotEmpty
+                          ? MainAxisAlignment.spaceBetween
+                          : MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         Row(
@@ -196,6 +202,14 @@ class AddressCell extends StatelessWidget {
             icon: Icons.edit,
             label: S.of(context).edit,
           ),
+          if (onRescan != null)
+            SlidableAction(
+              onPressed: (_) => onRescan!.call(),
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              icon: Icons.refresh,
+              label: S.of(context).rescan,
+            ),
           if (onDelete != null)
             SlidableAction(
               onPressed: (_) => onDelete!.call(),

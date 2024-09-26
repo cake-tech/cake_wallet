@@ -602,7 +602,11 @@ abstract class ElectrumWalletBase
         spendsSilentPayment = true;
         isSilentPayment = true;
       } else if (!isHardwareWallet) {
-        privkey =
+        final spendKey = (utx.bitcoinAddressRecord as BitcoinAddressRecord).spendKey;
+        // if spend key is present, this is needed to disable tweaking the key during signing
+        isSilentPayment = spendKey != null;
+
+        privkey = spendKey ??
             generateECPrivate(hd: hd, index: utx.bitcoinAddressRecord.index, network: network);
       }
 
@@ -1266,14 +1270,22 @@ abstract class ElectrumWalletBase
     if (hasSilentPaymentsScanning) {
       // Update unspents stored from scanned silent payment transactions
       transactionHistory.transactions.values.forEach((tx) {
-        if (tx.unspents != null) {
+        if (tx.unspents != null && tx.unspents!.isNotEmpty) {
           updatedUnspentCoins.addAll(tx.unspents!);
         }
       });
     }
 
     await Future.wait(walletAddresses.allAddresses.map((address) async {
-      updatedUnspentCoins.addAll(await fetchUnspent(address));
+      final unspentList = await fetchUnspent(address);
+
+      if (unspentList.isNotEmpty) {
+        for (final unspent in unspentList) {
+          if (!updatedUnspentCoins.any((element) => element.hash == unspent.hash)) {
+            updatedUnspentCoins.add(unspent);
+          }
+        }
+      }
     }));
 
     unspentCoins = updatedUnspentCoins;
@@ -1860,6 +1872,12 @@ abstract class ElectrumWalletBase
     }
   }
 
+  Future<void> fullAddressUpdate(BitcoinAddressRecord address) async {
+    await updateUnspents(address);
+    await _fetchBalance(address);
+    await _fetchAddressHistory(address, await getCurrentChainTip());
+  }
+
   Future<void> _subscribeForUpdates() async {
     final unsubscribedScriptHashes = walletAddresses.allAddresses.where(
       (address) => !_scripthashesUpdateSubject.containsKey(address.getScriptHash(network)),
@@ -1871,11 +1889,7 @@ abstract class ElectrumWalletBase
       _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
       _scripthashesUpdateSubject[sh]?.listen((event) async {
         try {
-          await updateUnspents(address);
-
-          await updateBalance();
-
-          await _fetchAddressHistory(address, await getCurrentChainTip());
+          await fullAddressUpdate(address);
         } catch (e, s) {
           print(e.toString());
           _onError?.call(FlutterErrorDetails(
@@ -1886,6 +1900,20 @@ abstract class ElectrumWalletBase
         }
       });
     }));
+  }
+
+  Future<ElectrumBalance> _fetchBalance(BitcoinAddressRecord address) async {
+    final sh = address.getScriptHash(network);
+    final balance = await electrumClient.getBalance(sh);
+
+    final totalConfirmed = balance['confirmed'] as int? ?? 0;
+    final totalUnconfirmed = balance['unconfirmed'] as int? ?? 0;
+
+    if (totalConfirmed > 0 || totalUnconfirmed > 0) {
+      address.setAsUsed();
+    }
+
+    return ElectrumBalance(confirmed: totalConfirmed, unconfirmed: totalUnconfirmed, frozen: 0);
   }
 
   Future<ElectrumBalance> _fetchBalances() async {
