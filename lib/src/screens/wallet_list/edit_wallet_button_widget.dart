@@ -7,11 +7,13 @@ class EditWalletButtonWidget extends StatelessWidget {
     required this.width,
     required this.onTap,
     this.isGroup = false,
+    this.isExpanded = false,
     super.key,
   });
 
   final bool isGroup;
   final double width;
+  final bool isExpanded;
   final VoidCallback onTap;
 
   @override
@@ -42,7 +44,7 @@ class EditWalletButtonWidget extends StatelessWidget {
           if (isGroup) ...{
             SizedBox(width: 6),
             Icon(
-              Icons.keyboard_arrow_down,
+              isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
               size: 24,
               color: Theme.of(context).extension<FilterTheme>()!.titlesColor,
             ),
