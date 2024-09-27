@@ -5,3 +5,6 @@
 -
   uri: api.mainnet-beta.solana.com:443
   useSSL: true
+-
+  uri: solana-rpc.publicnode.com:443
+  useSSL: true
