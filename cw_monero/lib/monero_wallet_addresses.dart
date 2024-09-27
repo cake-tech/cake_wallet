@@ -117,7 +117,9 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   void updateSubaddressList({required int accountIndex}) {
     subaddressList.update(accountIndex: accountIndex);
-    address = subaddressList.subaddresses.isNotEmpty ? subaddress!.address : getAddress();
+    address = subaddressList.subaddresses.isNotEmpty
+        ? subaddressList.subaddresses.first.address
+        : getAddress();
   }
 
   Future<void> updateUsedSubaddress() async {
