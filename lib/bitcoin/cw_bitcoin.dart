@@ -588,7 +588,6 @@ class CWBitcoin extends Bitcoin {
     }
 
     final updatedOutputs = outputs.map((output) {
-
       try {
         final pendingOut = pendingTx!.outputs[outputs.indexOf(output)];
         final updatedOutput = output;
@@ -608,5 +607,32 @@ class CWBitcoin extends Bitcoin {
   bool txIsReceivedSilentPayment(TransactionInfo txInfo) {
     final tx = txInfo as ElectrumTransactionInfo;
     return tx.isReceivedSilentPayment;
+  }
+
+  @override
+  Future<void> fullAddressUpdate(Object wallet, String address) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    final spAddressRecord =
+        bitcoinWallet.walletAddresses.silentAddresses.firstWhere((addr) => addr.address == address);
+
+    final bitcoinAddressRecord = BitcoinAddressRecord(
+      address,
+      index: spAddressRecord.index,
+      isHidden: spAddressRecord.isHidden,
+      txCount: spAddressRecord.txCount,
+      balance: spAddressRecord.balance,
+      name: spAddressRecord.name,
+      isUsed: spAddressRecord.isUsed,
+      type: spAddressRecord.type,
+      network: spAddressRecord.network,
+      spendKey: bitcoinWallet.walletAddresses.silentAddress!.b_spend.tweakAdd(
+        BigintUtils.fromBytes(
+          BytesUtils.fromHexString(spAddressRecord.silentPaymentTweak!),
+        ),
+      ),
+    );
+
+    bitcoinWallet.walletAddresses.addAddresses([bitcoinAddressRecord]);
+    bitcoinWallet.fullAddressUpdate(bitcoinAddressRecord);
   }
 }

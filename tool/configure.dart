@@ -224,6 +224,7 @@ abstract class Bitcoin {
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
   bool txIsReceivedSilentPayment(TransactionInfo txInfo);
+  Future<void> fullAddressUpdate(Object wallet, String address);
 }
   """;
 

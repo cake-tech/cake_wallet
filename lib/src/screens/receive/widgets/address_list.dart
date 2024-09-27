@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -101,6 +102,9 @@ class AddressList extends StatelessWidget {
                 },
                 onEdit: editable
                     ? () => Navigator.of(context).pushNamed(Routes.newSubaddress, arguments: item)
+                    : null,
+                onRescan: (item.isOneTimeReceiveAddress ?? false)
+                    ? () => bitcoin!.fullAddressUpdate(addressListViewModel.wallet, item.address)
                     : null,
               );
             });

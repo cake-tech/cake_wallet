@@ -63,6 +63,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     super.isUsed = false,
     required super.type,
     String? scriptHash,
+    this.spendKey,
     required super.network,
   }) : scriptHash = scriptHash ??
             (network != null ? BitcoinAddressUtils.scriptHash(address, network: network) : null);
@@ -88,6 +89,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   }
 
   String? scriptHash;
+  ECPrivate? spendKey;
 
   String getScriptHash(BasedUtxoNetwork network) {
     if (scriptHash != null) return scriptHash!;
