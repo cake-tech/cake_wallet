@@ -29,10 +29,10 @@ packages:
     dependency: transitive
     description:
       name: asn1lib
-      sha256: "58082b3f0dca697204dbab0ef9ff208bfaea7767ea771076af9a343488428dda"
+      sha256: "6b151826fcc95ff246cd219a0bf4c753ea14f4081ad71c61939becf3aba27f70"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.3"
+    version: "1.5.5"
   async:
     dependency: transitive
     description:
@@ -71,7 +71,7 @@ packages:
     description:
       path: "."
       ref: cake-update-v7
-      resolved-ref: bc49e3b1cba601828f8ddc3d016188d8c2499088
+      resolved-ref: f577e83fe78766b2655ea0602baa9299b953a31b
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "4.7.0"
@@ -296,10 +296,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: "493f37e7df1804778ff3a53bd691d8692ddf69702cf4c1c1096a2e41b4779e21"
+      sha256: "16ed7b077ef01ad6170a3d0c57caa4a112a38d7a2ed5602e0aca9ca6f3d98da6"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.2"
+    version: "2.1.3"
   ffigen:
     dependency: transitive
     description:
@@ -553,10 +553,10 @@ packages:
     dependency: transitive
     description:
       name: mime
-      sha256: "2e123074287cc9fd6c09de8336dae606d1ddb88d9ac47358826db698c176a1f2"
+      sha256: "801fd0b26f14a4a58ccb09d5892c3fbdeff209594300a542492cf13fba9d247a"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.5"
+    version: "1.0.6"
   mobx:
     dependency: "direct main"
     description:
@@ -713,10 +713,10 @@ packages:
     dependency: transitive
     description:
       name: quiver
-      sha256: b1c1ac5ce6688d77f65f3375a9abb9319b3cb32486bdc7a1e0fdf004d7ba4e47
+      sha256: ea0b925899e64ecdfbf9c7becb60d5b50e706ade44a85b2363be2a22d88117d2
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.1"
+    version: "3.2.2"
   reactive_ble_mobile:
     dependency: transitive
     description:
@@ -855,7 +855,7 @@ packages:
     description:
       path: "."
       ref: "sp_v4.0.0"
-      resolved-ref: "9b04f4b0af80dd7dae9274b496a53c23dcc80ea5"
+      resolved-ref: ca1add293bd1e06920aa049b655832da50d0dab2
       url: "https://github.com/cake-tech/sp_scanner"
     source: git
     version: "0.0.1"
