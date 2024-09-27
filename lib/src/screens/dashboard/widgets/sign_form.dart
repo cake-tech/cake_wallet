@@ -20,7 +20,7 @@ class SignForm extends StatefulWidget {
   SignFormState createState() => SignFormState();
 }
 
-class SignFormState extends State<SignForm> {
+class SignFormState extends State<SignForm> with AutomaticKeepAliveClientMixin {
   SignFormState()
       : formKey = GlobalKey<FormState>(),
         messageController = TextEditingController(),
@@ -43,7 +43,11 @@ class SignFormState extends State<SignForm> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+  
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Container(
       padding: EdgeInsets.only(left: 24, right: 24),
       child: Column(

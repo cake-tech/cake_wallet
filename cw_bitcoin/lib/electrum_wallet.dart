@@ -1272,6 +1272,11 @@ abstract class ElectrumWalletBase
       });
     }
 
+    // Set the balance of all non-silent payment addresses to 0 before updating
+    walletAddresses.allAddresses.forEach((addr) {
+      if(addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
+    });
+
     await Future.wait(walletAddresses.allAddresses.map((address) async {
       updatedUnspentCoins.addAll(await fetchUnspent(address));
     }));
@@ -1901,6 +1906,18 @@ abstract class ElectrumWalletBase
     var totalFrozen = 0;
     var totalConfirmed = 0;
     var totalUnconfirmed = 0;
+
+    unspentCoinsInfo.values.forEach((info) {
+      unspentCoins.forEach((element) {
+        if (element.hash == info.hash &&
+            element.vout == info.vout &&
+            info.isFrozen &&
+            element.bitcoinAddressRecord.address == info.address &&
+            element.value == info.value) {
+          totalFrozen += element.value;
+        }
+      });
+    });
 
     if (hasSilentPaymentsScanning) {
       // Add values from unspent coins that are not fetched by the address list
