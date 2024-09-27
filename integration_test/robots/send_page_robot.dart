@@ -213,6 +213,7 @@ class SendPageRobot {
   }
 
   Future<void> handleSendResult() async {
+    await tester.pump();
     tester.printToConsole('Inside handle function');
 
     bool hasError = false;
@@ -286,6 +287,8 @@ class SendPageRobot {
       await commonTestCases.tapItemByFinder(sendText, shouldPumpAndSettle: false);
       // Loop to wait for the operation to commit transaction
       await _waitForCommitTransactionCompletion();
+
+      await tester.pump();
 
       await commonTestCases.defaultSleepTime(seconds: 4);
     } else {

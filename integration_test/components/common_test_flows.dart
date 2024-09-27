@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +14,7 @@ import '../robots/pre_seed_page_robot.dart';
 import '../robots/restore_from_seed_or_key_robot.dart';
 import '../robots/restore_options_page_robot.dart';
 import '../robots/setup_pin_code_robot.dart';
+import '../robots/wallet_group_description_page_robot.dart';
 import '../robots/wallet_list_page_robot.dart';
 import '../robots/wallet_seed_page_robot.dart';
 import '../robots/welcome_page_robot.dart';
@@ -34,7 +36,8 @@ class CommonTestFlows {
         _walletListPageRobot = WalletListPageRobot(_tester),
         _newWalletTypePageRobot = NewWalletTypePageRobot(_tester),
         _restoreOptionsPageRobot = RestoreOptionsPageRobot(_tester),
-        _restoreFromSeedOrKeysPageRobot = RestoreFromSeedOrKeysPageRobot(_tester);
+        _restoreFromSeedOrKeysPageRobot = RestoreFromSeedOrKeysPageRobot(_tester),
+        _walletGroupDescriptionPageRobot = WalletGroupDescriptionPageRobot(_tester);
 
   final WidgetTester _tester;
   final CommonTestCases _commonTestCases;
@@ -50,6 +53,7 @@ class CommonTestFlows {
   final NewWalletTypePageRobot _newWalletTypePageRobot;
   final RestoreOptionsPageRobot _restoreOptionsPageRobot;
   final RestoreFromSeedOrKeysPageRobot _restoreFromSeedOrKeysPageRobot;
+  final WalletGroupDescriptionPageRobot _walletGroupDescriptionPageRobot;
 
   //* ========== Handles flow to start the app afresh and accept disclaimer =============
   Future<void> startAppFlow(Key key) async {
@@ -115,12 +119,27 @@ class CommonTestFlows {
     await _selectWalletTypeForWallet(walletTypeToCreate);
     await _commonTestCases.defaultSleepTime();
 
+    // ---- Wallet Group/New Seed Implementation Comes here
+    await _walletGroupDescriptionPageFlow(true, walletTypeToCreate);
+
     await _generateNewWalletDetails();
 
     await _confirmPreSeedInfo();
 
     await _confirmWalletDetails();
     await _commonTestCases.defaultSleepTime();
+  }
+
+  Future<void> _walletGroupDescriptionPageFlow(bool isNewSeed, WalletType walletType) async {
+    if (!isBIP39Wallet(walletType)) return;
+
+    await _walletGroupDescriptionPageRobot.isWalletGroupDescriptionPage();
+
+    if (isNewSeed) {
+      await _walletGroupDescriptionPageRobot.navigateToCreateNewSeedPage();
+    } else {
+      await _walletGroupDescriptionPageRobot.navigateToChooseWalletGroup();
+    }
   }
 
   //* ========== Handles restore wallet flow from wallet list/menu ===============
@@ -230,7 +249,7 @@ class CommonTestFlows {
           .chooseSeedTypeForMoneroOrWowneroWallets(MoneroSeedType.legacy);
 
       // Using a constant value of 2831400 for the blockheight as its the restore blockheight for our testing wallet
-      await _restoreFromSeedOrKeysPageRobot.enterBlockHeightForWalletRestore('2831400');
+      await _restoreFromSeedOrKeysPageRobot.enterBlockHeightForWalletRestore(secrets.moneroTestWalletBlockHeight);
     }
 
     await _restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonPressed();

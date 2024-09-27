@@ -45,6 +45,7 @@ class SecretKey {
     SecretKey('CSRFToken', () => ''),
     SecretKey('authorization', () => ''),
     SecretKey('moneroTestWalletSeeds', () => ''),
+    SecretKey('moneroLegacyTestWalletSeeds ', () => ''),
     SecretKey('bitcoinTestWalletSeeds', () => ''),
     SecretKey('ethereumTestWalletSeeds', () => ''),
     SecretKey('litecoinTestWalletSeeds', () => ''),
@@ -71,6 +72,7 @@ class SecretKey {
     SecretKey('letsExchangeAffiliateId', () => ''),
     SecretKey('stealthExBearerToken', () => ''),
     SecretKey('stealthExAdditionalFeePercent', () => ''),
+    SecretKey('moneroTestWalletBlockHeight', () => ''),
   ];
 
   static final evmChainsSecrets = [
