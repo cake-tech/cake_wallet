@@ -134,7 +134,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                 ),
                 title: Text(
                   item.name,
-                  maxLines: 1,
+                  maxLines: 2,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
