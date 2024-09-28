@@ -259,7 +259,7 @@ class WalletListBodyState extends State<WalletListBody> {
                               tileKey: ValueKey('single_wallets_expansion_tile_widget_$index'),
                               isCurrentlySelectedWallet: wallet.isCurrent,
                               leadingWidget: SizedBox(
-                                width: 60,
+                                width: wallet.isCurrent ? 56 : 40,
                                 child: Row(
                                   children: [
                                     wallet.isCurrent

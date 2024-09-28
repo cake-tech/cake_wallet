@@ -121,7 +121,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     depositAmount = '';
     receiveAmount = '';
     receiveAddress = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.address : '';
+    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     provider = providersForCurrentPair().first;
     final initialProvider = provider;
     provider!.checkIsAvailable().then((bool isAvailable) {
@@ -154,6 +154,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.bitcoinCash;
+
+  bool get hideAddressAfterExchange =>
+    wallet.type == WalletType.monero ||
+    wallet.type == WalletType.wownero;
 
   bool _useTorOnly;
   final Box<Trade> trades;
@@ -540,6 +544,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           isFixedRate: isFixedRateMode,
         );
 
+        if (hideAddressAfterExchange) {
+          wallet.walletAddresses.hiddenAddresses.add(depositAddress);
+          await wallet.walletAddresses.saveAddressesInBox();
+        }
+
         var amount = isFixedRateMode ? receiveAmount : depositAmount;
         amount = amount.replaceAll(',', '.');
 
@@ -603,8 +612,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     isReceiveAmountEntered = false;
     depositAmount = '';
     receiveAmount = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.address : '';
-    receiveAddress = receiveCurrency == wallet.currency ? wallet.walletAddresses.address : '';
+    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
+    receiveAddress = receiveCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isFixedRateMode = false;
     _onPairChange();

@@ -7,6 +7,7 @@ PODS:
     - Flutter
     - ReachabilitySwift
   - CryptoSwift (1.8.2)
+  - cw_mweb (0.0.1):
   - device_display_brightness (0.0.1):
     - Flutter
   - device_info_plus (0.0.1):
@@ -111,6 +112,7 @@ DEPENDENCIES:
   - barcode_scan2 (from `.symlinks/plugins/barcode_scan2/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
+  - cw_mweb (from `.symlinks/plugins/cw_mweb/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
@@ -156,6 +158,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/barcode_scan2/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
+  cw_mweb:
+    :path: ".symlinks/plugins/cw_mweb/ios"
   device_display_brightness:
     :path: ".symlinks/plugins/device_display_brightness/ios"
   device_info_plus:
@@ -211,6 +215,7 @@ SPEC CHECKSUMS:
   barcode_scan2: 0af2bb63c81b4565aab6cd78278e4c0fa136dbb0
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   CryptoSwift: c63a805d8bb5e5538e88af4e44bb537776af11ea
+  cw_mweb: 87af74f9659fed0c1a2cbfb44413f1070e79e3ae
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   devicelocale: b22617f40038496deffba44747101255cee005b0

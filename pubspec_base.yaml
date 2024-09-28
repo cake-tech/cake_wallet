@@ -97,10 +97,6 @@ dependencies:
   polyseed: ^0.0.6
   nostr_tools: ^1.0.9
   solana: ^0.30.1
-  bitcoin_base:
-    git:
-      url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v7
   ledger_flutter: ^1.0.1
   hashlib: ^1.19.2
 
@@ -138,10 +134,12 @@ dependency_overrides:
       url: https://github.com/cake-tech/web3dart.git
       ref: cake
   flutter_secure_storage_platform_interface: 1.0.2
+  protobuf: ^3.1.0
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v7
+      ref: cake-update-v8
+  ffi: 2.1.0
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

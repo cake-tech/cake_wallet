@@ -1,12 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
-import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +9,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/header_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/date_section_raw.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/trade_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transaction_raw.dart';
-import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
 import 'package:intl/intl.dart';
@@ -90,31 +83,40 @@ class TransactionsPage extends StatelessWidget {
                                 return Container();
                               }
 
-                              final transaction = item.transaction;
-                              final transactionType =
-                                  dashboardViewModel.getTransactionType(transaction);
+                          final transaction = item.transaction;
+                          final transactionType = dashboardViewModel.getTransactionType(transaction);
 
-                              return Observer(
-                                builder: (_) => TransactionRow(
-                                  key: item.key,
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.transactionDetails, arguments: transaction),
-                                  direction: transaction.direction,
-                                  formattedDate: DateFormat('HH:mm').format(transaction.date),
-                                  formattedAmount: item.formattedCryptoAmount,
-                                  formattedFiatAmount:
-                                      dashboardViewModel.balanceViewModel.isFiatDisabled
-                                          ? ''
-                                          : item.formattedFiatAmount,
-                                  isPending: transaction.isPending,
-                                  title:
-                                      item.formattedTitle + item.formattedStatus + transactionType,
-                                  isReceivedSilentPayment:
-                                      dashboardViewModel.type == WalletType.bitcoin &&
-                                          bitcoin!.txIsReceivedSilentPayment(transaction),
-                                ),
-                              );
+                            List<String> tags = [];
+                          if (dashboardViewModel.type == WalletType.bitcoin) {
+                            if (bitcoin!.txIsReceivedSilentPayment(transaction)) {
+                              tags.add(S.of(context).silent_payment);
                             }
+                          }
+                          if (dashboardViewModel.type == WalletType.litecoin) {
+                            if (bitcoin!.txIsMweb(transaction)) {
+                              tags.add("MWEB");
+                            }
+                          }
+
+                          return Observer(
+                            builder: (_) => TransactionRow(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed(Routes.transactionDetails, arguments: transaction),
+                              direction: transaction.direction,
+                              formattedDate: DateFormat('HH:mm').format(transaction.date),
+                              formattedAmount: item.formattedCryptoAmount,
+                              formattedFiatAmount:
+                                  dashboardViewModel.balanceViewModel.isFiatDisabled
+                                      ? ''
+                                      : item.formattedFiatAmount,
+                              isPending: transaction.isPending,
+                              title:
+                                  item.formattedTitle + item.formattedStatus + transactionType,
+                              tags: tags,
+                            ),
+                          );
+                          }
+                        }
 
                             if (item is AnonpayTransactionListItem) {
                               final transactionInfo = item.transaction;
