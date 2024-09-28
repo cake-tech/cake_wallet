@@ -303,10 +303,14 @@ class Subaddress {
   Subaddress({
     required this.id,
     required this.label,
-    required this.address});
+    required this.address,
+    required this.received,
+    required this.txCount});
   final int id;
   final String label;
   final String address;
+  final String? received;
+  final int txCount;
 }
 
 class MoneroBalance extends Balance {

@@ -163,6 +163,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   set address(String addr) {
+    if (addr == "Silent Payments" && SilentPaymentsAddresType.p2sp != addressPageType) {
+      return;
+    }
     if (addressPageType == SilentPaymentsAddresType.p2sp) {
       final selected = silentAddresses.firstWhere((addressRecord) => addressRecord.address == addr);
 
@@ -174,12 +177,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
       return;
     }
-
-    final addressRecord = _addresses.firstWhere((addressRecord) => addressRecord.address == addr);
+    try {
+    final addressRecord = _addresses.firstWhere(
+      (addressRecord) => addressRecord.address == addr,
+    );
 
     previousAddressRecord = addressRecord;
     receiveAddresses.remove(addressRecord);
     receiveAddresses.insert(0, addressRecord);
+    } catch (e) {
+      print("ElectrumWalletAddressBase: set address ($addr): $e");
+    }
   }
 
   @override
