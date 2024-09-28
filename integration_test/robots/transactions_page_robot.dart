@@ -13,7 +13,6 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
@@ -170,12 +169,9 @@ class TransactionsPageRobot {
     );
 
     //* ======Confirm it displays the properly formatted title===========
-    final transactionType = dashboardViewModel.type == WalletType.ethereum &&
-            item.transaction.evmSignatureName == 'approval'
-        ? ' (${item.transaction.evmSignatureName})'
-        : '';
+    final transactionType = dashboardViewModel.getTransactionType(item.transaction);
 
-    final title = item.formattedTitle + item.formattedStatus + ' $transactionType';
+    final title = item.formattedTitle + item.formattedStatus + transactionType;
 
     commonTestCases.findWidgetViaDescendant(
       of: find.byKey(ValueKey(keyId)),
