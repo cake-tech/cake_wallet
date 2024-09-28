@@ -506,6 +506,12 @@ class ElectrumClient {
 
   void _methodHandler({required String method, required Map<String, dynamic> request}) {
     switch (method) {
+      case 'blockchain.headers.subscribe':
+        final params = request['params'] as List<dynamic>;
+        final id = 'blockchain.headers.subscribe';
+
+        _tasks[id]?.subject?.add(params.last);
+        break;
       case 'blockchain.scripthash.subscribe':
         final params = request['params'] as List<dynamic>;
         final scripthash = params.first as String?;
