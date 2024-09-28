@@ -32,10 +32,10 @@ class WalletGroupDescriptionPage extends BasePage {
       padding: EdgeInsets.all(24),
       child: Column(
         children: [
-      Image.asset(
-        image,
-        height: 200
-      ),
+          Image.asset(
+            _getThemedWalletGroupImage(currentTheme.type),
+            height: 200,
+          ),
           SizedBox(height: 32),
           Expanded(
             child: Text.rich(
@@ -95,5 +95,20 @@ class WalletGroupDescriptionPage extends BasePage {
         ],
       ),
     );
+  }
+
+  String _getThemedWalletGroupImage(ThemeType theme) {
+    final lightImage = 'assets/images/wallet_group_light.png';
+    final darkImage = 'assets/images/wallet_group_dark.png';
+    final brightImage = 'assets/images/wallet_group_bright.png';
+
+    switch (theme) {
+      case ThemeType.bright:
+        return brightImage;
+      case ThemeType.light:
+        return lightImage;
+      default:
+        return darkImage;
+    }
   }
 }

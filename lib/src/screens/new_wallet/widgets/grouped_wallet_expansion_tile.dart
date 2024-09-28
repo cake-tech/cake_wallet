@@ -77,6 +77,9 @@ class GroupedWalletExpansionTile extends StatelessWidget {
         ),
         child: ExpansionTile(
           onExpansionChanged: onExpansionChanged,
+          initiallyExpanded: shouldShowCurrentWalletPointer
+              ? childWallets.any((element) => element.isCurrent)
+              : false,
           key: tileKey,
           tilePadding:
               EdgeInsets.symmetric(vertical: 1, horizontal: !isCurrentlySelectedWallet ? 16 : 0),
