@@ -38,6 +38,10 @@ abstract class UnspentCoinsListViewModelBase with Store {
       final info =
           getUnspentCoinInfo(item.hash, item.address, item.amountRaw, item.vout, item.keyImage);
 
+      if (info == null) {
+        return;
+      }
+
       info.isFrozen = item.isFrozen;
       info.isSending = item.isSending;
       info.note = item.note;
@@ -50,15 +54,21 @@ abstract class UnspentCoinsListViewModelBase with Store {
     }
   }
 
-  UnspentCoinsInfo getUnspentCoinInfo(
-          String hash, String address, int value, int vout, String? keyImage) =>
-      _unspentCoinsInfo.values.firstWhere((element) =>
+  UnspentCoinsInfo? getUnspentCoinInfo(
+      String hash, String address, int value, int vout, String? keyImage) {
+    try {
+      return _unspentCoinsInfo.values.firstWhere((element) =>
           element.walletId == wallet.id &&
           element.hash == hash &&
           element.address == address &&
           element.value == value &&
           element.vout == vout &&
           element.keyImage == keyImage);
+    } catch (e) {
+      print("UnspentCoinsInfo not found for coin: $e");
+      return null;
+    }
+  }
 
   String formatAmountToString(int fullBalance) {
     if (wallet.type == WalletType.monero)
@@ -85,11 +95,18 @@ abstract class UnspentCoinsListViewModelBase with Store {
   }
 
   List<Unspent> _getUnspents() {
-    if (wallet.type == WalletType.monero) return monero!.getUnspents(wallet);
-    if (wallet.type == WalletType.wownero) return wownero!.getUnspents(wallet);
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
-      return bitcoin!.getUnspents(wallet);
-    return List.empty();
+    switch (wallet.type) {
+      case WalletType.monero:
+        return monero!.getUnspents(wallet);
+      case WalletType.wownero:
+        return wownero!.getUnspents(wallet);
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+        return bitcoin!.getUnspents(wallet);
+      default:
+        return List.empty();
+    }
   }
 
   @action
@@ -97,10 +114,13 @@ abstract class UnspentCoinsListViewModelBase with Store {
     _items.clear();
 
     List<UnspentCoinsItem> unspents = [];
-    _getUnspents().forEach((elem) {
+    _getUnspents().forEach((Unspent elem) {
       try {
         final info =
             getUnspentCoinInfo(elem.hash, elem.address, elem.value, elem.vout, elem.keyImage);
+        if (info == null) {
+          return;
+        }
 
         unspents.add(UnspentCoinsItem(
           address: elem.address,
