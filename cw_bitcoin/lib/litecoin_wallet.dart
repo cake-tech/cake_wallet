@@ -294,10 +294,22 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       final nodeHeight =
           await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
+
+      if (nodeHeight == 0) {
+        // we aren't connected to the ltc node yet
+        if (syncStatus is! NotConnectedSyncStatus) {
+          syncStatus = NotConnectedSyncStatus();
+        }
+        return;
+      }
+
       final resp = await CwMweb.status(StatusRequest());
       print("resp.mwebUtxosHeight: ${resp.mwebUtxosHeight}");
       print("resp.mwebHeaderHeight: ${resp.mwebHeaderHeight}");
       print("resp.blockHeaderHeight: ${resp.blockHeaderHeight}");
+
+
+      
 
       if (resp.blockHeaderHeight < nodeHeight) {
         int h = resp.blockHeaderHeight;
