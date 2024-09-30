@@ -30,7 +30,8 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
     if (call.method == "start") {
       server?.stop()
       val dataDir = call.argument("dataDir") ?: ""
-      server = server ?: Mwebd.newServer("", dataDir, "")
+      val nodeUri = call.argument("nodeUri") ?: ""
+      server = server ?: Mwebd.newServer("", dataDir, nodeUri)
       port = server?.start(0)
       result.success(port)
     } else if (call.method == "stop") {
