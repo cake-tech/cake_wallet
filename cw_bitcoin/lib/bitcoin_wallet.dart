@@ -83,6 +83,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       network: networkParam ?? network,
       masterHd:
           seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
+      isHardwareWallet: walletInfo.isHardwareWallet,
     );
 
     autorun((_) {

@@ -83,8 +83,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             encryptionFileUtils: encryptionFileUtils,
             currency: CryptoCurrency.ltc,
         ) {
-    mwebHd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/1000'") as Bip32Slip10Secp256k1;
-    mwebEnabled = alwaysScan ?? false;
+    if (seedBytes != null) {
+      mwebHd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(
+          "m/1000'") as Bip32Slip10Secp256k1;
+      mwebEnabled = alwaysScan ?? false;
+    } else {
+      mwebHd = null;
+      mwebEnabled = false;
+    }
     walletAddresses = LitecoinWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
@@ -96,12 +102,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       network: network,
       mwebHd: mwebHd,
       mwebEnabled: mwebEnabled,
+      isHardwareWallet: walletInfo.isHardwareWallet,
     );
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
   }
-  late final Bip32Slip10Secp256k1 mwebHd;
+  late final Bip32Slip10Secp256k1? mwebHd;
   late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;
   Timer? _feeRatesTimer;
@@ -111,8 +118,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   late bool mwebEnabled;
   bool processingUtxos = false;
 
-  List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
-  List<int> get spendSecret => mwebHd.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;
+  List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
+  List<int> get spendSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;
 
   static Future<LitecoinWallet> create(
       {required String mnemonic,

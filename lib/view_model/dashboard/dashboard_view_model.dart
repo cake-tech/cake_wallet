@@ -428,7 +428,7 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @computed
-  bool get hasMweb => wallet.type == WalletType.litecoin;
+  bool get hasMweb => wallet.type == WalletType.litecoin && !wallet.isHardwareWallet;
 
   @computed
   bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay;
