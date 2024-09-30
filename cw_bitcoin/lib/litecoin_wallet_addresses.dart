@@ -51,7 +51,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
 
   @override
   Future<void> init() async {
-    await initMwebAddresses();
+    if (!isHardwareWallet) await initMwebAddresses();
     await super.init();
   }
 
@@ -62,9 +62,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
   }
 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
-    // This is the Case if the Litecoin Wallet is a hardware Wallet
-    if (mwebHd == null) return;
-
     Uint8List scan = Uint8List.fromList(scanSecret);
     Uint8List spend = Uint8List.fromList(spendPubkey);
     int count = 0;
