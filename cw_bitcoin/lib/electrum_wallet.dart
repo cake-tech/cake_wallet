@@ -1639,27 +1639,29 @@ abstract class ElectrumWalletBase
     if (verboseTransaction.isEmpty) {
       transactionHex = await electrumClient.getTransactionHex(hash: hash);
 
-      if (height != null && await checkIfMempoolAPIIsEnabled()) {
-        final blockHash = await http.get(
-          Uri.parse(
-            "http://mempool.cakewallet.com:8999/api/v1/block-height/$height",
-          ),
-        );
-
-        if (blockHash.statusCode == 200 &&
-            blockHash.body.isNotEmpty &&
-            jsonDecode(blockHash.body) != null) {
-          final blockResponse = await http.get(
+      if (height != null && height > 0 && await checkIfMempoolAPIIsEnabled()) {
+        try {
+          final blockHash = await http.get(
             Uri.parse(
-              "http://mempool.cakewallet.com:8999/api/v1/block/${blockHash.body}",
+              "http://mempool.cakewallet.com:8999/api/v1/block-height/$height",
             ),
           );
-          if (blockResponse.statusCode == 200 &&
-              blockResponse.body.isNotEmpty &&
-              jsonDecode(blockResponse.body)['timestamp'] != null) {
-            time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
+
+          if (blockHash.statusCode == 200 &&
+              blockHash.body.isNotEmpty &&
+              jsonDecode(blockHash.body) != null) {
+            final blockResponse = await http.get(
+              Uri.parse(
+                "http://mempool.cakewallet.com:8999/api/v1/block/${blockHash.body}",
+              ),
+            );
+            if (blockResponse.statusCode == 200 &&
+                blockResponse.body.isNotEmpty &&
+                jsonDecode(blockResponse.body)['timestamp'] != null) {
+              time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
+            }
           }
-        }
+        } catch (_) {}
       }
     } else {
       transactionHex = verboseTransaction['hex'] as String;
