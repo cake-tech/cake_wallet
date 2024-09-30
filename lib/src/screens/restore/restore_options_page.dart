@@ -67,7 +67,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     final mainImageColor = Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor;
     final brightImageColor = Theme.of(context).extension<InfoTheme>()!.textColor;
     final imageColor = widget.themeType == ThemeType.bright ? brightImageColor : mainImageColor;
-    final imageLedger = Image.asset('assets/images/ledger_nano.png', width: 40, color: imageColor);
+    final imageLedger = Image.asset('assets/images/hardware_wallet/ledger_nano_x.png', width: 40, color: imageColor);
     final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png', color: imageColor);
     final imageBackup = Image.asset('assets/images/backup.png', color: imageColor);
 

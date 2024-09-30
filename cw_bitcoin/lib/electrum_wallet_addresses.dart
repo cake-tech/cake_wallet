@@ -34,6 +34,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required this.mainHd,
     required this.sideHd,
     required this.network,
+    required this.isHardwareWallet,
     List<BitcoinAddressRecord>? initialAddresses,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
@@ -42,6 +43,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     List<BitcoinAddressRecord>? initialMwebAddresses,
     Bip32Slip10Secp256k1? masterHd,
     BitcoinAddressType? initialAddressPageType,
+
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         addressesByReceiveType =
             ObservableList<BaseBitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
@@ -108,6 +110,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final BasedUtxoNetwork network;
   final Bip32Slip10Secp256k1 mainHd;
   final Bip32Slip10Secp256k1 sideHd;
+  final bool isHardwareWallet;
 
   @observable
   SilentPaymentOwner? silentAddress;
@@ -236,13 +239,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.litecoin) {
       await _generateInitialAddresses(type: SegwitAddresType.p2wpkh);
-      await _generateInitialAddresses(type: SegwitAddresType.mweb);
+      if (!isHardwareWallet) {
+        await _generateInitialAddresses(type: SegwitAddresType.mweb);
+      }
     } else if (walletInfo.type == WalletType.bitcoin) {
       await _generateInitialAddresses();
-      await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
-      await _generateInitialAddresses(type: P2shAddressType.p2wpkhInP2sh);
-      await _generateInitialAddresses(type: SegwitAddresType.p2tr);
-      await _generateInitialAddresses(type: SegwitAddresType.p2wsh);
+      if (!isHardwareWallet) {
+        await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
+        await _generateInitialAddresses(type: P2shAddressType.p2wpkhInP2sh);
+        await _generateInitialAddresses(type: SegwitAddresType.p2tr);
+        await _generateInitialAddresses(type: SegwitAddresType.p2wsh);
+      }
     }
 
     updateAddressesByMatch();
@@ -261,7 +268,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<String> getChangeAddress({List<BitcoinOutput>? outputs, UtxoDetails? utxoDetails}) async {
+  Future<BitcoinAddressRecord> getChangeAddress({List<BitcoinOutput>? outputs, UtxoDetails? utxoDetails}) async {
     updateChangeAddresses();
 
     if (changeAddresses.isEmpty) {
@@ -276,7 +283,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     updateChangeAddresses();
-    final address = changeAddresses[currentChangeAddressIndex].address;
+    final address = changeAddresses[currentChangeAddressIndex];
     currentChangeAddressIndex += 1;
     return address;
   }
@@ -664,7 +671,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   Bip32Slip10Secp256k1 _getHd(bool isHidden) => isHidden ? sideHd : mainHd;
+
   bool _isAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) => addr.type == type;
+
   bool _isUnusedReceiveAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) =>
       !addr.isHidden && !addr.isUsed && addr.type == type;
 
