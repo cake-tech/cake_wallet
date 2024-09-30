@@ -254,7 +254,7 @@ class OnRamperBuyProvider extends BuyProvider {
     switch (tag) {
       case 'OMNI':
         return tag;
-      case 'POLY':
+      case 'POL':
         return 'POLYGON';
       default:
         return CryptoCurrency.fromString(tag).fullName ?? tag;

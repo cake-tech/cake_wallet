@@ -78,7 +78,7 @@ class DFXBuyProvider extends BuyProvider {
 
   Future<String> auth() async {
     final signMessage = await getSignature(
-        await getSignMessage()); //TODO: Sign message does not work for LTC and BCH
+        await getSignMessage());
 
     final requestBody = jsonEncode({
       'wallet': walletName,
@@ -230,7 +230,7 @@ class DFXBuyProvider extends BuyProvider {
       paymentMethod = normalizePaymentMethod(paymentType);
       if (paymentMethod == null) paymentMethod = paymentType.name;
     } else {
-      paymentMethod = 'Card';
+      paymentMethod = 'Bank';
     }
 
     final action = isBuyAction ? 'buy' : 'sell';
