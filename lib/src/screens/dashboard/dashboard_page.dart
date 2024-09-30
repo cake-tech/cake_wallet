@@ -197,22 +197,22 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final controller = PageController(initialPage: initialPage);
+    parallaxController = PageController(initialPage: initialPage);
 
     reaction(
       (_) => dashboardViewModel.shouldShowMarketPlaceInDashboard,
       (bool value) {
         if (!dashboardViewModel.shouldShowMarketPlaceInDashboard) {
-          controller.jumpToPage(0);
+          parallaxController.jumpToPage(0);
         }
         pages.clear();
         _isEffectsInstalled = false;
         _setEffects(context);
 
         if (value) {
-          controller.jumpToPage(1);
+          parallaxController.jumpToPage(1);
         } else {
-          controller.jumpToPage(0);
+          parallaxController.jumpToPage(0);
         }
       },
     );
@@ -230,7 +230,7 @@ class _DashboardPageView extends BasePage {
                 builder: (context) {
                   return PageView.builder(
                     key: ValueKey('dashboard_page_view_key'),
-                    controller: controller,
+                    controller: parallaxController,
                     itemCount: pages.length,
                     itemBuilder: (context, index) => pages[index],
                   );
@@ -247,7 +247,7 @@ class _DashboardPageView extends BasePage {
                     hint: 'Swipe to change page',
                     excludeSemantics: true,
                     child: SmoothPageIndicator(
-                      controller: controller,
+                      controller: parallaxController,
                       count: pages.length,
                       effect: ColorTransitionEffect(
                         spacing: 6.0,
