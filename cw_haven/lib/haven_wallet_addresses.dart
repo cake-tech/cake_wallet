@@ -1,6 +1,7 @@
 import 'package:cw_core/wallet_addresses_with_account.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/account.dart';
+import 'package:cw_haven/api/wallet.dart';
 import 'package:cw_haven/haven_account_list.dart';
 import 'package:cw_haven/haven_subaddress_list.dart';
 import 'package:cw_core/subaddress.dart';
@@ -36,7 +37,7 @@ abstract class HavenWalletAddressesBase extends WalletAddressesWithAccount<Accou
   @override
   Future<void> init() async {
     accountList.update();
-    account = accountList.accounts.first;
+    account = accountList.accounts.isEmpty ? Account(id: 0, label: "Primary address") : accountList.accounts.first;
     updateSubaddressList(accountIndex: account?.id ?? 0);
     await updateAddressesInBox();
   }
@@ -81,8 +82,9 @@ abstract class HavenWalletAddressesBase extends WalletAddressesWithAccount<Accou
 
   void updateSubaddressList({required int accountIndex}) {
     subaddressList.update(accountIndex: accountIndex);
-    subaddress = subaddressList.subaddresses.first;
-    address = subaddress!.address;
+    address = subaddressList.subaddresses.isNotEmpty
+        ? subaddressList.subaddresses.first.address
+        : getAddress();
   }
 
   @override

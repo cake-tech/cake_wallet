@@ -189,6 +189,15 @@ class WalletInfo extends HiveObject {
 
   @HiveField(22)
   String? parentAddress;
+  
+  @HiveField(23)
+  List<String>? hiddenAddresses;
+
+  @HiveField(24)
+  List<String>? manualAddresses;
+
+  
+
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 

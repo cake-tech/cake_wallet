@@ -220,9 +220,9 @@ class CWBitcoin extends Bitcoin {
     return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
   }
 
-  WalletService createLitecoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
-    return LitecoinWalletService(walletInfoSource, unspentCoinSource, isDirect);
+  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource,
+      Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
+    return LitecoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
   }
 
   @override
@@ -262,6 +262,9 @@ class CWBitcoin extends Bitcoin {
   List<ReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
 
   @override
+  List<ReceivePageOption> getLitecoinReceivePageOptions() => BitcoinReceivePageOption.allLitecoin;
+
+  @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
     switch (option) {
       case BitcoinReceivePageOption.p2pkh:
@@ -272,6 +275,8 @@ class CWBitcoin extends Bitcoin {
         return SegwitAddresType.p2tr;
       case BitcoinReceivePageOption.p2wsh:
         return SegwitAddresType.p2wsh;
+      case BitcoinReceivePageOption.mweb:
+        return SegwitAddresType.mweb;
       case BitcoinReceivePageOption.p2wpkh:
       default:
         return SegwitAddresType.p2wpkh;
@@ -556,6 +561,9 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  int getLitecoinHeightByDate({required DateTime date}) => getLtcHeightByDate(date: date);
+
+  @override
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
@@ -580,6 +588,17 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  Future<void> setMwebEnabled(Object wallet, bool enabled) async {
+    final litecoinWallet = wallet as LitecoinWallet;
+    litecoinWallet.setMwebEnabled(enabled);
+  }
+
+  @override
+  bool getMwebEnabled(Object wallet) {
+    final litecoinWallet = wallet as LitecoinWallet;
+    return litecoinWallet.mwebEnabled;
+  }
+
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
     final pendingTx = pendingTransaction as PendingBitcoinTransaction;
 
@@ -588,7 +607,6 @@ class CWBitcoin extends Bitcoin {
     }
 
     final updatedOutputs = outputs.map((output) {
-
       try {
         final pendingOut = pendingTx!.outputs[outputs.indexOf(output)];
         final updatedOutput = output;
@@ -608,5 +626,32 @@ class CWBitcoin extends Bitcoin {
   bool txIsReceivedSilentPayment(TransactionInfo txInfo) {
     final tx = txInfo as ElectrumTransactionInfo;
     return tx.isReceivedSilentPayment;
+  }
+
+  @override
+  bool txIsMweb(TransactionInfo txInfo) {
+    final tx = txInfo as ElectrumTransactionInfo;
+
+    List<String> inputAddresses = tx.inputAddresses ?? [];
+    List<String> outputAddresses = tx.outputAddresses ?? [];
+    bool inputAddressesContainMweb = false;
+    bool outputAddressesContainMweb = false;
+
+    for (var address in inputAddresses) {
+      if (address.toLowerCase().contains('mweb')) {
+        inputAddressesContainMweb = true;
+        break;
+      }
+    }
+
+    for (var address in outputAddresses) {
+      if (address.toLowerCase().contains('mweb')) {
+        outputAddressesContainMweb = true;
+        break;
+      }
+    }
+
+    // TODO: this could be improved:
+    return inputAddressesContainMweb || outputAddressesContainMweb;
   }
 }

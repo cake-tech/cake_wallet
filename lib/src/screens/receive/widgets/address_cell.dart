@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -15,11 +16,14 @@ class AddressCell extends StatelessWidget {
       required this.textColor,
       this.onTap,
       this.onEdit,
+      this.onHide,
+      this.isHidden = false,
       this.onDelete,
       this.txCount,
       this.balance,
       this.isChange = false,
-      this.hasBalance = false});
+      this.hasBalance = false,
+      this.hasReceived = false});
 
   factory AddressCell.fromItem(
     WalletAddressListItem item, {
@@ -28,7 +32,10 @@ class AddressCell extends StatelessWidget {
     required Color textColor,
     Function(String)? onTap,
     bool hasBalance = false,
+    bool hasReceived = false,
     Function()? onEdit,
+    Function()? onHide,
+    bool isHidden = false,
     Function()? onDelete,
   }) =>
       AddressCell(
@@ -40,11 +47,14 @@ class AddressCell extends StatelessWidget {
           textColor: textColor,
           onTap: onTap,
           onEdit: onEdit,
+          onHide: onHide,
+          isHidden: isHidden,
           onDelete: onDelete,
           txCount: item.txCount,
           balance: item.balance,
           isChange: item.isChange,
-          hasBalance: hasBalance);
+          hasBalance: hasBalance,
+          hasReceived: hasReceived,);
 
   final String address;
   final String name;
@@ -54,11 +64,14 @@ class AddressCell extends StatelessWidget {
   final Color textColor;
   final Function(String)? onTap;
   final Function()? onEdit;
+  final Function()? onHide;
+  final bool isHidden;
   final Function()? onDelete;
   final int? txCount;
   final String? balance;
   final bool isChange;
   final bool hasBalance;
+  final bool hasReceived;
 
   static const int addressPreviewLength = 8;
 
@@ -138,7 +151,7 @@ class AddressCell extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (hasBalance)
+                    if (hasBalance || hasReceived)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Row(
@@ -146,7 +159,7 @@ class AddressCell extends StatelessWidget {
                           mainAxisSize: MainAxisSize.max,
                           children: [
                             Text(
-                              '${S.of(context).balance}: $balance',
+                              '${hasReceived ? S.of(context).received : S.of(context).balance}: $balance',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -178,14 +191,28 @@ class AddressCell extends StatelessWidget {
             enabled: !isCurrent,
             child: Slidable(
               key: Key(address),
-              startActionPane: _actionPane(context),
-              endActionPane: _actionPane(context),
+              startActionPane: _actionPaneStart(context),
+              endActionPane: _actionPaneEnd(context),
               child: cell,
             ),
           );
   }
 
-  ActionPane _actionPane(BuildContext context) => ActionPane(
+  ActionPane _actionPaneEnd(BuildContext context) => ActionPane(
+        motion: const ScrollMotion(),
+        extentRatio: onDelete != null ? 0.4 : 0.3,
+        children: [
+          SlidableAction(
+            onPressed: (_) => onHide?.call(),
+            backgroundColor: isHidden ? Colors.green : Colors.red,
+            foregroundColor: Colors.white,
+            icon: isHidden ? CupertinoIcons.arrow_left : CupertinoIcons.arrow_right,
+            label: isHidden ? S.of(context).show : S.of(context).hide,
+          ),
+        ],
+      );
+
+  ActionPane _actionPaneStart(BuildContext context) => ActionPane(
         motion: const ScrollMotion(),
         extentRatio: onDelete != null ? 0.4 : 0.3,
         children: [
