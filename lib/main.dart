@@ -88,7 +88,7 @@ Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
   await initializeAppConfigs();
 }
 
-Future<void> initializeAppConfigs() async {
+Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   setRootDirFromEnv();
   final appDir = await getAppDir();
   CakeHive.init(appDir.path);
@@ -178,6 +178,7 @@ Future<void> initializeAppConfigs() async {
   final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
 
   await initialSetup(
+    loadWallet: loadWallet,
     sharedPreferences: await SharedPreferences.getInstance(),
     nodes: nodes,
     powNodes: powNodes,
@@ -211,6 +212,7 @@ Future<void> initialSetup(
     required SecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
+    required bool loadWallet,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
@@ -237,7 +239,7 @@ Future<void> initialSetup(
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
-  await bootstrap(navigatorKey);
+  await bootstrap(navigatorKey, loadWallet: loadWallet);
 }
 
 class App extends StatefulWidget {

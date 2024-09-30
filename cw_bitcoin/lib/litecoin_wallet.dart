@@ -292,9 +292,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       final nodeHeight =
           await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
       final resp = await CwMweb.status(StatusRequest());
-      print("resp.mwebUtxosHeight: ${resp.mwebUtxosHeight}");
-      print("resp.mwebHeaderHeight: ${resp.mwebHeaderHeight}");
-      print("resp.blockHeaderHeight: ${resp.blockHeaderHeight}");
 
       if (resp.blockHeaderHeight < nodeHeight) {
         int h = resp.blockHeaderHeight;
@@ -339,6 +336,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _utxoStream?.cancel();
     _feeRatesTimer?.cancel();
     await CwMweb.stop();
+    await super.stopSync();
   }
 
   Future<void> initMwebUtxosBox() async {

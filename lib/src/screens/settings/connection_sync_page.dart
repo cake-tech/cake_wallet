@@ -56,30 +56,55 @@ class ConnectionSyncPage extends BasePage {
 
                       if (Platform.isIOS) return;
 
-                      if (syncMode.type != SyncType.disabled) {
-                        final isDisabled = await isBatteryOptimizationDisabled();
-
-                        if (isDisabled) return;
-
-                        await showPopUp<void>(
-                          context: context,
-                          builder: (BuildContext dialogContext) {
-                            return AlertWithTwoActions(
-                              alertTitle: S.current.disableBatteryOptimization,
-                              alertContent: S.current.disableBatteryOptimizationDescription,
-                              leftButtonText: S.of(context).cancel,
-                              rightButtonText: S.of(context).ok,
-                              actionLeftButton: () => Navigator.of(dialogContext).pop(),
-                              actionRightButton: () async {
-                                await requestDisableBatteryOptimization();
-
-                                Navigator.of(dialogContext).pop();
-                              },
-                            );
-                          },
-                        );
-                      }
+                      // if (syncMode.type != SyncType.disabled) {
+                      //   final isDisabled = await isBatteryOptimizationDisabled();
+                      //   if (isDisabled) return;
+                      //   await showPopUp<void>(
+                      //     context: context,
+                      //     builder: (BuildContext dialogContext) {
+                      //       return AlertWithTwoActions(
+                      //         alertTitle: S.current.disableBatteryOptimization,
+                      //         alertContent: S.current.disableBatteryOptimizationDescription,
+                      //         leftButtonText: S.of(context).cancel,
+                      //         rightButtonText: S.of(context).ok,
+                      //         actionLeftButton: () => Navigator.of(dialogContext).pop(),
+                      //         actionRightButton: () async {
+                      //           await requestDisableBatteryOptimization();
+                      //           Navigator.of(dialogContext).pop();
+                      //         },
+                      //       );
+                      //     },
+                      //   );
+                      // }
                     });
+              }),
+              Observer(builder: (context) {
+                return SettingsSwitcherCell(
+                  title: "T: show sync% in notification",
+                  value: dashboardViewModel.showSyncNotification,
+                  onValueChange: (BuildContext _, bool isEnabled) async {
+                    dashboardViewModel.setShowSyncNotification(isEnabled);
+                    // if (!isEnabled) {
+                    //   final bool confirmation = await showPopUp<bool>(
+                    //           context: context,
+                    //           builder: (BuildContext context) {
+                    //             return AlertWithTwoActions(
+                    //                 alertTitle: S.of(context).warning,
+                    //                 alertContent: S.of(context).disable_fee_api_warning,
+                    //                 rightButtonText: S.of(context).confirm,
+                    //                 leftButtonText: S.of(context).cancel,
+                    //                 actionRightButton: () => Navigator.of(context).pop(true),
+                    //                 actionLeftButton: () => Navigator.of(context).pop(false));
+                    //           }) ??
+                    //       false;
+                    //   if (confirmation) {
+                    //     _privacySettingsViewModel.setUseMempoolFeeAPI(isEnabled);
+                    //   }
+                    //   return;
+                    // }
+
+                  },
+                );
               }),
               Observer(builder: (context) {
                 return SettingsSwitcherCell(
@@ -109,7 +134,8 @@ class ConnectionSyncPage extends BasePage {
             },
           ),
           if (isWalletConnectCompatibleChain(dashboardViewModel.wallet.type) &&
-              !dashboardViewModel.wallet.isHardwareWallet) ...[ // ToDo: Remove this line once WalletConnect is implemented
+              !dashboardViewModel.wallet.isHardwareWallet) ...[
+            // ToDo: Remove this line once WalletConnect is implemented
             WalletConnectTile(
               onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
             ),

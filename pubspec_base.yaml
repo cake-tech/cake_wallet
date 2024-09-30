@@ -65,6 +65,8 @@ dependencies:
       url: https://github.com/cake-tech/device_display_brightness.git
       ref: master
   workmanager: ^0.5.1
+  flutter_background_service: ^5.0.9
+  flutter_local_notifications: ^17.2.2
   wakelock_plus: ^1.2.5
   flutter_mailer: ^2.0.2
   device_info_plus: ^9.1.0
