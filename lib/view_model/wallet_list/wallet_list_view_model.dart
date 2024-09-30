@@ -22,7 +22,8 @@ abstract class WalletListViewModelBase with Store {
     this._walletManager,
   )   : wallets = ObservableList<WalletListItem>(),
         multiWalletGroups = ObservableList<WalletGroup>(),
-        singleWalletsList = ObservableList<WalletListItem>() {
+        singleWalletsList = ObservableList<WalletListItem>(),
+        expansionTileStateTrack = ObservableMap<int, bool>() {
     setOrderType(_appStore.settingsStore.walletListOrder);
     reaction((_) => _appStore.wallet, (_) => updateList());
     updateList();
@@ -39,6 +40,18 @@ abstract class WalletListViewModelBase with Store {
 
   @observable
   ObservableList<WalletListItem> singleWalletsList;
+
+  @observable
+  ObservableMap<int, bool> expansionTileStateTrack;
+
+  @action
+  void updateTileState(int index, bool isExpanded) {
+    if (expansionTileStateTrack.containsKey(index)) {
+      expansionTileStateTrack.update(index, (value) => isExpanded);
+    } else {
+      expansionTileStateTrack.addEntries({index: isExpanded}.entries);
+    }
+  }
 
   @computed
   bool get shouldRequireTOTP2FAForAccessingWallet =>
@@ -100,8 +113,8 @@ abstract class WalletListViewModelBase with Store {
     // delete all wallets from walletInfoSource:
     await _walletInfoSource.clear();
 
-    // add wallets from wallets list in order of wallets list, by name:
-    for (WalletListItem wallet in wallets) {
+    // Reorder single wallets using the singleWalletsList
+    for (WalletListItem wallet in singleWalletsList) {
       for (int i = 0; i < walletInfoSourceCopy.length; i++) {
         if (walletInfoSourceCopy[i].name == wallet.name) {
           await _walletInfoSource.add(walletInfoSourceCopy[i]);
@@ -111,6 +124,20 @@ abstract class WalletListViewModelBase with Store {
       }
     }
 
+    // Reorder wallets within multi-wallet groups
+    for (WalletGroup group in multiWalletGroups) {
+      for (WalletInfo walletInfo in group.wallets) {
+        for (int i = 0; i < walletInfoSourceCopy.length; i++) {
+          if (walletInfoSourceCopy[i].name == walletInfo.name) {
+            await _walletInfoSource.add(walletInfoSourceCopy[i]);
+            walletInfoSourceCopy.removeAt(i);
+            break;
+          }
+        }
+      }
+    }
+
+    // Rebuild the list of wallets and groups
     updateList();
   }
 

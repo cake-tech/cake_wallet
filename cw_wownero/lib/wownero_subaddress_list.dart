@@ -1,6 +1,7 @@
 import 'package:cw_core/subaddress.dart';
 import 'package:cw_wownero/api/coins_info.dart';
 import 'package:cw_wownero/api/subaddress_list.dart' as subaddress_list;
+import 'package:cw_wownero/api/wallet.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 
@@ -61,6 +62,8 @@ abstract class WowneroSubaddressListBase with Store {
       return Subaddress(
           id: id,
           address: address,
+          balance: (s.received/1e12).toStringAsFixed(6),
+          txCount: s.txCount,
           label: isPrimaryAddress
               ? 'Primary address'
               : hasDefaultAddressName
@@ -103,6 +106,9 @@ abstract class WowneroSubaddressListBase with Store {
     required List<String> usedAddresses,
   }) async {
     _usedAddresses.addAll(usedAddresses);
+    final _all = _usedAddresses.toSet().toList();
+    _usedAddresses.clear();
+    _usedAddresses.addAll(_all);
     if (_isUpdating) {
       return;
     }
@@ -140,6 +146,8 @@ abstract class WowneroSubaddressListBase with Store {
           return Subaddress(
             id: id,
             address: address,
+            balance: (s.received/1e12).toStringAsFixed(6),
+            txCount: s.txCount,
             label: id == 0 &&
                     label.toLowerCase() == 'Primary account'.toLowerCase()
                 ? 'Primary address'

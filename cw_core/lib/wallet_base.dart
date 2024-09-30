@@ -67,6 +67,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> startSync();
 
+  Future<void> stopSync() async {}
+
   Future<PendingTransaction> createTransaction(Object credentials);
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);

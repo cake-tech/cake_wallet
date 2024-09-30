@@ -216,7 +216,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   PendingTransaction? pendingTransaction;
 
   @computed
-  String get balance => wallet.balance[selectedCryptoCurrency]!.formattedAvailableBalance;
+  String get balance => wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
 
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
@@ -674,6 +674,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.tx_no_dust_exception;
       }
       if (error is TransactionCommitFailed) {
+        if (error.errorMessage != null && error.errorMessage!.contains("no peers replied")) {
+          return S.current.tx_commit_failed_no_peers;
+        }
         return "${S.current.tx_commit_failed}${error.errorMessage != null ? "\n\n${error.errorMessage}" : ""}";
       }
       if (error is TransactionCommitFailedDustChange) {

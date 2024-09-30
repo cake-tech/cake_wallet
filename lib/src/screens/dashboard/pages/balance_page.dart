@@ -7,6 +7,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
@@ -25,6 +26,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BalancePage extends StatelessWidget {
@@ -129,7 +131,7 @@ class CryptoBalanceWidget extends StatelessWidget {
               builder: (_) {
                 if (dashboardViewModel.getMoneroError != null) {
                   return Padding(
-                    padding: const EdgeInsets.fromLTRB(16,0,16,16),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     child: DashBoardRoundedCardWidget(
                       title: "Invalid monero bindings",
                       subTitle: dashboardViewModel.getMoneroError.toString(),
@@ -144,13 +146,12 @@ class CryptoBalanceWidget extends StatelessWidget {
               builder: (_) {
                 if (dashboardViewModel.getWowneroError != null) {
                   return Padding(
-                    padding: const EdgeInsets.fromLTRB(16,0,16,16),
-                    child: DashBoardRoundedCardWidget(
-                      title: "Invalid wownero bindings",
-                      subTitle: dashboardViewModel.getWowneroError.toString(),
-                      onTap: () {},
-                    )
-                  );
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: DashBoardRoundedCardWidget(
+                        title: "Invalid wownero bindings",
+                        subTitle: dashboardViewModel.getWowneroError.toString(),
+                        onTap: () {},
+                      ));
                 }
                 return Container();
               },
@@ -271,6 +272,18 @@ class CryptoBalanceWidget extends StatelessWidget {
                         currency: balance.asset,
                         hasAdditionalBalance:
                             dashboardViewModel.balanceViewModel.hasAdditionalBalance,
+                        hasSecondAdditionalBalance:
+                            dashboardViewModel.balanceViewModel.hasSecondAdditionalBalance,
+                        hasSecondAvailableBalance:
+                            dashboardViewModel.balanceViewModel.hasSecondAvailableBalance,
+                        secondAdditionalBalance: balance.secondAdditionalBalance,
+                        secondAdditionalFiatBalance: balance.fiatSecondAdditionalBalance,
+                        secondAvailableBalance: balance.secondAvailableBalance,
+                        secondAvailableFiatBalance: balance.fiatSecondAvailableBalance,
+                        secondAdditionalBalanceLabel:
+                            '${dashboardViewModel.balanceViewModel.secondAdditionalBalanceLabel}',
+                        secondAvailableBalanceLabel:
+                            '${dashboardViewModel.balanceViewModel.secondAvailableBalanceLabel}',
                         isTestnet: dashboardViewModel.isTestnet,
                       );
                     });
@@ -284,16 +297,15 @@ class CryptoBalanceWidget extends StatelessWidget {
                   if (dashboardViewModel.isMoneroWalletBrokenReasons.isNotEmpty) ...[
                     SizedBox(height: 10),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                      child: DashBoardRoundedCardWidget(
-                        customBorder: 30,
-                        title: "This wallet has encountered an issue",
-                        subTitle: "Here are the things that you should note:\n - "
-                        +dashboardViewModel.isMoneroWalletBrokenReasons.join("\n - ")
-                        +"\n\nPlease restart your wallet and if it doesn't help contact our support.",
-                        onTap: () {},
-                      )
-                    )
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                        child: DashBoardRoundedCardWidget(
+                          customBorder: 30,
+                          title: "This wallet has encountered an issue",
+                          subTitle: "Here are the things that you should note:\n - " +
+                              dashboardViewModel.isMoneroWalletBrokenReasons.join("\n - ") +
+                              "\n\nPlease restart your wallet and if it doesn't help contact our support.",
+                          onTap: () {},
+                        ))
                   ],
                   if (dashboardViewModel.showSilentPaymentsCard) ...[
                     SizedBox(height: 10),
@@ -360,7 +372,73 @@ class CryptoBalanceWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ]
+                  ],
+                  if (dashboardViewModel.showMwebCard) ...[
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: DashBoardRoundedCardWidget(
+                        customBorder: 30,
+                        title: S.current.litecoin_mweb,
+                        subTitle: S.current.litecoin_enable_mweb_sync,
+                        hint: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => launchUrl(
+                                    Uri.parse(
+                                        "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
+                                    mode: LaunchMode.externalApplication,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        S.current.litecoin_what_is_mweb,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context)
+                                              .extension<BalancePageTheme>()!
+                                              .labelTextColor,
+                                          height: 1,
+                                        ),
+                                        softWrap: true,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                                        child: Icon(Icons.help_outline,
+                                            size: 16,
+                                            color: Theme.of(context)
+                                                .extension<BalancePageTheme>()!
+                                                .labelTextColor),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Observer(
+                                  builder: (_) => StandardSwitch(
+                                    value: dashboardViewModel.mwebScanningActive,
+                                    onTaped: () => _toggleMweb(context),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                        onTap: () => _toggleMweb(context),
+                        icon: ImageIcon(
+                          AssetImage('assets/images/mweb_logo.png'),
+                          color:
+                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                          size: 50,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               );
             }),
@@ -400,6 +478,22 @@ class CryptoBalanceWidget extends StatelessWidget {
 
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
   }
+
+  Future<void> _toggleMweb(BuildContext context) async {
+    if (!dashboardViewModel.hasEnabledMwebBefore) {
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) => AlertWithOneAction(
+                alertTitle: S.of(context).warning,
+                alertContent: S.current.litecoin_mweb_warning,
+                buttonText: S.of(context).ok,
+                buttonAction: () {
+                  Navigator.of(context).pop();
+                },
+              ));
+    }
+    dashboardViewModel.setMwebScanningActive(!dashboardViewModel.mwebScanningActive);
+  }
 }
 
 class BalanceRowWidget extends StatelessWidget {
@@ -410,10 +504,18 @@ class BalanceRowWidget extends StatelessWidget {
     required this.additionalBalanceLabel,
     required this.additionalBalance,
     required this.additionalFiatBalance,
+    required this.secondAvailableBalanceLabel,
+    required this.secondAvailableBalance,
+    required this.secondAvailableFiatBalance,
+    required this.secondAdditionalBalanceLabel,
+    required this.secondAdditionalBalance,
+    required this.secondAdditionalFiatBalance,
     required this.frozenBalance,
     required this.frozenFiatBalance,
     required this.currency,
     required this.hasAdditionalBalance,
+    required this.hasSecondAvailableBalance,
+    required this.hasSecondAdditionalBalance,
     required this.isTestnet,
     super.key,
   });
@@ -424,10 +526,18 @@ class BalanceRowWidget extends StatelessWidget {
   final String additionalBalanceLabel;
   final String additionalBalance;
   final String additionalFiatBalance;
+  final String secondAvailableBalanceLabel;
+  final String secondAvailableBalance;
+  final String secondAvailableFiatBalance;
+  final String secondAdditionalBalanceLabel;
+  final String secondAdditionalBalance;
+  final String secondAdditionalFiatBalance;
   final String frozenBalance;
   final String frozenFiatBalance;
   final CryptoCurrency currency;
   final bool hasAdditionalBalance;
+  final bool hasSecondAvailableBalance;
+  final bool hasSecondAdditionalBalance;
   final bool isTestnet;
 
   // void _showBalanceDescription(BuildContext context) {
@@ -664,6 +774,94 @@ class BalanceRowWidget extends StatelessWidget {
                   if (!isTestnet)
                     Text(
                       '${additionalFiatBalance}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                        height: 1,
+                      ),
+                    ),
+                ],
+              ),
+            if (hasSecondAvailableBalance)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 24),
+                  Text(
+                    '${secondAvailableBalanceLabel}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                      height: 1,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  AutoSizeText(
+                    secondAvailableBalance,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                      height: 1,
+                    ),
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 4),
+                  if (!isTestnet)
+                    Text(
+                      '${secondAvailableFiatBalance}',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                        height: 1,
+                      ),
+                    ),
+                ],
+              ),
+            if (hasSecondAdditionalBalance)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 24),
+                  Text(
+                    '${secondAdditionalBalanceLabel}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                      height: 1,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  AutoSizeText(
+                    secondAdditionalBalance,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w400,
+                      color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                      height: 1,
+                    ),
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 4),
+                  if (!isTestnet)
+                    Text(
+                      '${secondAdditionalFiatBalance}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,

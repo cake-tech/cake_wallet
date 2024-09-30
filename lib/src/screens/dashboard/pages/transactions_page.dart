@@ -86,6 +86,18 @@ class TransactionsPage extends StatelessWidget {
                           final transaction = item.transaction;
                           final transactionType = dashboardViewModel.getTransactionType(transaction);
 
+                          List<String> tags = [];
+                          if (dashboardViewModel.type == WalletType.bitcoin) {
+                            if (bitcoin!.txIsReceivedSilentPayment(transaction)) {
+                              tags.add(S.of(context).silent_payment);
+                            }
+                          }
+                          if (dashboardViewModel.type == WalletType.litecoin) {
+                            if (bitcoin!.txIsMweb(transaction)) {
+                              tags.add("MWEB");
+                            }
+                          }
+
                           return Observer(
                             builder: (_) => TransactionRow(
                               onTap: () => Navigator.of(context)
@@ -100,9 +112,7 @@ class TransactionsPage extends StatelessWidget {
                               isPending: transaction.isPending,
                               title:
                                   item.formattedTitle + item.formattedStatus + transactionType,
-                              isReceivedSilentPayment:
-                                  dashboardViewModel.type == WalletType.bitcoin &&
-                                      bitcoin!.txIsReceivedSilentPayment(transaction),
+                              tags: tags,
                             ),
                           );
                         }

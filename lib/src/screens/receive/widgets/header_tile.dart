@@ -10,6 +10,7 @@ class HeaderTile extends StatefulWidget {
     this.showSearchButton = false,
     this.showTrailingButton = false,
     this.trailingButtonTap,
+    this.onSearchCallback,
     this.trailingIcon,
   });
 
@@ -18,6 +19,7 @@ class HeaderTile extends StatefulWidget {
   final bool showSearchButton;
   final bool showTrailingButton;
   final VoidCallback? trailingButtonTap;
+  final VoidCallback? onSearchCallback;
   final Icon? trailingIcon;
 
   @override
@@ -41,7 +43,10 @@ class _HeaderTileState extends State<HeaderTile> {
           _isSearchActive
               ? Expanded(
                   child: TextField(
-                    onChanged: (value) => widget.walletAddressListViewModel.updateSearchText(value),
+                    onChanged: (value) {
+                      widget.walletAddressListViewModel.updateSearchText(value);
+                      widget.onSearchCallback?.call();
+                    },
                     cursorColor: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
                     cursorWidth: 0.5,
                     decoration: InputDecoration(

@@ -31,6 +31,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -162,6 +163,10 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(MwebUtxo.typeId)) {
+    CakeHive.registerAdapter(MwebUtxoAdapter());
+  }
+
   final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
@@ -243,7 +248,6 @@ Future<void> initialSetup(
     secureStorage: secureStorage,
   );
   await bootstrap(navigatorKey);
-  monero?.onStartup();
 }
 
 class App extends StatefulWidget {
