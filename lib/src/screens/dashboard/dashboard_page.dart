@@ -1,18 +1,24 @@
 import 'dart:async';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
+import 'package:cake_wallet/entities/alert_frequency.dart';
+import 'package:cake_wallet/entities/automatic_backup_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
+import 'package:cake_wallet/src/widgets/alert_with_three_actions.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/haven_wallet_removal_popup.dart';
 import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
 import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/utils/alert_scheduler.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
+import 'package:cake_wallet/view_model/auto_backup_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -362,6 +368,8 @@ class _DashboardPageView extends BasePage {
 
     _showVulnerableSeedsPopup(context);
 
+    _showBackupWarningPopup(context);
+
     _showHavenPopup(context);
 
     var needToPresentYat = false;
@@ -439,6 +447,50 @@ class _DashboardPageView extends BasePage {
           );
         },
       );
+    }
+  }
+
+  void _showBackupWarningPopup(BuildContext context) async {
+    final alertScheduler = await getIt.get<AlertScheduler>();
+    final autoBackupViewModel = getIt.get<AutoBackupViewModel>();
+    // only show the warning message if the user has disabled automatic backups:
+    final autoBackupMode = dashboardViewModel.settingsStore.autoBackupMode;
+    bool autobackupsEnabled = autoBackupMode != AutomaticBackupMode.disabled;
+
+    if (autobackupsEnabled) {
+      await autoBackupViewModel.runBackup();
+      return;
+    }
+
+    bool shouldShowWarning = await alertScheduler.shouldShowAlert(
+      enabledPk: PreferencesKey.showAutomaticBackupWarning,
+      lastAccessedPk: PreferencesKey.showAutomaticBackupWarningAccessTime,
+      frequency: AlertFrequency.weekly,
+    );
+
+    if (shouldShowWarning) {
+      showPopUp<void>(
+          context: context,
+          builder: (dialogContext) {
+            return AlertWithThreeActions(
+              alertTitle: S.current.export_backup,
+              alertContent: S.current.auto_backup_warning,
+              rightButtonText: S.current.backup,
+              centerButtonText: S.current.dont_show_again,
+              leftButtonText: S.current.remind_me_later,
+              actionCenterButton: () async {
+                await dashboardViewModel.dontShowBackupWarning();
+                Navigator.of(dialogContext).pop();
+              },
+              actionLeftButton: () async {
+                Navigator.of(dialogContext).pop();
+              },
+              actionRightButton: () async {
+                Navigator.of(dialogContext).pop();
+                Navigator.of(context).pushNamed(Routes.backup);
+              },
+            );
+          });
     }
   }
 

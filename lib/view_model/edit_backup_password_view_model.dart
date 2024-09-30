@@ -10,8 +10,8 @@ class EditBackupPasswordViewModel = EditBackupPasswordViewModelBase
 
 abstract class EditBackupPasswordViewModelBase with Store {
   EditBackupPasswordViewModelBase(this.secureStorage, this.secretStore)
-  : backupPassword = secretStore.read(generateStoreKeyFor(key: SecretStoreKey.backupPassword)),
-    _originalPassword = '';
+      : backupPassword = secretStore.read(generateStoreKeyFor(key: SecretStoreKey.backupPassword)),
+        _originalPassword = '';
 
   final SecureStorage secureStorage;
   final SecretStore secretStore;

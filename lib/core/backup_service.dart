@@ -23,6 +23,56 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_backup/backup.dart' as cake_backup;
 
+Future<Uint8List> _createZipData(Map<String, dynamic> message) async {
+  final appDirPath = message['appDirPath'] as String;
+  final keychainDump = message['keychainDump'] as Uint8List;
+  final preferencesDump = message['preferencesDump'] as String;
+
+  final appDir = Directory(appDirPath);
+  final tmpDir = Directory('${appDir.path}/~_BACKUP_TMP');
+  final archivePath = '${tmpDir.path}/backup_${DateTime.now().toString()}.zip';
+  final fileEntities = appDir.listSync(recursive: false);
+  final zipEncoder = ZipFileEncoder();
+  final preferencesDumpFile = File('${tmpDir.path}/~_preferences_dump_TMP');
+  final keychainDumpFile = File('${tmpDir.path}/~_keychain_dump_TMP');
+
+  if (tmpDir.existsSync()) {
+    tmpDir.deleteSync(recursive: true);
+  }
+
+  tmpDir.createSync();
+
+  zipEncoder.create(archivePath);
+
+  fileEntities.forEach((entity) {
+    if (entity.path == archivePath || entity.path == tmpDir.path) {
+      return;
+    }
+
+    if (entity.statSync().type == FileSystemEntityType.directory) {
+      zipEncoder.addDirectory(Directory(entity.path));
+    } else {
+      zipEncoder.addFile(File(entity.path));
+    }
+  });
+
+  await keychainDumpFile.writeAsBytes(keychainDump.toList());
+  await preferencesDumpFile.writeAsString(preferencesDump);
+  await zipEncoder.addFile(preferencesDumpFile, '~_preferences_dump');
+  await zipEncoder.addFile(keychainDumpFile, '~_keychain_dump');
+  zipEncoder.close();
+
+  final content = File(archivePath).readAsBytesSync();
+  tmpDir.deleteSync(recursive: true);
+  return content;
+}
+
+Future<Uint8List> _computableEncryptV2(Map<String, dynamic> args) async {
+  Uint8List data = args["data"] as Uint8List;
+  String passphrase = args["passphrase"] as String;
+  return cake_backup.encrypt(passphrase, data, version: BackupService._v2);
+}
+
 class BackupService {
   BackupService(
       this._secureStorage, this._walletInfoSource, this._keyService, this._sharedPreferences)
@@ -75,6 +125,47 @@ class BackupService {
   Future<Uint8List> _exportBackupV1(String password, {String nonce = secrets.backupSalt}) async =>
       throw Exception('Deprecated. Export for backups v1 is deprecated. Please use export v2.');
 
+  // Future<Uint8List> _exportBackupV2(String password) async {
+  //   final zipEncoder = ZipFileEncoder();
+  //   final appDir = await getApplicationDocumentsDirectory();
+  //   final now = DateTime.now();
+  //   final tmpDir = Directory('${appDir.path}/~_BACKUP_TMP');
+  //   final archivePath = '${tmpDir.path}/backup_${now.toString()}.zip';
+  //   final fileEntities = appDir.listSync(recursive: false);
+  //   final keychainDump = await _exportKeychainDumpV2(password);
+  //   final preferencesDump = await _exportPreferencesJSON();
+  //   final preferencesDumpFile = File('${tmpDir.path}/~_preferences_dump_TMP');
+  //   final keychainDumpFile = File('${tmpDir.path}/~_keychain_dump_TMP');
+
+  //   if (tmpDir.existsSync()) {
+  //     tmpDir.deleteSync(recursive: true);
+  //   }
+
+  //   tmpDir.createSync();
+  //   zipEncoder.create(archivePath);
+
+  //   fileEntities.forEach((entity) {
+  //     if (entity.path == archivePath || entity.path == tmpDir.path) {
+  //       return;
+  //     }
+
+  //     if (entity.statSync().type == FileSystemEntityType.directory) {
+  //       zipEncoder.addDirectory(Directory(entity.path));
+  //     } else {
+  //       zipEncoder.addFile(File(entity.path));
+  //     }
+  //   });
+  //   await keychainDumpFile.writeAsBytes(keychainDump.toList());
+  //   await preferencesDumpFile.writeAsString(preferencesDump);
+  //   await zipEncoder.addFile(preferencesDumpFile, '~_preferences_dump');
+  //   await zipEncoder.addFile(keychainDumpFile, '~_keychain_dump');
+  //   zipEncoder.close();
+
+  //   final content = File(archivePath).readAsBytesSync();
+  //   tmpDir.deleteSync(recursive: true);
+  //   return await _encryptV2(content, password);
+  // }
+
   Future<Uint8List> _exportBackupV2(String password) async {
     final zipEncoder = ZipFileEncoder();
     final appDir = await getAppDir();
@@ -84,36 +175,18 @@ class BackupService {
     final fileEntities = appDir.listSync(recursive: false);
     final keychainDump = await _exportKeychainDumpV2(password);
     final preferencesDump = await _exportPreferencesJSON();
-    final preferencesDumpFile = File('${tmpDir.path}/~_preferences_dump_TMP');
-    final keychainDumpFile = File('${tmpDir.path}/~_keychain_dump_TMP');
 
-    if (tmpDir.existsSync()) {
-      tmpDir.deleteSync(recursive: true);
-    }
-
-    tmpDir.createSync();
-    zipEncoder.create(archivePath);
-
-    fileEntities.forEach((entity) {
-      if (entity.path == archivePath || entity.path == tmpDir.path) {
-        return;
-      }
-
-      if (entity.statSync().type == FileSystemEntityType.directory) {
-        zipEncoder.addDirectory(Directory(entity.path));
-      } else {
-        zipEncoder.addFile(File(entity.path));
-      }
+    final zipData = await compute(_createZipData, {
+      'appDirPath': appDir.path,
+      'keychainDump': keychainDump,
+      'preferencesDump': preferencesDump,
     });
-    await keychainDumpFile.writeAsBytes(keychainDump.toList());
-    await preferencesDumpFile.writeAsString(preferencesDump);
-    await zipEncoder.addFile(preferencesDumpFile, '~_preferences_dump');
-    await zipEncoder.addFile(keychainDumpFile, '~_keychain_dump');
-    zipEncoder.close();
 
-    final content = File(archivePath).readAsBytesSync();
-    tmpDir.deleteSync(recursive: true);
-    return await _encryptV2(content, password);
+    final encrypted = await compute(_computableEncryptV2, {
+      "data": zipData,
+      "passphrase": password,
+    });
+    return encrypted;
   }
 
   Future<void> _importBackupV1(Uint8List data, String password, {required String nonce}) async {
@@ -237,6 +310,8 @@ class BackupService {
     final lookupsUnstoppableDomains = data[PreferencesKey.lookupsUnstoppableDomains] as bool?;
     final lookupsOpenAlias = data[PreferencesKey.lookupsOpenAlias] as bool?;
     final lookupsENS = data[PreferencesKey.lookupsENS] as bool?;
+    final autoBackupMode = data[PreferencesKey.autoBackupMode] as int?;
+    final autoBackupDir = data[PreferencesKey.autoBackupDir] as String?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
     final autoGenerateSubaddressStatus =
@@ -352,6 +427,12 @@ class BackupService {
       await _sharedPreferences.setBool(PreferencesKey.lookupsOpenAlias, lookupsOpenAlias);
 
     if (lookupsENS != null) await _sharedPreferences.setBool(PreferencesKey.lookupsENS, lookupsENS);
+
+    if (autoBackupMode != null)
+      await _sharedPreferences.setInt(PreferencesKey.autoBackupMode, autoBackupMode);
+
+    if (autoBackupDir != null)
+      await _sharedPreferences.setString(PreferencesKey.autoBackupDir, autoBackupDir);
 
     if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
@@ -495,6 +576,8 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains),
       PreferencesKey.lookupsOpenAlias: _sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias),
       PreferencesKey.lookupsENS: _sharedPreferences.getBool(PreferencesKey.lookupsENS),
+      PreferencesKey.autoBackupMode: _sharedPreferences.getInt(PreferencesKey.autoBackupMode),
+      PreferencesKey.autoBackupDir: _sharedPreferences.getString(PreferencesKey.autoBackupDir),
       PreferencesKey.syncModeKey: _sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey: _sharedPreferences.getBool(PreferencesKey.syncAllKey),
       PreferencesKey.autoGenerateSubaddressStatusKey:

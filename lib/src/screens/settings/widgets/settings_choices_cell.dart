@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/address_theme.dart';
 
 class SettingsChoicesCell extends StatelessWidget {
-  const SettingsChoicesCell(this.choicesListItem, {Key? key}) : super(key: key);
+  const SettingsChoicesCell(this.choicesListItem, {Key? key, this.bgColor}) : super(key: key);
 
   final ChoicesListItem<dynamic> choicesListItem;
+  final Color? bgColor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      color: bgColor ?? Theme.of(context).colorScheme.background,
       padding: EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -59,7 +60,9 @@ class SettingsChoicesCell extends StatelessWidget {
                             style: TextStyle(
                               color: isSelected
                                   ? Colors.white
-                                  : Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                                  : Theme.of(context)
+                                      .extension<CakeTextTheme>()!
+                                      .secondaryTextColor,
                               fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
                             ),
                           ),

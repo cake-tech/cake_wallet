@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -13,8 +14,8 @@ class EditBackupPasswordPage extends BasePage {
   EditBackupPasswordPage(this.editBackupPasswordViewModel)
       : textEditingController = TextEditingController() {
     textEditingController.text = editBackupPasswordViewModel.backupPassword;
-    textEditingController.addListener(() => editBackupPasswordViewModel
-        .backupPassword = textEditingController.text);
+    textEditingController
+        .addListener(() => editBackupPasswordViewModel.backupPassword = textEditingController.text);
   }
 
   final EditBackupPasswordViewModel editBackupPasswordViewModel;
@@ -37,6 +38,7 @@ class EditBackupPasswordPage extends BasePage {
                         enableSuggestions: false,
                         autocorrect: false,
                         keyboardType: TextInputType.visiblePassword,
+                        autofillHints: [AutofillHints.password],
                         controller: textEditingController,
                         style: TextStyle(
                             fontSize: 26,
@@ -57,20 +59,38 @@ class EditBackupPasswordPage extends BasePage {
   }
 
   void onSave(BuildContext context) {
+    if (!RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$').hasMatch(textEditingController.text)) {
+      showPopUp<void>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertWithOneAction(
+            alertTitle: S.of(context).save_backup_password_alert,
+            alertContent: S.current.backup_password_requirements,
+            buttonText: S.of(context).ok,
+            buttonAction: () async {
+              Navigator.of(dialogContext).pop();
+            },
+          );
+        },
+      );
+      return;
+    }
+
     showPopUp<void>(
         context: context,
         builder: (dialogContext) {
           return AlertWithTwoActions(
-              alertTitle: S.of(context).save_backup_password_alert,
-              alertContent: S.of(context).change_backup_password_alert,
-              rightButtonText: S.of(context).ok,
-              leftButtonText: S.of(context).cancel,
-              actionRightButton: () async {
-                await editBackupPasswordViewModel.save();
-                Navigator.of(dialogContext).pop();
-                Navigator.of(context).pop();
-              },
-              actionLeftButton: () => Navigator.of(dialogContext).pop());
+            alertTitle: S.of(context).save_backup_password_alert,
+            alertContent: S.of(context).change_backup_password_alert,
+            rightButtonText: S.of(context).ok,
+            leftButtonText: S.of(context).cancel,
+            actionRightButton: () async {
+              await editBackupPasswordViewModel.save();
+              Navigator.of(dialogContext).pop();
+              Navigator.of(context).pop();
+            },
+            actionLeftButton: () => Navigator.of(dialogContext).pop(),
+          );
         });
   }
 }

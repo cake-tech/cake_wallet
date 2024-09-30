@@ -815,4 +815,8 @@ abstract class DashboardViewModelBase with Store {
   Future<void> refreshDashboard() async {
     reconnect();
   }
+
+  Future<void> dontShowBackupWarning() async {
+    await sharedPreferences.setBool(PreferencesKey.showAutomaticBackupWarning, false);
+  }
 }

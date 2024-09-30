@@ -38,6 +38,8 @@ import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
+import 'package:cake_wallet/utils/alert_scheduler.dart';
+import 'package:cake_wallet/view_model/auto_backup_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -1350,6 +1352,14 @@ Future<void> setup({
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 
+  getIt.registerFactory<AlertScheduler>(
+      () => AlertScheduler(sharedPreferences: getIt.get<SharedPreferences>()));
+
+  getIt.registerFactory<AutoBackupViewModel>(() => AutoBackupViewModel(
+        backupViewModel: getIt.get<BackupViewModel>(),
+        settingsStore: getIt.get<SettingsStore>(),
+      ));
+      
   getIt.registerFactory(() => SignViewModel(getIt.get<AppStore>().wallet!));
 
   _isSetupFinished = true;

@@ -67,7 +67,10 @@ class AuthService with Store {
 
   void saveLastAuthTime() {
     int timestamp = DateTime.now().millisecondsSinceEpoch;
-    secureStorage.write(key: SecureKey.lastAuthTimeMilliseconds, value: timestamp.toString());
+    secureStorage.write(
+      key: SecureKey.lastAuthTimeMilliseconds,
+      value: timestamp.toString(),
+    );
   }
 
   Future<bool> requireAuth() async {
