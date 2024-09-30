@@ -247,6 +247,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> startSync() async {
+    print("startSync() called!");
     if (syncStatus is SyncronizingSyncStatus) {
       return;
     }
@@ -298,7 +299,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (nodeHeight == 0) {
         // we aren't connected to the ltc node yet
         if (syncStatus is! NotConnectedSyncStatus) {
-          syncStatus = NotConnectedSyncStatus();
+          syncStatus = FailedSyncStatus(error: "Failed to connect to Litecoin node");
         }
         return;
       }
@@ -308,43 +309,44 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       print("resp.mwebHeaderHeight: ${resp.mwebHeaderHeight}");
       print("resp.blockHeaderHeight: ${resp.blockHeaderHeight}");
 
-
-      
-
-      if (resp.blockHeaderHeight < nodeHeight) {
-        int h = resp.blockHeaderHeight;
-        syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
-      } else if (resp.mwebHeaderHeight < nodeHeight) {
-        int h = resp.mwebHeaderHeight;
-        syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
-      } else if (resp.mwebUtxosHeight < nodeHeight) {
-        print("1 BLOCK REMAINING!!!!!!!!!!!");
-        syncStatus = SyncingSyncStatus(1, 0.999);
-      } else {
-        print("SYNCING FINISHED!!!!!!!!!!!");
-        if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
-          await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
-          await checkMwebUtxosSpent();
-          // update the confirmations for each transaction:
-          for (final transaction in transactionHistory.transactions.values) {
-            if (transaction.isPending) continue;
-            int txHeight = transaction.height ?? resp.mwebUtxosHeight;
-            final confirmations = (resp.mwebUtxosHeight - txHeight) + 1;
-            if (transaction.confirmations == confirmations) continue;
-            transaction.confirmations = confirmations;
-            transactionHistory.addOne(transaction);
+      try {
+        if (resp.blockHeaderHeight < nodeHeight) {
+          int h = resp.blockHeaderHeight;
+          syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
+        } else if (resp.mwebHeaderHeight < nodeHeight) {
+          int h = resp.mwebHeaderHeight;
+          syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
+        } else if (resp.mwebUtxosHeight < nodeHeight) {
+          syncStatus = SyncingSyncStatus(1, 0.999);
+        } else {
+          print("SYNCING FINISHED!!!!!!!!!!!");
+          if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
+            await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
+            await checkMwebUtxosSpent();
+            // update the confirmations for each transaction:
+            for (final transaction in transactionHistory.transactions.values) {
+              if (transaction.isPending) continue;
+              int txHeight = transaction.height ?? resp.mwebUtxosHeight;
+              final confirmations = (resp.mwebUtxosHeight - txHeight) + 1;
+              if (transaction.confirmations == confirmations) continue;
+              transaction.confirmations = confirmations;
+              transactionHistory.addOne(transaction);
+            }
+            await transactionHistory.save();
           }
-          await transactionHistory.save();
-        }
 
-        // prevent unnecessary reaction triggers:
-        if (syncStatus is! SyncedSyncStatus) {
-          // mwebd is synced, but we could still be processing incoming utxos:
-          if (!processingUtxos) {
-            syncStatus = SyncedSyncStatus();
+          // prevent unnecessary reaction triggers:
+          if (syncStatus is! SyncedSyncStatus) {
+            // mwebd is synced, but we could still be processing incoming utxos:
+            if (!processingUtxos) {
+              syncStatus = SyncedSyncStatus();
+            }
           }
+          return;
         }
-        return;
+      } catch (e) {
+        print("error syncing: $e");
+        syncStatus = FailedSyncStatus(error: e.toString());
       }
     });
   }
@@ -428,7 +430,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> handleIncoming(MwebUtxo utxo, RpcClient stub) async {
-    print("handleIncoming: ${utxo.outputId}");
+    print("handleIncoming() called!");
     final status = await stub.status(StatusRequest());
     var date = DateTime.now();
     var confirmations = 0;
