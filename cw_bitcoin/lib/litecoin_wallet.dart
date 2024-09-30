@@ -332,7 +332,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> stopSync() async {
-    print("STOPPING SYNC");
     _syncTimer?.cancel();
     _utxoStream?.cancel();
     _feeRatesTimer?.cancel();
@@ -822,13 +821,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     if (outputs.length == 1 && outputs[0].toOutput.amount == BigInt.zero) {
-      // TODO: for some reason we can't type cast BitcoinScriptOutput to BitcoinBaseOutput (even though one implements the other)
-      // this breaks using the ALL button on litecoin mweb tx's:
       outputs = [
         BitcoinScriptOutput(
             script: outputs[0].toOutput.scriptPubKey, value: utxos.sumOfUtxosValue())
       ];
     }
+
     // https://github.com/ltcmweb/mwebd?tab=readme-ov-file#fee-estimation
     final preOutputSum =
         outputs.fold<BigInt>(BigInt.zero, (acc, output) => acc + output.toOutput.amount);

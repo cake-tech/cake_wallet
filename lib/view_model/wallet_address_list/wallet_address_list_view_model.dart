@@ -18,12 +18,16 @@ import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_hidden_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/currency.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_monero/api/wallet.dart';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 
@@ -271,56 +275,40 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   WalletType get type => wallet.type;
 
   @computed
-  WalletAddressListItem get address =>
-      WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
+  WalletAddressListItem get address {
+    return WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
+  }
 
   @computed
   PaymentURI get uri {
-    if (wallet.type == WalletType.monero) {
-      return MoneroURI(amount: amount, address: address.address);
+    switch (wallet.type) {
+      case WalletType.monero:
+        return MoneroURI(amount: amount, address: address.address);
+      case WalletType.haven:
+        return HavenURI(amount: amount, address: address.address);
+      case WalletType.bitcoin:
+        return BitcoinURI(amount: amount, address: address.address);
+      case WalletType.litecoin:
+        return LitecoinURI(amount: amount, address: address.address);
+      case WalletType.ethereum:
+        return EthereumURI(amount: amount, address: address.address);
+      case WalletType.bitcoinCash:
+        return BitcoinCashURI(amount: amount, address: address.address);
+      case WalletType.banano:
+        return NanoURI(amount: amount, address: address.address);
+      case WalletType.nano:
+        return NanoURI(amount: amount, address: address.address);
+      case WalletType.polygon:
+        return PolygonURI(amount: amount, address: address.address);
+      case WalletType.solana:
+        return SolanaURI(amount: amount, address: address.address);
+      case WalletType.tron:
+        return TronURI(amount: amount, address: address.address);
+      case WalletType.wownero:
+        return WowneroURI(amount: amount, address: address.address);
+      case WalletType.none:
+        throw Exception('Unexpected type: ${type.toString()}');
     }
-
-    if (wallet.type == WalletType.haven) {
-      return HavenURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.bitcoin) {
-      return BitcoinURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.litecoin) {
-      return LitecoinURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.ethereum) {
-      return EthereumURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.bitcoinCash) {
-      return BitcoinCashURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.nano) {
-      return NanoURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.polygon) {
-      return PolygonURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.solana) {
-      return SolanaURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.tron) {
-      return TronURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.wownero) {
-      return WowneroURI(amount: amount, address: address.address);
-    }
-
-    throw Exception('Unexpected type: ${type.toString()}');
   }
 
   @computed
@@ -341,7 +329,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             id: subaddress.id,
             isPrimary: isPrimary,
             name: subaddress.label,
-            address: subaddress.address);
+            address: subaddress.address,
+            balance: subaddress.received,
+            txCount: subaddress.txCount,
+          );
       });
       addressList.addAll(addressItems);
     }
@@ -468,6 +459,16 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
 
+    for (var i = 0; i < addressList.length; i++) {
+      if (!(addressList[i] is WalletAddressListItem)) continue;
+      (addressList[i] as WalletAddressListItem).isHidden = wallet.walletAddresses.hiddenAddresses.contains((addressList[i] as WalletAddressListItem).address);
+    }
+
+    for (var i = 0; i < addressList.length; i++) {
+      if (!(addressList[i] is WalletAddressListItem)) continue;
+      (addressList[i] as WalletAddressListItem).isManual = wallet.walletAddresses.manualAddresses.contains((addressList[i] as WalletAddressListItem).address);
+    }
+    
     if (searchText.isNotEmpty) {
       return ObservableList.of(addressList.where((item) {
         if (item is WalletAddressListItem) {
@@ -479,7 +480,21 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     return addressList;
   }
-
+  Future<void> toggleHideAddress(WalletAddressListItem item) async {
+    if (item.isHidden) {
+      wallet.walletAddresses.hiddenAddresses.removeWhere((element) => element == item.address);
+    } else {
+      wallet.walletAddresses.hiddenAddresses.add(item.address);
+    }
+    await wallet.walletAddresses.saveAddressesInBox();
+    if (wallet.type == WalletType.monero) {
+      monero!.getSubaddressList(wallet).update(wallet, accountIndex: monero!.getCurrentAccount(wallet).id);
+    } else if (wallet.type == WalletType.wownero) {
+      wownero!.getSubaddressList(wallet).update(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id);
+    } else if (wallet.type == WalletType.haven) {
+      haven!.getSubaddressList(wallet).update(wallet, accountIndex: haven!.getCurrentAccount(wallet).id);
+    }
+  }
   @observable
   bool hasAccounts;
 
@@ -516,6 +531,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wallet.type == WalletType.bitcoinCash;
 
   @computed
+  bool get isBalanceAvailable => isElectrumWallet;
+
+  @computed
+  bool get isReceivedAvailable =>
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.wownero;
+
+  @computed
   bool get isSilentPayments =>
       wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
 
@@ -523,6 +546,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   bool get isAutoGenerateSubaddressEnabled =>
       _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled &&
       !isSilentPayments;
+
+  @computed
+  bool get showAddManualAddresses =>
+    !isAutoGenerateSubaddressEnabled ||
+    wallet.type == WalletType.monero ||
+    wallet.type == WalletType.wownero;
 
   List<ListItem> _baseItems;
 
@@ -542,6 +571,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void _init() {
     _baseItems = [];
 
+    if (wallet.walletAddresses.hiddenAddresses.isNotEmpty) {
+      _baseItems.add(WalletAddressHiddenListHeader());
+    }
+
     if (wallet.type == WalletType.monero ||
         wallet.type == WalletType.wownero ||
         wallet.type == WalletType.haven) {
@@ -550,6 +583,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (wallet.type != WalletType.nano && wallet.type != WalletType.banano) {
       _baseItems.add(WalletAddressListHeader());
+    }
+    if (wallet.isEnabledAutoGenerateSubaddress) {
+      wallet.walletAddresses.address = wallet.walletAddresses.latestAddress;
     }
   }
 

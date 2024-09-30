@@ -278,8 +278,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
           return 'ERC20';
         case 'BSC':
           return 'BEP20';
-        case 'POLY':
-          return 'MATIC';
         default:
           return currency.tag!;
       }

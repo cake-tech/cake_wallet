@@ -156,7 +156,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             });
           }
         });
-
         break;
       default:
         break;

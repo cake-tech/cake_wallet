@@ -155,13 +155,14 @@ class AddressPage extends BasePage {
                           amountTextFieldFocusNode: _cryptoAmountFocus,
                           amountController: _amountController,
                           isLight: dashboardViewModel.settingsStore.currentTheme.type ==
-                              ThemeType.light))),
+                              ThemeType.light,
+                        ))),
               SizedBox(height: 16),
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
                   return SelectButton(
                     text: addressListViewModel.buttonTitle,
-                    onTap: () async => Navigator.of(context).pushNamed(Routes.receive),
+                    onTap: () => Navigator.of(context).pushNamed(Routes.receive),
                     textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
                     color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                     borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,

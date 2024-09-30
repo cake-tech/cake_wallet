@@ -5,8 +5,10 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -82,9 +84,22 @@ abstract class WalletCreationVMBase with Store {
       walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
-      final credentials = restoreWallet != null
-          ? getCredentialsFromRestoredWallet(options, restoreWallet)
-          : getCredentials(options);
+
+      WalletCredentials credentials;
+      if (restoreWallet != null) {
+        if (restoreWallet.restoreMode == WalletRestoreMode.seed &&
+            options == null &&
+            (type == WalletType.nano ||
+                type == WalletType.bitcoin ||
+                type == WalletType.litecoin)) {
+          final derivationInfo = await getDerivationInfo(restoreWallet);
+          options ??= {};
+          options["derivationInfo"] = derivationInfo.first;
+        }
+        credentials = getCredentialsFromRestoredWallet(options, restoreWallet);
+      } else {
+        credentials = getCredentials(options);
+      }
 
       final walletInfo = WalletInfo.external(
         id: WalletBase.idFor(name, type),
@@ -183,6 +198,30 @@ abstract class WalletCreationVMBase with Store {
       default:
         return null;
     }
+  }
+
+  Future<List<DerivationInfo>> getDerivationInfo(RestoredWallet restoreWallet) async {
+    var list = <DerivationInfo>[];
+    final walletType = restoreWallet.type;
+    var appStore = getIt.get<AppStore>();
+    var node = appStore.settingsStore.getCurrentNode(walletType);
+
+    switch (walletType) {
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return bitcoin!.getDerivationsFromMnemonic(
+          mnemonic: restoreWallet.mnemonicSeed!,
+          node: node,
+        );
+      case WalletType.nano:
+        return nanoUtil!.getDerivationsFromMnemonic(
+          mnemonic: restoreWallet.mnemonicSeed!,
+          node: node,
+        );
+      default:
+        break;
+    }
+    return list;
   }
 
   WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();

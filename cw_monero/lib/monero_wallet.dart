@@ -59,7 +59,7 @@ abstract class MoneroWalletBase
         }),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
-        isEnabledAutoGenerateSubaddress = false,
+        isEnabledAutoGenerateSubaddress = true,
         _password = password,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
@@ -82,6 +82,9 @@ abstract class MoneroWalletBase
 
     reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
       _updateSubAddress(enabled, account: walletAddresses.account);
+    });
+    _onTxHistoryChangeReaction = reaction((_) => transactionHistory, (__) {
+      _updateSubAddress(isEnabledAutoGenerateSubaddress, account: walletAddresses.account);
     });
   }
 
@@ -124,6 +127,7 @@ abstract class MoneroWalletBase
 
   monero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
+  ReactionDisposer? _onTxHistoryChangeReaction;
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
@@ -149,8 +153,10 @@ abstract class MoneroWalletBase
       }
     }
 
-    _autoSaveTimer =
-        Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
+    _autoSaveTimer = Timer.periodic(
+        Duration(seconds: _autoSaveInterval), (_) async => await save());
+    // update transaction details after restore
+    walletAddresses.subaddressList.update(accountIndex: walletAddresses.account?.id??0);
   }
 
   @override
@@ -160,6 +166,7 @@ abstract class MoneroWalletBase
   void close() async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
+    _onTxHistoryChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
 
@@ -558,8 +565,9 @@ abstract class MoneroWalletBase
   @override
   Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
     transaction_history.refreshTransactions();
-    return _getAllTransactionsOfAccount(walletAddresses.account?.id)
-        .fold<Map<String, MoneroTransactionInfo>>(<String, MoneroTransactionInfo>{},
+    return (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
+        .fold<Map<String, MoneroTransactionInfo>>(
+            <String, MoneroTransactionInfo>{},
             (Map<String, MoneroTransactionInfo> acc, MoneroTransactionInfo tx) {
       acc[tx.id] = tx;
       return acc;
@@ -573,8 +581,8 @@ abstract class MoneroWalletBase
       }
 
       _isTransactionUpdating = true;
-      transactionHistory.clear();
       final transactions = await fetchTransactions();
+      transactionHistory.clear();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
       _isTransactionUpdating = false;
@@ -587,28 +595,31 @@ abstract class MoneroWalletBase
   String getSubaddressLabel(int accountIndex, int addressIndex) =>
       monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
-  List<MoneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) => transaction_history
-      .getAllTransactions()
-      .map(
-        (row) => MoneroTransactionInfo(
-          row.hash,
-          row.blockheight,
-          row.isSpend ? TransactionDirection.outgoing : TransactionDirection.incoming,
-          row.timeStamp,
-          row.isPending,
-          row.amount,
-          row.accountIndex,
-          0,
-          row.fee,
-          row.confirmations,
-        )..additionalInfo = <String, dynamic>{
-            'key': row.key,
-            'accountIndex': row.accountIndex,
-            'addressIndex': row.addressIndex
-          },
-      )
-      .where((element) => element.accountIndex == (accountIndex ?? 0))
-      .toList();
+  Future<List<MoneroTransactionInfo>> _getAllTransactionsOfAccount(int? accountIndex) async =>
+      (await transaction_history
+          .getAllTransactions())
+          .map(
+            (row) => MoneroTransactionInfo(
+              row.hash,
+              row.blockheight,
+              row.isSpend
+                  ? TransactionDirection.outgoing
+                  : TransactionDirection.incoming,
+              row.timeStamp,
+              row.isPending,
+              row.amount,
+              row.accountIndex,
+              0,
+              row.fee,
+              row.confirmations,
+            )..additionalInfo = <String, dynamic>{
+                'key': row.key,
+                'accountIndex': row.accountIndex,
+                'addressIndex': row.addressIndex
+              },
+          )
+          .where((element) => element.accountIndex == (accountIndex ?? 0))
+          .toList();
 
   void _setListeners() {
     _listener?.stop();

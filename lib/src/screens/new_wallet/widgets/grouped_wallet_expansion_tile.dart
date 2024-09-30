@@ -12,6 +12,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
     this.childWallets = const [],
     this.onTitleTapped,
     this.onChildItemTapped = _defaultVoidCallback,
+    this.onExpansionChanged,
     this.leadingWidget,
     this.trailingWidget,
     this.childTrailingWidget,
@@ -22,13 +23,18 @@ class GroupedWalletExpansionTile extends StatelessWidget {
     this.borderRadius,
     this.margin,
     this.tileKey,
+    this.isCurrentlySelectedWallet = false,
+    this.shouldShowCurrentWalletPointer = false,
   }) : super(key: tileKey);
 
   final Key? tileKey;
   final bool isSelected;
+  final bool isCurrentlySelectedWallet;
+  final bool shouldShowCurrentWalletPointer;
 
   final VoidCallback? onTitleTapped;
   final void Function(WalletListItem item) onChildItemTapped;
+  final void Function(bool)? onExpansionChanged;
 
   final String title;
   final Widget? leadingWidget;
@@ -70,8 +76,13 @@ class GroupedWalletExpansionTile extends StatelessWidget {
           splashFactory: NoSplash.splashFactory,
         ),
         child: ExpansionTile(
+          onExpansionChanged: onExpansionChanged,
+          initiallyExpanded: shouldShowCurrentWalletPointer
+              ? childWallets.any((element) => element.isCurrent)
+              : false,
           key: tileKey,
-          tilePadding: EdgeInsets.symmetric(vertical: 1, horizontal: 16),
+          tilePadding:
+              EdgeInsets.symmetric(vertical: 1, horizontal: !isCurrentlySelectedWallet ? 16 : 0),
           iconColor: effectiveArrowColor,
           collapsedIconColor: effectiveArrowColor,
           leading: leadingWidget,
@@ -90,19 +101,46 @@ class GroupedWalletExpansionTile extends StatelessWidget {
           ),
           children: childWallets.map(
             (item) {
+              final currentColor = item.isCurrent
+                  ? Theme.of(context)
+                      .extension<WalletListTheme>()!
+                      .createNewWalletButtonBackgroundColor
+                  : Theme.of(context).colorScheme.background;
               final walletTypeToCrypto = walletTypeToCryptoCurrency(item.type);
               return ListTile(
+                contentPadding: EdgeInsets.zero,
                 key: ValueKey(item.name),
                 trailing: childTrailingWidget?.call(item),
                 onTap: () => onChildItemTapped(item),
-                leading: Image.asset(
-                  walletTypeToCrypto.iconPath!,
-                  width: 32,
-                  height: 32,
+                leading: SizedBox(
+                  width: 60,
+                  child: Row(
+                    children: [
+                      item.isCurrent && shouldShowCurrentWalletPointer
+                          ? Container(
+                              height: 35,
+                              width: 6,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(16),
+                                  bottomRight: Radius.circular(16),
+                                ),
+                                color: currentColor,
+                              ),
+                            )
+                          : SizedBox(width: 6),
+                      SizedBox(width: 16),
+                      Image.asset(
+                        walletTypeToCrypto.iconPath!,
+                        width: 32,
+                        height: 32,
+                      ),
+                    ],
+                  ),
                 ),
                 title: Text(
                   item.name,
-                  maxLines: 1,
+                  maxLines: 2,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
