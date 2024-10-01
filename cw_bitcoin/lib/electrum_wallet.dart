@@ -479,8 +479,14 @@ abstract class ElectrumWalletBase
 
         final result = json.decode(response.body) as Map<String, num>;
         final slowFee = result['economyFee']?.toInt() ?? 0;
-        final mediumFee = result['hourFee']?.toInt() ?? 0;
-        final fastFee = result['fastestFee']?.toInt() ?? 0;
+        int mediumFee = result['hourFee']?.toInt() ?? 0;
+        int fastFee = result['fastestFee']?.toInt() ?? 0;
+        if (slowFee == mediumFee) {
+          mediumFee++;
+        }
+        while (fastFee <= mediumFee) {
+          fastFee++;
+        }
         _feeRates = [slowFee, mediumFee, fastFee];
         return;
       } catch (_) {}
