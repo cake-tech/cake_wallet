@@ -18,6 +18,7 @@ abstract class TransactionInfo extends Object with Keyable {
   String? to;
   String? from;
   String? evmSignatureName;
+  bool? isReplaced;
   List<String>? inputAddresses;
   List<String>? outputAddresses;
 

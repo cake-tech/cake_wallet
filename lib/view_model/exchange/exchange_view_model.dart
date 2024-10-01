@@ -4,6 +4,8 @@ import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
+import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -119,7 +121,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     depositAmount = '';
     receiveAmount = '';
     receiveAddress = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.address : '';
+    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     provider = providersForCurrentPair().first;
     final initialProvider = provider;
     provider!.checkIsAvailable().then((bool isAvailable) {
@@ -153,6 +155,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.bitcoinCash;
 
+  bool get hideAddressAfterExchange =>
+    wallet.type == WalletType.monero ||
+    wallet.type == WalletType.wownero;
+
   bool _useTorOnly;
   final Box<Trade> trades;
   final ExchangeTemplateStore _exchangeTemplateStore;
@@ -160,15 +166,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   final SharedPreferences sharedPreferences;
 
   List<ExchangeProvider> get _allProviders => [
-        ChangeNowExchangeProvider(settingsStore: _settingsStore),
-        SideShiftExchangeProvider(),
-        SimpleSwapExchangeProvider(),
-        ThorChainExchangeProvider(tradesStore: trades),
-        if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
-        QuantexExchangeProvider(),
-        TrocadorExchangeProvider(
-            useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
-      ];
+    ChangeNowExchangeProvider(settingsStore: _settingsStore),
+    SideShiftExchangeProvider(),
+    SimpleSwapExchangeProvider(),
+    ThorChainExchangeProvider(tradesStore: trades),
+    if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
+    QuantexExchangeProvider(),
+    LetsExchangeExchangeProvider(),
+    StealthExExchangeProvider(),
+    TrocadorExchangeProvider(
+        useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
+  ];
 
   @observable
   ExchangeProvider? provider;
@@ -536,6 +544,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           isFixedRate: isFixedRateMode,
         );
 
+        if (hideAddressAfterExchange) {
+          wallet.walletAddresses.hiddenAddresses.add(depositAddress);
+          await wallet.walletAddresses.saveAddressesInBox();
+        }
+
         var amount = isFixedRateMode ? receiveAmount : depositAmount;
         amount = amount.replaceAll(',', '.');
 
@@ -599,8 +612,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     isReceiveAmountEntered = false;
     depositAmount = '';
     receiveAmount = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.address : '';
-    receiveAddress = receiveCurrency == wallet.currency ? wallet.walletAddresses.address : '';
+    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
+    receiveAddress = receiveCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isFixedRateMode = false;
     _onPairChange();
@@ -842,6 +855,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         return CreateTradeResult(
           result: false,
           errorMessage: S.current.thorchain_taproot_address_not_supported,
+        );
+      }
+
+      if ((trade.memo == null || trade.memo!.isEmpty)) {
+        return CreateTradeResult(
+          result: false,
+          errorMessage: 'Memo is required for Thorchain trade',
         );
       }
 

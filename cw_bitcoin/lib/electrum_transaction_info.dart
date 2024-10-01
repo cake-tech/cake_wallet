@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -7,10 +9,12 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:hex/hex.dart';
 
 class ElectrumTransactionBundle {
   ElectrumTransactionBundle(this.originalTransaction,
       {required this.ins, required this.confirmations, this.time});
+
   final BtcTransaction originalTransaction;
   final List<BtcTransaction> ins;
   final int? time;
@@ -19,20 +23,25 @@ class ElectrumTransactionBundle {
 
 class ElectrumTransactionInfo extends TransactionInfo {
   List<BitcoinSilentPaymentsUnspent>? unspents;
+  bool isReceivedSilentPayment;
 
-  ElectrumTransactionInfo(this.type,
-      {required String id,
-      int? height,
-      required int amount,
-      int? fee,
-      List<String>? inputAddresses,
-      List<String>? outputAddresses,
-      required TransactionDirection direction,
-      required bool isPending,
-      required DateTime date,
-      required int confirmations,
-      String? to,
-      this.unspents}) {
+  ElectrumTransactionInfo(
+    this.type, {
+    required String id,
+    int? height,
+    required int amount,
+    int? fee,
+    List<String>? inputAddresses,
+    List<String>? outputAddresses,
+    required TransactionDirection direction,
+    required bool isPending,
+    bool isReplaced = false,
+    required DateTime date,
+    required int confirmations,
+    String? to,
+    this.unspents,
+    this.isReceivedSilentPayment = false,
+  }) {
     this.id = id;
     this.height = height;
     this.amount = amount;
@@ -42,6 +51,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.direction = direction;
     this.date = date;
     this.isPending = isPending;
+    this.isReplaced = isReplaced;
     this.confirmations = confirmations;
     this.to = to;
   }
@@ -90,6 +100,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         id: id,
         height: height,
         isPending: false,
+        isReplaced: false,
         fee: fee,
         direction: direction,
         amount: amount,
@@ -125,7 +136,24 @@ class ElectrumTransactionInfo extends TransactionInfo {
     for (final out in bundle.originalTransaction.outputs) {
       totalOutAmount += out.amount.toInt();
       final addressExists = addresses.contains(addressFromOutputScript(out.scriptPubKey, network));
-      outputAddresses.add(addressFromOutputScript(out.scriptPubKey, network));
+      final address = addressFromOutputScript(out.scriptPubKey, network);
+
+      if (address.isNotEmpty) outputAddresses.add(address);
+
+      // Check if the script contains OP_RETURN
+      final script = out.scriptPubKey.script;
+      if (script.contains('OP_RETURN')) {
+        final index = script.indexOf('OP_RETURN');
+        if (index + 1 <= script.length) {
+          try {
+            final opReturnData = script[index + 1].toString();
+            final decodedString = utf8.decode(HEX.decode(opReturnData));
+            outputAddresses.add('OP_RETURN:$decodedString');
+          } catch (_) {
+            outputAddresses.add('OP_RETURN:');
+          }
+        }
+      }
 
       if (addressExists) {
         receivedAmounts.add(out.amount.toInt());
@@ -148,6 +176,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         id: bundle.originalTransaction.txId(),
         height: height,
         isPending: bundle.confirmations == 0,
+        isReplaced: false,
         inputAddresses: inputAddresses,
         outputAddresses: outputAddresses,
         fee: fee,
@@ -171,6 +200,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
       isPending: data['isPending'] as bool,
+      isReplaced: data['isReplaced'] as bool? ?? false,
       confirmations: data['confirmations'] as int,
       inputAddresses:
           inputAddresses.isEmpty ? [] : inputAddresses.map((e) => e.toString()).toList(),
@@ -181,6 +211,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
           .map((unspent) =>
               BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
+      isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
     );
   }
 
@@ -212,6 +243,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         direction: direction,
         date: date,
         isPending: isPending,
+        isReplaced: isReplaced ?? false,
         inputAddresses: inputAddresses,
         outputAddresses: outputAddresses,
         confirmations: info.confirmations);
@@ -225,16 +257,18 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['direction'] = direction.index;
     m['date'] = date.millisecondsSinceEpoch;
     m['isPending'] = isPending;
+    m['isReplaced'] = isReplaced;
     m['confirmations'] = confirmations;
     m['fee'] = fee;
     m['to'] = to;
     m['unspents'] = unspents?.map((e) => e.toJson()).toList() ?? [];
     m['inputAddresses'] = inputAddresses;
     m['outputAddresses'] = outputAddresses;
+    m['isReceivedSilentPayment'] = isReceivedSilentPayment;
     return m;
   }
 
   String toString() {
-    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, confirmations: $confirmations, to: $to, unspent: $unspents)';
+    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, isReplaced: $isReplaced, confirmations: $confirmations, to: $to, unspent: $unspents, inputAddresses: $inputAddresses, outputAddresses: $outputAddresses)';
   }
 }

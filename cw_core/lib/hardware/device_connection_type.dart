@@ -9,6 +9,7 @@ enum DeviceConnectionType {
     switch (walletType) {
       case WalletType.monero:
       case WalletType.bitcoin:
+      case WalletType.litecoin:
       case WalletType.ethereum:
       case WalletType.polygon:
         if (isIOS) return [DeviceConnectionType.ble];

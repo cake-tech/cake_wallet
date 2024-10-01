@@ -15,14 +15,24 @@ class CWBitcoinCash extends BitcoinCash {
     required String name,
     WalletInfo? walletInfo,
     String? password,
+    String? passphrase,
+    String? mnemonic,
+    String? parentAddress,
   }) =>
-      BitcoinCashNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
+      BitcoinCashNewWalletCredentials(
+        name: name,
+        walletInfo: walletInfo,
+        password: password,
+        passphrase: passphrase,
+        parentAddress: parentAddress,
+        mnemonic: mnemonic,
+      );
 
   @override
   WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
-          {required String name, required String mnemonic, required String password}) =>
+          {required String name, required String mnemonic, required String password, String? passphrase}) =>
       BitcoinCashRestoreWalletFromSeedCredentials(
-          name: name, mnemonic: mnemonic, password: password);
+          name: name, mnemonic: mnemonic, password: password, passphrase: passphrase);
 
   @override
   TransactionPriority deserializeBitcoinCashTransactionPriority(int raw) =>

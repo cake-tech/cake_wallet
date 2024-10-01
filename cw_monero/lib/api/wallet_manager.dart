@@ -131,14 +131,13 @@ void restoreWalletFromKeysSync(
     int nettype = 0,
     int restoreHeight = 0}) {
   txhistory = null;
-  final newWptr = spendKey != ""
+  var newWptr = (spendKey != "")
       ? monero.WalletManager_createDeterministicWalletFromSpendKey(wmPtr,
           path: path,
           password: password,
           language: language,
           spendKeyString: spendKey,
-          newWallet: true,
-          // TODO(mrcyjanek): safe to remove
+          newWallet: true, // TODO(mrcyjanek): safe to remove
           restoreHeight: restoreHeight)
       : monero.WalletManager_createWalletFromKeys(
           wmPtr,
@@ -154,6 +153,32 @@ void restoreWalletFromKeysSync(
   final status = monero.Wallet_status(newWptr);
   if (status != 0) {
     throw WalletRestoreFromKeysException(message: monero.Wallet_errorString(newWptr));
+  }
+
+  // CW-712 - Try to restore deterministic wallet first, if the view key doesn't
+  // match the view key provided
+  if (spendKey != "") {
+    final viewKeyRestored = monero.Wallet_secretViewKey(newWptr);
+    if (viewKey != viewKeyRestored && viewKey != "") {
+      monero.WalletManager_closeWallet(wmPtr, newWptr, false);
+      File(path).deleteSync();
+      File(path+".keys").deleteSync();
+      newWptr = monero.WalletManager_createWalletFromKeys(
+        wmPtr,
+        path: path,
+        password: password,
+        restoreHeight: restoreHeight,
+        addressString: address,
+        viewKeyString: viewKey,
+        spendKeyString: spendKey,
+        nettype: 0,
+      );
+      final status = monero.Wallet_status(newWptr);
+      if (status != 0) {
+        throw WalletRestoreFromKeysException(
+            message: monero.Wallet_errorString(newWptr));
+      }
+    }
   }
 
   wptr = newWptr;

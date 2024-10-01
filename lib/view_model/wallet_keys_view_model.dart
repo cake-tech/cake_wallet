@@ -276,7 +276,8 @@ abstract class WalletKeysViewModelBase with Store {
       if (_appStore.wallet!.seed == null &&
           _appStore.wallet!.privateKey != null)
         'private_key': _appStore.wallet!.privateKey!,
-      if (restoreHeightResult != null) ...{'height': restoreHeightResult}
+      if (restoreHeightResult != null) ...{'height': restoreHeightResult},
+      if (_appStore.wallet!.passphrase != null) 'passphrase': _appStore.wallet!.passphrase!
     };
   }
 

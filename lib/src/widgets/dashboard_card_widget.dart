@@ -11,6 +11,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
     required this.subTitle,
     this.hint,
     this.svgPicture,
+    this.image,
     this.icon,
     this.onClose,
     this.customBorder,
@@ -22,7 +23,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
   final String subTitle;
   final Widget? hint;
   final SvgPicture? svgPicture;
-  final Icon? icon;
+  final Widget? icon;
+  final Image? image;
   final double? customBorder;
 
   @override
@@ -77,7 +79,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
                         ],
                       ),
                     ),
-                    if (svgPicture != null) svgPicture!,
+                    if (image != null) image!
+                    else if (svgPicture != null) svgPicture!,
                     if (icon != null) icon!
                   ],
                 ),

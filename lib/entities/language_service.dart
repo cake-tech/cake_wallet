@@ -31,6 +31,7 @@ class LanguageService {
     'ha': 'Hausa Najeriya (Nigeria)',
     'tl': 'Filipino (Tagalog)',
     'hy': 'Հայերեն (Armenian)',
+    'vi': 'Tiếng Việt (Vietnamese)',
   };
 
   static const Map<String, String> localeCountryCode = {
@@ -60,7 +61,8 @@ class LanguageService {
     'yo': 'nga',
     'ha': 'hau',
     'tl': 'phl',
-    'hy': 'arm'
+    'hy': 'arm',
+    'vi': 'vnm',
   };
 
   static final list = <String, String>{};

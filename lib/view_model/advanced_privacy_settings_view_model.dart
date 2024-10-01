@@ -30,6 +30,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   final SettingsStore _settingsStore;
 
+  @computed
   bool get hasSeedPhraseLengthOption {
     // convert to switch case so that it give a syntax error when adding a new wallet type
     // thus we don't forget about it
@@ -40,19 +41,41 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.solana:
       case WalletType.tron:
         return true;
+
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return _settingsStore.bitcoinSeedType == BitcoinSeedType.bip39;
+
+      case WalletType.nano:
+      case WalletType.banano:
+        return _settingsStore.nanoSeedType == NanoSeedType.bip39;
+
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.none:
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
       case WalletType.haven:
-      case WalletType.nano:
-      case WalletType.banano:
         return false;
     }
   }
 
-  bool get hasSeedTypeOption => type == WalletType.monero || type == WalletType.wownero;
+
+  bool get isMoneroSeedTypeOptionsEnabled => [
+        WalletType.monero,
+        WalletType.wownero,
+      ].contains(type);
+
+  bool get isBitcoinSeedTypeOptionsEnabled => [
+        WalletType.bitcoin,
+        WalletType.litecoin,
+      ].contains(type);
+
+  bool get isNanoSeedTypeOptionsEnabled => [WalletType.nano].contains(type);
+
+  bool get hasPassphraseOption => [
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.bitcoinCash,
+      ].contains(type);
 
   @computed
   bool get addCustomNode => _addCustomNode;
@@ -61,7 +84,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   SeedPhraseLength get seedPhraseLength => _settingsStore.seedPhraseLength;
 
   @computed
-  bool get isPolySeed => _settingsStore.moneroSeedType == SeedType.polyseed;
+  bool get isPolySeed => _settingsStore.moneroSeedType == MoneroSeedType.polyseed;
 
   @action
   void setFiatApiMode(FiatApiMode fiatApiMode) => _settingsStore.fiatApiMode = fiatApiMode;

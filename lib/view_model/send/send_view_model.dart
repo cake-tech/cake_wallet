@@ -18,11 +18,11 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/exceptions.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/core/address_validator.dart';
@@ -216,7 +216,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   PendingTransaction? pendingTransaction;
 
   @computed
-  String get balance => wallet.balance[selectedCryptoCurrency]!.formattedAvailableBalance;
+  String get balance => wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
 
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
@@ -374,43 +374,63 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           throw Exception("THORChain does not support Taproot addresses");
         }
       }
+
+      if (wallet.type == WalletType.bitcoin) {
+        final updatedOutputs = bitcoin!.updateOutputs(pendingTransaction!, outputs);
+
+        if (outputs.length == updatedOutputs.length) {
+          outputs = ObservableList.of(updatedOutputs);
+        }
+      }
+
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
-      if (e is LedgerException) {
-        final errorCode = e.errorCode.toRadixString(16);
-        final fallbackMsg =
-            e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
-        final errorMsg = ledgerViewModel!.interpretErrorCode(errorCode) ?? fallbackMsg;
-
-        state = FailureState(errorMsg);
-      } else {
+      // if (e is LedgerException) {
+      //   final errorCode = e.errorCode.toRadixString(16);
+      //   final fallbackMsg =
+      //       e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
+      //   final errorMsg = ledgerViewModel!.interpretErrorCode(errorCode) ?? fallbackMsg;
+      //
+      //   state = FailureState(errorMsg);
+      // } else {
         state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
-      }
+      // }
     }
     return null;
   }
 
   @action
-  Future<void> replaceByFee(String txId, String newFee) async {
+  Future<void> replaceByFee(TransactionInfo tx, String newFee) async {
     state = IsExecutingState();
 
-    final isSufficient = await bitcoin!.isChangeSufficientForFee(wallet, txId, newFee);
+    try {
+      final isSufficient = await bitcoin!.isChangeSufficientForFee(wallet, tx.id, newFee);
 
-    if (!isSufficient) {
-      state = AwaitingConfirmationState(
-          title: S.current.confirm_fee_deduction,
-          message: S.current.confirm_fee_deduction_content,
-          onConfirm: () async {
-            pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
-            state = ExecutedSuccessfullyState();
-          },
-          onCancel: () {
-            state = FailureState('Insufficient change for fee');
-          });
-    } else {
-      pendingTransaction = await bitcoin!.replaceByFee(wallet, txId, newFee);
+      if (!isSufficient) {
+        state = AwaitingConfirmationState(
+            title: S.current.confirm_fee_deduction,
+            message: S.current.confirm_fee_deduction_content,
+            onConfirm: () async => await _executeReplaceByFee(tx, newFee),
+            onCancel: () => state = FailureState('Insufficient change for fee'));
+      } else {
+        await _executeReplaceByFee(tx, newFee);
+      }
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
+  }
+
+  Future<void> _executeReplaceByFee(TransactionInfo tx, String newFee) async {
+    clearOutputs();
+    final output = outputs.first;
+    output.address = tx.outputAddresses?.first ?? '';
+
+    try {
+      pendingTransaction = await bitcoin!.replaceByFee(wallet, tx.id, newFee);
       state = ExecutedSuccessfullyState();
+    } catch (e) {
+      state = FailureState(e.toString());
     }
   }
 
@@ -654,6 +674,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.tx_no_dust_exception;
       }
       if (error is TransactionCommitFailed) {
+        if (error.errorMessage != null && error.errorMessage!.contains("no peers replied")) {
+          return S.current.tx_commit_failed_no_peers;
+        }
         return "${S.current.tx_commit_failed}${error.errorMessage != null ? "\n\n${error.errorMessage}" : ""}";
       }
       if (error is TransactionCommitFailedDustChange) {
@@ -670,6 +693,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
       if (error is TransactionCommitFailedBIP68Final) {
         return S.current.tx_rejected_bip68_final;
+      }
+      if (error is TransactionCommitFailedLessThanMin) {
+        return S.current.fee_less_than_min;
       }
       if (error is TransactionNoDustOnChangeException) {
         return S.current.tx_commit_exception_no_dust_on_change(error.min, error.max);

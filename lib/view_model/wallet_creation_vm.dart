@@ -1,20 +1,23 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
+import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
-import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
 
 part 'wallet_creation_vm.g.dart';
@@ -23,6 +26,7 @@ class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
 abstract class WalletCreationVMBase with Store {
   WalletCreationVMBase(this._appStore, this._walletInfoSource, this.walletCreationService,
+      this.seedSettingsViewModel,
       {required this.type, required this.isRecovery})
       : state = InitialExecutionState(),
         name = '';
@@ -44,7 +48,6 @@ abstract class WalletCreationVMBase with Store {
 
   @observable
   String? repeatedWalletPassword;
-
   bool get hasWalletPassword => SettingsStoreBase.walletPasswordDirectInput;
 
   WalletType type;
@@ -52,6 +55,7 @@ abstract class WalletCreationVMBase with Store {
   final WalletCreationService walletCreationService;
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
+  final SeedSettingsViewModel seedSettingsViewModel;
 
   bool isPolyseed(String seed) =>
       (type == WalletType.monero || type == WalletType.wownero) &&
@@ -80,9 +84,22 @@ abstract class WalletCreationVMBase with Store {
       walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
-      final credentials = restoreWallet != null
-          ? getCredentialsFromRestoredWallet(options, restoreWallet)
-          : getCredentials(options);
+
+      WalletCredentials credentials;
+      if (restoreWallet != null) {
+        if (restoreWallet.restoreMode == WalletRestoreMode.seed &&
+            options == null &&
+            (type == WalletType.nano ||
+                type == WalletType.bitcoin ||
+                type == WalletType.litecoin)) {
+          final derivationInfo = await getDerivationInfo(restoreWallet);
+          options ??= {};
+          options["derivationInfo"] = derivationInfo.first;
+        }
+        credentials = getCredentialsFromRestoredWallet(options, restoreWallet);
+      } else {
+        credentials = getCredentials(options);
+      }
 
       final walletInfo = WalletInfo.external(
         id: WalletBase.idFor(name, type),
@@ -95,8 +112,9 @@ abstract class WalletCreationVMBase with Store {
         dirPath: dirPath,
         address: '',
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
-        derivationInfo: credentials.derivationInfo ?? getDefaultDerivation(),
+        derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
         hardwareWalletType: credentials.hardwareWalletType,
+        parentAddress: credentials.parentAddress,
       );
 
       credentials.walletInfo = walletInfo;
@@ -109,17 +127,39 @@ abstract class WalletCreationVMBase with Store {
       getIt.get<BackgroundTasks>().registerSyncTask();
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
-    } catch (e, s) {
+    } catch (e, _) {
       state = FailureState(e.toString());
     }
   }
 
-  DerivationInfo? getDefaultDerivation() {
-    switch (this.type) {
+  DerivationInfo? getDefaultCreateDerivation() {
+    final useBip39ForBitcoin = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.bip39;
+    final useBip39ForNano = seedSettingsViewModel.nanoSeedType.type == DerivationType.bip39;
+    switch (type) {
       case WalletType.nano:
+        if (useBip39ForNano) {
+          return DerivationInfo(derivationType: DerivationType.bip39);
+        }
         return DerivationInfo(derivationType: DerivationType.nano);
       case WalletType.bitcoin:
+        if (useBip39ForBitcoin) {
+          return DerivationInfo(
+            derivationType: DerivationType.bip39,
+            derivationPath: "m/84'/0'/0'",
+            description: "Standard BIP84 native segwit",
+            scriptType: "p2wpkh",
+          );
+        }
+        return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       case WalletType.litecoin:
+        if (useBip39ForBitcoin) {
+          return DerivationInfo(
+            derivationType: DerivationType.bip39,
+            derivationPath: "m/84'/2'/0'",
+            description: "Default Litecoin",
+            scriptType: "p2wpkh",
+          );
+        }
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       default:
         return null;
@@ -127,10 +167,18 @@ abstract class WalletCreationVMBase with Store {
   }
 
   DerivationInfo? getCommonRestoreDerivation() {
+    final useElectrum = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.electrum;
+    final useNanoStandard = seedSettingsViewModel.nanoSeedType.type == DerivationType.nano;
     switch (this.type) {
       case WalletType.nano:
-        return DerivationInfo(derivationType: DerivationType.nano);
+        if (useNanoStandard) {
+          return DerivationInfo(derivationType: DerivationType.nano);
+        }
+        return DerivationInfo(derivationType: DerivationType.bip39);
       case WalletType.bitcoin:
+        if (useElectrum) {
+          return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+        }
         return DerivationInfo(
           derivationType: DerivationType.bip39,
           derivationPath: "m/84'/0'/0'/0",
@@ -138,6 +186,9 @@ abstract class WalletCreationVMBase with Store {
           scriptType: "p2wpkh",
         );
       case WalletType.litecoin:
+        if (useElectrum) {
+          return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+        }
         return DerivationInfo(
           derivationType: DerivationType.bip39,
           derivationPath: "m/84'/2'/0'/0",
@@ -147,6 +198,30 @@ abstract class WalletCreationVMBase with Store {
       default:
         return null;
     }
+  }
+
+  Future<List<DerivationInfo>> getDerivationInfo(RestoredWallet restoreWallet) async {
+    var list = <DerivationInfo>[];
+    final walletType = restoreWallet.type;
+    var appStore = getIt.get<AppStore>();
+    var node = appStore.settingsStore.getCurrentNode(walletType);
+
+    switch (walletType) {
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return bitcoin!.getDerivationsFromMnemonic(
+          mnemonic: restoreWallet.mnemonicSeed!,
+          node: node,
+        );
+      case WalletType.nano:
+        return nanoUtil!.getDerivationsFromMnemonic(
+          mnemonic: restoreWallet.mnemonicSeed!,
+          node: node,
+        );
+      default:
+        break;
+    }
+    return list;
   }
 
   WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();

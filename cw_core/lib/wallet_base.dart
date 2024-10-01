@@ -46,6 +46,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   String? get hexSeed => null;
 
+  String? get passphrase => null;
+
   Object get keys;
 
   WalletAddresses get walletAddresses;
@@ -64,6 +66,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   Future<void> connectToPowNode({required Node node}) async {}
 
   Future<void> startSync();
+
+  Future<void> stopSync() async {}
 
   Future<PendingTransaction> createTransaction(Object credentials);
 
