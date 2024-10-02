@@ -14,6 +14,7 @@ class CWEthereum extends Ethereum {
     String? parentAddress,
     WalletInfo? walletInfo,
     String? password,
+    String? passphrase,
   }) =>
       EVMChainNewWalletCredentials(
         name: name,
@@ -21,6 +22,7 @@ class CWEthereum extends Ethereum {
         password: password,
         parentAddress: parentAddress,
         mnemonic: mnemonic,
+        passphrase: passphrase,
       );
 
   @override
@@ -28,8 +30,14 @@ class CWEthereum extends Ethereum {
     required String name,
     required String mnemonic,
     required String password,
+    String? passphrase,
   }) =>
-      EVMChainRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
+      EVMChainRestoreWalletFromSeedCredentials(
+        name: name,
+        password: password,
+        mnemonic: mnemonic,
+        passphrase: passphrase,
+      );
 
   @override
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({

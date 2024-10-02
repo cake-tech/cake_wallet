@@ -106,6 +106,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
           parentAddress: newWalletArguments!.parentAddress,
+          passphrase: passphrase,
         );
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashNewWalletCredentials(
@@ -122,6 +123,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
           parentAddress: newWalletArguments!.parentAddress,
+          passphrase: passphrase,
         );
       case WalletType.polygon:
         return polygon!.createPolygonNewWalletCredentials(
@@ -129,6 +131,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
           parentAddress: newWalletArguments!.parentAddress,
+          passphrase: passphrase,
         );
       case WalletType.solana:
         return solana!.createSolanaNewWalletCredentials(
@@ -136,6 +139,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
           parentAddress: newWalletArguments!.parentAddress,
+          passphrase: passphrase,
         );
       case WalletType.tron:
         return tron!.createTronNewWalletCredentials(
@@ -143,6 +147,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
           parentAddress: newWalletArguments!.parentAddress,
+          passphrase: passphrase,
         );
       case WalletType.wownero:
         return wownero!.createWowneroNewWalletCredentials(

@@ -78,8 +78,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   final bool hasBlockchainHeightLanguageSelector;
   final bool hasRestoreFromPrivateKey;
 
-  bool get hasPassphrase =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(type);
+  bool get hasPassphrase => [
+    WalletType.bitcoin,
+    WalletType.litecoin,
+    WalletType.bitcoinCash,
+    WalletType.ethereum,
+    WalletType.polygon,
+    WalletType.tron,
+  ].contains(type);
 
   @observable
   WalletRestoreMode mode;
@@ -116,10 +122,18 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               name: name, height: height, mnemonic: seed, password: password);
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
-              name: name, mnemonic: seed, password: password);
+            name: name,
+            mnemonic: seed,
+            password: password,
+            passphrase: passphrase,
+          );
         case WalletType.bitcoinCash:
           return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
-              name: name, mnemonic: seed, password: password);
+            name: name,
+            mnemonic: seed,
+            password: password,
+            passphrase: passphrase,
+          );
         case WalletType.nano:
         case WalletType.banano:
           return nano!.createNanoRestoreWalletFromSeedCredentials(
@@ -127,24 +141,28 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
             derivationType: derivationInfo!.derivationType!,
+            passphrase: passphrase,
           );
         case WalletType.polygon:
           return polygon!.createPolygonRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,
+            passphrase: passphrase,
           );
         case WalletType.solana:
           return solana!.createSolanaRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,
+            passphrase: passphrase,
           );
         case WalletType.tron:
           return tron!.createTronRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,
+            passphrase: passphrase,
           );
         case WalletType.wownero:
           return wownero!.createWowneroRestoreWalletFromSeedCredentials(
