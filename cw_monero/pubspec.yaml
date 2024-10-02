@@ -29,7 +29,7 @@ dependencies:
 #      ref: 6eb571ea498ed7b854934785f00fabfd0dadf75b # monero_c hash
       path: impls/monero.dart
   mutex: ^3.1.0
-  ledger_flutter: ^1.0.1
+  ledger_flutter_plus: ^1.2.5
 
 dev_dependencies:
   flutter_test:

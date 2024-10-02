@@ -112,8 +112,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
 
         credentials = monero!.createMoneroRestoreWalletFromHardwareCredentials(
           name: name,
-          ledger: ledgerViewModel.ledger,
-          ledgerDevice: ledgerViewModel.device,
+          ledgerConnection: ledgerViewModel.connection,
           password: password,
           height: _options['height'] as int? ?? 0,
         );

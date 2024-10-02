@@ -10,12 +10,11 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_monero/api/account_list.dart';
-import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:polyseed/polyseed.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:monero/src/ledger.dart' as monero_ledger;
@@ -31,13 +30,11 @@ class MoneroNewWalletCredentials extends WalletCredentials {
 
 class MoneroRestoreWalletFromHardwareCredentials extends WalletCredentials {
   MoneroRestoreWalletFromHardwareCredentials({required String name,
-    required this.ledger,
-    required this.ledgerDevice,
+    required this.ledgerConnection,
     int height = 0,
     String? password})
       : super(name: name, password: password, height: height);
-  Ledger ledger;
-  LedgerDevice ledgerDevice;
+  LedgerConnection ledgerConnection;
 }
 
 class MoneroRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -254,7 +251,7 @@ class MoneroWalletService extends WalletService<
 
       if (wptr == null ) monero_wallet_manager.createWalletPointer();
 
-      monero_ledger.enableLedgerExchange(wptr!, credentials.ledger, credentials.ledgerDevice);
+      monero_ledger.enableLedgerExchange(wptr!, credentials.ledgerConnection);
       await monero_wallet_manager.restoreWalletFromWallet(
             path: path,
             password: password!,
