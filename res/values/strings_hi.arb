@@ -369,6 +369,8 @@
   "litecoin_mweb_description": "MWEB एक नया प्रोटोकॉल है जो लिटकोइन के लिए तेजी से, सस्ता और अधिक निजी लेनदेन लाता है",
   "litecoin_mweb_dismiss": "नकार देना",
   "litecoin_mweb_display_card": "MWEB कार्ड दिखाएं",
+  "litecoin_mweb_pegin": "खूंटी",
+  "litecoin_mweb_pegout": "मरना",
   "litecoin_mweb_scanning": "MWEB स्कैनिंग",
   "litecoin_mweb_settings": "MWEB सेटिंग्स",
   "litecoin_mweb_warning": "MWEB का उपयोग शुरू में ~ 600MB डेटा डाउनलोड करेगा, और नेटवर्क की गति के आधार पर 30 मिनट तक का समय लग सकता है। यह प्रारंभिक डेटा केवल एक बार डाउनलोड करेगा और सभी लिटकोइन वॉलेट के लिए उपलब्ध होगा",

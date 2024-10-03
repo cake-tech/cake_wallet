@@ -369,6 +369,8 @@
   "litecoin_mweb_description": "MWEB é um novo protocolo que traz transações mais rápidas, baratas e mais privadas para o Litecoin",
   "litecoin_mweb_dismiss": "Liberar",
   "litecoin_mweb_display_card": "Mostre o cartão MWEB",
+  "litecoin_mweb_pegin": "Peg in",
+  "litecoin_mweb_pegout": "Peg fora",
   "litecoin_mweb_scanning": "MWEB Scanning",
   "litecoin_mweb_settings": "Configurações do MWEB",
   "litecoin_mweb_warning": "O uso do MWEB baixará inicialmente ~ 600 MB de dados e pode levar até 30 minutos, dependendo da velocidade da rede. Esses dados iniciais serão baixados apenas uma vez e estarão disponíveis para todas as carteiras Litecoin",

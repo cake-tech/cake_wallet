@@ -953,7 +953,7 @@ class BalanceRowWidget extends StatelessWidget {
                           width: 32,
                           height: 32,
                         ),
-                        title: 'Peg In',
+                        title: S.current.litecoin_mweb_pegin,
                         onClick: () {},
                       ),
                       ActionButton(
@@ -963,7 +963,7 @@ class BalanceRowWidget extends StatelessWidget {
                           width: 32,
                           height: 32,
                         ),
-                        title: 'Peg Out',
+                        title: S.current.litecoin_mweb_pegout,
                         onClick: () {},
                       ),
                     ],

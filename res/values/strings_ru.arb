@@ -369,6 +369,8 @@
   "litecoin_mweb_description": "MWEB - это новый протокол, который приносит быстрее, дешевле и более частные транзакции в Litecoin",
   "litecoin_mweb_dismiss": "Увольнять",
   "litecoin_mweb_display_card": "Показать карту MWEB",
+  "litecoin_mweb_pegin": "Внедрять",
+  "litecoin_mweb_pegout": "Выкрикивать",
   "litecoin_mweb_scanning": "MWEB сканирование",
   "litecoin_mweb_settings": "Настройки MWEB",
   "litecoin_mweb_warning": "Использование MWEB изначально загрузит ~ 600 МБ данных и может занять до 30 минут в зависимости от скорости сети. Эти начальные данные будут загружаться только один раз и будут доступны для всех кошельков Litecoin",

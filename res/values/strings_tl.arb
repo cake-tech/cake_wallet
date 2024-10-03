@@ -369,6 +369,8 @@
   "litecoin_mweb_description": "Ang MWeb ay isang bagong protocol na nagdadala ng mas mabilis, mas mura, at mas maraming pribadong mga transaksyon sa Litecoin",
   "litecoin_mweb_dismiss": "Tanggalin",
   "litecoin_mweb_display_card": "Ipakita ang MWEB Card",
+  "litecoin_mweb_pegin": "Peg in",
+  "litecoin_mweb_pegout": "Peg out",
   "litecoin_mweb_scanning": "Pag -scan ng Mweb",
   "litecoin_mweb_settings": "Mga Setting ng Mweb",
   "litecoin_mweb_warning": "Ang paggamit ng MWEB ay unang i -download ang ~ 600MB ng data, at maaaring tumagal ng hanggang sa 30 minuto depende sa bilis ng network. Ang paunang data na ito ay mag -download lamang ng isang beses at magagamit para sa lahat ng mga wallets ng Litecoin",

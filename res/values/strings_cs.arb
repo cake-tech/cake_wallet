@@ -369,6 +369,8 @@
   "litecoin_mweb_description": "MWEB je nový protokol, který do Litecoin přináší rychlejší, levnější a více soukromých transakcí",
   "litecoin_mweb_dismiss": "Propustit",
   "litecoin_mweb_display_card": "Zobrazit kartu MWeb",
+  "litecoin_mweb_pegin": "Peg in",
+  "litecoin_mweb_pegout": "Zkrachovat",
   "litecoin_mweb_scanning": "Skenování mWeb",
   "litecoin_mweb_settings": "Nastavení mWeb",
   "litecoin_mweb_warning": "Pomocí MWeb zpočátku stahuje ~ 600 MB dat a může trvat až 30 minut v závislosti na rychlosti sítě. Tato počáteční data si stáhnou pouze jednou a budou k dispozici pro všechny litecoinové peněženky",

@@ -369,6 +369,8 @@
   "litecoin_mweb_description": "MWEB je novi protokol koji u Litecoin donosi brže, jeftinije i privatnije transakcije",
   "litecoin_mweb_dismiss": "Odbaciti",
   "litecoin_mweb_display_card": "Prikaži MWeb karticu",
+  "litecoin_mweb_pegin": "Uvući se",
+  "litecoin_mweb_pegout": "Odapeti",
   "litecoin_mweb_scanning": "MWEB skeniranje",
   "litecoin_mweb_settings": "Postavke MWEB -a",
   "litecoin_mweb_warning": "Korištenje MWEB -a u početku će preuzeti ~ 600MB podataka, a može potrajati do 30 minuta, ovisno o brzini mreže. Ovi početni podaci preuzet će samo jednom i biti dostupni za sve Litecoin novčanike",
