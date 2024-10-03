@@ -1,7 +1,8 @@
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
+import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cake_wallet/main.dart' as app;
@@ -108,6 +109,22 @@ class CommonTestFlows {
     await _dashboardPageRobot.openDrawerMenu();
 
     await _dashboardPageRobot.dashboardMenuWidgetRobot.navigateToWalletMenu();
+  }
+
+  void confirmAllAvailableWalletTypeIconsDisplayCorrectly() {
+    for (var walletType in availableWalletTypes) {
+      final imageUrl = walletTypeToCryptoCurrency(walletType).iconPath;
+
+      final walletIconFinder = find.image(
+        Image.asset(
+          imageUrl!,
+          width: 32,
+          height: 32,
+        ).image,
+      );
+
+      expect(walletIconFinder, findsAny);
+    }
   }
 
   //* ========== Handles creating new wallet flow from wallet list/menu ===============
@@ -249,7 +266,8 @@ class CommonTestFlows {
           .chooseSeedTypeForMoneroOrWowneroWallets(MoneroSeedType.legacy);
 
       // Using a constant value of 2831400 for the blockheight as its the restore blockheight for our testing wallet
-      await _restoreFromSeedOrKeysPageRobot.enterBlockHeightForWalletRestore(secrets.moneroTestWalletBlockHeight);
+      await _restoreFromSeedOrKeysPageRobot
+          .enterBlockHeightForWalletRestore(secrets.moneroTestWalletBlockHeight);
     }
 
     await _restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonPressed();

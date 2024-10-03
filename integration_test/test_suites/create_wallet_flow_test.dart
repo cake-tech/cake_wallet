@@ -46,8 +46,10 @@ void main() {
         await dashboardPageRobot.confirmWalletTypeIsDisplayedCorrectly(walletType);
       }
 
-      // Go to the wallet menu, provides a visual confirmation that all the wallets were correctly restored
+      // Goes to the wallet menu and provides a confirmation that all the wallets were correctly restored
       await commonTestFlows.switchToWalletMenuFromDashboardPage();
+
+      commonTestFlows.confirmAllAvailableWalletTypeIconsDisplayCorrectly();
 
       await Future.delayed(Duration(seconds: 5));
     },
