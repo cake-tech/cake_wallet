@@ -949,8 +949,9 @@ class BalanceRowWidget extends StatelessWidget {
                       ActionButton(
                         image: Image.asset(
                           'assets/images/received.png',
-                          height: 32,
+                          color: Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
                           width: 32,
+                          height: 32,
                         ),
                         title: 'Peg In',
                         onClick: () {},
@@ -958,8 +959,9 @@ class BalanceRowWidget extends StatelessWidget {
                       ActionButton(
                         image: Image.asset(
                           'assets/images/upload.png',
-                          height: 32,
+                          color: Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
                           width: 32,
+                          height: 32,
                         ),
                         title: 'Peg Out',
                         onClick: () {},
