@@ -377,14 +377,14 @@ class CryptoBalanceWidget extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (dashboardViewModel.showMwebCard || true) ...[
+                  if (dashboardViewModel.showMwebCard) ...[
                     SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: DashBoardRoundedCardWidget(
                         customBorder: 30,
                         title: S.current.litecoin_mweb,
-                        subTitle: "",
+                        subTitle: '',
                         hint: Column(
                           children: [
                             Text(
@@ -499,7 +499,7 @@ class CryptoBalanceWidget extends StatelessWidget {
       await showPopUp<void>(
           context: context,
           builder: (BuildContext context) => AlertWithOneAction(
-                alertTitle: S.of(context).warning,
+                alertTitle: "T: Notice",
                 alertContent: S.current.litecoin_mweb_warning,
                 buttonText: S.of(context).ok,
                 buttonAction: () {
@@ -511,6 +511,16 @@ class CryptoBalanceWidget extends StatelessWidget {
   }
 
   Future<void> _dismissMweb(BuildContext context) async {
+    await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) => AlertWithOneAction(
+              alertTitle: "T: Notice",
+              alertContent: "T: You can choose to enable MWEB again under Display Settings.",
+              buttonText: S.of(context).ok,
+              buttonAction: () {
+                Navigator.of(context).pop();
+              },
+            ));
     dashboardViewModel.dismissMweb();
   }
 }
@@ -828,166 +838,215 @@ class BalanceRowWidget extends StatelessWidget {
             color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
           ),
           child: Container(
-            margin: const EdgeInsets.only(top: 16, left: 24, right: 8, bottom: 16),
+            margin: const EdgeInsets.only(top: 0, left: 24, right: 8, bottom: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (currency == CryptoCurrency.ltc)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'MWEB',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w900,
-                          color:
-                              Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
-                          height: 1,
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(right: 20),
-                        child: ImageIcon(
-                          AssetImage('assets/images/mweb_logo.png'),
-                          color:
-                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                          size: 40,
-                        ),
-                      ),
-                    ],
-                  ),
-                if (hasSecondAvailableBalance)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 24),
-                      Text(
-                        '${secondAvailableBalanceLabel}',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                          height: 1,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      AutoSizeText(
-                        secondAvailableBalance,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
-                          height: 1,
-                        ),
-                        maxLines: 1,
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 4),
-                      if (!isTestnet)
-                        Text(
-                          '${secondAvailableFiatBalance}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
-                            height: 1,
+                Stack(
+                  children: [
+                    if (currency == CryptoCurrency.ltc)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.only(right: 16, top: 16),
+                            child: Column(
+                              children: [
+                                CakeImageWidget(
+                                  imageUrl: 'assets/images/mweb_logo.png',
+                                  height: 40,
+                                  width: 40,
+                                  displayOnError: Container(
+                                    height: 30.0,
+                                    width: 30.0,
+                                    child: Center(
+                                      child: Text(
+                                        currency.title.substring(0, min(currency.title.length, 2)),
+                                        style: TextStyle(fontSize: 11),
+                                      ),
+                                    ),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  'MWEB',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w800,
+                                    color: Theme.of(context)
+                                        .extension<BalancePageTheme>()!
+                                        .assetTitleColor,
+                                    height: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                    ],
-                  ),
-                if (hasSecondAdditionalBalance)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 24),
-                      Text(
-                        '${secondAdditionalBalanceLabel}',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                          height: 1,
-                        ),
+                        ],
                       ),
-                      SizedBox(height: 8),
-                      AutoSizeText(
-                        secondAdditionalBalance,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
-                          height: 1,
-                        ),
-                        maxLines: 1,
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 4),
-                      if (!isTestnet)
-                        Text(
-                          '${secondAdditionalFiatBalance}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
-                            height: 1,
+                    if (hasSecondAvailableBalance)
+                      Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 24),
+                              Text(
+                                '${secondAvailableBalanceLabel}',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context)
+                                      .extension<BalancePageTheme>()!
+                                      .labelTextColor,
+                                  height: 1,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              AutoSizeText(
+                                secondAvailableBalance,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context)
+                                      .extension<BalancePageTheme>()!
+                                      .assetTitleColor,
+                                  height: 1,
+                                ),
+                                maxLines: 1,
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 4),
+                              if (!isTestnet)
+                                Text(
+                                  '${secondAvailableFiatBalance}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w400,
+                                    color:
+                                        Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                    height: 1,
+                                  ),
+                                ),
+                            ],
                           ),
-                        ),
-                    ],
-                  ),
-                if (currency == CryptoCurrency.ltc) ...[
-                  SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ActionButton(
-                        image: Image.asset(
-                          'assets/images/received.png',
-                          color:
-                              Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
-                          width: 32,
-                          height: 32,
-                        ),
-                        title: S.current.litecoin_mweb_pegin,
-                        onClick: () {
-                          // TODO: use the proxy layer to get the mweb address
-                          final walletAddresses = dashboardViewModel.wallet.walletAddresses as ElectrumWalletAddresses;
-                          final mwebAddress = walletAddresses.mwebAddresses.firstWhere((element) => !element.isUsed);
-                          final paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:${mwebAddress.address}"));
-                          Navigator.of(context).pushNamed(Routes.send, arguments: paymentRequest);
-                        },
+                        ],
                       ),
-                      ActionButton(
-                        image: Image.asset(
-                          'assets/images/upload.png',
-                          color:
-                              Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
-                          width: 32,
-                          height: 32,
-                        ),
-                        title: S.current.litecoin_mweb_pegout,
-                        onClick: () {
-                          // set addresstype to mweb
-                          // final walletAddresses = dashboardViewModel.wallet.walletAddresses as ElectrumWalletAddresses;
-                          // TODO: use the proxy layer to set the mweb address type
-                          // walletAddresses.setAddressType(SegwitAddresType.mweb);
-                          Navigator.of(context).pushNamed(Routes.addressPage);
-                        },
+                  ],
+                ),
+                Stack(
+                  children: [
+                    if (hasSecondAdditionalBalance)
+                      Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 24),
+                              Text(
+                                '${secondAdditionalBalanceLabel}',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context)
+                                      .extension<BalancePageTheme>()!
+                                      .labelTextColor,
+                                  height: 1,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              AutoSizeText(
+                                secondAdditionalBalance,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context)
+                                      .extension<BalancePageTheme>()!
+                                      .assetTitleColor,
+                                  height: 1,
+                                ),
+                                maxLines: 1,
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 4),
+                              if (!isTestnet)
+                                Text(
+                                  '${secondAdditionalFiatBalance}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w400,
+                                    color:
+                                        Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                    height: 1,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    if (currency == CryptoCurrency.ltc)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ActionButton(
+                            image: Image.asset(
+                              'assets/images/received.png',
+                              color: Theme.of(context)
+                                  .extension<BalancePageTheme>()!
+                                  .balanceAmountColor,
+                              width: 32,
+                              height: 32,
+                            ),
+                            title: S.current.litecoin_mweb_pegin,
+                            onClick: () {
+                              // TODO: use the proxy layer to get the mweb address
+                              final walletAddresses = dashboardViewModel.wallet.walletAddresses
+                                  as ElectrumWalletAddresses;
+                              final mwebAddress = walletAddresses.mwebAddresses
+                                  .firstWhere((element) => !element.isUsed);
+                              final paymentRequest = PaymentRequest.fromUri(
+                                  Uri.parse("litecoin:${mwebAddress.address}"));
+                              Navigator.of(context)
+                                  .pushNamed(Routes.send, arguments: paymentRequest);
+                            },
+                          ),
+                          ActionButton(
+                            image: Image.asset(
+                              'assets/images/upload.png',
+                              color: Theme.of(context)
+                                  .extension<BalancePageTheme>()!
+                                  .balanceAmountColor,
+                              width: 32,
+                              height: 32,
+                            ),
+                            title: S.current.litecoin_mweb_pegout,
+                            onClick: () {
+                              // set addresstype to mweb
+                              // final walletAddresses = dashboardViewModel.wallet.walletAddresses as ElectrumWalletAddresses;
+                              // TODO: use the proxy layer to set the mweb address type
+                              // walletAddresses.setAddressType(SegwitAddresType.mweb);
+                              Navigator.of(context).pushNamed(Routes.addressPage);
+                            },
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
