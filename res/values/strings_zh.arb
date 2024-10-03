@@ -366,6 +366,7 @@
   "litecoin_enable_mweb_sync": "启用MWEB扫描",
   "litecoin_mweb": "MWEB",
   "litecoin_mweb_always_scan": "设置MWEB总是扫描",
+  "litecoin_mweb_description": "MWEB是一项新协议，它将更快，更便宜和更多的私人交易带给Litecoin",
   "litecoin_mweb_display_card": "显示MWEB卡",
   "litecoin_mweb_scanning": "MWEB扫描",
   "litecoin_mweb_settings": "MWEB设置",

@@ -366,6 +366,7 @@
   "litecoin_enable_mweb_sync": "Aktivieren Sie das MWEB -Scannen",
   "litecoin_mweb": "MWeb",
   "litecoin_mweb_always_scan": "Setzen Sie MWeb immer scannen",
+  "litecoin_mweb_description": "MWEB ist ein neues Protokoll, das schnellere, billigere und privatere Transaktionen zu Litecoin bringt",
   "litecoin_mweb_display_card": "MWEB -Karte anzeigen",
   "litecoin_mweb_scanning": "MWEB Scanning",
   "litecoin_mweb_settings": "MWEB -Einstellungen",

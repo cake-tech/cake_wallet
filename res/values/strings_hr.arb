@@ -366,6 +366,7 @@
   "litecoin_enable_mweb_sync": "Omogućite MWEB skeniranje",
   "litecoin_mweb": "MWeb",
   "litecoin_mweb_always_scan": "Postavite MWeb uvijek skeniranje",
+  "litecoin_mweb_description": "MWEB je novi protokol koji u Litecoin donosi brže, jeftinije i privatnije transakcije",
   "litecoin_mweb_display_card": "Prikaži MWeb karticu",
   "litecoin_mweb_scanning": "MWEB skeniranje",
   "litecoin_mweb_settings": "Postavke MWEB -a",

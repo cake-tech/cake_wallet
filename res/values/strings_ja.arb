@@ -367,6 +367,7 @@
   "litecoin_enable_mweb_sync": "MWEBスキャンを有効にします",
   "litecoin_mweb": "mweb",
   "litecoin_mweb_always_scan": "MWEBを常にスキャンします",
+  "litecoin_mweb_description": "MWEBは、Litecoinにより速く、より安価で、よりプライベートなトランザクションをもたらす新しいプロトコルです",
   "litecoin_mweb_display_card": "MWEBカードを表示します",
   "litecoin_mweb_scanning": "MWEBスキャン",
   "litecoin_mweb_settings": "MWEB設定",

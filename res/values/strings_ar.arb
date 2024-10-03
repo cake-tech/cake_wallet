@@ -366,6 +366,7 @@
   "litecoin_enable_mweb_sync": "تمكين MWEB المسح الضوئي",
   "litecoin_mweb": "mweb",
   "litecoin_mweb_always_scan": "اضبط MWEB دائمًا على المسح الضوئي",
+  "litecoin_mweb_description": "MWEB هو بروتوكول جديد يجلب معاملات أسرع وأرخص وأكثر خصوصية إلى Litecoin",
   "litecoin_mweb_display_card": "عرض بطاقة mweb",
   "litecoin_mweb_scanning": "MWEB المسح الضوئي",
   "litecoin_mweb_settings": "إعدادات MWEB",

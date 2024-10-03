@@ -367,6 +367,7 @@
   "litecoin_enable_mweb_sync": "Mu mweb ọlọjẹ",
   "litecoin_mweb": "Mweb",
   "litecoin_mweb_always_scan": "Ṣeto mweb nigbagbogbo n ṣayẹwo",
+  "litecoin_mweb_description": "Mweb jẹ ilana ilana tuntun ti o mu iyara wa yiyara, din owo, ati awọn iṣowo ikọkọ diẹ sii si Livcoin",
   "litecoin_mweb_display_card": "Fihan kaadi Mweb",
   "litecoin_mweb_scanning": "Mweb scanning",
   "litecoin_mweb_settings": "Awọn eto Mweb",

@@ -363,6 +363,7 @@
   "ledger_error_wrong_app": "Խնդրում ենք համոզվել, որ դուք բացել եք ճիշտ ծրագիրը ձեր Ledger-ում",
   "ledger_please_enable_bluetooth": "Խնդրում ենք միացնել Bluetooth-ը ձեր Ledger-ը հայտնաբերելու համար",
   "light_theme": "Լուսավոր",
+  "litecoin_mweb_description": "Mweb- ը նոր արձանագրություն է, որը բերում է ավելի արագ, ավելի էժան եւ ավելի մասնավոր գործարքներ դեպի LITECOIN",
   "live_fee_rates": "Ապակի վարձավճարներ API- ի միջոցով",
   "load_more": "Բեռնել ավելին",
   "loading_your_wallet": "Ձեր հաշվեհամարը բեռնում է",

@@ -431,7 +431,7 @@ abstract class DashboardViewModelBase with Store {
   bool get hasMweb => wallet.type == WalletType.litecoin;
 
   @computed
-  bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay;
+  bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay && !mwebScanningActive;
 
   @observable
   bool mwebScanningActive = false;
@@ -452,6 +452,17 @@ abstract class DashboardViewModelBase with Store {
     settingsStore.mwebEnabled = active;
     mwebScanningActive = active;
     bitcoin!.setMwebEnabled(wallet, active);
+
+    // keep mweb scanning active:
+    settingsStore.mwebEnabled = active;
+  }
+
+  @action
+  void dismissMweb() {
+    settingsStore.mwebCardDisplay = false;
+    settingsStore.mwebEnabled = false;
+    mwebScanningActive = false;
+    bitcoin!.setMwebEnabled(wallet, false);
   }
 
   BalanceViewModel balanceViewModel;

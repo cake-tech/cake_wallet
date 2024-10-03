@@ -380,56 +380,82 @@ class CryptoBalanceWidget extends StatelessWidget {
                       child: DashBoardRoundedCardWidget(
                         customBorder: 30,
                         title: S.current.litecoin_mweb,
-                        subTitle: S.current.litecoin_enable_mweb_sync,
+                        subTitle: "",
                         hint: Column(
                           children: [
+                            Text(
+                              S.current.litecoin_mweb_description,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 8),
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => launchUrl(
+                                Uri.parse(
+                                    "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
+                                mode: LaunchMode.externalApplication,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    S.current.learn_more,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontFamily: 'Lato',
+                                      fontWeight: FontWeight.w400,
+                                      color: Theme.of(context)
+                                          .extension<BalancePageTheme>()!
+                                          .labelTextColor,
+                                      height: 1,
+                                    ),
+                                    softWrap: true,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    child: Icon(Icons.help_outline,
+                                        size: 16,
+                                        color: Theme.of(context)
+                                            .extension<BalancePageTheme>()!
+                                            .labelTextColor),
+                                  )
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 16),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () => launchUrl(
-                                    Uri.parse(
-                                        "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
-                                    mode: LaunchMode.externalApplication,
+                                ElevatedButton(
+                                  onPressed: () => _dismissMweb(context),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFF836DE6), // Dismiss button color
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        S.current.litecoin_what_is_mweb,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontFamily: 'Lato',
-                                          fontWeight: FontWeight.w400,
-                                          color: Theme.of(context)
-                                              .extension<BalancePageTheme>()!
-                                              .labelTextColor,
-                                          height: 1,
-                                        ),
-                                        softWrap: true,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                                        child: Icon(Icons.help_outline,
-                                            size: 16,
-                                            color: Theme.of(context)
-                                                .extension<BalancePageTheme>()!
-                                                .labelTextColor),
-                                      )
-                                    ],
-                                  ),
+                                  child: Text("Dismiss"),
                                 ),
-                                Observer(
-                                  builder: (_) => StandardSwitch(
-                                    value: dashboardViewModel.mwebScanningActive,
-                                    onTaped: () => _toggleMweb(context),
+                                ElevatedButton(
+                                  onPressed: () => _enableMweb(context),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: Color(0xFF192338),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
-                                )
+                                  child: Text(S.of(context).litecoin_enable_mweb_sync),
+                                ),
                               ],
                             ),
                           ],
                         ),
-                        onTap: () => _toggleMweb(context),
+                        onTap: () => {},
                         icon: ImageIcon(
                           AssetImage('assets/images/mweb_logo.png'),
                           color:
@@ -479,7 +505,7 @@ class CryptoBalanceWidget extends StatelessWidget {
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
   }
 
-  Future<void> _toggleMweb(BuildContext context) async {
+  Future<void> _enableMweb(BuildContext context) async {
     if (!dashboardViewModel.hasEnabledMwebBefore) {
       await showPopUp<void>(
           context: context,
@@ -492,7 +518,11 @@ class CryptoBalanceWidget extends StatelessWidget {
                 },
               ));
     }
-    dashboardViewModel.setMwebScanningActive(!dashboardViewModel.mwebScanningActive);
+    dashboardViewModel.setMwebScanningActive(true);
+  }
+
+  Future<void> _dismissMweb(BuildContext context) async {
+    dashboardViewModel.dismissMweb();
   }
 }
 
