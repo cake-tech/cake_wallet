@@ -42,7 +42,7 @@ abstract class ContactListViewModelBase with Store {
       } else if (info.addresses?.isNotEmpty == true && info.addresses!.length > 1) {
         if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)) {
           final address = info.address;
-          final name = _createName(info.name, "");
+          final name = _createName(info.name, "", key: 0);
           walletContacts.add(WalletContact(
             address,
             name,
@@ -53,7 +53,7 @@ abstract class ContactListViewModelBase with Store {
             if (label.isEmpty) {
               return;
             }
-            final name = _createName(info.name, label);
+            final name = _createName(info.name, label, key: null);
             walletContacts.add(WalletContact(
               address,
               name,
@@ -66,7 +66,7 @@ abstract class ContactListViewModelBase with Store {
       } else {
         walletContacts.add(WalletContact(
           info.address,
-          info.name,
+          _createName(info.name, "", key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) ? 0 : null),
           walletTypeToCryptoCurrency(info.type),
         ));
       }
@@ -78,9 +78,8 @@ abstract class ContactListViewModelBase with Store {
   }
 
   String _createName(String walletName, String label, {int? key = null}) {
-    return label.isNotEmpty
-        ? '$walletName${key == null ? "" : " [#${key}]"} (${label.replaceAll(RegExp(r'active', caseSensitive: false), S.current.active).replaceAll(RegExp(r'silent payments', caseSensitive: false), S.current.silent_payments)})'
-        : walletName;
+    final actualLabel = label.replaceAll(RegExp(r'active', caseSensitive: false), S.current.active).replaceAll(RegExp(r'silent payments', caseSensitive: false), S.current.silent_payments);
+    return '$walletName${key == null ? "" : " [#${key}]"} ${actualLabel.isNotEmpty ? "($actualLabel)" : ""}'.trim();
   }
 
   final bool isAutoGenerateEnabled;
