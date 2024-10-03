@@ -367,6 +367,7 @@
   "litecoin_mweb": "Mweb",
   "litecoin_mweb_always_scan": "Définir MWEB Score Scanning",
   "litecoin_mweb_description": "MWEB est un nouveau protocole qui apporte des transactions plus rapides, moins chères et plus privées à Litecoin",
+  "litecoin_mweb_dismiss": "Rejeter",
   "litecoin_mweb_display_card": "Afficher la carte MWeb",
   "litecoin_mweb_scanning": "Scann mweb",
   "litecoin_mweb_settings": "Paramètres MWEB",

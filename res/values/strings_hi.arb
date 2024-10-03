@@ -367,6 +367,7 @@
   "litecoin_mweb": "मावली",
   "litecoin_mweb_always_scan": "MWEB हमेशा स्कैनिंग सेट करें",
   "litecoin_mweb_description": "MWEB एक नया प्रोटोकॉल है जो लिटकोइन के लिए तेजी से, सस्ता और अधिक निजी लेनदेन लाता है",
+  "litecoin_mweb_dismiss": "नकार देना",
   "litecoin_mweb_display_card": "MWEB कार्ड दिखाएं",
   "litecoin_mweb_scanning": "MWEB स्कैनिंग",
   "litecoin_mweb_settings": "MWEB सेटिंग्स",

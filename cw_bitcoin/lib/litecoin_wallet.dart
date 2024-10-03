@@ -305,9 +305,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
 
       final resp = await CwMweb.status(StatusRequest());
-      print("resp.mwebUtxosHeight: ${resp.mwebUtxosHeight}");
-      print("resp.mwebHeaderHeight: ${resp.mwebHeaderHeight}");
-      print("resp.blockHeaderHeight: ${resp.blockHeaderHeight}");
 
       try {
         if (resp.blockHeaderHeight < nodeHeight) {
@@ -319,7 +316,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         } else if (resp.mwebUtxosHeight < nodeHeight) {
           syncStatus = SyncingSyncStatus(1, 0.999);
         } else {
-          print("SYNCING FINISHED!!!!!!!!!!!");
           if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
             await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
             await checkMwebUtxosSpent();
