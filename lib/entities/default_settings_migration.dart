@@ -938,8 +938,7 @@ Future<void> _addBitcoinNode({
   final needToReplaceCurrentBitcoinNode =
       currentBitcoinNode.uri.toString().contains(cakeWalletBitcoinNodeUriPattern);
 
-  final newElectRsBitcoinNode =
-      Node(uri: cakeWalletSilentPaymentsElectrsUri, type: WalletType.bitcoin, useSSL: useSSL);
+  final newElectRsBitcoinNode = Node(uri: nodeUri, type: WalletType.bitcoin, useSSL: useSSL);
 
   await nodeSource.add(newElectRsBitcoinNode);
 
