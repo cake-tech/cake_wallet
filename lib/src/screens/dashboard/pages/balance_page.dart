@@ -20,9 +20,11 @@ import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -260,6 +262,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                         dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index);
                     return Observer(builder: (_) {
                       return BalanceRowWidget(
+                        dashboardViewModel: dashboardViewModel,
                         availableBalanceLabel:
                             '${dashboardViewModel.balanceViewModel.availableBalanceLabel}',
                         availableBalance: balance.availableBalance,
@@ -533,6 +536,7 @@ class BalanceRowWidget extends StatelessWidget {
     required this.hasSecondAvailableBalance,
     required this.hasSecondAdditionalBalance,
     required this.isTestnet,
+    required this.dashboardViewModel,
     super.key,
   });
 
@@ -555,6 +559,7 @@ class BalanceRowWidget extends StatelessWidget {
   final bool hasSecondAvailableBalance;
   final bool hasSecondAdditionalBalance;
   final bool isTestnet;
+  final DashboardViewModel dashboardViewModel;
 
   // void _showBalanceDescription(BuildContext context) {
   //   showPopUp<void>(
@@ -949,22 +954,36 @@ class BalanceRowWidget extends StatelessWidget {
                       ActionButton(
                         image: Image.asset(
                           'assets/images/received.png',
-                          color: Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
+                          color:
+                              Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
                           width: 32,
                           height: 32,
                         ),
                         title: S.current.litecoin_mweb_pegin,
-                        onClick: () {},
+                        onClick: () {
+                          // TODO: use the proxy layer to get the mweb address
+                          final walletAddresses = dashboardViewModel.wallet.walletAddresses as ElectrumWalletAddresses;
+                          final mwebAddress = walletAddresses.mwebAddresses.firstWhere((element) => !element.isUsed);
+                          final paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:${mwebAddress.address}"));
+                          Navigator.of(context).pushNamed(Routes.send, arguments: paymentRequest);
+                        },
                       ),
                       ActionButton(
                         image: Image.asset(
                           'assets/images/upload.png',
-                          color: Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
+                          color:
+                              Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
                           width: 32,
                           height: 32,
                         ),
                         title: S.current.litecoin_mweb_pegout,
-                        onClick: () {},
+                        onClick: () {
+                          // set addresstype to mweb
+                          // final walletAddresses = dashboardViewModel.wallet.walletAddresses as ElectrumWalletAddresses;
+                          // TODO: use the proxy layer to set the mweb address type
+                          // walletAddresses.setAddressType(SegwitAddresType.mweb);
+                          Navigator.of(context).pushNamed(Routes.addressPage);
+                        },
                       ),
                     ],
                   ),
