@@ -819,6 +819,8 @@ abstract class ElectrumWalletBase
       network: network,
       memo: memo,
       feeRate: feeRate,
+      inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+      vinOutpoints: utxoDetails.vinOutpoints,
     );
 
     if (fee == 0) {
