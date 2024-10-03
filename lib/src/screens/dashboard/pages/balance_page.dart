@@ -6,6 +6,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -945,22 +946,23 @@ class BalanceRowWidget extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50),
-                          ),
+                      ActionButton(
+                        image: Image.asset(
+                          'assets/images/received.png',
+                          height: 32,
+                          width: 32,
                         ),
-                        child: Text(
-                          S.current.litecoin_mweb_dismiss,
-                          style: TextStyle(color: Colors.white),
-                        ),
+                        title: 'Peg In',
+                        onClick: () {},
                       ),
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: Text(S.of(context).litecoin_enable_mweb_sync),
+                      ActionButton(
+                        image: Image.asset(
+                          'assets/images/upload.png',
+                          height: 32,
+                          width: 32,
+                        ),
+                        title: 'Peg Out',
+                        onClick: () {},
                       ),
                     ],
                   ),
