@@ -262,6 +262,8 @@ abstract class DashboardViewModelBase with Store {
       reaction((_) => settingsStore.mwebAlwaysScan, (bool alwaysScan) {
         if (alwaysScan) {
           mwebScanningActive = true;
+        } else {
+          mwebScanningActive = false;
         }
       });
     }
