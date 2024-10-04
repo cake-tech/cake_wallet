@@ -500,9 +500,9 @@ class CryptoBalanceWidget extends StatelessWidget {
       await showPopUp<void>(
           context: context,
           builder: (BuildContext context) => AlertWithOneAction(
-                alertTitle: "T: Notice",
+                alertTitle: S.current.alert_notice,
                 alertContent: S.current.litecoin_mweb_warning,
-                buttonText: S.of(context).ok,
+                buttonText: S.of(context).understand,
                 buttonAction: () {
                   Navigator.of(context).pop();
                 },
@@ -515,9 +515,9 @@ class CryptoBalanceWidget extends StatelessWidget {
     await showPopUp<void>(
         context: context,
         builder: (BuildContext context) => AlertWithOneAction(
-              alertTitle: "T: Notice",
-              alertContent: "T: You can choose to enable MWEB again under Display Settings.",
-              buttonText: S.of(context).ok,
+              alertTitle: S.current.alert_notice,
+              alertContent: S.current.litecoin_mweb_enable_later,
+              buttonText: S.of(context).understand,
               buttonAction: () {
                 Navigator.of(context).pop();
               },
