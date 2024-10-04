@@ -30,4 +30,10 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
     _settingsStore.silentPaymentsAlwaysScan = value;
     if (value) bitcoin!.setScanningActive(_wallet, true);
   }
+
+  @action
+  void registerSilentPaymentsKey(bool value) {
+    _settingsStore.silentPaymentsKeyRegistered = value;
+    bitcoin!.registerSilentPaymentsKey(_wallet, true);
+  }
 }

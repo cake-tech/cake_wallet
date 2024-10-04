@@ -709,6 +709,7 @@
   "silent_payments_always_scan": "Ustaw ciche płatności zawsze skanowanie",
   "silent_payments_disclaimer": "Nowe adresy nie są nową tożsamością. Jest to ponowne wykorzystanie istniejącej tożsamości z inną etykietą.",
   "silent_payments_display_card": "Pokaż kartę Silent Payments",
+  "silent_payments_register_key": "Zarejestruj się Wyświetl Klucz do szybszego skanowania",
   "silent_payments_scan_from_date": "Skanuj z daty",
   "silent_payments_scan_from_date_or_blockheight": "Wprowadź wysokość bloku, którą chcesz rozpocząć skanowanie w poszukiwaniu cichej płatności lub zamiast tego skorzystaj z daty. Możesz wybrać, czy portfel kontynuuje skanowanie każdego bloku, lub sprawdza tylko określoną wysokość.",
   "silent_payments_scan_from_height": "Skanuj z wysokości bloku",

@@ -317,13 +317,38 @@ class ElectrumClient {
   Future<Map<String, dynamic>> getHeader({required int height}) async =>
       await call(method: 'blockchain.block.get_header', params: [height]) as Map<String, dynamic>;
 
-  BehaviorSubject<Object>? tweaksSubscribe({required int height, required int count}) {
-    return subscribe<Object>(
-      id: 'blockchain.tweaks.subscribe',
-      method: 'blockchain.tweaks.subscribe',
-      params: [height, count, false],
-    );
-  }
+  BehaviorSubject<Object>? tweaksSubscribe({required int height, required int count}) =>
+      subscribe<Object>(
+        id: 'blockchain.tweaks.subscribe',
+        method: 'blockchain.tweaks.subscribe',
+        params: [height, count, false],
+      );
+
+  Future<dynamic> tweaksRegister({
+    required String secViewKey,
+    required String pubSpendKey,
+    List<int> labels = const [],
+  }) =>
+      call(
+        method: 'blockchain.tweaks.subscribe',
+        params: [secViewKey, pubSpendKey, labels],
+      );
+
+  Future<dynamic> tweaksErase({required String pubSpendKey}) => call(
+        method: 'blockchain.tweaks.erase',
+        params: [pubSpendKey],
+      );
+
+  BehaviorSubject<Object>? tweaksScan({required String pubSpendKey}) => subscribe<Object>(
+        id: 'blockchain.tweaks.scan',
+        method: 'blockchain.tweaks.scan',
+        params: [pubSpendKey],
+      );
+
+  Future<dynamic> tweaksGet({required String pubSpendKey}) => call(
+        method: 'blockchain.tweaks.get',
+        params: [pubSpendKey],
+      );
 
   Future<dynamic> getTweaks({required int height}) async =>
       await callWithTimeout(method: 'blockchain.tweaks.subscribe', params: [height, 1, false]);
@@ -527,6 +552,7 @@ class ElectrumClient {
         _tasks[method]?.subject?.add(params.last);
         break;
       case 'blockchain.tweaks.subscribe':
+      case 'blockchain.tweaks.scan':
         final params = request['params'] as List<dynamic>;
         _tasks[_tasks.keys.first]?.subject?.add(params.last);
         break;

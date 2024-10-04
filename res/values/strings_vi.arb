@@ -702,6 +702,7 @@
   "silent_payments_always_scan": "Đặt Thanh toán im lặng luôn quét",
   "silent_payments_disclaimer": "Địa chỉ mới không phải là danh tính mới. Đây là việc tái sử dụng một danh tính hiện có với nhãn khác.",
   "silent_payments_display_card": "Hiển thị thẻ Thanh toán im lặng",
+  "silent_payments_register_key": "Đăng ký khóa xem để quét nhanh hơn",
   "silent_payments_scan_from_date": "Quét từ ngày",
   "silent_payments_scan_from_date_or_blockheight": "Vui lòng nhập chiều cao khối bạn muốn bắt đầu quét cho các thanh toán im lặng đến, hoặc, sử dụng ngày thay thế. Bạn có thể chọn nếu ví tiếp tục quét mỗi khối, hoặc chỉ kiểm tra chiều cao đã chỉ định.",
   "silent_payments_scan_from_height": "Quét từ chiều cao khối",

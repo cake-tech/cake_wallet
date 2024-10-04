@@ -1,7 +1,6 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/bip/bip/bip32/bip32.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
 
@@ -12,8 +11,7 @@ class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAd
 abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   BitcoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHd,
-    required super.sideHd,
+    required super.bip32,
     required super.network,
     required super.isHardwareWallet,
     super.initialAddresses,
@@ -21,24 +19,33 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     super.initialChangeAddressIndex,
     super.initialSilentAddresses,
     super.initialSilentAddressIndex = 0,
-    super.masterHd,
   }) : super(walletInfo);
 
   @override
-  String getAddress(
-      {required int index, required Bip32Slip10Secp256k1 hd, BitcoinAddressType? addressType}) {
-    if (addressType == P2pkhAddressType.p2pkh)
-      return generateP2PKHAddress(hd: hd, index: index, network: network);
-
-    if (addressType == SegwitAddresType.p2tr)
-      return generateP2TRAddress(hd: hd, index: index, network: network);
-
-    if (addressType == SegwitAddresType.p2wsh)
-      return generateP2WSHAddress(hd: hd, index: index, network: network);
-
-    if (addressType == P2shAddressType.p2wpkhInP2sh)
-      return generateP2SHAddress(hd: hd, index: index, network: network);
-
-    return generateP2WPKHAddress(hd: hd, index: index, network: network);
+  BitcoinBaseAddress generateAddress({
+    required int account,
+    required int index,
+    required Bip32Slip10Secp256k1 hd,
+    required BitcoinAddressType addressType,
+  }) {
+    switch (addressType) {
+      case P2pkhAddressType.p2pkh:
+        return P2pkhAddress.fromBip32(account: account, bip32: hd, index: index);
+      case SegwitAddresType.p2tr:
+        return P2trAddress.fromBip32(account: account, bip32: hd, index: index);
+      case SegwitAddresType.p2wsh:
+        return P2wshAddress.fromBip32(account: account, bip32: hd, index: index);
+      case P2shAddressType.p2wpkhInP2sh:
+        return P2shAddress.fromBip32(
+          account: account,
+          bip32: hd,
+          index: index,
+          type: P2shAddressType.p2wpkhInP2sh,
+        );
+      case SegwitAddresType.p2wpkh:
+        return P2wpkhAddress.fromBip32(account: account, bip32: hd, index: index);
+      default:
+        throw ArgumentError('Invalid address type');
+    }
   }
 }

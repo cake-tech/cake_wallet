@@ -709,6 +709,7 @@
   "silent_payments_always_scan": "Itakda ang mga tahimik na pagbabayad na laging nag-scan",
   "silent_payments_disclaimer": "Ang mga bagong address ay hindi mga bagong pagkakakilanlan. Ito ay isang muling paggamit ng isang umiiral na pagkakakilanlan na may ibang label.",
   "silent_payments_display_card": "Ipakita ang Silent Payment Card",
+  "silent_payments_register_key": "Magrehistro ng View Key para sa mas mabilis na pag -scan",
   "silent_payments_scan_from_date": "I-scan mula sa petsa",
   "silent_payments_scan_from_date_or_blockheight": "Mangyaring ipasok ang block height na gusto mong simulan ang pag-scan para sa papasok na tahimik na pagbabayad, o, gamitin ang petsa sa halip. Maaari kang pumili kung ang wallet ay patuloy na pag-scan sa bawat bloke, o suriin lamang ang tinukoy na taas.",
   "silent_payments_scan_from_height": "I-scan mula sa block height",

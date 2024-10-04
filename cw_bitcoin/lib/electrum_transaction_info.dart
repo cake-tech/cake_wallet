@@ -22,7 +22,7 @@ class ElectrumTransactionBundle {
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {
-  List<BitcoinSilentPaymentsUnspent>? unspents;
+  List<BitcoinUnspent>? unspents;
   bool isReceivedSilentPayment;
 
   ElectrumTransactionInfo(
@@ -208,8 +208,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
           outputAddresses.isEmpty ? [] : outputAddresses.map((e) => e.toString()).toList(),
       to: data['to'] as String?,
       unspents: unspents
-          .map((unspent) =>
-              BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
+          .map((unspent) => BitcoinUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
     );

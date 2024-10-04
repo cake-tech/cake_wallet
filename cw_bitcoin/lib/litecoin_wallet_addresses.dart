@@ -7,7 +7,6 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_mweb/cw_mweb.dart';
@@ -23,8 +22,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
     with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHd,
-    required super.sideHd,
+    required super.bip32,
     required super.network,
     required super.isHardwareWallet,
     required this.mwebHd,
@@ -121,30 +119,34 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
       await ensureMwebAddressUpToIndexExists(20);
       return;
     }
-  }
 
-  @override
-  String getAddress({
-    required int index,
-    required Bip32Slip10Secp256k1 hd,
-    BitcoinAddressType? addressType,
-  }) {
-    if (addressType == SegwitAddresType.mweb) {
-      return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
+    @override
+    BitcoinBaseAddress generateAddress({
+      required int account,
+      required int index,
+      required Bip32Slip10Secp256k1 hd,
+      required BitcoinAddressType addressType,
+    }) {
+      if (addressType == SegwitAddresType.mweb) {
+        return MwebAddress.fromAddress(address: mwebAddrs[0], network: network);
+      }
+
+      return P2wpkhAddress.fromBip32(account: account, bip32: hd, index: index);
     }
-    return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
 
   @override
   Future<String> getAddressAsync({
+    required int account,
     required int index,
     required Bip32Slip10Secp256k1 hd,
-    BitcoinAddressType? addressType,
+    required BitcoinAddressType addressType,
   }) async {
     if (addressType == SegwitAddresType.mweb) {
       await ensureMwebAddressUpToIndexExists(index);
     }
-    return getAddress(index: index, hd: hd, addressType: addressType);
+
+    return getAddress(account: account, index: index, hd: hd, addressType: addressType);
   }
 
   @action

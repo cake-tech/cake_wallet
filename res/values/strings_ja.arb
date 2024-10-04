@@ -710,6 +710,7 @@
   "silent_payments_always_scan": "サイレント決済を常にスキャンします",
   "silent_payments_disclaimer": "新しいアドレスは新しいアイデンティティではありません。これは、異なるラベルを持つ既存のアイデンティティの再利用です。",
   "silent_payments_display_card": "サイレントペイメントカードを表示します",
+  "silent_payments_register_key": "登録キーを登録して、より速いスキャンを行います",
   "silent_payments_scan_from_date": "日付からスキャンします",
   "silent_payments_scan_from_date_or_blockheight": "着信のサイレント決済のためにスキャンを開始するブロックの高さを入力するか、代わりに日付を使用してください。ウォレットがすべてのブロックをスキャンし続けるか、指定された高さのみをチェックするかどうかを選択できます。",
   "silent_payments_scan_from_height": "ブロックの高さからスキャンします",

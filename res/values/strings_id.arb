@@ -712,6 +712,7 @@
   "silent_payments_always_scan": "Tetapkan pembayaran diam selalu pemindaian",
   "silent_payments_disclaimer": "Alamat baru bukanlah identitas baru. Ini adalah penggunaan kembali identitas yang ada dengan label yang berbeda.",
   "silent_payments_display_card": "Tunjukkan kartu pembayaran diam",
+  "silent_payments_register_key": "Daftar Kunci Lihat untuk pemindaian yang lebih cepat",
   "silent_payments_scan_from_date": "Pindai dari tanggal",
   "silent_payments_scan_from_date_or_blockheight": "Harap masukkan ketinggian blok yang ingin Anda mulai pemindaian untuk pembayaran diam yang masuk, atau, gunakan tanggal sebagai gantinya. Anda dapat memilih jika dompet terus memindai setiap blok, atau memeriksa hanya ketinggian yang ditentukan.",
   "silent_payments_scan_from_height": "Pindai dari Tinggi Blok",

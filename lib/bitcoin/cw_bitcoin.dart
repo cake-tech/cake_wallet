@@ -144,7 +144,7 @@ class CWBitcoin extends Bitcoin {
             address: addr.address,
             txCount: addr.txCount,
             balance: addr.balance,
-            isChange: addr.isHidden))
+            isChange: addr.isChange))
         .toList();
   }
 
@@ -379,16 +379,16 @@ class CWBitcoin extends Bitcoin {
           String? address;
           switch (dInfoCopy.scriptType) {
             case "p2wpkh":
-              address = generateP2WPKHAddress(hd: hd, network: network, index: 0);
+              address = P2wpkhAddress.fromBip32(bip32: hd, account: 0, index: 0).toAddress(network);
               break;
             case "p2pkh":
-              address = generateP2PKHAddress(hd: hd, network: network, index: 0);
+              address = P2pkhAddress.fromBip32(bip32: hd, account: 0, index: 0).toAddress(network);
               break;
             case "p2wpkh-p2sh":
-              address = generateP2SHAddress(hd: hd, network: network, index: 0);
+              address = P2shAddress.fromBip32(bip32: hd, account: 0, index: 0).toAddress(network);
               break;
             case "p2tr":
-              address = generateP2TRAddress(hd: hd, network: network, index: 0);
+              address = P2trAddress.fromBip32(bip32: hd, account: 0, index: 0).toAddress(network);
               break;
             default:
               continue;
@@ -526,7 +526,7 @@ class CWBitcoin extends Bitcoin {
             address: addr.address,
             txCount: addr.txCount,
             balance: addr.balance,
-            isChange: addr.isHidden))
+            isChange: addr.isChange))
         .toList();
   }
 
@@ -541,7 +541,7 @@ class CWBitcoin extends Bitcoin {
             address: addr.address,
             txCount: addr.txCount,
             balance: addr.balance,
-            isChange: addr.isHidden))
+            isChange: addr.isChange))
         .toList();
   }
 
@@ -572,6 +572,11 @@ class CWBitcoin extends Bitcoin {
   bool isTestnet(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.isTestnet;
+  }
+
+  @override
+  Future<void> registerSilentPaymentsKey(Object wallet, bool active) async {
+    return;
   }
 
   @override

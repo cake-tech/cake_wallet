@@ -709,6 +709,7 @@
   "silent_payments_always_scan": "设置无声付款总是扫描",
   "silent_payments_disclaimer": "新地址不是新的身份。这是重复使用具有不同标签的现有身份。",
   "silent_payments_display_card": "显示无声支付卡",
+  "silent_payments_register_key": "注册查看密钥以进行更快的扫描",
   "silent_payments_scan_from_date": "从日期开始扫描",
   "silent_payments_scan_from_date_or_blockheight": "请输入您要开始扫描输入静音付款的块高度，或者使用日期。您可以选择钱包是否继续扫描每个块，或仅检查指定的高度。",
   "silent_payments_scan_from_height": "从块高度扫描",

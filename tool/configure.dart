@@ -102,7 +102,6 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 """;
   const bitcoinCWHeaders = """
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
@@ -216,6 +215,7 @@ abstract class Bitcoin {
   int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
       {int? outputsCount, int? size});
   int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
+  Future<void> registerSilentPaymentsKey(Object wallet, bool active);
   Future<bool> checkIfMempoolAPIIsEnabled(Object wallet);
   Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled});
   int getLitecoinHeightByDate({required DateTime date});

@@ -6,7 +6,6 @@ import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class ElectrumWalletSnapshot {
@@ -68,7 +67,7 @@ class ElectrumWalletSnapshot {
     final addressesTmp = data['addresses'] as List? ?? <Object>[];
     final addresses = addressesTmp
         .whereType<String>()
-        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network: network))
+        .map((addr) => BitcoinAddressRecord.fromJSON(addr))
         .toList();
 
     final silentAddressesTmp = data['silent_addresses'] as List? ?? <Object>[];
@@ -80,7 +79,7 @@ class ElectrumWalletSnapshot {
     final mwebAddressTmp = data['mweb_addresses'] as List? ?? <Object>[];
     final mwebAddresses = mwebAddressTmp
         .whereType<String>()
-        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network: network))
+        .map((addr) => BitcoinAddressRecord.fromJSON(addr))
         .toList();
 
     final alwaysScan = data['alwaysScan'] as bool? ?? false;

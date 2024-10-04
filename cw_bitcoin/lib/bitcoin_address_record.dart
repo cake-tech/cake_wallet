@@ -6,13 +6,12 @@ abstract class BaseBitcoinAddressRecord {
   BaseBitcoinAddressRecord(
     this.address, {
     required this.index,
-    this.isHidden = false,
+    this.isChange = false,
     int txCount = 0,
     int balance = 0,
     String name = '',
     bool isUsed = false,
     required this.type,
-    required this.network,
   })  : _txCount = txCount,
         _balance = balance,
         _name = name,
@@ -22,13 +21,12 @@ abstract class BaseBitcoinAddressRecord {
   bool operator ==(Object o) => o is BaseBitcoinAddressRecord && address == o.address;
 
   final String address;
-  bool isHidden;
+  bool isChange;
   final int index;
   int _txCount;
   int _balance;
   String _name;
   bool _isUsed;
-  BasedUtxoNetwork? network;
 
   int get txCount => _txCount;
 
@@ -56,24 +54,29 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   BitcoinAddressRecord(
     super.address, {
     required super.index,
-    super.isHidden = false,
+    super.isChange = false,
     super.txCount = 0,
     super.balance = 0,
     super.name = '',
     super.isUsed = false,
     required super.type,
     String? scriptHash,
-    required super.network,
-  }) : scriptHash = scriptHash ??
-            (network != null ? BitcoinAddressUtils.scriptHash(address, network: network) : null);
+    BasedUtxoNetwork? network,
+  }) {
+    if (scriptHash == null && network == null) {
+      throw ArgumentError('either scriptHash or network must be provided');
+    }
 
-  factory BitcoinAddressRecord.fromJSON(String jsonSource, {BasedUtxoNetwork? network}) {
+    this.scriptHash = scriptHash ?? BitcoinAddressUtils.scriptHash(address, network: network!);
+  }
+
+  factory BitcoinAddressRecord.fromJSON(String jsonSource) {
     final decoded = json.decode(jsonSource) as Map;
 
     return BitcoinAddressRecord(
       decoded['address'] as String,
       index: decoded['index'] as int,
-      isHidden: decoded['isHidden'] as bool? ?? false,
+      isChange: decoded['isChange'] as bool? ?? false,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
       name: decoded['name'] as String? ?? '',
@@ -83,23 +86,16 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
               .firstWhere((type) => type.toString() == decoded['type'] as String)
           : SegwitAddresType.p2wpkh,
       scriptHash: decoded['scriptHash'] as String?,
-      network: network,
     );
   }
 
-  String? scriptHash;
-
-  String getScriptHash(BasedUtxoNetwork network) {
-    if (scriptHash != null) return scriptHash!;
-    scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
-    return scriptHash!;
-  }
+  late String scriptHash;
 
   @override
   String toJSON() => json.encode({
         'address': address,
         'index': index,
-        'isHidden': isHidden,
+        'isChange': isChange,
         'isUsed': isUsed,
         'txCount': txCount,
         'name': name,
@@ -110,18 +106,23 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 }
 
 class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
+  int get labelIndex => index;
+  final String? labelHex;
+
   BitcoinSilentPaymentAddressRecord(
     super.address, {
-    required super.index,
-    super.isHidden = false,
+    required int labelIndex,
     super.txCount = 0,
     super.balance = 0,
     super.name = '',
     super.isUsed = false,
-    required this.silentPaymentTweak,
-    required super.network,
-    required super.type,
-  }) : super();
+    super.type = SilentPaymentsAddresType.p2sp,
+    this.labelHex,
+  }) : super(index: labelIndex, isChange: labelIndex == 0) {
+    if (labelIndex != 1 && labelHex == null) {
+      throw ArgumentError('label must be provided for silent address index > 0');
+    }
+  }
 
   factory BitcoinSilentPaymentAddressRecord.fromJSON(String jsonSource,
       {BasedUtxoNetwork? network}) {
@@ -129,36 +130,68 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
 
     return BitcoinSilentPaymentAddressRecord(
       decoded['address'] as String,
-      index: decoded['index'] as int,
-      isHidden: decoded['isHidden'] as bool? ?? false,
+      labelIndex: decoded['labelIndex'] as int,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
-      network: (decoded['network'] as String?) == null
-          ? network
-          : BasedUtxoNetwork.fromName(decoded['network'] as String),
-      silentPaymentTweak: decoded['silent_payment_tweak'] as String?,
-      type: decoded['type'] != null && decoded['type'] != ''
-          ? BitcoinAddressType.values
-              .firstWhere((type) => type.toString() == decoded['type'] as String)
-          : SilentPaymentsAddresType.p2sp,
+      labelHex: decoded['labelHex'] as String?,
     );
   }
-
-  final String? silentPaymentTweak;
 
   @override
   String toJSON() => json.encode({
         'address': address,
-        'index': index,
-        'isHidden': isHidden,
+        'labelIndex': labelIndex,
         'isUsed': isUsed,
         'txCount': txCount,
         'name': name,
         'balance': balance,
         'type': type.toString(),
-        'network': network?.value,
-        'silent_payment_tweak': silentPaymentTweak,
+        'labelHex': labelHex,
+      });
+}
+
+class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
+  final ECPrivate spendKey;
+
+  BitcoinReceivedSPAddressRecord(
+    super.address, {
+    required super.labelIndex,
+    super.txCount = 0,
+    super.balance = 0,
+    super.name = '',
+    super.isUsed = false,
+    required this.spendKey,
+    super.type = SegwitAddresType.p2tr,
+    super.labelHex,
+  });
+
+  factory BitcoinReceivedSPAddressRecord.fromJSON(String jsonSource, {BasedUtxoNetwork? network}) {
+    final decoded = json.decode(jsonSource) as Map;
+
+    return BitcoinReceivedSPAddressRecord(
+      decoded['address'] as String,
+      labelIndex: decoded['index'] as int,
+      isUsed: decoded['isUsed'] as bool? ?? false,
+      txCount: decoded['txCount'] as int? ?? 0,
+      name: decoded['name'] as String? ?? '',
+      balance: decoded['balance'] as int? ?? 0,
+      labelHex: decoded['label'] as String?,
+      spendKey: ECPrivate.fromHex(decoded['spendKey'] as String),
+    );
+  }
+
+  @override
+  String toJSON() => json.encode({
+        'address': address,
+        'labelIndex': labelIndex,
+        'isUsed': isUsed,
+        'txCount': txCount,
+        'name': name,
+        'balance': balance,
+        'type': type.toString(),
+        'labelHex': labelHex,
+        'spend_key': spendKey.toString(),
       });
 }

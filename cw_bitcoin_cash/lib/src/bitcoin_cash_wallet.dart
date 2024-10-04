@@ -54,8 +54,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
-      mainHd: hd,
-      sideHd: accountHD.childKey(Bip32KeyIndex(1)),
+      bip32: bip32,
       network: network,
       initialAddressPageType: addressPageType,
       isHardwareWallet: walletInfo.isHardwareWallet,
@@ -141,7 +140,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
           return BitcoinAddressRecord(
             addr.address,
             index: addr.index,
-            isHidden: addr.isHidden,
+            isChange: addr.isChange,
             type: P2pkhAddressType.p2pkh,
             network: BitcoinCashNetwork.mainnet,
           );
@@ -149,7 +148,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
           return BitcoinAddressRecord(
             AddressUtils.getCashAddrFormat(addr.address),
             index: addr.index,
-            isHidden: addr.isHidden,
+            isChange: addr.isChange,
             type: P2pkhAddressType.p2pkh,
             network: BitcoinCashNetwork.mainnet,
           );
@@ -209,13 +208,17 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    int? index;
-    try {
-      index = address != null
-          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-          : null;
-    } catch (_) {}
-    final HD = index == null ? hd : hd.childKey(Bip32KeyIndex(index));
+    Bip32Slip10Secp256k1 HD = bip32;
+
+    final record = walletAddresses.allAddresses.firstWhere((element) => element.address == address);
+
+    if (record.isChange) {
+      HD = HD.childKey(Bip32KeyIndex(1));
+    } else {
+      HD = HD.childKey(Bip32KeyIndex(0));
+    }
+
+    HD = HD.childKey(Bip32KeyIndex(record.index));
     final priv = ECPrivate.fromWif(
       WifEncoder.encode(HD.privateKey.raw, netVer: network.wifNetVer),
       netVersion: network.wifNetVer,

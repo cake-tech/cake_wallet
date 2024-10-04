@@ -21,7 +21,6 @@ import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -98,8 +97,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialMwebAddresses: initialMwebAddresses,
-      mainHd: hd,
-      sideHd: accountHD.childKey(Bip32KeyIndex(1)),
+      bip32: bip32,
       network: network,
       mwebHd: mwebHd,
       mwebEnabled: mwebEnabled,
@@ -1025,12 +1023,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
               witnesses: tx2.inputs.asMap().entries.map((e) {
             final utxo = unspentCoins
                 .firstWhere((utxo) => utxo.hash == e.value.txId && utxo.vout == e.value.txIndex);
-            final key = generateECPrivate(
-                hd: utxo.bitcoinAddressRecord.isHidden
-                    ? walletAddresses.sideHd
-                    : walletAddresses.mainHd,
-                index: utxo.bitcoinAddressRecord.index,
-                network: network);
+            final key = ECPrivate.fromBip32(
+              bip32: walletAddresses.bip32,
+              account: utxo.bitcoinAddressRecord.isChange ? 1 : 0,
+              index: utxo.bitcoinAddressRecord.index,
+            );
             final digest = tx2.getTransactionSegwitDigit(
               txInIndex: e.key,
               script: key.getPublic().toP2pkhAddress().toScriptPubKey(),
@@ -1113,10 +1110,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    final index = address != null
-        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-        : null;
-    final HD = index == null ? hd : hd.childKey(Bip32KeyIndex(index));
+    Bip32Slip10Secp256k1 HD = bip32;
+
+    final record = walletAddresses.allAddresses.firstWhere((element) => element.address == address);
+
+    if (record.isChange) {
+      HD = HD.childKey(Bip32KeyIndex(1));
+    } else {
+      HD = HD.childKey(Bip32KeyIndex(0));
+    }
+
+    HD = HD.childKey(Bip32KeyIndex(record.index));
     final priv = ECPrivate.fromHex(HD.privateKey.privKey.toHex());
 
     final privateKey = ECDSAPrivateKey.fromBytes(
