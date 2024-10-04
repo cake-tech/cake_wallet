@@ -37,8 +37,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
         spendKey = '',
         wif = '',
         address = '',
-        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
-            type: type, isRecovery: true);
+        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel, type: type, isRecovery: true);
 
   @observable
   int height;
@@ -58,12 +57,9 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   bool get hasRestorationHeight => type == WalletType.monero || type == WalletType.wownero;
 
   @override
-  WalletCredentials getCredentialsFromRestoredWallet(
-      dynamic options, RestoredWallet restoreWallet) {
+  Future<WalletCredentials> getWalletCredentialsFromQRCredentials(
+      RestoredWallet restoreWallet) async {
     final password = generateWalletPassword();
-
-    DerivationInfo? derivationInfo;
-    derivationInfo ??= getDefaultCreateDerivation();
 
     switch (restoreWallet.restoreMode) {
       case WalletRestoreMode.keys:
@@ -116,12 +112,13 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
             );
           case WalletType.bitcoin:
           case WalletType.litecoin:
+            final derivationInfo = (await getDerivationInfoFromQRCredentials(restoreWallet)).first;
             return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
               name: name,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
               passphrase: restoreWallet.passphrase,
-              derivationType: derivationInfo!.derivationType!,
+              derivationType: derivationInfo.derivationType!,
               derivationPath: derivationInfo.derivationPath!,
             );
           case WalletType.bitcoinCash:
@@ -139,11 +136,13 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
               passphrase: restoreWallet.passphrase,
             );
           case WalletType.nano:
+            final derivationInfo =
+                (await getDerivationInfoFromQRCredentials(restoreWallet)).first;
             return nano!.createNanoRestoreWalletFromSeedCredentials(
               name: name,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
-              derivationType: derivationInfo!.derivationType!,
+              derivationType: derivationInfo.derivationType!,
               passphrase: restoreWallet.passphrase,
             );
           case WalletType.polygon:
@@ -183,8 +182,8 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
   }
 
   @override
-  Future<WalletBase> processFromRestoredWallet(
-      WalletCredentials credentials, RestoredWallet restoreWallet) async {
+  Future<WalletBase> processFromRestoredWallet(WalletCredentials credentials,
+      RestoredWallet restoreWallet) async {
     try {
       switch (restoreWallet.restoreMode) {
         case WalletRestoreMode.keys:
