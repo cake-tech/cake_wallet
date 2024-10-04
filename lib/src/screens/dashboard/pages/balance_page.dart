@@ -997,60 +997,61 @@ class BalanceRowWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                    if (currency == CryptoCurrency.ltc)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(top: 24, right: 8),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).highlightColor,
-                              ),
-                              onPressed: () {
-                                final mwebAddress =
-                                    bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
-                                if (mwebAddress == null) return;
-                                final paymentRequest =
-                                    PaymentRequest.fromUri(Uri.parse("litecoin:${mwebAddress}"));
-                                Navigator.of(context)
-                                    .pushNamed(Routes.send, arguments: paymentRequest);
-                              },
-                              child: Container(
-                                color: Colors.transparent,
-                                margin: EdgeInsets.all(4),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(shape: BoxShape.circle),
-                                      child: Image.asset(
-                                        'assets/images/received.png',
-                                        color: Theme.of(context)
-                                            .extension<BalancePageTheme>()!
-                                            .balanceAmountColor,
-                                        width: 64,
-                                        height: 32,
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      S.of(context).litecoin_mweb_pegin,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          color: Theme.of(context)
-                                              .extension<DashboardPageTheme>()!
-                                              .cardTextColor),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    // TODO: smarter peg in / out buttons
+                    // if (currency == CryptoCurrency.ltc)
+                    //   Row(
+                    //     mainAxisAlignment: MainAxisAlignment.end,
+                    //     children: [
+                    //       Container(
+                    //         margin: EdgeInsets.only(top: 24, right: 8),
+                    //         child: ElevatedButton(
+                    //           style: ElevatedButton.styleFrom(
+                    //             backgroundColor: Theme.of(context).highlightColor,
+                    //           ),
+                    //           onPressed: () {
+                    //             final mwebAddress =
+                    //                 bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
+                    //             if (mwebAddress == null) return;
+                    //             final paymentRequest =
+                    //                 PaymentRequest.fromUri(Uri.parse("litecoin:${mwebAddress}"));
+                    //             Navigator.of(context)
+                    //                 .pushNamed(Routes.send, arguments: paymentRequest);
+                    //           },
+                    //           child: Container(
+                    //             color: Colors.transparent,
+                    //             margin: EdgeInsets.all(4),
+                    //             child: Column(
+                    //               mainAxisSize: MainAxisSize.max,
+                    //               crossAxisAlignment: CrossAxisAlignment.center,
+                    //               children: <Widget>[
+                    //                 Container(
+                    //                   alignment: Alignment.center,
+                    //                   decoration: BoxDecoration(shape: BoxShape.circle),
+                    //                   child: Image.asset(
+                    //                     'assets/images/received.png',
+                    //                     color: Theme.of(context)
+                    //                         .extension<BalancePageTheme>()!
+                    //                         .balanceAmountColor,
+                    //                     width: 64,
+                    //                     height: 32,
+                    //                   ),
+                    //                 ),
+                    //                 SizedBox(height: 4),
+                    //                 Text(
+                    //                   S.of(context).litecoin_mweb_pegin,
+                    //                   style: TextStyle(
+                    //                       fontSize: 10,
+                    //                       color: Theme.of(context)
+                    //                           .extension<DashboardPageTheme>()!
+                    //                           .cardTextColor),
+                    //                 )
+                    //               ],
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
                   ],
                 ),
               ],
