@@ -9,6 +9,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/di.dart';
@@ -49,7 +50,7 @@ void startCurrentWalletChangeReaction(
   //  appStore.wallet.walletInfo.yatLastUsedAddress = address;
   //  await appStore.wallet.walletInfo.save();
   //} catch (e) {
-  //  print(e.toString());
+  //  printV(e.toString());
   //}
   //});
 
@@ -96,7 +97,7 @@ void startCurrentWalletChangeReaction(
         }
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 
@@ -143,7 +144,7 @@ void startCurrentWalletChangeReaction(
         }
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 }

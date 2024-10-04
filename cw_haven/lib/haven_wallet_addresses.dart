@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses_with_account.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/account.dart';
@@ -58,7 +59,7 @@ abstract class HavenWalletAddressesBase extends WalletAddressesWithAccount<Accou
 
       await saveAddressesInBox();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 

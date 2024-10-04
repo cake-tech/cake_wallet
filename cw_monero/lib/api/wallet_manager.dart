@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/wallet_creation_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
@@ -52,9 +53,9 @@ final monero.WalletManager wmPtr = Pointer.fromAddress((() {
     // than plugging gdb in. Especially on windows/android.
     monero.printStarts = false;
     _wmPtr ??= monero.WalletManagerFactory_getWalletManager();
-    print("ptr: $_wmPtr");
+    printV("ptr: $_wmPtr");
   } catch (e) {
-    print(e);
+    printV(e);
     rethrow;
   }
   return _wmPtr!.address;
@@ -215,7 +216,7 @@ void restoreWalletFromSpendKeySync(
 
   if (status != 0) {
     final err = monero.Wallet_errorString(newWptr);
-    print("err: $err");
+    printV("err: $err");
     throw WalletRestoreFromKeysException(message: err);
   }
 
@@ -284,7 +285,7 @@ void loadWallet(
     final status = monero.Wallet_status(newWptr);
     if (status != 0) {
       final err = monero.Wallet_errorString(newWptr);
-      print(err);
+      printV(err);
       throw WalletOpeningException(message: err);
     }
     wptr = newWptr;

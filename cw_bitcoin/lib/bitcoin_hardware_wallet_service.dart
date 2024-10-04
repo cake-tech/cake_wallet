@@ -6,6 +6,7 @@ import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 class BitcoinHardwareWalletService {
   BitcoinHardwareWalletService(this.ledger, this.device);
@@ -17,7 +18,7 @@ class BitcoinHardwareWalletService {
     final bitcoinLedgerApp = BitcoinLedgerApp(ledger);
 
     final masterFp = await bitcoinLedgerApp.getMasterFingerprint(device);
-    print(masterFp);
+    printV(masterFp);
 
     final accounts = <HardwareAccountData>[];
     final indexRange = List.generate(limit, (i) => i + index);

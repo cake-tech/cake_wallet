@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -116,12 +117,12 @@ class ElectrumClient {
             _parseResponse(message);
           }
         } catch (e) {
-          print(e.toString());
+          printV(e.toString());
         }
       },
       onError: (Object error) {
         final errorMsg = error.toString();
-        print(errorMsg);
+        printV(errorMsg);
         unterminatedString = '';
       },
       onDone: () {
@@ -132,7 +133,7 @@ class ElectrumClient {
             _setConnectionStatus(ConnectionStatus.disconnected);
           }
         } catch (e) {
-          print(e.toString());
+          printV(e.toString());
         }
       },
       cancelOnError: true,
@@ -177,7 +178,7 @@ class ElectrumClient {
         unterminatedString = '';
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -399,7 +400,7 @@ class ElectrumClient {
     } on RequestFailedTimeoutException catch (_) {
       return null;
     } catch (e) {
-      print("getCurrentBlockChainTip: ${e.toString()}");
+      printV("getCurrentBlockChainTip: ${e.toString()}");
       return null;
     }
   }
@@ -430,7 +431,7 @@ class ElectrumClient {
 
       return subscription;
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       return null;
     }
   }
@@ -469,7 +470,7 @@ class ElectrumClient {
 
       return completer.future;
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -99,7 +100,7 @@ class WowneroWalletService extends WalletService<
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('WowneroWalletsManager Error: ${e.toString()}');
+      printV('WowneroWalletsManager Error: ${e.toString()}');
       rethrow;
     }
   }
@@ -111,7 +112,7 @@ class WowneroWalletService extends WalletService<
       return wownero_wallet_manager.isWalletExist(path: path);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('WowneroWalletsManager Error: $e');
+      printV('WowneroWalletsManager Error: $e');
       rethrow;
     }
   }
@@ -182,7 +183,7 @@ class WowneroWalletService extends WalletService<
     final path = await pathForWalletDir(name: wallet, type: getType());
     if (openedWalletsByPath["$path/$wallet"] != null) {
       // NOTE: this is realistically only required on windows.
-      print("closing wallet");
+      printV("closing wallet");
       final wmaddr = wmPtr.address;
       final waddr = openedWalletsByPath["$path/$wallet"]!.address;
       // await Isolate.run(() {
@@ -190,7 +191,7 @@ class WowneroWalletService extends WalletService<
           Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), false);
       // });
       openedWalletsByPath.remove("$path/$wallet");
-      print("wallet closed");
+      printV("wallet closed");
     }
 
     final file = Directory(path);
@@ -241,7 +242,7 @@ class WowneroWalletService extends WalletService<
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('WowneroWalletsManager Error: $e');
+      printV('WowneroWalletsManager Error: $e');
       rethrow;
     }
   }
@@ -274,7 +275,7 @@ class WowneroWalletService extends WalletService<
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('WowneroWalletsManager Error: $e');
+      printV('WowneroWalletsManager Error: $e');
       rethrow;
     }
   }
@@ -291,7 +292,7 @@ class WowneroWalletService extends WalletService<
           path, credentials.password!, polyseed, credentials.walletInfo!, lang);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('WowneroWalletsManager Error: $e');
+      printV('WowneroWalletsManager Error: $e');
       rethrow;
     }
   }
@@ -348,7 +349,7 @@ class WowneroWalletService extends WalletService<
         newFile.writeAsBytesSync(file.readAsBytesSync());
       });
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 }

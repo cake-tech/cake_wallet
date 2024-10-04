@@ -75,7 +75,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
         ));
       }
 
-      state = FailureState(msg);
+      state = FailureState("$msg\n$s");
     }
   }
 }

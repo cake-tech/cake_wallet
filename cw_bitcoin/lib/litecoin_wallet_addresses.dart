@@ -7,6 +7,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_mweb/cw_mweb.dart';
 import 'package:flutter/foundation.dart';
@@ -32,7 +33,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     for (int i = 0; i < mwebAddresses.length; i++) {
       mwebAddrs.add(mwebAddresses[i].address);
     }
-    print("initialized with ${mwebAddrs.length} mweb addresses");
+    printV("initialized with ${mwebAddrs.length} mweb addresses");
   }
 
   final Bip32Slip10Secp256k1 mwebHd;
@@ -84,15 +85,15 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
               ))
           .toList();
       addMwebAddresses(addressRecords);
-      print("set ${addressRecords.length} mweb addresses");
+      printV("set ${addressRecords.length} mweb addresses");
     }
   }
 
   Future<void> initMwebAddresses() async {
     if (mwebAddrs.length < 1000) {
-      print("Generating MWEB addresses...");
+      printV("Generating MWEB addresses...");
       await ensureMwebAddressUpToIndexExists(20);
-      print("done generating MWEB addresses");
+      printV("done generating MWEB addresses");
       // List<BitcoinAddressRecord> addressRecords = mwebAddrs
       //     .asMap()
       //     .entries
@@ -104,7 +105,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       //         ))
       //     .toList();
       // addMwebAddresses(addressRecords);
-      // print("added ${addressRecords.length} mweb addresses");
+      // prinV("added ${addressRecords.length} mweb addresses");
       return;
     }
   }

@@ -15,6 +15,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
@@ -184,7 +185,7 @@ abstract class WowneroWalletBase
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
-      print(e);
+      printV(e);
     }
   }
 
@@ -215,7 +216,7 @@ abstract class WowneroWalletBase
       _listener?.start();
     } catch (e) {
       syncStatus = FailedSyncStatus();
-      print(e);
+      printV(e);
       rethrow;
     }
   }
@@ -348,8 +349,8 @@ abstract class WowneroWalletBase
     try {
       await backupWalletFiles(name);
     } catch (e) {
-      print("¯\\_(ツ)_/¯");
-      print(e);
+      printV("¯\\_(ツ)_/¯");
+      printV(e);
     }
   }
 
@@ -358,7 +359,7 @@ abstract class WowneroWalletBase
     final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
     if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
       // NOTE: this is realistically only required on windows.
-      print("closing wallet");
+      printV("closing wallet");
       final wmaddr = wmPtr.address;
       final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
       await Isolate.run(() {
@@ -366,7 +367,7 @@ abstract class WowneroWalletBase
             Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
       });
       openedWalletsByPath.remove("$currentWalletDirPath/$name");
-      print("wallet closed");
+      printV("wallet closed");
     }
     try {
       // -- rename the waller folder --
@@ -498,7 +499,7 @@ abstract class WowneroWalletBase
       await _refreshUnspentCoinsInfo();
       _askForUpdateBalance();
     } catch (e, s) {
-      print(e.toString());
+      printV(e.toString());
       onError?.call(FlutterErrorDetails(
         exception: e,
         stack: s,
@@ -545,7 +546,7 @@ abstract class WowneroWalletBase
         await unspentCoinsInfo.deleteAll(keys);
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -576,7 +577,7 @@ abstract class WowneroWalletBase
       await transactionHistory.save();
       _isTransactionUpdating = false;
     } catch (e) {
-      print(e);
+      printV(e);
       _isTransactionUpdating = false;
     }
   }
@@ -716,7 +717,7 @@ abstract class WowneroWalletBase
         syncStatus = SyncingSyncStatus(blocksLeft, ptc);
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -726,7 +727,7 @@ abstract class WowneroWalletBase
       _askForUpdateBalance();
       await Future<void>.delayed(Duration(seconds: 1));
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 

@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -238,7 +239,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // should no longer be needed, but leaving here just in case
     // final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
     // while (mwebAddrs.length < 1000) {
-    //   print("waiting for mweb addresses to finish generating...");
+    //   printV("waiting for mweb addresses to finish generating...");
     //   await Future.delayed(const Duration(milliseconds: 1000));
     // }
     await (walletAddresses as LitecoinWalletAddresses).ensureMwebAddressUpToIndexExists(1020);
@@ -247,11 +248,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> startSync() async {
-    print("startSync() called!");
+    printV("startSync() called!");
     if (syncStatus is SyncronizingSyncStatus) {
       return;
     }
-    print("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
+    printV("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
     try {
       syncStatus = SyncronizingSyncStatus();
       await subscribeForUpdates();
@@ -268,8 +269,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           await updateBalance();
           syncStatus = SyncedSyncStatus();
         } catch (e, s) {
-          print(e);
-          print(s);
+          printV(e);
+          printV(s);
           syncStatus = FailedSyncStatus();
         }
         return;
@@ -282,7 +283,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       await updateUnspent();
       await updateBalance();
     } catch (e) {
-      print("failed to start mweb sync: $e");
+      printV("failed to start mweb sync: $e");
       syncStatus = FailedSyncStatus();
       return;
     }
@@ -291,7 +292,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
 
-      print("SYNCING....");
+      printV("SYNCING....");
 
       final nodeHeight =
           await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
@@ -341,7 +342,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           return;
         }
       } catch (e) {
-        print("error syncing: $e");
+        printV("error syncing: $e");
         syncStatus = FailedSyncStatus(error: e.toString());
       }
     });
@@ -426,7 +427,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> handleIncoming(MwebUtxo utxo, RpcClient stub) async {
-    print("handleIncoming() called!");
+    printV("handleIncoming() called!");
     final status = await stub.status(StatusRequest());
     var date = DateTime.now();
     var confirmations = 0;
@@ -472,7 +473,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       final addressRecord = walletAddresses.allAddresses
           .firstWhereOrNull((addressRecord) => addressRecord.address == utxo.address);
       if (addressRecord == null) {
-        print("we don't have this address in the wallet! ${utxo.address}");
+        printV("we don't have this address in the wallet! ${utxo.address}");
         return;
       }
 
@@ -498,7 +499,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     int restoreHeight = walletInfo.restoreHeight;
-    print("SCANNING FROM HEIGHT: $restoreHeight");
+    printV("SCANNING FROM HEIGHT: $restoreHeight");
     final req = UtxosRequest(scanSecret: scanSecret, fromHeight: restoreHeight);
 
     // process new utxos as they come in:
@@ -695,7 +696,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           .firstWhereOrNull((addressRecord) => addressRecord.address == utxo.address);
 
       if (addressRecord == null) {
-        print("utxo contains an address that is not in the wallet: ${utxo.address}");
+        printV("utxo contains an address that is not in the wallet: ${utxo.address}");
         return;
       }
       final unspent = BitcoinUnspent(
@@ -985,8 +986,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           await updateBalance();
         });
     } catch (e, s) {
-      print(e);
-      print(s);
+      printV(e);
+      printV(s);
       if (e.toString().contains("commit failed")) {
         throw Exception("Transaction commit failed (no peers responded), please try again.");
       }

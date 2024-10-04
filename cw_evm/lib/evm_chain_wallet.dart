@@ -14,6 +14,7 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -200,7 +201,7 @@ abstract class EVMChainWalletBase
           } else {
             // MaxFeePerGas with gasPrice;
             maxFeePerGas = gasPrice;
-            debugPrint('MaxFeePerGas with gasPrice: $maxFeePerGas');
+            printV('MaxFeePerGas with gasPrice: $maxFeePerGas');
           }
 
           final totalGasFee = estimatedGasUnits * maxFeePerGas;

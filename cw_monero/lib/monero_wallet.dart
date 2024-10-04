@@ -17,6 +17,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_monero/api/coins_info.dart';
@@ -194,7 +195,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
-      print(e);
+      printV(e);
     }
   }
 
@@ -225,7 +226,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       _listener?.start();
     } catch (e) {
       syncStatus = FailedSyncStatus();
-      print(e);
+      printV(e);
       rethrow;
     }
   }
@@ -369,8 +370,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     try {
       await backupWalletFiles(name);
     } catch (e) {
-      print("¯\\_(ツ)_/¯");
-      print(e);
+      printV("¯\\_(ツ)_/¯");
+      printV(e);
     }
   }
 
@@ -379,7 +380,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
     if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
       // NOTE: this is realistically only required on windows.
-      print("closing wallet");
+      printV("closing wallet");
       final wmaddr = wmPtr.address;
       final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
       await Isolate.run(() {
@@ -387,7 +388,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
       });
       openedWalletsByPath.remove("$currentWalletDirPath/$name");
-      print("wallet closed");
+      printV("wallet closed");
     }
     try {
       // -- rename the waller folder --
@@ -525,7 +526,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       await _refreshUnspentCoinsInfo();
       _askForUpdateBalance();
     } catch (e, s) {
-      print(e.toString());
+      printV(e.toString());
       onError?.call(FlutterErrorDetails(
         exception: e,
         stack: s,
@@ -574,7 +575,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         await unspentCoinsInfo.deleteAll(keys);
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -607,7 +608,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       await transactionHistory.save();
       _isTransactionUpdating = false;
     } catch (e) {
-      print(e);
+      printV(e);
       _isTransactionUpdating = false;
     }
   }
@@ -755,7 +756,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         syncStatus = SyncingSyncStatus(blocksLeft, ptc);
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -765,7 +766,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       _askForUpdateBalance();
       await Future<void>.delayed(Duration(seconds: 1));
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
