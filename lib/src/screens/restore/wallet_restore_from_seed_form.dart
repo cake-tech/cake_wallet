@@ -78,6 +78,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   void Function()? repeatedPasswordListener;
   void Function()? passphraseListener;
 
+  bool obscurePassphrase = true;
+
   @override
   void initState() {
     _setSeedType(widget.seedSettingsViewModel.moneroSeedType);
@@ -283,7 +285,16 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             BaseTextFormField(
               hintText: S.current.passphrase,
               controller: passphraseController,
-              obscureText: true,
+              obscureText: obscurePassphrase,
+              suffixIcon: GestureDetector(
+                onTap: () => setState(() {
+                  obscurePassphrase = !obscurePassphrase;
+                }),
+                child: Icon(
+                  Icons.remove_red_eye,
+                  color: obscurePassphrase ? Colors.black54 : Colors.black26,
+                ),
+              ),
             ),
           ]
         ]));

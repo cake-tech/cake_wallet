@@ -67,10 +67,19 @@ String getSeedLegacy(String? language) {
   }
   return legacy;
 }
+Map<int, Map<int, Map<int, String>>> addressCache = {};
 
-String getAddress({int accountIndex = 0, int addressIndex = 1}) =>
-    wownero.Wallet_address(wptr!,
+String getAddress({int accountIndex = 0, int addressIndex = 1}) {
+  while (wownero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)-1 < addressIndex) {
+    print("adding subaddress");
+    wownero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
+  }
+  addressCache[wptr!.address] ??= {};
+  addressCache[wptr!.address]![accountIndex] ??= {};
+  addressCache[wptr!.address]![accountIndex]![addressIndex] ??= wownero.Wallet_address(wptr!,
         accountIndex: accountIndex, addressIndex: addressIndex);
+  return addressCache[wptr!.address]![accountIndex]![addressIndex]!;
+}
 
 int getFullBalance({int accountIndex = 0}) =>
     wownero.Wallet_balance(wptr!, accountIndex: accountIndex);

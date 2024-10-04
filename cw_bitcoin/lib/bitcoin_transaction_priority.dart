@@ -87,7 +87,7 @@ class LitecoinTransactionPriority extends BitcoinTransactionPriority {
   }
 
   @override
-  String get units => 'Latoshi';
+  String get units => 'Litoshi';
 
   @override
   String toString() {
