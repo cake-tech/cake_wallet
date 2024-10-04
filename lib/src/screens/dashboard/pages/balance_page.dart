@@ -25,12 +25,9 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class BalancePage extends StatelessWidget {
@@ -242,8 +239,8 @@ class CryptoBalanceWidget extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: DashBoardRoundedCardWidget(
-                  title: S.current.rep_warning,
-                  subTitle: S.current.rep_warning_sub,
+                  title: S.of(context).rep_warning,
+                  subTitle: S.of(context).rep_warning_sub,
                   onTap: () => Navigator.of(context).pushNamed(Routes.changeRep),
                   onClose: () {
                     dashboardViewModel.settingsStore.shouldShowRepWarning = false;
@@ -384,12 +381,12 @@ class CryptoBalanceWidget extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: DashBoardRoundedCardWidget(
                         customBorder: 30,
-                        title: S.current.litecoin_mweb,
+                        title: S.of(context).litecoin_mweb,
                         subTitle: '',
                         hint: Column(
                           children: [
                             Text(
-                              S.current.litecoin_mweb_description,
+                              S.of(context).litecoin_mweb_description,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -406,7 +403,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                               ),
                               child: Center(
                                 child: Text(
-                                  S.current.learn_more,
+                                  S.of(context).learn_more,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontFamily: 'Lato',
@@ -433,7 +430,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                     ),
                                   ),
                                   child: Text(
-                                    S.current.litecoin_mweb_dismiss,
+                                    S.of(context).litecoin_mweb_dismiss,
                                     style: TextStyle(color: Colors.white),
                                   ),
                                 ),
@@ -500,8 +497,8 @@ class CryptoBalanceWidget extends StatelessWidget {
       await showPopUp<void>(
           context: context,
           builder: (BuildContext context) => AlertWithOneAction(
-                alertTitle: S.current.alert_notice,
-                alertContent: S.current.litecoin_mweb_warning,
+                alertTitle: S.of(context).alert_notice,
+                alertContent: S.of(context).litecoin_mweb_warning,
                 buttonText: S.of(context).understand,
                 buttonAction: () {
                   Navigator.of(context).pop();
@@ -576,7 +573,7 @@ class BalanceRowWidget extends StatelessWidget {
   //   showPopUp<void>(
   //     context: context,
   //     builder: (_) =>
-  //         InformationPage(information: S.current.available_balance_description),
+  //         InformationPage(information: S.of(context).available_balance_description),
   //   );
   // }
 
@@ -606,7 +603,7 @@ class BalanceRowWidget extends StatelessWidget {
                     behavior: HitTestBehavior.opaque,
                     onTap: hasAdditionalBalance
                         ? () => _showBalanceDescription(
-                            context, S.current.available_balance_description)
+                            context, S.of(context).available_balance_description)
                         : null,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -651,7 +648,7 @@ class BalanceRowWidget extends StatelessWidget {
                             textAlign: TextAlign.start),
                         SizedBox(height: 6),
                         if (isTestnet)
-                          Text(S.current.testnet_coins_no_value,
+                          Text(S.of(context).testnet_coins_no_value,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 14,
@@ -718,7 +715,7 @@ class BalanceRowWidget extends StatelessWidget {
                   behavior: HitTestBehavior.opaque,
                   onTap: hasAdditionalBalance
                       ? () => _showBalanceDescription(
-                          context, S.current.unavailable_balance_description)
+                          context, S.of(context).unavailable_balance_description)
                       : null,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -727,7 +724,7 @@ class BalanceRowWidget extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            S.current.unavailable_balance,
+                            S.of(context).unavailable_balance,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 12,
@@ -1013,7 +1010,7 @@ class BalanceRowWidget extends StatelessWidget {
                               width: 32,
                               height: 32,
                             ),
-                            title: S.current.litecoin_mweb_pegin,
+                            title: S.of(context).litecoin_mweb_pegin,
                             onClick: () {
                               final mwebAddress =
                                   bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
@@ -1033,7 +1030,7 @@ class BalanceRowWidget extends StatelessWidget {
                               width: 32,
                               height: 32,
                             ),
-                            title: S.current.litecoin_mweb_pegout,
+                            title: S.of(context).litecoin_mweb_pegout,
                             onClick: () {
                               bitcoin!.setAddressType(dashboardViewModel.wallet,
                                   bitcoin!.getBitcoinAddressType(BitcoinReceivePageOption.mweb));
