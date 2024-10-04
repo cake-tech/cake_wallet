@@ -26,7 +26,7 @@ abstract class ContactListViewModelBase with Store {
         isAutoGenerateEnabled =
             settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
     walletInfoSource.values.forEach((info) {
-      if (isAutoGenerateEnabled && [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) && info.addressInfos != null) {
+      if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) && info.addressInfos != null) {
         for (var key in info.addressInfos!.keys) {
           final value = info.addressInfos![key];
           final address = value?.first;
