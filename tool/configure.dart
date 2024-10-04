@@ -843,8 +843,8 @@ import 'package:eth_sig_util/util/utils.dart';
 abstract class Ethereum {
   List<String> getEthereumWordList(String language);
   WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
-  WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? parentAddress});
-  WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? parentAddress, String? passphrase});
+  WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, String? passphrase});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   WalletCredentials createEthereumHardwareWalletCredentials({required String name, required HardwareAccountData hwAccountData, WalletInfo? walletInfo});
   String getAddress(WalletBase wallet);
@@ -947,8 +947,8 @@ import 'package:eth_sig_util/util/utils.dart';
 abstract class Polygon {
   List<String> getPolygonWordList(String language);
   WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
-  WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? parentAddress});
-  WalletCredentials createPolygonRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? parentAddress, String? passphrase});
+  WalletCredentials createPolygonRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, String? passphrase});
   WalletCredentials createPolygonRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   WalletCredentials createPolygonHardwareWalletCredentials({required String name, required HardwareAccountData hwAccountData, WalletInfo? walletInfo});
   String getAddress(WalletBase wallet);
@@ -1119,6 +1119,7 @@ abstract class Nano {
     String? mnemonic,
     String? parentAddress,
     WalletInfo? walletInfo,
+    String? passphrase,
   });
   
   WalletCredentials createNanoRestoreWalletFromSeedCredentials({
@@ -1126,6 +1127,7 @@ abstract class Nano {
     required String password,
     required String mnemonic,
     required DerivationType derivationType,
+    String? passphrase,
   });
 
   WalletCredentials createNanoRestoreWalletFromKeysCredentials({
@@ -1234,9 +1236,9 @@ abstract class Solana {
   List<String> getSolanaWordList(String language);
   WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
   WalletCredentials createSolanaNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? parentAddress,});
+      {required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? parentAddress, String? passphrase});
   WalletCredentials createSolanaRestoreWalletFromSeedCredentials(
-      {required String name, required String mnemonic, required String password});
+      {required String name, required String mnemonic, required String password, String? passphrase});
   WalletCredentials createSolanaRestoreWalletFromPrivateKey(
       {required String name, required String privateKey, required String password});
 
@@ -1320,9 +1322,8 @@ import 'package:cw_tron/tron_wallet_service.dart';
 abstract class Tron {
   List<String> getTronWordList(String language);
   WalletService createTronWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
-  WalletCredentials createTronNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? mnemonic,
-  String? parentAddress});
-  WalletCredentials createTronRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
+  WalletCredentials createTronNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? parentAddress, String? passphrase});
+  WalletCredentials createTronRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, String? passphrase});
   WalletCredentials createTronRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
   String getAddress(WalletBase wallet);
 
