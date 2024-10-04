@@ -512,8 +512,8 @@ class CryptoBalanceWidget extends StatelessWidget {
     await showPopUp<void>(
         context: context,
         builder: (BuildContext context) => AlertWithOneAction(
-              alertTitle: S.current.alert_notice,
-              alertContent: S.current.litecoin_mweb_enable_later,
+              alertTitle: S.of(context).alert_notice,
+              alertContent: S.of(context).litecoin_mweb_enable_later,
               buttonText: S.of(context).understand,
               buttonAction: () {
                 Navigator.of(context).pop();
