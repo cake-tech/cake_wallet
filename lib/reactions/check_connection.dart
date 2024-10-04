@@ -11,6 +11,8 @@ Timer? _checkConnectionTimer;
 void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore,
     {int timeInterval = 5}) {
   _checkConnectionTimer?.cancel();
+  // TODO: check the validity of this code, and if it's working fine, then no need for
+  // having the connect function in electrum.dart when the syncstatus is lost or failed and add the not connected state
   _checkConnectionTimer = Timer.periodic(Duration(seconds: timeInterval), (_) async {
     if (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus) {
       return;
