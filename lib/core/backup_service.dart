@@ -130,18 +130,18 @@ class BackupService {
     final decryptedData = await _decryptV1(data, password, nonce);
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
-    zip.files.forEach((file) {
+    for (var file in zip.files) {
       final filename = file.name;
 
       if (file.isFile) {
         final content = file.content as List<int>;
         File('${appDir.path}/' + filename)
           ..createSync(recursive: true)
-          ..writeAsBytesSync(content);
+          ..writeAsBytesSync(content, flush: true);
       } else {
         Directory('${appDir.path}/' + filename)..create(recursive: true);
       }
-    });
+    };
 
     await _verifyWallets();
     await _importKeychainDumpV1(password, nonce: nonce);
@@ -153,18 +153,18 @@ class BackupService {
     final decryptedData = await _decryptV2(data, password);
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
-    zip.files.forEach((file) {
+    for (var file in zip.files) {
       final filename = file.name;
 
       if (file.isFile) {
         final content = file.content as List<int>;
         File('${appDir.path}/' + filename)
           ..createSync(recursive: true)
-          ..writeAsBytesSync(content);
+          ..writeAsBytesSync(content, flush: true);
       } else {
         Directory('${appDir.path}/' + filename)..create(recursive: true);
       }
-    });
+    };
 
     await _verifyWallets();
     await _importKeychainDumpV2(password);
