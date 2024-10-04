@@ -442,27 +442,21 @@ abstract class DashboardViewModelBase with Store {
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
 
   @action
-  void setMwebScanningActive(bool active) {
+  void setMwebScanningActive() {
     if (!hasMweb) {
       return;
     }
 
-    if (active) {
-      settingsStore.hasEnabledMwebBefore = true;
-    }
-
-    settingsStore.mwebEnabled = active;
-    mwebScanningActive = active;
-    bitcoin!.setMwebEnabled(wallet, active);
-
-    // keep mweb scanning active:
-    settingsStore.mwebEnabled = active;
+    settingsStore.hasEnabledMwebBefore = true;
+    mwebScanningActive = true;
+    bitcoin!.setMwebEnabled(wallet, true);
+    settingsStore.mwebAlwaysScan = true;
   }
 
   @action
   void dismissMweb() {
     settingsStore.mwebCardDisplay = false;
-    settingsStore.mwebEnabled = false;
+    settingsStore.mwebAlwaysScan = false;
     mwebScanningActive = false;
     bitcoin!.setMwebEnabled(wallet, false);
   }

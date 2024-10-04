@@ -508,7 +508,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 },
               ));
     }
-    dashboardViewModel.setMwebScanningActive(true);
+    dashboardViewModel.setMwebScanningActive();
   }
 
   Future<void> _dismissMweb(BuildContext context) async {
@@ -826,7 +826,7 @@ class BalanceRowWidget extends StatelessWidget {
           ),
         ),
       ),
-      if (hasAdditionalBalance || hasSecondAvailableBalance) ...[
+      if (hasSecondAdditionalBalance || hasSecondAvailableBalance) ...[
         SizedBox(height: 16),
         Container(
           margin: const EdgeInsets.only(left: 16, right: 16),
