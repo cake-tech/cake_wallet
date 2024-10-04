@@ -27,6 +27,7 @@ class EthereumWallet extends EVMChainWallet {
     super.initialBalance,
     super.privateKey,
     required super.encryptionFileUtils,
+    super.passphrase,
   }) : super(nativeCurrency: CryptoCurrency.eth);
 
   @override
@@ -150,8 +151,9 @@ class EthereumWallet extends EVMChainWallet {
     if (!hasKeysFile) {
       final mnemonic = data!['mnemonic'] as String?;
       final privateKey = data['private_key'] as String?;
+      final passphrase = data['passphrase'] as String?;
 
-      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey, passphrase: passphrase);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
         name,
@@ -166,6 +168,7 @@ class EthereumWallet extends EVMChainWallet {
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,
+      passphrase: keysData.passphrase,
       initialBalance: balance,
       client: EthereumClient(),
       encryptionFileUtils: encryptionFileUtils,

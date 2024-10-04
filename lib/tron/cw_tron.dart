@@ -15,12 +15,14 @@ class CWTron extends Tron {
     String? password,
     String? mnemonic,
     String? parentAddress,
+    String? passphrase,
   }) =>
       TronNewWalletCredentials(
           name: name,
           walletInfo: walletInfo,
           password: password,
           mnemonic: mnemonic,
+          passphrase: passphrase,
           parentAddress: parentAddress);
 
   @override
@@ -28,8 +30,14 @@ class CWTron extends Tron {
     required String name,
     required String mnemonic,
     required String password,
+    String? passphrase,
   }) =>
-      TronRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
+      TronRestoreWalletFromSeedCredentials(
+        name: name,
+        password: password,
+        mnemonic: mnemonic,
+        passphrase: passphrase,
+      );
 
   @override
   WalletCredentials createTronRestoreWalletFromPrivateKey({

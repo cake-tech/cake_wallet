@@ -1,9 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-
-const channel = MethodChannel('com.cake_wallet/native_utils');
 
 Future<String> fetchUnstoppableDomainAddress(String domain, String ticker) async {
   var address = '';
