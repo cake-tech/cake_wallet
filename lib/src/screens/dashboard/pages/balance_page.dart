@@ -24,6 +24,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -1014,13 +1015,11 @@ class BalanceRowWidget extends StatelessWidget {
                             ),
                             title: S.current.litecoin_mweb_pegin,
                             onClick: () {
-                              // TODO: use the proxy layer to get the mweb address
-                              final walletAddresses = dashboardViewModel.wallet.walletAddresses
-                                  as ElectrumWalletAddresses;
-                              final mwebAddress = walletAddresses.mwebAddresses
-                                  .firstWhere((element) => !element.isUsed);
-                              final paymentRequest = PaymentRequest.fromUri(
-                                  Uri.parse("litecoin:${mwebAddress.address}"));
+                              final mwebAddress =
+                                  bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
+                              if (mwebAddress == null) return;
+                              final paymentRequest =
+                                  PaymentRequest.fromUri(Uri.parse("litecoin:${mwebAddress}"));
                               Navigator.of(context)
                                   .pushNamed(Routes.send, arguments: paymentRequest);
                             },
@@ -1036,10 +1035,8 @@ class BalanceRowWidget extends StatelessWidget {
                             ),
                             title: S.current.litecoin_mweb_pegout,
                             onClick: () {
-                              // set addresstype to mweb
-                              // final walletAddresses = dashboardViewModel.wallet.walletAddresses as ElectrumWalletAddresses;
-                              // TODO: use the proxy layer to set the mweb address type
-                              // walletAddresses.setAddressType(SegwitAddresType.mweb);
+                              bitcoin!.setAddressType(dashboardViewModel.wallet,
+                                  bitcoin!.getBitcoinAddressType(BitcoinReceivePageOption.mweb));
                               Navigator.of(context).pushNamed(Routes.addressPage);
                             },
                           ),

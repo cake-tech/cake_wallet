@@ -654,4 +654,15 @@ class CWBitcoin extends Bitcoin {
     // TODO: this could be improved:
     return inputAddressesContainMweb || outputAddressesContainMweb;
   }
+
+  String? getUnusedMwebAddress(Object wallet) {
+    try {
+      final electrumWallet = wallet as ElectrumWallet;
+      final walletAddresses = electrumWallet.walletAddresses as ElectrumWalletAddresses;
+      final mwebAddress = walletAddresses.mwebAddresses.firstWhere((element) => !element.isUsed);
+      return mwebAddress.address;
+    } catch (_) {
+      return null;
+    }
+  }
 }
