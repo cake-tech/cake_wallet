@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -430,7 +431,7 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @computed
-  bool get hasMweb => wallet.type == WalletType.litecoin;
+  bool get hasMweb => wallet.type == WalletType.litecoin && (Platform.isIOS || Platform.isAndroid);
 
   @computed
   bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay && !mwebScanningActive;

@@ -413,9 +413,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                                     onPressed: () => _dismissMweb(context),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Theme.of(context).primaryColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(50),
-                                      ),
                                     ),
                                     child: Text(
                                       S.of(context).litecoin_mweb_dismiss,
@@ -427,6 +424,10 @@ class CryptoBalanceWidget extends StatelessWidget {
                                 Expanded(
                                   child: ElevatedButton(
                                     onPressed: () => _enableMweb(context),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors.black,
+                                    ),
                                     child: Text(
                                       S.of(context).enable,
                                       maxLines: 1,
