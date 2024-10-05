@@ -107,6 +107,7 @@ import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
@@ -230,6 +231,7 @@ abstract class Bitcoin {
   bool txIsMweb(TransactionInfo txInfo);
   Future<void> setMwebEnabled(Object wallet, bool enabled);
   bool getMwebEnabled(Object wallet);
+  String? getUnusedMwebAddress(Object wallet);
 }
   """;
 
