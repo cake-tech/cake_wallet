@@ -192,7 +192,7 @@ class MenuWidgetState extends State<MenuWidget> {
                   final item = items[index];
 
                   if (!widget.dashboardViewModel.hasMweb &&
-                      item.name(context) == S.current.litecoin_mweb_settings) {
+                      item.name(context) == S.of(context).litecoin_mweb_settings) {
                     return const SizedBox();
                   }
 

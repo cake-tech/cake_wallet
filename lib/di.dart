@@ -1158,6 +1158,7 @@ Future<void> setup({
   getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<CakePayService>()));
 
   getIt.registerFactory(() => BackupService(getIt.get<SecureStorage>(), _walletInfoSource,
+      _transactionDescriptionBox,
       getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
 
   getIt.registerFactory(() => BackupViewModel(
