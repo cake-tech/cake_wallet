@@ -25,7 +25,7 @@ abstract class CwMwebPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<int?> start(String dataDir) {
+  Future<int?> start(String dataDir, String nodeUri) {
     throw UnimplementedError('start() has not been implemented.');
   }
 

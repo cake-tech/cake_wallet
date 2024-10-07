@@ -326,13 +326,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
-            id: subaddress.id,
-            isPrimary: isPrimary,
-            name: subaddress.label,
-            address: subaddress.address,
-            balance: subaddress.received,
-            txCount: subaddress.txCount,
-          );
+          id: subaddress.id,
+          isPrimary: isPrimary,
+          name: subaddress.label,
+          address: subaddress.address,
+          balance: subaddress.received,
+          txCount: subaddress.txCount,
+        );
       });
       addressList.addAll(addressItems);
     }
@@ -418,8 +418,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         if (wallet.type == WalletType.litecoin && addressItems.length >= 1000) {
           // find the index of the last item with a txCount > 0
           final addressItemsList = addressItems.toList();
-          final lastItemWithTxCount = addressItemsList.lastWhere((item) => (item.txCount ?? 0) > 0);
-          final index = addressItemsList.indexOf(lastItemWithTxCount);
+          int index = addressItemsList.lastIndexWhere((item) => (item.txCount ?? 0) > 0);
+          if (index == -1) {
+            index = 0;
+          }
           // show only up to that index + 20:
           addressItems = addressItemsList.sublist(0, index + 20);
         }
@@ -461,14 +463,16 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     for (var i = 0; i < addressList.length; i++) {
       if (!(addressList[i] is WalletAddressListItem)) continue;
-      (addressList[i] as WalletAddressListItem).isHidden = wallet.walletAddresses.hiddenAddresses.contains((addressList[i] as WalletAddressListItem).address);
+      (addressList[i] as WalletAddressListItem).isHidden = wallet.walletAddresses.hiddenAddresses
+          .contains((addressList[i] as WalletAddressListItem).address);
     }
 
     for (var i = 0; i < addressList.length; i++) {
       if (!(addressList[i] is WalletAddressListItem)) continue;
-      (addressList[i] as WalletAddressListItem).isManual = wallet.walletAddresses.manualAddresses.contains((addressList[i] as WalletAddressListItem).address);
+      (addressList[i] as WalletAddressListItem).isManual = wallet.walletAddresses.manualAddresses
+          .contains((addressList[i] as WalletAddressListItem).address);
     }
-    
+
     if (searchText.isNotEmpty) {
       return ObservableList.of(addressList.where((item) {
         if (item is WalletAddressListItem) {
@@ -480,6 +484,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     return addressList;
   }
+
   Future<void> toggleHideAddress(WalletAddressListItem item) async {
     if (item.isHidden) {
       wallet.walletAddresses.hiddenAddresses.removeWhere((element) => element == item.address);
@@ -488,13 +493,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
     await wallet.walletAddresses.saveAddressesInBox();
     if (wallet.type == WalletType.monero) {
-      monero!.getSubaddressList(wallet).update(wallet, accountIndex: monero!.getCurrentAccount(wallet).id);
+      monero!
+          .getSubaddressList(wallet)
+          .update(wallet, accountIndex: monero!.getCurrentAccount(wallet).id);
     } else if (wallet.type == WalletType.wownero) {
-      wownero!.getSubaddressList(wallet).update(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id);
+      wownero!
+          .getSubaddressList(wallet)
+          .update(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id);
     } else if (wallet.type == WalletType.haven) {
-      haven!.getSubaddressList(wallet).update(wallet, accountIndex: haven!.getCurrentAccount(wallet).id);
+      haven!
+          .getSubaddressList(wallet)
+          .update(wallet, accountIndex: haven!.getCurrentAccount(wallet).id);
     }
   }
+
   @observable
   bool hasAccounts;
 
@@ -535,8 +547,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   bool get isReceivedAvailable =>
-      wallet.type == WalletType.monero ||
-      wallet.type == WalletType.wownero;
+      wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
 
   @computed
   bool get isSilentPayments =>
@@ -549,9 +560,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   bool get showAddManualAddresses =>
-    !isAutoGenerateSubaddressEnabled ||
-    wallet.type == WalletType.monero ||
-    wallet.type == WalletType.wownero;
+      !isAutoGenerateSubaddressEnabled ||
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.wownero;
 
   List<ListItem> _baseItems;
 

@@ -85,21 +85,9 @@ abstract class WalletCreationVMBase with Store {
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
 
-      WalletCredentials credentials;
-      if (restoreWallet != null) {
-        if (restoreWallet.restoreMode == WalletRestoreMode.seed &&
-            options == null &&
-            (type == WalletType.nano ||
-                type == WalletType.bitcoin ||
-                type == WalletType.litecoin)) {
-          final derivationInfo = await getDerivationInfo(restoreWallet);
-          options ??= {};
-          options["derivationInfo"] = derivationInfo.first;
-        }
-        credentials = getCredentialsFromRestoredWallet(options, restoreWallet);
-      } else {
-        credentials = getCredentials(options);
-      }
+      final credentials = restoreWallet != null
+          ? await getWalletCredentialsFromQRCredentials(restoreWallet)
+          : getCredentials(options);
 
       final walletInfo = WalletInfo.external(
         id: WalletBase.idFor(name, type),
@@ -200,36 +188,36 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
-  Future<List<DerivationInfo>> getDerivationInfo(RestoredWallet restoreWallet) async {
-    var list = <DerivationInfo>[];
-    final walletType = restoreWallet.type;
-    var appStore = getIt.get<AppStore>();
-    var node = appStore.settingsStore.getCurrentNode(walletType);
+  Future<List<DerivationInfo>> getDerivationInfoFromQRCredentials(RestoredWallet restoreWallet) async {
+      var list = <DerivationInfo>[];
+      final walletType = restoreWallet.type;
+      var appStore = getIt.get<AppStore>();
+      var node = appStore.settingsStore.getCurrentNode(walletType);
 
-    switch (walletType) {
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
-        return bitcoin!.getDerivationsFromMnemonic(
-          mnemonic: restoreWallet.mnemonicSeed!,
-          node: node,
-        );
-      case WalletType.nano:
-        return nanoUtil!.getDerivationsFromMnemonic(
-          mnemonic: restoreWallet.mnemonicSeed!,
-          node: node,
-        );
-      default:
-        break;
+      switch (walletType) {
+        case WalletType.bitcoin:
+        case WalletType.litecoin:
+          return bitcoin!.getDerivationsFromMnemonic(
+            mnemonic: restoreWallet.mnemonicSeed!,
+            node: node,
+            passphrase: restoreWallet.passphrase,
+          );
+        case WalletType.nano:
+          return nanoUtil!.getDerivationsFromMnemonic(
+            mnemonic: restoreWallet.mnemonicSeed!,
+            node: node,
+          );
+        default:
+          break;
+      }
+      return list;
     }
-    return list;
-  }
 
   WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
 
   Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
 
-  WalletCredentials getCredentialsFromRestoredWallet(
-          dynamic options, RestoredWallet restoreWallet) =>
+  Future<WalletCredentials> getWalletCredentialsFromQRCredentials(RestoredWallet restoreWallet) async =>
       throw UnimplementedError();
 
   Future<WalletBase> processFromRestoredWallet(

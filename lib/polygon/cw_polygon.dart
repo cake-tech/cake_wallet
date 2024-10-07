@@ -8,18 +8,21 @@ class CWPolygon extends Polygon {
       PolygonWalletService(walletInfoSource, isDirect, client: PolygonClient());
 
   @override
-  WalletCredentials createPolygonNewWalletCredentials(
-          {required String name,
-          String? mnemonic,
-          String? parentAddress,
-          WalletInfo? walletInfo,
-          String? password}) =>
+  WalletCredentials createPolygonNewWalletCredentials({
+    required String name,
+    String? mnemonic,
+    String? parentAddress,
+    WalletInfo? walletInfo,
+    String? password,
+    String? passphrase,
+  }) =>
       EVMChainNewWalletCredentials(
         name: name,
         walletInfo: walletInfo,
         password: password,
         mnemonic: mnemonic,
         parentAddress: parentAddress,
+        passphrase: passphrase,
       );
 
   @override
@@ -27,8 +30,14 @@ class CWPolygon extends Polygon {
     required String name,
     required String mnemonic,
     required String password,
+    String? passphrase,
   }) =>
-      EVMChainRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
+      EVMChainRestoreWalletFromSeedCredentials(
+        name: name,
+        password: password,
+        mnemonic: mnemonic,
+        passphrase: passphrase,
+      );
 
   @override
   WalletCredentials createPolygonRestoreWalletFromPrivateKey({

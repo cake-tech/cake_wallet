@@ -37,7 +37,6 @@ class WalletRestorePage extends BasePage {
               displayBlockHeightSelector:
                   walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
               displayLanguageSelector: walletRestoreViewModel.hasSeedLanguageSelector,
-              displayPassphrase: walletRestoreViewModel.hasPassphrase,
               type: walletRestoreViewModel.type,
               key: walletRestoreFromSeedFormKey,
               blockHeightFocusNode: _blockHeightFocusNode,
@@ -320,9 +319,7 @@ class WalletRestorePage extends BasePage {
                 -1;
       }
 
-      if (walletRestoreViewModel.hasPassphrase) {
-        credentials['passphrase'] = seedSettingsViewModel.passphrase;
-      }
+      credentials['passphrase'] = seedSettingsViewModel.passphrase;
 
       credentials['name'] =
           walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.text;
