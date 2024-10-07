@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:grpc/grpc.dart';
@@ -10,6 +13,24 @@ class CwMweb {
   static ClientChannel? _clientChannel;
   static int? _port;
   static const TIMEOUT_DURATION = Duration(seconds: 5);
+  static Timer? logTimer;
+
+  static void readFileWithTimer(String filePath) {
+    final file = File(filePath);
+    int lastLength = 0;
+
+    logTimer?.cancel();
+    logTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      final currentLength = await file.length();
+
+      if (currentLength > lastLength) {
+        final fileStream = file.openRead(lastLength, currentLength);
+        final newLines = await fileStream.transform(utf8.decoder).join();
+        lastLength = currentLength;
+        print(newLines);
+      }
+    });
+  }
 
   static Future<void> _initializeClient() async {
     await stop();
@@ -18,6 +39,15 @@ class CwMweb {
 
     final appDir = await getApplicationSupportDirectory();
     const ltcNodeUri = "45.79.13.180:9333";
+
+    String debugLogPath = "${appDir.path}/logs/debug.log";
+
+    try {
+      readFileWithTimer(debugLogPath);
+    } catch (e) {
+      print('The mwebd debug log probably is not initialized yet.');
+    }
+
     _port = await CwMwebPlatform.instance.start(appDir.path, ltcNodeUri);
     if (_port == null || _port == 0) {
       throw Exception("Failed to start server");
@@ -76,7 +106,9 @@ class CwMweb {
   }
 
   static Future<void> cleanup() async {
-    await _clientChannel?.terminate();
+    try {
+      await _clientChannel?.terminate();
+    } catch (_) {}
     _rpcClient = null;
     _clientChannel = null;
     _port = null;
@@ -125,7 +157,8 @@ class CwMweb {
         await _initializeClient();
       }
       // this is a stream, so we should have an effectively infinite timeout:
-      return _rpcClient!.utxos(request, options: CallOptions(timeout: const Duration(days: 1000 * 365)));
+      return _rpcClient!
+          .utxos(request, options: CallOptions(timeout: const Duration(days: 1000 * 365)));
     } catch (e) {
       print("Error getting utxos: $e");
       return null;

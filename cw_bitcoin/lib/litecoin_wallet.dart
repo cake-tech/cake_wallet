@@ -236,11 +236,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<void> waitForMwebAddresses() async {
     // ensure that we have the full 1000 mweb addresses generated before continuing:
     // should no longer be needed, but leaving here just in case
-    // final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
-    // while (mwebAddrs.length < 1000) {
-    //   print("waiting for mweb addresses to finish generating...");
-    //   await Future.delayed(const Duration(milliseconds: 1000));
-    // }
     await (walletAddresses as LitecoinWalletAddresses).ensureMwebAddressUpToIndexExists(1020);
   }
 
@@ -291,7 +286,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
 
-      print("SYNCING....");
+      // print("SYNCING....");
 
       final nodeHeight =
           await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node

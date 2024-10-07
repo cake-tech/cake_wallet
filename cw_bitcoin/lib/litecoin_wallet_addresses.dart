@@ -93,18 +93,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       print("Generating MWEB addresses...");
       await ensureMwebAddressUpToIndexExists(20);
       print("done generating MWEB addresses");
-      // List<BitcoinAddressRecord> addressRecords = mwebAddrs
-      //     .asMap()
-      //     .entries
-      //     .map((e) => BitcoinAddressRecord(
-      //           e.value,
-      //           index: e.key,
-      //           type: SegwitAddresType.mweb,
-      //           network: network,
-      //         ))
-      //     .toList();
-      // addMwebAddresses(addressRecords);
-      // print("added ${addressRecords.length} mweb addresses");
       return;
     }
   }
