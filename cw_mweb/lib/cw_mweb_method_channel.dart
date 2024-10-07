@@ -10,8 +10,9 @@ class MethodChannelCwMweb extends CwMwebPlatform {
   final methodChannel = const MethodChannel('cw_mweb');
 
   @override
-  Future<int?> start(String dataDir) async {
-    final result = await methodChannel.invokeMethod<int>('start', {'dataDir': dataDir});
+  Future<int?> start(String dataDir, String nodeUri) async {
+    final result =
+        await methodChannel.invokeMethod<int>('start', {'dataDir': dataDir, 'nodeUri': nodeUri});
     return result;
   }
 

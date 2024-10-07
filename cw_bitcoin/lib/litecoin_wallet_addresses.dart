@@ -70,13 +70,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         await Future.delayed(Duration(milliseconds: 100));
       }
     }
-  }
 
-  Future<void> initMwebAddresses() async {
-    if (mwebAddrs.length < 1000) {
-      print("Generating MWEB addresses...");
-      await ensureMwebAddressUpToIndexExists(1020);
-      print("done generating MWEB addresses");
+    // ensure mweb addresses are up to date:
+    if (mwebAddresses.length < mwebAddrs.length) {
       List<BitcoinAddressRecord> addressRecords = mwebAddrs
           .asMap()
           .entries
@@ -88,7 +84,27 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
               ))
           .toList();
       addMwebAddresses(addressRecords);
-      print("added ${addressRecords.length} mweb addresses");
+      print("set ${addressRecords.length} mweb addresses");
+    }
+  }
+
+  Future<void> initMwebAddresses() async {
+    if (mwebAddrs.length < 1000) {
+      print("Generating MWEB addresses...");
+      await ensureMwebAddressUpToIndexExists(20);
+      print("done generating MWEB addresses");
+      // List<BitcoinAddressRecord> addressRecords = mwebAddrs
+      //     .asMap()
+      //     .entries
+      //     .map((e) => BitcoinAddressRecord(
+      //           e.value,
+      //           index: e.key,
+      //           type: SegwitAddresType.mweb,
+      //           network: network,
+      //         ))
+      //     .toList();
+      // addMwebAddresses(addressRecords);
+      // print("added ${addressRecords.length} mweb addresses");
       return;
     }
   }

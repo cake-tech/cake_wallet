@@ -17,7 +17,8 @@ class CwMweb {
     await Future.delayed(const Duration(seconds: 5));
 
     final appDir = await getApplicationSupportDirectory();
-    _port = await CwMwebPlatform.instance.start(appDir.path);
+    const ltcNodeUri = "45.79.13.180:9333";
+    _port = await CwMwebPlatform.instance.start(appDir.path, ltcNodeUri);
     if (_port == null || _port == 0) {
       throw Exception("Failed to start server");
     }

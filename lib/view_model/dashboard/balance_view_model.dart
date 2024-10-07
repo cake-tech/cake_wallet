@@ -358,14 +358,15 @@ abstract class BalanceViewModelBase with Store {
   }
 
   bool _hasSecondAdditionalBalanceForWalletType(WalletType type) {
-    if (wallet.type == WalletType.litecoin && settingsStore.mwebEnabled) {
+    if (wallet.type == WalletType.litecoin && settingsStore.mwebAlwaysScan) {
+      // if ((wallet.balance[CryptoCurrency.ltc]?.secondAdditional ?? 0) > 0)
       return true;
     }
     return false;
   }
 
   bool _hasSecondAvailableBalanceForWalletType(WalletType type) {
-    if (wallet.type == WalletType.litecoin && settingsStore.mwebEnabled) {
+    if (wallet.type == WalletType.litecoin && settingsStore.mwebAlwaysScan) {
       return true;
     }
     return false;

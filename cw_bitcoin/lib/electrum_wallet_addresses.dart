@@ -100,10 +100,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const gap = 20;
 
   final ObservableList<BitcoinAddressRecord> _addresses;
-  late ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
+  final ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
+  // TODO: add this variable in `bitcoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
   final ObservableList<BitcoinSilentPaymentAddressRecord> silentAddresses;
+  // TODO: add this variable in `litecoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
   final ObservableList<BitcoinAddressRecord> mwebAddresses;
   final BasedUtxoNetwork network;
   final Bip32Slip10Secp256k1 mainHd;

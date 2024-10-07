@@ -27,6 +27,7 @@ class PolygonWallet extends EVMChainWallet {
     super.privateKey,
     required super.client,
     required super.encryptionFileUtils,
+    super.passphrase,
   }) : super(nativeCurrency: CryptoCurrency.maticpoly);
 
   @override
@@ -128,8 +129,9 @@ class PolygonWallet extends EVMChainWallet {
     if (!hasKeysFile) {
       final mnemonic = data!['mnemonic'] as String?;
       final privateKey = data['private_key'] as String?;
+      final passphrase = data['passphrase'] as String?;
 
-      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey, passphrase: passphrase);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
         name,
@@ -144,6 +146,7 @@ class PolygonWallet extends EVMChainWallet {
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,
+      passphrase: keysData.passphrase,
       initialBalance: balance,
       client: PolygonClient(),
       encryptionFileUtils: encryptionFileUtils,
