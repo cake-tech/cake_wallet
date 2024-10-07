@@ -308,7 +308,6 @@
   "filter_by": "Filter by",
   "first_wallet_text": "Awesome wallet for Monero, Bitcoin, Ethereum, Litecoin, and Haven",
   "fixed_pair_not_supported": "This fixed pair is not supported with the selected swap services",
-  "fixed_pair_not_supported:": "This fixed pair is not supported with the selected swap services",
   "fixed_rate": "Fixed rate",
   "fixed_rate_alert": "You will be able to enter receive amount when fixed rate mode is checked. Do you want to switch to fixed rate mode?",
   "forgot_password": "Forgot Password",
