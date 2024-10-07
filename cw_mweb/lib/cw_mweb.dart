@@ -105,6 +105,15 @@ class CwMweb {
     }
   }
 
+  static Future<List<String>?> addresses(Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) async {
+    try {
+      return CwMwebPlatform.instance.addresses(scanSecret, spendPub, fromIndex, toIndex);
+    } catch (e) {
+      print("Error getting addresses: $e");
+      return null;
+    }
+  }
+
   static Future<void> cleanup() async {
     try {
       await _clientChannel?.terminate();

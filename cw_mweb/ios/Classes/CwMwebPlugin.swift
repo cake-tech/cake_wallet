@@ -42,6 +42,17 @@ public static func register(with registrar: FlutterPluginRegistrar) {
                 let spendPubData = spendPub.data
                 result(MwebdAddress(scanSecretData, spendPubData, index))
                 break
+            case "addresses":
+                let args = call.arguments as! [String: Any]
+                let scanSecret = args["scanSecret"] as! FlutterStandardTypedData
+                let spendPub = args["spendPub"] as! FlutterStandardTypedData
+                let fromIndex = args["fromIndex"] as! Int32
+                let toIndex = args["toIndex"] as! Int32
+                
+                let scanSecretData = scanSecret.data
+                let spendPubData = spendPub.data
+                result(MwebdAddresses(scanSecretData, spendPubData, fromIndex, toIndex))
+                break
             default:
                 result(FlutterMethodNotImplemented)
                 break

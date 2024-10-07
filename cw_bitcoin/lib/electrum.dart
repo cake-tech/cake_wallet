@@ -437,7 +437,7 @@ class ElectrumClient {
 
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
-    if (socket == null || _connectionStatus == ConnectionStatus.disconnected) {
+    if (socket == null || !isConnected) {
       return null;
     }
     final completer = Completer<dynamic>();
@@ -453,7 +453,7 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
-      if (socket == null || _connectionStatus == ConnectionStatus.disconnected) {
+      if (socket == null || !isConnected) {
         return null;
       }
       final completer = Completer<dynamic>();
