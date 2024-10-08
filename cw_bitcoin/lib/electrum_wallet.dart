@@ -1315,7 +1315,7 @@ abstract class ElectrumWalletBase
 
     // Set the balance of all non-silent payment addresses to 0 before updating
     walletAddresses.allAddresses.forEach((addr) {
-      if(addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
+      if (addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
     });
 
     await Future.wait(walletAddresses.allAddresses.map((address) async {
@@ -1874,6 +1874,7 @@ abstract class ElectrumWalletBase
   Future<void> updateTransactions() async {
     try {
       if (_isTransactionUpdating) {
+        _isTransactionUpdating = false;
         return;
       }
       await getCurrentChainTip();
