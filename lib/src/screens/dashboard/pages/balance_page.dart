@@ -846,24 +846,12 @@ class BalanceRowWidget extends StatelessWidget {
                             padding: EdgeInsets.only(right: 16, top: 16),
                             child: Column(
                               children: [
-                                CakeImageWidget(
-                                  imageUrl: 'assets/images/mweb_logo.png',
-                                  height: 40,
-                                  width: 40,
-                                  displayOnError: Container(
-                                    height: 30.0,
-                                    width: 30.0,
-                                    child: Center(
-                                      child: Text(
-                                        currency.title.substring(0, min(currency.title.length, 2)),
-                                        style: TextStyle(fontSize: 11),
-                                      ),
-                                    ),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.grey.shade400,
-                                    ),
-                                  ),
+                                ImageIcon(
+                                  AssetImage('assets/images/mweb_logo.png'),
+                                  color: Theme.of(context)
+                                      .extension<DashboardPageTheme>()!
+                                      .pageTitleTextColor,
+                                  size: 40,
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
