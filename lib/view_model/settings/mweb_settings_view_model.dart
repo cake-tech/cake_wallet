@@ -10,6 +10,7 @@ class MwebSettingsViewModel = MwebSettingsViewModelBase with _$MwebSettingsViewM
 abstract class MwebSettingsViewModelBase with Store {
   MwebSettingsViewModelBase(this._settingsStore, this._wallet) {
     mwebScan = bitcoin!.getMwebEnabled(_wallet);
+    _settingsStore.mwebAlwaysScan = mwebScan;
   }
 
   final SettingsStore _settingsStore;

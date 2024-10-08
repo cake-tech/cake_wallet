@@ -258,6 +258,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       if (!mwebEnabled) {
         try {
+          // in case we're switching from a litecoin wallet that had mweb enabled
+          await CwMweb.stop();
+        } catch (_) {}
+        try {
           await updateAllUnspents();
           await updateTransactions();
           await updateBalance();
