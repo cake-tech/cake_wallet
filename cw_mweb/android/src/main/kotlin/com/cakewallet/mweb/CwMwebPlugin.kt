@@ -50,7 +50,7 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
       val spendPub: ByteArray = call.argument<ByteArray>("spendPub") ?: ByteArray(0)
       val fromIndex: Int = call.argument<Int>("fromIndex") ?: 0
       val toIndex: Int = call.argument<Int>("toIndex") ?: 0
-      val res = Mwebd.address(scanSecret, spendPub, fromIndex, toIndex)
+      val res = Mwebd.addresses(scanSecret, spendPub, fromIndex, toIndex)
       result.success(res)
     } else {
       result.notImplemented()

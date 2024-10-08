@@ -37,7 +37,7 @@ abstract class AppStoreBase with Store {
   @action
   Future<void> changeCurrentWallet(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) async {
-    this.wallet?.close();
+    await this.wallet?.close();
     this.wallet = wallet;
     this.wallet!.setExceptionHandler(ExceptionHandler.onError);
 

@@ -259,13 +259,11 @@ abstract class DashboardViewModelBase with Store {
 
     if (hasMweb) {
       mwebScanningActive = bitcoin!.getMwebEnabled(wallet);
-      settingsStore.mwebEnabled = mwebScanningActive;
-      reaction((_) => settingsStore.mwebAlwaysScan, (bool alwaysScan) {
-        if (alwaysScan) {
-          mwebScanningActive = true;
-        } else {
-          mwebScanningActive = false;
-        }
+      reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
+        mwebScanningActive = bitcoin!.getMwebEnabled(wallet);
+      });
+      reaction((_) => appStore.wallet, (_) {
+        mwebScanningActive = bitcoin!.getMwebEnabled(wallet);
       });
     }
   }

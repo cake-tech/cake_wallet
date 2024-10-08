@@ -35,7 +35,7 @@ class CwMweb {
   static Future<void> _initializeClient() async {
     await stop();
     // wait a few seconds to make sure the server is stopped
-    await Future.delayed(const Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 3));
 
     final appDir = await getApplicationSupportDirectory();
     const ltcNodeUri = "ltc-electrum.cakewallet.com:9333";
@@ -105,9 +105,11 @@ class CwMweb {
     }
   }
 
-  static Future<List<String>?> addresses(Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) async {
+  static Future<List<String>?> addresses(
+      Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) async {
     try {
-      return CwMwebPlatform.instance.addresses(scanSecret, spendPub, fromIndex, toIndex);
+      return (await CwMwebPlatform.instance.addresses(scanSecret, spendPub, fromIndex, toIndex))
+          ?.split(';');
     } catch (e) {
       print("Error getting addresses: $e");
       return null;

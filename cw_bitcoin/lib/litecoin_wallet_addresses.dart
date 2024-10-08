@@ -63,16 +63,32 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
     Uint8List scan = Uint8List.fromList(scanSecret);
     Uint8List spend = Uint8List.fromList(spendPubkey);
+    // while (mwebAddrs.length <= (index + 1)) {
+    // final addresses =
+    //     await CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
+    // // sleep for a bit to avoid making the main thread unresponsive:
+    // await Future.delayed(Duration(milliseconds: 250));
+    // mwebAddrs.addAll(addresses!);
+    // }
+
     int count = 0;
     while (mwebAddrs.length <= (index + 1)) {
+      // final addresses =
+      //     await CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
+      // // sleep for a bit to avoid making the main thread unresponsive:
+      // await Future.delayed(Duration(milliseconds: 250));
+      // mwebAddrs.addAll(addresses!);
+
+      print(mwebAddrs.length);
+
       final address = await CwMweb.address(scan, spend, mwebAddrs.length);
-      mwebAddrs.add(address!);
       count++;
-      // sleep for a bit to avoid making the main thread unresponsive:
-      if (count > 50) {
+      if (count > 100) {
+        // sleep for a bit to avoid making the main thread unresponsive:
+        await Future.delayed(Duration(milliseconds: 200));
         count = 0;
-        await Future.delayed(Duration(milliseconds: 100));
       }
+      mwebAddrs.add(address!);
     }
 
     // ensure mweb addresses are up to date:

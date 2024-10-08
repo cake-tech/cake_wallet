@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -54,6 +55,9 @@ abstract class BalanceViewModelBase with Store {
         isShowCard = appStore.wallet!.walletInfo.isShowIntroCakePayCard,
         wallet = appStore.wallet! {
     reaction((_) => appStore.wallet, _onWalletChange);
+    // reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
+    //   print(value);
+    // });
   }
 
   final AppStore appStore;
@@ -359,8 +363,9 @@ abstract class BalanceViewModelBase with Store {
 
   bool _hasSecondAdditionalBalanceForWalletType(WalletType type) {
     if (wallet.type == WalletType.litecoin && settingsStore.mwebAlwaysScan) {
-      // if ((wallet.balance[CryptoCurrency.ltc]?.secondAdditional ?? 0) > 0)
-      return true;
+      if ((wallet.balance[CryptoCurrency.ltc]?.secondAdditional ?? 0) > 0) {
+        return true;
+      }
     }
     return false;
   }

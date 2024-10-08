@@ -1174,6 +1174,7 @@ abstract class ElectrumWalletBase
         'silent_addresses': walletAddresses.silentAddresses.map((addr) => addr.toJSON()).toList(),
         'silent_address_index': walletAddresses.currentSilentAddressIndex.toString(),
         'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
+        'alwaysScan': alwaysScan,
       });
 
   int feeRate(TransactionPriority priority) {
@@ -1315,7 +1316,7 @@ abstract class ElectrumWalletBase
 
     // Set the balance of all non-silent payment addresses to 0 before updating
     walletAddresses.allAddresses.forEach((addr) {
-      if(addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
+      if (addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
     });
 
     await Future.wait(walletAddresses.allAddresses.map((address) async {

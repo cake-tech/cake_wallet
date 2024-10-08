@@ -70,6 +70,7 @@ abstract class WalletListViewModelBase with Store {
 
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
+    await _appStore.wallet?.close();
     final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
     await _appStore.changeCurrentWallet(wallet);
   }

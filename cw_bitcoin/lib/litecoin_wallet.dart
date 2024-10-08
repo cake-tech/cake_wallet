@@ -76,8 +76,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           seedBytes: seedBytes,
           encryptionFileUtils: encryptionFileUtils,
           currency: CryptoCurrency.ltc,
+          alwaysScan: alwaysScan,
         ) {
     mwebHd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/1000'") as Bip32Slip10Secp256k1;
+    print("STARTED WITH $alwaysScan");
     mwebEnabled = alwaysScan ?? false;
     walletAddresses = LitecoinWalletAddresses(
       walletInfo,
@@ -229,7 +231,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: snp?.regularAddressIndex,
       initialChangeAddressIndex: snp?.changeAddressIndex,
       addressPageType: snp?.addressPageType,
-      alwaysScan: alwaysScan,
+      alwaysScan: snp?.alwaysScan,
     );
   }
 
@@ -251,7 +253,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       syncStatus = SyncronizingSyncStatus();
       await subscribeForUpdates();
       updateFeeRates();
-
       _feeRatesTimer?.cancel();
       _feeRatesTimer =
           Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
@@ -285,8 +286,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
-
-      // print("SYNCING....");
 
       final nodeHeight =
           await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
@@ -1000,7 +999,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _feeRatesTimer?.cancel();
     _syncTimer?.cancel();
     _processingTimer?.cancel();
-    await stopSync();
+    try {
+      await stopSync();
+    } catch (_) {}
     await super.close();
   }
 
@@ -1009,9 +1010,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return;
     }
 
+    alwaysScan = enabled;
     mwebEnabled = enabled;
+    await save();
     (walletAddresses as LitecoinWalletAddresses).mwebEnabled = enabled;
-    await stopSync();
+    try {
+      await stopSync();
+    } catch (_) {}
+    await Future.delayed(const Duration(seconds: 3));
     await startSync();
   }
 

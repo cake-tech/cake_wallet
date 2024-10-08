@@ -33,9 +33,9 @@ class MwebSettingsPage extends BasePage {
               ),
               SettingsSwitcherCell(
                 title: S.current.litecoin_mweb_always_scan,
-                value: _mwebSettingsViewModel.mwebAlwaysScan,
+                value: _mwebSettingsViewModel.mwebScan,
                 onValueChange: (_, bool value) {
-                  _mwebSettingsViewModel.setMwebAlwaysScan(value);
+                  _mwebSettingsViewModel.setMwebScan(value);
                 },
               ),
               SettingsCellWithArrow(
