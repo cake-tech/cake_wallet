@@ -10,6 +10,7 @@ import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -53,12 +54,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     _initialize();
   }
 
-  @observable
-  List<CryptoCurrency> cryptoCurrencies;
-
-  @observable
-  List<FiatCurrency> fiatCurrencies;
-
   final NumberFormat _cryptoNumberFormat;
   late Timer bestRateSync;
 
@@ -99,12 +94,15 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   SettingsStore settingsStore;
 
-  List<SelectableItem> get quoteOptions => [
-        OptionTitle(title: 'Recommended'),
-        ...sortedRecommendedQuotes,
-        OptionTitle(title: 'All Providers'),
-        ...sortedQuotes
-      ];
+  Quote? bestRateQuote;
+
+  Quote? selectedQuote;
+
+  @observable
+  List<CryptoCurrency> cryptoCurrencies;
+
+  @observable
+  List<FiatCurrency> fiatCurrencies;
 
   @observable
   bool isBuyAction = true;
@@ -137,12 +135,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   String cryptoCurrencyAddress;
 
   @observable
-  Quote? bestRateQuote;
-
-  @observable
-  Quote? selectedQuote;
-
-  @observable
   PaymentMethod? selectedPaymentMethod;
 
   @observable
@@ -152,11 +144,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   BuySellQuotLoadingState buySellQuotState;
 
   @computed
-  bool get isReadyToTrade =>
-      selectedQuote != null &&
-      selectedPaymentMethod != null &&
-      paymentMethodState is PaymentMethodLoaded &&
-      buySellQuotState is BuySellQuotLoaded;
+  bool get isReadyToTrade {
+    final hasSelectedQuote = selectedQuote != null;
+    final hasSelectedPaymentMethod = selectedPaymentMethod != null;
+    final isPaymentMethodLoaded = paymentMethodState is PaymentMethodLoaded;
+    final isBuySellQuotLoaded = buySellQuotState is BuySellQuotLoaded;
+
+    return hasSelectedQuote &&
+        hasSelectedPaymentMethod &&
+        isPaymentMethodLoaded &&
+        isBuySellQuotLoaded;
+  }
 
   @action
   void reset() {
@@ -209,8 +207,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           .toString()
           .replaceAll(RegExp('\\,'), '');
     }
-
-    await calculateBestRate();
   }
 
   @action
@@ -235,7 +231,6 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           .toString()
           .replaceAll(RegExp('\\,'), '');
     }
-    await calculateBestRate();
   }
 
   @action
@@ -252,6 +247,61 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     } else {
       throw ArgumentError('Unknown option type');
     }
+  }
+
+  void onTapChoseProvider(BuildContext context) async {
+    final initialQuotes = List<Quote>.from(sortedRecommendedQuotes + sortedQuotes);
+    await calculateBestRate();
+    final newQuotes = (sortedRecommendedQuotes + sortedQuotes);
+
+    for (var quote in newQuotes) quote.limits = null;
+
+    final newQuoteProviders = newQuotes
+        .map((quote) => quote.provider.isAggregator ? quote.rampName : quote.provider.title)
+        .toSet();
+
+    final outOfLimitQuotes = initialQuotes.where((initialQuote) {
+      return !newQuoteProviders.contains(
+          initialQuote.provider.isAggregator ? initialQuote.rampName : initialQuote.provider.title);
+    }).map((missingQuote) {
+      final quote = Quote(
+        rate: missingQuote.rate,
+        feeAmount: missingQuote.feeAmount,
+        networkFee: missingQuote.networkFee,
+        transactionFee: missingQuote.transactionFee,
+        payout: missingQuote.payout,
+        rampId: missingQuote.rampId,
+        rampName: missingQuote.rampName,
+        rampIconPath: missingQuote.rampIconPath,
+        paymentType: missingQuote.paymentType,
+        quoteId: missingQuote.quoteId,
+        recommendations: missingQuote.recommendations,
+        provider: missingQuote.provider,
+        isBuyAction: missingQuote.isBuyAction,
+        limits: missingQuote.limits,
+      );
+      quote.sourceCurrency = missingQuote.sourceCurrency;
+      quote.destinationCurrency = missingQuote.destinationCurrency;
+      return quote;
+    }).toList();
+
+    final updatedQuoteOptions = List<SelectableItem>.from([
+      OptionTitle(title: 'Recommended'),
+      ...sortedRecommendedQuotes,
+      if (sortedQuotes.isNotEmpty) OptionTitle(title: 'All Providers'),
+      ...sortedQuotes,
+      if (outOfLimitQuotes.isNotEmpty) OptionTitle(title: 'Out of Limits'),
+      ...outOfLimitQuotes,
+    ]);
+
+    await Navigator.of(context).pushNamed(
+      Routes.buyOptionsPage,
+      arguments: [
+        updatedQuoteOptions,
+        changeOption,
+        launchTrade,
+      ],
+    ).then((value) => calculateBestRate());
   }
 
   void _onPairChange() {
@@ -353,10 +403,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     if (sortedRecommendedQuotes.isNotEmpty) {
       sortedRecommendedQuotes.first
         ..isBestRate = true
-        ..isSelected = true
         ..recommendations.insert(0, ProviderRecommendation.bestRate);
       bestRateQuote = sortedRecommendedQuotes.first;
+
+      sortedRecommendedQuotes.sort((a, b) {
+        if (a.provider is OnRamperBuyProvider) return -1;
+        if (b.provider is OnRamperBuyProvider) return 1;
+        return 0;
+      });
+
       selectedQuote = sortedRecommendedQuotes.first;
+      sortedRecommendedQuotes.first.isSelected = true;
     }
 
     buySellQuotState = BuySellQuotLoaded();
@@ -365,7 +422,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @action
   Future<void> launchTrade(BuildContext context) async {
     final provider = selectedQuote!.provider;
-    provider.launchProvider(
+    await provider.launchProvider(
       context: context,
       quote: selectedQuote!,
       amount: amount,

@@ -5,6 +5,7 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
@@ -17,8 +18,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
-
-import '../../entities/fiat_currency.dart';
 
 class RobinhoodBuyProvider extends BuyProvider {
   RobinhoodBuyProvider(
@@ -170,8 +169,8 @@ class RobinhoodBuyProvider extends BuyProvider {
       if (response.statusCode == 200) {
         final paymentType = _getPaymentTypeByString(responseData['paymentMethod'] as String?);
         final quote = Quote.fromRobinhoodJson(responseData, isBuyAction, paymentType);
-        quote.setSourceCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
-        quote.setDestinationCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
+        quote.setSourceCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
+        quote.setDestinationCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
         return [quote];
       } else {
         if (responseData.containsKey('message')) {

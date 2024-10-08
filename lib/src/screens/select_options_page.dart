@@ -22,19 +22,21 @@ abstract class SelectOptionsPage extends BasePage {
 
   double? get imageWidth;
 
-  TextStyle? get subTitleTextStyle;
-
   Color? get selectedBackgroundColor;
 
   double? get tileBorderRadius;
 
   String get bottomSectionText;
 
-  bool get confirmButtonEnabled => true;
+  bool get primaryButtonEnabled => true;
+
+  String get primaryButtonText => '';
 
   List<SelectableItem> get items;
 
   void Function(SelectableOption option)? get onOptionTap;
+
+  void Function(BuildContext context)? get primaryButtonAction;
 
   @override
   String get title => pageTitle;
@@ -44,11 +46,9 @@ abstract class SelectOptionsPage extends BasePage {
     return ScrollableWithBottomSection(
       content: BodySelectOptionsPage(
           items: items,
-          // Updated to pass items list
           onOptionTap: onOptionTap,
           tilePadding: tilePadding,
           tileBorderRadius: tileBorderRadius,
-          subTitleTextStyle: subTitleTextStyle,
           imageHeight: imageHeight,
           imageWidth: imageWidth,
           innerPadding: innerPadding),
@@ -65,10 +65,14 @@ abstract class SelectOptionsPage extends BasePage {
                 color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
               ),
             ),
-            if (confirmButtonEnabled)
+            if (primaryButtonEnabled)
               LoadingPrimaryButton(
-                  text: 'Confirm',
-                  onPressed: () => Navigator.pop(context),
+                  text: primaryButtonText,
+                  onPressed: () {
+                    primaryButtonAction != null
+                        ? primaryButtonAction!(context)
+                        : Navigator.pop(context);
+                  },
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
                   isDisabled: false,
@@ -86,7 +90,6 @@ class BodySelectOptionsPage extends StatefulWidget {
     this.onOptionTap,
     this.tilePadding,
     this.tileBorderRadius,
-    this.subTitleTextStyle,
     this.imageHeight,
     this.imageWidth,
     this.innerPadding,
@@ -96,7 +99,6 @@ class BodySelectOptionsPage extends StatefulWidget {
   final void Function(SelectableOption option)? onOptionTap;
   final EdgeInsets? tilePadding;
   final double? tileBorderRadius;
-  final TextStyle? subTitleTextStyle;
   final double? imageHeight;
   final double? imageWidth;
   final EdgeInsets? innerPadding;
@@ -175,20 +177,20 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
                   imageWidth: widget.imageWidth,
                   padding: widget.innerPadding,
                   description: item.description,
-                  leftSubTitle: item.leftSubTitle,
-                  rightSubTitle: item.rightSubTitle,
-                  rightSubTitleLightIconPath: item.rightSubTitleLightIconPath,
-                  rightSubTitleDarkIconPath: item.rightSubTitleDarkIconPath,
+                  topLeftSubTitle: item.topLeftSubTitle,
+                  topRightSubTitle: item.topRightSubTitle,
+                  rightSubTitleLightIconPath: item.topRightSubTitleLightIconPath,
+                  rightSubTitleDarkIconPath: item.topRightSubTitleDarkIconPath,
+                  bottomLeftSubTitle: item.bottomLeftSubTitle,
                   badges: item.badges,
                   isSelected: item.isOptionSelected,
-                  subTitleTextStyle: widget.subTitleTextStyle,
                   borderRadius: widget.tileBorderRadius,
                   isLightMode: isLightMode,
                   onPressed: () => _handleOptionTap(item),
                 ),
               );
             }
-            return const SizedBox.shrink(); // Fallback for any unsupported items
+            return const SizedBox.shrink();
           }).toList(),
         ),
       ),

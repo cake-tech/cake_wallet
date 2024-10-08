@@ -28,9 +28,6 @@ class PaymentMethodOptionsPage extends SelectOptionsPage {
   double? get imageWidth => null;
 
   @override
-  TextStyle? get subTitleTextStyle => null;
-
-  @override
   Color? get selectedBackgroundColor => null;
 
   @override
@@ -41,4 +38,10 @@ class PaymentMethodOptionsPage extends SelectOptionsPage {
 
   @override
   void Function(SelectableOption option)? get onOptionTap => pickAnOption;
+
+  @override
+  String get primaryButtonText => S.current.confirm;
+
+  @override
+  void Function(BuildContext context)? get primaryButtonAction => null;
 }

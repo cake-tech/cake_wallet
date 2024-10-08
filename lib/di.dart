@@ -1190,9 +1190,9 @@ Future<void> setup({
   getIt.registerFactoryParam<BuyOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
     final items = args.first as List<SelectableItem>;
     final pickAnOption = args[1] as void Function(SelectableOption option)?;
-
+    final confirmOption = args[2] as void Function(BuildContext contex)?;
     return BuyOptionsPage(
-        items: items, pickAnOption: pickAnOption);
+        items: items, pickAnOption: pickAnOption, confirmOption: confirmOption);
   });
 
   getIt.registerFactoryParam<PaymentMethodOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {

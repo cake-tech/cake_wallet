@@ -10,8 +10,10 @@ class ProviderOptionTile extends StatelessWidget {
     required this.lightImagePath,
     required this.darkImagePath,
     required this.title,
-    this.leftSubTitle,
-    this.rightSubTitle,
+    this.topLeftSubTitle,
+    this.topRightSubTitle,
+    this.bottomLeftSubTitle,
+    this.bottomRightSubTitle,
     this.leftSubTitleIconPath,
     this.rightSubTitleLightIconPath,
     this.rightSubTitleDarkIconPath,
@@ -22,7 +24,8 @@ class ProviderOptionTile extends StatelessWidget {
     this.imageWidth,
     this.padding,
     this.titleTextStyle,
-    this.subTitleTextStyle,
+    this.firstSubTitleTextStyle,
+    this.secondSubTitleTextStyle,
     this.leadingIcon,
     this.selectedBackgroundColor,
     this.isSelected = false,
@@ -33,8 +36,10 @@ class ProviderOptionTile extends StatelessWidget {
   final String lightImagePath;
   final String darkImagePath;
   final String title;
-  final String? leftSubTitle;
-  final String? rightSubTitle;
+  final String? topLeftSubTitle;
+  final String? topRightSubTitle;
+  final String? bottomLeftSubTitle;
+  final String? bottomRightSubTitle;
   final String? leftSubTitleIconPath;
   final String? rightSubTitleLightIconPath;
   final String? rightSubTitleDarkIconPath;
@@ -45,7 +50,8 @@ class ProviderOptionTile extends StatelessWidget {
   final double? imageWidth;
   final EdgeInsets? padding;
   final TextStyle? titleTextStyle;
-  final TextStyle? subTitleTextStyle;
+  final TextStyle? firstSubTitleTextStyle;
+  final TextStyle? secondSubTitleTextStyle;
   final IconData? leadingIcon;
   final Color? selectedBackgroundColor;
   final bool isSelected;
@@ -72,7 +78,6 @@ class ProviderOptionTile extends StatelessWidget {
     final badgeTextColor = isSelected
         ? Theme.of(context).extension<OptionTileTheme>()!.titleColor
         : Theme.of(context).cardColor;
-
 
     final imagePath = isSelected
         ? isLightMode
@@ -128,54 +133,18 @@ class ProviderOptionTile extends StatelessWidget {
                   ),
                 ],
               ),
-              if (leftSubTitle != null || rightSubTitle != null)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    leftSubTitle != null || leftSubTitleIconPath != null
-                        ? Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              children: [
-                                if (leftSubTitleIconPath != null &&
-                                    leftSubTitleIconPath!.isNotEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 6),
-                                    child: getImage(leftSubTitleIconPath!),
-                                  ),
-                                Text(
-                                  leftSubTitle ?? '',
-                                  style: subTitleTextStyle ??
-                                      TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: textColor),
-                                ),
-                              ],
-                            ),
-                          )
-                        : Offstage(),
-                    rightSubTitle != null || rightSubTitleIconPath != null
-                        ? Row(
-                            children: [
-                              if (rightSubTitleIconPath != null && rightSubTitleIconPath.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 4),
-                                  child: getImage(rightSubTitleIconPath, imageColor: textColor),
-                                ),
-                              Text(
-                                rightSubTitle ?? '',
-                                style: subTitleTextStyle ??
-                                    TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        color: textColor),
-                              ),
-                            ],
-                          )
-                        : Offstage(),
-                  ],
-                ),
+              if (topLeftSubTitle != null || topRightSubTitle != null)
+                subTitleWidget(
+                    leftSubTitle: topLeftSubTitle,
+                    subTitleIconPath: leftSubTitleIconPath,
+                    textColor: textColor,
+                    rightSubTitle: topRightSubTitle,
+                    rightSubTitleIconPath: rightSubTitleIconPath),
+              if (bottomLeftSubTitle != null || bottomRightSubTitle != null)
+                subTitleWidget(
+                    leftSubTitle: bottomLeftSubTitle,
+                    textColor: textColor,
+                    subTitleFontSize: 12),
               if (badges != null && badges!.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 12),
@@ -190,6 +159,68 @@ class ProviderOptionTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class subTitleWidget extends StatelessWidget {
+  const subTitleWidget({
+    super.key,
+    this.leftSubTitle,
+    this.subTitleIconPath,
+    required this.textColor,
+    this.rightSubTitle,
+    this.rightSubTitleIconPath,
+    this.subTitleFontSize = 16,
+  });
+
+  final String? leftSubTitle;
+  final String? subTitleIconPath;
+  final Color textColor;
+  final String? rightSubTitle;
+  final String? rightSubTitleIconPath;
+  final double subTitleFontSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        leftSubTitle != null || subTitleIconPath != null
+            ? Row(
+              children: [
+                if (subTitleIconPath != null && subTitleIconPath!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: getImage(subTitleIconPath!),
+                  ),
+                Text(
+                  leftSubTitle ?? '',
+                  style: TextStyle(
+                      fontSize: subTitleFontSize,
+                      fontWeight: FontWeight.w700,
+                      color: textColor),
+                ),
+              ],
+            )
+            : Offstage(),
+        rightSubTitle != null || rightSubTitleIconPath != null
+            ? Row(
+                children: [
+                  if (rightSubTitleIconPath != null && rightSubTitleIconPath!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 4),
+                      child: getImage(rightSubTitleIconPath!, imageColor: textColor),
+                    ),
+                  Text(
+                    rightSubTitle ?? '',
+                    style: TextStyle(
+                        fontSize: subTitleFontSize, fontWeight: FontWeight.w700, color: textColor),
+                  ),
+                ],
+              )
+            : Offstage(),
+      ],
     );
   }
 }

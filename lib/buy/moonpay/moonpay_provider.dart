@@ -199,8 +199,8 @@ class MoonPayProvider extends BuyProvider {
         final quote =
             Quote.fromMoonPayJson(data, isBuyAction, _getPaymentTypeByString(paymentMethods));
 
-        quote.setSourceCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
-        quote.setDestinationCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
+        quote.setSourceCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
+        quote.setDestinationCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
 
         return [quote];
       } else {

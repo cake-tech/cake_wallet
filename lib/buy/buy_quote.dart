@@ -2,6 +2,7 @@ import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
+import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cw_core/currency.dart';
 
 enum ProviderRecommendation { bestRate, lowKyc, successRate }
@@ -47,6 +48,7 @@ class Quote extends SelectableOption {
     this.rampId,
     this.rampName,
     this.rampIconPath,
+    this.limits,
   }) : super(title: provider.isAggregator ? rampName ?? '' : provider.title);
 
   final double rate;
@@ -64,6 +66,7 @@ class Quote extends SelectableOption {
   bool isSelected = false;
   bool isBestRate = false;
   bool isBuyAction;
+  Limits? limits;
 
   late Currency sourceCurrency;
   late Currency destinationCurrency;
@@ -83,18 +86,32 @@ class Quote extends SelectableOption {
   List<String> get badges => recommendations.map((e) => e.title).toList();
 
   @override
-  String get leftSubTitle => this.rate > 0
-      ? '1 ${isBuyAction ? destinationCurrency : sourceCurrency} = ${rate.toStringAsFixed(2)} ${isBuyAction ? sourceCurrency : destinationCurrency}'
-      : '';
+  String get topLeftSubTitle =>
+      this.rate > 0 ? '1 $fiatName = ${rate.toStringAsFixed(2)} $cryptoName' : '';
 
   @override
-  String? get rightSubTitle => '';
+  String get bottomLeftSubTitle {
+    if (limits != null) {
+      final min = limits!.min;
+      final max = limits!.max;
+      return 'min: ${min} ${sourceCurrency.toString()} | max: ${max == double.infinity ? '' : '${max} ${sourceCurrency.toString()}'}';
+    }
+    return '';
+  }
+
+
+  String get cryptoName => isBuyAction ? sourceCurrency.toString() : destinationCurrency.toString();
+
+  String get fiatName => isBuyAction ? destinationCurrency.toString() : sourceCurrency.toString();
 
   @override
-  String get rightSubTitleLightIconPath => provider.isAggregator ? provider.lightIcon : '';
+  String? get topRightSubTitle => '';
 
   @override
-  String get rightSubTitleDarkIconPath => provider.isAggregator ? provider.darkIcon : '';
+  String get topRightSubTitleLightIconPath => provider.isAggregator ? provider.lightIcon : '';
+
+  @override
+  String get topRightSubTitleDarkIconPath => provider.isAggregator ? provider.darkIcon : '';
 
   String get quoteTitle => '${provider.title} - ${paymentType.name}';
 
@@ -109,8 +126,10 @@ class Quote extends SelectableOption {
   void set setDestinationCurrency(Currency destinationCurrency) =>
       this.destinationCurrency = destinationCurrency;
 
-  factory Quote.fromOnramperJson(Map<String, dynamic> json,
-      bool isBuyAction, Map<String, dynamic> metaData, PaymentType paymentType) {
+  void set setLimits(Limits limits) => this.limits = limits;
+
+  factory Quote.fromOnramperJson(Map<String, dynamic> json, bool isBuyAction,
+      Map<String, dynamic> metaData, PaymentType paymentType) {
     final rate = _toDouble(json['rate']) ?? 0.0;
     final networkFee = _toDouble(json['networkFee']) ?? 0.0;
     final transactionFee = _toDouble(json['transactionFee']) ?? 0.0;
@@ -129,6 +148,29 @@ class Quote extends SelectableOption {
         .whereType<ProviderRecommendation>()
         .toList();
 
+    final availablePaymentMethods = json['availablePaymentMethods'] as List<dynamic>? ?? [];
+    double minLimit = 0.0;
+    double maxLimit = double.infinity;
+
+    for (var paymentMethod in availablePaymentMethods) {
+      if (paymentMethod is Map<String, dynamic>) {
+        final details = paymentMethod['details'] as Map<String, dynamic>?;
+
+        if (details != null) {
+          final limits = details['limits'] as Map<String, dynamic>?;
+
+          if (limits != null && limits.isNotEmpty) {
+            final firstLimitEntry = limits.values.first as Map<String, dynamic>?;
+            if (firstLimitEntry != null) {
+              minLimit = _toDouble(firstLimitEntry['min'])?.roundToDouble() ?? 0.0;
+              maxLimit = _toDouble(firstLimitEntry['max'])?.roundToDouble() ?? double.infinity;
+              break;
+            }
+          }
+        }
+      }
+    }
+
     return Quote(
       rate: rate,
       feeAmount: feeAmount,
@@ -143,6 +185,7 @@ class Quote extends SelectableOption {
       recommendations: enumRecommendations,
       provider: ProvidersHelper.getProviderByType(ProviderType.onramper)!,
       isBuyAction: isBuyAction,
+      limits: Limits(min: minLimit, max: maxLimit),
     );
   }
 
@@ -155,6 +198,17 @@ class Quote extends SelectableOption {
     final networkFee = _toDouble(json['networkFeeAmount']) ?? 0.0;
     final transactionFee = _toDouble(json['extraFeeAmount']) ?? 0.0;
     final feeAmount = double.parse((fee + networkFee + transactionFee).toStringAsFixed(2));
+
+    final baseCurrency = json['baseCurrency'] as Map<String, dynamic>?;
+
+    double minLimit = 0.0;
+    double maxLimit = double.infinity;
+
+    if (baseCurrency != null) {
+      minLimit = _toDouble(baseCurrency['minAmount']) ?? minLimit;
+      maxLimit = _toDouble(baseCurrency['maxAmount']) ?? maxLimit;
+    }
+
     return Quote(
       rate: rate,
       feeAmount: feeAmount,
@@ -166,23 +220,32 @@ class Quote extends SelectableOption {
       quoteId: json['signature'] as String? ?? '',
       provider: ProvidersHelper.getProviderByType(ProviderType.moonpay)!,
       isBuyAction: isBuyAction,
+      limits: Limits(min: minLimit, max: maxLimit),
     );
   }
 
   factory Quote.fromDFXJson(
-      Map<String, dynamic> json, bool isBuyAction, PaymentType paymentType) {
+    Map<String, dynamic> json,
+    bool isBuyAction,
+    PaymentType paymentType,
+  ) {
     final rate = _toDouble(json['exchangeRate']) ?? 0.0;
     final fees = json['fees'] as Map<String, dynamic>;
+
+    final minVolume = _toDouble(json['minVolume']) ?? 0.0;
+    final maxVolume = _toDouble(json['maxVolume']) ?? double.infinity;
+
     return Quote(
       rate: isBuyAction ? rate : 1 / rate,
       feeAmount: _toDouble(json['feeAmount']) ?? 0.0,
-      networkFee: _toDouble(fees['networkFee']) ?? 0.0,
+      networkFee: _toDouble(fees['network']) ?? 0.0,
       transactionFee: _toDouble(fees['rate']) ?? 0.0,
       payout: _toDouble(json['payout']) ?? 0.0,
       paymentType: paymentType,
       recommendations: [ProviderRecommendation.lowKyc],
       provider: ProvidersHelper.getProviderByType(ProviderType.dfx)!,
       isBuyAction: isBuyAction,
+      limits: Limits(min: minVolume, max: maxVolume),
     );
   }
 
@@ -204,11 +267,11 @@ class Quote extends SelectableOption {
       recommendations: [],
       provider: ProvidersHelper.getProviderByType(ProviderType.robinhood)!,
       isBuyAction: isBuyAction,
+      limits: Limits(min: 0.0, max: double.infinity),
     );
   }
 
-  factory Quote.fromMeldJson(
-      Map<String, dynamic> json, bool isBuyAction, PaymentType paymentType) {
+  factory Quote.fromMeldJson(Map<String, dynamic> json, bool isBuyAction, PaymentType paymentType) {
     final quotes = json['quotes'][0] as Map<String, dynamic>;
     return Quote(
       rate: quotes['exchangeRate'] as double? ?? 0.0,
@@ -220,6 +283,7 @@ class Quote extends SelectableOption {
       recommendations: [],
       provider: ProvidersHelper.getProviderByType(ProviderType.meld)!,
       isBuyAction: isBuyAction,
+      limits: Limits(min: 0.0, max: double.infinity),
     );
   }
 

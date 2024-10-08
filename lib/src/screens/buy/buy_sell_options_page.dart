@@ -4,10 +4,11 @@ import 'package:cake_wallet/src/screens/select_options_page.dart';
 import 'package:flutter/cupertino.dart';
 
 class BuyOptionsPage extends SelectOptionsPage {
-  BuyOptionsPage({required this.items, this.pickAnOption});
+  BuyOptionsPage({required this.items, this.pickAnOption, this.confirmOption});
 
   final List<SelectableItem> items;
   final Function(SelectableOption option)? pickAnOption;
+  final Function(BuildContext context)? confirmOption;
 
   @override
   String get pageTitle => S.current.choose_a_provider;
@@ -28,9 +29,6 @@ class BuyOptionsPage extends SelectOptionsPage {
   double? get imageWidth => 40;
 
   @override
-  TextStyle? get subTitleTextStyle => null;
-
-  @override
   Color? get selectedBackgroundColor => null;
 
   @override
@@ -41,4 +39,10 @@ class BuyOptionsPage extends SelectOptionsPage {
 
   @override
   void Function(SelectableOption option)? get onOptionTap => pickAnOption;
+
+  @override
+  String get primaryButtonText => S.current.confirm;
+
+  @override
+  void Function(BuildContext context)? get primaryButtonAction => confirmOption;
 }

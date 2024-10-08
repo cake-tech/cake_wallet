@@ -17,15 +17,25 @@ abstract class SelectableOption extends SelectableItem {
 
   String? get description => null;
 
-  String? get leftSubTitle => null;
+  String? get topLeftSubTitle => null;
 
-  String? get leftSubTitleIconPath => null;
+  String? get topLeftSubTitleIconPath => null;
 
-  String? get rightSubTitle => null;
+  String? get topRightSubTitle => null;
 
-  String? get rightSubTitleLightIconPath => null;
+  String? get topRightSubTitleLightIconPath => null;
 
-  String? get rightSubTitleDarkIconPath => null;
+  String? get topRightSubTitleDarkIconPath => null;
+
+  String? get bottomLeftSubTitle => null;
+
+  String? get bottomLeftSubTitleIconPath => null;
+
+  String? get bottomRightSubTitle => null;
+
+  String? get bottomRightSubTitleLightIconPath => null;
+
+  String? get bottomRightSubTitleDarkIconPath => null;
 
   List<String> get badges => [];
 

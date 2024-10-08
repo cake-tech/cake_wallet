@@ -39,8 +39,6 @@ class BuySellPage extends BasePage {
   final _depositAddressFocus = FocusNode();
   final _cryptoAmountFocus = FocusNode();
   final _receiveAddressFocus = FocusNode();
-  final _cryptoAmountDebounce = Debounce(Duration(milliseconds: 500));
-  final _fiatAmountDebounce = Debounce(Duration(milliseconds: 500));
   var _isReactionsSet = false;
 
   final arrowBottomPurple = Image.asset(
@@ -155,8 +153,6 @@ class BuySellPage extends BasePage {
                               children: [
                                 SizedBox(height: 12),
                                 _buildPaymentMethodTile(context),
-                                SizedBox(height: 12),
-                                _buildQuoteTile(context)
                               ],
                             ),
                           ),
@@ -165,15 +161,15 @@ class BuySellPage extends BasePage {
                 bottomSection: Column(children: [
                   Observer(
                       builder: (_) => LoadingPrimaryButton(
-                          text: 'Next',
+                          text: S.current.choose_a_provider,
                           onPressed: () async {
                             if(!_formKey.currentState!.validate()) return;
-                            await buySellViewModel.launchTrade(context);
+                            buySellViewModel.onTapChoseProvider(context);
                           },
                           color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
-                          isDisabled: !buySellViewModel.isReadyToTrade,
-                          isLoading: false)),
+                          isDisabled: false,
+                          isLoading: !buySellViewModel.isReadyToTrade)),
                 ]),
               )),
         ));
@@ -214,43 +210,6 @@ class BuySellPage extends BasePage {
     return OptionTilePlaceholder(errorText: 'No payment methods available', borderRadius: 30);
   }
 
-  Widget _buildQuoteTile(BuildContext context) {
-    if (buySellViewModel.buySellQuotState is BuySellQuotLoading ||
-        buySellViewModel.buySellQuotState is InitialBuySellQuotState) {
-      return OptionTilePlaceholder(
-          leadingIcon: Icons.arrow_forward_ios,
-          borderRadius: 30,
-          imageWidth: 50,
-          imageHeight: 50,
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          isDarkTheme: buySellViewModel.isDarkTheme);
-    }
-    if (buySellViewModel.buySellQuotState is BuySellQuotLoaded &&
-        buySellViewModel.selectedQuote != null) {
-      return Observer(builder: (_) {
-        final selectedQuote = buySellViewModel.selectedQuote!;
-        return ProviderOptionTile(
-            lightImagePath: selectedQuote.lightIconPath,
-            darkImagePath: selectedQuote.darkIconPath,
-            title: selectedQuote.title,
-            badges: selectedQuote.badges,
-            imageWidth: 50,
-            imageHeight: 50,
-            leftSubTitle: selectedQuote.leftSubTitle,
-            rightSubTitleLightIconPath: selectedQuote.rightSubTitleLightIconPath,
-            rightSubTitleDarkIconPath: selectedQuote.rightSubTitleDarkIconPath,
-            onPressed: () => _pickQuote(context),
-            leadingIcon: Icons.arrow_forward_ios,
-            isLightMode: !buySellViewModel.isDarkTheme,
-            borderRadius: 30,
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            titleTextStyle:
-                textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor));
-      });
-    }
-    return OptionTilePlaceholder(errorText: 'No quotes available', borderRadius: 30);
-  }
-
   void _pickPaymentMethod(BuildContext context) async {
     final currentOption = buySellViewModel.selectedPaymentMethod;
     await Navigator.of(context).pushNamed(
@@ -267,16 +226,6 @@ class BuySellPage extends BasePage {
             buySellViewModel.selectedPaymentMethod?.paymentMethodType) {
       await buySellViewModel.calculateBestRate();
     }
-  }
-
-  void _pickQuote(BuildContext context) async {
-    await Navigator.of(context).pushNamed(
-      Routes.buyOptionsPage,
-      arguments: [
-        buySellViewModel.quoteOptions,
-        buySellViewModel.changeOption
-      ],
-    );
   }
 
   void _setReactions(BuildContext context, BuySellViewModel buySellViewModel) {
@@ -315,17 +264,13 @@ class BuySellPage extends BasePage {
 
     fiatAmountController.addListener(() {
       if (fiatAmountController.text != buySellViewModel.fiatAmount) {
-        _fiatAmountDebounce.run(() {
           buySellViewModel.changeFiatAmount(amount: fiatAmountController.text);
-        });
       }
     });
 
     cryptoAmountController.addListener(() {
       if (cryptoAmountController.text != buySellViewModel.cryptoAmount) {
-        _cryptoAmountDebounce.run(() {
           buySellViewModel.changeCryptoAmount(amount: cryptoAmountController.text);
-        });
       }
     });
 

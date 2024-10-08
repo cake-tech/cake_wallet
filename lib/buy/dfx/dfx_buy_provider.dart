@@ -264,8 +264,8 @@ class DFXBuyProvider extends BuyProvider {
         if (responseData is Map<String, dynamic>) {
           final paymentType = _getPaymentTypeByString(responseData['paymentMethod'] as String?);
           final quote = Quote.fromDFXJson(responseData, isBuyAction, paymentType);
-          quote.setSourceCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
-          quote.setDestinationCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
+          quote.setSourceCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
+          quote.setDestinationCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
           return [quote];
         } else {
           print('DFX: Unexpected data type: ${responseData.runtimeType}');
