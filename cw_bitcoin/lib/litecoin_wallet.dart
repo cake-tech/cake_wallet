@@ -79,7 +79,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           alwaysScan: alwaysScan,
         ) {
     mwebHd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/1000'") as Bip32Slip10Secp256k1;
-    print("STARTED WITH $alwaysScan");
     mwebEnabled = alwaysScan ?? false;
     walletAddresses = LitecoinWalletAddresses(
       walletInfo,

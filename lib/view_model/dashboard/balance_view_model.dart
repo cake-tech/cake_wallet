@@ -55,9 +55,10 @@ abstract class BalanceViewModelBase with Store {
         isShowCard = appStore.wallet!.walletInfo.isShowIntroCakePayCard,
         wallet = appStore.wallet! {
     reaction((_) => appStore.wallet, _onWalletChange);
-    // reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
-    //   print(value);
-    // });
+    mwebScanningActive = bitcoin!.getMwebEnabled(appStore.wallet!);
+    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
+      mwebScanningActive = value;
+    });
   }
 
   final AppStore appStore;
@@ -340,6 +341,9 @@ abstract class BalanceViewModelBase with Store {
     });
   }
 
+  @observable
+  bool mwebScanningActive = false;
+
   @computed
   bool get hasAdditionalBalance => _hasAdditionalBalanceForWalletType(wallet.type);
 
@@ -362,7 +366,7 @@ abstract class BalanceViewModelBase with Store {
   }
 
   bool _hasSecondAdditionalBalanceForWalletType(WalletType type) {
-    if (wallet.type == WalletType.litecoin && settingsStore.mwebAlwaysScan) {
+    if (wallet.type == WalletType.litecoin && mwebScanningActive) {
       if ((wallet.balance[CryptoCurrency.ltc]?.secondAdditional ?? 0) > 0) {
         return true;
       }
@@ -371,7 +375,7 @@ abstract class BalanceViewModelBase with Store {
   }
 
   bool _hasSecondAvailableBalanceForWalletType(WalletType type) {
-    if (wallet.type == WalletType.litecoin && settingsStore.mwebAlwaysScan) {
+    if (wallet.type == WalletType.litecoin && mwebScanningActive) {
       return true;
     }
     return false;
