@@ -3,6 +3,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/auth_state.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cake_wallet/generated/i18n.dart';
@@ -53,7 +54,7 @@ class TotpAuthCodePageState extends State<TotpAuthCodePage> {
           }
 
           if (state is FailureState) {
-            print(state.error);
+            printV(state.error);
             widget.totpArguments.onTotpAuthenticationFinished!(false, this);
           }
 

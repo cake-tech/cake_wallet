@@ -17,6 +17,7 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -246,7 +247,7 @@ class MoonPayProvider extends BuyProvider {
       isBuyEnable = responseJSON['isBuyAllowed'] as bool;
     } catch (e) {
       isBuyEnable = false;
-      print(e.toString());
+      printV(e.toString());
     }
 
     return isBuyEnable;

@@ -5,6 +5,7 @@ import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -464,8 +465,8 @@ abstract class ElectrumWalletBase
         syncStatus = SyncedSyncStatus();
       }
     } catch (e, stacktrace) {
-      print(stacktrace);
-      print(e.toString());
+      printV(stacktrace);
+      printV(e.toString());
       syncStatus = FailedSyncStatus();
     }
   }
@@ -568,8 +569,8 @@ abstract class ElectrumWalletBase
 
       await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
     } catch (e, stacktrace) {
-      print(stacktrace);
-      print(e.toString());
+      printV(stacktrace);
+      printV(e.toString());
       syncStatus = FailedSyncStatus();
     }
   }
@@ -831,7 +832,7 @@ abstract class ElectrumWalletBase
     final lastOutput = outputs.last;
     final amountLeftForChange = amountLeftForChangeAndFee - fee;
 
-    print(amountLeftForChangeAndFee);
+    printV(amountLeftForChangeAndFee);
 
     if (!_isBelowDust(amountLeftForChange)) {
       // Here, lastOutput already is change, return the amount left without the fee to the user's address.
@@ -1426,7 +1427,7 @@ abstract class ElectrumWalletBase
         await unspentCoinsInfo.deleteAll(keys);
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -1770,7 +1771,7 @@ abstract class ElectrumWalletBase
 
       return historiesWithDetails;
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       return {};
     }
   }
@@ -1866,7 +1867,7 @@ abstract class ElectrumWalletBase
 
       return historiesWithDetails;
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       return {};
     }
   }
@@ -1889,8 +1890,8 @@ abstract class ElectrumWalletBase
       walletAddresses.updateReceiveAddresses();
       _isTransactionUpdating = false;
     } catch (e, stacktrace) {
-      print(stacktrace);
-      print(e);
+      printV(stacktrace);
+      printV(e);
       _isTransactionUpdating = false;
     }
   }
@@ -1912,7 +1913,7 @@ abstract class ElectrumWalletBase
 
           await _fetchAddressHistory(address, await getCurrentChainTip());
         } catch (e, s) {
-          print(e.toString());
+          printV(e.toString());
           _onError?.call(FlutterErrorDetails(
             exception: e,
             stack: s,

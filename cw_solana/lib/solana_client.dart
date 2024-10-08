@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
@@ -529,7 +530,7 @@ class SolanaWalletClient {
 
       return signature;
     } catch (e) {
-      print('Error while sending transaction: ${e.toString()}');
+      printV('Error while sending transaction: ${e.toString()}');
       throw Exception(e);
     }
   }
@@ -546,7 +547,7 @@ class SolanaWalletClient {
         return null;
       }
     } catch (e) {
-      print('Error occurred while fetching token image: \n${e.toString()}');
+      printV('Error occurred while fetching token image: \n${e.toString()}');
       return null;
     }
   }

@@ -388,7 +388,7 @@ class CWBitcoin extends Bitcoin {
 
           list.add(dInfoCopy);
         } catch (e) {
-          print(e);
+          printV(e);
         }
       }
     }
@@ -480,7 +480,7 @@ class CWBitcoin extends Bitcoin {
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } on LedgerException catch (err) {
-      print(err.message);
+      printV(err.message);
       throw err;
     }
   }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cw_core/root_dir.dart';
@@ -169,7 +170,7 @@ class BackupService {
     await _verifyWallets();
     await _importKeychainDumpV2(password);
     await _importPreferencesDump();
-    await _importTransactionDescriptionDump();
+    await _importTransactionDescriptionDump(); // HiveError: Box has already been closed
   }
 
   Future<void> _verifyWallets() async {

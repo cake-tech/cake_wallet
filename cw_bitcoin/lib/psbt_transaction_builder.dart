@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:convert/convert.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 
 class PSBTTransactionBuild {
@@ -16,9 +17,9 @@ class PSBTTransactionBuild {
     for (var i = 0; i < inputs.length; i++) {
       final input = inputs[i];
 
-      print(input.utxo.isP2tr());
-      print(input.utxo.isSegwit());
-      print(input.utxo.isP2shSegwit());
+      printV(input.utxo.isP2tr());
+      printV(input.utxo.isSegwit());
+      printV(input.utxo.isP2shSegwit());
 
       psbt.setInputPreviousTxId(i, Uint8List.fromList(hex.decode(input.utxo.txHash).reversed.toList()));
       psbt.setInputOutputIndex(i, input.utxo.vout);

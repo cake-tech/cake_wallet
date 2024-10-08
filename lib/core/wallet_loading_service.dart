@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -86,7 +87,7 @@ class WalletLoadingService {
 
           return wallet;
         } catch (e) {
-          print(e);
+          printV(e);
           // save seeds and show corrupted wallets' seeds to the user
           try {
             final seeds = await _getCorruptedWalletSeeds(walletInfo.name, walletInfo.type);

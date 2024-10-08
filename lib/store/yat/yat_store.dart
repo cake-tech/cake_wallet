@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -250,7 +251,7 @@ abstract class YatStoreBase with Store {
         walletInfo!.save();
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -265,7 +266,7 @@ abstract class YatStoreBase with Store {
     //  apiKey = await fetchYatApiKey(accessToken);
     //  await secureStorage.write(key: yatApiKey(_wallet.walletInfo.name), value: accessToken);
     //} catch (e) {
-    //  print(e.toString());
+    //  printV(e.toString());
     //}
   }
 

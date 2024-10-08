@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wownero_amount_format.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/account.dart';
@@ -74,7 +75,7 @@ abstract class WowneroAccountListBase with Store {
       _isRefreshing = false;
     } catch (e) {
       _isRefreshing = false;
-      print(e);
+      printV(e);
       rethrow;
     }
   }

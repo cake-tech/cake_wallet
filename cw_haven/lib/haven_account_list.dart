@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_core/account_list.dart';
@@ -77,7 +78,7 @@ abstract class HavenAccountListBase extends AccountList<Account> with Store {
       _isRefreshing = false;
     } catch (e) {
       _isRefreshing = false;
-      print(e);
+      printV(e);
       rethrow;
     }
   }

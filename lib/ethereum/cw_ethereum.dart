@@ -205,7 +205,7 @@ class CWEthereum extends Ethereum {
     try {
       return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } on LedgerException catch (err) {
-      print(err.message);
+      printV(err.message);
       throw err;
     }
   }

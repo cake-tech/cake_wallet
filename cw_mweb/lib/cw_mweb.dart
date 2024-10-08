@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:grpc/grpc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'cw_mweb_platform_interface.dart';
@@ -22,13 +23,13 @@ class CwMweb {
     if (_port == null || _port == 0) {
       throw Exception("Failed to start server");
     }
-    print("Attempting to connect to server on port: $_port");
+    printV("Attempting to connect to server on port: $_port");
 
     // wait for the server to finish starting up before we try to connect to it:
     await Future.delayed(const Duration(seconds: 5));
 
     _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
-      print("Channel is shutting down!");
+      printV("Channel is shutting down!");
     },
         options: const ChannelOptions(
           credentials: ChannelCredentials.insecure(),
@@ -50,7 +51,7 @@ class CwMweb {
         }
         return _rpcClient!;
       } catch (e) {
-        print("Attempt $i failed: $e");
+        printV("Attempt $i failed: $e");
         _rpcClient = null;
       }
     }
@@ -62,7 +63,7 @@ class CwMweb {
       await CwMwebPlatform.instance.stop();
       await cleanup();
     } catch (e) {
-      print("Error stopping server: $e");
+      printV("Error stopping server: $e");
     }
   }
 
@@ -70,7 +71,7 @@ class CwMweb {
     try {
       return CwMwebPlatform.instance.address(scanSecret, spendPub, index);
     } catch (e) {
-      print("Error getting address: $e");
+      printV("Error getting address: $e");
       return null;
     }
   }
@@ -90,7 +91,7 @@ class CwMweb {
       }
       return await _rpcClient!.spent(request, options: CallOptions(timeout: TIMEOUT_DURATION));
     } catch (e) {
-      print("Error getting spent: $e");
+      printV("Error getting spent: $e");
       return SpentResponse();
     }
   }
@@ -102,7 +103,7 @@ class CwMweb {
       }
       return await _rpcClient!.status(request, options: CallOptions(timeout: TIMEOUT_DURATION));
     } catch (e) {
-      print("Error getting status: $e");
+      printV("Error getting status: $e");
       return StatusResponse();
     }
   }
@@ -114,7 +115,7 @@ class CwMweb {
       }
       return await _rpcClient!.create(request, options: CallOptions(timeout: TIMEOUT_DURATION));
     } catch (e) {
-      print("Error getting create: $e");
+      printV("Error getting create: $e");
       return CreateResponse();
     }
   }
@@ -127,7 +128,7 @@ class CwMweb {
       // this is a stream, so we should have an effectively infinite timeout:
       return _rpcClient!.utxos(request, options: CallOptions(timeout: const Duration(days: 1000 * 365)));
     } catch (e) {
-      print("Error getting utxos: $e");
+      printV("Error getting utxos: $e");
       return null;
     }
   }

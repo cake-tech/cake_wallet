@@ -16,6 +16,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart'
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -139,7 +140,7 @@ abstract class ExchangeTradeViewModelBase with Store {
 
       _updateItems();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 

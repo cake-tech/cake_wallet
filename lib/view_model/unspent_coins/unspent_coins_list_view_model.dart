@@ -5,6 +5,7 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
@@ -50,7 +51,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       await _updateUnspents();
       await wallet.updateBalance();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -65,7 +66,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
           element.vout == vout &&
           element.keyImage == keyImage);
     } catch (e) {
-      print("UnspentCoinsInfo not found for coin: $e");
+      printV("UnspentCoinsInfo not found for coin: $e");
       return null;
     }
   }
@@ -136,8 +137,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
           isSilentPayment: info.isSilentPayment ?? false,
         ));
       } catch (e, s) {
-        print(s);
-        print(e.toString());
+        printV(s);
+        printV(e.toString());
         ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s));
       }
     });
