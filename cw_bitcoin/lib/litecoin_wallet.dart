@@ -343,6 +343,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> stopSync() async {
+    print("stopSync() called!");
     _syncTimer?.cancel();
     _utxoStream?.cancel();
     _feeRatesTimer?.cancel();
@@ -1013,8 +1014,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     alwaysScan = enabled;
     mwebEnabled = enabled;
-    await save();
     (walletAddresses as LitecoinWalletAddresses).mwebEnabled = enabled;
+    await save();
     try {
       await stopSync();
     } catch (_) {}

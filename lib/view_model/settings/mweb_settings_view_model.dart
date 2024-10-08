@@ -29,7 +29,7 @@ abstract class MwebSettingsViewModelBase with Store {
   @action
   void setMwebScan(bool value) {
     mwebScan = value;
-    _settingsStore.mwebAlwaysScan = value;
     bitcoin!.setMwebEnabled(_wallet, value);
+    _settingsStore.mwebAlwaysScan = value;
   }
 }
