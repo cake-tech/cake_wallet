@@ -40,11 +40,11 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
       port = null
       result.success(null)
     } else if (call.method == "address") {
-      val scanSecret: ByteArray = call.argument<ByteArray>("scanSecret") ?: ByteArray(0)
-      val spendPub: ByteArray = call.argument<ByteArray>("spendPub") ?: ByteArray(0)
-      val index: Int = call.argument<Int>("index") ?: 0
-      val res = Mwebd.address(scanSecret, spendPub, index)
-      result.success(res)
+      // val scanSecret: ByteArray = call.argument<ByteArray>("scanSecret") ?: ByteArray(0)
+      // val spendPub: ByteArray = call.argument<ByteArray>("spendPub") ?: ByteArray(0)
+      // val index: Int = call.argument<Int>("index") ?: 0
+      // val res = Mwebd.address(scanSecret, spendPub, index)
+      // result.success(res)
     } else if (call.method == "addresses") {
       val scanSecret: ByteArray = call.argument<ByteArray>("scanSecret") ?: ByteArray(0)
       val spendPub: ByteArray = call.argument<ByteArray>("spendPub") ?: ByteArray(0)

@@ -993,15 +993,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<void> close() async {
+  Future<void> close({required bool shouldCleanup}) async {
     _utxoStream?.cancel();
     _feeRatesTimer?.cancel();
     _syncTimer?.cancel();
     _processingTimer?.cancel();
-    try {
-      await stopSync();
-    } catch (_) {}
-    await super.close();
+    if (shouldCleanup) {
+      try {
+        await stopSync();
+      } catch (_) {}
+    }
+    await super.close(shouldCleanup: shouldCleanup);
   }
 
   Future<void> setMwebEnabled(bool enabled) async {

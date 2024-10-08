@@ -12,7 +12,7 @@ fi
 # build mwebd:
 git clone https://github.com/ltcmweb/mwebd
 cd mwebd
-git reset --hard c880e276e4b06645ad8427972e8a788fe2fd0557
+git reset --hard 555349415f76a42ec5c76152b64c4ab9aabc448f
 gomobile bind -target=ios .
 mv -fn ./Mwebd.xcframework ../../../ios/
 # cleanup:

@@ -106,7 +106,6 @@ abstract class WalletCreationVMBase with Store {
       );
 
       credentials.walletInfo = walletInfo;
-      await _appStore.wallet?.close();
       final wallet = restoreWallet != null
           ? await processFromRestoredWallet(credentials, restoreWallet)
           : await process(credentials);

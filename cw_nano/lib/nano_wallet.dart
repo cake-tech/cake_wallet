@@ -149,7 +149,7 @@ abstract class NanoWalletBase
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  Future<void> close() async {
+  Future<void> close({required bool shouldCleanup}) async {
     _client.stop();
     _receiveTimer?.cancel();
   }

@@ -98,7 +98,9 @@ class CwMweb {
 
   static Future<String?> address(Uint8List scanSecret, Uint8List spendPub, int index) async {
     try {
-      return CwMwebPlatform.instance.address(scanSecret, spendPub, index);
+      // return CwMwebPlatform.instance.address(scanSecret, spendPub, index);// was removed
+      return (await CwMwebPlatform.instance.addresses(scanSecret, spendPub, index, index+1))
+          ?.split(',').first;
     } catch (e) {
       print("Error getting address: $e");
       return null;
@@ -109,7 +111,7 @@ class CwMweb {
       Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) async {
     try {
       return (await CwMwebPlatform.instance.addresses(scanSecret, spendPub, fromIndex, toIndex))
-          ?.split(';');
+          ?.split(',');
     } catch (e) {
       print("Error getting addresses: $e");
       return null;

@@ -1292,7 +1292,7 @@ abstract class ElectrumWalletBase
   }
 
   @override
-  Future<void> close() async {
+  Future<void> close({required bool shouldCleanup}) async {
     try {
       await _receiveStream?.cancel();
       await electrumClient.close();
