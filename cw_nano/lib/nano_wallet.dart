@@ -42,6 +42,7 @@ abstract class NanoWalletBase
     required String password,
     NanoBalance? initialBalance,
     required EncryptionFileUtils encryptionFileUtils,
+    this.passphrase,
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -548,4 +549,7 @@ abstract class NanoWalletBase
     }
     return await NanoSignatures.verifyMessage(message, signature, address);
   }
+
+  @override
+  final String? passphrase;
 }

@@ -7,7 +7,6 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:flutter_svg/svg.dart';
 
 class WalletGroupDescriptionPage extends BasePage {
   WalletGroupDescriptionPage({required this.selectedWalletType});
@@ -20,12 +19,6 @@ class WalletGroupDescriptionPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-
-    final lightImage = 'assets/images/wallet_group_light.png';
-    final darkImage = 'assets/images/wallet_group_dark.png';
-    final brightImage = 'assets/images/wallet_group_bright.png';
-
-    final image = currentTheme.type == ThemeType.light ? lightImage : darkImage;
 
     return Container(
       alignment: Alignment.center,

@@ -4,11 +4,11 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/grouped_wallet_expansion_tile.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-
 import '../../../themes/extensions/cake_text_theme.dart';
 
 class WalletGroupsDisplayPage extends BasePage {
@@ -16,22 +16,24 @@ class WalletGroupsDisplayPage extends BasePage {
 
   final WalletGroupsDisplayViewModel walletGroupsDisplayViewModel;
 
-  final walletTypeImage = Image.asset('assets/images/wallet_type.png');
-  final walletTypeLightImage = Image.asset('assets/images/wallet_type_light.png');
-
   @override
   String get title => S.current.wallet_group;
 
   @override
   Widget body(BuildContext context) => WalletGroupsDisplayBody(
         walletGroupsDisplayViewModel: walletGroupsDisplayViewModel,
+        currentTheme: currentTheme,
       );
 }
 
 class WalletGroupsDisplayBody extends StatelessWidget {
-  WalletGroupsDisplayBody({required this.walletGroupsDisplayViewModel});
+  WalletGroupsDisplayBody({
+    required this.walletGroupsDisplayViewModel,
+    required this.currentTheme,
+  });
 
   final WalletGroupsDisplayViewModel walletGroupsDisplayViewModel;
+  final ThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,9 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                     return Column(
                       children: [
                         if (walletGroupsDisplayViewModel.hasNoFilteredWallet) ...{
-                          WalletGroupEmptyStateWidget(),
+                          WalletGroupEmptyStateWidget(
+                            currentTheme: currentTheme,
+                          ),
                         },
                         ...walletGroupsDisplayViewModel.multiWalletGroups.map(
                           (walletGroup) {
@@ -153,17 +157,17 @@ class WalletGroupsDisplayBody extends StatelessWidget {
 }
 
 class WalletGroupEmptyStateWidget extends StatelessWidget {
-  const WalletGroupEmptyStateWidget({
-    super.key,
-  });
+  const WalletGroupEmptyStateWidget({required this.currentTheme, super.key});
+
+  final ThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Image.asset(
-          'assets/images/wallet_group.png',
-          scale: 0.8,
+          _getThemedWalletGroupImage(currentTheme.type),
+          scale: 1.8,
         ),
         SizedBox(height: 32),
         Text.rich(
@@ -189,5 +193,20 @@ class WalletGroupEmptyStateWidget extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _getThemedWalletGroupImage(ThemeType theme) {
+    final lightImage = 'assets/images/wallet_group_light.png';
+    final darkImage = 'assets/images/wallet_group_dark.png';
+    final brightImage = 'assets/images/wallet_group_bright.png';
+
+    switch (theme) {
+      case ThemeType.bright:
+        return brightImage;
+      case ThemeType.light:
+        return lightImage;
+      default:
+        return darkImage;
+    }
   }
 }

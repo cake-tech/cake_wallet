@@ -83,7 +83,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
-      seedBytes: await MnemonicBip39.toSeed(mnemonic, passphrase: passphrase),
+      seedBytes: MnemonicBip39.toSeed(mnemonic, passphrase: passphrase),
       encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,

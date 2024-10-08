@@ -236,16 +236,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<void> waitForMwebAddresses() async {
     // ensure that we have the full 1000 mweb addresses generated before continuing:
     // should no longer be needed, but leaving here just in case
-    final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
-    while (mwebAddrs.length < 1000) {
-      print("waiting for mweb addresses to finish generating...");
-      await Future.delayed(const Duration(milliseconds: 1000));
-    }
+    // final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
+    // while (mwebAddrs.length < 1000) {
+    //   print("waiting for mweb addresses to finish generating...");
+    //   await Future.delayed(const Duration(milliseconds: 1000));
+    // }
+    await (walletAddresses as LitecoinWalletAddresses).ensureMwebAddressUpToIndexExists(1020);
   }
 
   @action
   @override
   Future<void> startSync() async {
+    print("startSync() called!");
     if (syncStatus is SyncronizingSyncStatus) {
       return;
     }
@@ -289,45 +291,58 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
 
+      print("SYNCING....");
+
       final nodeHeight =
           await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
-      final resp = await CwMweb.status(StatusRequest());
-      print("resp.mwebUtxosHeight: ${resp.mwebUtxosHeight}");
-      print("resp.mwebHeaderHeight: ${resp.mwebHeaderHeight}");
-      print("resp.blockHeaderHeight: ${resp.blockHeaderHeight}");
 
-      if (resp.blockHeaderHeight < nodeHeight) {
-        int h = resp.blockHeaderHeight;
-        syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
-      } else if (resp.mwebHeaderHeight < nodeHeight) {
-        int h = resp.mwebHeaderHeight;
-        syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
-      } else if (resp.mwebUtxosHeight < nodeHeight) {
-        syncStatus = SyncingSyncStatus(1, 0.999);
-      } else {
-        if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
-          await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
-          await checkMwebUtxosSpent();
-          // update the confirmations for each transaction:
-          for (final transaction in transactionHistory.transactions.values) {
-            if (transaction.isPending) continue;
-            int txHeight = transaction.height ?? resp.mwebUtxosHeight;
-            final confirmations = (resp.mwebUtxosHeight - txHeight) + 1;
-            if (transaction.confirmations == confirmations) continue;
-            transaction.confirmations = confirmations;
-            transactionHistory.addOne(transaction);
-          }
-          await transactionHistory.save();
-        }
-
-        // prevent unnecessary reaction triggers:
-        if (syncStatus is! SyncedSyncStatus) {
-          // mwebd is synced, but we could still be processing incoming utxos:
-          if (!processingUtxos) {
-            syncStatus = SyncedSyncStatus();
-          }
+      if (nodeHeight == 0) {
+        // we aren't connected to the ltc node yet
+        if (syncStatus is! NotConnectedSyncStatus) {
+          syncStatus = FailedSyncStatus(error: "Failed to connect to Litecoin node");
         }
         return;
+      }
+
+      final resp = await CwMweb.status(StatusRequest());
+
+      try {
+        if (resp.blockHeaderHeight < nodeHeight) {
+          int h = resp.blockHeaderHeight;
+          syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
+        } else if (resp.mwebHeaderHeight < nodeHeight) {
+          int h = resp.mwebHeaderHeight;
+          syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
+        } else if (resp.mwebUtxosHeight < nodeHeight) {
+          syncStatus = SyncingSyncStatus(1, 0.999);
+        } else {
+          if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
+            await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
+            await checkMwebUtxosSpent();
+            // update the confirmations for each transaction:
+            for (final transaction in transactionHistory.transactions.values) {
+              if (transaction.isPending) continue;
+              int txHeight = transaction.height ?? resp.mwebUtxosHeight;
+              final confirmations = (resp.mwebUtxosHeight - txHeight) + 1;
+              if (transaction.confirmations == confirmations) continue;
+              transaction.confirmations = confirmations;
+              transactionHistory.addOne(transaction);
+            }
+            await transactionHistory.save();
+          }
+
+          // prevent unnecessary reaction triggers:
+          if (syncStatus is! SyncedSyncStatus) {
+            // mwebd is synced, but we could still be processing incoming utxos:
+            if (!processingUtxos) {
+              syncStatus = SyncedSyncStatus();
+            }
+          }
+          return;
+        }
+      } catch (e) {
+        print("error syncing: $e");
+        syncStatus = FailedSyncStatus(error: e.toString());
       }
     });
   }
@@ -411,6 +426,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> handleIncoming(MwebUtxo utxo, RpcClient stub) async {
+    print("handleIncoming() called!");
     final status = await stub.status(StatusRequest());
     var date = DateTime.now();
     var confirmations = 0;
