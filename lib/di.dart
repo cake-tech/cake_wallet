@@ -383,7 +383,11 @@ Future<void> setup({
   getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
 
   getIt.registerFactory<WalletManager>(
-    () => WalletManager(_walletInfoSource, getIt.get<SharedPreferences>()),
+    () {
+      final instance = WalletManager(_walletInfoSource, getIt.get<SharedPreferences>());
+      instance.updateWalletGroups();
+      return instance;
+    },
   );
 
   getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
