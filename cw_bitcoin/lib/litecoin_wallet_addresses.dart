@@ -61,35 +61,23 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       return null;
     }
+
     Uint8List scan = Uint8List.fromList(scanSecret);
     Uint8List spend = Uint8List.fromList(spendPubkey);
-    // while (mwebAddrs.length <= (index + 1)) {
-    // final addresses =
-    //     await CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
-    // // sleep for a bit to avoid making the main thread unresponsive:
-    // await Future.delayed(Duration(milliseconds: 250));
-    // mwebAddrs.addAll(addresses!);
-    // }
 
-    int count = 0;
-    while (mwebAddrs.length <= (index + 1)) {
-      // final addresses =
-      //     await CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
-      // // sleep for a bit to avoid making the main thread unresponsive:
-      // await Future.delayed(Duration(milliseconds: 250));
-      // mwebAddrs.addAll(addresses!);
-
-      print(mwebAddrs.length);
-
-      final address = await CwMweb.address(scan, spend, mwebAddrs.length);
-      count++;
-      if (count > 100) {
-        // sleep for a bit to avoid making the main thread unresponsive:
-        await Future.delayed(Duration(milliseconds: 200));
-        count = 0;
-      }
-      mwebAddrs.add(address!);
+    if (index < mwebAddresses.length && index < mwebAddrs.length) {
+      return;
     }
+    
+    print("Generating MWEB addresses up to index $index");
+    while (mwebAddrs.length <= (index + 1)) {
+      final addresses =
+          await CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
+      // sleep for a bit to avoid making the main thread unresponsive:
+      await Future.delayed(Duration(milliseconds: 250));
+      mwebAddrs.addAll(addresses!);
+    }
+    print("Done generating MWEB addresses len: ${mwebAddrs.length}");
 
     // ensure mweb addresses are up to date:
     if (mwebAddresses.length < mwebAddrs.length) {
@@ -110,7 +98,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   Future<void> initMwebAddresses() async {
     if (mwebAddrs.length < 1000) {
-      print("Generating MWEB addresses...");
       await ensureMwebAddressUpToIndexExists(20);
       print("done generating MWEB addresses");
       return;
