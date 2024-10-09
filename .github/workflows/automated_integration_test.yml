@@ -243,12 +243,11 @@ jobs:
             api-level: ${{ matrix.api-level }}
             force-avd-creation: false
             # arch: ${{ matrix.arch }}
-            emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
             disable-animations: true
             script: |
                 cd /opt/android/cake_wallet/scripts/android/
-                sudo . ./app_env.sh cakewallet
-                sudo ./app_config.sh
+                pwd
                 ls -la
                 flutter pub get
                 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/
