@@ -264,6 +264,7 @@ class BackupService {
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
     final autoGenerateSubaddressStatus =
         data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
+    final onramperUUID = data[PreferencesKey.onramperUUIDKey] as String?;
 
     await _sharedPreferences.setString(PreferencesKey.currentWalletName, currentWalletName);
 
@@ -373,6 +374,8 @@ class BackupService {
     if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
     if (syncMode != null) await _sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode);
+
+    if (onramperUUID != null) await _sharedPreferences.setString(PreferencesKey.onramperUUIDKey, onramperUUID);
 
     await preferencesFile.delete();
   }
@@ -513,6 +516,7 @@ class BackupService {
       PreferencesKey.syncAllKey: _sharedPreferences.getBool(PreferencesKey.syncAllKey),
       PreferencesKey.autoGenerateSubaddressStatusKey:
           _sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey),
+      PreferencesKey.onramperUUIDKey: _sharedPreferences.getString(PreferencesKey.onramperUUIDKey),
     };
 
     return json.encode(preferences);
