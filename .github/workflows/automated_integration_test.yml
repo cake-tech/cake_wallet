@@ -247,7 +247,7 @@ jobs:
             disable-animations: true
             script: |
                 cd /opt/android/cake_wallet/scripts/android/
-                source ./app_env.sh cakewallet
+                ./app_env.sh cakewallet
                 chmod +x pubspec_gen.sh
                 ./app_config.sh
                 ls -la
