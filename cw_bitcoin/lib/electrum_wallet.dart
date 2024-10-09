@@ -1898,7 +1898,9 @@ abstract class ElectrumWalletBase
 
   Future<void> subscribeForUpdates() async {
     final unsubscribedScriptHashes = walletAddresses.allAddresses.where(
-      (address) => !_scripthashesUpdateSubject.containsKey(address.getScriptHash(network)),
+      (address) =>
+          !_scripthashesUpdateSubject.containsKey(address.getScriptHash(network)) &&
+          address.type != SegwitAddresType.mweb,
     );
 
     await Future.wait(unsubscribedScriptHashes.map((address) async {
