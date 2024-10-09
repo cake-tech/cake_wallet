@@ -203,10 +203,10 @@ jobs:
         run: |
           echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
-      - name: Build
-        run: |
-          cd /opt/android/cake_wallet
-          flutter build apk --release --split-per-abi
+      # - name: Build
+      #   run: |
+      #     cd /opt/android/cake_wallet
+      #     flutter build apk --release --split-per-abi
 
       - name: 🦾 Enable KVM
         run: |
