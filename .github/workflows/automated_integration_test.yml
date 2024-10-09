@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         api-level: [29]
-        arch: [x86, x86_64]
+        # arch: [x86, x86_64]
     env:
       STORE_PASS: test@cake_wallet
       KEY_PASS: test@cake_wallet
@@ -232,7 +232,7 @@ jobs:
         with:
             api-level: ${{ matrix.api-level }}
             force-avd-creation: false
-            arch: ${{ matrix.arch }}
+            # arch: ${{ matrix.arch }}
             emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
             disable-animations: false
             script: echo "Generated AVD snapshot for caching."
@@ -242,12 +242,13 @@ jobs:
         with:
             api-level: ${{ matrix.api-level }}
             force-avd-creation: false
-            arch: ${{ matrix.arch }}
+            # arch: ${{ matrix.arch }}
             emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
             disable-animations: true
             script: |
-                cd /opt/android/cake_wallet
+                cd /opt/android/cake_wallet/
                 pwd
+                ls -la
                 flutter pub get
                 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/
                 if [ $? -ne 0 ]; then
