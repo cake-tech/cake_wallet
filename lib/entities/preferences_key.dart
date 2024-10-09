@@ -20,10 +20,8 @@ class PreferencesKey {
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const isAppSecureKey = 'is_app_secure';
-  static const disableBuyKey = 'disable_buy';
-  static const disableSellKey = 'disable_sell';
+  static const disableTradeOption = 'disable_buy';
   static const disableBulletinKey = 'disable_bulletin';
-  static const defaultBuyProvider = 'default_buy_provider';
   static const walletListOrder = 'wallet_list_order';
   static const walletListAscending = 'wallet_list_ascending';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
@@ -92,6 +90,7 @@ class PreferencesKey {
   static const isNewInstall = 'is_new_install';
   static const serviceStatusShaKey = 'service_status_sha_key';
   static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
+  static const onramperUUIDKey = 'onramper_uuid';
   static String walletConnectPairingTopicsListForWallet(String publicKey) =>
       '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
 }

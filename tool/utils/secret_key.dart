@@ -44,6 +44,8 @@ class SecretKey {
     SecretKey('cakePayApiKey', () => ''),
     SecretKey('CSRFToken', () => ''),
     SecretKey('authorization', () => ''),
+    SecretKey('meldTestApiKey', () => ''),
+    SecretKey('meldTestPublicKey', () => ''),
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
     SecretKey('letsExchangeBearerToken', () => ''),

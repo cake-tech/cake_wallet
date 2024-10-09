@@ -234,9 +234,7 @@ class BackupService {
     final currentFiatCurrency = data[PreferencesKey.currentFiatCurrencyKey] as String?;
     final shouldSaveRecipientAddress = data[PreferencesKey.shouldSaveRecipientAddressKey] as bool?;
     final isAppSecure = data[PreferencesKey.isAppSecureKey] as bool?;
-    final disableBuy = data[PreferencesKey.disableBuyKey] as bool?;
-    final disableSell = data[PreferencesKey.disableSellKey] as bool?;
-    final defaultBuyProvider = data[PreferencesKey.defaultBuyProvider] as int?;
+    final disableTradeOption = data[PreferencesKey.disableTradeOption] as bool?;
     final currentTransactionPriorityKeyLegacy =
         data[PreferencesKey.currentTransactionPriorityKeyLegacy] as int?;
     final currentBitcoinElectrumSererId =
@@ -266,6 +264,7 @@ class BackupService {
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
     final autoGenerateSubaddressStatus =
         data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
+    final onramperUUID = data[PreferencesKey.onramperUUIDKey] as String?;
 
     await _sharedPreferences.setString(PreferencesKey.currentWalletName, currentWalletName);
 
@@ -289,14 +288,8 @@ class BackupService {
     if (isAppSecure != null)
       await _sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
 
-    if (disableBuy != null)
-      await _sharedPreferences.setBool(PreferencesKey.disableBuyKey, disableBuy);
-
-    if (disableSell != null)
-      await _sharedPreferences.setBool(PreferencesKey.disableSellKey, disableSell);
-
-    if (defaultBuyProvider != null)
-      await _sharedPreferences.setInt(PreferencesKey.defaultBuyProvider, defaultBuyProvider);
+    if (disableTradeOption != null)
+      await _sharedPreferences.setBool(PreferencesKey.disableTradeOption, disableTradeOption);
 
     if (currentTransactionPriorityKeyLegacy != null)
       await _sharedPreferences.setInt(
@@ -381,6 +374,8 @@ class BackupService {
     if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
     if (syncMode != null) await _sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode);
+
+    if (onramperUUID != null) await _sharedPreferences.setString(PreferencesKey.onramperUUIDKey, onramperUUID);
 
     await preferencesFile.delete();
   }
@@ -482,10 +477,7 @@ class BackupService {
           _sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey),
       PreferencesKey.shouldSaveRecipientAddressKey:
           _sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey),
-      PreferencesKey.disableBuyKey: _sharedPreferences.getBool(PreferencesKey.disableBuyKey),
-      PreferencesKey.disableSellKey: _sharedPreferences.getBool(PreferencesKey.disableSellKey),
-      PreferencesKey.defaultBuyProvider:
-          _sharedPreferences.getInt(PreferencesKey.defaultBuyProvider),
+      PreferencesKey.disableTradeOption: _sharedPreferences.getBool(PreferencesKey.disableTradeOption),
       PreferencesKey.currentPinLength: _sharedPreferences.getInt(PreferencesKey.currentPinLength),
       PreferencesKey.currentTransactionPriorityKeyLegacy:
           _sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
@@ -524,6 +516,7 @@ class BackupService {
       PreferencesKey.syncAllKey: _sharedPreferences.getBool(PreferencesKey.syncAllKey),
       PreferencesKey.autoGenerateSubaddressStatusKey:
           _sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey),
+      PreferencesKey.onramperUUIDKey: _sharedPreferences.getString(PreferencesKey.onramperUUIDKey),
     };
 
     return json.encode(preferences);
