@@ -226,16 +226,16 @@ jobs:
                 ~/.android/adb*
             key: avd-${{ matrix.api-level }}
   
-      - name: 🦾 Create AVD and generate snapshot for caching
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-            api-level: ${{ matrix.api-level }}
-            force-avd-creation: false
-            # arch: ${{ matrix.arch }}
-            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-            disable-animations: false
-            script: echo "Generated AVD snapshot for caching."
+      # - name: 🦾 Create AVD and generate snapshot for caching
+      #   if: steps.avd-cache.outputs.cache-hit != 'true'
+      #   uses: reactivecircus/android-emulator-runner@v2
+      #   with:
+      #       api-level: ${{ matrix.api-level }}
+      #       force-avd-creation: false
+      #       # arch: ${{ matrix.arch }}
+      #       emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+      #       disable-animations: false
+      #       script: echo "Generated AVD snapshot for caching."
 
       - name: 🚀 Integration tests on Android Emualator
         uses: reactivecircus/android-emulator-runner@v2
@@ -243,6 +243,13 @@ jobs:
             api-level: ${{ matrix.api-level }}
             force-avd-creation: false
             # arch: ${{ matrix.arch }}
-            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+            emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
             disable-animations: true
-            script: flutter test integration_test --verbose
+            script: |
+                cd /opt/android/cake_wallet/
+                ls -la
+                flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/
+                if [ $? -ne 0 ]; then
+                echo "Tests failed"
+                exit 1
+                fi
