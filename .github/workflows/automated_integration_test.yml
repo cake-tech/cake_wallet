@@ -208,23 +208,23 @@ jobs:
       #     cd /opt/android/cake_wallet
       #     flutter build apk --release --split-per-abi
 
-      - name: 🦾 Enable KVM
-        run: |
-            echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-            sudo udevadm control --reload-rules
-            sudo udevadm trigger --name-match=kvm
+      # - name: 🦾 Enable KVM
+      #   run: |
+      #       echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+      #       sudo udevadm control --reload-rules
+      #       sudo udevadm trigger --name-match=kvm
   
-      - name: 🦾 Cache gradle
-        uses: gradle/actions/setup-gradle@v3
+      # - name: 🦾 Cache gradle
+      #   uses: gradle/actions/setup-gradle@v3
   
-      - name: 🦾 Cache AVD
-        uses: actions/cache@v4
-        id: avd-cache
-        with:
-            path: |
-                ~/.android/avd/*
-                ~/.android/adb*
-            key: avd-${{ matrix.api-level }}
+      # - name: 🦾 Cache AVD
+      #   uses: actions/cache@v4
+      #   id: avd-cache
+      #   with:
+      #       path: |
+      #           ~/.android/avd/*
+      #           ~/.android/adb*
+      #       key: avd-${{ matrix.api-level }}
   
       # - name: 🦾 Create AVD and generate snapshot for caching
       #   if: steps.avd-cache.outputs.cache-hit != 'true'
