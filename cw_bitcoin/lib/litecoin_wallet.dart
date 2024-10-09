@@ -1005,7 +1005,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _processingTimer?.cancel();
     if (shouldCleanup) {
       try {
-        await CwMweb.stop();
+        await stopSync();
       } catch (_) {}
     }
     await super.close(shouldCleanup: shouldCleanup);
