@@ -246,8 +246,9 @@ jobs:
             emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
             disable-animations: true
             script: |
-                cd /opt/android/cake_wallet 
-                flutter pub get 
+                cd /opt/android/cake_wallet
+                pwd
+                flutter pub get
                 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/
                 if [ $? -ne 0 ]; then
                 echo "Tests failed"
