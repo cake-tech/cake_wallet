@@ -40,6 +40,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   bool mwebEnabled;
   int mwebTopUpIndex = 1000;
   List<String> mwebAddrs = [];
+  bool generating = false;
 
   List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendPubkey =>
@@ -68,15 +69,23 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     if (index < mwebAddresses.length && index < mwebAddrs.length) {
       return;
     }
-    
+
+    while (generating) {
+      // this function was called multiple times in multiple places:
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
     print("Generating MWEB addresses up to index $index");
+    generating = true;
     while (mwebAddrs.length <= (index + 1)) {
       final addresses =
           await CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
+      print("generated up to index ${mwebAddrs.length}");
       // sleep for a bit to avoid making the main thread unresponsive:
-      await Future.delayed(Duration(milliseconds: 250));
+      await Future.delayed(Duration(milliseconds: 200));
       mwebAddrs.addAll(addresses!);
     }
+    generating = false;
     print("Done generating MWEB addresses len: ${mwebAddrs.length}");
 
     // ensure mweb addresses are up to date:
@@ -99,7 +108,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   Future<void> initMwebAddresses() async {
     if (mwebAddrs.length < 1000) {
       await ensureMwebAddressUpToIndexExists(20);
-      print("done generating MWEB addresses");
       return;
     }
   }

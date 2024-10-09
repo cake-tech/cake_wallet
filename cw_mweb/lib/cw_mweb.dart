@@ -21,13 +21,17 @@ class CwMweb {
 
     logTimer?.cancel();
     logTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-      final currentLength = await file.length();
+      try {
+        final currentLength = await file.length();
 
-      if (currentLength > lastLength) {
-        final fileStream = file.openRead(lastLength, currentLength);
-        final newLines = await fileStream.transform(utf8.decoder).join();
-        lastLength = currentLength;
-        print(newLines);
+        if (currentLength != lastLength) {
+          final fileStream = file.openRead(lastLength, currentLength);
+          final newLines = await fileStream.transform(utf8.decoder).join();
+          lastLength = currentLength;
+          print(newLines);
+        }
+      } catch (e) {
+        print('The mwebd debug log probably is not initialized yet.');
       }
     });
   }
@@ -41,12 +45,7 @@ class CwMweb {
     const ltcNodeUri = "ltc-electrum.cakewallet.com:9333";
 
     String debugLogPath = "${appDir.path}/logs/debug.log";
-
-    try {
-      readFileWithTimer(debugLogPath);
-    } catch (e) {
-      print('The mwebd debug log probably is not initialized yet.');
-    }
+    readFileWithTimer(debugLogPath);
 
     _port = await CwMwebPlatform.instance.start(appDir.path, ltcNodeUri);
     if (_port == null || _port == 0) {
@@ -99,8 +98,9 @@ class CwMweb {
   static Future<String?> address(Uint8List scanSecret, Uint8List spendPub, int index) async {
     try {
       // return CwMwebPlatform.instance.address(scanSecret, spendPub, index);// was removed
-      return (await CwMwebPlatform.instance.addresses(scanSecret, spendPub, index, index+1))
-          ?.split(',').first;
+      return (await CwMwebPlatform.instance.addresses(scanSecret, spendPub, index, index + 1))
+          ?.split(',')
+          .first;
     } catch (e) {
       print("Error getting address: $e");
       return null;
@@ -129,6 +129,7 @@ class CwMweb {
 
   // wrappers that handle the connection issues:
   static Future<SpentResponse> spent(SpentRequest request) async {
+    print("mweb.spent() called");
     try {
       if (_rpcClient == null) {
         await _initializeClient();
@@ -141,6 +142,7 @@ class CwMweb {
   }
 
   static Future<StatusResponse> status(StatusRequest request) async {
+    print("mweb.status() called");
     try {
       if (_rpcClient == null) {
         await _initializeClient();
@@ -153,6 +155,7 @@ class CwMweb {
   }
 
   static Future<CreateResponse> create(CreateRequest request) async {
+    print("mweb.create() called");
     try {
       if (_rpcClient == null) {
         await _initializeClient();
@@ -165,13 +168,17 @@ class CwMweb {
   }
 
   static Future<ResponseStream<Utxo>?> utxos(UtxosRequest request) async {
+    print("mweb.utxos() called");
     try {
       if (_rpcClient == null) {
         await _initializeClient();
       }
       // this is a stream, so we should have an effectively infinite timeout:
-      return _rpcClient!
-          .utxos(request, options: CallOptions(timeout: const Duration(days: 1000 * 365)));
+      // return _rpcClient!
+      //     .utxos(request, options: CallOptions(timeout: const Duration(days: 1000 * 365)));
+      var resp = _rpcClient!.utxos(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+      print("got utxo stream");
+      return resp;
     } catch (e) {
       print("Error getting utxos: $e");
       return null;

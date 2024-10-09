@@ -102,7 +102,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Timer? _feeRatesTimer;
   Timer? _processingTimer;
   StreamSubscription<Utxo>? _utxoStream;
-  late RpcClient _stub;
   late bool mwebEnabled;
   bool processingUtxos = false;
 
@@ -275,7 +274,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
 
       await waitForMwebAddresses();
-      await getStub();
       await processMwebUtxos();
       await updateTransactions();
       await updateUnspent();
@@ -423,9 +421,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await initMwebUtxosBox();
   }
 
-  Future<void> handleIncoming(MwebUtxo utxo, RpcClient stub) async {
+  Future<void> handleIncoming(MwebUtxo utxo) async {
     print("handleIncoming() called!");
-    final status = await stub.status(StatusRequest());
+    final status = await CwMweb.status(StatusRequest());
     var date = DateTime.now();
     var confirmations = 0;
     if (utxo.height > 0) {
@@ -542,7 +540,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       await mwebUtxosBox.put(utxo.outputId, utxo);
 
-      await handleIncoming(utxo, _stub);
+      await handleIncoming(utxo);
     });
   }
 
@@ -673,7 +671,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (!mwebEnabled) {
       return;
     }
-    await getStub();
 
     // add the mweb unspents to the list:
     List<BitcoinUnspent> mwebUnspentCoins = [];
@@ -716,7 +713,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (!mwebEnabled) {
       return balance;
     }
-    await getStub();
 
     // update unspent balances:
     await updateUnspent();
@@ -889,7 +885,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         return tx;
       }
       await waitForMwebAddresses();
-      await getStub();
 
       final resp = await CwMweb.create(CreateRequest(
         rawTx: hex.decode(tx.hex),
@@ -1024,11 +1019,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       await stopSync();
     } catch (_) {}
     await startSync();
-  }
-
-  Future<RpcClient> getStub() async {
-    _stub = await CwMweb.stub();
-    return _stub;
   }
 
   Future<StatusResponse> getStatusRequest() async {
