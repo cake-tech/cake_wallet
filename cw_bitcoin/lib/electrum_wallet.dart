@@ -168,7 +168,7 @@ abstract class ElectrumWalletBase
   @observable
   SyncStatus syncStatus;
 
-  Set<String> get addressesSet => walletAddresses.allAddresses.map((addr) => addr.address).toSet();
+  Set<String> get addressesSet => walletAddresses.allAddresses.where((element) => element.type != SegwitAddresType.mweb).map((addr) => addr.address).toSet();
 
   List<String> get scriptHashes => walletAddresses.addressesByReceiveType
       .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)

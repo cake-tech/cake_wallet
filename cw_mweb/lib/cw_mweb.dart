@@ -173,10 +173,7 @@ class CwMweb {
       if (_rpcClient == null) {
         await _initializeClient();
       }
-      // this is a stream, so we should have an effectively infinite timeout:
-      // return _rpcClient!
-      //     .utxos(request, options: CallOptions(timeout: const Duration(days: 1000 * 365)));
-      var resp = _rpcClient!.utxos(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+      final resp = _rpcClient!.utxos(request, options: CallOptions(timeout: TIMEOUT_DURATION));
       print("got utxo stream");
       return resp;
     } catch (e) {

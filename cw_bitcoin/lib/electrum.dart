@@ -116,7 +116,7 @@ class ElectrumClient {
             _parseResponse(message);
           }
         } catch (e) {
-          print(e.toString());
+          print("socket.listen: $e");
         }
       },
       onError: (Object error) {
@@ -128,11 +128,11 @@ class ElectrumClient {
         unterminatedString = '';
         try {
           if (host == socket?.address.host) {
-            socket?.destroy();
             _setConnectionStatus(ConnectionStatus.disconnected);
+            socket?.destroy();
           }
         } catch (e) {
-          print(e.toString());
+          print("onDone: $e");
         }
       },
       cancelOnError: true,
