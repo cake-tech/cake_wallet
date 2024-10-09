@@ -172,7 +172,7 @@ class MoonPayProvider extends BuyProvider {
       'apiKey': _apiKey
     };
 
-    log('MoonPay: Fetching $action quote: ${isBuyAction ? formattedCryptoCurrency : fiatCurrency.name.toLowerCase()} -> ${isBuyAction ? baseCurrencyCode : formattedCryptoCurrency}, amount: $amount, paymentMethod: $paymentMethod');
+    log('MoonPay: Fetching $action quote: ${isBuyAction ? fiatCurrency.name.toLowerCase() : formattedCryptoCurrency } -> ${isBuyAction ? formattedCryptoCurrency : baseCurrencyCode}, amount: $amount, paymentMethod: $paymentMethod');
 
     final quotePath = isBuyAction ? _buyQuote : _sellQuote;
 

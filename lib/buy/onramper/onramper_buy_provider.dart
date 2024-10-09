@@ -6,6 +6,7 @@ import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -14,7 +15,9 @@ import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
 
 class OnRamperBuyProvider extends BuyProvider {
   OnRamperBuyProvider(this._settingsStore,
@@ -26,6 +29,18 @@ class OnRamperBuyProvider extends BuyProvider {
   static const quotes = '/quotes';
   static const paymentTypes = '/payment-types';
   static const supported = '/supported';
+
+  static Future<String> get uuid async {
+    final prefs = await SharedPreferences.getInstance();
+    String? storedUuid = prefs.getString(PreferencesKey.onramperUUIDKey);
+
+    if (storedUuid == null || storedUuid.isEmpty) {
+      final _uuid = Uuid();
+      storedUuid = _uuid.v4();
+      await prefs.setString(PreferencesKey.onramperUUIDKey, storedUuid);
+    }
+    return storedUuid;
+  }
 
   final SettingsStore _settingsStore;
 
@@ -130,7 +145,7 @@ class OnRamperBuyProvider extends BuyProvider {
     final params = {
       'amount': amount.toString(),
       if (paymentMethod != null) 'paymentMethod': paymentMethod,
-      'uuid': 'acad3928-556f-48a1-a478-4e2ec76700cd',
+      'uuid': await uuid,
       'clientName': 'CakeWallet',
       'type': actionType,
       'walletAddress': walletAddress,
@@ -138,7 +153,7 @@ class OnRamperBuyProvider extends BuyProvider {
       'input': 'source',
     };
 
-    log('Onramper: Fetching $actionType quote: ${isBuyAction ? normalizedCryptoCurrency : fiatCurrency.name} -> ${isBuyAction ? fiatCurrency.name : normalizedCryptoCurrency}, amount: $amount, paymentMethod: $paymentMethod');
+    log('Onramper: Fetching $actionType quote: ${isBuyAction ? fiatCurrency.name : normalizedCryptoCurrency} -> ${isBuyAction ? normalizedCryptoCurrency : fiatCurrency.name}, amount: $amount, paymentMethod: $paymentMethod');
 
     final sourceCurrency = isBuyAction ? fiatCurrency.name : normalizedCryptoCurrency;
     final destinationCurrency = isBuyAction ? normalizedCryptoCurrency : fiatCurrency.name;
@@ -220,6 +235,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
     final uri = Uri.https(_baseUrl, '', {
       'apiKey': _apiKey,
+      'uuid': await uuid,
       'mode': actionType,
       '${prefix}defaultFiat': defaultFiat,
       '${prefix}defaultCrypto': defaultCrypto,

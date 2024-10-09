@@ -149,7 +149,7 @@ class RobinhoodBuyProvider extends BuyProvider {
     }
 
     final action = isBuyAction ? 'buy' : 'sell';
-    log('Robinhood: Fetching $action quote: ${isBuyAction ? cryptoCurrency.title : fiatCurrency.name.toUpperCase()} -> ${isBuyAction ? fiatCurrency.name.toUpperCase() : cryptoCurrency.title}, amount: $amount paymentMethod: $paymentMethod');
+    log('Robinhood: Fetching $action quote: ${isBuyAction ? fiatCurrency.name.toUpperCase() : cryptoCurrency.title} -> ${isBuyAction ? cryptoCurrency.title : fiatCurrency.name.toUpperCase()}, amount: $amount paymentMethod: $paymentMethod');
 
     final queryParams = {
       'applicationId': _applicationId,

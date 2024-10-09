@@ -243,7 +243,7 @@ class DFXBuyProvider extends BuyProvider {
     final assetCredentials = await fetchAssetCredential(cryptoCurrency.title.toString());
     if (assetCredentials['id'] == null) return null;
 
-    log('DFX: Fetching $action quote: ${isBuyAction ? cryptoCurrency : fiatCurrency} -> ${isBuyAction ? fiatCurrency : cryptoCurrency}, amount: $amount, paymentMethod: $paymentMethod');
+    log('DFX: Fetching $action quote: ${isBuyAction ? fiatCurrency : cryptoCurrency } -> ${isBuyAction ? cryptoCurrency : fiatCurrency }, amount: $amount, paymentMethod: $paymentMethod');
 
     final url = Uri.https(_baseUrl, '/v1/$action/quote');
     final headers = {'accept': 'application/json', 'Content-Type': 'application/json'};

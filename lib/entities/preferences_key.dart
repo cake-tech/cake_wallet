@@ -90,6 +90,7 @@ class PreferencesKey {
   static const isNewInstall = 'is_new_install';
   static const serviceStatusShaKey = 'service_status_sha_key';
   static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
+  static const onramperUUIDKey = 'onramper_uuid';
   static String walletConnectPairingTopicsListForWallet(String publicKey) =>
       '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
 }

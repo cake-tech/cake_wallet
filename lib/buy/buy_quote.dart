@@ -5,7 +5,7 @@ import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cw_core/currency.dart';
 
-enum ProviderRecommendation { bestRate, lowKyc, successRate }
+enum ProviderRecommendation { bestRate, lowKyc, successRate, successfullyCompleted }
 
 extension RecommendationTitle on ProviderRecommendation {
   String get title {
@@ -16,6 +16,8 @@ extension RecommendationTitle on ProviderRecommendation {
         return 'LOW KYC';
       case ProviderRecommendation.successRate:
         return 'SUCCESS RATE';
+      case ProviderRecommendation.successfullyCompleted:
+        return 'SUCCESSFULLY COMPLETED';
     }
   }
 }
@@ -28,6 +30,8 @@ ProviderRecommendation? getRecommendationFromString(String title) {
       return ProviderRecommendation.lowKyc;
     case 'SuccessRate':
       return ProviderRecommendation.successRate;
+      case 'SuccesfullyCompleted':
+      return ProviderRecommendation.successfullyCompleted;
     default:
       return null;
   }
