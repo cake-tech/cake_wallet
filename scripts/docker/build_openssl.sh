@@ -4,10 +4,10 @@ set -x -e
 set -e
 
 . ./config.sh
-OPENSSL_FILENAME=openssl-1.1.1q.tar.gz
+OPENSSL_FILENAME=openssl-3.0.13.tar.gz
 OPENSSL_FILE_PATH=$WORKDIR/$OPENSSL_FILENAME
-OPENSSL_SRC_DIR=$WORKDIR/openssl-1.1.1q
-OPENSSL_SHA256="d7939ce614029cdff0b6c20f0e2e5703158a489a72b2507b8bd51bf8c8fd10ca"
+OPENSSL_SRC_DIR=$WORKDIR/openssl-3.0.13
+OPENSSL_SHA256="88525753f79d3bec27d2fa7c66aa0b92b3aa9498dafd93d7cfa4b3780cdae313"
 ZLIB_DIR=$WORKDIR/zlib
 ZLIB_TAG=v1.2.11
 ZLIB_COMMIT_HASH="cacf7f1d4e3d44d871b605da3b647f07d718623f"
@@ -36,6 +36,12 @@ case $arch in
 	*)	   X_ARCH="android-${arch}";;
 esac 	
 
+#Disable multithreading for i686, due to issues with atomic operations
+case $arch in
+	"i686")    THREADS_DISABLE_FLAG \="-no-threads";;
+	*)	       THREADS_DISABLE_FLAG="";;
+esac
+
 cd $WORKDIR
 rm -rf $OPENSSL_SRC_DIR
 tar -xzf $OPENSSL_FILE_PATH -C $WORKDIR
@@ -43,6 +49,7 @@ cd $OPENSSL_SRC_DIR
 
 CC=clang ANDROID_NDK=$TOOLCHAIN \
 	./Configure ${X_ARCH} \
+ 	${THREADS_DISABLE_FLAG} \
 	no-shared no-tests \
 	--with-zlib-include=${PREFIX}/include \
 	--with-zlib-lib=${PREFIX}/lib \
