@@ -125,7 +125,8 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
     _selectedCurrency = widget.initialCurrency;
     _isAmountEstimated = widget.isAmountEstimated;
     _isMoneroWallet = widget.isMoneroWallet;
-    addressController.text = widget.initialAddress;
+    addressController.text = _normalizeAddressFormat(widget.initialAddress);
+
     super.initState();
   }
 
@@ -164,7 +165,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
   }
 
   void changeAddress({required String address}) {
-    setState(() => addressController.text = address);
+    setState(() => addressController.text = _normalizeAddressFormat(address));
   }
 
   void changeAmount({required String amount}) {
@@ -434,6 +435,11 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
               },
               actionLeftButton: () => Navigator.of(dialogContext).pop());
         });
+  }
+
+  String _normalizeAddressFormat(String address) {
+    if (address.startsWith('bitcoincash:')) address = address.substring(12);
+    return address;
   }
 }
 
