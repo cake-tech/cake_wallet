@@ -450,6 +450,8 @@ abstract class DashboardViewModelBase with Store {
     settingsStore.hasEnabledMwebBefore = true;
     mwebEnabled = true;
     bitcoin!.setMwebEnabled(wallet, true);
+    // ensure the mobx reaction triggers by setting to false then true (because it may already be true if we just switched wallets):
+    settingsStore.mwebAlwaysScan = false;
     settingsStore.mwebAlwaysScan = true;
   }
 

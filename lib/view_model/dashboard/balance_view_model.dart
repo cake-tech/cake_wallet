@@ -57,7 +57,7 @@ abstract class BalanceViewModelBase with Store {
     reaction((_) => appStore.wallet, _onWalletChange);
     mwebEnabled = bitcoin!.getMwebEnabled(appStore.wallet!);
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
-      mwebEnabled = value;
+      mwebEnabled = bitcoin!.getMwebEnabled(wallet);
     });
     reaction((_) => appStore.wallet, (_) {
       mwebEnabled = bitcoin!.getMwebEnabled(wallet);
