@@ -178,16 +178,17 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   Future<void> onTypeSelected() async {
     if (selected == null) throw Exception('Wallet Type is not selected yet.');
 
-    if (selected == WalletType.haven && widget.isCreate) {
-      return await showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) => PopUpCancellableAlertDialog(
-          contentText: S.of(context).pause_wallet_creation,
-          actionButtonText: S.of(context).ok,
-          buttonAction: () => Navigator.of(context).pop(),
-        ),
-      );
-    }
+    // ToDo: Recomment
+    // if (selected == WalletType.haven && widget.isCreate) {
+    //   return await showPopUp<void>(
+    //     context: context,
+    //     builder: (BuildContext context) => PopUpCancellableAlertDialog(
+    //       contentText: S.of(context).pause_wallet_creation,
+    //       actionButtonText: S.of(context).ok,
+    //       buttonAction: () => Navigator.of(context).pop(),
+    //     ),
+    //   );
+    // }
 
     // If it's a restore flow, trigger the external callback
     // If it's not a BIP39 Wallet or if there are no other wallets, route to the newWallet page
