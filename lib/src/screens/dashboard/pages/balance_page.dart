@@ -501,7 +501,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 },
               ));
     }
-    dashboardViewModel.setMwebScanningActive();
+    dashboardViewModel.setMwebEnabled();
   }
 
   Future<void> _dismissMweb(BuildContext context) async {

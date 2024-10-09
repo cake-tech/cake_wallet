@@ -259,12 +259,12 @@ abstract class DashboardViewModelBase with Store {
     }
 
     if (hasMweb) {
-      mwebScanningActive = bitcoin!.getMwebEnabled(wallet);
+      mwebEnabled = bitcoin!.getMwebEnabled(wallet);
       reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
-        mwebScanningActive = bitcoin!.getMwebEnabled(wallet);
+        mwebEnabled = bitcoin!.getMwebEnabled(wallet);
       });
       reaction((_) => appStore.wallet, (_) {
-        mwebScanningActive = bitcoin!.getMwebEnabled(wallet);
+        mwebEnabled = bitcoin!.getMwebEnabled(wallet);
       });
     }
   }
@@ -433,22 +433,22 @@ abstract class DashboardViewModelBase with Store {
   bool get hasMweb => wallet.type == WalletType.litecoin && (Platform.isIOS || Platform.isAndroid);
 
   @computed
-  bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay && !mwebScanningActive;
+  bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay && !mwebEnabled;
 
   @observable
-  bool mwebScanningActive = false;
+  bool mwebEnabled = false;
 
   @computed
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
 
   @action
-  void setMwebScanningActive() {
+  void setMwebEnabled() {
     if (!hasMweb) {
       return;
     }
 
     settingsStore.hasEnabledMwebBefore = true;
-    mwebScanningActive = true;
+    mwebEnabled = true;
     bitcoin!.setMwebEnabled(wallet, true);
     settingsStore.mwebAlwaysScan = true;
   }
@@ -457,7 +457,7 @@ abstract class DashboardViewModelBase with Store {
   void dismissMweb() {
     settingsStore.mwebCardDisplay = false;
     settingsStore.mwebAlwaysScan = false;
-    mwebScanningActive = false;
+    mwebEnabled = false;
     bitcoin!.setMwebEnabled(wallet, false);
   }
 

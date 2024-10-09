@@ -9,8 +9,8 @@ class MwebSettingsViewModel = MwebSettingsViewModelBase with _$MwebSettingsViewM
 
 abstract class MwebSettingsViewModelBase with Store {
   MwebSettingsViewModelBase(this._settingsStore, this._wallet) {
-    mwebScan = bitcoin!.getMwebEnabled(_wallet);
-    _settingsStore.mwebAlwaysScan = mwebScan;
+    mwebEnabled = bitcoin!.getMwebEnabled(_wallet);
+    _settingsStore.mwebAlwaysScan = mwebEnabled;
   }
 
   final SettingsStore _settingsStore;
@@ -20,7 +20,7 @@ abstract class MwebSettingsViewModelBase with Store {
   bool get mwebCardDisplay => _settingsStore.mwebCardDisplay;
 
   @observable
-  late bool mwebScan;
+  late bool mwebEnabled;
 
   @action
   void setMwebCardDisplay(bool value) {
@@ -28,8 +28,8 @@ abstract class MwebSettingsViewModelBase with Store {
   }
 
   @action
-  void setMwebScan(bool value) {
-    mwebScan = value;
+  void setMwebEnabled(bool value) {
+    mwebEnabled = value;
     bitcoin!.setMwebEnabled(_wallet, value);
     _settingsStore.mwebAlwaysScan = value;
   }
