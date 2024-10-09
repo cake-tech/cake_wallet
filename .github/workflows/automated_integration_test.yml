@@ -71,7 +71,7 @@ jobs:
           -y curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
           cargo install cargo-ndk
           git clone https://github.com/cake-tech/cake_wallet.git --branch ${{ env.BRANCH_NAME }}
-          cd cake_wallet/scripts/android/
+          cd cake_wallet/scripts/android/ 
           ./install_ndk.sh
           source ./app_env.sh cakewallet
           chmod +x pubspec_gen.sh
@@ -246,7 +246,7 @@ jobs:
             emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
             disable-animations: true
             script: |
-                cd /opt/android/cake_wallet/
+                cd /opt/android/cake_wallet/scripts/android/
                 source ./app_env.sh cakewallet
                 chmod +x pubspec_gen.sh
                 ./app_config.sh
