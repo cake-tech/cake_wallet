@@ -28,7 +28,10 @@ class NFTDetailsPage extends BasePage {
   bool get resizeToAvoidBottomInset => false;
 
   @override
-  Widget get endDrawer => MenuWidget(dashboardViewModel);
+  Widget get endDrawer => MenuWidget(
+        dashboardViewModel,
+        ValueKey('nft_details_page_menu_widget_key'),
+      );
 
   @override
   Widget trailing(BuildContext context) {

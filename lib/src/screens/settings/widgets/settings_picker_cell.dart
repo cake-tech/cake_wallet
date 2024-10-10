@@ -5,19 +5,21 @@ import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 
 class SettingsPickerCell<ItemType> extends StandardListRow {
-  SettingsPickerCell(
-      {required String title,
-      required this.selectedItem,
-      required this.items,
-      this.displayItem,
-      this.images,
-      this.searchHintText,
-      this.isGridView = false,
-      this.matchingCriteria,
-      this.onItemSelected})
-      : super(
+  SettingsPickerCell({
+    required String title,
+    required this.selectedItem,
+    required this.items,
+    this.displayItem,
+    this.images,
+    this.searchHintText,
+    this.isGridView = false,
+    this.matchingCriteria,
+    this.onItemSelected,
+    Key? key,
+  }) : super(
           title: title,
           isSelected: false,
+          key: key,
           onTap: (BuildContext context) async {
             final selectedAtIndex = items.indexOf(selectedItem);
 

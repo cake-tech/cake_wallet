@@ -66,6 +66,7 @@ class WalletGroupDescriptionPage extends BasePage {
             ),
           ),
           PrimaryButton(
+            key: ValueKey('wallet_group_description_page_create_new_seed_button_key'),
             onPressed: () => Navigator.of(context).pushNamed(
               Routes.newWallet,
               arguments: NewWalletArguments(type: selectedWalletType),
@@ -76,6 +77,7 @@ class WalletGroupDescriptionPage extends BasePage {
           ),
           SizedBox(height: 12),
           PrimaryButton(
+            key: ValueKey('wallet_group_description_page_choose_wallet_group_button_key'),
             onPressed: () => Navigator.of(context).pushNamed(
               Routes.walletGroupsDisplayPage,
               arguments: selectedWalletType,

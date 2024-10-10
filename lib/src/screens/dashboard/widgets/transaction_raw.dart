@@ -14,6 +14,7 @@ class TransactionRow extends StatelessWidget {
     required this.tags,
     required this.title,
     required this.onTap,
+    super.key,
   });
 
   final VoidCallback onTap;
@@ -28,33 +29,36 @@ class TransactionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
-          color: Colors.transparent,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                height: 36,
-                width: 36,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).extension<TransactionTradeTheme>()!.rowsColor),
-                child: Image.asset(direction == TransactionDirection.incoming
-                    ? 'assets/images/down_arrow.png'
-                    : 'assets/images/up_arrow.png'),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                  child: Column(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
+        color: Colors.transparent,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              height: 36,
+              width: 36,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Theme.of(context).extension<TransactionTradeTheme>()!.rowsColor),
+              child: Image.asset(direction == TransactionDirection.incoming
+                  ? 'assets/images/down_arrow.png'
+                  : 'assets/images/up_arrow.png'),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    Row(
-                      children: [
-                        Text(title,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Row(
+                        children: [
+                          Text(
+                            title,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -65,28 +69,39 @@ class TransactionRow extends StatelessWidget {
                     ),
                     Text(formattedAmount,
                         style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor))
-                  ]),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                        ),
+                      )
+                    ],
+                  ),
                   SizedBox(height: 5),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    Text(formattedDate,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(formattedDate,
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context)
+                                  .extension<CakeTextTheme>()!
+                                  .dateSectionRowColor)),
+                      Text(
+                        formattedFiatAmount,
                         style: TextStyle(
-                            fontSize: 14,
-                            color:
-                                Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor)),
-                    Text(formattedFiatAmount,
-                        style: TextStyle(
-                            fontSize: 14,
-                            color:
-                                Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
-                  ])
+                          fontSize: 14,
+                          color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor,
+                        ),
+                      )
+                    ],
+                  ),
                 ],
-              ))
-            ],
-          ),
-        ));
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
 

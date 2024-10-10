@@ -9,6 +9,7 @@ class AnonpayTransactionRow extends StatelessWidget {
     required this.currency,
     required this.onTap,
     required this.amount,
+    super.key,
   });
 
   final VoidCallback? onTap;

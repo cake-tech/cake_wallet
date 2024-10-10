@@ -2,14 +2,14 @@ import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:flutter/material.dart';
 
 class OptionTile extends StatelessWidget {
-  const OptionTile(
-      {required this.onPressed,
-       this.image,
-        this.icon,
-      required this.title,
-      required this.description,
-      super.key})
-  : assert(image!=null || icon!=null);
+  const OptionTile({
+    required this.onPressed,
+    this.image,
+    this.icon,
+    required this.title,
+    required this.description,
+    super.key,
+  }) : assert(image != null || icon != null);
 
   final VoidCallback onPressed;
   final Image? image;
@@ -34,7 +34,7 @@ class OptionTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-             icon ?? image!,
+            icon ?? image!,
             Expanded(
               child: Padding(
                 padding: EdgeInsets.only(left: 16),

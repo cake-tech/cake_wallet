@@ -10,7 +10,8 @@ class SettingsSwitcherCell extends StandardListRow {
     Decoration? decoration,
     this.leading,
     void Function(BuildContext context)? onTap,
-  }) : super(title: title, isSelected: false, decoration: decoration, onTap: onTap);
+    Key? key,
+  }) : super(title: title, isSelected: false, decoration: decoration, onTap: onTap, key: key);
 
   final bool value;
   final void Function(BuildContext context, bool value)? onValueChange;

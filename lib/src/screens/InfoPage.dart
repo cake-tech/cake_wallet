@@ -21,6 +21,7 @@ abstract class InfoPage extends BasePage {
   String get pageTitle;
   String get pageDescription;
   String get buttonText;
+  Key? get buttonKey;
   void Function(BuildContext) get onPressed;
 
   @override
@@ -39,15 +40,14 @@ abstract class InfoPage extends BasePage {
         alignment: Alignment.center,
         padding: EdgeInsets.all(24),
         child: ConstrainedBox(
-          constraints: BoxConstraints(
-              maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+          constraints:
+              BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Expanded(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height * 0.3),
+                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
                   child: AspectRatio(aspectRatio: 1, child: image),
                 ),
               ),
@@ -61,14 +61,13 @@ abstract class InfoPage extends BasePage {
                       height: 1.7,
                       fontSize: 14,
                       fontWeight: FontWeight.normal,
-                      color: Theme.of(context)
-                          .extension<CakeTextTheme>()!
-                          .secondaryTextColor,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                     ),
                   ),
                 ),
               ),
               PrimaryButton(
+                key: buttonKey,
                 onPressed: () => onPressed(context),
                 text: buttonText,
                 color: Theme.of(context).primaryColor,

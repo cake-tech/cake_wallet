@@ -1,5 +1,6 @@
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
+import 'package:flutter/foundation.dart';
 
 List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
   final formattedList = <ActionListItem>[];
@@ -11,7 +12,12 @@ List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
 
     if (lastDate == null) {
       lastDate = transaction.date;
-      formattedList.add(DateSectionItem(transaction.date));
+      formattedList.add(
+        DateSectionItem(
+          transaction.date,
+          key: ValueKey('date_section_item_${transaction.date.microsecondsSinceEpoch}_key'),
+        ),
+      );
       formattedList.add(transaction);
       continue;
     }
@@ -26,7 +32,12 @@ List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
     }
 
     lastDate = transaction.date;
-    formattedList.add(DateSectionItem(transaction.date));
+    formattedList.add(
+      DateSectionItem(
+        transaction.date,
+        key: ValueKey('date_section_item_${transaction.date.microsecondsSinceEpoch}_key'),
+      ),
+    );
     formattedList.add(transaction);
   }
 

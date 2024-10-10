@@ -140,7 +140,7 @@ class _DashboardPageView extends BasePage {
   bool get resizeToAvoidBottomInset => false;
 
   @override
-  Widget get endDrawer => MenuWidget(dashboardViewModel);
+  Widget get endDrawer => MenuWidget(dashboardViewModel, ValueKey('dashboard_page_drawer_menu_widget_key'));
 
   @override
   Widget leading(BuildContext context) {

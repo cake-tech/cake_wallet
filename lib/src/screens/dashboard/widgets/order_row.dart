@@ -12,7 +12,10 @@ class OrderRow extends StatelessWidget {
     required this.to,
     required this.createdAtFormattedDate,
     this.onTap,
-    this.formattedAmount});
+    this.formattedAmount,
+    super.key,
+  });
+  
   final VoidCallback? onTap;
   final BuyProviderDescription provider;
   final String from;
@@ -22,8 +25,7 @@ class OrderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor =
-        Theme.of(context).extension<OrderTheme>()!.iconColor;
+    final iconColor = Theme.of(context).extension<OrderTheme>()!.iconColor;
 
     final providerIcon = getBuyProviderIcon(provider, iconColor: iconColor);
 
@@ -36,44 +38,40 @@ class OrderRow extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (providerIcon != null) Padding(
-                padding: EdgeInsets.only(right: 12),
-                child: providerIcon,
-              ),
+              if (providerIcon != null)
+                Padding(
+                  padding: EdgeInsets.only(right: 12),
+                  child: providerIcon,
+                ),
               Expanded(
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text('$from → $to',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                                )),
-                            formattedAmount != null
-                                ? Text(formattedAmount! + ' ' + to,
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                                ))
-                                : Container()
-                          ]),
-                      SizedBox(height: 5),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(createdAtFormattedDate,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
-                          ])
-                    ],
-                  )
-              )
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                    Text('$from → $to',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor)),
+                    formattedAmount != null
+                        ? Text(formattedAmount! + ' ' + to,
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color:
+                                    Theme.of(context).extension<DashboardPageTheme>()!.textColor))
+                        : Container()
+                  ]),
+                  SizedBox(height: 5),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                    Text(createdAtFormattedDate,
+                        style: TextStyle(
+                            fontSize: 14,
+                            color:
+                                Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
+                  ])
+                ],
+              ))
             ],
           ),
         ));

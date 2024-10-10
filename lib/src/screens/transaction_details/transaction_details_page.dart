@@ -33,38 +33,42 @@ class TransactionDetailsPage extends BasePage {
       children: [
         Expanded(
           child: SectionStandardList(
-              sectionCount: 1,
-              itemCounter: (int _) => transactionDetailsViewModel.items.length,
-              itemBuilder: (__, index) {
-                final item = transactionDetailsViewModel.items[index];
+            sectionCount: 1,
+            itemCounter: (int _) => transactionDetailsViewModel.items.length,
+            itemBuilder: (__, index) {
+              final item = transactionDetailsViewModel.items[index];
 
-                if (item is StandartListItem) {
-                  return GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: item.value));
-                      showBar<void>(context, S.of(context).transaction_details_copied(item.title));
-                    },
-                    child: ListRow(title: '${item.title}:', value: item.value),
-                  );
-                }
+              if (item is StandartListItem) {
+                return GestureDetector(
+                  key: item.key,
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: item.value));
+                    showBar<void>(context, S.of(context).transaction_details_copied(item.title));
+                  },
+                  child: ListRow(title: '${item.title}:', value: item.value),
+                );
+              }
 
-                if (item is BlockExplorerListItem) {
-                  return GestureDetector(
-                    onTap: item.onTap,
-                    child: ListRow(title: '${item.title}:', value: item.value),
-                  );
-                }
+              if (item is BlockExplorerListItem) {
+                return GestureDetector(
+                  key: item.key,
+                  onTap: item.onTap,
+                  child: ListRow(title: '${item.title}:', value: item.value),
+                );
+              }
 
-                if (item is TextFieldListItem) {
-                  return TextFieldListRow(
-                    title: item.title,
-                    value: item.value,
-                    onSubmitted: item.onSubmitted,
-                  );
-                }
+              if (item is TextFieldListItem) {
+                return TextFieldListRow(
+                  key: item.key,
+                  title: item.title,
+                  value: item.value,
+                  onSubmitted: item.onSubmitted,
+                );
+              }
 
-                return Container();
-              }),
+              return Container();
+            },
+          ),
         ),
         Observer(
           builder: (_) {
