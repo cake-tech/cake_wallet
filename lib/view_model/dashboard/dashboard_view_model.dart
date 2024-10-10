@@ -224,7 +224,10 @@ abstract class DashboardViewModelBase with Store {
     //   subname = nano!.getCurrentAccount(_wallet).label;
     // }
 
-    reaction((_) => appStore.wallet, _onWalletChange);
+    reaction((_) => appStore.wallet, (wallet) {
+      _onWalletChange(wallet);
+      _checkMweb();
+    });
 
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
@@ -258,14 +261,16 @@ abstract class DashboardViewModelBase with Store {
       });
     }
 
+    _checkMweb();
+    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
+      _checkMweb();
+    });
+  }
+
+  void _checkMweb() {
     if (hasMweb) {
       mwebEnabled = bitcoin!.getMwebEnabled(wallet);
-      reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
-        mwebEnabled = bitcoin!.getMwebEnabled(wallet);
-      });
-      reaction((_) => appStore.wallet, (_) {
-        mwebEnabled = bitcoin!.getMwebEnabled(wallet);
-      });
+      balanceViewModel.mwebEnabled = mwebEnabled;
     }
   }
 
@@ -450,14 +455,14 @@ abstract class DashboardViewModelBase with Store {
     settingsStore.hasEnabledMwebBefore = true;
     mwebEnabled = true;
     bitcoin!.setMwebEnabled(wallet, true);
-    // ensure the mobx reaction triggers by setting to false then true (because it may already be true if we just switched wallets):
-    settingsStore.mwebAlwaysScan = false;
+    balanceViewModel.mwebEnabled = true;
     settingsStore.mwebAlwaysScan = true;
   }
 
   @action
   void dismissMweb() {
     settingsStore.mwebCardDisplay = false;
+    balanceViewModel.mwebEnabled = false;
     settingsStore.mwebAlwaysScan = false;
     mwebEnabled = false;
     bitcoin!.setMwebEnabled(wallet, false);

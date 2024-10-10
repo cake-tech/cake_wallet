@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -28,10 +29,12 @@ class CwMweb {
           final fileStream = file.openRead(lastLength, currentLength);
           final newLines = await fileStream.transform(utf8.decoder).join();
           lastLength = currentLength;
-          print(newLines);
+          log(newLines);
         }
+      } on GrpcError catch (e) {
+        log('Caught grpc error: ${e.message}');
       } catch (e) {
-        print('The mwebd debug log probably is not initialized yet.');
+        log('The mwebd debug log probably is not initialized yet.');
       }
     });
   }
@@ -51,13 +54,13 @@ class CwMweb {
     if (_port == null || _port == 0) {
       throw Exception("Failed to start server");
     }
-    print("Attempting to connect to server on port: $_port");
+    log("Attempting to connect to server on port: $_port");
 
     // wait for the server to finish starting up before we try to connect to it:
     await Future.delayed(const Duration(seconds: 5));
 
     _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
-      print("Channel is shutting down!");
+      log("Channel is shutting down!");
     },
         options: const ChannelOptions(
           credentials: ChannelCredentials.insecure(),
@@ -78,8 +81,10 @@ class CwMweb {
           throw Exception("blockTime shouldn't be 0! (this connection is likely broken)");
         }
         return _rpcClient!;
+      } on GrpcError catch (e) {
+        log('Caught grpc error: ${e.message}');
       } catch (e) {
-        print("Attempt $i failed: $e");
+        log("Attempt $i failed: $e");
         _rpcClient = null;
       }
     }
@@ -90,8 +95,10 @@ class CwMweb {
     try {
       await CwMwebPlatform.instance.stop();
       await cleanup();
+    } on GrpcError catch (e) {
+      log('Caught grpc error: ${e.message}');
     } catch (e) {
-      print("Error stopping server: $e");
+      log("Error stopping server: $e");
     }
   }
 
@@ -101,10 +108,12 @@ class CwMweb {
       return (await CwMwebPlatform.instance.addresses(scanSecret, spendPub, index, index + 1))
           ?.split(',')
           .first;
+    } on GrpcError catch (e) {
+      log('Caught grpc error: ${e.message}');
     } catch (e) {
-      print("Error getting address: $e");
-      return null;
+      log("Error getting address: $e");
     }
+    return null;
   }
 
   static Future<List<String>?> addresses(
@@ -112,10 +121,12 @@ class CwMweb {
     try {
       return (await CwMwebPlatform.instance.addresses(scanSecret, spendPub, fromIndex, toIndex))
           ?.split(',');
+    } on GrpcError catch (e) {
+      log('Caught grpc error: ${e.message}');
     } catch (e) {
-      print("Error getting addresses: $e");
-      return null;
+      log("Error getting addresses: $e");
     }
+    return null;
   }
 
   static Future<void> cleanup() async {
@@ -129,56 +140,65 @@ class CwMweb {
 
   // wrappers that handle the connection issues:
   static Future<SpentResponse> spent(SpentRequest request) async {
-    print("mweb.spent() called");
+    log("mweb.spent() called");
     try {
       if (_rpcClient == null) {
         await _initializeClient();
       }
       return await _rpcClient!.spent(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    } on GrpcError catch (e) {
+      log('Caught grpc error: ${e.message}');
     } catch (e) {
-      print("Error getting spent: $e");
-      return SpentResponse();
+      log("Error getting spent: $e");
     }
+    return SpentResponse();
   }
 
   static Future<StatusResponse> status(StatusRequest request) async {
-    print("mweb.status() called");
+    log("mweb.status() called");
     try {
       if (_rpcClient == null) {
         await _initializeClient();
       }
       return await _rpcClient!.status(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    } on GrpcError catch (e) {
+      log('Caught grpc error: ${e.message}');
     } catch (e) {
-      print("Error getting status: $e");
-      return StatusResponse();
+      log("Error getting status: $e");
     }
+    return StatusResponse();
   }
 
   static Future<CreateResponse> create(CreateRequest request) async {
-    print("mweb.create() called");
+    log("mweb.create() called");
     try {
       if (_rpcClient == null) {
         await _initializeClient();
       }
       return await _rpcClient!.create(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    } on GrpcError catch (e) {
+      log('Caught grpc error: ${e.message}');
     } catch (e) {
-      print("Error getting create: $e");
-      return CreateResponse();
+      log("Error getting create: $e");
     }
+    return CreateResponse();
   }
 
   static Future<ResponseStream<Utxo>?> utxos(UtxosRequest request) async {
-    print("mweb.utxos() called");
+    log("mweb.utxos() called");
     try {
       if (_rpcClient == null) {
         await _initializeClient();
       }
-      final resp = _rpcClient!.utxos(request, options: CallOptions(timeout: TIMEOUT_DURATION));
-      print("got utxo stream");
+      final resp = _rpcClient!
+          .utxos(request, options: CallOptions(timeout: const Duration(days: 1000 * 365)));
+      log("got utxo stream");
       return resp;
+    } on GrpcError catch (e) {
+      log('Caught grpc error: ${e.message}');
     } catch (e) {
-      print("Error getting utxos: $e");
-      return null;
+      log("Error getting utxos: $e");
     }
+    return null;
   }
 }
