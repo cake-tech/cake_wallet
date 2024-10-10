@@ -83,11 +83,11 @@ class CwMweb {
         log("Attempt $i failed: $e");
         log('Caught grpc error: ${e.message}');
         _rpcClient = null;
-        await stop();
+        await Future.delayed(const Duration(seconds: 3));
       } catch (e) {
         log("Attempt $i failed: $e");
         _rpcClient = null;
-        await stop();
+        await Future.delayed(const Duration(seconds: 3));
       }
     }
     throw Exception("Failed to connect after $maxRetries attempts");
@@ -97,7 +97,6 @@ class CwMweb {
     try {
       await CwMwebPlatform.instance.stop();
       await cleanup();
-      await Future.delayed(const Duration(seconds: 3));
     } on GrpcError catch (e) {
       log('Caught grpc error: ${e.message}');
     } catch (e) {
