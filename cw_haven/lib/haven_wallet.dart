@@ -106,7 +106,7 @@ abstract class HavenWalletBase
   Future<void>? updateBalance() => null;
 
   @override
-  void close() {
+  Future<void> close({required bool shouldCleanup}) async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();

@@ -116,7 +116,7 @@ class HavenWalletService extends WalletService<
 
       if (!isValid) {
         await restoreOrResetWalletFiles(name);
-        wallet.close();
+        wallet.close(shouldCleanup: false);
         return openWallet(name, password);
       }
 

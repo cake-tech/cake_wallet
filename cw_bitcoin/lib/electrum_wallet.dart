@@ -168,7 +168,10 @@ abstract class ElectrumWalletBase
   @observable
   SyncStatus syncStatus;
 
-  Set<String> get addressesSet => walletAddresses.allAddresses.map((addr) => addr.address).toSet();
+  Set<String> get addressesSet => walletAddresses.allAddresses
+      .where((element) => element.type != SegwitAddresType.mweb)
+      .map((addr) => addr.address)
+      .toSet();
 
   List<String> get scriptHashes => walletAddresses.addressesByReceiveType
       .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)
@@ -1174,6 +1177,7 @@ abstract class ElectrumWalletBase
         'silent_addresses': walletAddresses.silentAddresses.map((addr) => addr.toJSON()).toList(),
         'silent_address_index': walletAddresses.currentSilentAddressIndex.toString(),
         'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
+        'alwaysScan': alwaysScan,
       });
 
   int feeRate(TransactionPriority priority) {
@@ -1291,7 +1295,7 @@ abstract class ElectrumWalletBase
   }
 
   @override
-  Future<void> close() async {
+  Future<void> close({required bool shouldCleanup}) async {
     try {
       await _receiveStream?.cancel();
       await electrumClient.close();
@@ -1318,7 +1322,9 @@ abstract class ElectrumWalletBase
       if (addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
     });
 
-    await Future.wait(walletAddresses.allAddresses.map((address) async {
+    await Future.wait(walletAddresses.allAddresses
+        .where((element) => element.type != SegwitAddresType.mweb)
+        .map((address) async {
       updatedUnspentCoins.addAll(await fetchUnspent(address));
     }));
 
@@ -1878,6 +1884,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> updateTransactions() async {
+    print("updateTransactions() called!");
     try {
       if (_isTransactionUpdating) {
         return;
@@ -1903,12 +1910,16 @@ abstract class ElectrumWalletBase
 
   Future<void> subscribeForUpdates() async {
     final unsubscribedScriptHashes = walletAddresses.allAddresses.where(
-      (address) => !_scripthashesUpdateSubject.containsKey(address.getScriptHash(network)),
+      (address) =>
+          !_scripthashesUpdateSubject.containsKey(address.getScriptHash(network)) &&
+          address.type != SegwitAddresType.mweb,
     );
 
     await Future.wait(unsubscribedScriptHashes.map((address) async {
       final sh = address.getScriptHash(network);
-      await _scripthashesUpdateSubject[sh]?.close();
+      if (!(_scripthashesUpdateSubject[sh]?.isClosed ?? true)) {
+        await _scripthashesUpdateSubject[sh]?.close();
+      }
       _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
       _scripthashesUpdateSubject[sh]?.listen((event) async {
         try {
@@ -1918,7 +1929,7 @@ abstract class ElectrumWalletBase
 
           await _fetchAddressHistory(address, await getCurrentChainTip());
         } catch (e, s) {
-          print(e.toString());
+          print("sub error: $e");
           _onError?.call(FlutterErrorDetails(
             exception: e,
             stack: s,
@@ -1996,6 +2007,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> updateBalance() async {
+    print("updateBalance() called!");
     balance[currency] = await fetchBalances();
     await save();
   }

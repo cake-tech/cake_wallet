@@ -36,4 +36,8 @@ abstract class CwMwebPlatform extends PlatformInterface {
   Future<String?> address(Uint8List scanSecret, Uint8List spendPub, int index) {
     throw UnimplementedError('address(int) has not been implemented.');
   }
+
+  Future<String?> addresses(Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) {
+    throw UnimplementedError('addresses has not been implemented.');
+  }
 }

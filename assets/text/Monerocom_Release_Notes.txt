@@ -1,2 +1,4 @@
-Enhance auto-address generation for Monero
-Bug fixes and enhancements
+Monero enhancements for sending and address generation
+StealthEx
+LetsExchange
+Visual enhancements and bug fixes

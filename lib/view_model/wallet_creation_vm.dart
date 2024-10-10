@@ -188,36 +188,38 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
-  Future<List<DerivationInfo>> getDerivationInfoFromQRCredentials(RestoredWallet restoreWallet) async {
-      var list = <DerivationInfo>[];
-      final walletType = restoreWallet.type;
-      var appStore = getIt.get<AppStore>();
-      var node = appStore.settingsStore.getCurrentNode(walletType);
+  Future<List<DerivationInfo>> getDerivationInfoFromQRCredentials(
+      RestoredWallet restoreWallet) async {
+    var list = <DerivationInfo>[];
+    final walletType = restoreWallet.type;
+    var appStore = getIt.get<AppStore>();
+    var node = appStore.settingsStore.getCurrentNode(walletType);
 
-      switch (walletType) {
-        case WalletType.bitcoin:
-        case WalletType.litecoin:
-          return bitcoin!.getDerivationsFromMnemonic(
-            mnemonic: restoreWallet.mnemonicSeed!,
-            node: node,
-            passphrase: restoreWallet.passphrase,
-          );
-        case WalletType.nano:
-          return nanoUtil!.getDerivationsFromMnemonic(
-            mnemonic: restoreWallet.mnemonicSeed!,
-            node: node,
-          );
-        default:
-          break;
-      }
-      return list;
+    switch (walletType) {
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return bitcoin!.getDerivationsFromMnemonic(
+          mnemonic: restoreWallet.mnemonicSeed!,
+          node: node,
+          passphrase: restoreWallet.passphrase,
+        );
+      case WalletType.nano:
+        return nanoUtil!.getDerivationsFromMnemonic(
+          mnemonic: restoreWallet.mnemonicSeed!,
+          node: node,
+        );
+      default:
+        break;
     }
+    return list;
+  }
 
   WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
 
   Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
 
-  Future<WalletCredentials> getWalletCredentialsFromQRCredentials(RestoredWallet restoreWallet) async =>
+  Future<WalletCredentials> getWalletCredentialsFromQRCredentials(
+          RestoredWallet restoreWallet) async =>
       throw UnimplementedError();
 
   Future<WalletBase> processFromRestoredWallet(
