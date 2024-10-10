@@ -422,7 +422,7 @@ class ElectrumClient {
   BehaviorSubject<T>? subscribe<T>(
       {required String id, required String method, List<Object> params = const []}) {
     try {
-      if (socket == null) {
+      if (socket == null || !isConnected) {
         return null;
       }
       final subscription = BehaviorSubject<T>();

@@ -168,7 +168,10 @@ abstract class ElectrumWalletBase
   @observable
   SyncStatus syncStatus;
 
-  Set<String> get addressesSet => walletAddresses.allAddresses.where((element) => element.type != SegwitAddresType.mweb).map((addr) => addr.address).toSet();
+  Set<String> get addressesSet => walletAddresses.allAddresses
+      .where((element) => element.type != SegwitAddresType.mweb)
+      .map((addr) => addr.address)
+      .toSet();
 
   List<String> get scriptHashes => walletAddresses.addressesByReceiveType
       .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)
@@ -1905,7 +1908,9 @@ abstract class ElectrumWalletBase
 
     await Future.wait(unsubscribedScriptHashes.map((address) async {
       final sh = address.getScriptHash(network);
-      await _scripthashesUpdateSubject[sh]?.close();
+      if (!(_scripthashesUpdateSubject[sh]?.isClosed ?? true)) {
+        await _scripthashesUpdateSubject[sh]?.close();
+      }
       _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
       _scripthashesUpdateSubject[sh]?.listen((event) async {
         try {
@@ -1915,7 +1920,7 @@ abstract class ElectrumWalletBase
 
           await _fetchAddressHistory(address, await getCurrentChainTip());
         } catch (e, s) {
-          print(e.toString());
+          print("sub error: $e");
           _onError?.call(FlutterErrorDetails(
             exception: e,
             stack: s,
