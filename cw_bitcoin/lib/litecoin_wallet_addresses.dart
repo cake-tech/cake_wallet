@@ -67,10 +67,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     Uint8List scan = Uint8List.fromList(scanSecret);
     Uint8List spend = Uint8List.fromList(spendPubkey);
 
-    print("@@@@@@@@@@@@");
-    print(mwebAddresses.length);
-    print(mwebAddrs.length);
-
     if (index < mwebAddresses.length && index < mwebAddrs.length) {
       return;
     }
