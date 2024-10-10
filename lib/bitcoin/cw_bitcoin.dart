@@ -106,33 +106,32 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Object createBitcoinTransactionCredentials(List<Output> outputs,
-      {required TransactionPriority priority, int? feeRate}) {
+  Object createBitcoinTransactionCredentials(
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    int? feeRate,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+  }) {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
     return BitcoinTransactionCredentials(
-        outputs
-            .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount,
-                memo: out.memo))
-            .toList(),
-        priority: priority as BitcoinTransactionPriority,
-        feeRate: bitcoinFeeRate);
+      outputs
+          .map((out) => OutputInfo(
+              fiatAmount: out.fiatAmount,
+              cryptoAmount: out.cryptoAmount,
+              address: out.address,
+              note: out.note,
+              sendAll: out.sendAll,
+              extractedAddress: out.extractedAddress,
+              isParsedAddress: out.isParsedAddress,
+              formattedCryptoAmount: out.formattedCryptoAmount,
+              memo: out.memo))
+          .toList(),
+      priority: priority as BitcoinTransactionPriority,
+      feeRate: bitcoinFeeRate,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
+    );
   }
-
-  @override
-  Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs,
-          {TransactionPriority? priority, required int feeRate}) =>
-      BitcoinTransactionCredentials(outputs,
-          priority: priority != null ? priority as BitcoinTransactionPriority : null,
-          feeRate: feeRate);
 
   @override
   @computed
