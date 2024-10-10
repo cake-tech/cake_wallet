@@ -258,7 +258,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (!mwebEnabled) {
         try {
           // in case we're switching from a litecoin wallet that had mweb enabled
-         CwMweb.stop();
+          CwMweb.stop();
         } catch (_) {}
         try {
           await updateAllUnspents();
@@ -350,6 +350,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _utxoStream?.cancel();
     _feeRatesTimer?.cancel();
     await CwMweb.stop();
+    print("stopped syncing!");
   }
 
   Future<void> initMwebUtxosBox() async {

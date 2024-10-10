@@ -60,6 +60,7 @@ class CwMweb {
     await Future.delayed(const Duration(seconds: 5));
 
     _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
+      _rpcClient = null;
       log("Channel is shutting down!");
     },
         options: const ChannelOptions(
@@ -83,6 +84,7 @@ class CwMweb {
         return _rpcClient!;
       } on GrpcError catch (e) {
         log('Caught grpc error: ${e.message}');
+        _rpcClient = null;
       } catch (e) {
         log("Attempt $i failed: $e");
         _rpcClient = null;
@@ -99,6 +101,21 @@ class CwMweb {
       log('Caught grpc error: ${e.message}');
     } catch (e) {
       log("Error stopping server: $e");
+    }
+  }
+
+  // ensure mweb is actually awake and responding to calls:
+  static Future<void> ensureMwebAlive() async {
+    print("ensuring mweb is actually alive!");
+    try {
+      final status = await _rpcClient!
+          .status(StatusRequest(), options: CallOptions(timeout: TIMEOUT_DURATION));
+      if (status.blockTime == 0) {
+        throw Exception("blockTime shouldn't be 0! (this connection is likely broken)");
+      }
+    } catch (_) {
+      // stop and start the server:
+      await _initializeClient();
     }
   }
 
@@ -144,6 +161,8 @@ class CwMweb {
     try {
       if (_rpcClient == null) {
         await _initializeClient();
+      } else {
+        await ensureMwebAlive();
       }
       return await _rpcClient!.spent(request, options: CallOptions(timeout: TIMEOUT_DURATION));
     } on GrpcError catch (e) {
@@ -174,6 +193,8 @@ class CwMweb {
     try {
       if (_rpcClient == null) {
         await _initializeClient();
+      } else {
+        await ensureMwebAlive();
       }
       return await _rpcClient!.create(request, options: CallOptions(timeout: TIMEOUT_DURATION));
     } on GrpcError catch (e) {
@@ -189,6 +210,8 @@ class CwMweb {
     try {
       if (_rpcClient == null) {
         await _initializeClient();
+      } else {
+        await ensureMwebAlive();
       }
       final resp = _rpcClient!
           .utxos(request, options: CallOptions(timeout: const Duration(days: 1000 * 365)));
