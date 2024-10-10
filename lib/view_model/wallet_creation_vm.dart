@@ -197,11 +197,17 @@ abstract class WalletCreationVMBase with Store {
       switch (walletType) {
         case WalletType.bitcoin:
         case WalletType.litecoin:
-          return bitcoin!.getDerivationsFromMnemonic(
+
+          final derivationList = await bitcoin!.getDerivationsFromMnemonic(
             mnemonic: restoreWallet.mnemonicSeed!,
             node: node,
             passphrase: restoreWallet.passphrase,
           );
+
+          if (derivationList.first.transactionsCount == 0) return [];
+          
+          return derivationList;
+
         case WalletType.nano:
           return nanoUtil!.getDerivationsFromMnemonic(
             mnemonic: restoreWallet.mnemonicSeed!,
