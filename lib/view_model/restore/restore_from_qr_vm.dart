@@ -112,7 +112,14 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
             );
           case WalletType.bitcoin:
           case WalletType.litecoin:
-            final derivationInfo = (await getDerivationInfoFromQRCredentials(restoreWallet)).first;
+
+          final derivationInfoList = await getDerivationInfoFromQRCredentials(restoreWallet);
+          DerivationInfo derivationInfo;
+          if (derivationInfoList.isEmpty) {
+            derivationInfo = getDefaultCreateDerivation()!;
+          } else {
+            derivationInfo = derivationInfoList.first;
+          }
             return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
               name: name,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
