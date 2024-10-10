@@ -439,11 +439,16 @@ class CryptoBalanceWidget extends StatelessWidget {
                           ],
                         ),
                         onTap: () => {},
-                        icon: ImageIcon(
-                          AssetImage('assets/images/mweb_logo.png'),
-                          color:
-                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                          size: 50,
+                        icon: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: ImageIcon(
+                            AssetImage('assets/images/mweb_logo.png'),
+                            color: Color.fromARGB(255, 11, 70, 129),
+                            size: 40,
+                          ),
                         ),
                       ),
                     ),
@@ -846,12 +851,16 @@ class BalanceRowWidget extends StatelessWidget {
                             padding: EdgeInsets.only(right: 16, top: 16),
                             child: Column(
                               children: [
-                                ImageIcon(
-                                  AssetImage('assets/images/mweb_logo.png'),
-                                  color: Theme.of(context)
-                                      .extension<DashboardPageTheme>()!
-                                      .pageTitleTextColor,
-                                  size: 40,
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: ImageIcon(
+                                    AssetImage('assets/images/mweb_logo.png'),
+                                    color: Color.fromARGB(255, 11, 70, 129),
+                                    size: 40,
+                                  ),
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
