@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
@@ -82,7 +83,12 @@ class ExceptionHandler {
     }
   }
 
-  static void onError(FlutterErrorDetails errorDetails) async {
+  static Future<void> resetLastPopupDate() async {
+    final sharedPrefs = await SharedPreferences.getInstance();
+    await sharedPrefs.setString(PreferencesKey.lastPopupDate, DateTime(1971).toString());
+  }
+
+  static Future<void> onError(FlutterErrorDetails errorDetails) async {
     if (kDebugMode || kProfileMode) {
       FlutterError.presentError(errorDetails);
       debugPrint(errorDetails.toString());
@@ -282,13 +288,15 @@ class ExceptionHandler {
 
   static Future<void> _showCopyPopup(String content) async {
     if (navigatorKey.currentContext != null) {
+      final seeds = await secureStorageShared.read(key: "curruptedWalletsSeed");
+      await secureStorageShared.delete(key: "curruptedWalletsSeed");
       final shouldCopy = await showPopUp<bool?>(
         context: navigatorKey.currentContext!,
         builder: (context) {
           return AlertWithTwoActions(
             isDividerExist: true,
             alertTitle: S.of(context).error,
-            alertContent: content,
+            alertContent: content+"\n"+(seeds??"unknown"),
             rightButtonText: S.of(context).copy,
             leftButtonText: S.of(context).close,
             actionRightButton: () {

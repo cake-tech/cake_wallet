@@ -32,7 +32,8 @@ void startAuthenticationStateChange(
         await loadCurrentWallet();
       } catch (error, stack) {
         loginError = error;
-        ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+        await ExceptionHandler.resetLastPopupDate();
+        await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
       }
       return;
     }

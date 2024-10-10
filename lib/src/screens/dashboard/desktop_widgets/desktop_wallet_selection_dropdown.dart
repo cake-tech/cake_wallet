@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -206,6 +207,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
           hideProgressText();
           setState(() {});
         } catch (e) {
+          await ExceptionHandler.resetLastPopupDate();
+          await ExceptionHandler.onError(FlutterErrorDetails(exception: e));
           if (mounted) {
             changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
           }

@@ -78,7 +78,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       );
     }
 
-    ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
+    await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
 

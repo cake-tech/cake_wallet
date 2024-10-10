@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
@@ -12,6 +13,7 @@ import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -454,8 +456,12 @@ class WalletListBodyState extends State<WalletListBody> {
             });
           }
         } catch (e) {
+          await ExceptionHandler.resetLastPopupDate();
+          await ExceptionHandler.onError(FlutterErrorDetails(exception: e));
+          final err = e.toString() + ((await secureStorageShared.read(key: "curruptedWalletsSeed"))??"unable to retrieve seeds");
+          await secureStorageShared.delete(key: "curruptedWalletsSeed");
           if (this.mounted) {
-            changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+            changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, err));
           }
         }
       },

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -54,6 +55,7 @@ class WalletLoadingService {
 
       return wallet;
     } catch (error, stack) {
+      await ExceptionHandler.resetLastPopupDate();
       ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
 
       // try fetching the seeds of the corrupted wallet to show it to the user
@@ -61,7 +63,7 @@ class WalletLoadingService {
       try {
         corruptedWalletsSeeds += await _getCorruptedWalletSeeds(name, type);
       } catch (e) {
-        corruptedWalletsSeeds += "\nFailed to  fetch $name seeds: $e";
+        corruptedWalletsSeeds += "\nFailed to fetch $name seeds: $e";
       }
 
       // try opening another wallet that is not corrupted to give user access to the app
@@ -70,7 +72,7 @@ class WalletLoadingService {
       for (var walletInfo in walletInfoSource.values) {
         try {
           final walletService = walletServiceFactory.call(walletInfo.type);
-          final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+          final walletPassword = password ?? await keyService.getWalletPassword(walletName: name);
           final wallet = await walletService.openWallet(walletInfo.name, walletPassword);
 
           if (walletInfo.type == WalletType.monero) {
@@ -94,13 +96,14 @@ class WalletLoadingService {
               corruptedWalletsSeeds += seeds;
             }
           } catch (e) {
-            corruptedWalletsSeeds += "\nFailed to  fetch $name seeds: $e";
+            corruptedWalletsSeeds += "\nFailed to fetch $name seeds: $e";
           }
         }
       }
 
       // if all user's wallets are corrupted throw exception
-      throw error.toString() + "\n\n" + corruptedWalletsSeeds;
+      secureStorageShared.write(key: "curruptedWalletsSeed", value: corruptedWalletsSeeds);
+      throw error.toString();
     }
   }
 
