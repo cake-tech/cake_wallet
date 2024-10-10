@@ -125,6 +125,7 @@ class ElectrumClient {
         unterminatedString = '';
       },
       onDone: () {
+        print("SOCKET CLOSED!!!!!");
         unterminatedString = '';
         try {
           if (host == socket?.address.host) {
