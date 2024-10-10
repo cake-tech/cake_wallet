@@ -216,7 +216,7 @@ class BalanceRowWidget extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              S.of(context).unavailable_balance,
+                              S.of(context).frozen_balance,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 12,
