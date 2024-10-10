@@ -47,6 +47,7 @@ abstract class TronWalletBase
     required String password,
     TronBalance? initialBalance,
     required this.encryptionFileUtils,
+    this.passphrase,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -113,6 +114,7 @@ abstract class TronWalletBase
       mnemonic: _mnemonic,
       privateKey: _hexPrivateKey,
       password: _password,
+      passphrase: passphrase,
     );
 
     _tronPublicKey = _tronPrivateKey.publicKey();
@@ -149,8 +151,9 @@ abstract class TronWalletBase
     if (!hasKeysFile) {
       final mnemonic = data!['mnemonic'] as String?;
       final privateKey = data['private_key'] as String?;
+      final passphrase = data['passphrase'] as String?;
 
-      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey, passphrase: passphrase);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
         name,
@@ -165,6 +168,7 @@ abstract class TronWalletBase
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,
+      passphrase: keysData.passphrase,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,
     );
@@ -190,12 +194,13 @@ abstract class TronWalletBase
     String? mnemonic,
     String? privateKey,
     required String password,
+    String? passphrase,
   }) async {
     assert(mnemonic != null || privateKey != null);
 
     if (privateKey != null) return TronPrivateKey(privateKey);
 
-    final seed = bip39.mnemonicToSeed(mnemonic!);
+    final seed = bip39.mnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
 
     // Derive a TRON private key from the seed
     final bip44 = Bip44.fromSeed(seed, Bip44Coins.tron);
@@ -463,6 +468,7 @@ abstract class TronWalletBase
         'mnemonic': _mnemonic,
         'private_key': privateKey,
         'balance': balance[currency]!.toJSON(),
+        'passphrase': passphrase,
       });
 
   Future<void> _updateBalance() async {
@@ -607,4 +613,7 @@ abstract class TronWalletBase
 
   @override
   String get password => _password;
+
+  @override
+  final String? passphrase;
 }

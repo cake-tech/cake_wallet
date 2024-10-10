@@ -383,7 +383,11 @@ Future<void> setup({
   getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
 
   getIt.registerFactory<WalletManager>(
-    () => WalletManager(_walletInfoSource, getIt.get<SharedPreferences>()),
+    () {
+      final instance = WalletManager(_walletInfoSource, getIt.get<SharedPreferences>());
+      instance.updateWalletGroups();
+      return instance;
+    },
   );
 
   getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
@@ -1157,6 +1161,7 @@ Future<void> setup({
   getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<CakePayService>()));
 
   getIt.registerFactory(() => BackupService(getIt.get<SecureStorage>(), _walletInfoSource,
+      _transactionDescriptionBox,
       getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
 
   getIt.registerFactory(() => BackupViewModel(

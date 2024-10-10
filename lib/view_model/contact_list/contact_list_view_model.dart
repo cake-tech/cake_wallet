@@ -26,22 +26,23 @@ abstract class ContactListViewModelBase with Store {
         isAutoGenerateEnabled =
             settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
     walletInfoSource.values.forEach((info) {
-      if (isAutoGenerateEnabled && info.type == WalletType.monero && info.addressInfos != null) {
-        final key = info.addressInfos!.keys.first;
-        final value = info.addressInfos![key];
-        final address = value?.first;
-        if (address != null) {
-          final name = _createName(info.name, address.label);
-          walletContacts.add(WalletContact(
-            address.address,
-            name,
-            walletTypeToCryptoCurrency(info.type),
-          ));
+      if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) && info.addressInfos != null) {
+        for (var key in info.addressInfos!.keys) {
+          final value = info.addressInfos![key];
+          final address = value?.first;
+          if (address != null) {
+            final name = _createName(info.name, address.label, key: key);
+            walletContacts.add(WalletContact(
+              address.address,
+              name,
+              walletTypeToCryptoCurrency(info.type),
+            ));
+          }
         }
       } else if (info.addresses?.isNotEmpty == true && info.addresses!.length > 1) {
         if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)) {
           final address = info.address;
-          final name = _createName(info.name, "");
+          final name = _createName(info.name, "", key: 0);
           walletContacts.add(WalletContact(
             address,
             name,
@@ -52,7 +53,7 @@ abstract class ContactListViewModelBase with Store {
             if (label.isEmpty) {
               return;
             }
-            final name = _createName(info.name, label);
+            final name = _createName(info.name, label, key: null);
             walletContacts.add(WalletContact(
               address,
               name,
@@ -65,7 +66,7 @@ abstract class ContactListViewModelBase with Store {
       } else {
         walletContacts.add(WalletContact(
           info.address,
-          info.name,
+          _createName(info.name, "", key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) ? 0 : null),
           walletTypeToCryptoCurrency(info.type),
         ));
       }
@@ -76,10 +77,9 @@ abstract class ContactListViewModelBase with Store {
         initialFire: true);
   }
 
-  String _createName(String walletName, String label) {
-    return label.isNotEmpty
-        ? '$walletName (${label.replaceAll(RegExp(r'active', caseSensitive: false), S.current.active).replaceAll(RegExp(r'silent payments', caseSensitive: false), S.current.silent_payments)})'
-        : walletName;
+  String _createName(String walletName, String label, {int? key = null}) {
+    final actualLabel = label.replaceAll(RegExp(r'active', caseSensitive: false), S.current.active).replaceAll(RegExp(r'silent payments', caseSensitive: false), S.current.silent_payments);
+    return '$walletName${key == null ? "" : " [#${key}]"} ${actualLabel.isNotEmpty ? "($actualLabel)" : ""}'.trim();
   }
 
   final bool isAutoGenerateEnabled;
