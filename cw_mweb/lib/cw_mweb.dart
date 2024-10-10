@@ -17,7 +17,7 @@ class CwMweb {
     await Future.delayed(const Duration(seconds: 5));
 
     final appDir = await getApplicationSupportDirectory();
-    const ltcNodeUri = "45.79.13.180:9333";
+    const ltcNodeUri = "ltc-electrum.cakewallet.com:9333";
     _port = await CwMwebPlatform.instance.start(appDir.path, ltcNodeUri);
     if (_port == null || _port == 0) {
       throw Exception("Failed to start server");

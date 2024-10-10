@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -57,6 +58,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      return null;
+    }
     Uint8List scan = Uint8List.fromList(scanSecret);
     Uint8List spend = Uint8List.fromList(spendPubkey);
     int count = 0;

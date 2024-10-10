@@ -235,6 +235,7 @@
   "edit_token": "Edytuj token",
   "electrum_address_disclaimer": "Za każdym razem, gdy wykorzystasz adres, dla wiekszej prywatności generujemy nowy, ale poprzednie adresy nadal działają, i moga odbierać środki",
   "email_address": "Adres e-mail",
+  "enable": "Włączać",
   "enable_mempool_api": "Mempool API dla dokładnych opłat i dat",
   "enable_replace_by_fee": "Włącz wymianę po lewej",
   "enable_silent_payments_scanning": "Zacznij skanować ciche płatności, aż do osiągnięcia wskazówki",

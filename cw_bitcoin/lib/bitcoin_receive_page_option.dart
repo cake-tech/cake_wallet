@@ -30,7 +30,7 @@ class BitcoinReceivePageOption implements ReceivePageOption {
 
   static const allLitecoin = [
     BitcoinReceivePageOption.p2wpkh,
-    BitcoinReceivePageOption.mweb
+    BitcoinReceivePageOption.mweb,
   ];
   
   BitcoinAddressType toType() {

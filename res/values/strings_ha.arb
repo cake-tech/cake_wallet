@@ -235,6 +235,7 @@
   "edit_token": "Gyara alamar",
   "electrum_address_disclaimer": "Muna samar da sababbin adireshi duk lokacin da kuka yi amfani da ɗaya, amma adiresoshin da suka gabata suna ci gaba da aiki",
   "email_address": "Adireshin i-mel",
+  "enable": "Ba dama",
   "enable_mempool_api": "Mampool API don ingantattun kudade da kwanakin",
   "enable_replace_by_fee": "Ba da damar maye gurbin-by-kudin",
   "enable_silent_payments_scanning": "Fara bincika biya na shiru, har sai tip ɗin ya kai",

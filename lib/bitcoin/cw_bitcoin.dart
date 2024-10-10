@@ -262,7 +262,14 @@ class CWBitcoin extends Bitcoin {
   List<ReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
 
   @override
-  List<ReceivePageOption> getLitecoinReceivePageOptions() => BitcoinReceivePageOption.allLitecoin;
+  List<ReceivePageOption> getLitecoinReceivePageOptions() {
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      return BitcoinReceivePageOption.allLitecoin
+          .where((element) => element != BitcoinReceivePageOption.mweb)
+          .toList();
+    }
+    return BitcoinReceivePageOption.allLitecoin;
+  }
 
   @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
@@ -608,7 +615,7 @@ class CWBitcoin extends Bitcoin {
 
     final updatedOutputs = outputs.map((output) {
       try {
-        final pendingOut = pendingTx!.outputs[outputs.indexOf(output)];
+        final pendingOut = pendingTx.outputs[outputs.indexOf(output)];
         final updatedOutput = output;
 
         updatedOutput.stealthAddress = P2trAddress.fromScriptPubkey(script: pendingOut.scriptPubKey)
@@ -658,8 +665,8 @@ class CWBitcoin extends Bitcoin {
   String? getUnusedMwebAddress(Object wallet) {
     try {
       final electrumWallet = wallet as ElectrumWallet;
-      final walletAddresses = electrumWallet.walletAddresses as ElectrumWalletAddresses;
-      final mwebAddress = walletAddresses.mwebAddresses.firstWhere((element) => !element.isUsed);
+      final mwebAddress =
+          electrumWallet.walletAddresses.mwebAddresses.firstWhere((element) => !element.isUsed);
       return mwebAddress.address;
     } catch (_) {
       return null;

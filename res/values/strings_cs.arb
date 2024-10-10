@@ -235,6 +235,7 @@
   "edit_token": "Upravit token",
   "electrum_address_disclaimer": "Po každém použití je generována nová adresa, ale předchozí adresy také stále fungují",
   "email_address": "E-mailová adresa",
+  "enable": "Umožnit",
   "enable_mempool_api": "Mempool API pro přesné poplatky a data",
   "enable_replace_by_fee": "Povolit výměnu podle poplatku",
   "enable_silent_payments_scanning": "Začněte skenovat tiché platby, dokud není dosaženo špičky",
