@@ -113,6 +113,10 @@ class CwMweb {
       if (status.blockTime == 0) {
         throw Exception("blockTime shouldn't be 0! (this connection is likely broken)");
       }
+    } on GrpcError catch (e) {
+      log('Caught grpc error: ${e.message}');
+      // stop and start the server:
+      await _initializeClient();
     } catch (_) {
       // stop and start the server:
       await _initializeClient();

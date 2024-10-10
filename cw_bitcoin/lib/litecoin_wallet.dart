@@ -251,11 +251,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _syncTimer?.cancel();
     try {
       syncStatus = SyncronizingSyncStatus();
-      try {
-        await subscribeForUpdates();
-      } catch (e) {
-        print("failed to subcribe for updates: $e");
-      }
+      await subscribeForUpdates();
       updateFeeRates();
       _feeRatesTimer?.cancel();
       _feeRatesTimer =
@@ -505,7 +501,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final req = UtxosRequest(scanSecret: scanSecret, fromHeight: restoreHeight);
 
     // process new utxos as they come in:
-    _utxoStream?.cancel();
+    await _utxoStream?.cancel();
     ResponseStream<Utxo>? responseStream = await CwMweb.utxos(req);
     if (responseStream == null) {
       throw Exception("failed to get utxos stream!");

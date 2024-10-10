@@ -43,6 +43,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   bool generating = false;
 
   List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
+
   List<int> get spendPubkey =>
       mwebHd.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
 
@@ -66,25 +67,32 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     Uint8List scan = Uint8List.fromList(scanSecret);
     Uint8List spend = Uint8List.fromList(spendPubkey);
 
+    print("@@@@@@@@@@@@");
+    print(mwebAddresses.length);
+    print(mwebAddrs.length);
+
     if (index < mwebAddresses.length && index < mwebAddrs.length) {
       return;
     }
 
     while (generating) {
+      print("zzzzzzzzzzz");
       // this function was called multiple times in multiple places:
       await Future.delayed(const Duration(milliseconds: 100));
     }
 
     print("Generating MWEB addresses up to index $index");
     generating = true;
-    while (mwebAddrs.length <= (index + 1)) {
-      final addresses =
-          await CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
-      print("generated up to index ${mwebAddrs.length}");
-      // sleep for a bit to avoid making the main thread unresponsive:
-      await Future.delayed(Duration(milliseconds: 200));
-      mwebAddrs.addAll(addresses!);
-    }
+    try {
+      while (mwebAddrs.length <= (index + 1)) {
+        final addresses =
+            await CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
+        print("generated up to index ${mwebAddrs.length}");
+        // sleep for a bit to avoid making the main thread unresponsive:
+        await Future.delayed(Duration(milliseconds: 200));
+        mwebAddrs.addAll(addresses!);
+      }
+    } catch (_) {}
     generating = false;
     print("Done generating MWEB addresses len: ${mwebAddrs.length}");
 
