@@ -252,7 +252,7 @@ class MoneroWalletService extends WalletService<
       if (wptr == null ) monero_wallet_manager.createWalletPointer();
 
       monero_ledger.enableLedgerExchange(wptr!, credentials.ledgerConnection);
-      await monero_wallet_manager.restoreWalletFromWallet(
+      await monero_wallet_manager.restoreWalletFromHardwareWallet(
             path: path,
             password: password!,
             restoreHeight: height!,
@@ -402,5 +402,12 @@ class MoneroWalletService extends WalletService<
       // if the file couldn't be opened or read
       return '';
     }
+  }
+
+  @override
+  bool requireHardwareWalletConnection(String name) {
+    final walletInfo = walletInfoSource.values
+        .firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
+    return walletInfo.isHardwareWallet;
   }
 }

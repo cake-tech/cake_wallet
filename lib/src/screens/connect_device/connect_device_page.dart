@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -17,35 +19,41 @@ typedef OnConnectDevice = void Function(BuildContext, LedgerViewModel);
 class ConnectDevicePageParams {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
+  final bool allowChangeWallet;
 
   ConnectDevicePageParams(
-      {required this.walletType, required this.onConnectDevice});
+      {required this.walletType,
+      required this.onConnectDevice,
+      this.allowChangeWallet = false});
 }
 
 class ConnectDevicePage extends BasePage {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
+  final bool allowChangeWallet;
   final LedgerViewModel ledgerVM;
 
   ConnectDevicePage(ConnectDevicePageParams params, this.ledgerVM)
       : walletType = params.walletType,
-        onConnectDevice = params.onConnectDevice;
+        onConnectDevice = params.onConnectDevice,
+        allowChangeWallet = params.allowChangeWallet;
 
   @override
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) =>
-      ConnectDevicePageBody(walletType, onConnectDevice, ledgerVM);
+  Widget body(BuildContext context) => ConnectDevicePageBody(
+      walletType, onConnectDevice, allowChangeWallet, ledgerVM);
 }
 
 class ConnectDevicePageBody extends StatefulWidget {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
+  final bool allowChangeWallet;
   final LedgerViewModel ledgerVM;
 
-  const ConnectDevicePageBody(
-      this.walletType, this.onConnectDevice, this.ledgerVM);
+  const ConnectDevicePageBody(this.walletType, this.onConnectDevice,
+      this.allowChangeWallet, this.ledgerVM);
 
   @override
   ConnectDevicePageBodyState createState() => ConnectDevicePageBodyState();
@@ -247,7 +255,18 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       ),
                     )
                     .toList(),
-              ]
+              ],
+              if (widget.allowChangeWallet) ...[
+                PrimaryButton(
+                  text: "Change wallet",
+                  color: Theme.of(context)
+                      .extension<WalletListTheme>()!
+                      .createNewWalletButtonBackgroundColor,
+                  textColor: Theme.of(context)
+                      .extension<WalletListTheme>()!
+                      .restoreWalletButtonTextColor,
+                )
+              ],
             ],
           ),
         ),

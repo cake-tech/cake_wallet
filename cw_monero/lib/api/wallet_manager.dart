@@ -9,7 +9,9 @@ import 'package:cw_monero/api/exceptions/wallet_restore_from_keys_exception.dart
 import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart';
 import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:monero/monero.dart' as monero;
+import 'package:monero/src/ledger.dart' as monero_ledger;
 
 class MoneroCException implements Exception {
   final String message;
@@ -46,6 +48,8 @@ void checkIfMoneroCIsFine() {
         "monero_c and monero.dart wrapper export list mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsExp'\ndart: '$dartCsExp'");
   }
 }
+
+late LedgerConnection gLedger;
 
 monero.WalletManager? _wmPtr;
 final monero.WalletManager wmPtr = Pointer.fromAddress((() {
@@ -237,7 +241,7 @@ void restoreWalletFromSpendKeySync(
 
 String _lastOpenedWallet = "";
 
-Future<void> restoreWalletFromWallet(
+Future<void> restoreWalletFromHardwareWallet(
     {required String path,
     required String password,
     required String deviceName,
@@ -265,7 +269,7 @@ Future<void> restoreWalletFromWallet(
 
 Map<String, monero.wallet> openedWalletsByPath = {};
 
-void loadWallet({required String path, required String password, int nettype = 0}) {
+Future<void> loadWallet({required String path, required String password, int nettype = 0}) async {
   if (openedWalletsByPath[path] != null) {
     txhistory = null;
     wptr = openedWalletsByPath[path]!;
@@ -279,7 +283,20 @@ void loadWallet({required String path, required String password, int nettype = 0
       });
     }
     txhistory = null;
-    final newWptr = monero.WalletManager_openWallet(wmPtr, path: path, password: password);
+    final deviceType = monero.WalletManager_queryWalletDevice(wmPtr, keysFileName: "$path.keys", password: password, kdfRounds: 1);
+
+    if (deviceType == 1) {
+      final dummyWPtr = monero.WalletManager_openWallet(wmPtr, path: '', password: '');
+      monero_ledger.enableLedgerExchange(dummyWPtr, gLedger);
+    }
+
+    final addr = wmPtr.address;
+    final newWptrAddr = await Isolate.run(() {
+      return monero.WalletManager_openWallet(Pointer.fromAddress(addr), path: path, password: password).address;
+    });
+
+    final newWptr = Pointer<Void>.fromAddress(newWptrAddr);
+
     _lastOpenedWallet = path;
     final status = monero.Wallet_status(newWptr);
     if (status != 0) {
@@ -351,7 +368,7 @@ Future<void> _openWallet(Map<String, String> args) async =>
 
 bool _isWalletExist(String path) => isWalletExistSync(path: path);
 
-void openWallet({required String path, required String password, int nettype = 0}) async =>
+Future<void> openWallet({required String path, required String password, int nettype = 0}) async =>
     loadWallet(path: path, password: password, nettype: nettype);
 
 Future<void> openWalletAsync(Map<String, String> args) async => _openWallet(args);
