@@ -234,6 +234,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> waitForMwebAddresses() async {
+    print("waitForMwebAddresses() called!");
     // ensure that we have the full 1000 mweb addresses generated before continuing:
     // should no longer be needed, but leaving here just in case
     await (walletAddresses as LitecoinWalletAddresses).ensureMwebAddressUpToIndexExists(1020);
@@ -247,6 +248,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return;
     }
     print("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
+    _syncTimer?.cancel();
     try {
       syncStatus = SyncronizingSyncStatus();
       try {
@@ -287,8 +289,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       syncStatus = FailedSyncStatus();
       return;
     }
-
-    _syncTimer?.cancel();
+    
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
 
@@ -494,6 +495,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> processMwebUtxos() async {
+    print("processMwebUtxos() called!");
     if (!mwebEnabled) {
       return;
     }
@@ -663,6 +665,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> updateUnspent() async {
+    print("updateUnspent() called!");
     await checkMwebUtxosSpent();
     await updateAllUnspents();
   }

@@ -1876,6 +1876,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> updateTransactions() async {
+    print("updateTransactions() called!");
     try {
       if (_isTransactionUpdating) {
         return;
@@ -1998,6 +1999,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> updateBalance() async {
+    print("updateBalance() called!");
     balance[currency] = await fetchBalances();
     await save();
   }
