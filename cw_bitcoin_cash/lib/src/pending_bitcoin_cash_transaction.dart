@@ -74,16 +74,15 @@ class PendingBitcoinCashTransaction with PendingTransaction {
   void addListener(void Function(ElectrumTransactionInfo transaction) listener) =>
       _listeners.add(listener);
 
-  ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(
-        type,
-        id: id,
-        height: 0,
-        amount: amount,
-        direction: TransactionDirection.outgoing,
-        date: DateTime.now(),
-        isPending: true,
-        confirmations: 0,
-        fee: fee,
-        isReplaced: false,
+  ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(type,
+      id: id,
+      height: 0,
+      amount: amount,
+      direction: TransactionDirection.outgoing,
+      date: DateTime.now(),
+      isPending: true,
+      confirmations: 0,
+      fee: fee, 
+      isReplaced: false,
       );
 }

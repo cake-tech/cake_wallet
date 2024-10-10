@@ -30,6 +30,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
+      passphrase: credentials.passphrase,
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -125,6 +126,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      passphrase: credentials.passphrase,
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );

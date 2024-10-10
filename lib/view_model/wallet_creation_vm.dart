@@ -5,8 +5,10 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -82,8 +84,9 @@ abstract class WalletCreationVMBase with Store {
       walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
+
       final credentials = restoreWallet != null
-          ? getCredentialsFromRestoredWallet(options, restoreWallet)
+          ? await getWalletCredentialsFromQRCredentials(restoreWallet)
           : getCredentials(options);
 
       final walletInfo = WalletInfo.external(
@@ -185,12 +188,36 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
+  Future<List<DerivationInfo>> getDerivationInfoFromQRCredentials(RestoredWallet restoreWallet) async {
+      var list = <DerivationInfo>[];
+      final walletType = restoreWallet.type;
+      var appStore = getIt.get<AppStore>();
+      var node = appStore.settingsStore.getCurrentNode(walletType);
+
+      switch (walletType) {
+        case WalletType.bitcoin:
+        case WalletType.litecoin:
+          return bitcoin!.getDerivationsFromMnemonic(
+            mnemonic: restoreWallet.mnemonicSeed!,
+            node: node,
+            passphrase: restoreWallet.passphrase,
+          );
+        case WalletType.nano:
+          return nanoUtil!.getDerivationsFromMnemonic(
+            mnemonic: restoreWallet.mnemonicSeed!,
+            node: node,
+          );
+        default:
+          break;
+      }
+      return list;
+    }
+
   WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
 
   Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
 
-  WalletCredentials getCredentialsFromRestoredWallet(
-          dynamic options, RestoredWallet restoreWallet) =>
+  Future<WalletCredentials> getWalletCredentialsFromQRCredentials(RestoredWallet restoreWallet) async =>
       throw UnimplementedError();
 
   Future<WalletBase> processFromRestoredWallet(

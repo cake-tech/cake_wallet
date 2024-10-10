@@ -85,7 +85,9 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
 
 class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBody> {
   final TextEditingController passphraseController = TextEditingController();
+  final TextEditingController confirmPassphraseController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _passphraseFormKey = GlobalKey<FormState>();
   bool? testnetValue;
 
   bool obscurePassphrase = true;
@@ -93,9 +95,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
   @override
   void initState() {
     passphraseController.text = widget.seedTypeViewModel.passphrase ?? '';
-
-    passphraseController
-        .addListener(() => widget.seedTypeViewModel.setPassphrase(passphraseController.text));
+    confirmPassphraseController.text = widget.seedTypeViewModel.passphrase ?? '';
 
     if (widget.isChildWallet) {
       if (widget.privacySettingsViewModel.type == WalletType.bitcoin) {
@@ -189,7 +189,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   ),
                 );
               }),
-            if (!widget.isFromRestore) ...[
+            if (!widget.isFromRestore)
               Observer(builder: (_) {
                 if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
                   return SettingsPickerCell<SeedPhraseLength>(
@@ -202,25 +202,53 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   );
                 return Container();
               }),
-              if (widget.privacySettingsViewModel.hasPassphraseOption)
-                Padding(
-                  padding: EdgeInsets.all(24),
-                  child: BaseTextFormField(
-                    hintText: S.current.passphrase,
-                    controller: passphraseController,
-                    obscureText: obscurePassphrase,
-                    suffixIcon: GestureDetector(
-                      onTap: () => setState(() {
-                        obscurePassphrase = !obscurePassphrase;
-                      }),
-                      child: Icon(
-                        Icons.remove_red_eye,
-                        color: obscurePassphrase ? Colors.black54 : Colors.black26,
+            if (widget.privacySettingsViewModel.hasPassphraseOption)
+              Padding(
+                padding: EdgeInsets.all(24),
+                child: Form(
+                  key: _passphraseFormKey,
+                  child: Column(
+                    children: [
+                      BaseTextFormField(
+                        hintText: S.of(context).passphrase,
+                        controller: passphraseController,
+                        obscureText: obscurePassphrase,
+                        suffixIcon: GestureDetector(
+                          onTap: () => setState(() {
+                            obscurePassphrase = !obscurePassphrase;
+                          }),
+                          child: Icon(
+                            Icons.remove_red_eye,
+                            color: obscurePassphrase ? Colors.black54 : Colors.black26,
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 10),
+                      BaseTextFormField(
+                        hintText: S.of(context).confirm_passphrase,
+                        controller: confirmPassphraseController,
+                        obscureText: obscurePassphrase,
+                        validator: (text) {
+                          if (text == passphraseController.text) {
+                            return null;
+                          }
+
+                          return S.of(context).passphrases_doesnt_match;
+                        },
+                        suffixIcon: GestureDetector(
+                          onTap: () => setState(() {
+                            obscurePassphrase = !obscurePassphrase;
+                          }),
+                          child: Icon(
+                            Icons.remove_red_eye,
+                            color: obscurePassphrase ? Colors.black54 : Colors.black26,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-            ],
+              ),
             Observer(builder: (_) {
               return Column(
                 children: [
@@ -272,7 +300,8 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   }
 
                   widget.nodeViewModel.save();
-                } else if (testnetValue == true) {
+                }
+                if (testnetValue == true) {
                   // TODO: add type (mainnet/testnet) to Node class so when switching wallets the node can be switched to a matching type
                   // Currently this is so you can create a working testnet wallet but you need to keep switching back the node if you use multiple wallets at once
                   widget.nodeViewModel.address = publicBitcoinTestnetElectrumAddress;
@@ -280,6 +309,14 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
 
                   widget.nodeViewModel.save();
                 }
+                if (passphraseController.text.isNotEmpty) {
+                  if (_passphraseFormKey.currentState != null &&
+                      !_passphraseFormKey.currentState!.validate()) {
+                    return;
+                  }
+                }
+
+                widget.seedTypeViewModel.setPassphrase(passphraseController.text);
 
                 Navigator.pop(context);
               },
@@ -317,12 +354,5 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
             buttonAction: () => Navigator.of(context).pop(),
           );
         });
-  }
-
-  @override
-  void dispose() {
-    passphraseController
-        .removeListener(() => widget.seedTypeViewModel.setPassphrase(passphraseController.text));
-    super.dispose();
   }
 }

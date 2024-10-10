@@ -70,6 +70,7 @@ abstract class EVMChainWalletBase
     required String password,
     EVMChainERC20Balance? initialBalance,
     required this.encryptionFileUtils,
+    this.passphrase,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -178,6 +179,7 @@ abstract class EVMChainWalletBase
         mnemonic: _mnemonic,
         privateKey: _hexPrivateKey,
         password: _password,
+        passphrase: passphrase,
       );
       walletAddresses.address = _evmChainPrivateKey.address.hexEip55;
     }
@@ -545,6 +547,7 @@ abstract class EVMChainWalletBase
         'mnemonic': _mnemonic,
         'private_key': privateKey,
         'balance': balance[currency]!.toJSON(),
+        'passphrase': passphrase,
       });
 
   Future<void> _updateBalance() async {
@@ -574,15 +577,19 @@ abstract class EVMChainWalletBase
     }
   }
 
-  Future<EthPrivateKey> getPrivateKey(
-      {String? mnemonic, String? privateKey, required String password}) async {
+  Future<EthPrivateKey> getPrivateKey({
+    String? mnemonic,
+    String? privateKey,
+    required String password,
+    String? passphrase,
+  }) async {
     assert(mnemonic != null || privateKey != null);
 
     if (privateKey != null) {
       return EthPrivateKey.fromHex(privateKey);
     }
 
-    final seed = bip39.mnemonicToSeed(mnemonic!);
+    final seed = bip39.mnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
 
     final root = bip32.BIP32.fromSeed(seed);
 
@@ -716,4 +723,7 @@ abstract class EVMChainWalletBase
 
   @override
   String get password => _password;
+
+  @override
+  final String? passphrase;
 }

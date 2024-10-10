@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_row_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
@@ -143,8 +144,8 @@ class CryptoBalanceWidget extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: DashBoardRoundedCardWidget(
-                  title: S.current.rep_warning,
-                  subTitle: S.current.rep_warning_sub,
+                  title: S.of(context).rep_warning,
+                  subTitle: S.of(context).rep_warning_sub,
                   onTap: () => Navigator.of(context).pushNamed(Routes.changeRep),
                   onClose: () {
                     dashboardViewModel.settingsStore.shouldShowRepWarning = false;
@@ -164,6 +165,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                         dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index);
                     return Observer(builder: (_) {
                       return BalanceRowWidget(
+                        dashboardViewModel: dashboardViewModel,
                         availableBalanceLabel:
                             '${dashboardViewModel.balanceViewModel.availableBalanceLabel}',
                         availableBalance: balance.availableBalance,
@@ -178,6 +180,18 @@ class CryptoBalanceWidget extends StatelessWidget {
                         hasAdditionalBalance:
                             dashboardViewModel.balanceViewModel.hasAdditionalBalance,
                         isTestnet: dashboardViewModel.isTestnet,
+                        hasSecondAdditionalBalance:
+                            dashboardViewModel.balanceViewModel.hasSecondAdditionalBalance,
+                        hasSecondAvailableBalance:
+                            dashboardViewModel.balanceViewModel.hasSecondAvailableBalance,
+                        secondAdditionalBalance: balance.secondAdditionalBalance,
+                        secondAdditionalFiatBalance: balance.fiatSecondAdditionalBalance,
+                        secondAvailableBalance: balance.secondAvailableBalance,
+                        secondAvailableFiatBalance: balance.fiatSecondAvailableBalance,
+                        secondAdditionalBalanceLabel:
+                            '${dashboardViewModel.balanceViewModel.secondAdditionalBalanceLabel}',
+                        secondAvailableBalanceLabel:
+                            '${dashboardViewModel.balanceViewModel.secondAvailableBalanceLabel}',
                       );
                     });
                   },
@@ -265,7 +279,84 @@ class CryptoBalanceWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ]
+                  ],
+                  if (dashboardViewModel.showMwebCard) ...[
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: DashBoardRoundedCardWidget(
+                        customBorder: 30,
+                        title: S.of(context).litecoin_mweb,
+                        subTitle: '',
+                        hint: Column(
+                          children: [
+                            Text(
+                              S.of(context).litecoin_mweb_description,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 8),
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => launchUrl(
+                                Uri.parse(
+                                    "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
+                                mode: LaunchMode.externalApplication,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  S.of(context).learn_more,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w400,
+                                    color: Theme.of(context)
+                                        .extension<BalancePageTheme>()!
+                                        .labelTextColor,
+                                    height: 1,
+                                  ),
+                                  softWrap: true,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 24),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () => _dismissMweb(context),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(context).primaryColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    S.of(context).litecoin_mweb_dismiss,
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => _enableMweb(context),
+                                  child: Text(S.of(context).litecoin_enable_mweb_sync),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        onTap: () => {},
+                        icon: ImageIcon(
+                          AssetImage('assets/images/mweb_logo.png'),
+                          color:
+                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                          size: 50,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               );
             }),
@@ -304,5 +395,35 @@ class CryptoBalanceWidget extends StatelessWidget {
     }
 
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
+  }
+
+  Future<void> _enableMweb(BuildContext context) async {
+    if (!dashboardViewModel.hasEnabledMwebBefore) {
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) => AlertWithOneAction(
+                alertTitle: S.of(context).alert_notice,
+                alertContent: S.of(context).litecoin_mweb_warning,
+                buttonText: S.of(context).understand,
+                buttonAction: () {
+                  Navigator.of(context).pop();
+                },
+              ));
+    }
+    dashboardViewModel.setMwebScanningActive();
+  }
+
+  Future<void> _dismissMweb(BuildContext context) async {
+    await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) => AlertWithOneAction(
+              alertTitle: S.of(context).alert_notice,
+              alertContent: S.of(context).litecoin_mweb_enable_later,
+              buttonText: S.of(context).understand,
+              buttonAction: () {
+                Navigator.of(context).pop();
+              },
+            ));
+    dashboardViewModel.dismissMweb();
   }
 }

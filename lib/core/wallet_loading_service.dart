@@ -85,7 +85,8 @@ class WalletLoadingService {
           authenticatedErrorStreamController.add(corruptedWalletsSeeds);
 
           return wallet;
-        } catch (_) {
+        } catch (e) {
+          print(e);
           // save seeds and show corrupted wallets' seeds to the user
           try {
             final seeds = await _getCorruptedWalletSeeds(walletInfo.name, walletInfo.type);

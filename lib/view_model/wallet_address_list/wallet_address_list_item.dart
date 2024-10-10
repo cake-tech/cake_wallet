@@ -1,7 +1,7 @@
 import 'package:cake_wallet/utils/list_item.dart';
 
 class WalletAddressListItem extends ListItem {
-  const WalletAddressListItem({
+  WalletAddressListItem({
     required this.address,
     required this.isPrimary,
     this.id,
@@ -11,6 +11,8 @@ class WalletAddressListItem extends ListItem {
     this.isChange = false,
     // Address that is only ever used once, shouldn't be used to receive funds, copy and paste, share etc
     this.isOneTimeReceiveAddress = false,
+    this.isHidden = false,
+    this.isManual = false,
   }) : super();
 
   final int? id;
@@ -20,6 +22,8 @@ class WalletAddressListItem extends ListItem {
   final int? txCount;
   final String? balance;
   final bool isChange;
+  bool isHidden;
+  bool isManual;
   final bool? isOneTimeReceiveAddress;
 
   @override

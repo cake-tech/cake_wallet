@@ -18,6 +18,7 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.onHeightOrDateEntered,
     this.hasDatePicker = true,
     this.isSilentPaymentsScan = false,
+    this.isMwebScan = false,
     this.toggleSingleScan,
     this.doSingleScan = false,
     this.bitcoinMempoolAPIEnabled,
@@ -29,6 +30,7 @@ class BlockchainHeightWidget extends StatefulWidget {
   final FocusNode? focusNode;
   final bool hasDatePicker;
   final bool isSilentPaymentsScan;
+  final bool isMwebScan;
   final bool doSingleScan;
   final Future<bool>? bitcoinMempoolAPIEnabled;
   final Function()? toggleSingleScan;
@@ -170,7 +172,9 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
 
     if (date != null) {
       int height;
-      if (widget.isSilentPaymentsScan) {
+      if (widget.isMwebScan) {
+        height = bitcoin!.getLitecoinHeightByDate(date: date);
+      } else if (widget.isSilentPaymentsScan) {
         height = await bitcoin!.getHeightByDate(
           date: date,
           bitcoinMempoolAPIEnabled: await widget.bitcoinMempoolAPIEnabled,

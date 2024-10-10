@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
-void appendStringToArbFile(String fileName, String name, String text) {
+void appendStringToArbFile(String fileName, String name, String text, {bool force = false}) {
   final file = File(fileName);
   final arbObj = readArbFile(file);
 
-  if (arbObj.containsKey(name)) {
+  if (arbObj.containsKey(name) && !force) {
     print("String $name already exists in $fileName!");
     return;
   }

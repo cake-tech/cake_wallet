@@ -1,4 +1,3 @@
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -12,7 +11,7 @@ class TransactionRow extends StatelessWidget {
     required this.formattedAmount,
     required this.formattedFiatAmount,
     required this.isPending,
-    required this.isReceivedSilentPayment,
+    required this.tags,
     required this.title,
     required this.onTap,
   });
@@ -23,8 +22,8 @@ class TransactionRow extends StatelessWidget {
   final String formattedAmount;
   final String formattedFiatAmount;
   final bool isPending;
-  final bool isReceivedSilentPayment;
   final String title;
+  final List<String> tags;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +60,7 @@ class TransactionRow extends StatelessWidget {
                               fontWeight: FontWeight.w500,
                               color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                             )),
-                        if (isReceivedSilentPayment) TxTag(tag: S.of(context).silent_payment),
+                        ...tags.map((tag) => Row(children: [SizedBox(width: 8), TxTag(tag: tag)])),
                       ],
                     ),
                     Text(formattedAmount,

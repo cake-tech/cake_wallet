@@ -9,15 +9,12 @@ class BrightnessUtil {
       return;
     }
 
-    // Get the current brightness:
-    final brightness = await DeviceDisplayBrightness.getBrightness();
-
     // ignore: unawaited_futures
     DeviceDisplayBrightness.setBrightness(1.0);
 
     await func();
 
     // ignore: unawaited_futures
-    DeviceDisplayBrightness.setBrightness(brightness);
+    DeviceDisplayBrightness.resetBrightness();
   }
 }

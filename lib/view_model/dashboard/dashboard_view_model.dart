@@ -137,8 +137,8 @@ abstract class DashboardViewModelBase with Store {
             FilterItem(
                 value: () => tradeFilterStore.displayLetsExchange,
                 caption: ExchangeProviderDescription.letsExchange.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+                onChanged: () => tradeFilterStore
+                    .toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
             FilterItem(
                 value: () => tradeFilterStore.displayStealthEx,
                 caption: ExchangeProviderDescription.stealthEx.title,
@@ -255,6 +255,18 @@ abstract class DashboardViewModelBase with Store {
         silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
       });
     }
+
+    if (hasMweb) {
+      mwebScanningActive = bitcoin!.getMwebEnabled(wallet);
+      settingsStore.mwebEnabled = mwebScanningActive;
+      reaction((_) => settingsStore.mwebAlwaysScan, (bool alwaysScan) {
+        if (alwaysScan) {
+          mwebScanningActive = true;
+        } else {
+          mwebScanningActive = false;
+        }
+      });
+    }
   }
 
   @observable
@@ -348,6 +360,7 @@ abstract class DashboardViewModelBase with Store {
   bool get hasRescan =>
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.wownero ||
       wallet.type == WalletType.haven;
 
@@ -414,6 +427,38 @@ abstract class DashboardViewModelBase with Store {
     if (hasSilentPayments) {
       bitcoin!.setScanningActive(wallet, active);
     }
+  }
+
+  @computed
+  bool get hasMweb => wallet.type == WalletType.litecoin;
+
+  @computed
+  bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay && !mwebScanningActive;
+
+  @observable
+  bool mwebScanningActive = false;
+
+  @computed
+  bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
+
+  @action
+  void setMwebScanningActive() {
+    if (!hasMweb) {
+      return;
+    }
+
+    settingsStore.hasEnabledMwebBefore = true;
+    mwebScanningActive = true;
+    bitcoin!.setMwebEnabled(wallet, true);
+    settingsStore.mwebAlwaysScan = true;
+  }
+
+  @action
+  void dismissMweb() {
+    settingsStore.mwebCardDisplay = false;
+    settingsStore.mwebAlwaysScan = false;
+    mwebScanningActive = false;
+    bitcoin!.setMwebEnabled(wallet, false);
   }
 
   BalanceViewModel balanceViewModel;
