@@ -71,6 +71,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
 
     while (generating) {
+      print("generating.....");
       // this function was called multiple times in multiple places:
       await Future.delayed(const Duration(milliseconds: 100));
     }

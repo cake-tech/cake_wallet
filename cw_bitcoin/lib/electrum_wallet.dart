@@ -1318,11 +1318,15 @@ abstract class ElectrumWalletBase
     }
 
     // Set the balance of all non-silent payment addresses to 0 before updating
-    walletAddresses.allAddresses.forEach((addr) {
+    walletAddresses.allAddresses
+        .where((element) => element.type != SegwitAddresType.mweb)
+        .forEach((addr) {
       if (addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
     });
 
-    await Future.wait(walletAddresses.allAddresses.map((address) async {
+    await Future.wait(walletAddresses.allAddresses
+        .where((element) => element.type != SegwitAddresType.mweb)
+        .map((address) async {
       updatedUnspentCoins.addAll(await fetchUnspent(address));
     }));
 

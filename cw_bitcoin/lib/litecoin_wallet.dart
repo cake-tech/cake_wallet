@@ -251,11 +251,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _syncTimer?.cancel();
     try {
       syncStatus = SyncronizingSyncStatus();
-      try {
-        await subscribeForUpdates();
-      } catch (e) {
-        print("failed to subcribe for updates: $e");
-      }
+      await subscribeForUpdates();
       updateFeeRates();
       _feeRatesTimer?.cancel();
       _feeRatesTimer =
@@ -286,10 +282,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       await updateBalance();
     } catch (e) {
       print("failed to start mweb sync: $e");
-      syncStatus = FailedSyncStatus();
+      syncStatus = FailedSyncStatus(error: "failed to start");
       return;
     }
-    
+
     _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
 
