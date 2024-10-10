@@ -563,7 +563,9 @@ Future<void> setup({
               totpAuthPageState.changeProcessText('Loading the wallet');
 
               if (loginError != null) {
-                totpAuthPageState.changeProcessText('ERROR: ${loginError.toString()}');
+                final seeds = await secureStorage.read(key: "curruptedWalletsSeed");
+                await secureStorageShared.delete(key: "curruptedWalletsSeed");
+                totpAuthPageState.changeProcessText('ERROR: ${loginError.toString()}\n${seeds??""}'.trim());
               }
 
               ReactionDisposer? _reaction;
@@ -592,7 +594,10 @@ Future<void> setup({
         authPageState.changeProcessText('Loading the wallet');
 
         if (loginError != null) {
-          authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+          secureStorage.read(key: "curruptedWalletsSeed").then((value) {
+            secureStorageShared.delete(key: "curruptedWalletsSeed");
+            authPageState.changeProcessText('ERROR: ${loginError.toString()}\n${value??""}'.trim());
+          });
           loginError = null;
         }
 
@@ -612,7 +617,10 @@ Future<void> setup({
           }
 
           if (loginError != null) {
-            authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+            secureStorage.read(key: "curruptedWalletsSeed").then((value) {
+              secureStorageShared.delete(key: "curruptedWalletsSeed");
+              authPageState.changeProcessText('ERROR: ${loginError.toString()}\n${value??""}'.trim());
+            });
             timer.cancel();
           }
         });
