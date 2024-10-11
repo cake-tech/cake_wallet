@@ -98,8 +98,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     reaction((_) => mwebSyncStatus, (status) async {
       if (mwebSyncStatus is FailedSyncStatus) {
         // we failed to connect to mweb, check if we are connected to the litecoin node:
-        final nodeHeight =
-            await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
+        late int nodeHeight;
+        try {
+          nodeHeight = await electrumClient.getCurrentBlockChainTip() ?? 0;
+        } catch (_) {
+          nodeHeight = 0;
+        }
 
         if (nodeHeight == 0) {
           // we aren't connected to the litecoin node, so the current electrum_wallet reactions will take care of this case for us
