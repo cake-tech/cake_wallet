@@ -2116,6 +2116,7 @@ abstract class ElectrumWalletBase
 
   @action
   void _onConnectionStatusChange(ConnectionStatus status) {
+    print("CONNECTION_STATUS_CHANGE: ${status}");
     switch (status) {
       case ConnectionStatus.connected:
         if (syncStatus is NotConnectedSyncStatus ||
@@ -2127,19 +2128,26 @@ abstract class ElectrumWalletBase
 
         break;
       case ConnectionStatus.disconnected:
-        syncStatus = NotConnectedSyncStatus();
+        if (syncStatus is! NotConnectedSyncStatus) {
+          syncStatus = NotConnectedSyncStatus();
+        }
         break;
       case ConnectionStatus.failed:
-        syncStatus = LostConnectionSyncStatus();
+        if (syncStatus is! LostConnectionSyncStatus) {
+          syncStatus = LostConnectionSyncStatus();
+        }
         break;
       case ConnectionStatus.connecting:
-        syncStatus = ConnectingSyncStatus();
+        if (syncStatus is! ConnectedSyncStatus) {
+          syncStatus = ConnectingSyncStatus();
+        }
         break;
       default:
     }
   }
 
   void _syncStatusReaction(SyncStatus syncStatus) async {
+    print("SYNC_STATUS_CHANGE: ${syncStatus}");
     if (syncStatus is SyncingSyncStatus) {
       return;
     }

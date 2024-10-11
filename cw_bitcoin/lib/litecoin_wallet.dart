@@ -95,6 +95,21 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
+    reaction((_) => mwebSyncStatus, (status) async {
+      if (mwebSyncStatus is FailedSyncStatus) {
+        // we failed to connect to mweb, check if we are connected to the litecoin node:
+        final nodeHeight =
+            await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
+
+        if (nodeHeight == 0) {
+          // we aren't connected to the litecoin node, so the current electrum_wallet reactions will take care of this case for us
+        } else {
+          // we're connected to the litecoin node, but we failed to connect to mweb, try again after a few seconds:
+          await Future.delayed(const Duration(seconds: 2));
+          startSync();
+        }
+      }
+    });
   }
   late final Bip32Slip10Secp256k1 mwebHd;
   late final Box<MwebUtxo> mwebUtxosBox;
@@ -104,6 +119,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   StreamSubscription<Utxo>? _utxoStream;
   late bool mwebEnabled;
   bool processingUtxos = false;
+
+  @observable
+  SyncStatus mwebSyncStatus = NotConnectedSyncStatus();
 
   List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendSecret => mwebHd.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;
@@ -244,36 +262,28 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> startSync() async {
     print("startSync() called!");
-    if (syncStatus is SyncronizingSyncStatus) {
+    print("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
+    if (!mwebEnabled) {
+      try {
+        // in case we're switching from a litecoin wallet that had mweb enabled
+        CwMweb.stop();
+      } catch (_) {}
+      super.startSync();
       return;
     }
-    print("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
+
+    if (mwebSyncStatus is SyncronizingSyncStatus) {
+      return;
+    }
+
     _syncTimer?.cancel();
     try {
-      syncStatus = SyncronizingSyncStatus();
+      mwebSyncStatus = SyncronizingSyncStatus();
       await subscribeForUpdates();
       updateFeeRates();
       _feeRatesTimer?.cancel();
       _feeRatesTimer =
           Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
-
-      if (!mwebEnabled) {
-        try {
-          // in case we're switching from a litecoin wallet that had mweb enabled
-          CwMweb.stop();
-        } catch (_) {}
-        try {
-          await updateAllUnspents();
-          await updateTransactions();
-          await updateBalance();
-          syncStatus = SyncedSyncStatus();
-        } catch (e, s) {
-          print(e);
-          print(s);
-          syncStatus = FailedSyncStatus();
-        }
-        return;
-      }
 
       await waitForMwebAddresses();
       await processMwebUtxos();
@@ -281,13 +291,16 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       await updateUnspent();
       await updateBalance();
     } catch (e) {
-      print("failed to start mweb sync: $e");
-      syncStatus = FailedSyncStatus(error: "failed to start");
+      print("mweb sync failed: $e");
+      mwebSyncStatus = FailedSyncStatus(error: "pull to refresh to retry sync: $e");
       return;
     }
 
     _syncTimer = Timer.periodic(const Duration(milliseconds: 3000), (timer) async {
-      if (syncStatus is FailedSyncStatus) return;
+      if (mwebSyncStatus is FailedSyncStatus) {
+        _syncTimer?.cancel();
+        return;
+      }
 
       final nodeHeight =
           await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
@@ -295,7 +308,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (nodeHeight == 0) {
         // we aren't connected to the ltc node yet
         if (syncStatus is! NotConnectedSyncStatus) {
-          syncStatus = FailedSyncStatus(error: "Failed to connect to Litecoin node");
+          mwebSyncStatus = FailedSyncStatus(error: "litecoin node isn't connected");
         }
         return;
       }
