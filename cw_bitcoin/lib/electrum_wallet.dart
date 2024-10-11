@@ -1315,7 +1315,7 @@ abstract class ElectrumWalletBase
 
     // Set the balance of all non-silent payment addresses to 0 before updating
     walletAddresses.allAddresses.forEach((addr) {
-      if(addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
+      if (addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
     });
 
     await Future.wait(walletAddresses.allAddresses.map((address) async {
@@ -1825,6 +1825,8 @@ abstract class ElectrumWalletBase
 
   Future<Map<String, ElectrumTransactionInfo>> _fetchAddressHistory(
       BitcoinAddressRecord addressRecord, int? currentHeight) async {
+    String txid = "";
+
     try {
       final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
 
@@ -1834,7 +1836,7 @@ abstract class ElectrumWalletBase
         addressRecord.setAsUsed();
 
         await Future.wait(history.map((transaction) async {
-          final txid = transaction['tx_hash'] as String;
+          txid = transaction['tx_hash'] as String;
           final height = transaction['height'] as int;
           final storedTx = transactionHistory.transactions[txid];
 
@@ -1865,8 +1867,12 @@ abstract class ElectrumWalletBase
       }
 
       return historiesWithDetails;
-    } catch (e) {
-      print(e.toString());
+    } catch (e, stacktrace) {
+      _onError?.call(FlutterErrorDetails(
+        exception: "$txid - $e",
+        stack: stacktrace,
+        library: this.runtimeType.toString(),
+      ));
       return {};
     }
   }
