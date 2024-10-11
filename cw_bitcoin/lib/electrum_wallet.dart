@@ -466,7 +466,7 @@ abstract class ElectrumWalletBase
       }
     } catch (e, stacktrace) {
       print(stacktrace);
-      print(e.toString());
+      print("startSync $e");
       syncStatus = FailedSyncStatus();
     }
   }
@@ -570,7 +570,7 @@ abstract class ElectrumWalletBase
       await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
     } catch (e, stacktrace) {
       print(stacktrace);
-      print(e.toString());
+      print("connectToNode $e");
       syncStatus = FailedSyncStatus();
     }
   }
@@ -1432,7 +1432,7 @@ abstract class ElectrumWalletBase
         await unspentCoinsInfo.deleteAll(keys);
       }
     } catch (e) {
-      print(e.toString());
+      print("refreshUnspentCoinsInfo $e");
     }
   }
 
@@ -1776,7 +1776,7 @@ abstract class ElectrumWalletBase
 
       return historiesWithDetails;
     } catch (e) {
-      print(e.toString());
+      print("fetchTransactions $e");
       return {};
     }
   }
@@ -1918,9 +1918,17 @@ abstract class ElectrumWalletBase
     await Future.wait(unsubscribedScriptHashes.map((address) async {
       final sh = address.getScriptHash(network);
       if (!(_scripthashesUpdateSubject[sh]?.isClosed ?? true)) {
-        await _scripthashesUpdateSubject[sh]?.close();
+        try {
+          await _scripthashesUpdateSubject[sh]?.close();
+        } catch (e) {
+          print("failed to close: $e");
+        }
       }
-      _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
+      try {
+        _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
+      } catch (e) {
+        print("failed scripthashUpdate: $e");
+      }
       _scripthashesUpdateSubject[sh]?.listen((event) async {
         try {
           await updateUnspentsForAddress(address);
@@ -2122,8 +2130,13 @@ abstract class ElectrumWalletBase
         if (syncStatus is NotConnectedSyncStatus ||
             syncStatus is LostConnectionSyncStatus ||
             syncStatus is ConnectingSyncStatus) {
-          syncStatus = AttemptingSyncStatus();
-          startSync();
+          Timer(Duration(seconds: 5), () {
+            // sometimes we connect and then disconnect right after, so lets only start syncing after we've been connected for > 5 seconds:
+            if (syncStatus is! AttemptingSyncStatus) {
+              syncStatus = AttemptingSyncStatus();
+              startSync();
+            }
+          });
         }
 
         break;

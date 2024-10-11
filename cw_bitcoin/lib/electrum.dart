@@ -178,7 +178,7 @@ class ElectrumClient {
         unterminatedString = '';
       }
     } catch (e) {
-      print(e.toString());
+      print("parse $e");
     }
   }
 
@@ -431,7 +431,7 @@ class ElectrumClient {
 
       return subscription;
     } catch (e) {
-      print(e.toString());
+      print("subscribe $e");
       return null;
     }
   }
@@ -470,7 +470,7 @@ class ElectrumClient {
 
       return completer.future;
     } catch (e) {
-      print(e.toString());
+      print("callWithTimeout $e");
     }
   }
 

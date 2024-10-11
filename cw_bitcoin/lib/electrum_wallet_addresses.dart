@@ -478,7 +478,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
       await saveAddressesInBox();
     } catch (e) {
-      print(e.toString());
+      print("updateAddresses $e");
     }
   }
 

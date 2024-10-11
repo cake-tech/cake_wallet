@@ -304,9 +304,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       await updateTransactions();
       await updateUnspent();
       await updateBalance();
-    } catch (e) {
-      print("mweb sync failed: $e");
-      mwebSyncStatus = FailedSyncStatus(error: "pull to refresh to retry sync: $e");
+    } catch (e, s) {
+      print("mweb sync failed: $e $s");
+      mwebSyncStatus = FailedSyncStatus(error: "mweb sync failed: $e");
       return;
     }
 
