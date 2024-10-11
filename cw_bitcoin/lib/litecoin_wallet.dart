@@ -286,7 +286,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return;
     }
 
-    _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
+    _syncTimer = Timer.periodic(const Duration(milliseconds: 3000), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
 
       final nodeHeight =
