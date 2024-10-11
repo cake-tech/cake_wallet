@@ -288,6 +288,7 @@ abstract class ElectrumWalletBase
   StreamSubscription<dynamic>? _receiveStream;
   Timer? _updateFeeRateTimer;
   static const int _autoSaveInterval = 1;
+  Timer? _resyncTimer;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -2125,14 +2126,18 @@ abstract class ElectrumWalletBase
   @action
   void _onConnectionStatusChange(ConnectionStatus status) {
     print("CONNECTION_STATUS_CHANGE: ${status}");
+
     switch (status) {
       case ConnectionStatus.connected:
         if (syncStatus is NotConnectedSyncStatus ||
             syncStatus is LostConnectionSyncStatus ||
             syncStatus is ConnectingSyncStatus) {
-          Timer(Duration(seconds: 5), () {
+          _resyncTimer = Timer(Duration(seconds: 5), () {
             // sometimes we connect and then disconnect right after, so lets only start syncing after we've been connected for > 5 seconds:
-            if (syncStatus is! AttemptingSyncStatus) {
+            // make sure we're not triggering this more than necessary:
+            if (this.syncStatus is NotConnectedSyncStatus ||
+                this.syncStatus is LostConnectionSyncStatus ||
+                this.syncStatus is ConnectingSyncStatus) {
               syncStatus = AttemptingSyncStatus();
               startSync();
             }
@@ -2141,16 +2146,19 @@ abstract class ElectrumWalletBase
 
         break;
       case ConnectionStatus.disconnected:
+        _resyncTimer?.cancel();
         if (syncStatus is! NotConnectedSyncStatus) {
           syncStatus = NotConnectedSyncStatus();
         }
         break;
       case ConnectionStatus.failed:
+        _resyncTimer?.cancel();
         if (syncStatus is! LostConnectionSyncStatus) {
           syncStatus = LostConnectionSyncStatus();
         }
         break;
       case ConnectionStatus.connecting:
+        _resyncTimer?.cancel();
         if (syncStatus is! ConnectedSyncStatus) {
           syncStatus = ConnectingSyncStatus();
         }
