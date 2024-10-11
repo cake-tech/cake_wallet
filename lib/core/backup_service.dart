@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cw_core/root_dir.dart';
@@ -206,7 +207,16 @@ class BackupService {
         json.decode(transactionDescriptionFile.readAsStringSync()) as Map<String, dynamic>;
     final descriptionsMap = jsonData.map((key, value) =>
         MapEntry(key, TransactionDescription.fromJson(value as Map<String, dynamic>)));
-    await _transactionDescriptionBox.putAll(descriptionsMap);
+    var box = _transactionDescriptionBox;
+    if (!box.isOpen) {
+      final secureStorage = secureStorageShared;
+      final transactionDescriptionsBoxKey = 
+        await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+      box = await CakeHive.openBox<TransactionDescription>(
+        TransactionDescription.boxName,
+        encryptionKey: transactionDescriptionsBoxKey);
+      }
+    await box.putAll(descriptionsMap);
   }
 
   Future<void> _importPreferencesDump() async {
