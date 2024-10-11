@@ -41,4 +41,18 @@ class MethodChannelCwMweb extends CwMwebPlatform {
     });
     return result;
   }
+
+  @override
+  Future<String?> addresses(Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) async {
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      return null;
+    }
+    final result = await methodChannel.invokeMethod<String>('addresses', {
+      'scanSecret': scanSecret,
+      'spendPub': spendPub,
+      'fromIndex': fromIndex,
+      'toIndex': toIndex,
+    });
+    return result;
+  }
 }
