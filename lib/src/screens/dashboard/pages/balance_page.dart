@@ -1050,7 +1050,14 @@ class BalanceRowWidget extends StatelessWidget {
                                         .balanceAmountColor,
                                   ),
                                   const SizedBox(width: 8),
-                                  Text(S.of(context).litecoin_mweb_pegin),
+                                  Text(
+                                    S.of(context).litecoin_mweb_pegin,
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .extension<BalancePageTheme>()!
+                                          .assetTitleColor,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -1108,7 +1115,14 @@ class BalanceRowWidget extends StatelessWidget {
                                         .balanceAmountColor,
                                   ),
                                   const SizedBox(width: 8),
-                                  Text(S.of(context).litecoin_mweb_pegout),
+                                  Text(
+                                    S.of(context).litecoin_mweb_pegout,
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .extension<BalancePageTheme>()!
+                                          .assetTitleColor,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
