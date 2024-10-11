@@ -204,9 +204,20 @@ class CWBitcoin extends Bitcoin {
       (priority as BitcoinTransactionPriority).labelWithRate(rate, customRate);
 
   @override
-  List<BitcoinUnspent> getUnspents(Object wallet) {
+  List<BitcoinUnspent> getUnspents(Object wallet,
+      {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.unspentCoins;
+    return bitcoinWallet.unspentCoins.where((element) {
+      switch(coinTypeToSpendFrom) {
+        case UnspentCoinType.mweb:
+          return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+        case UnspentCoinType.nonMweb:
+          return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.any:
+          return true;
+      }
+
+    }).toList();
   }
 
   Future<void> updateUnspents(Object wallet) async {

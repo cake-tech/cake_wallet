@@ -221,7 +221,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   PendingTransaction? pendingTransaction;
 
   @computed
-  String get balance => wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
+  String get balance {
+    if (coinTypeToSpendFrom == UnspentCoinType.mweb) {
+      return balanceViewModel.balances.values.first.secondAvailableBalance;
+    } else if (coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+      return balanceViewModel.balances.values.first.availableBalance;
+    }
+    return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
+  }
 
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;

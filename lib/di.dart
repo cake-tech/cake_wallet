@@ -1217,14 +1217,21 @@ Future<void> setup({
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
-  getIt.registerFactory(() {
+  getIt.registerFactoryParam<UnspentCoinsListViewModel, UnspentCoinType?, void>(
+      (coinTypeToSpendFrom, _) {
     final wallet = getIt.get<AppStore>().wallet;
 
-    return UnspentCoinsListViewModel(wallet: wallet!, unspentCoinsInfo: _unspentCoinsInfoSource);
+    return UnspentCoinsListViewModel(
+      wallet: wallet!,
+      unspentCoinsInfo: _unspentCoinsInfoSource,
+      coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
+    );
   });
 
-  getIt.registerFactory(() =>
-      UnspentCoinsListPage(unspentCoinsListViewModel: getIt.get<UnspentCoinsListViewModel>()));
+  getIt.registerFactoryParam<UnspentCoinsListPage, UnspentCoinType?, void>(
+      (coinTypeToSpendFrom, _) => UnspentCoinsListPage(
+          unspentCoinsListViewModel:
+              getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom)));
 
   getIt.registerFactoryParam<UnspentCoinsDetailsViewModel, UnspentCoinsItem,
           UnspentCoinsListViewModel>(

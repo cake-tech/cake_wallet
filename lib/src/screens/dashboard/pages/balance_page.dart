@@ -17,13 +17,15 @@ import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -837,215 +839,284 @@ class BalanceRowWidget extends StatelessWidget {
             color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
           ),
           child: Container(
-            margin: const EdgeInsets.only(top: 0, left: 24, right: 8, bottom: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Stack(
-                  children: [
-                    if (currency == CryptoCurrency.ltc)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.only(right: 16, top: 16),
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
+                Container(
+                  margin: const EdgeInsets.only(top: 0, left: 24, right: 8, bottom: 16),
+                  child: Stack(
+                    children: [
+                      if (currency == CryptoCurrency.ltc)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.only(right: 16, top: 16),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: ImageIcon(
+                                      AssetImage('assets/images/mweb_logo.png'),
+                                      color: Color.fromARGB(255, 11, 70, 129),
+                                      size: 40,
+                                    ),
                                   ),
-                                  child: ImageIcon(
-                                    AssetImage('assets/images/mweb_logo.png'),
-                                    color: Color.fromARGB(255, 11, 70, 129),
-                                    size: 40,
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    'MWEB',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontFamily: 'Lato',
+                                      fontWeight: FontWeight.w800,
+                                      color: Theme.of(context)
+                                          .extension<BalancePageTheme>()!
+                                          .assetTitleColor,
+                                      height: 1,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (hasSecondAvailableBalance)
+                        Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 24),
+                                Text(
+                                  '${secondAvailableBalanceLabel}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w400,
+                                    color: Theme.of(context)
+                                        .extension<BalancePageTheme>()!
+                                        .labelTextColor,
+                                    height: 1,
                                   ),
                                 ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  'MWEB',
+                                SizedBox(height: 8),
+                                AutoSizeText(
+                                  secondAvailableBalance,
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 20,
                                     fontFamily: 'Lato',
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w400,
                                     color: Theme.of(context)
                                         .extension<BalancePageTheme>()!
                                         .assetTitleColor,
                                     height: 1,
                                   ),
+                                  maxLines: 1,
+                                  textAlign: TextAlign.center,
                                 ),
+                                SizedBox(height: 4),
+                                if (!isTestnet)
+                                  Text(
+                                    '${secondAvailableFiatBalance}',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontFamily: 'Lato',
+                                      fontWeight: FontWeight.w400,
+                                      color: Theme.of(context)
+                                          .extension<BalancePageTheme>()!
+                                          .textColor,
+                                      height: 1,
+                                    ),
+                                  ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                    if (hasSecondAvailableBalance)
-                      Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 24),
-                              Text(
-                                '${secondAvailableBalanceLabel}',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w400,
-                                  color: Theme.of(context)
-                                      .extension<BalancePageTheme>()!
-                                      .labelTextColor,
-                                  height: 1,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              AutoSizeText(
-                                secondAvailableBalance,
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w400,
-                                  color: Theme.of(context)
-                                      .extension<BalancePageTheme>()!
-                                      .assetTitleColor,
-                                  height: 1,
-                                ),
-                                maxLines: 1,
-                                textAlign: TextAlign.center,
-                              ),
-                              SizedBox(height: 4),
-                              if (!isTestnet)
-                                Text(
-                                  '${secondAvailableFiatBalance}',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: 'Lato',
-                                    fontWeight: FontWeight.w400,
-                                    color:
-                                        Theme.of(context).extension<BalancePageTheme>()!.textColor,
-                                    height: 1,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                  ],
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
-                Stack(
-                  children: [
-                    if (hasSecondAdditionalBalance)
-                      Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 24),
-                              Text(
-                                '${secondAdditionalBalanceLabel}',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w400,
-                                  color: Theme.of(context)
-                                      .extension<BalancePageTheme>()!
-                                      .labelTextColor,
-                                  height: 1,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              AutoSizeText(
-                                secondAdditionalBalance,
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w400,
-                                  color: Theme.of(context)
-                                      .extension<BalancePageTheme>()!
-                                      .assetTitleColor,
-                                  height: 1,
-                                ),
-                                maxLines: 1,
-                                textAlign: TextAlign.center,
-                              ),
-                              SizedBox(height: 4),
-                              if (!isTestnet)
+                Container(
+                  margin: const EdgeInsets.only(top: 0, left: 24, right: 8, bottom: 16),
+                  child: Stack(
+                    children: [
+                      if (hasSecondAdditionalBalance)
+                        Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(height: 24),
                                 Text(
-                                  '${secondAdditionalFiatBalance}',
+                                  '${secondAdditionalBalanceLabel}',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontFamily: 'Lato',
                                     fontWeight: FontWeight.w400,
-                                    color:
-                                        Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                    color: Theme.of(context)
+                                        .extension<BalancePageTheme>()!
+                                        .labelTextColor,
                                     height: 1,
                                   ),
                                 ),
-                            ],
+                                SizedBox(height: 8),
+                                AutoSizeText(
+                                  secondAdditionalBalance,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w400,
+                                    color: Theme.of(context)
+                                        .extension<BalancePageTheme>()!
+                                        .assetTitleColor,
+                                    height: 1,
+                                  ),
+                                  maxLines: 1,
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(height: 4),
+                                if (!isTestnet)
+                                  Text(
+                                    '${secondAdditionalFiatBalance}',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontFamily: 'Lato',
+                                      fontWeight: FontWeight.w400,
+                                      color: Theme.of(context)
+                                          .extension<BalancePageTheme>()!
+                                          .textColor,
+                                      height: 1,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+                IntrinsicHeight(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Semantics(
+                          label: S.of(context).litecoin_mweb_pegin,
+                          child: InkWell(
+                            onTap: () {
+                              final mwebAddress =
+                                  bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
+                              PaymentRequest? paymentRequest = null;
+                              if ((mwebAddress?.isNotEmpty ?? false)) {
+                                paymentRequest =
+                                    PaymentRequest.fromUri(Uri.parse("litecoin:${mwebAddress}"));
+                              }
+
+                              Navigator.pushNamed(
+                                context,
+                                Routes.send,
+                                arguments: {
+                                  'paymentRequest': paymentRequest,
+                                  'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
+                                },
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .extension<SendPageTheme>()!
+                                    .textFieldButtonIconColor
+                                    .withAlpha(50),
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(30),
+                                  bottomLeft: Radius.circular(30),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    height: 30,
+                                    width: 30,
+                                    'assets/images/received.png',
+                                    color: Theme.of(context)
+                                        .extension<BalancePageTheme>()!
+                                        .balanceAmountColor,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(S.of(context).litecoin_mweb_pegin),
+                                ],
+                              ),
+                            ),
                           ),
-                        ],
+                        ),
                       ),
-                    // TODO: smarter peg in / out buttons
-                    // if (currency == CryptoCurrency.ltc)
-                    //   Row(
-                    //     mainAxisAlignment: MainAxisAlignment.end,
-                    //     children: [
-                    //       Container(
-                    //         margin: EdgeInsets.only(top: 24, right: 8),
-                    //         child: ElevatedButton(
-                    //           style: ElevatedButton.styleFrom(
-                    //             backgroundColor: Theme.of(context).highlightColor,
-                    //           ),
-                    //           onPressed: () {
-                    //             final mwebAddress =
-                    //                 bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
-                    //             if (mwebAddress == null) return;
-                    //             final paymentRequest =
-                    //                 PaymentRequest.fromUri(Uri.parse("litecoin:${mwebAddress}"));
-                    //             Navigator.of(context)
-                    //                 .pushNamed(Routes.send, arguments: paymentRequest);
-                    //           },
-                    //           child: Container(
-                    //             color: Colors.transparent,
-                    //             margin: EdgeInsets.all(4),
-                    //             child: Column(
-                    //               mainAxisSize: MainAxisSize.max,
-                    //               crossAxisAlignment: CrossAxisAlignment.center,
-                    //               children: <Widget>[
-                    //                 Container(
-                    //                   alignment: Alignment.center,
-                    //                   decoration: BoxDecoration(shape: BoxShape.circle),
-                    //                   child: Image.asset(
-                    //                     'assets/images/received.png',
-                    //                     color: Theme.of(context)
-                    //                         .extension<BalancePageTheme>()!
-                    //                         .balanceAmountColor,
-                    //                     width: 64,
-                    //                     height: 32,
-                    //                   ),
-                    //                 ),
-                    //                 SizedBox(height: 4),
-                    //                 Text(
-                    //                   S.of(context).litecoin_mweb_pegin,
-                    //                   style: TextStyle(
-                    //                       fontSize: 10,
-                    //                       color: Theme.of(context)
-                    //                           .extension<DashboardPageTheme>()!
-                    //                           .cardTextColor),
-                    //                 )
-                    //               ],
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                  ],
+                      VerticalDivider(
+                        width: 1,
+                        color:
+                            Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
+                      ),
+                      Expanded(
+                        child: Semantics(
+                          label: S.of(context).litecoin_mweb_pegout,
+                          child: InkWell(
+                            onTap: () {
+                              final litecoinAddress =
+                                  bitcoin!.getAddress(dashboardViewModel.wallet);
+                              PaymentRequest? paymentRequest = null;
+                              if (litecoinAddress.isNotEmpty) {
+                                paymentRequest = PaymentRequest.fromUri(
+                                    Uri.parse("litecoin:${litecoinAddress}"));
+                              }
+
+                              Navigator.pushNamed(
+                                context,
+                                Routes.send,
+                                arguments: {
+                                  'paymentRequest': paymentRequest,
+                                  'coinTypeToSpendFrom': UnspentCoinType.mweb,
+                                },
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .extension<SendPageTheme>()!
+                                    .textFieldButtonIconColor
+                                    .withAlpha(50),
+                                borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(30),
+                                  bottomRight: Radius.circular(30),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    height: 30,
+                                    width: 30,
+                                    'assets/images/upload.png',
+                                    color: Theme.of(context)
+                                        .extension<BalancePageTheme>()!
+                                        .balanceAmountColor,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(S.of(context).litecoin_mweb_pegout),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
