@@ -113,9 +113,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           startSync();
         }
       } else if (mwebSyncStatus is SyncingSyncStatus) {
-        if (syncStatus is! SyncingSyncStatus) {
           syncStatus = mwebSyncStatus;
-        }
       } else if (mwebSyncStatus is SyncronizingSyncStatus) {
         if (syncStatus is! SyncronizingSyncStatus) {
           syncStatus = mwebSyncStatus;
