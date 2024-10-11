@@ -119,7 +119,16 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final rateId = responseJSON['trade_id'] as String? ?? '';
 
       var quotes = responseJSON['quotes']['quotes'] as List;
-      _provider = quotes.map((quote) => quote['provider']).toList();
+      _provider = quotes
+          .where((quote) =>
+      providerStates.containsKey(quote['provider']) &&
+          providerStates[quote['provider']] == true)
+          .map((quote) => quote['provider'])
+          .toList();
+
+      if (_provider.isEmpty) {
+        throw Exception('No enabled providers found for the selected trade.');
+      }
 
       if (rateId.isNotEmpty) _lastUsedRateId = rateId;
 
@@ -162,20 +171,11 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       params['id'] = _lastUsedRateId;
     }
 
-    String firstAvailableProvider = '';
-
-    for (var provider in _provider) {
-      if (providerStates.containsKey(provider) && providerStates[provider] == true) {
-        firstAvailableProvider = provider as String;
-        break;
-      }
-    }
-
-    if (firstAvailableProvider.isEmpty) {
+    if (_provider.isEmpty) {
       throw Exception('No available provider is enabled');
     }
 
-    params['provider'] = firstAvailableProvider;
+    params['provider'] = _provider.first as String;
 
     final uri = await _getUri(createTradePath, params);
     final response = await get(uri);
@@ -271,6 +271,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     return providersJsonList
         .map((providerJson) => TrocadorPartners.fromJson(providerJson as Map<String, dynamic>))
+        .where((provider) => provider.rating != 'D')
         .toList();
   }
 

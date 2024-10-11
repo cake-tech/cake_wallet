@@ -17,6 +17,8 @@ abstract class TrocadorProvidersViewModelBase with Store {
   @observable
   ObservableFuture<Map<String, bool>>? fetchProvidersFuture;
 
+  Map<String, String> providerRatings = {};
+
   @computed
   bool get isLoading => fetchProvidersFuture?.status == FutureStatus.pending;
 
@@ -25,6 +27,12 @@ abstract class TrocadorProvidersViewModelBase with Store {
     fetchProvidersFuture =
         ObservableFuture(trocadorExchangeProvider.fetchProviders().then((providers) {
       var providerNames = providers.map((e) => e.name).toList();
+
+      providerRatings = {
+        for (var provider in providers)
+          provider.name: provider.rating ?? 'N/A'
+      };
+
       return _settingsStore
           .updateAllTrocadorProviderStates(providerNames)
           .then((_) => _settingsStore.trocadorProviderStates);
