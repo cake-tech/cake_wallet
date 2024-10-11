@@ -31,7 +31,6 @@ class SettingActions {
     walletSettingAction,
     addressBookSettingAction,
     silentPaymentsSettingAction,
-    litecoinMwebSettingAction,
     securityBackupSettingAction,
     privacySettingAction,
     displaySettingAction,

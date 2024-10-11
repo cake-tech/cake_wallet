@@ -97,14 +97,13 @@ class MenuWidgetState extends State<MenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    List<SettingActions> items = SettingActions.all;
+    List<SettingActions> items = List.of(SettingActions.all);
     if (!widget.dashboardViewModel.hasSilentPayments) {
       items.removeWhere((element) => element.name(context) == S.of(context).silent_payments_settings);
     }
-    // if (!widget.dashboardViewModel.hasMweb) {
-    //   itemCount--;
-    //   items.removeWhere((element) => element.name(context) == S.of(context).litecoin_mweb_settings);
-    // }
+    if (!widget.dashboardViewModel.hasMweb) {
+      items.removeWhere((element) => element.name(context) == S.of(context).litecoin_mweb_settings);
+    }
     int itemCount = items.length;
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
@@ -190,11 +189,6 @@ class MenuWidgetState extends State<MenuWidget> {
                   index--;
 
                   final item = items[index];
-
-                  if (!widget.dashboardViewModel.hasMweb &&
-                      item.name(context) == S.of(context).litecoin_mweb_settings) {
-                    return const SizedBox();
-                  }
 
                   final isLastTile = index == itemCount - 1;
 
