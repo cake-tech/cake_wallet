@@ -112,6 +112,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           await Future.delayed(const Duration(seconds: 2));
           startSync();
         }
+      } else if (mwebSyncStatus is SyncingSyncStatus) {
+        if (syncStatus is! SyncingSyncStatus) {
+          syncStatus = mwebSyncStatus;
+        }
+      } else if (mwebSyncStatus is SyncronizingSyncStatus) {
+        if (syncStatus is! SyncronizingSyncStatus) {
+          syncStatus = mwebSyncStatus;
+        }
       }
     });
   }
@@ -311,7 +319,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       if (nodeHeight == 0) {
         // we aren't connected to the ltc node yet
-        if (syncStatus is! NotConnectedSyncStatus) {
+        if (mwebSyncStatus is! NotConnectedSyncStatus) {
           mwebSyncStatus = FailedSyncStatus(error: "litecoin node isn't connected");
         }
         return;
@@ -322,12 +330,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       try {
         if (resp.blockHeaderHeight < nodeHeight) {
           int h = resp.blockHeaderHeight;
-          syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
+          mwebSyncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
         } else if (resp.mwebHeaderHeight < nodeHeight) {
           int h = resp.mwebHeaderHeight;
-          syncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
+          mwebSyncStatus = SyncingSyncStatus(nodeHeight - h, h / nodeHeight);
         } else if (resp.mwebUtxosHeight < nodeHeight) {
-          syncStatus = SyncingSyncStatus(1, 0.999);
+          mwebSyncStatus = SyncingSyncStatus(1, 0.999);
         } else {
           if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
             await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
@@ -345,17 +353,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           }
 
           // prevent unnecessary reaction triggers:
-          if (syncStatus is! SyncedSyncStatus) {
+          if (mwebSyncStatus is! SyncedSyncStatus) {
             // mwebd is synced, but we could still be processing incoming utxos:
             if (!processingUtxos) {
-              syncStatus = SyncedSyncStatus();
+              mwebSyncStatus = SyncedSyncStatus();
             }
           }
           return;
         }
       } catch (e) {
         print("error syncing: $e");
-        syncStatus = FailedSyncStatus(error: e.toString());
+        mwebSyncStatus = FailedSyncStatus(error: e.toString());
       }
     });
   }
@@ -525,8 +533,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
     _utxoStream = responseStream.listen((Utxo sUtxo) async {
       // we're processing utxos, so our balance could still be innacurate:
-      if (syncStatus is! SyncronizingSyncStatus && syncStatus is! SyncingSyncStatus) {
-        syncStatus = SyncronizingSyncStatus();
+      if (mwebSyncStatus is! SyncronizingSyncStatus && mwebSyncStatus is! SyncingSyncStatus) {
+        mwebSyncStatus = SyncronizingSyncStatus();
         processingUtxos = true;
         _processingTimer?.cancel();
         _processingTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
