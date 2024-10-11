@@ -234,6 +234,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> waitForMwebAddresses() async {
+    print("waitForMwebAddresses() called!");
     // ensure that we have the full 1000 mweb addresses generated before continuing:
     // should no longer be needed, but leaving here just in case
     await (walletAddresses as LitecoinWalletAddresses).ensureMwebAddressUpToIndexExists(1020);
@@ -247,6 +248,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return;
     }
     print("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
+    _syncTimer?.cancel();
     try {
       syncStatus = SyncronizingSyncStatus();
       try {
@@ -284,12 +286,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       await updateBalance();
     } catch (e) {
       print("failed to start mweb sync: $e");
-      syncStatus = FailedSyncStatus();
+      syncStatus = FailedSyncStatus(error: "failed to start");
       return;
     }
 
-    _syncTimer?.cancel();
-    _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
+    _syncTimer = Timer.periodic(const Duration(milliseconds: 3000), (timer) async {
       if (syncStatus is FailedSyncStatus) return;
 
       final nodeHeight =
@@ -494,6 +495,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> processMwebUtxos() async {
+    print("processMwebUtxos() called!");
     if (!mwebEnabled) {
       return;
     }
@@ -503,7 +505,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final req = UtxosRequest(scanSecret: scanSecret, fromHeight: restoreHeight);
 
     // process new utxos as they come in:
-    _utxoStream?.cancel();
+    await _utxoStream?.cancel();
     ResponseStream<Utxo>? responseStream = await CwMweb.utxos(req);
     if (responseStream == null) {
       throw Exception("failed to get utxos stream!");
@@ -663,6 +665,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> updateUnspent() async {
+    print("updateUnspent() called!");
     await checkMwebUtxosSpent();
     await updateAllUnspents();
   }

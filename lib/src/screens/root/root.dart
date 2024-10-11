@@ -135,10 +135,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           setState(() => _setInactive(true));
         }
 
-        if (widget.appStore.wallet?.type == WalletType.litecoin) {
-          widget.appStore.wallet?.stopSync();
-        }
-
         break;
       case AppLifecycleState.resumed:
         widget.authService.requireAuth().then((value) {
@@ -148,9 +144,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             });
           }
         });
-        if (widget.appStore.wallet?.type == WalletType.litecoin) {
-          widget.appStore.wallet?.startSync();
-        }
         break;
       default:
         break;

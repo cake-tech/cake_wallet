@@ -40,10 +40,7 @@ class CwMweb {
   }
 
   static Future<void> _initializeClient() async {
-    await stop();
-    // wait a few seconds to make sure the server is stopped
-    await Future.delayed(const Duration(seconds: 3));
-
+    print("initialize client called!");
     final appDir = await getApplicationSupportDirectory();
     const ltcNodeUri = "ltc-electrum.cakewallet.com:9333";
 
@@ -83,11 +80,14 @@ class CwMweb {
         }
         return _rpcClient!;
       } on GrpcError catch (e) {
+        log("Attempt $i failed: $e");
         log('Caught grpc error: ${e.message}');
         _rpcClient = null;
+        await Future.delayed(const Duration(seconds: 3));
       } catch (e) {
         log("Attempt $i failed: $e");
         _rpcClient = null;
+        await Future.delayed(const Duration(seconds: 3));
       }
     }
     throw Exception("Failed to connect after $maxRetries attempts");
@@ -104,24 +104,8 @@ class CwMweb {
     }
   }
 
-  // ensure mweb is actually awake and responding to calls:
-  static Future<void> ensureMwebAlive() async {
-    print("ensuring mweb is actually alive!");
-    try {
-      final status = await _rpcClient!
-          .status(StatusRequest(), options: CallOptions(timeout: TIMEOUT_DURATION));
-      if (status.blockTime == 0) {
-        throw Exception("blockTime shouldn't be 0! (this connection is likely broken)");
-      }
-    } catch (_) {
-      // stop and start the server:
-      await _initializeClient();
-    }
-  }
-
   static Future<String?> address(Uint8List scanSecret, Uint8List spendPub, int index) async {
     try {
-      // return CwMwebPlatform.instance.address(scanSecret, spendPub, index);// was removed
       return (await CwMwebPlatform.instance.addresses(scanSecret, spendPub, index, index + 1))
           ?.split(',')
           .first;
@@ -159,11 +143,7 @@ class CwMweb {
   static Future<SpentResponse> spent(SpentRequest request) async {
     log("mweb.spent() called");
     try {
-      if (_rpcClient == null) {
-        await _initializeClient();
-      } else {
-        await ensureMwebAlive();
-      }
+      _rpcClient = await stub();
       return await _rpcClient!.spent(request, options: CallOptions(timeout: TIMEOUT_DURATION));
     } on GrpcError catch (e) {
       log('Caught grpc error: ${e.message}');
@@ -176,9 +156,7 @@ class CwMweb {
   static Future<StatusResponse> status(StatusRequest request) async {
     log("mweb.status() called");
     try {
-      if (_rpcClient == null) {
-        await _initializeClient();
-      }
+      _rpcClient = await stub();
       return await _rpcClient!.status(request, options: CallOptions(timeout: TIMEOUT_DURATION));
     } on GrpcError catch (e) {
       log('Caught grpc error: ${e.message}');
@@ -191,11 +169,7 @@ class CwMweb {
   static Future<CreateResponse> create(CreateRequest request) async {
     log("mweb.create() called");
     try {
-      if (_rpcClient == null) {
-        await _initializeClient();
-      } else {
-        await ensureMwebAlive();
-      }
+      _rpcClient = await stub();
       return await _rpcClient!.create(request, options: CallOptions(timeout: TIMEOUT_DURATION));
     } on GrpcError catch (e) {
       log('Caught grpc error: ${e.message}');
@@ -208,11 +182,7 @@ class CwMweb {
   static Future<ResponseStream<Utxo>?> utxos(UtxosRequest request) async {
     log("mweb.utxos() called");
     try {
-      if (_rpcClient == null) {
-        await _initializeClient();
-      } else {
-        await ensureMwebAlive();
-      }
+      _rpcClient = await stub();
       final resp = _rpcClient!
           .utxos(request, options: CallOptions(timeout: const Duration(days: 1000 * 365)));
       log("got utxo stream");
