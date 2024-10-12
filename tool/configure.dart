@@ -75,6 +75,7 @@ Future<void> main(List<String> args) async {
 Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';

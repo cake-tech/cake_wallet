@@ -116,7 +116,7 @@ class ElectrumClient {
             _parseResponse(message);
           }
         } catch (e) {
-          print(e.toString());
+          print("socket.listen: $e");
         }
       },
       onError: (Object error) {
@@ -125,14 +125,15 @@ class ElectrumClient {
         unterminatedString = '';
       },
       onDone: () {
+        print("SOCKET CLOSED!!!!!");
         unterminatedString = '';
         try {
           if (host == socket?.address.host) {
-            socket?.destroy();
             _setConnectionStatus(ConnectionStatus.disconnected);
+            socket?.destroy();
           }
         } catch (e) {
-          print(e.toString());
+          print("onDone: $e");
         }
       },
       cancelOnError: true,
@@ -421,7 +422,7 @@ class ElectrumClient {
   BehaviorSubject<T>? subscribe<T>(
       {required String id, required String method, List<Object> params = const []}) {
     try {
-      if (socket == null) {
+      if (socket == null || !isConnected) {
         return null;
       }
       final subscription = BehaviorSubject<T>();
@@ -437,7 +438,7 @@ class ElectrumClient {
 
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
-    if (socket == null) {
+    if (socket == null || !isConnected) {
       return null;
     }
     final completer = Completer<dynamic>();
@@ -453,7 +454,7 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
-      if (socket == null) {
+      if (socket == null || !isConnected) {
         return null;
       }
       final completer = Completer<dynamic>();
