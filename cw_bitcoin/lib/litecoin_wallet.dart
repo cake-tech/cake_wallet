@@ -290,6 +290,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return;
     }
 
+    print("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
     _syncTimer?.cancel();
     try {
       mwebSyncStatus = SyncronizingSyncStatus();
