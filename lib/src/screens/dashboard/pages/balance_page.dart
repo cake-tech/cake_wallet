@@ -20,6 +20,7 @@ import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
