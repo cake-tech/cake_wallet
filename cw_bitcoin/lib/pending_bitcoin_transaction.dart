@@ -117,6 +117,8 @@ class PendingBitcoinTransaction with PendingTransaction {
       idOverride = resp.txid;
     } on GrpcError catch (e) {
       throw BitcoinTransactionCommitFailed(errorMessage: e.message);
+    } catch (e) {
+      throw BitcoinTransactionCommitFailed(errorMessage: "Unknown error: ${e.toString()}");
     }
   }
 

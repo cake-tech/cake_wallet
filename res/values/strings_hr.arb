@@ -235,6 +235,7 @@
   "edit_token": "Uredi token",
   "electrum_address_disclaimer": "Minden egyes alkalommal új címeket generálunk, de a korábbi címek továbbra is működnek",
   "email_address": "Adresa e-pošte",
+  "enable": "Omogućiti",
   "enable_mempool_api": "Mempool API za točne naknade i datume",
   "enable_replace_by_fee": "Omogući zamjenu",
   "enable_silent_payments_scanning": "Započnite skeniranje tihih plaćanja, dok se ne postigne savjet",

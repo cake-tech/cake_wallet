@@ -6,7 +6,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -20,12 +19,11 @@ import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
-import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
-import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -382,18 +380,10 @@ class CryptoBalanceWidget extends StatelessWidget {
                       child: DashBoardRoundedCardWidget(
                         customBorder: 30,
                         title: S.of(context).litecoin_mweb,
-                        subTitle: '',
+                        subTitle: S.of(context).litecoin_mweb_description,
                         hint: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              S.of(context).litecoin_mweb_description,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(height: 8),
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () => launchUrl(
@@ -401,53 +391,64 @@ class CryptoBalanceWidget extends StatelessWidget {
                                     "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
                                 mode: LaunchMode.externalApplication,
                               ),
-                              child: Center(
-                                child: Text(
-                                  S.of(context).learn_more,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: 'Lato',
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context)
-                                        .extension<BalancePageTheme>()!
-                                        .labelTextColor,
-                                    height: 1,
-                                  ),
-                                  softWrap: true,
+                              child: Text(
+                                S.of(context).learn_more,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context)
+                                      .extension<BalancePageTheme>()!
+                                      .labelTextColor,
+                                  height: 1,
                                 ),
+                                softWrap: true,
                               ),
                             ),
-                            SizedBox(height: 24),
+                            SizedBox(height: 8),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                ElevatedButton(
-                                  onPressed: () => _dismissMweb(context),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(context).primaryColor,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(50),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () => _dismissMweb(context),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Theme.of(context).primaryColor,
+                                    ),
+                                    child: Text(
+                                      S.of(context).litecoin_mweb_dismiss,
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
-                                  child: Text(
-                                    S.of(context).litecoin_mweb_dismiss,
-                                    style: TextStyle(color: Colors.white),
-                                  ),
                                 ),
-                                ElevatedButton(
-                                  onPressed: () => _enableMweb(context),
-                                  child: Text(S.of(context).litecoin_enable_mweb_sync),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () => _enableMweb(context),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors.black,
+                                    ),
+                                    child: Text(
+                                      S.of(context).enable,
+                                      maxLines: 1,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                           ],
                         ),
                         onTap: () => {},
-                        icon: ImageIcon(
-                          AssetImage('assets/images/mweb_logo.png'),
-                          color:
-                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                          size: 50,
+                        icon: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: ImageIcon(
+                            AssetImage('assets/images/mweb_logo.png'),
+                            color: Color.fromARGB(255, 11, 70, 129),
+                            size: 40,
+                          ),
                         ),
                       ),
                     ),
@@ -505,7 +506,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 },
               ));
     }
-    dashboardViewModel.setMwebScanningActive();
+    dashboardViewModel.setMwebEnabled();
   }
 
   Future<void> _dismissMweb(BuildContext context) async {
@@ -850,23 +851,15 @@ class BalanceRowWidget extends StatelessWidget {
                             padding: EdgeInsets.only(right: 16, top: 16),
                             child: Column(
                               children: [
-                                CakeImageWidget(
-                                  imageUrl: 'assets/images/mweb_logo.png',
-                                  height: 40,
-                                  width: 40,
-                                  displayOnError: Container(
-                                    height: 30.0,
-                                    width: 30.0,
-                                    child: Center(
-                                      child: Text(
-                                        currency.title.substring(0, min(currency.title.length, 2)),
-                                        style: TextStyle(fontSize: 11),
-                                      ),
-                                    ),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.grey.shade400,
-                                    ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: ImageIcon(
+                                    AssetImage('assets/images/mweb_logo.png'),
+                                    color: Color.fromARGB(255, 11, 70, 129),
+                                    size: 40,
                                   ),
                                 ),
                                 const SizedBox(height: 10),

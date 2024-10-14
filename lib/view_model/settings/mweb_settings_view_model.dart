@@ -8,7 +8,10 @@ part 'mweb_settings_view_model.g.dart';
 class MwebSettingsViewModel = MwebSettingsViewModelBase with _$MwebSettingsViewModel;
 
 abstract class MwebSettingsViewModelBase with Store {
-  MwebSettingsViewModelBase(this._settingsStore, this._wallet);
+  MwebSettingsViewModelBase(this._settingsStore, this._wallet) {
+    mwebEnabled = bitcoin!.getMwebEnabled(_wallet);
+    _settingsStore.mwebAlwaysScan = mwebEnabled;
+  }
 
   final SettingsStore _settingsStore;
   final WalletBase _wallet;
@@ -16,8 +19,8 @@ abstract class MwebSettingsViewModelBase with Store {
   @computed
   bool get mwebCardDisplay => _settingsStore.mwebCardDisplay;
 
-  @computed
-  bool get mwebAlwaysScan => _settingsStore.mwebAlwaysScan;
+  @observable
+  late bool mwebEnabled;
 
   @action
   void setMwebCardDisplay(bool value) {
@@ -25,8 +28,9 @@ abstract class MwebSettingsViewModelBase with Store {
   }
 
   @action
-  void setMwebAlwaysScan(bool value) {
-    _settingsStore.mwebAlwaysScan = value;
+  void setMwebEnabled(bool value) {
+    mwebEnabled = value;
     bitcoin!.setMwebEnabled(_wallet, value);
+    _settingsStore.mwebAlwaysScan = value;
   }
 }
