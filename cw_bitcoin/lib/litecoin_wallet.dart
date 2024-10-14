@@ -920,6 +920,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
 
       if (!hasMwebInput && !hasMwebOutput) {
+        tx.isMweb = false;
         return tx;
       }
 

@@ -1005,6 +1005,7 @@ class BalanceRowWidget extends StatelessWidget {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 24),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Semantics(
@@ -1033,7 +1034,10 @@ class BalanceRowWidget extends StatelessWidget {
                                     .extension<SendPageTheme>()!
                                     .textFieldButtonIconColor
                                     .withAlpha(50),
-                                    side: BorderSide(color: Colors.grey.shade400, width: 0),
+                                side: BorderSide(color: Colors.grey.shade400, width: 0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
                               ),
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 12),
@@ -1063,7 +1067,7 @@ class BalanceRowWidget extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(width: 16),
+                        SizedBox(width: 32),
                         Expanded(
                           child: Semantics(
                             label: S.of(context).litecoin_mweb_pegout,
@@ -1091,7 +1095,10 @@ class BalanceRowWidget extends StatelessWidget {
                                     .extension<SendPageTheme>()!
                                     .textFieldButtonIconColor
                                     .withAlpha(50),
-                                    side: BorderSide(color: Colors.grey.shade400, width: 0),
+                                side: BorderSide(color: Colors.grey.shade400, width: 0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
                               ),
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: 12),
