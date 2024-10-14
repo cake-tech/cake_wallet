@@ -356,8 +356,6 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
-      case WalletType.monero:
-      case WalletType.wownero:
       case WalletType.bitcoin:
         return false;
       default:
