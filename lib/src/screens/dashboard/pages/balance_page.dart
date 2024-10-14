@@ -1002,136 +1002,130 @@ class BalanceRowWidget extends StatelessWidget {
                   ),
                 ),
                 IntrinsicHeight(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Semantics(
-                          label: S.of(context).litecoin_mweb_pegin,
-                          child: InkWell(
-                            onTap: () {
-                              final mwebAddress =
-                                  bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
-                              PaymentRequest? paymentRequest = null;
-                              if ((mwebAddress?.isNotEmpty ?? false)) {
-                                paymentRequest =
-                                    PaymentRequest.fromUri(Uri.parse("litecoin:${mwebAddress}"));
-                              }
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Semantics(
+                            label: S.of(context).litecoin_mweb_pegin,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                final mwebAddress =
+                                    bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
+                                PaymentRequest? paymentRequest = null;
+                                if ((mwebAddress?.isNotEmpty ?? false)) {
+                                  paymentRequest =
+                                      PaymentRequest.fromUri(Uri.parse("litecoin:${mwebAddress}"));
+                                }
 
-                              Navigator.pushNamed(
-                                context,
-                                Routes.send,
-                                arguments: {
-                                  'paymentRequest': paymentRequest,
-                                  'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
-                                },
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
+                                Navigator.pushNamed(
+                                  context,
+                                  Routes.send,
+                                  arguments: {
+                                    'paymentRequest': paymentRequest,
+                                    'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
+                                  },
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Theme.of(context)
                                     .extension<SendPageTheme>()!
                                     .textFieldButtonIconColor
                                     .withAlpha(50),
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(30),
-                                  bottomLeft: Radius.circular(30),
-                                ),
+                                    side: BorderSide(color: Colors.grey.shade400, width: 0),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    height: 30,
-                                    width: 30,
-                                    'assets/images/received.png',
-                                    color: Theme.of(context)
-                                        .extension<BalancePageTheme>()!
-                                        .balanceAmountColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    S.of(context).litecoin_mweb_pegin,
-                                    style: TextStyle(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      height: 30,
+                                      width: 30,
+                                      'assets/images/received.png',
                                       color: Theme.of(context)
                                           .extension<BalancePageTheme>()!
-                                          .assetTitleColor,
+                                          .balanceAmountColor,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      S.of(context).litecoin_mweb_pegin,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .extension<BalancePageTheme>()!
+                                            .assetTitleColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      VerticalDivider(
-                        width: 1,
-                        color:
-                            Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
-                      ),
-                      Expanded(
-                        child: Semantics(
-                          label: S.of(context).litecoin_mweb_pegout,
-                          child: InkWell(
-                            onTap: () {
-                              final litecoinAddress =
-                                  bitcoin!.getAddress(dashboardViewModel.wallet);
-                              PaymentRequest? paymentRequest = null;
-                              if (litecoinAddress.isNotEmpty) {
-                                paymentRequest = PaymentRequest.fromUri(
-                                    Uri.parse("litecoin:${litecoinAddress}"));
-                              }
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Semantics(
+                            label: S.of(context).litecoin_mweb_pegout,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                final litecoinAddress =
+                                    bitcoin!.getAddress(dashboardViewModel.wallet);
+                                PaymentRequest? paymentRequest = null;
+                                if (litecoinAddress.isNotEmpty) {
+                                  paymentRequest = PaymentRequest.fromUri(
+                                      Uri.parse("litecoin:${litecoinAddress}"));
+                                }
 
-                              Navigator.pushNamed(
-                                context,
-                                Routes.send,
-                                arguments: {
-                                  'paymentRequest': paymentRequest,
-                                  'coinTypeToSpendFrom': UnspentCoinType.mweb,
-                                },
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
+                                Navigator.pushNamed(
+                                  context,
+                                  Routes.send,
+                                  arguments: {
+                                    'paymentRequest': paymentRequest,
+                                    'coinTypeToSpendFrom': UnspentCoinType.mweb,
+                                  },
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Theme.of(context)
                                     .extension<SendPageTheme>()!
                                     .textFieldButtonIconColor
                                     .withAlpha(50),
-                                borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(30),
-                                  bottomRight: Radius.circular(30),
-                                ),
+                                    side: BorderSide(color: Colors.grey.shade400, width: 0),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    height: 30,
-                                    width: 30,
-                                    'assets/images/upload.png',
-                                    color: Theme.of(context)
-                                        .extension<BalancePageTheme>()!
-                                        .balanceAmountColor,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    S.of(context).litecoin_mweb_pegout,
-                                    style: TextStyle(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      height: 30,
+                                      width: 30,
+                                      'assets/images/upload.png',
                                       color: Theme.of(context)
                                           .extension<BalancePageTheme>()!
-                                          .assetTitleColor,
+                                          .balanceAmountColor,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      S.of(context).litecoin_mweb_pegout,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .extension<BalancePageTheme>()!
+                                            .assetTitleColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
+                SizedBox(height: 16),
               ],
             ),
           ),
