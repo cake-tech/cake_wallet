@@ -31,6 +31,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         cryptoAmount = '',
         fiatAmount = '',
         cryptoCurrencyAddress = '',
+        isCryptoCurrencyAddressEnabled = false,
         cryptoCurrencies = <CryptoCurrency>[],
         fiatCurrencies = <FiatCurrency>[],
         paymentMethodState = InitialPaymentMethod(),
@@ -52,6 +53,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         .where((currency) => !excludeCryptoCurrencies.contains(currency))
         .toList();
     _initialize();
+
+    isCryptoCurrencyAddressEnabled = !(cryptoCurrency == wallet.currency);
   }
 
   final NumberFormat _cryptoNumberFormat;
@@ -135,6 +138,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   String cryptoCurrencyAddress;
 
   @observable
+  bool isCryptoCurrencyAddressEnabled;
+
+  @observable
   PaymentMethod? selectedPaymentMethod;
 
   @observable
@@ -160,6 +166,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   void reset() {
     cryptoCurrency = wallet.currency;
     fiatCurrency = settingsStore.fiatCurrency;
+    isCryptoCurrencyAddressEnabled = !(cryptoCurrency == wallet.currency);
     _initialize();
   }
 
@@ -179,6 +186,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   void changeCryptoCurrency({required CryptoCurrency currency}) {
     cryptoCurrency = currency;
     _onPairChange();
+    isCryptoCurrencyAddressEnabled = !(cryptoCurrency == wallet.currency);
   }
 
   @action

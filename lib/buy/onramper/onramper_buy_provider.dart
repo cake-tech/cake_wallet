@@ -130,7 +130,6 @@ class OnRamperBuyProvider extends BuyProvider {
     final params = {
       'amount': amount.toString(),
       if (paymentMethod != null) 'paymentMethod': paymentMethod,
-      'uuid': 'acad3928-556f-48a1-a478-4e2ec76700cd',
       'clientName': 'CakeWallet',
       'type': actionType,
       'walletAddress': walletAddress,
@@ -209,8 +208,6 @@ class OnRamperBuyProvider extends BuyProvider {
       cardColor = getColorStr(Colors.white);
     }
 
-    final networkName = wallet.currency.fullName?.toUpperCase().replaceAll(" ", "");
-
     final defaultFiat = isBuyAction ? quote.sourceCurrency.name : quote.destinationCurrency.name;
     final defaultCrypto = isBuyAction
         ? _getNormalizeCryptoCurrency(quote.destinationCurrency)
@@ -226,8 +223,8 @@ class OnRamperBuyProvider extends BuyProvider {
       '${prefix}defaultAmount': amount.toString(),
       if (paymentMethod != null) '${prefix}defaultPaymentMethod': paymentMethod,
       'onlyOnramps': quote.rampId,
-      'networkWallets': '${networkName}:${wallet.walletAddresses.address}',
-      if (cryptoCurrencyAddress.isNotEmpty) 'walletAddress': cryptoCurrencyAddress,
+      'networkWallets': '$defaultCrypto:$cryptoCurrencyAddress',
+      'walletAddress': cryptoCurrencyAddress,
       'supportSwap': "false",
       'primaryColor': primaryColor,
       'secondaryColor': secondaryColor,

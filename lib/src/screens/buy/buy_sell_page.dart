@@ -1,6 +1,8 @@
 import 'package:cake_wallet/buy/sell_buy_states.dart';
 import 'package:cake_wallet/core/address_validator.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -18,10 +20,11 @@ import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/utils/debounce.dart';
+import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -36,9 +39,8 @@ class BuySellPage extends BasePage {
   final fiatCurrencyKey = GlobalKey<ExchangeCardState>();
   final _formKey = GlobalKey<FormState>();
   final _fiatAmountFocus = FocusNode();
-  final _depositAddressFocus = FocusNode();
   final _cryptoAmountFocus = FocusNode();
-  final _receiveAddressFocus = FocusNode();
+  final _cryptoAddressFocus = FocusNode();
   var _isReactionsSet = false;
 
   final arrowBottomPurple = Image.asset(
@@ -237,18 +239,23 @@ class BuySellPage extends BasePage {
     final cryptoAmountController = cryptoCurrencyKey.currentState!.amountController;
     final cryptoAddressController = cryptoCurrencyKey.currentState!.addressController;
 
-    _onCryptoCurrencyChange(buySellViewModel.cryptoCurrency, buySellViewModel, cryptoCurrencyKey);
-    _onFiatCurrencyChange(buySellViewModel.fiatCurrency, buySellViewModel, fiatCurrencyKey);
+    _onCurrencyChange(buySellViewModel.cryptoCurrency, buySellViewModel, cryptoCurrencyKey);
+    _onCurrencyChange(buySellViewModel.fiatCurrency, buySellViewModel, fiatCurrencyKey);
+
+    reaction(
+            (_) => buySellViewModel.wallet.name,
+            (String _) =>
+            _onWalletNameChange(buySellViewModel, buySellViewModel.cryptoCurrency, cryptoCurrencyKey));
 
     reaction(
         (_) => buySellViewModel.cryptoCurrency,
         (CryptoCurrency currency) =>
-            _onCryptoCurrencyChange(currency, buySellViewModel, cryptoCurrencyKey));
+            _onCurrencyChange(currency, buySellViewModel, cryptoCurrencyKey));
 
     reaction(
         (_) => buySellViewModel.fiatCurrency,
         (FiatCurrency currency) =>
-            _onFiatCurrencyChange(currency, buySellViewModel, fiatCurrencyKey));
+            _onCurrencyChange(currency, buySellViewModel, fiatCurrencyKey));
 
     reaction((_) => buySellViewModel.fiatAmount, (String amount) {
       if (fiatCurrencyKey.currentState!.amountController.text != amount) {
@@ -256,9 +263,19 @@ class BuySellPage extends BasePage {
       }
     });
 
+    reaction((_) => buySellViewModel.isCryptoCurrencyAddressEnabled, (bool isEnabled) {
+      cryptoCurrencyKey.currentState!.isAddressEditable(isEditable: isEnabled);
+    });
+
     reaction((_) => buySellViewModel.cryptoAmount, (String amount) {
       if (cryptoCurrencyKey.currentState!.amountController.text != amount) {
         cryptoCurrencyKey.currentState!.amountController.text = amount;
+      }
+    });
+
+    reaction((_) => buySellViewModel.cryptoCurrencyAddress, (String address) {
+      if (cryptoAddressController != address) {
+        cryptoCurrencyKey.currentState!.addressController.text = address;
       }
     });
 
@@ -278,26 +295,54 @@ class BuySellPage extends BasePage {
       buySellViewModel.changeCryptoCurrencyAddress(cryptoAddressController.text);
     });
 
+    _cryptoAddressFocus.addListener(() async {
+      if (!_cryptoAddressFocus.hasFocus && cryptoAddressController.text.isNotEmpty) {
+        final domain = cryptoAddressController.text;
+        buySellViewModel.cryptoCurrencyAddress =
+        await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+      }
+    });
+
+    reaction((_) => buySellViewModel.wallet.walletAddresses.addressForExchange, (String address) {
+      if (buySellViewModel.cryptoCurrency == CryptoCurrency.xmr) {
+        cryptoCurrencyKey.currentState!.changeAddress(address: address);
+      }
+
+      if (buySellViewModel.cryptoCurrency == CryptoCurrency.xmr) {
+        cryptoCurrencyKey.currentState!.changeAddress(address: address);
+      }
+    });
+
+
 
     _isReactionsSet = true;
   }
 
-  void _onCryptoCurrencyChange(CryptoCurrency currency, BuySellViewModel buySellViewModel,
+  void _onCurrencyChange(Currency currency, BuySellViewModel buySellViewModel,
       GlobalKey<ExchangeCardState> key) {
     final isCurrentTypeWallet = currency == buySellViewModel.wallet.currency;
 
     key.currentState!.changeSelectedCurrency(currency);
+    key.currentState!.changeWalletName(isCurrentTypeWallet ? buySellViewModel.wallet.name : '');
 
     key.currentState!.changeAddress(
-        address: isCurrentTypeWallet ? buySellViewModel.wallet.walletAddresses.address : '');
+        address: isCurrentTypeWallet ? buySellViewModel.wallet.walletAddresses.addressForExchange : '');
 
     key.currentState!.changeAmount(amount: '');
   }
 
-  void _onFiatCurrencyChange(
-      FiatCurrency currency, BuySellViewModel buySellViewModel, GlobalKey<ExchangeCardState> key) {
-    key.currentState!.changeSelectedCurrency(currency);
-    key.currentState!.changeAmount(amount: '');
+  void _onWalletNameChange(BuySellViewModel buySellViewModel, CryptoCurrency currency,
+      GlobalKey<ExchangeCardState> key) {
+    final isCurrentTypeWallet = currency == buySellViewModel.wallet.currency;
+
+    if (isCurrentTypeWallet) {
+      key.currentState!.changeWalletName(buySellViewModel.wallet.name);
+      key.currentState!.addressController.text = buySellViewModel.wallet.walletAddresses.addressForExchange;
+    } else if (key.currentState!.addressController.text ==
+        buySellViewModel.wallet.walletAddresses.addressForExchange) {
+      key.currentState!.changeWalletName('');
+      key.currentState!.addressController.text = '';
+    }
   }
 
   void disposeBestRateSync() => {};
@@ -308,7 +353,6 @@ class BuySellPage extends BasePage {
               cardInstanceName: 'fiat_currency_trade_card',
               onDispose: disposeBestRateSync,
               amountFocusNode: _fiatAmountFocus,
-              addressFocusNode: _depositAddressFocus,
               key: fiatCurrencyKey,
               title: 'FIAT ${S.of(context).amount}',
               initialCurrency: buySellViewModel.fiatCurrency,
@@ -339,14 +383,14 @@ class BuySellPage extends BasePage {
               cardInstanceName: 'crypto_currency_trade_card',
               onDispose: disposeBestRateSync,
               amountFocusNode: _cryptoAmountFocus,
-              addressFocusNode: _receiveAddressFocus,
+              addressFocusNode: _cryptoAddressFocus,
               key: cryptoCurrencyKey,
               title: 'Crypto ${S.of(context).amount}',
               initialCurrency: buySellViewModel.cryptoCurrency,
               initialWalletName: '',
               initialAddress: buySellViewModel.cryptoCurrency == buySellViewModel.wallet.currency
-                  ? buySellViewModel.wallet.walletAddresses.address
-                  : '',
+                  ? buySellViewModel.wallet.walletAddresses.addressForExchange
+                  : buySellViewModel.cryptoCurrencyAddress,
               initialIsAmountEditable: true,
               isAmountEstimated: true,
               showLimitsField: false,
@@ -410,5 +454,12 @@ class BuySellPage extends BasePage {
         }
       },
     );
+  }
+
+  Future<String> fetchParsedAddress(
+      BuildContext context, String domain, CryptoCurrency currency) async {
+    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
+    final address = await extractAddressFromParsed(context, parsedAddress);
+    return address;
   }
 }

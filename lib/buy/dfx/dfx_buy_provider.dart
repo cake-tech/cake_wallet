@@ -55,10 +55,8 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  String get walletAddress =>
-      wallet.walletAddresses.primaryAddress ?? wallet.walletAddresses.address;
 
-  Future<String> getSignMessage() async =>
+  Future<String> getSignMessage(String walletAddress) async =>
       "By_signing_this_message,_you_confirm_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_$walletAddress";
 
   // // Lets keep this just in case, but we can avoid this API Call
@@ -76,9 +74,9 @@ class DFXBuyProvider extends BuyProvider {
   //  }
   // }
 
-  Future<String> auth() async {
+  Future<String> auth(String walletAddress) async {
     final signMessage = await getSignature(
-        await getSignMessage());
+        await getSignMessage(walletAddress), walletAddress);
 
     final requestBody = jsonEncode({
       'wallet': walletName,
@@ -105,7 +103,7 @@ class DFXBuyProvider extends BuyProvider {
     }
   }
 
-  Future<String> getSignature(String message) async {
+  Future<String> getSignature(String message, String walletAddress) async {
     switch (wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -309,7 +307,7 @@ class DFXBuyProvider extends BuyProvider {
     try {
       final actionType = isBuyAction ? '/buy' : '/sell';
 
-      final accessToken = await auth();
+      final accessToken = await auth(cryptoCurrencyAddress);
 
       final uri = Uri.https('services.dfx.swiss', actionType, {
         'session': accessToken,
