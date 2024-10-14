@@ -251,7 +251,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _syncTimer?.cancel();
     try {
       syncStatus = SyncronizingSyncStatus();
-      await subscribeForUpdates();
+      try {
+        await subscribeForUpdates();
+      } catch (e) {
+        print("failed to subcribe for updates: $e");
+      }
       updateFeeRates();
       _feeRatesTimer?.cancel();
       _feeRatesTimer =
@@ -916,6 +920,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
 
       if (!hasMwebInput && !hasMwebOutput) {
+        tx.isMweb = false;
         return tx;
       }
 
