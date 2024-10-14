@@ -235,6 +235,7 @@
   "edit_token": "Token bearbeiten",
   "electrum_address_disclaimer": "Wir generieren jedes Mal neue Adressen, wenn Sie eine verwenden, aber vorherige Adressen funktionieren weiterhin",
   "email_address": "E-Mail-Adresse",
+  "enable": "Aktivieren",
   "enable_mempool_api": "Mempool -API für genaue Gebühren und Daten",
   "enable_replace_by_fee": "Aktivieren Sie Ersatz für Fee",
   "enable_silent_payments_scanning": "Scannen Sie stille Zahlungen, bis die Spitze erreicht ist",

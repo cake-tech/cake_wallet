@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -39,8 +40,10 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   bool mwebEnabled;
   int mwebTopUpIndex = 1000;
   List<String> mwebAddrs = [];
+  bool generating = false;
 
   List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
+
   List<int> get spendPubkey =>
       mwebHd.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
 
@@ -57,19 +60,37 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      return null;
+    }
+
     Uint8List scan = Uint8List.fromList(scanSecret);
     Uint8List spend = Uint8List.fromList(spendPubkey);
-    int count = 0;
-    while (mwebAddrs.length <= (index + 1)) {
-      final address = await CwMweb.address(scan, spend, mwebAddrs.length);
-      mwebAddrs.add(address!);
-      count++;
-      // sleep for a bit to avoid making the main thread unresponsive:
-      if (count > 50) {
-        count = 0;
-        await Future.delayed(Duration(milliseconds: 100));
-      }
+
+    if (index < mwebAddresses.length && index < mwebAddrs.length) {
+      return;
     }
+
+    while (generating) {
+      print("generating.....");
+      // this function was called multiple times in multiple places:
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    print("Generating MWEB addresses up to index $index");
+    generating = true;
+    try {
+      while (mwebAddrs.length <= (index + 1)) {
+        final addresses =
+            await CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
+        print("generated up to index ${mwebAddrs.length}");
+        // sleep for a bit to avoid making the main thread unresponsive:
+        await Future.delayed(Duration(milliseconds: 200));
+        mwebAddrs.addAll(addresses!);
+      }
+    } catch (_) {}
+    generating = false;
+    print("Done generating MWEB addresses len: ${mwebAddrs.length}");
 
     // ensure mweb addresses are up to date:
     if (mwebAddresses.length < mwebAddrs.length) {
@@ -90,21 +111,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   Future<void> initMwebAddresses() async {
     if (mwebAddrs.length < 1000) {
-      print("Generating MWEB addresses...");
       await ensureMwebAddressUpToIndexExists(20);
-      print("done generating MWEB addresses");
-      // List<BitcoinAddressRecord> addressRecords = mwebAddrs
-      //     .asMap()
-      //     .entries
-      //     .map((e) => BitcoinAddressRecord(
-      //           e.value,
-      //           index: e.key,
-      //           type: SegwitAddresType.mweb,
-      //           network: network,
-      //         ))
-      //     .toList();
-      // addMwebAddresses(addressRecords);
-      // print("added ${addressRecords.length} mweb addresses");
       return;
     }
   }

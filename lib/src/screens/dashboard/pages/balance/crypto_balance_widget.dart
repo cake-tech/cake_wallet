@@ -287,18 +287,10 @@ class CryptoBalanceWidget extends StatelessWidget {
                       child: DashBoardRoundedCardWidget(
                         customBorder: 30,
                         title: S.of(context).litecoin_mweb,
-                        subTitle: '',
+                        subTitle: S.of(context).litecoin_mweb_description,
                         hint: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              S.of(context).litecoin_mweb_description,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(height: 8),
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () => launchUrl(
@@ -306,53 +298,64 @@ class CryptoBalanceWidget extends StatelessWidget {
                                     "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
                                 mode: LaunchMode.externalApplication,
                               ),
-                              child: Center(
-                                child: Text(
-                                  S.of(context).learn_more,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: 'Lato',
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context)
-                                        .extension<BalancePageTheme>()!
-                                        .labelTextColor,
-                                    height: 1,
-                                  ),
-                                  softWrap: true,
+                              child: Text(
+                                S.of(context).learn_more,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w400,
+                                  color: Theme.of(context)
+                                      .extension<BalancePageTheme>()!
+                                      .labelTextColor,
+                                  height: 1,
                                 ),
+                                softWrap: true,
                               ),
                             ),
-                            SizedBox(height: 24),
+                            SizedBox(height: 8),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                ElevatedButton(
-                                  onPressed: () => _dismissMweb(context),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(context).primaryColor,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(50),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () => _dismissMweb(context),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Theme.of(context).primaryColor,
+                                    ),
+                                    child: Text(
+                                      S.of(context).litecoin_mweb_dismiss,
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
-                                  child: Text(
-                                    S.of(context).litecoin_mweb_dismiss,
-                                    style: TextStyle(color: Colors.white),
-                                  ),
                                 ),
-                                ElevatedButton(
-                                  onPressed: () => _enableMweb(context),
-                                  child: Text(S.of(context).litecoin_enable_mweb_sync),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () => _enableMweb(context),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: Colors.black,
+                                    ),
+                                    child: Text(
+                                      S.of(context).enable,
+                                      maxLines: 1,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                           ],
                         ),
                         onTap: () => {},
-                        icon: ImageIcon(
-                          AssetImage('assets/images/mweb_logo.png'),
-                          color:
-                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                          size: 50,
+                        icon: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: ImageIcon(
+                            AssetImage('assets/images/mweb_logo.png'),
+                            color: Color.fromARGB(255, 11, 70, 129),
+                            size: 40,
+                          ),
                         ),
                       ),
                     ),
@@ -410,7 +413,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 },
               ));
     }
-    dashboardViewModel.setMwebScanningActive();
+    dashboardViewModel.setMwebEnabled();
   }
 
   Future<void> _dismissMweb(BuildContext context) async {
