@@ -170,15 +170,6 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
         bottomSection: Column(
           children: [
             if (_showDisclaimer) ...[
-              Text(
-                S.current.do_not_send_funds_to_contract_address_warning,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14.0,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                ),
-              ),
-              SizedBox(height: 20),
               CheckboxWidget(
                 value: _disclaimerChecked,
                 caption: S.of(context).add_token_disclaimer_check,

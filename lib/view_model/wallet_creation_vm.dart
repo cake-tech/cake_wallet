@@ -5,8 +5,10 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -82,8 +84,9 @@ abstract class WalletCreationVMBase with Store {
       walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
+
       final credentials = restoreWallet != null
-          ? getCredentialsFromRestoredWallet(options, restoreWallet)
+          ? await getWalletCredentialsFromQRCredentials(restoreWallet)
           : getCredentials(options);
 
       final walletInfo = WalletInfo.external(
@@ -99,6 +102,7 @@ abstract class WalletCreationVMBase with Store {
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
         hardwareWalletType: credentials.hardwareWalletType,
+        parentAddress: credentials.parentAddress,
       );
 
       credentials.walletInfo = walletInfo;
@@ -117,12 +121,16 @@ abstract class WalletCreationVMBase with Store {
   }
 
   DerivationInfo? getDefaultCreateDerivation() {
-    final useBip39 = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.bip39;
+    final useBip39ForBitcoin = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.bip39;
+    final useBip39ForNano = seedSettingsViewModel.nanoSeedType.type == DerivationType.bip39;
     switch (type) {
       case WalletType.nano:
+        if (useBip39ForNano) {
+          return DerivationInfo(derivationType: DerivationType.bip39);
+        }
         return DerivationInfo(derivationType: DerivationType.nano);
       case WalletType.bitcoin:
-        if (useBip39) {
+        if (useBip39ForBitcoin) {
           return DerivationInfo(
             derivationType: DerivationType.bip39,
             derivationPath: "m/84'/0'/0'",
@@ -132,7 +140,7 @@ abstract class WalletCreationVMBase with Store {
         }
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       case WalletType.litecoin:
-        if (useBip39) {
+        if (useBip39ForBitcoin) {
           return DerivationInfo(
             derivationType: DerivationType.bip39,
             derivationPath: "m/84'/2'/0'",
@@ -148,9 +156,13 @@ abstract class WalletCreationVMBase with Store {
 
   DerivationInfo? getCommonRestoreDerivation() {
     final useElectrum = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.electrum;
+    final useNanoStandard = seedSettingsViewModel.nanoSeedType.type == DerivationType.nano;
     switch (this.type) {
       case WalletType.nano:
-        return DerivationInfo(derivationType: DerivationType.nano);
+        if (useNanoStandard) {
+          return DerivationInfo(derivationType: DerivationType.nano);
+        }
+        return DerivationInfo(derivationType: DerivationType.bip39);
       case WalletType.bitcoin:
         if (useElectrum) {
           return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
@@ -176,12 +188,38 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
+  Future<List<DerivationInfo>> getDerivationInfoFromQRCredentials(
+      RestoredWallet restoreWallet) async {
+    var list = <DerivationInfo>[];
+    final walletType = restoreWallet.type;
+    var appStore = getIt.get<AppStore>();
+    var node = appStore.settingsStore.getCurrentNode(walletType);
+
+    switch (walletType) {
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return bitcoin!.getDerivationsFromMnemonic(
+          mnemonic: restoreWallet.mnemonicSeed!,
+          node: node,
+          passphrase: restoreWallet.passphrase,
+        );
+      case WalletType.nano:
+        return nanoUtil!.getDerivationsFromMnemonic(
+          mnemonic: restoreWallet.mnemonicSeed!,
+          node: node,
+        );
+      default:
+        break;
+    }
+    return list;
+  }
+
   WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
 
   Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
 
-  WalletCredentials getCredentialsFromRestoredWallet(
-          dynamic options, RestoredWallet restoreWallet) =>
+  Future<WalletCredentials> getWalletCredentialsFromQRCredentials(
+          RestoredWallet restoreWallet) async =>
       throw UnimplementedError();
 
   Future<WalletBase> processFromRestoredWallet(

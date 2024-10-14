@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -21,18 +22,27 @@ class BalanceRecord {
   const BalanceRecord(
       {required this.availableBalance,
       required this.additionalBalance,
+      required this.secondAvailableBalance,
+      required this.secondAdditionalBalance,
       required this.frozenBalance,
       required this.fiatAvailableBalance,
       required this.fiatAdditionalBalance,
       required this.fiatFrozenBalance,
+      required this.fiatSecondAvailableBalance,
+      required this.fiatSecondAdditionalBalance,
       required this.asset,
       required this.formattedAssetTitle});
+
   final String fiatAdditionalBalance;
   final String fiatAvailableBalance;
   final String fiatFrozenBalance;
   final String additionalBalance;
   final String availableBalance;
   final String frozenBalance;
+  final String secondAvailableBalance;
+  final String secondAdditionalBalance;
+  final String fiatSecondAdditionalBalance;
+  final String fiatSecondAvailableBalance;
   final CryptoCurrency asset;
   final String formattedAssetTitle;
 }
@@ -45,7 +55,22 @@ abstract class BalanceViewModelBase with Store {
       : isReversing = false,
         isShowCard = appStore.wallet!.walletInfo.isShowIntroCakePayCard,
         wallet = appStore.wallet! {
-    reaction((_) => appStore.wallet, _onWalletChange);
+    reaction((_) => appStore.wallet, (wallet) {
+      _onWalletChange(wallet);
+      _checkMweb();
+    });
+
+    _checkMweb();
+
+    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
+      _checkMweb();
+    });
+  }
+
+  void _checkMweb() {
+    if (wallet.type == WalletType.litecoin) {
+      mwebEnabled = bitcoin!.getMwebEnabled(wallet);
+    }
   }
 
   final AppStore appStore;
@@ -159,6 +184,26 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
+  String get secondAvailableBalanceLabel {
+    switch (wallet.type) {
+      case WalletType.litecoin:
+        return S.current.mweb_confirmed;
+      default:
+        return S.current.confirmed;
+    }
+  }
+
+  @computed
+  String get secondAdditionalBalanceLabel {
+    switch (wallet.type) {
+      case WalletType.litecoin:
+        return S.current.mweb_unconfirmed;
+      default:
+        return S.current.unconfirmed;
+    }
+  }
+
+  @computed
   bool get hasMultiBalance => appStore.wallet!.type == WalletType.haven;
 
   @computed
@@ -243,9 +288,13 @@ abstract class BalanceViewModelBase with Store {
                 availableBalance: '---',
                 additionalBalance: '---',
                 frozenBalance: '---',
+                secondAvailableBalance: '---',
+                secondAdditionalBalance: '---',
                 fiatAdditionalBalance: isFiatDisabled ? '' : '---',
                 fiatAvailableBalance: isFiatDisabled ? '' : '---',
                 fiatFrozenBalance: isFiatDisabled ? '' : '---',
+                fiatSecondAvailableBalance: isFiatDisabled ? '' : '---',
+                fiatSecondAdditionalBalance: isFiatDisabled ? '' : '---',
                 asset: key,
                 formattedAssetTitle: _formatterAsset(key)));
       }
@@ -274,24 +323,51 @@ abstract class BalanceViewModelBase with Store {
               ' ' +
               _getFiatBalance(price: price, cryptoAmount: getFormattedFrozenBalance(value)));
 
+      final secondAdditionalFiatBalance = isFiatDisabled
+          ? ''
+          : (fiatCurrency.toString() +
+              ' ' +
+              _getFiatBalance(price: price, cryptoAmount: value.formattedSecondAdditionalBalance));
+
+      final secondAvailableFiatBalance = isFiatDisabled
+          ? ''
+          : (fiatCurrency.toString() +
+              ' ' +
+              _getFiatBalance(price: price, cryptoAmount: value.formattedSecondAvailableBalance));
+
       return MapEntry(
           key,
           BalanceRecord(
               availableBalance: value.formattedAvailableBalance,
               additionalBalance: value.formattedAdditionalBalance,
               frozenBalance: getFormattedFrozenBalance(value),
+              secondAvailableBalance: value.formattedSecondAvailableBalance,
+              secondAdditionalBalance: value.formattedSecondAdditionalBalance,
               fiatAdditionalBalance: additionalFiatBalance,
               fiatAvailableBalance: availableFiatBalance,
               fiatFrozenBalance: frozenFiatBalance,
+              fiatSecondAvailableBalance: secondAvailableFiatBalance,
+              fiatSecondAdditionalBalance: secondAdditionalFiatBalance,
               asset: key,
               formattedAssetTitle: _formatterAsset(key)));
     });
   }
 
-  @computed
-  bool get hasAdditionalBalance => _hasAdditionBalanceForWalletType(wallet.type);
+  @observable
+  bool mwebEnabled = false;
 
-  bool _hasAdditionBalanceForWalletType(WalletType type) {
+  @computed
+  bool get hasAdditionalBalance => _hasAdditionalBalanceForWalletType(wallet.type);
+
+  @computed
+  bool get hasSecondAdditionalBalance =>
+      mwebEnabled && _hasSecondAdditionalBalanceForWalletType(wallet.type);
+
+  @computed
+  bool get hasSecondAvailableBalance =>
+      mwebEnabled && _hasSecondAvailableBalanceForWalletType(wallet.type);
+
+  bool _hasAdditionalBalanceForWalletType(WalletType type) {
     switch (type) {
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -301,6 +377,22 @@ abstract class BalanceViewModelBase with Store {
       default:
         return true;
     }
+  }
+
+  bool _hasSecondAdditionalBalanceForWalletType(WalletType type) {
+    if (wallet.type == WalletType.litecoin) {
+      if ((wallet.balance[CryptoCurrency.ltc]?.secondAdditional ?? 0) > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool _hasSecondAvailableBalanceForWalletType(WalletType type) {
+    if (wallet.type == WalletType.litecoin) {
+      return true;
+    }
+    return false;
   }
 
   @computed

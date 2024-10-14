@@ -37,7 +37,6 @@ class WalletRestorePage extends BasePage {
               displayBlockHeightSelector:
                   walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
               displayLanguageSelector: walletRestoreViewModel.hasSeedLanguageSelector,
-              displayPassphrase: walletRestoreViewModel.hasPassphrase,
               type: walletRestoreViewModel.type,
               key: walletRestoreFromSeedFormKey,
               blockHeightFocusNode: _blockHeightFocusNode,
@@ -213,6 +212,7 @@ class WalletRestorePage extends BasePage {
                       Observer(
                         builder: (context) {
                           return LoadingPrimaryButton(
+                            key: ValueKey('wallet_restore_seed_or_key_restore_button_key'),
                             onPressed: () async {
                               await _confirmForm(context);
                             },
@@ -230,6 +230,7 @@ class WalletRestorePage extends BasePage {
                       ),
                       const SizedBox(height: 25),
                       GestureDetector(
+                        key: ValueKey('wallet_restore_advanced_settings_button_key'),
                         onTap: () {
                           Navigator.of(context)
                               .pushNamed(Routes.advancedPrivacySettings, arguments: {
@@ -281,16 +282,12 @@ class WalletRestorePage extends BasePage {
       return false;
     }
 
-    if ((walletRestoreViewModel.type == WalletType.litecoin) &&
-        (seedWords.length != WalletRestoreViewModelBase.electrumSeedMnemonicLength &&
-            seedWords.length != WalletRestoreViewModelBase.electrumShortSeedMnemonicLength)) {
-      return false;
-    }
-
     // bip39:
-    const validSeedLengths = [12, 18, 24];
-    if (walletRestoreViewModel.type == WalletType.bitcoin &&
-        !(validSeedLengths.contains(seedWords.length))) {
+    final validBip39SeedLengths = [12, 18, 24];
+    final nonBip39WalletTypes = [WalletType.monero, WalletType.wownero, WalletType.haven];
+    // if it's a bip39 wallet and the length is not valid return false
+    if (!nonBip39WalletTypes.contains(walletRestoreViewModel.type) &&
+        !(validBip39SeedLengths.contains(seedWords.length))) {
       return false;
     }
 
@@ -322,9 +319,7 @@ class WalletRestorePage extends BasePage {
                 -1;
       }
 
-      if (walletRestoreViewModel.hasPassphrase) {
-        credentials['passphrase'] = seedSettingsViewModel.passphrase;
-      }
+      credentials['passphrase'] = seedSettingsViewModel.passphrase;
 
       credentials['name'] =
           walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.text;

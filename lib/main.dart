@@ -30,6 +30,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -47,11 +48,11 @@ final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
 
-Future<void> main() async {
-  await runAppWithZone();
+Future<void> main({Key? topLevelKey}) async {
+  await runAppWithZone(topLevelKey: topLevelKey);
 }
 
-Future<void> runAppWithZone() async {
+Future<void> runAppWithZone({Key? topLevelKey}) async {
   bool isAppRunning = false;
 
   await runZonedGuarded(() async {
@@ -67,7 +68,8 @@ Future<void> runAppWithZone() async {
     };
     await initializeAppAtRoot();
 
-    runApp(App());
+    runApp(App(key: topLevelKey));
+
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
@@ -151,6 +153,10 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(MwebUtxo.typeId)) {
+    CakeHive.registerAdapter(MwebUtxoAdapter());
+  }
+
   final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
@@ -186,7 +192,7 @@ Future<void> initializeAppConfigs() async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 40,
+    initialMigrationVersion: 41,
   );
 }
 
@@ -232,10 +238,12 @@ Future<void> initialSetup(
     secureStorage: secureStorage,
   );
   await bootstrap(navigatorKey);
-  monero?.onStartup();
 }
 
 class App extends StatefulWidget {
+  App({this.key});
+
+  final Key? key;
   @override
   AppState createState() => AppState();
 }
@@ -264,7 +272,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           statusBarIconBrightness: statusBarIconBrightness));
 
       return Root(
-          key: rootKey,
+          key: widget.key ?? rootKey,
           appStore: appStore,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,

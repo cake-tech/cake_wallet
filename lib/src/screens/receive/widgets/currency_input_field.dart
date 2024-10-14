@@ -24,8 +24,20 @@ class CurrencyAmountTextField extends StatelessWidget {
     this.tagBackgroundColor,
     this.currencyValueValidator,
     this.allAmountCallback,
-  });
+    this.sendAllButtonKey,
+    this.amountTextfieldKey,
+    this.currencyPickerButtonKey,
+    this.selectedCurrencyTextKey,
+    this.selectedCurrencyTagTextKey,
+    this.currencyAmountTextFieldWidgetKey,
+  }) : super(key: currencyAmountTextFieldWidgetKey);
 
+  final Key? sendAllButtonKey;
+  final Key? amountTextfieldKey;
+  final Key? currencyPickerButtonKey;
+  final Key? selectedCurrencyTextKey;
+  final Key? selectedCurrencyTagTextKey;
+  final Key? currencyAmountTextFieldWidgetKey;
   final Widget? imageArrow;
   final String selectedCurrency;
   final String? tag;
@@ -54,6 +66,7 @@ class CurrencyAmountTextField extends StatelessWidget {
             ? Container(
                 height: 32,
                 child: InkWell(
+                  key: currencyPickerButtonKey,
                   onTap: onTapPicker,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -65,6 +78,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                               Image.asset('assets/images/arrow_bottom_purple_icon.png',
                                   color: textColor, height: 8)),
                       Text(
+                        key: selectedCurrencyTextKey,
                         selectedCurrency,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
@@ -77,6 +91,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                 ),
               )
             : Text(
+                key: selectedCurrencyTextKey,
                 selectedCurrency,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
@@ -98,6 +113,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(6.0),
                   child: Text(
+                    key: selectedCurrencyTagTextKey,
                     tag!,
                     style: TextStyle(
                       fontSize: 12,
@@ -132,9 +148,9 @@ class CurrencyAmountTextField extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                   margin: const EdgeInsets.only(right: 3),
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: textColor,
-                    ),
+                      border: Border.all(
+                        color: textColor,
+                      ),
                       borderRadius: BorderRadius.circular(26),
                       color: Theme.of(context).primaryColor))
               : _prefixContent,
@@ -146,6 +162,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                   child: FocusTraversalOrder(
                     order: NumericFocusOrder(1),
                     child: BaseTextFormField(
+                      key: amountTextfieldKey,
                       focusNode: amountFocusNode,
                       controller: amountController,
                       enabled: isAmountEditable,
@@ -184,6 +201,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                       borderRadius: const BorderRadius.all(Radius.circular(6)),
                     ),
                     child: InkWell(
+                      key: sendAllButtonKey,
                       onTap: allAmountCallback,
                       child: Center(
                         child: Text(

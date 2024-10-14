@@ -3,6 +3,7 @@ import 'dart:isolate';
 
 import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/exceptions/creation_transaction_exception.dart';
+import 'package:cw_wownero/api/wallet.dart';
 import 'package:cw_wownero/api/wownero_output.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
 import 'package:ffi/ffi.dart';
@@ -16,9 +17,16 @@ String getTxKey(String txId) {
 
 wownero.TransactionHistory? txhistory;
 
-void refreshTransactions() {
+bool isRefreshingTx = false;
+Future<void> refreshTransactions() async {
+  if (isRefreshingTx == true) return;
+  isRefreshingTx = true;
   txhistory ??= wownero.Wallet_history(wptr!);
-  wownero.TransactionHistory_refresh(txhistory!);
+  final ptr = txhistory!.address;
+  await Isolate.run(() {
+    wownero.TransactionHistory_refresh(Pointer.fromAddress(ptr));
+  });
+  isRefreshingTx = false;
 }
 
 int countOfTransactions() => wownero.TransactionHistory_count(txhistory!);
@@ -45,6 +53,8 @@ List<Transaction> getAllTransactions() {
             confirmations: 0,
             blockheight: 0,
             accountIndex: i,
+            addressIndex: 0,
+            addressIndexList: [0],
             paymentId: "",
             amount: fullBalance - availBalance,
             isSpend: false,
@@ -243,23 +253,28 @@ Future<PendingTransactionDescription> createTransactionMultDest(
 
 class Transaction {
   final String displayLabel;
-  String subaddressLabel = wownero.Wallet_getSubaddressLabel(wptr!, accountIndex: 0, addressIndex: 0);
-  late final String address = wownero.Wallet_address(
-    wptr!,
-    accountIndex: 0,
-    addressIndex: 0,
+  late final String subaddressLabel = wownero.Wallet_getSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
+  late final String address = getAddress(
+    accountIndex: accountIndex,
+    addressIndex: addressIndex,
   );
+  late final List<String> addressList = List.generate(addressIndexList.length, (index) =>
+    getAddress(
+      accountIndex: accountIndex,
+      addressIndex: addressIndexList[index],
+    ));
   final String description;
   final int fee;
   final int confirmations;
   late final bool isPending = confirmations < 3;
   final int blockheight;
-  final int addressIndex = 0;
+  final int addressIndex;
   final int accountIndex;
+  final List<int> addressIndexList;
   final String paymentId;
   final int amount;
   final bool isSpend;
-  late DateTime timeStamp;
+  late final DateTime timeStamp;
   late final bool isConfirmed = !isPending;
   final String hash;
   final String key;
@@ -301,6 +316,8 @@ class Transaction {
         amount = wownero.TransactionInfo_amount(txInfo),
         paymentId = wownero.TransactionInfo_paymentId(txInfo),
         accountIndex = wownero.TransactionInfo_subaddrAccount(txInfo),
+        addressIndex = int.tryParse(wownero.TransactionInfo_subaddrIndex(txInfo).split(", ")[0]) ?? 0,
+        addressIndexList = wownero.TransactionInfo_subaddrIndex(txInfo).split(", ").map((e) => int.tryParse(e) ?? 0).toList(),
         blockheight = wownero.TransactionInfo_blockHeight(txInfo),
         confirmations = wownero.TransactionInfo_confirmations(txInfo),
         fee = wownero.TransactionInfo_fee(txInfo),
@@ -314,6 +331,8 @@ class Transaction {
     required this.confirmations,
     required this.blockheight,
     required this.accountIndex,
+    required this.addressIndex,
+    required this.addressIndexList,
     required this.paymentId,
     required this.amount,
     required this.isSpend,

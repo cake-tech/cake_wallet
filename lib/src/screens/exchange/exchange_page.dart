@@ -228,6 +228,7 @@ class ExchangePage extends BasePage {
                   ),
                   Observer(
                       builder: (_) => LoadingPrimaryButton(
+                          key: ValueKey('exchange_page_exchange_button_key'),
                           text: S.of(context).exchange,
                           onPressed: () {
                             if (_formKey.currentState != null &&
@@ -430,6 +431,8 @@ class ExchangePage extends BasePage {
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
+                    key: ValueKey('exchange_page_trade_creation_failure_dialog_key'),
+                    buttonKey: ValueKey('exchange_page_trade_creation_failure_dialog_button_key'),
                     alertTitle: S.of(context).provider_error(state.title),
                     alertContent: state.error,
                     buttonText: S.of(context).ok,
@@ -506,7 +509,7 @@ class ExchangePage extends BasePage {
       }
     });
 
-    reaction((_) => exchangeViewModel.wallet.walletAddresses.address, (String address) {
+    reaction((_) => exchangeViewModel.wallet.walletAddresses.addressForExchange, (String address) {
       if (exchangeViewModel.depositCurrency == CryptoCurrency.xmr) {
         depositKey.currentState!.changeAddress(address: address);
       }
@@ -562,7 +565,7 @@ class ExchangePage extends BasePage {
     key.currentState!.changeWalletName(isCurrentTypeWallet ? exchangeViewModel.wallet.name : '');
 
     key.currentState!.changeAddress(
-        address: isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.address : '');
+        address: isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.addressForExchange : '');
 
     key.currentState!.changeAmount(amount: '');
   }
@@ -573,9 +576,9 @@ class ExchangePage extends BasePage {
 
     if (isCurrentTypeWallet) {
       key.currentState!.changeWalletName(exchangeViewModel.wallet.name);
-      key.currentState!.addressController.text = exchangeViewModel.wallet.walletAddresses.address;
+      key.currentState!.addressController.text = exchangeViewModel.wallet.walletAddresses.addressForExchange;
     } else if (key.currentState!.addressController.text ==
-        exchangeViewModel.wallet.walletAddresses.address) {
+        exchangeViewModel.wallet.walletAddresses.addressForExchange) {
       key.currentState!.changeWalletName('');
       key.currentState!.addressController.text = '';
     }
@@ -612,6 +615,7 @@ class ExchangePage extends BasePage {
   Widget _exchangeCardsSection(BuildContext context) {
     final firstExchangeCard = Observer(
         builder: (_) => ExchangeCard(
+              cardInstanceName: 'deposit_exchange_card',
               onDispose: disposeBestRateSync,
               hasAllAmount: exchangeViewModel.hasAllAmount,
               allAmount: exchangeViewModel.hasAllAmount
@@ -625,7 +629,7 @@ class ExchangePage extends BasePage {
               initialCurrency: exchangeViewModel.depositCurrency,
               initialWalletName: depositWalletName ?? '',
               initialAddress: exchangeViewModel.depositCurrency == exchangeViewModel.wallet.currency
-                  ? exchangeViewModel.wallet.walletAddresses.address
+                  ? exchangeViewModel.wallet.walletAddresses.addressForExchange
                   : exchangeViewModel.depositAddress,
               initialIsAmountEditable: true,
               initialIsAddressEditable: exchangeViewModel.isDepositAddressEnabled,
@@ -681,6 +685,7 @@ class ExchangePage extends BasePage {
 
     final secondExchangeCard = Observer(
         builder: (_) => ExchangeCard(
+              cardInstanceName: 'receive_exchange_card',
               onDispose: disposeBestRateSync,
               amountFocusNode: _receiveAmountFocus,
               addressFocusNode: _receiveAddressFocus,
@@ -689,7 +694,7 @@ class ExchangePage extends BasePage {
               initialCurrency: exchangeViewModel.receiveCurrency,
               initialWalletName: receiveWalletName ?? '',
               initialAddress: exchangeViewModel.receiveCurrency == exchangeViewModel.wallet.currency
-                  ? exchangeViewModel.wallet.walletAddresses.address
+                  ? exchangeViewModel.wallet.walletAddresses.addressForExchange
                   : exchangeViewModel.receiveAddress,
               initialIsAmountEditable: exchangeViewModel.isReceiveAmountEditable,
               isAmountEstimated: true,

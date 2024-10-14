@@ -58,6 +58,7 @@ abstract class SettingsStoreBase with Store {
       required AutoGenerateSubaddressStatus initialAutoGenerateSubaddressStatus,
       required MoneroSeedType initialMoneroSeedType,
       required BitcoinSeedType initialBitcoinSeedType,
+      required NanoSeedType initialNanoSeedType,
       required bool initialAppSecure,
       required bool initialDisableBuy,
       required bool initialDisableSell,
@@ -113,6 +114,10 @@ abstract class SettingsStoreBase with Store {
       required this.customBitcoinFeeRate,
       required this.silentPaymentsCardDisplay,
       required this.silentPaymentsAlwaysScan,
+      required this.mwebAlwaysScan,
+      required this.mwebCardDisplay,
+      required this.mwebEnabled,
+      required this.hasEnabledMwebBefore,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialWowneroTransactionPriority,
@@ -132,6 +137,7 @@ abstract class SettingsStoreBase with Store {
         autoGenerateSubaddressStatus = initialAutoGenerateSubaddressStatus,
         moneroSeedType = initialMoneroSeedType,
         bitcoinSeedType = initialBitcoinSeedType,
+        nanoSeedType = initialNanoSeedType,
         fiatApiMode = initialFiatMode,
         allowBiometricalAuthentication = initialAllowBiometricalAuthentication,
         selectedCake2FAPreset = initialCake2FAPresetOptions,
@@ -342,6 +348,11 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.bitcoinSeedType, bitcoinSeedType.raw));
 
     reaction(
+        (_) => nanoSeedType,
+        (NanoSeedType nanoSeedType) =>
+            sharedPreferences.setInt(PreferencesKey.nanoSeedType, nanoSeedType.raw));
+
+    reaction(
         (_) => fiatApiMode,
         (FiatApiMode mode) =>
             sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, mode.serialize()));
@@ -548,6 +559,24 @@ abstract class SettingsStoreBase with Store {
         (bool silentPaymentsAlwaysScan) => _sharedPreferences.setBool(
             PreferencesKey.silentPaymentsAlwaysScan, silentPaymentsAlwaysScan));
 
+    reaction(
+        (_) => mwebAlwaysScan,
+        (bool mwebAlwaysScan) =>
+            _sharedPreferences.setBool(PreferencesKey.mwebAlwaysScan, mwebAlwaysScan));
+
+    reaction(
+        (_) => mwebCardDisplay,
+        (bool mwebCardDisplay) =>
+            _sharedPreferences.setBool(PreferencesKey.mwebCardDisplay, mwebCardDisplay));
+
+    reaction((_) => mwebEnabled,
+        (bool mwebEnabled) => _sharedPreferences.setBool(PreferencesKey.mwebEnabled, mwebEnabled));
+
+    reaction(
+        (_) => hasEnabledMwebBefore,
+        (bool hasEnabledMwebBefore) =>
+            _sharedPreferences.setBool(PreferencesKey.hasEnabledMwebBefore, hasEnabledMwebBefore));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -563,12 +592,13 @@ abstract class SettingsStoreBase with Store {
 
   static const defaultPinLength = 4;
   static const defaultActionsMode = 11;
-  static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenminutes;
+  static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenMinutes;
   static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
   static final walletPasswordDirectInput = Platform.isLinux;
   static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;
   static const defaultMoneroSeedType = MoneroSeedType.defaultSeedType;
   static const defaultBitcoinSeedType = BitcoinSeedType.defaultDerivationType;
+  static const defaultNanoSeedType = NanoSeedType.defaultDerivationType;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -602,6 +632,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   BitcoinSeedType bitcoinSeedType;
+
+  @observable
+  NanoSeedType nanoSeedType;
 
   @observable
   bool isAppSecure;
@@ -756,6 +789,18 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool silentPaymentsAlwaysScan;
+
+  @observable
+  bool mwebAlwaysScan;
+
+  @observable
+  bool mwebCardDisplay;
+
+  @observable
+  bool mwebEnabled;
+
+  @observable
+  bool hasEnabledMwebBefore;
 
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
@@ -914,6 +959,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     final silentPaymentsAlwaysScan =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
+    final mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
+    final mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
+    final mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
+    final hasEnabledMwebBefore =
+        sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -973,6 +1023,11 @@ abstract class SettingsStoreBase with Store {
     final bitcoinSeedType = _bitcoinSeedType != null
         ? BitcoinSeedType.deserialize(raw: _bitcoinSeedType)
         : defaultBitcoinSeedType;
+
+    final _nanoSeedType = sharedPreferences.getInt(PreferencesKey.nanoSeedType);
+
+    final nanoSeedType =
+        _nanoSeedType != null ? NanoSeedType.deserialize(raw: _nanoSeedType) : defaultNanoSeedType;
 
     final nodes = <WalletType, Node>{};
     final powNodes = <WalletType, Node>{};
@@ -1138,6 +1193,7 @@ abstract class SettingsStoreBase with Store {
       initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
       initialMoneroSeedType: moneroSeedType,
       initialBitcoinSeedType: bitcoinSeedType,
+      initialNanoSeedType: nanoSeedType,
       initialAppSecure: isAppSecure,
       initialDisableBuy: disableBuy,
       initialDisableSell: disableSell,
@@ -1174,6 +1230,10 @@ abstract class SettingsStoreBase with Store {
       customBitcoinFeeRate: customBitcoinFeeRate,
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
       silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,
+      mwebAlwaysScan: mwebAlwaysScan,
+      mwebCardDisplay: mwebCardDisplay,
+      mwebEnabled: mwebEnabled,
+      hasEnabledMwebBefore: hasEnabledMwebBefore,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialWowneroTransactionPriority: wowneroTransactionPriority,
       initialBitcoinTransactionPriority: bitcoinTransactionPriority,
@@ -1270,6 +1330,11 @@ abstract class SettingsStoreBase with Store {
         ? BitcoinSeedType.deserialize(raw: _bitcoinSeedType)
         : defaultBitcoinSeedType;
 
+    final _nanoSeedType = sharedPreferences.getInt(PreferencesKey.nanoSeedType);
+
+    nanoSeedType =
+        _nanoSeedType != null ? NanoSeedType.deserialize(raw: _nanoSeedType) : defaultNanoSeedType;
+
     balanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
     shouldSaveRecipientAddress =
@@ -1331,6 +1396,10 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     silentPaymentsAlwaysScan =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
+    mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
+    mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
+    mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
+    hasEnabledMwebBefore = sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId =
         sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);

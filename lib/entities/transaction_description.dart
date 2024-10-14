@@ -21,4 +21,18 @@ class TransactionDescription extends HiveObject {
   String? transactionNote;
 
   String get note => transactionNote ?? '';
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'recipientAddress': recipientAddress,
+    'transactionNote': transactionNote,
+  };
+
+  factory TransactionDescription.fromJson(Map<String, dynamic> json) {
+    return TransactionDescription(
+      id: json['id'] as String,
+      recipientAddress: json['recipientAddress'] as String?,
+      transactionNote: json['transactionNote'] as String?,
+    );
+  }
 }

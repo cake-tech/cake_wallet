@@ -10,6 +10,7 @@ class RestoredWallet {
       this.spendKey,
       this.viewKey,
       this.mnemonicSeed,
+      this.passphrase,
       this.txAmount,
       this.txDescription,
       this.recipientName,
@@ -24,6 +25,7 @@ class RestoredWallet {
   final String? spendKey;
   final String? viewKey;
   final String? mnemonicSeed;
+  final String? passphrase;
   final String? txAmount;
   final String? txDescription;
   final String? recipientName;
@@ -54,6 +56,7 @@ class RestoredWallet {
       type: json['type'] as WalletType,
       address: json['address'] as String?,
       mnemonicSeed: mnemonic_seed ?? seed,
+      passphrase: passphrase,
       height: height != null ? int.parse(height) : 0,
       passphrase: passphrase
     );

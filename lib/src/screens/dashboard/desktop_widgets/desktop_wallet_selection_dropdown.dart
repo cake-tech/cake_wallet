@@ -1,4 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -219,7 +221,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       widget._authService.authenticateAction(
         context,
         route: Routes.newWallet,
-        arguments: widget.walletListViewModel.currentWalletType,
+        arguments: NewWalletArguments(type: widget.walletListViewModel.currentWalletType),
         conditionToDetermineIfToUse2FA:
             widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
       );
