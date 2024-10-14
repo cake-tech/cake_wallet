@@ -73,7 +73,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }) : super(
           mnemonic: mnemonic,
           password: password,
-          xpub: xpub,,
+          xpub: xpub,
           walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfo,
           network: LitecoinNetwork.mainnet,
