@@ -19,6 +19,7 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   WalletRestoreFromSeedForm({Key? key,
     required this.displayLanguageSelector,
     required this.displayBlockHeightSelector,
+    required this.displayPassphrase,
     required this.type,
     required this.displayWalletPassword,
     required this.seedSettingsViewModel,
@@ -34,6 +35,7 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   final bool displayLanguageSelector;
   final bool displayBlockHeightSelector;
   final bool displayWalletPassword;
+  final bool displayPassphrase;
   final SeedSettingsViewModel seedSettingsViewModel;
   final FocusNode? blockHeightFocusNode;
   final Function(bool)? onHeightOrDateEntered;
@@ -58,7 +60,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         repeatedPasswordTextEditingController = displayWalletPassword
             ? TextEditingController()
             : null,
-        seedTypeController = TextEditingController();
+      passphraseController = TextEditingController(),
+      seedTypeController = TextEditingController();
 
   final GlobalKey<SeedWidgetState> seedWidgetStateKey;
   final GlobalKey<BlockchainHeightState> blockchainHeightKey;
@@ -67,6 +70,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   final TextEditingController? passwordTextEditingController;
   final TextEditingController? repeatedPasswordTextEditingController;
   final TextEditingController seedTypeController;
+  final TextEditingController passphraseController;
   final GlobalKey<FormState> formKey;
   late ReactionDisposer moneroSeedTypeReaction;
   String language;
