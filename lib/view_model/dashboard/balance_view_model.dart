@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -31,6 +32,7 @@ class BalanceRecord {
       required this.fiatSecondAdditionalBalance,
       required this.asset,
       required this.formattedAssetTitle});
+
   final String fiatAdditionalBalance;
   final String fiatAvailableBalance;
   final String fiatFrozenBalance;
@@ -53,7 +55,22 @@ abstract class BalanceViewModelBase with Store {
       : isReversing = false,
         isShowCard = appStore.wallet!.walletInfo.isShowIntroCakePayCard,
         wallet = appStore.wallet! {
-    reaction((_) => appStore.wallet, _onWalletChange);
+    reaction((_) => appStore.wallet, (wallet) {
+      _onWalletChange(wallet);
+      _checkMweb();
+    });
+
+    _checkMweb();
+
+    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
+      _checkMweb();
+    });
+  }
+
+  void _checkMweb() {
+    if (wallet.type == WalletType.litecoin) {
+      mwebEnabled = bitcoin!.getMwebEnabled(wallet);
+    }
   }
 
   final AppStore appStore;
@@ -336,14 +353,19 @@ abstract class BalanceViewModelBase with Store {
     });
   }
 
+  @observable
+  bool mwebEnabled = false;
+
   @computed
   bool get hasAdditionalBalance => _hasAdditionalBalanceForWalletType(wallet.type);
 
   @computed
-  bool get hasSecondAdditionalBalance => _hasSecondAdditionalBalanceForWalletType(wallet.type);
+  bool get hasSecondAdditionalBalance =>
+      mwebEnabled && _hasSecondAdditionalBalanceForWalletType(wallet.type);
 
   @computed
-  bool get hasSecondAvailableBalance => _hasSecondAvailableBalanceForWalletType(wallet.type);
+  bool get hasSecondAvailableBalance =>
+      mwebEnabled && _hasSecondAvailableBalanceForWalletType(wallet.type);
 
   bool _hasAdditionalBalanceForWalletType(WalletType type) {
     switch (type) {
@@ -358,14 +380,16 @@ abstract class BalanceViewModelBase with Store {
   }
 
   bool _hasSecondAdditionalBalanceForWalletType(WalletType type) {
-    if (wallet.type == WalletType.litecoin && settingsStore.mwebEnabled) {
-      return true;
+    if (wallet.type == WalletType.litecoin) {
+      if ((wallet.balance[CryptoCurrency.ltc]?.secondAdditional ?? 0) > 0) {
+        return true;
+      }
     }
     return false;
   }
 
   bool _hasSecondAvailableBalanceForWalletType(WalletType type) {
-    if (wallet.type == WalletType.litecoin && settingsStore.mwebEnabled) {
+    if (wallet.type == WalletType.litecoin) {
       return true;
     }
     return false;

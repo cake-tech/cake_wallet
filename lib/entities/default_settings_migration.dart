@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
@@ -234,7 +235,8 @@ Future<void> defaultSettingsMigration(
           break;
         case 36:
           await addWowneroNodeList(nodes: nodes);
-          await changeWowneroCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+          await changeWowneroCurrentNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 37:
           await replaceTronDefaultNode(sharedPreferences: sharedPreferences, nodes: nodes);
@@ -249,6 +251,10 @@ Future<void> defaultSettingsMigration(
         case 40:
           await removeMoneroWorld(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
+        case 41:
+          _deselectQuantex(sharedPreferences);
+          await _addSethNode(nodes, sharedPreferences);
+          break;
         default:
           break;
       }
@@ -261,6 +267,19 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+void _deselectQuantex(SharedPreferences sharedPreferences) {
+  final Map<String, dynamic> exchangeProvidersSelection =
+      json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
+          as Map<String, dynamic>;
+
+  exchangeProvidersSelection['Quantex'] = false;
+
+  sharedPreferences.setString(
+    PreferencesKey.exchangeProvidersSelection,
+    json.encode(exchangeProvidersSelection),
+  );
 }
 
 void _fixNodesUseSSLFlag(Box<Node> nodes) {
@@ -887,7 +906,30 @@ Future<void> changeDefaultBitcoinNode(
   }
 }
 
+Future<void> _addSethNode(Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
+  _addBitcoinNode(
+    nodeSource: nodeSource,
+    sharedPreferences: sharedPreferences,
+    nodeUri: "fulcrum.sethforprivacy.com:50002",
+    useSSL: false,
+  );
+}
+
 Future<void> _addElectRsNode(Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
+  _addBitcoinNode(
+    nodeSource: nodeSource,
+    sharedPreferences: sharedPreferences,
+    nodeUri: cakeWalletSilentPaymentsElectrsUri,
+  );
+}
+
+Future<void> _addBitcoinNode({
+  required Box<Node> nodeSource,
+  required SharedPreferences sharedPreferences,
+  required String nodeUri,
+  bool replaceExisting = false,
+  bool useSSL = false,
+}) async {
   const cakeWalletBitcoinNodeUriPattern = '.cakewallet.com';
   final currentBitcoinNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
@@ -896,12 +938,11 @@ Future<void> _addElectRsNode(Box<Node> nodeSource, SharedPreferences sharedPrefe
   final needToReplaceCurrentBitcoinNode =
       currentBitcoinNode.uri.toString().contains(cakeWalletBitcoinNodeUriPattern);
 
-  final newElectRsBitcoinNode =
-      Node(uri: cakeWalletSilentPaymentsElectrsUri, type: WalletType.bitcoin, useSSL: false);
+  final newElectRsBitcoinNode = Node(uri: nodeUri, type: WalletType.bitcoin, useSSL: useSSL);
 
   await nodeSource.add(newElectRsBitcoinNode);
 
-  if (needToReplaceCurrentBitcoinNode) {
+  if (needToReplaceCurrentBitcoinNode && replaceExisting) {
     await sharedPreferences.setInt(
         PreferencesKey.currentBitcoinElectrumSererIdKey, newElectRsBitcoinNode.key as int);
   }
@@ -1262,7 +1303,8 @@ Future<void> removeMoneroWorld(
   const cakeWalletMoneroNodeUriPattern = '.moneroworld.com';
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
   final currentMoneroNode = nodes.values.firstWhere((node) => node.key == currentMoneroNodeId);
-  final needToReplaceCurrentMoneroNode = currentMoneroNode.uri.toString().contains(cakeWalletMoneroNodeUriPattern);
+  final needToReplaceCurrentMoneroNode =
+      currentMoneroNode.uri.toString().contains(cakeWalletMoneroNodeUriPattern);
 
   nodes.values.forEach((node) async {
     if (node.type == WalletType.monero &&

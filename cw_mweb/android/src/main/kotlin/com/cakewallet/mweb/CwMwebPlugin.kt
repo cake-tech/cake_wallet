@@ -30,7 +30,8 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
     if (call.method == "start") {
       server?.stop()
       val dataDir = call.argument("dataDir") ?: ""
-      server = server ?: Mwebd.newServer("", dataDir, "")
+      val nodeUri = call.argument("nodeUri") ?: ""
+      server = server ?: Mwebd.newServer("", dataDir, nodeUri)
       port = server?.start(0)
       result.success(port)
     } else if (call.method == "stop") {
@@ -39,10 +40,17 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
       port = null
       result.success(null)
     } else if (call.method == "address") {
+      // val scanSecret: ByteArray = call.argument<ByteArray>("scanSecret") ?: ByteArray(0)
+      // val spendPub: ByteArray = call.argument<ByteArray>("spendPub") ?: ByteArray(0)
+      // val index: Int = call.argument<Int>("index") ?: 0
+      // val res = Mwebd.address(scanSecret, spendPub, index)
+      // result.success(res)
+    } else if (call.method == "addresses") {
       val scanSecret: ByteArray = call.argument<ByteArray>("scanSecret") ?: ByteArray(0)
       val spendPub: ByteArray = call.argument<ByteArray>("spendPub") ?: ByteArray(0)
-      val index: Int = call.argument<Int>("index") ?: 0
-      val res = Mwebd.address(scanSecret, spendPub, index)
+      val fromIndex: Int = call.argument<Int>("fromIndex") ?: 0
+      val toIndex: Int = call.argument<Int>("toIndex") ?: 0
+      val res = Mwebd.addresses(scanSecret, spendPub, fromIndex, toIndex)
       result.success(res)
     } else {
       result.notImplemented()

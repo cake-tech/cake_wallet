@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -102,10 +104,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const gap = 20;
 
   final ObservableList<BitcoinAddressRecord> _addresses;
-  late ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
+  final ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
+  // TODO: add this variable in `bitcoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
   final ObservableList<BitcoinSilentPaymentAddressRecord> silentAddresses;
+  // TODO: add this variable in `litecoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
   final ObservableList<BitcoinAddressRecord> mwebAddresses;
   final BasedUtxoNetwork network;
   final Bip32Slip10Secp256k1 mainHd;
@@ -239,7 +243,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.litecoin) {
       await _generateInitialAddresses(type: SegwitAddresType.p2wpkh);
-      if (!isHardwareWallet) {
+      if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
         await _generateInitialAddresses(type: SegwitAddresType.mweb);
       }
     } else if (walletInfo.type == WalletType.bitcoin) {

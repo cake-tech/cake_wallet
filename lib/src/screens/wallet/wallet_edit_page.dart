@@ -18,7 +18,6 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-
 class WalletEditPage extends BasePage {
   WalletEditPage({
     required this.pageArguments,
@@ -86,8 +85,9 @@ class WalletEditPage extends BasePage {
                         child: LoadingPrimaryButton(
                           onPressed: () async {
                             if (_formKey.currentState?.validate() ?? false) {
-                              if (pageArguments.walletNewVM!
-                                  .nameExists(walletEditViewModel.newName)) {
+                              if (!pageArguments.isWalletGroup &&
+                                  pageArguments.walletNewVM!
+                                      .nameExists(walletEditViewModel.newName)) {
                                 showPopUp<void>(
                                   context: context,
                                   builder: (_) {

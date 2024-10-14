@@ -83,7 +83,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> rescan({required int height});
 
-  void close();
+  Future<void> close({required bool shouldCleanup});
 
   Future<void> changePassword(String password);
 

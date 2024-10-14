@@ -75,6 +75,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
+        WalletType.ethereum,
+        WalletType.polygon,
+        WalletType.tron,
       ].contains(type);
 
   @computed
