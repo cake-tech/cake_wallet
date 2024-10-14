@@ -41,7 +41,7 @@ void startAuthenticationStateChange(
     if (state == AuthenticationState.allowed) {
       await navigatorKey.currentState!.pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
       if (!(await authenticatedErrorStreamController.stream.isEmpty)) {
-        ExceptionHandler.showError(
+        await ExceptionHandler.showError(
             (await authenticatedErrorStreamController.stream.first).toString());
         authenticatedErrorStreamController.stream.drain();
       }

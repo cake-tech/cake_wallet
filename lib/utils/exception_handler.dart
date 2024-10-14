@@ -21,7 +21,7 @@ class ExceptionHandler {
   static const _coolDownDurationInDays = 7;
   static File? _file;
 
-  static void _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
+  static Future<void> _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
     final appDocDir = await getAppDir();
 
     if (_file == null) {
@@ -79,7 +79,7 @@ class ExceptionHandler {
         _file!.writeAsString("", mode: FileMode.write);
       }
     } catch (e, s) {
-      _saveException(e.toString(), s);
+      await _saveException(e.toString(), s);
     }
   }
 
@@ -99,7 +99,7 @@ class ExceptionHandler {
       return;
     }
 
-    _saveException(
+    await _saveException(
       errorDetails.exceptionAsString(),
       errorDetails.stack,
       library: errorDetails.library,
@@ -122,35 +122,40 @@ class ExceptionHandler {
     }
     _hasError = true;
 
-    sharedPrefs.setString(PreferencesKey.lastPopupDate, DateTime.now().toString());
+    await sharedPrefs.setString(PreferencesKey.lastPopupDate, DateTime.now().toString());
 
-    WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) async {
-        if (navigatorKey.currentContext != null) {
-          await showPopUp<void>(
-            context: navigatorKey.currentContext!,
-            builder: (context) {
-              return AlertWithTwoActions(
-                isDividerExist: true,
-                alertTitle: S.of(context).error,
-                alertContent: S.of(context).error_dialog_content,
-                rightButtonText: S.of(context).send,
-                leftButtonText: S.of(context).do_not_send,
-                actionRightButton: () {
-                  Navigator.of(context).pop();
-                  _sendExceptionFile();
-                },
-                actionLeftButton: () {
-                  Navigator.of(context).pop();
-                },
-              );
+    // Instead of using WidgetsBinding.instance.addPostFrameCallback we
+    // await Future.delayed(Duration.zero), which does essentially the same (
+    // but doesn't wait for actual frame to be rendered), but it allows us to
+    // properly await the execution - which is what we want, without awaiting
+    // other code may call functions like Navigator.pop(), and close the alert
+    // instead of the intended UI.
+    // WidgetsBinding.instance.addPostFrameCallback(
+    //   (timeStamp) async {
+    await Future.delayed(Duration.zero);
+    if (navigatorKey.currentContext != null) {
+      await showPopUp<void>(
+        context: navigatorKey.currentContext!,
+        builder: (context) {
+          return AlertWithTwoActions(
+            isDividerExist: true,
+            alertTitle: S.of(context).error,
+            alertContent: S.of(context).error_dialog_content,
+            rightButtonText: S.of(context).send,
+            leftButtonText: S.of(context).do_not_send,
+            actionRightButton: () {
+              Navigator.of(context).pop();
+              _sendExceptionFile();
+            },
+            actionLeftButton: () {
+              Navigator.of(context).pop();
             },
           );
-        }
+        },
+      );
+    }
 
-        _hasError = false;
-      },
-    );
+    _hasError = false;
   }
 
   /// Ignore User related errors or system errors
@@ -270,33 +275,31 @@ class ExceptionHandler {
     };
   }
 
-  static void showError(String error, {int? delayInSeconds}) async {
+  static Future<void> showError(String error, {int? delayInSeconds}) async {
     if (_hasError) {
       return;
     }
     _hasError = true;
-
     if (delayInSeconds != null) {
       Future.delayed(Duration(seconds: delayInSeconds), () => _showCopyPopup(error));
       return;
     }
 
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) async => _showCopyPopup(error),
-    );
+    await Future.delayed(Duration.zero);
+    await _showCopyPopup(error);
   }
 
   static Future<void> _showCopyPopup(String content) async {
     if (navigatorKey.currentContext != null) {
-      final seeds = await secureStorageShared.read(key: "curruptedWalletsSeed");
-      await secureStorageShared.delete(key: "curruptedWalletsSeed");
+      final seeds = await secureStorageShared.read(key: "corruptedWalletsSeed");
+      await secureStorageShared.delete(key: "corruptedWalletsSeed");
       final shouldCopy = await showPopUp<bool?>(
         context: navigatorKey.currentContext!,
         builder: (context) {
           return AlertWithTwoActions(
             isDividerExist: true,
             alertTitle: S.of(context).error,
-            alertContent: content+"\n"+(seeds??"unknown"),
+            alertContent: content+"\n"+(seeds??""),
             rightButtonText: S.of(context).copy,
             leftButtonText: S.of(context).close,
             actionRightButton: () {

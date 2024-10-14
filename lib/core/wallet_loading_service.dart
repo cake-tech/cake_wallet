@@ -56,7 +56,7 @@ class WalletLoadingService {
       return wallet;
     } catch (error, stack) {
       await ExceptionHandler.resetLastPopupDate();
-      ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+      await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
 
       // try fetching the seeds of the corrupted wallet to show it to the user
       String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
@@ -65,6 +65,7 @@ class WalletLoadingService {
       } catch (e) {
         corruptedWalletsSeeds += "\nFailed to fetch $name seeds: $e";
       }
+      secureStorageShared.write(key: "corruptedWalletsSeed", value: corruptedWalletsSeeds);
 
       // try opening another wallet that is not corrupted to give user access to the app
       final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
@@ -98,11 +99,12 @@ class WalletLoadingService {
           } catch (e) {
             corruptedWalletsSeeds += "\nFailed to fetch $name seeds: $e";
           }
+          secureStorageShared.write(key: "corruptedWalletsSeed", value: corruptedWalletsSeeds);
         }
       }
 
       // if all user's wallets are corrupted throw exception
-      secureStorageShared.write(key: "curruptedWalletsSeed", value: corruptedWalletsSeeds);
+      secureStorageShared.write(key: "corruptedWalletsSeed", value: corruptedWalletsSeeds);
       throw error.toString();
     }
   }
