@@ -390,7 +390,7 @@ abstract class Monero {
     required String language,
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
-  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required LedgerConnection ledgerConnection});
+  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required ledger.LedgerConnection ledgerConnection});
   WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, String? password});
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
