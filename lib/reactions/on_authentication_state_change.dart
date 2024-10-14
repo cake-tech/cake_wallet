@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/load_current_wallet.dart';
@@ -51,7 +51,7 @@ void startAuthenticationStateChange(
             arguments: ConnectDevicePageParams(
                 walletType: WalletType.monero,
                 onConnectDevice: (context, ledgerVM) async {
-                  gLedger = ledgerVM.connection;
+                  monero!.setGlobalLedgerConnection(ledgerVM.connection);
                   await loadCurrentWallet();
                   await navigatorKey.currentState!
                       .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);

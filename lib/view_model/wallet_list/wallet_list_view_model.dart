@@ -68,9 +68,14 @@ abstract class WalletListViewModelBase with Store {
 
   WalletType get currentWalletType => _appStore.wallet!.type;
 
+  bool requireHardwareWalletConnection(WalletListItem walletItem) =>
+      _walletLoadingService.requireHardwareWalletConnection(
+          walletItem.type, walletItem.name);
+
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
-    final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
+    final wallet =
+        await _walletLoadingService.load(walletItem.type, walletItem.name);
     await _appStore.changeCurrentWallet(wallet);
   }
 
@@ -85,7 +90,8 @@ abstract class WalletListViewModelBase with Store {
     singleWalletsList.clear();
 
     wallets.addAll(
-      _walletInfoSource.values.map((info) => convertWalletInfoToWalletListItem(info)),
+      _walletInfoSource.values
+          .map((info) => convertWalletInfoToWalletListItem(info)),
     );
 
     //========== Split into shared seed groups and single wallets list
@@ -93,7 +99,8 @@ abstract class WalletListViewModelBase with Store {
 
     for (var group in _walletManager.walletGroups) {
       if (group.wallets.length == 1) {
-        singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
+        singleWalletsList
+            .add(convertWalletInfoToWalletListItem(group.wallets.first));
       } else {
         multiWalletGroups.add(group);
       }
@@ -146,9 +153,11 @@ abstract class WalletListViewModelBase with Store {
     List<WalletInfo> walletInfoSourceCopy = _walletInfoSource.values.toList();
     await _walletInfoSource.clear();
     if (ascending) {
-      walletInfoSourceCopy.sort((a, b) => a.type.toString().compareTo(b.type.toString()));
+      walletInfoSourceCopy
+          .sort((a, b) => a.type.toString().compareTo(b.type.toString()));
     } else {
-      walletInfoSourceCopy.sort((a, b) => b.type.toString().compareTo(a.type.toString()));
+      walletInfoSourceCopy
+          .sort((a, b) => b.type.toString().compareTo(a.type.toString()));
     }
     await _walletInfoSource.addAll(walletInfoSourceCopy);
     updateList();
@@ -211,7 +220,8 @@ abstract class WalletListViewModelBase with Store {
       name: info.name,
       type: info.type,
       key: info.key,
-      isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
+      isCurrent: info.name == _appStore.wallet?.name &&
+          info.type == _appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
     );

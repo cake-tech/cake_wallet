@@ -410,4 +410,10 @@ class MoneroWalletService extends WalletService<
         .firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
     return walletInfo.isHardwareWallet;
   }
+
+  void setLedgerConnection(LedgerConnection connection) {
+    final dummyWPtr = wptr ??
+        monero.WalletManager_openWallet(wmPtr, path: '', password: '');
+    monero_ledger.enableLedgerExchange(dummyWPtr, connection);
+  }
 }

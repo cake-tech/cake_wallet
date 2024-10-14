@@ -278,14 +278,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.1+1"
-  flutter_reactive_ble:
-    dependency: transitive
-    description:
-      name: flutter_reactive_ble
-      sha256: "247e2efa76de203d1ba11335c13754b5b9d0504b5423e5b0c93a600f016b24e0"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.3.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -307,14 +299,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
-  functional_data:
-    dependency: transitive
-    description:
-      name: functional_data
-      sha256: "76d17dc707c40e552014f5a49c0afcc3f1e3f05e800cd6b7872940bfe41a5039"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.0"
   glob:
     dependency: transitive
     description:
@@ -443,31 +427,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
-  ledger_flutter:
-    dependency: "direct overridden"
-    description:
-      path: "."
-      ref: cake-v3
-      resolved-ref: "66469ff9dffe2417c70ae7287c9d76d2fe7157a4"
-      url: "https://github.com/cake-tech/ledger-flutter.git"
-    source: git
-    version: "1.0.2"
   ledger_flutter_plus:
     dependency: "direct main"
     description:
       name: ledger_flutter_plus
-      sha256: ea3ed586e1697776dacf42ac979095f1ca3bd143bf007cbe5c78e09cb6943f42
+      sha256: e314582adfb56effe09d3261cd3035c28a57433dc8d6b5c7c5ef7af930211aeb
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.5"
-  ledger_usb:
-    dependency: transitive
-    description:
-      name: ledger_usb
-      sha256: "52c92d03a4cffe06c82921c8e2f79f3cdad6e1cf78e1e9ca35444196ff8f14c2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0"
+    version: "1.4.0"
   ledger_usb_plus:
     dependency: transitive
     description:
@@ -536,8 +503,8 @@ packages:
     dependency: "direct main"
     description:
       path: "impls/monero.dart"
-      ref: ledger
-      resolved-ref: "817787df2e40677325bc3c5531bbd0bc6ec94567"
+      ref: caaf1e56b1d2a254b332fdf848926fb963af4a3b
+      resolved-ref: caaf1e56b1d2a254b332fdf848926fb963af4a3b
       url: "https://github.com/mrcyjanek/monero_c"
     source: git
     version: "0.0.0"
@@ -669,14 +636,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.1"
-  protobuf:
-    dependency: transitive
-    description:
-      name: protobuf
-      sha256: "01dd9bd0fa02548bf2ceee13545d4a0ec6046459d847b6b061d8a27237108a08"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
   provider:
     dependency: transitive
     description:
@@ -701,22 +660,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
-  reactive_ble_mobile:
-    dependency: transitive
-    description:
-      name: reactive_ble_mobile
-      sha256: "9ec2b4c9c725e439950838d551579750060258fbccd5536d0543b4d07d225798"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.3.1"
-  reactive_ble_platform_interface:
-    dependency: transitive
-    description:
-      name: reactive_ble_platform_interface
-      sha256: "632c92401a2d69c9b94bd48f8fd47488a7013f3d1f9b291884350291a4a81813"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.3.1"
   rxdart:
     dependency: transitive
     description:
@@ -854,10 +797,10 @@ packages:
     dependency: transitive
     description:
       name: universal_ble
-      sha256: "0dfbd6b64bff3ad61ed7a895c232530d9614e9b01ab261a74433a43267edb7f3"
+      sha256: "4d8f48dd09dbaf9c5b079e77924df78cc7c276d634183919160314edc22d7c76"
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.0"
+    version: "0.13.0"
   universal_platform:
     dependency: transitive
     description:
@@ -918,10 +861,10 @@ packages:
     dependency: transitive
     description:
       name: xdg_directories
-      sha256: faea9dee56b520b55a566385b84f2e8de55e7496104adada9962e0bd11bcff1d
+      sha256: "7a3f37b05d989967cdddcbb571f1ea834867ae2faa29725fd085180e0883aa15"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "1.1.0"
   xml:
     dependency: transitive
     description:

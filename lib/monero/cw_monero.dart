@@ -375,4 +375,15 @@ class CWMonero extends Monero {
   void monerocCheck() {
     checkIfMoneroCIsFine();
   }
+
+  @override
+  void setLedgerConnection(Object wallet, ledger.LedgerConnection connection) {
+    final moneroWallet = wallet as MoneroWallet;
+    moneroWallet.setLedgerConnection(connection);
+  }
+
+  @override
+  void setGlobalLedgerConnection(ledger.LedgerConnection connection) {
+    gLedger = connection;
+  }
 }

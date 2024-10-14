@@ -267,7 +267,7 @@ import 'package:cw_core/output_info.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:polyseed/polyseed.dart';""";
   const moneroCWHeaders = """
 import 'package:cw_core/get_height_by_date.dart';
@@ -402,6 +402,8 @@ abstract class Monero {
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
+  void setLedgerConnection(Object wallet, ledger.LedgerConnection connection);
+  void setGlobalLedgerConnection(ledger.LedgerConnection connection);
 }
 
 abstract class MoneroSubaddressList {

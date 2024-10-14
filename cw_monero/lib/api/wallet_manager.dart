@@ -67,7 +67,6 @@ final monero.WalletManager wmPtr = Pointer.fromAddress((() {
   return _wmPtr!.address;
 })());
 
-
 void createWalletPointer() {
   final newWptr = monero.WalletManager_createWallet(wmPtr,
       path: "", password: "", language: "", networkType: 0);
@@ -76,7 +75,10 @@ void createWalletPointer() {
 }
 
 void createWalletSync(
-    {required String path, required String password, required String language, int nettype = 0}) {
+    {required String path,
+    required String password,
+    required String language,
+    int nettype = 0}) {
   txhistory = null;
   final newWptr = monero.WalletManager_createWallet(wmPtr,
       path: path, password: password, language: language, networkType: 0);
@@ -141,7 +143,8 @@ void restoreWalletFromKeysSync(
           password: password,
           language: language,
           spendKeyString: spendKey,
-          newWallet: true, // TODO(mrcyjanek): safe to remove
+          newWallet: true,
+          // TODO(mrcyjanek): safe to remove
           restoreHeight: restoreHeight)
       : monero.WalletManager_createWalletFromKeys(
           wmPtr,
@@ -156,7 +159,8 @@ void restoreWalletFromKeysSync(
 
   final status = monero.Wallet_status(newWptr);
   if (status != 0) {
-    throw WalletRestoreFromKeysException(message: monero.Wallet_errorString(newWptr));
+    throw WalletRestoreFromKeysException(
+        message: monero.Wallet_errorString(newWptr));
   }
 
   // CW-712 - Try to restore deterministic wallet first, if the view key doesn't
@@ -166,7 +170,7 @@ void restoreWalletFromKeysSync(
     if (viewKey != viewKeyRestored && viewKey != "") {
       monero.WalletManager_closeWallet(wmPtr, newWptr, false);
       File(path).deleteSync();
-      File(path+".keys").deleteSync();
+      File(path + ".keys").deleteSync();
       newWptr = monero.WalletManager_createWalletFromKeys(
         wmPtr,
         path: path,
@@ -251,7 +255,10 @@ Future<void> restoreWalletFromHardwareWallet(
 
   final newWptrAddr = await Isolate.run(() {
     return monero.WalletManager_createWalletFromDevice(wmPtr,
-            path: path, password: password, restoreHeight: restoreHeight, deviceName: deviceName)
+            path: path,
+            password: password,
+            restoreHeight: restoreHeight,
+            deviceName: deviceName)
         .address;
   });
   final newWptr = Pointer<Void>.fromAddress(newWptrAddr);
@@ -269,7 +276,8 @@ Future<void> restoreWalletFromHardwareWallet(
 
 Map<String, monero.wallet> openedWalletsByPath = {};
 
-Future<void> loadWallet({required String path, required String password, int nettype = 0}) async {
+Future<void> loadWallet(
+    {required String path, required String password, int nettype = 0}) async {
   if (openedWalletsByPath[path] != null) {
     txhistory = null;
     wptr = openedWalletsByPath[path]!;
@@ -283,16 +291,20 @@ Future<void> loadWallet({required String path, required String password, int net
       });
     }
     txhistory = null;
-    final deviceType = monero.WalletManager_queryWalletDevice(wmPtr, keysFileName: "$path.keys", password: password, kdfRounds: 1);
+    final deviceType = monero.WalletManager_queryWalletDevice(wmPtr,
+        keysFileName: "$path.keys", password: password, kdfRounds: 1);
 
     if (deviceType == 1) {
-      final dummyWPtr = monero.WalletManager_openWallet(wmPtr, path: '', password: '');
+      final dummyWPtr = wptr ??
+          monero.WalletManager_openWallet(wmPtr, path: '', password: '');
       monero_ledger.enableLedgerExchange(dummyWPtr, gLedger);
     }
 
     final addr = wmPtr.address;
     final newWptrAddr = await Isolate.run(() {
-      return monero.WalletManager_openWallet(Pointer.fromAddress(addr), path: path, password: password).address;
+      return monero.WalletManager_openWallet(Pointer.fromAddress(addr),
+              path: path, password: password)
+          .address;
     });
 
     final newWptr = Pointer<Void>.fromAddress(newWptrAddr);
@@ -363,22 +375,31 @@ void _restoreFromSpendKey(Map<String, dynamic> args) {
       spendKey: spendKey);
 }
 
-Future<void> _openWallet(Map<String, String> args) async =>
-    loadWallet(path: args['path'] as String, password: args['password'] as String);
+Future<void> _openWallet(Map<String, String> args) async => loadWallet(
+    path: args['path'] as String, password: args['password'] as String);
 
 bool _isWalletExist(String path) => isWalletExistSync(path: path);
 
-Future<void> openWallet({required String path, required String password, int nettype = 0}) async =>
+Future<void> openWallet(
+        {required String path,
+        required String password,
+        int nettype = 0}) async =>
     loadWallet(path: path, password: password, nettype: nettype);
 
-Future<void> openWalletAsync(Map<String, String> args) async => _openWallet(args);
+Future<void> openWalletAsync(Map<String, String> args) async =>
+    _openWallet(args);
 
 Future<void> createWallet(
         {required String path,
         required String password,
         required String language,
         int nettype = 0}) async =>
-    _createWallet({'path': path, 'password': password, 'language': language, 'nettype': nettype});
+    _createWallet({
+      'path': path,
+      'password': password,
+      'language': language,
+      'nettype': nettype
+    });
 
 Future<void> restoreFromSeed(
         {required String path,
