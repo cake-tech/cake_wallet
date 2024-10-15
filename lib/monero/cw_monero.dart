@@ -230,7 +230,7 @@ class CWMonero extends Monero {
     required String name,
     required String password,
     required int height,
-    required LedgerConnection ledgerConnection,
+    required ledger.LedgerConnection ledgerConnection,
   }) =>
       MoneroRestoreWalletFromHardwareCredentials(
           name: name,

@@ -30,18 +30,26 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 
 class WalletListPage extends BasePage {
-  WalletListPage(
-      {required this.walletListViewModel, required this.authService});
+  WalletListPage({
+    required this.walletListViewModel,
+    required this.authService,
+    this.onWalletLoaded,
+  });
 
   final WalletListViewModel walletListViewModel;
   final AuthService authService;
+  final Function(BuildContext)? onWalletLoaded;
 
   @override
   String get title => S.current.wallets;
 
   @override
   Widget body(BuildContext context) => WalletListBody(
-      walletListViewModel: walletListViewModel, authService: authService);
+        walletListViewModel: walletListViewModel,
+        authService: authService,
+        onWalletLoaded:
+            onWalletLoaded ?? (context) => Navigator.of(context).pop(),
+      );
 
   @override
   Widget trailing(BuildContext context) {
@@ -93,11 +101,15 @@ class WalletListPage extends BasePage {
 }
 
 class WalletListBody extends StatefulWidget {
-  WalletListBody(
-      {required this.walletListViewModel, required this.authService});
+  WalletListBody({
+    required this.walletListViewModel,
+    required this.authService,
+    required this.onWalletLoaded,
+  });
 
   final WalletListViewModel walletListViewModel;
   final AuthService authService;
+  final Function(BuildContext) onWalletLoaded;
 
   @override
   WalletListBodyState createState() => WalletListBodyState();
@@ -441,39 +453,6 @@ class WalletListBodyState extends State<WalletListBody> {
     );
   }
 
-  Image _imageFor({required WalletType type, bool? isTestnet}) {
-    switch (type) {
-      case WalletType.bitcoin:
-        if (isTestnet == true) {
-          return tBitcoinIcon;
-        }
-        return bitcoinIcon;
-      case WalletType.monero:
-        return moneroIcon;
-      case WalletType.litecoin:
-        return litecoinIcon;
-      case WalletType.haven:
-        return havenIcon;
-      case WalletType.ethereum:
-        return ethereumIcon;
-      case WalletType.bitcoinCash:
-        return bitcoinCashIcon;
-      case WalletType.nano:
-      case WalletType.banano:
-        return nanoIcon;
-      case WalletType.polygon:
-        return polygonIcon;
-      case WalletType.solana:
-        return solanaIcon;
-      case WalletType.tron:
-        return tronIcon;
-      case WalletType.wownero:
-        return wowneroIcon;
-      case WalletType.none:
-        return nonWalletTypeIcon;
-    }
-  }
-
   Future<void> _loadWallet(WalletListItem wallet) async {
     if (SettingsStoreBase.walletPasswordDirectInput) {
       Navigator.of(context).pushNamed(Routes.walletUnlockLoadable,
@@ -493,12 +472,11 @@ class WalletListBodyState extends State<WalletListBody> {
     await widget.authService.authenticateAction(
       context,
       onAuthSuccess: (isAuthenticatedSuccessfully) async {
-        if (!isAuthenticatedSuccessfully) {
-          return;
-        }
+        if (!isAuthenticatedSuccessfully) return;
 
         try {
-          if (widget.walletListViewModel.requireHardwareWalletConnection(wallet)) {
+          if (widget.walletListViewModel
+              .requireHardwareWalletConnection(wallet)) {
             await Navigator.of(context).pushNamed(
               Routes.connectDevices,
               arguments: ConnectDevicePageParams(
@@ -520,7 +498,7 @@ class WalletListBodyState extends State<WalletListBody> {
           if (responsiveLayoutUtil.shouldRenderMobileUI) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (this.mounted) {
-                Navigator.of(context).pop();
+                widget.onWalletLoaded.call(context);
               }
             });
           }

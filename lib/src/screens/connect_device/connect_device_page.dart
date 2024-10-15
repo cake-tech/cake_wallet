@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -258,19 +259,28 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
               ],
               if (widget.allowChangeWallet) ...[
                 PrimaryButton(
-                  text: "Change wallet",
+                  text: S.of(context).wallets,
                   color: Theme.of(context)
                       .extension<WalletListTheme>()!
                       .createNewWalletButtonBackgroundColor,
                   textColor: Theme.of(context)
                       .extension<WalletListTheme>()!
                       .restoreWalletButtonTextColor,
+                  onPressed: _onChangeWallet,
                 )
               ],
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _onChangeWallet() {
+    Navigator.of(context).pushNamed(
+      Routes.walletList,
+      arguments: (BuildContext context) =>
+          Navigator.of(context).pushNamed(Routes.dashboard),
     );
   }
 }

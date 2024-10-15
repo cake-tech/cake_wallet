@@ -178,7 +178,6 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_details_
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
-import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -771,11 +770,6 @@ Future<void> setup({
       ),
     );
   }
-
-  getIt.registerFactory(() => WalletListPage(
-        walletListViewModel: getIt.get<WalletListViewModel>(),
-        authService: getIt.get<AuthService>(),
-      ));
 
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
     (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
