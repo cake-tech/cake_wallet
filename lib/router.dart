@@ -120,6 +120,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
@@ -184,7 +185,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final type = settings.arguments as WalletType;
       final walletGroupsDisplayVM = getIt.get<WalletGroupsDisplayViewModel>(param1: type);
 
-      return CupertinoPageRoute<void>(builder: (_) => WalletGroupsDisplayPage(walletGroupsDisplayVM));
+      return CupertinoPageRoute<void>(
+          builder: (_) => WalletGroupsDisplayPage(walletGroupsDisplayVM));
 
     case Routes.newWallet:
       final args = settings.arguments as NewWalletArguments;
@@ -348,13 +350,17 @@ Route<dynamic> createRoute(RouteSettings settings) {
           settings: settings, builder: (_) => getIt.get<DashboardPage>());
 
     case Routes.send:
-      final initialPaymentRequest = settings.arguments as PaymentRequest?;
+      final args = settings.arguments as Map<String, dynamic>?;
+      final initialPaymentRequest = args?['paymentRequest'] as PaymentRequest?;
+      final coinTypeToSpendFrom = args?['coinTypeToSpendFrom'] as UnspentCoinType?;
 
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true,
-          builder: (_) => getIt.get<SendPage>(
-                param1: initialPaymentRequest,
-              ));
+        fullscreenDialog: true,
+        builder: (_) => getIt.get<SendPage>(
+          param1: initialPaymentRequest,
+          param2: coinTypeToSpendFrom,
+        ),
+      );
 
     case Routes.sendTemplate:
       return CupertinoPageRoute<void>(
@@ -604,7 +610,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true, builder: (_) => getIt.get<SupportOtherLinksPage>());
 
     case Routes.unspentCoinsList:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<UnspentCoinsListPage>());
+      final coinTypeToSpendFrom = settings.arguments as UnspentCoinType?;
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<UnspentCoinsListPage>(param1: coinTypeToSpendFrom));
 
     case Routes.unspentCoinsDetails:
       final args = settings.arguments as List;
@@ -778,7 +786,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.walletGroupDescription:
       final walletType = settings.arguments as WalletType;
-      
+
       return MaterialPageRoute<void>(
         builder: (_) => WalletGroupDescriptionPage(
           selectedWalletType: walletType,
