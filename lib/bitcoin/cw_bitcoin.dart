@@ -106,33 +106,32 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Object createBitcoinTransactionCredentials(List<Output> outputs,
-      {required TransactionPriority priority, int? feeRate}) {
+  Object createBitcoinTransactionCredentials(
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    int? feeRate,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+  }) {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
     return BitcoinTransactionCredentials(
-        outputs
-            .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount,
-                memo: out.memo))
-            .toList(),
-        priority: priority as BitcoinTransactionPriority,
-        feeRate: bitcoinFeeRate);
+      outputs
+          .map((out) => OutputInfo(
+              fiatAmount: out.fiatAmount,
+              cryptoAmount: out.cryptoAmount,
+              address: out.address,
+              note: out.note,
+              sendAll: out.sendAll,
+              extractedAddress: out.extractedAddress,
+              isParsedAddress: out.isParsedAddress,
+              formattedCryptoAmount: out.formattedCryptoAmount,
+              memo: out.memo))
+          .toList(),
+      priority: priority as BitcoinTransactionPriority,
+      feeRate: bitcoinFeeRate,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
+    );
   }
-
-  @override
-  Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs,
-          {TransactionPriority? priority, required int feeRate}) =>
-      BitcoinTransactionCredentials(outputs,
-          priority: priority != null ? priority as BitcoinTransactionPriority : null,
-          feeRate: feeRate);
 
   @override
   @computed
@@ -205,9 +204,20 @@ class CWBitcoin extends Bitcoin {
       (priority as BitcoinTransactionPriority).labelWithRate(rate, customRate);
 
   @override
-  List<BitcoinUnspent> getUnspents(Object wallet) {
+  List<BitcoinUnspent> getUnspents(Object wallet,
+      {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.unspentCoins;
+    return bitcoinWallet.unspentCoins.where((element) {
+      switch(coinTypeToSpendFrom) {
+        case UnspentCoinType.mweb:
+          return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+        case UnspentCoinType.nonMweb:
+          return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.any:
+          return true;
+      }
+
+    }).toList();
   }
 
   Future<void> updateUnspents(Object wallet) async {

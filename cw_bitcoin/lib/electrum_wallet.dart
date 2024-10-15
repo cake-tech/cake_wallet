@@ -37,6 +37,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
@@ -611,6 +612,7 @@ abstract class ElectrumWalletBase extends WalletBase<
     required int credentialsAmount,
     required bool paysToSilentPayment,
     int? inputsCount,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) {
     List<UtxoWithAddress> utxos = [];
     List<Outpoint> vinOutpoints = [];
@@ -621,10 +623,21 @@ abstract class ElectrumWalletBase extends WalletBase<
     bool spendsUnconfirmedTX = false;
 
     int leftAmount = credentialsAmount;
-    final availableInputs =
-        unspentCoins.where((utx) => utx.isSending && !utx.isFrozen).toList();
-    final unconfirmedCoins =
-        availableInputs.where((utx) => utx.confirmations == 0).toList();
+    final availableInputs = unspentCoins.where((utx) {
+      if (!utx.isSending || utx.isFrozen) {
+        return false;
+      }
+
+      switch (coinTypeToSpendFrom) {
+        case UnspentCoinType.mweb:
+          return utx.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+        case UnspentCoinType.nonMweb:
+          return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.any:
+          return true;
+      }
+    }).toList();
+    final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
 
     for (int i = 0; i < availableInputs.length; i++) {
       final utx = availableInputs[i];
@@ -736,11 +749,13 @@ abstract class ElectrumWalletBase extends WalletBase<
     String? memo,
     int credentialsAmount = 0,
     bool hasSilentPayment = false,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) async {
     final utxoDetails = _createUTXOS(
       sendAll: true,
       credentialsAmount: credentialsAmount,
       paysToSilentPayment: hasSilentPayment,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
     );
 
     int fee = await calcFee(
@@ -809,12 +824,14 @@ abstract class ElectrumWalletBase extends WalletBase<
     String? memo,
     bool? useUnconfirmed,
     bool hasSilentPayment = false,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) async {
     final utxoDetails = _createUTXOS(
       sendAll: false,
       credentialsAmount: credentialsAmount,
       inputsCount: inputsCount,
       paysToSilentPayment: hasSilentPayment,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
     );
 
     final spendingAllCoins =
@@ -837,6 +854,7 @@ abstract class ElectrumWalletBase extends WalletBase<
           inputsCount: utxoDetails.utxos.length + 1,
           memo: memo,
           hasSilentPayment: hasSilentPayment,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
       }
 
@@ -903,6 +921,7 @@ abstract class ElectrumWalletBase extends WalletBase<
           inputsCount: utxoDetails.utxos.length + 1,
           memo: memo,
           useUnconfirmed: useUnconfirmed ?? spendingAllConfirmedCoins,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
       }
 
@@ -910,6 +929,7 @@ abstract class ElectrumWalletBase extends WalletBase<
         outputs,
         feeRate,
         memo: memo,
+        coinTypeToSpendFrom: coinTypeToSpendFrom,
       );
 
       if (estimatedSendAll.amount == credentialsAmount) {
@@ -949,6 +969,7 @@ abstract class ElectrumWalletBase extends WalletBase<
           memo: memo,
           useUnconfirmed: useUnconfirmed ?? spendingAllConfirmedCoins,
           hasSilentPayment: hasSilentPayment,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
       }
     }
@@ -1008,6 +1029,7 @@ abstract class ElectrumWalletBase extends WalletBase<
       final sendAll =
           !hasMultiDestination && transactionCredentials.outputs.first.sendAll;
       final memo = transactionCredentials.outputs.first.memo;
+      final coinTypeToSpendFrom = transactionCredentials.coinTypeToSpendFrom;
 
       int credentialsAmount = 0;
       bool hasSilentPayment = false;
@@ -1063,6 +1085,7 @@ abstract class ElectrumWalletBase extends WalletBase<
           memo: memo,
           credentialsAmount: credentialsAmount,
           hasSilentPayment: hasSilentPayment,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
       } else {
         estimatedTx = await estimateTxForAmount(
@@ -1071,6 +1094,7 @@ abstract class ElectrumWalletBase extends WalletBase<
           feeRateInt,
           memo: memo,
           hasSilentPayment: hasSilentPayment,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
       }
 
