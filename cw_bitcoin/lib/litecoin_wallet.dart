@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -294,7 +295,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _syncTimer?.cancel();
     try {
       mwebSyncStatus = SyncronizingSyncStatus();
-      await subscribeForUpdates();
+      try {
+        await subscribeForUpdates();
+      } catch (e) {
+        print("failed to subcribe for updates: $e");
+      }
       updateFeeRates();
       _feeRatesTimer?.cancel();
       _feeRatesTimer =
@@ -699,10 +704,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   @action
   Future<void> updateAllUnspents() async {
-    // get ltc unspents:
-    await super.updateAllUnspents();
-
     if (!mwebEnabled) {
+      await super.updateAllUnspents();
       return;
     }
 
@@ -738,6 +741,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
       mwebUnspentCoins.add(unspent);
     });
+
+    // copy coin control attributes to mwebCoins:
+    await updateCoins(mwebUnspentCoins);
+    // get regular ltc unspents (this resets unspentCoins):
+    await super.updateAllUnspents();
+    // add the mwebCoins:
     unspentCoins.addAll(mwebUnspentCoins);
   }
 
@@ -941,10 +950,31 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         }
       }
 
-      if (tx2.mwebBytes != null && tx2.mwebBytes!.isNotEmpty) {
-        hasMwebInput = true;
-      }
+      // check if mweb inputs are used:
+      final coinTypeToSpendFrom = transactionCredentials.coinTypeToSpendFrom;
 
+      await updateUnspent();
+      final availableInputs = unspentCoins.where((utx) {
+        if (!utx.isSending || utx.isFrozen) {
+          return false;
+        }
+
+        switch (coinTypeToSpendFrom) {
+          case UnspentCoinType.mweb:
+            return utx.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+          case UnspentCoinType.nonMweb:
+            return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+          case UnspentCoinType.any:
+            return true;
+        }
+      }).toList();
+
+      for (var input in availableInputs) {
+        if (input.bitcoinAddressRecord.type == SegwitAddresType.mweb) {
+          hasMwebInput = true;
+        }
+      }
+      
       if (!hasMwebInput && !hasMwebOutput) {
         tx.isMweb = false;
         return tx;

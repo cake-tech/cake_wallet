@@ -289,7 +289,6 @@ abstract class ElectrumWalletBase
   StreamSubscription<dynamic>? _receiveStream;
   Timer? _updateFeeRateTimer;
   static const int _autoSaveInterval = 1;
-  Timer? _resyncTimer;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -1342,7 +1341,7 @@ abstract class ElectrumWalletBase
       });
     }
 
-    // Set the balance of all non-silent payment addresses to 0 before updating
+    // Set the balance of all non-silent payment and non-mweb addresses to 0 before updating
     walletAddresses.allAddresses
         .where((element) => element.type != SegwitAddresType.mweb)
         .forEach((addr) {
@@ -2158,34 +2157,28 @@ abstract class ElectrumWalletBase
         if (syncStatus is NotConnectedSyncStatus ||
             syncStatus is LostConnectionSyncStatus ||
             syncStatus is ConnectingSyncStatus) {
-          _resyncTimer = Timer(Duration(seconds: 5), () {
-            // sometimes we connect and then disconnect right after, so lets only start syncing after we've been connected for > 5 seconds:
-            // make sure we're not triggering this more than necessary:
-            if (this.syncStatus is NotConnectedSyncStatus ||
-                this.syncStatus is LostConnectionSyncStatus ||
-                this.syncStatus is ConnectingSyncStatus) {
-              syncStatus = AttemptingSyncStatus();
-              startSync();
-            }
-          });
+          // make sure we're not triggering this more than necessary:
+          if (this.syncStatus is NotConnectedSyncStatus ||
+              this.syncStatus is LostConnectionSyncStatus ||
+              this.syncStatus is ConnectingSyncStatus) {
+            syncStatus = AttemptingSyncStatus();
+            startSync();
+          }
         }
 
         break;
       case ConnectionStatus.disconnected:
-        _resyncTimer?.cancel();
         if (syncStatus is! NotConnectedSyncStatus) {
           syncStatus = NotConnectedSyncStatus();
         }
         break;
       case ConnectionStatus.failed:
-        _resyncTimer?.cancel();
         if (syncStatus is! LostConnectionSyncStatus) {
           syncStatus = LostConnectionSyncStatus();
         }
         break;
       case ConnectionStatus.connecting:
-        _resyncTimer?.cancel();
-        if (syncStatus is! ConnectedSyncStatus) {
+        if (syncStatus is! ConnectingSyncStatus) {
           syncStatus = ConnectingSyncStatus();
         }
         break;
