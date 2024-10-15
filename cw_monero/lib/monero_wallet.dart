@@ -275,9 +275,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             'You do not have enough XMR to send this amount.');
       }
 
-      if (!spendAllCoins && (allInputsAmount < totalAmount + estimatedFee)) {
-        throw MoneroTransactionNoInputsException(inputs.length);
-      }
+      // if (!spendAllCoins && (allInputsAmount < totalAmount + estimatedFee)) {
+      //   throw MoneroTransactionNoInputsException(inputs.length);
+      // }
 
       final moneroOutputs = outputs.map((output) {
         final outputAddress =
@@ -303,23 +303,22 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final formattedAmount =
           output.sendAll ? null : output.formattedCryptoAmount;
 
-      if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
-          (formattedAmount == null && unlockedBalance <= 0)) {
-        final formattedBalance = moneroAmountToString(amount: unlockedBalance);
-
-        throw MoneroTransactionCreationException(
-            'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
-      }
+      // if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
+      //     (formattedAmount == null && unlockedBalance <= 0)) {
+      //   final formattedBalance = moneroAmountToString(amount: unlockedBalance);
+      //
+      //   throw MoneroTransactionCreationException(
+      //       'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
+      // }
 
       final estimatedFee =
           calculateEstimatedFee(_credentials.priority, formattedAmount);
-      if (!spendAllCoins &&
-          ((formattedAmount != null &&
-                  allInputsAmount < (formattedAmount + estimatedFee)) ||
-              formattedAmount == null)) {
-        throw MoneroTransactionNoInputsException(inputs.length);
-      }
-
+      // if (!spendAllCoins &&
+      //     ((formattedAmount != null &&
+      //             allInputsAmount < (formattedAmount + estimatedFee)) ||
+      //         formattedAmount == null)) {
+      //   throw MoneroTransactionNoInputsException(inputs.length);
+      // }
       pendingTransactionDescription =
           await transaction_history.createTransaction(
               address: address!,
@@ -328,6 +327,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
               accountIndex: walletAddresses.account!.id,
               preferredInputs: inputs);
     }
+
+    // final status = monero.PendingTransaction_status(pendingTransactionDescription);
 
     return PendingMoneroTransaction(pendingTransactionDescription);
   }

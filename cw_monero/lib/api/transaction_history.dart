@@ -13,7 +13,9 @@ import 'package:mutex/mutex.dart';
 
 
 String getTxKey(String txId) {
-  return monero.Wallet_getTxKey(wptr!, txid: txId);
+  final ret = monero.Wallet_getTxKey(wptr!, txid: txId);
+  monero.Wallet_status(wptr!);
+  return ret;
 }
 final txHistoryMutex = Mutex();
 monero.TransactionHistory? txhistory;
@@ -87,7 +89,9 @@ Future<PendingTransactionDescription> createTransactionSync(
   final amt = amount == null ? 0 : monero.Wallet_amountFromString(amount);
   
   final address_ = address.toNativeUtf8(); 
-  final paymentId_ = paymentId.toNativeUtf8(); 
+  final paymentId_ = paymentId.toNativeUtf8();
+  print("inputs: $preferredInputs");
+
   final preferredInputs_ = preferredInputs.join(monero.defaultSeparatorStr).toNativeUtf8();
 
   final waddr = wptr!.address;
