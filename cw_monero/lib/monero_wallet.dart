@@ -696,9 +696,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   void _askForUpdateBalance() {
     final unlockedBalance = _getUnlockedBalance();
-    final fullBalance = _getFullBalance();
-    final frozenBalance = _getFrozenBalance();
-
+    final fullBalance = _getUnlockedBalance() + _getFrozenBalance();
+    final frozenBalance = 0; // this is calculated on the monero side now
     if (balance[currency]!.fullBalance != fullBalance ||
         balance[currency]!.unlockedBalance != unlockedBalance ||
         balance[currency]!.frozenBalance != frozenBalance) {
@@ -724,9 +723,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     for (var coin in unspentCoinsInfo.values.where((element) =>
         element.walletId == id &&
         element.accountIndex == walletAddresses.account!.id)) {
-      if (coin.isFrozen) frozenBalance += coin.value;
+      if (coin.isFrozen && !coin.isSending) frozenBalance += coin.value;
     }
-
     return frozenBalance;
   }
 
