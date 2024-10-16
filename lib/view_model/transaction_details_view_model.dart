@@ -110,9 +110,16 @@ abstract class TransactionDetailsViewModelBase with Store {
           } catch (e) {}
         }));
 
+    final walletAddress = wallet.type == WalletType.bitcoin
+        ? wallet.walletAddresses.primaryAddress
+        : wallet.walletAddresses.address;
+
+    print('walletAddress: $walletAddress');
+
     final description = transactionDescriptionBox.values.firstWhere(
-        (val) => val.id == transactionInfo.txHash,
-        orElse: () => TransactionDescription(id: transactionInfo.txHash));
+            (val) => val.id == '${transactionInfo.txHash}_$walletAddress',
+        orElse: () => TransactionDescription(
+            id: '${transactionInfo.txHash}_$walletAddress'));
 
     items.add(TextFieldListItem(
         title: S.current.note_tap_to_change,
