@@ -843,7 +843,7 @@ class BalanceRowWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  margin: const EdgeInsets.only(top: 0, left: 24, right: 8, bottom: 16),
+                  margin: const EdgeInsets.only(top: 16, left: 24, right: 8, bottom: 16),
                   child: Stack(
                     children: [
                       if (currency == CryptoCurrency.ltc)
@@ -851,17 +851,15 @@ class BalanceRowWidget extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Container(
-                              padding: EdgeInsets.only(right: 16, top: 16),
+                              padding: EdgeInsets.only(right: 16, top: 0),
                               child: Column(
                                 children: [
                                   Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                    ),
                                     child: ImageIcon(
                                       AssetImage('assets/images/mweb_logo.png'),
-                                      color: Color.fromARGB(255, 11, 70, 129),
+                                      color: Theme.of(context)
+                                          .extension<BalancePageTheme>()!
+                                          .assetTitleColor,
                                       size: 40,
                                     ),
                                   ),
@@ -889,7 +887,6 @@ class BalanceRowWidget extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SizedBox(height: 24),
                                 Text(
                                   '${secondAvailableBalanceLabel}',
                                   textAlign: TextAlign.center,
@@ -907,9 +904,9 @@ class BalanceRowWidget extends StatelessWidget {
                                 AutoSizeText(
                                   secondAvailableBalance,
                                   style: TextStyle(
-                                    fontSize: 20,
+                                    fontSize: 24,
                                     fontFamily: 'Lato',
-                                    fontWeight: FontWeight.w400,
+                                    fontWeight: FontWeight.w900,
                                     color: Theme.of(context)
                                         .extension<BalancePageTheme>()!
                                         .assetTitleColor,
@@ -918,15 +915,15 @@ class BalanceRowWidget extends StatelessWidget {
                                   maxLines: 1,
                                   textAlign: TextAlign.center,
                                 ),
-                                SizedBox(height: 4),
+                                SizedBox(height: 6),
                                 if (!isTestnet)
                                   Text(
                                     '${secondAvailableFiatBalance}',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 16,
                                       fontFamily: 'Lato',
-                                      fontWeight: FontWeight.w400,
+                                      fontWeight: FontWeight.w500,
                                       color: Theme.of(context)
                                           .extension<BalancePageTheme>()!
                                           .textColor,
@@ -1019,7 +1016,6 @@ class BalanceRowWidget extends StatelessWidget {
                                   paymentRequest =
                                       PaymentRequest.fromUri(Uri.parse("litecoin:${mwebAddress}"));
                                 }
-
                                 Navigator.pushNamed(
                                   context,
                                   Routes.send,
@@ -1030,11 +1026,10 @@ class BalanceRowWidget extends StatelessWidget {
                                 );
                               },
                               style: OutlinedButton.styleFrom(
-                                backgroundColor: Theme.of(context)
-                                    .extension<SendPageTheme>()!
-                                    .textFieldButtonIconColor
+                                backgroundColor: Colors.grey.shade400
                                     .withAlpha(50),
-                                side: BorderSide(color: Colors.grey.shade400, width: 0),
+                                side: BorderSide(color: Colors.grey.shade400
+                                      .withAlpha(50), width: 0),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
@@ -1058,7 +1053,7 @@ class BalanceRowWidget extends StatelessWidget {
                                       style: TextStyle(
                                         color: Theme.of(context)
                                             .extension<BalancePageTheme>()!
-                                            .assetTitleColor,
+                                            .textColor,
                                       ),
                                     ),
                                   ],
@@ -1080,7 +1075,6 @@ class BalanceRowWidget extends StatelessWidget {
                                   paymentRequest = PaymentRequest.fromUri(
                                       Uri.parse("litecoin:${litecoinAddress}"));
                                 }
-
                                 Navigator.pushNamed(
                                   context,
                                   Routes.send,
@@ -1091,11 +1085,10 @@ class BalanceRowWidget extends StatelessWidget {
                                 );
                               },
                               style: OutlinedButton.styleFrom(
-                                backgroundColor: Theme.of(context)
-                                    .extension<SendPageTheme>()!
-                                    .textFieldButtonIconColor
+                                backgroundColor: Colors.grey.shade400
                                     .withAlpha(50),
-                                side: BorderSide(color: Colors.grey.shade400, width: 0),
+                                side: BorderSide(color: Colors.grey.shade400
+                                      .withAlpha(50), width: 0),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
@@ -1119,7 +1112,7 @@ class BalanceRowWidget extends StatelessWidget {
                                       style: TextStyle(
                                         color: Theme.of(context)
                                             .extension<BalancePageTheme>()!
-                                            .assetTitleColor,
+                                            .textColor,
                                       ),
                                     ),
                                   ],
