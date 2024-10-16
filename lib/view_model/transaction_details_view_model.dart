@@ -114,8 +114,6 @@ abstract class TransactionDetailsViewModelBase with Store {
         ? wallet.walletAddresses.primaryAddress
         : wallet.walletAddresses.address;
 
-    print('walletAddress: $walletAddress');
-
     final description = transactionDescriptionBox.values.firstWhere(
             (val) => val.id == '${transactionInfo.txHash}_$walletAddress',
         orElse: () => TransactionDescription(
