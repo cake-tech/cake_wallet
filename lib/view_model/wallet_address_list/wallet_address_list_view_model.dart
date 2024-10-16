@@ -1,14 +1,15 @@
-import 'dart:math';
+import 'dart:developer' as dev;
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -24,16 +25,14 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/currency.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/api/wallet.dart';
-import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
-class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletAddressListViewModel;
+class WalletAddressListViewModel = WalletAddressListViewModelBase
+    with _$WalletAddressListViewModel;
 
 abstract class PaymentURI {
   PaymentURI({required this.amount, required this.address});
@@ -215,7 +214,8 @@ class WowneroURI extends PaymentURI {
   }
 }
 
-abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
+abstract class WalletAddressListViewModelBase
+    extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
     required this.yatStore,
@@ -249,7 +249,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   final FiatConversionStore fiatConversionStore;
   final SettingsStore _settingsStore;
 
-  List<Currency> get currencies => [walletTypeToCryptoCurrency(wallet.type), ...FiatCurrency.all];
+  double? _fiatRate;
+
+  List<Currency> get currencies =>
+      [walletTypeToCryptoCurrency(wallet.type), ...FiatCurrency.all];
 
   String get buttonTitle {
     if (isElectrumWallet) {
@@ -276,7 +279,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   WalletAddressListItem get address {
-    return WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
+    return WalletAddressListItem(
+        address: wallet.walletAddresses.address, isPrimary: false);
   }
 
   @computed
@@ -321,8 +325,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     final addressList = ObservableList<ListItem>();
 
     if (wallet.type == WalletType.monero) {
-      final primaryAddress = monero!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = monero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
+      final primaryAddress =
+          monero!.getSubaddressList(wallet).subaddresses.first;
+      final addressItems =
+          monero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -338,8 +344,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (wallet.type == WalletType.wownero) {
-      final primaryAddress = wownero!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = wownero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
+      final primaryAddress =
+          wownero!.getSubaddressList(wallet).subaddresses.first;
+      final addressItems =
+          wownero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -352,8 +360,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (wallet.type == WalletType.haven) {
-      final primaryAddress = haven!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = haven!.getSubaddressList(wallet).subaddresses.map((subaddress) {
+      final primaryAddress =
+          haven!.getSubaddressList(wallet).subaddresses.first;
+      final addressItems =
+          haven!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -367,7 +377,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (isElectrumWallet) {
       if (bitcoin!.hasSelectedSilentPayments(wallet)) {
-        final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
+        final addressItems =
+            bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
           final isPrimary = address.id == 0;
 
           return WalletAddressListItem(
@@ -418,7 +429,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         if (wallet.type == WalletType.litecoin && addressItems.length >= 1000) {
           // find the index of the last item with a txCount > 0
           final addressItemsList = addressItems.toList();
-          int index = addressItemsList.lastIndexWhere((item) => (item.txCount ?? 0) > 0);
+          int index = addressItemsList
+              .lastIndexWhere((item) => (item.txCount ?? 0) > 0);
           if (index == -1) {
             index = 0;
           }
@@ -432,19 +444,22 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (wallet.type == WalletType.ethereum) {
       final primaryAddress = ethereum!.getAddress(wallet);
 
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+      addressList.add(WalletAddressListItem(
+          isPrimary: true, name: null, address: primaryAddress));
     }
 
     if (wallet.type == WalletType.polygon) {
       final primaryAddress = polygon!.getAddress(wallet);
 
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+      addressList.add(WalletAddressListItem(
+          isPrimary: true, name: null, address: primaryAddress));
     }
 
     if (wallet.type == WalletType.solana) {
       final primaryAddress = solana!.getAddress(wallet);
 
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+      addressList.add(WalletAddressListItem(
+          isPrimary: true, name: null, address: primaryAddress));
     }
 
     if (wallet.type == WalletType.nano) {
@@ -458,18 +473,21 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (wallet.type == WalletType.tron) {
       final primaryAddress = tron!.getAddress(wallet);
 
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+      addressList.add(WalletAddressListItem(
+          isPrimary: true, name: null, address: primaryAddress));
     }
 
     for (var i = 0; i < addressList.length; i++) {
       if (!(addressList[i] is WalletAddressListItem)) continue;
-      (addressList[i] as WalletAddressListItem).isHidden = wallet.walletAddresses.hiddenAddresses
+      (addressList[i] as WalletAddressListItem).isHidden = wallet
+          .walletAddresses.hiddenAddresses
           .contains((addressList[i] as WalletAddressListItem).address);
     }
 
     for (var i = 0; i < addressList.length; i++) {
       if (!(addressList[i] is WalletAddressListItem)) continue;
-      (addressList[i] as WalletAddressListItem).isManual = wallet.walletAddresses.manualAddresses
+      (addressList[i] as WalletAddressListItem).isManual = wallet
+          .walletAddresses.manualAddresses
           .contains((addressList[i] as WalletAddressListItem).address);
     }
 
@@ -487,7 +505,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   Future<void> toggleHideAddress(WalletAddressListItem item) async {
     if (item.isHidden) {
-      wallet.walletAddresses.hiddenAddresses.removeWhere((element) => element == item.address);
+      wallet.walletAddresses.hiddenAddresses
+          .removeWhere((element) => element == item.address);
     } else {
       wallet.walletAddresses.hiddenAddresses.add(item.address);
     }
@@ -551,11 +570,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   bool get isSilentPayments =>
-      wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
+      wallet.type == WalletType.bitcoin &&
+      bitcoin!.hasSelectedSilentPayments(wallet);
 
   @computed
   bool get isAutoGenerateSubaddressEnabled =>
-      _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled &&
+      _settingsStore.autoGenerateSubaddressStatus !=
+          AutoGenerateSubaddressStatus.disabled &&
       !isSilentPayments;
 
   @computed
@@ -574,7 +595,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   Future<void> setAddressType(dynamic option) async {
-    if (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) {
+    if (wallet.type == WalletType.bitcoin ||
+        wallet.type == WalletType.litecoin) {
       await bitcoin!.setAddressType(wallet, option);
     }
   }
@@ -603,6 +625,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @action
   void selectCurrency(Currency currency) {
     selectedCurrency = currency;
+
+    if (currency is FiatCurrency && _settingsStore.fiatCurrency != currency) {
+      final cryptoCurrency = walletTypeToCryptoCurrency(wallet.type);
+
+      dev.log("Requesting Fiat rate for $cryptoCurrency-$currency");
+      FiatConversionService.fetchPrice(
+        crypto: cryptoCurrency,
+        fiat: currency,
+        torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly,
+      ).then((value) {
+        dev.log("Received Fiat rate 1 $cryptoCurrency = $value $currency");
+        _fiatRate = value;
+      });
+    }
   }
 
   @action
@@ -620,9 +656,17 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   void _convertAmountToCrypto() {
     final cryptoCurrency = walletTypeToCryptoCurrency(wallet.type);
+    final fiatRate =
+        _fiatRate ?? (fiatConversionStore.prices[cryptoCurrency] ?? 0.0);
+
+    if (fiatRate <= 0.0) {
+      dev.log("Invalid Fiat Rate $fiatRate");
+      amount = '';
+      return;
+    }
+
     try {
-      final crypto =
-          double.parse(amount.replaceAll(',', '.')) / fiatConversionStore.prices[cryptoCurrency]!;
+      final crypto = double.parse(amount.replaceAll(',', '.')) / fiatRate;
       final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
       if (amount != cryptoAmountTmp) {
         amount = cryptoAmountTmp;
