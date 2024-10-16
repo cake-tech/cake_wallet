@@ -42,12 +42,11 @@ abstract class PaymentURI {
 }
 
 class MoneroURI extends PaymentURI {
-  MoneroURI({required String amount, required String address})
-      : super(amount: amount, address: address);
+  MoneroURI({required super.amount, required super.address});
 
   @override
   String toString() {
-    var base = 'monero:' + address;
+    var base = 'monero:$address';
 
     if (amount.isNotEmpty) {
       base += '?tx_amount=${amount.replaceAll(',', '.')}';
@@ -58,12 +57,11 @@ class MoneroURI extends PaymentURI {
 }
 
 class HavenURI extends PaymentURI {
-  HavenURI({required String amount, required String address})
-      : super(amount: amount, address: address);
+  HavenURI({required super.amount, required super.address});
 
   @override
   String toString() {
-    var base = 'haven:' + address;
+    var base = 'haven:$address';
 
     if (amount.isNotEmpty) {
       base += '?tx_amount=${amount.replaceAll(',', '.')}';
@@ -74,12 +72,11 @@ class HavenURI extends PaymentURI {
 }
 
 class BitcoinURI extends PaymentURI {
-  BitcoinURI({required String amount, required String address})
-      : super(amount: amount, address: address);
+  BitcoinURI({required super.amount, required super.address});
 
   @override
   String toString() {
-    var base = 'bitcoin:' + address;
+    var base = 'bitcoin:$address';
 
     if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
@@ -90,12 +87,11 @@ class BitcoinURI extends PaymentURI {
 }
 
 class LitecoinURI extends PaymentURI {
-  LitecoinURI({required String amount, required String address})
-      : super(amount: amount, address: address);
+  LitecoinURI({required super.amount, required super.address});
 
   @override
   String toString() {
-    var base = 'litecoin:' + address;
+    var base = 'litecoin:$address';
 
     if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
@@ -106,12 +102,11 @@ class LitecoinURI extends PaymentURI {
 }
 
 class EthereumURI extends PaymentURI {
-  EthereumURI({required String amount, required String address})
-      : super(amount: amount, address: address);
+  EthereumURI({required super.amount, required super.address});
 
   @override
   String toString() {
-    var base = 'ethereum:' + address;
+    var base = 'ethereum:$address';
 
     if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
@@ -122,8 +117,7 @@ class EthereumURI extends PaymentURI {
 }
 
 class BitcoinCashURI extends PaymentURI {
-  BitcoinCashURI({required String amount, required String address})
-      : super(amount: amount, address: address);
+  BitcoinCashURI({required super.amount, required super.address});
 
   @override
   String toString() {
@@ -138,12 +132,11 @@ class BitcoinCashURI extends PaymentURI {
 }
 
 class NanoURI extends PaymentURI {
-  NanoURI({required String amount, required String address})
-      : super(amount: amount, address: address);
+  NanoURI({required super.amount, required super.address});
 
   @override
   String toString() {
-    var base = 'nano:' + address;
+    var base = 'nano:$address';
     if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
     }
@@ -153,12 +146,11 @@ class NanoURI extends PaymentURI {
 }
 
 class PolygonURI extends PaymentURI {
-  PolygonURI({required String amount, required String address})
-      : super(amount: amount, address: address);
+  PolygonURI({required super.amount, required super.address});
 
   @override
   String toString() {
-    var base = 'polygon:' + address;
+    var base = 'polygon:$address';
 
     if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
@@ -169,12 +161,12 @@ class PolygonURI extends PaymentURI {
 }
 
 class SolanaURI extends PaymentURI {
-  SolanaURI({required String amount, required String address})
-      : super(amount: amount, address: address);
+  SolanaURI({required super.amount, required super.address});
 
   @override
   String toString() {
-    var base = 'solana:' + address;
+    var base = 'solana:$address';
+
     if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
     }
@@ -184,12 +176,12 @@ class SolanaURI extends PaymentURI {
 }
 
 class TronURI extends PaymentURI {
-  TronURI({required String amount, required String address})
-      : super(amount: amount, address: address);
+  TronURI({required super.amount, required super.address});
 
   @override
   String toString() {
-    var base = 'tron:' + address;
+    var base = 'tron:$address';
+
     if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
     }
@@ -199,12 +191,11 @@ class TronURI extends PaymentURI {
 }
 
 class WowneroURI extends PaymentURI {
-  WowneroURI({required String amount, required String address})
-      : super(amount: amount, address: address);
+  WowneroURI({required super.amount, required super.address});
 
   @override
   String toString() {
-    var base = 'wownero:' + address;
+    var base = 'wownero:$address';
 
     if (amount.isNotEmpty) {
       base += '?tx_amount=${amount.replaceAll(',', '.')}';
@@ -223,9 +214,8 @@ abstract class WalletAddressListViewModelBase
   })  : _baseItems = <ListItem>[],
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
-        hasAccounts = appStore.wallet!.type == WalletType.monero ||
-            appStore.wallet!.type == WalletType.wownero ||
-            appStore.wallet!.type == WalletType.haven,
+        hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven]
+            .contains(appStore.wallet!.type),
         amount = '',
         _settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
@@ -237,9 +227,8 @@ abstract class WalletAddressListViewModelBase
     _init();
 
     selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
-    hasAccounts = wallet.type == WalletType.monero ||
-        wallet.type == WalletType.wownero ||
-        wallet.type == WalletType.haven;
+    hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven]
+        .contains(wallet.type);
   }
 
   static const String _cryptoNumberPattern = '0.00000000';
@@ -278,10 +267,8 @@ abstract class WalletAddressListViewModelBase
   WalletType get type => wallet.type;
 
   @computed
-  WalletAddressListItem get address {
-    return WalletAddressListItem(
+  WalletAddressListItem get address => WalletAddressListItem(
         address: wallet.walletAddresses.address, isPrimary: false);
-  }
 
   @computed
   PaymentURI get uri {
@@ -531,42 +518,42 @@ abstract class WalletAddressListViewModelBase
 
   @computed
   String get accountLabel {
-    if (wallet.type == WalletType.monero) {
-      return monero!.getCurrentAccount(wallet).label;
+    switch (wallet.type) {
+      case WalletType.monero:
+        return monero!.getCurrentAccount(wallet).label;
+      case WalletType.wownero:
+        wownero!.getCurrentAccount(wallet).label;
+      case WalletType.haven:
+        return haven!.getCurrentAccount(wallet).label;
+      default:
+        return '';
     }
-
-    if (wallet.type == WalletType.wownero) {
-      return wownero!.getCurrentAccount(wallet).label;
-    }
-
-    if (wallet.type == WalletType.haven) {
-      return haven!.getCurrentAccount(wallet).label;
-    }
-
     return '';
   }
 
   @computed
-  bool get hasAddressList =>
-      wallet.type == WalletType.monero ||
-      wallet.type == WalletType.wownero ||
-      wallet.type == WalletType.haven ||
-      wallet.type == WalletType.bitcoinCash ||
-      wallet.type == WalletType.bitcoin ||
-      wallet.type == WalletType.litecoin;
+  bool get hasAddressList => [
+        WalletType.monero,
+        WalletType.wownero,
+        WalletType.haven,
+        WalletType.bitcoinCash,
+        WalletType.bitcoin,
+        WalletType.litecoin
+      ].contains(wallet.type);
 
   @computed
-  bool get isElectrumWallet =>
-      wallet.type == WalletType.bitcoin ||
-      wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.bitcoinCash;
+  bool get isElectrumWallet => [
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.bitcoinCash
+      ].contains(wallet.type);
 
   @computed
   bool get isBalanceAvailable => isElectrumWallet;
 
   @computed
   bool get isReceivedAvailable =>
-      wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
+      [WalletType.monero, WalletType.wownero].contains(wallet.type);
 
   @computed
   bool get isSilentPayments =>
@@ -582,8 +569,7 @@ abstract class WalletAddressListViewModelBase
   @computed
   bool get showAddManualAddresses =>
       !isAutoGenerateSubaddressEnabled ||
-      wallet.type == WalletType.monero ||
-      wallet.type == WalletType.wownero;
+      [WalletType.monero, WalletType.wownero].contains(wallet.type);
 
   List<ListItem> _baseItems;
 
@@ -595,8 +581,7 @@ abstract class WalletAddressListViewModelBase
 
   @action
   Future<void> setAddressType(dynamic option) async {
-    if (wallet.type == WalletType.bitcoin ||
-        wallet.type == WalletType.litecoin) {
+    if ([WalletType.bitcoin, WalletType.litecoin].contains(wallet.type)) {
       await bitcoin!.setAddressType(wallet, option);
     }
   }
@@ -608,13 +593,15 @@ abstract class WalletAddressListViewModelBase
       _baseItems.add(WalletAddressHiddenListHeader());
     }
 
-    if (wallet.type == WalletType.monero ||
-        wallet.type == WalletType.wownero ||
-        wallet.type == WalletType.haven) {
+    if ([
+      WalletType.monero,
+      WalletType.wownero,
+      WalletType.haven,
+    ].contains(wallet.type)) {
       _baseItems.add(WalletAccountListHeader());
     }
 
-    if (wallet.type != WalletType.nano && wallet.type != WalletType.banano) {
+    if (![WalletType.nano, WalletType.banano].contains(wallet.type)) {
       _baseItems.add(WalletAddressListHeader());
     }
     if (wallet.isEnabledAutoGenerateSubaddress) {
