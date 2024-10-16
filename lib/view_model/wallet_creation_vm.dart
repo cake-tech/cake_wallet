@@ -194,24 +194,31 @@ abstract class WalletCreationVMBase with Store {
     final walletType = restoreWallet.type;
     var appStore = getIt.get<AppStore>();
     var node = appStore.settingsStore.getCurrentNode(walletType);
+    
+      switch (walletType) {
+        case WalletType.bitcoin:
+        case WalletType.litecoin:
 
-    switch (walletType) {
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
-        return bitcoin!.getDerivationsFromMnemonic(
-          mnemonic: restoreWallet.mnemonicSeed!,
-          node: node,
-          passphrase: restoreWallet.passphrase,
-        );
-      case WalletType.nano:
-        return nanoUtil!.getDerivationsFromMnemonic(
-          mnemonic: restoreWallet.mnemonicSeed!,
-          node: node,
-        );
-      default:
-        break;
-    }
-    return list;
+          final derivationList = await bitcoin!.getDerivationsFromMnemonic(
+            mnemonic: restoreWallet.mnemonicSeed!,
+            node: node,
+            passphrase: restoreWallet.passphrase,
+          );
+
+
+          if (derivationList.first.transactionsCount == 0 && derivationList.length > 1) return [];
+          
+          return derivationList;
+
+        case WalletType.nano:
+          return nanoUtil!.getDerivationsFromMnemonic(
+            mnemonic: restoreWallet.mnemonicSeed!,
+            node: node,
+          );
+        default:
+          break;
+      }
+      return list;
   }
 
   WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
