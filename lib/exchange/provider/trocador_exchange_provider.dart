@@ -19,7 +19,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   bool useTorOnly;
   Map<String, bool> providerStates;
-  
+
   static const List<CryptoCurrency> _notSupported = [
     CryptoCurrency.stx,
     CryptoCurrency.zaddr,
@@ -121,8 +121,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       var quotes = responseJSON['quotes']['quotes'] as List;
       _provider = quotes
           .where((quote) =>
-      providerStates.containsKey(quote['provider']) &&
-          providerStates[quote['provider']] == true)
+              providerStates.containsKey(quote['provider']) &&
+              providerStates[quote['provider']] == true)
           .map((quote) => quote['provider'])
           .toList();
 
@@ -268,11 +268,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
     final providersJsonList = responseJSON['list'] as List<dynamic>;
-
-    return providersJsonList
+    final filteredProvidersList = providersJsonList
         .map((providerJson) => TrocadorPartners.fromJson(providerJson as Map<String, dynamic>))
         .where((provider) => provider.rating != 'D')
         .toList();
+    filteredProvidersList.sort((a, b) => a.rating.compareTo(b.rating));
+    return filteredProvidersList;
   }
 
   String _networkFor(CryptoCurrency currency) {
@@ -333,7 +334,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
 class TrocadorPartners {
   final String name;
-  final String? rating;
+  final String rating;
   final double? insurance;
   final bool? enabledMarkup;
   final double? eta;
@@ -349,7 +350,7 @@ class TrocadorPartners {
   factory TrocadorPartners.fromJson(Map<String, dynamic> json) {
     return TrocadorPartners(
       name: json['name'] as String? ?? '',
-      rating: json['rating'] as String?,
+      rating: json['rating'] as String? ?? 'N/A',
       insurance: json['insurance'] as double?,
       enabledMarkup: json['enabledmarkup'] as bool?,
       eta: json['eta'] as double?,

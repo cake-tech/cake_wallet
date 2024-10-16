@@ -30,7 +30,7 @@ abstract class TrocadorProvidersViewModelBase with Store {
 
       providerRatings = {
         for (var provider in providers)
-          provider.name: provider.rating ?? 'N/A'
+          provider.name: provider.rating
       };
 
       return _settingsStore
