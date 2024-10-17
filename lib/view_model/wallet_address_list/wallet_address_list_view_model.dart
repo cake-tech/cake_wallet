@@ -239,6 +239,7 @@ abstract class WalletAddressListViewModelBase
   final SettingsStore _settingsStore;
 
   double? _fiatRate;
+  String _rawAmount = '';
 
   List<Currency> get currencies =>
       [walletTypeToCryptoCurrency(wallet.type), ...FiatCurrency.all];
@@ -624,6 +625,7 @@ abstract class WalletAddressListViewModelBase
       ).then((value) {
         dev.log("Received Fiat rate 1 $cryptoCurrency = $value $currency");
         _fiatRate = value;
+        _convertAmountToCrypto();
       });
     }
   }
@@ -631,6 +633,7 @@ abstract class WalletAddressListViewModelBase
   @action
   void changeAmount(String amount) {
     this.amount = amount;
+    this._rawAmount = amount;
     if (selectedCurrency is FiatCurrency) {
       _convertAmountToCrypto();
     }
@@ -641,6 +644,7 @@ abstract class WalletAddressListViewModelBase
     searchText = text;
   }
 
+  @action
   void _convertAmountToCrypto() {
     final cryptoCurrency = walletTypeToCryptoCurrency(wallet.type);
     final fiatRate =
@@ -653,7 +657,7 @@ abstract class WalletAddressListViewModelBase
     }
 
     try {
-      final crypto = double.parse(amount.replaceAll(',', '.')) / fiatRate;
+      final crypto = double.parse(_rawAmount.replaceAll(',', '.')) / fiatRate;
       final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
       if (amount != cryptoAmountTmp) {
         amount = cryptoAmountTmp;
