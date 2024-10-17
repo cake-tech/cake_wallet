@@ -110,7 +110,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           // we aren't connected to the litecoin node, so the current electrum_wallet reactions will take care of this case for us
         } else {
           // we're connected to the litecoin node, but we failed to connect to mweb, try again after a few seconds:
-          await Future.delayed(const Duration(seconds: 2));
+          await CwMweb.stop();
+          await Future.delayed(const Duration(seconds: 5));
           startSync();
         }
       } else if (mwebSyncStatus is SyncingSyncStatus) {
@@ -954,7 +955,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       final coinTypeToSpendFrom = transactionCredentials.coinTypeToSpendFrom;
 
       await updateUnspent();
-      final availableInputs = unspentCoins.where((utx) {
+      final selectedInputs = unspentCoins.where((utx) {
         if (!utx.isSending || utx.isFrozen) {
           return false;
         }
@@ -969,12 +970,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         }
       }).toList();
 
-      for (var input in availableInputs) {
+      for (final input in selectedInputs) {
         if (input.bitcoinAddressRecord.type == SegwitAddresType.mweb) {
           hasMwebInput = true;
         }
       }
-      
+
       if (!hasMwebInput && !hasMwebOutput) {
         tx.isMweb = false;
         return tx;

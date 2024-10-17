@@ -2165,13 +2165,8 @@ abstract class ElectrumWalletBase
         if (syncStatus is NotConnectedSyncStatus ||
             syncStatus is LostConnectionSyncStatus ||
             syncStatus is ConnectingSyncStatus) {
-          // make sure we're not triggering this more than necessary:
-          if (this.syncStatus is NotConnectedSyncStatus ||
-              this.syncStatus is LostConnectionSyncStatus ||
-              this.syncStatus is ConnectingSyncStatus) {
-            syncStatus = AttemptingSyncStatus();
-            startSync();
-          }
+          syncStatus = AttemptingSyncStatus();
+          startSync();
         }
 
         break;
