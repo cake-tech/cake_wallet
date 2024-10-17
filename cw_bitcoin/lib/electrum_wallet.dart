@@ -250,7 +250,7 @@ abstract class ElectrumWalletBase
   int? _currentChainTip;
 
   Future<int> getCurrentChainTip() async {
-    if (_currentChainTip != null) {
+    if ((_currentChainTip ?? 0) > 0) {
       return _currentChainTip!;
     }
     _currentChainTip = await electrumClient.getCurrentBlockChainTip() ?? 0;
@@ -1878,7 +1878,9 @@ abstract class ElectrumWalletBase
             if (height > 0) {
               storedTx.height = height;
               // the tx's block itself is the first confirmation so add 1
-              if (currentHeight != null) storedTx.confirmations = currentHeight - height + 1;
+              if ((currentHeight ?? 0) > 0) {
+                storedTx.confirmations = currentHeight! - height + 1;
+              }
               storedTx.isPending = storedTx.confirmations == 0;
             }
 
@@ -1919,9 +1921,13 @@ abstract class ElectrumWalletBase
       }
       await getCurrentChainTip();
 
-      transactionHistory.transactions.values.forEach((tx) async {
-        if (tx.unspents != null && tx.unspents!.isNotEmpty && tx.height != null && tx.height! > 0) {
-          tx.confirmations = await getCurrentChainTip() - tx.height! + 1;
+      transactionHistory.transactions.values.forEach((tx) {
+        if (tx.unspents != null &&
+            tx.unspents!.isNotEmpty &&
+            tx.height != null &&
+            tx.height! > 0 &&
+            (_currentChainTip ?? 0) > 0) {
+          tx.confirmations = _currentChainTip! - tx.height! + 1;
         }
       });
 
