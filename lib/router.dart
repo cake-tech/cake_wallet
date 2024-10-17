@@ -1,5 +1,6 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
@@ -23,6 +24,7 @@ import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/cake_pay_account_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
+import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
@@ -113,6 +115,7 @@ import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
@@ -206,6 +209,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final arguments = settings.arguments as List<dynamic>;
       final type = arguments[0] as WalletType;
       final walletVM = getIt.get<WalletHardwareRestoreViewModel>(param1: type);
+
+      if (type == WalletType.monero)
+        return CupertinoPageRoute<void>(builder: (_) => MoneroHardwareWalletOptionsPage(walletVM));
 
       return CupertinoPageRoute<void>(builder: (_) => SelectHardwareWalletAccountPage(walletVM));
 
@@ -398,8 +404,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<NanoChangeRepPage>());
 
     case Routes.walletList:
+      final onWalletLoaded = settings.arguments as Function(BuildContext)?;
       return MaterialPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<WalletListPage>());
+        fullscreenDialog: true,
+        builder: (_) => WalletListPage(
+          walletListViewModel: getIt.get<WalletListViewModel>(),
+          authService: getIt.get<AuthService>(),
+          onWalletLoaded: onWalletLoaded,
+        ),
+      );
 
     case Routes.walletEdit:
       return MaterialPageRoute<void>(

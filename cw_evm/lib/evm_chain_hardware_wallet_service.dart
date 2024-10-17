@@ -2,26 +2,26 @@ import 'dart:async';
 
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:ledger_ethereum/ledger_ethereum.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 
 class EVMChainHardwareWalletService {
-  EVMChainHardwareWalletService(this.ledger, this.device);
+  EVMChainHardwareWalletService(this.ledgerConnection);
 
-  final Ledger ledger;
-  final LedgerDevice device;
+  final LedgerConnection ledgerConnection;
 
-  Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
-    final ethereumLedgerApp = EthereumLedgerApp(ledger);
+  Future<List<HardwareAccountData>> getAvailableAccounts(
+      {int index = 0, int limit = 5}) async {
+    final ethereumLedgerApp = EthereumLedgerApp(ledgerConnection);
 
-    final version = await ethereumLedgerApp.getVersion(device);
+    await ethereumLedgerApp.getVersion();
 
     final accounts = <HardwareAccountData>[];
     final indexRange = List.generate(limit, (i) => i + index);
 
     for (final i in indexRange) {
       final derivationPath = "m/44'/60'/$i'/0/0";
-      final address =
-          await ethereumLedgerApp.getAccounts(device, accountsDerivationPath: derivationPath);
+      final address = await ethereumLedgerApp.getAccounts(
+          accountsDerivationPath: derivationPath);
 
       accounts.add(HardwareAccountData(
         address: address.first,
