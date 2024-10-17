@@ -949,6 +949,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           hasMwebOutput = true;
           break;
         }
+        if (output.address.toLowerCase().contains("mweb")) {
+          hasMwebOutput = true;
+          break;
+        }
       }
 
       // check if mweb inputs are used:
@@ -1028,7 +1032,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           final addresses = <String>{};
           transaction.inputAddresses?.forEach((id) async {
             final utxo = mwebUtxosBox.get(id);
-            // await mwebUtxosBox.delete(id);// gets deleted in checkMwebUtxosSpent
+            await mwebUtxosBox.delete(id); // gets deleted in checkMwebUtxosSpent
             if (utxo == null) return;
             final addressRecord = walletAddresses.allAddresses
                 .firstWhere((addressRecord) => addressRecord.address == utxo.address);
@@ -1047,6 +1051,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       print(e);
       print(s);
       if (e.toString().contains("commit failed")) {
+        print(e);
         throw Exception("Transaction commit failed (no peers responded), please try again.");
       }
       rethrow;
