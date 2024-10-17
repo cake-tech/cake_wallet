@@ -31,7 +31,6 @@ class SettingActions {
     walletSettingAction,
     addressBookSettingAction,
     silentPaymentsSettingAction,
-    litecoinMwebSettingAction,
     securityBackupSettingAction,
     privacySettingAction,
     displaySettingAction,
@@ -50,7 +49,7 @@ class SettingActions {
 
   static SettingActions litecoinMwebSettingAction = SettingActions._(
     name: (context) => S.of(context).litecoin_mweb_settings,
-    image: 'assets/images/bitcoin_menu.png',
+    image: 'assets/images/litecoin_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.mwebSettings);

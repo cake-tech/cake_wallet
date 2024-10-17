@@ -254,6 +254,7 @@ Future<void> defaultSettingsMigration(
         case 41:
           _deselectQuantex(sharedPreferences);
           await _addSethNode(nodes, sharedPreferences);
+          await updateTronNodesWithNowNodes(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         default:
           break;
@@ -1316,4 +1317,17 @@ Future<void> removeMoneroWorld(
   if (needToReplaceCurrentMoneroNode) {
     await changeMoneroCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
   }
+}
+
+Future<void> updateTronNodesWithNowNodes({
+  required SharedPreferences sharedPreferences,
+  required Box<Node> nodes,
+}) async {
+  final tronNowNodesUri = 'trx.nownodes.io';
+
+  if (nodes.values.any((node) => node.uriRaw == tronNowNodesUri)) return;
+
+  await nodes.add(Node(uri: tronNowNodesUri, type: WalletType.tron));
+
+  await replaceTronDefaultNode(sharedPreferences: sharedPreferences, nodes: nodes);
 }

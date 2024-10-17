@@ -106,7 +106,15 @@ class BackupService {
       if (entity.path == archivePath || entity.path == tmpDir.path) {
         return;
       }
-
+      final filename = entity.absolute;
+      for (var ignore in ignoreFiles) {
+        final filename = entity.absolute.path;
+        if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
+          print("ignoring backup file: $filename");
+          return;
+        }
+      }
+      print("restoring: $filename");
       if (entity.statSync().type == FileSystemEntityType.directory) {
         zipEncoder.addDirectory(Directory(entity.path));
       } else {
@@ -149,14 +157,29 @@ class BackupService {
     await _importPreferencesDump();
   }
 
+  // checked with .endsWith - so this should be the last part of the filename
+  static const ignoreFiles = [
+    "flutter_assets/kernel_blob.bin",
+    "flutter_assets/vm_snapshot_data",
+    "flutter_assets/isolate_snapshot_data",
+    ".lock",
+  ];
+
   Future<void> _importBackupV2(Uint8List data, String password) async {
     final appDir = await getAppDir();
     final decryptedData = await _decryptV2(data, password);
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
+    outer:
     for (var file in zip.files) {
       final filename = file.name;
-
+      for (var ignore in ignoreFiles) { 
+        if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
+          print("ignoring backup file: $filename");
+          continue outer;
+        }
+      }
+      print("restoring: $filename");
       if (file.isFile) {
         final content = file.content as List<int>;
         File('${appDir.path}/' + filename)
