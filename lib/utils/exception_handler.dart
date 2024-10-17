@@ -79,7 +79,7 @@ class ExceptionHandler {
         _file!.writeAsString("", mode: FileMode.write);
       }
     } catch (e, s) {
-      await _saveException(e.toString(), s);
+      _saveException(e.toString(), s);
     }
   }
 
@@ -99,7 +99,7 @@ class ExceptionHandler {
       return;
     }
 
-    await _saveException(
+    _saveException(
       errorDetails.exceptionAsString(),
       errorDetails.stack,
       library: errorDetails.library,

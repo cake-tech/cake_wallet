@@ -207,8 +207,6 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
           hideProgressText();
           setState(() {});
         } catch (e) {
-          await ExceptionHandler.resetLastPopupDate();
-          await ExceptionHandler.onError(FlutterErrorDetails(exception: e));
           if (mounted) {
             changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
           }
