@@ -275,9 +275,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             'You do not have enough XMR to send this amount.');
       }
 
-      // if (!spendAllCoins && (allInputsAmount < totalAmount + estimatedFee)) {
-      //   throw MoneroTransactionNoInputsException(inputs.length);
-      // }
+      if (inputs.isEmpty) MoneroTransactionCreationException(
+        'No inputs selected');
 
       final moneroOutputs = outputs.map((output) {
         final outputAddress =
@@ -313,12 +312,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
       final estimatedFee =
           calculateEstimatedFee(_credentials.priority, formattedAmount);
-      // if (!spendAllCoins &&
-      //     ((formattedAmount != null &&
-      //             allInputsAmount < (formattedAmount + estimatedFee)) ||
-      //         formattedAmount == null)) {
-      //   throw MoneroTransactionNoInputsException(inputs.length);
-      // }
+      if (inputs.isEmpty) MoneroTransactionCreationException(
+        'No inputs selected');
       pendingTransactionDescription =
           await transaction_history.createTransaction(
               address: address!,
@@ -482,7 +477,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       for (var i = 0; i < coinCount; i++) {
         final coin = getCoin(i);
         final coinSpent = monero.CoinsInfo_spent(coin);
-        if (coinSpent == false) {
+        if (coinSpent == false && monero.CoinsInfo_subaddrAccount(coin) == walletAddresses.account!.id) {
           final unspent = MoneroUnspent(
             monero.CoinsInfo_address(coin),
             monero.CoinsInfo_hash(coin),
