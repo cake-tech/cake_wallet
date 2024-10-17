@@ -472,18 +472,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         nano!.updateTransactions(wallet);
       }
 
-      final walletAddress = wallet.type == WalletType.bitcoin
-          ? wallet.walletAddresses.primaryAddress
-          : wallet.walletAddresses.address;
 
       if (pendingTransaction!.id.isNotEmpty) {
+
+        final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-            id: '${pendingTransaction!.id}_$walletAddress',
+            id: descriptionKey,
             recipientAddress: address,
             transactionNote: note))
             : await transactionDescriptionBox.add(TransactionDescription(
-            id: '${pendingTransaction!.id}_$walletAddress',
+            id: descriptionKey,
             transactionNote: note));
       }
 
