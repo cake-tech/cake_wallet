@@ -453,12 +453,14 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   }
 
   @override
-  void close() {
+  Future<void> close({bool shouldCleanup = false}) async {
     if (syncTimer != null) {
       syncTimer!.cancel();
       syncTimer = null;
     }
-    libdcrwallet.closeWallet(walletInfo.name);
+    return () async {
+      libdcrwallet.closeWallet(walletInfo.name);
+    }();
   }
 
   @override

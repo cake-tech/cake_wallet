@@ -31,4 +31,9 @@ class DecredPendingTransaction with PendingTransaction {
   Future<void> commit() async {
     return send();
   }
+
+  @override
+  Future<String?> commitUR() {
+    throw UnimplementedError();
+  }
 }
