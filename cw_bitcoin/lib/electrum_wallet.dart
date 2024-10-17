@@ -826,8 +826,8 @@ abstract class ElectrumWalletBase
     }
 
     final changeAddress = await walletAddresses.getChangeAddress(
+      inputs: utxoDetails.availableInputs,
       outputs: outputs,
-      utxoDetails: utxoDetails,
     );
     final address = RegexUtils.addressTypeFromStr(changeAddress, network);
     outputs.add(BitcoinOutput(
