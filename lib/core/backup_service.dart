@@ -232,9 +232,8 @@ class BackupService {
         MapEntry(key, TransactionDescription.fromJson(value as Map<String, dynamic>)));
     var box = _transactionDescriptionBox;
     if (!box.isOpen) {
-      final secureStorage = secureStorageShared;
       final transactionDescriptionsBoxKey = 
-        await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+        await getEncryptionKey(secureStorage: _secureStorage, forKey: TransactionDescription.boxKey);
       box = await CakeHive.openBox<TransactionDescription>(
         TransactionDescription.boxName,
         encryptionKey: transactionDescriptionsBoxKey);
