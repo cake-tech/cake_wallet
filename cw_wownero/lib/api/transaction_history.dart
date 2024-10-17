@@ -12,7 +12,9 @@ import 'package:monero/src/generated_bindings_wownero.g.dart' as wownero_gen;
 
 
 String getTxKey(String txId) {
-  return wownero.Wallet_getTxKey(wptr!, txid: txId);
+  final ret = wownero.Wallet_getTxKey(wptr!, txid: txId);
+  wownero.Wallet_status(wptr!);
+  return ret;
 }
 
 wownero.TransactionHistory? txhistory;

@@ -6,6 +6,7 @@ import 'package:cw_monero/api/exceptions/creation_transaction_exception.dart';
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
 import 'package:ffi/ffi.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
@@ -13,7 +14,9 @@ import 'package:mutex/mutex.dart';
 
 
 String getTxKey(String txId) {
-  return monero.Wallet_getTxKey(wptr!, txid: txId);
+  final ret = monero.Wallet_getTxKey(wptr!, txid: txId);
+  monero.Wallet_status(wptr!);
+  return ret;
 }
 final txHistoryMutex = Mutex();
 monero.TransactionHistory? txhistory;
@@ -87,7 +90,12 @@ Future<PendingTransactionDescription> createTransactionSync(
   final amt = amount == null ? 0 : monero.Wallet_amountFromString(amount);
   
   final address_ = address.toNativeUtf8(); 
-  final paymentId_ = paymentId.toNativeUtf8(); 
+  final paymentId_ = paymentId.toNativeUtf8();
+  print("inputs: $preferredInputs");
+  if (preferredInputs.isEmpty) {
+    throw MoneroTransactionCreationException("No inputs provided, transaction cannot be constructed");
+  }
+
   final preferredInputs_ = preferredInputs.join(monero.defaultSeparatorStr).toNativeUtf8();
 
   final waddr = wptr!.address;
