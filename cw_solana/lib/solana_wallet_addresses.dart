@@ -15,6 +15,9 @@ abstract class SolanaWalletAddressesBase extends WalletAddresses with Store {
   String address;
 
   @override
+  String get primaryAddress => address;
+
+  @override
   Future<void> init() async {
     address = walletInfo.address;
     await updateAddressesInBox();

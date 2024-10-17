@@ -18,6 +18,9 @@ abstract class NanoWalletAddressesBase extends WalletAddresses with Store {
   @observable
   String address;
 
+  @override
+  String get primaryAddress => address;
+
   @observable
   NanoAccount? account;
 
