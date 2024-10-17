@@ -19,7 +19,6 @@ case $APP_ANDROID_TYPE in
                 CONFIG_ARGS="--haven"
                 ;;
 esac
-CONFIG_ARGS="--monero --ethereum --polygon --nano --solana --tron --wownero"
 
 cd ../..
 cp -rf pubspec_description.yaml pubspec.yaml
