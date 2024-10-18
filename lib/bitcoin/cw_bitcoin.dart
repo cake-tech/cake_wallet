@@ -208,7 +208,7 @@ class CWBitcoin extends Bitcoin {
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.unspentCoins.where((element) {
-      switch(coinTypeToSpendFrom) {
+      switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
           return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
         case UnspentCoinType.nonMweb:
@@ -216,7 +216,6 @@ class CWBitcoin extends Bitcoin {
         case UnspentCoinType.any:
           return true;
       }
-
     }).toList();
   }
 
@@ -399,19 +398,21 @@ class CWBitcoin extends Bitcoin {
           final history = await electrumClient.getHistory(sh);
 
           final balance = await electrumClient.getBalance(sh);
-          dInfoCopy.balance = balance.entries.first.value.toString();
+          dInfoCopy.balance = balance.entries.firstOrNull?.value.toString() ?? "0";
           dInfoCopy.address = address;
           dInfoCopy.transactionsCount = history.length;
 
           list.add(dInfoCopy);
-        } catch (e) {
-          print(e);
+        } catch (e, s) {
+          print("derivationInfoError: $e");
+          print("derivationInfoStack: $s");
         }
       }
     }
 
     // sort the list such that derivations with the most transactions are first:
     list.sort((a, b) => b.transactionsCount.compareTo(a.transactionsCount));
+    
     return list;
   }
 
