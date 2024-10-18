@@ -856,8 +856,6 @@ abstract class ElectrumWalletBase
     final lastOutput = outputs.last;
     final amountLeftForChange = amountLeftForChangeAndFee - fee;
 
-    print(amountLeftForChangeAndFee);
-
     if (!_isBelowDust(amountLeftForChange)) {
       // Here, lastOutput already is change, return the amount left without the fee to the user's address.
       outputs[outputs.length - 1] = BitcoinOutput(

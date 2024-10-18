@@ -621,9 +621,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final status = await CwMweb.status(StatusRequest());
     final height = await electrumClient.getCurrentBlockChainTip();
     if (height == null || status.blockHeaderHeight != height) return;
-    print("here 111111111111111111111");
     if (status.mwebUtxosHeight != height) return; // we aren't synced
-    print("here 222222222222222222222");
     int amount = 0;
     Set<String> inputAddresses = {};
     var output = convert.AccumulatorSink<Digest>();
