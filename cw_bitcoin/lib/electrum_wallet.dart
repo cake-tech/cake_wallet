@@ -2160,7 +2160,6 @@ abstract class ElectrumWalletBase
 
   @action
   void _onConnectionStatusChange(ConnectionStatus status) {
-    print("CONNECTION_STATUS_CHANGE: ${status}");
 
     switch (status) {
       case ConnectionStatus.connected:
