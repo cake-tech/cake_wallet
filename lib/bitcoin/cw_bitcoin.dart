@@ -412,7 +412,7 @@ class CWBitcoin extends Bitcoin {
 
     // sort the list such that derivations with the most transactions are first:
     list.sort((a, b) => b.transactionsCount.compareTo(a.transactionsCount));
-    
+
     return list;
   }
 
@@ -679,6 +679,17 @@ class CWBitcoin extends Bitcoin {
       final mwebAddress =
           electrumWallet.walletAddresses.mwebAddresses.firstWhere((element) => !element.isUsed);
       return mwebAddress.address;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? getUnusedSegwitAddress(Object wallet) {
+    try {
+      final electrumWallet = wallet as ElectrumWallet;
+      final segwitAddress = electrumWallet.walletAddresses.allAddresses
+          .firstWhere((element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh);
+      return segwitAddress.address;
     } catch (_) {
       return null;
     }

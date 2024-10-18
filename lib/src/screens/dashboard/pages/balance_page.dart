@@ -17,7 +17,6 @@ import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -1069,9 +1068,9 @@ class BalanceRowWidget extends StatelessWidget {
                             child: OutlinedButton(
                               onPressed: () {
                                 final litecoinAddress =
-                                    bitcoin!.getAddress(dashboardViewModel.wallet);
+                                    bitcoin!.getUnusedSegwitAddress(dashboardViewModel.wallet);
                                 PaymentRequest? paymentRequest = null;
-                                if (litecoinAddress.isNotEmpty) {
+                                if ((litecoinAddress?.isNotEmpty ?? false)) {
                                   paymentRequest = PaymentRequest.fromUri(
                                       Uri.parse("litecoin:${litecoinAddress}"));
                                 }
