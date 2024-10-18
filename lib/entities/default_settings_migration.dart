@@ -899,7 +899,9 @@ Future<void> changeDefaultBitcoinNode(
   final newCakeWalletBitcoinNode =
       Node(uri: newCakeWalletBitcoinUri, type: WalletType.bitcoin, useSSL: false);
 
-  await nodeSource.add(newCakeWalletBitcoinNode);
+  if (!nodeSource.values.any((element) => element.uriRaw == newCakeWalletBitcoinUri)) {
+    await nodeSource.add(newCakeWalletBitcoinNode);
+  }
 
   if (needToReplaceCurrentBitcoinNode) {
     await sharedPreferences.setInt(
@@ -931,6 +933,10 @@ Future<void> _addBitcoinNode({
   bool replaceExisting = false,
   bool useSSL = false,
 }) async {
+  bool isNodeExists = nodeSource.values.any((element) => element.uriRaw == nodeUri);
+  if (isNodeExists) {
+    return;
+  }
   const cakeWalletBitcoinNodeUriPattern = '.cakewallet.com';
   final currentBitcoinNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
