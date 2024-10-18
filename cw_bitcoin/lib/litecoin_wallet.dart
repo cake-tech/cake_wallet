@@ -357,6 +357,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
               int txHeight = transaction.height ?? resp.mwebUtxosHeight;
               final confirmations = (resp.mwebUtxosHeight - txHeight) + 1;
               if (transaction.confirmations == confirmations) continue;
+              if (transaction.confirmations == 0) {
+                updateBalance();
+              }
               transaction.confirmations = confirmations;
               transactionHistory.addOne(transaction);
             }
@@ -926,6 +929,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       tx.isMweb = mwebEnabled;
 
       if (!mwebEnabled) {
+        tx.changeAddressOverride =
+            await (walletAddresses as LitecoinWalletAddresses).getChangeAddress(isPegIn: false);
         return tx;
       }
       await waitForMwebAddresses();
@@ -973,13 +978,25 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             return true;
         }
       }).toList();
-
+      // for (final input in tx2.inputs) {
+      //   // TODO: determine if this is an mweb input:
+      //   // this doesn't work because mwebd doesn't return mweb inputs, only regular segwit inputs:
+      //   // final utxo = unspentCoins
+      //   //     .firstWhere((utxo) => utxo.hash == input.txId && utxo.vout == input.txIndex);
+      //   // if (utxo.bitcoinAddressRecord.type == SegwitAddresType.mweb) {
+      //   //   hasMwebInput = true;
+      //   // }
+      // }
+      // TEMP: solution (doesn't account for coin control):
       for (final input in selectedInputs) {
         if (input.bitcoinAddressRecord.type == SegwitAddresType.mweb) {
           hasMwebInput = true;
         }
       }
 
+      bool isPegIn = !hasMwebInput && hasMwebOutput;
+      tx.changeAddressOverride =
+          await (walletAddresses as LitecoinWalletAddresses).getChangeAddress(isPegIn: isPegIn);
       if (!hasMwebInput && !hasMwebOutput) {
         tx.isMweb = false;
         return tx;
@@ -1026,10 +1043,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           }).toList())
           .toHex();
       tx.outputAddresses = resp.outputId;
-      bool isPegIn = !hasMwebInput && hasMwebOutput;
-      tx.changeAddressOverride =
-          await (walletAddresses as LitecoinWalletAddresses).getChangeAddress(isPegIn: isPegIn);
-
 
       return tx
         ..addListener((transaction) async {
