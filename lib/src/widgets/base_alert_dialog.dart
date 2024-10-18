@@ -73,15 +73,22 @@ class BaseAlertDialog extends StatelessWidget {
   }
 
   Widget content(BuildContext context) {
-    return Text(
-      contentText,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.normal,
-        fontFamily: 'Lato',
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-        decoration: TextDecoration.none,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            contentText,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+              fontFamily: 'Lato',
+              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              decoration: TextDecoration.none,
+            ),
+          ),
+        ],
       ),
     );
   }
