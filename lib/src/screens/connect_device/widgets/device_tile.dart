@@ -1,6 +1,6 @@
 import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 
 class DeviceTile extends StatelessWidget {
   const DeviceTile({

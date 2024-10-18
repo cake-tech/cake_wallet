@@ -58,6 +58,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       sideHd: accountHD.childKey(Bip32KeyIndex(1)),
       network: network,
       initialAddressPageType: addressPageType,
+      isHardwareWallet: walletInfo.isHardwareWallet,
     );
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
