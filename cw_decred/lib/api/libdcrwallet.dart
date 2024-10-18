@@ -269,6 +269,18 @@ String signMessage(Map<String, String> args) {
   return res.payload;
 }
 
+String verifyMessage(String name, String message, String address, String sig) {
+  final cName = name.toCString();
+  final cMessage = message.toCString();
+  final cAddress = address.toCString();
+  final cSig = sig.toCString();
+  final res = executePayloadFn(
+    fn: () => dcrwalletApi.verifyMessage(cName, cMessage, cAddress, cSig),
+    ptrsToFree: [cName, cMessage, cAddress, cSig],
+  );
+  return res.payload;
+}
+
 String? newExternalAddress(String walletName) {
   final cName = walletName.toCString();
   final res = executePayloadFn(

@@ -604,13 +604,22 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
     return decoded["height"] ?? 0;
   }
 
-  @override
-  Future<bool> verifyMessage(String message, String signature, {String? address = null}) {
-    return true;
+  Future<bool> verifyMessage(String message, String signature,
+      {String? address = null}) {
+    var addr = address;
+    if (addr == null) {
+      throw "an address is required to verify message";
+    }
+    return () async {
+      final verified =
+          libdcrwallet.verifyMessage(walletInfo.name, message, addr, signature);
+      if (verified == "true") {
+        return true;
+      }
+      return false;
+    }();
   }
 
   @override
-  String get password {
-    return "";
-  }
+  String get password => _password;
 }
