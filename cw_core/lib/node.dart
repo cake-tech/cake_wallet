@@ -200,8 +200,27 @@ class Node extends HiveObject with Keyable {
         headers: {'Content-Type': 'application/json'},
         body: json.encode(body),
       );
-
       client.close();
+
+      if (
+        response.body.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+        || response.headers["location"] != null // Generic reverse proxy
+        || response.body.contains("301 Moved Permanently") // Poorly configured generic reverse proxy
+      ) {
+
+        final oldUseSSL = useSSL;
+        useSSL = true;
+        try {
+          final ret = await requestMoneroNode();
+          if (ret == true) {
+            await save();
+            return ret;
+          }
+          useSSL = oldUseSSL;
+        } catch (e) {
+          useSSL = false;
+        }
+      }
 
       final resBody = json.decode(response.body) as Map<String, dynamic>;
       return !(resBody['result']['offline'] as bool);
