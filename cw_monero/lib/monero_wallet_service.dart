@@ -12,12 +12,12 @@ import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/api/wallet_manager.dart';
+import 'package:cw_monero/ledger.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:polyseed/polyseed.dart';
 import 'package:monero/monero.dart' as monero;
-import 'package:monero/src/ledger.dart' as monero_ledger;
 
 class MoneroNewWalletCredentials extends WalletCredentials {
   MoneroNewWalletCredentials(
@@ -251,7 +251,7 @@ class MoneroWalletService extends WalletService<
 
       if (wptr == null ) monero_wallet_manager.createWalletPointer();
 
-      monero_ledger.enableLedgerExchange(wptr!, credentials.ledgerConnection);
+      enableLedgerExchange(wptr!, credentials.ledgerConnection);
       await monero_wallet_manager.restoreWalletFromHardwareWallet(
             path: path,
             password: password!,
@@ -414,6 +414,6 @@ class MoneroWalletService extends WalletService<
   void setLedgerConnection(LedgerConnection connection) {
     final dummyWPtr = wptr ??
         monero.WalletManager_openWallet(wmPtr, path: '', password: '');
-    monero_ledger.enableLedgerExchange(dummyWPtr, connection);
+    enableLedgerExchange(dummyWPtr, connection);
   }
 }

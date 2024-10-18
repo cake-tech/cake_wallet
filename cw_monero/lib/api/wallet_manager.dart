@@ -9,9 +9,9 @@ import 'package:cw_monero/api/exceptions/wallet_restore_from_keys_exception.dart
 import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart';
 import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:cw_monero/ledger.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:monero/monero.dart' as monero;
-import 'package:monero/src/ledger.dart' as monero_ledger;
 
 class MoneroCException implements Exception {
   final String message;
@@ -297,7 +297,7 @@ Future<void> loadWallet(
     if (deviceType == 1) {
       final dummyWPtr = wptr ??
           monero.WalletManager_openWallet(wmPtr, path: '', password: '');
-      monero_ledger.enableLedgerExchange(dummyWPtr, gLedger);
+      enableLedgerExchange(dummyWPtr, gLedger);
     }
 
     final addr = wmPtr.address;
