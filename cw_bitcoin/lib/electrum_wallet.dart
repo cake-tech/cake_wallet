@@ -481,10 +481,10 @@ abstract class ElectrumWalletBase
         final response =
             await http.get(Uri.parse("http://mempool.cakewallet.com:8999/api/v1/fees/recommended"));
 
-        final result = json.decode(response.body) as Map<String, num>;
-        final slowFee = result['economyFee']?.toInt() ?? 0;
-        int mediumFee = result['hourFee']?.toInt() ?? 0;
-        int fastFee = result['fastestFee']?.toInt() ?? 0;
+        final result = json.decode(response.body) as Map<String, dynamic>;
+        final slowFee = (result['economyFee'] as num?)?.toInt() ?? 0;
+        int mediumFee = (result['hourFee'] as num?)?.toInt() ?? 0;
+        int fastFee = (result['fastestFee'] as num?)?.toInt() ?? 0;
         if (slowFee == mediumFee) {
           mediumFee++;
         }
@@ -493,7 +493,9 @@ abstract class ElectrumWalletBase
         }
         _feeRates = [slowFee, mediumFee, fastFee];
         return;
-      } catch (_) {}
+      } catch (e) {
+        print(e);
+      }
     }
 
     final feeRates = await electrumClient.feeRates(network: network);
