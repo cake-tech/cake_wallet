@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -142,14 +143,15 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @action
   @override
-  Future<String> getChangeAddress({List<BitcoinOutput>? outputs, UtxoDetails? utxoDetails}) async {
+  Future<String> getChangeAddress(
+      {List<BitcoinUnspent>? inputs, List<BitcoinOutput>? outputs, bool isPegIn = false}) async {
     // use regular change address on peg in, otherwise use mweb for change address:
 
-    if (!mwebEnabled) {
+    if (!mwebEnabled || isPegIn) {
       return super.getChangeAddress();
     }
 
-    if (outputs != null && utxoDetails != null) {
+    if (inputs != null && outputs != null) {
       // check if this is a PEGIN:
       bool outputsToMweb = false;
       bool comesFromMweb = false;
@@ -161,14 +163,18 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
           outputsToMweb = true;
         }
       }
-      // TODO: this doesn't respect coin control because it doesn't know which available inputs are selected
-      utxoDetails.availableInputs.forEach((element) {
+
+      inputs.forEach((element) {
+        if (!element.isSending || element.isFrozen) {
+          return;
+        }
         if (element.address.contains("mweb")) {
           comesFromMweb = true;
         }
       });
 
       bool isPegIn = !comesFromMweb && outputsToMweb;
+
       if (isPegIn && mwebEnabled) {
         return super.getChangeAddress();
       }

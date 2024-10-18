@@ -37,6 +37,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   final bool hasChange;
   final bool hasTaprootInputs;
   bool isMweb;
+  String? changeAddressOverride;
   String? idOverride;
   String? hexOverride;
   List<String>? outputAddresses;
@@ -63,6 +64,9 @@ class PendingBitcoinTransaction with PendingTransaction {
   PendingChange? get change {
     try {
       final change = _tx.outputs.firstWhere((out) => out.isChange);
+      if (changeAddressOverride != null) {
+        return PendingChange(changeAddressOverride!, BtcUtils.fromSatoshi(change.amount));
+      }
       return PendingChange(change.scriptPubKey.toAddress(), BtcUtils.fromSatoshi(change.amount));
     } catch (_) {
       return null;
