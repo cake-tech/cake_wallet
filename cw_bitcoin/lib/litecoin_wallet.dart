@@ -968,35 +968,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
 
       // check if mweb inputs are used:
-      final coinTypeToSpendFrom = transactionCredentials.coinTypeToSpendFrom;
-
-      await updateUnspent();
-      final selectedInputs = unspentCoins.where((utx) {
-        if (!utx.isSending || utx.isFrozen) {
-          return false;
-        }
-
-        switch (coinTypeToSpendFrom) {
-          case UnspentCoinType.mweb:
-            return utx.bitcoinAddressRecord.type == SegwitAddresType.mweb;
-          case UnspentCoinType.nonMweb:
-            return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
-          case UnspentCoinType.any:
-            return true;
-        }
-      }).toList();
-      // for (final input in tx2.inputs) {
-      //   // TODO: determine if this is an mweb input:
-      //   // this doesn't work because mwebd doesn't return mweb inputs, only regular segwit inputs:
-      //   // final utxo = unspentCoins
-      //   //     .firstWhere((utxo) => utxo.hash == input.txId && utxo.vout == input.txIndex);
-      //   // if (utxo.bitcoinAddressRecord.type == SegwitAddresType.mweb) {
-      //   //   hasMwebInput = true;
-      //   // }
-      // }
-      // TEMP: solution (doesn't account for coin control):
-      for (final input in selectedInputs) {
-        if (input.bitcoinAddressRecord.type == SegwitAddresType.mweb) {
+      for (final utxo in tx.utxos) {
+        if (utxo.utxo.scriptType == SegwitAddresType.mweb) {
           hasMwebInput = true;
         }
       }
