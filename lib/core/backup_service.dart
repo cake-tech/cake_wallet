@@ -230,17 +230,15 @@ class BackupService {
         json.decode(transactionDescriptionFile.readAsStringSync()) as Map<String, dynamic>;
     final descriptionsMap = jsonData.map((key, value) =>
         MapEntry(key, TransactionDescription.fromJson(value as Map<String, dynamic>)));
-
-    if (!_transactionDescriptionBox.isOpen) {
-      final transactionDescriptionsBoxKey = await getEncryptionKey(secureStorage: secureStorageShared, forKey: TransactionDescription.boxKey);
-      final transactionDescriptionBox = await CakeHive.openBox<TransactionDescription>(
+    var box = _transactionDescriptionBox;
+    if (!box.isOpen) {
+      final transactionDescriptionsBoxKey = 
+        await getEncryptionKey(secureStorage: _secureStorage, forKey: TransactionDescription.boxKey);
+      box = await CakeHive.openBox<TransactionDescription>(
         TransactionDescription.boxName,
-        encryptionKey: transactionDescriptionsBoxKey,
-      );
-      await transactionDescriptionBox.putAll(descriptionsMap);
-      return;
-    }
-    await _transactionDescriptionBox.putAll(descriptionsMap);
+        encryptionKey: transactionDescriptionsBoxKey);
+      }
+    await box.putAll(descriptionsMap);
   }
 
   Future<void> _importPreferencesDump() async {

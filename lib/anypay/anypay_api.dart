@@ -56,7 +56,7 @@ class AnyPayApi {
 		final response = await post(url, headers: headers, body: utf8.encode(json.encode(body)));
 
     if (response.statusCode != 200) {
-			ExceptionHandler.onError(FlutterErrorDetails(exception: response));
+			await ExceptionHandler.onError(FlutterErrorDetails(exception: response));
       throw Exception('Unexpected response http code: ${response.statusCode}');
 		}
 

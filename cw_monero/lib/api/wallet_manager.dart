@@ -280,14 +280,14 @@ void loadWallet(
     txhistory = null;
     final newWptr = monero.WalletManager_openWallet(wmPtr,
         path: path, password: password);
-    _lastOpenedWallet = path;
     final status = monero.Wallet_status(newWptr);
     if (status != 0) {
       final err = monero.Wallet_errorString(newWptr);
-      print(err);
+      print("loadWallet:"+err);
       throw WalletOpeningException(message: err);
     }
     wptr = newWptr;
+    _lastOpenedWallet = path;
     openedWalletsByPath[path] = wptr!;
   }
 }
