@@ -91,7 +91,6 @@ Future<PendingTransactionDescription> createTransactionSync(
   
   final address_ = address.toNativeUtf8(); 
   final paymentId_ = paymentId.toNativeUtf8();
-  print("inputs: $preferredInputs");
   if (preferredInputs.isEmpty) {
     throw MoneroTransactionCreationException("No inputs provided, transaction cannot be constructed");
   }
