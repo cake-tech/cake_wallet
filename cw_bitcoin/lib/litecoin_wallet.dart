@@ -562,10 +562,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         value: sUtxo.value.toInt(),
       );
 
-      // if (mwebUtxosBox.containsKey(utxo.outputId)) {
-      //   // we've already stored this utxo, skip it:
-      //   return;
-      // }
+      if (mwebUtxosBox.containsKey(utxo.outputId)) {
+        // we've already stored this utxo, skip it:
+        return;
+      }
 
       await updateUnspent();
       await updateBalance();
