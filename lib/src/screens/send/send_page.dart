@@ -28,6 +28,7 @@ import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -508,6 +509,10 @@ class SendPage extends BasePage {
                                 if (state is TransactionCommitted) {
                                   newContactAddress =
                                       newContactAddress ?? sendViewModel.newContactAddress();
+                                  
+                                  if (sendViewModel.coinTypeToSpendFrom != UnspentCoinType.any) {
+                                    newContactAddress = null;
+                                  }
 
                                   final successMessage = S.of(_dialogContext).send_success(
                                       sendViewModel.selectedCryptoCurrency.toString());

@@ -231,6 +231,7 @@ abstract class Bitcoin {
   Future<void> setMwebEnabled(Object wallet, bool enabled);
   bool getMwebEnabled(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
+  String? getUnusedSegwitAddress(Object wallet);
 }
   """;
 

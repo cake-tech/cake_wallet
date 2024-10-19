@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -249,7 +250,7 @@ abstract class ElectrumWalletBase
   int? _currentChainTip;
 
   Future<int> getCurrentChainTip() async {
-    if (_currentChainTip != null) {
+    if ((_currentChainTip ?? 0) > 0) {
       return _currentChainTip!;
     }
     _currentChainTip = await electrumClient.getCurrentBlockChainTip() ?? 0;
@@ -301,6 +302,7 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> _setListeners(int height, {int? chainTipParam, bool? doSingleScan}) async {
+    if (this is! BitcoinWallet) return;
     final chainTip = chainTipParam ?? await getUpdatedChainTip();
 
     if (chainTip == height) {
@@ -467,7 +469,7 @@ abstract class ElectrumWalletBase
       }
     } catch (e, stacktrace) {
       print(stacktrace);
-      print(e.toString());
+      print("startSync $e");
       syncStatus = FailedSyncStatus();
     }
   }
@@ -479,10 +481,10 @@ abstract class ElectrumWalletBase
         final response =
             await http.get(Uri.parse("http://mempool.cakewallet.com:8999/api/v1/fees/recommended"));
 
-        final result = json.decode(response.body) as Map<String, num>;
-        final slowFee = result['economyFee']?.toInt() ?? 0;
-        int mediumFee = result['hourFee']?.toInt() ?? 0;
-        int fastFee = result['fastestFee']?.toInt() ?? 0;
+        final result = json.decode(response.body) as Map<String, dynamic>;
+        final slowFee = (result['economyFee'] as num?)?.toInt() ?? 0;
+        int mediumFee = (result['hourFee'] as num?)?.toInt() ?? 0;
+        int fastFee = (result['fastestFee'] as num?)?.toInt() ?? 0;
         if (slowFee == mediumFee) {
           mediumFee++;
         }
@@ -491,7 +493,9 @@ abstract class ElectrumWalletBase
         }
         _feeRates = [slowFee, mediumFee, fastFee];
         return;
-      } catch (_) {}
+      } catch (e) {
+        print(e);
+      }
     }
 
     final feeRates = await electrumClient.feeRates(network: network);
@@ -571,7 +575,7 @@ abstract class ElectrumWalletBase
       await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
     } catch (e, stacktrace) {
       print(stacktrace);
-      print(e.toString());
+      print("connectToNode $e");
       syncStatus = FailedSyncStatus();
     }
   }
@@ -826,8 +830,8 @@ abstract class ElectrumWalletBase
     }
 
     final changeAddress = await walletAddresses.getChangeAddress(
+      inputs: utxoDetails.availableInputs,
       outputs: updatedOutputs,
-      utxoDetails: utxoDetails,
     );
     final address = RegexUtils.addressTypeFromStr(changeAddress, network);
     updatedOutputs.add(BitcoinOutput(
@@ -1181,6 +1185,7 @@ abstract class ElectrumWalletBase
         hasChange: estimatedTx.hasChange,
         isSendAll: estimatedTx.isSendAll,
         hasTaprootInputs: hasTaprootInputs,
+        utxos: estimatedTx.utxos,
       )..addListener((transaction) async {
           transactionHistory.addOne(transaction);
           if (estimatedTx.spendsSilentPayment) {
@@ -1370,7 +1375,7 @@ abstract class ElectrumWalletBase
       });
     }
 
-    // Set the balance of all non-silent payment addresses to 0 before updating
+    // Set the balance of all non-silent payment and non-mweb addresses to 0 before updating
     walletAddresses.allAddresses
         .where((element) => element.type != SegwitAddresType.mweb)
         .forEach((addr) {
@@ -1487,7 +1492,7 @@ abstract class ElectrumWalletBase
         await unspentCoinsInfo.deleteAll(keys);
       }
     } catch (e) {
-      print(e.toString());
+      print("refreshUnspentCoinsInfo $e");
     }
   }
 
@@ -1831,7 +1836,7 @@ abstract class ElectrumWalletBase
 
       return historiesWithDetails;
     } catch (e) {
-      print(e.toString());
+      print("fetchTransactions $e");
       return {};
     }
   }
@@ -1905,7 +1910,9 @@ abstract class ElectrumWalletBase
             if (height > 0) {
               storedTx.height = height;
               // the tx's block itself is the first confirmation so add 1
-              if (currentHeight != null) storedTx.confirmations = currentHeight - height + 1;
+              if ((currentHeight ?? 0) > 0) {
+                storedTx.confirmations = currentHeight! - height + 1;
+              }
               storedTx.isPending = storedTx.confirmations == 0;
             }
 
@@ -1946,9 +1953,13 @@ abstract class ElectrumWalletBase
       }
       await getCurrentChainTip();
 
-      transactionHistory.transactions.values.forEach((tx) async {
-        if (tx.unspents != null && tx.unspents!.isNotEmpty && tx.height != null && tx.height! > 0) {
-          tx.confirmations = await getCurrentChainTip() - tx.height! + 1;
+      transactionHistory.transactions.values.forEach((tx) {
+        if (tx.unspents != null &&
+            tx.unspents!.isNotEmpty &&
+            tx.height != null &&
+            tx.height! > 0 &&
+            (_currentChainTip ?? 0) > 0) {
+          tx.confirmations = _currentChainTip! - tx.height! + 1;
         }
       });
 
@@ -1973,9 +1984,17 @@ abstract class ElectrumWalletBase
     await Future.wait(unsubscribedScriptHashes.map((address) async {
       final sh = address.getScriptHash(network);
       if (!(_scripthashesUpdateSubject[sh]?.isClosed ?? true)) {
-        await _scripthashesUpdateSubject[sh]?.close();
+        try {
+          await _scripthashesUpdateSubject[sh]?.close();
+        } catch (e) {
+          print("failed to close: $e");
+        }
       }
-      _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
+      try {
+        _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
+      } catch (e) {
+        print("failed scripthashUpdate: $e");
+      }
       _scripthashesUpdateSubject[sh]?.listen((event) async {
         try {
           await updateUnspentsForAddress(address);
@@ -2171,6 +2190,7 @@ abstract class ElectrumWalletBase
 
   @action
   void _onConnectionStatusChange(ConnectionStatus status) {
+
     switch (status) {
       case ConnectionStatus.connected:
         if (syncStatus is NotConnectedSyncStatus ||
@@ -2182,19 +2202,26 @@ abstract class ElectrumWalletBase
 
         break;
       case ConnectionStatus.disconnected:
-        syncStatus = NotConnectedSyncStatus();
+        if (syncStatus is! NotConnectedSyncStatus) {
+          syncStatus = NotConnectedSyncStatus();
+        }
         break;
       case ConnectionStatus.failed:
-        syncStatus = LostConnectionSyncStatus();
+        if (syncStatus is! LostConnectionSyncStatus) {
+          syncStatus = LostConnectionSyncStatus();
+        }
         break;
       case ConnectionStatus.connecting:
-        syncStatus = ConnectingSyncStatus();
+        if (syncStatus is! ConnectingSyncStatus) {
+          syncStatus = ConnectingSyncStatus();
+        }
         break;
       default:
     }
   }
 
   void _syncStatusReaction(SyncStatus syncStatus) async {
+    print("SYNC_STATUS_CHANGE: ${syncStatus}");
     if (syncStatus is SyncingSyncStatus) {
       return;
     }
