@@ -7,7 +7,6 @@ import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
-import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -425,7 +424,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     bool? usingElectrs,
   }) async {
     _syncTimer?.cancel();
-    int oldHeight = walletInfo.restoreHeight;
     await walletInfo.updateRestoreHeight(height);
 
     // go through mwebUtxos and clear any that are above the new restore height:
