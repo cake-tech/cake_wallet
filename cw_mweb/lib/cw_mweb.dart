@@ -40,7 +40,7 @@ class CwMweb {
   }
 
   static Future<void> _initializeClient() async {
-    print("initialize client called!");
+    print("_initializeClient() called!");
     final appDir = await getApplicationSupportDirectory();
     const ltcNodeUri = "ltc-electrum.cakewallet.com:9333";
 
@@ -54,7 +54,7 @@ class CwMweb {
     log("Attempting to connect to server on port: $_port");
 
     // wait for the server to finish starting up before we try to connect to it:
-    await Future.delayed(const Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 8));
 
     _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
       _rpcClient = null;
@@ -83,10 +83,13 @@ class CwMweb {
         log("Attempt $i failed: $e");
         log('Caught grpc error: ${e.message}');
         _rpcClient = null;
+        // necessary if the database isn't open:
+        await stop();
         await Future.delayed(const Duration(seconds: 3));
       } catch (e) {
         log("Attempt $i failed: $e");
         _rpcClient = null;
+        await stop();
         await Future.delayed(const Duration(seconds: 3));
       }
     }

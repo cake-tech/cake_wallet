@@ -115,7 +115,9 @@ abstract class WalletCreationVMBase with Store {
       getIt.get<BackgroundTasks>().registerSyncTask();
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
-    } catch (e, _) {
+    } catch (e, s) {
+      print("error: $e");
+      print("stack: $s");
       state = FailureState(e.toString());
     }
   }
@@ -198,11 +200,16 @@ abstract class WalletCreationVMBase with Store {
     switch (walletType) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        return bitcoin!.getDerivationsFromMnemonic(
+        final derivationList = await bitcoin!.getDerivationsFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,
           node: node,
           passphrase: restoreWallet.passphrase,
         );
+
+        if (derivationList.firstOrNull?.transactionsCount == 0 && derivationList.length > 1)
+          return [];
+        return derivationList;
+
       case WalletType.nano:
         return nanoUtil!.getDerivationsFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,
