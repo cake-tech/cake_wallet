@@ -35,6 +35,9 @@ abstract class HavenWalletAddressesBase extends WalletAddressesWithAccount<Accou
   HavenAccountList accountList;
 
   @override
+  String get primaryAddress => address;
+
+  @override
   Future<void> init() async {
     accountList.update();
     account = accountList.accounts.isEmpty ? Account(id: 0, label: "Primary address") : accountList.accounts.first;
