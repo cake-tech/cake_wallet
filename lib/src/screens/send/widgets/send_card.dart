@@ -223,9 +223,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         tag: sendViewModel.selectedCryptoCurrency.tag,
                         allAmountButton:
                             !sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL,
-                        currencyValueValidator: output.sendAll
-                            ? sendViewModel.allAmountValidator
-                            : sendViewModel.amountValidator,
+                        currencyValueValidator: sendViewModel.amountValidator,
                         allAmountCallback: () async => output.setSendAll(sendViewModel.balance)),
                     Divider(
                         height: 1,
@@ -426,7 +424,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     cryptoAmountController.addListener(() {
       final amount = cryptoAmountController.text;
 
-      if (output.sendAll && amount != S.current.all) {
+      if (output.sendAll && (amount != S.current.all && amount != sendViewModel.balance)) {
         output.sendAll = false;
       }
 
@@ -438,7 +436,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     fiatAmountController.addListener(() {
       final amount = fiatAmountController.text;
 
-      if (amount != output.fiatAmount) {
+      if (amount != output.fiatAmount && cryptoAmountController.text != sendViewModel.balance) {
         output.sendAll = false;
         output.setFiatAmount(amount);
       }
@@ -453,8 +451,14 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     });
 
     reaction((_) => output.sendAll, (bool all) {
+      if (cryptoAmountController.text == sendViewModel.balance &&
+          fiatAmountController.text == '') {
+        if (all) return;
+        output.sendAll = true;
+        return;
+      }
       if (all) {
-        cryptoAmountController.text = S.current.all;
+        cryptoAmountController.text = sendViewModel.balance;
         fiatAmountController.text = '';
       }
     });
@@ -466,7 +470,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     });
 
     reaction((_) => output.cryptoAmount, (String amount) {
-      if (output.sendAll && amount != S.current.all) {
+      if (output.sendAll && (amount != S.current.all && amount != sendViewModel.balance)) {
         output.sendAll = false;
       }
 
