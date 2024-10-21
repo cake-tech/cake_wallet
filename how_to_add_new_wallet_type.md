@@ -5,7 +5,7 @@
 **N:B** Throughout this guide, `walletx` refers to the specific wallet type you want to add. If you're adding `BNB` to CakeWallet, then `walletx` for you here is `bnb`.
 
 **Core Folder/Files Setup**
-- Idenitify your core component/package (major project component), which would power the integration e.g web3dart, solana, onchain etc
+- Identify your core component/package (major project component), which would power the integration e.g web3dart, solana, onchain etc
 - Add a new entry to `WalletType` class in `cw_core/wallet_type.dart`. 
 - Fill out the necessary information in the various functions in the files, concerning the wallet name, the native currency type, symbol etc.
 - Go to `cw_core/lib/currency_for_wallet_type.dart`, in the `currencyForWalletType` function, add a case for `walletx`, returning the native cryptocurrency for `walletx`. 
@@ -144,7 +144,7 @@ You can add as many node entries as desired.
 			}
 		}
 
-- Next, we’ll write the function to change walletX current node to default. An handy function we would make use of later on. Add a new preference key in `lib/entities/preference_key.dart` with the format `PreferencesKey.currentWalletXNodeIdKey`, we’ll use it to identify the current node id.
+- Next, we’ll write the function to change walletX current node to default. A handy function we would make use of later on. Add a new preference key in `lib/entities/preference_key.dart` with the format `PreferencesKey.currentWalletXNodeIdKey`, we’ll use it to identify the current node id.
 
 		Future<void> changeWalletXCurrentNodeToDefault(
 				{required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
@@ -228,7 +228,7 @@ Now you can run the codebase and successfully create a wallet for type walletX s
 
 **Balance Screen**
 - Go to `lib/view_model/dashboard/balance_view_model.dart`
-- Modify the function to adjust the way the balance is being display on the app: `isHomeScreenSettingsEnabled` 
+- Modify the function to adjust the way the balance is being displayed on the app: `isHomeScreenSettingsEnabled` 
 - Add a case to the `availableBalanceLabel` getter to modify the text being displayed (Available or confirmed)
 - Same for `additionalBalanceLabel` 
 - Next, go to `lib/reactions/fiat_rate_update.dart`

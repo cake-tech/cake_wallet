@@ -57,7 +57,7 @@ Proceed into the source code before proceeding with the next steps:
 
 ### 7. Execute Build & Setup Commands for Cake Wallet
 
-We need to generate project settings like app name, app icon, package name, etc. For this need to setup environment variables and configure project files. 
+We need to generate project settings like app name, app icon, package name, etc. For this, we need to setup environment variables and configure project files. 
 
 Please pick what app you want to build: cakewallet or monero.com.
 
@@ -92,7 +92,7 @@ Then we need to generate localization files and mobx models.
 
 `$ flutter build ios --release`
 
-Then you can open `ios/Runner.xcworkspace` with Xcode and you can to archive the application.
+Then you can open `ios/Runner.xcworkspace` with Xcode and you can archive the application.
 
 Or if you want to run to connected device:
 
