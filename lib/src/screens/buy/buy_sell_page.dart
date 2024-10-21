@@ -313,7 +313,17 @@ class BuySellPage extends BasePage {
       }
     });
 
-
+    reaction((_) => buySellViewModel.isReadyToTrade, (bool isReady) {
+      if (isReady) {
+        if (cryptoAmountController.text.isNotEmpty &&
+            cryptoAmountController.text != S.current.fetching) {
+          buySellViewModel.changeCryptoAmount(amount: cryptoAmountController.text);
+        } else if (fiatAmountController.text.isNotEmpty &&
+            fiatAmountController.text != S.current.fetching) {
+          buySellViewModel.changeFiatAmount(amount: fiatAmountController.text);
+        }
+      }
+    });
 
     _isReactionsSet = true;
   }

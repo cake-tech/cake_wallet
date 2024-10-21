@@ -204,8 +204,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     final enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
-    if (bestRateQuote == null) {
+    if (!isReadyToTrade) {
       cryptoAmount = S.current.fetching;
+      return;
     }
 
     if (bestRateQuote != null) {
@@ -214,6 +215,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           .format(enteredAmount / bestRateQuote!.rate)
           .toString()
           .replaceAll(RegExp('\\,'), '');
+    } else {
+      await calculateBestRate();
     }
   }
 
@@ -229,7 +232,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     final enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
-    if (bestRateQuote == null) {
+    if (!isReadyToTrade) {
       fiatAmount = S.current.fetching;
     }
 
@@ -238,6 +241,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           .format(enteredAmount * bestRateQuote!.rate)
           .toString()
           .replaceAll(RegExp('\\,'), '');
+    } else {
+      await calculateBestRate();
     }
   }
 
