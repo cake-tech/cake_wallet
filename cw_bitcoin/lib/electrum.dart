@@ -423,7 +423,7 @@ class ElectrumClient {
   BehaviorSubject<T>? subscribe<T>(
       {required String id, required String method, List<Object> params = const []}) {
     try {
-      if (socket == null || !isConnected) {
+      if (socket == null) {
         return null;
       }
       final subscription = BehaviorSubject<T>();
@@ -439,7 +439,7 @@ class ElectrumClient {
 
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
-    if (socket == null || !isConnected) {
+    if (socket == null) {
       return null;
     }
     final completer = Completer<dynamic>();
@@ -455,7 +455,7 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
-      if (socket == null || !isConnected) {
+      if (socket == null) {
         return null;
       }
       final completer = Completer<dynamic>();
