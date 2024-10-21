@@ -67,7 +67,13 @@ class AttemptingScanSyncStatus extends SyncStatus {
   double progress() => 0.0;
 }
 
-class FailedSyncStatus extends NotConnectedSyncStatus {}
+class FailedSyncStatus extends NotConnectedSyncStatus {
+  String? error;
+  FailedSyncStatus({this.error});
+
+  @override
+  String toString() => error ?? super.toString();
+}
 
 class ConnectingSyncStatus extends SyncStatus {
   @override

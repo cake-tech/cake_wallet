@@ -152,11 +152,6 @@ void _setAutoGenerateSubaddressStatus(
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
   SettingsStore settingsStore,
 ) async {
-  final walletHasAddresses = await wallet.walletAddresses.addressesMap.length > 1;
-  if (settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.initialized &&
-      walletHasAddresses) {
-    settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.disabled;
-  }
   wallet.isEnabledAutoGenerateSubaddress =
       settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled ||
           settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.initialized;

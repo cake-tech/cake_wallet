@@ -6,6 +6,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -143,7 +144,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           setState(() => _setInactive(true));
         }
 
-        if (syncingWalletTypes.contains(widget.appStore.wallet?.type)) {
+        if (FeatureFlag.isBackgroundSyncEnabled && syncingWalletTypes.contains(widget.appStore.wallet?.type)) {
           widget.appStore.wallet?.stopSync();
         }
 

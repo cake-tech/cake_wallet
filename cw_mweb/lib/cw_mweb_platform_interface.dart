@@ -25,7 +25,7 @@ abstract class CwMwebPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<int?> start(String dataDir) {
+  Future<int?> start(String dataDir, String nodeUri) {
     throw UnimplementedError('start() has not been implemented.');
   }
 
@@ -35,5 +35,9 @@ abstract class CwMwebPlatform extends PlatformInterface {
 
   Future<String?> address(Uint8List scanSecret, Uint8List spendPub, int index) {
     throw UnimplementedError('address(int) has not been implemented.');
+  }
+
+  Future<String?> addresses(Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) {
+    throw UnimplementedError('addresses has not been implemented.');
   }
 }

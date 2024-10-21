@@ -68,8 +68,8 @@ class ElectrumClient {
 
     try {
       await socket?.close();
-      socket = null;
     } catch (_) {}
+    socket = null;
 
     try {
       if (useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum"))) {
@@ -102,7 +102,8 @@ class ElectrumClient {
       return;
     }
 
-    _setConnectionStatus(ConnectionStatus.connected);
+    // use ping to determine actual connection status since we could've just not timed out yet:
+    // _setConnectionStatus(ConnectionStatus.connected);
 
     socket!.listen(
       (Uint8List event) {
@@ -116,7 +117,7 @@ class ElectrumClient {
             _parseResponse(message);
           }
         } catch (e) {
-          print(e.toString());
+          print("socket.listen: $e");
         }
       },
       onError: (Object error) {
@@ -125,14 +126,15 @@ class ElectrumClient {
         unterminatedString = '';
       },
       onDone: () {
+        print("SOCKET CLOSED!!!!!");
         unterminatedString = '';
         try {
-          if (host == socket?.address.host) {
-            socket?.destroy();
+          if (host == socket?.address.host || socket == null) {
             _setConnectionStatus(ConnectionStatus.disconnected);
+            socket?.destroy();
           }
         } catch (e) {
-          print(e.toString());
+          print("onDone: $e");
         }
       },
       cancelOnError: true,
@@ -177,7 +179,7 @@ class ElectrumClient {
         unterminatedString = '';
       }
     } catch (e) {
-      print(e.toString());
+      print("parse $e");
     }
   }
 
@@ -190,7 +192,7 @@ class ElectrumClient {
     try {
       await callWithTimeout(method: 'server.ping');
       _setConnectionStatus(ConnectionStatus.connected);
-    } on RequestFailedTimeoutException catch (_) {
+    } catch (_) {
       _setConnectionStatus(ConnectionStatus.disconnected);
     }
   }
@@ -430,7 +432,7 @@ class ElectrumClient {
 
       return subscription;
     } catch (e) {
-      print(e.toString());
+      print("subscribe $e");
       return null;
     }
   }
@@ -469,7 +471,8 @@ class ElectrumClient {
 
       return completer.future;
     } catch (e) {
-      print(e.toString());
+      print("callWithTimeout $e");
+      rethrow;
     }
   }
 
@@ -536,6 +539,12 @@ class ElectrumClient {
     onConnectionStatusChange?.call(status);
     _connectionStatus = status;
     _isConnected = status == ConnectionStatus.connected;
+    if (!_isConnected) {
+      try {
+        socket?.destroy();
+      } catch (_) {}
+      socket = null;
+    }
   }
 
   void _handleResponse(Map<String, dynamic> response) {

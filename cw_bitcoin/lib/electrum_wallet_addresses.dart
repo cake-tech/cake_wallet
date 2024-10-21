@@ -1,7 +1,9 @@
+import 'dart:io' show Platform;
+
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -100,10 +102,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const gap = 20;
 
   final ObservableList<BitcoinAddressRecord> _addresses;
-  late ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
+  final ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
+  // TODO: add this variable in `bitcoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
   final ObservableList<BitcoinSilentPaymentAddressRecord> silentAddresses;
+  // TODO: add this variable in `litecoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
   final ObservableList<BitcoinAddressRecord> mwebAddresses;
   final BasedUtxoNetwork network;
   final Bip32Slip10Secp256k1 mainHd;
@@ -236,7 +240,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.litecoin) {
       await _generateInitialAddresses(type: SegwitAddresType.p2wpkh);
-      await _generateInitialAddresses(type: SegwitAddresType.mweb);
+      if (Platform.isAndroid || Platform.isIOS) {
+        await _generateInitialAddresses(type: SegwitAddresType.mweb);
+      }
     } else if (walletInfo.type == WalletType.bitcoin) {
       await _generateInitialAddresses();
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
@@ -261,7 +267,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<String> getChangeAddress({List<BitcoinOutput>? outputs, UtxoDetails? utxoDetails}) async {
+  Future<String> getChangeAddress({List<BitcoinUnspent>? inputs, List<BitcoinOutput>? outputs, bool isPegIn = false}) async {
     updateChangeAddresses();
 
     if (changeAddresses.isEmpty) {
@@ -472,7 +478,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
       await saveAddressesInBox();
     } catch (e) {
-      print(e.toString());
+      print("updateAddresses $e");
     }
   }
 

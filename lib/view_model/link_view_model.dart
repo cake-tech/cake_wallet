@@ -65,15 +65,16 @@ class LinkViewModel {
     if (isNanoGptLink) {
       switch (currentLink?.authority ?? '') {
         case "exchange":
-        case "send":
           return PaymentRequest.fromUri(currentLink);
+        case "send":
+          return {"paymentRequest": PaymentRequest.fromUri(currentLink)};
         case "buy":
           return true;
       }
     }
 
     if (_isValidPaymentUri) {
-      return PaymentRequest.fromUri(currentLink);
+      return {"paymentRequest": PaymentRequest.fromUri(currentLink)};
     }
 
     return null;

@@ -193,7 +193,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 40,
+    initialMigrationVersion: 41,
   );
 }
 
