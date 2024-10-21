@@ -1005,6 +1005,7 @@ abstract class ElectrumWalletBase
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
       final outputs = <BitcoinOutput>[];
+      List<BitcoinScriptOutput>? outputsOverride;
       final transactionCredentials = credentials as BitcoinTransactionCredentials;
       final hasMultiDestination = transactionCredentials.outputs.length > 1;
       final sendAll = !hasMultiDestination && transactionCredentials.outputs.first.sendAll;
@@ -1112,7 +1113,34 @@ abstract class ElectrumWalletBase
       }
 
       BasedBitcoinTransacationBuilder txb;
-      if (network is BitcoinCashNetwork) {
+      if (network is LitecoinNetwork) {
+        final spendsMweb =
+            estimatedTx.utxos.any((utxo) => utxo.utxo.scriptType == SegwitAddresType.mweb);
+        final paysToMweb = outputs.any(
+            (output) => output.toOutput.scriptPubKey.getAddressType() == SegwitAddresType.mweb);
+
+        BigInt fee = BigInt.from(estimatedTx.fee);
+
+        if ((spendsMweb || paysToMweb) && sendAll) {
+          fee = BigInt.from(0);
+
+          outputsOverride = [
+            BitcoinScriptOutput(
+                script: outputs[0].toOutput.scriptPubKey,
+                value: estimatedTx.utxos.sumOfUtxosValue())
+          ];
+        }
+
+        txb = BitcoinTransactionBuilder(
+          utxos: estimatedTx.utxos,
+          outputs: outputsOverride ?? updatedOutputs,
+          fee: fee,
+          network: network,
+          memo: estimatedTx.memo,
+          outputOrdering: BitcoinOrdering.none,
+          enableRBF: !estimatedTx.spendsUnconfirmedTX,
+        );
+      } else if (network is BitcoinCashNetwork) {
         txb = ForkedTransactionBuilder(
           utxos: estimatedTx.utxos,
           outputs: outputs,
@@ -1201,7 +1229,8 @@ abstract class ElectrumWalletBase
 
           await updateBalance();
         });
-    } catch (e) {
+    } catch (e, s) {
+      print(s);
       throw e;
     }
   }
@@ -2190,7 +2219,6 @@ abstract class ElectrumWalletBase
 
   @action
   void _onConnectionStatusChange(ConnectionStatus status) {
-
     switch (status) {
       case ConnectionStatus.connected:
         if (syncStatus is NotConnectedSyncStatus ||
