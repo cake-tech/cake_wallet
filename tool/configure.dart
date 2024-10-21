@@ -225,6 +225,7 @@ abstract class Bitcoin {
   int getMaxCustomFeeRate(Object wallet);
   void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
+  dynamic getStatusRequest(Object wallet);
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
   bool txIsReceivedSilentPayment(TransactionInfo txInfo);
   bool txIsMweb(TransactionInfo txInfo);
