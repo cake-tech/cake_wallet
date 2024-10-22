@@ -1113,34 +1113,7 @@ abstract class ElectrumWalletBase
       }
 
       BasedBitcoinTransacationBuilder txb;
-      if (network is LitecoinNetwork) {
-        final spendsMweb =
-            estimatedTx.utxos.any((utxo) => utxo.utxo.scriptType == SegwitAddresType.mweb);
-        final paysToMweb = outputs.any(
-            (output) => output.toOutput.scriptPubKey.getAddressType() == SegwitAddresType.mweb);
-
-        BigInt fee = BigInt.from(estimatedTx.fee);
-
-        // if ((spendsMweb || paysToMweb) && sendAll) {
-        //   fee = BigInt.from(0);
-
-        //   outputsOverride = [
-        //     BitcoinScriptOutput(
-        //         script: outputs[0].toOutput.scriptPubKey,
-        //         value: estimatedTx.utxos.sumOfUtxosValue())
-        //   ];
-        // }
-
-        txb = BitcoinTransactionBuilder(
-          utxos: estimatedTx.utxos,
-          outputs: outputsOverride ?? updatedOutputs,
-          fee: fee,
-          network: network,
-          memo: estimatedTx.memo,
-          outputOrdering: BitcoinOrdering.none,
-          enableRBF: !estimatedTx.spendsUnconfirmedTX,
-        );
-      } else if (network is BitcoinCashNetwork) {
+      if (network is BitcoinCashNetwork) {
         txb = ForkedTransactionBuilder(
           utxos: estimatedTx.utxos,
           outputs: updatedOutputs,
@@ -1229,8 +1202,7 @@ abstract class ElectrumWalletBase
 
           await updateBalance();
         });
-    } catch (e, s) {
-      print(s);
+    } catch (e) {
       throw e;
     }
   }
