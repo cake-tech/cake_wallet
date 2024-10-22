@@ -1063,7 +1063,7 @@ abstract class ElectrumWalletBase
 
       if (sendAll) {
         estimatedTx = await estimateSendAllTx(
-          outputs,
+          updatedOutputs,
           feeRateInt,
           memo: memo,
           credentialsAmount: credentialsAmount,
@@ -1115,7 +1115,7 @@ abstract class ElectrumWalletBase
       if (network is BitcoinCashNetwork) {
         txb = ForkedTransactionBuilder(
           utxos: estimatedTx.utxos,
-          outputs: outputs,
+          outputs: updatedOutputs,
           fee: BigInt.from(estimatedTx.fee),
           network: network,
           memo: estimatedTx.memo,
