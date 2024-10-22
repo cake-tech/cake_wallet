@@ -288,6 +288,7 @@
   "expiresOn": "Upływa w dniu",
   "expiry_and_validity": "Wygaśnięcie i ważność",
   "export_backup": "Eksportuj kopię zapasową",
+  "export_outputs": "Wyjścia eksportowe",
   "extra_id": "Dodatkowy ID:",
   "extracted_address_content": "Wysyłasz środki na\n${recipient_name}",
   "failed_authentication": "Nieudane uwierzytelnienie. ${state_error}",

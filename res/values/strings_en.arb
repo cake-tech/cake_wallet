@@ -288,6 +288,7 @@
   "expiresOn": "Expires on",
   "expiry_and_validity": "Expiry and Validity",
   "export_backup": "Export backup",
+  "export_outputs": "Export outputs",
   "extra_id": "Extra ID:",
   "extracted_address_content": "You will be sending funds to\n${recipient_name}",
   "failed_authentication": "Failed authentication. ${state_error}",

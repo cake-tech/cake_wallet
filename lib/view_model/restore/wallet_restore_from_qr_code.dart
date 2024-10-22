@@ -217,8 +217,8 @@ class WalletRestoreFromQRCode {
     if (type == WalletType.monero) {
       final codeParsed = json.decode(credentials['raw_qr'].toString());
       if (codeParsed["version"] != 0) throw UnimplementedError("Found view-only restore with unsupported version");
-      if (codeParsed["primaryAddress"] == null &&
-          codeParsed["privateViewKey"] == null &&
+      if (codeParsed["primaryAddress"] == null ||
+          codeParsed["privateViewKey"] == null ||
           codeParsed["restoreHeight"] == null) {
         throw UnimplementedError("Missing one or more attributes in the JSON");
       }

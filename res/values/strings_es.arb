@@ -288,6 +288,7 @@
   "expiresOn": "Expira el",
   "expiry_and_validity": "Vencimiento y validez",
   "export_backup": "Exportar copia de seguridad",
+  "export_outputs": "Exportaciones de exportación",
   "extra_id": "ID adicional:",
   "extracted_address_content": "Enviará fondos a\n${recipient_name}",
   "failed_authentication": "Autenticación fallida. ${state_error}",

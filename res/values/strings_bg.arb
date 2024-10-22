@@ -288,6 +288,7 @@
   "expiresOn": "Изтича на",
   "expiry_and_validity": "Изтичане и валидност",
   "export_backup": "Експортиране на резервно копие",
+  "export_outputs": "Експортни резултати",
   "extra_id": "Допълнително ID:",
   "extracted_address_content": "Ще изпратите средства на \n${recipient_name}",
   "failed_authentication": "Неуспешно удостоверяване. ${state_error}",

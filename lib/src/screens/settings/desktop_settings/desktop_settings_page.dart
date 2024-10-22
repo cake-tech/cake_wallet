@@ -62,7 +62,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                         }
 
                         if (!widget.dashboardViewModel.isMoneroViewOnly &&
-                            item.name(context) == "Export outputs") {
+                            item.name(context) == S.of(context).export_outputs) {
                           return Container();
                         }
 

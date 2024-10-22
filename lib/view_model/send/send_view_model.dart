@@ -11,6 +11,7 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -454,9 +455,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       
       if (pendingTransaction!.shouldCommitUR()) {
         final urstr = await pendingTransaction!.commitUR();
-        final result = await Navigator.of(context).push(MaterialPageRoute(builder:(context) {
-          return getIt.get<AnimatedURPage>(param1: urstr);
-        },));
+        final result = await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: urstr);
         if (result == null) {
           state = FailureState("Canceled by user");
         } else {

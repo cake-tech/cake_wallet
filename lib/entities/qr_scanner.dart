@@ -1,5 +1,10 @@
 import 'dart:math';
 
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:fast_scanner/fast_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -40,10 +45,31 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
   late var ur = URQRToURQRData(urCodes);
 
   void _handleBarcode(BarcodeCapture barcodes) {
+    try {
+      _handleBarcodeInternal(barcodes);
+    } catch (e) {
+      showPopUp<void>(
+        context: context,
+        builder: (context) {
+          return AlertWithOneAction(
+            alertTitle: S.of(context).error,
+            alertContent: S.of(context).error_dialog_content,
+            buttonText: '',
+            buttonAction: () {
+              Navigator.of(context).pop();
+            },
+          );
+        },
+      );
+      print(e);
+    }
+  }
+
+  void _handleBarcodeInternal(BarcodeCapture barcodes) {
     for (final barcode in barcodes.barcodes) {
       print(barcode.rawValue!);
       if (barcode.rawValue!.startsWith("ur:")) {
-        if (urCodes.contains(barcode.rawValue)) return;
+        if (urCodes.contains(barcode.rawValue)) continue;
         setState(() {
           urCodes.add(barcode.rawValue!);
           ur = URQRToURQRData(urCodes);

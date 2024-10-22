@@ -288,6 +288,7 @@
   "expiresOn": "Термін дії закінчується",
   "expiry_and_validity": "Закінчення та обгрунтованість",
   "export_backup": "Експортувати резервну копію",
+  "export_outputs": "Експортні результати",
   "extra_id": "Додатковий ID:",
   "extracted_address_content": "Ви будете відправляти кошти\n${recipient_name}",
   "failed_authentication": "Помилка аутентифікації. ${state_error}",

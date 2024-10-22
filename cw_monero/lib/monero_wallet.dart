@@ -225,23 +225,23 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   Future<bool> submitTransactionUR(String ur) async {
-    final bool = monero.Wallet_submitTransactionUR(wptr!, ur);
+    final retStatus = monero.Wallet_submitTransactionUR(wptr!, ur);
     final status = monero.Wallet_status(wptr!);
     if (status != 0) {
       final err = monero.Wallet_errorString(wptr!);
       throw MoneroTransactionCreationException("unable to broadcast signed transaction: $err");
     }
-    return bool;
+    return retStatus;
   }
 
   bool importKeyImagesUR(String ur) {
-    final bool = monero.Wallet_importKeyImagesUR(wptr!, ur);
+    final retStatus = monero.Wallet_importKeyImagesUR(wptr!, ur);
     final status = monero.Wallet_status(wptr!);
     if (status != 0) {
       final err = monero.Wallet_errorString(wptr!);
       throw Exception("unable to import key images: $err");
     }
-    return bool;
+    return retStatus;
   }
 
   String exportOutputsUR(bool all) {

@@ -268,7 +268,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     actionRightButton: () async {
                       Navigator.of(popupContext).pop();
                       await widget.exchangeTradeViewModel.sendViewModel
-                          .commitTransaction(popupContext);
+                          .commitTransaction(context);
                       transactionStatePopup();
                     },
                     actionLeftButton: () => Navigator.of(popupContext).pop(),

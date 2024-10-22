@@ -51,13 +51,11 @@ class SettingActions {
   );
 
   static SettingActions exportOutputsAction = SettingActions._(
-    name: (context) => "Export outputs",
+    name: (context) => S.of(context).export_outputs,
     image: 'assets/images/monero_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
-      Navigator.of(context).push(MaterialPageRoute(builder:(context) {
-        return getIt.get<AnimatedURPage>(param1: 'export-outputs');
-      },));
+      Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: 'export-outputs');
     },
   );
 
