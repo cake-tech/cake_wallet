@@ -54,7 +54,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
           return AlertWithOneAction(
             alertTitle: S.of(context).error,
             alertContent: S.of(context).error_dialog_content,
-            buttonText: '',
+            buttonText: 'ok',
             buttonAction: () {
               Navigator.of(context).pop();
             },
