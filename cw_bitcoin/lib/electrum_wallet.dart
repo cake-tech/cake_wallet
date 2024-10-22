@@ -1063,7 +1063,7 @@ abstract class ElectrumWalletBase
 
       if (sendAll) {
         estimatedTx = await estimateSendAllTx(
-          outputs,
+          updatedOutputs,
           feeRateInt,
           memo: memo,
           credentialsAmount: credentialsAmount,
