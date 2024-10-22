@@ -1121,15 +1121,15 @@ abstract class ElectrumWalletBase
 
         BigInt fee = BigInt.from(estimatedTx.fee);
 
-        if ((spendsMweb || paysToMweb) && sendAll) {
-          fee = BigInt.from(0);
+        // if ((spendsMweb || paysToMweb) && sendAll) {
+        //   fee = BigInt.from(0);
 
-          outputsOverride = [
-            BitcoinScriptOutput(
-                script: outputs[0].toOutput.scriptPubKey,
-                value: estimatedTx.utxos.sumOfUtxosValue())
-          ];
-        }
+        //   outputsOverride = [
+        //     BitcoinScriptOutput(
+        //         script: outputs[0].toOutput.scriptPubKey,
+        //         value: estimatedTx.utxos.sumOfUtxosValue())
+        //   ];
+        // }
 
         txb = BitcoinTransactionBuilder(
           utxos: estimatedTx.utxos,
