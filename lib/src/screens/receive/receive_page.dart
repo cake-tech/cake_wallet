@@ -121,7 +121,8 @@ class ReceivePage extends BasePage {
                     heroTag: _heroTag,
                     amountTextFieldFocusNode: _cryptoAmountFocus,
                     amountController: _amountController,
-                    isLight: currentTheme.type == ThemeType.light),
+                    isLight: currentTheme.type == ThemeType.light,
+                  ),
               ),
               AddressList(addressListViewModel: addressListViewModel),
               Padding(

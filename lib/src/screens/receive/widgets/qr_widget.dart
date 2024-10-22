@@ -37,6 +37,10 @@ class QRWidget extends StatelessWidget {
   final int? qrVersion;
   final String? heroTag;
 
+  PaymentURI get addressUri {
+    return addressListViewModel.uri;
+  }
+
   @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
@@ -77,14 +81,14 @@ class QRWidget extends StatelessWidget {
                               () async {
                                 await Navigator.pushNamed(context, Routes.fullscreenQR,
                                     arguments: QrViewData(
-                                      data: addressListViewModel.uri.toString(),
+                                      data: addressUri.toString(),
                                       heroTag: heroTag,
                                     ));
                               },
                             );
                           },
                           child: Hero(
-                            tag: Key(heroTag ?? addressListViewModel.uri.toString()),
+                            tag: Key(heroTag ?? addressUri.toString()),
                             child: Center(
                               child: AspectRatio(
                                 aspectRatio: 1.0,
@@ -105,7 +109,7 @@ class QRWidget extends StatelessWidget {
                                           color: Colors.white,
                                         ),
                                       ),
-                                      child: QrImage(data: addressListViewModel.uri.toString())),
+                                      child: QrImage(data: addressUri.toString())),
                                 ),
                               ),
                             ),
@@ -148,7 +152,7 @@ class QRWidget extends StatelessWidget {
                 builder: (context) => Observer(
                   builder: (context) => GestureDetector(
                     onTap: () {
-                      Clipboard.setData(ClipboardData(text: addressListViewModel.address.address));
+                      Clipboard.setData(ClipboardData(text: addressUri.address));
                       showBar<void>(context, S.of(context).copied_to_clipboard);
                     },
                     child: Row(
@@ -157,7 +161,7 @@ class QRWidget extends StatelessWidget {
                       children: <Widget>[
                         Expanded(
                           child: Text(
-                            addressListViewModel.address.address,
+                            addressUri.address,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 fontSize: 15,

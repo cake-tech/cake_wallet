@@ -5,9 +5,11 @@ import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/creation_transaction_exception.dart';
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
+import 'package:cw_monero/api/wallet.dart';
 import 'package:ffi/ffi.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
+import 'package:mutex/mutex.dart';
 
 
 String getTxKey(String txId) {
@@ -19,24 +21,32 @@ String getTxKey(String txId) {
   }
   return txKey;
 }
-
+final txHistoryMutex = Mutex();
 monero.TransactionHistory? txhistory;
-
-void refreshTransactions() {
+bool isRefreshingTx = false;
+Future<void> refreshTransactions() async {
+  if (isRefreshingTx == true) return;
+  isRefreshingTx = true;
   txhistory ??= monero.Wallet_history(wptr!);
-  monero.TransactionHistory_refresh(txhistory!);
+  final ptr = txhistory!.address;
+  await txHistoryMutex.acquire();
+  await Isolate.run(() {
+    monero.TransactionHistory_refresh(Pointer.fromAddress(ptr));
+  });
+  txHistoryMutex.release();
+  isRefreshingTx = false;
 }
 
 int countOfTransactions() => monero.TransactionHistory_count(txhistory!);
 
-List<Transaction> getAllTransactions() {
+Future<List<Transaction>> getAllTransactions() async {
   List<Transaction> dummyTxs = [];
-
+  
+  await txHistoryMutex.acquire();
   txhistory ??= monero.Wallet_history(wptr!);
-  monero.TransactionHistory_refresh(txhistory!);
   int size = countOfTransactions();
   final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
-
+  txHistoryMutex.release();
   final accts = monero.Wallet_numSubaddressAccounts(wptr!);
   for (var i = 0; i < accts; i++) {  
     final fullBalance = monero.Wallet_balance(wptr!, accountIndex: i);
@@ -51,6 +61,8 @@ List<Transaction> getAllTransactions() {
             confirmations: 0,
             blockheight: 0,
             accountIndex: i,
+            addressIndex: 0,
+            addressIndexList: [0],
             paymentId: "",
             amount: fullBalance - availBalance,
             isSpend: false,
@@ -263,19 +275,28 @@ Future<PendingTransactionDescription> createTransactionMultDest(
 
 class Transaction {
   final String displayLabel;
-  String subaddressLabel = monero.Wallet_getSubaddressLabel(wptr!, accountIndex: 0, addressIndex: 0);
-  late final String address = monero.Wallet_address(
+  late final String subaddressLabel = monero.Wallet_getSubaddressLabel(
     wptr!,
-    accountIndex: 0,
-    addressIndex: 0,
+    accountIndex: accountIndex,
+    addressIndex: addressIndex,
   );
+  late final String address = getAddress(
+    accountIndex: accountIndex,
+    addressIndex: addressIndex,
+  );
+  late final List<String> addressList = List.generate(addressIndexList.length, (index) =>
+    getAddress(
+    accountIndex: accountIndex,
+    addressIndex: addressIndexList[index],
+    ));
   final String description;
   final int fee;
   final int confirmations;
   late final bool isPending = confirmations < 10;
   final int blockheight;
-  final int addressIndex = 0;
+  final int addressIndex;
   final int accountIndex;
+  final List<int> addressIndexList;
   final String paymentId;
   final int amount;
   final bool isSpend;
@@ -321,6 +342,8 @@ class Transaction {
         amount = monero.TransactionInfo_amount(txInfo),
         paymentId = monero.TransactionInfo_paymentId(txInfo),
         accountIndex = monero.TransactionInfo_subaddrAccount(txInfo),
+        addressIndex = int.tryParse(monero.TransactionInfo_subaddrIndex(txInfo).split(", ")[0]) ?? 0,
+        addressIndexList = monero.TransactionInfo_subaddrIndex(txInfo).split(", ").map((e) => int.tryParse(e) ?? 0).toList(),
         blockheight = monero.TransactionInfo_blockHeight(txInfo),
         confirmations = monero.TransactionInfo_confirmations(txInfo),
         fee = monero.TransactionInfo_fee(txInfo),
@@ -331,27 +354,9 @@ class Transaction {
     final txKey = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo));
     final status = monero.Wallet_status(wptr!);
     if (status != 0) {
-      return monero.Wallet_errorString(wptr!);
+      return "";
     }
-    return breakTxKey(txKey);
-  }
-
-  static String breakTxKey(String input) {
-    final x = 64;
-    StringBuffer buffer = StringBuffer();
-
-    for (int i = 0; i < input.length; i += x) {
-      int endIndex = i + x;
-      if (endIndex > input.length) {
-        endIndex = input.length;
-      }
-      buffer.write(input.substring(i, endIndex));
-      if (endIndex != input.length) {
-        buffer.write('\n\n');
-      }
-    }
-
-    return buffer.toString().trim();
+    return txKey;
   }
 
   Transaction.dummy({
@@ -361,6 +366,8 @@ class Transaction {
     required this.confirmations,
     required this.blockheight,
     required this.accountIndex,
+    required this.addressIndexList,
+    required this.addressIndex,
     required this.paymentId,
     required this.amount,
     required this.isSpend,

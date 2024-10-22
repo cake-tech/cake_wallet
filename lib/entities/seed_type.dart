@@ -65,3 +65,28 @@ class BitcoinSeedType extends EnumerableItem<int> with Serializable<int> {
     }
   }
 }
+
+class NanoSeedType extends EnumerableItem<int> with Serializable<int> {
+  const NanoSeedType(this.type, {required String title, required int raw})
+      : super(title: title, raw: raw);
+
+  final DerivationType type;
+
+  static const all = [NanoSeedType.nanoStandard, NanoSeedType.bip39];
+
+  static const defaultDerivationType = bip39;
+
+  static const nanoStandard = NanoSeedType(DerivationType.nano, raw: 0, title: 'Nano');
+  static const bip39 = NanoSeedType(DerivationType.bip39, raw: 1, title: 'BIP39');
+
+  static NanoSeedType deserialize({required int raw}) {
+    switch (raw) {
+      case 0:
+        return nanoStandard;
+      case 1:
+        return bip39;
+      default:
+        throw Exception('Unexpected token: $raw for SeedType deserialize');
+    }
+  }
+}

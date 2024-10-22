@@ -24,11 +24,11 @@ cp -rf ./macos/Runner/DebugProfileBase.entitlements ./macos/Runner/DebugProfile.
 cp -rf ./macos/Runner/ReleaseBase.entitlements ./macos/Runner/Release.entitlements
 cp -rf ./macos/Runner/RunnerBase.entitlements ./macos/Runner/Runner.entitlements
 cp -rf ./macos/Runner/Configs/AppInfoBase.xcconfig ./macos/Runner/Configs/AppInfo.xcconfig
-gsed -i "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/DebugProfile.entitlements
-gsed -i "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Release.entitlements
-gsed -i "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Runner.entitlements
-gsed -i "s/\${PRODUCT_NAME}/${APP_MACOS_NAME}/g" ./macos/Runner/Configs/AppInfo.xcconfig
-gsed -i "s/\${PRODUCT_BUNDLE_IDENTIFIER}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Configs/AppInfo.xcconfig
+sed -i '' "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/DebugProfile.entitlements
+sed -i '' "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Release.entitlements
+sed -i '' "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Runner.entitlements
+sed -i '' "s/\${PRODUCT_NAME}/${APP_MACOS_NAME}/g" ./macos/Runner/Configs/AppInfo.xcconfig
+sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = .*;/PRODUCT_BUNDLE_IDENTIFIER = $APP_MACOS_BUNDLE_ID;/g" ./macos/Runner/Configs/AppInfo.xcconfig
 CONFIG_ARGS=""
 
 case $APP_MACOS_TYPE in

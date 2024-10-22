@@ -59,7 +59,7 @@ abstract class WowneroWalletBase
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
         _password = password,
-        isEnabledAutoGenerateSubaddress = false,
+        isEnabledAutoGenerateSubaddress = true,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
         this.unspentCoinsInfo = unspentCoinsInfo,
@@ -81,6 +81,10 @@ abstract class WowneroWalletBase
 
     reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
       _updateSubAddress(enabled, account: walletAddresses.account);
+    });
+
+    _onTxHistoryChangeReaction = reaction((_) => transactionHistory, (__) {
+      _updateSubAddress(isEnabledAutoGenerateSubaddress, account: walletAddresses.account);
     });
   }
 
@@ -123,6 +127,7 @@ abstract class WowneroWalletBase
 
   wownero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
+  ReactionDisposer? _onTxHistoryChangeReaction;
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
@@ -155,9 +160,10 @@ abstract class WowneroWalletBase
   Future<void>? updateBalance() => null;
 
   @override
-  void close() async {
+  Future<void> close({required bool shouldCleanup}) async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
+    _onTxHistoryChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
 
@@ -564,8 +570,8 @@ abstract class WowneroWalletBase
       }
 
       _isTransactionUpdating = true;
-      transactionHistory.clear();
       final transactions = await fetchTransactions();
+      transactionHistory.clear();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
       _isTransactionUpdating = false;

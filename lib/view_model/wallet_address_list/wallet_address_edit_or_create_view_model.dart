@@ -78,6 +78,8 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
             wallet,
             accountIndex: monero!.getCurrentAccount(wallet).id,
             label: label);
+      final addr = await monero!.getSubaddressList(wallet).subaddresses.first.address; // first because the order is reversed
+      wallet.walletAddresses.manualAddresses.add(addr);
       await wallet.save();
     }
 
@@ -88,6 +90,8 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
             wallet,
             accountIndex: wownero!.getCurrentAccount(wallet).id,
             label: label);
+      final addr = await wownero!.getSubaddressList(wallet).subaddresses.first.address; // first because the order is reversed
+      wallet.walletAddresses.manualAddresses.add(addr);
       await wallet.save();
     }
 

@@ -48,6 +48,10 @@ class PreferencesKey {
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
   static const silentPaymentsAlwaysScan = 'silentPaymentsAlwaysScan';
+  static const mwebCardDisplay = 'mwebCardDisplay';
+  static const mwebEnabled = 'mwebEnabled';
+  static const hasEnabledMwebBefore = 'hasEnabledMwebBefore';
+  static const mwebAlwaysScan = 'mwebAlwaysScan';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const shouldShowRepWarning = 'should_show_rep_warning';
@@ -79,6 +83,7 @@ class PreferencesKey {
   static const autoGenerateSubaddressStatusKey = 'auto_generate_subaddress_status';
   static const moneroSeedType = 'monero_seed_type';
   static const bitcoinSeedType = 'bitcoin_seed_type';
+  static const nanoSeedType = 'nano_seed_type';
   static const clearnetDonationLink = 'clearnet_donation_link';
   static const onionDonationLink = 'onion_donation_link';
   static const donationLinkWalletName = 'donation_link_wallet_name';

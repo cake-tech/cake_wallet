@@ -61,8 +61,10 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                           return Container();
                         }
 
-                        if (!widget.dashboardViewModel.isMoneroViewOnly &&
-                            item.name(context) == S.of(context).export_outputs) {
+                        if ((!widget.dashboardViewModel.isMoneroViewOnly &&
+                            item.name(context) == S.of(context).export_outputs) ||
+                           (!widget.dashboardViewModel.hasMweb &&
+                            item.name(context) == S.of(context).litecoin_mweb_settings)) {
                           return Container();
                         }
 

@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -88,6 +90,11 @@ abstract class DashboardViewModelBase with Store {
                 value: () => transactionFilterStore.displayOutgoing,
                 caption: S.current.outgoing,
                 onChanged: transactionFilterStore.toggleOutgoing),
+            FilterItem(
+              value: () => transactionFilterStore.displaySilentPayments,
+              caption: S.current.silent_payments,
+              onChanged: transactionFilterStore.toggleSilentPayments,
+            ),
             // FilterItem(
             //     value: () => false,
             //     caption: S.current.transactions_by_date,
@@ -132,8 +139,8 @@ abstract class DashboardViewModelBase with Store {
             FilterItem(
                 value: () => tradeFilterStore.displayLetsExchange,
                 caption: ExchangeProviderDescription.letsExchange.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+                onChanged: () => tradeFilterStore
+                    .toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
             FilterItem(
                 value: () => tradeFilterStore.displayStealthEx,
                 caption: ExchangeProviderDescription.stealthEx.title,
@@ -217,7 +224,10 @@ abstract class DashboardViewModelBase with Store {
     //   subname = nano!.getCurrentAccount(_wallet).label;
     // }
 
-    reaction((_) => appStore.wallet, _onWalletChange);
+    reaction((_) => appStore.wallet, (wallet) {
+      _onWalletChange(wallet);
+      _checkMweb();
+    });
 
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
@@ -249,6 +259,18 @@ abstract class DashboardViewModelBase with Store {
       reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
         silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
       });
+    }
+
+    _checkMweb();
+    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
+      _checkMweb();
+    });
+  }
+
+  void _checkMweb() {
+    if (hasMweb) {
+      mwebEnabled = bitcoin!.getMwebEnabled(wallet);
+      balanceViewModel.mwebEnabled = mwebEnabled;
     }
   }
 
@@ -343,6 +365,7 @@ abstract class DashboardViewModelBase with Store {
   bool get hasRescan =>
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.wownero ||
       wallet.type == WalletType.haven;
 
@@ -382,12 +405,15 @@ abstract class DashboardViewModelBase with Store {
       // to not cause work duplication, this will do the job as well, it will be slightly less precise
       // about what happened - but still enough.
       // if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
-      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("")) "private view key is 0",
+      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join(""))
+        "private view key is 0",
       // if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
-      if (keys['publicViewKey'] == List.generate(64, (index) => "0").join("")) "public view key is 0",
+      if (keys['publicViewKey'] == List.generate(64, (index) => "0").join(""))
+        "public view key is 0",
       // if (wallet.seed == null) "wallet seed is null",
       // if (wallet.seed == "") "wallet seed is empty",
-      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address == "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4") 
+      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
+          "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
         "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
@@ -412,6 +438,40 @@ abstract class DashboardViewModelBase with Store {
     if (hasSilentPayments) {
       bitcoin!.setScanningActive(wallet, active);
     }
+  }
+
+  @computed
+  bool get hasMweb => wallet.type == WalletType.litecoin && (Platform.isIOS || Platform.isAndroid);
+
+  @computed
+  bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay && !mwebEnabled;
+
+  @observable
+  bool mwebEnabled = false;
+
+  @computed
+  bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
+
+  @action
+  void setMwebEnabled() {
+    if (!hasMweb) {
+      return;
+    }
+
+    settingsStore.hasEnabledMwebBefore = true;
+    mwebEnabled = true;
+    bitcoin!.setMwebEnabled(wallet, true);
+    balanceViewModel.mwebEnabled = true;
+    settingsStore.mwebAlwaysScan = true;
+  }
+
+  @action
+  void dismissMweb() {
+    settingsStore.mwebCardDisplay = false;
+    balanceViewModel.mwebEnabled = false;
+    settingsStore.mwebAlwaysScan = false;
+    mwebEnabled = false;
+    bitcoin!.setMwebEnabled(wallet, false);
   }
 
   BalanceViewModel balanceViewModel;
@@ -760,6 +820,16 @@ abstract class DashboardViewModelBase with Store {
     } catch (e) {
       return ServicesResponse([], false, '');
     }
+  }
+
+  String getTransactionType(TransactionInfo tx) {
+    if (wallet.type == WalletType.bitcoin) {
+      if (tx.isReplaced == true) return ' (replaced)';
+    }
+
+    if (wallet.type == WalletType.ethereum && tx.evmSignatureName == 'approval')
+      return ' (${tx.evmSignatureName})';
+    return '';
   }
 
   Future<void> refreshDashboard() async {

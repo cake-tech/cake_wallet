@@ -23,6 +23,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:flutter/material.dart';
@@ -71,8 +72,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.balanceViewModel,
     this.contactListViewModel,
     this.transactionDescriptionBox,
-    this.ledgerViewModel,
-  )   : state = InitialExecutionState(),
+    this.ledgerViewModel, {
+    this.coinTypeToSpendFrom = UnspentCoinType.any,
+  })  : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
         selectedCryptoCurrency = appStore.wallet!.currency,
         hasMultipleTokens = isEVMCompatibleChain(appStore.wallet!.type) ||
@@ -101,6 +103,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   ObservableList<Output> outputs;
 
+  final UnspentCoinType coinTypeToSpendFrom;
+
   @action
   void addOutput() {
     outputs
@@ -123,7 +127,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get isBatchSending => outputs.length > 1;
 
-  bool get shouldDisplaySendALL => walletType != WalletType.solana;
+  bool get shouldDisplaySendALL {
+    if (walletType == WalletType.solana) return false;
+
+    if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
+      return false;
+
+      if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.matic)
+      return false;
+
+    return true;
+  }
 
   @computed
   String get pendingTransactionFiatAmount {
@@ -221,7 +235,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   PendingTransaction? pendingTransaction;
 
   @computed
-  String get balance => wallet.balance[selectedCryptoCurrency]!.formattedAvailableBalance;
+  String get balance {
+    if (coinTypeToSpendFrom == UnspentCoinType.mweb) {
+      return balanceViewModel.balances.values.first.secondAvailableBalance;
+    } else if (coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+      return balanceViewModel.balances.values.first.availableBalance;
+    }
+    return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
+  }
 
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
@@ -379,6 +400,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           throw Exception("THORChain does not support Taproot addresses");
         }
       }
+
+      if (wallet.type == WalletType.bitcoin) {
+        final updatedOutputs = bitcoin!.updateOutputs(pendingTransaction!, outputs);
+
+        if (outputs.length == updatedOutputs.length) {
+          outputs = ObservableList.of(updatedOutputs);
+        }
+      }
+
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
@@ -418,8 +448,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   Future<void> _executeReplaceByFee(TransactionInfo tx, String newFee) async {
-
-
     clearOutputs();
     final output = outputs.first;
     output.address = tx.outputAddresses?.first ?? '';
@@ -470,12 +498,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         nano!.updateTransactions(wallet);
       }
 
+
       if (pendingTransaction!.id.isNotEmpty) {
+
+        final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction!.id, recipientAddress: address, transactionNote: note))
-            : await transactionDescriptionBox
-                .add(TransactionDescription(id: pendingTransaction!.id, transactionNote: note));
+            id: descriptionKey,
+            recipientAddress: address,
+            transactionNote: note))
+            : await transactionDescriptionBox.add(TransactionDescription(
+            id: descriptionKey,
+            transactionNote: note));
       }
 
       state = TransactionCommitted();
@@ -503,8 +537,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return bitcoin!.createBitcoinTransactionCredentials(outputs,
-            priority: priority!, feeRate: customBitcoinFeeRate);
+        return bitcoin!.createBitcoinTransactionCredentials(
+          outputs,
+          priority: priority!,
+          feeRate: customBitcoinFeeRate,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
 
       case WalletType.monero:
         return monero!
@@ -684,6 +722,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.tx_no_dust_exception;
       }
       if (error is TransactionCommitFailed) {
+        if (error.errorMessage != null && error.errorMessage!.contains("no peers replied")) {
+          return S.current.tx_commit_failed_no_peers;
+        }
         return "${S.current.tx_commit_failed}${error.errorMessage != null ? "\n\n${error.errorMessage}" : ""}";
       }
       if (error is TransactionCommitFailedDustChange) {
@@ -700,6 +741,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
       if (error is TransactionCommitFailedBIP68Final) {
         return S.current.tx_rejected_bip68_final;
+      }
+      if (error is TransactionCommitFailedLessThanMin) {
+        return S.current.fee_less_than_min;
       }
       if (error is TransactionNoDustOnChangeException) {
         return S.current.tx_commit_exception_no_dust_on_change(error.min, error.max);

@@ -155,6 +155,10 @@ class WalletRestoreFromQRCode {
         return WalletRestoreMode.seed;
       }
 
+      if ((type == WalletType.monero || type == WalletType.wownero)) {
+        return WalletRestoreMode.seed;
+      }
+
       seedValue.split(' ').forEach((element) {
         if (!words.contains(element)) {
           throw Exception(
