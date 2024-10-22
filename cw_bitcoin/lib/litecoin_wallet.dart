@@ -347,22 +347,34 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         } else if (resp.mwebUtxosHeight < nodeHeight) {
           mwebSyncStatus = SyncingSyncStatus(1, 0.999);
         } else {
+          bool confirmationsUpdated = false;
           if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
             await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
             await checkMwebUtxosSpent();
             // update the confirmations for each transaction:
-            for (final transaction in transactionHistory.transactions.values) {
-              if (transaction.isPending) continue;
-              int txHeight = transaction.height ?? resp.mwebUtxosHeight;
-              final confirmations = (resp.mwebUtxosHeight - txHeight) + 1;
-              if (transaction.confirmations == confirmations) continue;
-              if (transaction.confirmations == 0) {
-                updateBalance();
+            for (final tx in transactionHistory.transactions.values) {
+              if (tx.height == null || tx.height == 0) {
+                // update with first confirmation on next block since it hasn't been confirmed yet:
+                tx.height = resp.mwebUtxosHeight;
+                continue;
               }
-              transaction.confirmations = confirmations;
-              transactionHistory.addOne(transaction);
+
+              final confirmations = (resp.mwebUtxosHeight - tx.height!) + 1;
+
+              // if the confirmations haven't changed, skip updating:
+              if (tx.confirmations == confirmations) continue;
+
+              print("updating confs ${tx.id} from ${tx.confirmations} -> $confirmations");
+
+              tx.confirmations = confirmations;
+              tx.isPending = false;
+              transactionHistory.addOne(tx);
+              confirmationsUpdated = true;
             }
-            await transactionHistory.save();
+            if (confirmationsUpdated) {
+              await transactionHistory.save();
+              await updateTransactions();
+            }
           }
 
           // prevent unnecessary reaction triggers:
@@ -487,13 +499,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         outputAddresses: [utxo.outputId],
         isReplaced: false,
       );
-    }
-
-    // don't update the confirmations if the tx is updated by electrum:
-    if (tx.confirmations == 0 || utxo.height != 0) {
-      tx.height = utxo.height;
-      tx.isPending = utxo.height == 0;
-      tx.confirmations = confirmations;
+    } else {
+      if (tx.confirmations != confirmations || tx.height != utxo.height) {
+        tx.height = utxo.height;
+        tx.confirmations = confirmations;
+        tx.isPending = utxo.height == 0;
+      }
     }
 
     bool isNew = transactionHistory.transactions[tx.id] == null;
@@ -815,7 +826,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // update the txCount for each address using the tx history, since we can't rely on mwebd
     // to have an accurate count, we should just keep it in sync with what we know from the tx history:
     for (final tx in transactionHistory.transactions.values) {
-      // if (tx.isPending) continue;
       if (tx.inputAddresses == null || tx.outputAddresses == null) {
         continue;
       }
