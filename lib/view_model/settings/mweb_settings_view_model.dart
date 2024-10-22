@@ -38,13 +38,11 @@ abstract class MwebSettingsViewModelBase with Store {
   }
 
   Future<void> saveLogsLocally(String filePath) async {
-    
     final appSupportPath = (await getApplicationSupportDirectory()).path;
     final logsFile = File("$appSupportPath/logs/debug.log");
     if (!logsFile.existsSync()) {
       throw Exception('Logs file does not exist');
     }
-    // copy logs file to regular app directory
     await logsFile.copy(filePath);
   }
 
