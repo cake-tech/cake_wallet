@@ -6,9 +6,10 @@ set -o xtrace
 ZANO_SRC_DIR=${WORKDIR}/zano
 ZANO_CHECKOUT_ID=develop
 
-git clone --recursive https://github.com/hyle-team/zano.git ${ZANO_SRC_DIR}
+git clone --recurse-submodules -b ${ZANO_CHECKOUT_ID} https://github.com/hyle-team/zano.git ${ZANO_SRC_DIR}
+#git clone --recursive https://github.com/hyle-team/zano.git ${ZANO_SRC_DIR}
 cd $ZANO_SRC_DIR
-git checkout ${ZANO_CHECKOUT_ID}
+#git checkout ${ZANO_CHECKOUT_ID}
 git submodule init
 git submodule update
 git pull -r
@@ -89,5 +90,7 @@ fi
 
 cp -r ./_install/$ARCH_ABI/lib/* $DEST_LIB_DIR
 #cp ../../src/wallet/api/wallet2_api.h  $DEST_INCLUDE_DIR
+
+./copy_zano_libs.sh
 
 done
