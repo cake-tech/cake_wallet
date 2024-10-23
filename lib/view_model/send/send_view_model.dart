@@ -486,8 +486,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final result = await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: urstr);
         if (result == null) {
           state = FailureState("Canceled by user");
-        } else {
-          state = TransactionCommitted();
         }
       } else {
         await pendingTransaction!.commit();
