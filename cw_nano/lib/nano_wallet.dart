@@ -42,6 +42,7 @@ abstract class NanoWalletBase
     required String password,
     NanoBalance? initialBalance,
     required EncryptionFileUtils encryptionFileUtils,
+    this.passphrase,
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -148,7 +149,7 @@ abstract class NanoWalletBase
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  void close() {
+  Future<void> close({required bool shouldCleanup}) async {
     _client.stop();
     _receiveTimer?.cancel();
   }
@@ -548,4 +549,7 @@ abstract class NanoWalletBase
     }
     return await NanoSignatures.verifyMessage(message, signature, address);
   }
+
+  @override
+  final String? passphrase;
 }
