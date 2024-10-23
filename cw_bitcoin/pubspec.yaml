@@ -40,7 +40,7 @@ dependencies:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
-  ledger_flutter_plus: ^1.2.5
+  ledger_flutter_plus: ^1.4.1
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins

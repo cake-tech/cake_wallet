@@ -70,14 +70,16 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     };
     await initializeAppAtRoot();
 
-    final appDocDir = await getAppDir();
+    if (kDebugMode) {
+      final appDocDir = await getAppDir();
 
-    final ledgerFile = File('${appDocDir.path}/ledger_log.txt');
-    if (!ledgerFile.existsSync()) ledgerFile.createSync();
-    Logger.root.onRecord.listen((event) async {
-      final content = ledgerFile.readAsStringSync();
-      ledgerFile.writeAsStringSync("$content\n${event.message}");
-    });
+      final ledgerFile = File('${appDocDir.path}/ledger_log.txt');
+      if (!ledgerFile.existsSync()) ledgerFile.createSync();
+      Logger.root.onRecord.listen((event) async {
+        final content = ledgerFile.readAsStringSync();
+        ledgerFile.writeAsStringSync("$content\n${event.message}");
+      });
+    }
 
     runApp(App(key: topLevelKey));
     isAppRunning = true;
