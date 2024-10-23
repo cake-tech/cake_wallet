@@ -395,16 +395,19 @@ class SendPage extends BasePage {
 
                         if (sendViewModel.wallet.isHardwareWallet) {
                           if (!sendViewModel.ledgerViewModel!.isConnected) {
-                            await Navigator.of(context).pushNamed(Routes.connectDevices,
+                            await Navigator.of(context).pushNamed(
+                                Routes.connectDevices,
                                 arguments: ConnectDevicePageParams(
                                   walletType: sendViewModel.walletType,
                                   onConnectDevice: (BuildContext context, _) {
-                                    sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
+                                    sendViewModel.ledgerViewModel!
+                                        .setLedger(sendViewModel.wallet);
                                     Navigator.of(context).pop();
                                   },
                                 ));
                           } else {
-                            sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
+                            sendViewModel.ledgerViewModel!
+                                .setLedger(sendViewModel.wallet);
                           }
                         }
 
@@ -509,7 +512,7 @@ class SendPage extends BasePage {
                                 if (state is TransactionCommitted) {
                                   newContactAddress =
                                       newContactAddress ?? sendViewModel.newContactAddress();
-                                  
+
                                   if (sendViewModel.coinTypeToSpendFrom != UnspentCoinType.any) {
                                     newContactAddress = null;
                                   }
