@@ -67,7 +67,8 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
 
   void _handleBarcodeInternal(BarcodeCapture barcodes) {
     for (final barcode in barcodes.barcodes) {
-      print(barcode.rawValue!);
+      // don't handle unknown QR codes
+      if (barcode.rawValue?.trim().isEmpty??false == false) continue;
       if (barcode.rawValue!.startsWith("ur:")) {
         if (urCodes.contains(barcode.rawValue)) continue;
         setState(() {
