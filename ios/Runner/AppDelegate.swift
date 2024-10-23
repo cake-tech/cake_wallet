@@ -1,14 +1,9 @@
 import UIKit
 import Flutter
-import UnstoppableDomainsResolution
 import workmanager
 
 @UIApplicationMain
-@objc class AppDelegate: FlutterAppDelegate {
-    lazy var resolution : Resolution? =  {
-               return try? Resolution()
-            }()
-    
+@objc class AppDelegate: FlutterAppDelegate {    
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -87,27 +82,7 @@ import workmanager
                 }
 
                 result(secRandom(count: count))
-            case "getUnstoppableDomainAddress":
-                guard let args = call.arguments as? Dictionary<String, String>,
-                      let domain = args["domain"],
-                      let ticker = args["ticker"],
-                      let resolution = self?.resolution else {
-                    result(nil)
-                    return
-                }
-                        
-                resolution.addr(domain: domain, ticker: ticker) { addrResult in
-                  var address : String = ""
-                    
-                  switch addrResult {
-                      case .success(let returnValue):
-                        address = returnValue
-                      case .failure(let error):
-                        print("Expected Address, but got \(error)")
-                    }
-                    
-                    result(address)
-                }
+
             case "setIsAppSecure":
                 guard let args = call.arguments as? Dictionary<String, Bool>,
                     let isAppSecure = args["isAppSecure"] else {

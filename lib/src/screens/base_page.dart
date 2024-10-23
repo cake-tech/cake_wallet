@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/route_aware.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/di.dart';
@@ -6,7 +7,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/src/widgets/nav_bar.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
-enum AppBarStyle { regular, withShadow, transparent }
+enum AppBarStyle { regular, withShadow, transparent, completelyTransparent }
 
 abstract class BasePage extends StatelessWidget {
   BasePage() : _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -31,6 +32,14 @@ abstract class BasePage extends StatelessWidget {
   bool get extendBodyBehindAppBar => false;
 
   Widget? get endDrawer => null;
+
+  Function(BuildContext context)? get pushToWidget => null;
+
+  Function(BuildContext context)? get pushToNextWidget => null;
+
+  Function(BuildContext context)? get popWidget => null;
+
+  Function(BuildContext context)? get popNextWidget => null;
 
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
@@ -116,7 +125,7 @@ abstract class BasePage extends StatelessWidget {
 
   Widget? floatingActionButton(BuildContext context) => null;
 
-  ObstructingPreferredSizeWidget appBar(BuildContext context) {
+  PreferredSizeWidget appBar(BuildContext context) {
     final appBarColor = pageBackgroundColor(context);
 
     switch (appBarStyle) {
@@ -147,6 +156,16 @@ abstract class BasePage extends StatelessWidget {
           border: null,
         );
 
+      case AppBarStyle.completelyTransparent:
+        return AppBar(
+          leading: leading(context),
+          title: middle(context),
+          actions: <Widget>[if (trailing(context) != null) trailing(context)!],
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+        );
+
       default:
         // FIX-ME: NavBar no context
         return NavBar(
@@ -162,15 +181,21 @@ abstract class BasePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final root = Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: pageBackgroundColor(context),
-        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-        extendBodyBehindAppBar: extendBodyBehindAppBar,
-        endDrawer: endDrawer,
-        appBar: appBar(context),
-        body: body(context),
-        floatingActionButton: floatingActionButton(context));
+    final root = RouteAwareWidget(
+      child: Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: pageBackgroundColor(context),
+          resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+          extendBodyBehindAppBar: extendBodyBehindAppBar,
+          endDrawer: endDrawer,
+          appBar: appBar(context),
+          body: body(context),
+          floatingActionButton: floatingActionButton(context)),
+      pushToWidget: (context) => pushToWidget?.call(context),
+      pushToNextWidget: (context) => pushToNextWidget?.call(context),
+      popWidget: (context) => popWidget?.call(context),
+      popNextWidget: (context) => popNextWidget?.call(context),
+    );
 
     return rootWrapper?.call(context, root) ?? root;
   }

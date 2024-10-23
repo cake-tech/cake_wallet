@@ -51,7 +51,9 @@ class MoneroAccountEditOrCreatePage extends BasePage {
 
                           await moneroAccountCreationViewModel.save();
 
-                          Navigator.of(context).pop(_textController.text);
+                          if (context.mounted) {
+                            Navigator.of(context).pop(_textController.text);
+                          }
                         },
                         text: moneroAccountCreationViewModel.isEdit
                             ? S.of(context).rename

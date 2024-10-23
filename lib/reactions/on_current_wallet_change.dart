@@ -71,6 +71,7 @@ void startCurrentWalletChangeReaction(
           .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
 
       if (wallet.type == WalletType.monero ||
+          wallet.type == WalletType.wownero ||
           wallet.type == WalletType.bitcoin ||
           wallet.type == WalletType.litecoin ||
           wallet.type == WalletType.bitcoinCash) {
@@ -151,11 +152,6 @@ void _setAutoGenerateSubaddressStatus(
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
   SettingsStore settingsStore,
 ) async {
-  final walletHasAddresses = await wallet.walletAddresses.addressesMap.length > 1;
-  if (settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.initialized &&
-      walletHasAddresses) {
-    settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.disabled;
-  }
   wallet.isEnabledAutoGenerateSubaddress =
       settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled ||
           settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.initialized;

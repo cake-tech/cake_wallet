@@ -1,16 +1,16 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/haven/haven.dart';
-import 'package:cw_monero/api/wallet.dart' as monero_wallet;
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_monero/monero_wallet.dart';
+import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
 
 part 'wallet_keys_view_model.g.dart';
@@ -33,13 +33,17 @@ abstract class WalletKeysViewModelBase with Store {
       _populateItems();
     });
 
-    if (_appStore.wallet!.type == WalletType.monero || _appStore.wallet!.type == WalletType.haven) {
+    if (_appStore.wallet!.type == WalletType.monero ||
+        _appStore.wallet!.type == WalletType.haven ||
+        _appStore.wallet!.type == WalletType.wownero) {
       final accountTransactions = _getWalletTransactions(_appStore.wallet!);
       if (accountTransactions.isNotEmpty) {
-        final incomingAccountTransactions =
-            accountTransactions.where((tx) => tx.direction == TransactionDirection.incoming);
+        final incomingAccountTransactions = accountTransactions
+            .where((tx) => tx.direction == TransactionDirection.incoming);
         if (incomingAccountTransactions.isNotEmpty) {
-          incomingAccountTransactions.toList().sort((a, b) => a.date.compareTo(b.date));
+          incomingAccountTransactions
+              .toList()
+              .sort((a, b) => a.date.compareTo(b.date));
           _restoreHeightByTransactions = _getRestoreHeightByTransactions(
               _appStore.wallet!.type, incomingAccountTransactions.first.date);
         }
@@ -65,23 +69,38 @@ abstract class WalletKeysViewModelBase with Store {
 
       items.addAll([
         if (keys['publicSpendKey'] != null)
-          StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
+          StandartListItem(
+              title: S.current.spend_key_public,
+              value: keys['publicSpendKey']!),
         if (keys['privateSpendKey'] != null)
-          StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']!),
+          StandartListItem(
+              title: S.current.spend_key_private,
+              value: keys['privateSpendKey']!),
         if (keys['publicViewKey'] != null)
-          StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
+          StandartListItem(
+              title: S.current.view_key_public, value: keys['publicViewKey']!),
         if (keys['privateViewKey'] != null)
-          StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
-        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+          StandartListItem(
+              title: S.current.view_key_private,
+              value: keys['privateViewKey']!),
+        if (_appStore.wallet!.seed!.isNotEmpty)
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
 
-      if (_appStore.wallet?.seed != null && Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
+      if (_appStore.wallet?.seed != null &&
+          Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
         final lang = PolyseedLang.getByPhrase(_appStore.wallet!.seed!);
-        final legacyLang = _getLegacySeedLang(lang);
-        final legacySeed =
-            Polyseed.decode(_appStore.wallet!.seed!, lang, PolyseedCoin.POLYSEED_MONERO)
-                .toLegacySeed(legacyLang);
-        items.add(StandartListItem(title: S.current.wallet_seed_legacy, value: legacySeed));
+        items.add(StandartListItem(
+            title: S.current.wallet_seed_legacy,
+            value: (_appStore.wallet as MoneroWalletBase)
+                .seedLegacy(lang.nameEnglish)));
+      }
+
+      final restoreHeight = monero!.getRestoreHeight(_appStore.wallet!);
+      if (restoreHeight != null) {
+        items.add(StandartListItem(
+            title: S.current.wallet_recovery_height,
+            value: restoreHeight.toString()));
       }
     }
 
@@ -90,15 +109,55 @@ abstract class WalletKeysViewModelBase with Store {
 
       items.addAll([
         if (keys['publicSpendKey'] != null)
-          StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
+          StandartListItem(
+              title: S.current.spend_key_public,
+              value: keys['publicSpendKey']!),
         if (keys['privateSpendKey'] != null)
-          StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']!),
+          StandartListItem(
+              title: S.current.spend_key_private,
+              value: keys['privateSpendKey']!),
         if (keys['publicViewKey'] != null)
-          StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
+          StandartListItem(
+              title: S.current.view_key_public, value: keys['publicViewKey']!),
         if (keys['privateViewKey'] != null)
-          StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
-        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+          StandartListItem(
+              title: S.current.view_key_private,
+              value: keys['privateViewKey']!),
+        if (_appStore.wallet!.seed!.isNotEmpty)
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
+    }
+
+    if (_appStore.wallet!.type == WalletType.wownero) {
+      final keys = wownero!.getKeys(_appStore.wallet!);
+
+      items.addAll([
+        if (keys['publicSpendKey'] != null)
+          StandartListItem(
+              title: S.current.spend_key_public,
+              value: keys['publicSpendKey']!),
+        if (keys['privateSpendKey'] != null)
+          StandartListItem(
+              title: S.current.spend_key_private,
+              value: keys['privateSpendKey']!),
+        if (keys['publicViewKey'] != null)
+          StandartListItem(
+              title: S.current.view_key_public, value: keys['publicViewKey']!),
+        if (keys['privateViewKey'] != null)
+          StandartListItem(
+              title: S.current.view_key_private,
+              value: keys['privateViewKey']!),
+        if (_appStore.wallet!.seed!.isNotEmpty)
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+      ]);
+
+      if (_appStore.wallet?.seed != null &&
+          Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
+        final lang = PolyseedLang.getByPhrase(_appStore.wallet!.seed!);
+        items.add(StandartListItem(
+            title: S.current.wallet_seed_legacy,
+            value: wownero!.getLegacySeed(_appStore.wallet!, lang.nameEnglish)));
+      }
     }
 
     if (_appStore.wallet!.type == WalletType.bitcoin ||
@@ -113,7 +172,8 @@ abstract class WalletKeysViewModelBase with Store {
         //   StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
         // if (keys['publicKey'] != null)
         //   StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
-        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+        StandartListItem(
+            title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
 
@@ -122,24 +182,32 @@ abstract class WalletKeysViewModelBase with Store {
         _appStore.wallet!.type == WalletType.tron) {
       items.addAll([
         if (_appStore.wallet!.privateKey != null)
-          StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
+          StandartListItem(
+              title: S.current.private_key,
+              value: _appStore.wallet!.privateKey!),
         if (_appStore.wallet!.seed != null)
-          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+          StandartListItem(
+              title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
 
-    bool nanoBased =
-        _appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano;
+    bool nanoBased = _appStore.wallet!.type == WalletType.nano ||
+        _appStore.wallet!.type == WalletType.banano;
 
     if (nanoBased) {
       // we always have the hex version of the seed and private key:
       items.addAll([
         if (_appStore.wallet!.seed != null)
-          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+          StandartListItem(
+              title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
         if (_appStore.wallet!.hexSeed != null)
-          StandartListItem(title: S.current.seed_hex_form, value: _appStore.wallet!.hexSeed!),
+          StandartListItem(
+              title: S.current.seed_hex_form,
+              value: _appStore.wallet!.hexSeed!),
         if (_appStore.wallet!.privateKey != null)
-          StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
+          StandartListItem(
+              title: S.current.private_key,
+              value: _appStore.wallet!.privateKey!),
       ]);
     }
   }
@@ -149,7 +217,10 @@ abstract class WalletKeysViewModelBase with Store {
       return await haven!.getCurrentHeight();
     }
     if (_appStore.wallet!.type == WalletType.monero) {
-      return monero_wallet.getCurrentHeight();
+      return await monero!.getCurrentHeight();
+    }
+    if (_appStore.wallet!.type == WalletType.wownero) {
+      return await wownero!.getCurrentHeight();
     }
     return null;
   }
@@ -178,8 +249,10 @@ abstract class WalletKeysViewModelBase with Store {
         return 'solana-wallet';
       case WalletType.tron:
         return 'tron-wallet';
+      case WalletType.wownero:
+        return 'wownero-wallet';
       default:
-        throw Exception('Unexpected wallet type: ${_appStore.wallet!.toString()}');
+        throw Exception('Unexpected wallet type: ${_appStore.wallet!.type.toString()}');
     }
   }
 
@@ -200,9 +273,11 @@ abstract class WalletKeysViewModelBase with Store {
       if (_appStore.wallet!.seed != null) 'seed': _appStore.wallet!.seed!,
       if (_appStore.wallet!.seed == null && _appStore.wallet!.hexSeed != null)
         'hexSeed': _appStore.wallet!.hexSeed!,
-      if (_appStore.wallet!.seed == null && _appStore.wallet!.privateKey != null)
+      if (_appStore.wallet!.seed == null &&
+          _appStore.wallet!.privateKey != null)
         'private_key': _appStore.wallet!.privateKey!,
-      if (restoreHeightResult != null) ...{'height': restoreHeightResult}
+      if (restoreHeightResult != null) ...{'height': restoreHeightResult},
+      if (_appStore.wallet!.passphrase != null) 'passphrase': _appStore.wallet!.passphrase!
     };
   }
 
@@ -216,6 +291,12 @@ abstract class WalletKeysViewModelBase with Store {
       return monero!.getTransactionHistory(wallet).transactions.values.toList();
     } else if (wallet.type == WalletType.haven) {
       return haven!.getTransactionHistory(wallet).transactions.values.toList();
+    } else if (wallet.type == WalletType.wownero) {
+      return wownero!
+          .getTransactionHistory(wallet)
+          .transactions
+          .values
+          .toList();
     }
     return [];
   }
@@ -225,28 +306,12 @@ abstract class WalletKeysViewModelBase with Store {
       return monero!.getHeightByDate(date: date);
     } else if (type == WalletType.haven) {
       return haven!.getHeightByDate(date: date);
+    } else if (type == WalletType.wownero) {
+      return wownero!.getHeightByDate(date: date);
     }
     return 0;
   }
 
-  String getRoundedRestoreHeight(int height) => ((height / 1000).floor() * 1000).toString();
-
-  LegacySeedLang _getLegacySeedLang(PolyseedLang lang) {
-    switch (lang.nameEnglish) {
-      case "Spanish":
-        return LegacySeedLang.getByEnglishName("Spanish");
-      case "French":
-        return LegacySeedLang.getByEnglishName("French");
-      case "Italian":
-        return LegacySeedLang.getByEnglishName("Italian");
-      case "Japanese":
-        return LegacySeedLang.getByEnglishName("Japanese");
-      case "Portuguese":
-        return LegacySeedLang.getByEnglishName("Portuguese");
-      case "Chinese (Simplified)":
-        return LegacySeedLang.getByEnglishName("Chinese (simplified)");
-      default:
-        return LegacySeedLang.getByEnglishName("English");
-    }
-  }
+  String getRoundedRestoreHeight(int height) =>
+      ((height / 1000).floor() * 1000).toString();
 }

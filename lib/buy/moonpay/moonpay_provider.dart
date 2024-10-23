@@ -149,10 +149,9 @@ class MoonPayProvider extends BuyProvider {
       'colorCode': settingsStore.currentTheme.type == ThemeType.dark
           ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
-      'defaultCurrencyCode': _normalizeCurrency(currency),
-      'baseCurrencyCode': _normalizeCurrency(currency),
+      'baseCurrencyCode': settingsStore.fiatCurrency.title,
       'baseCurrencyAmount': amount ?? '0',
-      'currencyCode': currencyCode,
+      'currencyCode': _normalizeCurrency(currency),
       'walletAddress': walletAddress,
       'lockAmount': 'false',
       'showAllCurrencies': 'false',
@@ -299,7 +298,9 @@ class MoonPayProvider extends BuyProvider {
 
   String _normalizeCurrency(CryptoCurrency currency) {
     if (currency == CryptoCurrency.maticpoly) {
-      return "MATIC_POLYGON";
+      return "POL_POLYGON";
+    } else if (currency == CryptoCurrency.matic) {
+      return "POL";
     }
 
     return currency.toString().toLowerCase();

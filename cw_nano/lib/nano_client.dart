@@ -2,15 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cw_nano/nano_block_info_response.dart';
 import 'package:cw_core/n2_node.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_transaction_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:nanodart/nanodart.dart';
 import 'package:cw_core/node.dart';
 import 'package:nanoutil/nanoutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cw_nano/.secrets.g.dart' as secrets;
+import 'package:cw_nano/.secrets.g.dart' as nano_secrets;
 
 class NanoClient {
   static const Map<String, String> CAKE_HEADERS = {
@@ -54,12 +54,14 @@ class NanoClient {
   }
 
   Map<String, String> getHeaders() {
-    if (_node!.uri == "https://rpc.nano.to") {
-      return CAKE_HEADERS..addAll({
-        "key": secrets.nano2ApiKey,
-      });
+    final headers = Map<String, String>.from(CAKE_HEADERS);
+    if (_node!.uri.host == "rpc.nano.to") {
+      headers["key"] = nano_secrets.nano2ApiKey;
     }
-    return CAKE_HEADERS;
+    if (_node!.uri.host == "nano.nownodes.io") {
+      headers["api-key"] = nano_secrets.nanoNowNodesApiKey;
+    }
+    return headers;
   }
 
   Future<NanoBalance> getBalance(String address) async {
@@ -109,6 +111,27 @@ class NanoClient {
     }
   }
 
+  Future<BlockContentsResponse?> getBlockContents(String block) async {
+    try {
+      final response = await http.post(
+        _node!.uri,
+        headers: CAKE_HEADERS,
+        body: jsonEncode(
+          {
+            "action": "block_info",
+            "json_block": "true",
+            "hash": block,
+          },
+        ),
+      );
+      final data = await jsonDecode(response.body);
+      return BlockContentsResponse.fromJson(data["contents"] as Map<String, dynamic>);
+    } catch (e) {
+      print("error while getting block info $e");
+      return null;
+    }
+  }
+
   Future<String> changeRep({
     required String privateKey,
     required String repAddress,
@@ -133,8 +156,8 @@ class NanoClient {
     };
 
     // sign the change block:
-    final String hash = NanoBlocks.computeStateHash(
-      NanoAccountType.NANO,
+    final String hash = NanoSignatures.computeStateHash(
+      NanoBasedCurrency.NANO,
       changeBlock["account"]!,
       changeBlock["previous"]!,
       changeBlock["representative"]!,
@@ -246,7 +269,7 @@ class NanoClient {
     }
     final String representative = infoResponse.representative;
     // link = destination address:
-    final String link = NanoAccounts.extractPublicKey(destinationAddress);
+    final String link = NanoDerivations.addressToPublicKey(destinationAddress);
     final String linkAsAccount = destinationAddress;
 
     // construct the send block:
@@ -260,8 +283,8 @@ class NanoClient {
     };
 
     // sign the send block:
-    final String hash = NanoBlocks.computeStateHash(
-      NanoAccountType.NANO,
+    final String hash = NanoSignatures.computeStateHash(
+      NanoBasedCurrency.NANO,
       sendBlock["account"]!,
       sendBlock["previous"]!,
       sendBlock["representative"]!,
@@ -283,7 +306,6 @@ class NanoClient {
 
   Future<void> receiveBlock({
     required String blockHash,
-    required String source,
     required String amountRaw,
     required String destinationAddress,
     required String privateKey,
@@ -308,15 +330,56 @@ class NanoClient {
       representative = infoData.representative;
     }
 
+    if ((BigInt.tryParse(amountRaw) ?? BigInt.zero) <= BigInt.zero) {
+      throw Exception("amountRaw must be greater than zero");
+    }
+
+    BlockContentsResponse? frontierContents;
+
+    if (!openBlock) {
+      // get the block info of the frontier block:
+      frontierContents = await getBlockContents(frontier);
+
+      if (frontierContents == null) {
+        throw Exception("error while getting frontier block info");
+      }
+
+      final String frontierHash = NanoSignatures.computeStateHash(
+        NanoBasedCurrency.NANO,
+        frontierContents.account,
+        frontierContents.previous,
+        frontierContents.representative,
+        BigInt.parse(frontierContents.balance),
+        frontierContents.link,
+      );
+
+      bool valid = await NanoSignatures.verify(
+        frontierHash,
+        frontierContents.signature,
+        destinationAddress,
+      );
+
+      if (!valid) {
+        throw Exception(
+            "Frontier block signature is invalid! Potentially malicious block detected!");
+      }
+    }
+
     // first get the account balance:
-    final BigInt currentBalance = (await getBalance(destinationAddress)).currentBalance;
+    late BigInt currentBalance;
+    if (!openBlock) {
+      currentBalance = BigInt.parse(frontierContents!.balance);
+    } else {
+      currentBalance = BigInt.zero;
+    }
     final BigInt txAmount = BigInt.parse(amountRaw);
     final BigInt balanceAfterTx = currentBalance + txAmount;
 
     // link = send block hash:
     final String link = blockHash;
     // this "linkAsAccount" is meaningless:
-    final String linkAsAccount = NanoAccounts.createAccount(NanoAccountType.NANO, blockHash);
+    final String linkAsAccount =
+        NanoDerivations.publicKeyToAddress(blockHash, currency: NanoBasedCurrency.NANO);
 
     // construct the receive block:
     Map<String, String> receiveBlock = {
@@ -330,8 +393,8 @@ class NanoClient {
     };
 
     // sign the receive block:
-    final String hash = NanoBlocks.computeStateHash(
-      NanoAccountType.NANO,
+    final String hash = NanoSignatures.computeStateHash(
+      NanoBasedCurrency.NANO,
       receiveBlock["account"]!,
       receiveBlock["previous"]!,
       receiveBlock["representative"]!,
@@ -343,7 +406,7 @@ class NanoClient {
     // get PoW for the receive block:
     String? work;
     if (openBlock) {
-      work = await requestWork(NanoAccounts.extractPublicKey(destinationAddress));
+      work = await requestWork(NanoDerivations.addressToPublicKey(destinationAddress));
     } else {
       work = await requestWork(frontier);
     }
@@ -403,23 +466,25 @@ class NanoClient {
 
     blocks = blocks as Map<String, dynamic>;
 
-    // confirm all receivable blocks:
-    for (final blockHash in blocks.keys) {
-      final block = blocks[blockHash];
-      final String amountRaw = block["amount"] as String;
-      final String source = block["source"] as String;
-      await receiveBlock(
-        blockHash: blockHash,
-        source: source,
-        amountRaw: amountRaw,
-        privateKey: privateKey,
-        destinationAddress: destinationAddress,
-      );
-      // a bit of a hack:
-      await Future<void>.delayed(const Duration(seconds: 2));
+    try {
+      // confirm all receivable blocks:
+      for (final blockHash in blocks.keys) {
+        final block = blocks[blockHash];
+        final String amountRaw = block["amount"] as String;
+        await receiveBlock(
+          blockHash: blockHash,
+          amountRaw: amountRaw,
+          privateKey: privateKey,
+          destinationAddress: destinationAddress,
+        );
+        // a bit of a hack:
+        await Future<void>.delayed(const Duration(seconds: 2));
+      }
+      return blocks.keys.length;
+    } catch (_) {
+      // we failed to confirm all receivable blocks for w/e reason (PoW / node outage / etc)
+      return 0;
     }
-
-    return blocks.keys.length;
   }
 
   void stop() {}

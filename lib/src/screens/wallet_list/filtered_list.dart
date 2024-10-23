@@ -8,12 +8,14 @@ class FilteredList extends StatefulWidget {
     required this.itemBuilder,
     required this.updateFunction,
     this.canReorder = true,
+    this.shrinkWrap = false,
   });
 
   final ObservableList<dynamic> list;
   final Widget Function(BuildContext, int) itemBuilder;
   final Function updateFunction;
   final bool canReorder;
+  final bool shrinkWrap;
 
   @override
   FilteredListState createState() => FilteredListState();
@@ -24,29 +26,28 @@ class FilteredListState extends State<FilteredList> {
   Widget build(BuildContext context) {
     if (widget.canReorder) {
       return Observer(
-        builder: (_) =>
-            ReorderableListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemBuilder: widget.itemBuilder,
-              itemCount: widget.list.length,
-              onReorder: (int oldIndex, int newIndex) {
-                if (oldIndex < newIndex) {
-                  newIndex -= 1;
-                }
-                final dynamic item = widget.list.removeAt(oldIndex);
-                widget.list.insert(newIndex, item);
-                widget.updateFunction();
-              },
-            ),
+        builder: (_) => ReorderableListView.builder(
+          shrinkWrap: widget.shrinkWrap,
+          physics: const BouncingScrollPhysics(),
+          itemBuilder: widget.itemBuilder,
+          itemCount: widget.list.length,
+          onReorder: (int oldIndex, int newIndex) {
+            if (oldIndex < newIndex) {
+              newIndex -= 1;
+            }
+            final dynamic item = widget.list.removeAt(oldIndex);
+            widget.list.insert(newIndex, item);
+            widget.updateFunction();
+          },
+        ),
       );
     } else {
       return Observer(
-        builder: (_) =>
-            ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemBuilder: widget.itemBuilder,
-              itemCount: widget.list.length,
-            ),
+        builder: (_) => ListView.builder(
+          physics: const BouncingScrollPhysics(),
+          itemBuilder: widget.itemBuilder,
+          itemCount: widget.list.length,
+        ),
       );
     }
   }

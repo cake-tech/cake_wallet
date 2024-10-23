@@ -65,7 +65,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool get isReady => address.isNotEmpty && port.isNotEmpty;
 
   bool get hasAuthCredentials =>
-      _walletType == WalletType.monero || _walletType == WalletType.haven;
+      _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
 
   bool get hasTestnetSupport => _walletType == WalletType.bitcoin;
 
@@ -80,6 +80,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         return true;
       case WalletType.none:
       case WalletType.monero:
+      case WalletType.wownero:
       case WalletType.haven:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:

@@ -51,7 +51,7 @@ class AddressResolver {
       throw Exception('Unexpected token: $type for getAddressFromStringPattern');
     }
 
-    final match = RegExp(addressPattern).firstMatch(raw);
+    final match = RegExp(addressPattern, multiLine: true).firstMatch(raw);
     return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'),
         (Match match) {
       String group = match.group(0)!;
@@ -201,7 +201,7 @@ class AddressResolver {
           final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
           if (txtRecord != null) {
             final record = await OpenaliasRecord.fetchAddressAndName(
-                formattedName: formattedName, ticker: ticker, txtRecord: txtRecord);
+                formattedName: formattedName, ticker: ticker.toLowerCase(), txtRecord: txtRecord);
             return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
           }
         }
@@ -213,8 +213,7 @@ class AddressResolver {
               await NostrProfileHandler.processRelays(context, nostrProfile!, text);
 
           if (nostrUserData != null) {
-            String? addressFromBio = extractAddressByType(
-                raw: nostrUserData.about, type: currency);
+            String? addressFromBio = extractAddressByType(raw: nostrUserData.about, type: currency);
             if (addressFromBio != null) {
               return ParsedAddress.nostrAddress(
                   address: addressFromBio,

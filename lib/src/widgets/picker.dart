@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
@@ -11,6 +12,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 
+//TODO(David): PickerWidget is intertwined and confusing as is, find a way to optimize?
 class Picker<Item> extends StatefulWidget {
   Picker({
     required this.selectedAtIndex,
@@ -153,6 +155,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: padding),
             child: Text(
+              key: ValueKey('picker_title_text_key'),
               widget.title!,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -189,7 +192,10 @@ class _PickerState<Item> extends State<Picker<Item>> {
                         Padding(
                           padding: const EdgeInsets.all(16),
                           child: SearchBarWidget(
-                              searchController: searchController, hintText: widget.hintText),
+                            key: ValueKey('picker_search_bar_key'),
+                            searchController: searchController,
+                            hintText: widget.hintText,
+                          ),
                         ),
                       Divider(
                         color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
@@ -203,6 +209,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           children: <Widget>[
                             filteredItems.length > 3
                                 ? Scrollbar(
+                                    key: ValueKey('picker_scrollbar_key'),
                                     controller: controller,
                                     child: itemsList(),
                                   )
@@ -213,6 +220,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                     left: padding,
                                     right: padding,
                                     child: Text(
+                                      key: ValueKey('picker_descriptinon_text_key'),
                                       widget.description!,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
@@ -242,6 +250,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
     if (widget.isWrapped) {
       return PickerWrapperWidget(
+        key: ValueKey('picker_wrapper_widget_key'),
         hasTitle: widget.title?.isNotEmpty ?? false,
         children: [content],
       );
@@ -260,6 +269,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
       child: widget.isGridView
           ? GridView.builder(
+              key: ValueKey('picker_items_grid_view_key'),
               padding: EdgeInsets.zero,
               controller: controller,
               shrinkWrap: true,
@@ -275,6 +285,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                       : buildItem(index),
             )
           : ListView.separated(
+              key: ValueKey('picker_items_list_view_key'),
               padding: EdgeInsets.zero,
               controller: controller,
               shrinkWrap: true,
@@ -293,10 +304,25 @@ class _PickerState<Item> extends State<Picker<Item>> {
     );
   }
 
+  String _getItemName(Item item) {
+    String itemName;
+    if (item is Currency) {
+      itemName = item.name;
+    } else if (item is TransactionPriority) {
+      itemName = item.title;
+    } else {
+      itemName = '';
+    }
+
+    return itemName;
+  }
+
   Widget buildItem(int index) {
     final item = widget.headerEnabled ? filteredItems[index] : items[index];
 
     final tag = item is Currency ? item.tag : null;
+    final itemName = _getItemName(item);
+
     final icon = _getItemIcon(item);
 
     final image = images.isNotEmpty ? filteredImages[index] : icon;
@@ -316,6 +342,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               children: [
                 Flexible(
                   child: Text(
+                    key: ValueKey('picker_items_index_${itemName}_text_key'),
                     widget.displayItem?.call(item) ?? item.toString(),
                     softWrap: true,
                     style: TextStyle(
@@ -335,6 +362,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                       height: 18.0,
                       child: Center(
                         child: Text(
+                          key: ValueKey('picker_items_index_${index}_tag_key'),
                           tag,
                           style: TextStyle(
                             fontSize: 7.0,
@@ -358,6 +386,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
     );
 
     return GestureDetector(
+      key: ValueKey('picker_items_index_${itemName}_button_key'),
       onTap: () {
         if (widget.closeOnItemSelected) Navigator.of(context).pop();
         onItemSelected(item!);
@@ -383,6 +412,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
     final item = items[index];
 
     final tag = item is Currency ? item.tag : null;
+    final itemName = _getItemName(item);
     final icon = _getItemIcon(item);
 
     final image = images.isNotEmpty ? images[index] : icon;
@@ -390,6 +420,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
     final isCustomItem = widget.customItemIndex != null && index == widget.customItemIndex;
 
     final itemContent = Row(
+      key: ValueKey('picker_selected_item_row_key'),
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: widget.mainAxisAlignment,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -402,6 +433,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               children: [
                 Flexible(
                   child: Text(
+                    key: ValueKey('picker_items_index_${itemName}_selected_item_text_key'),
                     widget.displayItem?.call(item) ?? item.toString(),
                     softWrap: true,
                     style: TextStyle(
@@ -445,6 +477,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
     );
 
     return GestureDetector(
+      key: ValueKey('picker_items_index_${itemName}_selected_item_button_key'),
       onTap: () {
         if (widget.closeOnItemSelected) Navigator.of(context).pop();
       },
@@ -499,10 +532,10 @@ class _PickerState<Item> extends State<Picker<Item>> {
       children: <Widget>[
         Expanded(
           child: Slider(
-            value: widget.sliderValue ?? 1,
+            value: widget.sliderValue == null || widget.sliderValue! < 1 ? 1 : widget.sliderValue!,
             onChanged: isActivated ? widget.onSliderChanged : null,
             min: widget.minValue ?? 1,
-            max: widget.maxValue ?? 100,
+            max: (widget.maxValue == null || widget.maxValue! < 1) ? 100 : widget.maxValue!,
             divisions: 100,
           ),
         ),

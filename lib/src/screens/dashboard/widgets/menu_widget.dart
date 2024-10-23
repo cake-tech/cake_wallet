@@ -36,7 +36,8 @@ class MenuWidgetState extends State<MenuWidget> {
         this.bitcoinCashIcon = Image.asset('assets/images/bch_icon.png'),
         this.polygonIcon = Image.asset('assets/images/matic_icon.png'),
         this.solanaIcon = Image.asset('assets/images/sol_icon.png'),
-        this.tronIcon = Image.asset('assets/images/trx_icon.png');
+        this.tronIcon = Image.asset('assets/images/trx_icon.png'),
+        this.wowneroIcon = Image.asset('assets/images/wownero_icon.png');
 
   final largeScreen = 731;
 
@@ -60,6 +61,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image polygonIcon;
   Image solanaIcon;
   Image tronIcon;
+  Image wowneroIcon;
 
   @override
   void initState() {
@@ -95,7 +97,14 @@ class MenuWidgetState extends State<MenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final itemCount = SettingActions.all.length;
+    List<SettingActions> items = List.of(SettingActions.all);
+    if (!widget.dashboardViewModel.hasSilentPayments) {
+      items.removeWhere((element) => element.name(context) == S.of(context).silent_payments_settings);
+    }
+    if (!widget.dashboardViewModel.hasMweb) {
+      items.removeWhere((element) => element.name(context) == S.of(context).litecoin_mweb_settings);
+    }
+    int itemCount = items.length;
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
         color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
@@ -179,12 +188,7 @@ class MenuWidgetState extends State<MenuWidget> {
 
                   index--;
 
-                  final item = SettingActions.all[index];
-
-                  if (!widget.dashboardViewModel.hasSilentPayments &&
-                      item.name(context) == S.of(context).silent_payments_settings) {
-                    return Container();
-                  }
+                  final item = items[index];
 
                   final isLastTile = index == itemCount - 1;
 
@@ -236,6 +240,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return solanaIcon;
       case WalletType.tron:
         return tronIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }

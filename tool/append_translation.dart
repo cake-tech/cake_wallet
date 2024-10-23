@@ -2,14 +2,17 @@ import 'utils/translation/arb_file_utils.dart';
 import 'utils/translation/translation_constants.dart';
 import 'utils/translation/translation_utils.dart';
 
+/// flutter packages pub run tool/append_translation.dart "hello_world" "Hello World!"
+
 void main(List<String> args) async {
-  if (args.length != 2) {
+  if (args.length < 2) {
     throw Exception(
-        'Insufficient arguments!\n\nTry to run `./append_translation.dart greetings "Hello World!"`');
+        'Insufficient arguments!\n\nTry to run `./append_translation.dart "greetings" "Hello World!"`');
   }
 
   final name = args.first;
-  final text = args.last;
+  final text = args[1];
+  final force = args.last == "--force";
 
   print('Appending "$name": "$text"');
 
@@ -18,7 +21,7 @@ void main(List<String> args) async {
     final fileName = getArbFileName(lang);
     final translation = await getTranslation(text, lang);
 
-    appendStringToArbFile(fileName, name, translation);
+    appendStringToArbFile(fileName, name, translation, force: force);
   }
 
   print('Alphabetizing all files...');

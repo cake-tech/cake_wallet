@@ -3,6 +3,14 @@ abstract class SyncStatus {
   double progress();
 }
 
+class StartingScanSyncStatus extends SyncStatus {
+  StartingScanSyncStatus(this.beginHeight);
+
+  final int beginHeight;
+  @override
+  double progress() => 0.0;
+}
+
 class SyncingSyncStatus extends SyncStatus {
   SyncingSyncStatus(this.blocksLeft, this.ptc);
 
@@ -54,7 +62,18 @@ class AttemptingSyncStatus extends SyncStatus {
   double progress() => 0.0;
 }
 
-class FailedSyncStatus extends NotConnectedSyncStatus {}
+class AttemptingScanSyncStatus extends SyncStatus {
+  @override
+  double progress() => 0.0;
+}
+
+class FailedSyncStatus extends NotConnectedSyncStatus {
+  String? error;
+  FailedSyncStatus({this.error});
+
+  @override
+  String toString() => error ?? super.toString();
+}
 
 class ConnectingSyncStatus extends SyncStatus {
   @override

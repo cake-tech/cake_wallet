@@ -9,6 +9,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -37,6 +38,7 @@ abstract class OutputBase with Store {
         key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
+        cryptoFullBalance = '',
         fiatAmount = '',
         address = '',
         note = '',
@@ -52,6 +54,9 @@ abstract class OutputBase with Store {
 
   @observable
   String cryptoAmount;
+
+  @observable
+  String cryptoFullBalance;
 
   @observable
   String address;
@@ -73,6 +78,9 @@ abstract class OutputBase with Store {
   @computed
   bool get isParsedAddress =>
       parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
+
+  @observable
+  String? stealthAddress;
 
   @computed
   int get formattedCryptoAmount {
@@ -100,6 +108,9 @@ abstract class OutputBase with Store {
           case WalletType.polygon:
             _amount = polygon!.formatterPolygonParseAmount(_cryptoAmount);
             break;
+          case WalletType.wownero:
+            _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
+            break;
           default:
             break;
         }
@@ -126,9 +137,8 @@ abstract class OutputBase with Store {
           final trc20EstimatedFee = tron!.getTronTRC20EstimatedFee(_wallet) ?? 0;
           return double.parse(trc20EstimatedFee.toString());
         }
-
       }
-      
+
       if (_wallet.type == WalletType.solana) {
         return solana!.getEstimateFees(_wallet) ?? 0.0;
       }
@@ -137,21 +147,25 @@ abstract class OutputBase with Store {
           _settingsStore.priority[_wallet.type]!, formattedCryptoAmount);
 
       if (_wallet.type == WalletType.bitcoin) {
-        if (_settingsStore.priority[_wallet.type] == bitcoin!.getBitcoinTransactionPriorityCustom()) {
-          fee = bitcoin!.getEstimatedFeeWithFeeRate(_wallet,
-              _settingsStore.customBitcoinFeeRate,formattedCryptoAmount);
+        if (_settingsStore.priority[_wallet.type] ==
+            bitcoin!.getBitcoinTransactionPriorityCustom()) {
+          fee = bitcoin!.getEstimatedFeeWithFeeRate(
+              _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
         }
 
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
-      if (_wallet.type == WalletType.litecoin ||
-          _wallet.type == WalletType.bitcoinCash) {
+      if (_wallet.type == WalletType.litecoin || _wallet.type == WalletType.bitcoinCash) {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
       if (_wallet.type == WalletType.monero) {
         return monero!.formatterMoneroAmountToDouble(amount: fee);
+      }
+
+      if (_wallet.type == WalletType.wownero) {
+        return wownero!.formatterWowneroAmountToDouble(amount: fee);
       }
 
       if (_wallet.type == WalletType.haven) {
@@ -194,9 +208,11 @@ abstract class OutputBase with Store {
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
   final NumberFormat _cryptoNumberFormat;
-
   @action
-  void setSendAll() => sendAll = true;
+  void setSendAll(String fullBalance) {
+    cryptoFullBalance = fullBalance;
+    sendAll = true;
+  }
 
   @action
   void reset() {
@@ -235,7 +251,8 @@ abstract class OutputBase with Store {
     try {
       final fiat = calculateFiatAmount(
           price: _fiatConversationStore.prices[cryptoCurrencyHandler()]!,
-          cryptoAmount: cryptoAmount.replaceAll(',', '.'));
+          cryptoAmount:
+              sendAll ? cryptoFullBalance.replaceAll(",", ".") : cryptoAmount.replaceAll(',', '.'));
       if (fiatAmount != fiat) {
         fiatAmount = fiat;
       }
@@ -286,6 +303,9 @@ abstract class OutputBase with Store {
         break;
       case WalletType.tron:
         maximumFractionDigits = 12;
+        break;
+      case WalletType.wownero:
+        maximumFractionDigits = 11;
         break;
       default:
         break;

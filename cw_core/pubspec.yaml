@@ -13,13 +13,19 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.1.0
-  file: ^6.1.4
+  file: ^7.0.0
   path_provider: ^2.0.11
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1
   intl: ^0.18.0
   encrypt: ^5.0.1
+  cake_backup:
+    git:
+      url: https://github.com/cake-tech/cake_backup.git
+      ref: main
+      version: 1.0.0
   socks5_proxy: ^1.0.4
+  unorm_dart: ^0.3.0
 #  tor:
 #    git:
 #      url: https://github.com/cake-tech/tor.git
