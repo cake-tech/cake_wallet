@@ -92,7 +92,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     });
   }
 
-  static const int _autoSaveInterval = 60;
+  static const int _autoSaveInterval = 30;
 
   Box<UnspentCoinsInfo> unspentCoinsInfo;
 

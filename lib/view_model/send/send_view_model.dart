@@ -489,7 +489,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         } else {
           state = TransactionCommitted();
         }
-        return;
       } else {
         await pendingTransaction!.commit();
       }
