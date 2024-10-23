@@ -1,6 +1,8 @@
 #!/bin/sh
 set -o xtrace
 
+ORIGINAL_DIR=$(pwd)
+
 . ./config.sh
 #HAVEN_VERSION=tags/v3.0.7
 ZANO_SRC_DIR=${WORKDIR}/zano
@@ -65,7 +67,7 @@ case $arch in
 esac
 
 cd $ZANO_SRC_DIR
- rm -rf ./build/release
+rm -rf ./build/release
 mkdir -p ./build/release
 cd ./build/release
 CC=${CLANG} CXX=${CXXLANG} cmake -S../.. -DCMAKE_INSTALL_PREFIX=./_install -D CAKEWALLET=TRUE -D TESTNET=TRUE  -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH=${ARCH} -D STATIC=ON -D BUILD_64=${BUILD_64} -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D INSTALL_VENDORED_LIBUNBOUND=ON -D BUILD_TAG=${TAG} -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARCH_ABI=${ARCH_ABI} $FLAGS
@@ -91,6 +93,7 @@ fi
 cp -r ./_install/$ARCH_ABI/lib/* $DEST_LIB_DIR
 #cp ../../src/wallet/api/wallet2_api.h  $DEST_INCLUDE_DIR
 
+cd "$ORIGINAL_DIR"
 ./copy_zano_libs.sh
 
 done
