@@ -254,6 +254,10 @@ Future<void> defaultSettingsMigration(
         case 41:
           _deselectQuantex(sharedPreferences);
           await _addSethNode(nodes, sharedPreferences);
+          await updateTronNodesWithNowNodes(sharedPreferences: sharedPreferences, nodes: nodes);
+          break;
+        case 42:
+          updateBtcElectrumNodeToUseSSL(nodes, sharedPreferences);
           break;
         default:
           break;
@@ -267,6 +271,15 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+void updateBtcElectrumNodeToUseSSL(Box<Node> nodes, SharedPreferences sharedPreferences) {
+  final btcElectrumNode = nodes.values.firstWhereOrNull((element) => element.uriRaw == newCakeWalletBitcoinUri);
+
+  if (btcElectrumNode != null) {
+    btcElectrumNode.useSSL = true;
+    btcElectrumNode.save();
+  }
 }
 
 void _deselectQuantex(SharedPreferences sharedPreferences) {
@@ -898,7 +911,9 @@ Future<void> changeDefaultBitcoinNode(
   final newCakeWalletBitcoinNode =
       Node(uri: newCakeWalletBitcoinUri, type: WalletType.bitcoin, useSSL: false);
 
-  await nodeSource.add(newCakeWalletBitcoinNode);
+  if (!nodeSource.values.any((element) => element.uriRaw == newCakeWalletBitcoinUri)) {
+    await nodeSource.add(newCakeWalletBitcoinNode);
+  }
 
   if (needToReplaceCurrentBitcoinNode) {
     await sharedPreferences.setInt(
@@ -930,6 +945,10 @@ Future<void> _addBitcoinNode({
   bool replaceExisting = false,
   bool useSSL = false,
 }) async {
+  bool isNodeExists = nodeSource.values.any((element) => element.uriRaw == nodeUri);
+  if (isNodeExists) {
+    return;
+  }
   const cakeWalletBitcoinNodeUriPattern = '.cakewallet.com';
   final currentBitcoinNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
@@ -1316,4 +1335,17 @@ Future<void> removeMoneroWorld(
   if (needToReplaceCurrentMoneroNode) {
     await changeMoneroCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
   }
+}
+
+Future<void> updateTronNodesWithNowNodes({
+  required SharedPreferences sharedPreferences,
+  required Box<Node> nodes,
+}) async {
+  final tronNowNodesUri = 'trx.nownodes.io';
+
+  if (nodes.values.any((node) => node.uriRaw == tronNowNodesUri)) return;
+
+  await nodes.add(Node(uri: tronNowNodesUri, type: WalletType.tron));
+
+  await replaceTronDefaultNode(sharedPreferences: sharedPreferences, nodes: nodes);
 }

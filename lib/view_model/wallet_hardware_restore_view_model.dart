@@ -63,19 +63,23 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
         break;
       case WalletType.litecoin:
         accounts = await bitcoin!
+            .getHardwareWalletBitcoinAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+        break;
+      case WalletType.litecoin:
+        accounts = await bitcoin!
             .getHardwareWalletLitecoinAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-          break;
-        case WalletType.ethereum:
-          accounts = await ethereum!
-              .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-          break;
-        case WalletType.polygon:
-          accounts = await polygon!
-              .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-          break;
-        default:
-          return;
-      }
+        break;
+      case WalletType.ethereum:
+        accounts = await ethereum!
+            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+        break;
+      case WalletType.polygon:
+        accounts = await polygon!
+            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+        break;
+      default:
+        return;
+    }
 
       availableAccounts.addAll(accounts);
       _nextIndex += limit;
@@ -96,16 +100,15 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     switch (type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        credentials = bitcoin!
-            .createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
+        credentials =
+            bitcoin!.createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
         break;
       case WalletType.ethereum:
-        credentials = ethereum!
-            .createEthereumHardwareWalletCredentials(name: name, hwAccountData: selectedAccount!);
+        credentials =
+            ethereum!.createEthereumHardwareWalletCredentials(name: name, hwAccountData: selectedAccount!);
         break;
       case WalletType.polygon:
-        credentials = polygon!
-            .createPolygonHardwareWalletCredentials(name: name, hwAccountData: selectedAccount!);
+        credentials = polygon!.createPolygonHardwareWalletCredentials(name: name, hwAccountData: selectedAccount!);
         break;
       case WalletType.monero:
         final password = walletPassword ?? generateWalletPassword();

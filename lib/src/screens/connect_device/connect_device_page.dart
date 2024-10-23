@@ -43,7 +43,8 @@ class ConnectDevicePage extends BasePage {
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) => ConnectDevicePageBody(
+  Widget body(BuildContext context) =>
+      ConnectDevicePageBody(
       walletType, onConnectDevice, allowChangeWallet, ledgerVM);
 }
 
@@ -53,7 +54,8 @@ class ConnectDevicePageBody extends StatefulWidget {
   final bool allowChangeWallet;
   final LedgerViewModel ledgerVM;
 
-  const ConnectDevicePageBody(this.walletType, this.onConnectDevice,
+  const ConnectDevicePageBody(
+      this.walletType, this.onConnectDevice,
       this.allowChangeWallet, this.ledgerVM);
 
   @override
