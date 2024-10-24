@@ -85,22 +85,8 @@ class ContactListPage extends BasePage {
         child: Column(
           children: [
             buildTitle(title: S.of(context).contact_list_wallets, topPadding: 0.0),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: maxWalletListHeight),
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: walletContacts.length + 2,
-                itemBuilder: (context, index) {
-                  if (index == 0 || index == walletContacts.length + 1) {
-                    return Container();
-                  } else {
-                    final walletInfo = walletContacts[index - 1];
-                    return generateRaw(context, walletInfo);
-                  }
-                },
-                separatorBuilder: (_, __) => StandardListSeparator(),
-              ),
-            ),
+            StandardListSeparator(),
+            generateGroupedWalletList(context, maxWalletListHeight, walletContacts),
             buildTitle(
                 title: S.of(context).contact_list_contacts,
                 trailingFilterButton:
@@ -110,6 +96,74 @@ class ContactListPage extends BasePage {
             ),
           ],
         ));
+  }
+
+  Widget generateGroupedWalletList(
+      BuildContext context, double maxWalletListHeight, List<ContactBase> walletContacts) {
+    final groupedContacts = <String, List<ContactBase>>{};
+
+    for (var contact in walletContacts) {
+      final baseName = _extractBaseName(contact.name);
+      if (!groupedContacts.containsKey(baseName)) {
+        groupedContacts[baseName] = [];
+      }
+      groupedContacts[baseName]!.add(contact);
+    }
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: maxWalletListHeight),
+      child: ListView.separated(
+        shrinkWrap: true,
+        itemCount: groupedContacts.length,
+        itemBuilder: (context, index) {
+          final groupName = groupedContacts.keys.elementAt(index);
+          final groupContacts = groupedContacts[groupName]!;
+
+          if (groupContacts.length == 1) {
+            final contact = groupContacts[0];
+            return generateRaw(context, contact);
+          } else {
+            return Theme(
+              data: Theme.of(context).copyWith(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                title: Text(groupName,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    )),
+                tilePadding: EdgeInsets.zero,
+                childrenPadding: const EdgeInsets.only(left: 16),
+                expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                expandedAlignment: Alignment.topLeft,
+                leading: _buildCurrencyIcon(groupContacts[0]),
+                children: groupContacts.map((contact) => generateRaw(context, contact)).toList(),
+              ),
+            );
+          }
+        },
+        separatorBuilder: (_, __) => StandardListSeparator(),
+      ),
+    );
+  }
+
+  String _extractBaseName(String name) {
+    final bracketIndex = name.indexOf('(');
+    if (bracketIndex != -1) {
+      return name.substring(0, bracketIndex).trim();
+    }
+    return name;
+  }
+
+  Widget _buildCurrencyIcon(ContactBase contact) {
+    final image = contact.type.iconPath;
+    return image != null
+        ? Image.asset(image, height: 24, width: 24)
+        : const SizedBox(height: 24, width: 24);
   }
 
   Widget buildTitle(
@@ -123,10 +177,7 @@ class ContactListPage extends BasePage {
   }
 
   Widget generateRaw(BuildContext context, ContactBase contact) {
-    final image = contact.type.iconPath;
-    final currencyIcon = image != null
-        ? Image.asset(image, height: 24, width: 24)
-        : const SizedBox(height: 24, width: 24);
+    final currencyIcon = _buildCurrencyIcon(contact);
 
     return GestureDetector(
       onTap: () async {
