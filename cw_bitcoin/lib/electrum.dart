@@ -132,6 +132,7 @@ class ElectrumClient {
           if (host == socket?.address.host || socket == null) {
             _setConnectionStatus(ConnectionStatus.disconnected);
             socket?.destroy();
+            socket = null;
           }
         } catch (e) {
           print("onDone: $e");
@@ -463,6 +464,7 @@ class ElectrumClient {
       final id = _id;
       _registryTask(id, completer);
       socket!.write(jsonrpc(method: method, id: id, params: params));
+      await socket!.flush();
       Timer(Duration(milliseconds: timeout), () {
         if (!completer.isCompleted) {
           completer.completeError(RequestFailedTimeoutException(method, id));

@@ -1032,6 +1032,7 @@ abstract class ElectrumWalletBase extends WalletBase<
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
       final outputs = <BitcoinOutput>[];
+      List<BitcoinScriptOutput>? outputsOverride;
       final transactionCredentials = credentials as BitcoinTransactionCredentials;
       final hasMultiDestination = transactionCredentials.outputs.length > 1;
       final sendAll = !hasMultiDestination && transactionCredentials.outputs.first.sendAll;
@@ -2223,7 +2224,6 @@ abstract class ElectrumWalletBase extends WalletBase<
 
   @action
   void _onConnectionStatusChange(ConnectionStatus status) {
-
     switch (status) {
       case ConnectionStatus.connected:
         if (syncStatus is NotConnectedSyncStatus ||

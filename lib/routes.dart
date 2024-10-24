@@ -74,6 +74,7 @@ class Routes {
   static const webViewPage = '/web_view_page';
   static const silentPaymentsSettings = '/silent_payments_settings';
   static const mwebSettings = '/mweb_settings';
+  static const mwebLogs = '/mweb_logs';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';

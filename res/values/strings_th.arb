@@ -372,6 +372,7 @@
   "litecoin_mweb_dismiss": "อนุญาตให้ออกไป",
   "litecoin_mweb_display_card": "แสดงการ์ด mweb",
   "litecoin_mweb_enable_later": "คุณสามารถเลือกเปิดใช้งาน MWEB อีกครั้งภายใต้การตั้งค่าการแสดงผล",
+  "litecoin_mweb_logs": "บันทึก MWEB",
   "litecoin_mweb_pegin": "หมุด",
   "litecoin_mweb_pegout": "ตรึง",
   "litecoin_mweb_scanning": "การสแกน MWEB",
