@@ -132,6 +132,7 @@ class ElectrumClient {
           if (host == socket?.address.host || socket == null) {
             _setConnectionStatus(ConnectionStatus.disconnected);
             socket?.destroy();
+            socket = null;
           }
         } catch (e) {
           print("onDone: $e");

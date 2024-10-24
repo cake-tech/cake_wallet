@@ -46,6 +46,17 @@ abstract class MwebSettingsViewModelBase with Store {
     await logsFile.copy(filePath);
   }
 
+  Future<String> getAbbreviatedLogs() async {
+    final appSupportPath = (await getApplicationSupportDirectory()).path;
+    final logsFile = File("$appSupportPath/logs/debug.log");
+    if (!logsFile.existsSync()) {
+      return "";
+    }
+    final logs = logsFile.readAsStringSync();
+    // return last 10000 characters:
+    return logs.substring(logs.length > 10000 ? logs.length - 10000 : 0);
+  }
+
   Future<void> removeLogsLocally(String filePath) async {
     final logsFile = File(filePath);
     if (logsFile.existsSync()) {
