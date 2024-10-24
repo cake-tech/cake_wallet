@@ -1608,6 +1608,7 @@ abstract class SecureStorage {
   Future<String?> read({required String key});
   Future<void> write({required String key, required String? value});
   Future<void> delete({required String key});
+  Future<void> deleteAll();
   // Legacy
   Future<String?> readNoIOptions({required String key});
  }""";
@@ -1638,6 +1639,9 @@ class DefaultSecureStorage extends SecureStorage {
 
   @override
   Future<void> delete({required String key}) async => _secureStorage.delete(key: key);
+
+  @override
+  Future<void> deleteAll() async => _secureStorage.deleteAll();
 
   @override
   Future<String?> readNoIOptions({required String key}) async => await _readInternal(key, true);
