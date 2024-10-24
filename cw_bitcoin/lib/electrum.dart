@@ -447,14 +447,9 @@ class ElectrumClient {
     final id = _id;
     idCallback?.call(id);
     _registryTask(id, completer);
-    try {
-      socket!.write(jsonrpc(method: method, id: id, params: params));
+    socket!.write(jsonrpc(method: method, id: id, params: params));
 
-      return completer.future;
-    } catch (e) {
-      print("call error: $e");
-      return null;
-    }
+    return completer.future;
   }
 
   Future<dynamic> callWithTimeout(
@@ -468,6 +463,7 @@ class ElectrumClient {
       final id = _id;
       _registryTask(id, completer);
       socket!.write(jsonrpc(method: method, id: id, params: params));
+      await socket!.flush();
       Timer(Duration(milliseconds: timeout), () {
         if (!completer.isCompleted) {
           completer.completeError(RequestFailedTimeoutException(method, id));
@@ -476,8 +472,8 @@ class ElectrumClient {
 
       return completer.future;
     } catch (e) {
-      print("callWithTimeout: $e");
-      return null;
+      print("callWithTimeout $e");
+      rethrow;
     }
   }
 
