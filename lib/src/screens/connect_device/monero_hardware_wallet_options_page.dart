@@ -2,7 +2,6 @@ import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -176,6 +175,15 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
   }
 
   Future<void> _confirmForm() async {
+      showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) => AlertWithOneAction(
+            alertTitle: S.of(context).proceed_on_device,
+            alertContent: S.of(context).proceed_on_device_description,
+            buttonText: S.of(context).cancel,
+            buttonAction: () => Navigator.of(context).pop()),
+      );
+
     final options = {};
     options['height'] = _blockchainHeightKey.currentState?.height ?? -1;
     await _walletHardwareRestoreVM.create(options: options);

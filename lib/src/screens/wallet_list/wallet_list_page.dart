@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/new_wallet/widgets/grouped_wallet_expans
 import 'package:cake_wallet/src/screens/wallet_list/edit_wallet_button_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -488,6 +489,15 @@ class WalletListBodyState extends State<WalletListBody> {
               ),
             );
           }
+
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) => AlertWithOneAction(
+                alertTitle: S.of(context).proceed_on_device,
+                alertContent: S.of(context).proceed_on_device_description,
+                buttonText: S.of(context).cancel,
+                buttonAction: () => Navigator.of(context).pop()),
+          );
 
           changeProcessText(
               S.of(context).wallet_list_loading_wallet(wallet.name));

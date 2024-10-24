@@ -22,10 +22,11 @@ class ConnectDevicePageParams {
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
 
-  ConnectDevicePageParams(
-      {required this.walletType,
-      required this.onConnectDevice,
-      this.allowChangeWallet = false});
+  ConnectDevicePageParams({
+    required this.walletType,
+    required this.onConnectDevice,
+    this.allowChangeWallet = false,
+  });
 }
 
 class ConnectDevicePage extends BasePage {
@@ -43,8 +44,7 @@ class ConnectDevicePage extends BasePage {
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) =>
-      ConnectDevicePageBody(
+  Widget body(BuildContext context) => ConnectDevicePageBody(
       walletType, onConnectDevice, allowChangeWallet, ledgerVM);
 }
 
@@ -55,8 +55,11 @@ class ConnectDevicePageBody extends StatefulWidget {
   final LedgerViewModel ledgerVM;
 
   const ConnectDevicePageBody(
-      this.walletType, this.onConnectDevice,
-      this.allowChangeWallet, this.ledgerVM);
+    this.walletType,
+    this.onConnectDevice,
+    this.allowChangeWallet,
+    this.ledgerVM,
+  );
 
   @override
   ConnectDevicePageBodyState createState() => ConnectDevicePageBodyState();
@@ -238,9 +241,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context)
-                            .extension<CakeTextTheme>()!
-                            .titleColor,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       ),
                     ),
                   ),
@@ -262,12 +263,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
               if (widget.allowChangeWallet) ...[
                 PrimaryButton(
                   text: S.of(context).wallets,
-                  color: Theme.of(context)
-                      .extension<WalletListTheme>()!
-                      .createNewWalletButtonBackgroundColor,
-                  textColor: Theme.of(context)
-                      .extension<WalletListTheme>()!
-                      .restoreWalletButtonTextColor,
+                  color: Theme.of(context).extension<WalletListTheme>()!.createNewWalletButtonBackgroundColor,
+                  textColor: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
                   onPressed: _onChangeWallet,
                 )
               ],
