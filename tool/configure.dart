@@ -270,6 +270,7 @@ import 'package:cw_core/output_info.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:polyseed/polyseed.dart';""";
   const moneroCWHeaders = """
 import 'package:cw_core/get_height_by_date.dart';
@@ -388,6 +389,7 @@ abstract class Monero {
     required String language,
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
+  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required ledger.LedgerConnection ledgerConnection});
   WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, String? password});
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
@@ -403,6 +405,8 @@ abstract class Monero {
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
+  void setLedgerConnection(Object wallet, ledger.LedgerConnection connection);
+  void setGlobalLedgerConnection(ledger.LedgerConnection connection);
 }
 
 abstract class MoneroSubaddressList {

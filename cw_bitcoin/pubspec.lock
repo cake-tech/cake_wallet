@@ -386,10 +386,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_web_bluetooth
-      sha256: "52ce64f65d7321c4bf6abfe9dac02fb888731339a5e0ad6de59fb916c20c9f02"
+      sha256: fcd03e2e5f82edcedcbc940f1b6a0635a50757374183254f447640886c53208e
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.3"
+    version: "0.2.4"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -560,7 +560,7 @@ packages:
     description:
       path: "packages/ledger-bitcoin"
       ref: HEAD
-      resolved-ref: dbb5c4956949dc734af3fc8febdbabed89da72aa
+      resolved-ref: "07cd61ef76a2a017b6d5ef233396740163265457"
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.3"
@@ -568,16 +568,16 @@ packages:
     dependency: "direct main"
     description:
       name: ledger_flutter_plus
-      sha256: ea3ed586e1697776dacf42ac979095f1ca3bd143bf007cbe5c78e09cb6943f42
+      sha256: c7b04008553193dbca7e17b430768eecc372a72b0ff3625b5e7fc5e5c8d3231b
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.5"
+    version: "1.4.1"
   ledger_litecoin:
     dependency: "direct main"
     description:
       path: "packages/ledger-litecoin"
       ref: HEAD
-      resolved-ref: dbb5c4956949dc734af3fc8febdbabed89da72aa
+      resolved-ref: "07cd61ef76a2a017b6d5ef233396740163265457"
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.2"
