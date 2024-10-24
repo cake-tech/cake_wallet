@@ -247,7 +247,7 @@ class _ContactListBodyState extends State<ContactListBody> {
 
   @override
   Widget build(BuildContext context) {
-    final contacts = widget.contactListViewModel.contacts;
+    final contacts = widget.contactListViewModel.contactsToShow;
     return Container(
         child: FilteredList(
       list: contacts,
