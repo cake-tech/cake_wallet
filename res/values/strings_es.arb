@@ -938,5 +938,6 @@
   "you_pay": "Tú pagas",
   "you_will_get": "Convertir a",
   "you_will_send": "Convertir de",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "Ya existe un contacto con ese nombre. Elija un nombre diferente."
 }

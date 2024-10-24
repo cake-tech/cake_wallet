@@ -938,5 +938,6 @@
   "you_pay": "あなたが支払う",
   "you_will_get": "に変換",
   "you_will_send": "から変換",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "その名前の連絡先はすでに存在します。別の名前を選択してください。"
 }

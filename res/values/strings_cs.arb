@@ -937,5 +937,6 @@
   "you_pay": "Zaplatíte",
   "you_will_get": "Směnit na",
   "you_will_send": "Směnit z",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "Kontakt s tímto jménem již existuje. Vyberte prosím jiný název."
 }
