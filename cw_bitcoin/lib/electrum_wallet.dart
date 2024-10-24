@@ -1590,12 +1590,11 @@ abstract class ElectrumWalletBase extends WalletBase<
         final address = addressFromOutputScript(outTransaction.scriptPubKey, network);
         allInputsAmount += outTransaction.amount.toInt();
 
-        final addressRecord = walletAddresses.allAddresses.firstWhere((element) => element.address == address);
+        final addressRecord =
+        walletAddresses.allAddresses.firstWhere((element) => element.address == address);
         final btcAddress = RegexUtils.addressTypeFromStr(addressRecord.address, network);
         final privkey = generateECPrivate(
-            hd: addressRecord.isHidden
-                ? walletAddresses.sideHd
-                : walletAddresses.mainHd,
+            hd: addressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
             index: addressRecord.index,
             network: network);
 
@@ -1609,7 +1608,8 @@ abstract class ElectrumWalletBase extends WalletBase<
               vout: vout,
               scriptType: _getScriptType(btcAddress),
             ),
-            ownerDetails: UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: btcAddress),
+            ownerDetails:
+            UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: btcAddress),
           ),
         );
       }
@@ -1636,7 +1636,8 @@ abstract class ElectrumWalletBase extends WalletBase<
       }
 
       // Calculate the total amount and fees
-      int totalOutAmount = outputs.fold<int>(0, (previousValue, output) => previousValue + output.value.toInt());
+      int totalOutAmount =
+      outputs.fold<int>(0, (previousValue, output) => previousValue + output.value.toInt());
       int currentFee = allInputsAmount - totalOutAmount;
       int remainingFee = newFee - currentFee;
 
@@ -1649,7 +1650,8 @@ abstract class ElectrumWalletBase extends WalletBase<
         final changeAddresses = walletAddresses.allAddresses.where((element) => element.isHidden);
         for (int i = outputs.length - 1; i >= 0; i--) {
           final output = outputs[i];
-          final isChange = changeAddresses.any((element) => element.address == output.address.toAddress(network));
+          final isChange = changeAddresses
+              .any((element) => element.address == output.address.toAddress(network));
 
           if (isChange) {
             int outputAmount = output.value.toInt();
@@ -1657,11 +1659,9 @@ abstract class ElectrumWalletBase extends WalletBase<
               int deduction = (outputAmount - _dustAmount >= remainingFee)
                   ? remainingFee
                   : outputAmount - _dustAmount;
-              outputs[i] = BitcoinOutput(address: output.address, value: BigInt.from(outputAmount - deduction));
+              outputs[i] = BitcoinOutput(
+                  address: output.address, value: BigInt.from(outputAmount - deduction));
               remainingFee -= deduction;
-
-              print('Deducting $deduction from change output: ${output.address}');
-              print('Remaining fee after deducting from change: $remainingFee');
 
               if (remainingFee <= 0) break;
             }
@@ -1671,40 +1671,46 @@ abstract class ElectrumWalletBase extends WalletBase<
 
       // If still not enough, add UTXOs until the fee is covered
       if (remainingFee > 0) {
-        final unusedUtxos = unspentCoins.where((utxo) => utxo.isSending && !utxo.isFrozen && utxo.confirmations! > 0).toList();
-        print('Unused UTXOs: ${unusedUtxos.map((e) => {'hash': e.hash, 'value': e.value}).toList()}');
+        final unusedUtxos = unspentCoins
+            .where((utxo) => utxo.isSending && !utxo.isFrozen && utxo.confirmations! > 0)
+            .toList();
 
         for (final utxo in unusedUtxos) {
           final address = RegexUtils.addressTypeFromStr(utxo.address, network);
           final privkey = generateECPrivate(
-            hd: utxo.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+            hd: utxo.bitcoinAddressRecord.isHidden
+                ? walletAddresses.sideHd
+                : walletAddresses.mainHd,
             index: utxo.bitcoinAddressRecord.index,
             network: network,
           );
           privateKeys.add(privkey);
 
           utxos.add(UtxoWithAddress(
-            utxo: BitcoinUtxo(txHash: utxo.hash, value: BigInt.from(utxo.value), vout: utxo.vout, scriptType: _getScriptType(address)),
-            ownerDetails: UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: address),
+            utxo: BitcoinUtxo(
+                txHash: utxo.hash,
+                value: BigInt.from(utxo.value),
+                vout: utxo.vout,
+                scriptType: _getScriptType(address)),
+            ownerDetails:
+            UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: address),
           ));
 
           allInputsAmount += utxo.value;
           remainingFee -= utxo.value;
 
-          print('Adding UTXO: ${utxo.hash} with value: ${utxo.value}');
-          print('Total inputs so far: $allInputsAmount');
-          print('Remaining fee after adding UTXO: $remainingFee');
-
           if (remainingFee < 0) {
-            final changeOutput = outputs.firstWhereOrNull((output) => walletAddresses.allAddresses.any((addr) => addr.address == output.address.toAddress(network)));
+            final changeOutput = outputs.firstWhereOrNull((output) => walletAddresses.allAddresses
+                .any((addr) => addr.address == output.address.toAddress(network)));
             if (changeOutput != null) {
               final newValue = changeOutput.value.toInt() + (-remainingFee);
-              outputs[outputs.indexOf(changeOutput)] = BitcoinOutput(address: changeOutput.address, value: BigInt.from(newValue));
-              print('Adding surplus to existing change output: ${changeOutput.address}');
+              outputs[outputs.indexOf(changeOutput)] =
+                  BitcoinOutput(address: changeOutput.address, value: BigInt.from(newValue));
             } else {
-              final changeAddress = walletAddresses.allAddresses.firstWhere((element) => element.isHidden).address;
-              outputs.add(BitcoinOutput(address: RegexUtils.addressTypeFromStr(changeAddress, network), value: BigInt.from(-remainingFee)));
-              print('Adding new change output: $changeAddress');
+              final changeAddress = await walletAddresses.getChangeAddress();
+              outputs.add(BitcoinOutput(
+                  address: RegexUtils.addressTypeFromStr(changeAddress.address, network),
+                  value: BigInt.from(-remainingFee)));
             }
 
             remainingFee = 0;
@@ -1726,9 +1732,8 @@ abstract class ElectrumWalletBase extends WalletBase<
                 ? remainingFee
                 : outputAmount - _dustAmount;
 
-            print('Deducting $deduction from receiver\'s output: ${output.address}');
-
-            outputs[i] = BitcoinOutput(address: output.address, value: BigInt.from(outputAmount - deduction));
+            outputs[i] = BitcoinOutput(
+                address: output.address, value: BigInt.from(outputAmount - deduction));
             remainingFee -= deduction;
 
             if (remainingFee <= 0) break;
@@ -1743,18 +1748,16 @@ abstract class ElectrumWalletBase extends WalletBase<
 
       // Identify all change outputs
       final changeAddresses = walletAddresses.allAddresses.where((element) => element.isHidden);
-      final List<BitcoinOutput> changeOutputs = outputs.where((output) => changeAddresses.any((element) => element.address == output.address.toAddress(network))).toList();
+      final List<BitcoinOutput> changeOutputs = outputs
+          .where((output) => changeAddresses
+          .any((element) => element.address == output.address.toAddress(network)))
+          .toList();
 
-      int totalChangeAmount = changeOutputs.fold<int>(0, (sum, output) => sum + output.value.toInt());
+      int totalChangeAmount =
+      changeOutputs.fold<int>(0, (sum, output) => sum + output.value.toInt());
 
       // The final amount that the receiver will receive
       int sendingAmount = allInputsAmount - newFee - totalChangeAmount;
-
-      // Calculate final amount that the receiver will get
-      final receiverOutput = outputs.firstWhere((output) => !walletAddresses.allAddresses.any((addr) => addr.address == output.address.toAddress(network)));
-      final receiverFinalAmount = receiverOutput.value.toInt();
-
-      print('Final amount receiver will get: $receiverFinalAmount');
 
       final txb = BitcoinTransactionBuilder(
         utxos: utxos,
@@ -1767,7 +1770,8 @@ abstract class ElectrumWalletBase extends WalletBase<
       );
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
-        final key = privateKeys.firstWhereOrNull((element) => element.getPublic().toHex() == publicKey);
+        final key =
+        privateKeys.firstWhereOrNull((element) => element.getPublic().toHex() == publicKey);
         if (key == null) {
           throw Exception("Cannot find private key");
         }
@@ -1798,8 +1802,6 @@ abstract class ElectrumWalletBase extends WalletBase<
       throw e;
     }
   }
-
-
 
   Future<ElectrumTransactionBundle> getTransactionExpanded(
       {required String hash, int? height}) async {
