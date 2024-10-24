@@ -8,6 +8,8 @@ PODS:
     - FlutterMacOS
   - devicelocale (0.0.1):
     - FlutterMacOS
+  - fast_scanner (5.1.1):
+    - FlutterMacOS
   - flutter_inappwebview_macos (0.0.1):
     - FlutterMacOS
     - OrderedSet (~> 5.0)
@@ -42,6 +44,7 @@ DEPENDENCIES:
   - cw_mweb (from `Flutter/ephemeral/.symlinks/plugins/cw_mweb/macos`)
   - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
   - devicelocale (from `Flutter/ephemeral/.symlinks/plugins/devicelocale/macos`)
+  - fast_scanner (from `Flutter/ephemeral/.symlinks/plugins/fast_scanner/macos`)
   - flutter_inappwebview_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_inappwebview_macos/macos`)
   - flutter_local_authentication (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_authentication/macos`)
   - flutter_secure_storage_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos`)
@@ -69,6 +72,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos
   devicelocale:
     :path: Flutter/ephemeral/.symlinks/plugins/devicelocale/macos
+  fast_scanner:
+    :path: Flutter/ephemeral/.symlinks/plugins/fast_scanner/macos
   flutter_inappwebview_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_inappwebview_macos/macos
   flutter_local_authentication:
@@ -99,6 +104,7 @@ SPEC CHECKSUMS:
   cw_mweb: 7440b12ead811dda972a9918442ea2a458e8742c
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
   devicelocale: 9f0f36ac651cabae2c33f32dcff4f32b61c38225
+  fast_scanner: d31bae07e2653403a69dac99fb710c1722b16a97
   flutter_inappwebview_macos: 9600c9df9fdb346aaa8933812009f8d94304203d
   flutter_local_authentication: 85674893931e1c9cfa7c9e4f5973cb8c56b018b0
   flutter_secure_storage_macos: d56e2d218c1130b262bef8b4a7d64f88d7f9c9ea

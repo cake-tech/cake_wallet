@@ -1,5 +1,8 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:flutter/material.dart';
 
 class SettingActions {
@@ -14,6 +17,7 @@ class SettingActions {
   });
 
   static List<SettingActions> all = [
+    exportOutputsAction,
     connectionSettingAction,
     walletSettingAction,
     addressBookSettingAction,
@@ -47,6 +51,15 @@ class SettingActions {
     },
   );
 
+  static SettingActions exportOutputsAction = SettingActions._(
+    name: (context) => S.of(context).export_outputs,
+    image: 'assets/images/monero_menu.png',
+    onTap: (BuildContext context) {
+      Navigator.pop(context);
+      Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: 'export-outputs');
+    },
+  );
+  
   static SettingActions litecoinMwebSettingAction = SettingActions._(
     name: (context) => S.of(context).litecoin_mweb_settings,
     image: 'assets/images/litecoin_menu.png',

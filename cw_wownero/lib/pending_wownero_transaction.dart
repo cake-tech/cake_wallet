@@ -50,4 +50,9 @@ class PendingWowneroTransaction with PendingTransaction {
       rethrow;
     }
   }
+  
+  @override
+  Future<String?> commitUR() {
+    throw UnimplementedError();
+  }
 }
