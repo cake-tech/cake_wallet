@@ -937,5 +937,6 @@
   "you_pay": "你付钱",
   "you_will_get": "转换到",
   "you_will_send": "转换自",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "已存在具有该名称的联系人。请选择不同的名称。"
 }

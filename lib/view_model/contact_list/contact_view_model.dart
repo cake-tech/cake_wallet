@@ -2,7 +2,7 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cw_core/crypto_currency.dart';
 
@@ -17,7 +17,9 @@ abstract class ContactViewModelBase with Store {
         _contact = contact,
         name = contact?.name ?? '',
         address = contact?.address ?? '',
-        currency = contact?.type;
+        currency = contact?.type,
+        lastChange = contact?.lastChange;
+
 
   @observable
   ExecutionState state;
@@ -30,6 +32,8 @@ abstract class ContactViewModelBase with Store {
 
   @observable
   CryptoCurrency? currency;
+
+  DateTime? lastChange;
 
   @computed
   bool get isReady =>
@@ -51,20 +55,32 @@ abstract class ContactViewModelBase with Store {
   Future<void> save() async {
     try {
       state = IsExecutingState();
+      final now = DateTime.now();
+
+      if (doesContactNameExist(name)) {
+        state = FailureState(S.current.contact_name_exists);
+        return;
+      }
 
       if (_contact != null && _contact!.original.isInBox) {
         _contact?.name = name;
         _contact?.address = address;
         _contact?.type = currency!;
+        _contact?.lastChange = now;
         await _contact?.save();
       } else {
         await _contacts
-            .add(Contact(name: name, address: address, type: currency!));
+            .add(Contact(name: name, address: address, type: currency!, lastChange: now));
       }
 
+            lastChange = now;
       state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());
     }
+  }
+
+  bool doesContactNameExist(String name) {
+    return _contacts.values.any((contact) => contact.name == name);
   }
 }

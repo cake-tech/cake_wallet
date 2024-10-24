@@ -937,5 +937,6 @@
   "you_pay": "Vi plaćate",
   "you_will_get": "Razmijeni u",
   "you_will_send": "Razmijeni iz",
-  "yy": "GG"
+  "yy": "GG",
+  "contact_name_exists": "Kontakt s tim imenom već postoji. Odaberite drugo ime."
 }
