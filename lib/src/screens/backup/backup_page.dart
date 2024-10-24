@@ -154,7 +154,7 @@ class BackupPage extends BasePage {
       File returnedFile = File(outputFile!);
       await returnedFile.writeAsBytes(backup.content);
     } catch (exception, stackTrace) {
-      ExceptionHandler.onError(FlutterErrorDetails(
+      await ExceptionHandler.onError(FlutterErrorDetails(
         exception: exception,
         stack: stackTrace,
         library: "Export Backup",
