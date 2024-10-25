@@ -197,4 +197,18 @@ class CwMweb {
     }
     return null;
   }
+
+  static Future<BroadcastResponse> broadcast(BroadcastRequest request) async {
+    log("mweb.broadcast() called");
+    try {
+      _rpcClient = await stub();
+      return await _rpcClient!.broadcast(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    } on GrpcError catch (e) {
+      log('Caught grpc error: ${e.message}');
+      rethrow;
+    } catch (e) {
+      log("Error getting create: $e");
+      rethrow;
+    }
+  }
 }

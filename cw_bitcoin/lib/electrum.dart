@@ -464,7 +464,6 @@ class ElectrumClient {
       final id = _id;
       _registryTask(id, completer);
       socket!.write(jsonrpc(method: method, id: id, params: params));
-      await socket!.flush();
       Timer(Duration(milliseconds: timeout), () {
         if (!completer.isCompleted) {
           completer.completeError(RequestFailedTimeoutException(method, id));

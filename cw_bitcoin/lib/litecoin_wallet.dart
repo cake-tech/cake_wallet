@@ -85,8 +85,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           alwaysScan: alwaysScan,
         ) {
     if (seedBytes != null) {
-      mwebHd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(
-          "m/1000'") as Bip32Slip10Secp256k1;
+      mwebHd =
+          Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/1000'") as Bip32Slip10Secp256k1;
       mwebEnabled = alwaysScan ?? false;
     } else {
       mwebHd = null;
@@ -380,6 +380,20 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
               print("updating confs ${tx.id} from ${tx.confirmations} -> $confirmations");
 
+              // if an outgoing tx is now confirmed, delete the utxo from the box (delete the unspent coin):
+              if (tx.confirmations >= 2 &&
+                  tx.direction == TransactionDirection.outgoing &&
+                  tx.unspents != null) {
+                for (var coin in tx.unspents!) {
+                  // print(coin.address);
+                  final utxo = mwebUtxosBox.get(coin.address);
+                  if (utxo != null) {
+                    print("deleting utxo ${coin.address} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                    await mwebUtxosBox.delete(coin.address);
+                  }
+                }
+              }
+
               tx.confirmations = confirmations;
               tx.isPending = false;
               transactionHistory.addOne(tx);
@@ -614,6 +628,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       await mwebUtxosBox.put(utxo.outputId, utxo);
 
       await handleIncoming(utxo);
+    }, onError: (error) {
+      print("error in utxo stream: $error");
     });
   }
 
@@ -750,7 +766,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebUtxosBox.keys.forEach((dynamic oId) {
       final String outputId = oId as String;
       final utxo = mwebUtxosBox.get(outputId);
-      if (utxo == null) {
+      if (utxo == null || utxo.spent) {
         return;
       }
       if (utxo.address.isEmpty) {
@@ -800,15 +816,32 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     int unconfirmedMweb = 0;
     try {
       mwebUtxosBox.values.forEach((utxo) {
-        if (utxo.height > 0) {
+        bool isConfirmed = utxo.height > 0;
+
+        print(
+            "utxo: ${isConfirmed ? "confirmed" : "unconfirmed"} ${utxo.spent ? "spent" : "unspent"} ${utxo.outputId} ${utxo.height} ${utxo.value}");
+
+        // print(utxo.)
+
+        // old behavior:
+        // if (isConfirmed) {
+        //   confirmedMweb += utxo.value.toInt();
+        // } else {
+        //   unconfirmedMweb += utxo.value.toInt();
+        // }
+
+        if (isConfirmed) {
           confirmedMweb += utxo.value.toInt();
-        } else {
+        }
+
+        if (isConfirmed && utxo.spent) {
+          unconfirmedMweb -= utxo.value.toInt();
+        }
+
+        if (!isConfirmed) {
           unconfirmedMweb += utxo.value.toInt();
         }
       });
-      if (unconfirmedMweb > 0) {
-        unconfirmedMweb = -1 * (confirmedMweb - unconfirmedMweb);
-      }
     } catch (_) {}
 
     for (var addressRecord in walletAddresses.allAddresses) {
@@ -959,8 +992,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       if (!mwebEnabled) {
         tx.changeAddressOverride =
-            (await (walletAddresses as LitecoinWalletAddresses)
-                    .getChangeAddress(isPegIn: false))
+            (await (walletAddresses as LitecoinWalletAddresses).getChangeAddress(isPegIn: false))
                 .address;
         return tx;
       }
@@ -1000,10 +1032,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       bool isPegIn = !hasMwebInput && hasMwebOutput;
       bool isRegular = !hasMwebInput && !hasMwebOutput;
-      tx.changeAddressOverride =
-          (await (walletAddresses as LitecoinWalletAddresses)
-                  .getChangeAddress(isPegIn: isPegIn || isRegular))
-              .address;
+      tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
+              .getChangeAddress(isPegIn: isPegIn || isRegular))
+          .address;
       if (!hasMwebInput && !hasMwebOutput) {
         tx.isMweb = false;
         return tx;
@@ -1053,11 +1084,19 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       return tx
         ..addListener((transaction) async {
+          print(
+              "@@@@@@@@@@@@@@@@@@@@@@@@@############################# transaction: ${transaction.outputAddresses}");
           final addresses = <String>{};
           transaction.inputAddresses?.forEach((id) async {
+            print("@@@@@@@@@@@@@@@@@@@@@@@@@ input address: $id");
             final utxo = mwebUtxosBox.get(id);
-            await mwebUtxosBox.delete(id); // gets deleted in checkMwebUtxosSpent
+            // await mwebUtxosBox.delete(id); // gets deleted in checkMwebUtxosSpent
             if (utxo == null) return;
+            // mark utxo as spent so we add it to the unconfirmed balance (as negative):
+            utxo.spent = true;
+            print(
+                "@@@@@@@@@@@@@@@@@@@@@@@@@ spent utxo: ${utxo.outputId} ${utxo.height} ${utxo.value}");
+            await mwebUtxosBox.put(id, utxo);
             final addressRecord = walletAddresses.allAddresses
                 .firstWhere((addressRecord) => addressRecord.address == utxo.address);
             if (!addresses.contains(utxo.address)) {
@@ -1250,8 +1289,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   void setLedgerConnection(LedgerConnection connection) {
     _ledgerConnection = connection;
-    _litecoinLedgerApp =
-        LitecoinLedgerApp(_ledgerConnection!, derivationPath: walletInfo.derivationInfo!.derivationPath!);
+    _litecoinLedgerApp = LitecoinLedgerApp(_ledgerConnection!,
+        derivationPath: walletInfo.derivationInfo!.derivationPath!);
   }
 
   @override
@@ -1287,19 +1326,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (maybeChangePath != null) changePath ??= maybeChangePath.derivationPath;
     }
 
-
     final rawHex = await _litecoinLedgerApp!.createTransaction(
-      inputs: readyInputs,
-      outputs: outputs
-          .map((e) => TransactionOutput.fromBigInt(
-              (e as BitcoinOutput).value, Uint8List.fromList(e.address.toScriptPubKey().toBytes())))
-          .toList(),
-      changePath: changePath,
-      sigHashType: 0x01,
-      additionals: ["bech32"],
-      isSegWit: true,
-      useTrustedInputForSegwit: true
-    );
+        inputs: readyInputs,
+        outputs: outputs
+            .map((e) => TransactionOutput.fromBigInt((e as BitcoinOutput).value,
+                Uint8List.fromList(e.address.toScriptPubKey().toBytes())))
+            .toList(),
+        changePath: changePath,
+        sigHashType: 0x01,
+        additionals: ["bech32"],
+        isSegWit: true,
+        useTrustedInputForSegwit: true);
 
     return BtcTransaction.fromRaw(rawHex);
   }
