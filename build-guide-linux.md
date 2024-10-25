@@ -120,7 +120,7 @@ Install Flutter package dependencies with this command:
 
 Your CakeWallet binary will be built with some specific keys for iterate with 3rd party services. You may generate these secret keys placeholders with the following command:
 
-`$ flutter packages pub run tool/generate_new_secrets.dart`
+`$ dart run tool/generate_new_secrets.dart`
 
 We will generate mobx models for the project.
 
@@ -128,7 +128,7 @@ We will generate mobx models for the project.
 
 Then we need to generate localization files.
 
-`$ flutter packages pub run tool/generate_localization.dart`
+`$ dart run tool/generate_localization.dart`
 
 ### 5. Build!
 
