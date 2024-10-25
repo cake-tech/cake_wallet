@@ -203,17 +203,17 @@ jobs:
         run: |
           echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
-      - name: Build
-        run: |
-          cd /opt/android/cake_wallet
-          flutter build apk --release --split-per-abi
+      # - name: Build
+      #   run: |
+      #     cd /opt/android/cake_wallet
+      #     flutter build apk --release --split-per-abi
 
-      - name: Rename apk file
-        run: |
-          cd /opt/android/cake_wallet/build/app/outputs/flutter-apk
-          mkdir test-apk
-          cp app-arm64-v8a-release.apk test-apk/${{env.BRANCH_NAME}}.apk
-          cp app-x86_64-release.apk test-apk/${{env.BRANCH_NAME}}_x86.apk
+      # - name: Rename apk file
+      #   run: |
+      #     cd /opt/android/cake_wallet/build/app/outputs/flutter-apk
+      #     mkdir test-apk
+      #     cp app-arm64-v8a-release.apk test-apk/${{env.BRANCH_NAME}}.apk
+      #     cp app-x86_64-release.apk test-apk/${{env.BRANCH_NAME}}_x86.apk
 
       # - name: Upload Artifact
       #   uses: kittaakos/upload-artifact-as-is@v0
@@ -260,23 +260,6 @@ jobs:
             disable-animations: false
             script: echo "Generated AVD snapshot for caching."
 
-      # - name: 🚀 Integration tests on Android Emualator
-      #   uses: reactivecircus/android-emulator-runner@v2
-      #   with:
-      #       api-level: ${{ matrix.api-level }}
-      #       force-avd-creation: false
-      #       # arch: ${{ matrix.arch }}
-      #       emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-      #       disable-animations: true
-      #       script: |
-      #           cd /opt/android/cake_wallet/
-      #           cd scripts/android/ && sudo./app_env.sh cakewallet && ./app_config.sh && cd ../.. && ./model_generator.sh
-      #           flutter pub get
-      #           flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/
-      #           if [ $? -ne 0 ]; then
-      #           echo "Tests failed"
-      #           exit 1
-      #           fi
       - name: 🚀 Integration tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
