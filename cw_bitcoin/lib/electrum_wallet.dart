@@ -1000,10 +1000,6 @@ abstract class ElectrumWalletBase extends WalletBase<
       bool hasSilentPayment = false;
 
       for (final out in transactionCredentials.outputs) {
-        print("@@@@@@@@@");
-        print(out);
-        print(out.formattedCryptoAmount);
-        print(out.sendAll);
         final outputAmount = out.formattedCryptoAmount!;
 
         if (!sendAll && _isBelowDust(outputAmount)) {
