@@ -120,9 +120,11 @@ abstract class TransactionDetailsViewModelBase with Store {
       ),
     );
 
+    final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
+
     final description = transactionDescriptionBox.values.firstWhere(
-        (val) => val.id == transactionInfo.txHash,
-        orElse: () => TransactionDescription(id: transactionInfo.txHash));
+            (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+        orElse: () => TransactionDescription(id: descriptionKey));
 
     items.add(
       TextFieldListItem(
