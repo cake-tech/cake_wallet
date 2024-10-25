@@ -378,14 +378,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
               // if the confirmations haven't changed, skip updating:
               if (tx.confirmations == confirmations) continue;
 
-              print("updating confs ${tx.id} from ${tx.confirmations} -> $confirmations");
+              // print("updating confs ${tx.id} from ${tx.confirmations} -> $confirmations");
 
               // if an outgoing tx is now confirmed, delete the utxo from the box (delete the unspent coin):
               if (tx.confirmations >= 2 &&
                   tx.direction == TransactionDirection.outgoing &&
                   tx.unspents != null) {
                 for (var coin in tx.unspents!) {
-                  // print(coin.address);
+                  print(coin.address);
                   final utxo = mwebUtxosBox.get(coin.address);
                   if (utxo != null) {
                     print("deleting utxo ${coin.address} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
@@ -821,15 +821,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         print(
             "utxo: ${isConfirmed ? "confirmed" : "unconfirmed"} ${utxo.spent ? "spent" : "unspent"} ${utxo.outputId} ${utxo.height} ${utxo.value}");
 
-        // print(utxo.)
-
-        // old behavior:
-        // if (isConfirmed) {
-        //   confirmedMweb += utxo.value.toInt();
-        // } else {
-        //   unconfirmedMweb += utxo.value.toInt();
-        // }
-
         if (isConfirmed) {
           confirmedMweb += utxo.value.toInt();
         }
@@ -838,7 +829,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           unconfirmedMweb -= utxo.value.toInt();
         }
 
-        if (!isConfirmed) {
+        if (!isConfirmed && !utxo.spent) {
           unconfirmedMweb += utxo.value.toInt();
         }
       });

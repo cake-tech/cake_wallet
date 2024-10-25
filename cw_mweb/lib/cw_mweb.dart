@@ -13,7 +13,7 @@ class CwMweb {
   static RpcClient? _rpcClient;
   static ClientChannel? _clientChannel;
   static int? _port;
-  static const TIMEOUT_DURATION = Duration(seconds: 5);
+  static const TIMEOUT_DURATION = Duration(seconds: 15);
   static Timer? logTimer;
 
   static void readFileWithTimer(String filePath) {

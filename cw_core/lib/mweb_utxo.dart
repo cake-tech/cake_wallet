@@ -32,6 +32,6 @@ class MwebUtxo extends HiveObject {
   @HiveField(4)
   int blockTime;
 
-  @HiveField(5)
+  @HiveField(5, defaultValue: false)
   bool spent;
 }
