@@ -24,7 +24,6 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/core/address_validator.dart';
@@ -408,16 +407,16 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
-      if (e is LedgerException) {
-        final errorCode = e.errorCode.toRadixString(16);
-        final fallbackMsg =
-            e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
-        final errorMsg = ledgerViewModel!.interpretErrorCode(errorCode) ?? fallbackMsg;
-
-        state = FailureState(errorMsg);
-      } else {
+      // if (e is LedgerException) {
+      //   final errorCode = e.errorCode.toRadixString(16);
+      //   final fallbackMsg =
+      //       e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
+      //   final errorMsg = ledgerViewModel!.interpretErrorCode(errorCode) ?? fallbackMsg;
+      //
+      //   state = FailureState(errorMsg);
+      // } else {
         state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
-      }
+      // }
     }
     return null;
   }
