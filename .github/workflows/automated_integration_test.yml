@@ -270,7 +270,7 @@ jobs:
             disable-animations: true
             script: |
                 cd /opt/android/cake_wallet/
-                cd scripts/android/ && ./app_env.sh cakewallet && ./app_config.sh && cd ../.. && ./model_generator.sh
+                cd scripts/android/ && sudo ./app_env.sh cakewallet && ./app_config.sh && cd ../.. && ./model_generator.sh
                 flutter pub get
                 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/
                 if [ $? -ne 0 ]; then
