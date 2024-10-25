@@ -30,6 +30,9 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   String address;
 
   @override
+  String get primaryAddress => getAddress(accountIndex: account?.id ?? 0, addressIndex: 0);
+
+  @override
   String get latestAddress {
     var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
     var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
