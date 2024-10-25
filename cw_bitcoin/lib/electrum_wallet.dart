@@ -2181,6 +2181,8 @@ abstract class ElectrumWalletBase
       Timer(Duration(seconds: 5), () {
         if (this.syncStatus is NotConnectedSyncStatus ||
             this.syncStatus is LostConnectionSyncStatus) {
+          if (node == null) return;
+
           this.electrumClient.connectToUri(
                 node!.uri,
                 useSSL: node!.useSSL ?? false,
