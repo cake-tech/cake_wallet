@@ -267,8 +267,8 @@ jobs:
             force-avd-creation: false
             emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
             disable-animations: true
+            working-directory: /opt/android/cake_wallet
             script: |
-                cd /opt/android/cake_wallet
                 flutter pub get
                 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/
                 if [ $? -ne 0 ]; then
