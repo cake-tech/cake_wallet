@@ -270,9 +270,7 @@ jobs:
             working-directory: /opt/android/cake_wallet
             script: |
                 flutter pub get
-                pwd
-                ls -la
-                flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/
+                flutter test integration_test/test_suites/
                 if [ $? -ne 0 ]; then
                   echo "Tests failed"
                   exit 1
