@@ -267,8 +267,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             placeholder: S.of(context).token_contract_address,
             options: [AddressTextFieldOption.paste],
             buttonColor: Theme.of(context).hintColor,
-            // we don't use zano addresses validations here, addresses and asset ids are difference entities
-            validator: AddressValidator(type: widget.homeSettingsViewModel.nativeToken, skipZanoAddressValidation: true),
+            validator: widget.homeSettingsViewModel.walletType == WalletType.zano ? null : AddressValidator(type: widget.homeSettingsViewModel.nativeToken),
             onPushPasteButton: (_) {
               _pasteText();
             },
