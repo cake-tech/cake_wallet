@@ -198,6 +198,28 @@ jobs:
           echo "const letsExchangeAffiliateId = '${{ secrets.LETS_EXCHANGE_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
           echo "const stealthExBearerToken = '${{ secrets.STEALTH_EX_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const stealthExAdditionalFeePercent = '${{ secrets.STEALTH_EX_ADDITIONAL_FEE_PERCENT }}';" >> lib/.secrets.g.dart
+          echo "const moneroTestWalletSeeds ='${{ secrets.MONERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const moneroLegacyTestWalletSeeds = '${{ secrets.MONERO_LEGACY_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinTestWalletSeeds = '${{ secrets.BITCOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const ethereumTestWalletSeeds = '${{ secrets.ETHEREUM_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const litecoinTestWalletSeeds =  '${{ secrets.LITECOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinCashTestWalletSeeds =  '${{ secrets.BITCOIN_CASH_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const polygonTestWalletSeeds = '${{ secrets.POLYGON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const solanaTestWalletSeeds = '${{ secrets.SOLANA_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const tronTestWalletSeeds = '${{ secrets.TRON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const nanoTestWalletSeeds =  '${{ secrets.NANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const wowneroTestWalletSeeds = '${{ secrets.WOWNERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const moneroTestWalletReceiveAddress = '${{ secrets.MONERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinTestWalletReceiveAddress =  '${{ secrets.BITCOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const ethereumTestWalletReceiveAddress =  '${{ secrets.ETHEREUM_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const litecoinTestWalletReceiveAddress =  '${{ secrets.LITECOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinCashTestWalletReceiveAddress = '${{ secrets.BITCOIN_CASH_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const polygonTestWalletReceiveAddress =  '${{ secrets.POLYGON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const solanaTestWalletReceiveAddress =  '${{ secrets.SOLANA_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const tronTestWalletReceiveAddress =  '${{ secrets.TRON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const wowneroTestWalletReceiveAddress = '${{ secrets.WOWNERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const moneroTestWalletBlockHeight =  '${{ secrets.MONERO_TEST_WALLET_BLOCK_HEIGHT }}';" >> lib/.secrets.g.dart
 
       - name: Rename app
         run: |
