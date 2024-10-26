@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/psbt_signer.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/receive/v2.dart' as v2;
@@ -25,6 +26,8 @@ export 'package:payjoin_flutter/send.dart' show RequestContext;
 export 'package:payjoin_flutter/src/exceptions.dart' show PayjoinException;
 
 import 'package:ledger_bitcoin/src/psbt/psbt_extractor.dart';
+
+import 'psbt_converter.dart';
 
 class BitcoinPayjoin {
   // Private constructor
@@ -355,15 +358,17 @@ class BitcoinPayjoin {
     final uri = pjUri as pj_uri.Uri;
     final bitcoinWallet = wallet as ElectrumWallet;
 
-    final tx = await bitcoinWallet.createPayjoinTransaction(
+    // final tx = await bitcoinWallet.createPayjoinTransaction(
+    //   credentials,
+    //   pjBtcAddress: uri.address(),
+    // );
+
+    final psbtv0 = await bitcoinWallet.createPayjoinTransaction(
       credentials,
       pjBtcAddress: uri.address(),
     );
 
-    // Convert the signed PSBT to a base64 string
-    final psbt = tx.psbt;
-
-    return base64Encode(psbt.serialize());
+    return base64Encode(psbtv0);
   }
 
   Future<send.RequestContext> buildPayjoinRequest(

@@ -5,6 +5,8 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/psbt_converter.dart';
+import 'package:cw_bitcoin/psbt_signer.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
@@ -926,8 +928,10 @@ abstract class ElectrumWalletBase extends WalletBase<
     );
   }
 
-  Future<PSBTTransactionBuild> createPayjoinTransaction(Object credentials,
-      {String? pjBtcAddress}) async {
+  Future<Uint8List> createPayjoinTransaction(
+    Object credentials, {
+    String? pjBtcAddress,
+  }) async {
     try {
       final outputs = <BitcoinOutput>[];
       final transactionCredentials =
@@ -1003,65 +1007,20 @@ abstract class ElectrumWalletBase extends WalletBase<
       final transaction = await buildPayjoinTransaction(
         utxos: estimatedTx.utxos,
         outputs: outputs,
-        publicKeys: estimatedTx.publicKeys,
         fee: BigInt.from(estimatedTx.fee),
         network: network,
         memo: estimatedTx.memo,
         outputOrdering: BitcoinOrdering.none,
         enableRBF: true,
+        publicKeys: estimatedTx.publicKeys,
       );
 
-      return transaction;
+      transaction.psbt.sign(estimatedTx.utxos,
+          (txDigest, utxo, publicKey, sighash) {
+        return '';
+      });
 
-      // BasedBitcoinTransacationBuilder txb = BitcoinTransactionBuilder(
-      //   utxos: estimatedTx.utxos,
-      //   outputs: outputs,
-      //   fee: BigInt.from(estimatedTx.fee),
-      //   network: network,
-      //   memo: estimatedTx.memo,
-      //   outputOrdering: BitcoinOrdering.none,
-      //   enableRBF: !estimatedTx.spendsUnconfirmedTX,
-      // );
-
-      // final transaction =
-      //     txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
-      //   String error = "Cannot find private key.";
-
-      //   ECPrivateInfo? key;
-
-      //   if (estimatedTx.inputPrivKeyInfos.isEmpty) {
-      //     error += "\nNo private keys generated.";
-      //   } else {
-      //     error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
-
-      //     key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
-      //       final elemPubkey = element.privkey.getPublic().toHex();
-      //       if (elemPubkey == publicKey) {
-      //         return true;
-      //       } else {
-      //         error += "\nExpected: $publicKey";
-      //         error += "\nPubkey: $elemPubkey";
-      //         return false;
-      //       }
-      //     });
-      //   }
-
-      //   if (key == null) {
-      //     throw Exception(error);
-      //   }
-
-      //   if (utxo.utxo.isP2tr()) {
-      //     return key.privkey.signTapRoot(
-      //       txDigest,
-      //       sighash: sighash,
-      //       tweak: utxo.utxo.isSilentPayment != true,
-      //     );
-      //   } else {
-      //     return key.privkey.signInput(txDigest, sigHash: sighash);
-      //   }
-      // });
-
-      // return transaction;
+      return transaction.psbt.asPsbtV0();
     } catch (e, st) {
       print('[!] ElectrumWallet || e: $e and st: $st');
       throw e;
