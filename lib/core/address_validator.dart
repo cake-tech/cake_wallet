@@ -7,18 +7,18 @@ import 'package:cw_core/erc20_token.dart';
 import 'package:cw_zano/zano_utils.dart';
 
 class AddressValidator extends TextValidator {
-  AddressValidator({required CryptoCurrency type, bool skipZanoAddressValidation = false})
+  AddressValidator({required CryptoCurrency type})
       : super(
             errorMessage: S.current.error_text_address,
             useAdditionalValidation: type == CryptoCurrency.btc
                 ? (String txt) => validateAddress(address: txt, network: BitcoinNetwork.mainnet)
-                : type == CryptoCurrency.zano && !skipZanoAddressValidation
+                : type == CryptoCurrency.zano 
                     ? ZanoUtils.validateAddress
                     : null,
-            pattern: getPattern(type, skipZanoAddressValidation),
+            pattern: getPattern(type),
             length: getLength(type));
 
-  static String getPattern(CryptoCurrency type, bool skipZanoAddressValidation) {
+  static String getPattern(CryptoCurrency type) {
     if (type is Erc20Token) {
       return '0x[0-9a-zA-Z]';
     }
@@ -127,7 +127,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.btcln:
         return '^(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+)';
       case CryptoCurrency.zano:
-        return skipZanoAddressValidation ? '[0-9a-zA-Z]' : r'$.^'; // always false, we use additional validation then
+        return '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d-.]+)';
       default:
         return '[0-9a-zA-Z]';
     }
@@ -308,7 +308,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.trx:
         return '(T|t)[1-9A-HJ-NP-Za-km-z]{33}';
       case CryptoCurrency.zano:
-        return '[0-9a-zA-Z]{1,100}';
+        return '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d-.]+)';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
           return '0x[0-9a-zA-Z]{42}';
