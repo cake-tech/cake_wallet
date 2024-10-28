@@ -293,7 +293,7 @@ jobs:
             working-directory: /opt/android/cake_wallet
             script: |
                 flutter pub get
-                flutter test integration_test/test_suites/
+                flutter test -v integration_test/test_suites/
                 if [ $? -ne 0 ]; then
                   echo "Tests failed"
                   exit 1
