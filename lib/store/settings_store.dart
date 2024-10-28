@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
+import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -125,7 +126,8 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority,
       TransactionPriority? initialPolygonTransactionPriority,
-      TransactionPriority? initialBitcoinCashTransactionPriority})
+      TransactionPriority? initialBitcoinCashTransactionPriority,
+      Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
         _secureStorage = secureStorage,
@@ -208,6 +210,10 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
 
+    if (initialCakePayCountry != null) {
+      selectedCakePayCountry = initialCakePayCountry;
+    }
+
     initializeTrocadorProviderStates();
 
     WalletType.values.forEach((walletType) {
@@ -238,6 +244,15 @@ abstract class SettingsStoreBase with Store {
         (_) => fiatCurrency,
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
             PreferencesKey.currentFiatCurrencyKey, fiatCurrency.serialize()));
+
+    reaction(
+            (_) => selectedCakePayCountry,
+            (Country? country) {
+              if (country != null) {
+                sharedPreferences.setString(
+                    PreferencesKey.currentCakePayCountry, country.raw);
+              }
+            });
 
     reaction(
         (_) => shouldShowYatPopup,
@@ -604,6 +619,9 @@ abstract class SettingsStoreBase with Store {
   FiatCurrency fiatCurrency;
 
   @observable
+  Country? selectedCakePayCountry;
+
+  @observable
   bool shouldShowYatPopup;
 
   @observable
@@ -849,6 +867,10 @@ abstract class SettingsStoreBase with Store {
     final backgroundTasks = getIt.get<BackgroundTasks>();
     final currentFiatCurrency = FiatCurrency.deserialize(
         raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
+    final savedCakePayCountryRaw = sharedPreferences.getString(PreferencesKey.currentCakePayCountry);
+    final currentCakePayCountry = savedCakePayCountryRaw != null
+        ? Country.deserialize(raw: savedCakePayCountryRaw)
+        : null;
 
     TransactionPriority? moneroTransactionPriority = monero?.deserializeMoneroTransactionPriority(
         raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!);
@@ -1188,6 +1210,7 @@ abstract class SettingsStoreBase with Store {
       deviceName: deviceName,
       isBitcoinBuyEnabled: isBitcoinBuyEnabled,
       initialFiatCurrency: currentFiatCurrency,
+      initialCakePayCountry: currentCakePayCountry,
       initialBalanceDisplayMode: currentBalanceDisplayMode,
       initialSaveRecipientAddress: shouldSaveRecipientAddress,
       initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,

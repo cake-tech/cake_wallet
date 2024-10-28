@@ -12,6 +12,7 @@ class PreferencesKey {
   static const currentBananoNodeIdKey = 'current_node_id_banano';
   static const currentBananoPowNodeIdKey = 'current_node_id_banano_pow';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
+  static const currentCakePayCountry = 'current_cake_pay_country';
   static const currentBitcoinCashNodeIdKey = 'current_node_id_bch';
   static const currentSolanaNodeIdKey = 'current_node_id_sol';
   static const currentTronNodeIdKey = 'current_node_id_trx';
