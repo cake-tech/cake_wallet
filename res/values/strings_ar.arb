@@ -373,6 +373,7 @@
   "litecoin_mweb_display_card": "عرض بطاقة mweb",
   "litecoin_mweb_enable_later": "يمكنك اختيار تمكين MWEB مرة أخرى ضمن إعدادات العرض.",
   "litecoin_mweb_logs": "سجلات MWEB",
+  "litecoin_mweb_node": "عقدة MWEB",
   "litecoin_mweb_pegin": "ربط في",
   "litecoin_mweb_pegout": "ربط",
   "litecoin_mweb_scanning": "MWEB المسح الضوئي",

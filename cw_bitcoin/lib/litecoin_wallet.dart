@@ -288,13 +288,16 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await (walletAddresses as LitecoinWalletAddresses).ensureMwebAddressUpToIndexExists(1020);
   }
 
+  // String getMwebNodeUriFromPrefs() {
+  //   // from preferences_key.dart "defaultNanoRep" key:
+  //   return prefs.getString("mweb_node_uri") ?? "ltc-electrum.cakewallet.com:9333";
+  // }
+
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
     await super.connectToNode(node: node);
-    if (await getNodeSupportsMweb()) {
-      await CwMweb.setNodeUriOverride(node.uri.toString());
-    }
+    // await CwMweb.setNodeUriOverride(settingsStore.mwebNodeUri);
   }
 
   @action
@@ -978,7 +981,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       // add the difference to the fee (abs value):
       fee += diff.abs();
     }
-    
+
     print("fee is now: $fee");
 
     final txb =

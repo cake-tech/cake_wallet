@@ -373,6 +373,7 @@
   "litecoin_mweb_display_card": "显示MWEB卡",
   "litecoin_mweb_enable_later": "您可以选择在显示设置下再次启用MWEB。",
   "litecoin_mweb_logs": "MWEB日志",
+  "litecoin_mweb_node": "MWEB节点",
   "litecoin_mweb_pegin": "钉进",
   "litecoin_mweb_pegout": "昏倒",
   "litecoin_mweb_scanning": "MWEB扫描",

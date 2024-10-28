@@ -373,6 +373,7 @@
   "litecoin_mweb_display_card": "MWEB कार्ड दिखाएं",
   "litecoin_mweb_enable_later": "आप प्रदर्शन सेटिंग्स के तहत फिर से MWEB को सक्षम करने के लिए चुन सकते हैं।",
   "litecoin_mweb_logs": "MWEB लॉग",
+  "litecoin_mweb_node": "MWEB नोड",
   "litecoin_mweb_pegin": "खूंटी",
   "litecoin_mweb_pegout": "मरना",
   "litecoin_mweb_scanning": "MWEB स्कैनिंग",

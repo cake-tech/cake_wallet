@@ -374,6 +374,7 @@
   "litecoin_mweb_display_card": "MWEBカードを表示します",
   "litecoin_mweb_enable_later": "表示設定の下で、MWEBを再度有効にすることを選択できます。",
   "litecoin_mweb_logs": "MWEBログ",
+  "litecoin_mweb_node": "MWEBノード",
   "litecoin_mweb_pegin": "ペグイン",
   "litecoin_mweb_pegout": "ペグアウト",
   "litecoin_mweb_scanning": "MWEBスキャン",

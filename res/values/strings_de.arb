@@ -373,6 +373,7 @@
   "litecoin_mweb_display_card": "MWEB-Karte anzeigen",
   "litecoin_mweb_enable_later": "Sie können MWEB unter Anzeigeeinstellungen erneut aktivieren.",
   "litecoin_mweb_logs": "MWEB -Protokolle",
+  "litecoin_mweb_node": "MWEB -Knoten",
   "litecoin_mweb_pegin": "Peg in",
   "litecoin_mweb_pegout": "Abstecken",
   "litecoin_mweb_scanning": "MWEB Scanning",

@@ -373,6 +373,7 @@
   "litecoin_mweb_display_card": "Mostrar tarjeta MWEB",
   "litecoin_mweb_enable_later": "Puede elegir habilitar MWEB nuevamente en la configuración de visualización.",
   "litecoin_mweb_logs": "Registros de mweb",
+  "litecoin_mweb_node": "Nodo mweb",
   "litecoin_mweb_pegin": "Convertir",
   "litecoin_mweb_pegout": "Recuperar",
   "litecoin_mweb_scanning": "Escaneo mweb",

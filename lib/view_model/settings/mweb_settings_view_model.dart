@@ -25,9 +25,17 @@ abstract class MwebSettingsViewModelBase with Store {
   @observable
   late bool mwebEnabled;
 
+  @computed
+  String get mwebNodeUri => _settingsStore.mwebNodeUri;
+
   @action
   void setMwebCardDisplay(bool value) {
     _settingsStore.mwebCardDisplay = value;
+  }
+
+  @action
+  void setMwebNodeUri(String value) {
+    _settingsStore.mwebNodeUri = value;
   }
 
   @action

@@ -373,6 +373,7 @@
   "litecoin_mweb_display_card": "MweB ကဒ်ကိုပြပါ",
   "litecoin_mweb_enable_later": "သင် MweB ကို display settings အောက်ရှိ ထပ်မံ. ခွင့်ပြုရန်ရွေးချယ်နိုင်သည်။",
   "litecoin_mweb_logs": "Mweb မှတ်တမ်းများ",
+  "litecoin_mweb_node": "mweb node ကို",
   "litecoin_mweb_pegin": "တံစို့",
   "litecoin_mweb_pegout": "တံစို့",
   "litecoin_mweb_scanning": "mweb scanning",

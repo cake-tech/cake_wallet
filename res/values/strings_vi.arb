@@ -370,6 +370,7 @@
   "litecoin_mweb_dismiss": "Miễn nhiệm",
   "litecoin_mweb_enable_later": "Bạn có thể chọn bật lại MWEB trong cài đặt hiển thị.",
   "litecoin_mweb_logs": "Nhật ký MWEB",
+  "litecoin_mweb_node": "Nút MWEB",
   "litecoin_mweb_pegin": "Chốt vào",
   "litecoin_mweb_pegout": "Chốt ra",
   "live_fee_rates": "Tỷ lệ phí hiện tại qua API",

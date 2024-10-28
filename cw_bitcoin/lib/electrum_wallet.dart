@@ -569,29 +569,6 @@ abstract class ElectrumWalletBase
     return node!.supportsSilentPayments!;
   }
 
-  Future<bool> getNodeSupportsMweb() async {
-    final version = await electrumClient.version();
-
-    if (node == null) {
-      return false;
-    }
-
-    if (version.isNotEmpty) {
-      final server = version[0];
-      print("server: $server");
-
-      return false;
-
-      // if (server.toLowerCase().contains('electrs')) {
-      //   node!.isElectrs = true;
-      //   node!.save();
-      //   return node!.isElectrs!;
-      // }
-    }
-
-    return node!.supportsMweb!;
-  }
-
   @action
   @override
   Future<void> connectToNode({required Node node}) async {

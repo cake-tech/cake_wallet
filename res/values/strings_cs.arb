@@ -373,6 +373,7 @@
   "litecoin_mweb_display_card": "Zobrazit kartu MWeb",
   "litecoin_mweb_enable_later": "V nastavení zobrazení můžete vybrat znovu povolit MWeb.",
   "litecoin_mweb_logs": "Protokoly mWeb",
+  "litecoin_mweb_node": "Uzel mWeb",
   "litecoin_mweb_pegin": "Peg in",
   "litecoin_mweb_pegout": "Zkrachovat",
   "litecoin_mweb_scanning": "Skenování mWeb",

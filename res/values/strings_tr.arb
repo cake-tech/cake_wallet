@@ -373,6 +373,7 @@
   "litecoin_mweb_display_card": "MWEB kartını göster",
   "litecoin_mweb_enable_later": "Ekran ayarlarının altında MWEB'yi tekrar etkinleştirmeyi seçebilirsiniz.",
   "litecoin_mweb_logs": "MWEB günlükleri",
+  "litecoin_mweb_node": "MWEB düğümü",
   "litecoin_mweb_pegin": "Takılmak",
   "litecoin_mweb_pegout": "Çiğnemek",
   "litecoin_mweb_scanning": "MWEB taraması",

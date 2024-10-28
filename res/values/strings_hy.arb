@@ -369,6 +369,7 @@
   "litecoin_mweb_dismiss": "Հեռացնել",
   "litecoin_mweb_enable_later": "Կարող եք ընտրել Mweb- ը կրկին միացնել ցուցադրման պարամետրերը:",
   "litecoin_mweb_logs": "Mweb տեղեկամատյաններ",
+  "litecoin_mweb_node": "Mweb հանգույց",
   "litecoin_mweb_pegin": "Peg in",
   "litecoin_mweb_pegout": "Հափշտակել",
   "live_fee_rates": "Ապակի վարձավճարներ API- ի միջոցով",
