@@ -265,7 +265,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<BitcoinAddressRecord> getChangeAddress(
+  Future<String> getChangeAddress(
       {List<BitcoinUnspent>? inputs, List<BitcoinOutput>? outputs, bool isPegIn = false}) async {
     updateChangeAddresses();
 
@@ -557,19 +557,19 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<void> discoverAddresses(List<BitcoinAddressRecord> addressList, bool isHidden,
-      Future<String?> Function(BitcoinAddressRecord) getAddressHistory,
-      {BitcoinAddressType type = SegwitAddresType.p2wpkh}) async {
-    final newAddresses = await _createNewAddresses(gap,
-        startIndex: addressList.length, isHidden: isHidden, type: type);
+  Future<List<BitcoinAddressRecord>> discoverAddresses(
+    List<BitcoinAddressRecord> addressList,
+    bool isHidden, {
+    BitcoinAddressType type = SegwitAddresType.p2wpkh,
+  }) async {
+    final newAddresses = await _createNewAddresses(
+      gap,
+      startIndex: addressList.length,
+      isHidden: isHidden,
+      type: type,
+    );
     addAddresses(newAddresses);
-
-    final addressesWithHistory = await Future.wait(newAddresses.map(getAddressHistory));
-    final isLastAddressUsed = addressesWithHistory.last == addressList.last.address;
-
-    if (isLastAddressUsed) {
-      discoverAddresses(addressList, isHidden, getAddressHistory, type: type);
-    }
+    return newAddresses;
   }
 
   Future<void> _generateInitialAddresses(

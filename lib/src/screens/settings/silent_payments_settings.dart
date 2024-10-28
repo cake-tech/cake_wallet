@@ -39,9 +39,9 @@ class SilentPaymentsSettingsPage extends BasePage {
               ),
               SettingsSwitcherCell(
                 title: S.current.silent_payments_register_key,
-                value: _silentPaymentsSettingsViewModel.silentPaymentsAlwaysScan,
+                value: _silentPaymentsSettingsViewModel.silentPaymentsKeyRegistered,
                 onValueChange: (_, bool value) {
-                  _silentPaymentsSettingsViewModel.setSilentPaymentsAlwaysScan(value);
+                  _silentPaymentsSettingsViewModel.registerSilentPaymentsKey(value);
                 },
               ),
               SettingsCellWithArrow(

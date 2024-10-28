@@ -20,6 +20,9 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
   @computed
   bool get silentPaymentsAlwaysScan => _settingsStore.silentPaymentsAlwaysScan;
 
+  @computed
+  bool get silentPaymentsKeyRegistered => _settingsStore.silentPaymentsKeyRegistered;
+
   @action
   void setSilentPaymentsCardDisplay(bool value) {
     _settingsStore.silentPaymentsCardDisplay = value;

@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
@@ -69,6 +70,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialChangeAddressIndex,
     int? initialMwebHeight,
     bool? alwaysScan,
+    required bool mempoolAPIEnabled,
   }) : super(
           mnemonic: mnemonic,
           password: password,
@@ -82,6 +84,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           encryptionFileUtils: encryptionFileUtils,
           currency: CryptoCurrency.ltc,
           alwaysScan: alwaysScan,
+          mempoolAPIEnabled: mempoolAPIEnabled,
         ) {
     if (seedBytes != null) {
       mwebHd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(
@@ -126,8 +129,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         }
       } else if (mwebSyncStatus is SyncingSyncStatus) {
         syncStatus = mwebSyncStatus;
-      } else if (mwebSyncStatus is SyncronizingSyncStatus) {
-        if (syncStatus is! SyncronizingSyncStatus) {
+      } else if (mwebSyncStatus is SynchronizingSyncStatus) {
+        if (syncStatus is! SynchronizingSyncStatus) {
           syncStatus = mwebSyncStatus;
         }
       } else if (mwebSyncStatus is SyncedSyncStatus) {
@@ -152,19 +155,21 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;
 
-  static Future<LitecoinWallet> create(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required EncryptionFileUtils encryptionFileUtils,
-      String? passphrase,
-      String? addressPageType,
-      List<BitcoinAddressRecord>? initialAddresses,
-      List<BitcoinAddressRecord>? initialMwebAddresses,
-      ElectrumBalance? initialBalance,
-      Map<String, int>? initialRegularAddressIndex,
-      Map<String, int>? initialChangeAddressIndex}) async {
+  static Future<LitecoinWallet> create({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required EncryptionFileUtils encryptionFileUtils,
+    String? passphrase,
+    String? addressPageType,
+    List<BitcoinAddressRecord>? initialAddresses,
+    List<BitcoinAddressRecord>? initialMwebAddresses,
+    ElectrumBalance? initialBalance,
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
+    required bool mempoolAPIEnabled,
+  }) async {
     late Uint8List seedBytes;
 
     switch (walletInfo.derivationInfo?.derivationType) {
@@ -193,6 +198,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
+      mempoolAPIEnabled: mempoolAPIEnabled,
     );
   }
 
@@ -202,6 +208,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
     required bool alwaysScan,
+    required bool mempoolAPIEnabled,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
@@ -275,6 +282,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: snp?.changeAddressIndex,
       addressPageType: snp?.addressPageType,
       alwaysScan: snp?.alwaysScan,
+      mempoolAPIEnabled: mempoolAPIEnabled,
     );
   }
 
@@ -299,16 +307,16 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return;
     }
 
-    if (mwebSyncStatus is SyncronizingSyncStatus) {
+    if (mwebSyncStatus is SynchronizingSyncStatus) {
       return;
     }
 
     print("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
     _syncTimer?.cancel();
     try {
-      mwebSyncStatus = SyncronizingSyncStatus();
+      mwebSyncStatus = SynchronizingSyncStatus();
       try {
-        await subscribeForUpdates();
+        await subscribeForUpdates([]);
       } catch (e) {
         print("failed to subcribe for updates: $e");
       }
@@ -557,8 +565,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
     _utxoStream = responseStream.listen((Utxo sUtxo) async {
       // we're processing utxos, so our balance could still be innacurate:
-      if (mwebSyncStatus is! SyncronizingSyncStatus && mwebSyncStatus is! SyncingSyncStatus) {
-        mwebSyncStatus = SyncronizingSyncStatus();
+      if (mwebSyncStatus is! SynchronizingSyncStatus && mwebSyncStatus is! SyncingSyncStatus) {
+        mwebSyncStatus = SynchronizingSyncStatus();
         processingUtxos = true;
         _processingTimer?.cancel();
         _processingTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
@@ -772,8 +780,42 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<ElectrumBalance> fetchBalances() async {
-    final balance = await super.fetchBalances();
+  @action
+  Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
+    try {
+      final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
+
+      await Future.wait(LITECOIN_ADDRESS_TYPES
+          .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
+
+      return historiesWithDetails;
+    } catch (e) {
+      print("fetchTransactions $e");
+      return {};
+    }
+  }
+
+  @override
+  @action
+  Future<void> subscribeForUpdates([
+    Iterable<BitcoinAddressRecord>? unsubscribedScriptHashes,
+  ]) async {
+    final unsubscribedScriptHashes = walletAddresses.allAddresses.where(
+      (address) =>
+          !scripthashesListening.contains(address.scriptHash) &&
+          address.type != SegwitAddresType.mweb,
+    );
+
+    return super.subscribeForUpdates(unsubscribedScriptHashes);
+  }
+
+  @override
+  Future<ElectrumBalance> fetchBalances(List<BitcoinAddressRecord> addresses) async {
+    final nonMwebAddresses = walletAddresses.allAddresses
+        .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
+        .toList();
+    final balance = await super.fetchBalances(nonMwebAddresses);
+
     if (!mwebEnabled) {
       return balance;
     }
@@ -871,25 +913,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<int> calcFee({
     required List<UtxoWithAddress> utxos,
     required List<BitcoinBaseOutput> outputs,
-    required BasedUtxoNetwork network,
     String? memo,
     required int feeRate,
-    List<ECPrivateInfo>? inputPrivKeyInfos,
-    List<Outpoint>? vinOutpoints,
   }) async {
     final spendsMweb = utxos.any((utxo) => utxo.utxo.scriptType == SegwitAddresType.mweb);
     final paysToMweb = outputs
         .any((output) => output.toOutput.scriptPubKey.getAddressType() == SegwitAddresType.mweb);
     if (!spendsMweb && !paysToMweb) {
-      return await super.calcFee(
-        utxos: utxos,
-        outputs: outputs,
-        network: network,
-        memo: memo,
-        feeRate: feeRate,
-        inputPrivKeyInfos: inputPrivKeyInfos,
-        vinOutpoints: vinOutpoints,
-      );
+      return await super.calcFee(utxos: utxos, outputs: outputs, memo: memo, feeRate: feeRate);
     }
 
     if (!mwebEnabled) {
@@ -899,7 +930,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (outputs.length == 1 && outputs[0].toOutput.amount == BigInt.zero) {
       outputs = [
         BitcoinScriptOutput(
-            script: outputs[0].toOutput.scriptPubKey, value: utxos.sumOfUtxosValue())
+          script: outputs[0].toOutput.scriptPubKey,
+          value: utxos.sumOfUtxosValue(),
+        )
       ];
     }
 
@@ -926,14 +959,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     var feeIncrease = posOutputSum - expectedPegin;
     if (expectedPegin > 0 && fee == BigInt.zero) {
       feeIncrease += await super.calcFee(
-              utxos: posUtxos,
-              outputs: tx.outputs
-                  .map((output) =>
-                      BitcoinScriptOutput(script: output.scriptPubKey, value: output.amount))
-                  .toList(),
-              network: network,
-              memo: memo,
-              feeRate: feeRate) +
+            utxos: posUtxos,
+            outputs: tx.outputs
+                .map((output) =>
+                    BitcoinScriptOutput(script: output.scriptPubKey, value: output.amount))
+                .toList(),
+            memo: memo,
+            feeRate: feeRate,
+          ) +
           feeRate * 41;
     }
     return fee.toInt() + feeIncrease;

@@ -43,7 +43,12 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
           type: P2shAddressType.p2wpkhInP2sh,
         );
       case SegwitAddresType.p2wpkh:
-        return P2wpkhAddress.fromBip32(account: account, bip32: hd, index: index);
+        return P2wpkhAddress.fromBip32(
+          account: account,
+          bip32: hd,
+          index: index,
+          isElectrum: true,
+        ); // TODO:
       default:
         throw ArgumentError('Invalid address type');
     }

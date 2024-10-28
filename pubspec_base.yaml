@@ -132,9 +132,7 @@ dependency_overrides:
   flutter_secure_storage_platform_interface: 1.0.2
   protobuf: ^3.1.0
   bitcoin_base:
-    git:
-      url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v8
+    path: /home/rafael/Working/bitcoin_base/
   ffi: 2.1.0
 
 flutter_icons:

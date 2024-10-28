@@ -54,7 +54,7 @@ class CWBitcoin extends Bitcoin {
           name: name, hwAccountData: accountData, walletInfo: walletInfo);
 
   @override
-  TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
+  TransactionPriority getMediumTransactionPriority() => BitcoinElectrumTransactionPriority.elevated;
 
   @override
   List<String> getWordList() => wordlist;
@@ -72,14 +72,14 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<TransactionPriority> getTransactionPriorities() => BitcoinTransactionPriority.all;
+  List<TransactionPriority> getTransactionPriorities() => BitcoinElectrumTransactionPriority.all;
 
   @override
   List<TransactionPriority> getLitecoinTransactionPriorities() => LitecoinTransactionPriority.all;
 
   @override
   TransactionPriority deserializeBitcoinTransactionPriority(int raw) =>
-      BitcoinTransactionPriority.deserialize(raw: raw);
+      BitcoinElectrumTransactionPriority.deserialize(raw: raw);
 
   @override
   TransactionPriority deserializeLitecoinTransactionPriority(int raw) =>
@@ -113,7 +113,7 @@ class CWBitcoin extends Bitcoin {
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) {
     final bitcoinFeeRate =
-        priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
+        priority == BitcoinElectrumTransactionPriority.custom && feeRate != null ? feeRate : null;
     return BitcoinTransactionCredentials(
       outputs
           .map((out) => OutputInfo(
@@ -127,7 +127,7 @@ class CWBitcoin extends Bitcoin {
               formattedCryptoAmount: out.formattedCryptoAmount,
               memo: out.memo))
           .toList(),
-      priority: priority as BitcoinTransactionPriority,
+      priority: priority as BitcoinElectrumTransactionPriority,
       feeRate: bitcoinFeeRate,
       coinTypeToSpendFrom: coinTypeToSpendFrom,
     );
@@ -171,7 +171,7 @@ class CWBitcoin extends Bitcoin {
           wallet,
           wallet.type == WalletType.litecoin
               ? priority as LitecoinTransactionPriority
-              : priority as BitcoinTransactionPriority,
+              : priority as BitcoinElectrumTransactionPriority,
         ),
       );
 
@@ -189,19 +189,20 @@ class CWBitcoin extends Bitcoin {
 
   @override
   String formatterBitcoinAmountToString({required int amount}) =>
-      bitcoinAmountToString(amount: amount);
+      BitcoinAmountUtils.bitcoinAmountToString(amount: amount);
 
   @override
   double formatterBitcoinAmountToDouble({required int amount}) =>
-      bitcoinAmountToDouble(amount: amount);
+      BitcoinAmountUtils.bitcoinAmountToDouble(amount: amount);
 
   @override
-  int formatterStringDoubleToBitcoinAmount(String amount) => stringDoubleToBitcoinAmount(amount);
+  int formatterStringDoubleToBitcoinAmount(String amount) =>
+      BitcoinAmountUtils.stringDoubleToBitcoinAmount(amount);
 
   @override
   String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate,
           {int? customRate}) =>
-      (priority as BitcoinTransactionPriority).labelWithRate(rate, customRate);
+      (priority as BitcoinElectrumTransactionPriority).labelWithRate(rate, customRate);
 
   @override
   List<BitcoinUnspent> getUnspents(Object wallet,
@@ -224,27 +225,52 @@ class CWBitcoin extends Bitcoin {
     await bitcoinWallet.updateAllUnspents();
   }
 
-  WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource,
-      Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
-    return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
+  WalletService createBitcoinWalletService(
+    Box<WalletInfo> walletInfoSource,
+    Box<UnspentCoinsInfo> unspentCoinSource,
+    bool alwaysScan,
+    bool isDirect,
+    bool mempoolAPIEnabled,
+  ) {
+    return BitcoinWalletService(
+      walletInfoSource,
+      unspentCoinSource,
+      alwaysScan,
+      isDirect,
+      mempoolAPIEnabled,
+    );
   }
 
-  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource,
-      Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
-    return LitecoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
+  WalletService createLitecoinWalletService(
+    Box<WalletInfo> walletInfoSource,
+    Box<UnspentCoinsInfo> unspentCoinSource,
+    bool alwaysScan,
+    bool isDirect,
+    bool mempoolAPIEnabled,
+  ) {
+    return LitecoinWalletService(
+      walletInfoSource,
+      unspentCoinSource,
+      alwaysScan,
+      isDirect,
+      mempoolAPIEnabled,
+    );
   }
 
   @override
-  TransactionPriority getBitcoinTransactionPriorityMedium() => BitcoinTransactionPriority.medium;
+  TransactionPriority getBitcoinTransactionPriorityMedium() =>
+      BitcoinElectrumTransactionPriority.elevated;
 
   @override
-  TransactionPriority getBitcoinTransactionPriorityCustom() => BitcoinTransactionPriority.custom;
+  TransactionPriority getBitcoinTransactionPriorityCustom() =>
+      BitcoinElectrumTransactionPriority.custom;
 
   @override
   TransactionPriority getLitecoinTransactionPriorityMedium() => LitecoinTransactionPriority.medium;
 
   @override
-  TransactionPriority getBitcoinTransactionPrioritySlow() => BitcoinTransactionPriority.slow;
+  TransactionPriority getBitcoinTransactionPrioritySlow() =>
+      BitcoinElectrumTransactionPriority.normal;
 
   @override
   TransactionPriority getLitecoinTransactionPrioritySlow() => LitecoinTransactionPriority.slow;
@@ -443,7 +469,7 @@ class CWBitcoin extends Bitcoin {
   @override
   int getTransactionVSize(Object wallet, String transactionHex) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.transactionVSize(transactionHex);
+    return BtcTransaction.fromRaw(transactionHex).getVSize();
   }
 
   @override
@@ -458,7 +484,7 @@ class CWBitcoin extends Bitcoin {
       {int? size}) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.feeAmountForPriority(
-        priority as BitcoinTransactionPriority, inputsCount, outputsCount);
+        priority as BitcoinElectrumTransactionPriority, inputsCount, outputsCount);
   }
 
   @override
@@ -483,7 +509,7 @@ class CWBitcoin extends Bitcoin {
   @override
   int getMaxCustomFeeRate(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return (bitcoinWallet.feeRate(BitcoinTransactionPriority.fast) * 10).round();
+    return (bitcoinWallet.feeRate(BitcoinElectrumTransactionPriority.priority) * 10).round();
   }
 
   @override
@@ -564,7 +590,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<void> setScanningActive(Object wallet, bool active) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
+    final bitcoinWallet = wallet as BitcoinWallet;
     bitcoinWallet.setSilentPaymentsScanning(active);
   }
 
@@ -576,13 +602,14 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<void> registerSilentPaymentsKey(Object wallet, bool active) async {
-    return;
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return await bitcoinWallet.registerSilentPaymentsKey();
   }
 
   @override
   Future<bool> checkIfMempoolAPIIsEnabled(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return await bitcoinWallet.checkIfMempoolAPIIsEnabled();
+    return await bitcoinWallet.mempoolAPIEnabled;
   }
 
   @override
@@ -600,7 +627,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
+    final bitcoinWallet = wallet as BitcoinWallet;
     bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
   }
 

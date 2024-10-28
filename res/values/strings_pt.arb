@@ -369,7 +369,7 @@
   "litecoin_mweb": "Mweb",
   "litecoin_mweb_always_scan": "Definir mweb sempre digitalizando",
   "litecoin_mweb_description": "MWEB é um novo protocolo que traz transações mais rápidas, baratas e mais privadas para o Litecoin",
-  "litecoin_mweb_dismiss": "Liberar",
+  "litecoin_mweb_dismiss": "Ocultar",
   "litecoin_mweb_display_card": "Mostre o cartão MWEB",
   "litecoin_mweb_enable_later": "Você pode optar por ativar o MWEB novamente em Configurações de exibição.",
   "litecoin_mweb_pegin": "Peg in",

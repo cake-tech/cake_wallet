@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -75,7 +74,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
       final vout = vin['vout'] as int;
       final out = vin['tx']['vout'][vout] as Map;
       final outAddresses = (out['scriptPubKey']['addresses'] as List<Object>?)?.toSet();
-      inputsAmount += stringDoubleToBitcoinAmount((out['value'] as double? ?? 0).toString());
+      inputsAmount +=
+          BitcoinAmountUtils.stringDoubleToBitcoinAmount((out['value'] as double? ?? 0).toString());
 
       if (outAddresses?.intersection(addressesSet).isNotEmpty ?? false) {
         direction = TransactionDirection.outgoing;
@@ -85,7 +85,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     for (dynamic out in vout) {
       final outAddresses = out['scriptPubKey']['addresses'] as List<Object>? ?? [];
       final ntrs = outAddresses.toSet().intersection(addressesSet);
-      final value = stringDoubleToBitcoinAmount((out['value'] as double? ?? 0.0).toString());
+      final value = BitcoinAmountUtils.stringDoubleToBitcoinAmount(
+          (out['value'] as double? ?? 0.0).toString());
       totalOutAmount += value;
 
       if ((direction == TransactionDirection.incoming && ntrs.isNotEmpty) ||
@@ -121,15 +122,23 @@ class ElectrumTransactionInfo extends TransactionInfo {
     List<String> inputAddresses = [];
     List<String> outputAddresses = [];
 
-    for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
-      final input = bundle.originalTransaction.inputs[i];
-      final inputTransaction = bundle.ins[i];
-      final outTransaction = inputTransaction.outputs[input.txIndex];
-      inputAmount += outTransaction.amount.toInt();
-      if (addresses.contains(addressFromOutputScript(outTransaction.scriptPubKey, network))) {
-        direction = TransactionDirection.outgoing;
-        inputAddresses.add(addressFromOutputScript(outTransaction.scriptPubKey, network));
+    try {
+      for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
+        final input = bundle.originalTransaction.inputs[i];
+        final inputTransaction = bundle.ins[i];
+        final outTransaction = inputTransaction.outputs[input.txIndex];
+        inputAmount += outTransaction.amount.toInt();
+        if (addresses.contains(addressFromOutputScript(outTransaction.scriptPubKey, network))) {
+          direction = TransactionDirection.outgoing;
+          inputAddresses.add(addressFromOutputScript(outTransaction.scriptPubKey, network));
+        }
       }
+    } catch (e) {
+      print(bundle.originalTransaction.txId());
+      print("original: ${bundle.originalTransaction}");
+      print("bundle.inputs: ${bundle.originalTransaction.inputs}");
+      print("ins: ${bundle.ins}");
+      rethrow;
     }
 
     final receivedAmounts = <int>[];
@@ -220,11 +229,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   @override
   String amountFormatted() =>
-      '${formatAmount(bitcoinAmountToString(amount: amount))} ${walletTypeToCryptoCurrency(type).title}';
+      '${formatAmount(BitcoinAmountUtils.bitcoinAmountToString(amount: amount))} ${walletTypeToCryptoCurrency(type).title}';
 
   @override
   String? feeFormatted() => fee != null
-      ? '${formatAmount(bitcoinAmountToString(amount: fee!))} ${walletTypeToCryptoCurrency(type).title}'
+      ? '${formatAmount(BitcoinAmountUtils.bitcoinAmountToString(amount: fee!))} ${walletTypeToCryptoCurrency(type).title}'
       : '';
 
   @override

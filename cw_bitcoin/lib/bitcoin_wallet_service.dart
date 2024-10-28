@@ -21,11 +21,18 @@ class BitcoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials,
     BitcoinRestoreWalletFromHardware> {
-  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan, this.isDirect);
+  BitcoinWalletService(
+    this.walletInfoSource,
+    this.unspentCoinsInfoSource,
+    this.alwaysScan,
+    this.mempoolAPIEnabled,
+    this.isDirect,
+  );
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool alwaysScan;
+  final bool mempoolAPIEnabled;
   final bool isDirect;
 
   @override
@@ -37,7 +44,7 @@ class BitcoinWalletService extends WalletService<
     credentials.walletInfo?.network = network.value;
 
     final String mnemonic;
-    switch ( credentials.walletInfo?.derivationInfo?.derivationType) {
+    switch (credentials.walletInfo?.derivationInfo?.derivationType) {
       case DerivationType.bip39:
         final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
@@ -57,6 +64,7 @@ class BitcoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      mempoolAPIEnabled: mempoolAPIEnabled,
     );
 
     await wallet.save();
@@ -80,7 +88,8 @@ class BitcoinWalletService extends WalletService<
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         alwaysScan: alwaysScan,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+        mempoolAPIEnabled: mempoolAPIEnabled,
+        encryptionFileUtils: encryptionFileUtilsFor(false),
       );
       await wallet.init();
       saveBackup(name);
@@ -93,7 +102,8 @@ class BitcoinWalletService extends WalletService<
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         alwaysScan: alwaysScan,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+        mempoolAPIEnabled: mempoolAPIEnabled,
+        encryptionFileUtils: encryptionFileUtilsFor(false),
       );
       await wallet.init();
       return wallet;
@@ -118,6 +128,7 @@ class BitcoinWalletService extends WalletService<
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
       alwaysScan: alwaysScan,
+      mempoolAPIEnabled: mempoolAPIEnabled,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -146,6 +157,7 @@ class BitcoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      mempoolAPIEnabled: mempoolAPIEnabled,
     );
     await wallet.save();
     await wallet.init();
@@ -175,6 +187,7 @@ class BitcoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      mempoolAPIEnabled: mempoolAPIEnabled,
     );
     await wallet.save();
     await wallet.init();

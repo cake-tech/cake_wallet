@@ -602,7 +602,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultActionsMode = 11;
   static const defaultPinCodeTimeOutDuration = PinCodeRequiredDuration.tenMinutes;
   static const defaultAutoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.initialized;
-  static final walletPasswordDirectInput = Platform.isLinux;
+  static final walletPasswordDirectInput = false;
   static const defaultSeedPhraseLength = SeedPhraseLength.twelveWords;
   static const defaultMoneroSeedType = MoneroSeedType.defaultSeedType;
   static const defaultBitcoinSeedType = BitcoinSeedType.defaultDerivationType;

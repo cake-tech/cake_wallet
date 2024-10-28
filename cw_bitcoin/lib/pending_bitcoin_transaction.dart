@@ -4,7 +4,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_bitcoin/electrum.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -51,10 +50,10 @@ class PendingBitcoinTransaction with PendingTransaction {
   String get hex => hexOverride ?? _tx.serialize();
 
   @override
-  String get amountFormatted => bitcoinAmountToString(amount: amount);
+  String get amountFormatted => BitcoinAmountUtils.bitcoinAmountToString(amount: amount);
 
   @override
-  String get feeFormatted => bitcoinAmountToString(amount: fee);
+  String get feeFormatted => BitcoinAmountUtils.bitcoinAmountToString(amount: fee);
 
   @override
   int? get outputCount => _tx.outputs.length;

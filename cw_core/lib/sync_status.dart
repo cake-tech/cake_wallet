@@ -45,7 +45,7 @@ class SyncedTipSyncStatus extends SyncedSyncStatus {
   final int tip;
 }
 
-class SyncronizingSyncStatus extends SyncStatus {
+class SynchronizingSyncStatus extends SyncStatus {
   @override
   double progress() => 0.0;
 }

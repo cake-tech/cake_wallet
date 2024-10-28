@@ -367,14 +367,14 @@ Future<void> setup({
       (WalletType type) => getIt.get<WalletService>(param1: type)));
 
   getIt.registerFactoryParam<WalletNewVM, NewWalletArguments, void>(
-    (newWalletArgs, _) => WalletNewVM(
-      getIt.get<AppStore>(),
-      getIt.get<WalletCreationService>(param1:newWalletArgs.type),
-      _walletInfoSource,
-      getIt.get<AdvancedPrivacySettingsViewModel>(param1: newWalletArgs.type),
-      getIt.get<SeedSettingsViewModel>(),
-      newWalletArguments: newWalletArgs,));
-
+      (newWalletArgs, _) => WalletNewVM(
+            getIt.get<AppStore>(),
+            getIt.get<WalletCreationService>(param1: newWalletArgs.type),
+            _walletInfoSource,
+            getIt.get<AdvancedPrivacySettingsViewModel>(param1: newWalletArgs.type),
+            getIt.get<SeedSettingsViewModel>(),
+            newWalletArguments: newWalletArgs,
+          ));
 
   getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
 
@@ -397,62 +397,52 @@ Future<void> setup({
   );
 
   getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
-    return WalletUnlockPage(
-      getIt.get<WalletUnlockLoadableViewModel>(param1: args),
-      args.callback,
-      args.authPasswordHandler,
-      closable: closable);
+    return WalletUnlockPage(getIt.get<WalletUnlockLoadableViewModel>(param1: args), args.callback,
+        args.authPasswordHandler,
+        closable: closable);
   }, instanceName: 'wallet_unlock_loadable');
 
   getIt.registerFactory<WalletUnlockPage>(
-    () => getIt.get<WalletUnlockPage>(
-      param1: WalletUnlockArguments(
-        callback: (bool successful, _) {
-          if (successful) {
-            final authStore = getIt.get<AuthenticationStore>();
-            authStore.allowed();
-          }}),
-      param2: false,
-      instanceName: 'wallet_unlock_loadable'),
-    instanceName: 'wallet_password_login');
+      () => getIt.get<WalletUnlockPage>(
+          param1: WalletUnlockArguments(callback: (bool successful, _) {
+            if (successful) {
+              final authStore = getIt.get<AuthenticationStore>();
+              authStore.allowed();
+            }
+          }),
+          param2: false,
+          instanceName: 'wallet_unlock_loadable'),
+      instanceName: 'wallet_password_login');
 
   getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
-    return WalletUnlockPage(
-      getIt.get<WalletUnlockVerifiableViewModel>(param1: args),
-      args.callback,
-      args.authPasswordHandler,
-      closable: closable);
+    return WalletUnlockPage(getIt.get<WalletUnlockVerifiableViewModel>(param1: args), args.callback,
+        args.authPasswordHandler,
+        closable: closable);
   }, instanceName: 'wallet_unlock_verifiable');
 
   getIt.registerFactoryParam<WalletUnlockLoadableViewModel, WalletUnlockArguments, void>((args, _) {
-    final currentWalletName = getIt
-      .get<SharedPreferences>()
-      .getString(PreferencesKey.currentWalletName) ?? '';
+    final currentWalletName =
+        getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName) ?? '';
     final currentWalletTypeRaw =
-      getIt.get<SharedPreferences>()
-        .getInt(PreferencesKey.currentWalletType) ?? 0;
+        getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
     final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
 
-    return WalletUnlockLoadableViewModel(
-      getIt.get<AppStore>(),
-      getIt.get<WalletLoadingService>(),
-      walletName: args.walletName ?? currentWalletName,
-      walletType: args.walletType ?? currentWalletType);
+    return WalletUnlockLoadableViewModel(getIt.get<AppStore>(), getIt.get<WalletLoadingService>(),
+        walletName: args.walletName ?? currentWalletName,
+        walletType: args.walletType ?? currentWalletType);
   });
 
-  getIt.registerFactoryParam<WalletUnlockVerifiableViewModel, WalletUnlockArguments, void>((args, _) {
-    final currentWalletName = getIt
-      .get<SharedPreferences>()
-      .getString(PreferencesKey.currentWalletName) ?? '';
+  getIt.registerFactoryParam<WalletUnlockVerifiableViewModel, WalletUnlockArguments, void>(
+      (args, _) {
+    final currentWalletName =
+        getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName) ?? '';
     final currentWalletTypeRaw =
-      getIt.get<SharedPreferences>()
-        .getInt(PreferencesKey.currentWalletType) ?? 0;
+        getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
     final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
 
-    return WalletUnlockVerifiableViewModel(
-      getIt.get<AppStore>(),
-      walletName: args.walletName ?? currentWalletName,
-      walletType: args.walletType ?? currentWalletType);
+    return WalletUnlockVerifiableViewModel(getIt.get<AppStore>(),
+        walletName: args.walletName ?? currentWalletName,
+        walletType: args.walletType ?? currentWalletType);
   });
 
   getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) =>
@@ -785,7 +775,6 @@ Future<void> setup({
   );
 
   getIt.registerFactoryParam<WalletEditPage, WalletEditPageArguments, void>((arguments, _) {
-
     return WalletEditPage(
       pageArguments: WalletEditPageArguments(
         walletEditViewModel: getIt.get<WalletEditViewModel>(param1: arguments.walletListViewModel),
@@ -884,8 +873,9 @@ Future<void> setup({
   getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() {
-    return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!,
-        getIt.get<SendViewModel>());});
+    return OtherSettingsViewModel(
+        getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!, getIt.get<SendViewModel>());
+  });
 
   getIt.registerFactory(() {
     return SecuritySettingsViewModel(getIt.get<SettingsStore>());
@@ -893,7 +883,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory<SeedSettingsViewModel>(() => SeedSettingsViewModel(getIt.get<AppStore>(), getIt.get<SeedSettingsStore>()));
+  getIt.registerFactory<SeedSettingsViewModel>(
+      () => SeedSettingsViewModel(getIt.get<AppStore>(), getIt.get<SeedSettingsStore>()));
 
   getIt.registerFactoryParam<WalletSeedPage, bool, void>((bool isWalletCreated, _) =>
       WalletSeedPage(getIt.get<WalletSeedViewModel>(), isNewWalletCreated: isWalletCreated));
@@ -1037,6 +1028,7 @@ Future<void> setup({
           _unspentCoinsInfoSource,
           getIt.get<SettingsStore>().silentPaymentsAlwaysScan,
           SettingsStoreBase.walletPasswordDirectInput,
+          getIt.get<SettingsStore>().useMempoolFeeAPI,
         );
       case WalletType.litecoin:
         return bitcoin!.createLitecoinWalletService(
@@ -1044,16 +1036,22 @@ Future<void> setup({
           _unspentCoinsInfoSource,
           getIt.get<SettingsStore>().mwebAlwaysScan,
           SettingsStoreBase.walletPasswordDirectInput,
+          getIt.get<SettingsStore>().useMempoolFeeAPI,
         );
       case WalletType.ethereum:
         return ethereum!.createEthereumWalletService(
             _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
-        return bitcoinCash!.createBitcoinCashWalletService(_walletInfoSource,
-            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return bitcoinCash!.createBitcoinCashWalletService(
+          _walletInfoSource,
+          _unspentCoinsInfoSource,
+          SettingsStoreBase.walletPasswordDirectInput,
+          getIt.get<SettingsStore>().useMempoolFeeAPI,
+        );
       case WalletType.nano:
       case WalletType.banano:
-        return nano!.createNanoWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return nano!.createNanoWalletService(
+            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.polygon:
         return polygon!.createPolygonWalletService(
             _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
@@ -1061,7 +1059,8 @@ Future<void> setup({
         return solana!.createSolanaWalletService(
             _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.tron:
-        return tron!.createTronWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+        return tron!.createTronWalletService(
+            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.wownero:
         return wownero!.createWowneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.none:
@@ -1100,40 +1099,36 @@ Future<void> setup({
             param1: derivations,
           )));
 
-  getIt.registerFactoryParam<TransactionDetailsViewModel, List<dynamic>, void>(
-          (params, _) {
-        final transactionInfo = params[0] as TransactionInfo;
-        final canReplaceByFee = params[1] as bool? ?? false;
-        final wallet = getIt.get<AppStore>().wallet!;
+  getIt.registerFactoryParam<TransactionDetailsViewModel, List<dynamic>, void>((params, _) {
+    final transactionInfo = params[0] as TransactionInfo;
+    final canReplaceByFee = params[1] as bool? ?? false;
+    final wallet = getIt.get<AppStore>().wallet!;
 
-        return TransactionDetailsViewModel(
-          transactionInfo: transactionInfo,
-          transactionDescriptionBox: _transactionDescriptionBox,
-          wallet: wallet,
-          settingsStore: getIt.get<SettingsStore>(),
-          sendViewModel: getIt.get<SendViewModel>(),
-          canReplaceByFee: canReplaceByFee,
-        );
-      }
-  );
+    return TransactionDetailsViewModel(
+      transactionInfo: transactionInfo,
+      transactionDescriptionBox: _transactionDescriptionBox,
+      wallet: wallet,
+      settingsStore: getIt.get<SettingsStore>(),
+      sendViewModel: getIt.get<SendViewModel>(),
+      canReplaceByFee: canReplaceByFee,
+    );
+  });
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
-          (TransactionInfo transactionInfo, _) => TransactionDetailsPage(
-          transactionDetailsViewModel: getIt.get<TransactionDetailsViewModel>(
-              param1: [transactionInfo, false])));
+      (TransactionInfo transactionInfo, _) => TransactionDetailsPage(
+          transactionDetailsViewModel:
+              getIt.get<TransactionDetailsViewModel>(param1: [transactionInfo, false])));
 
-  getIt.registerFactoryParam<RBFDetailsPage, List<dynamic>, void>(
-          (params, _) {
-        final transactionInfo = params[0] as TransactionInfo;
-        final txHex = params[1] as String;
-        return RBFDetailsPage(
-          transactionDetailsViewModel: getIt.get<TransactionDetailsViewModel>(
-            param1: [transactionInfo, true],
-          ),
-          rawTransaction: txHex,
-        );
-      }
-  );
+  getIt.registerFactoryParam<RBFDetailsPage, List<dynamic>, void>((params, _) {
+    final transactionInfo = params[0] as TransactionInfo;
+    final txHex = params[1] as String;
+    return RBFDetailsPage(
+      transactionDetailsViewModel: getIt.get<TransactionDetailsViewModel>(
+        param1: [transactionInfo, true],
+      ),
+      rawTransaction: txHex,
+    );
+  });
 
   getIt.registerFactoryParam<NewWalletTypePage, NewWalletTypeArguments, void>(
       (newWalletTypeArguments, _) {
@@ -1155,8 +1150,7 @@ Future<void> setup({
   getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<CakePayService>()));
 
   getIt.registerFactory(() => BackupService(getIt.get<SecureStorage>(), _walletInfoSource,
-      _transactionDescriptionBox,
-      getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
+      _transactionDescriptionBox, getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
 
   getIt.registerFactory(() => BackupViewModel(
       getIt.get<SecureStorage>(), getIt.get<SecretStore>(), getIt.get<BackupService>()));

@@ -37,18 +37,21 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
+    required bool mempoolAPIEnabled,
   }) : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            network: BitcoinCashNetwork.mainnet,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.bch,
-            encryptionFileUtils: encryptionFileUtils,
-            passphrase: passphrase) {
+          mnemonic: mnemonic,
+          password: password,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          network: BitcoinCashNetwork.mainnet,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          seedBytes: seedBytes,
+          currency: CryptoCurrency.bch,
+          encryptionFileUtils: encryptionFileUtils,
+          passphrase: passphrase,
+          mempoolAPIEnabled: mempoolAPIEnabled,
+        ) {
     walletAddresses = BitcoinCashWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
@@ -64,18 +67,23 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     });
   }
 
-  static Future<BitcoinCashWallet> create(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required EncryptionFileUtils encryptionFileUtils,
-      String? passphrase,
-      String? addressPageType,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumBalance? initialBalance,
-      Map<String, int>? initialRegularAddressIndex,
-      Map<String, int>? initialChangeAddressIndex}) async {
+  @override
+  BitcoinCashNetwork get network => BitcoinCashNetwork.mainnet;
+
+  static Future<BitcoinCashWallet> create({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required EncryptionFileUtils encryptionFileUtils,
+    String? passphrase,
+    String? addressPageType,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
+    required bool mempoolAPIEnabled,
+  }) async {
     return BitcoinCashWallet(
       mnemonic: mnemonic,
       password: password,
@@ -89,6 +97,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,
       passphrase: passphrase,
+      mempoolAPIEnabled: mempoolAPIEnabled,
     );
   }
 
@@ -98,6 +107,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
+    required bool mempoolAPIEnabled,
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
 
@@ -161,6 +171,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: snp?.changeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,
       passphrase: keysData.passphrase,
+      mempoolAPIEnabled: mempoolAPIEnabled,
     );
   }
 
@@ -225,4 +236,19 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     );
     return priv.signMessage(StringUtils.encode(message));
   }
+
+  @override
+  Future<int> calcFee({
+    required List<UtxoWithAddress> utxos,
+    required List<BitcoinBaseOutput> outputs,
+    String? memo,
+    required int feeRate,
+  }) async =>
+      feeRate *
+      ForkedTransactionBuilder.estimateTransactionSize(
+        utxos: utxos,
+        outputs: outputs,
+        network: network,
+        memo: memo,
+      );
 }
