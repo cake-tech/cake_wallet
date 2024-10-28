@@ -12,7 +12,7 @@ dependencies:
       version: 4.0.2
   shared_preferences: ^2.0.15
   # provider: ^6.0.3
-  rxdart: ^0.27.4
+  rxdart: ^0.28.0
   yaml: ^3.1.1
   #barcode_scan: any
   barcode_scan2: ^4.2.1
@@ -97,21 +97,20 @@ dependencies:
   polyseed: ^0.0.6
   nostr_tools: ^1.0.9
   solana: ^0.30.1
-  bitcoin_base:
-    git:
-      url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v5
-  ledger_flutter: ^1.0.1
+  ledger_flutter_plus: ^1.4.1
   hashlib: ^1.19.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
+  mocktail: ^1.0.4
   build_runner: ^2.3.3
   logging: ^1.2.0
   mobx_codegen: ^2.1.1
   build_resolvers: ^2.0.9
-  hive_generator: ^1.1.3
+  hive_generator: ^2.0.1
   # flutter_launcher_icons: ^0.11.0
   # check flutter_launcher_icons for usage
   pedantic: ^1.8.0
@@ -126,19 +125,17 @@ dependency_overrides:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
-  ledger_flutter:
-    git:
-      url: https://github.com/cake-tech/ledger-flutter.git
-      ref: cake-v3
   web3dart:
     git:
       url: https://github.com/cake-tech/web3dart.git
       ref: cake
   flutter_secure_storage_platform_interface: 1.0.2
+  protobuf: ^3.1.0
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v5
+      ref: cake-update-v8
+  ffi: 2.1.0
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
@@ -154,6 +151,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/flags/
+    - assets/images/hardware_wallet/
     - assets/node_list.yml
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml

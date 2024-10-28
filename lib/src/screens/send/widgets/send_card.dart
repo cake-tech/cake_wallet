@@ -14,7 +14,6 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
@@ -158,6 +157,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                           : sendViewModel.addressValidator;
 
                       return AddressTextField(
+                        addressKey: ValueKey('send_page_address_textfield_key'),
                         focusNode: addressFocusNode,
                         controller: addressController,
                         onURIScanned: (uri) {
@@ -209,6 +209,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                   fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                               validator: sendViewModel.addressValidator)),
                     CurrencyAmountTextField(
+                        currencyPickerButtonKey: ValueKey('send_page_currency_picker_button_key'),
+                        amountTextfieldKey: ValueKey('send_page_amount_textfield_key'),
+                        sendAllButtonKey: ValueKey('send_page_send_all_button_key'),
+                        currencyAmountTextFieldWidgetKey:
+                            ValueKey('send_page_crypto_currency_amount_textfield_widget_key'),
                         selectedCurrency: sendViewModel.selectedCryptoCurrency.title,
                         amountFocusNode: cryptoAmountFocus,
                         amountController: cryptoAmountController,
@@ -216,7 +221,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         onTapPicker: () => _presentPicker(context),
                         isPickerEnable: sendViewModel.hasMultipleTokens,
                         tag: sendViewModel.selectedCryptoCurrency.tag,
-                        allAmountButton: !sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL,
+                        allAmountButton:
+                            !sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL,
                         currencyValueValidator: output.sendAll
                             ? sendViewModel.allAmountValidator
                             : sendViewModel.amountValidator,
@@ -257,6 +263,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     ),
                     if (!sendViewModel.isFiatDisabled)
                       CurrencyAmountTextField(
+                          amountTextfieldKey: ValueKey('send_page_fiat_amount_textfield_key'),
+                          currencyAmountTextFieldWidgetKey:
+                              ValueKey('send_page_fiat_currency_amount_textfield_widget_key'),
                           selectedCurrency: sendViewModel.fiat.title,
                           amountFocusNode: fiatAmountFocus,
                           amountController: fiatAmountController,
@@ -269,6 +278,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: BaseTextFormField(
+                        key: ValueKey('send_page_note_textfield_key'),
                         controller: noteController,
                         keyboardType: TextInputType.multiline,
                         maxLines: null,
@@ -287,6 +297,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     if (sendViewModel.hasFees)
                       Observer(
                         builder: (_) => GestureDetector(
+                          key: ValueKey('send_page_select_fee_priority_button_key'),
                           onTap: sendViewModel.hasFeesPriority
                               ? () => pickTransactionPriority(context)
                               : () {},
@@ -360,7 +371,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       Padding(
                         padding: EdgeInsets.only(top: 6),
                         child: GestureDetector(
-                          onTap: () => Navigator.of(context).pushNamed(Routes.unspentCoinsList),
+                          key: ValueKey('send_page_unspent_coin_button_key'),
+                          onTap: () => Navigator.of(context).pushNamed(
+                            Routes.unspentCoinsList,
+                            arguments: widget.sendViewModel.coinTypeToSpendFrom,
+                          ),
                           child: Container(
                             color: Colors.transparent,
                             child: Row(
@@ -544,11 +559,13 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     showPopUp<void>(
       context: context,
       builder: (_) => CurrencyPicker(
-          selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
-          items: sendViewModel.currencies,
-          hintText: S.of(context).search_currency,
-          onItemSelected: (Currency cur) =>
-              sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency)),
+        key: ValueKey('send_page_currency_picker_dialog_button_key'),
+        selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
+        items: sendViewModel.currencies,
+        hintText: S.of(context).search_currency,
+        onItemSelected: (Currency cur) =>
+            sendViewModel.selectedCryptoCurrency = (cur as CryptoCurrency),
+      ),
     );
   }
 

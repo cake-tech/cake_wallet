@@ -17,27 +17,38 @@ dependencies:
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1
   intl: ^0.18.0
+  shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core
   bitbox:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
       ref: Add-Support-For-OP-Return-data
-  rxdart: ^0.27.5
+  rxdart: ^0.28.0
   cryptography: ^2.0.5
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
       ref: cake-update-v2
-  ledger_flutter: ^1.0.1
-  ledger_bitcoin:
-    git:
-      url: https://github.com/cake-tech/ledger-bitcoin
+  cw_mweb:
+    path: ../cw_mweb
+  grpc: ^3.2.4
   sp_scanner:
     git:
-      url: https://github.com/rafael-xmr/sp_scanner
+      url: https://github.com/cake-tech/sp_scanner
       ref: sp_v4.0.0
-
+  bech32:
+    git:
+      url: https://github.com/cake-tech/bech32.git
+  ledger_flutter_plus: ^1.4.1
+  ledger_bitcoin:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter-plus-plugins
+      path: packages/ledger-bitcoin
+  ledger_litecoin:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter-plus-plugins
+      path: packages/ledger-litecoin
 
 dev_dependencies:
   flutter_test:
@@ -48,15 +59,14 @@ dev_dependencies:
   hive_generator: ^1.1.3
 
 dependency_overrides:
-  ledger_flutter:
-    git:
-      url: https://github.com/cake-tech/ledger-flutter.git
-      ref: cake-v3
   watcher: ^1.1.0
+  protobuf: ^3.1.0
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v5
+      ref: cake-update-v8
+  pointycastle: 3.7.4
+  ffi: 2.1.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

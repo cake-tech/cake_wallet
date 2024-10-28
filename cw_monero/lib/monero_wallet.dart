@@ -13,11 +13,9 @@ import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/monero_wallet_keys.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -61,7 +59,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         }),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
-        isEnabledAutoGenerateSubaddress = false,
+        isEnabledAutoGenerateSubaddress = true,
         _password = password,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
@@ -87,6 +85,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
     reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
       _updateSubAddress(enabled, account: walletAddresses.account);
+    });
+    _onTxHistoryChangeReaction = reaction((_) => transactionHistory, (__) {
+      _updateSubAddress(isEnabledAutoGenerateSubaddress, account: walletAddresses.account);
     });
   }
 
@@ -130,6 +131,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   monero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
+  ReactionDisposer? _onTxHistoryChangeReaction;
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
@@ -160,15 +162,18 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
     _autoSaveTimer = Timer.periodic(
         Duration(seconds: _autoSaveInterval), (_) async => await save());
+    // update transaction details after restore
+    walletAddresses.subaddressList.update(accountIndex: walletAddresses.account?.id??0);
   }
 
   @override
   Future<void>? updateBalance() => null;
 
   @override
-  void close() async {
+  Future<void> close({required bool shouldCleanup}) async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
+    _onTxHistoryChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
 
@@ -580,7 +585,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
     transaction_history.refreshTransactions();
-    return _getAllTransactionsOfAccount(walletAddresses.account?.id)
+    return (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
         .fold<Map<String, MoneroTransactionInfo>>(
             <String, MoneroTransactionInfo>{},
             (Map<String, MoneroTransactionInfo> acc, MoneroTransactionInfo tx) {
@@ -596,8 +601,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       }
 
       _isTransactionUpdating = true;
-      transactionHistory.clear();
       final transactions = await fetchTransactions();
+      transactionHistory.clear();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
       _isTransactionUpdating = false;
@@ -610,9 +615,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   String getSubaddressLabel(int accountIndex, int addressIndex) =>
       monero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
-  List<MoneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) =>
-      transaction_history
-          .getAllTransactions()
+  Future<List<MoneroTransactionInfo>> _getAllTransactionsOfAccount(int? accountIndex) async =>
+      (await transaction_history
+          .getAllTransactions())
           .map(
             (row) => MoneroTransactionInfo(
               row.hash,

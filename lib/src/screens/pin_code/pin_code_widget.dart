@@ -240,6 +240,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                 return Container(
                                   margin: EdgeInsets.only(left: marginLeft, right: marginRight),
                                   child: TextButton(
+                                    key: ValueKey('pin_code_button_${index}_key'),
                                     onPressed: () => _push(index),
                                     style: TextButton.styleFrom(
                                       backgroundColor: Theme.of(context).colorScheme.background,

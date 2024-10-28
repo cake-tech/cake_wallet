@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart';
+import 'package:collection/collection.dart';
+import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -9,7 +11,6 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
 
 class BitcoinCashWalletService extends WalletService<
@@ -35,11 +36,12 @@ class BitcoinCashWalletService extends WalletService<
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final wallet = await BitcoinCashWalletBase.create(
-        mnemonic: await MnemonicBip39.generate(strength: strength),
+      mnemonic: credentials.mnemonic ?? MnemonicBip39.generate(strength: strength),
       password: credentials.password!,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      passphrase: credentials.passphrase,
     );
     await wallet.save();
     await wallet.init();
@@ -54,11 +56,11 @@ class BitcoinCashWalletService extends WalletService<
 
     try {
       final wallet = await BitcoinCashWalletBase.open(
-          password: password,
-          name: name,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource,
-          encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
       saveBackup(name);
@@ -66,11 +68,11 @@ class BitcoinCashWalletService extends WalletService<
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
       final wallet = await BitcoinCashWalletBase.open(
-          password: password,
-          name: name,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfoSource,
-          encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+        password: password,
+        name: name,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
       return wallet;
@@ -130,7 +132,9 @@ class BitcoinCashWalletService extends WalletService<
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+        passphrase: credentials.passphrase
+    );
     await wallet.save();
     await wallet.init();
     return wallet;

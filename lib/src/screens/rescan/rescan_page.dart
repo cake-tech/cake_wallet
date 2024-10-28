@@ -33,10 +33,13 @@ class RescanPage extends BasePage {
                     key: _blockchainHeightWidgetKey,
                     onHeightOrDateEntered: (value) => _rescanViewModel.isButtonEnabled = value,
                     isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
+                    isMwebScan: _rescanViewModel.isMwebScan,
                     doSingleScan: _rescanViewModel.doSingleScan,
+                    hasDatePicker: !_rescanViewModel.isMwebScan,// disable date picker for mweb for now
                     toggleSingleScan: () =>
                         _rescanViewModel.doSingleScan = !_rescanViewModel.doSingleScan,
                     walletType: _rescanViewModel.wallet.type,
+                    bitcoinMempoolAPIEnabled: _rescanViewModel.isBitcoinMempoolAPIEnabled,
                   )),
           Observer(
               builder: (_) => LoadingPrimaryButton(

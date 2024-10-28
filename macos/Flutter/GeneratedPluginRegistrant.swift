@@ -6,6 +6,7 @@ import FlutterMacOS
 import Foundation
 
 import connectivity_plus
+import cw_mweb
 import device_info_plus
 import devicelocale
 import flutter_inappwebview_macos
@@ -16,11 +17,13 @@ import package_info_plus
 import path_provider_foundation
 import share_plus
 import shared_preferences_foundation
+import universal_ble
 import url_launcher_macos
 import wakelock_plus
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   ConnectivityPlugin.register(with: registry.registrar(forPlugin: "ConnectivityPlugin"))
+  CwMwebPlugin.register(with: registry.registrar(forPlugin: "CwMwebPlugin"))
   DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))
   DevicelocalePlugin.register(with: registry.registrar(forPlugin: "DevicelocalePlugin"))
   InAppWebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "InAppWebViewFlutterPlugin"))
@@ -31,6 +34,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
   SharePlusMacosPlugin.register(with: registry.registrar(forPlugin: "SharePlusMacosPlugin"))
   SharedPreferencesPlugin.register(with: registry.registrar(forPlugin: "SharedPreferencesPlugin"))
+  UniversalBlePlugin.register(with: registry.registrar(forPlugin: "UniversalBlePlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))
   WakelockPlusMacosPlugin.register(with: registry.registrar(forPlugin: "WakelockPlusMacosPlugin"))
 }

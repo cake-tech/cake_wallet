@@ -33,7 +33,6 @@ import 'package:solana/base58.dart';
 import 'package:solana/metaplex.dart' as metaplex;
 import 'package:solana/solana.dart';
 import 'package:solana/src/crypto/ed25519_hd_keypair.dart';
-import 'package:cryptography/cryptography.dart';
 
 part 'solana_wallet.g.dart';
 
@@ -49,6 +48,7 @@ abstract class SolanaWalletBase
     required String password,
     SolanaBalance? initialBalance,
     required this.encryptionFileUtils,
+    this.passphrase,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -179,7 +179,7 @@ abstract class SolanaWalletBase
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  void close() {
+  Future<void> close({required bool shouldCleanup}) async {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
   }
@@ -632,4 +632,7 @@ abstract class SolanaWalletBase
 
   @override
   String get password => _password;
+
+  @override
+  final String? passphrase;
 }

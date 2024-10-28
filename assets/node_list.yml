@@ -17,6 +17,3 @@
 -
   uri: node.community.rino.io:18081
   is_default: false
--
-  uri: node.moneroworld.com:18089
-  is_default: false

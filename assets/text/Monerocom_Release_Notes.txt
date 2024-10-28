@@ -1,3 +1,3 @@
-Scan and verify messages
-Synchronization enhancements
+Monero enhancements
+Introducing StealthEx and LetxExchange
 Bug fixes

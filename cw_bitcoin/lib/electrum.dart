@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
-import 'package:cw_bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -48,6 +47,7 @@ class ElectrumClient {
   final Map<String, SocketTask> _tasks;
   Map<String, SocketTask> get tasks => _tasks;
   final Map<String, String> _errors;
+  ConnectionStatus _connectionStatus = ConnectionStatus.disconnected;
   bool _isConnected;
   Timer? _aliveTimer;
   String unterminatedString;
@@ -57,17 +57,19 @@ class ElectrumClient {
 
   Future<void> connectToUri(Uri uri, {bool? useSSL}) async {
     this.uri = uri;
-    this.useSSL = useSSL;
-    await connect(host: uri.host, port: uri.port, useSSL: useSSL);
+    if (useSSL != null) {
+      this.useSSL = useSSL;
+    }
+    await connect(host: uri.host, port: uri.port);
   }
 
-  Future<void> connect({required String host, required int port, bool? useSSL}) async {
+  Future<void> connect({required String host, required int port}) async {
     _setConnectionStatus(ConnectionStatus.connecting);
 
     try {
       await socket?.close();
-      socket = null;
     } catch (_) {}
+    socket = null;
 
     try {
       if (useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum"))) {
@@ -80,16 +82,28 @@ class ElectrumClient {
           onBadCertificate: (_) => true,
         );
       }
-    } catch (_) {
-      _setConnectionStatus(ConnectionStatus.failed);
+    } catch (e) {
+      if (e is HandshakeException) {
+        useSSL = !(useSSL ?? false);
+      }
+
+      if (_connectionStatus != ConnectionStatus.connecting) {
+        _setConnectionStatus(ConnectionStatus.failed);
+      }
+
       return;
     }
 
     if (socket == null) {
-      _setConnectionStatus(ConnectionStatus.failed);
+      if (_connectionStatus != ConnectionStatus.connecting) {
+        _setConnectionStatus(ConnectionStatus.failed);
+      }
+
       return;
     }
-    _setConnectionStatus(ConnectionStatus.connected);
+
+    // use ping to determine actual connection status since we could've just not timed out yet:
+    // _setConnectionStatus(ConnectionStatus.connected);
 
     socket!.listen(
       (Uint8List event) {
@@ -103,26 +117,24 @@ class ElectrumClient {
             _parseResponse(message);
           }
         } catch (e) {
-          print(e.toString());
+          print("socket.listen: $e");
         }
       },
       onError: (Object error) {
-        socket = null;
         final errorMsg = error.toString();
         print(errorMsg);
         unterminatedString = '';
-
-        final currentHost = socket?.address.host;
-        final isErrorForCurrentHost = errorMsg.contains(" ${currentHost} ");
-
-        if (currentHost != null && isErrorForCurrentHost)
-          _setConnectionStatus(ConnectionStatus.failed);
       },
       onDone: () {
+        print("SOCKET CLOSED!!!!!");
         unterminatedString = '';
-        if (host == socket?.address.host) {
-          socket = null;
-          _setConnectionStatus(ConnectionStatus.disconnected);
+        try {
+          if (host == socket?.address.host || socket == null) {
+            _setConnectionStatus(ConnectionStatus.disconnected);
+            socket?.destroy();
+          }
+        } catch (e) {
+          print("onDone: $e");
         }
       },
       cancelOnError: true,
@@ -167,7 +179,7 @@ class ElectrumClient {
         unterminatedString = '';
       }
     } catch (e) {
-      print(e.toString());
+      print("parse $e");
     }
   }
 
@@ -180,7 +192,7 @@ class ElectrumClient {
     try {
       await callWithTimeout(method: 'server.ping');
       _setConnectionStatus(ConnectionStatus.connected);
-    } on RequestFailedTimeoutException catch (_) {
+    } catch (_) {
       _setConnectionStatus(ConnectionStatus.disconnected);
     }
   }
@@ -210,25 +222,6 @@ class ElectrumClient {
         if (result is List) {
           return result.map((dynamic val) {
             if (val is Map<String, dynamic>) {
-              return val;
-            }
-
-            return <String, dynamic>{};
-          }).toList();
-        }
-
-        return [];
-      });
-
-  Future<List<Map<String, dynamic>>> getListUnspentWithAddress(
-          String address, BasedUtxoNetwork network) =>
-      call(
-          method: 'blockchain.scripthash.listunspent',
-          params: [scriptHash(address, network: network)]).then((dynamic result) {
-        if (result is List) {
-          return result.map((dynamic val) {
-            if (val is Map<String, dynamic>) {
-              val['address'] = address;
               return val;
             }
 
@@ -275,16 +268,12 @@ class ElectrumClient {
     try {
       final result = await callWithTimeout(
           method: 'blockchain.transaction.get', params: [hash, verbose], timeout: 10000);
-      if (result is Map<String, dynamic>) {
-        return result;
-      }
+      return result;
     } on RequestFailedTimeoutException catch (_) {
       return <String, dynamic>{};
     } catch (e) {
-      print("getTransaction: ${e.toString()}");
       return <String, dynamic>{};
     }
-    return <String, dynamic>{};
   }
 
   Future<Map<String, dynamic>> getTransactionVerbose({required String hash}) =>
@@ -329,9 +318,8 @@ class ElectrumClient {
       await call(method: 'blockchain.block.get_header', params: [height]) as Map<String, dynamic>;
 
   BehaviorSubject<Object>? tweaksSubscribe({required int height, required int count}) {
-    _id += 1;
     return subscribe<Object>(
-      id: 'blockchain.tweaks.subscribe:${height + count}',
+      id: 'blockchain.tweaks.subscribe',
       method: 'blockchain.tweaks.subscribe',
       params: [height, count, false],
     );
@@ -436,7 +424,6 @@ class ElectrumClient {
       {required String id, required String method, List<Object> params = const []}) {
     try {
       if (socket == null) {
-        _setConnectionStatus(ConnectionStatus.failed);
         return null;
       }
       final subscription = BehaviorSubject<T>();
@@ -445,7 +432,7 @@ class ElectrumClient {
 
       return subscription;
     } catch (e) {
-      print(e.toString());
+      print("subscribe $e");
       return null;
     }
   }
@@ -453,7 +440,6 @@ class ElectrumClient {
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
     if (socket == null) {
-      _setConnectionStatus(ConnectionStatus.failed);
       return null;
     }
     final completer = Completer<dynamic>();
@@ -467,10 +453,9 @@ class ElectrumClient {
   }
 
   Future<dynamic> callWithTimeout(
-      {required String method, List<Object> params = const [], int timeout = 4000}) async {
+      {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
       if (socket == null) {
-        _setConnectionStatus(ConnectionStatus.failed);
         return null;
       }
       final completer = Completer<dynamic>();
@@ -486,7 +471,8 @@ class ElectrumClient {
 
       return completer.future;
     } catch (e) {
-      print(e.toString());
+      print("callWithTimeout $e");
+      rethrow;
     }
   }
 
@@ -523,6 +509,12 @@ class ElectrumClient {
 
   void _methodHandler({required String method, required Map<String, dynamic> request}) {
     switch (method) {
+      case 'blockchain.headers.subscribe':
+        final params = request['params'] as List<dynamic>;
+        final id = 'blockchain.headers.subscribe';
+
+        _tasks[id]?.subject?.add(params.last);
+        break;
       case 'blockchain.scripthash.subscribe':
         final params = request['params'] as List<dynamic>;
         final scripthash = params.first as String?;
@@ -545,7 +537,14 @@ class ElectrumClient {
 
   void _setConnectionStatus(ConnectionStatus status) {
     onConnectionStatusChange?.call(status);
+    _connectionStatus = status;
     _isConnected = status == ConnectionStatus.connected;
+    if (!_isConnected) {
+      try {
+        socket?.destroy();
+      } catch (_) {}
+      socket = null;
+    }
   }
 
   void _handleResponse(Map<String, dynamic> response) {

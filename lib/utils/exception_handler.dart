@@ -21,9 +21,9 @@ class ExceptionHandler {
   static File? _file;
 
   static void _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
-    if (_file == null) {
-      final appDocDir = await getAppDir();
+    final appDocDir = await getAppDir();
 
+    if (_file == null) {
       _file = File('${appDocDir.path}/error.txt');
     }
 
@@ -83,7 +83,7 @@ class ExceptionHandler {
   }
 
   static void onError(FlutterErrorDetails errorDetails) async {
-    if (kDebugMode) {
+    if (kDebugMode || kProfileMode) {
       FlutterError.presentError(errorDetails);
       debugPrint(errorDetails.toString());
       return;
@@ -172,8 +172,14 @@ class ExceptionHandler {
     "Error while launching http",
     "OS Error: Network is unreachable",
     "ClientException: Write failed, uri=http",
-    "Connection terminated during handshake",
     "Corrupted wallets seeds",
+    "bad_alloc",
+    "does not correspond",
+    "basic_string",
+    "input_stream",
+    "input stream error",
+    "invalid signature",
+    "invalid password",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
