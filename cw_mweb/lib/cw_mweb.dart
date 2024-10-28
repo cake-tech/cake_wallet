@@ -22,7 +22,7 @@ class CwMweb {
     nodeUriOverride = uri;
     if (_rpcClient != null) {
       await stop();
-      await _initializeClient();
+      // will be re-started automatically when the next rpc call is made
     }
   }
 
@@ -57,7 +57,7 @@ class CwMweb {
     String debugLogPath = "${appDir.path}/logs/debug.log";
     readFileWithTimer(debugLogPath);
 
-    _port = await CwMwebPlatform.instance.start(appDir.path, ltcNodeUri);
+    _port = await CwMwebPlatform.instance.start(appDir.path, nodeUriOverride ?? ltcNodeUri);
     if (_port == null || _port == 0) {
       throw Exception("Failed to start server");
     }
