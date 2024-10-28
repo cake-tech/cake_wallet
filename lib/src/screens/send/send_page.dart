@@ -397,8 +397,11 @@ class SendPage extends BasePage {
                   builder: (_) {
                     return LoadingPrimaryButton(
                       onPressed: () async {
+                        await sendViewModel.stringToPjUri();
+
                         if (_formKey.currentState != null &&
-                            !_formKey.currentState!.validate()) {
+                            !_formKey.currentState!.validate() &&
+                            sendViewModel.pjUri == null) {
                           if (sendViewModel.outputs.length > 1) {
                             showErrorValidationAlert(context);
                           }
@@ -440,8 +443,9 @@ class SendPage extends BasePage {
                           context,
                           conditionToDetermineIfToUse2FA: check,
                           onAuthSuccess: (value) async {
+                            debugPrint('[+] SendPage | value: $value');
                             if (value) {
-                              await sendViewModel.stringToPjUri();
+                              // await sendViewModel.stringToPjUri();
                               if (sendViewModel.pjUri != null) {
                                 debugPrint(
                                     '[+] SendPage || INITIATE PAYJOIN SEND');

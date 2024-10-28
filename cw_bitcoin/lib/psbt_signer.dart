@@ -9,7 +9,9 @@ import 'psbt_converter.dart';
 extension PsbtSigner on PsbtV2 {
   void sign(List<UtxoWithAddress> utxos, BitcoinSignerCallBack signer) {
     final int inputsSize = getGlobalInputCount();
-    final tx = BtcTransaction.fromRaw(hex.encode(extractUnsignedTX()));
+    final raw = hex.encode(extractUnsignedTX());
+    print('[+] PsbtSigner | sign => raw: $raw');
+    final tx = BtcTransaction.fromRaw(raw);
 
     /// when the transaction is taproot and we must use getTaproot tansaction digest
     /// we need all of inputs amounts and owner script pub keys
