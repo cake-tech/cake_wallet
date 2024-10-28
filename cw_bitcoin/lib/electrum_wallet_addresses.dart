@@ -331,7 +331,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       );
 
       silentAddresses.add(address);
-      updateAddressesByMatch();
+      Future.delayed(Duration.zero, () => updateAddressesByMatch());
 
       return address;
     }
@@ -348,7 +348,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       network: network,
     );
     _addresses.add(address);
-    updateAddressesByMatch();
+    Future.delayed(Duration.zero, () => updateAddressesByMatch());
     return address;
   }
 
