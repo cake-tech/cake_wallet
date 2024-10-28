@@ -9,7 +9,7 @@ class CardItem extends StatelessWidget {
     required this.backgroundColor,
     required this.titleColor,
     required this.subtitleColor,
-    this.hideBorder = false,
+    this.hideBorder = true,
     this.discount = 0.0,
     this.isAmount = false,
     this.discountBackground,

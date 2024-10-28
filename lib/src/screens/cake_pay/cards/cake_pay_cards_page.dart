@@ -99,7 +99,7 @@ class CakePayCardsPage extends BasePage {
               decoration: BoxDecoration(
                 color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.transparent,
                 ),
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -123,7 +123,7 @@ class CakePayCardsPage extends BasePage {
           padding: EdgeInsets.symmetric(horizontal: 6),
           decoration: BoxDecoration(
             color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-            border: Border.all(color: Colors.white.withOpacity(0.2)),
+            border: Border.all(color: Colors.transparent),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Container(
@@ -167,9 +167,9 @@ class CakePayCardsPage extends BasePage {
                   controller: _searchController,
                   focusNode: searchFocusNode,
                 )),
-                SizedBox(width: 10),
+                SizedBox(width: 5),
                 filterButton,
-                SizedBox(width: 10),
+                SizedBox(width: 5),
                 _countryPicker
               ])),
           SizedBox(height: 8),
@@ -369,15 +369,9 @@ class _SearchWidget extends StatelessWidget {
           alignLabelWithHint: true,
           floatingLabelBehavior: FloatingLabelBehavior.never,
           suffixIcon: searchIcon,
-          border: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Colors.white.withOpacity(0.2),
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.transparent,
             ),
             borderRadius: BorderRadius.circular(10),
           ),
