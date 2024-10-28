@@ -225,10 +225,10 @@ jobs:
         run: |
           echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
-      # - name: Build
-      #   run: |
-      #     cd /opt/android/cake_wallet
-      #     flutter build apk --release --split-per-abi
+      - name: Build
+        run: |
+          cd /opt/android/cake_wallet
+          flutter build apk --release --split-per-abi
 
       # - name: Rename apk file
       #   run: |
@@ -279,6 +279,7 @@ jobs:
             force-avd-creation: false
             # arch: ${{ matrix.arch }}
             emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+            working-directory: /opt/android/cake_wallet
             disable-animations: false
             script: echo "Generated AVD snapshot for caching."
 
