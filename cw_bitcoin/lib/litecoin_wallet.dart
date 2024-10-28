@@ -9,6 +9,7 @@ import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -285,6 +286,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // ensure that we have the full 1000 mweb addresses generated before continuing:
     // should no longer be needed, but leaving here just in case
     await (walletAddresses as LitecoinWalletAddresses).ensureMwebAddressUpToIndexExists(1020);
+  }
+
+  @action
+  @override
+  Future<void> connectToNode({required Node node}) async {
+    await super.connectToNode(node: node);
+    if (await getNodeSupportsMweb()) {
+      await CwMweb.setNodeUriOverride(node.uri.toString());
+    }
   }
 
   @action
