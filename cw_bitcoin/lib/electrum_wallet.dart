@@ -52,10 +52,9 @@ part 'electrum_wallet.g.dart';
 
 class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 
-abstract class ElectrumWalletBase extends WalletBase<
-    ElectrumBalance,
-    ElectrumTransactionHistory,
-    ElectrumTransactionInfo> with Store, WalletKeysFile {
+abstract class ElectrumWalletBase
+    extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
+    with Store, WalletKeysFile {
   ElectrumWalletBase({
     required String password,
     required WalletInfo walletInfo,
@@ -71,8 +70,8 @@ abstract class ElectrumWalletBase extends WalletBase<
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
     this.alwaysScan,
-  })  : accountHD = getAccountHDWallet(
-            currency, network, seedBytes, xpub, walletInfo.derivationInfo),
+  })  : accountHD =
+            getAccountHDWallet(currency, network, seedBytes, xpub, walletInfo.derivationInfo),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -107,12 +106,8 @@ abstract class ElectrumWalletBase extends WalletBase<
     sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
-  static Bip32Slip10Secp256k1 getAccountHDWallet(
-      CryptoCurrency? currency,
-      BasedUtxoNetwork network,
-      Uint8List? seedBytes,
-      String? xpub,
-      DerivationInfo? derivationInfo) {
+  static Bip32Slip10Secp256k1 getAccountHDWallet(CryptoCurrency? currency, BasedUtxoNetwork network,
+      Uint8List? seedBytes, String? xpub, DerivationInfo? derivationInfo) {
     if (seedBytes == null && xpub == null) {
       throw Exception(
           "To create a Wallet you need either a seed or an xpub. This should not happen");
@@ -123,9 +118,8 @@ abstract class ElectrumWalletBase extends WalletBase<
         case CryptoCurrency.btc:
         case CryptoCurrency.ltc:
         case CryptoCurrency.tbtc:
-          return Bip32Slip10Secp256k1.fromSeed(seedBytes, getKeyNetVersion(network))
-                  .derivePath(_hardenedDerivationPath(
-                      derivationInfo?.derivationPath ?? electrum_path))
+          return Bip32Slip10Secp256k1.fromSeed(seedBytes, getKeyNetVersion(network)).derivePath(
+                  _hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path))
               as Bip32Slip10Secp256k1;
         case CryptoCurrency.bch:
           return bitcoinCashHDWallet(seedBytes);
@@ -134,13 +128,11 @@ abstract class ElectrumWalletBase extends WalletBase<
       }
     }
 
-    return Bip32Slip10Secp256k1.fromExtendedKey(
-        xpub!, getKeyNetVersion(network));
+    return Bip32Slip10Secp256k1.fromExtendedKey(xpub!, getKeyNetVersion(network));
   }
 
   static Bip32Slip10Secp256k1 bitcoinCashHDWallet(Uint8List seedBytes) =>
-      Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/145'/0'")
-          as Bip32Slip10Secp256k1;
+      Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/145'/0'") as Bip32Slip10Secp256k1;
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
@@ -357,7 +349,7 @@ abstract class ElectrumWalletBase extends WalletBase<
           isSingleScan: doSingleScan ?? false,
         ));
 
-    _receiveStream?.cancel();
+    await _receiveStream?.cancel();
     _receiveStream = receivePort.listen((var message) async {
       if (message is Map<String, ElectrumTransactionInfo>) {
         for (final map in message.entries) {
@@ -577,6 +569,29 @@ abstract class ElectrumWalletBase extends WalletBase<
     return node!.supportsSilentPayments!;
   }
 
+  Future<bool> getNodeSupportsMweb() async {
+    final version = await electrumClient.version();
+
+    if (node == null) {
+      return false;
+    }
+
+    if (version.isNotEmpty) {
+      final server = version[0];
+      print("server: $server");
+
+      return false;
+
+      // if (server.toLowerCase().contains('electrs')) {
+      //   node!.isElectrs = true;
+      //   node!.save();
+      //   return node!.isElectrs!;
+      // }
+    }
+
+    return node!.supportsMweb!;
+  }
+
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
@@ -652,9 +667,8 @@ abstract class ElectrumWalletBase extends WalletBase<
       ECPrivate? privkey;
       bool? isSilentPayment = false;
 
-      final hd = utx.bitcoinAddressRecord.isHidden
-          ? walletAddresses.sideHd
-          : walletAddresses.mainHd;
+      final hd =
+          utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
 
       if (utx.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
         final unspentAddress = utx.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
@@ -1234,8 +1248,7 @@ abstract class ElectrumWalletBase extends WalletBase<
     }
   }
 
-  void setLedgerConnection(ledger.LedgerConnection connection) =>
-      throw UnimplementedError();
+  void setLedgerConnection(ledger.LedgerConnection connection) => throw UnimplementedError();
 
   Future<BtcTransaction> buildHardwareWalletTransaction({
     required List<BitcoinBaseOutput> outputs,
@@ -1594,9 +1607,7 @@ abstract class ElectrumWalletBase extends WalletBase<
 
         final btcAddress = RegexUtils.addressTypeFromStr(addressRecord.address, network);
         final privkey = generateECPrivate(
-            hd: addressRecord.isHidden
-                ? walletAddresses.sideHd
-                : walletAddresses.mainHd,
+            hd: addressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
             index: addressRecord.index,
             network: network);
 
@@ -1778,8 +1789,7 @@ abstract class ElectrumWalletBase extends WalletBase<
 
     if (height != null) {
       if (time == null && height > 0) {
-        time = (getDateByBitcoinHeight(height).millisecondsSinceEpoch / 1000)
-            .round();
+        time = (getDateByBitcoinHeight(height).millisecondsSinceEpoch / 1000).round();
       }
 
       if (confirmations == null) {
@@ -2044,6 +2054,8 @@ abstract class ElectrumWalletBase extends WalletBase<
             library: this.runtimeType.toString(),
           ));
         }
+      }, onError: (e, s) {
+        print("sub_listen error: $e $s");
       });
     }));
   }

@@ -15,6 +15,16 @@ class CwMweb {
   static int? _port;
   static const TIMEOUT_DURATION = Duration(seconds: 15);
   static Timer? logTimer;
+  static String? nodeUriOverride;
+
+
+  static Future<void> setNodeUriOverride(String uri) async {
+    nodeUriOverride = uri;
+    if (_rpcClient != null) {
+      await stop();
+      await _initializeClient();
+    }
+  }
 
   static void readFileWithTimer(String filePath) {
     final file = File(filePath);

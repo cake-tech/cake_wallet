@@ -9,6 +9,7 @@ import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -285,6 +286,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // ensure that we have the full 1000 mweb addresses generated before continuing:
     // should no longer be needed, but leaving here just in case
     await (walletAddresses as LitecoinWalletAddresses).ensureMwebAddressUpToIndexExists(1020);
+  }
+
+  @action
+  @override
+  Future<void> connectToNode({required Node node}) async {
+    await super.connectToNode(node: node);
+    if (await getNodeSupportsMweb()) {
+      await CwMweb.setNodeUriOverride(node.uri.toString());
+    }
   }
 
   @action
@@ -582,55 +592,60 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (responseStream == null) {
       throw Exception("failed to get utxos stream!");
     }
-    _utxoStream = responseStream.listen((Utxo sUtxo) async {
-      // we're processing utxos, so our balance could still be innacurate:
-      if (mwebSyncStatus is! SyncronizingSyncStatus && mwebSyncStatus is! SyncingSyncStatus) {
-        mwebSyncStatus = SyncronizingSyncStatus();
-        processingUtxos = true;
-        _processingTimer?.cancel();
-        _processingTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
-          processingUtxos = false;
-          timer.cancel();
-        });
-      }
-
-      final utxo = MwebUtxo(
-        address: sUtxo.address,
-        blockTime: sUtxo.blockTime,
-        height: sUtxo.height,
-        outputId: sUtxo.outputId,
-        value: sUtxo.value.toInt(),
-      );
-
-      if (mwebUtxosBox.containsKey(utxo.outputId)) {
-        // we've already stored this utxo, skip it:
-        // but do update the utxo height if it's somehow different:
-        final existingUtxo = mwebUtxosBox.get(utxo.outputId);
-        if (existingUtxo!.height != utxo.height) {
-          print(
-              "updating utxo height for $utxo.outputId: ${existingUtxo.height} -> ${utxo.height}");
-          existingUtxo.height = utxo.height;
-          await mwebUtxosBox.put(utxo.outputId, existingUtxo);
+    _utxoStream = responseStream.listen(
+      (Utxo sUtxo) async {
+        // we're processing utxos, so our balance could still be innacurate:
+        if (mwebSyncStatus is! SyncronizingSyncStatus && mwebSyncStatus is! SyncingSyncStatus) {
+          mwebSyncStatus = SyncronizingSyncStatus();
+          processingUtxos = true;
+          _processingTimer?.cancel();
+          _processingTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+            processingUtxos = false;
+            timer.cancel();
+          });
         }
-        return;
-      }
 
-      await updateUnspent();
-      await updateBalance();
+        final utxo = MwebUtxo(
+          address: sUtxo.address,
+          blockTime: sUtxo.blockTime,
+          height: sUtxo.height,
+          outputId: sUtxo.outputId,
+          value: sUtxo.value.toInt(),
+        );
 
-      final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
+        if (mwebUtxosBox.containsKey(utxo.outputId)) {
+          // we've already stored this utxo, skip it:
+          // but do update the utxo height if it's somehow different:
+          final existingUtxo = mwebUtxosBox.get(utxo.outputId);
+          if (existingUtxo!.height != utxo.height) {
+            print(
+                "updating utxo height for $utxo.outputId: ${existingUtxo.height} -> ${utxo.height}");
+            existingUtxo.height = utxo.height;
+            await mwebUtxosBox.put(utxo.outputId, existingUtxo);
+          }
+          return;
+        }
 
-      // don't process utxos with addresses that are not in the mwebAddrs list:
-      if (utxo.address.isNotEmpty && !mwebAddrs.contains(utxo.address)) {
-        return;
-      }
+        await updateUnspent();
+        await updateBalance();
 
-      await mwebUtxosBox.put(utxo.outputId, utxo);
+        final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
 
-      await handleIncoming(utxo);
-    }, onError: (error) {
-      print("error in utxo stream: $error");
-    });
+        // don't process utxos with addresses that are not in the mwebAddrs list:
+        if (utxo.address.isNotEmpty && !mwebAddrs.contains(utxo.address)) {
+          return;
+        }
+
+        await mwebUtxosBox.put(utxo.outputId, utxo);
+
+        await handleIncoming(utxo);
+      },
+      onError: (error) {
+        print("error in utxo stream: $error");
+        mwebSyncStatus = FailedSyncStatus(error: error.toString());
+      },
+      cancelOnError: true,
+    );
   }
 
   Future<void> checkMwebUtxosSpent() async {
