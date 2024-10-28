@@ -942,7 +942,28 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // https://github.com/ltcmweb/mwebd?tab=readme-ov-file#fee-estimation
     final preOutputSum =
         outputs.fold<BigInt>(BigInt.zero, (acc, output) => acc + output.toOutput.amount);
-    final fee = utxos.sumOfUtxosValue() - preOutputSum;
+    var fee = utxos.sumOfUtxosValue() - preOutputSum;
+
+    // determines if the fee is correct:
+    BigInt _sumOutputAmounts(List<TxOutput> outputs) {
+      BigInt sum = BigInt.zero;
+      for (final e in outputs) {
+        sum += e.amount;
+      }
+      return sum;
+    }
+
+    print("fee is initially: $fee");
+
+    final sum1 = _sumOutputAmounts(outputs.map((e) => e.toOutput).toList()) + fee;
+    final sum2 = utxos.sumOfUtxosValue();
+    if (sum1 != sum2) {
+      final diff = sum2 - sum1;
+      // add the difference to the fee (abs value):
+      fee += diff.abs();
+    }
+    print("fee is now: $fee");
+
     final txb =
         BitcoinTransactionBuilder(utxos: utxos, outputs: outputs, fee: fee, network: network);
     final resp = await CwMweb.create(CreateRequest(
