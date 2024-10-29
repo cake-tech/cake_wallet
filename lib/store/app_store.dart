@@ -37,7 +37,8 @@ abstract class AppStoreBase with Store {
   @action
   Future<void> changeCurrentWallet(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) async {
-    this.wallet?.close();
+    bool changingToSameWalletType = this.wallet?.type == wallet.type;
+    this.wallet?.close(shouldCleanup: !changingToSameWalletType);
     this.wallet = wallet;
     this.wallet!.setExceptionHandler(ExceptionHandler.onError);
 

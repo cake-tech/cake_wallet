@@ -167,6 +167,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
 import 'package:cw_core/nano_account.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -382,7 +383,11 @@ Future<void> setup({
   getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
 
   getIt.registerFactory<WalletManager>(
-    () => WalletManager(_walletInfoSource, getIt.get<SharedPreferences>()),
+    () {
+      final instance = WalletManager(_walletInfoSource, getIt.get<SharedPreferences>());
+      instance.updateWalletGroups();
+      return instance;
+    },
   );
 
   getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
@@ -715,8 +720,8 @@ Future<void> setup({
       getIt.get<SendTemplateStore>(),
       getIt.get<FiatConversionStore>()));
 
-  getIt.registerFactory<SendViewModel>(
-    () => SendViewModel(
+  getIt.registerFactoryParam<SendViewModel, UnspentCoinType?, void>(
+    (coinTypeToSpendFrom, _) => SendViewModel(
       getIt.get<AppStore>(),
       getIt.get<SendTemplateViewModel>(),
       getIt.get<FiatConversionStore>(),
@@ -724,12 +729,13 @@ Future<void> setup({
       getIt.get<ContactListViewModel>(),
       _transactionDescriptionBox,
       getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null,
+      coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
     ),
   );
 
-  getIt.registerFactoryParam<SendPage, PaymentRequest?, void>(
-      (PaymentRequest? initialPaymentRequest, _) => SendPage(
-            sendViewModel: getIt.get<SendViewModel>(),
+  getIt.registerFactoryParam<SendPage, PaymentRequest?, UnspentCoinType?>(
+      (PaymentRequest? initialPaymentRequest, coinTypeToSpendFrom) => SendPage(
+            sendViewModel: getIt.get<SendViewModel>(param1: coinTypeToSpendFrom),
             authService: getIt.get<AuthService>(),
             initialPaymentRequest: initialPaymentRequest,
           ));
@@ -1203,14 +1209,21 @@ Future<void> setup({
 
   getIt.registerFactory(() => SupportOtherLinksPage(getIt.get<SupportViewModel>()));
 
-  getIt.registerFactory(() {
+  getIt.registerFactoryParam<UnspentCoinsListViewModel, UnspentCoinType?, void>(
+      (coinTypeToSpendFrom, _) {
     final wallet = getIt.get<AppStore>().wallet;
 
-    return UnspentCoinsListViewModel(wallet: wallet!, unspentCoinsInfo: _unspentCoinsInfoSource);
+    return UnspentCoinsListViewModel(
+      wallet: wallet!,
+      unspentCoinsInfo: _unspentCoinsInfoSource,
+      coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
+    );
   });
 
-  getIt.registerFactory(() =>
-      UnspentCoinsListPage(unspentCoinsListViewModel: getIt.get<UnspentCoinsListViewModel>()));
+  getIt.registerFactoryParam<UnspentCoinsListPage, UnspentCoinType?, void>(
+      (coinTypeToSpendFrom, _) => UnspentCoinsListPage(
+          unspentCoinsListViewModel:
+              getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom)));
 
   getIt.registerFactoryParam<UnspentCoinsDetailsViewModel, UnspentCoinsItem,
           UnspentCoinsListViewModel>(

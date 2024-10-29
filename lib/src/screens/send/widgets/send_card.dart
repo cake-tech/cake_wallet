@@ -14,7 +14,6 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
@@ -373,7 +372,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         padding: EdgeInsets.only(top: 6),
                         child: GestureDetector(
                           key: ValueKey('send_page_unspent_coin_button_key'),
-                          onTap: () => Navigator.of(context).pushNamed(Routes.unspentCoinsList),
+                          onTap: () => Navigator.of(context).pushNamed(
+                            Routes.unspentCoinsList,
+                            arguments: widget.sendViewModel.coinTypeToSpendFrom,
+                          ),
                           child: Container(
                             color: Colors.transparent,
                             child: Row(

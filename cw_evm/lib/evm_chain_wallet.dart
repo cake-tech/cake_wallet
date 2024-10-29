@@ -264,7 +264,7 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  void close() {
+  Future<void> close({required bool shouldCleanup}) async {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
     _updateFeesTimer?.cancel();
