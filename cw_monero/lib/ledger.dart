@@ -6,6 +6,7 @@ import 'package:ffi/ffi.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus_dart.dart';
 import 'package:monero/monero.dart' as monero;
+// import 'package:polyseed/polyseed.dart';
 
 Timer? _ledgerExchangeTimer;
 
@@ -23,7 +24,7 @@ void enableLedgerExchange(monero.wallet ptr, LedgerConnection connection) {
 
       // print("> ${ledgerRequest.toHexString()}");
       final response = await exchange(connection, ledgerRequest);
-      // print("< ${ledgerRequest.toHexString()}");
+      // print("< ${response.toHexString()}");
 
       final Pointer<Uint8> result = malloc<Uint8>(response.length);
       for (var i = 0; i < response.length; i++) {
