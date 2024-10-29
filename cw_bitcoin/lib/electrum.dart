@@ -124,6 +124,7 @@ class ElectrumClient {
         final errorMsg = error.toString();
         print(errorMsg);
         unterminatedString = '';
+        socket = null;
       },
       onDone: () {
         print("SOCKET CLOSED!!!!!");
