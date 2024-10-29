@@ -8,6 +8,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -51,18 +52,43 @@ class CakeFeaturesPage extends StatelessWidget {
                       onTap: () => _navigatorToGiftCardsPage(context),
                       title: 'Cake Pay',
                       subTitle: S.of(context).cake_pay_subtitle,
-                      svgPicture: SvgPicture.asset(
-                        'assets/images/cards.svg',
-                        height: 125,
-                        width: 125,
+                      image: Image.asset(
+                        'assets/images/cards.png',
+                        height: 100,
+                        width: 115,
                         fit: BoxFit.cover,
                       ),
                     ),
                     SizedBox(height: 10),
                     DashBoardRoundedCardWidget(
+                      onTap: () => _launchUrl("cake.nano-gpt.com"),
                       title: "NanoGPT",
                       subTitle: S.of(context).nanogpt_subtitle,
-                      onTap: () => _launchUrl("cake.nano-gpt.com"),
+                      image: Image.asset(
+                        'assets/images/nanogpt.png',
+                        height: 80,
+                        width: 80,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Observer(
+                      builder: (context) {
+                        if (!dashboardViewModel.hasSignMessages) {
+                          return const SizedBox();
+                        }
+                        return DashBoardRoundedCardWidget(
+                          onTap: () => Navigator.of(context).pushNamed(Routes.signPage),
+                          title: S.current.sign_verify_message,
+                          subTitle: S.current.sign_verify_message_sub,
+                          icon: Icon(
+                            Icons.speaker_notes_rounded,
+                            color:
+                            Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                            size: 75,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

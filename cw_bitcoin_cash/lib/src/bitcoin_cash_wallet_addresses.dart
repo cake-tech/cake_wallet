@@ -1,5 +1,5 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -15,6 +15,7 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
     required super.mainHd,
     required super.sideHd,
     required super.network,
+    required super.isHardwareWallet,
     super.initialAddresses,
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
@@ -23,6 +24,8 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
 
   @override
   String getAddress(
-          {required int index, required bitcoin.HDWallet hd, BitcoinAddressType? addressType}) =>
+          {required int index,
+          required Bip32Slip10Secp256k1 hd,
+          BitcoinAddressType? addressType}) =>
       generateP2PKHAddress(hd: hd, index: index, network: network);
 }

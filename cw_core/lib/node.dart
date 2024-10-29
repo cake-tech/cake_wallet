@@ -11,7 +11,8 @@ import 'package:http/io_client.dart' as ioc;
 
 part 'node.g.dart';
 
-Uri createUriFromElectrumAddress(String address, String path) => Uri.tryParse('tcp://$address$path')!;
+Uri createUriFromElectrumAddress(String address, String path) =>
+    Uri.tryParse('tcp://$address$path')!;
 
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
@@ -71,6 +72,12 @@ class Node extends HiveObject with Keyable {
 
   @HiveField(7, defaultValue: '')
   String? path;
+
+  @HiveField(8)
+  bool? isElectrs;
+
+  @HiveField(9)
+  bool? supportsSilentPayments;
 
   bool get isSSL => useSSL ?? false;
 
@@ -232,12 +239,15 @@ class Node extends HiveObject with Keyable {
   // you try to communicate with it
   Future<bool> requestElectrumServer() async {
     try {
+      final Socket socket;
       if (useSSL == true) {
-        await SecureSocket.connect(uri.host, uri.port,
+        socket = await SecureSocket.connect(uri.host, uri.port,
             timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
       } else {
-        await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+        socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
       }
+
+      socket.destroy();
       return true;
     } catch (_) {
       return false;

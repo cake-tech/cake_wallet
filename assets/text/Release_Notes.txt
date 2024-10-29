@@ -1,5 +1,7 @@
-Monero and Ethereum enhancements
-Synchronization improvements
-Exchange flow enhancements
-Ledger improvements
+Added Litecoin MWEB
+Added wallet groups
+Silent Payment enhancements for speed & reliability
+Monero enhancements
+Introducing StealthEx and LetxExchange
+Additional ERC20 tokens scam detection
 Bug fixes

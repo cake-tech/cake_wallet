@@ -39,7 +39,9 @@ void showInformation(
 
   showPopUp<void>(
       context: context,
-      builder: (_) => InformationPage(information: information));
+      builder: (_) => InformationPage(
+        key: ValueKey('information_page_dialog_key'),
+        information: information));
 }
 
 class ExchangeTradePage extends BasePage {
@@ -215,6 +217,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             return widget.exchangeTradeViewModel.isSendable &&
                     !(sendingState is TransactionCommitted)
                 ? LoadingPrimaryButton(
+                    key: ValueKey('exchange_trade_page_confirm_sending_button_key'),
                     isDisabled: trade.inputAddress == null ||
                         trade.inputAddress!.isEmpty,
                     isLoading: sendingState is IsExecutingState ||
@@ -242,6 +245,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               context: context,
               builder: (BuildContext popupContext) {
                 return AlertWithOneAction(
+                    key: ValueKey('exchange_trade_page_send_failure_dialog_key'),
+                    buttonKey: ValueKey('exchange_trade_page_send_failure_dialog_button_key'),
                     alertTitle: S.of(popupContext).error,
                     alertContent: state.error,
                     buttonText: S.of(popupContext).ok,
@@ -256,6 +261,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               context: context,
               builder: (BuildContext popupContext) {
                 return ConfirmSendingAlert(
+                    key: ValueKey('exchange_trade_page_confirm_sending_dialog_key'),
+                    alertLeftActionButtonKey: ValueKey('exchange_trade_page_confirm_sending_dialog_cancel_button_key'),
+                    alertRightActionButtonKey: 
+                    ValueKey('exchange_trade_page_confirm_sending_dialog_send_button_key'),
                     alertTitle: S.of(popupContext).confirm_sending,
                     amount: S.of(popupContext).send_amount,
                     amountValue: widget.exchangeTradeViewModel.sendViewModel
@@ -285,7 +294,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
+          if (mounted) {
             showPopUp<void>(
                 context: context,
                 builder: (BuildContext popupContext) {

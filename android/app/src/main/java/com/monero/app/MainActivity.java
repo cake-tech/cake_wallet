@@ -19,14 +19,10 @@ import android.net.Uri;
 import android.os.PowerManager;
 import android.provider.Settings;
 
-import com.unstoppabledomains.resolution.DomainResolution;
-import com.unstoppabledomains.resolution.Resolution;
-
 import java.security.SecureRandom;
 
 public class MainActivity extends FlutterFragmentActivity {
     final String UTILS_CHANNEL = "com.cake_wallet/native_utils";
-    final int UNSTOPPABLE_DOMAIN_MIN_VERSION_SDK = 24;
     boolean isAppSecure = false;
 
     @Override
@@ -52,14 +48,6 @@ public class MainActivity extends FlutterFragmentActivity {
                     random.nextBytes(bytes);
                     handler.post(() -> result.success(bytes));
                     break;
-                case "getUnstoppableDomainAddress":
-                    int version = Build.VERSION.SDK_INT;
-                    if (version >= UNSTOPPABLE_DOMAIN_MIN_VERSION_SDK) {
-                        getUnstoppableDomainAddress(call, result);
-                    } else {
-                        handler.post(() -> result.success(""));
-                    }
-                    break;
                 case "setIsAppSecure":
                     isAppSecure = call.argument("isAppSecure");
                     if (isAppSecure) {
@@ -82,23 +70,6 @@ public class MainActivity extends FlutterFragmentActivity {
         } catch (Exception e) {
             handler.post(() -> result.error("UNCAUGHT_ERROR", e.getMessage(), null));
         }
-    }
-
-    private void getUnstoppableDomainAddress(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
-        DomainResolution resolution = new Resolution();
-        Handler handler = new Handler(Looper.getMainLooper());
-        String domain = call.argument("domain");
-        String ticker = call.argument("ticker");
-
-        AsyncTask.execute(() -> {
-            try {
-                String address = resolution.getAddress(domain, ticker);
-                handler.post(() -> result.success(address));
-            } catch (Exception e) {
-                System.out.println("Expected Address, but got " + e.getMessage());
-                handler.post(() -> result.success(""));
-            }
-        });
     }
 
     private void disableBatteryOptimization() {

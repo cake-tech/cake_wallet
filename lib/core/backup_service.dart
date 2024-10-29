@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/get_encryption_key.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:archive/archive_io.dart';
@@ -20,12 +21,11 @@ import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
-
 import 'package:cake_backup/backup.dart' as cake_backup;
 
 class BackupService {
-  BackupService(
-      this._secureStorage, this._walletInfoSource, this._keyService, this._sharedPreferences)
+  BackupService(this._secureStorage, this._walletInfoSource, this._transactionDescriptionBox,
+      this._keyService, this._sharedPreferences)
       : _cipher = Cryptography.instance.chacha20Poly1305Aead(),
         _correctWallets = <WalletInfo>[];
 
@@ -38,6 +38,7 @@ class BackupService {
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
   final Box<WalletInfo> _walletInfoSource;
+  final Box<TransactionDescription> _transactionDescriptionBox;
   final KeyService _keyService;
   List<WalletInfo> _correctWallets;
 
@@ -86,6 +87,13 @@ class BackupService {
     final preferencesDump = await _exportPreferencesJSON();
     final preferencesDumpFile = File('${tmpDir.path}/~_preferences_dump_TMP');
     final keychainDumpFile = File('${tmpDir.path}/~_keychain_dump_TMP');
+    final transactionDescriptionDumpFile =
+        File('${tmpDir.path}/~_transaction_descriptions_dump_TMP');
+
+    final transactionDescriptionData = _transactionDescriptionBox
+        .toMap()
+        .map((key, value) => MapEntry(key.toString(), value.toJson()));
+    final transactionDescriptionDump = jsonEncode(transactionDescriptionData);
 
     if (tmpDir.existsSync()) {
       tmpDir.deleteSync(recursive: true);
@@ -98,7 +106,15 @@ class BackupService {
       if (entity.path == archivePath || entity.path == tmpDir.path) {
         return;
       }
-
+      final filename = entity.absolute;
+      for (var ignore in ignoreFiles) {
+        final filename = entity.absolute.path;
+        if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
+          print("ignoring backup file: $filename");
+          return;
+        }
+      }
+      print("restoring: $filename");
       if (entity.statSync().type == FileSystemEntityType.directory) {
         zipEncoder.addDirectory(Directory(entity.path));
       } else {
@@ -107,8 +123,10 @@ class BackupService {
     });
     await keychainDumpFile.writeAsBytes(keychainDump.toList());
     await preferencesDumpFile.writeAsString(preferencesDump);
+    await transactionDescriptionDumpFile.writeAsString(transactionDescriptionDump);
     await zipEncoder.addFile(preferencesDumpFile, '~_preferences_dump');
     await zipEncoder.addFile(keychainDumpFile, '~_keychain_dump');
+    await zipEncoder.addFile(transactionDescriptionDumpFile, '~_transaction_descriptions_dump');
     zipEncoder.close();
 
     final content = File(archivePath).readAsBytesSync();
@@ -121,45 +139,61 @@ class BackupService {
     final decryptedData = await _decryptV1(data, password, nonce);
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
-    zip.files.forEach((file) {
+    for (var file in zip.files) {
       final filename = file.name;
 
       if (file.isFile) {
         final content = file.content as List<int>;
         File('${appDir.path}/' + filename)
           ..createSync(recursive: true)
-          ..writeAsBytesSync(content);
+          ..writeAsBytesSync(content, flush: true);
       } else {
         Directory('${appDir.path}/' + filename)..create(recursive: true);
       }
-    });
+    };
 
     await _verifyWallets();
     await _importKeychainDumpV1(password, nonce: nonce);
     await _importPreferencesDump();
   }
 
+  // checked with .endsWith - so this should be the last part of the filename
+  static const ignoreFiles = [
+    "flutter_assets/kernel_blob.bin",
+    "flutter_assets/vm_snapshot_data",
+    "flutter_assets/isolate_snapshot_data",
+    ".lock",
+  ];
+
   Future<void> _importBackupV2(Uint8List data, String password) async {
     final appDir = await getAppDir();
     final decryptedData = await _decryptV2(data, password);
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
-    zip.files.forEach((file) {
+    outer:
+    for (var file in zip.files) {
       final filename = file.name;
-
+      for (var ignore in ignoreFiles) { 
+        if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
+          print("ignoring backup file: $filename");
+          continue outer;
+        }
+      }
+      print("restoring: $filename");
       if (file.isFile) {
         final content = file.content as List<int>;
         File('${appDir.path}/' + filename)
           ..createSync(recursive: true)
-          ..writeAsBytesSync(content);
+          ..writeAsBytesSync(content, flush: true);
       } else {
         Directory('${appDir.path}/' + filename)..create(recursive: true);
       }
-    });
+    };
 
     await _verifyWallets();
     await _importKeychainDumpV2(password);
     await _importPreferencesDump();
+    await _importTransactionDescriptionDump();
   }
 
   Future<void> _verifyWallets() async {
@@ -182,6 +216,31 @@ class BackupService {
     }
 
     return await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+  }
+
+  Future<void> _importTransactionDescriptionDump() async {
+    final appDir = await getAppDir();
+    final transactionDescriptionFile = File('${appDir.path}/~_transaction_descriptions_dump');
+
+    if (!transactionDescriptionFile.existsSync()) {
+      return;
+    }
+
+    final jsonData =
+        json.decode(transactionDescriptionFile.readAsStringSync()) as Map<String, dynamic>;
+    final descriptionsMap = jsonData.map((key, value) =>
+        MapEntry(key, TransactionDescription.fromJson(value as Map<String, dynamic>)));
+
+    if (!_transactionDescriptionBox.isOpen) {
+      final transactionDescriptionsBoxKey = await getEncryptionKey(secureStorage: secureStorageShared, forKey: TransactionDescription.boxKey);
+      final transactionDescriptionBox = await CakeHive.openBox<TransactionDescription>(
+        TransactionDescription.boxName,
+        encryptionKey: transactionDescriptionsBoxKey,
+      );
+      await transactionDescriptionBox.putAll(descriptionsMap);
+      return;
+    }
+    await _transactionDescriptionBox.putAll(descriptionsMap);
   }
 
   Future<void> _importPreferencesDump() async {

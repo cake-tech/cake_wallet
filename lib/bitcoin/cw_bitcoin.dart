@@ -28,9 +28,22 @@ class CWBitcoin extends Bitcoin {
           name: name, password: password, wif: wif, walletInfo: walletInfo);
 
   @override
-  WalletCredentials createBitcoinNewWalletCredentials(
-          {required String name, WalletInfo? walletInfo}) =>
-      BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo);
+  WalletCredentials createBitcoinNewWalletCredentials({
+    required String name,
+    WalletInfo? walletInfo,
+    String? password,
+    String? passphrase,
+    String? mnemonic,
+    String? parentAddress,
+  }) =>
+      BitcoinNewWalletCredentials(
+        name: name,
+        walletInfo: walletInfo,
+        password: password,
+        passphrase: passphrase,
+        mnemonic: mnemonic,
+        parentAddress: parentAddress,
+      );
 
   @override
   WalletCredentials createBitcoinHardwareWalletCredentials(
@@ -93,33 +106,32 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Object createBitcoinTransactionCredentials(List<Output> outputs,
-      {required TransactionPriority priority, int? feeRate}) {
+  Object createBitcoinTransactionCredentials(
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    int? feeRate,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+  }) {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
     return BitcoinTransactionCredentials(
-        outputs
-            .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount,
-                memo: out.memo))
-            .toList(),
-        priority: priority as BitcoinTransactionPriority,
-        feeRate: bitcoinFeeRate);
+      outputs
+          .map((out) => OutputInfo(
+              fiatAmount: out.fiatAmount,
+              cryptoAmount: out.cryptoAmount,
+              address: out.address,
+              note: out.note,
+              sendAll: out.sendAll,
+              extractedAddress: out.extractedAddress,
+              isParsedAddress: out.isParsedAddress,
+              formattedCryptoAmount: out.formattedCryptoAmount,
+              memo: out.memo))
+          .toList(),
+      priority: priority as BitcoinTransactionPriority,
+      feeRate: bitcoinFeeRate,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
+    );
   }
-
-  @override
-  Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs,
-          {TransactionPriority? priority, required int feeRate}) =>
-      BitcoinTransactionCredentials(outputs,
-          priority: priority != null ? priority as BitcoinTransactionPriority : null,
-          feeRate: feeRate);
 
   @override
   @computed
@@ -192,9 +204,19 @@ class CWBitcoin extends Bitcoin {
       (priority as BitcoinTransactionPriority).labelWithRate(rate, customRate);
 
   @override
-  List<BitcoinUnspent> getUnspents(Object wallet) {
+  List<BitcoinUnspent> getUnspents(Object wallet,
+      {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.unspentCoins;
+    return bitcoinWallet.unspentCoins.where((element) {
+      switch (coinTypeToSpendFrom) {
+        case UnspentCoinType.mweb:
+          return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+        case UnspentCoinType.nonMweb:
+          return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.any:
+          return true;
+      }
+    }).toList();
   }
 
   Future<void> updateUnspents(Object wallet) async {
@@ -202,14 +224,14 @@ class CWBitcoin extends Bitcoin {
     await bitcoinWallet.updateAllUnspents();
   }
 
-  WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan) {
-    return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan);
+  WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource,
+      Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
+    return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
   }
 
-  WalletService createLitecoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) {
-    return LitecoinWalletService(walletInfoSource, unspentCoinSource);
+  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource,
+      Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
+    return LitecoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
   }
 
   @override
@@ -249,6 +271,16 @@ class CWBitcoin extends Bitcoin {
   List<ReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
 
   @override
+  List<ReceivePageOption> getLitecoinReceivePageOptions() {
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      return BitcoinReceivePageOption.allLitecoin
+          .where((element) => element != BitcoinReceivePageOption.mweb)
+          .toList();
+    }
+    return BitcoinReceivePageOption.allLitecoin;
+  }
+
+  @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
     switch (option) {
       case BitcoinReceivePageOption.p2pkh:
@@ -259,6 +291,8 @@ class CWBitcoin extends Bitcoin {
         return SegwitAddresType.p2tr;
       case BitcoinReceivePageOption.p2wsh:
         return SegwitAddresType.p2wsh;
+      case BitcoinReceivePageOption.mweb:
+        return SegwitAddresType.mweb;
       case BitcoinReceivePageOption.p2wpkh:
       default:
         return SegwitAddresType.p2wpkh;
@@ -275,7 +309,7 @@ class CWBitcoin extends Bitcoin {
     return [DerivationType.bip39, DerivationType.electrum];
   }
 
-  int _countOccurrences(String str, String charToCount) {
+  int _countCharOccurrences(String str, String charToCount) {
     int count = 0;
     for (int i = 0; i < str.length; i++) {
       if (str[i] == charToCount) {
@@ -302,23 +336,20 @@ class CWBitcoin extends Bitcoin {
     await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
 
     late BasedUtxoNetwork network;
-    btc.NetworkType networkType;
     switch (node.type) {
       case WalletType.litecoin:
         network = LitecoinNetwork.mainnet;
-        networkType = litecoinNetwork;
         break;
       case WalletType.bitcoin:
       default:
         network = BitcoinNetwork.mainnet;
-        networkType = btc.bitcoin;
         break;
     }
 
     for (DerivationType dType in electrum_derivations.keys) {
       late Uint8List seedBytes;
       if (dType == DerivationType.electrum) {
-        seedBytes = await mnemonicToSeedBytes(mnemonic);
+        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
       } else if (dType == DerivationType.bip39) {
         seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
       }
@@ -333,7 +364,7 @@ class CWBitcoin extends Bitcoin {
           );
 
           String balancePath = dInfoCopy.derivationPath!;
-          int derivationDepth = _countOccurrences(balancePath, "/");
+          int derivationDepth = _countCharOccurrences(balancePath, '/');
 
           // for BIP44
           if (derivationDepth == 3 || derivationDepth == 1) {
@@ -341,10 +372,8 @@ class CWBitcoin extends Bitcoin {
             balancePath += "/0";
           }
 
-          final hd = btc.HDWallet.fromSeed(
-            seedBytes,
-            network: networkType,
-          ).derivePath(balancePath);
+          final hd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(balancePath)
+              as Bip32Slip10Secp256k1;
 
           // derive address at index 0:
           String? address;
@@ -365,23 +394,25 @@ class CWBitcoin extends Bitcoin {
               continue;
           }
 
-          final sh = scriptHash(address, network: network);
+          final sh = BitcoinAddressUtils.scriptHash(address, network: network);
           final history = await electrumClient.getHistory(sh);
 
           final balance = await electrumClient.getBalance(sh);
-          dInfoCopy.balance = balance.entries.first.value.toString();
+          dInfoCopy.balance = balance.entries.firstOrNull?.value.toString() ?? "0";
           dInfoCopy.address = address;
           dInfoCopy.transactionsCount = history.length;
 
           list.add(dInfoCopy);
-        } catch (e) {
-          print(e);
+        } catch (e, s) {
+          print("derivationInfoError: $e");
+          print("derivationInfoStack: $s");
         }
       }
     }
 
     // sort the list such that derivations with the most transactions are first:
     list.sort((a, b) => b.transactionsCount.compareTo(a.transactionsCount));
+
     return list;
   }
 
@@ -403,9 +434,16 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<bool> canReplaceByFee(Object wallet, String transactionHash) async {
+  Future<String?> canReplaceByFee(Object wallet, Object transactionInfo) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.canReplaceByFee(transactionHash);
+    final tx = transactionInfo as ElectrumTransactionInfo;
+    return bitcoinWallet.canReplaceByFee(tx);
+  }
+
+  @override
+  int getTransactionVSize(Object wallet, String transactionHex) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.transactionVSize(transactionHex);
   }
 
   @override
@@ -436,24 +474,43 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount,
+      {int? size}) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.feeAmountWithFeeRate(feeRate, inputsCount, outputsCount, size: size);
+  }
+
+  @override
   int getMaxCustomFeeRate(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return (bitcoinWallet.feeRate(BitcoinTransactionPriority.fast) * 10).round();
   }
 
   @override
-  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
-    (wallet as BitcoinWallet).setLedger(ledger, device);
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) {
+    (wallet as ElectrumWallet).setLedgerConnection(connection);
   }
 
   @override
-  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
+  Future<List<HardwareAccountData>> getHardwareWalletBitcoinAccounts(LedgerViewModel ledgerVM,
       {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.connection);
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } on LedgerException catch (err) {
-      print(err.message);
+    } catch (err) {
+      print(err);
+      throw err;
+    }
+  }
+
+  @override
+  Future<List<HardwareAccountData>> getHardwareWalletLitecoinAccounts(LedgerViewModel ledgerVM,
+      {int index = 0, int limit = 5}) async {
+    final hardwareWalletService = LitecoinHardwareWalletService(ledgerVM.connection);
+    try {
+      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+    } catch (err) {
+      print(err);
       throw err;
     }
   }
@@ -508,20 +565,33 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<void> setScanningActive(Object wallet, bool active) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    bitcoinWallet.setSilentPaymentsScanning(
-      active,
-      active && (await getNodeIsElectrsSPEnabled(wallet)),
-    );
+    bitcoinWallet.setSilentPaymentsScanning(active);
   }
 
   @override
   bool isTestnet(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.isTestnet ?? false;
+    return bitcoinWallet.isTestnet;
   }
 
   @override
-  int getHeightByDate({required DateTime date}) => getBitcoinHeightByDate(date: date);
+  Future<bool> checkIfMempoolAPIIsEnabled(Object wallet) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return await bitcoinWallet.checkIfMempoolAPIIsEnabled();
+  }
+
+  @override
+  Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled}) async {
+    if (bitcoinMempoolAPIEnabled ?? false) {
+      try {
+        return await getBitcoinHeightByDateAPI(date: date);
+      } catch (_) {}
+    }
+    return await getBitcoinHeightByDate(date: date);
+  }
+
+  @override
+  int getLitecoinHeightByDate({required DateTime date}) => getLtcHeightByDate(date: date);
 
   @override
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
@@ -529,44 +599,10 @@ class CWBitcoin extends Bitcoin {
     bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
   }
 
-  Future<bool> getNodeIsElectrs(Object wallet) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
-
-    final version = await bitcoinWallet.electrumClient.version();
-
-    if (version.isEmpty) {
-      return false;
-    }
-
-    final server = version[0];
-
-    if (server.toLowerCase().contains('electrs')) {
-      return true;
-    }
-
-    return false;
-  }
-
   @override
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet) async {
-    if (!(await getNodeIsElectrs(wallet))) {
-      return false;
-    }
-
     final bitcoinWallet = wallet as ElectrumWallet;
-    try {
-      final tweaksResponse = await bitcoinWallet.electrumClient.getTweaks(height: 0);
-
-      if (tweaksResponse != null) {
-        return true;
-      }
-    } on RequestFailedTimeoutException catch (_) {
-      return false;
-    } catch (_) {
-      rethrow;
-    }
-
-    return false;
+    return bitcoinWallet.getNodeSupportsSilentPayments();
   }
 
   @override
@@ -579,5 +615,95 @@ class CWBitcoin extends Bitcoin {
   Future<void> updateFeeRates(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     await bitcoinWallet.updateFeeRates();
+  }
+
+  @override
+  Future<void> setMwebEnabled(Object wallet, bool enabled) async {
+    final litecoinWallet = wallet as LitecoinWallet;
+    litecoinWallet.setMwebEnabled(enabled);
+  }
+
+  @override
+  bool getMwebEnabled(Object wallet) {
+    final litecoinWallet = wallet as LitecoinWallet;
+    return litecoinWallet.mwebEnabled;
+  }
+
+  List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
+    final pendingTx = pendingTransaction as PendingBitcoinTransaction;
+
+    if (!pendingTx.hasSilentPayment) {
+      return outputs;
+    }
+
+    final updatedOutputs = outputs.map((output) {
+      try {
+        final pendingOut = pendingTx.outputs[outputs.indexOf(output)];
+        final updatedOutput = output;
+
+        updatedOutput.stealthAddress = P2trAddress.fromScriptPubkey(script: pendingOut.scriptPubKey)
+            .toAddress(BitcoinNetwork.mainnet);
+        return updatedOutput;
+      } catch (_) {}
+
+      return output;
+    }).toList();
+
+    return updatedOutputs;
+  }
+
+  @override
+  bool txIsReceivedSilentPayment(TransactionInfo txInfo) {
+    final tx = txInfo as ElectrumTransactionInfo;
+    return tx.isReceivedSilentPayment;
+  }
+
+  @override
+  bool txIsMweb(TransactionInfo txInfo) {
+    final tx = txInfo as ElectrumTransactionInfo;
+
+    List<String> inputAddresses = tx.inputAddresses ?? [];
+    List<String> outputAddresses = tx.outputAddresses ?? [];
+    bool inputAddressesContainMweb = false;
+    bool outputAddressesContainMweb = false;
+
+    for (var address in inputAddresses) {
+      if (address.toLowerCase().contains('mweb')) {
+        inputAddressesContainMweb = true;
+        break;
+      }
+    }
+
+    for (var address in outputAddresses) {
+      if (address.toLowerCase().contains('mweb')) {
+        outputAddressesContainMweb = true;
+        break;
+      }
+    }
+
+    // TODO: this could be improved:
+    return inputAddressesContainMweb || outputAddressesContainMweb;
+  }
+
+  String? getUnusedMwebAddress(Object wallet) {
+    try {
+      final electrumWallet = wallet as ElectrumWallet;
+      final mwebAddress =
+          electrumWallet.walletAddresses.mwebAddresses.firstWhere((element) => !element.isUsed);
+      return mwebAddress.address;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? getUnusedSegwitAddress(Object wallet) {
+    try {
+      final electrumWallet = wallet as ElectrumWallet;
+      final segwitAddress = electrumWallet.walletAddresses.allAddresses
+          .firstWhere((element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh);
+      return segwitAddress.address;
+    } catch (_) {
+      return null;
+    }
   }
 }

@@ -1,6 +1,5 @@
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
-import 'package:cw_wownero/api/structs/transaction_info_row.dart';
 import 'package:cw_core/parseBoolFromString.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/format_amount.dart';
@@ -28,26 +27,6 @@ class WowneroTransactionInfo extends TransactionInfo {
         confirmations = map['confirmations'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
         fee = map['fee'] as int? ?? 0 {
-          additionalInfo = <String, dynamic>{
-            'key': key,
-            'accountIndex': accountIndex,
-            'addressIndex': addressIndex
-          };
-        }
-
-  WowneroTransactionInfo.fromRow(TransactionInfoRow row)
-      : id = "${row.getHash()}_${row.getAmount()}_${row.subaddrAccount}_${row.subaddrIndex}",
-        txHash = row.getHash(),
-        height = row.blockHeight,
-        direction = parseTransactionDirectionFromInt(row.direction),
-        date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime() * 1000),
-        isPending = row.isPending != 0,
-        amount = row.getAmount(),
-        accountIndex = row.subaddrAccount,
-        addressIndex = row.subaddrIndex,
-        confirmations = row.confirmations,
-        key = getTxKey(row.getHash()),
-        fee = row.fee {
           additionalInfo = <String, dynamic>{
             'key': key,
             'accountIndex': accountIndex,

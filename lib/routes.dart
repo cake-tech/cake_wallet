@@ -8,8 +8,7 @@ class Routes {
   static const restoreWalletFromSeedKeys = '/restore_wallet_from_seeds_keys';
   static const restoreWalletFromHardwareWallet = '/restore/hardware_wallet';
   static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
-  static const restoreWalletChooseDerivation =
-      '/restore_wallet_choose_derivation';
+  static const restoreWalletChooseDerivation = '/restore_wallet_choose_derivation';
   static const chooseHardwareWalletAccount = '/restore/hardware_wallet/accounts';
   static const dashboard = '/dashboard';
   static const send = '/send';
@@ -31,6 +30,7 @@ class Routes {
   static const nanoAccountCreation = '/nano_account_new';
   static const addressBook = '/address_book';
   static const pickerAddressBook = '/picker_address_book';
+  static const pickerWalletAddress = '/picker_wallet_address';
   static const addressBookAddContact = '/address_book_add_contact';
   static const showKeys = '/show_keys';
   static const exchangeConfirm = '/exchange_confirm';
@@ -73,6 +73,7 @@ class Routes {
   static const cakePayAccountPage = '/cake_pay_account_page';
   static const webViewPage = '/web_view_page';
   static const silentPaymentsSettings = '/silent_payments_settings';
+  static const mwebSettings = '/mweb_settings';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';
@@ -82,6 +83,8 @@ class Routes {
   static const otherSettingsPage = '/other_settings_page';
   static const advancedPrivacySettings = '/advanced_privacy_settings';
   static const sweepingWalletPage = '/sweeping_wallet_page';
+  static const walletPasswordUnlock = '/wallet_password_unlock';
+  static const walletUnlockLoadable = '/wallet_unlock_loadable';
   static const anonPayInvoicePage = '/anon_pay_invoice_page';
   static const anonPayReceivePage = '/anon_pay_receive_page';
   static const anonPayDetailsPage = '/anon_pay_details_page';
@@ -96,10 +99,13 @@ class Routes {
   static const editToken = '/edit_token';
   static const manageNodes = '/manage_nodes';
   static const managePowNodes = '/manage_pow_nodes';
-  static const walletConnectConnectionsListing =
-      '/wallet-connect-connections-listing';
+  static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
   static const torPage = '/tor_page';
+
+  static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
+  static const walletGroupsDisplayPage = '/wallet_groups_display_page';
+  static const walletGroupDescription = '/wallet_group_description';
 }
