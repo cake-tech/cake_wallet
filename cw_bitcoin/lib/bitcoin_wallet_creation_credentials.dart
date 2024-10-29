@@ -7,8 +7,6 @@ class BitcoinNewWalletCredentials extends WalletCredentials {
     required String name,
     WalletInfo? walletInfo,
     String? password,
-    DerivationType? derivationType,
-    String? derivationPath,
     String? passphrase,
     this.mnemonic,
     String? parentAddress,
@@ -29,18 +27,13 @@ class BitcoinRestoreWalletFromSeedCredentials extends WalletCredentials {
     required String password,
     required this.mnemonic,
     WalletInfo? walletInfo,
-    required DerivationType derivationType,
-    required String derivationPath,
     String? passphrase,
   }) : super(
-            name: name,
-            password: password,
-            passphrase: passphrase,
-            walletInfo: walletInfo,
-            derivationInfo: DerivationInfo(
-              derivationType: derivationType,
-              derivationPath: derivationPath,
-            ));
+          name: name,
+          password: password,
+          passphrase: passphrase,
+          walletInfo: walletInfo,
+        );
 
   final String mnemonic;
 }

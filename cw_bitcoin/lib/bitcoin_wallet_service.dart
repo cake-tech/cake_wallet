@@ -89,7 +89,7 @@ class BitcoinWalletService extends WalletService<
         unspentCoinsInfo: unspentCoinsInfoSource,
         alwaysScan: alwaysScan,
         mempoolAPIEnabled: mempoolAPIEnabled,
-        encryptionFileUtils: encryptionFileUtilsFor(false),
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
       saveBackup(name);
@@ -103,7 +103,7 @@ class BitcoinWalletService extends WalletService<
         unspentCoinsInfo: unspentCoinsInfoSource,
         alwaysScan: alwaysScan,
         mempoolAPIEnabled: mempoolAPIEnabled,
-        encryptionFileUtils: encryptionFileUtilsFor(false),
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
       return wallet;
@@ -189,7 +189,6 @@ class BitcoinWalletService extends WalletService<
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       mempoolAPIEnabled: mempoolAPIEnabled,
     );
-    await wallet.save();
     await wallet.init();
     return wallet;
   }

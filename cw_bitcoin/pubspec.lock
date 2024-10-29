@@ -564,10 +564,10 @@ packages:
     dependency: "direct main"
     description:
       name: ledger_flutter_plus
-      sha256: ea3ed586e1697776dacf42ac979095f1ca3bd143bf007cbe5c78e09cb6943f42
+      sha256: c7b04008553193dbca7e17b430768eecc372a72b0ff3625b5e7fc5e5c8d3231b
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.5"
+    version: "1.4.1"
   ledger_litecoin:
     dependency: "direct main"
     description:

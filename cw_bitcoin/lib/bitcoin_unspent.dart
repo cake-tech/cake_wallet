@@ -29,4 +29,10 @@ class BitcoinUnspent extends Unspent {
   }
 
   final BaseBitcoinAddressRecord bitcoinAddressRecord;
+
+  @override
+  bool operator ==(Object o) {
+    print('BitcoinUnspent operator ==');
+    return o is BitcoinUnspent && hash == o.hash && vout == o.vout;
+  }
 }

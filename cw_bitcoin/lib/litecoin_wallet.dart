@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:convert/convert.dart' as convert;
 import 'dart:math';
@@ -87,8 +86,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           mempoolAPIEnabled: mempoolAPIEnabled,
         ) {
     if (seedBytes != null) {
-      mwebHd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(
-          "m/1000'") as Bip32Slip10Secp256k1;
+      mwebHd =
+          Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/1000'") as Bip32Slip10Secp256k1;
       mwebEnabled = alwaysScan ?? false;
     } else {
       mwebHd = null;
@@ -772,7 +771,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     });
 
     // copy coin control attributes to mwebCoins:
-    await updateCoins(mwebUnspentCoins);
+    await updateCoins(mwebUnspentCoins.toSet());
     // get regular ltc unspents (this resets unspentCoins):
     await super.updateAllUnspents();
     // add the mwebCoins:
@@ -810,11 +809,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<ElectrumBalance> fetchBalances(List<BitcoinAddressRecord> addresses) async {
-    final nonMwebAddresses = walletAddresses.allAddresses
-        .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
-        .toList();
-    final balance = await super.fetchBalances(nonMwebAddresses);
+  Future<ElectrumBalance> fetchBalances() async {
+    final balance = await super.fetchBalances();
 
     if (!mwebEnabled) {
       return balance;
@@ -980,8 +976,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       if (!mwebEnabled) {
         tx.changeAddressOverride =
-            (await (walletAddresses as LitecoinWalletAddresses)
-                    .getChangeAddress(isPegIn: false))
+            (await (walletAddresses as LitecoinWalletAddresses).getChangeAddress(isPegIn: false))
                 .address;
         return tx;
       }
@@ -1021,10 +1016,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       bool isPegIn = !hasMwebInput && hasMwebOutput;
       bool isRegular = !hasMwebInput && !hasMwebOutput;
-      tx.changeAddressOverride =
-          (await (walletAddresses as LitecoinWalletAddresses)
-                  .getChangeAddress(isPegIn: isPegIn || isRegular))
-              .address;
+      tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
+              .getChangeAddress(isPegIn: isPegIn || isRegular))
+          .address;
       if (!hasMwebInput && !hasMwebOutput) {
         tx.isMweb = false;
         return tx;
@@ -1058,7 +1052,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
                 .firstWhere((utxo) => utxo.hash == e.value.txId && utxo.vout == e.value.txIndex);
             final key = ECPrivate.fromBip32(
               bip32: walletAddresses.bip32,
-              account: utxo.bitcoinAddressRecord.isChange ? 1 : 0,
+              account: BitcoinAddressUtils.getAccountFromChange(utxo.bitcoinAddressRecord.isChange),
               index: utxo.bitcoinAddressRecord.index,
             );
             final digest = tx2.getTransactionSegwitDigit(
@@ -1277,8 +1271,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   void setLedgerConnection(LedgerConnection connection) {
     _ledgerConnection = connection;
-    _litecoinLedgerApp =
-        LitecoinLedgerApp(_ledgerConnection!, derivationPath: walletInfo.derivationInfo!.derivationPath!);
+    _litecoinLedgerApp = LitecoinLedgerApp(_ledgerConnection!,
+        derivationPath: walletInfo.derivationInfo!.derivationPath!);
   }
 
   @override
@@ -1314,19 +1308,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (maybeChangePath != null) changePath ??= maybeChangePath.derivationPath;
     }
 
-
     final rawHex = await _litecoinLedgerApp!.createTransaction(
-      inputs: readyInputs,
-      outputs: outputs
-          .map((e) => TransactionOutput.fromBigInt(
-              (e as BitcoinOutput).value, Uint8List.fromList(e.address.toScriptPubKey().toBytes())))
-          .toList(),
-      changePath: changePath,
-      sigHashType: 0x01,
-      additionals: ["bech32"],
-      isSegWit: true,
-      useTrustedInputForSegwit: true
-    );
+        inputs: readyInputs,
+        outputs: outputs
+            .map((e) => TransactionOutput.fromBigInt((e as BitcoinOutput).value,
+                Uint8List.fromList(e.address.toScriptPubKey().toBytes())))
+            .toList(),
+        changePath: changePath,
+        sigHashType: 0x01,
+        additionals: ["bech32"],
+        isSegWit: true,
+        useTrustedInputForSegwit: true);
 
     return BtcTransaction.fromRaw(rawHex);
   }

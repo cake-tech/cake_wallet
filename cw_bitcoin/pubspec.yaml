@@ -28,10 +28,6 @@ dependencies:
   cryptography: ^2.0.5
   blockchain_utils:
     path: /home/rafael/Working/blockchain_utils/
-  ledger_flutter: ^1.0.1
-  ledger_bitcoin:
-    git:
-      url: https://github.com/cake-tech/ledger-bitcoin
   cw_mweb:
     path: ../cw_mweb
   grpc: ^3.2.4

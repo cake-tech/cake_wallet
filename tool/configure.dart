@@ -148,8 +148,6 @@ abstract class Bitcoin {
     required String name,
     required String mnemonic,
     required String password,
-    required DerivationType derivationType,
-    required String derivationPath,
     String? passphrase,
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});

@@ -12,15 +12,19 @@ abstract class BaseBitcoinAddressRecord {
     String name = '',
     bool isUsed = false,
     required this.type,
+    bool? isHidden,
   })  : _txCount = txCount,
         _balance = balance,
         _name = name,
-        _isUsed = isUsed;
+        _isUsed = isUsed,
+        _isHidden = isHidden ?? isChange;
 
   @override
   bool operator ==(Object o) => o is BaseBitcoinAddressRecord && address == o.address;
 
   final String address;
+  final bool _isHidden;
+  bool get isHidden => _isHidden;
   bool isChange;
   final int index;
   int _txCount;
@@ -54,6 +58,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   BitcoinAddressRecord(
     super.address, {
     required super.index,
+    super.isHidden,
     super.isChange = false,
     super.txCount = 0,
     super.balance = 0,
@@ -76,6 +81,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     return BitcoinAddressRecord(
       decoded['address'] as String,
       index: decoded['index'] as int,
+      isHidden: decoded['isHidden'] as bool? ?? false,
       isChange: decoded['isChange'] as bool? ?? false,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
@@ -95,6 +101,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   String toJSON() => json.encode({
         'address': address,
         'index': index,
+        'isHidden': isHidden,
         'isChange': isChange,
         'isUsed': isUsed,
         'txCount': txCount,
@@ -117,6 +124,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     super.name = '',
     super.isUsed = false,
     super.type = SilentPaymentsAddresType.p2sp,
+    super.isHidden,
     this.labelHex,
   }) : super(index: labelIndex, isChange: labelIndex == 0) {
     if (labelIndex != 1 && labelHex == null) {
@@ -165,7 +173,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
     required this.spendKey,
     super.type = SegwitAddresType.p2tr,
     super.labelHex,
-  });
+  }) : super(isHidden: true);
 
   factory BitcoinReceivedSPAddressRecord.fromJSON(String jsonSource, {BasedUtxoNetwork? network}) {
     final decoded = json.decode(jsonSource) as Map;

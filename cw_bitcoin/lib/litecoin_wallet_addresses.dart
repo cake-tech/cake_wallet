@@ -6,7 +6,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_mweb/cw_mweb.dart';
@@ -15,11 +14,9 @@ import 'package:mobx/mobx.dart';
 
 part 'litecoin_wallet_addresses.g.dart';
 
-class LitecoinWalletAddresses = LitecoinWalletAddressesBase
-    with _$LitecoinWalletAddresses;
+class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalletAddresses;
 
-abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
-    with Store {
+abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
     required super.bip32,
@@ -44,14 +41,13 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
   List<String> mwebAddrs = [];
   bool generating = false;
 
-  List<int> get scanSecret =>
-      mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
+  List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendPubkey =>
       mwebHd!.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
 
   @override
   Future<void> init() async {
-    if (!isHardwareWallet) await initMwebAddresses();
+    if (!super.isHardwareWallet) await initMwebAddresses();
     await super.init();
   }
 
@@ -122,31 +118,29 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
 
     @override
     BitcoinBaseAddress generateAddress({
-      required int account,
+      required bool isChange,
       required int index,
-      required Bip32Slip10Secp256k1 hd,
       required BitcoinAddressType addressType,
     }) {
       if (addressType == SegwitAddresType.mweb) {
         return MwebAddress.fromAddress(address: mwebAddrs[0], network: network);
       }
 
-      return P2wpkhAddress.fromBip32(account: account, bip32: hd, index: index);
+      return P2wpkhAddress.fromBip32(bip32: bip32, isChange: isChange, index: index);
     }
   }
 
   @override
   Future<String> getAddressAsync({
-    required int account,
+    required bool isChange,
     required int index,
-    required Bip32Slip10Secp256k1 hd,
     required BitcoinAddressType addressType,
   }) async {
     if (addressType == SegwitAddresType.mweb) {
       await ensureMwebAddressUpToIndexExists(index);
     }
 
-    return getAddress(account: account, index: index, hd: hd, addressType: addressType);
+    return getAddress(isChange: isChange, index: index, addressType: addressType);
   }
 
   @action

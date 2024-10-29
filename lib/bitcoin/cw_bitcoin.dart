@@ -5,16 +5,12 @@ class CWBitcoin extends Bitcoin {
     required String name,
     required String mnemonic,
     required String password,
-    required DerivationType derivationType,
-    required String derivationPath,
     String? passphrase,
   }) =>
       BitcoinRestoreWalletFromSeedCredentials(
         name: name,
         mnemonic: mnemonic,
         password: password,
-        derivationType: derivationType,
-        derivationPath: derivationPath,
         passphrase: passphrase,
       );
 
@@ -373,66 +369,71 @@ class CWBitcoin extends Bitcoin {
     }
 
     for (DerivationType dType in electrum_derivations.keys) {
-      late Uint8List seedBytes;
-      if (dType == DerivationType.electrum) {
-        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
-      } else if (dType == DerivationType.bip39) {
-        seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
-      }
-
-      for (DerivationInfo dInfo in electrum_derivations[dType]!) {
-        try {
-          DerivationInfo dInfoCopy = DerivationInfo(
-            derivationType: dInfo.derivationType,
-            derivationPath: dInfo.derivationPath,
-            description: dInfo.description,
-            scriptType: dInfo.scriptType,
-          );
-
-          String balancePath = dInfoCopy.derivationPath!;
-          int derivationDepth = _countCharOccurrences(balancePath, '/');
-
-          // for BIP44
-          if (derivationDepth == 3 || derivationDepth == 1) {
-            // we add "/0" so that we generate account 0
-            balancePath += "/0";
-          }
-
-          final hd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(balancePath)
-              as Bip32Slip10Secp256k1;
-
-          // derive address at index 0:
-          String? address;
-          switch (dInfoCopy.scriptType) {
-            case "p2wpkh":
-              address = P2wpkhAddress.fromBip32(bip32: hd, account: 0, index: 0).toAddress(network);
-              break;
-            case "p2pkh":
-              address = P2pkhAddress.fromBip32(bip32: hd, account: 0, index: 0).toAddress(network);
-              break;
-            case "p2wpkh-p2sh":
-              address = P2shAddress.fromBip32(bip32: hd, account: 0, index: 0).toAddress(network);
-              break;
-            case "p2tr":
-              address = P2trAddress.fromBip32(bip32: hd, account: 0, index: 0).toAddress(network);
-              break;
-            default:
-              continue;
-          }
-
-          final sh = BitcoinAddressUtils.scriptHash(address, network: network);
-          final history = await electrumClient.getHistory(sh);
-
-          final balance = await electrumClient.getBalance(sh);
-          dInfoCopy.balance = balance.entries.firstOrNull?.value.toString() ?? "0";
-          dInfoCopy.address = address;
-          dInfoCopy.transactionsCount = history.length;
-
-          list.add(dInfoCopy);
-        } catch (e, s) {
-          print("derivationInfoError: $e");
-          print("derivationInfoStack: $s");
+      try {
+        late List<int> seedBytes;
+        if (dType == DerivationType.electrum) {
+          seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+        } else if (dType == DerivationType.bip39) {
+          seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
         }
+
+        for (DerivationInfo dInfo in electrum_derivations[dType]!) {
+          try {
+            DerivationInfo dInfoCopy = DerivationInfo(
+              derivationType: dInfo.derivationType,
+              derivationPath: dInfo.derivationPath,
+              description: dInfo.description,
+              scriptType: dInfo.scriptType,
+            );
+
+            String balancePath = dInfoCopy.derivationPath!;
+            int derivationDepth = _countCharOccurrences(balancePath, '/');
+
+            // for BIP44
+            if (derivationDepth == 3 || derivationDepth == 1) {
+              // we add "/0" so that we generate account 0
+              balancePath += "/0";
+            }
+
+            final bip32 = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+            final bip32BalancePath = Bip32PathParser.parse(balancePath);
+
+            // derive address at index 0:
+            final path = bip32BalancePath.addElem(Bip32KeyIndex(0));
+            String? address;
+            switch (dInfoCopy.scriptType) {
+              case "p2wpkh":
+                address = P2wpkhAddress.fromPath(bip32: bip32, path: path).toAddress(network);
+                break;
+              case "p2pkh":
+                address = P2pkhAddress.fromPath(bip32: bip32, path: path).toAddress(network);
+                break;
+              case "p2wpkh-p2sh":
+                address = P2shAddress.fromPath(bip32: bip32, path: path).toAddress(network);
+                break;
+              case "p2tr":
+                address = P2trAddress.fromPath(bip32: bip32, path: path).toAddress(network);
+                break;
+              default:
+                continue;
+            }
+
+            final sh = BitcoinAddressUtils.scriptHash(address, network: network);
+            final history = await electrumClient.getHistory(sh);
+
+            final balance = await electrumClient.getBalance(sh);
+            dInfoCopy.balance = balance.entries.firstOrNull?.value.toString() ?? "0";
+            dInfoCopy.address = address;
+            dInfoCopy.transactionsCount = history.length;
+
+            list.add(dInfoCopy);
+          } catch (e, s) {
+            print("derivationInfoError: $e");
+            print("derivationInfoStack: $s");
+          }
+        }
+      } catch (e) {
+        print("seed error: $e");
       }
     }
 
