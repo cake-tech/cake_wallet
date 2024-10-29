@@ -116,14 +116,16 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
 
   Future<void> _refreshBleDevices() async {
     try {
-      _bleRefresh = widget.ledgerVM
-          .scanForBleDevices()
-          .listen((device) => setState(() => bleDevices.add(device)))
-        ..onError((e) {
-          throw e.toString();
-        });
-      _bleRefreshTimer?.cancel();
-      _bleRefreshTimer = null;
+      if (widget.ledgerVM.bleIsEnabled) {
+        _bleRefresh = widget.ledgerVM
+            .scanForBleDevices()
+            .listen((device) => setState(() => bleDevices.add(device)))
+          ..onError((e) {
+            throw e.toString();
+          });
+        _bleRefreshTimer?.cancel();
+        _bleRefreshTimer = null;
+      }
     } catch (e) {
       print(e);
     }
