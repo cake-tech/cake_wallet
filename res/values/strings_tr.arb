@@ -295,6 +295,7 @@
   "expiresOn": "Tarihinde sona eriyor",
   "expiry_and_validity": "Sona erme ve geçerlilik",
   "export_backup": "Yedeği dışa aktar",
+  "export_logs": "Dışa aktarma günlükleri",
   "extra_id": "Ekstra ID:",
   "extracted_address_content": "Parayı buraya gönderceksin:\n${recipient_name}",
   "failed_authentication": "Doğrulama başarısız oldu. ${state_error}",

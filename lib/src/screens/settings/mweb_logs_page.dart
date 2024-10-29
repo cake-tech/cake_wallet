@@ -53,7 +53,7 @@ class MwebLogsPage extends BasePage {
           child: Observer(
             builder: (_) => LoadingPrimaryButton(
               onPressed: () => onExportLogs(context),
-              text: S.of(context).export_backup,
+              text: S.of(context).export_logs,
               color: Theme.of(context).primaryColor,
               textColor: Colors.white,
             ),

@@ -296,6 +296,7 @@
   "expiresOn": "Ipari lori",
   "expiry_and_validity": "Ipari ati idaniloju",
   "export_backup": "Sún ẹ̀dà nípamọ́ síta",
+  "export_logs": "Wọle si okeere",
   "extra_id": "Àmì ìdánimọ̀ tó fikún:",
   "extracted_address_content": "Ẹ máa máa fi owó ránṣẹ́ sí\n${recipient_name}",
   "failed_authentication": "Ìfẹ̀rílàdí pipòfo. ${state_error}",

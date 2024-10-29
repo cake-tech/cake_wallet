@@ -295,6 +295,7 @@
   "expiresOn": "Läuft aus am",
   "expiry_and_validity": "Ablauf und Gültigkeit",
   "export_backup": "Sicherung exportieren",
+  "export_logs": "Exportprotokolle",
   "extra_id": "Extra ID:",
   "extracted_address_content": "Sie senden Geld an\n${recipient_name}",
   "failed_authentication": "Authentifizierung fehlgeschlagen. ${state_error}",

@@ -295,6 +295,7 @@
   "expiresOn": "Istječe",
   "expiry_and_validity": "Istek i valjanost",
   "export_backup": "Izvezi sigurnosnu kopiju",
+  "export_logs": "Izvozni trupci",
   "extra_id": "Dodatni ID:",
   "extracted_address_content": "Poslat ćete sredstva primatelju\n${recipient_name}",
   "failed_authentication": "Autentifikacija neuspješna. ${state_error}",

@@ -295,6 +295,7 @@
   "expiresOn": "ﻲﻓ ﻪﺘﻴﺣﻼ﻿ﺻ ﻲﻬﺘﻨﺗ",
   "expiry_and_validity": "انتهاء الصلاحية والصلاحية",
   "export_backup": "تصدير نسخة احتياطية",
+  "export_logs": "سجلات التصدير",
   "extra_id": "معرف إضافي:",
   "extracted_address_content": "سوف ترسل الأموال إلى\n${recipient_name}",
   "failed_authentication": "${state_error} فشل المصادقة.",

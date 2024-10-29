@@ -295,6 +295,7 @@
   "expiresOn": "Kadaluarsa pada",
   "expiry_and_validity": "Kedaluwarsa dan validitas",
   "export_backup": "Ekspor cadangan",
+  "export_logs": "Log ekspor",
   "extra_id": "ID tambahan:",
   "extracted_address_content": "Anda akan mengirim dana ke\n${recipient_name}",
   "failed_authentication": "Otentikasi gagal. ${state_error}",

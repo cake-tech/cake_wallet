@@ -295,6 +295,7 @@
   "expiresOn": "Годен до",
   "expiry_and_validity": "Истечение и достоверность",
   "export_backup": "Экспорт резервной копии",
+  "export_logs": "Экспортные журналы",
   "extra_id": "Дополнительный ID:",
   "extracted_address_content": "Вы будете отправлять средства\n${recipient_name}",
   "failed_authentication": "Ошибка аутентификации. ${state_error}",

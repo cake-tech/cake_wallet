@@ -295,6 +295,7 @@
   "expiresOn": "Yana ƙarewa",
   "expiry_and_validity": "Karewa da inganci",
   "export_backup": "Ajiyayyen fitarwa",
+  "export_logs": "Injin fitarwa",
   "extra_id": "Karin ID:",
   "extracted_address_content": "Za ku aika da kudade zuwa\n${recipient_name}",
   "failed_authentication": "Binne wajen shiga. ${state_error}",

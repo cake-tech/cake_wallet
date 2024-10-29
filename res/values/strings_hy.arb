@@ -295,6 +295,7 @@
   "expiresOn": "Վավերականությունը լրանում է",
   "expiry_and_validity": "Վավերականություն և լրացում",
   "export_backup": "Արտահանել կրկնօրինակը",
+  "export_logs": "Արտահանման տեղեկամատյաններ",
   "extra_id": "Լրացուցիչ ID",
   "extracted_address_content": "Դուք կուղարկեք գումար ${recipient_name}",
   "failed_authentication": "Վավերացումը ձախողվեց. ${state_error}",

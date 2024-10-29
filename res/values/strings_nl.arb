@@ -295,6 +295,7 @@
   "expiresOn": "Verloopt op",
   "expiry_and_validity": "Vervallen en geldigheid",
   "export_backup": "Back-up exporteren",
+  "export_logs": "Exporteer logboeken",
   "extra_id": "Extra ID:",
   "extracted_address_content": "U stuurt geld naar\n${recipient_name}",
   "failed_authentication": "Mislukte authenticatie. ${state_error}",

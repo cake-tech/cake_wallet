@@ -295,6 +295,7 @@
   "expiresOn": "만료 날짜",
   "expiry_and_validity": "만료와 타당성",
   "export_backup": "백업 내보내기",
+  "export_logs": "내보내기 로그",
   "extra_id": "추가 ID:",
   "extracted_address_content": "당신은에 자금을 보낼 것입니다\n${recipient_name}",
   "failed_authentication": "인증 실패. ${state_error}",

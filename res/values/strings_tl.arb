@@ -295,6 +295,7 @@
   "expiresOn": "Mag-e-expire sa",
   "expiry_and_validity": "Pag-expire at Bisa",
   "export_backup": "I-export ang backup",
+  "export_logs": "Mga log ng pag -export",
   "extra_id": "Dagdag na ID:",
   "extracted_address_content": "Magpapadala ka ng pondo sa\n${recipient_name}",
   "failed_authentication": "Nabigo ang pagpapatunay. ${state_error}",

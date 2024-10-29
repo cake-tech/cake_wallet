@@ -48,6 +48,7 @@ import 'package:cw_mweb/cw_mweb.dart';
 import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
 import 'package:pointycastle/ecc/api.dart';
 import 'package:pointycastle/ecc/curves/secp256k1.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'litecoin_wallet.g.dart';
 
@@ -288,16 +289,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await (walletAddresses as LitecoinWalletAddresses).ensureMwebAddressUpToIndexExists(1020);
   }
 
-  // String getMwebNodeUriFromPrefs() {
-  //   // from preferences_key.dart "defaultNanoRep" key:
-  //   return prefs.getString("mweb_node_uri") ?? "ltc-electrum.cakewallet.com:9333";
-  // }
-
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
     await super.connectToNode(node: node);
-    // await CwMweb.setNodeUriOverride(settingsStore.mwebNodeUri);
+
+    final prefs = await SharedPreferences.getInstance();
+    final mwebNodeUri = prefs.getString("mwebNodeUri") ?? "ltc-electrum.cakewallet.com:9333";
+    await CwMweb.setNodeUriOverride(mwebNodeUri);
   }
 
   @action

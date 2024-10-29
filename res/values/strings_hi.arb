@@ -295,6 +295,7 @@
   "expiresOn": "पर समय सीमा समाप्त",
   "expiry_and_validity": "समाप्ति और वैधता",
   "export_backup": "निर्यात बैकअप",
+  "export_logs": "निर्यात लॉग",
   "extra_id": "अतिरिक्त आईडी:",
   "extracted_address_content": "आपको धनराशि भेजी जाएगी\n${recipient_name}",
   "failed_authentication": "प्रमाणीकरण विफल. ${state_error}",

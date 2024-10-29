@@ -35,7 +35,7 @@ class MwebNodePage extends BasePage {
         Positioned(
           child: Observer(
             builder: (_) => LoadingPrimaryButton(
-              onPressed: save,
+              onPressed: () => save(context),
               text: S.of(context).save,
               color: Theme.of(context).primaryColor,
               textColor: Colors.white,
@@ -49,8 +49,8 @@ class MwebNodePage extends BasePage {
     );
   }
 
-
-  void save() {
+  void save(BuildContext context) {
     mwebSettingsViewModelBase.setMwebNodeUri(_nodeUriController.text);
+    Navigator.pop(context);
   }
 }

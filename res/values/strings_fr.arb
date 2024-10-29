@@ -295,6 +295,7 @@
   "expiresOn": "Expire le",
   "expiry_and_validity": "Expiration et validité",
   "export_backup": "Exporter la sauvegarde",
+  "export_logs": "Journaux d'exportation",
   "extra_id": "ID supplémentaire :",
   "extracted_address_content": "Vous allez envoyer des fonds à\n${recipient_name}",
   "failed_authentication": "Échec d'authentification. ${state_error}",

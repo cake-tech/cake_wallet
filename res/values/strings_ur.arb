@@ -295,6 +295,7 @@
   "expiresOn": "ﺩﺎﻌﯿﻣ ﯽﻣﺎﺘﺘﺧﺍ",
   "expiry_and_validity": "میعاد ختم اور صداقت",
   "export_backup": "بیک اپ برآمد کریں۔",
+  "export_logs": "نوشتہ جات برآمد کریں",
   "extra_id": "اضافی ID:",
   "extracted_address_content": "آپ فنڈز بھیج رہے ہوں گے\n${recipient_name}",
   "failed_authentication": "ناکام تصدیق۔ ${state_error}",

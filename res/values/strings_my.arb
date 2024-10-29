@@ -295,6 +295,7 @@
   "expiresOn": "သက်တမ်းကုန်သည်။",
   "expiry_and_validity": "သက်တမ်းကုန်ဆုံးခြင်းနှင့်တရားဝင်မှု",
   "export_backup": "အရန်ကူးထုတ်ရန်",
+  "export_logs": "ပို့ကုန်မှတ်တမ်းများ",
   "extra_id": "အပို ID-",
   "extracted_address_content": "သင်သည် \n${recipient_name} သို့ ရန်ပုံငွေများ ပေးပို့ပါမည်",
   "failed_authentication": "အထောက်အထားစိစစ်ခြင်း မအောင်မြင်ပါ။. ${state_error}",

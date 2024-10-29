@@ -296,6 +296,7 @@
   "expiresOn": "Hết hạn vào",
   "expiry_and_validity": "Hạn và hiệu lực",
   "export_backup": "Xuất sao lưu",
+  "export_logs": "Nhật ký xuất khẩu",
   "extra_id": "ID bổ sung:",
   "extracted_address_content": "Bạn sẽ gửi tiền cho\n${recipient_name}",
   "failed_authentication": "Xác thực không thành công. ${state_error}",

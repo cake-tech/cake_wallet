@@ -295,6 +295,7 @@
   "expiresOn": "Vyprší dne",
   "expiry_and_validity": "Vypršení a platnost",
   "export_backup": "Exportovat zálohu",
+  "export_logs": "Vývozní protokoly",
   "extra_id": "Extra ID:",
   "extracted_address_content": "Prostředky budete posílat na\n${recipient_name}",
   "failed_authentication": "Ověřování selhalo. ${state_error}",

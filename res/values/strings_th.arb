@@ -295,6 +295,7 @@
   "expiresOn": "หมดอายุวันที่",
   "expiry_and_validity": "หมดอายุและถูกต้อง",
   "export_backup": "ส่งออกข้อมูลสำรอง",
+  "export_logs": "บันทึกการส่งออก",
   "extra_id": "ไอดีเพิ่มเติม:",
   "extracted_address_content": "คุณกำลังจะส่งเงินไปยัง\n${recipient_name}",
   "failed_authentication": "การยืนยันสิทธิ์ล้มเหลว ${state_error}",
