@@ -69,9 +69,20 @@ class TransactionListItem extends ActionListItem with Keyable {
         }
         break;
       case WalletType.litecoin:
-        if (transaction.confirmations >= 0 && transaction.confirmations < 6) {
-          return ' (${transaction.confirmations}/6)';
+        bool isPegIn = (transaction.additionalInfo["isPegIn"] as bool?) ?? false;
+        bool isPegOut = (transaction.additionalInfo["isPegOut"] as bool?) ?? false;
+        bool isPegInOut = isPegIn || isPegOut;
+        String str = '';
+        if (isPegInOut && transaction.confirmations >= 0 && transaction.confirmations < 6) {
+          str = " (${transaction.confirmations}/6)";
         }
+        if (isPegIn) {
+          str += " (Peg In)";
+        }
+        if (isPegOut) {
+          str += " (Peg Out)";
+        }
+        return str;
       default:
         return '';
     }

@@ -1042,15 +1042,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       bool hasMwebInput = false;
       bool hasMwebOutput = false;
+      bool hasRegularInput = false;
+      bool hasRegularOutput = false;
 
       for (final output in transactionCredentials.outputs) {
-        if (output.extractedAddress?.toLowerCase().contains("mweb") ?? false) {
+        if (output.address.toLowerCase().contains("mweb") ||
+            (output.extractedAddress?.toLowerCase().contains("mweb") ?? false)) {
           hasMwebOutput = true;
           break;
         }
-        if (output.address.toLowerCase().contains("mweb")) {
-          hasMwebOutput = true;
-          break;
+        if (!(output.address.toLowerCase().contains("mweb")) ||
+            !(output.extractedAddress?.toLowerCase().contains("mweb") ?? false)) {
+          hasRegularOutput = true;
         }
       }
 
@@ -1059,9 +1062,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         if (utxo.utxo.scriptType == SegwitAddresType.mweb) {
           hasMwebInput = true;
         }
+        if (utxo.utxo.scriptType == SegwitAddresType.p2wpkh) {
+          hasRegularInput = true;
+        }
       }
 
       bool isPegIn = !hasMwebInput && hasMwebOutput;
+      bool isPegOut = hasMwebInput && hasRegularOutput;
       bool isRegular = !hasMwebInput && !hasMwebOutput;
       tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
               .getChangeAddress(isPegIn: isPegIn || isRegular))
@@ -1136,7 +1143,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             addressRecord.balance -= utxo.value.toInt();
           });
           transaction.inputAddresses?.addAll(addresses);
-
+          print("isPegIn: $isPegIn, isPegOut: $isPegOut");
+          transaction.additionalInfo["isPegIn"] = isPegIn;
+          transaction.additionalInfo["isPegOut"] = isPegOut;
           transactionHistory.addOne(transaction);
           await updateUnspent();
           await updateBalance();

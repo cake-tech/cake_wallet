@@ -2085,6 +2085,13 @@ abstract class ElectrumWalletBase
 
     final balances = await Future.wait(balanceFutures);
 
+    if (balances.isNotEmpty && balances.first['confirmed'] == null) {
+      // if we got null balance responses from the server, set our connection status to lost and return our last known balance:
+      print("got null balance responses from the server, setting connection status to lost");
+      syncStatus = LostConnectionSyncStatus();
+      return balance[currency] ?? ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
+    }
+
     for (var i = 0; i < balances.length; i++) {
       final addressRecord = addresses[i];
       final balance = balances[i];
