@@ -43,7 +43,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     int initialSilentAddressIndex = 0,
     List<BitcoinAddressRecord>? initialMwebAddresses,
     BitcoinAddressType? initialAddressPageType,
-  })  : _allAddresses = (initialAddresses ?? []).toSet(),
+  })  : _allAddresses = ObservableSet.of(initialAddresses ?? []),
         addressesByReceiveType =
             ObservableList<BaseBitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
         receiveAddresses = ObservableList<BitcoinAddressRecord>.of(
@@ -63,11 +63,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         mwebAddresses =
             ObservableList<BitcoinAddressRecord>.of((initialMwebAddresses ?? []).toSet()),
         super(walletInfo) {
-    silentAddress = SilentPaymentOwner.fromPrivateKeys(
-      b_scan: ECPrivate.fromHex(bip32.derive(SCAN_PATH).privateKey.toHex()),
-      b_spend: ECPrivate.fromHex(bip32.derive(SPEND_PATH).privateKey.toHex()),
-      network: network,
-    );
+    // TODO: initial silent address, not every time
+    silentAddress = SilentPaymentOwner.fromBip32(bip32);
+
     if (silentAddresses.length == 0) {
       silentAddresses.add(BitcoinSilentPaymentAddressRecord(
         silentAddress.toString(),
@@ -91,8 +89,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const defaultChangeAddressesCount = 17;
   static const gap = 20;
 
-  @observable
-  final Set<BitcoinAddressRecord> _allAddresses;
+  final ObservableSet<BitcoinAddressRecord> _allAddresses;
   final ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
@@ -118,6 +115,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @computed
   List<BitcoinAddressRecord> get allAddresses => _allAddresses.toList();
+
+  BitcoinAddressRecord getFromAddresses(String address) {
+    return _allAddresses.firstWhere((element) => element.address == address);
+  }
 
   @override
   @computed
@@ -189,7 +190,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @override
-  String get primaryAddress => getAddress(isChange: false, index: 0, addressType: addressPageType);
+  String get primaryAddress => _allAddresses.first.address;
 
   Map<String, int> currentReceiveAddressIndexByType;
 
@@ -250,7 +251,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesByMatch();
     updateReceiveAddresses();
     updateChangeAddresses();
-    _validateAddresses();
     await updateAddressesInBox();
 
     if (currentReceiveAddressIndex >= receiveAddresses.length) {
@@ -263,14 +263,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<BitcoinAddressRecord> getChangeAddress(
-      {List<BitcoinUnspent>? inputs, List<BitcoinOutput>? outputs, bool isPegIn = false}) async {
+  Future<BitcoinAddressRecord> getChangeAddress({
+    List<BitcoinUnspent>? inputs,
+    List<BitcoinOutput>? outputs,
+    bool isPegIn = false,
+  }) async {
     updateChangeAddresses();
-
-    if (changeAddresses.isEmpty) {
-      final newAddresses = await _createNewAddresses(gap, isChange: true);
-      addAddresses(newAddresses);
-    }
 
     if (currentChangeAddressIndex >= changeAddresses.length) {
       currentChangeAddressIndex = 0;
@@ -326,13 +324,20 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     final newAddressIndex = addressesByReceiveType.fold(
         0, (int acc, addressRecord) => addressRecord.isChange == false ? acc + 1 : acc);
 
+    final derivationInfo = BitcoinAddressUtils.getDerivationFromType(addressPageType);
     final address = BitcoinAddressRecord(
-      getAddress(isChange: false, index: newAddressIndex, addressType: addressPageType),
+      getAddress(
+        isChange: false,
+        index: newAddressIndex,
+        addressType: addressPageType,
+        derivationInfo: derivationInfo,
+      ),
       index: newAddressIndex,
       isChange: false,
       name: label,
       type: addressPageType,
       network: network,
+      derivationInfo: BitcoinAddressUtils.getDerivationFromType(addressPageType),
     );
     _allAddresses.add(address);
     Future.delayed(Duration.zero, () => updateAddressesByMatch());
@@ -343,6 +348,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required bool isChange,
     required int index,
     required BitcoinAddressType addressType,
+    required BitcoinDerivationInfo derivationInfo,
   }) {
     throw UnimplementedError();
   }
@@ -351,17 +357,28 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required bool isChange,
     required int index,
     required BitcoinAddressType addressType,
+    required BitcoinDerivationInfo derivationInfo,
   }) {
-    return generateAddress(isChange: isChange, index: index, addressType: addressType)
-        .toAddress(network);
+    return generateAddress(
+      isChange: isChange,
+      index: index,
+      addressType: addressType,
+      derivationInfo: derivationInfo,
+    ).toAddress(network);
   }
 
   Future<String> getAddressAsync({
     required bool isChange,
     required int index,
     required BitcoinAddressType addressType,
+    required BitcoinDerivationInfo derivationInfo,
   }) async =>
-      getAddress(isChange: isChange, index: index, addressType: addressType);
+      getAddress(
+        isChange: isChange,
+        index: index,
+        addressType: addressType,
+        derivationInfo: derivationInfo,
+      );
 
   @action
   void addBitcoinAddressTypes() {
@@ -551,23 +568,41 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required bool isChange,
     required int gap,
     required BitcoinAddressType type,
+    required BitcoinDerivationInfo derivationInfo,
   }) async {
-    print("_allAddresses: ${_allAddresses.length}");
-    final newAddresses = await _createNewAddresses(gap, isChange: isChange, type: type);
+    final newAddresses = await _createNewAddresses(
+      gap,
+      isChange: isChange,
+      type: type,
+      derivationInfo: derivationInfo,
+    );
     addAddresses(newAddresses);
-    print("_allAddresses: ${_allAddresses.length}");
     return newAddresses;
   }
 
   @action
   Future<void> generateInitialAddresses({required BitcoinAddressType type}) async {
-    await discoverAddresses(isChange: false, gap: defaultReceiveAddressesCount, type: type);
-    await discoverAddresses(isChange: true, gap: defaultChangeAddressesCount, type: type);
+    // TODO: try all other derivations
+    final derivationInfo = BitcoinAddressUtils.getDerivationFromType(type);
+
+    await discoverAddresses(
+      isChange: false,
+      gap: defaultReceiveAddressesCount,
+      type: type,
+      derivationInfo: derivationInfo,
+    );
+    await discoverAddresses(
+      isChange: true,
+      gap: defaultChangeAddressesCount,
+      type: type,
+      derivationInfo: derivationInfo,
+    );
   }
 
   @action
   Future<List<BitcoinAddressRecord>> _createNewAddresses(
     int count, {
+    required BitcoinDerivationInfo derivationInfo,
     bool isChange = false,
     BitcoinAddressType? type,
   }) async {
@@ -580,11 +615,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           isChange: isChange,
           index: i,
           addressType: type ?? addressPageType,
+          derivationInfo: derivationInfo,
         ),
         index: i,
         isChange: isChange,
         type: type ?? addressPageType,
         network: network,
+        derivationInfo: derivationInfo,
       );
       list.add(address);
     }
@@ -616,32 +653,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     this.mwebAddresses.clear();
     this.mwebAddresses.addAll(addressesSet);
     updateAddressesByMatch();
-  }
-
-  void _validateAddresses() {
-    _allAddresses.forEach((element) async {
-      if (element.type == SegwitAddresType.mweb) {
-        // this would add a ton of startup lag for mweb addresses since we have 1000 of them
-        return;
-      }
-      if (!element.isChange &&
-          element.address !=
-              await getAddressAsync(
-                isChange: false,
-                index: element.index,
-                addressType: element.type,
-              )) {
-        element.isChange = true;
-      } else if (element.isChange &&
-          element.address !=
-              await getAddressAsync(
-                isChange: true,
-                index: element.index,
-                addressType: element.type,
-              )) {
-        element.isChange = false;
-      }
-    });
   }
 
   @action

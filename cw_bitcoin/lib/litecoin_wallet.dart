@@ -21,7 +21,6 @@ import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
-import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -243,7 +242,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     walletInfo.derivationInfo ??= DerivationInfo();
 
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
+    walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? ELECTRUM_PATH;
     walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
@@ -435,13 +434,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @action
   @override
-  Future<void> rescan({
-    required int height,
-    int? chainTip,
-    ScanData? scanData,
-    bool? doSingleScan,
-    bool? usingElectrs,
-  }) async {
+  Future<void> rescan({required int height}) async {
     _syncTimer?.cancel();
     await walletInfo.updateRestoreHeight(height);
 

@@ -28,7 +28,12 @@ class LitecoinHardwareWalletService {
       final bip32 =
           Bip32Slip10Secp256k1.fromExtendedKey(xpub, xpubVersion).childKey(Bip32KeyIndex(0));
 
-      final address = P2wpkhAddress.fromBip32(bip32: bip32, isChange: false, index: 0);
+      final address = P2wpkhAddress.fromDerivation(
+        bip32: bip32,
+        derivationInfo: BitcoinDerivationInfos.LITECOIN,
+        isChange: false,
+        index: 0,
+      );
 
       accounts.add(HardwareAccountData(
         address: address.toAddress(LitecoinNetwork.mainnet),

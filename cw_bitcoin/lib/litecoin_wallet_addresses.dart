@@ -103,6 +103,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
                 index: e.key,
                 type: SegwitAddresType.mweb,
                 network: network,
+                derivationInfo: BitcoinAddressUtils.getDerivationFromType(SegwitAddresType.p2wpkh),
               ))
           .toList();
       addMwebAddresses(addressRecords);
@@ -121,12 +122,18 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       required bool isChange,
       required int index,
       required BitcoinAddressType addressType,
+      required BitcoinDerivationInfo derivationInfo,
     }) {
       if (addressType == SegwitAddresType.mweb) {
         return MwebAddress.fromAddress(address: mwebAddrs[0], network: network);
       }
 
-      return P2wpkhAddress.fromBip32(bip32: bip32, isChange: isChange, index: index);
+      return P2wpkhAddress.fromDerivation(
+        bip32: bip32,
+        derivationInfo: derivationInfo,
+        isChange: isChange,
+        index: index,
+      );
     }
   }
 
@@ -135,12 +142,18 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required bool isChange,
     required int index,
     required BitcoinAddressType addressType,
+    required BitcoinDerivationInfo derivationInfo,
   }) async {
     if (addressType == SegwitAddresType.mweb) {
       await ensureMwebAddressUpToIndexExists(index);
     }
 
-    return getAddress(isChange: isChange, index: index, addressType: addressType);
+    return getAddress(
+      isChange: isChange,
+      index: index,
+      addressType: addressType,
+      derivationInfo: derivationInfo,
+    );
   }
 
   @action
@@ -194,6 +207,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         index: 0,
         type: SegwitAddresType.mweb,
         network: network,
+        derivationInfo: BitcoinAddressUtils.getDerivationFromType(SegwitAddresType.p2wpkh),
       );
     }
 

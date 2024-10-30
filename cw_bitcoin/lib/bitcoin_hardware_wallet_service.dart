@@ -24,9 +24,14 @@ class BitcoinHardwareWalletService {
       final xpub = await bitcoinLedgerApp.getXPubKey(derivationPath: derivationPath);
       final bip32 = Bip32Slip10Secp256k1.fromExtendedKey(xpub).childKey(Bip32KeyIndex(0));
 
+      final fullPath = Bip32PathParser.parse(derivationPath).addElem(Bip32KeyIndex(0));
+
+      final address = ECPublic.fromBip32(bip32.derive(fullPath).publicKey)
+          .toP2wpkhAddress()
+          .toAddress(BitcoinNetwork.mainnet);
+
       accounts.add(HardwareAccountData(
-        address: P2wpkhAddress.fromBip32(bip32: bip32, isChange: false, index: i)
-            .toAddress(BitcoinNetwork.mainnet),
+        address: address,
         accountIndex: i,
         derivationPath: derivationPath,
         masterFingerprint: masterFp,

@@ -360,7 +360,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       updatedUnspentCoins.addAll(await fetchUnspent(address));
     }));
 
-    unspentCoins = updatedUnspentCoins.toSet();
+    unspentCoins.addAll(updatedUnspentCoins);
 
     if (unspentCoinsInfo.length != updatedUnspentCoins.length) {
       unspentCoins.forEach((coin) => addCoinInfo(coin));
@@ -1032,4 +1032,59 @@ Future<void> delegatedScan(ScanData scanData) async {
   //     SyncResponse(syncHeight, UnsupportedSyncStatus()),
   //   );
   // }
+}
+
+class ScanNode {
+  final Uri uri;
+  final bool? useSSL;
+
+  ScanNode(this.uri, this.useSSL);
+}
+
+class ScanData {
+  final SendPort sendPort;
+  final SilentPaymentOwner silentAddress;
+  final int height;
+  final ScanNode? node;
+  final BasedUtxoNetwork network;
+  final int chainTip;
+  final List<String> transactionHistoryIds;
+  final Map<String, String> labels;
+  final List<int> labelIndexes;
+  final bool isSingleScan;
+
+  ScanData({
+    required this.sendPort,
+    required this.silentAddress,
+    required this.height,
+    required this.node,
+    required this.network,
+    required this.chainTip,
+    required this.transactionHistoryIds,
+    required this.labels,
+    required this.labelIndexes,
+    required this.isSingleScan,
+  });
+
+  factory ScanData.fromHeight(ScanData scanData, int newHeight) {
+    return ScanData(
+      sendPort: scanData.sendPort,
+      silentAddress: scanData.silentAddress,
+      height: newHeight,
+      node: scanData.node,
+      network: scanData.network,
+      chainTip: scanData.chainTip,
+      transactionHistoryIds: scanData.transactionHistoryIds,
+      labels: scanData.labels,
+      labelIndexes: scanData.labelIndexes,
+      isSingleScan: scanData.isSingleScan,
+    );
+  }
+}
+
+class SyncResponse {
+  final int height;
+  final SyncStatus syncStatus;
+
+  SyncResponse(this.height, this.syncStatus);
 }

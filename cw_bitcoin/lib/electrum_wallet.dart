@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,7 +37,6 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:mobx/mobx.dart';
-import 'package:hex/hex.dart';
 import 'package:http/http.dart' as http;
 
 part 'electrum_wallet.g.dart';
@@ -69,7 +67,8 @@ abstract class ElectrumWalletBase
         _password = password,
         _isTransactionUpdating = false,
         isEnabledAutoGenerateSubaddress = true,
-        unspentCoins = {},
+        // TODO: inital unspent coins
+        unspentCoins = ObservableSet(),
         scripthashesListening = {},
         balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(currency != null
             ? {
@@ -221,8 +220,7 @@ abstract class ElectrumWalletBase
       );
 
   String _password;
-  @observable
-  Set<BitcoinUnspent> unspentCoins;
+  ObservableSet<BitcoinUnspent> unspentCoins;
 
   @observable
   TransactionPriorities? feeRates;
@@ -404,7 +402,7 @@ abstract class ElectrumWalletBase
 
   bool _isBelowDust(int amount) => amount <= _dustAmount && network != BitcoinNetwork.testnet;
 
-  UtxoDetails _createUTXOS({
+  TxCreateUtxoDetails _createUTXOS({
     required bool sendAll,
     required int credentialsAmount,
     required bool paysToSilentPayment,
@@ -484,13 +482,13 @@ abstract class ElectrumWalletBase
             .toHex();
       }
 
-      // TODO: isElectrum
-      final derivationPath = BitcoinAddressUtils.getDerivationPath(
-        type: utx.bitcoinAddressRecord.type,
-        account: utx.bitcoinAddressRecord.isChange ? 1 : 0,
-        index: utx.bitcoinAddressRecord.index,
-      );
-      publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
+      if (utx.bitcoinAddressRecord is BitcoinAddressRecord) {
+        final derivationPath = (utx.bitcoinAddressRecord as BitcoinAddressRecord)
+            .derivationInfo
+            .derivationPath
+            .toString();
+        publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
+      }
 
       utxos.add(
         UtxoWithAddress(
@@ -521,7 +519,7 @@ abstract class ElectrumWalletBase
       throw BitcoinTransactionNoInputsException();
     }
 
-    return UtxoDetails(
+    return TxCreateUtxoDetails(
       availableInputs: availableInputs,
       unconfirmedCoins: unconfirmedCoins,
       utxos: utxos,
@@ -662,11 +660,7 @@ abstract class ElectrumWalletBase
       isChange: true,
     ));
 
-    final changeDerivationPath = BitcoinAddressUtils.getDerivationPath(
-      type: changeAddress.type,
-      account: changeAddress.isChange ? 1 : 0,
-      index: changeAddress.index,
-    );
+    final changeDerivationPath = changeAddress.derivationInfo.derivationPath.toString();
     utxoDetails.publicKeys[address.pubKeyHash()] =
         PublicKeyWithDerivationPath('', changeDerivationPath);
 
@@ -1176,7 +1170,7 @@ abstract class ElectrumWalletBase
       updatedUnspentCoins.addAll(await fetchUnspent(address));
     }));
 
-    unspentCoins = updatedUnspentCoins.toSet();
+    unspentCoins.addAll(updatedUnspentCoins);
 
     if (unspentCoinsInfo.length != updatedUnspentCoins.length) {
       unspentCoins.forEach((coin) => addCoinInfo(coin));
@@ -1220,17 +1214,7 @@ abstract class ElectrumWalletBase
     final newUnspentCoins = (await fetchUnspent(addressRecord)).toSet();
     await updateCoins(newUnspentCoins);
 
-    print([1, unspentCoins.containsAll(newUnspentCoins)]);
-    if (!unspentCoins.containsAll(newUnspentCoins)) {
-      newUnspentCoins.forEach((coin) {
-        print(unspentCoins.contains(coin));
-        print([coin.vout, coin.hash]);
-        print([unspentCoins.first.vout, unspentCoins.first.hash]);
-        if (!unspentCoins.contains(coin)) {
-          unspentCoins.add(coin);
-        }
-      });
-    }
+    unspentCoins.addAll(newUnspentCoins);
 
     // if (unspentCoinsInfo.length != unspentCoins.length) {
     //   unspentCoins.forEach(addCoinInfo);
@@ -1400,7 +1384,7 @@ abstract class ElectrumWalletBase
           if (index + 1 <= script.length) {
             try {
               final opReturnData = script[index + 1].toString();
-              memo = utf8.decode(HEX.decode(opReturnData));
+              memo = StringUtils.decode(BytesUtils.fromHexString(opReturnData));
               continue;
             } catch (_) {
               throw Exception('Cannot decode OP_RETURN data');
@@ -1708,6 +1692,7 @@ abstract class ElectrumWalletBase
             isChange: addressRecord.isChange,
             gap: gapLimit,
             type: addressRecord.type,
+            derivationInfo: BitcoinAddressUtils.getDerivationFromType(addressRecord.type),
           );
         }
       }
@@ -1805,21 +1790,17 @@ abstract class ElectrumWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    Bip32Slip10Secp256k1 HD = bip32;
+    final record = walletAddresses.getFromAddresses(address!);
 
-    final record = walletAddresses.allAddresses.firstWhere((element) => element.address == address);
+    final path = Bip32PathParser.parse(walletInfo.derivationInfo!.derivationPath!)
+        .addElem(
+          Bip32KeyIndex(BitcoinAddressUtils.getAccountFromChange(record.isChange)),
+        )
+        .addElem(Bip32KeyIndex(record.index));
 
-    if (record.isChange) {
-      HD = HD.childKey(Bip32KeyIndex(1));
-    } else {
-      HD = HD.childKey(Bip32KeyIndex(0));
-    }
+    final priv = ECPrivate.fromHex(bip32.derive(path).privateKey.toHex());
 
-    HD = HD.childKey(Bip32KeyIndex(record.index));
-    final priv = ECPrivate.fromHex(HD.privateKey.privKey.toHex());
-
-    String messagePrefix = '\x18Bitcoin Signed Message:\n';
-    final hexEncoded = priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
+    final hexEncoded = priv.signMessage(StringUtils.encode(message));
     final decodedSig = hex.decode(hexEncoded);
     return base64Encode(decodedSig);
   }
@@ -1835,7 +1816,7 @@ abstract class ElectrumWalletBase
     if (signature.endsWith('=')) {
       sigDecodedBytes = base64.decode(signature);
     } else {
-      sigDecodedBytes = hex.decode(signature);
+      sigDecodedBytes = BytesUtils.fromHexString(signature);
     }
 
     if (sigDecodedBytes.length != 64 && sigDecodedBytes.length != 65) {
@@ -1845,7 +1826,7 @@ abstract class ElectrumWalletBase
 
     String messagePrefix = '\x18Bitcoin Signed Message:\n';
     final messageHash = QuickCrypto.sha256Hash(
-        BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix));
+        BitcoinSignerUtils.magicMessage(StringUtils.encode(message), messagePrefix));
 
     List<int> correctSignature =
         sigDecodedBytes.length == 65 ? sigDecodedBytes.sublist(1) : List.from(sigDecodedBytes);
@@ -1911,14 +1892,14 @@ abstract class ElectrumWalletBase
 
         break;
       case ConnectionStatus.disconnected:
-        // if (syncStatus is! NotConnectedSyncStatus) {
-        //   syncStatus = NotConnectedSyncStatus();
-        // }
+        if (syncStatus is! NotConnectedSyncStatus) {
+          syncStatus = NotConnectedSyncStatus();
+        }
         break;
       case ConnectionStatus.failed:
-        // if (syncStatus is! LostConnectionSyncStatus) {
-        //   syncStatus = LostConnectionSyncStatus();
-        // }
+        if (syncStatus is! LostConnectionSyncStatus) {
+          syncStatus = LostConnectionSyncStatus();
+        }
         break;
       case ConnectionStatus.connecting:
         if (syncStatus is! ConnectingSyncStatus) {
@@ -1989,7 +1970,7 @@ abstract class ElectrumWalletBase
           if (index + 1 <= script.length) {
             try {
               final opReturnData = script[index + 1].toString();
-              final decodedString = utf8.decode(HEX.decode(opReturnData));
+              final decodedString = StringUtils.decode(BytesUtils.fromHexString(opReturnData));
               outputAddresses.add('OP_RETURN:$decodedString');
             } catch (_) {
               outputAddresses.add('OP_RETURN:');
@@ -2003,61 +1984,6 @@ abstract class ElectrumWalletBase
       transactionHistory.addOne(tx);
     }
   }
-}
-
-class ScanNode {
-  final Uri uri;
-  final bool? useSSL;
-
-  ScanNode(this.uri, this.useSSL);
-}
-
-class ScanData {
-  final SendPort sendPort;
-  final SilentPaymentOwner silentAddress;
-  final int height;
-  final ScanNode? node;
-  final BasedUtxoNetwork network;
-  final int chainTip;
-  final List<String> transactionHistoryIds;
-  final Map<String, String> labels;
-  final List<int> labelIndexes;
-  final bool isSingleScan;
-
-  ScanData({
-    required this.sendPort,
-    required this.silentAddress,
-    required this.height,
-    required this.node,
-    required this.network,
-    required this.chainTip,
-    required this.transactionHistoryIds,
-    required this.labels,
-    required this.labelIndexes,
-    required this.isSingleScan,
-  });
-
-  factory ScanData.fromHeight(ScanData scanData, int newHeight) {
-    return ScanData(
-      sendPort: scanData.sendPort,
-      silentAddress: scanData.silentAddress,
-      height: newHeight,
-      node: scanData.node,
-      network: scanData.network,
-      chainTip: scanData.chainTip,
-      transactionHistoryIds: scanData.transactionHistoryIds,
-      labels: scanData.labels,
-      labelIndexes: scanData.labelIndexes,
-      isSingleScan: scanData.isSingleScan,
-    );
-  }
-}
-
-class SyncResponse {
-  final int height;
-  final SyncStatus syncStatus;
-
-  SyncResponse(this.height, this.syncStatus);
 }
 
 class EstimatedTxResult {
@@ -2095,7 +2021,7 @@ class PublicKeyWithDerivationPath {
   final String publicKey;
 }
 
-class UtxoDetails {
+class TxCreateUtxoDetails {
   final List<BitcoinUnspent> availableInputs;
   final List<BitcoinUnspent> unconfirmedCoins;
   final List<UtxoWithAddress> utxos;
@@ -2106,7 +2032,7 @@ class UtxoDetails {
   final bool spendsSilentPayment;
   final bool spendsUnconfirmedTX;
 
-  UtxoDetails({
+  TxCreateUtxoDetails({
     required this.availableInputs,
     required this.unconfirmedCoins,
     required this.utxos,

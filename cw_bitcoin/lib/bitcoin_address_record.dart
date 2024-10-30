@@ -6,7 +6,7 @@ abstract class BaseBitcoinAddressRecord {
   BaseBitcoinAddressRecord(
     this.address, {
     required this.index,
-    this.isChange = false,
+    bool isChange = false,
     int txCount = 0,
     int balance = 0,
     String name = '',
@@ -17,7 +17,8 @@ abstract class BaseBitcoinAddressRecord {
         _balance = balance,
         _name = name,
         _isUsed = isUsed,
-        _isHidden = isHidden ?? isChange;
+        _isHidden = isHidden ?? isChange,
+        _isChange = isChange;
 
   @override
   bool operator ==(Object o) => o is BaseBitcoinAddressRecord && address == o.address;
@@ -25,7 +26,8 @@ abstract class BaseBitcoinAddressRecord {
   final String address;
   final bool _isHidden;
   bool get isHidden => _isHidden;
-  bool isChange;
+  final bool _isChange;
+  bool get isChange => _isChange;
   final int index;
   int _txCount;
   int _balance;
@@ -55,9 +57,12 @@ abstract class BaseBitcoinAddressRecord {
 }
 
 class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
+  final BitcoinDerivationInfo derivationInfo;
+
   BitcoinAddressRecord(
     super.address, {
     required super.index,
+    required this.derivationInfo,
     super.isHidden,
     super.isChange = false,
     super.txCount = 0,
@@ -81,6 +86,9 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     return BitcoinAddressRecord(
       decoded['address'] as String,
       index: decoded['index'] as int,
+      derivationInfo: BitcoinDerivationInfo.fromJSON(
+        decoded['derivationInfo'] as Map<String, dynamic>,
+      ),
       isHidden: decoded['isHidden'] as bool? ?? false,
       isChange: decoded['isChange'] as bool? ?? false,
       isUsed: decoded['isUsed'] as bool? ?? false,
@@ -101,6 +109,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   String toJSON() => json.encode({
         'address': address,
         'index': index,
+        'derivationInfo': derivationInfo.toJSON(),
         'isHidden': isHidden,
         'isChange': isChange,
         'isUsed': isUsed,
@@ -116,6 +125,8 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   int get labelIndex => index;
   final String? labelHex;
 
+  static bool isChangeAddress(int labelIndex) => labelIndex == 0;
+
   BitcoinSilentPaymentAddressRecord(
     super.address, {
     required int labelIndex,
@@ -126,9 +137,9 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     super.type = SilentPaymentsAddresType.p2sp,
     super.isHidden,
     this.labelHex,
-  }) : super(index: labelIndex, isChange: labelIndex == 0) {
+  }) : super(index: labelIndex, isChange: isChangeAddress(labelIndex)) {
     if (labelIndex != 1 && labelHex == null) {
-      throw ArgumentError('label must be provided for silent address index > 0');
+      throw ArgumentError('label must be provided for silent address index != 1');
     }
   }
 

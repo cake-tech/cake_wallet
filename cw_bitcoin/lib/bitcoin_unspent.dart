@@ -32,7 +32,10 @@ class BitcoinUnspent extends Unspent {
 
   @override
   bool operator ==(Object o) {
-    print('BitcoinUnspent operator ==');
+    if (identical(this, o)) return true;
     return o is BitcoinUnspent && hash == o.hash && vout == o.vout;
   }
+
+  @override
+  int get hashCode => Object.hash(hash, vout);
 }

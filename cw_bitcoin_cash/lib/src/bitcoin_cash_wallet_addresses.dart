@@ -24,6 +24,12 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
     required bool isChange,
     required int index,
     required BitcoinAddressType addressType,
+    required BitcoinDerivationInfo derivationInfo,
   }) =>
-      P2pkhAddress.fromBip32(bip32: bip32, isChange: isChange, index: index);
+      P2pkhAddress.fromDerivation(
+        bip32: bip32,
+        derivationInfo: derivationInfo,
+        isChange: isChange,
+        index: index,
+      );
 }

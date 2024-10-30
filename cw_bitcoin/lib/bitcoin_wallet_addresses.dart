@@ -39,27 +39,44 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     required bool isChange,
     required int index,
     required BitcoinAddressType addressType,
+    required BitcoinDerivationInfo derivationInfo,
   }) {
     switch (addressType) {
       case P2pkhAddressType.p2pkh:
-        return P2pkhAddress.fromBip32(bip32: bip32, isChange: isChange, index: index);
-      case SegwitAddresType.p2tr:
-        return P2trAddress.fromBip32(bip32: bip32, isChange: isChange, index: index);
-      case SegwitAddresType.p2wsh:
-        return P2wshAddress.fromBip32(bip32: bip32, isChange: isChange, index: index);
-      case P2shAddressType.p2wpkhInP2sh:
-        return P2shAddress.fromBip32(
+        return P2pkhAddress.fromDerivation(
           bip32: bip32,
+          derivationInfo: derivationInfo,
+          isChange: isChange,
+          index: index,
+        );
+      case SegwitAddresType.p2tr:
+        return P2trAddress.fromDerivation(
+          bip32: bip32,
+          derivationInfo: derivationInfo,
+          isChange: isChange,
+          index: index,
+        );
+      case SegwitAddresType.p2wsh:
+        return P2wshAddress.fromDerivation(
+          bip32: bip32,
+          derivationInfo: derivationInfo,
+          isChange: isChange,
+          index: index,
+        );
+      case P2shAddressType.p2wpkhInP2sh:
+        return P2shAddress.fromDerivation(
+          bip32: bip32,
+          derivationInfo: derivationInfo,
           isChange: isChange,
           index: index,
           type: P2shAddressType.p2wpkhInP2sh,
         );
       case SegwitAddresType.p2wpkh:
-        return P2wpkhAddress.fromBip32(
+        return P2wpkhAddress.fromDerivation(
           bip32: bip32,
+          derivationInfo: derivationInfo,
           isChange: isChange,
           index: index,
-          isElectrum: false, // TODO:
         );
       default:
         throw ArgumentError('Invalid address type');

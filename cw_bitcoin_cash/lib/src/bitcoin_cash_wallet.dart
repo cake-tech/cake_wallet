@@ -153,6 +153,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             isChange: addr.isChange,
             type: P2pkhAddressType.p2pkh,
             network: BitcoinCashNetwork.mainnet,
+            derivationInfo: BitcoinAddressUtils.getDerivationFromType(P2pkhAddressType.p2pkh),
           );
         } catch (_) {
           return BitcoinAddressRecord(
@@ -161,6 +162,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             isChange: addr.isChange,
             type: P2pkhAddressType.p2pkh,
             network: BitcoinCashNetwork.mainnet,
+            derivationInfo: BitcoinAddressUtils.getDerivationFromType(P2pkhAddressType.p2pkh),
           );
         }
       }).toList(),
