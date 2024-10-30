@@ -344,7 +344,7 @@ Future<void> setup({
 
   getIt.registerLazySingleton(() => LedgerViewModel());
 
-  if (getIt.get<AuthenticationStore>().state == AuthenticationState.uninitialized) {
+  if ((await getIt.get<SharedPreferences>().getBool(PreferencesKey.isNewInstall)) ?? false) {
     await secureStorage.deleteAll();
   }
 
