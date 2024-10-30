@@ -344,7 +344,7 @@ abstract class SettingsStoreBase with Store {
     reaction(
             (_) => contactListAscending,
             (bool contactListAscending) =>
-            sharedPreferences.setBool(PreferencesKey.walletListAscending, contactListAscending));
+            sharedPreferences.setBool(PreferencesKey.contactListAscending, contactListAscending));
 
     reaction(
         (_) => autoGenerateSubaddressStatus,

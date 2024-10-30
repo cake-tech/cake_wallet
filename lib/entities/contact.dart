@@ -7,11 +7,11 @@ part 'contact.g.dart';
 
 @HiveType(typeId: Contact.typeId)
 class Contact extends HiveObject with Keyable {
-  Contact({required this.name, required this.address, CryptoCurrency? type, DateTime? lastChange}) {
+  Contact({required this.name, required this.address, CryptoCurrency? type, DateTime? lastChange})
+      : lastChange = lastChange ?? DateTime.now() {
     if (type != null) {
       raw = type.raw;
     }
-    this.lastChange = lastChange ?? DateTime.now();
   }
 
   static const typeId = CONTACT_TYPE_ID;
@@ -27,7 +27,7 @@ class Contact extends HiveObject with Keyable {
   late int raw;
 
   @HiveField(3)
-  late DateTime lastChange;
+  DateTime lastChange;
 
   CryptoCurrency get type => CryptoCurrency.deserialize(raw: raw);
 
