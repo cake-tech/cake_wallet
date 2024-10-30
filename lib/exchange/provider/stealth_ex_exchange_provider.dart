@@ -129,8 +129,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
         if (isFixedRateMode) 'rate_id': rateId,
         'amount':
             isFixedRateMode ? double.parse(request.toAmount) : double.parse(request.fromAmount),
-        'address': request.toAddress,
-        'refund_address': request.refundAddress,
+        'address': _formatBchAddress(request.toAddress),
+        'refund_address': _formatBchAddress(request.refundAddress),
         'additional_fee_percent': _additionalFeePercent,
       };
 
@@ -296,4 +296,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
     return currency.tag!.toLowerCase();
   }
+
+  String _formatBchAddress(String address) =>
+      address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
 }
