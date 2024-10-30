@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/electrum_worker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
@@ -46,6 +48,11 @@ class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 abstract class ElectrumWalletBase
     extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
     with Store, WalletKeysFile {
+  ReceivePort? receivePort;
+  SendPort? workerSendPort;
+  StreamSubscription? _workerSubscription;
+  Isolate? _workerIsolate;
+
   ElectrumWalletBase({
     required String password,
     required WalletInfo walletInfo,
@@ -96,6 +103,45 @@ abstract class ElectrumWalletBase
 
     sharedPrefs.complete(SharedPreferences.getInstance());
   }
+
+  void _handleWorkerResponse(dynamic response) {
+    print('Main: worker response: $response');
+
+    final workerResponse = ElectrumWorkerResponse.fromJson(
+      jsonDecode(response.toString()) as Map<String, dynamic>,
+    );
+
+    if (workerResponse.error != null) {
+      // Handle error
+      print('Worker error: ${workerResponse.error}');
+      return;
+    }
+
+    switch (workerResponse.method) {
+      case 'connectionStatus':
+        final status = workerResponse.data as String;
+        final connectionStatus = ConnectionStatus.values.firstWhere(
+          (e) => e.toString() == status,
+        );
+        _onConnectionStatusChange(connectionStatus);
+        break;
+      case 'fetchBalances':
+        final balance = ElectrumBalance.fromJSON(
+          jsonDecode(workerResponse.data.toString()).toString(),
+        );
+        // Update the balance state
+        // this.balance[currency] = balance!;
+        break;
+      // Handle other responses...
+    }
+  }
+
+  // Don't forget to clean up in the close method
+  // @override
+  // Future<void> close({required bool shouldCleanup}) async {
+  //   await _workerSubscription?.cancel();
+  //   await super.close(shouldCleanup: shouldCleanup);
+  // }
 
   static Bip32Slip10Secp256k1 getAccountHDWallet(CryptoCurrency? currency, BasedUtxoNetwork network,
       List<int>? seedBytes, String? xpub, DerivationInfo? derivationInfo) {
@@ -234,7 +280,6 @@ abstract class ElectrumWalletBase
 
   void Function(FlutterErrorDetails)? _onError;
   Timer? _autoSaveTimer;
-  StreamSubscription<dynamic>? _receiveStream;
   Timer? _updateFeeRateTimer;
   static const int _autoSaveInterval = 1;
 
@@ -256,13 +301,19 @@ abstract class ElectrumWalletBase
 
       syncStatus = SynchronizingSyncStatus();
 
-      await subscribeForHeaders();
-      await subscribeForUpdates();
+      // await subscribeForHeaders();
+      // await subscribeForUpdates();
 
       // await updateTransactions();
       // await updateAllUnspents();
-      await updateBalance();
-      await updateFeeRates();
+      // await updateBalance();
+      // await updateFeeRates();
+      workerSendPort?.send(
+        ElectrumWorkerMessage(
+          method: 'blockchain.scripthash.get_balance',
+          params: {'scriptHash': scriptHashes.first},
+        ).toJson(),
+      );
 
       _updateFeeRateTimer ??=
           Timer.periodic(const Duration(seconds: 5), (timer) async => await updateFeeRates());
@@ -369,28 +420,34 @@ abstract class ElectrumWalletBase
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
-    scripthashesListening = {};
-    _isTransactionUpdating = false;
-    _chainTipListenerOn = false;
     this.node = node;
 
     try {
       syncStatus = ConnectingSyncStatus();
 
-      await _receiveStream?.cancel();
-      rpc?.disconnect();
+      if (_workerIsolate != null) {
+        _workerIsolate!.kill(priority: Isolate.immediate);
+        _workerSubscription?.cancel();
+        receivePort?.close();
+      }
 
-      // electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
+      receivePort = ReceivePort();
 
-      this.electrumClient2 = ElectrumApiProvider(
-        await ElectrumTCPService.connect(
-          node.uri,
-          onConnectionStatusChange: _onConnectionStatusChange,
-          defaultRequestTimeOut: const Duration(seconds: 5),
-          connectionTimeOut: const Duration(seconds: 5),
-        ),
-      );
-      // await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
+      _workerIsolate = await Isolate.spawn<SendPort>(ElectrumWorker.run, receivePort!.sendPort);
+
+      _workerSubscription = receivePort!.listen((message) {
+        if (message is SendPort) {
+          workerSendPort = message;
+          workerSendPort!.send(
+            ElectrumWorkerMessage(
+              method: 'connect',
+              params: {'uri': node.uri.toString()},
+            ).toJson(),
+          );
+        } else {
+          _handleWorkerResponse(message);
+        }
+      });
     } catch (e, stacktrace) {
       print(stacktrace);
       print("connectToNode $e");
@@ -1146,7 +1203,6 @@ abstract class ElectrumWalletBase
   @override
   Future<void> close({required bool shouldCleanup}) async {
     try {
-      await _receiveStream?.cancel();
       await electrumClient.close();
     } catch (_) {}
     _autoSaveTimer?.cancel();
