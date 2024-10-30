@@ -6,7 +6,6 @@ import 'dart:isolate';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cw_core/encryption_file_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
@@ -26,6 +25,8 @@ import 'package:cw_bitcoin/exceptions.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -37,10 +38,10 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
@@ -51,9 +52,10 @@ part 'electrum_wallet.g.dart';
 
 class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
 
-abstract class ElectrumWalletBase
-    extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
-    with Store, WalletKeysFile {
+abstract class ElectrumWalletBase extends WalletBase<
+    ElectrumBalance,
+    ElectrumTransactionHistory,
+    ElectrumTransactionInfo> with Store, WalletKeysFile {
   ElectrumWalletBase({
     required String password,
     required WalletInfo walletInfo,
@@ -69,8 +71,8 @@ abstract class ElectrumWalletBase
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
     this.alwaysScan,
-  })  : accountHD =
-            getAccountHDWallet(currency, network, seedBytes, xpub, walletInfo.derivationInfo),
+  })  : accountHD = getAccountHDWallet(
+            currency, network, seedBytes, xpub, walletInfo.derivationInfo),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -105,8 +107,12 @@ abstract class ElectrumWalletBase
     sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
-  static Bip32Slip10Secp256k1 getAccountHDWallet(CryptoCurrency? currency, BasedUtxoNetwork network,
-      Uint8List? seedBytes, String? xpub, DerivationInfo? derivationInfo) {
+  static Bip32Slip10Secp256k1 getAccountHDWallet(
+      CryptoCurrency? currency,
+      BasedUtxoNetwork network,
+      Uint8List? seedBytes,
+      String? xpub,
+      DerivationInfo? derivationInfo) {
     if (seedBytes == null && xpub == null) {
       throw Exception(
           "To create a Wallet you need either a seed or an xpub. This should not happen");
@@ -117,8 +123,9 @@ abstract class ElectrumWalletBase
         case CryptoCurrency.btc:
         case CryptoCurrency.ltc:
         case CryptoCurrency.tbtc:
-          return Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(
-                  _hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path))
+          return Bip32Slip10Secp256k1.fromSeed(seedBytes, getKeyNetVersion(network))
+                  .derivePath(_hardenedDerivationPath(
+                      derivationInfo?.derivationPath ?? electrum_path))
               as Bip32Slip10Secp256k1;
         case CryptoCurrency.bch:
           return bitcoinCashHDWallet(seedBytes);
@@ -127,14 +134,25 @@ abstract class ElectrumWalletBase
       }
     }
 
-    return Bip32Slip10Secp256k1.fromExtendedKey(xpub!);
+    return Bip32Slip10Secp256k1.fromExtendedKey(
+        xpub!, getKeyNetVersion(network));
   }
 
   static Bip32Slip10Secp256k1 bitcoinCashHDWallet(Uint8List seedBytes) =>
-      Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/145'/0'") as Bip32Slip10Secp256k1;
+      Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/145'/0'")
+          as Bip32Slip10Secp256k1;
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
+
+  static Bip32KeyNetVersions? getKeyNetVersion(BasedUtxoNetwork network) {
+    switch (network) {
+      case LitecoinNetwork.mainnet:
+        return Bip44Conf.litecoinMainNet.altKeyNetVer;
+      default:
+        return null;
+    }
+  }
 
   bool? alwaysScan;
 
@@ -657,8 +675,9 @@ abstract class ElectrumWalletBase
       ECPrivate? privkey;
       bool? isSilentPayment = false;
 
-      final hd =
-          utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
+      final hd = utx.bitcoinAddressRecord.isHidden
+          ? walletAddresses.sideHd
+          : walletAddresses.mainHd;
 
       if (utx.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
         final unspentAddress = utx.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
@@ -856,7 +875,7 @@ abstract class ElectrumWalletBase
       inputs: utxoDetails.availableInputs,
       outputs: updatedOutputs,
     );
-    final address = RegexUtils.addressTypeFromStr(changeAddress, network);
+    final address = RegexUtils.addressTypeFromStr(changeAddress.address, network);
     updatedOutputs.add(BitcoinOutput(
       address: address,
       value: BigInt.from(amountLeftForChangeAndFee),
@@ -867,6 +886,14 @@ abstract class ElectrumWalletBase
       value: BigInt.from(amountLeftForChangeAndFee),
       isChange: true,
     ));
+
+    // Get Derivation path for change Address since it is needed in Litecoin and BitcoinCash hardware Wallets
+    final changeDerivationPath =
+        "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+        "/${changeAddress.isHidden ? "1" : "0"}"
+        "/${changeAddress.index}";
+    utxoDetails.publicKeys[address.pubKeyHash()] =
+        PublicKeyWithDerivationPath('', changeDerivationPath);
 
     // calcFee updates the silent payment outputs to calculate the tx size accounting
     // for taproot addresses, but if more inputs are needed to make up for fees,
@@ -1086,7 +1113,7 @@ abstract class ElectrumWalletBase
 
       if (sendAll) {
         estimatedTx = await estimateSendAllTx(
-          outputs,
+          updatedOutputs,
           feeRateInt,
           memo: memo,
           credentialsAmount: credentialsAmount,
@@ -1138,7 +1165,7 @@ abstract class ElectrumWalletBase
       if (network is BitcoinCashNetwork) {
         txb = ForkedTransactionBuilder(
           utxos: estimatedTx.utxos,
-          outputs: outputs,
+          outputs: updatedOutputs,
           fee: BigInt.from(estimatedTx.fee),
           network: network,
           memo: estimatedTx.memo,
@@ -1228,6 +1255,9 @@ abstract class ElectrumWalletBase
       throw e;
     }
   }
+
+  void setLedgerConnection(ledger.LedgerConnection connection) =>
+      throw UnimplementedError();
 
   Future<BtcTransaction> buildHardwareWalletTransaction({
     required List<BitcoinBaseOutput> outputs,
@@ -1586,7 +1616,9 @@ abstract class ElectrumWalletBase
 
         final btcAddress = RegexUtils.addressTypeFromStr(addressRecord.address, network);
         final privkey = generateECPrivate(
-            hd: addressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+            hd: addressRecord.isHidden
+                ? walletAddresses.sideHd
+                : walletAddresses.mainHd,
             index: addressRecord.index,
             network: network);
 
@@ -1768,7 +1800,8 @@ abstract class ElectrumWalletBase
 
     if (height != null) {
       if (time == null && height > 0) {
-        time = (getDateByBitcoinHeight(height).millisecondsSinceEpoch / 1000).round();
+        time = (getDateByBitcoinHeight(height).millisecondsSinceEpoch / 1000)
+            .round();
       }
 
       if (confirmations == null) {

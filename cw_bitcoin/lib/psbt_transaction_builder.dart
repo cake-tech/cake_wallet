@@ -16,10 +16,6 @@ class PSBTTransactionBuild {
     for (var i = 0; i < inputs.length; i++) {
       final input = inputs[i];
 
-      print(input.utxo.isP2tr());
-      print(input.utxo.isSegwit());
-      print(input.utxo.isP2shSegwit());
-
       psbt.setInputPreviousTxId(i, Uint8List.fromList(hex.decode(input.utxo.txHash).reversed.toList()));
       psbt.setInputOutputIndex(i, input.utxo.vout);
       psbt.setInputSequence(i, enableRBF ? 0x1 : 0xffffffff);
