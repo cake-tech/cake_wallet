@@ -8,6 +8,8 @@ import 'package:ledger_flutter_plus/ledger_flutter_plus_dart.dart';
 import 'package:monero/monero.dart' as monero;
 // import 'package:polyseed/polyseed.dart';
 
+LedgerConnection? gLedger;
+
 Timer? _ledgerExchangeTimer;
 
 void enableLedgerExchange(monero.wallet ptr, LedgerConnection connection) {
@@ -40,6 +42,8 @@ void enableLedgerExchange(monero.wallet ptr, LedgerConnection connection) {
 
 void disableLedgerExchange() {
   _ledgerExchangeTimer?.cancel();
+  gLedger?.disconnect();
+  gLedger = null;
 }
 
 Future<Uint8List> exchange(LedgerConnection connection, Uint8List data) async =>

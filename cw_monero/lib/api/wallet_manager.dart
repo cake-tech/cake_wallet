@@ -10,7 +10,6 @@ import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart
 import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/ledger.dart';
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:monero/monero.dart' as monero;
 
 class MoneroCException implements Exception {
@@ -19,9 +18,7 @@ class MoneroCException implements Exception {
   MoneroCException(this.message);
 
   @override
-  String toString() {
-    return message;
-  }
+  String toString() => message;
 }
 
 void checkIfMoneroCIsFine() {
@@ -34,23 +31,17 @@ void checkIfMoneroCIsFine() {
   final dartCsExp = monero.wallet2_api_c_exp_sha256;
 
   if (cppCsCpp != dartCsCpp) {
-    throw MoneroCException(
-        "monero_c and monero.dart cpp wrapper code mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsCpp'\ndart: '$dartCsCpp'");
+    throw MoneroCException("monero_c and monero.dart cpp wrapper code mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsCpp'\ndart: '$dartCsCpp'");
   }
 
   if (cppCsH != dartCsH) {
-    throw MoneroCException(
-        "monero_c and monero.dart cpp wrapper header mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsH'\ndart: '$dartCsH'");
+    throw MoneroCException("monero_c and monero.dart cpp wrapper header mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsH'\ndart: '$dartCsH'");
   }
 
   if (cppCsExp != dartCsExp && (Platform.isIOS || Platform.isMacOS)) {
-    throw MoneroCException(
-        "monero_c and monero.dart wrapper export list mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsExp'\ndart: '$dartCsExp'");
+    throw MoneroCException("monero_c and monero.dart wrapper export list mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsExp'\ndart: '$dartCsExp'");
   }
 }
-
-late LedgerConnection gLedger;
-
 monero.WalletManager? _wmPtr;
 final monero.WalletManager wmPtr = Pointer.fromAddress((() {
   try {
@@ -221,8 +212,7 @@ void restoreWalletFromSpendKeySync(
     password: password,
     language: language,
     spendKeyString: spendKey,
-    newWallet: true,
-    // TODO(mrcyjanek): safe to remove
+    newWallet: true, // TODO(mrcyjanek): safe to remove
     restoreHeight: restoreHeight,
   );
 
@@ -297,7 +287,7 @@ Future<void> loadWallet(
     if (deviceType == 1) {
       final dummyWPtr = wptr ??
           monero.WalletManager_openWallet(wmPtr, path: '', password: '');
-      enableLedgerExchange(dummyWPtr, gLedger);
+      enableLedgerExchange(dummyWPtr, gLedger!);
     }
 
     final addr = wmPtr.address;
@@ -316,6 +306,9 @@ Future<void> loadWallet(
       print(err);
       throw WalletOpeningException(message: err);
     }
+
+    if (deviceType == 1) disableLedgerExchange();
+
     wptr = newWptr;
     openedWalletsByPath[path] = wptr!;
   }

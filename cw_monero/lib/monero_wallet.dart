@@ -802,6 +802,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   void setLedgerConnection(LedgerConnection connection) {
     final dummyWPtr = wptr ??
         monero.WalletManager_openWallet(wmPtr, path: '', password: '');
-    enableLedgerExchange(dummyWPtr, gLedger);
+    enableLedgerExchange(dummyWPtr, connection);
   }
 }
