@@ -1976,17 +1976,27 @@ abstract class ElectrumWalletBase
       if (_isTransactionUpdating) {
         return;
       }
-      await getCurrentChainTip();
+      _currentChainTip = await getUpdatedChainTip();
 
+      bool updated = false;
       transactionHistory.transactions.values.forEach((tx) {
-        if (tx.unspents != null &&
-            tx.unspents!.isNotEmpty &&
-            tx.height != null &&
-            tx.height! > 0 &&
-            (_currentChainTip ?? 0) > 0) {
-          tx.confirmations = _currentChainTip! - tx.height! + 1;
+        if ((tx.height ?? 0) > 0 && (_currentChainTip ?? 0) > 0) {
+          var confirmations = _currentChainTip! - tx.height! + 1;
+          if (confirmations < 0) {
+            // if our chain tip is outdated then it could lead to negative confirmations so this is just a failsafe:
+            confirmations = 0;
+          }
+          if (confirmations != tx.confirmations) {
+            updated = true;
+            tx.confirmations = confirmations;
+            transactionHistory.addOne(tx);
+          }
         }
       });
+
+      if (updated) {
+        await transactionHistory.save();
+      }
 
       _isTransactionUpdating = true;
       await fetchTransactions();

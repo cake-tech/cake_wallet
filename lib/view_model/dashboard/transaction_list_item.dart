@@ -73,6 +73,9 @@ class TransactionListItem extends ActionListItem with Keyable {
         bool isPegOut = (transaction.additionalInfo["isPegOut"] as bool?) ?? false;
         bool isPegInOut = isPegIn || isPegOut;
         String str = '';
+        if (transaction.confirmations <= 0) {
+          str = S.current.pending;
+        }
         if (isPegInOut && transaction.confirmations >= 0 && transaction.confirmations < 6) {
           str = " (${transaction.confirmations}/6)";
         }
