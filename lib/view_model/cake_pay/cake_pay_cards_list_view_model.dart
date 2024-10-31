@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:mobx/mobx.dart';
 
@@ -70,6 +71,14 @@ abstract class CakePayCardsListViewModelBase with Store {
               caption: S.current.custom_value,
               onChanged: toggleCustomValueCards),
         ],
+    S.current.countries: [
+      DropdownFilterItem(
+        items: availableCountries.map((e) => e.title).toList(),
+        caption: '',
+        selectedItem: selectedCountry.title,
+        onItemSelected: (String value) => setSelectedCountry(Country.fromFullName(value)!),
+      ),
+    ]
       };
 
   String searchString;
@@ -120,6 +129,8 @@ abstract class CakePayCardsListViewModelBase with Store {
   @computed
   Country get selectedCountry =>
       settingsStore.selectedCakePayCountry ?? _getInitialCountry(settingsStore.fiatCurrency);
+
+  bool get showCountryPicker => settingsStore.selectedCakePayCountry == null;
 
   bool get hasFiltersChanged =>
       settingsStore.selectedCakePayCountry != _initialSelectedCountry ||
