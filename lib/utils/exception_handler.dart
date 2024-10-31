@@ -62,6 +62,14 @@ class ExceptionHandler {
 
       await _addDeviceInfo(_file!);
 
+      // Check if a mail client is available
+      final bool canSend = await FlutterMailer.canSendMail();
+
+      if (Platform.isIOS && !canSend) {
+        debugPrint('Mail app is not available');
+        return;
+      }
+
       final MailOptions mailOptions = MailOptions(
         subject: 'Mobile App Issue',
         recipients: ['support@cakewallet.com'],
