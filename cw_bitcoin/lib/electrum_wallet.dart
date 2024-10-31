@@ -4,7 +4,9 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/electrum_worker.dart';
+import 'package:cw_bitcoin/electrum_worker/electrum_worker.dart';
+import 'package:cw_bitcoin/electrum_worker/electrum_worker_methods.dart';
+import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
@@ -104,35 +106,55 @@ abstract class ElectrumWalletBase
     sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
-  void _handleWorkerResponse(dynamic response) {
-    print('Main: worker response: $response');
+  @action
+  void _handleWorkerResponse(dynamic message) {
+    print('Main: received message: $message');
 
-    final workerResponse = ElectrumWorkerResponse.fromJson(
-      jsonDecode(response.toString()) as Map<String, dynamic>,
-    );
-
-    if (workerResponse.error != null) {
-      // Handle error
-      print('Worker error: ${workerResponse.error}');
-      return;
+    Map<String, dynamic> messageJson;
+    if (message is String) {
+      messageJson = jsonDecode(message) as Map<String, dynamic>;
+    } else {
+      messageJson = message as Map<String, dynamic>;
     }
+    final workerMethod = messageJson['method'] as String;
 
-    switch (workerResponse.method) {
-      case 'connectionStatus':
-        final status = workerResponse.data as String;
-        final connectionStatus = ConnectionStatus.values.firstWhere(
-          (e) => e.toString() == status,
-        );
-        _onConnectionStatusChange(connectionStatus);
+    // if (workerResponse.error != null) {
+    //   print('Worker error: ${workerResponse.error}');
+
+    //   switch (workerResponse.method) {
+    //     // case 'connectionStatus':
+    //     //   final status = ConnectionStatus.values.firstWhere(
+    //     //     (e) => e.toString() == workerResponse.error,
+    //     //   );
+    //     //   _onConnectionStatusChange(status);
+    //     //   break;
+    //     // case 'fetchBalances':
+    //     //   // Update the balance state
+    //     //   // this.balance[currency] = balance!;
+    //     //   break;
+    //     case 'blockchain.headers.subscribe':
+    //       _chainTipListenerOn = false;
+    //       break;
+    //   }
+    //   return;
+    // }
+
+    switch (workerMethod) {
+      case ElectrumWorkerMethods.connectionMethod:
+        final response = ElectrumWorkerConnectionResponse.fromJson(messageJson);
+        _onConnectionStatusChange(response.result);
         break;
-      case 'fetchBalances':
-        final balance = ElectrumBalance.fromJSON(
-          jsonDecode(workerResponse.data.toString()).toString(),
-        );
-        // Update the balance state
-        // this.balance[currency] = balance!;
+      case ElectrumRequestMethods.headersSubscribeMethod:
+        final response = ElectrumWorkerHeadersSubscribeResponse.fromJson(messageJson);
+        onHeadersResponse(response.result);
         break;
-      // Handle other responses...
+      // case 'fetchBalances':
+      // final balance = ElectrumBalance.fromJSON(
+      //   jsonDecode(workerResponse.data.toString()).toString(),
+      // );
+      // Update the balance state
+      // this.balance[currency] = balance!;
+      // break;
     }
   }
 
@@ -301,19 +323,13 @@ abstract class ElectrumWalletBase
 
       syncStatus = SynchronizingSyncStatus();
 
-      // await subscribeForHeaders();
-      // await subscribeForUpdates();
+      await subscribeForHeaders();
+      await subscribeForUpdates();
 
       // await updateTransactions();
       // await updateAllUnspents();
       // await updateBalance();
       // await updateFeeRates();
-      workerSendPort?.send(
-        ElectrumWorkerMessage(
-          method: 'blockchain.scripthash.get_balance',
-          params: {'scriptHash': scriptHashes.first},
-        ).toJson(),
-      );
 
       _updateFeeRateTimer ??=
           Timer.periodic(const Duration(seconds: 5), (timer) async => await updateFeeRates());
@@ -439,10 +455,7 @@ abstract class ElectrumWalletBase
         if (message is SendPort) {
           workerSendPort = message;
           workerSendPort!.send(
-            ElectrumWorkerMessage(
-              method: 'connect',
-              params: {'uri': node.uri.toString()},
-            ).toJson(),
+            ElectrumWorkerConnectionRequest(uri: node.uri).toJson(),
           );
         } else {
           _handleWorkerResponse(message);
@@ -1790,25 +1803,17 @@ abstract class ElectrumWalletBase
       (address) => !scripthashesListening.contains(address.scriptHash),
     );
 
-    await Future.wait(unsubscribedScriptHashes.map((addressRecord) async {
-      final scripthash = addressRecord.scriptHash;
-      final listener = await electrumClient2!.subscribe(
-        ElectrumScriptHashSubscribe(scriptHash: scripthash),
-      );
+    Map<String, String> scripthashByAddress = {};
+    List<String> scriptHashesList = [];
+    walletAddresses.allAddresses.forEach((addressRecord) {
+      scripthashByAddress[addressRecord.address] = addressRecord.scriptHash;
+      scriptHashesList.add(addressRecord.scriptHash);
+    });
 
-      if (listener != null) {
-        scripthashesListening.add(scripthash);
-
-        // https://electrumx.readthedocs.io/en/latest/protocol-basics.html#status
-        // The status of the script hash is the hash of the tx history, or null if the string is empty because there are no transactions
-        listener((status) async {
-          print("status: $status");
-
-          await _fetchAddressHistory(addressRecord);
-          await updateUnspentsForAddress(addressRecord);
-        });
-      }
-    }));
+    workerSendPort!.send(
+      ElectrumWorkerScripthashesSubscribeRequest(scripthashByAddress: scripthashByAddress).toJson(),
+    );
+    scripthashesListening.addAll(scriptHashesList);
   }
 
   @action
@@ -1928,11 +1933,8 @@ abstract class ElectrumWalletBase
   Future<void> subscribeForHeaders() async {
     if (_chainTipListenerOn) return;
 
-    final listener = electrumClient2!.subscribe(ElectrumHeaderSubscribe());
-    if (listener == null) return;
-
+    workerSendPort!.send(ElectrumWorkerHeadersSubscribeRequest().toJson());
     _chainTipListenerOn = true;
-    listener(onHeadersResponse);
   }
 
   @action

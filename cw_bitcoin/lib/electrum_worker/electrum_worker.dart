@@ -6,6 +6,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/electrum_worker/electrum_worker_methods.dart';
 // import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_worker/electrum_worker_params.dart';
+import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
 
 class ElectrumWorker {
   final SendPort sendPort;
@@ -23,7 +24,7 @@ class ElectrumWorker {
     receivePort.listen(worker.handleMessage);
   }
 
-  void _sendResponse(ElectrumWorkerResponse response) {
+  void _sendResponse<T, U>(ElectrumWorkerResponse<T, U> response) {
     sendPort.send(jsonEncode(response.toJson()));
   }
 
@@ -45,11 +46,18 @@ class ElectrumWorker {
 
       switch (workerMethod) {
         case ElectrumWorkerMethods.connectionMethod:
-          await _handleConnect(ElectrumWorkerConnectRequest.fromJson(messageJson));
+          await _handleConnect(
+            ElectrumWorkerConnectionRequest.fromJson(messageJson),
+          );
           break;
-        // case 'blockchain.headers.subscribe':
-        //   await _handleHeadersSubscribe();
-        //   break;
+        case ElectrumRequestMethods.headersSubscribeMethod:
+          await _handleHeadersSubscribe();
+          break;
+        case ElectrumRequestMethods.scripthashesSubscribeMethod:
+          await _handleScriphashesSubscribe(
+            ElectrumWorkerScripthashesSubscribeRequest.fromJson(messageJson),
+          );
+          break;
         // case 'blockchain.scripthash.get_balance':
         //   await _handleGetBalance(message);
         //   break;
@@ -69,12 +77,12 @@ class ElectrumWorker {
     }
   }
 
-  Future<void> _handleConnect(ElectrumWorkerConnectRequest request) async {
+  Future<void> _handleConnect(ElectrumWorkerConnectionRequest request) async {
     _electrumClient = ElectrumApiProvider(
       await ElectrumTCPService.connect(
         request.uri,
         onConnectionStatusChange: (status) {
-          _sendResponse(ElectrumWorkerConnectResponse(status: status.toString()));
+          _sendResponse(ElectrumWorkerConnectionResponse(status: status));
         },
         defaultRequestTimeOut: const Duration(seconds: 5),
         connectionTimeOut: const Duration(seconds: 5),
@@ -82,17 +90,44 @@ class ElectrumWorker {
     );
   }
 
-  // Future<void> _handleHeadersSubscribe() async {
-  //   final listener = _electrumClient!.subscribe(ElectrumHeaderSubscribe());
-  //   if (listener == null) {
-  //     _sendError('blockchain.headers.subscribe', 'Failed to subscribe');
-  //     return;
-  //   }
+  Future<void> _handleHeadersSubscribe() async {
+    final listener = _electrumClient!.subscribe(ElectrumHeaderSubscribe());
+    if (listener == null) {
+      _sendError(ElectrumWorkerHeadersSubscribeError(error: 'Failed to subscribe'));
+      return;
+    }
 
-  //   listener((event) {
-  //     _sendResponse('blockchain.headers.subscribe', event);
-  //   });
-  // }
+    listener((event) {
+      _sendResponse(ElectrumWorkerHeadersSubscribeResponse(result: event));
+    });
+  }
+
+  Future<void> _handleScriphashesSubscribe(
+    ElectrumWorkerScripthashesSubscribeRequest request,
+  ) async {
+    await Future.wait(request.scripthashByAddress.entries.map((entry) async {
+      final address = entry.key;
+      final scripthash = entry.value;
+      final listener = await _electrumClient!.subscribe(
+        ElectrumScriptHashSubscribe(scriptHash: scripthash),
+      );
+
+      if (listener == null) {
+        _sendError(ElectrumWorkerScripthashesSubscribeError(error: 'Failed to subscribe'));
+        return;
+      }
+
+      // https://electrumx.readthedocs.io/en/latest/protocol-basics.html#status
+      // The status of the script hash is the hash of the tx history, or null if the string is empty because there are no transactions
+      listener((status) async {
+        print("status: $status");
+
+        _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
+          result: {address: status},
+        ));
+      });
+    }));
+  }
 
   // Future<void> _handleGetBalance(ElectrumWorkerRequest message) async {
   //   try {
