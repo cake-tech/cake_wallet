@@ -26,37 +26,32 @@ class MwebLogsPage extends BasePage {
     return Stack(
       fit: StackFit.expand,
       children: [
-
-        Expanded(
-          child: FutureBuilder<String>(
-            future: mwebSettingsViewModelBase.getAbbreviatedLogs(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('No logs found'));
-              } else {
-                return SingleChildScrollView(
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(
-                      snapshot.data!,
-                      style: TextStyle(fontFamily: 'Monospace'),
-                    ),
+        FutureBuilder<String>(
+          future: mwebSettingsViewModelBase.getAbbreviatedLogs(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('No logs found'));
+            } else {
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    snapshot.data!,
+                    style: TextStyle(fontFamily: 'Monospace'),
                   ),
-                );
-              }
-            },
-          ),
+                ),
+              );
+            }
+          },
         ),
         Positioned(
-          child: Observer(
-            builder: (_) => LoadingPrimaryButton(
-              onPressed: () => onExportLogs(context),
-              text: S.of(context).export_logs,
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-            ),
+          child: LoadingPrimaryButton(
+            onPressed: () => onExportLogs(context),
+            text: S.of(context).export_logs,
+            color: Theme.of(context).primaryColor,
+            textColor: Colors.white,
           ),
           bottom: 24,
           left: 24,
