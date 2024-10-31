@@ -98,7 +98,9 @@ class CryptoPaymentData {
   factory CryptoPaymentData.fromMap(Map<String, dynamic> map) {
     return CryptoPaymentData(
       price: map['price'] as String,
-      paymentUrls: PaymentUrl.fromMap(map['paymentUrls'] as Map<String, dynamic>?),
+      paymentUrls: map['paymentUrls'] == null
+          ? null
+          : PaymentUrl.fromMap(map['paymentUrls'] as Map<String, dynamic>),
       address: map['address'] as String,
     );
   }
