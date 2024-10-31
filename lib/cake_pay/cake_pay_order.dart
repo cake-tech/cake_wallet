@@ -1,4 +1,3 @@
-
 class CakePayOrder {
   final String orderId;
   final List<OrderCard> cards;
@@ -98,9 +97,7 @@ class CryptoPaymentData {
   factory CryptoPaymentData.fromMap(Map<String, dynamic> map) {
     return CryptoPaymentData(
       price: map['price'] as String,
-      paymentUrls: map['paymentUrls'] == null
-          ? null
-          : PaymentUrl.fromMap(map['paymentUrls'] as Map<String, dynamic>),
+      paymentUrls: PaymentUrl.fromMap(map['paymentUrls'] as Map<String, dynamic>?),
       address: map['address'] as String,
     );
   }
