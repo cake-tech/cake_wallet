@@ -188,7 +188,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Image.asset(
-                                          'assets/images/ledger_nano.png',
+                                          'assets/images/hardware_wallet/ledger_nano_x.png',
                                           width: 24,
                                           color: Theme.of(context)
                                               .extension<DashboardPageTheme>()!
@@ -1061,7 +1061,7 @@ class BalanceRowWidget extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(width: 32),
+                        SizedBox(width: 24),
                         Expanded(
                           child: Semantics(
                             label: S.of(context).litecoin_mweb_pegout,

@@ -46,6 +46,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
           "assets/images/notification_icon.svg",
           color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
           width: 30,
+          placeholderBuilder: (_) => Icon(Icons.error),
         ),
       );
     }
@@ -136,6 +137,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                   "assets/images/notification_icon.svg",
                   color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                   width: 30,
+                  placeholderBuilder: (_) => Icon(Icons.error),
                 ),
                 if (state.hasData && state.data!.hasUpdates && !wasOpened)
                   Container(
