@@ -1838,6 +1838,7 @@ abstract class ElectrumWalletBase
             .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       } else if (type == WalletType.litecoin) {
         await Future.wait(LITECOIN_ADDRESS_TYPES
+            .where((type) => type != SegwitAddresType.mweb)
             .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       }
 
@@ -2269,8 +2270,6 @@ abstract class ElectrumWalletBase
       Timer(Duration(seconds: 5), () {
         if (this.syncStatus is NotConnectedSyncStatus ||
             this.syncStatus is LostConnectionSyncStatus) {
-          if (node == null) return;
-
           this.electrumClient.connectToUri(
                 node!.uri,
                 useSSL: node!.useSSL ?? false,
