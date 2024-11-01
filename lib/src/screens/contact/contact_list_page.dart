@@ -78,38 +78,45 @@ class ContactListPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    double maxWalletListHeight = MediaQuery.of(context).size.height / 3;
     final walletContacts = contactListViewModel.walletContactsToShow;
-    return Container(
+
+    return SingleChildScrollView(
+      child: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             buildTitle(title: S.of(context).contact_list_wallets, topPadding: 0.0),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: maxWalletListHeight),
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: walletContacts.length + 2,
-                itemBuilder: (context, index) {
-                  if (index == 0 || index == walletContacts.length + 1) {
-                    return Container();
-                  } else {
-                    final walletInfo = walletContacts[index - 1];
-                    return generateRaw(context, walletInfo);
-                  }
-                },
-                separatorBuilder: (_, __) => StandardListSeparator(),
-              ),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: walletContacts.length + 2,
+              itemBuilder: (context, index) {
+                if (index == 0 || index == walletContacts.length + 1) {
+                  return Container();
+                } else {
+                  final walletInfo = walletContacts[index - 1];
+                  return generateRaw(context, walletInfo);
+                }
+              },
+              separatorBuilder: (_, __) => StandardListSeparator(),
             ),
             buildTitle(
-                title: S.of(context).contact_list_contacts,
-                trailingFilterButton:
-                    contactListViewModel.isEditable ? trailingFilterButtonWidget(context) : null),
-            Expanded(
+              title: S.of(context).contact_list_contacts,
+              trailingFilterButton:
+                  contactListViewModel.isEditable ? trailingFilterButtonWidget(context) : null,
+            ),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: 200,
+                maxHeight: MediaQuery.of(context).size.height * 0.6,
+              ),
               child: ContactListBody(contactListViewModel: contactListViewModel),
             ),
           ],
-        ));
+        ),
+      ),
+    );
   }
 
   Widget buildTitle(
@@ -253,6 +260,8 @@ class _ContactListBodyState extends State<ContactListBody> {
       list: contacts,
       updateFunction: widget.contactListViewModel.reorderAccordingToContactList,
       canReorder: widget.contactListViewModel.isEditable,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         final contact = contacts[index];
         final contactContent = generateContactRaw(context, contact, contacts.length == index + 1);
@@ -272,14 +281,12 @@ class _ContactListBodyState extends State<ContactListBody> {
             }
           },
           behavior: HitTestBehavior.opaque,
-          child: SingleChildScrollView(
-            child: widget.contactListViewModel.isEditable
-                ? Slidable(
-                    key: Key('${contact.key}'),
-                    endActionPane: _actionPane(context, contact),
-                    child: contactContent)
-                : contactContent,
-          ),
+          child: widget.contactListViewModel.isEditable
+              ? Slidable(
+                  key: Key('${contact.key}'),
+                  endActionPane: _actionPane(context, contact),
+                  child: contactContent)
+              : contactContent,
         );
       },
     ));
