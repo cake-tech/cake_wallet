@@ -215,7 +215,7 @@ class CwMweb {
       return await _rpcClient!.broadcast(request, options: CallOptions(timeout: TIMEOUT_DURATION));
     } on GrpcError catch (e) {
       log('Caught grpc error: ${e.message}');
-      rethrow;
+      throw "error from broadcast mweb: $e";
     } catch (e) {
       log("Error getting create: $e");
       rethrow;
