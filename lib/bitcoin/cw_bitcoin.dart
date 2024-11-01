@@ -603,7 +603,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<void> registerSilentPaymentsKey(Object wallet, bool active) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
+    final bitcoinWallet = wallet as BitcoinWallet;
     return await bitcoinWallet.registerSilentPaymentsKey();
   }
 
@@ -634,7 +634,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
+    final bitcoinWallet = wallet as BitcoinWallet;
     return bitcoinWallet.getNodeSupportsSilentPayments();
   }
 

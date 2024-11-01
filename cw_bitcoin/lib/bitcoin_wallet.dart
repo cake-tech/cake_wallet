@@ -11,7 +11,7 @@ import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+// import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
@@ -240,6 +240,36 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
   }
 
+  Future<bool> getNodeSupportsSilentPayments() async {
+    return true;
+    // As of today (august 2024), only ElectrumRS supports silent payments
+    // if (!(await getNodeIsElectrs())) {
+    //   return false;
+    // }
+
+    // if (node == null) {
+    //   return false;
+    // }
+
+    // try {
+    //   final tweaksResponse = await electrumClient.getTweaks(height: 0);
+
+    //   if (tweaksResponse != null) {
+    //     node!.supportsSilentPayments = true;
+    //     node!.save();
+    //     return node!.supportsSilentPayments!;
+    //   }
+    // } on RequestFailedTimeoutException catch (_) {
+    //   node!.supportsSilentPayments = false;
+    //   node!.save();
+    //   return node!.supportsSilentPayments!;
+    // } catch (_) {}
+
+    // node!.supportsSilentPayments = false;
+    // node!.save();
+    // return node!.supportsSilentPayments!;
+  }
+
   LedgerConnection? _ledgerConnection;
   BitcoinLedgerApp? _bitcoinLedgerApp;
 
@@ -327,11 +357,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
       _isolate?.then((value) => value.kill(priority: Isolate.immediate));
 
-      if (rpc!.isConnected) {
-        syncStatus = SyncedSyncStatus();
-      } else {
-        syncStatus = NotConnectedSyncStatus();
-      }
+      // if (rpc!.isConnected) {
+      //   syncStatus = SyncedSyncStatus();
+      // } else {
+      //   syncStatus = NotConnectedSyncStatus();
+      // }
     }
   }
 
@@ -367,7 +397,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       return;
     }
 
-    await updateCoins(unspentCoins);
+    await updateCoins(unspentCoins.toSet());
     await refreshUnspentCoinsInfo();
   }
 
@@ -448,6 +478,20 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   //     }
   //   }
   // }
+
+  @action
+  Future<void> registerSilentPaymentsKey() async {
+    final registered = await electrumClient.tweaksRegister(
+      secViewKey: walletAddresses.silentAddress!.b_scan.toHex(),
+      pubSpendKey: walletAddresses.silentAddress!.B_spend.toHex(),
+      labels: walletAddresses.silentAddresses
+          .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.labelIndex >= 1)
+          .map((addr) => addr.labelIndex)
+          .toList(),
+    );
+
+    print("registered: $registered");
+  }
 
   @action
   void _updateSilentAddressRecord(BitcoinUnspent unspent) {
@@ -593,41 +637,42 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   @action
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
-    try {
-      final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
+    throw UnimplementedError();
+    // try {
+    //   final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
 
-      await Future.wait(
-        BITCOIN_ADDRESS_TYPES.map(
-          (type) => fetchTransactionsForAddressType(historiesWithDetails, type),
-        ),
-      );
+    //   await Future.wait(
+    //     BITCOIN_ADDRESS_TYPES.map(
+    //       (type) => fetchTransactionsForAddressType(historiesWithDetails, type),
+    //     ),
+    //   );
 
-      transactionHistory.transactions.values.forEach((tx) async {
-        final isPendingSilentPaymentUtxo =
-            (tx.isPending || tx.confirmations == 0) && historiesWithDetails[tx.id] == null;
+    //   transactionHistory.transactions.values.forEach((tx) async {
+    //     final isPendingSilentPaymentUtxo =
+    //         (tx.isPending || tx.confirmations == 0) && historiesWithDetails[tx.id] == null;
 
-        if (isPendingSilentPaymentUtxo) {
-          final info = await fetchTransactionInfo(hash: tx.id, height: tx.height);
+    //     if (isPendingSilentPaymentUtxo) {
+    //       final info = await fetchTransactionInfo(hash: tx.id, height: tx.height);
 
-          if (info != null) {
-            tx.confirmations = info.confirmations;
-            tx.isPending = tx.confirmations == 0;
-            transactionHistory.addOne(tx);
-            await transactionHistory.save();
-          }
-        }
-      });
+    //       if (info != null) {
+    //         tx.confirmations = info.confirmations;
+    //         tx.isPending = tx.confirmations == 0;
+    //         transactionHistory.addOne(tx);
+    //         await transactionHistory.save();
+    //       }
+    //     }
+    //   });
 
-      return historiesWithDetails;
-    } catch (e) {
-      print("fetchTransactions $e");
-      return {};
-    }
+    //   return historiesWithDetails;
+    // } catch (e) {
+    //   print("fetchTransactions $e");
+    //   return {};
+    // }
   }
 
   @override
   @action
-  Future<void> updateTransactions() async {
+  Future<void> updateTransactions([List<BitcoinAddressRecord>? addresses]) async {
     super.updateTransactions();
 
     transactionHistory.transactions.values.forEach((tx) {
@@ -641,32 +686,32 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     });
   }
 
-  @action
-  Future<ElectrumBalance> fetchBalances() async {
-    final balance = await super.fetchBalances();
+  // @action
+  // Future<ElectrumBalance> fetchBalances() async {
+  //   final balance = await super.fetchBalances();
 
-    int totalFrozen = balance.frozen;
-    int totalConfirmed = balance.confirmed;
+  //   int totalFrozen = balance.frozen;
+  //   int totalConfirmed = balance.confirmed;
 
-    // Add values from unspent coins that are not fetched by the address list
-    // i.e. scanned silent payments
-    transactionHistory.transactions.values.forEach((tx) {
-      if (tx.unspents != null) {
-        tx.unspents!.forEach((unspent) {
-          if (unspent.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
-            if (unspent.isFrozen) totalFrozen += unspent.value;
-            totalConfirmed += unspent.value;
-          }
-        });
-      }
-    });
+  //   // Add values from unspent coins that are not fetched by the address list
+  //   // i.e. scanned silent payments
+  //   transactionHistory.transactions.values.forEach((tx) {
+  //     if (tx.unspents != null) {
+  //       tx.unspents!.forEach((unspent) {
+  //         if (unspent.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
+  //           if (unspent.isFrozen) totalFrozen += unspent.value;
+  //           totalConfirmed += unspent.value;
+  //         }
+  //       });
+  //     }
+  //   });
 
-    return ElectrumBalance(
-      confirmed: totalConfirmed,
-      unconfirmed: balance.unconfirmed,
-      frozen: totalFrozen,
-    );
-  }
+  //   return ElectrumBalance(
+  //     confirmed: totalConfirmed,
+  //     unconfirmed: balance.unconfirmed,
+  //     frozen: totalFrozen,
+  //   );
+  // }
 
   @override
   @action
@@ -713,15 +758,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
   }
 
-  @override
-  @action
-  void onHeadersResponse(ElectrumHeaderResponse response) {
-    super.onHeadersResponse(response);
+  // @override
+  // @action
+  // void onHeadersResponse(ElectrumHeaderResponse response) {
+  //   super.onHeadersResponse(response);
 
-    if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
-      _setListeners(walletInfo.restoreHeight);
-    }
-  }
+  //   if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
+  //     _setListeners(walletInfo.restoreHeight);
+  //   }
+  // }
 
   @override
   @action

@@ -24,7 +24,7 @@ abstract class BaseBitcoinAddressRecord {
   bool operator ==(Object o) => o is BaseBitcoinAddressRecord && address == o.address;
 
   final String address;
-  final bool _isHidden;
+  bool _isHidden;
   bool get isHidden => _isHidden;
   final bool _isChange;
   bool get isChange => _isChange;
@@ -46,7 +46,12 @@ abstract class BaseBitcoinAddressRecord {
 
   bool get isUsed => _isUsed;
 
-  void setAsUsed() => _isUsed = true;
+  void setAsUsed() {
+    _isUsed = true;
+    // TODO: check is hidden flow on addr list
+    _isHidden = true;
+  }
+
   void setNewName(String label) => _name = label;
 
   int get hashCode => address.hashCode;
@@ -119,6 +124,26 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         'type': type.toString(),
         'scriptHash': scriptHash,
       });
+
+  @override
+  operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is BitcoinAddressRecord &&
+        other.address == address &&
+        other.index == index &&
+        other.derivationInfo == derivationInfo &&
+        other.scriptHash == scriptHash &&
+        other.type == type;
+  }
+
+  @override
+  int get hashCode =>
+      address.hashCode ^
+      index.hashCode ^
+      derivationInfo.hashCode ^
+      scriptHash.hashCode ^
+      type.hashCode;
 }
 
 class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {

@@ -43,7 +43,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     int initialSilentAddressIndex = 0,
     List<BitcoinAddressRecord>? initialMwebAddresses,
     BitcoinAddressType? initialAddressPageType,
-  })  : _allAddresses = ObservableSet.of(initialAddresses ?? []),
+  })  : _allAddresses = ObservableList.of(initialAddresses ?? []),
         addressesByReceiveType =
             ObservableList<BaseBitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
         receiveAddresses = ObservableList<BitcoinAddressRecord>.of(
@@ -89,7 +89,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const defaultChangeAddressesCount = 17;
   static const gap = 20;
 
-  final ObservableSet<BitcoinAddressRecord> _allAddresses;
+  final ObservableList<BitcoinAddressRecord> _allAddresses;
   final ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
@@ -115,6 +115,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @computed
   List<BitcoinAddressRecord> get allAddresses => _allAddresses.toList();
+
+  @computed
+  Set<String> get allScriptHashes =>
+      _allAddresses.map((addressRecord) => addressRecord.scriptHash).toSet();
 
   BitcoinAddressRecord getFromAddresses(String address) {
     return _allAddresses.firstWhere((element) => element.address == address);
@@ -627,6 +631,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     return list;
+  }
+
+  @action
+  void updateAdresses(Iterable<BitcoinAddressRecord> addresses) {
+    for (final address in addresses) {
+      _allAddresses.replaceRange(address.index, address.index + 1, [address]);
+    }
   }
 
   @action

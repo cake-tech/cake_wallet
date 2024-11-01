@@ -774,113 +774,114 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   @action
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
-    try {
-      final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
+    throw UnimplementedError();
+    // try {
+    //   final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
 
-      await Future.wait(LITECOIN_ADDRESS_TYPES
-          .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
+    //   await Future.wait(LITECOIN_ADDRESS_TYPES
+    //       .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
 
-      return historiesWithDetails;
-    } catch (e) {
-      print("fetchTransactions $e");
-      return {};
-    }
+    //   return historiesWithDetails;
+    // } catch (e) {
+    //   print("fetchTransactions $e");
+    //   return {};
+    // }
   }
 
-  @override
-  @action
-  Future<void> subscribeForUpdates([
-    Iterable<BitcoinAddressRecord>? unsubscribedScriptHashes,
-  ]) async {
-    final unsubscribedScriptHashes = walletAddresses.allAddresses.where(
-      (address) =>
-          !scripthashesListening.contains(address.scriptHash) &&
-          address.type != SegwitAddresType.mweb,
-    );
+  // @override
+  // @action
+  // Future<void> subscribeForUpdates([
+  //   Iterable<BitcoinAddressRecord>? unsubscribedScriptHashes,
+  // ]) async {
+  //   final unsubscribedScriptHashes = walletAddresses.allAddresses.where(
+  //     (address) =>
+  //         !scripthashesListening.contains(address.scriptHash) &&
+  //         address.type != SegwitAddresType.mweb,
+  //   );
 
-    return super.subscribeForUpdates(unsubscribedScriptHashes);
-  }
+  //   return super.subscribeForUpdates(unsubscribedScriptHashes);
+  // }
 
-  @override
-  Future<ElectrumBalance> fetchBalances() async {
-    final balance = await super.fetchBalances();
+  // @override
+  // Future<ElectrumBalance> fetchBalances() async {
+  //   final balance = await super.fetchBalances();
 
-    if (!mwebEnabled) {
-      return balance;
-    }
+  //   if (!mwebEnabled) {
+  //     return balance;
+  //   }
 
-    // update unspent balances:
-    await updateUnspent();
+  //   // update unspent balances:
+  //   await updateUnspent();
 
-    int confirmed = balance.confirmed;
-    int unconfirmed = balance.unconfirmed;
-    int confirmedMweb = 0;
-    int unconfirmedMweb = 0;
-    try {
-      mwebUtxosBox.values.forEach((utxo) {
-        if (utxo.height > 0) {
-          confirmedMweb += utxo.value.toInt();
-        } else {
-          unconfirmedMweb += utxo.value.toInt();
-        }
-      });
-      if (unconfirmedMweb > 0) {
-        unconfirmedMweb = -1 * (confirmedMweb - unconfirmedMweb);
-      }
-    } catch (_) {}
+  //   int confirmed = balance.confirmed;
+  //   int unconfirmed = balance.unconfirmed;
+  //   int confirmedMweb = 0;
+  //   int unconfirmedMweb = 0;
+  //   try {
+  //     mwebUtxosBox.values.forEach((utxo) {
+  //       if (utxo.height > 0) {
+  //         confirmedMweb += utxo.value.toInt();
+  //       } else {
+  //         unconfirmedMweb += utxo.value.toInt();
+  //       }
+  //     });
+  //     if (unconfirmedMweb > 0) {
+  //       unconfirmedMweb = -1 * (confirmedMweb - unconfirmedMweb);
+  //     }
+  //   } catch (_) {}
 
-    for (var addressRecord in walletAddresses.allAddresses) {
-      addressRecord.balance = 0;
-      addressRecord.txCount = 0;
-    }
+  //   for (var addressRecord in walletAddresses.allAddresses) {
+  //     addressRecord.balance = 0;
+  //     addressRecord.txCount = 0;
+  //   }
 
-    unspentCoins.forEach((coin) {
-      final coinInfoList = unspentCoinsInfo.values.where(
-        (element) =>
-            element.walletId.contains(id) &&
-            element.hash.contains(coin.hash) &&
-            element.vout == coin.vout,
-      );
+  //   unspentCoins.forEach((coin) {
+  //     final coinInfoList = unspentCoinsInfo.values.where(
+  //       (element) =>
+  //           element.walletId.contains(id) &&
+  //           element.hash.contains(coin.hash) &&
+  //           element.vout == coin.vout,
+  //     );
 
-      if (coinInfoList.isNotEmpty) {
-        final coinInfo = coinInfoList.first;
+  //     if (coinInfoList.isNotEmpty) {
+  //       final coinInfo = coinInfoList.first;
 
-        coin.isFrozen = coinInfo.isFrozen;
-        coin.isSending = coinInfo.isSending;
-        coin.note = coinInfo.note;
-        if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
-          coin.bitcoinAddressRecord.balance += coinInfo.value;
-      } else {
-        super.addCoinInfo(coin);
-      }
-    });
+  //       coin.isFrozen = coinInfo.isFrozen;
+  //       coin.isSending = coinInfo.isSending;
+  //       coin.note = coinInfo.note;
+  //       if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
+  //         coin.bitcoinAddressRecord.balance += coinInfo.value;
+  //     } else {
+  //       super.addCoinInfo(coin);
+  //     }
+  //   });
 
-    // update the txCount for each address using the tx history, since we can't rely on mwebd
-    // to have an accurate count, we should just keep it in sync with what we know from the tx history:
-    for (final tx in transactionHistory.transactions.values) {
-      // if (tx.isPending) continue;
-      if (tx.inputAddresses == null || tx.outputAddresses == null) {
-        continue;
-      }
-      final txAddresses = tx.inputAddresses! + tx.outputAddresses!;
-      for (final address in txAddresses) {
-        final addressRecord = walletAddresses.allAddresses
-            .firstWhereOrNull((addressRecord) => addressRecord.address == address);
-        if (addressRecord == null) {
-          continue;
-        }
-        addressRecord.txCount++;
-      }
-    }
+  //   // update the txCount for each address using the tx history, since we can't rely on mwebd
+  //   // to have an accurate count, we should just keep it in sync with what we know from the tx history:
+  //   for (final tx in transactionHistory.transactions.values) {
+  //     // if (tx.isPending) continue;
+  //     if (tx.inputAddresses == null || tx.outputAddresses == null) {
+  //       continue;
+  //     }
+  //     final txAddresses = tx.inputAddresses! + tx.outputAddresses!;
+  //     for (final address in txAddresses) {
+  //       final addressRecord = walletAddresses.allAddresses
+  //           .firstWhereOrNull((addressRecord) => addressRecord.address == address);
+  //       if (addressRecord == null) {
+  //         continue;
+  //       }
+  //       addressRecord.txCount++;
+  //     }
+  //   }
 
-    return ElectrumBalance(
-      confirmed: confirmed,
-      unconfirmed: unconfirmed,
-      frozen: balance.frozen,
-      secondConfirmed: confirmedMweb,
-      secondUnconfirmed: unconfirmedMweb,
-    );
-  }
+  //   return ElectrumBalance(
+  //     confirmed: confirmed,
+  //     unconfirmed: unconfirmed,
+  //     frozen: balance.frozen,
+  //     secondConfirmed: confirmedMweb,
+  //     secondUnconfirmed: unconfirmedMweb,
+  //   );
+  // }
 
   @override
   int feeRate(TransactionPriority priority) {

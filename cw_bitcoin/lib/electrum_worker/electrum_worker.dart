@@ -3,10 +3,16 @@ import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_worker/electrum_worker_methods.dart';
 // import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_worker/electrum_worker_params.dart';
 import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
+import 'package:http/http.dart' as http;
+
+// TODO: ping
 
 class ElectrumWorker {
   final SendPort sendPort;
@@ -58,11 +64,15 @@ class ElectrumWorker {
             ElectrumWorkerScripthashesSubscribeRequest.fromJson(messageJson),
           );
           break;
-        // case 'blockchain.scripthash.get_balance':
-        //   await _handleGetBalance(message);
-        //   break;
-        case 'blockchain.scripthash.get_history':
-          // await _handleGetHistory(workerMessage);
+        case ElectrumRequestMethods.getBalanceMethod:
+          await _handleGetBalance(
+            ElectrumWorkerGetBalanceRequest.fromJson(messageJson),
+          );
+          break;
+        case ElectrumRequestMethods.getHistoryMethod:
+          await _handleGetHistory(
+            ElectrumWorkerGetHistoryRequest.fromJson(messageJson),
+          );
           break;
         case 'blockchain.scripthash.listunspent':
           // await _handleListUnspent(workerMessage);
@@ -108,6 +118,7 @@ class ElectrumWorker {
     await Future.wait(request.scripthashByAddress.entries.map((entry) async {
       final address = entry.key;
       final scripthash = entry.value;
+
       final listener = await _electrumClient!.subscribe(
         ElectrumScriptHashSubscribe(scriptHash: scripthash),
       );
@@ -129,43 +140,214 @@ class ElectrumWorker {
     }));
   }
 
-  // Future<void> _handleGetBalance(ElectrumWorkerRequest message) async {
-  //   try {
-  //     final scriptHash = message.params['scriptHash'] as String;
-  //     final result = await _electrumClient!.request(
-  //       ElectrumGetScriptHashBalance(scriptHash: scriptHash),
-  //     );
+  Future<void> _handleGetHistory(ElectrumWorkerGetHistoryRequest result) async {
+    final Map<String, AddressHistoriesResponse> histories = {};
+    final addresses = result.addresses;
 
-  //     final balance = ElectrumBalance(
-  //       confirmed: result['confirmed'] as int? ?? 0,
-  //       unconfirmed: result['unconfirmed'] as int? ?? 0,
+    await Future.wait(addresses.map((addressRecord) async {
+      final history = await _electrumClient!.request(ElectrumScriptHashGetHistory(
+        scriptHash: addressRecord.scriptHash,
+      ));
+
+      if (history.isNotEmpty) {
+        addressRecord.setAsUsed();
+        addressRecord.txCount = history.length;
+
+        await Future.wait(history.map((transaction) async {
+          final txid = transaction['tx_hash'] as String;
+          final height = transaction['height'] as int;
+          late ElectrumTransactionInfo tx;
+
+          try {
+            // Exception thrown on null
+            tx = result.storedTxs.firstWhere((tx) => tx.id == txid);
+
+            if (height > 0) {
+              tx.height = height;
+
+              // the tx's block itself is the first confirmation so add 1
+              tx.confirmations = result.chainTip - height + 1;
+              tx.isPending = tx.confirmations == 0;
+            }
+          } catch (_) {
+            tx = ElectrumTransactionInfo.fromElectrumBundle(
+              await getTransactionExpanded(
+                hash: txid,
+                currentChainTip: result.chainTip,
+                mempoolAPIEnabled: result.mempoolAPIEnabled,
+              ),
+              result.walletType,
+              result.network,
+              addresses: result.addresses.map((addr) => addr.address).toSet(),
+              height: height,
+            );
+          }
+
+          final addressHistories = histories[addressRecord.address];
+          if (addressHistories != null) {
+            addressHistories.txs.add(tx);
+          } else {
+            histories[addressRecord.address] = AddressHistoriesResponse(
+              addressRecord: addressRecord,
+              txs: [tx],
+              walletType: result.walletType,
+            );
+          }
+
+          return Future.value(null);
+        }));
+      }
+
+      return histories;
+    }));
+
+    _sendResponse(ElectrumWorkerGetHistoryResponse(result: histories.values.toList()));
+  }
+
+  Future<ElectrumTransactionBundle> getTransactionExpanded({
+    required String hash,
+    required int currentChainTip,
+    required bool mempoolAPIEnabled,
+    bool getConfirmations = true,
+  }) async {
+    int? time;
+    int? height;
+    int? confirmations;
+
+    final transactionHex = await _electrumClient!.request(
+      ElectrumGetTransactionHex(transactionHash: hash),
+    );
+
+    if (getConfirmations) {
+      if (mempoolAPIEnabled) {
+        try {
+          final txVerbose = await http.get(
+            Uri.parse(
+              "http://mempool.cakewallet.com:8999/api/v1/tx/$hash/status",
+            ),
+          );
+
+          if (txVerbose.statusCode == 200 &&
+              txVerbose.body.isNotEmpty &&
+              jsonDecode(txVerbose.body) != null) {
+            height = jsonDecode(txVerbose.body)['block_height'] as int;
+
+            final blockHash = await http.get(
+              Uri.parse(
+                "http://mempool.cakewallet.com:8999/api/v1/block-height/$height",
+              ),
+            );
+
+            if (blockHash.statusCode == 200 &&
+                blockHash.body.isNotEmpty &&
+                jsonDecode(blockHash.body) != null) {
+              final blockResponse = await http.get(
+                Uri.parse(
+                  "http://mempool.cakewallet.com:8999/api/v1/block/${blockHash.body}",
+                ),
+              );
+
+              if (blockResponse.statusCode == 200 &&
+                  blockResponse.body.isNotEmpty &&
+                  jsonDecode(blockResponse.body)['timestamp'] != null) {
+                time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
+              }
+            }
+          }
+        } catch (_) {}
+      }
+
+      if (height != null) {
+        if (time == null && height > 0) {
+          time = (getDateByBitcoinHeight(height).millisecondsSinceEpoch / 1000).round();
+        }
+
+        final tip = currentChainTip;
+        if (tip > 0 && height > 0) {
+          // Add one because the block itself is the first confirmation
+          confirmations = tip - height + 1;
+        }
+      }
+    }
+
+    final original = BtcTransaction.fromRaw(transactionHex);
+    final ins = <BtcTransaction>[];
+
+    for (final vin in original.inputs) {
+      final inputTransactionHex = await _electrumClient!.request(
+        ElectrumGetTransactionHex(transactionHash: vin.txId),
+      );
+
+      ins.add(BtcTransaction.fromRaw(inputTransactionHex));
+    }
+
+    return ElectrumTransactionBundle(
+      original,
+      ins: ins,
+      time: time,
+      confirmations: confirmations ?? 0,
+    );
+  }
+
+  // Future<void> _handleListUnspents(ElectrumWorkerGetBalanceRequest request) async {
+  //   final balanceFutures = <Future<Map<String, dynamic>>>[];
+
+  //   for (final scripthash in request.scripthashes) {
+  //     final balanceFuture = _electrumClient!.request(
+  //       ElectrumGetScriptHashBalance(scriptHash: scripthash),
+  //     );
+  //     balanceFutures.add(balanceFuture);
+  //   }
+
+  //   var totalConfirmed = 0;
+  //   var totalUnconfirmed = 0;
+
+  //   final balances = await Future.wait(balanceFutures);
+
+  //   for (final balance in balances) {
+  //     final confirmed = balance['confirmed'] as int? ?? 0;
+  //     final unconfirmed = balance['unconfirmed'] as int? ?? 0;
+  //     totalConfirmed += confirmed;
+  //     totalUnconfirmed += unconfirmed;
+  //   }
+
+  //   _sendResponse(ElectrumWorkerGetBalanceResponse(
+  //     result: ElectrumBalance(
+  //       confirmed: totalConfirmed,
+  //       unconfirmed: totalUnconfirmed,
   //       frozen: 0,
-  //     );
-
-  //     _sendResponse(message.method, balance.toJSON());
-  //   } catch (e, s) {
-  //     print(s);
-  //     _sendError(message.method, e.toString());
-  //   }
+  //     ),
+  //   ));
   // }
 
-  // Future<void> _handleGetHistory(ElectrumWorkerMessage message) async {
-  //   try {
-  //     final scriptHash = message.params['scriptHash'] as String;
-  //     final result = await electrumClient.getHistory(scriptHash);
-  //     _sendResponse(message.method, jsonEncode(result));
-  //   } catch (e) {
-  //     _sendError(message.method, e.toString());
-  //   }
-  // }
+  Future<void> _handleGetBalance(ElectrumWorkerGetBalanceRequest request) async {
+    final balanceFutures = <Future<Map<String, dynamic>>>[];
 
-  // Future<void> _handleListUnspent(ElectrumWorkerMessage message) async {
-  //   try {
-  //     final scriptHash = message.params['scriptHash'] as String;
-  //     final result = await electrumClient.listUnspent(scriptHash);
-  //     _sendResponse(message.method, jsonEncode(result));
-  //   } catch (e) {
-  //     _sendError(message.method, e.toString());
-  //   }
-  // }
+    for (final scripthash in request.scripthashes) {
+      final balanceFuture = _electrumClient!.request(
+        ElectrumGetScriptHashBalance(scriptHash: scripthash),
+      );
+      balanceFutures.add(balanceFuture);
+    }
+
+    var totalConfirmed = 0;
+    var totalUnconfirmed = 0;
+
+    final balances = await Future.wait(balanceFutures);
+
+    for (final balance in balances) {
+      final confirmed = balance['confirmed'] as int? ?? 0;
+      final unconfirmed = balance['unconfirmed'] as int? ?? 0;
+      totalConfirmed += confirmed;
+      totalUnconfirmed += unconfirmed;
+    }
+
+    _sendResponse(ElectrumWorkerGetBalanceResponse(
+      result: ElectrumBalance(
+        confirmed: totalConfirmed,
+        unconfirmed: totalUnconfirmed,
+        frozen: 0,
+      ),
+    ));
+  }
 }

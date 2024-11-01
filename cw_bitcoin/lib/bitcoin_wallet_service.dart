@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -14,7 +13,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
-import 'package:bip39/bip39.dart' as bip39;
 
 class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
@@ -172,10 +170,6 @@ class BitcoinWalletService extends WalletService<
   @override
   Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
-      throw BitcoinMnemonicIsIncorrectException();
-    }
-
     final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
 
