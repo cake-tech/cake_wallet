@@ -4,6 +4,7 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/mayachain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/quantex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
@@ -58,6 +59,9 @@ abstract class ExchangeTradeViewModelBase with Store {
       case ExchangeProviderDescription.thorChain:
         _provider = ThorChainExchangeProvider(tradesStore: trades);
         break;
+      case ExchangeProviderDescription.mayaChain:
+        _provider = MayaChainExchangeProvider(tradesStore: trades);
+        break;
     }
 
     _updateItems();
@@ -111,11 +115,11 @@ abstract class ExchangeTradeViewModelBase with Store {
     final output = sendViewModel.outputs.first;
     output.address = trade.inputAddress ?? '';
     output.setCryptoAmount(trade.amount);
-    if (_provider is ThorChainExchangeProvider) output.memo = trade.memo;
+    if (_provider is ThorChainExchangeProvider || _provider is MayaChainExchangeProvider) output.memo = trade.memo;
     if (trade.isSendAll == true) output.sendAll = true;
     sendViewModel.selectedCryptoCurrency = trade.from;
     final pendingTransaction = await sendViewModel.createTransaction(provider: _provider);
-    if (_provider is ThorChainExchangeProvider) {
+    if (_provider is ThorChainExchangeProvider || _provider is MayaChainExchangeProvider) {
       trade.id = pendingTransaction?.id ?? '';
       trades.add(trade);
     }
@@ -149,7 +153,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     final tagTo = tradesStore.trade!.to.tag != null ? '${tradesStore.trade!.to.tag}' + ' ' : '';
     items.clear();
 
-    if (trade.provider != ExchangeProviderDescription.thorChain)
+    if (trade.provider != ExchangeProviderDescription.thorChain && trade.provider != ExchangeProviderDescription.mayaChain)
       items.add(
         ExchangeTradeItem(
           title: "${trade.provider.title} ${S.current.id}",
