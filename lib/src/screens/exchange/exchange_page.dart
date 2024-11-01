@@ -1,5 +1,6 @@
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
+import 'package:cake_wallet/exchange/provider/mayachain_exchange.provider.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -442,7 +443,7 @@ class ExchangePage extends BasePage {
       }
       if (state is TradeIsCreatedSuccessfully) {
         exchangeViewModel.reset();
-        (exchangeViewModel.tradesStore.trade?.provider == ExchangeProviderDescription.thorChain)
+        (exchangeViewModel.tradesStore.trade?.provider == ExchangeProviderDescription.thorChain || exchangeViewModel.tradesStore.trade?.provider == ExchangeProviderDescription.mayaChain)
             ? Navigator.of(context).pushReplacementNamed(Routes.exchangeTrade)
             : Navigator.of(context).pushReplacementNamed(Routes.exchangeConfirm);
       }
@@ -485,10 +486,13 @@ class ExchangePage extends BasePage {
         exchangeViewModel.isSendAllEnabled = false;
         final isThorChain = exchangeViewModel.selectedProviders
             .any((provider) => provider is ThorChainExchangeProvider);
+       final isMayaChain = exchangeViewModel.selectedProviders
+        .any((provider) => provider is MayaChainExchangeProvider);
 
-        _depositAmountDebounce = isThorChain
+        _depositAmountDebounce = (isThorChain || isMayaChain)
             ? Debounce(Duration(milliseconds: 1000))
             : Debounce(Duration(milliseconds: 500));
+
 
         _depositAmountDebounce.run(() {
           exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
