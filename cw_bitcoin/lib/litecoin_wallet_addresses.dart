@@ -205,8 +205,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   String get addressForExchange {
     // don't use mweb addresses for exchange refund address:
     final addresses = receiveAddresses
-        .where((element) => element.type == SegwitAddresType.p2wpkh)
-        .where((addr) => !addr.isUsed);
+        .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
     return addresses.first.address;
   }
 }
