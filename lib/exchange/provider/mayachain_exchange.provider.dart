@@ -29,12 +29,15 @@ class MayaChainExchangeProvider extends ExchangeProvider {
   static final isRefundAddressSupported = [CryptoCurrency.eth];
 
   static const _baseNodeURL = 'https://mayanode.mayachain.info';
-  static const _baseURL = 'https://midgard.mayachain.infp';
+  static const _baseURL = 'https://midgard.mayachain.info';
   static const _quotePath = '/mayachain/quote/swap';
   static const _txInfoPath = '/mayachain/tx/status/';
   static const _affiliateName = 'cakewallet'; // register a shorter one
   static const _affiliateBps = '175';
   static const _nameLookUpPath = 'v2/mayaname/lookup/';
+  static const _affiliateBps = '175';
+  static const _toleranceBps = '100';
+  static const _streamingInterval = '3';
 
   final Box<Trade> tradesStore;
 
@@ -70,6 +73,8 @@ class MayaChainExchangeProvider extends ExchangeProvider {
         'from_asset': _normalizeCurrency(from),
         'to_asset': _normalizeCurrency(to),
         'amount': _doubleToMayaChainString(amount),
+        'streaming_interval': _streamingInterval,
+        'tolerance_bps': _toleranceBps,
         'affiliate': _affiliateName,
         'affiliate_bps': _affiliateBps
       };
@@ -94,6 +99,8 @@ class MayaChainExchangeProvider extends ExchangeProvider {
       'from_asset': _normalizeCurrency(from),
       'to_asset': _normalizeCurrency(to),
       'amount': _doubleToMayaChainString(1),
+      'streaming_interval': _streamingInterval,
+      'tolerance_bps': _toleranceBps,
       'affiliate': _affiliateName,
       'affiliate_bps': _affiliateBps
     };
@@ -110,10 +117,8 @@ class MayaChainExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
     required bool isSendAll,
   }) async {
-    String formattedToAddress = request.toAddress.startsWith('bitcoincash:')
-        ? request.toAddress.replaceFirst('bitcoincash:', '')
-        : request.toAddress;
-
+    String formattedToAddress = request.toAddress;
+    
     final formattedFromAmount = double.parse(request.fromAmount);
 
     final params = {
@@ -121,6 +126,8 @@ class MayaChainExchangeProvider extends ExchangeProvider {
       'to_asset': _normalizeCurrency(request.toCurrency),
       'amount': _doubleToMayaChainString(formattedFromAmount),
       'destination': formattedToAddress,
+      'streaming_interval': _streamingInterval,
+      'tolerance_bps': _toleranceBps,
       'affiliate': _affiliateName,
       'affiliate_bps': _affiliateBps,
       'refund_address':
