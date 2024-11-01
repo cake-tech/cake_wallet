@@ -19,7 +19,9 @@ class MayaChainExchangeProvider extends ExchangeProvider {
     ...(CryptoCurrency.all
         .where((element) => ![
               CryptoCurrency.btc,
+              CryptoCurrency.dash,
               CryptoCurrency.eth,
+              CryptoCurrency.pepe,
               CryptoCurrency.usdc,
               CryptoCurrency.usdterc20,
             ].contains(element))
