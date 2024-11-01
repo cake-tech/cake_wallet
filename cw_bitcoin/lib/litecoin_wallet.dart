@@ -393,11 +393,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
               // print("updating confs ${tx.id} from ${tx.confirmations} -> $confirmations");
 
               // if an outgoing tx is now confirmed, delete the utxo from the box (delete the unspent coin):
-              if (tx.confirmations >= 2 &&
+              if (confirmations >= 2 &&
                   tx.direction == TransactionDirection.outgoing &&
                   tx.unspents != null) {
                 for (var coin in tx.unspents!) {
-                  print(coin.address);
                   final utxo = mwebUtxosBox.get(coin.address);
                   if (utxo != null) {
                     print("deleting utxo ${coin.address} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
@@ -1051,8 +1050,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           hasMwebOutput = true;
           break;
         }
-        if (!(output.address.toLowerCase().contains("mweb")) ||
-            !(output.extractedAddress?.toLowerCase().contains("mweb") ?? false)) {
+        if (!(output.address.toLowerCase().contains("mweb"))) {
+          hasRegularOutput = true;
+        }
+        final extractedAddress = output.extractedAddress;
+        if (extractedAddress != null && !(extractedAddress.toLowerCase().contains("mweb"))) {
           hasRegularOutput = true;
         }
       }

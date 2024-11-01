@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -10,7 +11,6 @@ import 'package:cake_wallet/view_model/settings/mweb_settings_view_model.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MwebLogsPage extends BasePage {
@@ -81,14 +81,38 @@ class MwebLogsPage extends BasePage {
               rightButtonText: S.of(context).save_to_downloads,
               leftButtonText: S.of(context).share,
               actionRightButton: () async {
-                const downloadDirPath = "/storage/emulated/0/Download";
-                final filePath = downloadDirPath + "/debug.log";
-                await mwebSettingsViewModelBase.saveLogsLocally(filePath);
+                try {
+                  const downloadDirPath = "/storage/emulated/0/Download";
+                  final filePath = downloadDirPath + "/debug.log";
+                  await mwebSettingsViewModelBase.saveLogsLocally(filePath);
+                } catch (e) {
+                  showPopUp<void>(
+                      context: context,
+                      builder: (_) {
+                        return AlertWithOneAction(
+                          alertTitle: S.current.error,
+                          alertContent: e.toString(),
+                          buttonText: S.of(context).ok,
+                          buttonAction: () => Navigator.of(context).pop(),
+                        );
+                      });
+                }
                 Navigator.of(dialogContext).pop();
               },
               actionLeftButton: () async {
                 Navigator.of(dialogContext).pop();
-                await share(context);
+                try {
+                  await share(context);
+                } catch (e) {
+                  showPopUp<void>(
+                      context: context,
+                      builder: (_) => AlertWithOneAction(
+                            alertTitle: S.current.error,
+                            alertContent: e.toString(),
+                            buttonText: S.of(context).ok,
+                            buttonAction: () => Navigator.of(context).pop(),
+                          ));
+                }
               });
         });
   }

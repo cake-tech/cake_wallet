@@ -610,7 +610,7 @@ abstract class ElectrumWalletBase
     bool spendsUnconfirmedTX = false;
 
     int leftAmount = credentialsAmount;
-    final availableInputs = unspentCoins.where((utx) {
+    var availableInputs = unspentCoins.where((utx) {
       if (!utx.isSending || utx.isFrozen) {
         return false;
       }
@@ -627,7 +627,7 @@ abstract class ElectrumWalletBase
     final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
 
     // sort the unconfirmed coins so that mweb coins are first:
-    unconfirmedCoins.sort((a, b) => a.bitcoinAddressRecord.type == SegwitAddresType.mweb ? -1 : 1);
+    availableInputs.sort((a, b) => a.bitcoinAddressRecord.type == SegwitAddresType.mweb ? -1 : 1);
 
     for (int i = 0; i < availableInputs.length; i++) {
       final utx = availableInputs[i];
@@ -1026,7 +1026,6 @@ abstract class ElectrumWalletBase
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
       final outputs = <BitcoinOutput>[];
-      List<BitcoinScriptOutput>? outputsOverride;
       final transactionCredentials = credentials as BitcoinTransactionCredentials;
       final hasMultiDestination = transactionCredentials.outputs.length > 1;
       final sendAll = !hasMultiDestination && transactionCredentials.outputs.first.sendAll;
