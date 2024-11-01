@@ -31,7 +31,7 @@ class MwebSettingsPage extends BasePage {
                 },
               ),
               SettingsSwitcherCell(
-                title: S.current.litecoin_mweb_always_scan,
+                title: S.current.litecoin_mweb_enable,
                 value: _mwebSettingsViewModel.mwebEnabled,
                 onValueChange: (_, bool value) {
                   _mwebSettingsViewModel.setMwebEnabled(value);

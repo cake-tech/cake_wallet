@@ -372,6 +372,7 @@
   "litecoin_mweb_description": "MWEB هو بروتوكول جديد يجلب معاملات أسرع وأرخص وأكثر خصوصية إلى Litecoin",
   "litecoin_mweb_dismiss": "رفض",
   "litecoin_mweb_display_card": "عرض بطاقة mweb",
+  "litecoin_mweb_enable": "تمكين MWEB",
   "litecoin_mweb_enable_later": "يمكنك اختيار تمكين MWEB مرة أخرى ضمن إعدادات العرض.",
   "litecoin_mweb_logs": "سجلات MWEB",
   "litecoin_mweb_node": "عقدة MWEB",

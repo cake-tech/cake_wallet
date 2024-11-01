@@ -372,6 +372,7 @@
   "litecoin_mweb_description": "MWEB - це новий протокол, який приносить швидкі, дешевші та більш приватні транзакції Litecoin",
   "litecoin_mweb_dismiss": "Звільнити",
   "litecoin_mweb_display_card": "Показати карту MWeb",
+  "litecoin_mweb_enable": "Увімкнути mweb",
   "litecoin_mweb_enable_later": "Ви можете знову ввімкнути MWEB в налаштуваннях дисплея.",
   "litecoin_mweb_logs": "Журнали MWeb",
   "litecoin_mweb_node": "Вузол MWeb",

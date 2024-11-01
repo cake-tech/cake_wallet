@@ -372,6 +372,7 @@
   "litecoin_mweb_description": "MWEB adalah protokol baru yang membawa transaksi yang lebih cepat, lebih murah, dan lebih pribadi ke Litecoin",
   "litecoin_mweb_dismiss": "Membubarkan",
   "litecoin_mweb_display_card": "Tunjukkan kartu mWeb",
+  "litecoin_mweb_enable": "Aktifkan MWEB",
   "litecoin_mweb_enable_later": "Anda dapat memilih untuk mengaktifkan MWEB lagi di bawah pengaturan tampilan.",
   "litecoin_mweb_logs": "Log MWeb",
   "litecoin_mweb_node": "Node MWEB",

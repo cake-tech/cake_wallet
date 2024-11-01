@@ -372,6 +372,7 @@
   "litecoin_mweb_description": "MWEB to nowy protokół, który przynosi szybciej, tańsze i bardziej prywatne transakcje do Litecoin",
   "litecoin_mweb_dismiss": "Odrzucać",
   "litecoin_mweb_display_card": "Pokaż kartę MWEB",
+  "litecoin_mweb_enable": "Włącz MWEB",
   "litecoin_mweb_enable_later": "Możesz ponownie włączyć MWEB w ustawieniach wyświetlania.",
   "litecoin_mweb_logs": "Dzienniki MWEB",
   "litecoin_mweb_node": "Węzeł MWEB",

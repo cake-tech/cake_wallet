@@ -372,6 +372,7 @@
   "litecoin_mweb_description": "MWWB ist ein neues Protokoll, das schnellere, billigere und privatere Transaktionen zu Litecoin bringt",
   "litecoin_mweb_dismiss": "Zurückweisen",
   "litecoin_mweb_display_card": "MWEB-Karte anzeigen",
+  "litecoin_mweb_enable": "Aktivieren Sie MWeb",
   "litecoin_mweb_enable_later": "Sie können MWEB unter Anzeigeeinstellungen erneut aktivieren.",
   "litecoin_mweb_logs": "MWEB -Protokolle",
   "litecoin_mweb_node": "MWEB -Knoten",

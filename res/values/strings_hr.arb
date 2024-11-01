@@ -372,6 +372,7 @@
   "litecoin_mweb_description": "MWEB je novi protokol koji u Litecoin donosi brže, jeftinije i privatnije transakcije",
   "litecoin_mweb_dismiss": "Odbaciti",
   "litecoin_mweb_display_card": "Prikaži MWeb karticu",
+  "litecoin_mweb_enable": "Omogući MWeb",
   "litecoin_mweb_enable_later": "Možete odabrati da MWEB ponovo omogućite pod postavkama zaslona.",
   "litecoin_mweb_logs": "MWEB trupci",
   "litecoin_mweb_node": "MWEB čvor",

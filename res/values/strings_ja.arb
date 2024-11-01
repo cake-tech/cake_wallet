@@ -373,6 +373,7 @@
   "litecoin_mweb_description": "MWEBは、Litecoinにより速く、より安価で、よりプライベートなトランザクションをもたらす新しいプロトコルです",
   "litecoin_mweb_dismiss": "却下する",
   "litecoin_mweb_display_card": "MWEBカードを表示します",
+  "litecoin_mweb_enable": "MWEBを有効にします",
   "litecoin_mweb_enable_later": "表示設定の下で、MWEBを再度有効にすることを選択できます。",
   "litecoin_mweb_logs": "MWEBログ",
   "litecoin_mweb_node": "MWEBノード",
