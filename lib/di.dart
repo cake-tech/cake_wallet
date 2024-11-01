@@ -345,10 +345,8 @@ Future<void> setup({
 
   getIt.registerLazySingleton(() => LedgerViewModel());
 
-  bool isNewInstall =
-      (await getIt.get<SharedPreferences>().getBool(PreferencesKey.isNewInstall)) ?? false;
   bool walletFolderEmpty = (await getAppDir()).listSync().isEmpty;
-  if (isNewInstall || walletFolderEmpty) {
+  if (walletFolderEmpty) {
     await secureStorage.deleteAll();
   }
 
