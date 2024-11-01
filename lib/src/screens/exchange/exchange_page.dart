@@ -493,7 +493,6 @@ class ExchangePage extends BasePage {
             ? Debounce(Duration(milliseconds: 1000))
             : Debounce(Duration(milliseconds: 500));
 
-
         _depositAmountDebounce.run(() {
           exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
           exchangeViewModel.isReceiveAmountEntered = false;
