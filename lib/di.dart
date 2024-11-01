@@ -167,6 +167,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
 import 'package:cw_core/nano_account.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -344,7 +345,10 @@ Future<void> setup({
 
   getIt.registerLazySingleton(() => LedgerViewModel());
 
-  if ((await getIt.get<SharedPreferences>().getBool(PreferencesKey.isNewInstall)) ?? false) {
+  bool isNewInstall =
+      (await getIt.get<SharedPreferences>().getBool(PreferencesKey.isNewInstall)) ?? false;
+  bool walletFolderEmpty = (await getAppDir()).listSync().isEmpty;
+  if (isNewInstall || walletFolderEmpty) {
     await secureStorage.deleteAll();
   }
 
