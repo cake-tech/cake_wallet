@@ -1045,17 +1045,22 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       bool hasRegularOutput = false;
 
       for (final output in transactionCredentials.outputs) {
-        if (output.address.toLowerCase().contains("mweb") ||
-            (output.extractedAddress?.toLowerCase().contains("mweb") ?? false)) {
+        final address = output.address.toLowerCase();
+        final extractedAddress = output.extractedAddress?.toLowerCase();
+
+        if (address.contains("mweb")) {
           hasMwebOutput = true;
-          break;
         }
-        if (!(output.address.toLowerCase().contains("mweb"))) {
+        if (!address.contains("mweb")) {
           hasRegularOutput = true;
         }
-        final extractedAddress = output.extractedAddress;
-        if (extractedAddress != null && !(extractedAddress.toLowerCase().contains("mweb"))) {
-          hasRegularOutput = true;
+        if (extractedAddress != null && extractedAddress.isNotEmpty) {
+          if (extractedAddress.contains("mweb")) {
+            hasMwebOutput = true;
+          }
+          if (!extractedAddress.contains("mweb")) {
+            hasRegularOutput = true;
+          }
         }
       }
 
