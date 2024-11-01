@@ -85,17 +85,12 @@ class MwebLogsPage extends BasePage {
                   const downloadDirPath = "/storage/emulated/0/Download";
                   final filePath = downloadDirPath + "/debug.log";
                   await mwebSettingsViewModelBase.saveLogsLocally(filePath);
-                } catch (e) {
-                  showPopUp<void>(
-                      context: context,
-                      builder: (_) {
-                        return AlertWithOneAction(
-                          alertTitle: S.current.error,
-                          alertContent: e.toString(),
-                          buttonText: S.of(context).ok,
-                          buttonAction: () => Navigator.of(context).pop(),
-                        );
-                      });
+                } catch (e, s) {
+                  ExceptionHandler.onError(FlutterErrorDetails(
+                    exception: e,
+                    stack: s,
+                    library: "Export Logs",
+                  ));
                 }
                 Navigator.of(dialogContext).pop();
               },
@@ -103,15 +98,12 @@ class MwebLogsPage extends BasePage {
                 Navigator.of(dialogContext).pop();
                 try {
                   await share(context);
-                } catch (e) {
-                  showPopUp<void>(
-                      context: context,
-                      builder: (_) => AlertWithOneAction(
-                            alertTitle: S.current.error,
-                            alertContent: e.toString(),
-                            buttonText: S.of(context).ok,
-                            buttonAction: () => Navigator.of(context).pop(),
-                          ));
+                } catch (e, s) {
+                  ExceptionHandler.onError(FlutterErrorDetails(
+                    exception: e,
+                    stack: s,
+                    library: "Export Logs",
+                  ));
                 }
               });
         });
