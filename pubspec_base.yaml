@@ -85,7 +85,10 @@ dependencies:
   shared_preferences_android: 2.3.3
   url_launcher_android: 6.3.14
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
-  sensitive_clipboard: ^1.0.0
+  sensitive_clipboard:
+    git:
+      url: https://github.com/MrCyjaneK/sensitive_clipboard
+      ref: 288c7ee2d63b459bc735f7dc89321b29a1f12fae
   walletconnect_flutter_v2: ^2.1.4
   eth_sig_util: ^0.0.9
   ens_dart:
