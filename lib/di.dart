@@ -345,15 +345,9 @@ Future<void> setup({
   getIt.registerSingleton<SeedSettingsStore>(SeedSettingsStore());
 
   getIt.registerLazySingleton(() => LedgerViewModel());
-
-  bool noWalletsExist = true;
-  for (final type in WalletType.values) {
-    if (await walletTypeDirExists(type: type)) {
-      noWalletsExist = false;
-    }
-  }
+  
   // if no wallets exist, delete all the secure storage keys:
-  if (noWalletsExist) {
+  if (!(await walletsDirExists())) {
     await secureStorage.deleteAll();
   }
 
