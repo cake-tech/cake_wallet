@@ -26,11 +26,12 @@ class MoneroHardwareWalletOptionsPage extends BasePage {
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) => _MoneroHardwareWalletOptionsForm(_walletHardwareRestoreVM);
+  Widget body(BuildContext context) =>
+      _MoneroHardwareWalletOptionsForm(_walletHardwareRestoreVM);
 }
 
 class _MoneroHardwareWalletOptionsForm extends StatefulWidget {
-  _MoneroHardwareWalletOptionsForm(this._walletHardwareRestoreVM);
+  const _MoneroHardwareWalletOptionsForm(this._walletHardwareRestoreVM);
 
   final WalletHardwareRestoreViewModel _walletHardwareRestoreVM;
 
@@ -39,7 +40,8 @@ class _MoneroHardwareWalletOptionsForm extends StatefulWidget {
       _MoneroHardwareWalletOptionsFormState(_walletHardwareRestoreVM);
 }
 
-class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletOptionsForm> {
+class _MoneroHardwareWalletOptionsFormState
+    extends State<_MoneroHardwareWalletOptionsForm> {
   _MoneroHardwareWalletOptionsFormState(this._walletHardwareRestoreVM)
       : _formKey = GlobalKey<FormState>(),
         _blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
@@ -66,8 +68,8 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
         contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
         content: Center(
           child: ConstrainedBox(
-            constraints:
-                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+            constraints: BoxConstraints(
+                maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -79,48 +81,45 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
                       alignment: Alignment.centerRight,
                       children: [
                         TextFormField(
-                          onChanged: (value) => _walletHardwareRestoreVM.name = value,
+                          onChanged: (value) =>
+                              _walletHardwareRestoreVM.name = value,
                           controller: _controller,
                           style: TextStyle(
                             fontSize: 20.0,
                             fontWeight: FontWeight.w600,
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            color: Theme.of(context)
+                                .extension<CakeTextTheme>()!
+                                .titleColor,
                           ),
                           decoration: InputDecoration(
                             hintStyle: TextStyle(
                               fontSize: 18.0,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                              color: Theme.of(context)
+                                  .extension<NewWalletTheme>()!
+                                  .hintTextColor,
                             ),
                             hintText: S.of(context).wallet_name,
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                color:
-                                    Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                                color: Theme.of(context)
+                                    .extension<NewWalletTheme>()!
+                                    .underlineColor,
                                 width: 1.0,
                               ),
                             ),
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                color:
-                                    Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                                color: Theme.of(context)
+                                    .extension<NewWalletTheme>()!
+                                    .underlineColor,
                                 width: 1.0,
                               ),
                             ),
                             suffixIcon: Semantics(
                               label: S.of(context).generate_name,
                               child: IconButton(
-                                onPressed: () async {
-                                  final rName = await generateName();
-                                  FocusManager.instance.primaryFocus?.unfocus();
-
-                                  setState(() {
-                                    _controller.text = rName;
-                                    _walletHardwareRestoreVM.name = rName;
-                                    _controller.selection = TextSelection.fromPosition(
-                                        TextPosition(offset: _controller.text.length));
-                                  });
-                                },
+                                onPressed: _onGenerateName,
                                 icon: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
@@ -160,32 +159,42 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
         ),
         bottomSectionPadding: EdgeInsets.all(24),
         bottomSection: Observer(
-          builder: (context) {
-            return LoadingPrimaryButton(
-              onPressed: _confirmForm,
-              text: S.of(context).seed_language_next,
-              color: Colors.green,
-              textColor: Colors.white,
-              isDisabled: _walletHardwareRestoreVM.name.isEmpty,
-            );
-          },
+          builder: (context) => LoadingPrimaryButton(
+            onPressed: _confirmForm,
+            text: S.of(context).seed_language_next,
+            color: Colors.green,
+            textColor: Colors.white,
+            isDisabled: _walletHardwareRestoreVM.name.isEmpty,
+          ),
         ),
       ),
     );
   }
 
-  Future<void> _confirmForm() async {
-      showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) => AlertWithOneAction(
-            alertTitle: S.of(context).proceed_on_device,
-            alertContent: S.of(context).proceed_on_device_description,
-            buttonText: S.of(context).cancel,
-            buttonAction: () => Navigator.of(context).pop()),
-      );
+  Future<void> _onGenerateName() async {
+    final rName = await generateName();
+    FocusManager.instance.primaryFocus?.unfocus();
 
-    final options = {};
-    options['height'] = _blockchainHeightKey.currentState?.height ?? -1;
+    setState(() {
+      _controller.text = rName;
+      _walletHardwareRestoreVM.name = rName;
+      _controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: _controller.text.length));
+    });
+  }
+
+  Future<void> _confirmForm() async {
+    showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) => AlertWithOneAction(
+        alertTitle: S.of(context).proceed_on_device,
+        alertContent: S.of(context).proceed_on_device_description,
+        buttonText: S.of(context).cancel,
+        buttonAction: () => Navigator.of(context).pop(),
+      ),
+    );
+
+    final options = {'height': _blockchainHeightKey.currentState?.height ?? -1};
     await _walletHardwareRestoreVM.create(options: options);
   }
 
@@ -196,21 +205,22 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
 
     reaction((_) => _walletHardwareRestoreVM.error, (String? error) {
       if (error != null) {
-        if (error == S.current.ledger_connection_error) Navigator.of(context).pop();
+        if (error == S.current.ledger_connection_error)
+          Navigator.of(context).pop();
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
-                    alertContent: error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () {
-                      _walletHardwareRestoreVM.error = null;
-                      Navigator.of(context).pop();
-                    });
-              });
+            context: context,
+            builder: (BuildContext context) => AlertWithOneAction(
+              alertTitle: S.of(context).error,
+              alertContent: error,
+              buttonText: S.of(context).ok,
+              buttonAction: () {
+                _walletHardwareRestoreVM.error = null;
+                Navigator.of(context).pop();
+              },
+            ),
+          );
         });
       }
     });
