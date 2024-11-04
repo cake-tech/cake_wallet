@@ -90,11 +90,12 @@ abstract class DashboardViewModelBase with Store {
                 value: () => transactionFilterStore.displayOutgoing,
                 caption: S.current.outgoing,
                 onChanged: transactionFilterStore.toggleOutgoing),
-            FilterItem(
-              value: () => transactionFilterStore.displaySilentPayments,
-              caption: S.current.silent_payments,
-              onChanged: transactionFilterStore.toggleSilentPayments,
-            ),
+            if (appStore.wallet!.type == WalletType.bitcoin)
+              FilterItem(
+                value: () => transactionFilterStore.displaySilentPayments,
+                caption: S.current.silent_payments,
+                onChanged: transactionFilterStore.toggleSilentPayments,
+              ),
             // FilterItem(
             //     value: () => false,
             //     caption: S.current.transactions_by_date,
@@ -435,7 +436,10 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @computed
-  bool get hasMweb => wallet.type == WalletType.litecoin && (Platform.isIOS || Platform.isAndroid) && !wallet.isHardwareWallet;
+  bool get hasMweb =>
+      wallet.type == WalletType.litecoin &&
+      (Platform.isIOS || Platform.isAndroid) &&
+      !wallet.isHardwareWallet;
 
   @computed
   bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay && !mwebEnabled;
