@@ -969,8 +969,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return sum;
     }
 
-    print("fee is initially: $fee");
-
     final sum1 = _sumOutputAmounts(outputs.map((e) => e.toOutput).toList()) + fee;
     final sum2 = utxos.sumOfUtxosValue();
     if (sum1 != sum2) {
@@ -979,8 +977,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       // add the difference to the fee (abs value):
       fee += diff.abs();
     }
-
-    print("fee is now: $fee");
 
     final txb =
         BitcoinTransactionBuilder(utxos: utxos, outputs: outputs, fee: fee, network: network);
