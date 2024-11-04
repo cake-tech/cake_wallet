@@ -148,6 +148,7 @@ abstract class Bitcoin {
     required String name,
     required String mnemonic,
     required String password,
+    required List<DerivationInfo>? derivations,
     String? passphrase,
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
@@ -199,7 +200,7 @@ abstract class Bitcoin {
   TransactionPriority getLitecoinTransactionPrioritySlow();
   Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node});
-  Future<List<DerivationInfo>> getDerivationsFromMnemonic(
+  Future<List<BitcoinDerivationInfo>> getDerivationsFromMnemonic(
       {required String mnemonic, required Node node, String? passphrase});
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
   Future<void> setAddressType(Object wallet, dynamic option);

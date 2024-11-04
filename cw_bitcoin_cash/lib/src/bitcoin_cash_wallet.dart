@@ -6,6 +6,7 @@ import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -51,16 +52,17 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
           encryptionFileUtils: encryptionFileUtils,
           passphrase: passphrase,
           mempoolAPIEnabled: mempoolAPIEnabled,
+          hdWallets: {CWBitcoinDerivationType.bip39: bitcoinCashHDWallet(seedBytes)},
         ) {
     walletAddresses = BitcoinCashWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
-      bip32: bip32,
       network: network,
       initialAddressPageType: addressPageType,
       isHardwareWallet: walletInfo.isHardwareWallet,
+      hdWallets: hdWallets,
     );
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
@@ -154,6 +156,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             type: P2pkhAddressType.p2pkh,
             network: BitcoinCashNetwork.mainnet,
             derivationInfo: BitcoinAddressUtils.getDerivationFromType(P2pkhAddressType.p2pkh),
+            derivationType: CWBitcoinDerivationType.bip39,
           );
         } catch (_) {
           return BitcoinAddressRecord(
@@ -163,6 +166,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             type: P2pkhAddressType.p2pkh,
             network: BitcoinCashNetwork.mainnet,
             derivationInfo: BitcoinAddressUtils.getDerivationFromType(P2pkhAddressType.p2pkh),
+            derivationType: CWBitcoinDerivationType.bip39,
           );
         }
       }).toList(),
@@ -253,4 +257,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         network: network,
         memo: memo,
       );
+
+  static Bip32Slip10Secp256k1 bitcoinCashHDWallet(List<int> seedBytes) =>
+      Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/145'/0'") as Bip32Slip10Secp256k1;
 }

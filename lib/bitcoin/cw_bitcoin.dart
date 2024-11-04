@@ -5,6 +5,7 @@ class CWBitcoin extends Bitcoin {
     required String name,
     required String mnemonic,
     required String password,
+    required List<DerivationInfo>? derivations,
     String? passphrase,
   }) =>
       BitcoinRestoreWalletFromSeedCredentials(
@@ -12,6 +13,7 @@ class CWBitcoin extends Bitcoin {
         mnemonic: mnemonic,
         password: password,
         passphrase: passphrase,
+        derivations: derivations,
       );
 
   @override
@@ -342,20 +344,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<List<DerivationInfo>> getDerivationsFromMnemonic({
+  Future<List<BitcoinDerivationInfo>> getDerivationsFromMnemonic({
     required String mnemonic,
     required Node node,
     String? passphrase,
   }) async {
-    List<DerivationInfo> list = [];
-
-    List<DerivationType> types = await compareDerivationMethods(mnemonic: mnemonic, node: node);
-    if (types.length == 1 && types.first == DerivationType.electrum) {
-      return [getElectrumDerivations()[DerivationType.electrum]!.first];
-    }
-
-    final electrumClient = ElectrumClient();
-    await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
+    List<BitcoinDerivationInfo> list = [];
 
     late BasedUtxoNetwork network;
     switch (node.type) {
@@ -368,77 +362,34 @@ class CWBitcoin extends Bitcoin {
         break;
     }
 
-    for (DerivationType dType in electrum_derivations.keys) {
-      try {
-        late List<int> seedBytes;
-        if (dType == DerivationType.electrum) {
-          seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
-        } else if (dType == DerivationType.bip39) {
-          seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+    var electrumSeedBytes;
+    try {
+      electrumSeedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+    } catch (e) {
+      print("electrum_v2 seed error: $e");
+
+      if (passphrase != null && passphrase.isEmpty) {
+        try {
+          // TODO: language pick
+          electrumSeedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
+        } catch (e) {
+          print("electrum_v1 seed error: $e");
         }
-
-        for (DerivationInfo dInfo in electrum_derivations[dType]!) {
-          try {
-            DerivationInfo dInfoCopy = DerivationInfo(
-              derivationType: dInfo.derivationType,
-              derivationPath: dInfo.derivationPath,
-              description: dInfo.description,
-              scriptType: dInfo.scriptType,
-            );
-
-            String balancePath = dInfoCopy.derivationPath!;
-            int derivationDepth = _countCharOccurrences(balancePath, '/');
-
-            // for BIP44
-            if (derivationDepth == 3 || derivationDepth == 1) {
-              // we add "/0" so that we generate account 0
-              balancePath += "/0";
-            }
-
-            final bip32 = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-            final bip32BalancePath = Bip32PathParser.parse(balancePath);
-
-            // derive address at index 0:
-            final path = bip32BalancePath.addElem(Bip32KeyIndex(0));
-            String? address;
-            switch (dInfoCopy.scriptType) {
-              case "p2wpkh":
-                address = P2wpkhAddress.fromPath(bip32: bip32, path: path).toAddress(network);
-                break;
-              case "p2pkh":
-                address = P2pkhAddress.fromPath(bip32: bip32, path: path).toAddress(network);
-                break;
-              case "p2wpkh-p2sh":
-                address = P2shAddress.fromPath(bip32: bip32, path: path).toAddress(network);
-                break;
-              case "p2tr":
-                address = P2trAddress.fromPath(bip32: bip32, path: path).toAddress(network);
-                break;
-              default:
-                continue;
-            }
-
-            final sh = BitcoinAddressUtils.scriptHash(address, network: network);
-            final history = await electrumClient.getHistory(sh);
-
-            final balance = await electrumClient.getBalance(sh);
-            dInfoCopy.balance = balance.entries.firstOrNull?.value.toString() ?? "0";
-            dInfoCopy.address = address;
-            dInfoCopy.transactionsCount = history.length;
-
-            list.add(dInfoCopy);
-          } catch (e, s) {
-            print("derivationInfoError: $e");
-            print("derivationInfoStack: $s");
-          }
-        }
-      } catch (e) {
-        print("seed error: $e");
       }
     }
 
-    // sort the list such that derivations with the most transactions are first:
-    list.sort((a, b) => b.transactionsCount.compareTo(a.transactionsCount));
+    if (electrumSeedBytes != null) {
+      list.add(BitcoinDerivationInfos.ELECTRUM);
+    }
+
+    var bip39SeedBytes;
+    try {
+      bip39SeedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+    } catch (_) {}
+
+    if (bip39SeedBytes != null) {
+      list.add(BitcoinDerivationInfos.BIP84);
+    }
 
     return list;
   }

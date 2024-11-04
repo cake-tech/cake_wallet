@@ -61,6 +61,7 @@ abstract class ElectrumWalletBase
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required this.network,
     required this.encryptionFileUtils,
+    Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1>? hdWallets,
     String? xpub,
     String? mnemonic,
     List<int>? seedBytes,
@@ -71,7 +72,16 @@ abstract class ElectrumWalletBase
     CryptoCurrency? currency,
     this.alwaysScan,
     required this.mempoolAPIEnabled,
-  })  : bip32 = getAccountHDWallet(currency, network, seedBytes, xpub, walletInfo.derivationInfo),
+  })  : hdWallets = hdWallets ??
+            {
+              CWBitcoinDerivationType.bip39: getAccountHDWallet(
+                currency,
+                network,
+                seedBytes,
+                xpub,
+                walletInfo.derivationInfo,
+              )
+            },
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _isTransactionUpdating = false,
@@ -175,23 +185,11 @@ abstract class ElectrumWalletBase
     }
 
     if (seedBytes != null) {
-      switch (currency) {
-        case CryptoCurrency.btc:
-        case CryptoCurrency.ltc:
-        case CryptoCurrency.tbtc:
-          return Bip32Slip10Secp256k1.fromSeed(seedBytes);
-        case CryptoCurrency.bch:
-          return bitcoinCashHDWallet(seedBytes);
-        default:
-          throw Exception("Unsupported currency");
-      }
+      return Bip32Slip10Secp256k1.fromSeed(seedBytes);
     }
 
     return Bip32Slip10Secp256k1.fromExtendedKey(xpub!, getKeyNetVersion(network));
   }
-
-  static Bip32Slip10Secp256k1 bitcoinCashHDWallet(List<int> seedBytes) =>
-      Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/145'/0'") as Bip32Slip10Secp256k1;
 
   int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
@@ -208,7 +206,8 @@ abstract class ElectrumWalletBase
   bool? alwaysScan;
   bool mempoolAPIEnabled;
 
-  final Bip32Slip10Secp256k1 bip32;
+  final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets;
+  Bip32Slip10Secp256k1 get bip32 => walletAddresses.bip32;
   final String? _mnemonic;
 
   final EncryptionFileUtils encryptionFileUtils;
@@ -1681,11 +1680,17 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> onHistoriesResponse(List<AddressHistoriesResponse> histories) async {
+    if (histories.isEmpty) {
+      return;
+    }
+
     final firstAddress = histories.first;
     final isChange = firstAddress.addressRecord.isChange;
     final type = firstAddress.addressRecord.type;
 
-    final totalAddresses = histories.length;
+    final totalAddresses = (isChange
+        ? walletAddresses.receiveAddresses.where((element) => element.type == type).length
+        : walletAddresses.changeAddresses.where((element) => element.type == type).length);
     final gapLimit = (isChange
         ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
         : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
@@ -1717,7 +1722,7 @@ abstract class ElectrumWalletBase
       // Discover new addresses for the same address type until the gap limit is respected
       final newAddresses = await walletAddresses.discoverAddresses(
         isChange: isChange,
-        gap: gapLimit,
+        derivationType: firstAddress.addressRecord.derivationType,
         type: type,
         derivationInfo: BitcoinAddressUtils.getDerivationFromType(type),
       );

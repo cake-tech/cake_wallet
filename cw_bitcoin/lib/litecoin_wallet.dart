@@ -98,11 +98,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialMwebAddresses: initialMwebAddresses,
-      bip32: bip32,
       network: network,
       mwebHd: mwebHd,
       mwebEnabled: mwebEnabled,
       isHardwareWallet: walletInfo.isHardwareWallet,
+      hdWallets: hdWallets,
     );
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
@@ -169,6 +169,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required bool mempoolAPIEnabled,
   }) async {
     late Uint8List seedBytes;
+    late BitcoinDerivationType derivationType;
 
     switch (walletInfo.derivationInfo?.derivationType) {
       case DerivationType.bip39:
@@ -176,10 +177,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           mnemonic,
           passphrase: passphrase ?? "",
         );
+        derivationType = BitcoinDerivationType.bip39;
         break;
       case DerivationType.electrum:
       default:
         seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+        derivationType = BitcoinDerivationType.electrum;
         break;
     }
     return LitecoinWallet(
@@ -246,6 +249,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
+    late BitcoinDerivationType derivationType;
     final mnemonic = keysData.mnemonic;
     final passphrase = keysData.passphrase;
 
@@ -256,10 +260,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             mnemonic,
             passphrase: passphrase ?? "",
           );
+          derivationType = BitcoinDerivationType.bip39;
           break;
         case DerivationType.electrum:
         default:
           seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+          derivationType = BitcoinDerivationType.electrum;
           break;
       }
     }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 
 abstract class BaseBitcoinAddressRecord {
   BaseBitcoinAddressRecord(
@@ -63,11 +64,13 @@ abstract class BaseBitcoinAddressRecord {
 
 class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   final BitcoinDerivationInfo derivationInfo;
+  final CWBitcoinDerivationType derivationType;
 
   BitcoinAddressRecord(
     super.address, {
     required super.index,
     required this.derivationInfo,
+    required this.derivationType,
     super.isHidden,
     super.isChange = false,
     super.txCount = 0,
@@ -94,6 +97,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       derivationInfo: BitcoinDerivationInfo.fromJSON(
         decoded['derivationInfo'] as Map<String, dynamic>,
       ),
+      derivationType: CWBitcoinDerivationType.values[decoded['derivationType'] as int],
       isHidden: decoded['isHidden'] as bool? ?? false,
       isChange: decoded['isChange'] as bool? ?? false,
       isUsed: decoded['isUsed'] as bool? ?? false,
@@ -115,6 +119,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         'address': address,
         'index': index,
         'derivationInfo': derivationInfo.toJSON(),
+        'derivationType': derivationType.index,
         'isHidden': isHidden,
         'isChange': isChange,
         'isUsed': isUsed,

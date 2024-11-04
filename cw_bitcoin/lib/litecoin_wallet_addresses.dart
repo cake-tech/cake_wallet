@@ -19,11 +19,11 @@ class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalle
 abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.bip32,
     required super.network,
     required super.isHardwareWallet,
     required this.mwebHd,
     required this.mwebEnabled,
+    required super.hdWallets,
     super.initialAddresses,
     super.initialMwebAddresses,
     super.initialRegularAddressIndex,
@@ -98,13 +98,16 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       List<BitcoinAddressRecord> addressRecords = mwebAddrs
           .asMap()
           .entries
-          .map((e) => BitcoinAddressRecord(
-                e.value,
-                index: e.key,
-                type: SegwitAddresType.mweb,
-                network: network,
-                derivationInfo: BitcoinAddressUtils.getDerivationFromType(SegwitAddresType.p2wpkh),
-              ))
+          .map(
+            (e) => BitcoinAddressRecord(
+              e.value,
+              index: e.key,
+              type: SegwitAddresType.mweb,
+              network: network,
+              derivationInfo: BitcoinAddressUtils.getDerivationFromType(SegwitAddresType.p2wpkh),
+              derivationType: CWBitcoinDerivationType.bip39,
+            ),
+          )
           .toList();
       addMwebAddresses(addressRecords);
       print("set ${addressRecords.length} mweb addresses");
@@ -119,6 +122,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
     @override
     BitcoinBaseAddress generateAddress({
+      required CWBitcoinDerivationType derivationType,
       required bool isChange,
       required int index,
       required BitcoinAddressType addressType,
@@ -139,6 +143,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @override
   Future<String> getAddressAsync({
+    required CWBitcoinDerivationType derivationType,
     required bool isChange,
     required int index,
     required BitcoinAddressType addressType,
@@ -149,6 +154,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
 
     return getAddress(
+      derivationType: derivationType,
       isChange: isChange,
       index: index,
       addressType: addressType,
@@ -208,6 +214,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         type: SegwitAddresType.mweb,
         network: network,
         derivationInfo: BitcoinAddressUtils.getDerivationFromType(SegwitAddresType.p2wpkh),
+        derivationType: CWBitcoinDerivationType.bip39,
       );
     }
 

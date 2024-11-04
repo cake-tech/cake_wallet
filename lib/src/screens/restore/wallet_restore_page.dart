@@ -109,6 +109,7 @@ class WalletRestorePage extends BasePage {
   // DerivationType derivationType = DerivationType.unknown;
   // String? derivationPath = null;
   DerivationInfo? derivationInfo;
+  List<DerivationInfo>? derivations;
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
@@ -346,6 +347,7 @@ class WalletRestorePage extends BasePage {
     }
 
     credentials['derivationInfo'] = this.derivationInfo;
+    credentials['derivations'] = this.derivations;
     credentials['walletType'] = walletRestoreViewModel.type;
     return credentials;
   }
@@ -383,12 +385,12 @@ class WalletRestorePage extends BasePage {
 
       walletRestoreViewModel.state = IsExecutingState();
 
+      // get info about the different derivations:
+      List<DerivationInfo> derivations =
+          await walletRestoreViewModel.getDerivationInfo(_credentials());
+
       if (walletRestoreViewModel.type == WalletType.nano) {
         DerivationInfo? dInfo;
-
-        // get info about the different derivations:
-        List<DerivationInfo> derivations =
-            await walletRestoreViewModel.getDerivationInfo(_credentials());
 
         int derivationsWithHistory = 0;
         int derivationWithHistoryIndex = 0;
@@ -416,6 +418,8 @@ class WalletRestorePage extends BasePage {
         }
 
         this.derivationInfo = dInfo;
+      } else {
+        this.derivations = derivations;
       }
 
       await walletRestoreViewModel.create(options: _credentials());

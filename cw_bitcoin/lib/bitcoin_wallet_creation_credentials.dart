@@ -26,6 +26,7 @@ class BitcoinRestoreWalletFromSeedCredentials extends WalletCredentials {
     required String name,
     required String password,
     required this.mnemonic,
+    required super.derivations,
     WalletInfo? walletInfo,
     String? passphrase,
   }) : super(

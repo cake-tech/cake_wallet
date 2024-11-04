@@ -118,6 +118,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
               passphrase: restoreWallet.passphrase,
+              derivations: [],
             );
           case WalletType.bitcoinCash:
             return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
