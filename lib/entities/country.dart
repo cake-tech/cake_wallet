@@ -376,10 +376,6 @@ class Country extends EnumerableItem<String> with Serializable<String> {
     return _all.values.firstWhereOrNull((element) => element.raw == countryCode.toLowerCase());
   }
 
-  static Country? fromFullName(String fullName) {
-    return _all.values.firstWhereOrNull((element) => element.fullName == fullName);
-  }
-
   @override
   bool operator ==(Object other) => other is Country && other.raw == raw;
 

@@ -119,39 +119,36 @@ class CakePayCardsPage extends BasePage {
             _cardsListViewModel.getVendors();
           }
         },
-        child: Padding(
-          padding: const EdgeInsets.only(left: 5),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 6),
+          decoration: BoxDecoration(
+            color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+            border: Border.all(color: Colors.transparent),
+            borderRadius: BorderRadius.circular(10),
+          ),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 6),
-            decoration: BoxDecoration(
-              color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-              border: Border.all(color: Colors.transparent),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Container(
-              margin: EdgeInsets.symmetric(vertical: 2),
-              child: Row(
-                children: [
-                  Image.asset(
-                    _cardsListViewModel.selectedCountry.iconPath,
+            margin: EdgeInsets.symmetric(vertical: 2),
+            child: Row(
+              children: [
+                Image.asset(
+                  _cardsListViewModel.selectedCountry.iconPath,
+                  width: 24,
+                  height: 24,
+                  errorBuilder: (context, error, stackTrace) => Container(
                     width: 24,
                     height: 24,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 24,
-                      height: 24,
-                    ),
                   ),
-                  SizedBox(width: 6),
-                  Text(
-                    _cardsListViewModel.selectedCountry.countryCode,
-                    style: TextStyle(
-                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
+                ),
+                SizedBox(width: 6),
+                Text(
+                  _cardsListViewModel.selectedCountry.countryCode,
+                  style: TextStyle(
+                    color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -172,7 +169,7 @@ class CakePayCardsPage extends BasePage {
                 )),
                 SizedBox(width: 5),
                 filterButton,
-                if (_cardsListViewModel.showCountryPicker)
+                SizedBox(width: 5),
                 _countryPicker
               ])),
           SizedBox(height: 8),
