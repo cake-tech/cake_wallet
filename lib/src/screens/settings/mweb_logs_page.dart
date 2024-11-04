@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -81,17 +80,9 @@ class MwebLogsPage extends BasePage {
               rightButtonText: S.of(context).save_to_downloads,
               leftButtonText: S.of(context).share,
               actionRightButton: () async {
-                try {
-                  const downloadDirPath = "/storage/emulated/0/Download";
-                  final filePath = downloadDirPath + "/debug.log";
-                  await mwebSettingsViewModelBase.saveLogsLocally(filePath);
-                } catch (e, s) {
-                  ExceptionHandler.onError(FlutterErrorDetails(
-                    exception: e,
-                    stack: s,
-                    library: "Export Logs",
-                  ));
-                }
+                const downloadDirPath = "/storage/emulated/0/Download";
+                final filePath = downloadDirPath + "/debug.log";
+                await mwebSettingsViewModelBase.saveLogsLocally(filePath);
                 Navigator.of(dialogContext).pop();
               },
               actionLeftButton: () async {

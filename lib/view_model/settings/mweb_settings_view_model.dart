@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -46,12 +48,20 @@ abstract class MwebSettingsViewModelBase with Store {
   }
 
   Future<void> saveLogsLocally(String filePath) async {
-    final appSupportPath = (await getApplicationSupportDirectory()).path;
-    final logsFile = File("$appSupportPath/logs/debug.log");
-    if (!logsFile.existsSync()) {
-      throw Exception('Logs file does not exist');
+    try {
+      final appSupportPath = (await getApplicationSupportDirectory()).path;
+      final logsFile = File("$appSupportPath/logs/debug.log");
+      if (!logsFile.existsSync()) {
+        throw Exception('Logs file does not exist');
+      }
+      await logsFile.copy(filePath);
+    } catch (e, s) {
+      ExceptionHandler.onError(FlutterErrorDetails(
+        exception: e,
+        stack: s,
+        library: "Export Logs",
+      ));
     }
-    await logsFile.copy(filePath);
   }
 
   Future<String> getAbbreviatedLogs() async {
