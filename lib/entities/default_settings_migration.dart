@@ -843,7 +843,7 @@ Future<void> changeDefaultMoneroNode(
     }
   });
 
-  final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
+  final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero, trusted: true);
 
   await nodeSource.add(newCakeWalletNode);
 

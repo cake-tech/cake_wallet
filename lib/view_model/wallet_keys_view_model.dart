@@ -68,6 +68,10 @@ abstract class WalletKeysViewModelBase with Store {
       final keys = monero!.getKeys(_appStore.wallet!);
 
       items.addAll([
+        if (keys['primaryAddress'] != null)
+          StandartListItem(
+              title: S.current.primary_address,
+              value: keys['primaryAddress']!),
         if (keys['publicSpendKey'] != null)
           StandartListItem(
               title: S.current.spend_key_public,

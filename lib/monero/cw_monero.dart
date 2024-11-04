@@ -248,6 +248,7 @@ class CWMonero extends Monero {
     final moneroWallet = wallet as MoneroWallet;
     final keys = moneroWallet.keys;
     return <String, String>{
+      'primaryAddress': keys.primaryAddress,
       'privateSpendKey': keys.privateSpendKey,
       'privateViewKey': keys.privateViewKey,
       'publicSpendKey': keys.publicSpendKey,

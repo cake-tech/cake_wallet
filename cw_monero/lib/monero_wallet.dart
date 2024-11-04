@@ -122,6 +122,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
+      primaryAddress: monero_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: monero_wallet.getSecretSpendKey(),
       privateViewKey: monero_wallet.getSecretViewKey(),
       publicSpendKey: monero_wallet.getPublicSpendKey(),
