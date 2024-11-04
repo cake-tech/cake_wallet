@@ -102,7 +102,8 @@ class MwebLogsPage extends BasePage {
 
   Future<void> share(BuildContext context) async {
     final filePath = (await getAppDir()).path + "/debug.log";
-    await mwebSettingsViewModelBase.saveLogsLocally(filePath);
+    bool success = await mwebSettingsViewModelBase.saveLogsLocally(filePath);
+    if (!success) return;
     await ShareUtil.shareFile(filePath: filePath, fileName: "debug.log", context: context);
     await mwebSettingsViewModelBase.removeLogsLocally(filePath);
   }

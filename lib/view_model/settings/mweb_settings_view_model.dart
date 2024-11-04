@@ -47,7 +47,7 @@ abstract class MwebSettingsViewModelBase with Store {
     _settingsStore.mwebAlwaysScan = value;
   }
 
-  Future<void> saveLogsLocally(String filePath) async {
+  Future<bool> saveLogsLocally(String filePath) async {
     try {
       final appSupportPath = (await getApplicationSupportDirectory()).path;
       final logsFile = File("$appSupportPath/logs/debug.log");
@@ -55,12 +55,14 @@ abstract class MwebSettingsViewModelBase with Store {
         throw Exception('Logs file does not exist');
       }
       await logsFile.copy(filePath);
+      return true;
     } catch (e, s) {
       ExceptionHandler.onError(FlutterErrorDetails(
         exception: e,
         stack: s,
         library: "Export Logs",
       ));
+      return false;
     }
   }
 
