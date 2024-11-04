@@ -267,6 +267,8 @@ abstract class Web3WalletServiceBase with Store {
 
     final keyForWallet = getKeyForStoringTopicsForWallet();
 
+    if (keyForWallet.isEmpty) return;
+
     final currentTopicsForWallet = getPairingTopicsForWallet(keyForWallet);
 
     final filteredPairings =
@@ -360,6 +362,10 @@ abstract class Web3WalletServiceBase with Store {
   String getKeyForStoringTopicsForWallet() {
     List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
 
+    if (chainKeys.isEmpty) {
+      return '';
+    }
+
     final keyForPairingTopic =
         PreferencesKey.walletConnectPairingTopicsListForWallet(chainKeys.first.publicKey);
 
@@ -385,6 +391,8 @@ abstract class Web3WalletServiceBase with Store {
   Future<void> savePairingTopicToLocalStorage(String pairingTopic) async {
     // Get key specific to the current wallet
     final key = getKeyForStoringTopicsForWallet();
+
+    if (key.isEmpty) return;
 
     // Get all pairing topics attached to this key
     final pairingTopicsForWallet = getPairingTopicsForWallet(key);

@@ -83,18 +83,19 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
     }
 
-    if (showRecipientAddress && !isRecipientAddressShown) {
-      try {
-        final recipientAddress = transactionDescriptionBox.values
-            .firstWhere((val) => val.id == transactionInfo.txHash)
-            .recipientAddress;
+    final descriptionKey =
+        '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
+    final description = transactionDescriptionBox.values.firstWhere(
+        (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+        orElse: () => TransactionDescription(id: descriptionKey));
 
-        if (recipientAddress?.isNotEmpty ?? false) {
-          items.add(StandartListItem(
-              title: S.current.transaction_details_recipient_address, value: recipientAddress!));
-        }
-      } catch (_) {
-        // FIX-ME: Unhandled exception
+    if (showRecipientAddress && !isRecipientAddressShown) {
+      final recipientAddress = description.recipientAddress;
+
+      if (recipientAddress?.isNotEmpty ?? false) {
+        items.add(StandartListItem(
+          title: S.current.transaction_details_recipient_address,
+          value: recipientAddress!));
       }
     }
 
@@ -109,12 +110,6 @@ abstract class TransactionDetailsViewModelBase with Store {
             if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
           } catch (e) {}
         }));
-
-    final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
-
-    final description = transactionDescriptionBox.values.firstWhere(
-            (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
-        orElse: () => TransactionDescription(id: descriptionKey));
 
     items.add(TextFieldListItem(
         title: S.current.note_tap_to_change,
