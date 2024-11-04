@@ -5,6 +5,7 @@ import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
@@ -1949,6 +1950,21 @@ abstract class ElectrumWalletBase
 
               // Got a new transaction fetched, add it to the transaction history
               // instead of waiting all to finish, and next time it will be faster
+
+              if (this is LitecoinWallet) {
+                // if we have a peg out transaction with the same value
+                // that matches this received transaction, mark it as being from a peg out:
+                for (final tx2 in transactionHistory.transactions.values) {
+                  final heightDiff = ((tx2.height ?? 0) - (tx.height ?? 0)).abs();
+                  // this isn't a perfect matching algorithm since we don't have the right input/output information from these transaction models (the addresses are in different formats), but this should be more than good enough for now as it's extremely unlikely a user receives the EXACT same amount from 2 different sources and one of them is a peg out and the other isn't AND the fees are also exactly the same within 5 blocks of each other
+                  if (tx2.additionalInfo["isPegOut"] == true &&
+                      tx2.amount == tx.amount &&
+                      tx2.fee == tx.fee &&
+                      heightDiff <= 5) {
+                    tx.additionalInfo["fromPegOut"] = true;
+                  }
+                }
+              }
               transactionHistory.addOne(tx);
               await transactionHistory.save();
             }

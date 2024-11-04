@@ -71,11 +71,12 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.litecoin:
         bool isPegIn = (transaction.additionalInfo["isPegIn"] as bool?) ?? false;
         bool isPegOut = (transaction.additionalInfo["isPegOut"] as bool?) ?? false;
+        bool fromPegOut = (transaction.additionalInfo["fromPegOut"] as bool?) ?? false;
         String str = '';
         if (transaction.confirmations <= 0) {
           str = S.current.pending;
         }
-        if (isPegOut && transaction.confirmations >= 0 && transaction.confirmations < 6) {
+        if ((isPegOut || fromPegOut) && transaction.confirmations >= 0 && transaction.confirmations < 6) {
           str = " (${transaction.confirmations}/6)";
         }
         if (isPegIn) {
