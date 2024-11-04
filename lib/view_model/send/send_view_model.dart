@@ -128,7 +128,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
       return false;
 
-      if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.matic)
+    if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.matic)
       return false;
 
     return true;
@@ -415,7 +415,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       //
       //   state = FailureState(errorMsg);
       // } else {
-        state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
+      state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
       // }
     }
     return null;
@@ -481,18 +481,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         nano!.updateTransactions(wallet);
       }
 
-
       if (pendingTransaction!.id.isNotEmpty) {
-
         final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-            id: descriptionKey,
-            recipientAddress: address,
-            transactionNote: note))
+                id: descriptionKey,
+                recipientAddress: address,
+                transactionNote: note,
+              ))
             : await transactionDescriptionBox.add(TransactionDescription(
-            id: descriptionKey,
-            transactionNote: note));
+                id: descriptionKey,
+                transactionNote: note,
+              ));
       }
 
       state = TransactionCommitted();
