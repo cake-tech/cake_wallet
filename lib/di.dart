@@ -36,6 +36,7 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
+import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
@@ -770,6 +771,13 @@ Future<void> setup({
       ),
     );
   }
+
+  getIt.registerFactoryParam<WalletListPage, Function(BuildContext)?, void>(
+      (Function(BuildContext)? onWalletLoaded, _) => WalletListPage(
+            walletListViewModel: getIt.get<WalletListViewModel>(),
+            authService: getIt.get<AuthService>(),
+            onWalletLoaded: onWalletLoaded,
+          ));
 
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
     (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(

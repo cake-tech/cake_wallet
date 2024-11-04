@@ -1,6 +1,5 @@
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
-import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
@@ -115,7 +114,6 @@ import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
@@ -407,11 +405,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final onWalletLoaded = settings.arguments as Function(BuildContext)?;
       return MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (_) => WalletListPage(
-          walletListViewModel: getIt.get<WalletListViewModel>(),
-          authService: getIt.get<AuthService>(),
-          onWalletLoaded: onWalletLoaded,
-        ),
+        builder: (_) => getIt.get<WalletListPage>(param1: onWalletLoaded),
       );
 
     case Routes.walletEdit:
