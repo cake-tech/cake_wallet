@@ -664,8 +664,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     // get output ids of all the mweb utxos that have > 0 height:
-    final outputIds =
-        mwebUtxosBox.values.where((utxo) => utxo.height > 0).map((utxo) => utxo.outputId).toList();
+    final outputIds = mwebUtxosBox.values
+        .where((utxo) => utxo.height > 0 && !utxo.spent)
+        .map((utxo) => utxo.outputId)
+        .toList();
 
     final resp = await CwMweb.spent(SpentRequest(outputId: outputIds));
     final spent = resp.outputId;
