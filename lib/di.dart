@@ -39,6 +39,7 @@ import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
@@ -345,8 +346,14 @@ Future<void> setup({
 
   getIt.registerLazySingleton(() => LedgerViewModel());
 
-  bool walletFolderEmpty = (await getAppDir()).listSync().isEmpty;
-  if (walletFolderEmpty) {
+  bool noWalletsExist = true;
+  for (final type in WalletType.values) {
+    if (await walletTypeDirExists(type: type)) {
+      noWalletsExist = false;
+    }
+  }
+  // if no wallets exist, delete all the secure storage keys:
+  if (noWalletsExist) {
     await secureStorage.deleteAll();
   }
 
