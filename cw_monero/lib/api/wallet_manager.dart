@@ -281,6 +281,11 @@ Future<void> loadWallet(
       });
     }
     txhistory = null;
+
+    /// Get the device type
+    /// 0: Software Wallet
+    /// 1: Ledger
+    /// 2: Trezor
     final deviceType = monero.WalletManager_queryWalletDevice(wmPtr,
         keysFileName: "$path.keys", password: password, kdfRounds: 1);
 

@@ -63,10 +63,6 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
         break;
       case WalletType.litecoin:
         accounts = await bitcoin!
-            .getHardwareWalletBitcoinAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
-        break;
-      case WalletType.litecoin:
-        accounts = await bitcoin!
             .getHardwareWalletLitecoinAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
         break;
       case WalletType.ethereum:

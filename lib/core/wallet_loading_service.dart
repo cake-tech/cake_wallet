@@ -15,7 +15,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletLoadingService {
   WalletLoadingService(
-      this.sharedPreferences, this.keyService, this.walletServiceFactory);
+    this.sharedPreferences,
+    this.keyService,
+    this.walletServiceFactory,
+  );
 
   final SharedPreferences sharedPreferences;
   final KeyService keyService;
@@ -24,12 +27,10 @@ class WalletLoadingService {
   Future<void> renameWallet(WalletType type, String name, String newName,
       {String? password}) async {
     final walletService = walletServiceFactory.call(type);
-    final walletPassword =
-        password ?? (await keyService.getWalletPassword(walletName: name));
+    final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
 
     // Save the current wallet's password to the new wallet name's key
-    await keyService.saveWalletPassword(
-        walletName: newName, password: walletPassword);
+    await keyService.saveWalletPassword(walletName: newName, password: walletPassword);
     // Delete previous wallet name from keyService to keep only new wallet's name
     // otherwise keeps duplicate (old and new names)
     await keyService.deleteWalletPassword(walletName: name);
@@ -45,12 +46,10 @@ class WalletLoadingService {
     }
   }
 
-  Future<WalletBase> load(WalletType type, String name,
-      {String? password}) async {
+  Future<WalletBase> load(WalletType type, String name, {String? password}) async {
     try {
       final walletService = walletServiceFactory.call(type);
-      final walletPassword =
-          password ?? (await keyService.getWalletPassword(walletName: name));
+      final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
       final wallet = await walletService.openWallet(name, walletPassword);
 
       if (type == WalletType.monero) {
@@ -59,12 +58,10 @@ class WalletLoadingService {
 
       return wallet;
     } catch (error, stack) {
-      ExceptionHandler.onError(
-          FlutterErrorDetails(exception: error, stack: stack));
+      ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
 
       // try fetching the seeds of the corrupted wallet to show it to the user
-      String corruptedWalletsSeeds =
-          "Corrupted wallets seeds (if retrievable, empty otherwise):";
+      String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
       try {
         corruptedWalletsSeeds += await _getCorruptedWalletSeeds(name, type);
       } catch (e) {
@@ -72,16 +69,13 @@ class WalletLoadingService {
       }
 
       // try opening another wallet that is not corrupted to give user access to the app
-      final walletInfoSource =
-          await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+      final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
 
       for (var walletInfo in walletInfoSource.values) {
         try {
           final walletService = walletServiceFactory.call(walletInfo.type);
-          final walletPassword = password ??
-              (await keyService.getWalletPassword(walletName: name));
-          final wallet =
-              await walletService.openWallet(walletInfo.name, walletPassword);
+          final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+          final wallet = await walletService.openWallet(walletInfo.name, walletPassword);
 
           if (walletInfo.type == WalletType.monero) {
             await updateMoneroWalletPassword(wallet);
@@ -100,8 +94,7 @@ class WalletLoadingService {
           print(e);
           // save seeds and show corrupted wallets' seeds to the user
           try {
-            final seeds = await _getCorruptedWalletSeeds(
-                walletInfo.name, walletInfo.type);
+            final seeds = await _getCorruptedWalletSeeds(walletInfo.name, walletInfo.type);
             if (!corruptedWalletsSeeds.contains(seeds)) {
               corruptedWalletsSeeds += seeds;
             }
@@ -128,11 +121,9 @@ class WalletLoadingService {
     // Save new generated password with backup key for case where
     // wallet will change password, but it will fail to update in secure storage
     final bakWalletName = '#__${wallet.name}_bak__#';
-    await keyService.saveWalletPassword(
-        walletName: bakWalletName, password: password);
+    await keyService.saveWalletPassword(walletName: bakWalletName, password: password);
     await wallet.changePassword(password);
-    await keyService.saveWalletPassword(
-        walletName: wallet.name, password: password);
+    await keyService.saveWalletPassword(walletName: wallet.name, password: password);
     isPasswordUpdated = true;
     await sharedPreferences.setBool(key, isPasswordUpdated);
   }
@@ -145,7 +136,7 @@ class WalletLoadingService {
   }
 
   bool requireHardwareWalletConnection(WalletType type, String name) {
-      final walletService = walletServiceFactory.call(type);
-      return walletService.requireHardwareWalletConnection(name);
+    final walletService = walletServiceFactory.call(type);
+    return walletService.requireHardwareWalletConnection(name);
   }
 }
