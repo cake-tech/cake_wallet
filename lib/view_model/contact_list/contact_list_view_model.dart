@@ -99,18 +99,19 @@ abstract class ContactListViewModelBase with Store {
 
   Future<void> delete(ContactRecord contact) async => contact.original.delete();
 
-  ObservableList<ContactRecord> get contactsToShow => _currency != null ?
-  ObservableList.of(contacts.where((element) => _isValidForCurrency(element))) : contacts;
+  ObservableList<ContactRecord> get contactsToShow =>
+      ObservableList.of(contacts.where((element) => _isValidForCurrency(element)));
 
   @computed
-  List<WalletContact> get walletContactsToShow => _currency != null ?
-  walletContacts.where((element) => _isValidForCurrency(element)).toList() : walletContacts;
+  List<WalletContact> get walletContactsToShow =>
+      walletContacts.where((element) => _isValidForCurrency(element)).toList();
 
   bool _isValidForCurrency(ContactBase element) {
-    if (element.name.contains('(Silent Payments)')) return false;
-    if (element.name.contains('MWEB)')) return false;
+    if (element.name.contains('Silent Payments')) return false;
+    if (element.name.contains('MWEB')) return false;
 
-    return element.type == _currency ||
+    return _currency == null ||
+        element.type == _currency ||
         (element.type.tag != null &&
             _currency?.tag != null &&
             element.type.tag == _currency?.tag) ||

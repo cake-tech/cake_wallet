@@ -129,8 +129,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       "currency_to": _normalizeCurrency(request.toCurrency),
       "amount": request.fromAmount,
       "fixed": isFixedRateMode,
-      "user_refund_address": _formatBchAddress(request.refundAddress),
-      "address_to": _formatBchAddress(request.toAddress)
+      "user_refund_address": _normalizeAddress(request.refundAddress),
+      "address_to": _normalizeAddress(request.toAddress)
     };
     final uri = Uri.https(apiAuthority, createExchangePath, params);
 
@@ -244,6 +244,6 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String _formatBchAddress(String address) =>
+  String _normalizeAddress(String address) =>
       address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
 }
