@@ -256,6 +256,9 @@ Future<void> defaultSettingsMigration(
           await _addSethNode(nodes, sharedPreferences);
           await updateTronNodesWithNowNodes(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
+        case 42:
+          updateBtcElectrumNodeToUseSSL(nodes, sharedPreferences);
+          break;
         default:
           break;
       }
@@ -268,6 +271,15 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+void updateBtcElectrumNodeToUseSSL(Box<Node> nodes, SharedPreferences sharedPreferences) {
+  final btcElectrumNode = nodes.values.firstWhereOrNull((element) => element.uriRaw == newCakeWalletBitcoinUri);
+
+  if (btcElectrumNode != null) {
+    btcElectrumNode.useSSL = true;
+    btcElectrumNode.save();
+  }
 }
 
 void _deselectQuantex(SharedPreferences sharedPreferences) {

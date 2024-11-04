@@ -18,7 +18,7 @@
 
 # Cake Wallet
 
-Cake Wallet is an open source, non-custodial, and private multi-currency crypto wallet for Android, iOS, macOS, and Linux.
+[Cake Wallet](https://cakewallet.com) is an open source, non-custodial, and private multi-currency crypto wallet for Android, iOS, macOS, and Linux.
 
 Cake Wallet includes support for several cryptocurrencies, including:
 * Monero (XMR)
@@ -26,7 +26,7 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Ethereum (ETH)
 * Litecoin (LTC)
 * Bitcoin Cash (BCH)
-* Polygon (MATIC)
+* Polygon (Pol)
 * Solana (SOL)
 * Nano (XNO)
 * Haven (XHV)

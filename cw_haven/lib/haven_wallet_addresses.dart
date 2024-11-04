@@ -23,6 +23,8 @@ abstract class HavenWalletAddressesBase extends WalletAddressesWithAccount<Accou
   @observable
   String address;
   
+  String get primaryAddress => address;
+  
   // @override
   @observable
   Account? account;
