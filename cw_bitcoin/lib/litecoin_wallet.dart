@@ -1039,7 +1039,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       bool hasMwebInput = false;
       bool hasMwebOutput = false;
-      bool hasRegularInput = false;
       bool hasRegularOutput = false;
 
       for (final output in transactionCredentials.outputs) {
@@ -1066,9 +1065,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       for (final utxo in tx.utxos) {
         if (utxo.utxo.scriptType == SegwitAddresType.mweb) {
           hasMwebInput = true;
-        }
-        if (utxo.utxo.scriptType == SegwitAddresType.p2wpkh) {
-          hasRegularInput = true;
         }
       }
 
@@ -1127,18 +1123,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       return tx
         ..addListener((transaction) async {
-          print(
-              "@@@@@@@@@@@@@@@@@@@@@@@@@############################# transaction: ${transaction.outputAddresses}");
           final addresses = <String>{};
           transaction.inputAddresses?.forEach((id) async {
-            print("@@@@@@@@@@@@@@@@@@@@@@@@@ input address: $id");
             final utxo = mwebUtxosBox.get(id);
             // await mwebUtxosBox.delete(id); // gets deleted in checkMwebUtxosSpent
             if (utxo == null) return;
             // mark utxo as spent so we add it to the unconfirmed balance (as negative):
             utxo.spent = true;
-            print(
-                "@@@@@@@@@@@@@@@@@@@@@@@@@ spent utxo: ${utxo.outputId} ${utxo.height} ${utxo.value}");
             await mwebUtxosBox.put(id, utxo);
             final addressRecord = walletAddresses.allAddresses
                 .firstWhere((addressRecord) => addressRecord.address == utxo.address);
