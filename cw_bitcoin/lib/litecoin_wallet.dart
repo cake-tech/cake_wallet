@@ -649,7 +649,32 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     );
   }
 
+  Future<void> deleteSpentUtxos() async {
+    print("deleteSpentUtxos() called!");
+    final chainHeight = await electrumClient.getCurrentBlockChainTip();
+    final status = await CwMweb.status(StatusRequest());
+    if (chainHeight == null || status.blockHeaderHeight != chainHeight) return;
+    if (status.mwebUtxosHeight != chainHeight) return; // we aren't synced
+
+    // delete any spent utxos with >= 2 confirmations:
+    final spentOutputIds = mwebUtxosBox.values
+        .where((utxo) => utxo.spent && (chainHeight - utxo.height) >= 2)
+        .map((utxo) => utxo.outputId)
+        .toList();
+
+    if (spentOutputIds.isEmpty) return;
+
+    final resp = await CwMweb.spent(SpentRequest(outputId: spentOutputIds));
+    final spent = resp.outputId;
+    if (spent.isEmpty) return;
+
+    for (final outputId in spent) {
+      await mwebUtxosBox.delete(outputId);
+    }
+  }
+
   Future<void> checkMwebUtxosSpent() async {
+    print("checkMwebUtxosSpent() called!");
     if (!mwebEnabled) {
       return;
     }
@@ -663,6 +688,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       updatedAny = await isConfirmed(tx) || updatedAny;
     }
 
+    await deleteSpentUtxos();
+
     // get output ids of all the mweb utxos that have > 0 height:
     final outputIds = mwebUtxosBox.values
         .where((utxo) => utxo.height > 0 && !utxo.spent)
@@ -671,9 +698,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     final resp = await CwMweb.spent(SpentRequest(outputId: outputIds));
     final spent = resp.outputId;
-    if (spent.isEmpty) {
-      return;
-    }
+    if (spent.isEmpty) return;
 
     final status = await CwMweb.status(StatusRequest());
     final height = await electrumClient.getCurrentBlockChainTip();
