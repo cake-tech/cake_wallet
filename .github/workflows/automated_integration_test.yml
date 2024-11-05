@@ -295,5 +295,6 @@ jobs:
                 flutter pub get
                 adb devices
                 adb wait-for-device
+                adb uninstall com.cakewallet.cake_wallet
                 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/send_flow_test.dart
               
