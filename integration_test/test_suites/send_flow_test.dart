@@ -8,7 +8,7 @@ import '../robots/dashboard_page_robot.dart';
 import '../robots/send_page_robot.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
-Future<void> main() async {
+void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   SendPageRobot sendPageRobot;
