@@ -280,8 +280,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   void _onChangeWallet() {
     Navigator.of(context).pushNamed(
       Routes.walletList,
-      arguments: (BuildContext context) =>
-          Navigator.of(context).pushNamed(Routes.dashboard),
+      arguments: (BuildContext context) => Navigator.of(context)
+          .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false),
     );
   }
 }
