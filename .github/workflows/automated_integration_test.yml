@@ -293,6 +293,8 @@ jobs:
             working-directory: /opt/android/cake_wallet
             script: |
                 flutter pub get
+                adb devices
+                adb wait-for-device
                 flutter test -v integration_test/test_suites/
                 if [ $? -ne 0 ]; then
                   echo "Tests failed"
