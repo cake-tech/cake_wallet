@@ -16,9 +16,13 @@ dependencies:
   cw_evm:
     path: ../cw_evm
   on_chain:
-    path: /home/rafael/Working/On_chain/
+    git:
+      url: https://github.com/cake-tech/on_chain.git
+      ref: cake-update-v3
   blockchain_utils:
-    path: /home/rafael/Working/blockchain_utils/
+    git:
+      url: https://github.com/cake-tech/blockchain_utils.git
+      ref: cake-update-v3
   mobx: ^2.3.0+1
   bip39: ^1.0.6
   hive: ^2.2.3
@@ -33,7 +37,9 @@ dev_dependencies:
 
 dependency_overrides:
   blockchain_utils:
-    path: /home/rafael/Working/blockchain_utils/
+    git:
+      url: https://github.com/cake-tech/blockchain_utils.git
+      ref: cake-update-v3
 
 flutter:
   # assets:

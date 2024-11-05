@@ -86,16 +86,20 @@ packages:
   bitcoin_base:
     dependency: "direct overridden"
     description:
-      path: "/home/rafael/Working/bitcoin_base/"
-      relative: false
-    source: path
+      path: "."
+      ref: cake-update-v15
+      resolved-ref: "49db5748d2edc73c0c8213e11ab6a39fa3a7ff7f"
+      url: "https://github.com/cake-tech/bitcoin_base.git"
+    source: git
     version: "4.7.0"
   blockchain_utils:
     dependency: "direct main"
     description:
-      path: "/home/rafael/Working/blockchain_utils/"
-      relative: false
-    source: path
+      path: "."
+      ref: cake-update-v3
+      resolved-ref: "9b64c43bcfe129e7f01300a63607fde083dd0357"
+      url: "https://github.com/cake-tech/blockchain_utils.git"
+    source: git
     version: "3.3.0"
   bluez:
     dependency: transitive
@@ -913,9 +917,11 @@ packages:
   sp_scanner:
     dependency: "direct main"
     description:
-      path: "/home/rafael/Working/sp_scanner/"
-      relative: false
-    source: path
+      path: "."
+      ref: cake-update-v3
+      resolved-ref: "2c21e53fd652e0aee1ee5fcd891376c10334237b"
+      url: "https://github.com/cake-tech/sp_scanner.git"
+    source: git
     version: "0.0.1"
   stack_trace:
     dependency: transitive
