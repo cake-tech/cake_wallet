@@ -1,9 +1,10 @@
 part of 'methods.dart';
 
 class ElectrumWorkerGetBalanceRequest implements ElectrumWorkerRequest {
-  ElectrumWorkerGetBalanceRequest({required this.scripthashes});
+  ElectrumWorkerGetBalanceRequest({required this.scripthashes, this.id});
 
   final Set<String> scripthashes;
+  final int? id;
 
   @override
   final String method = ElectrumRequestMethods.getBalance.method;
@@ -12,6 +13,7 @@ class ElectrumWorkerGetBalanceRequest implements ElectrumWorkerRequest {
   factory ElectrumWorkerGetBalanceRequest.fromJson(Map<String, dynamic> json) {
     return ElectrumWorkerGetBalanceRequest(
       scripthashes: (json['scripthashes'] as List<String>).toSet(),
+      id: json['id'] as int?,
     );
   }
 
@@ -22,7 +24,10 @@ class ElectrumWorkerGetBalanceRequest implements ElectrumWorkerRequest {
 }
 
 class ElectrumWorkerGetBalanceError extends ElectrumWorkerErrorResponse {
-  ElectrumWorkerGetBalanceError({required String error}) : super(error: error);
+  ElectrumWorkerGetBalanceError({
+    required super.error,
+    super.id,
+  }) : super();
 
   @override
   final String method = ElectrumRequestMethods.getBalance.method;
@@ -30,8 +35,11 @@ class ElectrumWorkerGetBalanceError extends ElectrumWorkerErrorResponse {
 
 class ElectrumWorkerGetBalanceResponse
     extends ElectrumWorkerResponse<ElectrumBalance, Map<String, int>?> {
-  ElectrumWorkerGetBalanceResponse({required super.result, super.error})
-      : super(method: ElectrumRequestMethods.getBalance.method);
+  ElectrumWorkerGetBalanceResponse({
+    required super.result,
+    super.error,
+    super.id,
+  }) : super(method: ElectrumRequestMethods.getBalance.method);
 
   @override
   Map<String, int>? resultJson(result) {
@@ -47,6 +55,7 @@ class ElectrumWorkerGetBalanceResponse
         frozen: 0,
       ),
       error: json['error'] as String?,
+      id: json['id'] as int?,
     );
   }
 }

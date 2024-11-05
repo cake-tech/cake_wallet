@@ -6,7 +6,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+// import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
@@ -109,22 +109,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     });
     reaction((_) => mwebSyncStatus, (status) async {
       if (mwebSyncStatus is FailedSyncStatus) {
-        // we failed to connect to mweb, check if we are connected to the litecoin node:
-        late int nodeHeight;
-        try {
-          nodeHeight = await electrumClient.getCurrentBlockChainTip() ?? 0;
-        } catch (_) {
-          nodeHeight = 0;
-        }
-
-        if (nodeHeight == 0) {
-          // we aren't connected to the litecoin node, so the current electrum_wallet reactions will take care of this case for us
-        } else {
-          // we're connected to the litecoin node, but we failed to connect to mweb, try again after a few seconds:
-          await CwMweb.stop();
-          await Future.delayed(const Duration(seconds: 5));
-          startSync();
-        }
+        await CwMweb.stop();
+        await Future.delayed(const Duration(seconds: 5));
+        startSync();
       } else if (mwebSyncStatus is SyncingSyncStatus) {
         syncStatus = mwebSyncStatus;
       } else if (mwebSyncStatus is SynchronizingSyncStatus) {
@@ -348,8 +335,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         return;
       }
 
-      final nodeHeight =
-          await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
+      final nodeHeight = await currentChainTip ?? 0;
 
       if (nodeHeight == 0) {
         // we aren't connected to the ltc node yet
@@ -635,7 +621,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     final status = await CwMweb.status(StatusRequest());
-    final height = await electrumClient.getCurrentBlockChainTip();
+    final height = await currentChainTip;
     if (height == null || status.blockHeaderHeight != height) return;
     if (status.mwebUtxosHeight != height) return; // we aren't synced
     int amount = 0;
@@ -770,7 +756,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     });
 
     // copy coin control attributes to mwebCoins:
-    await updateCoins(mwebUnspentCoins.toSet());
+    // await updateCoins(mwebUnspentCoins);
     // get regular ltc unspents (this resets unspentCoins):
     await super.updateAllUnspents();
     // add the mwebCoins:
@@ -1289,7 +1275,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }) async {
     final readyInputs = <LedgerTransaction>[];
     for (final utxo in utxos) {
-      final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+      final rawTx =
+          (await getTransactionExpanded(hash: utxo.utxo.txHash)).originalTransaction.toHex();
       final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
       readyInputs.add(LedgerTransaction(

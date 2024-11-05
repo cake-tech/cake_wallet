@@ -14,8 +14,8 @@ class BitcoinUnspent extends Unspent {
       BitcoinUnspent(
         address ?? BitcoinAddressRecord.fromJSON(json['address_record'].toString()),
         json['tx_hash'] as String,
-        json['value'] as int,
-        json['tx_pos'] as int,
+        int.parse(json['value'].toString()),
+        int.parse(json['tx_pos'].toString()),
       );
 
   Map<String, dynamic> toJson() {

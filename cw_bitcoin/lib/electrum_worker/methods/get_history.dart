@@ -8,6 +8,7 @@ class ElectrumWorkerGetHistoryRequest implements ElectrumWorkerRequest {
     required this.chainTip,
     required this.network,
     required this.mempoolAPIEnabled,
+    this.id,
   });
 
   final List<BitcoinAddressRecord> addresses;
@@ -16,6 +17,7 @@ class ElectrumWorkerGetHistoryRequest implements ElectrumWorkerRequest {
   final int chainTip;
   final BasedUtxoNetwork network;
   final bool mempoolAPIEnabled;
+  final int? id;
 
   @override
   final String method = ElectrumRequestMethods.getHistory.method;
@@ -35,6 +37,7 @@ class ElectrumWorkerGetHistoryRequest implements ElectrumWorkerRequest {
       chainTip: json['chainTip'] as int,
       network: BasedUtxoNetwork.fromName(json['network'] as String),
       mempoolAPIEnabled: json['mempoolAPIEnabled'] as bool,
+      id: json['id'] as int?,
     );
   }
 
@@ -53,7 +56,10 @@ class ElectrumWorkerGetHistoryRequest implements ElectrumWorkerRequest {
 }
 
 class ElectrumWorkerGetHistoryError extends ElectrumWorkerErrorResponse {
-  ElectrumWorkerGetHistoryError({required String error}) : super(error: error);
+  ElectrumWorkerGetHistoryError({
+    required super.error,
+    super.id,
+  }) : super();
 
   @override
   final String method = ElectrumRequestMethods.getHistory.method;
@@ -90,8 +96,11 @@ class AddressHistoriesResponse {
 
 class ElectrumWorkerGetHistoryResponse
     extends ElectrumWorkerResponse<List<AddressHistoriesResponse>, List<Map<String, dynamic>>> {
-  ElectrumWorkerGetHistoryResponse({required super.result, super.error})
-      : super(method: ElectrumRequestMethods.getHistory.method);
+  ElectrumWorkerGetHistoryResponse({
+    required super.result,
+    super.error,
+    super.id,
+  }) : super(method: ElectrumRequestMethods.getHistory.method);
 
   @override
   List<Map<String, dynamic>> resultJson(result) {
@@ -105,6 +114,7 @@ class ElectrumWorkerGetHistoryResponse
           .map((e) => AddressHistoriesResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
       error: json['error'] as String?,
+      id: json['id'] as int?,
     );
   }
 }

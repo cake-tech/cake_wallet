@@ -1,9 +1,10 @@
+import 'package:cw_bitcoin/electrum_worker/electrum_worker_params.dart';
+import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
 import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -14,11 +15,10 @@ class PendingBitcoinTransaction with PendingTransaction {
   PendingBitcoinTransaction(
     this._tx,
     this.type, {
-    required this.electrumClient,
+    required this.sendWorker,
     required this.amount,
     required this.fee,
     required this.feeRate,
-    this.network,
     required this.hasChange,
     this.isSendAll = false,
     this.hasTaprootInputs = false,
@@ -28,11 +28,10 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   final WalletType type;
   final BtcTransaction _tx;
-  final ElectrumClient electrumClient;
+  Future<dynamic> Function(ElectrumWorkerRequest) sendWorker;
   final int amount;
   final int fee;
   final String feeRate;
-  final BasedUtxoNetwork? network;
   final bool isSendAll;
   final bool hasChange;
   final bool hasTaprootInputs;
@@ -79,40 +78,39 @@ class PendingBitcoinTransaction with PendingTransaction {
   Future<void> _commit() async {
     int? callId;
 
-    final result = await electrumClient.broadcastTransaction(
-        transactionRaw: hex, network: network, idCallback: (id) => callId = id);
+    final result = await sendWorker(ElectrumWorkerBroadcastRequest(transactionRaw: hex)) as String;
 
-    if (result.isEmpty) {
-      if (callId != null) {
-        final error = electrumClient.getErrorMessage(callId!);
+    // if (result.isEmpty) {
+    //   if (callId != null) {
+    //     final error = sendWorker(getErrorMessage(callId!));
 
-        if (error.contains("dust")) {
-          if (hasChange) {
-            throw BitcoinTransactionCommitFailedDustChange();
-          } else if (!isSendAll) {
-            throw BitcoinTransactionCommitFailedDustOutput();
-          } else {
-            throw BitcoinTransactionCommitFailedDustOutputSendAll();
-          }
-        }
+    //     if (error.contains("dust")) {
+    //       if (hasChange) {
+    //         throw BitcoinTransactionCommitFailedDustChange();
+    //       } else if (!isSendAll) {
+    //         throw BitcoinTransactionCommitFailedDustOutput();
+    //       } else {
+    //         throw BitcoinTransactionCommitFailedDustOutputSendAll();
+    //       }
+    //     }
 
-        if (error.contains("bad-txns-vout-negative")) {
-          throw BitcoinTransactionCommitFailedVoutNegative();
-        }
+    //     if (error.contains("bad-txns-vout-negative")) {
+    //       throw BitcoinTransactionCommitFailedVoutNegative();
+    //     }
 
-        if (error.contains("non-BIP68-final")) {
-          throw BitcoinTransactionCommitFailedBIP68Final();
-        }
+    //     if (error.contains("non-BIP68-final")) {
+    //       throw BitcoinTransactionCommitFailedBIP68Final();
+    //     }
 
-        if (error.contains("min fee not met")) {
-          throw BitcoinTransactionCommitFailedLessThanMin();
-        }
+    //     if (error.contains("min fee not met")) {
+    //       throw BitcoinTransactionCommitFailedLessThanMin();
+    //     }
 
-        throw BitcoinTransactionCommitFailed(errorMessage: error);
-      }
+    //     throw BitcoinTransactionCommitFailed(errorMessage: error);
+    //   }
 
-      throw BitcoinTransactionCommitFailed();
-    }
+    //   throw BitcoinTransactionCommitFailed();
+    // }
   }
 
   Future<void> _ltcCommit() async {

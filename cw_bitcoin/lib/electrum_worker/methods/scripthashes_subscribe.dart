@@ -1,9 +1,13 @@
 part of 'methods.dart';
 
 class ElectrumWorkerScripthashesSubscribeRequest implements ElectrumWorkerRequest {
-  ElectrumWorkerScripthashesSubscribeRequest({required this.scripthashByAddress});
+  ElectrumWorkerScripthashesSubscribeRequest({
+    required this.scripthashByAddress,
+    this.id,
+  });
 
   final Map<String, String> scripthashByAddress;
+  final int? id;
 
   @override
   final String method = ElectrumRequestMethods.scriptHashSubscribe.method;
@@ -12,6 +16,7 @@ class ElectrumWorkerScripthashesSubscribeRequest implements ElectrumWorkerReques
   factory ElectrumWorkerScripthashesSubscribeRequest.fromJson(Map<String, dynamic> json) {
     return ElectrumWorkerScripthashesSubscribeRequest(
       scripthashByAddress: json['scripthashes'] as Map<String, String>,
+      id: json['id'] as int?,
     );
   }
 
@@ -22,7 +27,10 @@ class ElectrumWorkerScripthashesSubscribeRequest implements ElectrumWorkerReques
 }
 
 class ElectrumWorkerScripthashesSubscribeError extends ElectrumWorkerErrorResponse {
-  ElectrumWorkerScripthashesSubscribeError({required String error}) : super(error: error);
+  ElectrumWorkerScripthashesSubscribeError({
+    required super.error,
+    super.id,
+  }) : super();
 
   @override
   final String method = ElectrumRequestMethods.scriptHashSubscribe.method;
@@ -30,8 +38,11 @@ class ElectrumWorkerScripthashesSubscribeError extends ElectrumWorkerErrorRespon
 
 class ElectrumWorkerScripthashesSubscribeResponse
     extends ElectrumWorkerResponse<Map<String, String>?, Map<String, String>?> {
-  ElectrumWorkerScripthashesSubscribeResponse({required super.result, super.error})
-      : super(method: ElectrumRequestMethods.scriptHashSubscribe.method);
+  ElectrumWorkerScripthashesSubscribeResponse({
+    required super.result,
+    super.error,
+    super.id,
+  }) : super(method: ElectrumRequestMethods.scriptHashSubscribe.method);
 
   @override
   Map<String, String>? resultJson(result) {
@@ -43,6 +54,7 @@ class ElectrumWorkerScripthashesSubscribeResponse
     return ElectrumWorkerScripthashesSubscribeResponse(
       result: json['result'] as Map<String, String>?,
       error: json['error'] as String?,
+      id: json['id'] as int?,
     );
   }
 }

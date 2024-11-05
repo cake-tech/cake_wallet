@@ -1,14 +1,17 @@
 part of 'methods.dart';
 
 class ElectrumWorkerHeadersSubscribeRequest implements ElectrumWorkerRequest {
-  ElectrumWorkerHeadersSubscribeRequest();
+  ElectrumWorkerHeadersSubscribeRequest({this.id});
 
   @override
   final String method = ElectrumRequestMethods.headersSubscribe.method;
+  final int? id;
 
   @override
   factory ElectrumWorkerHeadersSubscribeRequest.fromJson(Map<String, dynamic> json) {
-    return ElectrumWorkerHeadersSubscribeRequest();
+    return ElectrumWorkerHeadersSubscribeRequest(
+      id: json['id'] as int?,
+    );
   }
 
   @override
@@ -18,7 +21,10 @@ class ElectrumWorkerHeadersSubscribeRequest implements ElectrumWorkerRequest {
 }
 
 class ElectrumWorkerHeadersSubscribeError extends ElectrumWorkerErrorResponse {
-  ElectrumWorkerHeadersSubscribeError({required String error}) : super(error: error);
+  ElectrumWorkerHeadersSubscribeError({
+    required super.error,
+    super.id,
+  }) : super();
 
   @override
   final String method = ElectrumRequestMethods.headersSubscribe.method;
@@ -26,8 +32,11 @@ class ElectrumWorkerHeadersSubscribeError extends ElectrumWorkerErrorResponse {
 
 class ElectrumWorkerHeadersSubscribeResponse
     extends ElectrumWorkerResponse<ElectrumHeaderResponse, Map<String, dynamic>> {
-  ElectrumWorkerHeadersSubscribeResponse({required super.result, super.error})
-      : super(method: ElectrumRequestMethods.headersSubscribe.method);
+  ElectrumWorkerHeadersSubscribeResponse({
+    required super.result,
+    super.error,
+    super.id,
+  }) : super(method: ElectrumRequestMethods.headersSubscribe.method);
 
   @override
   Map<String, dynamic> resultJson(result) {
@@ -39,6 +48,7 @@ class ElectrumWorkerHeadersSubscribeResponse
     return ElectrumWorkerHeadersSubscribeResponse(
       result: ElectrumHeaderResponse.fromJson(json['result'] as Map<String, dynamic>),
       error: json['error'] as String?,
+      id: json['id'] as int?,
     );
   }
 }

@@ -139,7 +139,8 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         other.index == index &&
         other.derivationInfo == derivationInfo &&
         other.scriptHash == scriptHash &&
-        other.type == type;
+        other.type == type &&
+        other.derivationType == derivationType;
   }
 
   @override
@@ -148,7 +149,8 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       index.hashCode ^
       derivationInfo.hashCode ^
       scriptHash.hashCode ^
-      type.hashCode;
+      type.hashCode ^
+      derivationType.hashCode;
 }
 
 class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {

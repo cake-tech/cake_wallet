@@ -649,7 +649,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         ),
         index: i,
         isChange: isChange,
-        isHidden: derivationType == CWBitcoinDerivationType.old,
+        isHidden: derivationType == CWBitcoinDerivationType.old && type != SegwitAddresType.p2wpkh,
         type: type ?? addressPageType,
         network: network,
         derivationInfo: derivationInfo,
@@ -664,7 +664,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   void updateAdresses(Iterable<BitcoinAddressRecord> addresses) {
     for (final address in addresses) {
-      _allAddresses.replaceRange(address.index, address.index + 1, [address]);
+      final index = _allAddresses.indexWhere((element) => element.address == address.address);
+      _allAddresses.replaceRange(index, index + 1, [address]);
+
+      updateAddressesByMatch();
+      updateReceiveAddresses();
+      updateChangeAddresses();
     }
   }
 

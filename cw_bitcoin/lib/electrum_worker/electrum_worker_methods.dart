@@ -4,9 +4,11 @@ class ElectrumWorkerMethods {
 
   static const String connectionMethod = "connection";
   static const String unknownMethod = "unknown";
+  static const String txHashMethod = "txHash";
 
   static const ElectrumWorkerMethods connect = ElectrumWorkerMethods._(connectionMethod);
   static const ElectrumWorkerMethods unknown = ElectrumWorkerMethods._(unknownMethod);
+  static const ElectrumWorkerMethods txHash = ElectrumWorkerMethods._(txHashMethod);
 
   @override
   String toString() {

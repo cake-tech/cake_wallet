@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -11,13 +10,35 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:hex/hex.dart';
 
 class ElectrumTransactionBundle {
-  ElectrumTransactionBundle(this.originalTransaction,
-      {required this.ins, required this.confirmations, this.time});
+  ElectrumTransactionBundle(
+    this.originalTransaction, {
+    required this.ins,
+    required this.confirmations,
+    this.time,
+  });
 
   final BtcTransaction originalTransaction;
   final List<BtcTransaction> ins;
   final int? time;
   final int confirmations;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'originalTransaction': originalTransaction.toHex(),
+      'ins': ins.map((e) => e.toHex()).toList(),
+      'confirmations': confirmations,
+      'time': time,
+    };
+  }
+
+  static ElectrumTransactionBundle fromJson(Map<String, dynamic> data) {
+    return ElectrumTransactionBundle(
+      BtcTransaction.fromRaw(data['originalTransaction'] as String),
+      ins: (data['ins'] as List<Object>).map((e) => BtcTransaction.fromRaw(e as String)).toList(),
+      confirmations: data['confirmations'] as int,
+      time: data['time'] as int?,
+    );
+  }
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {
@@ -128,9 +149,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
         final inputTransaction = bundle.ins[i];
         final outTransaction = inputTransaction.outputs[input.txIndex];
         inputAmount += outTransaction.amount.toInt();
-        if (addresses.contains(addressFromOutputScript(outTransaction.scriptPubKey, network))) {
+        if (addresses.contains(
+            BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network))) {
           direction = TransactionDirection.outgoing;
-          inputAddresses.add(addressFromOutputScript(outTransaction.scriptPubKey, network));
+          inputAddresses.add(
+              BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network));
         }
       }
     } catch (e) {
@@ -144,8 +167,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
     final receivedAmounts = <int>[];
     for (final out in bundle.originalTransaction.outputs) {
       totalOutAmount += out.amount.toInt();
-      final addressExists = addresses.contains(addressFromOutputScript(out.scriptPubKey, network));
-      final address = addressFromOutputScript(out.scriptPubKey, network);
+      final addressExists = addresses
+          .contains(BitcoinAddressUtils.addressFromOutputScript(out.scriptPubKey, network));
+      final address = BitcoinAddressUtils.addressFromOutputScript(out.scriptPubKey, network);
 
       if (address.isNotEmpty) outputAddresses.add(address);
 

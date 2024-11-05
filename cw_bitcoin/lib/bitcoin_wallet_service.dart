@@ -23,8 +23,8 @@ class BitcoinWalletService extends WalletService<
     this.walletInfoSource,
     this.unspentCoinsInfoSource,
     this.alwaysScan,
-    this.mempoolAPIEnabled,
     this.isDirect,
+    this.mempoolAPIEnabled,
   );
 
   final Box<WalletInfo> walletInfoSource;

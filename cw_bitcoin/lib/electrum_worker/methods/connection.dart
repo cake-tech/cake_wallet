@@ -1,34 +1,56 @@
 part of 'methods.dart';
 
 class ElectrumWorkerConnectionRequest implements ElectrumWorkerRequest {
-  ElectrumWorkerConnectionRequest({required this.uri});
+  ElectrumWorkerConnectionRequest({
+    required this.uri,
+    required this.network,
+    this.id,
+  });
 
   final Uri uri;
+  final BasedUtxoNetwork network;
+  final int? id;
 
   @override
   final String method = ElectrumWorkerMethods.connect.method;
 
   @override
   factory ElectrumWorkerConnectionRequest.fromJson(Map<String, dynamic> json) {
-    return ElectrumWorkerConnectionRequest(uri: Uri.parse(json['params'] as String));
+    return ElectrumWorkerConnectionRequest(
+      uri: Uri.parse(json['uri'] as String),
+      network: BasedUtxoNetwork.values.firstWhere(
+        (e) => e.toString() == json['network'] as String,
+      ),
+      id: json['id'] as int?,
+    );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'method': method, 'params': uri.toString()};
+    return {
+      'method': method,
+      'uri': uri.toString(),
+      'network': network.toString(),
+    };
   }
 }
 
 class ElectrumWorkerConnectionError extends ElectrumWorkerErrorResponse {
-  ElectrumWorkerConnectionError({required String error}) : super(error: error);
+  ElectrumWorkerConnectionError({
+    required super.error,
+    super.id,
+  }) : super();
 
   @override
   String get method => ElectrumWorkerMethods.connect.method;
 }
 
 class ElectrumWorkerConnectionResponse extends ElectrumWorkerResponse<ConnectionStatus, String> {
-  ElectrumWorkerConnectionResponse({required ConnectionStatus status, super.error})
-      : super(
+  ElectrumWorkerConnectionResponse({
+    required ConnectionStatus status,
+    super.error,
+    super.id,
+  }) : super(
           result: status,
           method: ElectrumWorkerMethods.connect.method,
         );
@@ -45,6 +67,7 @@ class ElectrumWorkerConnectionResponse extends ElectrumWorkerResponse<Connection
         (e) => e.toString() == json['result'] as String,
       ),
       error: json['error'] as String?,
+      id: json['id'] as int?,
     );
   }
 }
