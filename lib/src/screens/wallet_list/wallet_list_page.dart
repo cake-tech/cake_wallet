@@ -430,16 +430,18 @@ class WalletListBodyState extends State<WalletListBody> {
                 },
               ),
             );
+
+            showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) => AlertWithOneAction(
+                  alertTitle: S.of(context).proceed_on_device,
+                  alertContent: S.of(context).proceed_on_device_description,
+                  buttonText: S.of(context).cancel,
+                  buttonAction: () => Navigator.of(context).pop()),
+            );
           }
 
-          showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) => AlertWithOneAction(
-                alertTitle: S.of(context).proceed_on_device,
-                alertContent: S.of(context).proceed_on_device_description,
-                buttonText: S.of(context).cancel,
-                buttonAction: () => Navigator.of(context).pop()),
-          );
+
 
           changeProcessText(
               S.of(context).wallet_list_loading_wallet(wallet.name));
