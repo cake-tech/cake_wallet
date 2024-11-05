@@ -11,7 +11,7 @@ import '../robots/exchange_page_robot.dart';
 import '../robots/exchange_trade_page_robot.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
-void main() {
+Future<void> main() async{
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   AuthPageRobot authPageRobot;

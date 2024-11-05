@@ -11,7 +11,7 @@ import '../robots/dashboard_page_robot.dart';
 import '../robots/security_and_backup_page_robot.dart';
 import '../robots/wallet_keys_robot.dart';
 
-void main() {
+Future<void> main() async{
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   AuthPageRobot authPageRobot;

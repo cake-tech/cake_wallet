@@ -8,7 +8,7 @@ import '../components/common_test_constants.dart';
 import '../components/common_test_flows.dart';
 import '../robots/dashboard_page_robot.dart';
 
-void main() {
+Future<void> main()async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   CommonTestFlows commonTestFlows;

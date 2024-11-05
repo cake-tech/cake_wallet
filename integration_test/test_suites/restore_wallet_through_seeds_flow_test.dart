@@ -9,7 +9,7 @@ import '../components/common_test_flows.dart';
 import '../robots/dashboard_page_robot.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
-void main() {
+Future<void> main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   CommonTestFlows commonTestFlows;
