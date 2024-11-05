@@ -203,7 +203,8 @@ class Node extends HiveObject with Keyable {
       client.close();
 
       if (
-        response.body.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+        response.body.contains("400 Bad Request") // Some other generic error
+        || response.body.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
         || response.headers["location"] != null // Generic reverse proxy
         || response.body.contains("301 Moved Permanently") // Poorly configured generic reverse proxy
       ) {
