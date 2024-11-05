@@ -21,7 +21,7 @@ dependencies:
       ref: cake-update-v3
   blockchain_utils:
     git:
-      url: https://github.com/cake-tech/blockchain_utils.git
+      url: https://github.com/cake-tech/blockchain_utils
       ref: cake-update-v3
   mobx: ^2.3.0+1
   bip39: ^1.0.6
@@ -38,7 +38,7 @@ dev_dependencies:
 dependency_overrides:
   blockchain_utils:
     git:
-      url: https://github.com/cake-tech/blockchain_utils.git
+      url: https://github.com/cake-tech/blockchain_utils
       ref: cake-update-v3
 
 flutter:
