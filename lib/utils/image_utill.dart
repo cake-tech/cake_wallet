@@ -55,8 +55,18 @@ class ImageUtil {
             );
     } else {
       return isSvg
-          ? SvgPicture.asset(imagePath, height: _height, width: _width, key: ValueKey(imagePath))
-          : Image.asset(imagePath, height: _height, width: _width, key: ValueKey(imagePath));
+          ? SvgPicture.asset(
+              imagePath,
+              height: _height,
+              width: _width,
+              placeholderBuilder: (_) => Icon(Icons.error),
+            )
+          : Image.asset(
+              imagePath,
+              height: _height,
+              width: _width,
+              errorBuilder: (_, __, ___) => Icon(Icons.error),
+            );
     }
   }
 }
