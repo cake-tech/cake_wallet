@@ -121,12 +121,18 @@ abstract class CakePayCardsListViewModelBase with Store {
   Country get selectedCountry =>
       settingsStore.selectedCakePayCountry ?? _getInitialCountry(settingsStore.fiatCurrency);
 
-  bool get hasFiltersChanged =>
-      settingsStore.selectedCakePayCountry != _initialSelectedCountry ||
-      displayPrepaidCards != _initialDisplayPrepaidCards ||
-      displayGiftCards != _initialDisplayGiftCards ||
-      displayDenominationsCards != _initialDisplayDenominationsCards ||
-      displayCustomValueCards != _initialDisplayCustomValueCards;
+  @computed
+  bool get shouldShowCountryPicker => settingsStore.selectedCakePayCountry == null && availableCountries.isNotEmpty;
+
+
+  bool get hasFiltersChanged {
+    return selectedCountry != _initialSelectedCountry ||
+        displayPrepaidCards != _initialDisplayPrepaidCards ||
+        displayGiftCards != _initialDisplayGiftCards ||
+        displayDenominationsCards != _initialDisplayDenominationsCards ||
+        displayCustomValueCards != _initialDisplayCustomValueCards;
+  }
+
 
   Future<void> getCountries() async {
     availableCountries = await cakePayService.getCountries();

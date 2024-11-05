@@ -22,6 +22,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_cards_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 class CakePayCardsPage extends BasePage {
   CakePayCardsPage(this._cardsListViewModel) : searchFocusNode = FocusNode() {
@@ -82,6 +83,22 @@ class CakePayCardsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+
+    if (_cardsListViewModel.settingsStore.selectedCakePayCountry == null) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      reaction((_) => _cardsListViewModel.shouldShowCountryPicker, (bool shouldShowCountryPicker) async {
+        if (shouldShowCountryPicker) {
+          _cardsListViewModel.storeInitialFilterStates();
+          await showCountryPicker(context, _cardsListViewModel);
+          if (_cardsListViewModel.hasFiltersChanged) {
+            _cardsListViewModel.resetLoadingNextPageState();
+            _cardsListViewModel.getVendors();
+          }
+        }
+      });
+    });
+    }
+
     final filterButton = Semantics(
       label: S.of(context).filter_by,
       child: GestureDetector(
