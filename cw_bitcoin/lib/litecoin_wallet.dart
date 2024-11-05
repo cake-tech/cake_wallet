@@ -361,6 +361,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         return;
       }
 
+      // update the current chain tip so that confirmation calculations are accurate:
+      currentChainTip = nodeHeight;
+
       final resp = await CwMweb.status(StatusRequest());
 
       try {

@@ -243,7 +243,7 @@ abstract class ElectrumWalletBase
       }
 
       if (tip > walletInfo.restoreHeight) {
-        _setListeners(walletInfo.restoreHeight, chainTipParam: _currentChainTip);
+        _setListeners(walletInfo.restoreHeight, chainTipParam: currentChainTip);
       }
     } else {
       alwaysScan = false;
@@ -258,23 +258,23 @@ abstract class ElectrumWalletBase
     }
   }
 
-  int? _currentChainTip;
+  int? currentChainTip;
 
   Future<int> getCurrentChainTip() async {
-    if ((_currentChainTip ?? 0) > 0) {
-      return _currentChainTip!;
+    if ((currentChainTip ?? 0) > 0) {
+      return currentChainTip!;
     }
-    _currentChainTip = await electrumClient.getCurrentBlockChainTip() ?? 0;
+    currentChainTip = await electrumClient.getCurrentBlockChainTip() ?? 0;
 
-    return _currentChainTip!;
+    return currentChainTip!;
   }
 
   Future<int> getUpdatedChainTip() async {
     final newTip = await electrumClient.getCurrentBlockChainTip();
-    if (newTip != null && newTip > (_currentChainTip ?? 0)) {
-      _currentChainTip = newTip;
+    if (newTip != null && newTip > (currentChainTip ?? 0)) {
+      currentChainTip = newTip;
     }
-    return _currentChainTip ?? 0;
+    return currentChainTip ?? 0;
   }
 
   @override
@@ -1990,12 +1990,12 @@ abstract class ElectrumWalletBase
       if (_isTransactionUpdating) {
         return;
       }
-      _currentChainTip = await getUpdatedChainTip();
+      currentChainTip = await getUpdatedChainTip();
 
       bool updated = false;
       transactionHistory.transactions.values.forEach((tx) {
-        if ((tx.height ?? 0) > 0 && (_currentChainTip ?? 0) > 0) {
-          var confirmations = _currentChainTip! - tx.height! + 1;
+        if ((tx.height ?? 0) > 0 && (currentChainTip ?? 0) > 0) {
+          var confirmations = currentChainTip! - tx.height! + 1;
           if (confirmations < 0) {
             // if our chain tip is outdated then it could lead to negative confirmations so this is just a failsafe:
             confirmations = 0;
@@ -2222,10 +2222,10 @@ abstract class ElectrumWalletBase
   Future<void> _setInitialHeight() async {
     if (_chainTipUpdateSubject != null) return;
 
-    _currentChainTip = await getUpdatedChainTip();
+    currentChainTip = await getUpdatedChainTip();
 
-    if ((_currentChainTip == null || _currentChainTip! == 0) && walletInfo.restoreHeight == 0) {
-      await walletInfo.updateRestoreHeight(_currentChainTip!);
+    if ((currentChainTip == null || currentChainTip! == 0) && walletInfo.restoreHeight == 0) {
+      await walletInfo.updateRestoreHeight(currentChainTip!);
     }
 
     _chainTipUpdateSubject = electrumClient.chainTipSubscribe();
@@ -2234,7 +2234,7 @@ abstract class ElectrumWalletBase
       final height = int.tryParse(event['height'].toString());
 
       if (height != null) {
-        _currentChainTip = height;
+        currentChainTip = height;
 
         if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
           _setListeners(walletInfo.restoreHeight);
