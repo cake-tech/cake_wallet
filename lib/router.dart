@@ -72,6 +72,8 @@ import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settin
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
+import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
+import 'package:cake_wallet/src/screens/settings/mweb_node_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_settings.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -460,6 +462,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.mwebSettings:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<MwebSettingsPage>());
+
+    case Routes.mwebLogs:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<MwebLogsPage>());
+
+    case Routes.mwebNode:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<MwebNodePage>());
 
     case Routes.connectionSync:
       return CupertinoPageRoute<void>(

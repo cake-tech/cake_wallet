@@ -25,6 +25,7 @@ class CakeImageWidget extends StatelessWidget {
           imageUrl!,
           height: height,
           width: width,
+          errorBuilder: (_, __, ___) => Icon(Icons.error),
         );
       }
 
@@ -33,6 +34,7 @@ class CakeImageWidget extends StatelessWidget {
           imageUrl!,
           height: height,
           width: width,
+          placeholderBuilder: (_) => Icon(Icons.error),
         );
       }
 
