@@ -109,12 +109,7 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.1.1):
     - Flutter
-  - Protobuf (3.27.2)
   - ReachabilitySwift (5.2.3)
-  - reactive_ble_mobile (0.0.1):
-    - Flutter
-    - Protobuf (~> 3.5)
-    - SwiftProtobuf (~> 1.0)
   - SDWebImage (5.19.4):
     - SDWebImage/Core (= 5.19.4)
   - SDWebImage/Core (5.19.4)
@@ -132,6 +127,9 @@ PODS:
   - Toast (4.1.1)
   - uni_links (0.0.1):
     - Flutter
+  - universal_ble (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - url_launcher_ios (0.0.1):
     - Flutter
   - wakelock_plus (0.0.1):
@@ -161,12 +159,12 @@ DEPENDENCIES:
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
-  - reactive_ble_mobile (from `.symlinks/plugins/reactive_ble_mobile/ios`)
   - sensitive_clipboard (from `.symlinks/plugins/sensitive_clipboard/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sp_scanner (from `.symlinks/plugins/sp_scanner/ios`)
   - uni_links (from `.symlinks/plugins/uni_links/ios`)
+  - universal_ble (from `.symlinks/plugins/universal_ble/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
   - workmanager (from `.symlinks/plugins/workmanager/ios`)
@@ -178,7 +176,6 @@ SPEC REPOS:
     - DKPhotoGallery
     - MTBBarcodeScanner
     - OrderedSet
-    - Protobuf
     - ReachabilitySwift
     - SDWebImage
     - SwiftProtobuf
@@ -226,8 +223,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
-  reactive_ble_mobile:
-    :path: ".symlinks/plugins/reactive_ble_mobile/ios"
   sensitive_clipboard:
     :path: ".symlinks/plugins/sensitive_clipboard/ios"
   share_plus:
@@ -238,6 +233,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sp_scanner/ios"
   uni_links:
     :path: ".symlinks/plugins/uni_links/ios"
+  universal_ble:
+    :path: ".symlinks/plugins/universal_ble/darwin"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   wakelock_plus:
@@ -271,9 +268,7 @@ SPEC CHECKSUMS:
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
-  Protobuf: fb2c13674723f76ff6eede14f78847a776455fa2
   ReachabilitySwift: 7f151ff156cea1481a8411701195ac6a984f4979
-  reactive_ble_mobile: 9ce6723d37ccf701dbffd202d487f23f5de03b4c
   SDWebImage: 066c47b573f408f18caa467d71deace7c0f8280d
   sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
   share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
@@ -283,6 +278,7 @@ SPEC CHECKSUMS:
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
+  universal_ble: cf52a7b3fd2e7c14d6d7262e9fdadb72ab6b88a6
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
   workmanager: 0afdcf5628bbde6924c21af7836fed07b42e30e6
