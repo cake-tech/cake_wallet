@@ -209,13 +209,13 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
 
   @override
   int feeRate(TransactionPriority priority) {
-    if (priority is BitcoinCashTransactionPriority) {
+    if (priority is ElectrumTransactionPriority) {
       switch (priority) {
-        case BitcoinCashTransactionPriority.slow:
+        case ElectrumTransactionPriority.slow:
           return 1;
-        case BitcoinCashTransactionPriority.medium:
+        case ElectrumTransactionPriority.medium:
           return 5;
-        case BitcoinCashTransactionPriority.fast:
+        case ElectrumTransactionPriority.fast:
           return 10;
       }
     }

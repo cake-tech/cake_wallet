@@ -276,6 +276,24 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     );
   }
 
+  Future<bool> getNodeIsElectrs() async {
+    final version = await sendWorker(ElectrumWorkerGetVersionRequest()) as List<String>;
+
+    if (version.isNotEmpty) {
+      final server = version[0];
+
+      if (server.toLowerCase().contains('electrs')) {
+        node!.isElectrs = true;
+        node!.save();
+        return node!.isElectrs!;
+      }
+    }
+
+    node!.isElectrs = false;
+    node!.save();
+    return node!.isElectrs!;
+  }
+
   Future<bool> getNodeSupportsSilentPayments() async {
     return true;
     // As of today (august 2024), only ElectrumRS supports silent payments
@@ -756,51 +774,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   //     frozen: totalFrozen,
   //   );
   // }
-
-  @override
-  @action
-  Future<void> updateFeeRates() async {
-    // Bitcoin only: use the mempool.space backend API for accurate fee rates
-    if (mempoolAPIEnabled) {
-      try {
-        final recommendedFees = await apiProvider!.getRecommendedFeeRate();
-
-        final unimportantFee = recommendedFees.economyFee!.satoshis;
-        final normalFee = recommendedFees.low.satoshis;
-        int elevatedFee = recommendedFees.medium.satoshis;
-        int priorityFee = recommendedFees.high.satoshis;
-
-        // Bitcoin only: adjust fee rates to avoid equal fee values
-        // elevated should be higher than normal
-        if (normalFee == elevatedFee) {
-          elevatedFee++;
-        }
-        // priority should be higher than elevated
-        while (priorityFee <= elevatedFee) {
-          priorityFee++;
-        }
-        // this guarantees that, even if all fees are low and equal,
-        // higher priority fees can be taken when fees start surging
-
-        feeRates = BitcoinMempoolAPITransactionPriorities(
-          unimportant: unimportantFee,
-          normal: normalFee,
-          elevated: elevatedFee,
-          priority: priorityFee,
-        );
-        return;
-      } catch (e, stacktrace) {
-        callError(FlutterErrorDetails(
-          exception: e,
-          stack: stacktrace,
-          library: this.runtimeType.toString(),
-        ));
-      }
-    } else {
-      // Bitcoin only: Ideally this should be avoided, electrum is terrible at fee rates
-      await super.updateFeeRates();
-    }
-  }
 
   @override
   @action

@@ -13,4 +13,8 @@ abstract class TransactionPriorities {
   const TransactionPriorities();
   int operator [](TransactionPriority type);
   String labelWithRate(TransactionPriority type);
+  Map<String, int> toJson();
+  factory TransactionPriorities.fromJson(Map<String, int> json) {
+    throw UnimplementedError();
+  }
 }

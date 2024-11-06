@@ -52,7 +52,7 @@ class CWBitcoin extends Bitcoin {
           name: name, hwAccountData: accountData, walletInfo: walletInfo);
 
   @override
-  TransactionPriority getMediumTransactionPriority() => BitcoinElectrumTransactionPriority.elevated;
+  TransactionPriority getMediumTransactionPriority() => ElectrumTransactionPriority.medium;
 
   @override
   List<String> getWordList() => wordlist;
@@ -70,18 +70,18 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<TransactionPriority> getTransactionPriorities() => BitcoinElectrumTransactionPriority.all;
+  List<TransactionPriority> getTransactionPriorities() => ElectrumTransactionPriority.all;
 
   @override
-  List<TransactionPriority> getLitecoinTransactionPriorities() => LitecoinTransactionPriority.all;
+  List<TransactionPriority> getLitecoinTransactionPriorities() => ElectrumTransactionPriority.all;
 
   @override
   TransactionPriority deserializeBitcoinTransactionPriority(int raw) =>
-      BitcoinElectrumTransactionPriority.deserialize(raw: raw);
+      ElectrumTransactionPriority.deserialize(raw: raw);
 
   @override
   TransactionPriority deserializeLitecoinTransactionPriority(int raw) =>
-      LitecoinTransactionPriority.deserialize(raw: raw);
+      ElectrumTransactionPriority.deserialize(raw: raw);
 
   @override
   int getFeeRate(Object wallet, TransactionPriority priority) {
@@ -111,7 +111,7 @@ class CWBitcoin extends Bitcoin {
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) {
     final bitcoinFeeRate =
-        priority == BitcoinElectrumTransactionPriority.custom && feeRate != null ? feeRate : null;
+        priority == ElectrumTransactionPriority.custom && feeRate != null ? feeRate : null;
     return BitcoinTransactionCredentials(
       outputs
           .map((out) => OutputInfo(
@@ -125,7 +125,7 @@ class CWBitcoin extends Bitcoin {
               formattedCryptoAmount: out.formattedCryptoAmount,
               memo: out.memo))
           .toList(),
-      priority: priority as BitcoinElectrumTransactionPriority,
+      priority: priority as ElectrumTransactionPriority,
       feeRate: bitcoinFeeRate,
       coinTypeToSpendFrom: coinTypeToSpendFrom,
     );
@@ -165,12 +165,7 @@ class CWBitcoin extends Bitcoin {
       final p2shAddr = sk.getPublic().toP2pkhInP2sh();
       final estimatedTx = await electrumWallet.estimateSendAllTx(
         [BitcoinOutput(address: p2shAddr, value: BigInt.zero)],
-        getFeeRate(
-          wallet,
-          wallet.type == WalletType.litecoin
-              ? priority as LitecoinTransactionPriority
-              : priority as BitcoinElectrumTransactionPriority,
-        ),
+        getFeeRate(wallet, priority),
       );
 
       return estimatedTx.amount;
@@ -200,7 +195,7 @@ class CWBitcoin extends Bitcoin {
   @override
   String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate,
           {int? customRate}) =>
-      (priority as BitcoinElectrumTransactionPriority).labelWithRate(rate, customRate);
+      (priority as ElectrumTransactionPriority).labelWithRate(rate, customRate);
 
   @override
   List<BitcoinUnspent> getUnspents(Object wallet,
@@ -256,22 +251,19 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  TransactionPriority getBitcoinTransactionPriorityMedium() =>
-      BitcoinElectrumTransactionPriority.elevated;
+  TransactionPriority getBitcoinTransactionPriorityMedium() => ElectrumTransactionPriority.fast;
 
   @override
-  TransactionPriority getBitcoinTransactionPriorityCustom() =>
-      BitcoinElectrumTransactionPriority.custom;
+  TransactionPriority getBitcoinTransactionPriorityCustom() => ElectrumTransactionPriority.custom;
 
   @override
-  TransactionPriority getLitecoinTransactionPriorityMedium() => LitecoinTransactionPriority.medium;
+  TransactionPriority getLitecoinTransactionPriorityMedium() => ElectrumTransactionPriority.medium;
 
   @override
-  TransactionPriority getBitcoinTransactionPrioritySlow() =>
-      BitcoinElectrumTransactionPriority.normal;
+  TransactionPriority getBitcoinTransactionPrioritySlow() => ElectrumTransactionPriority.medium;
 
   @override
-  TransactionPriority getLitecoinTransactionPrioritySlow() => LitecoinTransactionPriority.slow;
+  TransactionPriority getLitecoinTransactionPrioritySlow() => ElectrumTransactionPriority.slow;
 
   @override
   Future<void> setAddressType(Object wallet, dynamic option) async {
@@ -436,7 +428,7 @@ class CWBitcoin extends Bitcoin {
       {int? size}) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.feeAmountForPriority(
-        priority as BitcoinElectrumTransactionPriority, inputsCount, outputsCount);
+        priority as ElectrumTransactionPriority, inputsCount, outputsCount);
   }
 
   @override
@@ -460,8 +452,13 @@ class CWBitcoin extends Bitcoin {
 
   @override
   int getMaxCustomFeeRate(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return (bitcoinWallet.feeRate(BitcoinElectrumTransactionPriority.priority) * 10).round();
+    final electrumWallet = wallet as ElectrumWallet;
+    final feeRates = electrumWallet.feeRates;
+    final maxFee = electrumWallet.feeRates is ElectrumTransactionPriorities
+        ? ElectrumTransactionPriority.fast
+        : BitcoinTransactionPriority.priority;
+
+    return (electrumWallet.feeRate(maxFee) * 10).round();
   }
 
   @override

@@ -877,13 +877,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   int feeRate(TransactionPriority priority) {
-    if (priority is LitecoinTransactionPriority) {
+    if (priority is ElectrumTransactionPriority) {
       switch (priority) {
-        case LitecoinTransactionPriority.slow:
+        case ElectrumTransactionPriority.slow:
           return 1;
-        case LitecoinTransactionPriority.medium:
+        case ElectrumTransactionPriority.medium:
           return 2;
-        case LitecoinTransactionPriority.fast:
+        case ElectrumTransactionPriority.fast:
           return 3;
       }
     }
@@ -1036,11 +1036,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
               witnesses: tx2.inputs.asMap().entries.map((e) {
             final utxo = unspentCoins
                 .firstWhere((utxo) => utxo.hash == e.value.txId && utxo.vout == e.value.txIndex);
-            final key = ECPrivate.fromBip32(
-              bip32: walletAddresses.bip32,
-              account: BitcoinAddressUtils.getAccountFromChange(utxo.bitcoinAddressRecord.isChange),
-              index: utxo.bitcoinAddressRecord.index,
-            );
+            final addressRecord = (utxo.bitcoinAddressRecord as BitcoinAddressRecord);
+            final path = addressRecord.derivationInfo.derivationPath
+                .addElem(
+                    Bip32KeyIndex(BitcoinAddressUtils.getAccountFromChange(addressRecord.isChange)))
+                .addElem(Bip32KeyIndex(addressRecord.index));
+            final key = ECPrivate.fromBip32(bip32: bip32.derive(path));
             final digest = tx2.getTransactionSegwitDigit(
               txInIndex: e.key,
               script: key.getPublic().toP2pkhAddress().toScriptPubKey(),

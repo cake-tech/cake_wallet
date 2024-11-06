@@ -16,7 +16,6 @@ import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
-import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
@@ -84,7 +83,6 @@ abstract class ElectrumWalletBase
             },
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
-        _isTransactionUpdating = false,
         isEnabledAutoGenerateSubaddress = true,
         // TODO: inital unspent coins
         unspentCoins = BitcoinUnspentCoins(),
@@ -115,6 +113,7 @@ abstract class ElectrumWalletBase
     sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
+  // Sends a request to the worker and returns a future that completes when the worker responds
   Future<dynamic> sendWorker(ElectrumWorkerRequest request) {
     final messageId = ++_messageId;
 
@@ -144,28 +143,14 @@ abstract class ElectrumWalletBase
     } else {
       messageJson = message as Map<String, dynamic>;
     }
+
     final workerMethod = messageJson['method'] as String;
+    final workerError = messageJson['error'] as String?;
 
-    // if (workerResponse.error != null) {
-    //   print('Worker error: ${workerResponse.error}');
-
-    //   switch (workerResponse.method) {
-    //     // case 'connectionStatus':
-    //     //   final status = ConnectionStatus.values.firstWhere(
-    //     //     (e) => e.toString() == workerResponse.error,
-    //     //   );
-    //     //   _onConnectionStatusChange(status);
-    //     //   break;
-    //     // case 'fetchBalances':
-    //     //   // Update the balance state
-    //     //   // this.balance[currency] = balance!;
-    //     //   break;
-    //     case 'blockchain.headers.subscribe':
-    //       _chainTipListenerOn = false;
-    //       break;
-    //   }
-    //   return;
-    // }
+    if (workerError != null) {
+      print('Worker error: $workerError');
+      return;
+    }
 
     final responseId = messageJson['id'] as int?;
     if (responseId != null && _responseCompleters.containsKey(responseId)) {
@@ -194,15 +179,12 @@ abstract class ElectrumWalletBase
         final response = ElectrumWorkerListUnspentResponse.fromJson(messageJson);
         onUnspentResponse(response.result);
         break;
+      case ElectrumRequestMethods.estimateFeeMethod:
+        final response = ElectrumWorkerGetFeesResponse.fromJson(messageJson);
+        onFeesResponse(response.result);
+        break;
     }
   }
-
-  // Don't forget to clean up in the close method
-  // @override
-  // Future<void> close({required bool shouldCleanup}) async {
-  //   await _workerSubscription?.cancel();
-  //   await super.close(shouldCleanup: shouldCleanup);
-  // }
 
   static Bip32Slip10Secp256k1 getAccountHDWallet(CryptoCurrency? currency, BasedUtxoNetwork network,
       List<int>? seedBytes, String? xpub, DerivationInfo? derivationInfo) {
@@ -317,13 +299,30 @@ abstract class ElectrumWalletBase
 
   @observable
   TransactionPriorities? feeRates;
-  int feeRate(TransactionPriority priority) => feeRates![priority];
+
+  int feeRate(TransactionPriority priority) {
+    if (priority is ElectrumTransactionPriority && feeRates is BitcoinTransactionPriorities) {
+      final rates = feeRates as BitcoinTransactionPriorities;
+
+      switch (priority) {
+        case ElectrumTransactionPriority.slow:
+          return rates.normal;
+        case ElectrumTransactionPriority.medium:
+          return rates.elevated;
+        case ElectrumTransactionPriority.fast:
+          return rates.priority;
+        case ElectrumTransactionPriority.custom:
+          return rates.custom;
+      }
+    }
+
+    return feeRates![priority];
+  }
 
   @observable
   List<String> scripthashesListening;
 
   bool _chainTipListenerOn = false;
-  bool _isTransactionUpdating;
   bool _isInitialSync = true;
 
   void Function(FlutterErrorDetails)? _onError;
@@ -361,13 +360,12 @@ abstract class ElectrumWalletBase
       // INFO: FOURTH: Finish with unspents
       await updateAllUnspents();
 
+      await updateFeeRates();
+
+      _updateFeeRateTimer ??=
+          Timer.periodic(const Duration(seconds: 5), (timer) async => await updateFeeRates());
+
       _isInitialSync = false;
-
-      // await updateFeeRates();
-
-      // _updateFeeRateTimer ??=
-      //     Timer.periodic(const Duration(seconds: 5), (timer) async => await updateFeeRates());
-
       syncStatus = SyncedSyncStatus();
 
       await save();
@@ -385,43 +383,17 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> updateFeeRates() async {
-    try {
-      // feeRates = BitcoinElectrumTransactionPriorities.fromList(
-      //   await electrumClient2!.getFeeRates(),
-      // );
-    } catch (e, stacktrace) {
-      // _onError?.call(FlutterErrorDetails(
-      //   exception: e,
-      //   stack: stacktrace,
-      //   library: this.runtimeType.toString(),
-      // ));
-    }
+    workerSendPort!.send(
+      ElectrumWorkerGetFeesRequest(mempoolAPIEnabled: mempoolAPIEnabled).toJson(),
+    );
+  }
+
+  @action
+  Future<void> onFeesResponse(TransactionPriorities result) async {
+    feeRates = result;
   }
 
   Node? node;
-
-  Future<bool> getNodeIsElectrs() async {
-    return true;
-    if (node == null) {
-      return false;
-    }
-
-    // final version = await electrumClient.version();
-
-    if (version.isNotEmpty) {
-      final server = version[0];
-
-      if (server.toLowerCase().contains('electrs')) {
-        node!.isElectrs = true;
-        node!.save();
-        return node!.isElectrs!;
-      }
-    }
-
-    node!.isElectrs = false;
-    node!.save();
-    return node!.isElectrs!;
-  }
 
   @action
   @override
@@ -520,11 +492,14 @@ abstract class ElectrumWalletBase
         spendsSilentPayment = true;
         isSilentPayment = true;
       } else if (!isHardwareWallet) {
-        privkey = ECPrivate.fromBip32(
-          bip32: walletAddresses.bip32,
-          account: BitcoinAddressUtils.getAccountFromChange(utx.bitcoinAddressRecord.isChange),
-          index: utx.bitcoinAddressRecord.index,
-        );
+        final addressRecord = (utx.bitcoinAddressRecord as BitcoinAddressRecord);
+        final path = addressRecord.derivationInfo.derivationPath
+            .addElem(Bip32KeyIndex(
+              BitcoinAddressUtils.getAccountFromChange(addressRecord.isChange),
+            ))
+            .addElem(Bip32KeyIndex(addressRecord.index));
+
+        privkey = ECPrivate.fromBip32(bip32: bip32.derive(path));
       }
 
       vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
@@ -1110,7 +1085,7 @@ abstract class ElectrumWalletBase
   @override
   int calculateEstimatedFee(TransactionPriority? priority, int? amount,
       {int? outputsCount, int? size}) {
-    if (priority is BitcoinMempoolAPITransactionPriority) {
+    if (priority is BitcoinTransactionPriority) {
       return calculateEstimatedFeeWithFeeRate(
         feeRate(priority),
         amount,
@@ -1478,11 +1453,13 @@ abstract class ElectrumWalletBase
             walletAddresses.allAddresses.firstWhere((element) => element.address == address);
 
         final btcAddress = RegexUtils.addressTypeFromStr(addressRecord.address, network);
-        final privkey = ECPrivate.fromBip32(
-          bip32: walletAddresses.bip32,
-          account: addressRecord.isChange ? 1 : 0,
-          index: addressRecord.index,
-        );
+        final path = addressRecord.derivationInfo.derivationPath
+            .addElem(Bip32KeyIndex(
+              BitcoinAddressUtils.getAccountFromChange(addressRecord.isChange),
+            ))
+            .addElem(Bip32KeyIndex(addressRecord.index));
+
+        final privkey = ECPrivate.fromBip32(bip32: bip32.derive(path));
 
         privateKeys.add(privkey);
 
@@ -1694,10 +1671,7 @@ abstract class ElectrumWalletBase
 
     unspentCoins.forInfo(unspentCoinsInfo.values).forEach((unspentCoinInfo) {
       if (unspentCoinInfo.isFrozen) {
-        // TODO: verify this works well
         totalFrozen += unspentCoinInfo.value;
-        totalConfirmed -= unspentCoinInfo.value;
-        totalUnconfirmed -= unspentCoinInfo.value;
       }
     });
 
@@ -1835,7 +1809,6 @@ abstract class ElectrumWalletBase
     if (syncStatus is ConnectingSyncStatus || isDisconnectedStatus) {
       // Needs to re-subscribe to all scripthashes when reconnected
       scripthashesListening = [];
-      _isTransactionUpdating = false;
       _chainTipListenerOn = false;
     }
 

@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -21,6 +22,7 @@ import 'package:sp_scanner/sp_scanner.dart';
 class ElectrumWorker {
   final SendPort sendPort;
   ElectrumApiProvider? _electrumClient;
+  BasedUtxoNetwork? _network;
 
   ElectrumWorker._(this.sendPort, {ElectrumApiProvider? electrumClient})
       : _electrumClient = electrumClient;
@@ -100,6 +102,16 @@ class ElectrumWorker {
             ElectrumWorkerTweaksSubscribeRequest.fromJson(messageJson),
           );
           break;
+        case ElectrumRequestMethods.estimateFeeMethod:
+          await _handleGetFeeRates(
+            ElectrumWorkerGetFeesRequest.fromJson(messageJson),
+          );
+          break;
+        case ElectrumRequestMethods.versionMethod:
+          await _handleGetVersion(
+            ElectrumWorkerGetVersionRequest.fromJson(messageJson),
+          );
+          break;
       }
     } catch (e, s) {
       print(s);
@@ -108,6 +120,8 @@ class ElectrumWorker {
   }
 
   Future<void> _handleConnect(ElectrumWorkerConnectionRequest request) async {
+    _network = request.network;
+
     _electrumClient = await ElectrumApiProvider.connect(
       ElectrumTCPService.connect(
         request.uri,
@@ -415,6 +429,56 @@ class ElectrumWorker {
     );
   }
 
+  Future<void> _handleGetFeeRates(ElectrumWorkerGetFeesRequest request) async {
+    if (request.mempoolAPIEnabled) {
+      try {
+        final recommendedFees = await ApiProvider.fromMempool(
+          _network!,
+          baseUrl: "http://mempool.cakewallet.com:8999/api",
+        ).getRecommendedFeeRate();
+
+        final unimportantFee = recommendedFees.economyFee!.satoshis;
+        final normalFee = recommendedFees.low.satoshis;
+        int elevatedFee = recommendedFees.medium.satoshis;
+        int priorityFee = recommendedFees.high.satoshis;
+
+        // Bitcoin only: adjust fee rates to avoid equal fee values
+        // elevated fee should be higher than normal fee
+        if (normalFee == elevatedFee) {
+          elevatedFee++;
+        }
+        // priority fee should be higher than elevated fee
+        while (priorityFee <= elevatedFee) {
+          priorityFee++;
+        }
+        // this guarantees that, even if all fees are low and equal,
+        // higher priority fee txs can be consumed when chain fees start surging
+
+        _sendResponse(
+          ElectrumWorkerGetFeesResponse(
+            result: BitcoinTransactionPriorities(
+              unimportant: unimportantFee,
+              normal: normalFee,
+              elevated: elevatedFee,
+              priority: priorityFee,
+              custom: unimportantFee,
+            ),
+          ),
+        );
+      } catch (e) {
+        _sendError(ElectrumWorkerGetFeesError(error: e.toString()));
+      }
+    } else {
+      _sendResponse(
+        ElectrumWorkerGetFeesResponse(
+          result: ElectrumTransactionPriorities.fromList(
+            await _electrumClient!.getFeeRates(),
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> _handleScanSilentPayments(ElectrumWorkerTweaksSubscribeRequest request) async {
     final scanData = request.scanData;
     int syncHeight = scanData.height;
@@ -446,7 +510,6 @@ class ElectrumWorker {
       ),
     ));
 
-    print([syncHeight, initialCount]);
     final listener = await _electrumClient!.subscribe(
       ElectrumTweaksSubscribe(height: syncHeight, count: initialCount),
     );
@@ -578,12 +641,17 @@ class ElectrumWorker {
     }
 
     listener?.call(listenFn);
+  }
 
-    // if (tweaksSubscription == null) {
-    //   return scanData.sendPort.send(
-    //     SyncResponse(syncHeight, UnsupportedSyncStatus()),
-    //   );
-    // }
+  Future<void> _handleGetVersion(ElectrumWorkerGetVersionRequest request) async {
+    _sendResponse(ElectrumWorkerGetVersionResponse(
+        result: (await _electrumClient!.request(
+          ElectrumVersion(
+            clientName: "",
+            protocolVersion: ["1.4"],
+          ),
+        )),
+        id: request.id));
   }
 }
 

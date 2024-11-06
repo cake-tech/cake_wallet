@@ -605,6 +605,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   Future<void> generateInitialAddresses({required BitcoinAddressType type}) async {
     for (final derivationType in hdWallets.keys) {
+      if (derivationType == CWBitcoinDerivationType.old && type == SegwitAddresType.p2wpkh) {
+        continue;
+      }
+
       final derivationInfo = BitcoinAddressUtils.getDerivationFromType(
         type,
         isElectrum: derivationType == CWBitcoinDerivationType.electrum,
