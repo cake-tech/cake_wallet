@@ -209,6 +209,7 @@ Future<void> showCountryPicker(BuildContext context, CakePayCardsListViewModel c
   await showPopUp<void>(
       context: context,
       builder: (_) => Picker(
+        title: S.of(context).select_your_country,
           items: cardsListViewModel.availableCountries,
           images: cardsListViewModel.availableCountries
               .map((e) => Image.asset(
@@ -223,7 +224,6 @@ Future<void> showCountryPicker(BuildContext context, CakePayCardsListViewModel c
               .indexOf(cardsListViewModel.selectedCountry),
           onItemSelected: (Country country) =>
               cardsListViewModel.setSelectedCountry(country),
-          isGridView: true,
           isSeparated: false,
           hintText: S.of(context).search,
           matchingCriteria: (Country country, String searchText) =>
