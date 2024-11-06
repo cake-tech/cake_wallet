@@ -292,4 +292,4 @@ jobs:
             disable-animations: true
             working-directory: /opt/android/cake_wallet
             script: |
-                flutter test integration_test/test_suites/aggregator_test.dart
+                ./integration_test_runner.sh
