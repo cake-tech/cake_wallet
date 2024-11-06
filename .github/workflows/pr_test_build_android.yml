@@ -278,3 +278,4 @@ jobs:
           title: "${{ env.BRANCH_NAME }}.apk"
           filename: ${{ env.BRANCH_NAME }}.apk
           initial_comment: ${{ github.event.head_commit.message }}
+
