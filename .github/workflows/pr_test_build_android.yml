@@ -228,6 +228,7 @@ jobs:
       # Step 5: Update pubspec.yaml with new build number
       - name: Update build number
         run: |
+          cd /opt/android/cake_wallet
           sed -i "s/^version: .*/version: 1.0.$BUILD_NUMBER/" pubspec.yaml
 
       - name: Build
