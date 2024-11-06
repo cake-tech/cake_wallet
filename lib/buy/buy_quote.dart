@@ -1,9 +1,10 @@
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/exchange/limits.dart';
-import 'package:cw_core/currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 enum ProviderRecommendation { bestRate, lowKyc, successRate }
 
@@ -63,16 +64,22 @@ class Quote extends SelectableOption {
   String? rampId;
   String? rampName;
   String? rampIconPath;
-  bool isSelected = false;
-  bool isBestRate = false;
+  bool _isSelected = false;
+  bool _isBestRate = false;
   bool isBuyAction;
   Limits? limits;
 
-  late Currency sourceCurrency;
-  late Currency destinationCurrency;
+  late FiatCurrency _fiatCurrency;
+  late CryptoCurrency _cryptoCurrency;
+
+
+  bool get isSelected => _isSelected;
+  bool get isBestRate => _isBestRate;
+  FiatCurrency get fiatCurrency => _fiatCurrency;
+  CryptoCurrency get cryptoCurrency => _cryptoCurrency;
 
   @override
-  bool get isOptionSelected => this.isSelected;
+  bool get isOptionSelected => this._isSelected;
 
   @override
   String get lightIconPath =>
@@ -87,22 +94,21 @@ class Quote extends SelectableOption {
 
   @override
   String get topLeftSubTitle =>
-      this.rate > 0 ? '1 $fiatName = ${rate.toStringAsFixed(2)} $cryptoName' : '';
+      this.rate > 0 ? '1 $cryptoName = ${rate.toStringAsFixed(2)} $fiatName' : '';
 
   @override
   String get bottomLeftSubTitle {
     if (limits != null) {
       final min = limits!.min;
       final max = limits!.max;
-      return 'min: ${min} ${sourceCurrency.toString()} | max: ${max == double.infinity ? '' : '${max} ${sourceCurrency.toString()}'}';
+      return 'min: ${min} ${fiatCurrency.toString()} | max: ${max == double.infinity ? '' : '${max} ${fiatCurrency.toString()}'}';
     }
     return '';
   }
 
+  String get fiatName => isBuyAction ? fiatCurrency.toString() : cryptoCurrency.toString();
 
-  String get cryptoName => isBuyAction ? sourceCurrency.toString() : destinationCurrency.toString();
-
-  String get fiatName => isBuyAction ? destinationCurrency.toString() : sourceCurrency.toString();
+  String get cryptoName => isBuyAction ? cryptoCurrency.toString() : fiatCurrency.toString();
 
   @override
   String? get topRightSubTitle => '';
@@ -115,18 +121,13 @@ class Quote extends SelectableOption {
 
   String get quoteTitle => '${provider.title} - ${paymentType.name}';
 
-  String get formatedFee => '$feeAmount ${isBuyAction ? sourceCurrency : destinationCurrency}';
+  String get formatedFee => '$feeAmount ${isBuyAction ? fiatCurrency : cryptoCurrency}';
 
-  void set setIsSelected(bool isSelected) => this.isSelected = isSelected;
-
-  void set setIsBestRate(bool isBestRate) => this.isBestRate = isBestRate;
-
-  void set setSourceCurrency(Currency sourceCurrency) => this.sourceCurrency = sourceCurrency;
-
-  void set setDestinationCurrency(Currency destinationCurrency) =>
-      this.destinationCurrency = destinationCurrency;
-
-  void set setLimits(Limits limits) => this.limits = limits;
+  set setIsSelected(bool isSelected) => _isSelected = isSelected;
+  set setIsBestRate(bool isBestRate) => _isBestRate = isBestRate;
+  set setFiatCurrency(FiatCurrency fiatCurrency) => _fiatCurrency = fiatCurrency;
+  set setCryptoCurrency(CryptoCurrency cryptoCurrency) => _cryptoCurrency = cryptoCurrency;
+  set setLimits(Limits limits) => this.limits = limits;
 
   factory Quote.fromOnramperJson(Map<String, dynamic> json, bool isBuyAction,
       Map<String, dynamic> metaData, PaymentType paymentType) {
@@ -136,8 +137,9 @@ class Quote extends SelectableOption {
     final feeAmount = double.parse((networkFee + transactionFee).toStringAsFixed(2));
 
     final rampId = json['ramp'] as String? ?? '';
-    final rampName = metaData[rampId]['displayName'] as String? ?? '';
-    final rampIconPath = metaData[rampId]['svg'] as String? ?? '';
+    final rampData = metaData[rampId] ?? {};
+    final rampName = rampData['displayName'] as String? ?? '';
+    final rampIconPath = rampData['svg'] as String? ?? '';
 
     final recommendations = json['recommendations'] != null
         ? List<String>.from(json['recommendations'] as List<dynamic>)

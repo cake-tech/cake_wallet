@@ -153,8 +153,8 @@ class RobinhoodBuyProvider extends BuyProvider {
 
     final queryParams = {
       'applicationId': _applicationId,
-      'fiatCode': isBuyAction ? fiatCurrency.name : cryptoCurrency.title,
-      'assetCode': isBuyAction ? cryptoCurrency.title : fiatCurrency.name,
+      'fiatCode': fiatCurrency.name,
+      'assetCode': cryptoCurrency.title,
       'fiatAmount': amount.toString(),
       if (paymentMethod != null) 'paymentMethod': paymentMethod,
     };
@@ -169,8 +169,8 @@ class RobinhoodBuyProvider extends BuyProvider {
       if (response.statusCode == 200) {
         final paymentType = _getPaymentTypeByString(responseData['paymentMethod'] as String?);
         final quote = Quote.fromRobinhoodJson(responseData, isBuyAction, paymentType);
-        quote.setSourceCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
-        quote.setDestinationCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
+        quote.setFiatCurrency = fiatCurrency;
+        quote.setCryptoCurrency = cryptoCurrency;
         return [quote];
       } else {
         if (responseData.containsKey('message')) {

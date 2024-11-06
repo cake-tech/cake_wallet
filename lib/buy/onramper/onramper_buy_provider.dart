@@ -157,7 +157,8 @@ class OnRamperBuyProvider extends BuyProvider {
         final onrampMetadata = await getOnrampMetadata();
 
         for (var item in data) {
-          if (item['errors'] != null) break;
+
+          if (item['errors'] != null) continue;
 
           final paymentMethod = (item as Map<String, dynamic>)['paymentMethod'] as String;
 
@@ -168,8 +169,8 @@ class OnRamperBuyProvider extends BuyProvider {
 
           final quote = Quote.fromOnramperJson(
               item, isBuyAction, onrampMetadata, _getPaymentTypeByString(paymentMethod));
-          quote.setSourceCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
-          quote.setDestinationCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
+          quote.setFiatCurrency = fiatCurrency;
+          quote.setCryptoCurrency = cryptoCurrency;
           validQuotes.add(quote);
         }
 
@@ -208,10 +209,10 @@ class OnRamperBuyProvider extends BuyProvider {
       cardColor = getColorStr(Colors.white);
     }
 
-    final defaultFiat = isBuyAction ? quote.sourceCurrency.name : quote.destinationCurrency.name;
+    final defaultFiat = isBuyAction ? quote.fiatCurrency.name : quote.cryptoCurrency.name;
     final defaultCrypto = isBuyAction
-        ? _getNormalizeCryptoCurrency(quote.destinationCurrency)
-        : _getNormalizeCryptoCurrency(quote.sourceCurrency);
+        ? _getNormalizeCryptoCurrency(quote.cryptoCurrency)
+        : _getNormalizeCryptoCurrency(quote.fiatCurrency);
 
     final paymentMethod = normalizePaymentMethod(quote.paymentType);
 

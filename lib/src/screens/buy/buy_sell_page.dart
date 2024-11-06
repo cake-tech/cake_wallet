@@ -307,10 +307,6 @@ class BuySellPage extends BasePage {
       if (buySellViewModel.cryptoCurrency == CryptoCurrency.xmr) {
         cryptoCurrencyKey.currentState!.changeAddress(address: address);
       }
-
-      if (buySellViewModel.cryptoCurrency == CryptoCurrency.xmr) {
-        cryptoCurrencyKey.currentState!.changeAddress(address: address);
-      }
     });
 
     reaction((_) => buySellViewModel.isReadyToTrade, (bool isReady) {
@@ -428,8 +424,7 @@ class BuySellPage extends BasePage {
             return MobileExchangeCardsSection(
               firstExchangeCard: fiatExchangeCard,
               secondExchangeCard: cryptoExchangeCard,
-              onBuyTap: () =>
-                  !buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
+              onBuyTap: () => null,
               onSellTap: () =>
                   buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
               isBuySellOption: true,
@@ -440,8 +435,7 @@ class BuySellPage extends BasePage {
               secondExchangeCard: fiatExchangeCard,
               onBuyTap: () =>
                   !buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
-              onSellTap: () =>
-                  buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
+              onSellTap: () => null,
               isBuySellOption: true,
             );
           }

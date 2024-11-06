@@ -128,8 +128,8 @@ class MeldBuyProvider extends BuyProvider {
         final paymentType = _getPaymentTypeByString(data['paymentMethodType'] as String?);
         final quote = Quote.fromMeldJson(data, isBuyAction, paymentType);
 
-        quote.setSourceCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
-        quote.setDestinationCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
+        quote.setFiatCurrency = fiatCurrency;
+        quote.setCryptoCurrency = cryptoCurrency;
 
         return [quote];
       } else {
@@ -155,8 +155,8 @@ class MeldBuyProvider extends BuyProvider {
       'countryCode': countryCode,
       //'paymentMethodType': normalizePaymentMethod(paymentMethod.paymentMethodType),
       'sourceAmount': amount.toString(),
-      'sourceCurrencyCode': quote.sourceCurrency,
-      'destinationCurrencyCode': quote.destinationCurrency,
+      'sourceCurrencyCode': quote.fiatCurrency,
+      'destinationCurrencyCode': quote.cryptoCurrency,
       'walletAddress': cryptoCurrencyAddress,
       'transactionType': actionType
     };

@@ -262,8 +262,8 @@ class DFXBuyProvider extends BuyProvider {
         if (responseData is Map<String, dynamic>) {
           final paymentType = _getPaymentTypeByString(responseData['paymentMethod'] as String?);
           final quote = Quote.fromDFXJson(responseData, isBuyAction, paymentType);
-          quote.setSourceCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
-          quote.setDestinationCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
+          quote.setFiatCurrency = fiatCurrency;
+          quote.setCryptoCurrency = cryptoCurrency;
           return [quote];
         } else {
           print('DFX: Unexpected data type: ${responseData.runtimeType}');
@@ -312,9 +312,9 @@ class DFXBuyProvider extends BuyProvider {
       final uri = Uri.https('services.dfx.swiss', actionType, {
         'session': accessToken,
         'lang': 'en',
-        'asset-out': quote.destinationCurrency.toString(),
+        'asset-out': quote.cryptoCurrency.toString(),
         'blockchain': blockchain,
-        'asset-in': quote.sourceCurrency.toString(),
+        'asset-in': quote.fiatCurrency.toString(),
         'amount': amount.toString() //TODO: Amount does not work
       });
 

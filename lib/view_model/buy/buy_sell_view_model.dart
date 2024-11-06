@@ -62,7 +62,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   List<BuyProvider> get availableBuyProviders {
     final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(
-        walletTypeForCurrency(cryptoCurrency) ?? wallet.type);
+        walletTypeForCurrency(cryptoCurrency));
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
@@ -72,7 +72,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   List<BuyProvider> get availableSellProviders {
     final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(
-        walletTypeForCurrency(cryptoCurrency) ?? wallet.type);
+        walletTypeForCurrency(cryptoCurrency));
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
@@ -249,9 +249,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @action
   void changeOption(SelectableOption option) {
     if (option is Quote) {
-      sortedRecommendedQuotes.forEach((element) => element.isSelected = false);
-      sortedQuotes.forEach((element) => element.isSelected = false);
-      option.isSelected = true;
+      sortedRecommendedQuotes.forEach((element) => element.setIsSelected = false);
+      sortedQuotes.forEach((element) => element.setIsSelected = false);
+      option.setIsSelected = true;
       selectedQuote = option;
     } else if (option is PaymentMethod) {
       paymentMethods.forEach((element) => element.isSelected = false);
@@ -293,8 +293,8 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         isBuyAction: missingQuote.isBuyAction,
         limits: missingQuote.limits,
       );
-      quote.sourceCurrency = missingQuote.sourceCurrency;
-      quote.destinationCurrency = missingQuote.destinationCurrency;
+      quote.setFiatCurrency = missingQuote.fiatCurrency;
+      quote.setCryptoCurrency = missingQuote.cryptoCurrency;
       return quote;
     }).toList();
 
@@ -415,7 +415,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     if (sortedRecommendedQuotes.isNotEmpty) {
       sortedRecommendedQuotes.first
-        ..isBestRate = true
+        ..setIsBestRate = true
         ..recommendations.insert(0, ProviderRecommendation.bestRate);
       bestRateQuote = sortedRecommendedQuotes.first;
 
@@ -426,7 +426,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       });
 
       selectedQuote = sortedRecommendedQuotes.first;
-      sortedRecommendedQuotes.first.isSelected = true;
+      sortedRecommendedQuotes.first.setIsSelected = true;
     }
 
     buySellQuotState = BuySellQuotLoaded();

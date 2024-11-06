@@ -199,8 +199,8 @@ class MoonPayProvider extends BuyProvider {
         final quote =
             Quote.fromMoonPayJson(data, isBuyAction, _getPaymentTypeByString(paymentMethods));
 
-        quote.setSourceCurrency = isBuyAction ? fiatCurrency : cryptoCurrency;
-        quote.setDestinationCurrency = isBuyAction ? cryptoCurrency : fiatCurrency;
+        quote.setFiatCurrency = fiatCurrency;
+        quote.setCryptoCurrency = cryptoCurrency;
 
         return [quote];
       } else {
@@ -221,7 +221,7 @@ class MoonPayProvider extends BuyProvider {
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
-    final currency = (isBuyAction ? quote.destinationCurrency : quote.sourceCurrency).name;
+    final currency = (isBuyAction ? quote.cryptoCurrency : quote.fiatCurrency).name;
 
     final Map<String, String> params = {
       'theme': themeToMoonPayTheme(_settingsStore.currentTheme),
@@ -229,7 +229,7 @@ class MoonPayProvider extends BuyProvider {
       'colorCode': _settingsStore.currentTheme.type == ThemeType.dark
           ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
-      'baseCurrencyCode': isBuyAction ? quote.sourceCurrency.name : quote.sourceCurrency.name,
+      'baseCurrencyCode': isBuyAction ? quote.fiatCurrency.name : quote.cryptoCurrency.name,
       'baseCurrencyAmount': amount.toString(),
       'walletAddress': cryptoCurrencyAddress,
       'lockAmount': 'false',
@@ -241,8 +241,8 @@ class MoonPayProvider extends BuyProvider {
       if (!isBuyAction) 'refundWalletAddress': cryptoCurrencyAddress
     };
 
-    if (isBuyAction) params['currencyCode'] = quote.destinationCurrency.name;
-    if (!isBuyAction) params['quoteCurrencyCode'] = quote.destinationCurrency.name;
+    if (isBuyAction) params['currencyCode'] = quote.cryptoCurrency.name;
+    if (!isBuyAction) params['quoteCurrencyCode'] = quote.cryptoCurrency.name;
 
     try {
       {
