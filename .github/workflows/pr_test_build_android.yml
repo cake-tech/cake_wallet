@@ -201,6 +201,35 @@ jobs:
         run: |
           echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
+      # Step 3: Download previous build number
+      - name: Download previous build number
+        id: download-build-number
+        run: |
+          # Download the artifact if it exists
+          if [[ ! -f build_number.txt ]]; then
+            echo "1" > build_number.txt
+          fi
+
+      # Step 4: Read and Increment Build Number
+      - name: Increment Build Number
+        id: increment-build-number
+        run: |
+          # Read current build number from file
+          BUILD_NUMBER=$(cat build_number.txt)
+          BUILD_NUMBER=$((BUILD_NUMBER + 1))
+          echo "New build number: $BUILD_NUMBER"
+
+          # Save the incremented build number
+          echo "$BUILD_NUMBER" > build_number.txt
+
+          # Export the build number to use in later steps
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
+
+      # Step 5: Update pubspec.yaml with new build number
+      - name: Update build number
+        run: |
+          sed -i "s/^version: .*/version: 1.0.$BUILD_NUMBER/" pubspec.yaml
+
       - name: Build
         run: |
           cd /opt/android/cake_wallet
@@ -230,6 +259,13 @@ jobs:
         uses: kittaakos/upload-artifact-as-is@v0
         with:
           path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/
+
+      # Re-upload updated build number for the next run
+      - name: Upload updated build number
+        uses: actions/upload-artifact@v3
+        with:
+          name: build_number
+          path: build_number.txt
 
       - name: Send Test APK
         continue-on-error: true
