@@ -61,7 +61,13 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
   ObservableList<Subaddress> get subaddresses {
     final moneroWallet = _wallet as MoneroWallet;
     final subAddresses = moneroWallet.walletAddresses.subaddressList.subaddresses
-        .map((sub) => Subaddress(id: sub.id, address: sub.address, label: sub.label))
+        .map((sub) => Subaddress(
+          id: sub.id,
+          address: sub.address,
+          label: sub.label,
+          received: sub.balance??"unknown",
+          txCount: sub.txCount??0,
+        ))
         .toList();
     return ObservableList<Subaddress>.of(subAddresses);
   }
@@ -83,7 +89,12 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.walletAddresses.subaddressList
         .getAll()
-        .map((sub) => Subaddress(id: sub.id, label: sub.label, address: sub.address))
+        .map((sub) => Subaddress(
+          id: sub.id,
+          label: sub.label,
+          address: sub.address,
+          txCount: sub.txCount??0,
+          received: sub.balance??'unknown'))
         .toList();
   }
 
@@ -91,7 +102,7 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
   Future<void> addSubaddress(Object wallet,
       {required int accountIndex, required String label}) async {
     final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.walletAddresses.subaddressList
+    return await moneroWallet.walletAddresses.subaddressList
         .addSubaddress(accountIndex: accountIndex, label: label);
   }
 
@@ -345,5 +356,10 @@ class CWMonero extends Monero {
   @override
   Future<int> getCurrentHeight() async {
     return monero_wallet_api.getCurrentHeight();
+  }
+
+  @override
+  void monerocCheck() {
+    checkIfMoneroCIsFine();
   }
 }

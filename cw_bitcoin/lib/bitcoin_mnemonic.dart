@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
+
 import 'package:crypto/crypto.dart';
 import 'package:cryptography/cryptography.dart' as cryptography;
 import 'package:cw_core/sec_random_native.dart';
 import 'package:cw_core/utils/text_normalizer.dart';
 
 const segwit = '100';
+const mweb = 'eb';
 final wordlist = englishWordlist;
 
 double logBase(num x, num base) => log(x) / log(base);
@@ -59,11 +61,7 @@ void maskBytes(Uint8List bytes, int bits) {
   }
 }
 
-String bufferToBin(Uint8List data) {
-  final q1 = data.map((e) => e.toRadixString(2).padLeft(8, '0'));
-  final q2 = q1.join('');
-  return q2;
-}
+String bufferToBin(Uint8List data) => data.map((e) => e.toRadixString(2).padLeft(8, '0')).join('');
 
 String encode(Uint8List data) {
   final dataBitLen = data.length * 8;
@@ -112,22 +110,23 @@ Future<bool> checkIfMnemonicIsElectrum2(String mnemonic) async {
 Future<String> getMnemonicHash(String mnemonic) async {
   final hmacSha512 = Hmac(sha512, utf8.encode('Seed version'));
   final digest = hmacSha512.convert(utf8.encode(normalizeText(mnemonic)));
-  final hx = digest.toString();
-  return hx;
+  return digest.toString();
 }
 
-Future<Uint8List> mnemonicToSeedBytes(String mnemonic, {String prefix = segwit}) async {
+Future<Uint8List> mnemonicToSeedBytes(String mnemonic,
+    {String prefix = segwit, String passphrase = ''}) async {
   final pbkdf2 =
       cryptography.Pbkdf2(macAlgorithm: cryptography.Hmac.sha512(), iterations: 2048, bits: 512);
   final text = normalizeText(mnemonic);
-  // pbkdf2.deriveKey(secretKey: secretKey, nonce: nonce)
+  final passphraseBytes = utf8.encode(normalizeText(passphrase));
   final key = await pbkdf2.deriveKey(
-      secretKey: cryptography.SecretKey(text.codeUnits), nonce: 'electrum'.codeUnits);
+      secretKey: cryptography.SecretKey(text.codeUnits),
+      nonce: [...'electrum'.codeUnits, ...passphraseBytes]);
   final bytes = await key.extractBytes();
   return Uint8List.fromList(bytes);
 }
 
-bool matchesAnyPrefix(String mnemonic) => prefixMatches(mnemonic, [segwit]).any((el) => el);
+bool matchesAnyPrefix(String mnemonic) => prefixMatches(mnemonic, [segwit, mweb]).any((el) => el);
 
 bool validateMnemonic(String mnemonic, {String prefix = segwit}) {
   try {

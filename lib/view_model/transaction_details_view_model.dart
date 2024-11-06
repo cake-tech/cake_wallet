@@ -37,7 +37,8 @@ abstract class TransactionDetailsViewModelBase with Store {
       required this.transactionDescriptionBox,
       required this.wallet,
       required this.settingsStore,
-      required this.sendViewModel})
+      required this.sendViewModel,
+      this.canReplaceByFee = false})
       : items = [],
         RBFListItems = [],
         newFee = 0,
@@ -52,8 +53,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.bitcoin:
         _addElectrumListItems(tx, dateFormat);
-        _addBumpFeesListItems(tx);
-        _checkForRBF();
+        if(!canReplaceByFee)_checkForRBF(tx);
         break;
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
@@ -87,18 +87,19 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
     }
 
-    if (showRecipientAddress && !isRecipientAddressShown) {
-      try {
-        final recipientAddress = transactionDescriptionBox.values
-            .firstWhere((val) => val.id == transactionInfo.txHash)
-            .recipientAddress;
+    final descriptionKey =
+        '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
+    final description = transactionDescriptionBox.values.firstWhere(
+        (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+        orElse: () => TransactionDescription(id: descriptionKey));
 
-        if (recipientAddress?.isNotEmpty ?? false) {
-          items.add(StandartListItem(
-              title: S.current.transaction_details_recipient_address, value: recipientAddress!));
-        }
-      } catch (_) {
-        // FIX-ME: Unhandled exception
+    if (showRecipientAddress && !isRecipientAddressShown) {
+      final recipientAddress = description.recipientAddress;
+
+      if (recipientAddress?.isNotEmpty ?? false) {
+        items.add(StandartListItem(
+          title: S.current.transaction_details_recipient_address,
+          value: recipientAddress!));
       }
     }
 
@@ -113,10 +114,6 @@ abstract class TransactionDetailsViewModelBase with Store {
             if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
           } catch (e) {}
         }));
-
-    final description = transactionDescriptionBox.values.firstWhere(
-        (val) => val.id == transactionInfo.txHash,
-        orElse: () => TransactionDescription(id: transactionInfo.txHash));
 
     items.add(TextFieldListItem(
         title: S.current.note_tap_to_change,
@@ -143,20 +140,18 @@ abstract class TransactionDetailsViewModelBase with Store {
   bool showRecipientAddress;
   bool isRecipientAddressShown;
   int newFee;
+  String? rawTransaction;
   TransactionPriority? transactionPriority;
 
   @observable
-  bool _canReplaceByFee = false;
-
-  @computed
-  bool get canReplaceByFee => _canReplaceByFee /*&& transactionInfo.confirmations <= 0*/;
+  bool canReplaceByFee;
 
   String _explorerUrl(WalletType type, String txId) {
     switch (type) {
       case WalletType.monero:
         return 'https://monero.com/tx/${txId}';
       case WalletType.bitcoin:
-        return 'https://mempool.space/${wallet.isTestnet == true ? "testnet/" : ""}tx/${txId}';
+        return 'https://mempool.space/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.bitcoinCash:
@@ -166,9 +161,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.ethereum:
         return 'https://etherscan.io/tx/${txId}';
       case WalletType.nano:
-        return 'https://nanolooker.com/block/${txId}';
+        return 'https://nanexplorer.com/nano/block/${txId}';
       case WalletType.banano:
-        return 'https://bananolooker.com/block/${txId}';
+        return 'https://nanexplorer.com/banano/block/${txId}';
       case WalletType.polygon:
         return 'https://polygonscan.com/tx/${txId}';
       case WalletType.solana:
@@ -198,9 +193,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.ethereum:
         return S.current.view_transaction_on + 'etherscan.io';
       case WalletType.nano:
-        return S.current.view_transaction_on + 'nanolooker.com';
+        return S.current.view_transaction_on + 'nanexplorer.com';
       case WalletType.banano:
-        return S.current.view_transaction_on + 'bananolooker.com';
+        return S.current.view_transaction_on + 'nanexplorer.com';
       case WalletType.polygon:
         return S.current.view_transaction_on + 'polygonscan.com';
       case WalletType.solana:
@@ -355,16 +350,27 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.addAll(_items);
   }
 
-  void _addBumpFeesListItems(TransactionInfo tx) {
+  void addBumpFeesListItems(TransactionInfo tx, String rawTransaction) {
     transactionPriority = bitcoin!.getBitcoinTransactionPriorityMedium();
+    final inputsCount = (transactionInfo.inputAddresses?.isEmpty ?? true)
+        ? 1
+        : transactionInfo.inputAddresses!.length;
+    final outputsCount = (transactionInfo.outputAddresses?.isEmpty ?? true)
+        ? 1
+        : transactionInfo.outputAddresses!.length;
 
     newFee = bitcoin!.getFeeAmountForPriority(
-        wallet,
-        bitcoin!.getBitcoinTransactionPriorityMedium(),
-        transactionInfo.inputAddresses?.length ?? 1,
-        transactionInfo.outputAddresses?.length ?? 1);
+        wallet, bitcoin!.getBitcoinTransactionPriorityMedium(), inputsCount, outputsCount);
 
     RBFListItems.add(StandartListItem(title: S.current.old_fee, value: tx.feeFormatted() ?? '0.0'));
+
+    if (transactionInfo.fee != null && rawTransaction.isNotEmpty) {
+      final size = bitcoin!.getTransactionVSize(wallet, rawTransaction);
+      final recommendedRate = (transactionInfo.fee! / size).round() + 1;
+
+      RBFListItems.add(
+          StandartListItem(title: 'New recommended fee rate', value: '$recommendedRate sat/byte'));
+    }
 
     final priorities = priorityForWalletType(wallet.type);
     final selectedItem = priorities.indexOf(sendViewModel.transactionPriority);
@@ -386,19 +392,26 @@ abstract class TransactionDetailsViewModelBase with Store {
             sendViewModel.displayFeeRate(priority, sliderValue.round()),
         onSliderChanged: (double newValue) =>
             setNewFee(value: newValue, priority: transactionPriority!),
-        onItemSelected: (dynamic item) {
+        onItemSelected: (dynamic item, double sliderValue) {
           transactionPriority = item as TransactionPriority;
-          return setNewFee(priority: transactionPriority!);
+          return setNewFee(value: sliderValue, priority: transactionPriority!);
         }));
 
-    if (transactionInfo.inputAddresses != null) {
+    if (transactionInfo.inputAddresses != null && transactionInfo.inputAddresses!.isNotEmpty) {
       RBFListItems.add(StandardExpandableListItem(
           title: S.current.inputs, expandableItems: transactionInfo.inputAddresses!));
     }
 
-    if (transactionInfo.outputAddresses != null) {
-      RBFListItems.add(StandardExpandableListItem(
-          title: S.current.outputs, expandableItems: transactionInfo.outputAddresses!));
+    if (transactionInfo.outputAddresses != null && transactionInfo.outputAddresses!.isNotEmpty) {
+      final outputAddresses = transactionInfo.outputAddresses!.map((element) {
+        if (element.contains('OP_RETURN:') && element.length > 40) {
+            return element.substring(0, 40) + '...';
+        }
+        return element;
+      }).toList();
+
+      RBFListItems.add(
+          StandardExpandableListItem(title: S.current.outputs, expandableItems: outputAddresses));
     }
   }
 
@@ -424,18 +437,23 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   @action
-  Future<void> _checkForRBF() async {
+  Future<void> _checkForRBF(TransactionInfo tx) async {
     if (wallet.type == WalletType.bitcoin &&
         transactionInfo.direction == TransactionDirection.outgoing) {
-      if (await bitcoin!.canReplaceByFee(wallet, transactionInfo.id)) {
-        _canReplaceByFee = true;
+      rawTransaction = await bitcoin!.canReplaceByFee(wallet, tx);
+      if (rawTransaction != null) {
+        canReplaceByFee = true;
       }
     }
   }
 
   String setNewFee({double? value, required TransactionPriority priority}) {
     newFee = priority == bitcoin!.getBitcoinTransactionPriorityCustom() && value != null
-        ? bitcoin!.getEstimatedFeeWithFeeRate(wallet, value.round(), transactionInfo.amount)
+        ? bitcoin!.feeAmountWithFeeRate(
+            wallet,
+            value.round(),
+            transactionInfo.inputAddresses?.length ?? 1,
+            transactionInfo.outputAddresses?.length ?? 1)
         : bitcoin!.getFeeAmountForPriority(
             wallet,
             priority,
@@ -445,7 +463,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     return bitcoin!.formatterBitcoinAmountToString(amount: newFee);
   }
 
-  void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo.id, newFee);
+  void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo, newFee,);
 
   @computed
   String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled

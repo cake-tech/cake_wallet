@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -218,7 +220,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   void waitForWalletInstance(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (context.mounted) {
+      if (mounted) {
         _walletReactionDisposer = reaction(
           (_) => widget.appStore.wallet,
           (WalletBase? wallet) {

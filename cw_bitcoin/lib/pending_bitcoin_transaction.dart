@@ -1,11 +1,15 @@
+import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_mweb/cw_mweb.dart';
+import 'package:cw_mweb/mwebd.pb.dart';
 
 class PendingBitcoinTransaction with PendingTransaction {
   PendingBitcoinTransaction(
@@ -19,6 +23,8 @@ class PendingBitcoinTransaction with PendingTransaction {
     required this.hasChange,
     this.isSendAll = false,
     this.hasTaprootInputs = false,
+    this.isMweb = false,
+    this.utxos = const [],
   }) : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
@@ -28,15 +34,21 @@ class PendingBitcoinTransaction with PendingTransaction {
   final int fee;
   final String feeRate;
   final BasedUtxoNetwork? network;
-  final bool hasChange;
   final bool isSendAll;
+  final bool hasChange;
   final bool hasTaprootInputs;
+  List<UtxoWithAddress> utxos;
+  bool isMweb;
+  String? changeAddressOverride;
+  String? idOverride;
+  String? hexOverride;
+  List<String>? outputAddresses;
 
   @override
-  String get id => _tx.txId();
+  String get id => idOverride ?? _tx.txId();
 
   @override
-  String get hex => _tx.serialize();
+  String get hex => hexOverride ?? _tx.serialize();
 
   @override
   String get amountFormatted => bitcoinAmountToString(amount: amount);
@@ -47,10 +59,25 @@ class PendingBitcoinTransaction with PendingTransaction {
   @override
   int? get outputCount => _tx.outputs.length;
 
+  List<TxOutput> get outputs => _tx.outputs;
+
+  bool get hasSilentPayment => _tx.hasSilentPayment;
+
+  PendingChange? get change {
+    try {
+      final change = _tx.outputs.firstWhere((out) => out.isChange);
+      if (changeAddressOverride != null) {
+        return PendingChange(changeAddressOverride!, BtcUtils.fromSatoshi(change.amount));
+      }
+      return PendingChange(change.scriptPubKey.toAddress(), BtcUtils.fromSatoshi(change.amount));
+    } catch (_) {
+      return null;
+    }
+  }
+
   final List<void Function(ElectrumTransactionInfo transaction)> _listeners;
 
-  @override
-  Future<void> commit() async {
+  Future<void> _commit() async {
     int? callId;
 
     final result = await electrumClient.broadcastTransaction(
@@ -78,10 +105,35 @@ class PendingBitcoinTransaction with PendingTransaction {
           throw BitcoinTransactionCommitFailedBIP68Final();
         }
 
+        if (error.contains("min fee not met")) {
+          throw BitcoinTransactionCommitFailedLessThanMin();
+        }
+
         throw BitcoinTransactionCommitFailed(errorMessage: error);
       }
 
       throw BitcoinTransactionCommitFailed();
+    }
+  }
+
+  Future<void> _ltcCommit() async {
+    try {
+      final stub = await CwMweb.stub();
+      final resp = await stub.broadcast(BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
+      idOverride = resp.txid;
+    } on GrpcError catch (e) {
+      throw BitcoinTransactionCommitFailed(errorMessage: e.message);
+    } catch (e) {
+      throw BitcoinTransactionCommitFailed(errorMessage: "Unknown error: ${e.toString()}");
+    }
+  }
+
+  @override
+  Future<void> commit() async {
+    if (isMweb) {
+      await _ltcCommit();
+    } else {
+      await _commit();
     }
 
     _listeners.forEach((listener) => listener(transactionInfo()));
@@ -97,6 +149,9 @@ class PendingBitcoinTransaction with PendingTransaction {
       direction: TransactionDirection.outgoing,
       date: DateTime.now(),
       isPending: true,
+      isReplaced: false,
       confirmations: 0,
+      inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
+      outputAddresses: outputAddresses,
       fee: fee);
 }

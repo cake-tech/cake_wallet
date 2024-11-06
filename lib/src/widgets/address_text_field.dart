@@ -1,5 +1,5 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -12,27 +12,30 @@ import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-enum AddressTextFieldOption { paste, qrCode, addressBook }
+enum AddressTextFieldOption { paste, qrCode, addressBook, walletAddresses }
 
 class AddressTextField extends StatelessWidget {
-  AddressTextField(
-      {required this.controller,
-      this.isActive = true,
-      this.placeholder,
-      this.options = const [AddressTextFieldOption.qrCode, AddressTextFieldOption.addressBook],
-      this.onURIScanned,
-      this.focusNode,
-      this.isBorderExist = true,
-      this.buttonColor,
-      this.borderColor,
-      this.iconColor,
-      this.textStyle,
-      this.hintStyle,
-      this.validator,
-      this.onPushPasteButton,
-      this.onPushAddressBookButton,
-      this.onSelectedContact,
-      this.selectedCurrency});
+  AddressTextField({
+    required this.controller,
+    this.isActive = true,
+    this.placeholder,
+    this.options = const [AddressTextFieldOption.qrCode, AddressTextFieldOption.addressBook],
+    this.onURIScanned,
+    this.focusNode,
+    this.isBorderExist = true,
+    this.buttonColor,
+    this.borderColor,
+    this.iconColor,
+    this.textStyle,
+    this.hintStyle,
+    this.validator,
+    this.onPushPasteButton,
+    this.onPushAddressBookButton,
+    this.onPushAddressPickerButton,
+    this.onSelectedContact,
+    this.selectedCurrency,
+    this.addressKey,
+  });
 
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;
@@ -53,30 +56,30 @@ class AddressTextField extends StatelessWidget {
   final FocusNode? focusNode;
   final Function(BuildContext context)? onPushPasteButton;
   final Function(BuildContext context)? onPushAddressBookButton;
+  final Function(BuildContext context)? onPushAddressPickerButton;
   final Function(ContactBase contact)? onSelectedContact;
   final CryptoCurrency? selectedCurrency;
+  final Key? addressKey;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
         TextFormField(
+          key: addressKey,
           enableIMEPersonalizedLearning: false,
           keyboardType: TextInputType.visiblePassword,
           onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
           enabled: isActive,
           controller: controller,
           focusNode: focusNode,
-        
           style: textStyle ??
               TextStyle(
                   fontSize: 16, color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
           decoration: InputDecoration(
-          
             suffixIcon: SizedBox(
               width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
             ),
-         
             hintStyle: hintStyle ?? TextStyle(fontSize: 16, color: Theme.of(context).hintColor),
             hintText: placeholder ?? S.current.widgets_address,
             focusedBorder: isBorderExist
@@ -101,90 +104,122 @@ class AddressTextField extends StatelessWidget {
             top: 2,
             right: 0,
             child: SizedBox(
-              width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
+              width:
+                  (prefixIconWidth * options.length) + (spaceBetweenPrefixIcons * options.length),
               child: Row(
                 mainAxisAlignment: responsiveLayoutUtil.shouldRenderMobileUI
                     ? MainAxisAlignment.spaceBetween
                     : MainAxisAlignment.end,
                 children: [
-                  SizedBox(width: 5),
                   if (this.options.contains(AddressTextFieldOption.paste)) ...[
+                    SizedBox(width: 5),
                     Container(
-                        width: prefixIconWidth,
-                        height: prefixIconHeight,
-                        padding: EdgeInsets.only(top: 0),
-                        child: Semantics(
-                          label: S.of(context).paste,
-                          child: InkWell(
-                            onTap: () async => _pasteAddress(context),
-                            child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                    color: buttonColor ??
-                                        Theme.of(context).dialogTheme.backgroundColor,
-                                    borderRadius: BorderRadius.all(Radius.circular(6))),
-                                child: Image.asset(
-                                  'assets/images/paste_ios.png',
-                                  color: iconColor ??
-                                      Theme.of(context)
-                                          .extension<SendPageTheme>()!
-                                          .textFieldButtonIconColor,
-                                )),
-                          ),
-                        )),
+                      width: prefixIconWidth,
+                      height: prefixIconHeight,
+                      padding: EdgeInsets.only(top: 0),
+                      child: Semantics(
+                        label: S.of(context).paste,
+                        child: InkWell(
+                          onTap: () async => _pasteAddress(context),
+                          child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                  color:
+                                      buttonColor ?? Theme.of(context).dialogTheme.backgroundColor,
+                                  borderRadius: BorderRadius.all(Radius.circular(6))),
+                              child: Image.asset(
+                                'assets/images/paste_ios.png',
+                                color: iconColor ??
+                                    Theme.of(context)
+                                        .extension<SendPageTheme>()!
+                                        .textFieldButtonIconColor,
+                              )),
+                        ),
+                      ),
+                    ),
                   ],
                   if (this.options.contains(AddressTextFieldOption.qrCode) &&
                       DeviceInfo.instance.isMobile) ...[
-                    Container(
-                        width: prefixIconWidth,
-                        height: prefixIconHeight,
-                        padding: EdgeInsets.only(top: 0),
-                        child: Semantics(
-                          label: S.of(context).scan_qr_code,
-                          child: InkWell(
-                            onTap: () async => _presentQRScanner(context),
-                            child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                    color: buttonColor ??
-                                        Theme.of(context).dialogTheme.backgroundColor,
-                                    borderRadius: BorderRadius.all(Radius.circular(6))),
-                                child: Image.asset(
-                                  'assets/images/qr_code_icon.png',
-                                  color: iconColor ??
-                                      Theme.of(context)
-                                          .extension<SendPageTheme>()!
-                                          .textFieldButtonIconColor,
-                                )),
-                          ),
-                        ))
-                  ] else
                     SizedBox(width: 5),
-                  if (this.options.contains(AddressTextFieldOption.addressBook)) ...[
                     Container(
-                        width: prefixIconWidth,
-                        height: prefixIconHeight,
-                        padding: EdgeInsets.only(top: 0),
-                        child: Semantics(
-                          label: S.of(context).address_book,
-                          child: InkWell(
-                            onTap: () async => _presetAddressBookPicker(context),
-                            child: Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                    color: buttonColor ??
-                                        Theme.of(context).dialogTheme.backgroundColor,
-                                    borderRadius: BorderRadius.all(Radius.circular(6))),
-                                child: Image.asset(
-                                  'assets/images/open_book.png',
-                                  color: iconColor ??
-                                      Theme.of(context)
-                                          .extension<SendPageTheme>()!
-                                          .textFieldButtonIconColor,
-                                )),
-                          ),
-                        ))
-                  ]
+                      width: prefixIconWidth,
+                      height: prefixIconHeight,
+                      padding: EdgeInsets.only(top: 0),
+                      child: Semantics(
+                        label: S.of(context).scan_qr_code,
+                        child: InkWell(
+                          onTap: () async => _presentQRScanner(context),
+                          child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                  color:
+                                      buttonColor ?? Theme.of(context).dialogTheme.backgroundColor,
+                                  borderRadius: BorderRadius.all(Radius.circular(6))),
+                              child: Image.asset(
+                                'assets/images/qr_code_icon.png',
+                                color: iconColor ??
+                                    Theme.of(context)
+                                        .extension<SendPageTheme>()!
+                                        .textFieldButtonIconColor,
+                              )),
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (this.options.contains(AddressTextFieldOption.addressBook)) ...[
+                    SizedBox(width: 5),
+                    Container(
+                      width: prefixIconWidth,
+                      height: prefixIconHeight,
+                      padding: EdgeInsets.only(top: 0),
+                      child: Semantics(
+                        label: S.of(context).address_book,
+                        child: InkWell(
+                          onTap: () async => _presetAddressBookPicker(context),
+                          child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                  color:
+                                      buttonColor ?? Theme.of(context).dialogTheme.backgroundColor,
+                                  borderRadius: BorderRadius.all(Radius.circular(6))),
+                              child: Image.asset(
+                                'assets/images/open_book.png',
+                                color: iconColor ??
+                                    Theme.of(context)
+                                        .extension<SendPageTheme>()!
+                                        .textFieldButtonIconColor,
+                              )),
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (this.options.contains(AddressTextFieldOption.walletAddresses)) ...[
+                    SizedBox(width: 5),
+                    Container(
+                      width: prefixIconWidth,
+                      height: prefixIconHeight,
+                      padding: EdgeInsets.only(top: 0),
+                      child: Semantics(
+                        label: S.of(context).address_book,
+                        child: InkWell(
+                          onTap: () async => _presetWalletAddressPicker(context),
+                          child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                  color:
+                                      buttonColor ?? Theme.of(context).dialogTheme.backgroundColor,
+                                  borderRadius: BorderRadius.all(Radius.circular(6))),
+                              child: Image.asset(
+                                'assets/images/open_book.png',
+                                color: iconColor ??
+                                    Theme.of(context)
+                                        .extension<SendPageTheme>()!
+                                        .textFieldButtonIconColor,
+                              )),
+                        ),
+                      ),
+                    )
+                  ],
                 ],
               ),
             ))
@@ -194,7 +229,7 @@ class AddressTextField extends StatelessWidget {
 
   Future<void> _presentQRScanner(BuildContext context) async {
     bool isCameraPermissionGranted =
-    await PermissionHandler.checkPermission(Permission.camera, context);
+        await PermissionHandler.checkPermission(Permission.camera, context);
     if (!isCameraPermissionGranted) return;
     final code = await presentQRScanner();
     if (code.isEmpty) {
@@ -218,6 +253,15 @@ class AddressTextField extends StatelessWidget {
       controller?.text = contact.address;
       onPushAddressBookButton?.call(context);
       onSelectedContact?.call(contact);
+    }
+  }
+
+  Future<void> _presetWalletAddressPicker(BuildContext context) async {
+    final address = await Navigator.of(context).pushNamed(Routes.pickerWalletAddress);
+
+    if (address is String) {
+      controller?.text = address;
+      onPushAddressPickerButton?.call(context);
     }
   }
 

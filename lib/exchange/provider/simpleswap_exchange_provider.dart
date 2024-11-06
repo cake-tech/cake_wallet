@@ -129,8 +129,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       "currency_to": _normalizeCurrency(request.toCurrency),
       "amount": request.fromAmount,
       "fixed": isFixedRateMode,
-      "user_refund_address": request.refundAddress,
-      "address_to": request.toAddress
+      "user_refund_address": _normalizeAddress(request.refundAddress),
+      "address_to": _normalizeAddress(request.toAddress)
     };
     final uri = Uri.https(apiAuthority, createExchangePath, params);
 
@@ -236,11 +236,14 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       case CryptoCurrency.usdcsol:
         return 'usdcspl';
       case CryptoCurrency.matic:
-        return 'maticerc20';
+        return 'pol';
       case CryptoCurrency.maticpoly:
         return 'matic';
       default:
         return currency.title.toLowerCase();
     }
   }
+
+  String _normalizeAddress(String address) =>
+      address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
 }

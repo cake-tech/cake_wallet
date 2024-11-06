@@ -16,7 +16,7 @@ NPROC="-j$(sysctl -n hw.logicalcpu)"
 
 ../prepare_moneroc.sh
 
-for COIN in monero wownero;
+for COIN in monero wownero zano;
 do
     pushd ../monero_c
         rm -rf external/ios/build

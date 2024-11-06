@@ -22,7 +22,7 @@ cp -rf ./ios/Runner/InfoBase.plist ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:1:CFBundleURLName string ${APP_IOS_TYPE}" ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:1:CFBundleURLSchemes array" ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:1:CFBundleURLSchemes: string ${APP_IOS_TYPE}" ./ios/Runner/Info.plist
-sed -i '' "s/\${PRODUCT_BUNDLE_IDENTIFIER}/${APP_IOS_BUNDLE_ID}/g" ./ios/Runner.xcodeproj/project.pbxproj
+sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = .*;/PRODUCT_BUNDLE_IDENTIFIER = $APP_IOS_BUNDLE_ID;/g" ./ios/Runner.xcodeproj/project.pbxproj
 
 CONFIG_ARGS=""
 

@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 
 import 'package:cw_wownero/api/account_list.dart';
@@ -8,7 +9,41 @@ import 'package:cw_wownero/api/exceptions/wallet_restore_from_keys_exception.dar
 import 'package:cw_wownero/api/exceptions/wallet_restore_from_seed_exception.dart';
 import 'package:cw_wownero/api/transaction_history.dart';
 import 'package:cw_wownero/api/wallet.dart';
+import 'package:flutter/foundation.dart';
 import 'package:monero/wownero.dart' as wownero;
+
+class MoneroCException implements Exception {
+  final String message;
+
+  MoneroCException(this.message);
+
+  @override
+  String toString() {
+    return message;
+  }
+}
+
+void checkIfMoneroCIsFine() {
+  final cppCsCpp = wownero.WOWNERO_checksum_wallet2_api_c_cpp();
+  final cppCsH = wownero.WOWNERO_checksum_wallet2_api_c_h();
+  final cppCsExp = wownero.WOWNERO_checksum_wallet2_api_c_exp();
+
+  final dartCsCpp = wownero.wallet2_api_c_cpp_sha256;
+  final dartCsH = wownero.wallet2_api_c_h_sha256;
+  final dartCsExp = wownero.wallet2_api_c_exp_sha256;
+
+  if (cppCsCpp != dartCsCpp) {
+    throw MoneroCException("monero_c and monero.dart cpp wrapper code mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsCpp'\ndart: '$dartCsCpp'");
+  }
+
+  if (cppCsH != dartCsH) {
+    throw MoneroCException("monero_c and monero.dart cpp wrapper header mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsH'\ndart: '$dartCsH'");
+  }
+
+  if (cppCsExp != dartCsExp && (Platform.isIOS || Platform.isMacOS)) {
+    throw MoneroCException("monero_c and monero.dart wrapper export list mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsExp'\ndart: '$dartCsExp'");
+  }
+}
 
 wownero.WalletManager? _wmPtr;
 final wownero.WalletManager wmPtr = Pointer.fromAddress((() {
@@ -105,7 +140,16 @@ void restoreWalletFromKeysSync(
     int nettype = 0,
     int restoreHeight = 0}) {
   txhistory = null;
-  final newWptr = wownero.WalletManager_createWalletFromKeys(
+  var newWptr = (spendKey != "")
+   ? wownero.WalletManager_createDeterministicWalletFromSpendKey(
+    wmPtr,
+    path: path,
+    password: password,
+    language: language,
+    spendKeyString: spendKey, 
+    newWallet: true, // TODO(mrcyjanek): safe to remove
+    restoreHeight: restoreHeight)
+   : wownero.WalletManager_createWalletFromKeys(
     wmPtr,
     path: path,
     password: password,
@@ -121,7 +165,31 @@ void restoreWalletFromKeysSync(
     throw WalletRestoreFromKeysException(
         message: wownero.Wallet_errorString(newWptr));
   }
-
+  // CW-712 - Try to restore deterministic wallet first, if the view key doesn't
+  // match the view key provided
+  if (spendKey != "") {
+    final viewKeyRestored = wownero.Wallet_secretViewKey(newWptr);
+    if (viewKey != viewKeyRestored && viewKey != "") {
+      wownero.WalletManager_closeWallet(wmPtr, newWptr, false);
+      File(path).deleteSync();
+      File(path+".keys").deleteSync();
+      newWptr = wownero.WalletManager_createWalletFromKeys(
+        wmPtr,
+        path: path,
+        password: password,
+        restoreHeight: restoreHeight,
+        addressString: address,
+        viewKeyString: viewKey,
+        spendKeyString: spendKey,
+        nettype: 0,
+      );
+      final status = wownero.Wallet_status(newWptr);
+      if (status != 0) {
+        throw WalletRestoreFromKeysException(
+            message: wownero.Wallet_errorString(newWptr));
+      }
+    }
+  }
   wptr = newWptr;
 
   openedWalletsByPath[path] = wptr!;

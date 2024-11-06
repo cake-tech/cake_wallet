@@ -7,10 +7,10 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_zano/api/api_calls.dart';
 import 'package:cw_zano/zano_wallet.dart';
 import 'package:cw_zano/zano_wallet_api.dart';
 import 'package:hive/hive.dart';
+import 'package:monero/zano.dart' as zano;
 
 class ZanoNewWalletCredentials extends WalletCredentials {
   ZanoNewWalletCredentials({required String name, String? password}) : super(name: name, password: password);
@@ -62,7 +62,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
   @override
   Future<bool> isWalletExit(String name) async {
     final path = await pathForWallet(name: name, type: getType());
-    return ApiCalls.isWalletExist(path: path);
+    return zano.PlainWallet_isWalletExist(path);
   }
 
   @override
@@ -95,7 +95,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
   @override
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
-    final currentWallet = ZanoWallet(currentWalletInfo);
+    final currentWallet = ZanoWallet(currentWalletInfo, password);
 
     await currentWallet.renameWalletFiles(newName);
 

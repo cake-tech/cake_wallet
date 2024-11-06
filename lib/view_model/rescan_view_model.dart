@@ -29,6 +29,12 @@ abstract class RescanViewModelBase with Store {
   @computed
   bool get isSilentPaymentsScan => wallet.type == WalletType.bitcoin;
 
+  @computed
+  bool get isMwebScan => wallet.type == WalletType.litecoin;
+  
+  Future<bool> get isBitcoinMempoolAPIEnabled async =>
+      wallet.type == WalletType.bitcoin && await bitcoin!.checkIfMempoolAPIIsEnabled(wallet);
+
   @action
   Future<void> rescanCurrentWallet({required int restoreHeight}) async {
     state = RescanWalletState.rescaning;

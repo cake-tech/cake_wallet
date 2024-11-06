@@ -24,7 +24,7 @@ fi
 # NOTE: -j1 is intentional. Otherwise you will run into weird behaviour on macos
 if [[ ! "x$USE_DOCKER" == "x" ]];
 then
-    for COIN in monero wownero;
+    for COIN in monero wownero zano;
     do
         pushd ../monero_c
             docker run --platform linux/amd64 -v$HOME/.cache/ccache:/root/.ccache -v$PWD:$PWD -w $PWD --rm -it git.mrcyjanek.net/mrcyjanek/debian:buster bash -c "git config --global --add safe.directory '*'; apt update; apt install -y ccache gcc g++ libtinfo5 gperf; ./build_single.sh ${COIN} x86_64-linux-android $NPROC"
@@ -34,7 +34,7 @@ then
         popd
     done
 else
-    for COIN in monero wownero;
+    for COIN in monero wownero zano;
     do
         pushd ../monero_c
             env -i ./build_single.sh ${COIN} x86_64-linux-android $NPROC
