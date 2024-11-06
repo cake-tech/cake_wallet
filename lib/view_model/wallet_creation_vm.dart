@@ -101,6 +101,7 @@ abstract class WalletCreationVMBase with Store {
         address: '',
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
+        derivations: credentials.derivations,
         hardwareWalletType: credentials.hardwareWalletType,
         parentAddress: credentials.parentAddress,
       );
@@ -200,15 +201,36 @@ abstract class WalletCreationVMBase with Store {
     switch (walletType) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        final derivationList = await bitcoin!.getDerivationsFromMnemonic(
+        final bitcoinDerivations = await bitcoin!.getDerivationsFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,
           node: node,
           passphrase: restoreWallet.passphrase,
         );
 
-        if (derivationList.firstOrNull?.transactionsCount == 0 && derivationList.length > 1)
-          return [];
-        return derivationList;
+        List<DerivationInfo> list = [];
+        for (var derivation in bitcoinDerivations) {
+          if (derivation.derivationType == DerivationType.electrum) {
+            list.add(
+              DerivationInfo(
+                derivationType: DerivationType.electrum,
+                derivationPath: "m/0'",
+                description: "Electrum",
+                scriptType: "p2wpkh",
+              ),
+            );
+          } else {
+            list.add(
+              DerivationInfo(
+                derivationType: DerivationType.bip39,
+                derivationPath: "m/84'/0'/0'",
+                description: "Standard BIP84 native segwit",
+                scriptType: "p2wpkh",
+              ),
+            );
+          }
+        }
+
+        return list;
 
       case WalletType.nano:
         return nanoUtil!.getDerivationsFromMnemonic(

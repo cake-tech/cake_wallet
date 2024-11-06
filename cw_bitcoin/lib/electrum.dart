@@ -3,16 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
-
-enum ConnectionStatus { connected, disconnected, connecting, failed }
-
-String jsonrpcparams(List<Object> params) {
-  final _params = params.map((val) => '"${val.toString()}"').join(',');
-  return '[$_params]';
-}
 
 String jsonrpc(
         {required String method,
@@ -317,13 +309,38 @@ class ElectrumClient {
   Future<Map<String, dynamic>> getHeader({required int height}) async =>
       await call(method: 'blockchain.block.get_header', params: [height]) as Map<String, dynamic>;
 
-  BehaviorSubject<Object>? tweaksSubscribe({required int height, required int count}) {
-    return subscribe<Object>(
-      id: 'blockchain.tweaks.subscribe',
-      method: 'blockchain.tweaks.subscribe',
-      params: [height, count, false],
-    );
-  }
+  BehaviorSubject<Object>? tweaksSubscribe({required int height, required int count}) =>
+      subscribe<Object>(
+        id: 'blockchain.tweaks.subscribe',
+        method: 'blockchain.tweaks.subscribe',
+        params: [height, count, true],
+      );
+
+  Future<dynamic> tweaksRegister({
+    required String secViewKey,
+    required String pubSpendKey,
+    List<int> labels = const [],
+  }) =>
+      call(
+        method: 'blockchain.tweaks.register',
+        params: [secViewKey, pubSpendKey, labels],
+      );
+
+  Future<dynamic> tweaksErase({required String pubSpendKey}) => call(
+        method: 'blockchain.tweaks.erase',
+        params: [pubSpendKey],
+      );
+
+  BehaviorSubject<Object>? tweaksScan({required String pubSpendKey}) => subscribe<Object>(
+        id: 'blockchain.tweaks.scan',
+        method: 'blockchain.tweaks.scan',
+        params: [pubSpendKey],
+      );
+
+  Future<dynamic> tweaksGet({required String pubSpendKey}) => call(
+        method: 'blockchain.tweaks.get',
+        params: [pubSpendKey],
+      );
 
   Future<dynamic> getTweaks({required int height}) async =>
       await callWithTimeout(method: 'blockchain.tweaks.subscribe', params: [height, 1, false]);
@@ -369,20 +386,20 @@ class ElectrumClient {
         return [];
       });
 
-  Future<List<int>> feeRates({BasedUtxoNetwork? network}) async {
-    try {
-      final topDoubleString = await estimatefee(p: 1);
-      final middleDoubleString = await estimatefee(p: 5);
-      final bottomDoubleString = await estimatefee(p: 10);
-      final top = (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000).round();
-      final middle = (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000).round();
-      final bottom = (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000).round();
+  // Future<List<int>> feeRates({BasedUtxoNetwork? network}) async {
+  //   try {
+  //     final topDoubleString = await estimatefee(p: 1);
+  //     final middleDoubleString = await estimatefee(p: 5);
+  //     final bottomDoubleString = await estimatefee(p: 10);
+  //     final top = (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000).round();
+  //     final middle = (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000).round();
+  //     final bottom = (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000).round();
 
-      return [bottom, middle, top];
-    } catch (_) {
-      return [];
-    }
-  }
+  //     return [bottom, middle, top];
+  //   } catch (_) {
+  //     return [];
+  //   }
+  // }
 
   // https://electrumx.readthedocs.io/en/latest/protocol-methods.html#blockchain-headers-subscribe
   // example response:
@@ -527,6 +544,7 @@ class ElectrumClient {
         _tasks[method]?.subject?.add(params.last);
         break;
       case 'blockchain.tweaks.subscribe':
+      case 'blockchain.tweaks.scan':
         final params = request['params'] as List<dynamic>;
         _tasks[_tasks.keys.first]?.subject?.add(params.last);
         break;

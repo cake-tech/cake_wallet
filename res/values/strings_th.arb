@@ -709,6 +709,7 @@
   "silent_payments_always_scan": "ตั้งค่าการชำระเงินแบบเงียบเสมอ",
   "silent_payments_disclaimer": "ที่อยู่ใหม่ไม่ใช่ตัวตนใหม่ มันเป็นการใช้ซ้ำของตัวตนที่มีอยู่ด้วยฉลากที่แตกต่างกัน",
   "silent_payments_display_card": "แสดงบัตร Silent Payments",
+  "silent_payments_register_key": "ลงทะเบียนคีย์มุมมองสำหรับการสแกนที่เร็วขึ้น",
   "silent_payments_scan_from_date": "สแกนตั้งแต่วันที่",
   "silent_payments_scan_from_date_or_blockheight": "โปรดป้อนความสูงของบล็อกที่คุณต้องการเริ่มการสแกนสำหรับการชำระเงินแบบเงียบ ๆ หรือใช้วันที่แทน คุณสามารถเลือกได้ว่ากระเป๋าเงินยังคงสแกนทุกบล็อกหรือตรวจสอบความสูงที่ระบุเท่านั้น",
   "silent_payments_scan_from_height": "สแกนจากความสูงของบล็อก",

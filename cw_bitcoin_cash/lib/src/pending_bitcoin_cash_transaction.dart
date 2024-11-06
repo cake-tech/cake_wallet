@@ -2,7 +2,7 @@ import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_bitcoin/electrum.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -31,10 +31,10 @@ class PendingBitcoinCashTransaction with PendingTransaction {
   String get hex => _tx.toHex();
 
   @override
-  String get amountFormatted => bitcoinAmountToString(amount: amount);
+  String get amountFormatted => BitcoinAmountUtils.bitcoinAmountToString(amount: amount);
 
   @override
-  String get feeFormatted => bitcoinAmountToString(amount: fee);
+  String get feeFormatted => BitcoinAmountUtils.bitcoinAmountToString(amount: fee);
 
   final List<void Function(ElectrumTransactionInfo transaction)> _listeners;
 
@@ -74,15 +74,16 @@ class PendingBitcoinCashTransaction with PendingTransaction {
   void addListener(void Function(ElectrumTransactionInfo transaction) listener) =>
       _listeners.add(listener);
 
-  ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(type,
-      id: id,
-      height: 0,
-      amount: amount,
-      direction: TransactionDirection.outgoing,
-      date: DateTime.now(),
-      isPending: true,
-      confirmations: 0,
-      fee: fee, 
-      isReplaced: false,
+  ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(
+        type,
+        id: id,
+        height: 0,
+        amount: amount,
+        direction: TransactionDirection.outgoing,
+        date: DateTime.now(),
+        isPending: true,
+        confirmations: 0,
+        fee: fee,
+        isReplaced: false,
       );
 }

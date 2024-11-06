@@ -114,6 +114,7 @@ abstract class SettingsStoreBase with Store {
       required this.customBitcoinFeeRate,
       required this.silentPaymentsCardDisplay,
       required this.silentPaymentsAlwaysScan,
+      required this.silentPaymentsKeyRegistered,
       required this.mwebAlwaysScan,
       required this.mwebCardDisplay,
       required this.mwebEnabled,
@@ -344,8 +345,8 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => bitcoinSeedType,
-        (BitcoinSeedType bitcoinSeedType) => sharedPreferences.setInt(
-            PreferencesKey.bitcoinSeedType, bitcoinSeedType.raw));
+        (BitcoinSeedType bitcoinSeedType) =>
+            sharedPreferences.setInt(PreferencesKey.bitcoinSeedType, bitcoinSeedType.raw));
 
     reaction(
         (_) => nanoSeedType,
@@ -428,8 +429,10 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => useTronGrid,
         (bool useTronGrid) => _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
 
-    reaction((_) => useMempoolFeeAPI,
-        (bool useMempoolFeeAPI) => _sharedPreferences.setBool(PreferencesKey.useMempoolFeeAPI, useMempoolFeeAPI));
+    reaction(
+        (_) => useMempoolFeeAPI,
+        (bool useMempoolFeeAPI) =>
+            _sharedPreferences.setBool(PreferencesKey.useMempoolFeeAPI, useMempoolFeeAPI));
 
     reaction((_) => defaultNanoRep,
         (String nanoRep) => _sharedPreferences.setString(PreferencesKey.defaultNanoRep, nanoRep));
@@ -558,6 +561,11 @@ abstract class SettingsStoreBase with Store {
         (_) => silentPaymentsAlwaysScan,
         (bool silentPaymentsAlwaysScan) => _sharedPreferences.setBool(
             PreferencesKey.silentPaymentsAlwaysScan, silentPaymentsAlwaysScan));
+
+    reaction(
+        (_) => silentPaymentsKeyRegistered,
+        (bool silentPaymentsKeyRegistered) => _sharedPreferences.setBool(
+            PreferencesKey.silentPaymentsKeyRegistered, silentPaymentsKeyRegistered));
 
     reaction(
         (_) => mwebAlwaysScan,
@@ -791,6 +799,9 @@ abstract class SettingsStoreBase with Store {
   bool silentPaymentsAlwaysScan;
 
   @observable
+  bool silentPaymentsKeyRegistered;
+
+  @observable
   bool mwebAlwaysScan;
 
   @observable
@@ -959,6 +970,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     final silentPaymentsAlwaysScan =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
+    final silentPaymentsKeyRegistered =
+        sharedPreferences.getBool(PreferencesKey.silentPaymentsKeyRegistered) ?? false;
     final mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     final mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     final mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
@@ -1230,6 +1243,7 @@ abstract class SettingsStoreBase with Store {
       customBitcoinFeeRate: customBitcoinFeeRate,
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
       silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,
+      silentPaymentsKeyRegistered: silentPaymentsKeyRegistered,
       mwebAlwaysScan: mwebAlwaysScan,
       mwebCardDisplay: mwebCardDisplay,
       mwebEnabled: mwebEnabled,
@@ -1396,6 +1410,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     silentPaymentsAlwaysScan =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
+    silentPaymentsKeyRegistered =
+        sharedPreferences.getBool(PreferencesKey.silentPaymentsKeyRegistered) ?? false;
     mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
@@ -1658,7 +1674,8 @@ abstract class SettingsStoreBase with Store {
         deviceName = windowsInfo.productName;
       } catch (e) {
         print(e);
-        print('likely digitalProductId is null wait till https://github.com/fluttercommunity/plus_plugins/pull/3188 is merged');
+        print(
+            'likely digitalProductId is null wait till https://github.com/fluttercommunity/plus_plugins/pull/3188 is merged');
         deviceName = "Windows Device";
       }
     }

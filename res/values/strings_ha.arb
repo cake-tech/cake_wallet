@@ -711,6 +711,7 @@
   "silent_payments_always_scan": "Saita biya na shiru koyaushe",
   "silent_payments_disclaimer": "Sabbin adiresoshin ba sabon tsari bane. Wannan shine sake amfani da asalin asalin tare da wata alama daban.",
   "silent_payments_display_card": "Nuna katin silent",
+  "silent_payments_register_key": "Yi rijista mabuɗin don bincika sauri",
   "silent_payments_scan_from_date": "Scan daga kwanan wata",
   "silent_payments_scan_from_date_or_blockheight": "Da fatan za a shigar da toshe wurin da kake son fara bincika don biyan silins mai shigowa, ko, yi amfani da kwanan wata. Zaka iya zabar idan walat ɗin ya ci gaba da bincika kowane toshe, ko duba tsinkaye da aka ƙayyade.",
   "silent_payments_scan_from_height": "Scan daga tsayin daka",

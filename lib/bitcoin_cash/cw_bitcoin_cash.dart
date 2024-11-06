@@ -6,8 +6,17 @@ class CWBitcoinCash extends BitcoinCash {
 
   @override
   WalletService createBitcoinCashWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
-    return BitcoinCashWalletService(walletInfoSource, unspentCoinSource, isDirect);
+    Box<WalletInfo> walletInfoSource,
+    Box<UnspentCoinsInfo> unspentCoinSource,
+    bool isDirect,
+    bool mempoolAPIEnabled,
+  ) {
+    return BitcoinCashWalletService(
+      walletInfoSource,
+      unspentCoinSource,
+      isDirect,
+      mempoolAPIEnabled,
+    );
   }
 
   @override
@@ -30,21 +39,23 @@ class CWBitcoinCash extends BitcoinCash {
 
   @override
   WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
-          {required String name, required String mnemonic, required String password, String? passphrase}) =>
+          {required String name,
+          required String mnemonic,
+          required String password,
+          String? passphrase}) =>
       BitcoinCashRestoreWalletFromSeedCredentials(
           name: name, mnemonic: mnemonic, password: password, passphrase: passphrase);
 
   @override
   TransactionPriority deserializeBitcoinCashTransactionPriority(int raw) =>
-      BitcoinCashTransactionPriority.deserialize(raw: raw);
+      ElectrumTransactionPriority.deserialize(raw: raw);
 
   @override
-  TransactionPriority getDefaultTransactionPriority() => BitcoinCashTransactionPriority.medium;
+  TransactionPriority getDefaultTransactionPriority() => ElectrumTransactionPriority.medium;
 
   @override
-  List<TransactionPriority> getTransactionPriorities() => BitcoinCashTransactionPriority.all;
+  List<TransactionPriority> getTransactionPriorities() => ElectrumTransactionPriority.all;
 
   @override
-  TransactionPriority getBitcoinCashTransactionPrioritySlow() =>
-      BitcoinCashTransactionPriority.slow;
+  TransactionPriority getBitcoinCashTransactionPrioritySlow() => ElectrumTransactionPriority.slow;
 }

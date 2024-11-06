@@ -72,24 +72,52 @@ class AddressPage extends BasePage {
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
-    return MergeSemantics(
-      child: SizedBox(
-        height: isMobileView ? 37 : 45,
-        width: isMobileView ? 37 : 45,
-        child: ButtonTheme(
-          minWidth: double.minPositive,
-          child: Semantics(
-            label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
-            child: TextButton(
-              style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        MergeSemantics(
+          child: SizedBox(
+            height: isMobileView ? 37 : 45,
+            width: isMobileView ? 37 : 45,
+            child: ButtonTheme(
+              minWidth: double.minPositive,
+              child: Semantics(
+                label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
+                child: TextButton(
+                  style: ButtonStyle(
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+                  ),
+                  onPressed: () => onClose(context),
+                  child: !isMobileView ? _closeButton : _backButton,
+                ),
               ),
-              onPressed: () => onClose(context),
-              child: !isMobileView ? _closeButton : _backButton,
             ),
           ),
         ),
-      ),
+        MergeSemantics(
+          child: SizedBox(
+            height: isMobileView ? 37 : 45,
+            width: isMobileView ? 37 : 45,
+            child: ButtonTheme(
+              minWidth: double.minPositive,
+              child: Semantics(
+                label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
+                child: TextButton(
+                  style: ButtonStyle(
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+                  ),
+                  onPressed: () => onClose(context),
+                  child: Icon(
+                    Icons.more_vert,
+                    color: titleColor(context),
+                    size: 16,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -150,13 +178,13 @@ class AddressPage extends BasePage {
               Expanded(
                   child: Observer(
                       builder: (_) => QRWidget(
-                          formKey: _formKey,
-                          addressListViewModel: addressListViewModel,
-                          amountTextFieldFocusNode: _cryptoAmountFocus,
-                          amountController: _amountController,
-                          isLight: dashboardViewModel.settingsStore.currentTheme.type ==
-                              ThemeType.light,
-                        ))),
+                            formKey: _formKey,
+                            addressListViewModel: addressListViewModel,
+                            amountTextFieldFocusNode: _cryptoAmountFocus,
+                            amountController: _amountController,
+                            isLight: dashboardViewModel.settingsStore.currentTheme.type ==
+                                ThemeType.light,
+                          ))),
               SizedBox(height: 16),
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {

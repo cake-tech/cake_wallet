@@ -709,6 +709,7 @@
   "silent_payments_always_scan": "Postavite tiho plaćanje uvijek skeniranje",
   "silent_payments_disclaimer": "Nove adrese nisu novi identiteti. To je ponovna upotreba postojećeg identiteta s drugom oznakom.",
   "silent_payments_display_card": "Prikaži karticu tihih plaćanja",
+  "silent_payments_register_key": "Registrirajte ključ za brže skeniranje",
   "silent_payments_scan_from_date": "Skeniranje iz datuma",
   "silent_payments_scan_from_date_or_blockheight": "Unesite visinu bloka koju želite započeti skeniranje za dolazna tiha plaćanja ili umjesto toga upotrijebite datum. Možete odabrati da li novčanik nastavlja skenirati svaki blok ili provjerava samo navedenu visinu.",
   "silent_payments_scan_from_height": "Skeniranje s visine bloka",

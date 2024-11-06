@@ -709,6 +709,7 @@
   "silent_payments_always_scan": "Définir les paiements silencieux toujours à la scanne",
   "silent_payments_disclaimer": "Les nouvelles adresses ne sont pas de nouvelles identités. Il s'agit d'une réutilisation d'une identité existante avec une étiquette différente.",
   "silent_payments_display_card": "Afficher la carte de paiement silencieuse",
+  "silent_payments_register_key": "Enregistrez la touche Afficher pour une analyse plus rapide",
   "silent_payments_scan_from_date": "Analyser à partir de la date",
   "silent_payments_scan_from_date_or_blockheight": "Veuillez saisir la hauteur du bloc que vous souhaitez commencer à scanner pour les paiements silencieux entrants, ou utilisez la date à la place. Vous pouvez choisir si le portefeuille continue de numériser chaque bloc ou ne vérifie que la hauteur spécifiée.",
   "silent_payments_scan_from_height": "Scan à partir de la hauteur du bloc",

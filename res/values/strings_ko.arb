@@ -710,6 +710,7 @@
   "silent_payments_always_scan": "무음금을 항상 스캔합니다",
   "silent_payments_disclaimer": "새로운 주소는 새로운 정체성이 아닙니다. 다른 레이블로 기존 신원을 재사용하는 것입니다.",
   "silent_payments_display_card": "사일런트 지불 카드 표시",
+  "silent_payments_register_key": "더 빠른 스캔을 위해보기 키 등록 키",
   "silent_payments_scan_from_date": "날짜부터 스캔하십시오",
   "silent_payments_scan_from_date_or_blockheight": "들어오는 사일런트 결제를 위해 스캔을 시작하려는 블록 높이를 입력하거나 대신 날짜를 사용하십시오. 지갑이 모든 블록을 계속 스캔하는지 여부를 선택하거나 지정된 높이 만 확인할 수 있습니다.",
   "silent_payments_scan_from_height": "블록 높이에서 스캔하십시오",

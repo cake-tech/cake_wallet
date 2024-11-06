@@ -710,6 +710,7 @@
   "silent_payments_always_scan": "Setzen Sie stille Zahlungen immer scannen",
   "silent_payments_disclaimer": "Neue Adressen sind keine neuen Identitäten. Es ist eine Wiederverwendung einer bestehenden Identität mit einem anderen Etikett.",
   "silent_payments_display_card": "Zeigen Sie stille Zahlungskarte",
+  "silent_payments_register_key": "Registrieren Sie die Ansichtsschlüssel für schnelleres Scannen",
   "silent_payments_scan_from_date": "Scan ab Datum",
   "silent_payments_scan_from_date_or_blockheight": "Bitte geben Sie die Blockhöhe ein, die Sie für eingehende stille Zahlungen scannen möchten, oder verwenden Sie stattdessen das Datum. Sie können wählen, ob die Wallet jeden Block scannt oder nur die angegebene Höhe überprüft.",
   "silent_payments_scan_from_height": "Scan aus der Blockhöhe scannen",

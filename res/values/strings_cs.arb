@@ -709,6 +709,7 @@
   "silent_payments_always_scan": "Nastavit tiché platby vždy skenování",
   "silent_payments_disclaimer": "Nové adresy nejsou nové identity. Je to opětovné použití existující identity s jiným štítkem.",
   "silent_payments_display_card": "Zobrazit kartu Silent Payments",
+  "silent_payments_register_key": "Zobrazení zaregistrujte klíč pro rychlejší skenování",
   "silent_payments_scan_from_date": "Skenovat od data",
   "silent_payments_scan_from_date_or_blockheight": "Zadejte výšku bloku, kterou chcete začít skenovat, zda jsou přicházející tiché platby, nebo místo toho použijte datum. Můžete si vybrat, zda peněženka pokračuje v skenování každého bloku nebo zkontroluje pouze zadanou výšku.",
   "silent_payments_scan_from_height": "Skenování z výšky bloku",

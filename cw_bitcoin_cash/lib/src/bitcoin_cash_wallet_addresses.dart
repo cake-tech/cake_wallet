@@ -1,7 +1,5 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
 
@@ -12,10 +10,9 @@ class BitcoinCashWalletAddresses = BitcoinCashWalletAddressesBase with _$Bitcoin
 abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses with Store {
   BitcoinCashWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHd,
-    required super.sideHd,
     required super.network,
     required super.isHardwareWallet,
+    required super.hdWallets,
     super.initialAddresses,
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
@@ -23,9 +20,17 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
   }) : super(walletInfo);
 
   @override
-  String getAddress(
-          {required int index,
-          required Bip32Slip10Secp256k1 hd,
-          BitcoinAddressType? addressType}) =>
-      generateP2PKHAddress(hd: hd, index: index, network: network);
+  BitcoinBaseAddress generateAddress({
+    required CWBitcoinDerivationType derivationType,
+    required bool isChange,
+    required int index,
+    required BitcoinAddressType addressType,
+    required BitcoinDerivationInfo derivationInfo,
+  }) =>
+      P2pkhAddress.fromDerivation(
+        bip32: bip32,
+        derivationInfo: derivationInfo,
+        isChange: isChange,
+        index: index,
+      );
 }

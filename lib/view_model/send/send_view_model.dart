@@ -400,7 +400,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final updatedOutputs = bitcoin!.updateOutputs(pendingTransaction!, outputs);
 
         if (outputs.length == updatedOutputs.length) {
-          outputs = ObservableList.of(updatedOutputs);
+          outputs.clear();
+          outputs.addAll(updatedOutputs);
         }
       }
 

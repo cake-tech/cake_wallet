@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
@@ -12,8 +11,7 @@ class BitcoinHardwareWalletService {
 
   final LedgerConnection ledgerConnection;
 
-  Future<List<HardwareAccountData>> getAvailableAccounts(
-      {int index = 0, int limit = 5}) async {
+  Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
     final bitcoinLedgerApp = BitcoinLedgerApp(ledgerConnection);
 
     final masterFp = await bitcoinLedgerApp.getMasterFingerprint();
@@ -23,13 +21,14 @@ class BitcoinHardwareWalletService {
 
     for (final i in indexRange) {
       final derivationPath = "m/84'/0'/$i'";
-      final xpub =
-          await bitcoinLedgerApp.getXPubKey(derivationPath: derivationPath);
-      Bip32Slip10Secp256k1 hd =
-          Bip32Slip10Secp256k1.fromExtendedKey(xpub).childKey(Bip32KeyIndex(0));
+      final xpub = await bitcoinLedgerApp.getXPubKey(derivationPath: derivationPath);
+      final bip32 = Bip32Slip10Secp256k1.fromExtendedKey(xpub).childKey(Bip32KeyIndex(0));
 
-      final address = generateP2WPKHAddress(
-          hd: hd, index: 0, network: BitcoinNetwork.mainnet);
+      final fullPath = Bip32PathParser.parse(derivationPath).addElem(Bip32KeyIndex(0));
+
+      final address = ECPublic.fromBip32(bip32.derive(fullPath).publicKey)
+          .toP2wpkhAddress()
+          .toAddress(BitcoinNetwork.mainnet);
 
       accounts.add(HardwareAccountData(
         address: address,

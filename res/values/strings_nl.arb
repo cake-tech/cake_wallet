@@ -709,6 +709,7 @@
   "silent_payments_always_scan": "Stel stille betalingen in het scannen",
   "silent_payments_disclaimer": "Nieuwe adressen zijn geen nieuwe identiteiten. Het is een hergebruik van een bestaande identiteit met een ander label.",
   "silent_payments_display_card": "Toon stille betalingskaart",
+  "silent_payments_register_key": "Registerweergave Key voor sneller scannen",
   "silent_payments_scan_from_date": "Scan vanaf datum",
   "silent_payments_scan_from_date_or_blockheight": "Voer de blokhoogte in die u wilt beginnen met scannen op inkomende stille betalingen, of gebruik in plaats daarvan de datum. U kunt kiezen of de portemonnee elk blok blijft scannen of alleen de opgegeven hoogte controleert.",
   "silent_payments_scan_from_height": "Scan van blokhoogte",

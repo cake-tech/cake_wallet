@@ -91,6 +91,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     final height = options['height'] as int? ?? 0;
     name = options['name'] as String;
     DerivationInfo? derivationInfo = options["derivationInfo"] as DerivationInfo?;
+    List<DerivationInfo>? derivations = options["derivations"] as List<DerivationInfo>?;
 
     if (mode == WalletRestoreMode.seed) {
       final seed = options['seed'] as String;
@@ -105,8 +106,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
             passphrase: passphrase,
-            derivationType: derivationInfo!.derivationType!,
-            derivationPath: derivationInfo.derivationPath!,
+            derivations: derivations,
           );
         case WalletType.haven:
           return haven!.createHavenRestoreWalletFromSeedCredentials(
@@ -256,11 +256,36 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.litecoin:
         String? mnemonic = credentials['seed'] as String?;
         String? passphrase = credentials['passphrase'] as String?;
-        return bitcoin!.getDerivationsFromMnemonic(
+        final bitcoinDerivations = await bitcoin!.getDerivationsFromMnemonic(
           mnemonic: mnemonic!,
           node: node,
           passphrase: passphrase,
         );
+
+        List<DerivationInfo> list = [];
+        for (var derivation in bitcoinDerivations) {
+          if (derivation.derivationType.toString().endsWith("electrum")) {
+            list.add(
+              DerivationInfo(
+                derivationType: DerivationType.electrum,
+                derivationPath: "m/0'",
+                description: "Electrum",
+                scriptType: "p2wpkh",
+              ),
+            );
+          } else {
+            list.add(
+              DerivationInfo(
+                derivationType: DerivationType.bip39,
+                derivationPath: "m/84'/0'/0'",
+                description: "Standard BIP84 native segwit",
+                scriptType: "p2wpkh",
+              ),
+            );
+          }
+        }
+
+        return list;
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;

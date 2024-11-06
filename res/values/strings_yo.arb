@@ -710,6 +710,7 @@
   "silent_payments_always_scan": "Ṣeto awọn sisanwo ipalọlọ nigbagbogbo n ṣatunṣe",
   "silent_payments_disclaimer": "Awọn adirẹsi tuntun kii ṣe awọn idanimọ tuntun. O jẹ yiyan ti idanimọ ti o wa pẹlu aami oriṣiriṣi.",
   "silent_payments_display_card": "Ṣafihan kaadi isanwo ti o dakẹ",
+  "silent_payments_register_key": "Forukọsilẹ Wo bọtini Window fun Cranding yiyara",
   "silent_payments_scan_from_date": "Scan lati ọjọ",
   "silent_payments_scan_from_date_or_blockheight": "Jọwọ tẹ giga idibo ti o fẹ bẹrẹ ọlọjẹ fun awọn sisanwo ipalọlọ, tabi, lo ọjọ dipo. O le yan ti apamọwọ naa tẹsiwaju nṣapẹẹrẹ gbogbo bulọọki, tabi ṣayẹwo nikan giga ti o sọ tẹlẹ.",
   "silent_payments_scan_from_height": "Scan lati Iga Iga",

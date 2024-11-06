@@ -102,7 +102,6 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:bip39/bip39.dart' as bip39;
 """;
   const bitcoinCWHeaders = """
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
@@ -115,7 +114,6 @@ import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
@@ -150,8 +148,7 @@ abstract class Bitcoin {
     required String name,
     required String mnemonic,
     required String password,
-    required DerivationType derivationType,
-    required String derivationPath,
+    required List<DerivationInfo>? derivations,
     String? passphrase,
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
@@ -183,8 +180,19 @@ abstract class Bitcoin {
   List<Unspent> getUnspents(Object wallet, {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(
-  Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect);
-  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect);
+    Box<WalletInfo> walletInfoSource,
+    Box<UnspentCoinsInfo> unspentCoinSource,
+    bool alwaysScan,
+    bool isDirect,
+    bool mempoolAPIEnabled,
+  );
+  WalletService createLitecoinWalletService(
+    Box<WalletInfo> walletInfoSource,
+    Box<UnspentCoinsInfo> unspentCoinSource,
+    bool alwaysScan,
+    bool isDirect,
+    bool mempoolAPIEnabled,
+  );
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPriorityCustom();
   TransactionPriority getLitecoinTransactionPriorityMedium();
@@ -192,7 +200,7 @@ abstract class Bitcoin {
   TransactionPriority getLitecoinTransactionPrioritySlow();
   Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node});
-  Future<List<DerivationInfo>> getDerivationsFromMnemonic(
+  Future<List<BitcoinDerivationInfo>> getDerivationsFromMnemonic(
       {required String mnemonic, required Node node, String? passphrase});
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
   Future<void> setAddressType(Object wallet, dynamic option);
@@ -216,6 +224,7 @@ abstract class Bitcoin {
   int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
       {int? outputsCount, int? size});
   int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
+  Future<void> registerSilentPaymentsKey(Object wallet, bool active);
   Future<bool> checkIfMempoolAPIIsEnabled(Object wallet);
   Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled});
   int getLitecoinHeightByDate({required DateTime date});
@@ -1016,9 +1025,6 @@ abstract class Polygon {
 Future<void> generateBitcoinCash(bool hasImplementation) async {
   final outputFile = File(bitcoinCashOutputPath);
   const bitcoinCashCommonHeaders = """
-import 'dart:typed_data';
-
-import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -1036,7 +1042,11 @@ abstract class BitcoinCash {
   String getCashAddrFormat(String address);
 
   WalletService createBitcoinCashWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+    Box<WalletInfo> walletInfoSource,
+    Box<UnspentCoinsInfo> unspentCoinSource,
+    bool isDirect,
+    bool mempoolAPIEnabled,
+  );
 
   WalletCredentials createBitcoinCashNewWalletCredentials(
       {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic, String? parentAddress});

@@ -711,6 +711,7 @@
   "silent_payments_always_scan": "Impostare i pagamenti silenziosi che scansionano sempre",
   "silent_payments_disclaimer": "I nuovi indirizzi non sono nuove identità. È un riutilizzo di un'identità esistente con un'etichetta diversa.",
   "silent_payments_display_card": "Mostra la carta di pagamenti silenziosi",
+  "silent_payments_register_key": "Registra la chiave di visualizzazione per una scansione più veloce",
   "silent_payments_scan_from_date": "Scansionare dalla data",
   "silent_payments_scan_from_date_or_blockheight": "Inserisci l'altezza del blocco che si desidera iniziare la scansione per i pagamenti silenziosi in arrivo o, utilizza invece la data. Puoi scegliere se il portafoglio continua a scansionare ogni blocco o controlla solo l'altezza specificata.",
   "silent_payments_scan_from_height": "Scansione dall'altezza del blocco",

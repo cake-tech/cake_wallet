@@ -87,18 +87,18 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: cake-update-v8
-      resolved-ref: fc045a11db3d85d806ca67f75e8b916c706745a2
-      url: "https://github.com/cake-tech/bitcoin_base"
+      ref: cake-update-v15
+      resolved-ref: "49db5748d2edc73c0c8213e11ab6a39fa3a7ff7f"
+      url: "https://github.com/cake-tech/bitcoin_base.git"
     source: git
     version: "4.7.0"
   blockchain_utils:
     dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "59fdf29d72068e0522a96a8953ed7272833a9f57"
-      url: "https://github.com/cake-tech/blockchain_utils"
+      ref: cake-update-v3
+      resolved-ref: "9b64c43bcfe129e7f01300a63607fde083dd0357"
+      url: "https://github.com/cake-tech/blockchain_utils.git"
     source: git
     version: "3.3.0"
   bluez:
@@ -415,10 +415,10 @@ packages:
     dependency: transitive
     description:
       name: google_identity_services_web
-      sha256: "5be191523702ba8d7a01ca97c17fca096822ccf246b0a9f11923a6ded06199b6"
+      sha256: "0c56c2c5d60d6dfaf9725f5ad4699f04749fb196ee5a70487a46ef184837ccf6"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.1+4"
+    version: "0.3.0+2"
   googleapis_auth:
     dependency: transitive
     description:
@@ -471,10 +471,10 @@ packages:
     dependency: "direct main"
     description:
       name: http
-      sha256: b9c29a161230ee03d3ccf545097fccd9b87a5264228c5d348202e0f0c28f9010
+      sha256: a2bbf9d017fcced29139daa8ed2bba4ece450ab222871df93ca9eec6f80c34ba
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.2"
+    version: "1.2.0"
   http2:
     dependency: transitive
     description:
@@ -849,10 +849,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_web
-      sha256: "59dc807b94d29d52ddbb1b3c0d3b9d0a67fc535a64e62a5542c8db0513fcb6c2"
+      sha256: "7b15ffb9387ea3e237bb7a66b8a23d2147663d391cafc5c8f37b2e7b4bde5d21"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.1"
+    version: "2.2.2"
   shared_preferences_windows:
     dependency: transitive
     description:
@@ -918,9 +918,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "sp_v4.0.0"
-      resolved-ref: ca1add293bd1e06920aa049b655832da50d0dab2
-      url: "https://github.com/cake-tech/sp_scanner"
+      ref: cake-update-v3
+      resolved-ref: "2c21e53fd652e0aee1ee5fcd891376c10334237b"
+      url: "https://github.com/cake-tech/sp_scanner.git"
     source: git
     version: "0.0.1"
   stack_trace:
@@ -1047,18 +1047,18 @@ packages:
     dependency: transitive
     description:
       name: web
-      sha256: "97da13628db363c635202ad97068d47c5b8aa555808e7a9411963c533b449b27"
+      sha256: "4188706108906f002b3a293509234588823c8c979dc83304e229ff400c996b05"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.1"
+    version: "0.4.2"
   web_socket_channel:
     dependency: transitive
     description:
       name: web_socket_channel
-      sha256: "58c6666b342a38816b2e7e50ed0f1e261959630becd4c879c4f26bfa14aa5a42"
+      sha256: "939ab60734a4f8fa95feacb55804fa278de28bdeef38e616dc08e44a84adea23"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.5"
+    version: "2.4.3"
   xdg_directories:
     dependency: transitive
     description:
