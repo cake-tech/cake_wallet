@@ -106,8 +106,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.wow:
         pattern = '[0-9a-zA-Z]+';
       case CryptoCurrency.bch:
-        pattern =
-            '(?!bitcoincash:)[0-9a-zA-Z]*|(?!bitcoincash:)q|p[0-9a-zA-Z]{41}|(?!bitcoincash:)q|p[0-9a-zA-Z]{42}|bitcoincash:q|p[0-9a-zA-Z]{41}|bitcoincash:q|p[0-9a-zA-Z]{42}';
+        pattern = '^(bitcoincash:)?(q|p)[0-9a-zA-Z]{41,42}';
       case CryptoCurrency.bnb:
         pattern = '[0-9a-zA-Z]+';
       case CryptoCurrency.hbar:
