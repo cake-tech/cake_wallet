@@ -634,6 +634,7 @@
   "select_buy_provider_notice": "Pumili ng provider ng pagbili sa itaas. Maaari mong laktawan ang screen na ito sa pamamagitan ng pagtatakda ng iyong default na provider ng pagbili sa mga setting ng app.",
   "select_destination": "Mangyaring piliin ang patutunguhan para sa backup na file.",
   "select_sell_provider_notice": "Pumili ng provider ng nagbebenta sa itaas. Maaari mong laktawan ang screen na ito sa pamamagitan ng pagtatakda ng iyong default na sell provider sa mga setting ng app.",
+  "select_your_country": "Mangyaring piliin ang iyong bansa",
   "sell": "Ibenta",
   "sell_alert_content": "Kasalukuyan lamang naming sinusuportahan ang pagbebenta ng Bitcoin, Ethereum at Litecoin. Mangyaring lumikha o lumipat sa iyong Bitcoin, Ethereum o Litecoin wallet.",
   "sell_monero_com_alert_content": "Ang pagbebenta ng Monero ay hindi pa suportado",
