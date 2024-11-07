@@ -3,6 +3,7 @@ import 'package:cake_wallet/cake_pay/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/country.dart';
 
 class CakePayService {
   CakePayService(this.secureStorage, this.cakePayApi);
@@ -23,7 +24,7 @@ class CakePayService {
   final CakePayApi cakePayApi;
 
   /// Get Available Countries
-  Future<List<String>> getCountries() async =>
+  Future<List<Country>> getCountries() async =>
       await cakePayApi.getCountries(CSRFToken: CSRFToken, authorization: authorization);
 
   /// Get Vendors

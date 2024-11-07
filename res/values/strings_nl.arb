@@ -634,6 +634,7 @@
   "select_buy_provider_notice": "Selecteer hierboven een koopprovider. U kunt dit scherm overslaan door uw standaard kopenprovider in te stellen in app -instellingen.",
   "select_destination": "Selecteer de bestemming voor het back-upbestand.",
   "select_sell_provider_notice": "Selecteer hierboven een verkoopaanbieder. U kunt dit scherm overslaan door uw standaardverkoopprovider in te stellen in de app-instellingen.",
+  "select_your_country": "Selecteer uw land",
   "sell": "Verkopen",
   "sell_alert_content": "We ondersteunen momenteel alleen de verkoop van Bitcoin, Ethereum en Litecoin. Maak of schakel over naar uw Bitcoin-, Ethereum- of Litecoin-portemonnee.",
   "sell_monero_com_alert_content": "Het verkopen van Monero wordt nog niet ondersteund",
