@@ -582,6 +582,8 @@ abstract class ElectrumWalletBase extends WalletBase<
   Future<void> connectToNode({required Node node}) async {
     this.node = node;
 
+    // if (syncStatus is ConnectingSyncStatus || syn) return;
+
     try {
       syncStatus = ConnectingSyncStatus();
 
@@ -2090,7 +2092,7 @@ abstract class ElectrumWalletBase extends WalletBase<
       });
     }
 
-    final balances = await Future.wait(balanceFutures);
+    final balances = await Future.wait(balanceFutures); // ToDo: add onError ignore failed balances
 
     for (var i = 0; i < balances.length; i++) {
       final addressRecord = addresses[i];
@@ -2229,13 +2231,14 @@ abstract class ElectrumWalletBase extends WalletBase<
         if (syncStatus is NotConnectedSyncStatus ||
             syncStatus is LostConnectionSyncStatus ||
             syncStatus is ConnectingSyncStatus) {
-          syncStatus = AttemptingSyncStatus();
-          startSync();
+          syncStatus = ConnectedSyncStatus();
         }
 
         break;
       case ConnectionStatus.disconnected:
-        if (syncStatus is! NotConnectedSyncStatus) {
+        if (syncStatus is! NotConnectedSyncStatus &&
+            syncStatus is! ConnectingSyncStatus &&
+            syncStatus is! SyncronizingSyncStatus) {
           syncStatus = NotConnectedSyncStatus();
         }
         break;
@@ -2292,10 +2295,8 @@ abstract class ElectrumWalletBase extends WalletBase<
   void _updateInputsAndOutputs(ElectrumTransactionInfo tx, ElectrumTransactionBundle bundle) {
     tx.inputAddresses = tx.inputAddresses?.where((address) => address.isNotEmpty).toList();
 
-    if (tx.inputAddresses == null ||
-        tx.inputAddresses!.isEmpty ||
-        tx.outputAddresses == null ||
-        tx.outputAddresses!.isEmpty) {
+    if (tx.inputAddresses?.isNotEmpty != true ||
+        tx.outputAddresses?.isNotEmpty != true) {
       List<String> inputAddresses = [];
       List<String> outputAddresses = [];
 
