@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+// import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -18,27 +17,24 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/get_height_by_date.dart';
+// import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/foundation.dart';
+// import 'package:cw_core/wallet_type.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
-import 'package:sp_scanner/sp_scanner.dart';
 
 part 'bitcoin_wallet.g.dart';
 
 class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
 abstract class BitcoinWalletBase extends ElectrumWallet with Store {
-  StreamSubscription<dynamic>? _receiveStream;
-
   BitcoinWalletBase({
     required String password,
     required WalletInfo walletInfo,
@@ -83,10 +79,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
-      initialRegularAddressIndex: initialRegularAddressIndex,
-      initialChangeAddressIndex: initialChangeAddressIndex,
       initialSilentAddresses: initialSilentAddresses,
-      initialSilentAddressIndex: initialSilentAddressIndex,
       network: networkParam ?? network,
       isHardwareWallet: walletInfo.isHardwareWallet,
       hdWallets: hdWallets,
@@ -544,18 +537,19 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @action
   void _updateSilentAddressRecord(BitcoinUnspent unspent) {
     final receiveAddressRecord = unspent.bitcoinAddressRecord as BitcoinReceivedSPAddressRecord;
-    final silentAddress = walletAddresses.silentAddress!;
+    final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
+    final silentPaymentWallet = walletAddresses.silentPaymentWallet;
     final silentPaymentAddress = SilentPaymentAddress(
-      version: silentAddress.version,
-      B_scan: silentAddress.B_scan,
+      version: silentPaymentWallet.version,
+      B_scan: silentPaymentWallet.B_scan,
       B_spend: receiveAddressRecord.labelHex != null
-          ? silentAddress.B_spend.tweakAdd(
+          ? silentPaymentWallet.B_spend.tweakAdd(
               BigintUtils.fromBytes(BytesUtils.fromHexString(receiveAddressRecord.labelHex!)),
             )
-          : silentAddress.B_spend,
+          : silentPaymentWallet.B_spend,
     );
 
-    final addressRecord = walletAddresses.silentAddresses
+    final addressRecord = walletAddresses.silentPaymentAddresses
         .firstWhere((address) => address.address == silentPaymentAddress.toString());
     addressRecord.txCount += 1;
     addressRecord.balance += unspent.value;
@@ -677,17 +671,19 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     syncStatus = AttemptingScanSyncStatus();
 
+    final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
     workerSendPort!.send(
       ElectrumWorkerTweaksSubscribeRequest(
         scanData: ScanData(
-          silentAddress: walletAddresses.silentAddress!,
+          silentAddress: walletAddresses.silentPaymentWallet,
           network: network,
           height: height,
           chainTip: chainTip,
           transactionHistoryIds: transactionHistory.transactions.keys.toList(),
           labels: walletAddresses.labels,
-          labelIndexes: walletAddresses.silentAddresses
-              .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.labelIndex >= 1)
+          labelIndexes: walletAddresses.silentPaymentAddresses
+              .where((addr) =>
+                  addr.addressType == SilentPaymentsAddresType.p2sp && addr.labelIndex >= 1)
               .map((addr) => addr.labelIndex)
               .toList(),
           isSingleScan: doSingleScan ?? false,
@@ -794,9 +790,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       await walletInfo.updateRestoreHeight(currentChainTip!);
     }
   }
-
-  static String _hardenedDerivationPath(String derivationPath) =>
-      derivationPath.substring(0, derivationPath.lastIndexOf("'") + 1);
 
   @override
   @action

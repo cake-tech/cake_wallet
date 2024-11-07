@@ -204,9 +204,9 @@ class CWBitcoin extends Bitcoin {
     return bitcoinWallet.unspentCoins.where((element) {
       switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
-          return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+          return element.bitcoinAddressRecord.addressType == SegwitAddresType.mweb;
         case UnspentCoinType.nonMweb:
-          return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+          return element.bitcoinAddressRecord.addressType != SegwitAddresType.mweb;
         case UnspentCoinType.any:
           return true;
       }
@@ -492,24 +492,23 @@ class CWBitcoin extends Bitcoin {
 
   @override
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.silentAddresses
-        .where((addr) => addr.type != SegwitAddresType.p2tr)
+    final walletAddresses = (wallet as BitcoinWallet).walletAddresses as BitcoinWalletAddresses;
+    return walletAddresses.silentPaymentAddresses
         .map((addr) => ElectrumSubAddress(
-            id: addr.index,
-            name: addr.name,
-            address: addr.address,
-            txCount: addr.txCount,
-            balance: addr.balance,
-            isChange: addr.isChange))
+              id: addr.index,
+              name: addr.name,
+              address: addr.address,
+              txCount: addr.txCount,
+              balance: addr.balance,
+              isChange: addr.isChange,
+            ))
         .toList();
   }
 
   @override
   List<ElectrumSubAddress> getSilentPaymentReceivedAddresses(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.silentAddresses
-        .where((addr) => addr.type == SegwitAddresType.p2tr)
+    final walletAddresses = (wallet as BitcoinWallet).walletAddresses as BitcoinWalletAddresses;
+    return walletAddresses.silentPaymentAddresses
         .map((addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,
@@ -588,8 +587,8 @@ class CWBitcoin extends Bitcoin {
 
   @override
   void deleteSilentPaymentAddress(Object wallet, String address) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    bitcoinWallet.walletAddresses.deleteSilentPaymentAddress(address);
+    final walletAddresses = (wallet as BitcoinWallet).walletAddresses as BitcoinWalletAddresses;
+    walletAddresses.deleteSilentPaymentAddress(address);
   }
 
   @override
@@ -680,8 +679,8 @@ class CWBitcoin extends Bitcoin {
   String? getUnusedSegwitAddress(Object wallet) {
     try {
       final electrumWallet = wallet as ElectrumWallet;
-      final segwitAddress = electrumWallet.walletAddresses.allAddresses
-          .firstWhere((element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh);
+      final segwitAddress = electrumWallet.walletAddresses.allAddresses.firstWhere(
+          (element) => !element.isUsed && element.addressType == SegwitAddresType.p2wpkh);
       return segwitAddress.address;
     } catch (_) {
       return null;

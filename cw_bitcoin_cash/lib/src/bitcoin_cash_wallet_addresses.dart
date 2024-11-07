@@ -14,8 +14,6 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
     required super.isHardwareWallet,
     required super.hdWallets,
     super.initialAddresses,
-    super.initialRegularAddressIndex,
-    super.initialChangeAddressIndex,
     super.initialAddressPageType,
   }) : super(walletInfo);
 
@@ -28,7 +26,7 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
     required BitcoinDerivationInfo derivationInfo,
   }) =>
       P2pkhAddress.fromDerivation(
-        bip32: bip32,
+        bip32: hdWallet,
         derivationInfo: derivationInfo,
         isChange: isChange,
         index: index,

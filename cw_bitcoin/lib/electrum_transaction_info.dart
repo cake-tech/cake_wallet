@@ -15,11 +15,13 @@ class ElectrumTransactionBundle {
     required this.ins,
     required this.confirmations,
     this.time,
+    this.dateValidated,
   });
 
   final BtcTransaction originalTransaction;
   final List<BtcTransaction> ins;
   final int? time;
+  final bool? dateValidated;
   final int confirmations;
 
   Map<String, dynamic> toJson() {
@@ -37,6 +39,7 @@ class ElectrumTransactionBundle {
       ins: (data['ins'] as List<Object>).map((e) => BtcTransaction.fromRaw(e as String)).toList(),
       confirmations: data['confirmations'] as int,
       time: data['time'] as int?,
+      dateValidated: data['dateValidated'] as bool?,
     );
   }
 }
@@ -44,6 +47,7 @@ class ElectrumTransactionBundle {
 class ElectrumTransactionInfo extends TransactionInfo {
   List<BitcoinUnspent>? unspents;
   bool isReceivedSilentPayment;
+  int? time;
 
   ElectrumTransactionInfo(
     this.type, {
@@ -57,6 +61,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     required bool isPending,
     bool isReplaced = false,
     required DateTime date,
+    required int? time,
+    bool? dateValidated,
     required int confirmations,
     String? to,
     this.unspents,
@@ -70,9 +76,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.fee = fee;
     this.direction = direction;
     this.date = date;
+    this.time = time;
     this.isPending = isPending;
     this.isReplaced = isReplaced;
     this.confirmations = confirmations;
+    this.dateValidated = dateValidated;
     this.to = to;
   }
 
@@ -82,9 +90,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     final id = obj['txid'] as String;
     final vins = obj['vin'] as List<Object>? ?? [];
     final vout = (obj['vout'] as List<Object>? ?? []);
-    final date = obj['time'] is int
-        ? DateTime.fromMillisecondsSinceEpoch((obj['time'] as int) * 1000)
-        : DateTime.now();
+    final time = obj['time'] as int?;
+    final date = time != null ? DateTime.fromMillisecondsSinceEpoch(time * 1000) : DateTime.now();
     final confirmations = obj['confirmations'] as int? ?? 0;
     var direction = TransactionDirection.incoming;
     var inputsAmount = 0;
@@ -118,21 +125,28 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
     final fee = inputsAmount - totalOutAmount;
 
-    return ElectrumTransactionInfo(type,
-        id: id,
-        height: height,
-        isPending: false,
-        isReplaced: false,
-        fee: fee,
-        direction: direction,
-        amount: amount,
-        date: date,
-        confirmations: confirmations);
+    return ElectrumTransactionInfo(
+      type,
+      id: id,
+      height: height,
+      isPending: false,
+      isReplaced: false,
+      fee: fee,
+      direction: direction,
+      amount: amount,
+      date: date,
+      confirmations: confirmations,
+      time: time,
+    );
   }
 
   factory ElectrumTransactionInfo.fromElectrumBundle(
-      ElectrumTransactionBundle bundle, WalletType type, BasedUtxoNetwork network,
-      {required Set<String> addresses, int? height}) {
+    ElectrumTransactionBundle bundle,
+    WalletType type,
+    BasedUtxoNetwork network, {
+    required Set<String> addresses,
+    int? height,
+  }) {
     final date = bundle.time != null
         ? DateTime.fromMillisecondsSinceEpoch(bundle.time! * 1000)
         : DateTime.now();
@@ -205,18 +219,22 @@ class ElectrumTransactionInfo extends TransactionInfo {
     }
 
     final fee = inputAmount - totalOutAmount;
-    return ElectrumTransactionInfo(type,
-        id: bundle.originalTransaction.txId(),
-        height: height,
-        isPending: bundle.confirmations == 0,
-        isReplaced: false,
-        inputAddresses: inputAddresses,
-        outputAddresses: outputAddresses,
-        fee: fee,
-        direction: direction,
-        amount: amount,
-        date: date,
-        confirmations: bundle.confirmations);
+    return ElectrumTransactionInfo(
+      type,
+      id: bundle.originalTransaction.txId(),
+      height: height,
+      isPending: bundle.confirmations == 0,
+      isReplaced: false,
+      inputAddresses: inputAddresses,
+      outputAddresses: outputAddresses,
+      fee: fee,
+      direction: direction,
+      amount: amount,
+      date: date,
+      confirmations: bundle.confirmations,
+      time: bundle.time,
+      dateValidated: bundle.dateValidated,
+    );
   }
 
   factory ElectrumTransactionInfo.fromJson(Map<String, dynamic> data, WalletType type) {
@@ -244,6 +262,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
           .map((unspent) => BitcoinUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
+      time: data['time'] as int?,
+      dateValidated: data['dateValidated'] as bool?,
     );
   }
 
@@ -267,18 +287,21 @@ class ElectrumTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   ElectrumTransactionInfo updated(ElectrumTransactionInfo info) {
-    return ElectrumTransactionInfo(info.type,
-        id: id,
-        height: info.height,
-        amount: info.amount,
-        fee: info.fee,
-        direction: direction,
-        date: date,
-        isPending: isPending,
-        isReplaced: isReplaced ?? false,
-        inputAddresses: inputAddresses,
-        outputAddresses: outputAddresses,
-        confirmations: info.confirmations);
+    return ElectrumTransactionInfo(
+      info.type,
+      id: id,
+      height: info.height,
+      amount: info.amount,
+      fee: info.fee,
+      direction: direction,
+      date: date,
+      isPending: isPending,
+      isReplaced: isReplaced ?? false,
+      inputAddresses: inputAddresses,
+      outputAddresses: outputAddresses,
+      confirmations: info.confirmations,
+      time: info.time,
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -288,6 +311,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['amount'] = amount;
     m['direction'] = direction.index;
     m['date'] = date.millisecondsSinceEpoch;
+    m['time'] = time;
     m['isPending'] = isPending;
     m['isReplaced'] = isReplaced;
     m['confirmations'] = confirmations;
@@ -297,6 +321,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['inputAddresses'] = inputAddresses;
     m['outputAddresses'] = outputAddresses;
     m['isReceivedSilentPayment'] = isReceivedSilentPayment;
+    m['dateValidated'] = dateValidated;
     return m;
   }
 

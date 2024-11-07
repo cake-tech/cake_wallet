@@ -216,7 +216,7 @@ abstract class ElectrumWalletBase
   bool mempoolAPIEnabled;
 
   final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets;
-  Bip32Slip10Secp256k1 get bip32 => walletAddresses.bip32;
+  Bip32Slip10Secp256k1 get bip32 => walletAddresses.hdWallet;
   final String? _mnemonic;
 
   final EncryptionFileUtils encryptionFileUtils;
@@ -243,7 +243,7 @@ abstract class ElectrumWalletBase
   SyncStatus syncStatus;
 
   List<String> get addressesSet => walletAddresses.allAddresses
-      .where((element) => element.type != SegwitAddresType.mweb)
+      .where((element) => element.addressType != SegwitAddresType.mweb)
       .map((addr) => addr.address)
       .toList();
 
@@ -348,20 +348,20 @@ abstract class ElectrumWalletBase
 
       syncStatus = SynchronizingSyncStatus();
 
-      // INFO: FIRST: Call subscribe for headers, get the initial chainTip update in case it is zero
+      // INFO: FIRST: Call subscribe for headers, wait for completion to update currentChainTip (needed for other methods)
       await sendWorker(ElectrumWorkerHeadersSubscribeRequest());
 
-      // INFO: SECOND: Start loading transaction histories for every address, this will help discover addresses until the unused gap limit has been reached, which will help finding the full balance and unspents later.
+      // INFO: SECOND: Start loading transaction histories for every address, this will help discover addresses until the unused gap limit has been reached, which will help finding the full balance and unspents next
       await updateTransactions();
 
-      // INFO: THIRD: Start loading the TX history
+      // INFO: THIRD: Get the full wallet's balance with all addresses considered
       await updateBalance();
 
-      // INFO: FOURTH: Finish with unspents
+      // INFO: FOURTH: Finish getting unspent coins for all the addresses
       await updateAllUnspents();
 
+      // INFO: FIFTH: Get the latest recommended fee rates and start update timer
       await updateFeeRates();
-
       _updateFeeRateTimer ??=
           Timer.periodic(const Duration(seconds: 5), (timer) async => await updateFeeRates());
 
@@ -460,9 +460,9 @@ abstract class ElectrumWalletBase
 
       switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
-          return utx.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+          return utx.bitcoinAddressRecord.addressType == SegwitAddresType.mweb;
         case UnspentCoinType.nonMweb:
-          return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+          return utx.bitcoinAddressRecord.addressType != SegwitAddresType.mweb;
         case UnspentCoinType.any:
           return true;
       }
@@ -475,7 +475,7 @@ abstract class ElectrumWalletBase
 
       if (paysToSilentPayment) {
         // Check inputs for shared secret derivation
-        if (utx.bitcoinAddressRecord.type == SegwitAddresType.p2wsh) {
+        if (utx.bitcoinAddressRecord.addressType == SegwitAddresType.p2wsh) {
           throw BitcoinTransactionSilentPaymentsNotSupported();
         }
       }
@@ -514,7 +514,7 @@ abstract class ElectrumWalletBase
 
         pubKeyHex = privkey.getPublic().toHex();
       } else {
-        pubKeyHex = walletAddresses.bip32
+        pubKeyHex = walletAddresses.hdWallet
             .childKey(Bip32KeyIndex(utx.bitcoinAddressRecord.index))
             .publicKey
             .toHex();
@@ -1060,18 +1060,13 @@ abstract class ElectrumWalletBase
         'mnemonic': _mnemonic,
         'xpub': xpub,
         'passphrase': passphrase ?? '',
-        'account_index': walletAddresses.currentReceiveAddressIndexByType,
-        'change_address_index': walletAddresses.currentChangeAddressIndexByType,
-        'addresses': walletAddresses.allAddresses.map((addr) => addr.toJSON()).toList(),
+        'walletAddresses': walletAddresses.toJson(),
         'address_page_type': walletInfo.addressPageType == null
             ? SegwitAddresType.p2wpkh.toString()
             : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
         'derivationTypeIndex': walletInfo.derivationInfo?.derivationType?.index,
         'derivationPath': walletInfo.derivationInfo?.derivationPath,
-        'silent_addresses': walletAddresses.silentAddresses.map((addr) => addr.toJSON()).toList(),
-        'silent_address_index': walletAddresses.currentSilentAddressIndex.toString(),
-        'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
         'alwaysScan': alwaysScan,
       });
 
@@ -1337,32 +1332,58 @@ abstract class ElectrumWalletBase
       return;
     }
 
-    final firstAddress = histories.first;
-    final isChange = firstAddress.addressRecord.isChange;
-    final type = firstAddress.addressRecord.type;
-
-    final totalAddresses = (isChange
-        ? walletAddresses.receiveAddresses.where((element) => element.type == type).length
-        : walletAddresses.changeAddresses.where((element) => element.type == type).length);
-    final gapLimit = (isChange
-        ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
-        : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
-
-    bool hasUsedAddressesUnderGap = false;
     final addressesWithHistory = <BitcoinAddressRecord>[];
+    BitcoinAddressType? lastDiscoveredType;
 
     for (final addressHistory in histories) {
       final txs = addressHistory.txs;
 
       if (txs.isNotEmpty) {
-        final address = addressHistory.addressRecord;
-        addressesWithHistory.add(address);
+        final addressRecord = addressHistory.addressRecord;
+        final isChange = addressRecord.isChange;
 
-        hasUsedAddressesUnderGap =
-            address.index < totalAddresses && (address.index >= totalAddresses - gapLimit);
+        final addressList =
+            (isChange ? walletAddresses.changeAddresses : walletAddresses.receiveAddresses).where(
+                (element) =>
+                    element.addressType == addressRecord.addressType &&
+                    element.derivationType == addressRecord.derivationType);
+        final totalAddresses = addressList.length;
+
+        final gapLimit = (isChange
+            ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
+            : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
+
+        addressesWithHistory.add(addressRecord);
 
         for (final tx in txs) {
           transactionHistory.addOne(tx);
+        }
+
+        final hasUsedAddressesUnderGap = addressRecord.index >= totalAddresses - gapLimit;
+
+        if (hasUsedAddressesUnderGap && lastDiscoveredType != addressRecord.addressType) {
+          lastDiscoveredType = addressRecord.addressType;
+
+          // Discover new addresses for the same address type until the gap limit is respected
+          final newAddresses = await walletAddresses.discoverNewAddresses(
+            isChange: isChange,
+            derivationType: addressRecord.derivationType,
+            addressType: addressRecord.addressType,
+            derivationInfo: BitcoinAddressUtils.getDerivationFromType(addressRecord.addressType),
+          );
+
+          final newAddressList =
+              (isChange ? walletAddresses.changeAddresses : walletAddresses.receiveAddresses).where(
+                  (element) =>
+                      element.addressType == addressRecord.addressType &&
+                      element.derivationType == addressRecord.derivationType);
+          print(
+              "discovered ${newAddresses.length} new addresses, new total: ${newAddressList.length}");
+
+          if (newAddresses.isNotEmpty) {
+            // Update the transactions for the new discovered addresses
+            await updateTransactions(newAddresses);
+          }
         }
       }
     }
@@ -1371,20 +1392,7 @@ abstract class ElectrumWalletBase
       walletAddresses.updateAdresses(addressesWithHistory);
     }
 
-    if (hasUsedAddressesUnderGap) {
-      // Discover new addresses for the same address type until the gap limit is respected
-      final newAddresses = await walletAddresses.discoverAddresses(
-        isChange: isChange,
-        derivationType: firstAddress.addressRecord.derivationType,
-        type: type,
-        derivationInfo: BitcoinAddressUtils.getDerivationFromType(type),
-      );
-
-      if (newAddresses.isNotEmpty) {
-        // Update the transactions for the new discovered addresses
-        await updateTransactions(newAddresses);
-      }
-    }
+    walletAddresses.updateHiddenAddresses();
   }
 
   Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
@@ -1597,8 +1605,12 @@ abstract class ElectrumWalletBase
 
   Future<ElectrumTransactionBundle> getTransactionExpanded({required String hash}) async {
     return await sendWorker(
-            ElectrumWorkerTxExpandedRequest(txHash: hash, currentChainTip: currentChainTip!))
-        as ElectrumTransactionBundle;
+      ElectrumWorkerTxExpandedRequest(
+        txHash: hash,
+        currentChainTip: currentChainTip!,
+        mempoolAPIEnabled: mempoolAPIEnabled,
+      ),
+    ) as ElectrumTransactionBundle;
   }
 
   Future<ElectrumTransactionInfo?> fetchTransactionInfo({required String hash, int? height}) async {

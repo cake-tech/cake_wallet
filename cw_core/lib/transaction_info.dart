@@ -9,6 +9,7 @@ abstract class TransactionInfo extends Object with Keyable {
   late TransactionDirection direction;
   late bool isPending;
   late DateTime date;
+  bool? dateValidated;
   int? height;
   late int confirmations;
   String amountFormatted();
@@ -27,4 +28,3 @@ abstract class TransactionInfo extends Object with Keyable {
 
   late Map<String, dynamic> additionalInfo;
 }
-

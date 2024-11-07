@@ -22,13 +22,13 @@ class BitcoinHardwareWalletService {
     for (final i in indexRange) {
       final derivationPath = "m/84'/0'/$i'";
       final xpub = await bitcoinLedgerApp.getXPubKey(derivationPath: derivationPath);
-      final bip32 = Bip32Slip10Secp256k1.fromExtendedKey(xpub).childKey(Bip32KeyIndex(0));
+      final hd = Bip32Slip10Secp256k1.fromExtendedKey(xpub)
+          .childKey(Bip32KeyIndex(0))
+          .childKey(Bip32KeyIndex(index));
 
-      final fullPath = Bip32PathParser.parse(derivationPath).addElem(Bip32KeyIndex(0));
-
-      final address = ECPublic.fromBip32(bip32.derive(fullPath).publicKey)
-          .toP2wpkhAddress()
-          .toAddress(BitcoinNetwork.mainnet);
+      final address = ECPublic.fromBip32(
+        hd.publicKey,
+      ).toP2wpkhAddress().toAddress(BitcoinNetwork.mainnet);
 
       accounts.add(HardwareAccountData(
         address: address,

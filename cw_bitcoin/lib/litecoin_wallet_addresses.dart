@@ -26,8 +26,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required super.hdWallets,
     super.initialAddresses,
     super.initialMwebAddresses,
-    super.initialRegularAddressIndex,
-    super.initialChangeAddressIndex,
   }) : super(walletInfo) {
     for (int i = 0; i < mwebAddresses.length; i++) {
       mwebAddrs.add(mwebAddresses[i].address);
@@ -102,7 +100,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
             (e) => BitcoinAddressRecord(
               e.value,
               index: e.key,
-              type: SegwitAddresType.mweb,
+              addressType: SegwitAddresType.mweb,
               network: network,
               derivationInfo: BitcoinAddressUtils.getDerivationFromType(SegwitAddresType.p2wpkh),
               derivationType: CWBitcoinDerivationType.bip39,
@@ -133,7 +131,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       }
 
       return P2wpkhAddress.fromDerivation(
-        bip32: bip32,
+        bip32: hdWallet,
         derivationInfo: derivationInfo,
         isChange: isChange,
         index: index,
@@ -164,8 +162,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @action
   @override
-  Future<BitcoinAddressRecord> getChangeAddress(
-      {List<BitcoinUnspent>? inputs, List<BitcoinOutput>? outputs, bool isPegIn = false}) async {
+  Future<BitcoinAddressRecord> getChangeAddress({
+    List<BitcoinUnspent>? inputs,
+    List<BitcoinOutput>? outputs,
+    bool isPegIn = false,
+  }) async {
     // use regular change address on peg in, otherwise use mweb for change address:
 
     if (!mwebEnabled || isPegIn) {
@@ -211,7 +212,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       return BitcoinAddressRecord(
         mwebAddrs[0],
         index: 0,
-        type: SegwitAddresType.mweb,
+        addressType: SegwitAddresType.mweb,
         network: network,
         derivationInfo: BitcoinAddressUtils.getDerivationFromType(SegwitAddresType.p2wpkh),
         derivationType: CWBitcoinDerivationType.bip39,

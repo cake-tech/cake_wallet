@@ -4,11 +4,13 @@ class ElectrumWorkerTxExpandedRequest implements ElectrumWorkerRequest {
   ElectrumWorkerTxExpandedRequest({
     required this.txHash,
     required this.currentChainTip,
+    required this.mempoolAPIEnabled,
     this.id,
   });
 
   final String txHash;
   final int currentChainTip;
+  final bool mempoolAPIEnabled;
   final int? id;
 
   @override
@@ -19,13 +21,19 @@ class ElectrumWorkerTxExpandedRequest implements ElectrumWorkerRequest {
     return ElectrumWorkerTxExpandedRequest(
       txHash: json['txHash'] as String,
       currentChainTip: json['currentChainTip'] as int,
+      mempoolAPIEnabled: json['mempoolAPIEnabled'] as bool,
       id: json['id'] as int?,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'method': method, 'txHash': txHash, 'currentChainTip': currentChainTip};
+    return {
+      'method': method,
+      'txHash': txHash,
+      'currentChainTip': currentChainTip,
+      'mempoolAPIEnabled': mempoolAPIEnabled,
+    };
   }
 }
 

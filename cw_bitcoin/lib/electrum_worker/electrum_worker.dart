@@ -193,10 +193,10 @@ class ElectrumWorker {
         await Future.wait(history.map((transaction) async {
           final txid = transaction['tx_hash'] as String;
           final height = transaction['height'] as int;
-          late ElectrumTransactionInfo tx;
+          ElectrumTransactionInfo? tx;
 
           try {
-            // Exception thrown on null
+            // Exception thrown on null, handled on catch
             tx = result.storedTxs.firstWhere((tx) => tx.id == txid);
 
             if (height > 0) {
@@ -206,12 +206,18 @@ class ElectrumWorker {
               tx.confirmations = result.chainTip - height + 1;
               tx.isPending = tx.confirmations == 0;
             }
-          } catch (_) {
+          } catch (_) {}
+
+          // date is validated when the API responds with the same date at least twice
+          // since sometimes the mempool api returns the wrong date at first, and we update
+          if (tx?.dateValidated != true) {
             tx = ElectrumTransactionInfo.fromElectrumBundle(
               await _getTransactionExpanded(
                 hash: txid,
                 currentChainTip: result.chainTip,
                 mempoolAPIEnabled: result.mempoolAPIEnabled,
+                confirmations: tx?.confirmations,
+                date: tx?.date,
               ),
               result.walletType,
               result.network,
@@ -222,11 +228,11 @@ class ElectrumWorker {
 
           final addressHistories = histories[addressRecord.address];
           if (addressHistories != null) {
-            addressHistories.txs.add(tx);
+            addressHistories.txs.add(tx!);
           } else {
             histories[addressRecord.address] = AddressHistoriesResponse(
               addressRecord: addressRecord,
-              txs: [tx],
+              txs: [tx!],
               walletType: result.walletType,
             );
           }
@@ -338,7 +344,6 @@ class ElectrumWorker {
       hash: request.txHash,
       currentChainTip: request.currentChainTip,
       mempoolAPIEnabled: false,
-      getConfirmations: false,
     );
 
     _sendResponse(ElectrumWorkerTxExpandedResponse(expandedTx: tx, id: request.id));
@@ -348,65 +353,63 @@ class ElectrumWorker {
     required String hash,
     required int currentChainTip,
     required bool mempoolAPIEnabled,
-    bool getConfirmations = true,
+    int? confirmations,
+    DateTime? date,
   }) async {
     int? time;
     int? height;
-    int? confirmations;
+    bool? dateValidated;
 
     final transactionHex = await _electrumClient!.request(
       ElectrumGetTransactionHex(transactionHash: hash),
     );
 
-    if (getConfirmations) {
-      if (mempoolAPIEnabled) {
-        try {
-          final txVerbose = await http.get(
+    if (mempoolAPIEnabled) {
+      try {
+        final txVerbose = await http.get(
+          Uri.parse(
+            "http://mempool.cakewallet.com:8999/api/v1/tx/$hash/status",
+          ),
+        );
+
+        if (txVerbose.statusCode == 200 &&
+            txVerbose.body.isNotEmpty &&
+            jsonDecode(txVerbose.body) != null) {
+          height = jsonDecode(txVerbose.body)['block_height'] as int;
+
+          final blockHash = await http.get(
             Uri.parse(
-              "http://mempool.cakewallet.com:8999/api/v1/tx/$hash/status",
+              "http://mempool.cakewallet.com:8999/api/v1/block-height/$height",
             ),
           );
 
-          if (txVerbose.statusCode == 200 &&
-              txVerbose.body.isNotEmpty &&
-              jsonDecode(txVerbose.body) != null) {
-            height = jsonDecode(txVerbose.body)['block_height'] as int;
-
-            final blockHash = await http.get(
+          if (blockHash.statusCode == 200 && blockHash.body.isNotEmpty) {
+            final blockResponse = await http.get(
               Uri.parse(
-                "http://mempool.cakewallet.com:8999/api/v1/block-height/$height",
+                "http://mempool.cakewallet.com:8999/api/v1/block/${blockHash.body}",
               ),
             );
 
-            if (blockHash.statusCode == 200 &&
-                blockHash.body.isNotEmpty &&
-                jsonDecode(blockHash.body) != null) {
-              final blockResponse = await http.get(
-                Uri.parse(
-                  "http://mempool.cakewallet.com:8999/api/v1/block/${blockHash.body}",
-                ),
-              );
+            if (blockResponse.statusCode == 200 &&
+                blockResponse.body.isNotEmpty &&
+                jsonDecode(blockResponse.body)['timestamp'] != null) {
+              time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
 
-              if (blockResponse.statusCode == 200 &&
-                  blockResponse.body.isNotEmpty &&
-                  jsonDecode(blockResponse.body)['timestamp'] != null) {
-                time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
+              if (date != null) {
+                final newDate = DateTime.fromMillisecondsSinceEpoch(time * 1000);
+                dateValidated = newDate == date;
               }
             }
           }
-        } catch (_) {}
-      }
-
-      if (height != null) {
-        if (time == null && height > 0) {
-          time = (getDateByBitcoinHeight(height).millisecondsSinceEpoch / 1000).round();
         }
+      } catch (_) {}
+    }
 
-        final tip = currentChainTip;
-        if (tip > 0 && height > 0) {
-          // Add one because the block itself is the first confirmation
-          confirmations = tip - height + 1;
-        }
+    if (confirmations == null && height != null) {
+      final tip = currentChainTip;
+      if (tip > 0 && height > 0) {
+        // Add one because the block itself is the first confirmation
+        confirmations = tip - height + 1;
       }
     }
 
@@ -415,6 +418,7 @@ class ElectrumWorker {
 
     for (final vin in original.inputs) {
       final inputTransactionHex = await _electrumClient!.request(
+        // TODO: _getTXHex
         ElectrumGetTransactionHex(transactionHash: vin.txId),
       );
 
@@ -426,6 +430,7 @@ class ElectrumWorker {
       ins: ins,
       time: time,
       confirmations: confirmations ?? 0,
+      dateValidated: dateValidated,
     );
   }
 
@@ -570,9 +575,11 @@ class ElectrumWorker {
               direction: TransactionDirection.incoming,
               isPending: false,
               isReplaced: false,
+              // TODO: tx time mempool api
               date: scanData.network == BitcoinNetwork.mainnet
                   ? getDateByBitcoinHeight(tweakHeight)
                   : DateTime.now(),
+              time: null,
               confirmations: scanData.chainTip - tweakHeight + 1,
               unspents: [],
               isReceivedSilentPayment: true,

@@ -12,7 +12,7 @@ abstract class BaseBitcoinAddressRecord {
     int balance = 0,
     String name = '',
     bool isUsed = false,
-    required this.type,
+    required this.addressType,
     bool? isHidden,
   })  : _txCount = txCount,
         _balance = balance,
@@ -49,7 +49,6 @@ abstract class BaseBitcoinAddressRecord {
 
   void setAsUsed() {
     _isUsed = true;
-    // TODO: check is hidden flow on addr list
     _isHidden = true;
   }
 
@@ -57,7 +56,7 @@ abstract class BaseBitcoinAddressRecord {
 
   int get hashCode => address.hashCode;
 
-  BitcoinAddressType type;
+  BitcoinAddressType addressType;
 
   String toJSON();
 }
@@ -77,7 +76,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     super.balance = 0,
     super.name = '',
     super.isUsed = false,
-    required super.type,
+    required super.addressType,
     String? scriptHash,
     BasedUtxoNetwork? network,
   }) {
@@ -104,7 +103,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       txCount: decoded['txCount'] as int? ?? 0,
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
-      type: decoded['type'] != null && decoded['type'] != ''
+      addressType: decoded['type'] != null && decoded['type'] != ''
           ? BitcoinAddressType.values
               .firstWhere((type) => type.toString() == decoded['type'] as String)
           : SegwitAddresType.p2wpkh,
@@ -126,7 +125,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         'txCount': txCount,
         'name': name,
         'balance': balance,
-        'type': type.toString(),
+        'type': addressType.toString(),
         'scriptHash': scriptHash,
       });
 
@@ -139,7 +138,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         other.index == index &&
         other.derivationInfo == derivationInfo &&
         other.scriptHash == scriptHash &&
-        other.type == type &&
+        other.addressType == addressType &&
         other.derivationType == derivationType;
   }
 
@@ -149,7 +148,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       index.hashCode ^
       derivationInfo.hashCode ^
       scriptHash.hashCode ^
-      type.hashCode ^
+      addressType.hashCode ^
       derivationType.hashCode;
 }
 
@@ -166,7 +165,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     super.balance = 0,
     super.name = '',
     super.isUsed = false,
-    super.type = SilentPaymentsAddresType.p2sp,
+    super.addressType = SilentPaymentsAddresType.p2sp,
     super.isHidden,
     this.labelHex,
   }) : super(index: labelIndex, isChange: isChangeAddress(labelIndex)) {
@@ -198,7 +197,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
         'txCount': txCount,
         'name': name,
         'balance': balance,
-        'type': type.toString(),
+        'type': addressType.toString(),
         'labelHex': labelHex,
       });
 }
@@ -214,7 +213,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
     super.name = '',
     super.isUsed = false,
     required this.spendKey,
-    super.type = SegwitAddresType.p2tr,
+    super.addressType = SegwitAddresType.p2tr,
     super.labelHex,
   }) : super(isHidden: true);
 
@@ -241,7 +240,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
         'txCount': txCount,
         'name': name,
         'balance': balance,
-        'type': type.toString(),
+        'type': addressType.toString(),
         'labelHex': labelHex,
         'spend_key': spendKey.toString(),
       });

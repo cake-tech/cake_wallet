@@ -76,7 +76,6 @@ Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
 import 'dart:io' show Platform;
-import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -99,15 +98,14 @@ import 'package:cw_core/get_height_by_date.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:bip39/bip39.dart' as bip39;
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/electrum_derivations.dart';
-import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
