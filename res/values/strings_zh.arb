@@ -634,6 +634,7 @@
   "select_buy_provider_notice": "在上面选择买入提供商。您可以通过在应用程序设置中设置默认的购买提供商来跳过此屏幕。",
   "select_destination": "请选择备份文件的目的地。",
   "select_sell_provider_notice": "选择上面的销售提供商。您可以通过在应用程序设置中设置默认销售提供商来跳过此屏幕。",
+  "select_your_country": "请选择你的国家",
   "sell": "卖",
   "sell_alert_content": "我们目前仅支持比特币、以太坊和莱特币的销售。请创建或切换到您的比特币、以太坊或莱特币钱包。",
   "sell_monero_com_alert_content": "尚不支持出售门罗币",
