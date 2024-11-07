@@ -13,8 +13,18 @@ class CwMweb {
   static RpcClient? _rpcClient;
   static ClientChannel? _clientChannel;
   static int? _port;
-  static const TIMEOUT_DURATION = Duration(seconds: 5);
+  static const TIMEOUT_DURATION = Duration(seconds: 15);
   static Timer? logTimer;
+  static String? nodeUriOverride;
+
+
+  static Future<void> setNodeUriOverride(String uri) async {
+    nodeUriOverride = uri;
+    if (_rpcClient != null) {
+      await stop();
+      // will be re-started automatically when the next rpc call is made
+    }
+  }
 
   static void readFileWithTimer(String filePath) {
     final file = File(filePath);
@@ -47,7 +57,7 @@ class CwMweb {
     String debugLogPath = "${appDir.path}/logs/debug.log";
     readFileWithTimer(debugLogPath);
 
-    _port = await CwMwebPlatform.instance.start(appDir.path, ltcNodeUri);
+    _port = await CwMwebPlatform.instance.start(appDir.path, nodeUriOverride ?? ltcNodeUri);
     if (_port == null || _port == 0) {
       throw Exception("Failed to start server");
     }
@@ -196,5 +206,19 @@ class CwMweb {
       log("Error getting utxos: $e");
     }
     return null;
+  }
+
+  static Future<BroadcastResponse> broadcast(BroadcastRequest request) async {
+    log("mweb.broadcast() called");
+    try {
+      _rpcClient = await stub();
+      return await _rpcClient!.broadcast(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    } on GrpcError catch (e) {
+      log('Caught grpc error: ${e.message}');
+      throw "error from broadcast mweb: $e";
+    } catch (e) {
+      log("Error getting create: $e");
+      rethrow;
+    }
   }
 }
