@@ -13,7 +13,7 @@ LedgerConnection? gLedger;
 Timer? _ledgerExchangeTimer;
 
 void enableLedgerExchange(monero.wallet ptr, LedgerConnection connection) {
-  _ledgerExchangeTimer = Timer.periodic(Duration(milliseconds: 100), (_) async {
+  _ledgerExchangeTimer = Timer.periodic(Duration(milliseconds: 1), (_) async {
     final ledgerRequestLength = monero.Wallet_getSendToDeviceLength(ptr);
     final ledgerRequest = monero.Wallet_getSendToDevice(ptr)
         .cast<Uint8>()
