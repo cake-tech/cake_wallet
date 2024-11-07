@@ -32,15 +32,26 @@ public static func register(with registrar: FlutterPluginRegistrar) {
                 stopServer()
                 result(nil)
                 break
-            case "address":
+            // case "address":
+            //     let args = call.arguments as! [String: Any]
+            //     let scanSecret = args["scanSecret"] as! FlutterStandardTypedData
+            //     let spendPub = args["spendPub"] as! FlutterStandardTypedData
+            //     let index = args["index"] as! Int32
+                
+            //     let scanSecretData = scanSecret.data
+            //     let spendPubData = spendPub.data
+            //     result(MwebdAddress(scanSecretData, spendPubData, index))
+            //     break
+            case "addresses":
                 let args = call.arguments as! [String: Any]
                 let scanSecret = args["scanSecret"] as! FlutterStandardTypedData
                 let spendPub = args["spendPub"] as! FlutterStandardTypedData
-                let index = args["index"] as! Int32
+                let fromIndex = args["fromIndex"] as! Int32
+                let toIndex = args["toIndex"] as! Int32
                 
                 let scanSecretData = scanSecret.data
                 let spendPubData = spendPub.data
-                result(MwebdAddress(scanSecretData, spendPubData, index))
+                result(MwebdAddresses(scanSecretData, spendPubData, fromIndex, toIndex))
                 break
             default:
                 result(FlutterMethodNotImplemented)

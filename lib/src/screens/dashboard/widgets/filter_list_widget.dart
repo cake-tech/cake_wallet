@@ -18,9 +18,9 @@ class FilterListWidget extends StatefulWidget {
     required this.onClose,
   });
 
-  final WalletListOrderType? initalType;
+  final FilterListOrderType? initalType;
   final bool initalAscending;
-  final Function(bool, WalletListOrderType) onClose;
+  final Function(bool, FilterListOrderType) onClose;
 
   @override
   FilterListWidgetState createState() => FilterListWidgetState();
@@ -28,7 +28,7 @@ class FilterListWidget extends StatefulWidget {
 
 class FilterListWidgetState extends State<FilterListWidget> {
   late bool ascending;
-  late WalletListOrderType? type;
+  late FilterListOrderType? type;
 
   @override
   void initState() {
@@ -37,7 +37,7 @@ class FilterListWidgetState extends State<FilterListWidget> {
     type = widget.initalType;
   }
 
-  void setSelectedOrderType(WalletListOrderType? orderType) {
+  void setSelectedOrderType(FilterListOrderType? orderType) {
     setState(() {
       type = orderType;
     });
@@ -72,7 +72,7 @@ class FilterListWidgetState extends State<FilterListWidget> {
                     ),
                   ),
                 ),
-                if (type != WalletListOrderType.Custom) ...[
+                if (type != FilterListOrderType.Custom) ...[
                   sectionDivider,
                   SettingsChoicesCell(
                     ChoicesListItem<ListOrderMode>(
@@ -89,10 +89,10 @@ class FilterListWidgetState extends State<FilterListWidget> {
                 ],
                 sectionDivider,
                 RadioListTile(
-                  value: WalletListOrderType.CreationDate,
+                  value: FilterListOrderType.CreationDate,
                   groupValue: type,
                   title: Text(
-                    WalletListOrderType.CreationDate.toString(),
+                    FilterListOrderType.CreationDate.toString(),
                     style: TextStyle(
                         color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                         fontSize: 16,
@@ -104,10 +104,10 @@ class FilterListWidgetState extends State<FilterListWidget> {
                   activeColor: Theme.of(context).primaryColor,
                 ),
                 RadioListTile(
-                  value: WalletListOrderType.Alphabetical,
+                  value: FilterListOrderType.Alphabetical,
                   groupValue: type,
                   title: Text(
-                    WalletListOrderType.Alphabetical.toString(),
+                    FilterListOrderType.Alphabetical.toString(),
                     style: TextStyle(
                         color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                         fontSize: 16,
@@ -119,10 +119,10 @@ class FilterListWidgetState extends State<FilterListWidget> {
                   activeColor: Theme.of(context).primaryColor,
                 ),
                 RadioListTile(
-                  value: WalletListOrderType.GroupByType,
+                  value: FilterListOrderType.GroupByType,
                   groupValue: type,
                   title: Text(
-                    WalletListOrderType.GroupByType.toString(),
+                    FilterListOrderType.GroupByType.toString(),
                     style: TextStyle(
                         color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                         fontSize: 16,
@@ -134,10 +134,10 @@ class FilterListWidgetState extends State<FilterListWidget> {
                   activeColor: Theme.of(context).primaryColor,
                 ),
                 RadioListTile(
-                  value: WalletListOrderType.Custom,
+                  value: FilterListOrderType.Custom,
                   groupValue: type,
                   title: Text(
-                    WalletListOrderType.Custom.toString(),
+                    FilterListOrderType.Custom.toString(),
                     style: TextStyle(
                         color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                         fontSize: 16,

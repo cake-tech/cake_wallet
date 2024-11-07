@@ -15,7 +15,7 @@ These steps will help you configure and execute a build of CakeWallet from its s
 
 ### 1. Installing Package Dependencies
 
-CakeWallet requires some packages to be install on your build system. You may easily install them on your build system with the following command:
+CakeWallet requires some packages to be installed on your build system. You may easily install them on your build system with the following command:
 
 `$ sudo apt install build-essential cmake pkg-config git curl autoconf libtool`
 
@@ -55,7 +55,7 @@ Need to install flutter. For this please check section [How to install flutter o
 
 ### 3. Verify Installations
 
-Verify that the Flutter have been correctly installed on your system with the following command:
+Verify that the Flutter has been correctly installed on your system with the following command:
 
 `$ flutter doctor`
 
@@ -145,7 +145,7 @@ Path to executable file will be:
 
 # Flatpak
 
-For package the built application into flatpak you need fistly to install `flatpak` and `flatpak-builder`:
+For package the built application into flatpak you need firstly to install `flatpak` and `flatpak-builder`:
 
 `$ sudo apt install flatpak flatpak-builder`
 
@@ -163,7 +163,7 @@ And then export bundle:
 
 `$ flatpak build-bundle export cake_wallet.flatpak com.cakewallet.CakeWallet`
 
-Result file: `cake_wallet.flatpak` should be generated in current directory.
+Result file: `cake_wallet.flatpak` should be generated in the current directory.
 
 For install generated flatpak file use:
 

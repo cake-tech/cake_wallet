@@ -116,9 +116,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
     required bool isSendAll,
   }) async {
-    String formattedToAddress = request.toAddress.startsWith('bitcoincash:')
-        ? request.toAddress.replaceFirst('bitcoincash:', '')
-        : request.toAddress;
+
 
     final formattedFromAmount = double.parse(request.fromAmount);
 
@@ -126,11 +124,11 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       'from_asset': _normalizeCurrency(request.fromCurrency),
       'to_asset': _normalizeCurrency(request.toCurrency),
       'amount': _doubleToThorChainString(formattedFromAmount),
-      'destination': formattedToAddress,
+      'destination': _normalizeAddress(request.toAddress),
       'affiliate': _affiliateName,
       'affiliate_bps': _affiliateBps,
       'refund_address':
-          isRefundAddressSupported.contains(request.fromCurrency) ? request.refundAddress : '',
+          isRefundAddressSupported.contains(request.fromCurrency) ? _normalizeAddress(request.refundAddress) : '',
     };
 
     final responseJSON = await _getSwapQuote(params);
@@ -288,4 +286,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     return currentState;
   }
+
+  String _normalizeAddress(String address) =>
+      address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
 }

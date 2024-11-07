@@ -84,23 +84,21 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
     }
 
-    if (showRecipientAddress && !isRecipientAddressShown) {
-      try {
-        final recipientAddress = transactionDescriptionBox.values
-            .firstWhere((val) => val.id == transactionInfo.txHash)
-            .recipientAddress;
+    final descriptionKey =
+        '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
+    final description = transactionDescriptionBox.values.firstWhere(
+        (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+        orElse: () => TransactionDescription(id: descriptionKey));
 
-        if (recipientAddress?.isNotEmpty ?? false) {
-          items.add(
-            StandartListItem(
-              title: S.current.transaction_details_recipient_address,
-              value: recipientAddress!,
-              key: ValueKey('standard_list_item_${recipientAddress}_key'),
-            ),
-          );
-        }
-      } catch (_) {
-        // FIX-ME: Unhandled exception
+    if (showRecipientAddress && !isRecipientAddressShown) {
+      final recipientAddress = description.recipientAddress;
+
+      if (recipientAddress?.isNotEmpty ?? false) {
+        items.add(StandartListItem(
+          title: S.current.transaction_details_recipient_address,
+          value: recipientAddress!),
+          key: ValueKey('standard_list_item_${recipientAddress}_key'),
+        );
       }
     }
 
@@ -120,12 +118,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       ),
     );
 
-    final description = transactionDescriptionBox.values.firstWhere(
-        (val) => val.id == transactionInfo.txHash,
-        orElse: () => TransactionDescription(id: transactionInfo.txHash));
-
-    items.add(
-      TextFieldListItem(
+    items.add(TextFieldListItem(
         title: S.current.note_tap_to_change,
         value: description.note,
         onSubmitted: (value) {
