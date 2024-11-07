@@ -295,6 +295,7 @@
   "expiresOn": "Expira el",
   "expiry_and_validity": "Vencimiento y validez",
   "export_backup": "Exportar copia de seguridad",
+  "export_logs": "Registros de exportación",
   "extra_id": "ID adicional:",
   "extracted_address_content": "Enviará fondos a\n${recipient_name}",
   "failed_authentication": "Autenticación fallida. ${state_error}",
@@ -371,7 +372,10 @@
   "litecoin_mweb_description": "Mweb es un nuevo protocolo que trae transacciones más rápidas, más baratas y más privadas a Litecoin",
   "litecoin_mweb_dismiss": "Despedir",
   "litecoin_mweb_display_card": "Mostrar tarjeta MWEB",
+  "litecoin_mweb_enable": "Habilitar mweb",
   "litecoin_mweb_enable_later": "Puede elegir habilitar MWEB nuevamente en la configuración de visualización.",
+  "litecoin_mweb_logs": "Registros de mweb",
+  "litecoin_mweb_node": "Nodo mweb",
   "litecoin_mweb_pegin": "Convertir",
   "litecoin_mweb_pegout": "Recuperar",
   "litecoin_mweb_scanning": "Escaneo mweb",
@@ -939,5 +943,6 @@
   "you_pay": "Tú pagas",
   "you_will_get": "Convertir a",
   "you_will_send": "Convertir de",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "Ya existe un contacto con ese nombre. Elija un nombre diferente."
 }

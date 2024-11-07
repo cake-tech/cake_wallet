@@ -26,7 +26,9 @@ class PreferencesKey {
   static const disableBulletinKey = 'disable_bulletin';
   static const defaultBuyProvider = 'default_buy_provider';
   static const walletListOrder = 'wallet_list_order';
+  static const contactListOrder = 'contact_list_order';
   static const walletListAscending = 'wallet_list_ascending';
+  static const contactListAscending = 'contact_list_ascending';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
   static const failedTotpTokenTrials = 'failed_token_trials';
   static const disableExchangeKey = 'disable_exchange';
@@ -53,6 +55,7 @@ class PreferencesKey {
   static const mwebEnabled = 'mwebEnabled';
   static const hasEnabledMwebBefore = 'hasEnabledMwebBefore';
   static const mwebAlwaysScan = 'mwebAlwaysScan';
+  static const mwebNodeUri = 'mwebNodeUri';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const shouldShowRepWarning = 'should_show_rep_warning';

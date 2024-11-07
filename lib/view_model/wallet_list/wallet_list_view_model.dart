@@ -76,7 +76,7 @@ abstract class WalletListViewModelBase with Store {
     await _appStore.changeCurrentWallet(wallet);
   }
 
-  WalletListOrderType? get orderType => _appStore.settingsStore.walletListOrder;
+  FilterListOrderType? get orderType => _appStore.settingsStore.walletListOrder;
 
   bool get ascending => _appStore.settingsStore.walletListAscending;
 
@@ -108,7 +108,7 @@ abstract class WalletListViewModelBase with Store {
       return;
     }
 
-    _appStore.settingsStore.walletListOrder = WalletListOrderType.Custom;
+    _appStore.settingsStore.walletListOrder = FilterListOrderType.Custom;
 
     // make a copy of the walletInfoSource:
     List<WalletInfo> walletInfoSourceCopy = _walletInfoSource.values.toList();
@@ -186,22 +186,22 @@ abstract class WalletListViewModelBase with Store {
     _appStore.settingsStore.walletListAscending = ascending;
   }
 
-  Future<void> setOrderType(WalletListOrderType? type) async {
+  Future<void> setOrderType(FilterListOrderType? type) async {
     if (type == null) return;
 
     _appStore.settingsStore.walletListOrder = type;
 
     switch (type) {
-      case WalletListOrderType.CreationDate:
+      case FilterListOrderType.CreationDate:
         await sortByCreationDate();
         break;
-      case WalletListOrderType.Alphabetical:
+      case FilterListOrderType.Alphabetical:
         await sortAlphabetically();
         break;
-      case WalletListOrderType.GroupByType:
+      case FilterListOrderType.GroupByType:
         await sortGroupByType();
         break;
-      case WalletListOrderType.Custom:
+      case FilterListOrderType.Custom:
       default:
         await reorderAccordingToWalletList();
         break;
