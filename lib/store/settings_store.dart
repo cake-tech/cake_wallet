@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
+import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -62,9 +63,11 @@ abstract class SettingsStoreBase with Store {
       required bool initialAppSecure,
       required bool initialDisableBuy,
       required bool initialDisableSell,
+      required FilterListOrderType initialWalletListOrder,
+      required FilterListOrderType initialContactListOrder,
       required bool initialDisableBulletin,
-      required WalletListOrderType initialWalletListOrder,
       required bool initialWalletListAscending,
+      required bool initialContactListAscending,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
       required String initialTotpSecretKey,
@@ -118,6 +121,7 @@ abstract class SettingsStoreBase with Store {
       required this.mwebCardDisplay,
       required this.mwebEnabled,
       required this.hasEnabledMwebBefore,
+      required this.mwebNodeUri,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialWowneroTransactionPriority,
@@ -125,7 +129,8 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority,
       TransactionPriority? initialPolygonTransactionPriority,
-      TransactionPriority? initialBitcoinCashTransactionPriority})
+      TransactionPriority? initialBitcoinCashTransactionPriority,
+      Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
         _secureStorage = secureStorage,
@@ -149,7 +154,9 @@ abstract class SettingsStoreBase with Store {
         disableSell = initialDisableSell,
         disableBulletin = initialDisableBulletin,
         walletListOrder = initialWalletListOrder,
+        contactListOrder = initialContactListOrder,
         walletListAscending = initialWalletListAscending,
+        contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
@@ -208,6 +215,10 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
 
+    if (initialCakePayCountry != null) {
+      selectedCakePayCountry = initialCakePayCountry;
+    }
+
     initializeTrocadorProviderStates();
 
     WalletType.values.forEach((walletType) {
@@ -238,6 +249,15 @@ abstract class SettingsStoreBase with Store {
         (_) => fiatCurrency,
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
             PreferencesKey.currentFiatCurrencyKey, fiatCurrency.serialize()));
+
+    reaction(
+            (_) => selectedCakePayCountry,
+            (Country? country) {
+              if (country != null) {
+                sharedPreferences.setString(
+                    PreferencesKey.currentCakePayCountry, country.raw);
+              }
+            });
 
     reaction(
         (_) => shouldShowYatPopup,
@@ -324,13 +344,23 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => walletListOrder,
-        (WalletListOrderType walletListOrder) =>
+        (FilterListOrderType walletListOrder) =>
             sharedPreferences.setInt(PreferencesKey.walletListOrder, walletListOrder.index));
+
+    reaction(
+            (_) => contactListOrder,
+            (FilterListOrderType contactListOrder) =>
+            sharedPreferences.setInt(PreferencesKey.contactListOrder, contactListOrder.index));
 
     reaction(
         (_) => walletListAscending,
         (bool walletListAscending) =>
             sharedPreferences.setBool(PreferencesKey.walletListAscending, walletListAscending));
+
+    reaction(
+            (_) => contactListAscending,
+            (bool contactListAscending) =>
+            sharedPreferences.setBool(PreferencesKey.contactListAscending, contactListAscending));
 
     reaction(
         (_) => autoGenerateSubaddressStatus,
@@ -344,8 +374,8 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => bitcoinSeedType,
-        (BitcoinSeedType bitcoinSeedType) => sharedPreferences.setInt(
-            PreferencesKey.bitcoinSeedType, bitcoinSeedType.raw));
+        (BitcoinSeedType bitcoinSeedType) =>
+            sharedPreferences.setInt(PreferencesKey.bitcoinSeedType, bitcoinSeedType.raw));
 
     reaction(
         (_) => nanoSeedType,
@@ -428,8 +458,10 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => useTronGrid,
         (bool useTronGrid) => _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
 
-    reaction((_) => useMempoolFeeAPI,
-        (bool useMempoolFeeAPI) => _sharedPreferences.setBool(PreferencesKey.useMempoolFeeAPI, useMempoolFeeAPI));
+    reaction(
+        (_) => useMempoolFeeAPI,
+        (bool useMempoolFeeAPI) =>
+            _sharedPreferences.setBool(PreferencesKey.useMempoolFeeAPI, useMempoolFeeAPI));
 
     reaction((_) => defaultNanoRep,
         (String nanoRep) => _sharedPreferences.setString(PreferencesKey.defaultNanoRep, nanoRep));
@@ -577,6 +609,11 @@ abstract class SettingsStoreBase with Store {
         (bool hasEnabledMwebBefore) =>
             _sharedPreferences.setBool(PreferencesKey.hasEnabledMwebBefore, hasEnabledMwebBefore));
 
+    reaction(
+        (_) => mwebNodeUri,
+        (String mwebNodeUri) =>
+            _sharedPreferences.setString(PreferencesKey.mwebNodeUri, mwebNodeUri));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -602,6 +639,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   FiatCurrency fiatCurrency;
+
+  @observable
+  Country? selectedCakePayCountry;
 
   @observable
   bool shouldShowYatPopup;
@@ -646,13 +686,19 @@ abstract class SettingsStoreBase with Store {
   bool disableSell;
 
   @observable
+  FilterListOrderType contactListOrder;
+
+  @observable
   bool disableBulletin;
 
   @observable
-  WalletListOrderType walletListOrder;
+  FilterListOrderType walletListOrder;
 
   @observable
   bool walletListAscending;
+
+  @observable
+  bool contactListAscending;
 
   @observable
   bool allowBiometricalAuthentication;
@@ -802,6 +848,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool hasEnabledMwebBefore;
 
+  @observable
+  String mwebNodeUri;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
   final BackgroundTasks _backgroundTasks;
@@ -849,6 +898,10 @@ abstract class SettingsStoreBase with Store {
     final backgroundTasks = getIt.get<BackgroundTasks>();
     final currentFiatCurrency = FiatCurrency.deserialize(
         raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
+    final savedCakePayCountryRaw = sharedPreferences.getString(PreferencesKey.currentCakePayCountry);
+    final currentCakePayCountry = savedCakePayCountryRaw != null
+        ? Country.deserialize(raw: savedCakePayCountryRaw)
+        : null;
 
     TransactionPriority? moneroTransactionPriority = monero?.deserializeMoneroTransactionPriority(
         raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!);
@@ -907,9 +960,13 @@ abstract class SettingsStoreBase with Store {
     final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
     final disableBulletin = sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? false;
     final walletListOrder =
-        WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
+        FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
+    final contactListOrder =
+    FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
     final walletListAscending =
         sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
+    final contactListAscending =
+        sharedPreferences.getBool(PreferencesKey.contactListAscending) ?? true;
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
@@ -964,6 +1021,8 @@ abstract class SettingsStoreBase with Store {
     final mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
     final hasEnabledMwebBefore =
         sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
+    final mwebNodeUri = sharedPreferences.getString(PreferencesKey.mwebNodeUri) ??
+        "ltc-electrum.cakewallet.com:9333";
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1188,6 +1247,7 @@ abstract class SettingsStoreBase with Store {
       deviceName: deviceName,
       isBitcoinBuyEnabled: isBitcoinBuyEnabled,
       initialFiatCurrency: currentFiatCurrency,
+      initialCakePayCountry: currentCakePayCountry,
       initialBalanceDisplayMode: currentBalanceDisplayMode,
       initialSaveRecipientAddress: shouldSaveRecipientAddress,
       initialAutoGenerateSubaddressStatus: autoGenerateSubaddressStatus,
@@ -1200,6 +1260,8 @@ abstract class SettingsStoreBase with Store {
       initialDisableBulletin: disableBulletin,
       initialWalletListOrder: walletListOrder,
       initialWalletListAscending: walletListAscending,
+      initialContactListOrder: contactListOrder,
+      initialContactListAscending: contactListAscending,
       initialFiatMode: currentFiatApiMode,
       initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
       initialCake2FAPresetOptions: selectedCake2FAPreset,
@@ -1233,6 +1295,7 @@ abstract class SettingsStoreBase with Store {
       mwebAlwaysScan: mwebAlwaysScan,
       mwebCardDisplay: mwebCardDisplay,
       mwebEnabled: mwebEnabled,
+      mwebNodeUri: mwebNodeUri,
       hasEnabledMwebBefore: hasEnabledMwebBefore,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialWowneroTransactionPriority: wowneroTransactionPriority,
@@ -1348,9 +1411,11 @@ abstract class SettingsStoreBase with Store {
     disableBulletin =
         sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? disableBulletin;
     walletListOrder =
-        WalletListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
+        FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
+    contactListOrder =
+    FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
     walletListAscending = sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
-
+    contactListAscending = sharedPreferences.getBool(PreferencesKey.contactListAscending) ?? true;
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
@@ -1658,7 +1723,8 @@ abstract class SettingsStoreBase with Store {
         deviceName = windowsInfo.productName;
       } catch (e) {
         print(e);
-        print('likely digitalProductId is null wait till https://github.com/fluttercommunity/plus_plugins/pull/3188 is merged');
+        print(
+            'likely digitalProductId is null wait till https://github.com/fluttercommunity/plus_plugins/pull/3188 is merged');
         deviceName = "Windows Device";
       }
     }

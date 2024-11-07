@@ -295,6 +295,7 @@
   "expiresOn": "ﺩﺎﻌﯿﻣ ﯽﻣﺎﺘﺘﺧﺍ",
   "expiry_and_validity": "میعاد ختم اور صداقت",
   "export_backup": "بیک اپ برآمد کریں۔",
+  "export_logs": "نوشتہ جات برآمد کریں",
   "extra_id": "اضافی ID:",
   "extracted_address_content": "آپ فنڈز بھیج رہے ہوں گے\n${recipient_name}",
   "failed_authentication": "ناکام تصدیق۔ ${state_error}",
@@ -372,7 +373,10 @@
   "litecoin_mweb_description": "MWEB ایک نیا پروٹوکول ہے جو لیٹیکوئن میں تیز ، سستا اور زیادہ نجی لین دین لاتا ہے",
   "litecoin_mweb_dismiss": "خارج",
   "litecoin_mweb_display_card": "MWEB کارڈ دکھائیں",
+  "litecoin_mweb_enable": "MWEB کو فعال کریں",
   "litecoin_mweb_enable_later": "آپ ڈسپلے کی ترتیبات کے تحت MWEB کو دوبارہ فعال کرنے کا انتخاب کرسکتے ہیں۔",
+  "litecoin_mweb_logs": "MWEB لاگز",
+  "litecoin_mweb_node": "MWEB نوڈ",
   "litecoin_mweb_pegin": "پیگ میں",
   "litecoin_mweb_pegout": "پیگ آؤٹ",
   "litecoin_mweb_scanning": "MWEB اسکیننگ",
@@ -633,6 +637,7 @@
   "select_buy_provider_notice": "اوپر خریدنے والا خریدنے والا منتخب کریں۔ آپ ایپ کی ترتیبات میں اپنے پہلے سے طے شدہ خریدنے والے کو ترتیب دے کر اس اسکرین کو چھوڑ سکتے ہیں۔",
   "select_destination": "۔ﮟﯾﺮﮐ ﺏﺎﺨﺘﻧﺍ ﺎﮐ ﻝﺰﻨﻣ ﮯﯿﻟ ﮯﮐ ﻞﺋﺎﻓ ﭖﺍ ﮏﯿﺑ ﻡﺮﮐ ﮦﺍﺮﺑ",
   "select_sell_provider_notice": "۔ﮟﯿﮨ ﮯﺘﮑﺳ ﮌﻮﮭﭼ ﻮﮐ ﻦﯾﺮﮑﺳﺍ ﺱﺍ ﺮﮐ ﮮﺩ ﺐﯿﺗﺮﺗ ﻮﮐ ﮦﺪﻨﻨﮐ ﻢﮨﺍﺮﻓ ﻞﯿﺳ ﭧﻟﺎﻔﯾﮈ ﮯﻨﭘﺍ ﮟﯿﻣ ﺕﺎﺒ",
+  "select_your_country": "براہ کرم اپنے ملک کو منتخب کریں",
   "sell": "بیچنا",
   "sell_alert_content": "۔ﮟﯾﺮﮐ ﭻﺋﻮﺳ ﺮﭘ ﺱﺍ ﺎﯾ ﮟﯿﺋﺎﻨﺑ ﭧﯿﻟﺍﻭ Litecoin ﺎﯾ Bitcoin، Ethereum ﺎﻨﭘﺍ ﻡﺮﮐ ﮦﺍﺮﺑ ۔",
   "sell_monero_com_alert_content": "Monero فروخت کرنا ابھی تک تعاون یافتہ نہیں ہے۔",
@@ -940,5 +945,6 @@
   "you_pay": "تم ادا کرو",
   "you_will_get": "میں تبدیل کریں۔",
   "you_will_send": "سے تبدیل کریں۔",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": " ۔ﮟﯾﺮﮐ ﺐﺨﺘﻨﻣ ﻡﺎﻧ ﻒﻠﺘﺨﻣ ﮏﯾﺍ ﻡﺮﮐ ﮦﺍﺮﺑ ۔ﮯﮨ ﺩﻮﺟﻮﻣ ﮯﺳ ﮯﻠﮩﭘ ﮧﻄﺑﺍﺭ ﮏﯾﺍ ﮫﺗﺎﺳ ﮯﮐ ﻡﺎﻧ ﺱﺍ"
 }
