@@ -15,13 +15,15 @@ class PreSeedPage extends InfoPage {
   String get pageTitle => S.current.pre_seed_title;
 
   @override
-  String get pageDescription =>
-      S.current.pre_seed_description(seedPhraseLength.toString());
+  String get pageDescription => S.current.pre_seed_description(seedPhraseLength.toString());
 
   @override
   String get buttonText => S.current.pre_seed_button_text;
 
   @override
-  void Function(BuildContext) get onPressed => (BuildContext context) =>
-      Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true);
+  Key? get buttonKey => ValueKey('pre_seed_page_button_key');
+
+  @override
+  void Function(BuildContext) get onPressed =>
+      (BuildContext context) => Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true);
 }
