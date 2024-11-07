@@ -168,7 +168,7 @@ abstract class CakePayCardsListViewModelBase with Store {
     page++;
     try {
       var newVendors = await cakePayService.getVendors(
-          country: selectedCountry.title,
+          country: Country.getCakePayName(selectedCountry),
           page: page,
           search: searchString,
           giftCards: displayGiftCards,
