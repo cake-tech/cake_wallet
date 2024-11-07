@@ -59,7 +59,7 @@ class WalletListPage extends BasePage {
                   builder: (context) => FilterListWidget(
                     initalType: walletListViewModel.orderType,
                     initalAscending: walletListViewModel.ascending,
-                    onClose: (bool ascending, WalletListOrderType type) async {
+                    onClose: (bool ascending, FilterListOrderType type) async {
                       walletListViewModel.setAscending(ascending);
                       await walletListViewModel.setOrderType(type);
                     },

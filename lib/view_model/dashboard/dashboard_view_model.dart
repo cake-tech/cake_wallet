@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -89,11 +91,12 @@ abstract class DashboardViewModelBase with Store {
                 value: () => transactionFilterStore.displayOutgoing,
                 caption: S.current.outgoing,
                 onChanged: transactionFilterStore.toggleOutgoing),
-            FilterItem(
-              value: () => transactionFilterStore.displaySilentPayments,
-              caption: S.current.silent_payments,
-              onChanged: transactionFilterStore.toggleSilentPayments,
-            ),
+            if (appStore.wallet!.type == WalletType.bitcoin)
+              FilterItem(
+                value: () => transactionFilterStore.displaySilentPayments,
+                caption: S.current.silent_payments,
+                onChanged: transactionFilterStore.toggleSilentPayments,
+              ),
             // FilterItem(
             //     value: () => false,
             //     caption: S.current.transactions_by_date,
@@ -241,7 +244,10 @@ abstract class DashboardViewModelBase with Store {
     //   subname = nano!.getCurrentAccount(_wallet).label;
     // }
 
-    reaction((_) => appStore.wallet, _onWalletChange);
+    reaction((_) => appStore.wallet, (wallet) {
+      _onWalletChange(wallet);
+      _checkMweb();
+    });
 
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
@@ -279,16 +285,16 @@ abstract class DashboardViewModelBase with Store {
       });
     }
 
+    _checkMweb();
+    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
+      _checkMweb();
+    });
+  }
+
+  void _checkMweb() {
     if (hasMweb) {
-      mwebScanningActive = bitcoin!.getMwebEnabled(wallet);
-      settingsStore.mwebEnabled = mwebScanningActive;
-      reaction((_) => settingsStore.mwebAlwaysScan, (bool alwaysScan) {
-        if (alwaysScan) {
-          mwebScanningActive = true;
-        } else {
-          mwebScanningActive = false;
-        }
-      });
+      mwebEnabled = bitcoin!.getMwebEnabled(wallet);
+      balanceViewModel.mwebEnabled = mwebEnabled;
     }
   }
 
@@ -453,34 +459,39 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @computed
-  bool get hasMweb => wallet.type == WalletType.litecoin;
+  bool get hasMweb =>
+      wallet.type == WalletType.litecoin &&
+      (Platform.isIOS || Platform.isAndroid) &&
+      !wallet.isHardwareWallet;
 
   @computed
-  bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay && !mwebScanningActive;
+  bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay && !mwebEnabled;
 
   @observable
-  bool mwebScanningActive = false;
+  bool mwebEnabled = false;
 
   @computed
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
 
   @action
-  void setMwebScanningActive() {
+  void setMwebEnabled() {
     if (!hasMweb) {
       return;
     }
 
     settingsStore.hasEnabledMwebBefore = true;
-    mwebScanningActive = true;
+    mwebEnabled = true;
     bitcoin!.setMwebEnabled(wallet, true);
+    balanceViewModel.mwebEnabled = true;
     settingsStore.mwebAlwaysScan = true;
   }
 
   @action
   void dismissMweb() {
     settingsStore.mwebCardDisplay = false;
+    balanceViewModel.mwebEnabled = false;
     settingsStore.mwebAlwaysScan = false;
-    mwebScanningActive = false;
+    mwebEnabled = false;
     bitcoin!.setMwebEnabled(wallet, false);
   }
 
