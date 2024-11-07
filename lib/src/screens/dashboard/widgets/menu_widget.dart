@@ -9,7 +9,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class MenuWidget extends StatefulWidget {
-  MenuWidget(this.dashboardViewModel);
+  MenuWidget(this.dashboardViewModel, Key? key);
 
   final DashboardViewModel dashboardViewModel;
 
@@ -193,6 +193,7 @@ class MenuWidgetState extends State<MenuWidget> {
                   final isLastTile = index == itemCount - 1;
 
                   return SettingActionButton(
+                    key: item.key,
                     isLastTile: isLastTile,
                     tileHeight: tileHeight,
                     selectionActive: false,
