@@ -295,6 +295,7 @@
   "expiresOn": "Yana ƙarewa",
   "expiry_and_validity": "Karewa da inganci",
   "export_backup": "Ajiyayyen fitarwa",
+  "export_logs": "Injin fitarwa",
   "extra_id": "Karin ID:",
   "extracted_address_content": "Za ku aika da kudade zuwa\n${recipient_name}",
   "failed_authentication": "Binne wajen shiga. ${state_error}",
@@ -371,7 +372,10 @@
   "litecoin_mweb_description": "Mweb shine sabon tsarin yarjejeniya da ya kawo da sauri, mai rahusa, da kuma ma'amaloli masu zaman kansu zuwa Litecoin",
   "litecoin_mweb_dismiss": "Tuɓe \\ sallama",
   "litecoin_mweb_display_card": "Nuna katin Mweb",
+  "litecoin_mweb_enable": "Kunna Mweb",
   "litecoin_mweb_enable_later": "Kuna iya zaɓar kunna Mweb kuma a ƙarƙashin saitunan nuni.",
+  "litecoin_mweb_logs": "Jagoran Mweb",
+  "litecoin_mweb_node": "Mweb Node",
   "litecoin_mweb_pegin": "Peg in",
   "litecoin_mweb_pegout": "Peg fita",
   "litecoin_mweb_scanning": "Mweb scanning",
@@ -632,6 +636,7 @@
   "select_buy_provider_notice": "Zaɓi mai ba da kyauta a sama. Zaka iya tsallake wannan allon ta hanyar saita mai ba da isasshen busasshen mai ba da isasshen busasshiyar saiti.",
   "select_destination": "Da fatan za a zaɓi wurin da za a yi wa madadin fayil ɗin.",
   "select_sell_provider_notice": "Zaɓi mai bada siyarwa a sama. Kuna iya tsallake wannan allon ta saita mai bada siyar da ku a cikin saitunan app.",
+  "select_your_country": "Da fatan za a zabi ƙasarku",
   "sell": "sayar",
   "sell_alert_content": "A halin yanzu muna tallafawa kawai siyar da Bitcoin, Ethereum da Litecoin. Da fatan za a ƙirƙiri ko canza zuwa walat ɗin ku na Bitcoin, Ethereum ko Litecoin.",
   "sell_monero_com_alert_content": "Selling Monero bai sami ƙarshen mai bukatar samun ba",
@@ -939,5 +944,6 @@
   "you_pay": "Ka Bayar",
   "you_will_get": "Maida zuwa",
   "you_will_send": "Maida daga",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "An riga an sami lamba tare da wannan sunan. Da fatan za a zaɓi suna daban."
 }

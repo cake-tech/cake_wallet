@@ -295,6 +295,7 @@
   "expiresOn": "Istječe",
   "expiry_and_validity": "Istek i valjanost",
   "export_backup": "Izvezi sigurnosnu kopiju",
+  "export_logs": "Izvozni trupci",
   "extra_id": "Dodatni ID:",
   "extracted_address_content": "Poslat ćete sredstva primatelju\n${recipient_name}",
   "failed_authentication": "Autentifikacija neuspješna. ${state_error}",
@@ -371,7 +372,10 @@
   "litecoin_mweb_description": "MWEB je novi protokol koji u Litecoin donosi brže, jeftinije i privatnije transakcije",
   "litecoin_mweb_dismiss": "Odbaciti",
   "litecoin_mweb_display_card": "Prikaži MWeb karticu",
+  "litecoin_mweb_enable": "Omogući MWeb",
   "litecoin_mweb_enable_later": "Možete odabrati da MWEB ponovo omogućite pod postavkama zaslona.",
+  "litecoin_mweb_logs": "MWEB trupci",
+  "litecoin_mweb_node": "MWEB čvor",
   "litecoin_mweb_pegin": "Uvući se",
   "litecoin_mweb_pegout": "Odapeti",
   "litecoin_mweb_scanning": "MWEB skeniranje",
@@ -630,6 +634,7 @@
   "select_buy_provider_notice": "Odaberite gornji davatelj kupnje. Ovaj zaslon možete preskočiti postavljanjem zadanog davatelja usluga kupnje u postavkama aplikacija.",
   "select_destination": "Odaberite odredište za datoteku sigurnosne kopije.",
   "select_sell_provider_notice": "Gore odaberite pružatelja usluga prodaje. Ovaj zaslon možete preskočiti postavljanjem zadanog pružatelja usluga prodaje u postavkama aplikacije.",
+  "select_your_country": "Odaberite svoju zemlju",
   "sell": "Prodavati",
   "sell_alert_content": "Trenutno podržavamo samo prodaju Bitcoina, Ethereuma i Litecoina. Izradite ili prijeđite na svoj Bitcoin, Ethereum ili Litecoin novčanik.",
   "sell_monero_com_alert_content": "Prodaja Monera još nije podržana",
@@ -937,5 +942,6 @@
   "you_pay": "Vi plaćate",
   "you_will_get": "Razmijeni u",
   "you_will_send": "Razmijeni iz",
-  "yy": "GG"
+  "yy": "GG",
+  "contact_name_exists": "Kontakt s tim imenom već postoji. Odaberite drugo ime."
 }

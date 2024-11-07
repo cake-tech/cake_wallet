@@ -31,7 +31,7 @@ class MwebSettingsPage extends BasePage {
                 },
               ),
               SettingsSwitcherCell(
-                title: S.current.litecoin_mweb_always_scan,
+                title: S.current.litecoin_mweb_enable,
                 value: _mwebSettingsViewModel.mwebEnabled,
                 onValueChange: (_, bool value) {
                   _mwebSettingsViewModel.setMwebEnabled(value);
@@ -40,6 +40,14 @@ class MwebSettingsPage extends BasePage {
               SettingsCellWithArrow(
                 title: S.current.litecoin_mweb_scanning,
                 handler: (BuildContext context) => Navigator.of(context).pushNamed(Routes.rescan),
+              ),
+            SettingsCellWithArrow(
+                title: S.current.litecoin_mweb_logs,
+                handler: (BuildContext context) => Navigator.of(context).pushNamed(Routes.mwebLogs),
+              ),
+              SettingsCellWithArrow(
+                title: S.current.litecoin_mweb_node,
+                handler: (BuildContext context) => Navigator.of(context).pushNamed(Routes.mwebNode),
               ),
             ],
           ),

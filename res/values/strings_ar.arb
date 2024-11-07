@@ -295,6 +295,7 @@
   "expiresOn": "ﻲﻓ ﻪﺘﻴﺣﻼ﻿ﺻ ﻲﻬﺘﻨﺗ",
   "expiry_and_validity": "انتهاء الصلاحية والصلاحية",
   "export_backup": "تصدير نسخة احتياطية",
+  "export_logs": "سجلات التصدير",
   "extra_id": "معرف إضافي:",
   "extracted_address_content": "سوف ترسل الأموال إلى\n${recipient_name}",
   "failed_authentication": "${state_error} فشل المصادقة.",
@@ -371,7 +372,10 @@
   "litecoin_mweb_description": "MWEB هو بروتوكول جديد يجلب معاملات أسرع وأرخص وأكثر خصوصية إلى Litecoin",
   "litecoin_mweb_dismiss": "رفض",
   "litecoin_mweb_display_card": "عرض بطاقة mweb",
+  "litecoin_mweb_enable": "تمكين MWEB",
   "litecoin_mweb_enable_later": "يمكنك اختيار تمكين MWEB مرة أخرى ضمن إعدادات العرض.",
+  "litecoin_mweb_logs": "سجلات MWEB",
+  "litecoin_mweb_node": "عقدة MWEB",
   "litecoin_mweb_pegin": "ربط في",
   "litecoin_mweb_pegout": "ربط",
   "litecoin_mweb_scanning": "MWEB المسح الضوئي",
@@ -630,6 +634,7 @@
   "select_buy_provider_notice": "حدد مزود شراء أعلاه. يمكنك تخطي هذه الشاشة عن طريق تعيين مزود شراء الافتراضي في إعدادات التطبيق.",
   "select_destination": ".ﻲﻃﺎﻴﺘﺣﻻ﻿ﺍ ﺦﺴﻨﻟﺍ ﻒﻠﻣ ﺔﻬﺟﻭ ﺪﻳﺪﺤﺗ ءﺎﺟﺮﻟﺍ",
   "select_sell_provider_notice": ".ﻖﻴﺒﻄﺘﻟﺍ ﺕﺍﺩﺍﺪﻋﺇ ﻲﻓ ﻚﺑ ﺹﺎﺨﻟﺍ ﻲﺿﺍﺮﺘﻓﻻ﻿ﺍ ﻊﻴﺒﻟﺍ ﺩﻭﺰﻣ ﻦﻴﻴﻌﺗ ﻖﻳﺮﻃ ﻦﻋ ﺔﺷﺎﺸﻟﺍ ﻩﺬﻫ ﻲﻄﺨﺗ",
+  "select_your_country": "الرجاء تحديد بلدك",
   "sell": "بيع",
   "sell_alert_content": ".ﺎﻬﻴﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻭﺃ Litecoin ﻭﺃ Ethereum ﻭﺃ Bitcoin ﺔﻈﻔﺤﻣ ءﺎﺸﻧﺇ ﻰﺟﺮﻳ .Litecoin ﻭ",
   "sell_monero_com_alert_content": "بيع Monero غير مدعوم حتى الآن",
@@ -937,5 +942,6 @@
   "you_pay": "انت تدفع",
   "you_will_get": "حول الى",
   "you_will_send": "تحويل من",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "                   .ﻒﻠﺘﺨﻣ ﻢﺳﺍ ﺭﺎﻴﺘﺧﺍ ءﺎﺟﺮﻟﺍ .ﻞﻌﻔﻟﺎﺑ ﺓﺩﻮﺟﻮﻣ ﻢﺳﻻ﻿ﺍ ﺍﺬﻬﺑ ﻝﺎﺼﺗﺍ ﺔﻬﺟ"
 }
