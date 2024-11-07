@@ -4,7 +4,6 @@ import 'package:cake_wallet/src/screens/InfoPage.dart';
 import 'package:flutter/cupertino.dart';
 
 class Setup2FAInfoPage extends InfoPage {
-
   @override
   String get pageTitle => S.current.pre_seed_title;
 
@@ -15,6 +14,9 @@ class Setup2FAInfoPage extends InfoPage {
   String get buttonText => S.current.understand;
 
   @override
-  void Function(BuildContext) get onPressed => (BuildContext context) =>
-      Navigator.of(context).popAndPushNamed(Routes.setup_2faPage);
+  Key? get buttonKey => ValueKey('setup_2fa_info_page_button_key');
+
+  @override
+  void Function(BuildContext) get onPressed =>
+      (BuildContext context) => Navigator.of(context).popAndPushNamed(Routes.setup_2faPage);
 }

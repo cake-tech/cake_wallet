@@ -2,6 +2,7 @@
 
 import 'dart:math';
 
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -309,6 +310,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
     if (item is Currency) {
       itemName = item.name;
     } else if (item is TransactionPriority) {
+      itemName = item.title;
+    } else if (item is MoneroSeedType) {
       itemName = item.title;
     } else {
       itemName = '';

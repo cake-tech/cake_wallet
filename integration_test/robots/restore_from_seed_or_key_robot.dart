@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/widgets/validable_annotated_editable_text.dart';
@@ -68,6 +69,22 @@ class RestoreFromSeedOrKeysPageRobot {
 
     seedTextState.widget.controller.text = text;
     await tester.pumpAndSettle();
+  }
+
+  Future<void> enterBlockHeightForWalletRestore(String blockHeight) async {
+    await commonTestCases.enterText(
+      blockHeight,
+      'wallet_restore_from_seed_blockheight_textfield_key',
+    );
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> chooseSeedTypeForMoneroOrWowneroWallets(MoneroSeedType selectedType) async {
+    await commonTestCases.tapItemByKey('wallet_restore_from_seed_seedtype_picker_button_key');
+
+    await commonTestCases.defaultSleepTime();
+
+    await commonTestCases.tapItemByKey('picker_items_index_${selectedType.title}_button_key');
   }
 
   Future<void> onPasteSeedPhraseButtonPressed() async {
