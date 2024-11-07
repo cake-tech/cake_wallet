@@ -382,7 +382,7 @@ abstract class BalanceViewModelBase with Store {
 
   bool _hasSecondAdditionalBalanceForWalletType(WalletType type) {
     if (wallet.type == WalletType.litecoin) {
-      if ((wallet.balance[CryptoCurrency.ltc]?.secondAdditional ?? 0) > 0) {
+      if ((wallet.balance[CryptoCurrency.ltc]?.secondAdditional ?? 0) != 0) {
         return true;
       }
     }

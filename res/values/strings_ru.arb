@@ -295,6 +295,7 @@
   "expiresOn": "Годен до",
   "expiry_and_validity": "Истечение и достоверность",
   "export_backup": "Экспорт резервной копии",
+  "export_logs": "Экспортные журналы",
   "extra_id": "Дополнительный ID:",
   "extracted_address_content": "Вы будете отправлять средства\n${recipient_name}",
   "failed_authentication": "Ошибка аутентификации. ${state_error}",
@@ -371,7 +372,10 @@
   "litecoin_mweb_description": "MWEB - это новый протокол, который приносит быстрее, дешевле и более частные транзакции в Litecoin",
   "litecoin_mweb_dismiss": "Увольнять",
   "litecoin_mweb_display_card": "Показать карту MWEB",
+  "litecoin_mweb_enable": "Включить MWEB",
   "litecoin_mweb_enable_later": "Вы можете снова включить MWEB в настройках отображения.",
+  "litecoin_mweb_logs": "MWEB журналы",
+  "litecoin_mweb_node": "Узел MWEB",
   "litecoin_mweb_pegin": "Внедрять",
   "litecoin_mweb_pegout": "Выкрикивать",
   "litecoin_mweb_scanning": "MWEB сканирование",
@@ -631,6 +635,7 @@
   "select_buy_provider_notice": "Выберите поставщика покупки выше. Вы можете пропустить этот экран, установив поставщика покупки по умолчанию в настройках приложения.",
   "select_destination": "Пожалуйста, выберите место для файла резервной копии.",
   "select_sell_provider_notice": "Выберите поставщика услуг продажи выше. Вы можете пропустить этот экран, установив поставщика услуг продаж по умолчанию в настройках приложения.",
+  "select_your_country": "Пожалуйста, выберите свою страну",
   "sell": "Продавать",
   "sell_alert_content": "В настоящее время мы поддерживаем только продажу биткойнов, эфириума и лайткойна. Пожалуйста, создайте или переключитесь на свой кошелек Bitcoin, Ethereum или Litecoin.",
   "sell_monero_com_alert_content": "Продажа Monero пока не поддерживается",
@@ -938,5 +943,6 @@
   "you_pay": "Вы платите",
   "you_will_get": "Конвертировать в",
   "you_will_send": "Конвертировать из",
-  "yy": "ГГ"
+  "yy": "ГГ",
+  "contact_name_exists": "Контакт с таким именем уже существует. Пожалуйста, выберите другое имя."
 }

@@ -79,6 +79,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(9)
   bool? supportsSilentPayments;
 
+  @HiveField(10)
+  bool? supportsMweb;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
