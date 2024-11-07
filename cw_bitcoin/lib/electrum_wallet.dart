@@ -779,7 +779,6 @@ abstract class ElectrumWalletBase
         memo: memo,
         spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
         spendsSilentPayment: utxoDetails.spendsSilentPayment,
-        coinTypeToSpendFrom: coinTypeToSpendFrom,
       );
     }
   }

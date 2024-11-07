@@ -29,7 +29,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   @observable
-  late final SilentPaymentOwner silentPaymentWallet;
+  late SilentPaymentOwner silentPaymentWallet;
   final ObservableList<BitcoinSilentPaymentAddressRecord> silentPaymentAddresses;
   final ObservableList<BitcoinReceivedSPAddressRecord> receivedSPAddresses;
 
