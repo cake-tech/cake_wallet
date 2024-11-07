@@ -312,9 +312,9 @@ class DFXBuyProvider extends BuyProvider {
       final uri = Uri.https('services.dfx.swiss', actionType, {
         'session': accessToken,
         'lang': 'en',
-        'asset-out': quote.cryptoCurrency.toString(),
+        'asset-out': isBuyAction ? quote.cryptoCurrency.toString() : quote.fiatCurrency.toString(),
         'blockchain': blockchain,
-        'asset-in': quote.fiatCurrency.toString(),
+        'asset-in': isBuyAction ? quote.fiatCurrency.toString() : quote.cryptoCurrency.toString(),
         'amount': amount.toString() //TODO: Amount does not work
       });
 

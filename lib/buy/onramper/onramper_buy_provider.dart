@@ -209,18 +209,15 @@ class OnRamperBuyProvider extends BuyProvider {
       cardColor = getColorStr(Colors.white);
     }
 
-    final defaultFiat = isBuyAction ? quote.fiatCurrency.name : quote.cryptoCurrency.name;
-    final defaultCrypto = isBuyAction
-        ? _getNormalizeCryptoCurrency(quote.cryptoCurrency)
-        : _getNormalizeCryptoCurrency(quote.fiatCurrency);
+    final defaultCrypto = _getNormalizeCryptoCurrency(quote.cryptoCurrency);
 
     final paymentMethod = normalizePaymentMethod(quote.paymentType);
 
     final uri = Uri.https(_baseUrl, '', {
       'apiKey': _apiKey,
       'mode': actionType,
-      '${prefix}defaultFiat': defaultFiat,
-      '${prefix}defaultCrypto': defaultCrypto,
+      '${prefix}defaultFiat': quote.fiatCurrency.name,
+      '${prefix}defaultCrypto': quote.cryptoCurrency.name,
       '${prefix}defaultAmount': amount.toString(),
       if (paymentMethod != null) '${prefix}defaultPaymentMethod': paymentMethod,
       'onlyOnramps': quote.rampId,
