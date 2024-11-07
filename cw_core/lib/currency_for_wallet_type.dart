@@ -36,7 +36,7 @@ CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
   }
 }
 
-WalletType walletTypeForCurrency(CryptoCurrency currency) {
+WalletType? walletTypeForCurrency(CryptoCurrency currency) {
   switch (currency) {
     case CryptoCurrency.btc:
       return WalletType.bitcoin;
@@ -62,7 +62,7 @@ WalletType walletTypeForCurrency(CryptoCurrency currency) {
       return WalletType.tron;
     case CryptoCurrency.wow:
       return WalletType.wownero;
+    default:
+      return null;
   }
-  throw Exception(
-      'Unexpected currency: ${currency.toString()} in walletTypeForCurrency');
 }

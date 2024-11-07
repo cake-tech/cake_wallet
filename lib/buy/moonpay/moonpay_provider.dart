@@ -221,7 +221,6 @@ class MoonPayProvider extends BuyProvider {
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
-    final currency = (isBuyAction ? quote.cryptoCurrency : quote.fiatCurrency).name;
 
     final Map<String, String> params = {
       'theme': themeToMoonPayTheme(_settingsStore.currentTheme),
@@ -247,7 +246,6 @@ class MoonPayProvider extends BuyProvider {
     try {
       {
         final uri = await requestMoonPayUrl(
-            currency: currency,
             walletAddress: cryptoCurrencyAddress,
             settingsStore: _settingsStore,
             isBuyAction: isBuyAction,
@@ -278,7 +276,6 @@ class MoonPayProvider extends BuyProvider {
   }
 
   Future<Uri> requestMoonPayUrl({
-    required String currency,
     required String walletAddress,
     required SettingsStore settingsStore,
     required bool isBuyAction,

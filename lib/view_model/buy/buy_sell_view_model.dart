@@ -62,7 +62,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   List<BuyProvider> get availableBuyProviders {
     final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(
-        walletTypeForCurrency(cryptoCurrency));
+        walletTypeForCurrency(cryptoCurrency) ?? wallet.type);
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
@@ -72,7 +72,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   List<BuyProvider> get availableSellProviders {
     final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(
-        walletTypeForCurrency(cryptoCurrency));
+        walletTypeForCurrency(cryptoCurrency) ?? wallet.type);
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
