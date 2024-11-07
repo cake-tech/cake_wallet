@@ -161,18 +161,56 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
   Widget _buildWalletContacts(BuildContext context) {
     final walletContacts = widget.contactListViewModel.walletContactsToShow;
 
+    final groupedContacts = <String, List<ContactBase>>{};
+    for (var contact in walletContacts) {
+      final baseName = _extractBaseName(contact.name);
+      groupedContacts.putIfAbsent(baseName, () => []).add(contact);
+    }
+
     return ListView.builder(
-      shrinkWrap: true,
-      itemCount: walletContacts.length * 2,
+      itemCount: groupedContacts.length * 2,
       itemBuilder: (context, index) {
         if (index.isOdd) {
           return StandardListSeparator();
         } else {
-          final walletInfo = walletContacts[index ~/ 2];
-          return generateRaw(context, walletInfo);
+          final groupIndex = index ~/ 2;
+          final groupName = groupedContacts.keys.elementAt(groupIndex);
+          final groupContacts = groupedContacts[groupName]!;
+
+          if (groupContacts.length == 1) {
+            final contact = groupContacts[0];
+            return generateRaw(context, contact);
+          } else {
+            final activeContact = groupContacts.firstWhere(
+              (contact) => contact.name.contains('Active'),
+              orElse: () => groupContacts[0],
+            );
+
+            return ExpansionTile(
+              title: Text(
+                groupName,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                ),
+              ),
+              leading: _buildCurrencyIcon(activeContact),
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: const EdgeInsets.only(left: 16),
+              expandedCrossAxisAlignment: CrossAxisAlignment.start,
+              expandedAlignment: Alignment.topLeft,
+              children: groupContacts.map((contact) => generateRaw(context, contact)).toList(),
+            );
+          }
         }
       },
     );
+  }
+
+  String _extractBaseName(String name) {
+    final bracketIndex = name.indexOf('(');
+    return (bracketIndex != -1) ? name.substring(0, bracketIndex).trim() : name;
   }
 
   Widget generateRaw(BuildContext context, ContactBase contact) {
@@ -189,7 +227,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
 
         if (isCopied) {
           await Clipboard.setData(ClipboardData(text: contact.address));
-          await showBar<void>(context, S.of(context).copied_to_clipboard);
+          await showBar<void>(context, 'Copied to clipboard');
         }
       },
       behavior: HitTestBehavior.opaque,
@@ -231,8 +269,8 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
               return AlertWithTwoActions(
                   alertTitle: name,
                   alertContent: address,
-                  rightButtonText: S.of(context).copy,
-                  leftButtonText: S.of(context).cancel,
+                  rightButtonText: 'Copy',
+                  leftButtonText: 'Cancel',
                   actionRightButton: () => Navigator.of(context).pop(true),
                   actionLeftButton: () => Navigator.of(context).pop(false));
             }) ??
