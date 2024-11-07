@@ -217,6 +217,13 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
     );
   }
 
+  Widget _buildCurrencyIcon(ContactBase contact) {
+    final image = contact.type.iconPath;
+    return image != null
+        ? Image.asset(image, height: 24, width: 24)
+        : const SizedBox(height: 24, width: 24);
+  }
+
   Future<bool> showNameAndAddressDialog(BuildContext context, String name, String address) async {
     return await showPopUp<bool>(
             context: context,
@@ -244,7 +251,6 @@ class ContactListBody extends StatefulWidget {
 }
 
 class _ContactListBodyState extends State<ContactListBody> {
-
   bool _isContactsTabActive = false;
 
   @override
@@ -268,7 +274,7 @@ class _ContactListBodyState extends State<ContactListBody> {
 
   @override
   Widget build(BuildContext context) {
-    final contacts = widget.contactListViewModel.contacts;
+    final contacts = widget.contactListViewModel.contactsToShow;
     return Scaffold(
       body: Container(
         child: FilteredList(
@@ -450,3 +456,4 @@ class _ContactListBodyState extends State<ContactListBody> {
             }) ??
         false;
   }
+}
