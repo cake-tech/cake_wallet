@@ -119,7 +119,8 @@ jobs:
         id: cache-keystore
         uses: actions/cache@v3
         with:
-          path: /opt/android/cake_wallet/cw_haven/android/app/key.jks
+          path: |
+            /opt/android/cake_wallet/cw_haven/android/app/key.jks
           key: ${{ $STORE_PASS $KEY_PASS }}
 
       - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
