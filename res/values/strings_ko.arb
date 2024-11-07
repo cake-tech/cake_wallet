@@ -939,5 +939,6 @@
   "you_will_get": "로 변환하다",
   "you_will_send": "다음에서 변환",
   "YY": "YY",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "해당 이름을 가진 연락처가 이미 존재합니다. 다른 이름을 선택하세요."
 }

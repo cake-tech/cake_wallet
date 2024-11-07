@@ -938,5 +938,6 @@
   "you_pay": "U betaalt",
   "you_will_get": "Converteren naar",
   "you_will_send": "Converteren van",
-  "yy": "JJ"
+  "yy": "JJ",
+  "contact_name_exists": "Er bestaat al een contact met die naam. Kies een andere naam."
 }
