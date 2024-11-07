@@ -18,6 +18,7 @@ import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ContactListPage extends BasePage {
@@ -77,103 +78,101 @@ class ContactListPage extends BasePage {
   }
 
   @override
-  Widget body(BuildContext context) {
-    double maxWalletListHeight = MediaQuery.of(context).size.height / 3;
-    final walletContacts = contactListViewModel.walletContactsToShow;
-    return Container(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            buildTitle(title: S.of(context).contact_list_wallets, topPadding: 0.0),
-            StandardListSeparator(),
-            generateGroupedWalletList(context, maxWalletListHeight, walletContacts),
-            buildTitle(
-                title: S.of(context).contact_list_contacts,
-                trailingFilterButton:
-                    contactListViewModel.isEditable ? trailingFilterButtonWidget(context) : null),
-            Expanded(
-              child: ContactListBody(contactListViewModel: contactListViewModel),
-            ),
-          ],
-        ));
+  Widget body(BuildContext context) => ContactPageBody(contactListViewModel: contactListViewModel);
+}
+
+class ContactPageBody extends StatefulWidget {
+  const ContactPageBody({required this.contactListViewModel});
+
+  final ContactListViewModel contactListViewModel;
+
+  @override
+  State<ContactPageBody> createState() => _ContactPageBodyState();
+}
+
+class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
   }
 
-  Widget generateGroupedWalletList(
-      BuildContext context, double maxWalletListHeight, List<ContactBase> walletContacts) {
-    final groupedContacts = <String, List<ContactBase>>{};
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
-    for (var contact in walletContacts) {
-      final baseName = _extractBaseName(contact.name);
-      if (!groupedContacts.containsKey(baseName)) {
-        groupedContacts[baseName] = [];
-      }
-      groupedContacts[baseName]!.add(contact);
-    }
-
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: maxWalletListHeight),
-      child: ListView.separated(
-        shrinkWrap: true,
-        itemCount: groupedContacts.length,
-        itemBuilder: (context, index) {
-          final groupName = groupedContacts.keys.elementAt(index);
-          final groupContacts = groupedContacts[groupName]!;
-
-          if (groupContacts.length == 1) {
-            final contact = groupContacts[0];
-            return generateRaw(context, contact);
-          } else {
-            return Theme(
-              data: Theme.of(context).copyWith(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  hoverColor: Colors.transparent,
-                  dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                title: Text(groupName,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                    )),
-                tilePadding: EdgeInsets.zero,
-                childrenPadding: const EdgeInsets.only(left: 16),
-                expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                expandedAlignment: Alignment.topLeft,
-                leading: _buildCurrencyIcon(groupContacts[0]),
-                children: groupContacts.map((contact) => generateRaw(context, contact)).toList(),
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 24),
+      child: Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TabBar(
+              controller: _tabController,
+              splashFactory: NoSplash.splashFactory,
+              indicatorSize: TabBarIndicatorSize.label,
+              isScrollable: true,
+              labelStyle: TextStyle(
+                fontSize: 18,
+                fontFamily: 'Lato',
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).appBarTheme.titleTextStyle!.color,
               ),
-            );
-          }
-        },
-        separatorBuilder: (_, __) => StandardListSeparator(),
+              unselectedLabelStyle: TextStyle(
+                  fontSize: 18,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).appBarTheme.titleTextStyle!.color?.withOpacity(0.5)),
+              labelColor: Theme.of(context).appBarTheme.titleTextStyle!.color,
+              indicatorColor: Theme.of(context).appBarTheme.titleTextStyle!.color,
+              indicatorPadding: EdgeInsets.zero,
+              labelPadding: EdgeInsets.only(right: 24),
+              tabAlignment: TabAlignment.center,
+              dividerColor: Colors.transparent,
+              padding: EdgeInsets.zero,
+              tabs: [
+                Tab(text: S.of(context).wallets),
+                Tab(text: S.of(context).contact_list_contacts),
+              ],
+            ),
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildWalletContacts(context),
+                ContactListBody(
+                    contactListViewModel: widget.contactListViewModel,
+                    tabController: _tabController),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  String _extractBaseName(String name) {
-    final bracketIndex = name.indexOf('(');
-    if (bracketIndex != -1) {
-      return name.substring(0, bracketIndex).trim();
-    }
-    return name;
-  }
+  Widget _buildWalletContacts(BuildContext context) {
+    final walletContacts = widget.contactListViewModel.walletContactsToShow;
 
-  Widget _buildCurrencyIcon(ContactBase contact) {
-    final image = contact.type.iconPath;
-    return image != null
-        ? Image.asset(image, height: 24, width: 24)
-        : const SizedBox(height: 24, width: 24);
-  }
-
-  Widget buildTitle(
-      {required String title, Widget? trailingFilterButton, double topPadding = 20.0}) {
-    return Container(
-        padding: EdgeInsets.only(top: topPadding, bottom: 5.0),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(title, style: TextStyle(fontSize: 36)),
-          trailingFilterButton ?? Container()
-        ]));
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: walletContacts.length * 2,
+      itemBuilder: (context, index) {
+        if (index.isOdd) {
+          return StandardListSeparator();
+        } else {
+          final walletInfo = walletContacts[index ~/ 2];
+          return generateRaw(context, walletInfo);
+        }
+      },
+    );
   }
 
   Widget generateRaw(BuildContext context, ContactBase contact) {
@@ -181,7 +180,7 @@ class ContactListPage extends BasePage {
 
     return GestureDetector(
       onTap: () async {
-        if (!contactListViewModel.isEditable) {
+        if (!widget.contactListViewModel.isEditable) {
           Navigator.of(context).pop(contact);
           return;
         }
@@ -211,7 +210,7 @@ class ContactListPage extends BasePage {
                   color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -232,108 +231,85 @@ class ContactListPage extends BasePage {
             }) ??
         false;
   }
-
-  Widget trailingFilterButtonWidget(BuildContext context) {
-    final filterIcon = Image.asset('assets/images/filter_icon.png',
-        color: Theme.of(context).extension<FilterTheme>()!.iconColor);
-    return MergeSemantics(
-      child: SizedBox(
-        height: 37,
-        width: 37,
-        child: ButtonTheme(
-          minWidth: double.minPositive,
-          child: Semantics(
-            container: true,
-            child: GestureDetector(
-              onTap: () async {
-                await showPopUp<void>(
-                  context: context,
-                  builder: (context) => FilterListWidget(
-                    initalType: contactListViewModel.orderType,
-                    initalAscending: contactListViewModel.ascending,
-                    onClose: (bool ascending, FilterListOrderType type) async {
-                      contactListViewModel.setAscending(ascending);
-                      await contactListViewModel.setOrderType(type);
-                    },
-                  ),
-                );
-              },
-              child: Semantics(
-                label: 'Transaction Filter',
-                button: true,
-                enabled: true,
-                child: Container(
-                  height: 36,
-                  width: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
-                  ),
-                  child: filterIcon,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class ContactListBody extends StatefulWidget {
-  ContactListBody({required this.contactListViewModel});
+  ContactListBody({required this.contactListViewModel, required this.tabController});
 
   final ContactListViewModel contactListViewModel;
+  final TabController tabController;
 
   @override
   State<ContactListBody> createState() => _ContactListBodyState();
 }
 
 class _ContactListBodyState extends State<ContactListBody> {
+
+  bool _isContactsTabActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.tabController.addListener(_handleTabChange);
+  }
+
+  void _handleTabChange() {
+    setState(() {
+      _isContactsTabActive = widget.tabController.index == 1;
+    });
+  }
+
   @override
   void dispose() {
+    widget.tabController.removeListener(_handleTabChange);
     widget.contactListViewModel.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final contacts = widget.contactListViewModel.contactsToShow;
-    return Container(
+    final contacts = widget.contactListViewModel.contacts;
+    return Scaffold(
+      body: Container(
         child: FilteredList(
-      list: contacts,
-      updateFunction: widget.contactListViewModel.reorderAccordingToContactList,
-      canReorder: widget.contactListViewModel.isEditable,
-      itemBuilder: (context, index) {
-        final contact = contacts[index];
-        final contactContent = generateContactRaw(context, contact, contacts.length == index + 1);
-        return GestureDetector(
-          key: Key('${contact.name}'),
-          onTap: () async {
-            if (!widget.contactListViewModel.isEditable) {
-              Navigator.of(context).pop(contact);
-              return;
-            }
+          list: contacts,
+          updateFunction: widget.contactListViewModel.reorderAccordingToContactList,
+          canReorder: widget.contactListViewModel.isEditable,
+          shrinkWrap: true,
+          itemBuilder: (context, index) {
+            final contact = contacts[index];
+            final contactContent =
+                generateContactRaw(context, contact, contacts.length == index + 1);
+            return GestureDetector(
+              key: Key('${contact.name}'),
+              onTap: () async {
+                if (!widget.contactListViewModel.isEditable) {
+                  Navigator.of(context).pop(contact);
+                  return;
+                }
 
-            final isCopied = await showNameAndAddressDialog(context, contact.name, contact.address);
+                final isCopied =
+                    await showNameAndAddressDialog(context, contact.name, contact.address);
 
-            if (isCopied) {
-              await Clipboard.setData(ClipboardData(text: contact.address));
-              await showBar<void>(context, S.of(context).copied_to_clipboard);
-            }
+                if (isCopied) {
+                  await Clipboard.setData(ClipboardData(text: contact.address));
+                  await showBar<void>(context, S.of(context).copied_to_clipboard);
+                }
+              },
+              behavior: HitTestBehavior.opaque,
+              child: widget.contactListViewModel.isEditable
+                  ? Slidable(
+                      key: Key('${contact.key}'),
+                      endActionPane: _actionPane(context, contact),
+                      child: contactContent)
+                  : contactContent,
+            );
           },
-          behavior: HitTestBehavior.opaque,
-          child: SingleChildScrollView(
-            child: widget.contactListViewModel.isEditable
-                ? Slidable(
-                    key: Key('${contact.key}'),
-                    endActionPane: _actionPane(context, contact),
-                    child: contactContent)
-                : contactContent,
-          ),
-        );
-      },
-    ));
+        ),
+      ),
+      floatingActionButton:
+          _isContactsTabActive ? filterButtonWidget(context, widget.contactListViewModel) : null,
+    );
   }
 
   Widget generateContactRaw(BuildContext context, ContactRecord contact, bool isLast) {
@@ -343,7 +319,6 @@ class _ContactListBodyState extends State<ContactListBody> {
         : const SizedBox(height: 24, width: 24);
     return Column(
       children: [
-        StandardListSeparator(),
         Container(
           key: Key('${contact.name}'),
           padding: const EdgeInsets.only(top: 16, bottom: 16, right: 24),
@@ -367,7 +342,7 @@ class _ContactListBodyState extends State<ContactListBody> {
             ],
           ),
         ),
-        if (isLast) StandardListSeparator(),
+        StandardListSeparator()
       ],
     );
   }
@@ -400,6 +375,52 @@ class _ContactListBodyState extends State<ContactListBody> {
         ],
       );
 
+  Widget filterButtonWidget(BuildContext context, ContactListViewModel contactListViewModel) {
+    final filterIcon = Image.asset('assets/images/filter_icon.png',
+        color: Theme.of(context).appBarTheme.titleTextStyle!.color);
+    return MergeSemantics(
+      child: SizedBox(
+        height: 58,
+        width: 58,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            container: true,
+            child: GestureDetector(
+              onTap: () async {
+                await showPopUp<void>(
+                  context: context,
+                  builder: (context) => FilterListWidget(
+                    initalType: contactListViewModel.orderType,
+                    initalAscending: contactListViewModel.ascending,
+                    onClose: (bool ascending, FilterListOrderType type) async {
+                      contactListViewModel.setAscending(ascending);
+                      await contactListViewModel.setOrderType(type);
+                    },
+                  ),
+                );
+              },
+              child: Semantics(
+                label: 'Transaction Filter',
+                button: true,
+                enabled: true,
+                child: Container(
+                  height: 36,
+                  width: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor,
+                  ),
+                  child: filterIcon,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<bool> showAlertDialog(BuildContext context) async {
     return await showPopUp<bool>(
             context: context,
@@ -429,4 +450,3 @@ class _ContactListBodyState extends State<ContactListBody> {
             }) ??
         false;
   }
-}
