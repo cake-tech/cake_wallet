@@ -161,6 +161,7 @@
   "contact_list_contacts": "Kontak",
   "contact_list_wallets": "Dompet Saya",
   "contact_name": "Nama Kontak",
+  "contact_name_exists": "Kontak dengan nama tersebut sudah ada. Silakan pilih nama lain.",
   "contact_support": "Hubungi Dukungan",
   "continue_text": "Lanjutkan",
   "contract_warning": "Alamat kontrak ini telah ditandai sebagai berpotensi curang. Silakan memproses dengan hati -hati.",
@@ -703,6 +704,7 @@
   "show_keys": "Tampilkan seed/kunci",
   "show_market_place": "Tampilkan Pasar",
   "show_seed": "Tampilkan seed",
+  "show_sync_notifications": "Tunjukkan pemberitahuan sinkronisasi",
   "sign_message": "Pesan tanda",
   "sign_up": "Daftar",
   "sign_verify_message": "Tanda / verifikasi",
@@ -945,6 +947,5 @@
   "you_pay": "Anda Membayar",
   "you_will_get": "Konversi ke",
   "you_will_send": "Konversi dari",
-  "yy": "YY",
-  "contact_name_exists": "Kontak dengan nama tersebut sudah ada. Silakan pilih nama lain."
+  "yy": "YY"
 }

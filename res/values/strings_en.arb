@@ -161,6 +161,7 @@
   "contact_list_contacts": "Contacts",
   "contact_list_wallets": "My Wallets",
   "contact_name": "Contact Name",
+  "contact_name_exists": "A contact with that name already exists. Please choose a different name.",
   "contact_support": "Contact Support",
   "continue_text": "Continue",
   "contract_warning": "This contract address has been flagged as potentially fraudulent. Please process with caution.",
@@ -703,6 +704,7 @@
   "show_keys": "Show seed/keys",
   "show_market_place": "Show Marketplace",
   "show_seed": "Show seed",
+  "show_sync_notifications": "Show sync notifications",
   "sign_message": "Sign Message",
   "sign_up": "Sign Up",
   "sign_verify_message": "Sign / Verify",
@@ -945,6 +947,5 @@
   "you_pay": "You Pay",
   "you_will_get": "Convert to",
   "you_will_send": "Convert from",
-  "yy": "YY",
-  "contact_name_exists": "A contact with that name already exists. Please choose a different name."
+  "yy": "YY"
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/sync_status_title.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -38,7 +39,7 @@ const DELAY_SECONDS_BEFORE_SYNC_START = 15;
 const spNodeNotificationMessage =
     "Currently configured Bitcoin node does not support Silent Payments. skipping wallet";
 const SYNC_THRESHOLD = 0.98;
-const REFRESH_QUEUE_HOURS = 1;
+int REFRESH_QUEUE_HOURS = 1;
 
 void setMainNotification(
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, {
@@ -194,7 +195,9 @@ Future<void> onStart(ServiceInstance service) async {
         final firstWallet = litecoinWallets.first;
         final wallet = await walletLoadingService.load(firstWallet.type, firstWallet.name);
         await wallet.stopSync();
-        syncingWallets.add(wallet);
+        if (bitcoin!.getMwebEnabled(wallet)) {
+          syncingWallets.add(wallet);
+        }
       } catch (e) {
         // couldn't connect to mwebd (most likely)
         print("error syncing litecoin wallet: $e");
@@ -328,7 +331,7 @@ Future<void> onStart(ServiceInstance service) async {
 
     _queueTimer?.cancel();
     // add a timer that checks all wallets and adds them to the queue if they are less than SYNC_THRESHOLD synced:
-    _queueTimer = Timer.periodic(const Duration(hours: REFRESH_QUEUE_HOURS), (timer) async {
+    _queueTimer = Timer.periodic(Duration(hours: REFRESH_QUEUE_HOURS), (timer) async {
       for (int i = 0; i < standbyWallets.length; i++) {
         final wallet = standbyWallets[i];
         final syncStatus = wallet.syncStatus;
@@ -348,7 +351,7 @@ Future<void> onStart(ServiceInstance service) async {
     });
   
   
-        // setup a watch dog to restart the sync process if it gets stuck:
+    // setup a watch dog to restart the sync process if it gets stuck:
     List<double> lastFewProgresses = [];
     _stuckSyncTimer?.cancel();
     _stuckSyncTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
@@ -482,9 +485,6 @@ class BackgroundTasks {
       if (!settingsStore.silentPaymentsAlwaysScan) {
         hasBitcoin = false;
       }
-      if (!settingsStore.mwebAlwaysScan) {
-        hasLitecoin = false;
-      }
 
       /// if its not android nor ios, or the user has no monero wallets; exit
       if (!DeviceInfo.instance.isMobile || (!hasMonero && !hasLitecoin && !hasBitcoin)) {
@@ -504,6 +504,12 @@ class BackgroundTasks {
 
       if (syncMode.type == SyncType.disabled || !FeatureFlag.isBackgroundSyncEnabled) {
         return;
+      }
+
+      if (syncMode.type == SyncType.aggressive) {
+        REFRESH_QUEUE_HOURS = 3;
+      } else {
+        REFRESH_QUEUE_HOURS = 24;
       }
 
       await initializeService(bgService, useNotifications);

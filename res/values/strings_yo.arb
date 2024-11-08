@@ -161,6 +161,7 @@
   "contact_list_contacts": "Àwọn olùbásọ̀rọ̀",
   "contact_list_wallets": "Àwọn àpamọ́wọ́ mi",
   "contact_name": "Orúkọ olùbásọ̀rọ̀",
+  "contact_name_exists": "Olubasọrọ pẹlu orukọ yẹn ti wa tẹlẹ. Jọwọ yan orukọ ti o yatọ.",
   "contact_support": "Bá ìranlọ́wọ́ sọ̀rọ̀",
   "continue_text": "Tẹ̀síwájú",
   "contract_warning": "Adirẹsi adehun adehun yii ti samisi bi arekereke. Jọwọ ṣe ilana pẹlu iṣọra.",
@@ -701,6 +702,7 @@
   "show_keys": "Wo hóró / àwọn kọ́kọ́rọ́",
   "show_market_place": "Wa Sopọ Pataki",
   "show_seed": "Wo hóró",
+  "show_sync_notifications": "Fihan Awọn ifitonileti Ṣiṣẹpọ",
   "sign_message": "Ifiranṣẹ Ami",
   "sign_up": "Forúkọ sílẹ̀",
   "sign_verify_message": "Ami tabi ṣayẹwo ifiranṣẹ",
@@ -943,6 +945,5 @@
   "you_pay": "Ẹ sàn",
   "you_will_get": "Ṣe pàṣípààrọ̀ sí",
   "you_will_send": "Ṣe pàṣípààrọ̀ láti",
-  "yy": "Ọd",
-  "contact_name_exists": "Olubasọrọ pẹlu orukọ yẹn ti wa tẹlẹ. Jọwọ yan orukọ ti o yatọ."
+  "yy": "Ọd"
 }

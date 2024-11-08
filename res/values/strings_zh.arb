@@ -161,6 +161,7 @@
   "contact_list_contacts": "联系人",
   "contact_list_wallets": "我的钱包",
   "contact_name": "联系人姓名",
+  "contact_name_exists": "已存在具有该名称的联系人。请选择不同的名称。",
   "contact_support": "联系支持",
   "continue_text": "继续",
   "contract_warning": "该合同地址已被标记为潜在的欺诈性。请谨慎处理。",
@@ -700,6 +701,7 @@
   "show_keys": "显示种子/密钥",
   "show_market_place": "显示市场",
   "show_seed": "显示种子",
+  "show_sync_notifications": "显示同步通知",
   "sign_message": "标志消息",
   "sign_up": "注册",
   "sign_verify_message": "签名或验证消息",
@@ -942,6 +944,5 @@
   "you_pay": "你付钱",
   "you_will_get": "转换到",
   "you_will_send": "转换自",
-  "yy": "YY",
-  "contact_name_exists": "已存在具有该名称的联系人。请选择不同的名称。"
+  "yy": "YY"
 }

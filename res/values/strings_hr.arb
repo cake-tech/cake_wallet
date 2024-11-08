@@ -161,6 +161,7 @@
   "contact_list_contacts": "Kontakti",
   "contact_list_wallets": "Moji novčanici",
   "contact_name": "Ime kontakta",
+  "contact_name_exists": "Kontakt s tim imenom već postoji. Odaberite drugo ime.",
   "contact_support": "Kontaktirajte podršku",
   "continue_text": "Nastavak",
   "contract_warning": "Ova adresa ugovora označena je kao potencijalno lažna. Molimo obradite s oprezom.",
@@ -700,6 +701,7 @@
   "show_keys": "Prikaži pristupni izraz/ključ",
   "show_market_place": "Prikaži tržište",
   "show_seed": "Prikaži pristupni izraz",
+  "show_sync_notifications": "Prikaži obavijesti o sinkronizaciji",
   "sign_message": "Poruka",
   "sign_up": "Prijavite se",
   "sign_verify_message": "Potpisati / provjeriti",
@@ -942,6 +944,5 @@
   "you_pay": "Vi plaćate",
   "you_will_get": "Razmijeni u",
   "you_will_send": "Razmijeni iz",
-  "yy": "GG",
-  "contact_name_exists": "Kontakt s tim imenom već postoji. Odaberite drugo ime."
+  "yy": "GG"
 }

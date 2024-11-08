@@ -701,6 +701,7 @@
   "show_keys": "Seed/Schlüssel anzeigen",
   "show_market_place": "Marktplatz anzeigen",
   "show_seed": "Seed zeigen",
+  "show_sync_notifications": "Synchronisierungsbenachrichtigungen zeigen",
   "sign_message": "Nachricht unterschreiben",
   "sign_up": "Anmelden",
   "sign_verify_message": "Zeichen / überprüfen",

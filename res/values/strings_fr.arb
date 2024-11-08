@@ -161,6 +161,7 @@
   "contact_list_contacts": "Contacts",
   "contact_list_wallets": "Mes portefeuilles (wallets)",
   "contact_name": "Nom de Contact",
+  "contact_name_exists": "Un contact portant ce nom existe déjà. Veuillez choisir un autre nom.",
   "contact_support": "Contacter l'assistance",
   "continue_text": "Continuer",
   "contract_warning": "Cette adresse contractuelle a été signalée comme potentiellement frauduleuse. Veuillez traiter avec prudence.",
@@ -700,6 +701,7 @@
   "show_keys": "Visualiser la phrase secrète (seed) et les clefs",
   "show_market_place": "Afficher la place de marché",
   "show_seed": "Visualiser la phrase secrète (seed)",
+  "show_sync_notifications": "Afficher les notifications de synchronisation",
   "sign_message": "Signer le message",
   "sign_up": "S'inscrire",
   "sign_verify_message": "Signe / vérifier",
@@ -942,6 +944,5 @@
   "you_pay": "Vous payez",
   "you_will_get": "Convertir vers",
   "you_will_send": "Convertir depuis",
-  "yy": "AA",
-  "contact_name_exists": "Un contact portant ce nom existe déjà. Veuillez choisir un autre nom."
+  "yy": "AA"
 }

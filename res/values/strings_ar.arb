@@ -161,6 +161,7 @@
   "contact_list_contacts": "جهات الاتصال",
   "contact_list_wallets": "محافظ",
   "contact_name": "اسم جهة الاتصال",
+  "contact_name_exists": "                   .ﻒﻠﺘﺨﻣ ﻢﺳﺍ ﺭﺎﻴﺘﺧﺍ ءﺎﺟﺮﻟﺍ .ﻞﻌﻔﻟﺎﺑ ﺓﺩﻮﺟﻮﻣ ﻢﺳﻻ﻿ﺍ ﺍﺬﻬﺑ ﻝﺎﺼﺗﺍ ﺔﻬﺟ",
   "contact_support": "اتصل بالدعم",
   "continue_text": "التالي",
   "contract_warning": "تم وضع علامة على عنوان العقد هذا على أنه احتيالي محتمل. يرجى المعالجة بحذر.",
@@ -700,6 +701,7 @@
   "show_keys": "اظهار السييد / المفاتيح",
   "show_market_place": "إظهار السوق",
   "show_seed": "عرض السييد",
+  "show_sync_notifications": "إظهار إشعارات المزامنة",
   "sign_message": "تسجيل رسالة",
   "sign_up": "اشتراك",
   "sign_verify_message": "تسجيل / تحقق",
@@ -942,6 +944,5 @@
   "you_pay": "انت تدفع",
   "you_will_get": "حول الى",
   "you_will_send": "تحويل من",
-  "yy": "YY",
-  "contact_name_exists": "                   .ﻒﻠﺘﺨﻣ ﻢﺳﺍ ﺭﺎﻴﺘﺧﺍ ءﺎﺟﺮﻟﺍ .ﻞﻌﻔﻟﺎﺑ ﺓﺩﻮﺟﻮﻣ ﻢﺳﻻ﻿ﺍ ﺍﺬﻬﺑ ﻝﺎﺼﺗﺍ ﺔﻬﺟ"
+  "yy": "YY"
 }

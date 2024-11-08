@@ -161,6 +161,7 @@
   "contact_list_contacts": "Lambobin sadarwa",
   "contact_list_wallets": "Wallets dina",
   "contact_name": "Sunan Tuntuɓi",
+  "contact_name_exists": "An riga an sami lamba tare da wannan sunan. Da fatan za a zaɓi suna daban.",
   "contact_support": "Tuntuɓi Support",
   "continue_text": "Ci gaba",
   "contract_warning": "An kafa wannan adireshin kwantaragin kwangilar yayin da yuwuwar zamba. Da fatan za a aiwatar da taka tsantsan.",
@@ -702,6 +703,7 @@
   "show_keys": "Nuna iri/maɓallai",
   "show_market_place": "Nuna dan kasuwa",
   "show_seed": "Nuna iri",
+  "show_sync_notifications": "Nuna sanarwar sanarwa",
   "sign_message": "Sa hannu",
   "sign_up": "Shiga",
   "sign_verify_message": "Sa hannu / Tabbatar",
@@ -944,6 +946,5 @@
   "you_pay": "Ka Bayar",
   "you_will_get": "Maida zuwa",
   "you_will_send": "Maida daga",
-  "yy": "YY",
-  "contact_name_exists": "An riga an sami lamba tare da wannan sunan. Da fatan za a zaɓi suna daban."
+  "yy": "YY"
 }

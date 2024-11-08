@@ -700,6 +700,7 @@
   "show_keys": "Ipakita ang mga seed/key",
   "show_market_place": "Ipakita ang Marketplace",
   "show_seed": "Ipakita ang seed",
+  "show_sync_notifications": "Ipakita ang mga abiso sa pag -sync",
   "sign_message": "Mag -sign Message",
   "sign_up": "Mag-sign Up",
   "sign_verify_message": "Mag -sign o i -verify ang mensahe",

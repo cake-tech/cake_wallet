@@ -161,6 +161,7 @@
   "contact_list_contacts": "連絡先",
   "contact_list_wallets": "マイウォレット",
   "contact_name": "連絡先",
+  "contact_name_exists": "その名前の連絡先はすでに存在します。別の名前を選択してください。",
   "contact_support": "サポートに連絡する",
   "continue_text": "持続する",
   "contract_warning": "この契約住所は、潜在的に不正としてフラグが立てられています。注意して処理してください。",
@@ -701,6 +702,7 @@
   "show_keys": "シード/キーを表示する",
   "show_market_place": "マーケットプレイスを表示",
   "show_seed": "シードを表示",
+  "show_sync_notifications": "同期通知を表示します",
   "sign_message": "署名メッセージ",
   "sign_up": "サインアップ",
   "sign_verify_message": "署名 /検証",
@@ -943,6 +945,5 @@
   "you_pay": "あなたが支払う",
   "you_will_get": "に変換",
   "you_will_send": "から変換",
-  "yy": "YY",
-  "contact_name_exists": "その名前の連絡先はすでに存在します。別の名前を選択してください。"
+  "yy": "YY"
 }

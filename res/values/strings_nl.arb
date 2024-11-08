@@ -161,6 +161,7 @@
   "contact_list_contacts": "Contacten",
   "contact_list_wallets": "Mijn portefeuilles",
   "contact_name": "Contactnaam",
+  "contact_name_exists": "Er bestaat al een contact met die naam. Kies een andere naam.",
   "contact_support": "Contact opnemen met ondersteuning",
   "continue_text": "Doorgaan met",
   "contract_warning": "Dit contractadres is gemarkeerd als mogelijk frauduleus. Verwerk met voorzichtigheid.",
@@ -700,6 +701,7 @@
   "show_keys": "Toon zaad/sleutels",
   "show_market_place": "Toon Marktplaats",
   "show_seed": "Toon zaad",
+  "show_sync_notifications": "Toon sync -meldingen",
   "sign_message": "Aanmeldingsbericht",
   "sign_up": "Aanmelden",
   "sign_verify_message": "Teken of verifieer bericht",
@@ -943,6 +945,5 @@
   "you_pay": "U betaalt",
   "you_will_get": "Converteren naar",
   "you_will_send": "Converteren van",
-  "yy": "JJ",
-  "contact_name_exists": "Er bestaat al een contact met die naam. Kies een andere naam."
+  "yy": "JJ"
 }

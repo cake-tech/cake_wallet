@@ -162,6 +162,7 @@
   "contact_list_contacts": "Contatti",
   "contact_list_wallets": "I miei portafogli",
   "contact_name": "Nome Contatto",
+  "contact_name_exists": "Esiste già un contatto con quel nome. Scegli un nome diverso.",
   "contact_support": "Contatta l'assistenza",
   "continue_text": "Continua",
   "contract_warning": "Questo indirizzo del contratto è stato contrassegnato come potenzialmente fraudolento. Si prega di elaborare con cautela.",
@@ -702,6 +703,7 @@
   "show_keys": "Mostra seme/chiavi",
   "show_market_place": "Mostra mercato",
   "show_seed": "Mostra seme",
+  "show_sync_notifications": "Mostra le notifiche di sincronizzazione",
   "sign_message": "Messaggio di firma",
   "sign_up": "Registrati",
   "sign_verify_message": "Firmare / verificare",
@@ -945,6 +947,5 @@
   "you_pay": "Tu paghi",
   "you_will_get": "Converti a",
   "you_will_send": "Conveti da",
-  "yy": "YY",
-  "contact_name_exists": "Esiste già un contatto con quel nome. Scegli un nome diverso."
+  "yy": "YY"
 }

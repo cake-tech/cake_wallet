@@ -161,6 +161,7 @@
   "contact_list_contacts": "Łączność",
   "contact_list_wallets": "Moje portfele",
   "contact_name": "Nazwa Kontaktu",
+  "contact_name_exists": "Kontakt o tej nazwie już istnieje. Proszę wybrać inną nazwę.",
   "contact_support": "Skontaktuj się z pomocą techniczną",
   "continue_text": "Dalej",
   "contract_warning": "Ten adres umowy został oznaczony jako potencjalnie nieuczciwy. Prosimy o ostrożność.",
@@ -700,6 +701,7 @@
   "show_keys": "Pokaż seed/klucze",
   "show_market_place": "Pokaż rynek",
   "show_seed": "Pokaż frazy seed",
+  "show_sync_notifications": "Pokaż powiadomienia synchronizacji",
   "sign_message": "Podpisuj wiadomość",
   "sign_up": "Zarejestruj się",
   "sign_verify_message": "Podpisz lub zweryfikuj wiadomość",
@@ -942,6 +944,5 @@
   "you_pay": "Płacisz",
   "you_will_get": "Konwertuj na",
   "you_will_send": "Konwertuj z",
-  "yy": "RR",
-  "contact_name_exists": "Kontakt o tej nazwie już istnieje. Proszę wybrać inną nazwę."
+  "yy": "RR"
 }
