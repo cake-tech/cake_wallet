@@ -90,6 +90,7 @@ jobs:
           cd /opt/android/cake_wallet/scripts/android/
           source ./app_env.sh cakewallet
           ./build_monero_all.sh
+          rm -rf ../monero_c/{monero,wownero,zano}/contrib/depends
 
       - name: Install Flutter dependencies
         run: |
