@@ -634,6 +634,7 @@
   "select_buy_provider_notice": "حدد مزود شراء أعلاه. يمكنك تخطي هذه الشاشة عن طريق تعيين مزود شراء الافتراضي في إعدادات التطبيق.",
   "select_destination": ".ﻲﻃﺎﻴﺘﺣﻻ﻿ﺍ ﺦﺴﻨﻟﺍ ﻒﻠﻣ ﺔﻬﺟﻭ ﺪﻳﺪﺤﺗ ءﺎﺟﺮﻟﺍ",
   "select_sell_provider_notice": ".ﻖﻴﺒﻄﺘﻟﺍ ﺕﺍﺩﺍﺪﻋﺇ ﻲﻓ ﻚﺑ ﺹﺎﺨﻟﺍ ﻲﺿﺍﺮﺘﻓﻻ﻿ﺍ ﻊﻴﺒﻟﺍ ﺩﻭﺰﻣ ﻦﻴﻴﻌﺗ ﻖﻳﺮﻃ ﻦﻋ ﺔﺷﺎﺸﻟﺍ ﻩﺬﻫ ﻲﻄﺨﺗ",
+  "select_your_country": "الرجاء تحديد بلدك",
   "sell": "بيع",
   "sell_alert_content": ".ﺎﻬﻴﻟﺇ ﻞﻳﺪﺒﺘﻟﺍ ﻭﺃ Litecoin ﻭﺃ Ethereum ﻭﺃ Bitcoin ﺔﻈﻔﺤﻣ ءﺎﺸﻧﺇ ﻰﺟﺮﻳ .Litecoin ﻭ",
   "sell_monero_com_alert_content": "بيع Monero غير مدعوم حتى الآن",
@@ -941,5 +942,6 @@
   "you_pay": "انت تدفع",
   "you_will_get": "حول الى",
   "you_will_send": "تحويل من",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "                   .ﻒﻠﺘﺨﻣ ﻢﺳﺍ ﺭﺎﻴﺘﺧﺍ ءﺎﺟﺮﻟﺍ .ﻞﻌﻔﻟﺎﺑ ﺓﺩﻮﺟﻮﻣ ﻢﺳﻻ﻿ﺍ ﺍﺬﻬﺑ ﻝﺎﺼﺗﺍ ﺔﻬﺟ"
 }

@@ -636,6 +636,7 @@
   "select_buy_provider_notice": "Select a buy provider above. You can skip this screen by setting your default buy provider in app settings.",
   "select_destination": "Please select destination for the backup file.",
   "select_sell_provider_notice": "Select a sell provider above. You can skip this screen by setting your default sell provider in app settings.",
+  "select_your_country": "Please select your country",
   "sell": "Sell",
   "sell_alert_content": "We currently only support the sale of Bitcoin, Ethereum and Litecoin. Please create or switch to your Bitcoin, Ethereum or Litecoin wallet.",
   "sell_monero_com_alert_content": "Selling Monero is not supported yet",
@@ -944,5 +945,6 @@
   "you_pay": "You Pay",
   "you_will_get": "Convert to",
   "you_will_send": "Convert from",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "A contact with that name already exists. Please choose a different name."
 }

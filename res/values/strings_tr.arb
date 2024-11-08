@@ -634,6 +634,7 @@
   "select_buy_provider_notice": "Yukarıda bir satın alma sağlayıcısı seçin. App ayarlarında varsayılan satın alma sağlayıcınızı ayarlayarak bu ekranı atlayabilirsiniz.",
   "select_destination": "Lütfen yedekleme dosyası için hedef seçin.",
   "select_sell_provider_notice": "Yukarıdan bir satış sağlayıcısı seçin. Uygulama ayarlarında varsayılan satış sağlayıcınızı ayarlayarak bu ekranı atlayabilirsiniz.",
+  "select_your_country": "Lütfen ülkenizi seçin",
   "sell": "Satış",
   "sell_alert_content": "Şu anda yalnızca Bitcoin, Ethereum ve Litecoin satışını destekliyoruz. Lütfen Bitcoin, Ethereum veya Litecoin cüzdanınızı oluşturun veya cüzdanınıza geçin.",
   "sell_monero_com_alert_content": "Monero satışı henüz desteklenmiyor",
@@ -941,5 +942,6 @@
   "you_pay": "Şu kadar ödeyeceksin: ",
   "you_will_get": "Biçimine dönüştür:",
   "you_will_send": "Biçiminden dönüştür:",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "Bu isimde bir kişi zaten mevcut. Lütfen farklı bir ad seçin."
 }

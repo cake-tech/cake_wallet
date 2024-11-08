@@ -635,6 +635,7 @@
   "select_buy_provider_notice": "Yan olupese Ra loke. O le skii iboju yii nipa ṣiṣeto olupese rẹ ni awọn eto App.",
   "select_destination": "Jọwọ yan ibi ti o nlo fun faili afẹyinti.",
   "select_sell_provider_notice": "Yan olupese ti o ta loke. O le foju iboju yii nipa tito olupese iṣẹ tita aiyipada rẹ ni awọn eto app.",
+  "select_your_country": "Jọwọ yan orilẹ-ede rẹ",
   "sell": "Tà",
   "sell_alert_content": "Lọwọlọwọ a ṣe atilẹyin tita Bitcoin, Ethereum ati Litecoin nikan. Jọwọ ṣẹda tabi yipada si Bitcoin, Ethereum tabi apamọwọ Litecoin rẹ.",
   "sell_monero_com_alert_content": "Kọ ju lọwọ Monero ko ṣe ni ibamu",
@@ -942,5 +943,6 @@
   "you_pay": "Ẹ sàn",
   "you_will_get": "Ṣe pàṣípààrọ̀ sí",
   "you_will_send": "Ṣe pàṣípààrọ̀ láti",
-  "yy": "Ọd"
+  "yy": "Ọd",
+  "contact_name_exists": "Olubasọrọ pẹlu orukọ yẹn ti wa tẹlẹ. Jọwọ yan orukọ ti o yatọ."
 }

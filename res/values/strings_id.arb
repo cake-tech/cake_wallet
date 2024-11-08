@@ -637,6 +637,7 @@
   "select_buy_provider_notice": "Pilih penyedia beli di atas. Anda dapat melewatkan layar ini dengan mengatur penyedia pembelian default Anda di pengaturan aplikasi.",
   "select_destination": "Silakan pilih tujuan untuk file cadangan.",
   "select_sell_provider_notice": "Pilih penyedia jual di atas. Anda dapat melewati layar ini dengan mengatur penyedia penjualan default Anda di pengaturan aplikasi.",
+  "select_your_country": "Pilih negara Anda",
   "sell": "Jual",
   "sell_alert_content": "Saat ini kami hanya mendukung penjualan Bitcoin, Ethereum, dan Litecoin. Harap buat atau alihkan ke dompet Bitcoin, Ethereum, atau Litecoin Anda.",
   "sell_monero_com_alert_content": "Menjual Monero belum didukung",
@@ -944,5 +945,6 @@
   "you_pay": "Anda Membayar",
   "you_will_get": "Konversi ke",
   "you_will_send": "Konversi dari",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "Kontak dengan nama tersebut sudah ada. Silakan pilih nama lain."
 }

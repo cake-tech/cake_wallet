@@ -636,6 +636,7 @@
   "select_buy_provider_notice": "Zaɓi mai ba da kyauta a sama. Zaka iya tsallake wannan allon ta hanyar saita mai ba da isasshen busasshen mai ba da isasshen busasshiyar saiti.",
   "select_destination": "Da fatan za a zaɓi wurin da za a yi wa madadin fayil ɗin.",
   "select_sell_provider_notice": "Zaɓi mai bada siyarwa a sama. Kuna iya tsallake wannan allon ta saita mai bada siyar da ku a cikin saitunan app.",
+  "select_your_country": "Da fatan za a zabi ƙasarku",
   "sell": "sayar",
   "sell_alert_content": "A halin yanzu muna tallafawa kawai siyar da Bitcoin, Ethereum da Litecoin. Da fatan za a ƙirƙiri ko canza zuwa walat ɗin ku na Bitcoin, Ethereum ko Litecoin.",
   "sell_monero_com_alert_content": "Selling Monero bai sami ƙarshen mai bukatar samun ba",
@@ -943,5 +944,6 @@
   "you_pay": "Ka Bayar",
   "you_will_get": "Maida zuwa",
   "you_will_send": "Maida daga",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "An riga an sami lamba tare da wannan sunan. Da fatan za a zaɓi suna daban."
 }

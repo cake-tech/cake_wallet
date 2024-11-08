@@ -634,6 +634,7 @@
   "select_buy_provider_notice": "Vyberte výše uvedeného poskytovatele nákupu. Tuto obrazovku můžete přeskočit nastavením výchozího poskytovatele nákupu v nastavení aplikace.",
   "select_destination": "Vyberte cíl pro záložní soubor.",
   "select_sell_provider_notice": "Výše vyberte poskytovatele prodeje. Tuto obrazovku můžete přeskočit nastavením výchozího poskytovatele prodeje v nastavení aplikace.",
+  "select_your_country": "Vyberte prosím svou zemi",
   "sell": "Prodat",
   "sell_alert_content": "V současné době podporujeme pouze prodej bitcoinů, etherea a litecoinů. Vytvořte nebo přepněte na svou bitcoinovou, ethereum nebo litecoinovou peněženku.",
   "sell_monero_com_alert_content": "Prodej Monero zatím není podporován",
@@ -941,5 +942,6 @@
   "you_pay": "Zaplatíte",
   "you_will_get": "Směnit na",
   "you_will_send": "Směnit z",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "Kontakt s tímto jménem již existuje. Vyberte prosím jiný název."
 }

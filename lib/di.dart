@@ -1269,7 +1269,8 @@ Future<void> setup({
       () => CakePayService(getIt.get<SecureStorage>(), getIt.get<CakePayApi>()));
 
   getIt.registerFactory(
-      () => CakePayCardsListViewModel(cakePayService: getIt.get<CakePayService>()));
+      () => CakePayCardsListViewModel(cakePayService: getIt.get<CakePayService>(),
+          settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() => CakePayAuthViewModel(cakePayService: getIt.get<CakePayService>()));
 

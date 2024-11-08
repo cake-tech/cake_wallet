@@ -635,6 +635,7 @@
   "select_buy_provider_notice": "Selecciona un proveedor de compra arriba. Puede omitir esta pantalla configurando su proveedor de compra predeterminado en la configuración de la aplicación.",
   "select_destination": "Selecciona el destino del archivo de copia de seguridad.",
   "select_sell_provider_notice": "Selecciona un proveedor de venta arriba. Puede omitir esta pantalla configurando su proveedor de venta predeterminado en la configuración de la aplicación.",
+  "select_your_country": "Seleccione su país",
   "sell": "Vender",
   "sell_alert_content": "Actualmente solo admitimos la venta de Bitcoin, Ethereum y Litecoin. Cree o cambie a su billetera Bitcoin, Ethereum o Litecoin.",
   "sell_monero_com_alert_content": "Aún no se admite la venta de Monero",
@@ -942,5 +943,6 @@
   "you_pay": "Tú pagas",
   "you_will_get": "Convertir a",
   "you_will_send": "Convertir de",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "Ya existe un contacto con ese nombre. Elija un nombre diferente."
 }

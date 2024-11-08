@@ -634,6 +634,7 @@
   "select_buy_provider_notice": "Sélectionnez un fournisseur d'achat ci-dessus. Vous pouvez ignorer cet écran en définissant votre fournisseur d'achat par défaut dans les paramètres de l'application.",
   "select_destination": "Veuillez sélectionner la destination du fichier de sauvegarde.",
   "select_sell_provider_notice": "Sélectionnez un fournisseur de vente ci-dessus. Vous pouvez ignorer cet écran en définissant votre fournisseur de vente par défaut dans les paramètres de l'application.",
+  "select_your_country": "Veuillez sélectionner votre pays",
   "sell": "Vendre",
   "sell_alert_content": "Nous ne prenons actuellement en charge que la vente de Bitcoin, Ethereum et Litecoin. Veuillez créer ou basculer vers votre portefeuille Bitcoin, Ethereum ou Litecoin.",
   "sell_monero_com_alert_content": "La vente de Monero n'est pas encore prise en charge",
@@ -941,5 +942,6 @@
   "you_pay": "Vous payez",
   "you_will_get": "Convertir vers",
   "you_will_send": "Convertir depuis",
-  "yy": "AA"
+  "yy": "AA",
+  "contact_name_exists": "Un contact portant ce nom existe déjà. Veuillez choisir un autre nom."
 }

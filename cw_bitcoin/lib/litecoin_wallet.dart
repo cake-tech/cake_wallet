@@ -393,7 +393,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
               // if the confirmations haven't changed, skip updating:
               if (tx.confirmations == confirmations) continue;
 
-              // print("updating confs ${tx.id} from ${tx.confirmations} -> $confirmations");
 
               // if an outgoing tx is now confirmed, delete the utxo from the box (delete the unspent coin):
               if (confirmations >= 2 &&
