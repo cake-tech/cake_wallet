@@ -259,6 +259,10 @@ Future<void> defaultSettingsMigration(
         case 42:
           updateBtcElectrumNodeToUseSSL(nodes, sharedPreferences);
           break;
+        case 43:
+          await changeDefaultMoneroNode(nodes, sharedPreferences);
+          break;
+
         default:
           break;
       }
