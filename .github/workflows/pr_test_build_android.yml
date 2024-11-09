@@ -116,8 +116,15 @@ jobs:
           cd /opt/android/cake_wallet/scripts/android/
           ./build_mwebd.sh --dont-install
 
-      - name: Generate KeyStore
-        if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
+      - name: Cache Keystore
+        id: cache-keystore
+        uses: actions/cache@v3
+        with:
+          path: /opt/android/cake_wallet/android/app/key.jks
+          key: $STORE_PASS
+
+      - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
+        name: Generate KeyStore
         run: |
           cd /opt/android/cake_wallet/android/app
           keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
@@ -205,6 +212,36 @@ jobs:
         run: |
           echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
 
+      # Step 3: Download previous build number
+      - name: Download previous build number
+        id: download-build-number
+        run: |
+          # Download the artifact if it exists
+          if [[ ! -f build_number.txt ]]; then
+            echo "1" > build_number.txt
+          fi
+
+      # Step 4: Read and Increment Build Number
+      - name: Increment Build Number
+        id: increment-build-number
+        run: |
+          # Read current build number from file
+          BUILD_NUMBER=$(cat build_number.txt)
+          BUILD_NUMBER=$((BUILD_NUMBER + 1))
+          echo "New build number: $BUILD_NUMBER"
+
+          # Save the incremented build number
+          echo "$BUILD_NUMBER" > build_number.txt
+
+          # Export the build number to use in later steps
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
+
+      # Step 5: Update pubspec.yaml with new build number
+      - name: Update build number
+        run: |
+          cd /opt/android/cake_wallet
+          sed -i "s/^version: .*/version: 1.0.$BUILD_NUMBER/" pubspec.yaml
+
       - name: Build
         run: |
           cd /opt/android/cake_wallet
@@ -235,6 +272,13 @@ jobs:
         with:
           path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/
 
+      # Re-upload updated build number for the next run
+      - name: Upload updated build number
+        uses: actions/upload-artifact@v3
+        with:
+          name: build_number
+          path: build_number.txt
+
       - name: Send Test APK
         continue-on-error: true
         uses: adrey/slack-file-upload-action@1.0.5
@@ -245,3 +289,4 @@ jobs:
           title: "${{ env.BRANCH_NAME }}.apk"
           filename: ${{ env.BRANCH_NAME }}.apk
           initial_comment: ${{ github.event.head_commit.message }}
+
