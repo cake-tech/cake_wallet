@@ -248,6 +248,7 @@ class CWMonero extends Monero {
     final moneroWallet = wallet as MoneroWallet;
     final keys = moneroWallet.keys;
     return <String, String>{
+      'primaryAddress': keys.primaryAddress,
       'privateSpendKey': keys.privateSpendKey,
       'privateViewKey': keys.privateViewKey,
       'publicSpendKey': keys.publicSpendKey,
@@ -357,9 +358,32 @@ class CWMonero extends Monero {
   Future<int> getCurrentHeight() async {
     return monero_wallet_api.getCurrentHeight();
   }
+  
+  @override
+  bool importKeyImagesUR(Object wallet, String ur) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.importKeyImagesUR(ur);
+  }
+
+
+  @override
+  Future<bool> commitTransactionUR(Object wallet, String ur) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.submitTransactionUR(ur);
+  }
+
+  @override
+  String exportOutputsUR(Object wallet, bool all) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.exportOutputsUR(all);
+  }
 
   @override
   void monerocCheck() {
     checkIfMoneroCIsFine();
+  }
+
+  bool isViewOnly() {
+    return isViewOnlyBySpendKey();
   }
 }

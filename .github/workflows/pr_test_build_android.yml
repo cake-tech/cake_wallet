@@ -82,7 +82,8 @@ jobs:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
-          key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
+            /opt/android/cake_wallet/android/app/key.jks
+          key: android_${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
@@ -116,6 +117,7 @@ jobs:
           ./build_mwebd.sh --dont-install
 
       - name: Generate KeyStore
+        if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         run: |
           cd /opt/android/cake_wallet/android/app
           keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS

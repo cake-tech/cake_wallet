@@ -19,6 +19,7 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/coins_info.dart';
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
@@ -121,6 +122,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
+      primaryAddress: monero_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: monero_wallet.getSecretSpendKey(),
       privateViewKey: monero_wallet.getSecretViewKey(),
       publicSpendKey: monero_wallet.getPublicSpendKey(),
@@ -228,6 +230,36 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       print(e);
       rethrow;
     }
+  }
+
+  Future<bool> submitTransactionUR(String ur) async {
+    final retStatus = monero.Wallet_submitTransactionUR(wptr!, ur);
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(wptr!);
+      throw MoneroTransactionCreationException("unable to broadcast signed transaction: $err");
+    }
+    return retStatus;
+  }
+
+  bool importKeyImagesUR(String ur) {
+    final retStatus = monero.Wallet_importKeyImagesUR(wptr!, ur);
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(wptr!);
+      throw Exception("unable to import key images: $err");
+    }
+    return retStatus;
+  }
+
+  String exportOutputsUR(bool all) {
+    final str = monero.Wallet_exportOutputsUR(wptr!, all: all);
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(wptr!);
+      throw MoneroTransactionCreationException("unable to export UR: $err");
+    }
+    return str;
   }
 
   @override

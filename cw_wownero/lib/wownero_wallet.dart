@@ -120,6 +120,7 @@ abstract class WowneroWalletBase
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
+      primaryAddress: wownero_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: wownero_wallet.getSecretSpendKey(),
       privateViewKey: wownero_wallet.getSecretViewKey(),
       publicSpendKey: wownero_wallet.getPublicSpendKey(),

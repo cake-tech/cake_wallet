@@ -232,7 +232,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget{
     bool isCameraPermissionGranted =
         await PermissionHandler.checkPermission(Permission.camera, context);
     if (!isCameraPermissionGranted) return;
-    final code = await presentQRScanner();
+    final code = await presentQRScanner(context);
     if (code.isEmpty) {
       return;
     }

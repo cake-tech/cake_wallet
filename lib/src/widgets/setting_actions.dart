@@ -21,6 +21,7 @@ class SettingActions {
     addressBookSettingAction,
     silentPaymentsSettingAction,
     litecoinMwebSettingAction,
+    exportOutputsAction,
     securityBackupSettingAction,
     privacySettingAction,
     displaySettingAction,
@@ -50,6 +51,16 @@ class SettingActions {
     },
   );
 
+  static SettingActions exportOutputsAction = SettingActions._(
+    key: ValueKey('dashboard_page_menu_widget_export_outputs_settings_button_key'),
+    name: (context) => S.of(context).export_outputs,
+    image: 'assets/images/monero_menu.png',
+    onTap: (BuildContext context) {
+      Navigator.pop(context);
+      Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: 'export-outputs');
+    },
+  );
+  
   static SettingActions litecoinMwebSettingAction = SettingActions._(
     key: ValueKey('dashboard_page_menu_widget_litecoin_mweb_settings_button_key'),
     name: (context) => S.of(context).litecoin_mweb_settings,

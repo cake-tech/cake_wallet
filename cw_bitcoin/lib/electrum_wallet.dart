@@ -11,7 +11,6 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
@@ -597,8 +596,8 @@ abstract class ElectrumWalletBase
 
   UtxoDetails _createUTXOS({
     required bool sendAll,
-    required int credentialsAmount,
     required bool paysToSilentPayment,
+    int credentialsAmount = 0,
     int? inputsCount,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) {
@@ -732,13 +731,11 @@ abstract class ElectrumWalletBase
     List<BitcoinOutput> outputs,
     int feeRate, {
     String? memo,
-    int credentialsAmount = 0,
     bool hasSilentPayment = false,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) async {
     final utxoDetails = _createUTXOS(
       sendAll: true,
-      credentialsAmount: credentialsAmount,
       paysToSilentPayment: hasSilentPayment,
       coinTypeToSpendFrom: coinTypeToSpendFrom,
     );
@@ -764,21 +761,9 @@ abstract class ElectrumWalletBase
       throw BitcoinTransactionWrongBalanceException(amount: utxoDetails.allInputsAmount + fee);
     }
 
-    if (amount <= 0) {
-      throw BitcoinTransactionWrongBalanceException();
-    }
-
     // Attempting to send less than the dust limit
     if (_isBelowDust(amount)) {
       throw BitcoinTransactionNoDustException();
-    }
-
-    if (credentialsAmount > 0) {
-      final amountLeftForFee = amount - credentialsAmount;
-      if (amountLeftForFee > 0 && _isBelowDust(amountLeftForFee)) {
-        amount -= amountLeftForFee;
-        fee += amountLeftForFee;
-      }
     }
 
     if (outputs.length == 1) {
@@ -810,6 +795,11 @@ abstract class ElectrumWalletBase
     bool hasSilentPayment = false,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) async {
+    // Attempting to send less than the dust limit
+    if (_isBelowDust(credentialsAmount)) {
+      throw BitcoinTransactionNoDustException();
+    }
+
     final utxoDetails = _createUTXOS(
       sendAll: false,
       credentialsAmount: credentialsAmount,
@@ -894,7 +884,43 @@ abstract class ElectrumWalletBase
     final lastOutput = updatedOutputs.last;
     final amountLeftForChange = amountLeftForChangeAndFee - fee;
 
-    if (!_isBelowDust(amountLeftForChange)) {
+    if (_isBelowDust(amountLeftForChange)) {
+      // If has change that is lower than dust, will end up with tx rejected by network rules
+      // so remove the change amount
+      updatedOutputs.removeLast();
+      outputs.removeLast();
+
+      if (amountLeftForChange < 0) {
+        if (!spendingAllCoins) {
+          return estimateTxForAmount(
+            credentialsAmount,
+            outputs,
+            updatedOutputs,
+            feeRate,
+            inputsCount: utxoDetails.utxos.length + 1,
+            memo: memo,
+            useUnconfirmed: useUnconfirmed ?? spendingAllConfirmedCoins,
+            hasSilentPayment: hasSilentPayment,
+            coinTypeToSpendFrom: coinTypeToSpendFrom,
+          );
+        } else {
+          throw BitcoinTransactionWrongBalanceException();
+        }
+      }
+
+      return EstimatedTxResult(
+        utxos: utxoDetails.utxos,
+        inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+        publicKeys: utxoDetails.publicKeys,
+        fee: fee,
+        amount: amount,
+        hasChange: false,
+        isSendAll: spendingAllCoins,
+        memo: memo,
+        spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+        spendsSilentPayment: utxoDetails.spendsSilentPayment,
+      );
+    } else {
       // Here, lastOutput already is change, return the amount left without the fee to the user's address.
       updatedOutputs[updatedOutputs.length - 1] = BitcoinOutput(
         address: lastOutput.address,
@@ -908,88 +934,20 @@ abstract class ElectrumWalletBase
         isSilentPayment: lastOutput.isSilentPayment,
         isChange: true,
       );
-    } else {
-      // If has change that is lower than dust, will end up with tx rejected by network rules, so estimate again without the added change
-      updatedOutputs.removeLast();
-      outputs.removeLast();
 
-      // Still has inputs to spend before failing
-      if (!spendingAllCoins) {
-        return estimateTxForAmount(
-          credentialsAmount,
-          outputs,
-          updatedOutputs,
-          feeRate,
-          inputsCount: utxoDetails.utxos.length + 1,
-          memo: memo,
-          hasSilentPayment: hasSilentPayment,
-          useUnconfirmed: useUnconfirmed ?? spendingAllConfirmedCoins,
-          coinTypeToSpendFrom: coinTypeToSpendFrom,
-        );
-      }
-
-      final estimatedSendAll = await estimateSendAllTx(
-        updatedOutputs,
-        feeRate,
+      return EstimatedTxResult(
+        utxos: utxoDetails.utxos,
+        inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+        publicKeys: utxoDetails.publicKeys,
+        fee: fee,
+        amount: amount,
+        hasChange: true,
+        isSendAll: spendingAllCoins,
         memo: memo,
-        coinTypeToSpendFrom: coinTypeToSpendFrom,
-      );
-
-      if (estimatedSendAll.amount == credentialsAmount) {
-        return estimatedSendAll;
-      }
-
-      // Estimate to user how much is needed to send to cover the fee
-      final maxAmountWithReturningChange = utxoDetails.allInputsAmount - _dustAmount - fee - 1;
-      throw BitcoinTransactionNoDustOnChangeException(
-        bitcoinAmountToString(amount: maxAmountWithReturningChange),
-        bitcoinAmountToString(amount: estimatedSendAll.amount),
+        spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+        spendsSilentPayment: utxoDetails.spendsSilentPayment,
       );
     }
-
-    // Attempting to send less than the dust limit
-    if (_isBelowDust(amount)) {
-      throw BitcoinTransactionNoDustException();
-    }
-
-    final totalAmount = amount + fee;
-
-    if (totalAmount > (balance[currency]!.confirmed + balance[currency]!.secondConfirmed)) {
-      throw BitcoinTransactionWrongBalanceException();
-    }
-
-    if (totalAmount > utxoDetails.allInputsAmount) {
-      if (spendingAllCoins) {
-        throw BitcoinTransactionWrongBalanceException();
-      } else {
-        updatedOutputs.removeLast();
-        outputs.removeLast();
-        return estimateTxForAmount(
-          credentialsAmount,
-          outputs,
-          updatedOutputs,
-          feeRate,
-          inputsCount: utxoDetails.utxos.length + 1,
-          memo: memo,
-          useUnconfirmed: useUnconfirmed ?? spendingAllConfirmedCoins,
-          hasSilentPayment: hasSilentPayment,
-          coinTypeToSpendFrom: coinTypeToSpendFrom,
-        );
-      }
-    }
-
-    return EstimatedTxResult(
-      utxos: utxoDetails.utxos,
-      inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
-      publicKeys: utxoDetails.publicKeys,
-      fee: fee,
-      amount: amount,
-      hasChange: true,
-      isSendAll: false,
-      memo: memo,
-      spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
-      spendsSilentPayment: utxoDetails.spendsSilentPayment,
-    );
   }
 
   Future<int> calcFee({
@@ -1080,15 +1038,20 @@ abstract class ElectrumWalletBase
           : feeRate(transactionCredentials.priority!);
 
       EstimatedTxResult estimatedTx;
-      final updatedOutputs =
-          outputs.map((e) => BitcoinOutput(address: e.address, value: e.value)).toList();
+      final updatedOutputs = outputs
+          .map((e) => BitcoinOutput(
+                address: e.address,
+                value: e.value,
+                isSilentPayment: e.isSilentPayment,
+                isChange: e.isChange,
+              ))
+          .toList();
 
       if (sendAll) {
         estimatedTx = await estimateSendAllTx(
           updatedOutputs,
           feeRateInt,
           memo: memo,
-          credentialsAmount: credentialsAmount,
           hasSilentPayment: hasSilentPayment,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
