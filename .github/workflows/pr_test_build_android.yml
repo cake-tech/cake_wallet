@@ -120,7 +120,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /opt/android/cake_wallet/android/app/key.jks
-          key: ${{ $STORE_PASS }}
+          key: $STORE_PASS
 
       - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
         name: Generate KeyStore
