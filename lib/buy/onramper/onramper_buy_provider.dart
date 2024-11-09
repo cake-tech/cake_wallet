@@ -217,7 +217,7 @@ class OnRamperBuyProvider extends BuyProvider {
       'apiKey': _apiKey,
       'mode': actionType,
       '${prefix}defaultFiat': quote.fiatCurrency.name,
-      '${prefix}defaultCrypto': quote.cryptoCurrency.name,
+      '${prefix}defaultCrypto': defaultCrypto,
       '${prefix}defaultAmount': amount.toString(),
       if (paymentMethod != null) '${prefix}defaultPaymentMethod': paymentMethod,
       'onlyOnramps': quote.rampId,
