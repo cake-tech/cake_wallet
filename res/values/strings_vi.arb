@@ -218,6 +218,7 @@
   "disable_fee_api_warning": "Khi tắt chức năng này, tỉ lệ phí có thể không chính xác trong một số trường hợp, dẫn đến bạn trả quá hoặc không đủ phí cho giao dịch của mình.",
   "disable_fiat": "Vô hiệu hóa tiền tệ fiat",
   "disable_sell": "Vô hiệu hóa chức năng bán",
+  "disable_trade_option": "Tắt tùy chọn thương mại",
   "disableBatteryOptimization": "Vô hiệu hóa Tối ưu hóa Pin",
   "disableBatteryOptimizationDescription": "Bạn có muốn vô hiệu hóa tối ưu hóa pin để đồng bộ hóa nền hoạt động mượt mà hơn không?",
   "disabled": "Đã vô hiệu hóa",
