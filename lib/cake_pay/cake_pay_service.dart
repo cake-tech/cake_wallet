@@ -82,10 +82,12 @@ class CakePayService {
   }
 
   /// Logout
-  Future<void> logout(String email) async {
+  Future<void> logout([String? email]) async {
     await secureStorage.delete(key: cakePayUsernameStorageKey);
     await secureStorage.delete(key: cakePayUserTokenKey);
-    await cakePayApi.logoutUser(email: email, apiKey: cakePayApiKey);
+    if (email != null) {
+      await cakePayApi.logoutUser(email: email, apiKey: cakePayApiKey);
+    }
   }
 
   /// Purchase Gift Card

@@ -258,7 +258,11 @@ class CakePayBuyCardDetailPage extends BasePage {
     if (!isLogged) {
       Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
     } else {
-      await cakePayPurchaseViewModel.createOrder();
+      try {
+        await cakePayPurchaseViewModel.createOrder();
+      } catch (_) {
+        await cakePayPurchaseViewModel.cakePayService.logout();
+      }
     }
   }
 
