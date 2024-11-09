@@ -82,7 +82,8 @@ jobs:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
-          key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
+            /opt/android/cake_wallet/android/app/key.jks
+          key: android_${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
@@ -200,6 +201,8 @@ jobs:
           echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
           echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          echo "const meldTestApiKey = '${{ secrets.MELD_TEST_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const meldTestPublicKey = '${{ secrets.MELD_TEST_PUBLIC_KEY}}';" >> lib/.secrets.g.dar
           echo "const letsExchangeBearerToken = '${{ secrets.LETS_EXCHANGE_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const letsExchangeAffiliateId = '${{ secrets.LETS_EXCHANGE_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
           echo "const stealthExBearerToken = '${{ secrets.STEALTH_EX_BEARER_TOKEN }}';" >> lib/.secrets.g.dart

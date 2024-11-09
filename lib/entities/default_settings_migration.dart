@@ -259,6 +259,10 @@ Future<void> defaultSettingsMigration(
         case 42:
           updateBtcElectrumNodeToUseSSL(nodes, sharedPreferences);
           break;
+        case 43:
+          _updateCakeXmrNode(nodes);
+          break;
+
         default:
           break;
       }
@@ -271,6 +275,15 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+void _updateCakeXmrNode(Box<Node> nodes) {
+  final node = nodes.values.firstWhereOrNull((element) => element.uriRaw == newCakeWalletMoneroUri);
+
+  if (node != null && !node.trusted) {
+    node.trusted = true;
+    node.save();
+  }
 }
 
 void updateBtcElectrumNodeToUseSSL(Box<Node> nodes, SharedPreferences sharedPreferences) {
@@ -843,7 +856,7 @@ Future<void> changeDefaultMoneroNode(
     }
   });
 
-  final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
+  final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero, trusted: true);
 
   await nodeSource.add(newCakeWalletNode);
 

@@ -1,20 +1,21 @@
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/currency.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 enum AddressTextFieldOption { paste, qrCode, addressBook, walletAddresses }
 
-class AddressTextField extends StatelessWidget {
+
+class AddressTextField<T extends Currency> extends StatelessWidget{
   AddressTextField({
     required this.controller,
     this.isActive = true,
@@ -58,7 +59,7 @@ class AddressTextField extends StatelessWidget {
   final Function(BuildContext context)? onPushAddressBookButton;
   final Function(BuildContext context)? onPushAddressPickerButton;
   final Function(ContactBase contact)? onSelectedContact;
-  final CryptoCurrency? selectedCurrency;
+  final T? selectedCurrency;
   final Key? addressKey;
 
   @override
@@ -231,7 +232,7 @@ class AddressTextField extends StatelessWidget {
     bool isCameraPermissionGranted =
         await PermissionHandler.checkPermission(Permission.camera, context);
     if (!isCameraPermissionGranted) return;
-    final code = await presentQRScanner();
+    final code = await presentQRScanner(context);
     if (code.isEmpty) {
       return;
     }
