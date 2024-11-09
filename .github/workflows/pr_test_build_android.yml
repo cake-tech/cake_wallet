@@ -82,7 +82,6 @@ jobs:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
-            /opt/android/cake_wallet/android/app/key.jks
           key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
 
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
