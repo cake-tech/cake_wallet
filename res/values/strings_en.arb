@@ -136,7 +136,7 @@
   "clearnet_link": "Clearnet link",
   "close": "Close",
   "coin_control": "Coin control (optional)",
-  "cold_or_recover_wallet": "Add a cold wallet or recover a paper wallet",
+  "cold_or_recover_wallet": "Add a read-only wallet from Cupcake or a cold wallet or recover a paper wallet",
   "color_theme": "Color theme",
   "commit_transaction_amount_fee": "Commit transaction\nAmount: ${amount}\nFee: ${fee}",
   "confirm": "Confirm",
@@ -161,6 +161,7 @@
   "contact_list_contacts": "Contacts",
   "contact_list_wallets": "My Wallets",
   "contact_name": "Contact Name",
+  "contact_name_exists": "A contact with that name already exists. Please choose a different name.",
   "contact_support": "Contact Support",
   "continue_text": "Continue",
   "contract_warning": "This contract address has been flagged as potentially fraudulent. Please process with caution.",
@@ -296,6 +297,7 @@
   "expiry_and_validity": "Expiry and Validity",
   "export_backup": "Export backup",
   "export_logs": "Export logs",
+  "export_outputs": "Export outputs",
   "extra_id": "Extra ID:",
   "extracted_address_content": "You will be sending funds to\n${recipient_name}",
   "failed_authentication": "Failed authentication. ${state_error}",
@@ -502,6 +504,7 @@
   "pre_seed_title": "IMPORTANT",
   "prepaid_cards": "Prepaid Cards",
   "prevent_screenshots": "Prevent screenshots and screen recording",
+  "primary_address": "Primary Address",
   "privacy": "Privacy",
   "privacy_policy": "Privacy Policy",
   "privacy_settings": "Privacy settings",
@@ -945,6 +948,5 @@
   "you_pay": "You Pay",
   "you_will_get": "Convert to",
   "you_will_send": "Convert from",
-  "yy": "YY",
-  "contact_name_exists": "A contact with that name already exists. Please choose a different name."
+  "yy": "YY"
 }

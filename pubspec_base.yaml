@@ -14,8 +14,10 @@ dependencies:
   # provider: ^6.0.3
   rxdart: ^0.28.0
   yaml: ^3.1.1
-  #barcode_scan: any
-  barcode_scan2: ^4.2.1
+  fast_scanner:
+    git:
+      url: https://github.com/MrCyjaneK/fast_scanner
+      ref: c8311b46cc67dd02250970a54d2a4526168187f3
   http: ^1.1.0
   path_provider: ^2.0.11
   mobx: ^2.1.4

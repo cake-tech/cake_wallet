@@ -96,6 +96,7 @@ import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dar
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
+import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
@@ -731,6 +732,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.setup2faInfoPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAInfoPage>());
+
+    case Routes.urqrAnimatedPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<AnimatedURPage>(param1: settings.arguments));
 
     case Routes.homeSettings:
       return CupertinoPageRoute<void>(

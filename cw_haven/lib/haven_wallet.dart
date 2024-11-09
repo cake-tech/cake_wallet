@@ -73,6 +73,7 @@ abstract class HavenWalletBase
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
+      primaryAddress: haven_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: haven_wallet.getSecretSpendKey(),
       privateViewKey: haven_wallet.getSecretViewKey(),
       publicSpendKey: haven_wallet.getPublicSpendKey(),

@@ -394,6 +394,12 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.haven;
 
   @computed
+  bool get isMoneroViewOnly {
+    if (wallet.type != WalletType.monero) return false;
+    return monero!.isViewOnly();
+  }
+
+  @computed
   String? get getMoneroError {
     if (wallet.type != WalletType.monero) return null;
     try {
