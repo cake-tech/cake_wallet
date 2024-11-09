@@ -281,6 +281,7 @@ import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/api/wallet.dart' as monero_wallet_api;
 import 'package:cw_monero/ledger.dart';
 import 'package:cw_monero/monero_unspent.dart';
+import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
@@ -381,6 +382,12 @@ abstract class Monero {
 
   Future<int> getCurrentHeight();
 
+  Future<bool> commitTransactionUR(Object wallet, String ur);
+
+  String exportOutputsUR(Object wallet, bool all);
+
+  bool importKeyImagesUR(Object wallet, String ur);
+
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials({
     required String name,
     required String spendKey,
@@ -401,6 +408,7 @@ abstract class Monero {
   int formatterMoneroParseAmount({required String amount});
   Account getCurrentAccount(Object wallet);
   void monerocCheck();
+  bool isViewOnly();
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);

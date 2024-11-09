@@ -44,6 +44,8 @@ class SecretKey {
     SecretKey('cakePayApiKey', () => ''),
     SecretKey('CSRFToken', () => ''),
     SecretKey('authorization', () => ''),
+    SecretKey('meldTestApiKey', () => ''),
+    SecretKey('meldTestPublicKey', () => ''),
     SecretKey('moneroTestWalletSeeds', () => ''),
     SecretKey('moneroLegacyTestWalletSeeds ', () => ''),
     SecretKey('bitcoinTestWalletSeeds', () => ''),
