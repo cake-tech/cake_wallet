@@ -47,13 +47,19 @@ void enableLedgerExchange(monero.wallet ptr, LedgerConnection connection) {
 
 void keepAlive(LedgerConnection connection) {
   if (connection.connectionType == ConnectionType.ble) {
+    UniversalBle.onConnectionChange = (String deviceId, bool isConnected) {
+      print("[Monero] Ledger Disconnected");
+      _ledgerKeepAlive?.cancel();
+    };
     _ledgerKeepAlive = Timer.periodic(Duration(seconds: 10), (_) async {
-      UniversalBle.setNotifiable(
-        connection.device.id,
-        connection.device.deviceInfo.serviceId,
-        connection.device.deviceInfo.notifyCharacteristicKey,
-        BleInputProperty.notification,
-      );
+      try {
+        UniversalBle.setNotifiable(
+          connection.device.id,
+          connection.device.deviceInfo.serviceId,
+          connection.device.deviceInfo.notifyCharacteristicKey,
+          BleInputProperty.notification,
+        );
+      } catch (_){}
     });
   }
 }
