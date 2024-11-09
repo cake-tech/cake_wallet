@@ -312,8 +312,6 @@ Future<void> loadWallet(
       throw WalletOpeningException(message: err);
     }
 
-    if (deviceType == 1) disableLedgerExchange();
-
     wptr = newWptr;
     openedWalletsByPath[path] = wptr!;
   }

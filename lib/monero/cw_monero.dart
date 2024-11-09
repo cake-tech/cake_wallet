@@ -385,5 +385,6 @@ class CWMonero extends Monero {
   @override
   void setGlobalLedgerConnection(ledger.LedgerConnection connection) {
     gLedger = connection;
+    keepAlive(connection);
   }
 }

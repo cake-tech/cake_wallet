@@ -11,14 +11,18 @@ import 'package:monero/monero.dart' as monero;
 LedgerConnection? gLedger;
 
 Timer? _ledgerExchangeTimer;
+Timer? _ledgerKeepAlive;
 
 void enableLedgerExchange(monero.wallet ptr, LedgerConnection connection) {
+  _ledgerExchangeTimer?.cancel();
   _ledgerExchangeTimer = Timer.periodic(Duration(milliseconds: 1), (_) async {
     final ledgerRequestLength = monero.Wallet_getSendToDeviceLength(ptr);
     final ledgerRequest = monero.Wallet_getSendToDevice(ptr)
         .cast<Uint8>()
         .asTypedList(ledgerRequestLength);
     if (ledgerRequestLength > 0) {
+      _ledgerKeepAlive?.cancel();
+
       final Pointer<Uint8> emptyPointer = malloc<Uint8>(0);
       monero.Wallet_setDeviceSendData(
           ptr, emptyPointer.cast<UnsignedChar>(), 0);
@@ -36,12 +40,27 @@ void enableLedgerExchange(monero.wallet ptr, LedgerConnection connection) {
       monero.Wallet_setDeviceReceivedData(
           ptr, result.cast<UnsignedChar>(), response.length);
       malloc.free(result);
+      keepAlive(connection);
     }
   });
 }
 
+void keepAlive(LedgerConnection connection) {
+  if (connection.connectionType == ConnectionType.ble) {
+    _ledgerKeepAlive = Timer.periodic(Duration(seconds: 10), (_) async {
+      UniversalBle.setNotifiable(
+        connection.device.id,
+        connection.device.deviceInfo.serviceId,
+        connection.device.deviceInfo.notifyCharacteristicKey,
+        BleInputProperty.notification,
+      );
+    });
+  }
+}
+
 void disableLedgerExchange() {
   _ledgerExchangeTimer?.cancel();
+  _ledgerKeepAlive?.cancel();
   gLedger?.disconnect();
   gLedger = null;
 }
