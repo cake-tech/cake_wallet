@@ -296,7 +296,7 @@
   "expiresOn": "Ipari lori",
   "expiry_and_validity": "Ipari ati idaniloju",
   "export_backup": "Sún ẹ̀dà nípamọ́ síta",
-  "export_outputs": "Agbohunlu okeere",
+  "export_logs": "Wọle si okeere",
   "extra_id": "Àmì ìdánimọ̀ tó fikún:",
   "extracted_address_content": "Ẹ máa máa fi owó ránṣẹ́ sí\n${recipient_name}",
   "failed_authentication": "Ìfẹ̀rílàdí pipòfo. ${state_error}",
@@ -373,7 +373,10 @@
   "litecoin_mweb_description": "Mweb jẹ ilana ilana tuntun ti o mu iyara wa yiyara, din owo, ati awọn iṣowo ikọkọ diẹ sii si Livcoin",
   "litecoin_mweb_dismiss": "Tuka",
   "litecoin_mweb_display_card": "Fihan kaadi Mweb",
+  "litecoin_mweb_enable": "Mu mweb",
   "litecoin_mweb_enable_later": "O le yan lati ṣiṣẹ Mweb lẹẹkansi labẹ awọn eto ifihan.",
+  "litecoin_mweb_logs": "MTweb logs",
+  "litecoin_mweb_node": "Alweb joko",
   "litecoin_mweb_pegin": "Peg in",
   "litecoin_mweb_pegout": "Peg jade",
   "litecoin_mweb_scanning": "Mweb scanning",
@@ -498,7 +501,6 @@
   "pre_seed_title": "Ó TI ṢE PÀTÀKÌ",
   "prepaid_cards": "Awọn kaadi ti a ti sanwo",
   "prevent_screenshots": "Pese asapọ ti awọn ẹrọ eto aṣa",
-  "primary_address": "Adirẹsi akọkọ",
   "privacy": "Ìdáwà",
   "privacy_policy": "Òfin Aládàáni",
   "privacy_settings": "Ààtò àdáni",
@@ -633,6 +635,7 @@
   "select_buy_provider_notice": "Yan olupese Ra loke. O le skii iboju yii nipa ṣiṣeto olupese rẹ ni awọn eto App.",
   "select_destination": "Jọwọ yan ibi ti o nlo fun faili afẹyinti.",
   "select_sell_provider_notice": "Yan olupese ti o ta loke. O le foju iboju yii nipa tito olupese iṣẹ tita aiyipada rẹ ni awọn eto app.",
+  "select_your_country": "Jọwọ yan orilẹ-ede rẹ",
   "sell": "Tà",
   "sell_alert_content": "Lọwọlọwọ a ṣe atilẹyin tita Bitcoin, Ethereum ati Litecoin nikan. Jọwọ ṣẹda tabi yipada si Bitcoin, Ethereum tabi apamọwọ Litecoin rẹ.",
   "sell_monero_com_alert_content": "Kọ ju lọwọ Monero ko ṣe ni ibamu",
@@ -940,5 +943,6 @@
   "you_pay": "Ẹ sàn",
   "you_will_get": "Ṣe pàṣípààrọ̀ sí",
   "you_will_send": "Ṣe pàṣípààrọ̀ láti",
-  "yy": "Ọd"
+  "yy": "Ọd",
+  "contact_name_exists": "Olubasọrọ pẹlu orukọ yẹn ti wa tẹlẹ. Jọwọ yan orukọ ti o yatọ."
 }

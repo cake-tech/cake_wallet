@@ -22,8 +22,12 @@ import 'package:cw_core/keyable.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class TransactionListItem extends ActionListItem with Keyable {
-  TransactionListItem(
-      {required this.transaction, required this.balanceViewModel, required this.settingsStore});
+  TransactionListItem({
+    required this.transaction,
+    required this.balanceViewModel,
+    required this.settingsStore,
+    required super.key,
+  });
 
   final TransactionInfo transaction;
   final BalanceViewModel balanceViewModel;
@@ -56,25 +60,53 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedPendingStatus {
-    if (balanceViewModel.wallet.type == WalletType.monero ||
-        balanceViewModel.wallet.type == WalletType.haven) {
-      if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
-        return ' (${transaction.confirmations}/10)';
-      }
-    } else if (balanceViewModel.wallet.type == WalletType.wownero) {
-      if (transaction.confirmations >= 0 && transaction.confirmations < 3) {
-        return ' (${transaction.confirmations}/3)';
-      }
+    switch (balanceViewModel.wallet.type) {
+      case WalletType.monero:
+      case WalletType.haven:
+        if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
+          return ' (${transaction.confirmations}/10)';
+        }
+        break;
+      case WalletType.wownero:
+        if (transaction.confirmations >= 0 && transaction.confirmations < 3) {
+          return ' (${transaction.confirmations}/3)';
+        }
+        break;
+      case WalletType.litecoin:
+        bool isPegIn = (transaction.additionalInfo["isPegIn"] as bool?) ?? false;
+        bool isPegOut = (transaction.additionalInfo["isPegOut"] as bool?) ?? false;
+        bool fromPegOut = (transaction.additionalInfo["fromPegOut"] as bool?) ?? false;
+        String str = '';
+        if (transaction.confirmations <= 0) {
+          str = S.current.pending;
+        }
+        if ((isPegOut || fromPegOut) && transaction.confirmations >= 0 && transaction.confirmations < 6) {
+          str = " (${transaction.confirmations}/6)";
+        }
+        if (isPegIn) {
+          str += " (Peg In)";
+        }
+        if (isPegOut) {
+          str += " (Peg Out)";
+        }
+        return str;
+      default:
+        return '';
     }
+
     return '';
   }
 
   String get formattedStatus {
-    if (balanceViewModel.wallet.type == WalletType.monero ||
-        balanceViewModel.wallet.type == WalletType.wownero ||
-        balanceViewModel.wallet.type == WalletType.haven) {
+    if ([
+      WalletType.monero,
+      WalletType.haven,
+      WalletType.wownero,
+      WalletType.litecoin,
+    ].contains(balanceViewModel.wallet.type)) {
       return formattedPendingStatus;
     }
+
     return transaction.isPending ? S.current.pending : '';
   }
 

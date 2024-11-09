@@ -188,7 +188,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Image.asset(
-                                          'assets/images/ledger_nano.png',
+                                          'assets/images/hardware_wallet/ledger_nano_x.png',
                                           width: 24,
                                           color: Theme.of(context)
                                               .extension<DashboardPageTheme>()!
@@ -886,17 +886,37 @@ class BalanceRowWidget extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  '${secondAvailableBalanceLabel}',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: 'Lato',
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context)
-                                        .extension<BalancePageTheme>()!
-                                        .labelTextColor,
-                                    height: 1,
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => launchUrl(
+                                    Uri.parse(
+                                        "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
+                                    mode: LaunchMode.externalApplication,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        '${secondAvailableBalanceLabel}',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context)
+                                              .extension<BalancePageTheme>()!
+                                              .labelTextColor,
+                                          height: 1,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                                        child: Icon(Icons.help_outline,
+                                            size: 16,
+                                            color: Theme.of(context)
+                                                .extension<BalancePageTheme>()!
+                                                .labelTextColor),
+                                      )
+                                    ],
                                   ),
                                 ),
                                 SizedBox(height: 8),

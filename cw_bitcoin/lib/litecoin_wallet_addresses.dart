@@ -24,6 +24,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required super.mainHd,
     required super.sideHd,
     required super.network,
+    required super.isHardwareWallet,
     required this.mwebHd,
     required this.mwebEnabled,
     super.initialAddresses,
@@ -37,20 +38,19 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     print("initialized with ${mwebAddrs.length} mweb addresses");
   }
 
-  final Bip32Slip10Secp256k1 mwebHd;
+  final Bip32Slip10Secp256k1? mwebHd;
   bool mwebEnabled;
   int mwebTopUpIndex = 1000;
   List<String> mwebAddrs = [];
   bool generating = false;
 
-  List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
-
+  List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendPubkey =>
-      mwebHd.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
+      mwebHd!.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
 
   @override
   Future<void> init() async {
-    await initMwebAddresses();
+    if (!isHardwareWallet) await initMwebAddresses();
     await super.init();
   }
 
@@ -94,6 +94,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     print("Done generating MWEB addresses len: ${mwebAddrs.length}");
 
     // ensure mweb addresses are up to date:
+    // This is the Case if the Litecoin Wallet is a hardware Wallet
+    if (mwebHd == null) return;
+
     if (mwebAddresses.length < mwebAddrs.length) {
       List<BitcoinAddressRecord> addressRecords = mwebAddrs
           .asMap()
@@ -143,7 +146,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @action
   @override
-  Future<String> getChangeAddress(
+  Future<BitcoinAddressRecord> getChangeAddress(
       {List<BitcoinUnspent>? inputs, List<BitcoinOutput>? outputs, bool isPegIn = false}) async {
     // use regular change address on peg in, otherwise use mweb for change address:
 
@@ -187,9 +190,22 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
     if (mwebEnabled) {
       await ensureMwebAddressUpToIndexExists(1);
-      return mwebAddrs[0];
+      return BitcoinAddressRecord(
+        mwebAddrs[0],
+        index: 0,
+        type: SegwitAddresType.mweb,
+        network: network,
+      );
     }
 
     return super.getChangeAddress();
+  }
+
+  @override
+  String get addressForExchange {
+    // don't use mweb addresses for exchange refund address:
+    final addresses = receiveAddresses
+        .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
+    return addresses.first.address;
   }
 }

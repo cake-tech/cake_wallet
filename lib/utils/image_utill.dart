@@ -11,6 +11,7 @@ class ImageUtil {
     if (isNetworkImage) {
       return isSvg
           ? SvgPicture.network(
+              key: ValueKey(imagePath),
               imagePath,
               height: _height,
               width: _width,
@@ -23,6 +24,7 @@ class ImageUtil {
               ),
             )
           : Image.network(
+              key: ValueKey(imagePath),
               imagePath,
               height: _height,
               width: _width,
@@ -53,8 +55,20 @@ class ImageUtil {
             );
     } else {
       return isSvg
-          ? SvgPicture.asset(imagePath, height: _height, width: _width)
-          : Image.asset(imagePath, height: _height, width: _width);
+          ? SvgPicture.asset(
+              imagePath,
+              height: _height,
+              width: _width,
+              placeholderBuilder: (_) => Icon(Icons.error),
+              key: ValueKey(imagePath),
+            )
+          : Image.asset(
+              imagePath,
+              height: _height,
+              width: _width,
+              errorBuilder: (_, __, ___) => Icon(Icons.error),
+              key: ValueKey(imagePath),
+            );
     }
   }
 }

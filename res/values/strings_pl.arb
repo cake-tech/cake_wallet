@@ -295,7 +295,7 @@
   "expiresOn": "Upływa w dniu",
   "expiry_and_validity": "Wygaśnięcie i ważność",
   "export_backup": "Eksportuj kopię zapasową",
-  "export_outputs": "Wyjścia eksportowe",
+  "export_logs": "Dzienniki eksportu",
   "extra_id": "Dodatkowy ID:",
   "extracted_address_content": "Wysyłasz środki na\n${recipient_name}",
   "failed_authentication": "Nieudane uwierzytelnienie. ${state_error}",
@@ -372,7 +372,10 @@
   "litecoin_mweb_description": "MWEB to nowy protokół, który przynosi szybciej, tańsze i bardziej prywatne transakcje do Litecoin",
   "litecoin_mweb_dismiss": "Odrzucać",
   "litecoin_mweb_display_card": "Pokaż kartę MWEB",
+  "litecoin_mweb_enable": "Włącz MWEB",
   "litecoin_mweb_enable_later": "Możesz ponownie włączyć MWEB w ustawieniach wyświetlania.",
+  "litecoin_mweb_logs": "Dzienniki MWEB",
+  "litecoin_mweb_node": "Węzeł MWEB",
   "litecoin_mweb_pegin": "Kołek",
   "litecoin_mweb_pegout": "Palikować",
   "litecoin_mweb_scanning": "Skanowanie MWEB",
@@ -497,7 +500,6 @@
   "pre_seed_title": "WAŻNY",
   "prepaid_cards": "Karty przedpłacone",
   "prevent_screenshots": "Zapobiegaj zrzutom ekranu i nagrywaniu ekranu",
-  "primary_address": "Adres podstawowy",
   "privacy": "Prywatność",
   "privacy_policy": "Polityka prywatności",
   "privacy_settings": "Ustawienia prywatności",
@@ -632,6 +634,7 @@
   "select_buy_provider_notice": "Wybierz powyższe dostawcę zakupu. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę zakupu w ustawieniach aplikacji.",
   "select_destination": "Wybierz miejsce docelowe dla pliku kopii zapasowej.",
   "select_sell_provider_notice": "Wybierz dostawcę sprzedaży powyżej. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę sprzedaży w ustawieniach aplikacji.",
+  "select_your_country": "Wybierz swój kraj",
   "sell": "Sprzedać",
   "sell_alert_content": "Obecnie obsługujemy tylko sprzedaż Bitcoin, Ethereum i Litecoin. Utwórz lub przełącz się na swój portfel Bitcoin, Ethereum lub Litecoin.",
   "sell_monero_com_alert_content": "Sprzedaż Monero nie jest jeszcze obsługiwana",
@@ -939,5 +942,6 @@
   "you_pay": "Płacisz",
   "you_will_get": "Konwertuj na",
   "you_will_send": "Konwertuj z",
-  "yy": "RR"
+  "yy": "RR",
+  "contact_name_exists": "Kontakt o tej nazwie już istnieje. Proszę wybrać inną nazwę."
 }

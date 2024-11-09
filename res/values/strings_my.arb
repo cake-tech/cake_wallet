@@ -295,7 +295,7 @@
   "expiresOn": "သက်တမ်းကုန်သည်။",
   "expiry_and_validity": "သက်တမ်းကုန်ဆုံးခြင်းနှင့်တရားဝင်မှု",
   "export_backup": "အရန်ကူးထုတ်ရန်",
-  "export_outputs": "ပို့ကုန်ထုတ်ကုန်များ",
+  "export_logs": "ပို့ကုန်မှတ်တမ်းများ",
   "extra_id": "အပို ID-",
   "extracted_address_content": "သင်သည် \n${recipient_name} သို့ ရန်ပုံငွေများ ပေးပို့ပါမည်",
   "failed_authentication": "အထောက်အထားစိစစ်ခြင်း မအောင်မြင်ပါ။. ${state_error}",
@@ -372,7 +372,10 @@
   "litecoin_mweb_description": "Mweb သည် Protocol အသစ်ဖြစ်ပြီး LitCoin သို့ပိုမိုဈေးချိုသာသော, စျေးသက်သက်သာသာသုံးခြင်းနှင့်ပိုမိုများပြားသောပုဂ္ဂလိကငွေပို့ဆောင်မှုများကိုဖြစ်ပေါ်စေသည်",
   "litecoin_mweb_dismiss": "ထုတ်ပစ်",
   "litecoin_mweb_display_card": "MweB ကဒ်ကိုပြပါ",
+  "litecoin_mweb_enable": "mweb enable",
   "litecoin_mweb_enable_later": "သင် MweB ကို display settings အောက်ရှိ ထပ်မံ. ခွင့်ပြုရန်ရွေးချယ်နိုင်သည်။",
+  "litecoin_mweb_logs": "Mweb မှတ်တမ်းများ",
+  "litecoin_mweb_node": "mweb node ကို",
   "litecoin_mweb_pegin": "တံစို့",
   "litecoin_mweb_pegout": "တံစို့",
   "litecoin_mweb_scanning": "mweb scanning",
@@ -497,7 +500,6 @@
   "pre_seed_title": "အရေးကြီးသည်။",
   "prepaid_cards": "ကြိုတင်ငွေဖြည့်ကဒ်များ",
   "prevent_screenshots": "ဖန်သားပြင်ဓာတ်ပုံများနှင့် မျက်နှာပြင်ရိုက်ကူးခြင်းကို တားဆီးပါ။",
-  "primary_address": "အဓိကလိပ်စာ",
   "privacy": "ကိုယ်ရေးကိုယ်တာ",
   "privacy_policy": "ကိုယ်ရေးအချက်အလက်မူဝါဒ",
   "privacy_settings": "Privacy settings တွေကို",
@@ -632,6 +634,7 @@
   "select_buy_provider_notice": "အပေါ်ကဝယ်သူတစ် ဦး ကိုရွေးချယ်ပါ။ သင်၏ default 0 ယ်သူအား app settings တွင် setting လုပ်ခြင်းဖြင့်ဤ screen ကိုကျော်သွားနိုင်သည်။",
   "select_destination": "အရန်ဖိုင်အတွက် ဦးတည်ရာကို ရွေးပါ။",
   "select_sell_provider_notice": "အထက်ဖော်ပြပါ အရောင်းဝန်ဆောင်မှုပေးသူကို ရွေးပါ။ အက်ပ်ဆက်တင်များတွင် သင်၏မူလရောင်းချပေးသူကို သတ်မှတ်ခြင်းဖြင့် ဤစခရင်ကို ကျော်နိုင်သည်။",
+  "select_your_country": "ကျေးဇူးပြု. သင့်နိုင်ငံကိုရွေးချယ်ပါ",
   "sell": "ရောင်း",
   "sell_alert_content": "ကျွန်ုပ်တို့သည် လက်ရှိတွင် Bitcoin၊ Ethereum နှင့် Litecoin ရောင်းချခြင်းကိုသာ ပံ့ပိုးပေးပါသည်။ သင်၏ Bitcoin၊ Ethereum သို့မဟုတ် Litecoin ပိုက်ဆံအိတ်ကို ဖန်တီးပါ သို့မဟုတ် ပြောင်းပါ။",
   "sell_monero_com_alert_content": "Monero ရောင်းချခြင်းကို မပံ့ပိုးရသေးပါ။",
@@ -939,5 +942,6 @@
   "you_pay": "သင်ပေးချေပါ။",
   "you_will_get": "သို့ပြောင်းပါ။",
   "you_will_send": "မှပြောင်းပါ။",
-  "yy": "YY"
+  "yy": "YY",
+  "contact_name_exists": "ထိုအမည်နှင့် အဆက်အသွယ်တစ်ခု ရှိနှင့်ပြီးဖြစ်သည်။ အခြားအမည်တစ်ခုကို ရွေးပါ။"
 }

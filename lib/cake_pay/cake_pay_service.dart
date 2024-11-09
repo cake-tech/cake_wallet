@@ -3,6 +3,7 @@ import 'package:cake_wallet/cake_pay/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/country.dart';
 
 class CakePayService {
   CakePayService(this.secureStorage, this.cakePayApi);
@@ -23,7 +24,7 @@ class CakePayService {
   final CakePayApi cakePayApi;
 
   /// Get Available Countries
-  Future<List<String>> getCountries() async =>
+  Future<List<Country>> getCountries() async =>
       await cakePayApi.getCountries(CSRFToken: CSRFToken, authorization: authorization);
 
   /// Get Vendors
@@ -81,10 +82,12 @@ class CakePayService {
   }
 
   /// Logout
-  Future<void> logout(String email) async {
+  Future<void> logout([String? email]) async {
     await secureStorage.delete(key: cakePayUsernameStorageKey);
     await secureStorage.delete(key: cakePayUserTokenKey);
-    await cakePayApi.logoutUser(email: email, apiKey: cakePayApiKey);
+    if (email != null) {
+      await cakePayApi.logoutUser(email: email, apiKey: cakePayApiKey);
+    }
   }
 
   /// Purchase Gift Card
