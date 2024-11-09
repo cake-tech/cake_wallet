@@ -16,11 +16,9 @@ import 'package:mobx/mobx.dart';
 
 part 'litecoin_wallet_addresses.g.dart';
 
-class LitecoinWalletAddresses = LitecoinWalletAddressesBase
-    with _$LitecoinWalletAddresses;
+class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalletAddresses;
 
-abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
-    with Store {
+abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
     required super.mainHd,
@@ -46,8 +44,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
   List<String> mwebAddrs = [];
   bool generating = false;
 
-  List<int> get scanSecret =>
-      mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
+  List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendPubkey =>
       mwebHd!.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
 
@@ -202,5 +199,13 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
     }
 
     return super.getChangeAddress();
+  }
+
+  @override
+  String get addressForExchange {
+    // don't use mweb addresses for exchange refund address:
+    final addresses = receiveAddresses
+        .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
+    return addresses.first.address;
   }
 }

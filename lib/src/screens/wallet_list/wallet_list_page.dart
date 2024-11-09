@@ -59,7 +59,7 @@ class WalletListPage extends BasePage {
                   builder: (context) => FilterListWidget(
                     initalType: walletListViewModel.orderType,
                     initalAscending: walletListViewModel.ascending,
-                    onClose: (bool ascending, WalletListOrderType type) async {
+                    onClose: (bool ascending, FilterListOrderType type) async {
                       walletListViewModel.setAscending(ascending);
                       await walletListViewModel.setOrderType(type);
                     },
@@ -318,6 +318,7 @@ class WalletListBodyState extends State<WalletListBody> {
             child: Column(
               children: <Widget>[
                 PrimaryImageButton(
+                  key: ValueKey('wallet_list_page_create_new_wallet_button_key'),
                   onPressed: () {
                     //TODO(David): Find a way to optimize this
                     if (isSingleCoin) {
@@ -359,6 +360,7 @@ class WalletListBodyState extends State<WalletListBody> {
                 ),
                 SizedBox(height: 10.0),
                 PrimaryImageButton(
+                  key: ValueKey('wallet_list_page_restore_wallet_button_key'),
                   onPressed: () {
                     if (widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
                       widget.authService.authenticateAction(

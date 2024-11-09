@@ -48,6 +48,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
@@ -187,10 +188,16 @@ abstract class DashboardViewModelBase with Store {
       final sortedTransactions = [..._accountTransactions];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
-      transactions = ObservableList.of(sortedTransactions.map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      transactions = ObservableList.of(
+        sortedTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     } else if (_wallet.type == WalletType.wownero) {
       subname = wow.wownero!.getCurrentAccount(_wallet).label;
 
@@ -211,18 +218,30 @@ abstract class DashboardViewModelBase with Store {
       final sortedTransactions = [..._accountTransactions];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
-      transactions = ObservableList.of(sortedTransactions.map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      transactions = ObservableList.of(
+        sortedTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     } else {
       final sortedTransactions = [...wallet.transactionHistory.transactions.values];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
-      transactions = ObservableList.of(sortedTransactions.map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      transactions = ObservableList.of(
+        sortedTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey('${_wallet.type.name}_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     }
 
     // TODO: nano sub-account generation is disabled:
@@ -239,9 +258,13 @@ abstract class DashboardViewModelBase with Store {
         appStore.wallet!.transactionHistory.transactions,
         transactions,
         (TransactionInfo? transaction) => TransactionListItem(
-            transaction: transaction!,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore), filter: (TransactionInfo? transaction) {
+              transaction: transaction!,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore,
+              key: ValueKey(
+                '${_wallet.type.name}_transaction_history_item_${transaction.id}_key',
+              ),
+            ), filter: (TransactionInfo? transaction) {
       if (transaction == null) {
         return false;
       }
@@ -655,20 +678,29 @@ abstract class DashboardViewModelBase with Store {
 
       transactions.clear();
 
-      transactions.addAll(wallet.transactionHistory.transactions.values.map((transaction) =>
-          TransactionListItem(
-              transaction: transaction,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore)));
+      transactions.addAll(
+        wallet.transactionHistory.transactions.values.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey('${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     }
 
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
         transactions,
         (TransactionInfo? transaction) => TransactionListItem(
-            transaction: transaction!,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore), filter: (TransactionInfo? tx) {
+              transaction: transaction!,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore,
+              key: ValueKey(
+                '${wallet.type.name}_transaction_history_item_${transaction.id}_key',
+              ),
+            ), filter: (TransactionInfo? tx) {
       if (tx == null) {
         return false;
       }
@@ -708,10 +740,16 @@ abstract class DashboardViewModelBase with Store {
               monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
 
-      transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      transactions.addAll(
+        _accountTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     } else if (wallet.type == WalletType.wownero) {
       final _accountTransactions = wow.wownero!
           .getTransactionHistory(wallet)
@@ -722,10 +760,16 @@ abstract class DashboardViewModelBase with Store {
               wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
-      transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      transactions.addAll(
+        _accountTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     }
   }
 
