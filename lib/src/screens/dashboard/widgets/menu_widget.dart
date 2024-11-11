@@ -103,6 +103,9 @@ class MenuWidgetState extends State<MenuWidget> {
     if (!widget.dashboardViewModel.hasSilentPayments) {
       items.removeWhere((element) => element.name(context) == S.of(context).silent_payments_settings);
     }
+    if (!widget.dashboardViewModel.isMoneroViewOnly) {
+      items.removeWhere((element) => element.name(context) == S.of(context).export_outputs);
+    }
     if (!widget.dashboardViewModel.hasMweb) {
       items.removeWhere((element) => element.name(context) == S.of(context).litecoin_mweb_settings);
     }
@@ -191,7 +194,6 @@ class MenuWidgetState extends State<MenuWidget> {
                   index--;
 
                   final item = items[index];
-
                   final isLastTile = index == itemCount - 1;
 
                   return SettingActionButton(

@@ -258,7 +258,11 @@ class CakePayBuyCardDetailPage extends BasePage {
     if (!isLogged) {
       Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
     } else {
-      await cakePayPurchaseViewModel.createOrder();
+      try {
+        await cakePayPurchaseViewModel.createOrder();
+      } catch (_) {
+        await cakePayPurchaseViewModel.cakePayService.logout();
+      }
     }
   }
 
@@ -343,8 +347,8 @@ class CakePayBuyCardDetailPage extends BasePage {
                 rightButtonText: S.of(popupContext).send,
                 leftButtonText: S.of(popupContext).cancel,
                 actionRightButton: () async {
-                  Navigator.of(popupContext).pop();
-                  await cakePayPurchaseViewModel.sendViewModel.commitTransaction();
+                  Navigator.of(context).pop();
+                  await cakePayPurchaseViewModel.sendViewModel.commitTransaction(context);
                 },
                 actionLeftButton: () => Navigator.of(popupContext).pop()));
       },
