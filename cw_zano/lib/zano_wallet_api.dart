@@ -1,4 +1,5 @@
 import 'dart:convert' as convert;
+import 'dart:isolate';
 
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_zano/api/consts.dart';
@@ -21,6 +22,7 @@ import 'package:cw_zano/zano_wallet_exceptions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:json_bigint/json_bigint.dart';
 import 'package:monero/zano.dart' as zano;
+import 'package:monero/src/generated_bindings_zano.g.dart' as zanoapi;
 
 mixin ZanoWalletApi {
   static const _defaultNodeUri = '195.201.107.230:33336';
@@ -83,12 +85,31 @@ mixin ZanoWalletApi {
   }
 
   Future<String> invokeMethod(String methodName, Object params) async {
-    var invokeResult =
-        zano.PlainWallet_syncCall('invoke', hWallet, jsonEncode(
-          {
-            "method": "$methodName",
-            "params": params,
-          }));
+
+    // var invokeResult = zano.PlainWallet_syncCall(
+    //   'invoke', 
+    //   hWallet, 
+    //   jsonEncode(
+    //     {
+    //       "method": "$methodName",
+    //       "params": params,
+    //     },
+    //   ),
+    // );
+    final request = jsonEncode({
+      "method": methodName,
+      "params": params,
+    });
+    print("zano: >>> $request");
+    var invokeResult = await Isolate.run(() {
+      final ret = zano.PlainWallet_syncCall(
+        'invoke',
+        hWallet,
+        request,
+      );
+      return ret;
+    });
+    print("zano: <<< ${invokeResult}");
     Map<String, dynamic> map;
     try {
       map = jsonDecode(invokeResult) as Map<String, dynamic>;
