@@ -84,7 +84,11 @@ mixin ZanoWalletApi {
 
   Future<String> invokeMethod(String methodName, Object params) async {
     var invokeResult =
-        zano.PlainWallet_asyncCall('invoke', hWallet, '{"method": "$methodName","params": ${jsonEncode(params)}}');
+        zano.PlainWallet_syncCall('invoke', hWallet, jsonEncode(
+          {
+            "method": "$methodName",
+            "params": params,
+          }));
     Map<String, dynamic> map;
     try {
       map = jsonDecode(invokeResult) as Map<String, dynamic>;
@@ -92,24 +96,6 @@ mixin ZanoWalletApi {
       if (invokeResult.contains(Consts.errorWalletWrongId)) throw ZanoWalletException('Wrong wallet id');
       error('exception in parsing json in invokeMethod: $invokeResult');
       rethrow;
-    }
-    int attempts = 0;
-    if (map['job_id'] != null) {
-      final jobId = map['job_id'] as int;
-      do {
-        await Future.delayed(Duration(milliseconds: attempts < 2 ? 100 : 500));
-        final result = zano.PlainWallet_tryPullResult(jobId);
-        try {
-          map = jsonDecode(result) as Map<String, dynamic>;
-        } catch (e) {
-          if (result.contains(Consts.errorWalletWrongId)) throw ZanoWalletException('Wrong wallet id');
-          error('exception in parsing json in invokeMethod: $result');
-          rethrow;
-        }
-        if (map['status'] != null && map['status'] == _statusDelivered && map['result'] != null) {
-          return result;
-        }
-      } while (++attempts < _maxInvokeAttempts);
     }
     return invokeResult;
   }
