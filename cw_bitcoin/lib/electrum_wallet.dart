@@ -582,7 +582,7 @@ abstract class ElectrumWalletBase extends WalletBase<
   Future<void> connectToNode({required Node node}) async {
     this.node = node;
 
-    // if (syncStatus is ConnectingSyncStatus || syn) return;
+    if (syncStatus is ConnectingSyncStatus) return;
 
     try {
       syncStatus = ConnectingSyncStatus();
