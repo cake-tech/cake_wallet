@@ -9,7 +9,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class MenuWidget extends StatefulWidget {
-  MenuWidget(this.dashboardViewModel);
+  MenuWidget(this.dashboardViewModel, Key? key);
 
   final DashboardViewModel dashboardViewModel;
 
@@ -101,6 +101,9 @@ class MenuWidgetState extends State<MenuWidget> {
     if (!widget.dashboardViewModel.hasSilentPayments) {
       items.removeWhere((element) => element.name(context) == S.of(context).silent_payments_settings);
     }
+    if (!widget.dashboardViewModel.isMoneroViewOnly) {
+      items.removeWhere((element) => element.name(context) == S.of(context).export_outputs);
+    }
     if (!widget.dashboardViewModel.hasMweb) {
       items.removeWhere((element) => element.name(context) == S.of(context).litecoin_mweb_settings);
     }
@@ -189,10 +192,10 @@ class MenuWidgetState extends State<MenuWidget> {
                   index--;
 
                   final item = items[index];
-
                   final isLastTile = index == itemCount - 1;
 
                   return SettingActionButton(
+                    key: item.key,
                     isLastTile: isLastTile,
                     tileHeight: tileHeight,
                     selectionActive: false,
