@@ -928,7 +928,7 @@ abstract class ElectrumWalletBase extends WalletBase<
     );
   }
 
-  Future<Uint8List> createPayjoinTransaction(
+  Future<PsbtV2> createPayjoinTransaction(
     Object credentials, {
     String? pjBtcAddress,
   }) async {
@@ -1020,7 +1020,8 @@ abstract class ElectrumWalletBase extends WalletBase<
         return '';
       });
 
-      return transaction.psbt.asPsbtV0();
+      // return transaction.psbt.asPsbtV0();
+      return transaction.psbt;
     } catch (e, st) {
       print('[!] ElectrumWallet || e: $e and st: $st');
       throw e;

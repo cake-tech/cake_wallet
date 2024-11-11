@@ -363,12 +363,17 @@ class BitcoinPayjoin {
     //   pjBtcAddress: uri.address(),
     // );
 
-    final psbtv0 = await bitcoinWallet.createPayjoinTransaction(
+    final psbtv2 = await bitcoinWallet.createPayjoinTransaction(
       credentials,
       pjBtcAddress: uri.address(),
     );
+    print(
+        '[+] BitcoinPayjoin | buildOriginalPsbt => psbtv2: ${base64Encode(psbtv2.serialize())}');
 
-    return base64Encode(psbtv0);
+    final psbtv0 = base64Encode(psbtv2.asPsbtV0());
+    print('[+] BitcoinPayjoin | buildOriginalPsbt => psbtv0: $psbtv0');
+
+    return psbtv0;
   }
 
   Future<send.RequestContext> buildPayjoinRequest(

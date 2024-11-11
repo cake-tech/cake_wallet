@@ -70,9 +70,9 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: cake-update-v5
-      resolved-ref: ff2b10eb27b0254ce4518d054332d97d77d9b380
-      url: "https://github.com/cake-tech/bitcoin_base"
+      ref: "9ef1155d082e6ef398f6ababbf8fe909caa3ae68"
+      resolved-ref: "9ef1155d082e6ef398f6ababbf8fe909caa3ae68"
+      url: "https://github.com/J0J0XMR/bitcoin_base"
     source: git
     version: "4.7.0"
   blockchain_utils:
@@ -667,10 +667,11 @@ packages:
   payjoin_flutter:
     dependency: "direct main"
     description:
-      name: payjoin_flutter
-      sha256: "8dd31af1edabca92b636f2a204ded98a386ce4dc9cef0c3e3eef388b07d16889"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: dc1685cb808205bd59f319ce2e6e67ea133b884d
+      url: "https://github.com/J0J0XMR/payjoin-flutter"
+    source: git
     version: "0.20.0"
   platform:
     dependency: transitive
@@ -938,10 +939,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: f652077d0bdf60abe4c1f6377448e8655008eef28f128bc023f7b5e8dfeb48fc
+      sha256: "5c5f338a667b4c644744b661f309fb8080bb94b18a7e91ef1dbd343bed00ed6d"
       url: "https://pub.dev"
     source: hosted
-    version: "14.2.4"
+    version: "14.2.5"
   watcher:
     dependency: "direct overridden"
     description:
