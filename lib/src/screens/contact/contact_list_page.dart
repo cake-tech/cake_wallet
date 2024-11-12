@@ -269,8 +269,8 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
               return AlertWithTwoActions(
                   alertTitle: name,
                   alertContent: address,
-                  rightButtonText: 'Copy',
-                  leftButtonText: 'Cancel',
+                  rightButtonText: S.of(context).copy,
+                  leftButtonText: S.of(context).cancel,
                   actionRightButton: () => Navigator.of(context).pop(true),
                   actionLeftButton: () => Navigator.of(context).pop(false));
             }) ??
