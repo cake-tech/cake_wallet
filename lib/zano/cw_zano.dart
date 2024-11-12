@@ -141,4 +141,7 @@ class CWZano extends Zano {
 
   @override
   String getAddress(WalletBase wallet) => (wallet as ZanoWallet).walletAddresses.address;
+
+  @override
+  bool validateAddress(String address) => ZanoUtils.validateAddress(address);
 }

@@ -1415,6 +1415,7 @@ import 'package:cw_zano/model/zano_transaction_info.dart';
 import 'package:cw_zano/zano_formatter.dart';
 import 'package:cw_zano/zano_wallet.dart';
 import 'package:cw_zano/zano_wallet_service.dart';
+import 'package:cw_zano/zano_utils.dart';
 """;
   const zanoCwPart = "part 'cw_zano.dart';";
   const zanoContent = """
@@ -1446,6 +1447,7 @@ abstract class Zano {
   Future<void> deleteZanoAsset(WalletBase wallet, CryptoCurrency token);
   Future<CryptoCurrency?> getZanoAsset(WalletBase wallet, String contractAddress);
   String getAddress(WalletBase wallet);
+  bool validateAddress(String address);
 }
 """;
   const zanoEmptyDefinition = 'Zano? zano;\n';

@@ -13,11 +13,13 @@ class ZanoTransactionInfo extends TransactionInfo {
     required this.isPending,
     required this.zanoAmount,
     required this.fee,
-    required this.assetId,
     required this.confirmations,
     required this.tokenSymbol,
     required this.decimalPoint,
-  }) : amount = zanoAmount.isValidInt ? zanoAmount.toInt() : 0;
+    required String assetId,
+  }) : amount = zanoAmount.isValidInt ? zanoAmount.toInt() : 0 {
+    additionalInfo['assetId'] = assetId;
+  }
 
   ZanoTransactionInfo.fromTransfer(Transfer transfer,
       {required int confirmations,
@@ -33,15 +35,16 @@ class ZanoTransactionInfo extends TransactionInfo {
         zanoAmount = amount,
         amount = amount.isValidInt ? amount.toInt() : 0,
         fee = transfer.fee,
-        assetId = assetId,
         confirmations = confirmations,
         isPending = false,
         recipientAddress = transfer.remoteAddresses.isNotEmpty ? transfer.remoteAddresses.first : '' {
     additionalInfo = <String, dynamic>{
       'comment': transfer.comment,
+      'assetId': assetId,
     };
   }
-
+  String get assetId => additionalInfo["assetId"] as String;
+  set assetId(String newId) => additionalInfo["assetId"] = newId;
   final String id;
   final int height;
   final TransactionDirection direction;
@@ -54,7 +57,6 @@ class ZanoTransactionInfo extends TransactionInfo {
   final int decimalPoint;
   late String recipientAddress;
   final String tokenSymbol;
-  late String assetId;
   String? _fiatAmount;
   String? key;
 
