@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -17,35 +20,46 @@ typedef OnConnectDevice = void Function(BuildContext, LedgerViewModel);
 class ConnectDevicePageParams {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
+  final bool allowChangeWallet;
 
-  ConnectDevicePageParams(
-      {required this.walletType, required this.onConnectDevice});
+  ConnectDevicePageParams({
+    required this.walletType,
+    required this.onConnectDevice,
+    this.allowChangeWallet = false,
+  });
 }
 
 class ConnectDevicePage extends BasePage {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
+  final bool allowChangeWallet;
   final LedgerViewModel ledgerVM;
 
   ConnectDevicePage(ConnectDevicePageParams params, this.ledgerVM)
       : walletType = params.walletType,
-        onConnectDevice = params.onConnectDevice;
+        onConnectDevice = params.onConnectDevice,
+        allowChangeWallet = params.allowChangeWallet;
 
   @override
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) =>
-      ConnectDevicePageBody(walletType, onConnectDevice, ledgerVM);
+  Widget body(BuildContext context) => ConnectDevicePageBody(
+      walletType, onConnectDevice, allowChangeWallet, ledgerVM);
 }
 
 class ConnectDevicePageBody extends StatefulWidget {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
+  final bool allowChangeWallet;
   final LedgerViewModel ledgerVM;
 
   const ConnectDevicePageBody(
-      this.walletType, this.onConnectDevice, this.ledgerVM);
+    this.walletType,
+    this.onConnectDevice,
+    this.allowChangeWallet,
+    this.ledgerVM,
+  );
 
   @override
   ConnectDevicePageBodyState createState() => ConnectDevicePageBodyState();
@@ -102,14 +116,16 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
 
   Future<void> _refreshBleDevices() async {
     try {
-      _bleRefresh = widget.ledgerVM
-          .scanForBleDevices()
-          .listen((device) => setState(() => bleDevices.add(device)))
-        ..onError((e) {
-          throw e.toString();
-        });
-      _bleRefreshTimer?.cancel();
-      _bleRefreshTimer = null;
+      if (widget.ledgerVM.bleIsEnabled) {
+        _bleRefresh = widget.ledgerVM
+            .scanForBleDevices()
+            .listen((device) => setState(() => bleDevices.add(device)))
+          ..onError((e) {
+            throw e.toString();
+          });
+        _bleRefreshTimer?.cancel();
+        _bleRefreshTimer = null;
+      }
     } catch (e) {
       print(e);
     }
@@ -227,9 +243,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context)
-                            .extension<CakeTextTheme>()!
-                            .titleColor,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       ),
                     ),
                   ),
@@ -247,11 +261,27 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       ),
                     )
                     .toList(),
-              ]
+              ],
+              if (widget.allowChangeWallet) ...[
+                PrimaryButton(
+                  text: S.of(context).wallets,
+                  color: Theme.of(context).extension<WalletListTheme>()!.createNewWalletButtonBackgroundColor,
+                  textColor: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
+                  onPressed: _onChangeWallet,
+                )
+              ],
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _onChangeWallet() {
+    Navigator.of(context).pushNamed(
+      Routes.walletList,
+      arguments: (BuildContext context) => Navigator.of(context)
+          .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false),
     );
   }
 }
