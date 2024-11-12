@@ -67,6 +67,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     String? to,
     this.unspents,
     this.isReceivedSilentPayment = false,
+    Map<String, dynamic>? additionalInfo,
   }) {
     this.id = id;
     this.height = height;
@@ -82,6 +83,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.confirmations = confirmations;
     this.dateValidated = dateValidated;
     this.to = to;
+    this.additionalInfo = additionalInfo ?? {};
   }
 
   factory ElectrumTransactionInfo.fromElectrumVerbose(Map<String, Object> obj, WalletType type,
@@ -264,6 +266,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
       time: data['time'] as int?,
       dateValidated: data['dateValidated'] as bool?,
+      additionalInfo: data['additionalInfo'] as Map<String, dynamic>?,
     );
   }
 
@@ -300,6 +303,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       inputAddresses: inputAddresses,
       outputAddresses: outputAddresses,
       confirmations: info.confirmations,
+      additionalInfo: additionalInfo,
       time: info.time,
     );
   }
@@ -321,11 +325,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['inputAddresses'] = inputAddresses;
     m['outputAddresses'] = outputAddresses;
     m['isReceivedSilentPayment'] = isReceivedSilentPayment;
+    m['additionalInfo'] = additionalInfo;
     m['dateValidated'] = dateValidated;
     return m;
   }
 
   String toString() {
-    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, isReplaced: $isReplaced, confirmations: $confirmations, to: $to, unspent: $unspents, inputAddresses: $inputAddresses, outputAddresses: $outputAddresses)';
+    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, isReplaced: $isReplaced, confirmations: $confirmations, to: $to, unspent: $unspents, inputAddresses: $inputAddresses, outputAddresses: $outputAddresses, additionalInfo: $additionalInfo)';
   }
 }

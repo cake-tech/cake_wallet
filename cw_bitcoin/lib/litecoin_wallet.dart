@@ -9,6 +9,7 @@ import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 // import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -45,6 +46,7 @@ import 'package:cw_mweb/cw_mweb.dart';
 import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
 import 'package:pointycastle/ecc/api.dart';
 import 'package:pointycastle/ecc/curves/secp256k1.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'litecoin_wallet.g.dart';
 
@@ -154,7 +156,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required bool mempoolAPIEnabled,
   }) async {
     late Uint8List seedBytes;
-    late BitcoinDerivationType derivationType;
 
     switch (walletInfo.derivationInfo?.derivationType) {
       case DerivationType.bip39:
@@ -162,12 +163,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           mnemonic,
           passphrase: passphrase ?? "",
         );
-        derivationType = BitcoinDerivationType.bip39;
         break;
       case DerivationType.electrum:
       default:
         seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
-        derivationType = BitcoinDerivationType.electrum;
         break;
     }
     return LitecoinWallet(
@@ -234,7 +233,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
-    late BitcoinDerivationType derivationType;
     final mnemonic = keysData.mnemonic;
     final passphrase = keysData.passphrase;
 
@@ -245,12 +243,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             mnemonic,
             passphrase: passphrase ?? "",
           );
-          derivationType = BitcoinDerivationType.bip39;
           break;
         case DerivationType.electrum:
         default:
           seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
-          derivationType = BitcoinDerivationType.electrum;
           break;
       }
     }
@@ -280,6 +276,16 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // ensure that we have the full 1000 mweb addresses generated before continuing:
     // should no longer be needed, but leaving here just in case
     await (walletAddresses as LitecoinWalletAddresses).ensureMwebAddressUpToIndexExists(1020);
+  }
+
+  @action
+  @override
+  Future<void> connectToNode({required Node node}) async {
+    await super.connectToNode(node: node);
+
+    final prefs = await SharedPreferences.getInstance();
+    final mwebNodeUri = prefs.getString("mwebNodeUri") ?? "ltc-electrum.cakewallet.com:9333";
+    await CwMweb.setNodeUriOverride(mwebNodeUri);
   }
 
   @action
@@ -343,6 +349,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         return;
       }
 
+      // update the current chain tip so that confirmation calculations are accurate:
+      currentChainTip = nodeHeight;
+
       final resp = await CwMweb.status(StatusRequest());
 
       try {
@@ -355,22 +364,45 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         } else if (resp.mwebUtxosHeight < nodeHeight) {
           mwebSyncStatus = SyncingSyncStatus(1, 0.999);
         } else {
+          bool confirmationsUpdated = false;
           if (resp.mwebUtxosHeight > walletInfo.restoreHeight) {
             await walletInfo.updateRestoreHeight(resp.mwebUtxosHeight);
             await checkMwebUtxosSpent();
             // update the confirmations for each transaction:
-            for (final transaction in transactionHistory.transactions.values) {
-              if (transaction.isPending) continue;
-              int txHeight = transaction.height ?? resp.mwebUtxosHeight;
-              final confirmations = (resp.mwebUtxosHeight - txHeight) + 1;
-              if (transaction.confirmations == confirmations) continue;
-              if (transaction.confirmations == 0) {
-                updateBalance();
+            for (final tx in transactionHistory.transactions.values) {
+              if (tx.height == null || tx.height == 0) {
+                // update with first confirmation on next block since it hasn't been confirmed yet:
+                tx.height = resp.mwebUtxosHeight;
+                continue;
               }
-              transaction.confirmations = confirmations;
-              transactionHistory.addOne(transaction);
+
+              final confirmations = (resp.mwebUtxosHeight - tx.height!) + 1;
+
+              // if the confirmations haven't changed, skip updating:
+              if (tx.confirmations == confirmations) continue;
+
+              // if an outgoing tx is now confirmed, delete the utxo from the box (delete the unspent coin):
+              if (confirmations >= 2 &&
+                  tx.direction == TransactionDirection.outgoing &&
+                  tx.unspents != null) {
+                for (var coin in tx.unspents!) {
+                  final utxo = mwebUtxosBox.get(coin.address);
+                  if (utxo != null) {
+                    print("deleting utxo ${coin.address} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                    await mwebUtxosBox.delete(coin.address);
+                  }
+                }
+              }
+
+              tx.confirmations = confirmations;
+              tx.isPending = false;
+              transactionHistory.addOne(tx);
+              confirmationsUpdated = true;
             }
-            await transactionHistory.save();
+            if (confirmationsUpdated) {
+              await transactionHistory.save();
+              await updateTransactions();
+            }
           }
 
           // prevent unnecessary reaction triggers:
@@ -490,13 +522,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         outputAddresses: [utxo.outputId],
         isReplaced: false,
       );
-    }
-
-    // don't update the confirmations if the tx is updated by electrum:
-    if (tx.confirmations == 0 || utxo.height != 0) {
-      tx.height = utxo.height;
-      tx.isPending = utxo.height == 0;
-      tx.confirmations = confirmations;
+    } else {
+      if (tx.confirmations != confirmations || tx.height != utxo.height) {
+        tx.height = utxo.height;
+        tx.confirmations = confirmations;
+        tx.isPending = utxo.height == 0;
+      }
     }
 
     bool isNew = transactionHistory.transactions[tx.id] == null;
@@ -546,56 +577,88 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (responseStream == null) {
       throw Exception("failed to get utxos stream!");
     }
-    _utxoStream = responseStream.listen((Utxo sUtxo) async {
-      // we're processing utxos, so our balance could still be innacurate:
-      if (mwebSyncStatus is! SynchronizingSyncStatus && mwebSyncStatus is! SyncingSyncStatus) {
-        mwebSyncStatus = SynchronizingSyncStatus();
-        processingUtxos = true;
-        _processingTimer?.cancel();
-        _processingTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
-          processingUtxos = false;
-          timer.cancel();
-        });
-      }
-
-      final utxo = MwebUtxo(
-        address: sUtxo.address,
-        blockTime: sUtxo.blockTime,
-        height: sUtxo.height,
-        outputId: sUtxo.outputId,
-        value: sUtxo.value.toInt(),
-      );
-
-      if (mwebUtxosBox.containsKey(utxo.outputId)) {
-        // we've already stored this utxo, skip it:
-        // but do update the utxo height if it's somehow different:
-        final existingUtxo = mwebUtxosBox.get(utxo.outputId);
-        if (existingUtxo!.height != utxo.height) {
-          print(
-              "updating utxo height for $utxo.outputId: ${existingUtxo.height} -> ${utxo.height}");
-          existingUtxo.height = utxo.height;
-          await mwebUtxosBox.put(utxo.outputId, existingUtxo);
+    _utxoStream = responseStream.listen(
+      (Utxo sUtxo) async {
+        // we're processing utxos, so our balance could still be innacurate:
+        if (mwebSyncStatus is! SynchronizingSyncStatus && mwebSyncStatus is! SyncingSyncStatus) {
+          mwebSyncStatus = SynchronizingSyncStatus();
+          processingUtxos = true;
+          _processingTimer?.cancel();
+          _processingTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+            processingUtxos = false;
+            timer.cancel();
+          });
         }
-        return;
-      }
 
-      await updateUnspent();
-      await updateBalance();
+        final utxo = MwebUtxo(
+          address: sUtxo.address,
+          blockTime: sUtxo.blockTime,
+          height: sUtxo.height,
+          outputId: sUtxo.outputId,
+          value: sUtxo.value.toInt(),
+        );
 
-      final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
+        if (mwebUtxosBox.containsKey(utxo.outputId)) {
+          // we've already stored this utxo, skip it:
+          // but do update the utxo height if it's somehow different:
+          final existingUtxo = mwebUtxosBox.get(utxo.outputId);
+          if (existingUtxo!.height != utxo.height) {
+            print(
+                "updating utxo height for $utxo.outputId: ${existingUtxo.height} -> ${utxo.height}");
+            existingUtxo.height = utxo.height;
+            await mwebUtxosBox.put(utxo.outputId, existingUtxo);
+          }
+          return;
+        }
 
-      // don't process utxos with addresses that are not in the mwebAddrs list:
-      if (utxo.address.isNotEmpty && !mwebAddrs.contains(utxo.address)) {
-        return;
-      }
+        await updateUnspent();
+        await updateBalance();
 
-      await mwebUtxosBox.put(utxo.outputId, utxo);
+        final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
 
-      await handleIncoming(utxo);
-    });
+        // don't process utxos with addresses that are not in the mwebAddrs list:
+        if (utxo.address.isNotEmpty && !mwebAddrs.contains(utxo.address)) {
+          return;
+        }
+
+        await mwebUtxosBox.put(utxo.outputId, utxo);
+
+        await handleIncoming(utxo);
+      },
+      onError: (error) {
+        print("error in utxo stream: $error");
+        mwebSyncStatus = FailedSyncStatus(error: error.toString());
+      },
+      cancelOnError: true,
+    );
+  }
+
+  Future<void> deleteSpentUtxos() async {
+    print("deleteSpentUtxos() called!");
+    final chainHeight = currentChainTip;
+    final status = await CwMweb.status(StatusRequest());
+    if (chainHeight == null || status.blockHeaderHeight != chainHeight) return;
+    if (status.mwebUtxosHeight != chainHeight) return; // we aren't synced
+
+    // delete any spent utxos with >= 2 confirmations:
+    final spentOutputIds = mwebUtxosBox.values
+        .where((utxo) => utxo.spent && (chainHeight - utxo.height) >= 2)
+        .map((utxo) => utxo.outputId)
+        .toList();
+
+    if (spentOutputIds.isEmpty) return;
+
+    final resp = await CwMweb.spent(SpentRequest(outputId: spentOutputIds));
+    final spent = resp.outputId;
+    if (spent.isEmpty) return;
+
+    for (final outputId in spent) {
+      await mwebUtxosBox.delete(outputId);
+    }
   }
 
   Future<void> checkMwebUtxosSpent() async {
+    print("checkMwebUtxosSpent() called!");
     if (!mwebEnabled) {
       return;
     }
@@ -609,15 +672,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       updatedAny = await isConfirmed(tx) || updatedAny;
     }
 
+    await deleteSpentUtxos();
+
     // get output ids of all the mweb utxos that have > 0 height:
-    final outputIds =
-        mwebUtxosBox.values.where((utxo) => utxo.height > 0).map((utxo) => utxo.outputId).toList();
+    final outputIds = mwebUtxosBox.values
+        .where((utxo) => utxo.height > 0 && !utxo.spent)
+        .map((utxo) => utxo.outputId)
+        .toList();
 
     final resp = await CwMweb.spent(SpentRequest(outputId: outputIds));
     final spent = resp.outputId;
-    if (spent.isEmpty) {
-      return;
-    }
+    if (spent.isEmpty) return;
 
     final status = await CwMweb.status(StatusRequest());
     final height = await currentChainTip;
@@ -729,7 +794,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebUtxosBox.keys.forEach((dynamic oId) {
       final String outputId = oId as String;
       final utxo = mwebUtxosBox.get(outputId);
-      if (utxo == null) {
+      if (utxo == null || utxo.spent) {
         return;
       }
       if (utxo.address.isEmpty) {
@@ -773,11 +838,81 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     //   await Future.wait(LITECOIN_ADDRESS_TYPES
     //       .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
 
-    //   return historiesWithDetails;
-    // } catch (e) {
-    //   print("fetchTransactions $e");
-    //   return {};
-    // }
+    // int confirmed = balance.confirmed;
+    // int unconfirmed = balance.unconfirmed;
+    int confirmedMweb = 0;
+    int unconfirmedMweb = 0;
+    try {
+      mwebUtxosBox.values.forEach((utxo) {
+        bool isConfirmed = utxo.height > 0;
+
+        print(
+            "utxo: ${isConfirmed ? "confirmed" : "unconfirmed"} ${utxo.spent ? "spent" : "unspent"} ${utxo.outputId} ${utxo.height} ${utxo.value}");
+
+        if (isConfirmed) {
+          confirmedMweb += utxo.value.toInt();
+        }
+
+        if (isConfirmed && utxo.spent) {
+          unconfirmedMweb -= utxo.value.toInt();
+        }
+
+        if (!isConfirmed && !utxo.spent) {
+          unconfirmedMweb += utxo.value.toInt();
+        }
+      });
+    } catch (_) {}
+
+    for (var addressRecord in walletAddresses.allAddresses) {
+      addressRecord.balance = 0;
+      addressRecord.txCount = 0;
+    }
+
+    unspentCoins.forEach((coin) {
+      final coinInfoList = unspentCoinsInfo.values.where(
+        (element) =>
+            element.walletId.contains(id) &&
+            element.hash.contains(coin.hash) &&
+            element.vout == coin.vout,
+      );
+
+      if (coinInfoList.isNotEmpty) {
+        final coinInfo = coinInfoList.first;
+
+        coin.isFrozen = coinInfo.isFrozen;
+        coin.isSending = coinInfo.isSending;
+        coin.note = coinInfo.note;
+        if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
+          coin.bitcoinAddressRecord.balance += coinInfo.value;
+      } else {
+        super.addCoinInfo(coin);
+      }
+    });
+
+    // update the txCount for each address using the tx history, since we can't rely on mwebd
+    // to have an accurate count, we should just keep it in sync with what we know from the tx history:
+    for (final tx in transactionHistory.transactions.values) {
+      if (tx.inputAddresses == null || tx.outputAddresses == null) {
+        continue;
+      }
+      final txAddresses = tx.inputAddresses! + tx.outputAddresses!;
+      for (final address in txAddresses) {
+        final addressRecord = walletAddresses.allAddresses
+            .firstWhereOrNull((addressRecord) => addressRecord.address == address);
+        if (addressRecord == null) {
+          continue;
+        }
+        addressRecord.txCount++;
+      }
+    }
+
+    // return ElectrumBalance(
+    //   confirmed: confirmed,
+    //   unconfirmed: unconfirmed,
+    //   frozen: balance.frozen,
+    //   secondConfirmed: confirmedMweb,
+    //   secondUnconfirmed: unconfirmedMweb,
+    // );
   }
 
   // @override
@@ -921,7 +1056,26 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // https://github.com/ltcmweb/mwebd?tab=readme-ov-file#fee-estimation
     final preOutputSum =
         outputs.fold<BigInt>(BigInt.zero, (acc, output) => acc + output.toOutput.amount);
-    final fee = utxos.sumOfUtxosValue() - preOutputSum;
+    var fee = utxos.sumOfUtxosValue() - preOutputSum;
+
+    // determines if the fee is correct:
+    BigInt _sumOutputAmounts(List<TxOutput> outputs) {
+      BigInt sum = BigInt.zero;
+      for (final e in outputs) {
+        sum += e.amount;
+      }
+      return sum;
+    }
+
+    final sum1 = _sumOutputAmounts(outputs.map((e) => e.toOutput).toList()) + fee;
+    final sum2 = utxos.sumOfUtxosValue();
+    if (sum1 != sum2) {
+      print("@@@@@ WE HAD TO ADJUST THE FEE! @@@@@@@@");
+      final diff = sum2 - sum1;
+      // add the difference to the fee (abs value):
+      fee += diff.abs();
+    }
+
     final txb =
         BitcoinTransactionBuilder(utxos: utxos, outputs: outputs, fee: fee, network: network);
     final resp = await CwMweb.create(CreateRequest(
@@ -981,15 +1135,25 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       bool hasMwebInput = false;
       bool hasMwebOutput = false;
+      bool hasRegularOutput = false;
 
       for (final output in transactionCredentials.outputs) {
-        if (output.extractedAddress?.toLowerCase().contains("mweb") ?? false) {
+        final address = output.address.toLowerCase();
+        final extractedAddress = output.extractedAddress?.toLowerCase();
+
+        if (address.contains("mweb")) {
           hasMwebOutput = true;
-          break;
         }
-        if (output.address.toLowerCase().contains("mweb")) {
-          hasMwebOutput = true;
-          break;
+        if (!address.contains("mweb")) {
+          hasRegularOutput = true;
+        }
+        if (extractedAddress != null && extractedAddress.isNotEmpty) {
+          if (extractedAddress.contains("mweb")) {
+            hasMwebOutput = true;
+          }
+          if (!extractedAddress.contains("mweb")) {
+            hasRegularOutput = true;
+          }
         }
       }
 
@@ -1001,6 +1165,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
 
       bool isPegIn = !hasMwebInput && hasMwebOutput;
+      bool isPegOut = hasMwebInput && hasRegularOutput;
       bool isRegular = !hasMwebInput && !hasMwebOutput;
       tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
               .getChangeAddress(isPegIn: isPegIn || isRegular))
@@ -1057,8 +1222,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           final addresses = <String>{};
           transaction.inputAddresses?.forEach((id) async {
             final utxo = mwebUtxosBox.get(id);
-            await mwebUtxosBox.delete(id); // gets deleted in checkMwebUtxosSpent
+            // await mwebUtxosBox.delete(id); // gets deleted in checkMwebUtxosSpent
             if (utxo == null) return;
+            // mark utxo as spent so we add it to the unconfirmed balance (as negative):
+            utxo.spent = true;
+            await mwebUtxosBox.put(id, utxo);
             final addressRecord = walletAddresses.allAddresses
                 .firstWhere((addressRecord) => addressRecord.address == utxo.address);
             if (!addresses.contains(utxo.address)) {
@@ -1067,7 +1235,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             addressRecord.balance -= utxo.value.toInt();
           });
           transaction.inputAddresses?.addAll(addresses);
-
+          print("isPegIn: $isPegIn, isPegOut: $isPegOut");
+          transaction.additionalInfo["isPegIn"] = isPegIn;
+          transaction.additionalInfo["isPegOut"] = isPegOut;
           transactionHistory.addOne(transaction);
           await updateUnspent();
           await updateBalance();

@@ -120,6 +120,7 @@ class LitecoinWalletService extends WalletService<
       File neturinoDb = File('$appDirPath/neutrino.db');
       File blockHeaders = File('$appDirPath/block_headers.bin');
       File regFilterHeaders = File('$appDirPath/reg_filter_headers.bin');
+      File mwebdLogs = File('$appDirPath/logs/debug.log');
       if (neturinoDb.existsSync()) {
         neturinoDb.deleteSync();
       }
@@ -128,6 +129,9 @@ class LitecoinWalletService extends WalletService<
       }
       if (regFilterHeaders.existsSync()) {
         regFilterHeaders.deleteSync();
+      }
+      if (mwebdLogs.existsSync()) {
+        mwebdLogs.deleteSync();
       }
     }
   }

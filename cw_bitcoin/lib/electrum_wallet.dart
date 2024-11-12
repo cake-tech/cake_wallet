@@ -453,7 +453,7 @@ abstract class ElectrumWalletBase
     bool spendsUnconfirmedTX = false;
 
     int leftAmount = credentialsAmount;
-    final availableInputs = unspentCoins.where((utx) {
+    var availableInputs = unspentCoins.where((utx) {
       if (!utx.isSending || utx.isFrozen) {
         return false;
       }
@@ -468,6 +468,10 @@ abstract class ElectrumWalletBase
       }
     }).toList();
     final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
+
+    // sort the unconfirmed coins so that mweb coins are first:
+    availableInputs
+        .sort((a, b) => a.bitcoinAddressRecord.addressType == SegwitAddresType.mweb ? -1 : 1);
 
     for (int i = 0; i < availableInputs.length; i++) {
       final utx = availableInputs[i];

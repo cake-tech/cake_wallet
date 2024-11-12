@@ -116,6 +116,7 @@ class ElectrumClient {
         final errorMsg = error.toString();
         print(errorMsg);
         unterminatedString = '';
+        socket = null;
       },
       onDone: () {
         print("SOCKET CLOSED!!!!!");
@@ -124,6 +125,7 @@ class ElectrumClient {
           if (host == socket?.address.host || socket == null) {
             _setConnectionStatus(ConnectionStatus.disconnected);
             socket?.destroy();
+            socket = null;
           }
         } catch (e) {
           print("onDone: $e");

@@ -115,8 +115,7 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   Future<void> _ltcCommit() async {
     try {
-      final stub = await CwMweb.stub();
-      final resp = await stub.broadcast(BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
+      final resp = await CwMweb.broadcast(BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
       idOverride = resp.txid;
     } on GrpcError catch (e) {
       throw BitcoinTransactionCommitFailed(errorMessage: e.message);
@@ -146,12 +145,17 @@ class PendingBitcoinTransaction with PendingTransaction {
         amount: amount,
         direction: TransactionDirection.outgoing,
         date: DateTime.now(),
-        time: null,
         isPending: true,
         isReplaced: false,
         confirmations: 0,
         inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
         outputAddresses: outputAddresses,
         fee: fee,
+        time: null,
       );
+
+  @override
+  Future<String?> commitUR() {
+    throw UnimplementedError();
+  }
 }
