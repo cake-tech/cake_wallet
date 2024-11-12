@@ -498,7 +498,7 @@ class SendPage extends BasePage {
                           ValueKey('send_page_confirm_sending_dialog_cancel_button_key'),
                       actionRightButton: () async {
                         Navigator.of(_dialogContext).pop();
-                        sendViewModel.commitTransaction();
+                        sendViewModel.commitTransaction(context);
                         await showPopUp<void>(
                             context: context,
                             builder: (BuildContext _dialogContext) {

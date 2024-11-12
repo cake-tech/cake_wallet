@@ -25,7 +25,8 @@ dependencies:
   monero:
     git:
       url: https://github.com/mrcyjanek/monero_c
-      ref: 6eb571ea498ed7b854934785f00fabfd0dadf75b # monero_c hash
+      ref: caaf1e56b1d2a254b332fdf848926fb963af4a3b
+#      ref: 6eb571ea498ed7b854934785f00fabfd0dadf75b # monero_c hash
       path: impls/monero.dart
   mutex: ^3.1.0
 
