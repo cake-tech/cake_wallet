@@ -12,7 +12,6 @@ class Contact extends HiveObject with Keyable {
     if (type != null) {
       raw = type.raw;
     }
-    this.lastChange = lastChange ?? DateTime.now();
   }
 
   static const typeId = CONTACT_TYPE_ID;
