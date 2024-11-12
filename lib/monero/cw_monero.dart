@@ -226,6 +226,19 @@ class CWMonero extends Monero {
           height: height);
 
   @override
+  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({
+    required String name,
+    required String password,
+    required int height,
+    required ledger.LedgerConnection ledgerConnection,
+  }) =>
+      MoneroRestoreWalletFromHardwareCredentials(
+          name: name,
+          password: password,
+          height: height,
+          ledgerConnection: ledgerConnection);
+
+  @override
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials(
           {required String name,
           required String password,
@@ -381,6 +394,18 @@ class CWMonero extends Monero {
   @override
   void monerocCheck() {
     checkIfMoneroCIsFine();
+  }
+
+  @override
+  void setLedgerConnection(Object wallet, ledger.LedgerConnection connection) {
+    final moneroWallet = wallet as MoneroWallet;
+    moneroWallet.setLedgerConnection(connection);
+  }
+
+  @override
+  void setGlobalLedgerConnection(ledger.LedgerConnection connection) {
+    gLedger = connection;
+    keepAlive(connection);
   }
 
   bool isViewOnly() {

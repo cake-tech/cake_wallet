@@ -28,6 +28,7 @@ import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/exceptions/monero_transaction_no_inputs_exception.dart';
+import 'package:cw_monero/ledger.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
@@ -36,6 +37,7 @@ import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
 import 'package:monero/monero.dart' as monero;
 
@@ -828,4 +830,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return monero_wallet.verifyMessage(message, address, signature);
   }
 
+  void setLedgerConnection(LedgerConnection connection) {
+    final dummyWPtr = wptr ??
+        monero.WalletManager_openWallet(wmPtr, path: '', password: '');
+    enableLedgerExchange(dummyWPtr, connection);
+  }
 }
