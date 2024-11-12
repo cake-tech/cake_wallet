@@ -1,3 +1,4 @@
-Monero enhancements
-Introducing StealthEx and LetxExchange
+Add Monero Ledger support
+Add Monero Airgap support (best used with our new offline app Cupcake)
+New Buy & Sell flow
 Bug fixes
