@@ -227,7 +227,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
 
         if (isCopied) {
           await Clipboard.setData(ClipboardData(text: contact.address));
-          await showBar<void>(context, 'Copied to clipboard');
+          await showBar<void>(context, S.of(context).copied_to_clipboard);
         }
       },
       behavior: HitTestBehavior.opaque,
