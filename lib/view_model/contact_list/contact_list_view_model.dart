@@ -28,7 +28,8 @@ abstract class ContactListViewModelBase with Store {
         isAutoGenerateEnabled =
             settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
     walletInfoSource.values.forEach((info) {
-      if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) && info.addressInfos != null) {
+      if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) &&
+          info.addressInfos != null) {
         for (var key in info.addressInfos!.keys) {
           final value = info.addressInfos![key];
           final address = value?.first;
@@ -60,15 +61,19 @@ abstract class ContactListViewModelBase with Store {
               address,
               name,
               walletTypeToCryptoCurrency(info.type,
-                  isTestnet:
-                      info.network == null ? false : info.network!.toLowerCase().contains("testnet")),
+                  isTestnet: info.network == null
+                      ? false
+                      : info.network!.toLowerCase().contains("testnet")),
             ));
           });
         }
       } else {
         walletContacts.add(WalletContact(
           info.address,
-          _createName(info.name, "", key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) ? 0 : null),
+          _createName(info.name, "",
+              key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
+                  ? 0
+                  : null),
           walletTypeToCryptoCurrency(info.type),
         ));
       }
@@ -82,8 +87,11 @@ abstract class ContactListViewModelBase with Store {
   }
 
   String _createName(String walletName, String label, {int? key = null}) {
-    final actualLabel = label.replaceAll(RegExp(r'active', caseSensitive: false), S.current.active).replaceAll(RegExp(r'silent payments', caseSensitive: false), S.current.silent_payments);
-    return '$walletName${key == null ? "" : " [#${key}]"} ${actualLabel.isNotEmpty ? "($actualLabel)" : ""}'.trim();
+    final actualLabel = label
+        .replaceAll(RegExp(r'active', caseSensitive: false), S.current.active)
+        .replaceAll(RegExp(r'silent payments', caseSensitive: false), S.current.silent_payments);
+    return '$walletName${key == null ? "" : " [#${key}]"} ${actualLabel.isNotEmpty ? "($actualLabel)" : ""}'
+        .trim();
   }
 
   final bool isAutoGenerateEnabled;
@@ -108,18 +116,19 @@ abstract class ContactListViewModelBase with Store {
   Future<void> delete(ContactRecord contact) async => contact.original.delete();
 
   ObservableList<ContactRecord> get contactsToShow =>
-      ObservableList.of(contacts.where((element) => _isValidForCurrency(element)));
+      ObservableList.of(contacts.where((element) => _isValidForCurrency(element, false)));
 
   @computed
   List<WalletContact> get walletContactsToShow =>
-      walletContacts.where((element) => _isValidForCurrency(element)).toList();
+      walletContacts.where((element) => _isValidForCurrency(element, true)).toList();
 
-  bool _isValidForCurrency(ContactBase element) {
-    if (element.name.contains('Silent Payments')) return false;
-    if (element.name.contains('MWEB')) return false;
+  bool _isValidForCurrency(ContactBase element, bool isWalletContact) {
+    if (_currency == null) return true;
+    if (!element.name.contains('Active') &&
+        isWalletContact &&
+        (element.type == CryptoCurrency.btc || element.type == CryptoCurrency.ltc)) return false;
 
-    return _currency == null ||
-        element.type == _currency ||
+    return element.type == _currency ||
         (element.type.tag != null &&
             _currency?.tag != null &&
             element.type.tag == _currency?.tag) ||
