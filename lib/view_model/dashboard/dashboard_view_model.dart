@@ -71,8 +71,7 @@ abstract class DashboardViewModelBase with Store {
       required this.anonpayTransactionsStore,
       required this.sharedPreferences,
       required this.keyService})
-      : hasSellAction = false,
-        hasBuyAction = false,
+      : hasTradeAction = false,
         hasExchangeAction = false,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
@@ -394,6 +393,12 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.haven;
 
   @computed
+  bool get isMoneroViewOnly {
+    if (wallet.type != WalletType.monero) return false;
+    return monero!.isViewOnly();
+  }
+
+  @computed
   String? get getMoneroError {
     if (wallet.type != WalletType.monero) return null;
     try {
@@ -423,7 +428,7 @@ abstract class DashboardViewModelBase with Store {
       // to not cause work duplication, this will do the job as well, it will be slightly less precise
       // about what happened - but still enough.
       // if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
-      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join(""))
+      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("") && !wallet.isHardwareWallet)
         "private view key is 0",
       // if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
       if (keys['publicViewKey'] == List.generate(64, (index) => "0").join(""))
@@ -515,36 +520,7 @@ abstract class DashboardViewModelBase with Store {
 
   Map<String, List<FilterItem>> filterItems;
 
-  BuyProvider? get defaultBuyProvider => ProvidersHelper.getProviderByType(
-      settingsStore.defaultBuyProviders[wallet.type] ?? ProviderType.askEachTime);
-
-  BuyProvider? get defaultSellProvider => ProvidersHelper.getProviderByType(
-      settingsStore.defaultSellProviders[wallet.type] ?? ProviderType.askEachTime);
-
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
-
-  List<BuyProvider> get availableBuyProviders {
-    final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(wallet.type);
-    return providerTypes
-        .map((type) => ProvidersHelper.getProviderByType(type))
-        .where((provider) => provider != null)
-        .cast<BuyProvider>()
-        .toList();
-  }
-
-  bool get hasBuyProviders => ProvidersHelper.getAvailableBuyProviderTypes(wallet.type).isNotEmpty;
-
-  List<BuyProvider> get availableSellProviders {
-    final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
-    return providerTypes
-        .map((type) => ProvidersHelper.getProviderByType(type))
-        .where((provider) => provider != null)
-        .cast<BuyProvider>()
-        .toList();
-  }
-
-  bool get hasSellProviders =>
-      ProvidersHelper.getAvailableSellProviderTypes(wallet.type).isNotEmpty;
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
@@ -558,16 +534,10 @@ abstract class DashboardViewModelBase with Store {
   bool hasExchangeAction;
 
   @computed
-  bool get isEnabledBuyAction => !settingsStore.disableBuy && hasBuyProviders;
+  bool get isEnabledTradeAction => !settingsStore.disableTradeOption;
 
   @observable
-  bool hasBuyAction;
-
-  @computed
-  bool get isEnabledSellAction => !settingsStore.disableSell && hasSellProviders;
-
-  @observable
-  bool hasSellAction;
+  bool hasTradeAction;
 
   @computed
   bool get isEnabledBulletinAction => !settingsStore.disableBulletin;
@@ -770,8 +740,7 @@ abstract class DashboardViewModelBase with Store {
 
   void updateActions() {
     hasExchangeAction = !isHaven;
-    hasBuyAction = !isHaven;
-    hasSellAction = !isHaven;
+    hasTradeAction = !isHaven;
   }
 
   @computed

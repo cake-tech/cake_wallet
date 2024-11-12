@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
@@ -160,25 +161,60 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
   Widget _buildWalletContacts(BuildContext context) {
     final walletContacts = widget.contactListViewModel.walletContactsToShow;
 
+    final groupedContacts = <String, List<ContactBase>>{};
+    for (var contact in walletContacts) {
+      final baseName = _extractBaseName(contact.name);
+      groupedContacts.putIfAbsent(baseName, () => []).add(contact);
+    }
+
     return ListView.builder(
-      shrinkWrap: true,
-      itemCount: walletContacts.length * 2,
+      itemCount: groupedContacts.length * 2,
       itemBuilder: (context, index) {
         if (index.isOdd) {
           return StandardListSeparator();
         } else {
-          final walletInfo = walletContacts[index ~/ 2];
-          return generateRaw(context, walletInfo);
+          final groupIndex = index ~/ 2;
+          final groupName = groupedContacts.keys.elementAt(groupIndex);
+          final groupContacts = groupedContacts[groupName]!;
+
+          if (groupContacts.length == 1) {
+            final contact = groupContacts[0];
+            return generateRaw(context, contact);
+          } else {
+            final activeContact = groupContacts.firstWhere(
+              (contact) => contact.name.contains('Active'),
+              orElse: () => groupContacts[0],
+            );
+
+            return ExpansionTile(
+              title: Text(
+                groupName,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                ),
+              ),
+              leading: _buildCurrencyIcon(activeContact),
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: const EdgeInsets.only(left: 16),
+              expandedCrossAxisAlignment: CrossAxisAlignment.start,
+              expandedAlignment: Alignment.topLeft,
+              children: groupContacts.map((contact) => generateRaw(context, contact)).toList(),
+            );
+          }
         }
       },
     );
   }
 
+  String _extractBaseName(String name) {
+    final bracketIndex = name.indexOf('(');
+    return (bracketIndex != -1) ? name.substring(0, bracketIndex).trim() : name;
+  }
+
   Widget generateRaw(BuildContext context, ContactBase contact) {
-    final image = contact.type.iconPath;
-    final currencyIcon = image != null
-        ? Image.asset(image, height: 24, width: 24)
-        : const SizedBox(height: 24, width: 24);
+    final currencyIcon = _buildCurrencyIcon(contact);
 
     return GestureDetector(
       onTap: () async {
@@ -217,6 +253,13 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
         ),
       ),
     );
+  }
+
+  Widget _buildCurrencyIcon(ContactBase contact) {
+    final image = contact.type.iconPath;
+    return image != null
+        ? Image.asset(image, height: 24, width: 24)
+        : const SizedBox(height: 24, width: 24);
   }
 
   Future<bool> showNameAndAddressDialog(BuildContext context, String name, String address) async {
@@ -263,12 +306,13 @@ class _ContactListBodyState extends State<ContactListBody> {
   @override
   void dispose() {
     widget.tabController.removeListener(_handleTabChange);
+    widget.contactListViewModel.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final contacts = widget.contactListViewModel.contacts;
+    final contacts = widget.contactListViewModel.contactsToShow;
     return Scaffold(
       body: Container(
         child: FilteredList(

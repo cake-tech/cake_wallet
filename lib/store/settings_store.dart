@@ -61,8 +61,7 @@ abstract class SettingsStoreBase with Store {
       required BitcoinSeedType initialBitcoinSeedType,
       required NanoSeedType initialNanoSeedType,
       required bool initialAppSecure,
-      required bool initialDisableBuy,
-      required bool initialDisableSell,
+      required bool initialDisableTrade,
       required FilterListOrderType initialWalletListOrder,
       required FilterListOrderType initialContactListOrder,
       required bool initialDisableBulletin,
@@ -151,8 +150,7 @@ abstract class SettingsStoreBase with Store {
         useTOTP2FA = initialUseTOTP2FA,
         numberOfFailedTokenTrials = initialFailedTokenTrial,
         isAppSecure = initialAppSecure,
-        disableBuy = initialDisableBuy,
-        disableSell = initialDisableSell,
+        disableTradeOption = initialDisableTrade,
         disableBulletin = initialDisableBulletin,
         walletListOrder = initialWalletListOrder,
         contactListOrder = initialContactListOrder,
@@ -180,9 +178,7 @@ abstract class SettingsStoreBase with Store {
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
         showSyncNotification = initialShowSyncNotification,
-        priority = ObservableMap<WalletType, TransactionPriority>(),
-        defaultBuyProviders = ObservableMap<WalletType, ProviderType>(),
-        defaultSellProviders = ObservableMap<WalletType, ProviderType>() {
+        priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
     if (initialMoneroTransactionPriority != null) {
@@ -223,30 +219,6 @@ abstract class SettingsStoreBase with Store {
 
     initializeTrocadorProviderStates();
 
-    WalletType.values.forEach((walletType) {
-      final key = 'buyProvider_${walletType.toString()}';
-      final providerId = sharedPreferences.getString(key);
-      if (providerId != null) {
-        defaultBuyProviders[walletType] = ProviderType.values.firstWhere(
-            (provider) => provider.id == providerId,
-            orElse: () => ProviderType.askEachTime);
-      } else {
-        defaultBuyProviders[walletType] = ProviderType.askEachTime;
-      }
-    });
-
-    WalletType.values.forEach((walletType) {
-      final key = 'sellProvider_${walletType.toString()}';
-      final providerId = sharedPreferences.getString(key);
-      if (providerId != null) {
-        defaultSellProviders[walletType] = ProviderType.values.firstWhere(
-            (provider) => provider.id == providerId,
-            orElse: () => ProviderType.askEachTime);
-      } else {
-        defaultSellProviders[walletType] = ProviderType.askEachTime;
-      }
-    });
-
     reaction(
         (_) => fiatCurrency,
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
@@ -268,20 +240,6 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => shouldShowRepWarning,
         (bool val) => sharedPreferences.setBool(PreferencesKey.shouldShowRepWarning, val));
-
-    defaultBuyProviders.observe((change) {
-      final String key = 'buyProvider_${change.key.toString()}';
-      if (change.newValue != null) {
-        sharedPreferences.setString(key, change.newValue!.id);
-      }
-    });
-
-    defaultSellProviders.observe((change) {
-      final String key = 'sellProvider_${change.key.toString()}';
-      if (change.newValue != null) {
-        sharedPreferences.setString(key, change.newValue!.id);
-      }
-    });
 
     priority.observe((change) {
       final String? key;
@@ -331,14 +289,9 @@ abstract class SettingsStoreBase with Store {
       });
     }
 
-    reaction((_) => disableBuy,
-        (bool disableBuy) => sharedPreferences.setBool(PreferencesKey.disableBuyKey, disableBuy));
-
-    reaction(
-        (_) => disableSell,
-        (bool disableSell) =>
-            sharedPreferences.setBool(PreferencesKey.disableSellKey, disableSell));
-
+    reaction((_) => disableTradeOption,
+        (bool disableTradeOption) => sharedPreferences.setBool(PreferencesKey.disableTradeOption, disableTradeOption));
+    
     reaction(
         (_) => disableBulletin,
         (bool disableBulletin) =>
@@ -686,10 +639,7 @@ abstract class SettingsStoreBase with Store {
   bool isAppSecure;
 
   @observable
-  bool disableBuy;
-
-  @observable
-  bool disableSell;
+  bool disableTradeOption;
 
   @observable
   FilterListOrderType contactListOrder;
@@ -774,12 +724,6 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
-
-  @observable
-  ObservableMap<WalletType, ProviderType> defaultBuyProviders;
-
-  @observable
-  ObservableMap<WalletType, ProviderType> defaultSellProviders;
 
   @observable
   SortBalanceBy sortBalanceBy;
@@ -965,8 +909,7 @@ abstract class SettingsStoreBase with Store {
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
     final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
-    final disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? false;
-    final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
+    final disableTradeOption = sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? false;
     final disableBulletin = sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? false;
     final walletListOrder =
         FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
@@ -1265,8 +1208,7 @@ abstract class SettingsStoreBase with Store {
       initialBitcoinSeedType: bitcoinSeedType,
       initialNanoSeedType: nanoSeedType,
       initialAppSecure: isAppSecure,
-      initialDisableBuy: disableBuy,
-      initialDisableSell: disableSell,
+      initialDisableTrade: disableTradeOption,
       initialDisableBulletin: disableBulletin,
       initialWalletListOrder: walletListOrder,
       initialWalletListAscending: walletListAscending,
@@ -1417,8 +1359,7 @@ abstract class SettingsStoreBase with Store {
     numberOfFailedTokenTrials =
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
-    disableBuy = sharedPreferences.getBool(PreferencesKey.disableBuyKey) ?? disableBuy;
-    disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? disableSell;
+    disableTradeOption = sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? disableTradeOption;
     disableBulletin =
         sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? disableBulletin;
     walletListOrder =
