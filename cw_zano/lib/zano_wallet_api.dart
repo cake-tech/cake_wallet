@@ -1,6 +1,8 @@
 import 'dart:convert' as convert;
+import 'dart:ffi';
 import 'dart:isolate';
 
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_zano/api/consts.dart';
 import 'package:cw_zano/api/model/asset_id_params.dart';
@@ -19,6 +21,7 @@ import 'package:cw_zano/api/model/transfer_params.dart';
 import 'package:cw_zano/api/model/transfer_result.dart';
 import 'package:cw_zano/model/zano_asset.dart';
 import 'package:cw_zano/zano_wallet_exceptions.dart';
+import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:json_bigint/json_bigint.dart';
 import 'package:monero/zano.dart' as zano;
@@ -57,9 +60,10 @@ mixin ZanoWalletApi {
 
   Future<bool> setupNode() async {
     info('init $_defaultNodeUri');
-    final result = zano.PlainWallet_init(_defaultNodeUri, "", 0) == "OK";
+    // pathForWallet(name: , type: type)
+    final result = zano.PlainWallet_init(_defaultNodeUri, "", 0);
     info('init result $result');
-    return result;
+    return result == "OK";
   }
 
   Future<GetWalletInfoResult> getWalletInfo() async {
@@ -101,14 +105,11 @@ mixin ZanoWalletApi {
       "params": params,
     });
     print("zano: >>> $request");
-    var invokeResult = await Isolate.run(() {
-      final ret = zano.PlainWallet_syncCall(
-        'invoke',
-        hWallet,
-        request,
-      );
-      return ret;
-    });
+    final invokeResult = zano.PlainWallet_syncCall(
+      'invoke',
+      hWallet,
+      request,
+    );
     print("zano: <<< ${invokeResult}");
     Map<String, dynamic> map;
     try {
@@ -297,7 +298,7 @@ mixin ZanoWalletApi {
   }
 
   Future<CreateWalletResult> loadWallet(String path, String password, [int attempt = 0]) async {
-    info('load_wallet path $path password ${_shorten(password)}');
+    info('load_wallet1 path $path password ${_shorten(password)}');
     final String json;
     try {
       json = zano.PlainWallet_open(path, password);
@@ -305,7 +306,7 @@ mixin ZanoWalletApi {
       error('error in loadingWallet $e'); 
       rethrow;
     }
-    _json('load_wallet', json);
+    info('load_wallet2: $json');
     final map = jsonDecode(json) as Map<String, dynamic>?;
     if (map?['error'] != null) {
       final code = map?['error']!['code'] ?? '';
@@ -323,7 +324,8 @@ mixin ZanoWalletApi {
       throw ZanoWalletException('Error loading wallet, empty response');
     }
     final result = CreateWalletResult.fromJson(map!['result'] as Map<String, dynamic>);
-    info('load_wallet ${result.name} ${result.wi.address}');
+    info('load_wallet3 ${result.name} ${result.wi.address}');
+    zano.PlainWallet_init(_defaultNodeUri, path, 0);
     return result;
   }
 
