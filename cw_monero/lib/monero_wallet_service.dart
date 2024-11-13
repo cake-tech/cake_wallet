@@ -146,6 +146,11 @@ class MoneroWalletService extends WalletService<
           password: password);
       final isValid = wallet.walletAddresses.validate();
 
+      if (wallet.isHardwareWallet) {
+        wallet.setLedgerConnection(gLedger!);
+        gLedger = null;
+      }
+
       if (!isValid) {
         await restoreOrResetWalletFiles(name);
         wallet.close(shouldCleanup: false);

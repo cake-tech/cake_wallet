@@ -98,7 +98,9 @@ abstract class LedgerViewModelBase with Store {
         print('Ledger Device State Changed: $event');
         if (event == sdk.BleConnectionState.disconnected) {
           _connection = null;
-          _connectionChangeListener?.cancel();
+          if (type == WalletType.monero) {
+            monero!.resetLedgerConnection();
+          }
         }
       });
     }
