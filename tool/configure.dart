@@ -415,6 +415,7 @@ abstract class Monero {
   WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
   void setLedgerConnection(Object wallet, ledger.LedgerConnection connection);
+  void resetLedgerConnection();
   void setGlobalLedgerConnection(ledger.LedgerConnection connection);
 }
 

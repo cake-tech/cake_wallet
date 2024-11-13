@@ -402,6 +402,10 @@ class CWMonero extends Monero {
     moneroWallet.setLedgerConnection(connection);
   }
 
+  void resetLedgerConnection() {
+    disableLedgerExchange();
+  }
+
   @override
   void setGlobalLedgerConnection(ledger.LedgerConnection connection) {
     gLedger = connection;
