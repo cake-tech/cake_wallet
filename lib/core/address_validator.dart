@@ -106,9 +106,8 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.wow:
         pattern = '[0-9a-zA-Z]+';
       case CryptoCurrency.bch:
-        pattern = '^(bitcoincash:)?(q|p)[0-9a-zA-Z]{41,42}';
-      case CryptoCurrency.bnb:
-        pattern = '[0-9a-zA-Z]+';
+        pattern = '(?:bitcoincash:)?(q|p)[0-9a-zA-Z]{41}'
+            '|[13][a-km-zA-HJ-NP-Z1-9]{25,34}';
       case CryptoCurrency.hbar:
         pattern = '[0-9a-zA-Z.]+';
       case CryptoCurrency.zaddr:
@@ -203,7 +202,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.avaxc:
         return [42];
       case CryptoCurrency.bch:
-        return [42, 43, 44, 54, 55];
+        return [42, 54, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35];
       case CryptoCurrency.bnb:
         return [42];
       case CryptoCurrency.nano:
