@@ -28,7 +28,7 @@ import 'package:monero/zano.dart' as zano;
 import 'package:monero/src/generated_bindings_zano.g.dart' as zanoapi;
 
 mixin ZanoWalletApi {
-  static const _defaultNodeUri = '195.201.107.230:33336';
+  static const _defaultNodeUri = '195.201.107.230:33340';
   static const _statusDelivered = 'delivered';
   static const _maxInvokeAttempts = 10;
   static const _maxReopenAttempts = 5;
@@ -84,7 +84,7 @@ mixin ZanoWalletApi {
     _json('get_wallet_status', json);
     if (_logInfo)
       info(
-          'get_wallet_status connected: ${status.isDaemonConnected} in refresh: ${status.isInLongRefresh} progress: ${status.progress} wallet state: ${status.walletState}');
+          'get_wallet_status connected: ${status.isDaemonConnected} in refresh: ${status.isInLongRefresh} progress: ${status.progress} wallet state: ${status.walletState} sync: ${status.currentWalletHeight}/${status.currentWalletHeight}');
     return status;
   }
 
