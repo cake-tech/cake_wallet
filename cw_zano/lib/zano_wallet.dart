@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -94,9 +95,9 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   Timer? _autoSaveTimer;
 
   /// index of last transaction fetched
-  int _lastTxIndex = 0;
+  final int _lastTxIndex = 0;
   /// number of transactions in each request
-  static const int _txChunkSize = 30;
+  static final int _txChunkSize = (pow(2, 32)-1).toInt();
 
   ZanoWalletBase(WalletInfo walletInfo, String password)
       : balance = ObservableMap.of({CryptoCurrency.zano: ZanoBalance.empty()}),
@@ -267,8 +268,8 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
       final transfers = <Transfer>[];
       late GetRecentTxsAndInfoResult result;
       do {
-        result = await getRecentTxsAndInfo(offset: _lastTxIndex, count: _txChunkSize);
-        _lastTxIndex += result.transfers.length;
+        result = await getRecentTxsAndInfo(offset: 0, count: _txChunkSize);
+        // _lastTxIndex += result.transfers.length;
         transfers.addAll(result.transfers);
       } while (result.lastItemIndex + 1 < result.totalTransfers);
       return Transfer.makeMap(transfers, zanoAssets, currentDaemonHeight);
@@ -282,7 +283,9 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     await walletAddresses.init();
     await walletAddresses.updateAddress(address);
     await updateTransactions();
-    _autoSaveTimer = Timer.periodic(Duration(seconds: _autoSaveIntervalSeconds), (_) async => await save());
+    _autoSaveTimer = Timer.periodic(Duration(seconds: _autoSaveIntervalSeconds), (_) async {
+      await save();
+    });
   }
 
   @override
@@ -396,6 +399,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
               }
             }
           }
+          await updateTransactions(); 
           // removing balances for assets missing in wallet info balances
           balance.removeWhere(
             (key, _) => key != CryptoCurrency.zano && !walletInfo.wi.balances.any((element) => element.assetId == (key as ZanoAsset).assetId),
@@ -414,15 +418,19 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
 
   Future<void> updateTransactions() async {
     try {
+      print("isTransactionUpdating: $_isTransactionUpdating");
       if (_isTransactionUpdating) {
         return;
       }
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
+      print("transactions: $transactions");
+      transactionHistory.clear();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
       _isTransactionUpdating = false;
     } catch (e) {
+      print("e: $e");
       ZanoWalletApi.error(e.toString());
       _isTransactionUpdating = false;
     }

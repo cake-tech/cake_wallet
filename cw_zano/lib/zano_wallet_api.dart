@@ -32,7 +32,7 @@ mixin ZanoWalletApi {
   static const _statusDelivered = 'delivered';
   static const _maxInvokeAttempts = 10;
   static const _maxReopenAttempts = 5;
-  static const _logInfo = true;
+  static const _logInfo = false;
   static const _logError = true;
   static const _logJson = false;
   static const int _zanoMixinValue = 10;
@@ -84,7 +84,7 @@ mixin ZanoWalletApi {
     _json('get_wallet_status', json);
     if (_logInfo)
       info(
-          'get_wallet_status connected: ${status.isDaemonConnected} in refresh: ${status.isInLongRefresh} progress: ${status.progress} wallet state: ${status.walletState} sync: ${status.currentWalletHeight}/${status.currentWalletHeight}');
+          'get_wallet_status connected: ${status.isDaemonConnected} in refresh: ${status.isInLongRefresh} progress: ${status.progress} wallet state: ${status.walletState} sync: ${status.currentWalletHeight}/${status.currentDaemonHeight} ${(status.currentWalletHeight/status.currentDaemonHeight*100).toStringAsFixed(2)}%');
     return status;
   }
 
@@ -104,13 +104,13 @@ mixin ZanoWalletApi {
       "method": methodName,
       "params": params,
     });
-    print("zano: >>> $request");
-    final invokeResult = zano.PlainWallet_syncCall(
-      'invoke',
-      hWallet,
-      request,
-    );
-    print("zano: <<< ${invokeResult}");
+    final invokeResult = await callSyncMethod('invoke', hWallet, request);
+    // final invokeResult = zano.PlainWallet_syncCall(
+    //   'invoke',
+    //   hWallet,
+    //   request,
+    // );
+    // print("zano: <<< ${invokeResult}");
     Map<String, dynamic> map;
     try {
       map = jsonDecode(invokeResult) as Map<String, dynamic>;
@@ -129,7 +129,7 @@ mixin ZanoWalletApi {
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
       List<ZanoAsset> assets(String type, bool isGlobalWhitelist) =>
-          (map?['result']?['result']?[type] as List<dynamic>?)
+          (map?['result']?[type] as List<dynamic>?)
               ?.map((e) => ZanoAsset.fromJson(e as Map<String, dynamic>, isInGlobalWhitelist: isGlobalWhitelist))
               .toList() ??
           [];
@@ -143,8 +143,8 @@ mixin ZanoWalletApi {
       return [...globalWhitelist, ...localWhitelist, ...ownAssets];
     } catch (e) {
       error('assets_whitelist_get $e');
-      //return [];
-      rethrow;
+      return [];
+      // rethrow;
     }
   }
 
@@ -231,9 +231,9 @@ mixin ZanoWalletApi {
       _json('get_recent_txs_and_info', json);
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
-      final lastItemIndex = map?['result']?['result']?['last_item_index'] as int?;
-      final totalTransfers = map?['result']?['result']?['total_transfers'] as int?;
-      final transfers = map?['result']?['result']?['transfers'] as List<dynamic>?;
+      final lastItemIndex = map?['result']?['last_item_index'] as int?;
+      final totalTransfers = map?['result']?['total_transfers'] as int?;
+      final transfers = map?['result']?['transfers'] as List<dynamic>?;
       if (transfers == null || lastItemIndex == null || totalTransfers == null) {
         error('get_recent_txs_and_info empty transfers');
         return GetRecentTxsAndInfoResult.empty();
@@ -262,8 +262,8 @@ mixin ZanoWalletApi {
     _json('create_wallet', json);
     final map = jsonDecode(json) as Map<String, dynamic>?;
     if (map?['error'] != null) {
-      final code = map!['error']!['code'] ?? '';
-      final message = map['error']!['message'] ?? '';
+      final code = map!['error']?['code'] ?? '';
+      final message = map['error']?['message'] ?? '';
       throw ZanoWalletException('Error creating wallet file, $message ($code)');
     }
     if (map?['result'] == null) {
@@ -394,15 +394,41 @@ mixin ZanoWalletApi {
   static void printWrapped(String text) => RegExp('.{1,800}').allMatches(text).map((m) => m.group(0)).forEach(print);
   static void _json(String methodName, String json) => _logJson ? printWrapped('$methodName $json') : null;
   
-  Map<String, dynamic> jsonDecode(String json) {
-    try {
-      return decodeJson(json.replaceAll("\\/", "/")) as Map<String, dynamic>;
-    } catch (e) {
-      return convert.jsonDecode(json) as Map<String, dynamic>;
-    }
-  }
+}
 
-  String jsonEncode(Object? object) {
-    return convert.jsonEncode(object);
+Future<String> callSyncMethod(String methodName, int hWallet, String params) async {
+  final params_ = params.toNativeUtf8().address;
+  // print("zano: >>> $request");
+  final method_name_ = methodName.toNativeUtf8().address;
+  final invokeResult = await Isolate.run(() async {
+    final lib = zanoapi.ZanoC(DynamicLibrary.open(zano.libPath));
+    final txid = lib.ZANO_PlainWallet_syncCall(
+      Pointer.fromAddress(method_name_).cast(), 
+      hWallet, 
+      Pointer.fromAddress(params_).cast()
+    );
+    try {
+      final strPtr = txid.cast<Utf8>();
+      final str = strPtr.toDartString();
+      lib.ZANO_free(strPtr.cast());
+      return str;
+    } catch (e) {
+      return "";
+    }
+  });
+  calloc.free(Pointer.fromAddress(method_name_));
+  calloc.free(Pointer.fromAddress(params_));
+  return invokeResult;
+}
+
+Map<String, dynamic> jsonDecode(String json) {
+  try {
+    return decodeJson(json.replaceAll("\\/", "/")) as Map<String, dynamic>;
+  } catch (e) {
+    return convert.jsonDecode(json) as Map<String, dynamic>;
   }
+}
+
+String jsonEncode(Object? object) {
+  return convert.jsonEncode(object);
 }
