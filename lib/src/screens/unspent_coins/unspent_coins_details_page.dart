@@ -34,7 +34,8 @@ class UnspentCoinsDetailsPage extends BasePage {
             return GestureDetector(
               onTap: () {
                 Clipboard.setData(ClipboardData(text: item.value));
-                showBar<void>(context, S.of(context).transaction_details_copied(item.title));
+                showBar<void>(context,
+                    S.of(context).transaction_details_copied(item.title));
               },
               child: ListRow(title: '${item.title}:', value: item.value),
             );

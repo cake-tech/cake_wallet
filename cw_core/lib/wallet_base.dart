@@ -13,7 +13,9 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 
-abstract class WalletBase<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
+abstract class WalletBase<
+    BalanceType extends Balance,
+    HistoryType extends TransactionHistoryBase,
     TransactionType extends TransactionInfo> {
   WalletBase(this.walletInfo);
 
@@ -24,7 +26,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   WalletType get type => walletInfo.type;
 
-  CryptoCurrency get currency => currencyForWalletType(type, isTestnet: isTestnet);
+  CryptoCurrency get currency =>
+      currencyForWalletType(type, isTestnet: isTestnet);
 
   String get id => walletInfo.id;
 
@@ -93,7 +96,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<String> signMessage(String message, {String? address = null});
 
-  Future<bool> verifyMessage(String message, String signature, {String? address = null});
+  Future<bool> verifyMessage(String message, String signature,
+      {String? address = null});
 
   bool isTestnet = false;
 }

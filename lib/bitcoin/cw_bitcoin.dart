@@ -1,6 +1,8 @@
 part of 'bitcoin.dart';
 
 class CWBitcoin extends Bitcoin {
+  final payjoin = BitcoinPayjoin();
+
   WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
     required String name,
     required String mnemonic,
@@ -30,7 +32,8 @@ class CWBitcoin extends Bitcoin {
   @override
   WalletCredentials createBitcoinNewWalletCredentials(
           {required String name, WalletInfo? walletInfo, String? password}) =>
-      BitcoinNewWalletCredentials(name: name, walletInfo: walletInfo, password: password);
+      BitcoinNewWalletCredentials(
+          name: name, walletInfo: walletInfo, password: password);
 
   @override
   WalletCredentials createBitcoinHardwareWalletCredentials(
@@ -41,7 +44,8 @@ class CWBitcoin extends Bitcoin {
           name: name, hwAccountData: accountData, walletInfo: walletInfo);
 
   @override
-  TransactionPriority getMediumTransactionPriority() => BitcoinTransactionPriority.medium;
+  TransactionPriority getMediumTransactionPriority() =>
+      BitcoinTransactionPriority.medium;
 
   @override
   List<String> getWordList() => wordlist;
@@ -59,10 +63,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<TransactionPriority> getTransactionPriorities() => BitcoinTransactionPriority.all;
+  List<TransactionPriority> getTransactionPriorities() =>
+      BitcoinTransactionPriority.all;
 
   @override
-  List<TransactionPriority> getLitecoinTransactionPriorities() => LitecoinTransactionPriority.all;
+  List<TransactionPriority> getLitecoinTransactionPriorities() =>
+      LitecoinTransactionPriority.all;
 
   @override
   TransactionPriority deserializeBitcoinTransactionPriority(int raw) =>
@@ -86,7 +92,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<void> updateAddress(Object wallet, String address, String label) async {
+  Future<void> updateAddress(
+      Object wallet, String address, String label) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     bitcoinWallet.walletAddresses.updateAddress(address, label);
     await wallet.save();
@@ -95,8 +102,11 @@ class CWBitcoin extends Bitcoin {
   @override
   Object createBitcoinTransactionCredentials(List<Output> outputs,
       {required TransactionPriority priority, int? feeRate}) {
+    print('[+] CWBitcoin => createBitcoinTransactionCredentials()');
     final bitcoinFeeRate =
-        priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
+        priority == BitcoinTransactionPriority.custom && feeRate != null
+            ? feeRate
+            : null;
     return BitcoinTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
@@ -118,7 +128,8 @@ class CWBitcoin extends Bitcoin {
   Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs,
           {TransactionPriority? priority, required int feeRate}) =>
       BitcoinTransactionCredentials(outputs,
-          priority: priority != null ? priority as BitcoinTransactionPriority : null,
+          priority:
+              priority != null ? priority as BitcoinTransactionPriority : null,
           feeRate: feeRate);
 
   @override
@@ -137,7 +148,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority) async {
+  Future<int> estimateFakeSendAllTxAmount(
+      Object wallet, TransactionPriority priority) async {
     try {
       final sk = ECPrivate.random();
       final electrumWallet = wallet as ElectrumWallet;
@@ -184,10 +196,12 @@ class CWBitcoin extends Bitcoin {
       bitcoinAmountToDouble(amount: amount);
 
   @override
-  int formatterStringDoubleToBitcoinAmount(String amount) => stringDoubleToBitcoinAmount(amount);
+  int formatterStringDoubleToBitcoinAmount(String amount) =>
+      stringDoubleToBitcoinAmount(amount);
 
   @override
-  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate,
+  String bitcoinTransactionPriorityWithLabel(
+          TransactionPriority priority, int rate,
           {int? customRate}) =>
       (priority as BitcoinTransactionPriority).labelWithRate(rate, customRate);
 
@@ -202,51 +216,61 @@ class CWBitcoin extends Bitcoin {
     await bitcoinWallet.updateAllUnspents();
   }
 
-  WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
-    return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
+  WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource,
+      Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
+    return BitcoinWalletService(
+        walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
   }
 
-  WalletService createLitecoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource,
+      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
     return LitecoinWalletService(walletInfoSource, unspentCoinSource, isDirect);
   }
 
   @override
-  TransactionPriority getBitcoinTransactionPriorityMedium() => BitcoinTransactionPriority.medium;
+  TransactionPriority getBitcoinTransactionPriorityMedium() =>
+      BitcoinTransactionPriority.medium;
 
   @override
-  TransactionPriority getBitcoinTransactionPriorityCustom() => BitcoinTransactionPriority.custom;
+  TransactionPriority getBitcoinTransactionPriorityCustom() =>
+      BitcoinTransactionPriority.custom;
 
   @override
-  TransactionPriority getLitecoinTransactionPriorityMedium() => LitecoinTransactionPriority.medium;
+  TransactionPriority getLitecoinTransactionPriorityMedium() =>
+      LitecoinTransactionPriority.medium;
 
   @override
-  TransactionPriority getBitcoinTransactionPrioritySlow() => BitcoinTransactionPriority.slow;
+  TransactionPriority getBitcoinTransactionPrioritySlow() =>
+      BitcoinTransactionPriority.slow;
 
   @override
-  TransactionPriority getLitecoinTransactionPrioritySlow() => LitecoinTransactionPriority.slow;
+  TransactionPriority getLitecoinTransactionPrioritySlow() =>
+      LitecoinTransactionPriority.slow;
 
   @override
   Future<void> setAddressType(Object wallet, dynamic option) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    await bitcoinWallet.walletAddresses.setAddressType(option as BitcoinAddressType);
+    await bitcoinWallet.walletAddresses
+        .setAddressType(option as BitcoinAddressType);
   }
 
   @override
   ReceivePageOption getSelectedAddressType(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return BitcoinReceivePageOption.fromType(bitcoinWallet.walletAddresses.addressPageType);
+    return BitcoinReceivePageOption.fromType(
+        bitcoinWallet.walletAddresses.addressPageType);
   }
 
   @override
   bool hasSelectedSilentPayments(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.walletAddresses.addressPageType == SilentPaymentsAddresType.p2sp;
+    return bitcoinWallet.walletAddresses.addressPageType ==
+        SilentPaymentsAddresType.p2sp;
   }
 
   @override
-  List<ReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
+  List<ReceivePageOption> getBitcoinReceivePageOptions() =>
+      BitcoinReceivePageOption.all;
 
   @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
@@ -293,7 +317,8 @@ class CWBitcoin extends Bitcoin {
   }) async {
     List<DerivationInfo> list = [];
 
-    List<DerivationType> types = await compareDerivationMethods(mnemonic: mnemonic, node: node);
+    List<DerivationType> types =
+        await compareDerivationMethods(mnemonic: mnemonic, node: node);
     if (types.length == 1 && types.first == DerivationType.electrum) {
       return [getElectrumDerivations()[DerivationType.electrum]!.first];
     }
@@ -317,7 +342,8 @@ class CWBitcoin extends Bitcoin {
       if (dType == DerivationType.electrum) {
         seedBytes = await mnemonicToSeedBytes(mnemonic);
       } else if (dType == DerivationType.bip39) {
-        seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
+        seedBytes =
+            bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
       }
 
       for (DerivationInfo dInfo in electrum_derivations[dType]!) {
@@ -338,17 +364,19 @@ class CWBitcoin extends Bitcoin {
             balancePath += "/0";
           }
 
-          final hd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(balancePath)
-              as Bip32Slip10Secp256k1;
+          final hd = Bip32Slip10Secp256k1.fromSeed(seedBytes)
+              .derivePath(balancePath) as Bip32Slip10Secp256k1;
 
           // derive address at index 0:
           String? address;
           switch (dInfoCopy.scriptType) {
             case "p2wpkh":
-              address = generateP2WPKHAddress(hd: hd, network: network, index: 0);
+              address =
+                  generateP2WPKHAddress(hd: hd, network: network, index: 0);
               break;
             case "p2pkh":
-              address = generateP2PKHAddress(hd: hd, network: network, index: 0);
+              address =
+                  generateP2PKHAddress(hd: hd, network: network, index: 0);
               break;
             case "p2wpkh-p2sh":
               address = generateP2SHAddress(hd: hd, network: network, index: 0);
@@ -404,14 +432,15 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee) async {
+  Future<bool> isChangeSufficientForFee(
+      Object wallet, String txId, String newFee) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.isChangeSufficientForFee(txId, int.parse(newFee));
   }
 
   @override
-  int getFeeAmountForPriority(
-      Object wallet, TransactionPriority priority, int inputsCount, int outputsCount,
+  int getFeeAmountForPriority(Object wallet, TransactionPriority priority,
+      int inputsCount, int outputsCount,
       {int? size}) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.feeAmountForPriority(
@@ -431,16 +460,19 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount,
+  int feeAmountWithFeeRate(
+      Object wallet, int feeRate, int inputsCount, int outputsCount,
       {int? size}) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.feeAmountWithFeeRate(feeRate, inputsCount, outputsCount, size: size);
+    return bitcoinWallet
+        .feeAmountWithFeeRate(feeRate, inputsCount, outputsCount, size: size);
   }
 
   @override
   int getMaxCustomFeeRate(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return (bitcoinWallet.feeRate(BitcoinTransactionPriority.fast) * 10).round();
+    return (bitcoinWallet.feeRate(BitcoinTransactionPriority.fast) * 10)
+        .round();
   }
 
   @override
@@ -449,11 +481,15 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
-      {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(
+      LedgerViewModel ledgerVM,
+      {int index = 0,
+      int limit = 5}) async {
+    final hardwareWalletService =
+        BitcoinHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
     try {
-      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+      return hardwareWalletService.getAvailableAccounts(
+          index: index, limit: limit);
     } on LedgerException catch (err) {
       print(err.message);
       throw err;
@@ -520,10 +556,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  int getHeightByDate({required DateTime date}) => getBitcoinHeightByDate(date: date);
+  int getHeightByDate({required DateTime date}) =>
+      getBitcoinHeightByDate(date: date);
 
   @override
-  Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
+  Future<void> rescan(Object wallet,
+      {required int height, bool? doSingleScan}) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
   }
@@ -544,5 +582,106 @@ class CWBitcoin extends Bitcoin {
   Future<void> updateFeeRates(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     await bitcoinWallet.updateFeeRates();
+  }
+
+  @override
+  Future<Map<String, dynamic>> buildV2PjStr({
+    int? amount,
+    required String address,
+    required bool isTestnet,
+    required int expireAfter,
+  }) async {
+    final res = await payjoin.buildV2PjStr(
+      amount: amount,
+      address: address,
+      network: isTestnet ? payjoin.testnet : payjoin.mainnet,
+      expireAfter: expireAfter,
+    );
+    return res;
+  }
+
+  @override
+  Future<UncheckedProposal> pollV2Request(ActiveSession session) async {
+    final res = await payjoin.pollV2Request(session);
+    return res;
+  }
+
+  @override
+  Future<Map<String, dynamic>> handleV2Request({
+    required UncheckedProposal uncheckedProposal,
+    required Object receiverWallet,
+  }) async {
+    final res = await payjoin.handleV2Request(
+      uncheckedProposal: uncheckedProposal,
+      receiverWallet: receiverWallet,
+    );
+    return res;
+  }
+
+  @override
+  Future<String> getTxIdFromPsbt(String psbtBase64) async {
+    final res = await payjoin.getTxIdFromPsbt(psbtBase64);
+    return res;
+  }
+
+  @override
+  Future<Uri?> stringToPjUri(String pj) async {
+    return await payjoin.stringToPjUri(pj);
+  }
+
+  @override
+  Future<String> buildOriginalPsbt(
+    Object wallet,
+    dynamic pjUri,
+    int fee,
+    double amount,
+    Object credentials,
+  ) async {
+    final res = await payjoin.buildOriginalPsbt(
+      wallet,
+      pjUri,
+      fee,
+      amount,
+      isTestnet(wallet),
+      credentials,
+    );
+
+    return res;
+  }
+
+  @override
+  Future<RequestContext> buildPayjoinRequest(
+    String originalPsbt,
+    dynamic pjUri,
+    int fee,
+  ) async {
+    final res = await payjoin.buildPayjoinRequest(
+      originalPsbt,
+      pjUri,
+      fee,
+    );
+    return res;
+  }
+
+  @override
+  Future<String> requestAndPollV2Proposal(
+    RequestContext requestContext,
+  ) async {
+    final res = await payjoin.requestAndPollV2Proposal(requestContext);
+    return res;
+  }
+
+  @override
+  Future<PendingBitcoinTransaction> extractPjTx(
+    Object wallet,
+    String psbtString,
+    Object credentials,
+  ) async {
+    final res = await payjoin.extractPjTx(
+      wallet,
+      psbtString,
+      credentials,
+    );
+    return res;
   }
 }

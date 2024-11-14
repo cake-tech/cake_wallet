@@ -97,38 +97,38 @@ abstract class DashboardViewModelBase with Store {
             FilterItem(
                 value: () => tradeFilterStore.displayAllTrades,
                 caption: S.current.all_trades,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
+                onChanged: () => tradeFilterStore
+                    .toggleDisplayExchange(ExchangeProviderDescription.all)),
             FilterItem(
                 value: () => tradeFilterStore.displayChangeNow,
                 caption: ExchangeProviderDescription.changeNow.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
+                onChanged: () => tradeFilterStore.toggleDisplayExchange(
+                    ExchangeProviderDescription.changeNow)),
             FilterItem(
                 value: () => tradeFilterStore.displaySideShift,
                 caption: ExchangeProviderDescription.sideShift.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
+                onChanged: () => tradeFilterStore.toggleDisplayExchange(
+                    ExchangeProviderDescription.sideShift)),
             FilterItem(
                 value: () => tradeFilterStore.displaySimpleSwap,
                 caption: ExchangeProviderDescription.simpleSwap.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.simpleSwap)),
+                onChanged: () => tradeFilterStore.toggleDisplayExchange(
+                    ExchangeProviderDescription.simpleSwap)),
             FilterItem(
                 value: () => tradeFilterStore.displayTrocador,
                 caption: ExchangeProviderDescription.trocador.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.trocador)),
+                onChanged: () => tradeFilterStore.toggleDisplayExchange(
+                    ExchangeProviderDescription.trocador)),
             FilterItem(
                 value: () => tradeFilterStore.displayExolix,
                 caption: ExchangeProviderDescription.exolix.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
+                onChanged: () => tradeFilterStore
+                    .toggleDisplayExchange(ExchangeProviderDescription.exolix)),
             FilterItem(
                 value: () => tradeFilterStore.displayThorChain,
                 caption: ExchangeProviderDescription.thorChain.title,
-                onChanged: () =>
-                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
+                onChanged: () => tradeFilterStore.toggleDisplayExchange(
+                    ExchangeProviderDescription.thorChain)),
           ]
         },
         subname = '',
@@ -156,18 +156,21 @@ abstract class DashboardViewModelBase with Store {
           (_) => monero!.getMoneroWalletDetails(wallet).balance,
           (MoneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
 
-      final _accountTransactions = _wallet.transactionHistory.transactions.values
+      final _accountTransactions = _wallet
+          .transactionHistory.transactions.values
           .where((tx) =>
-              monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
+              monero!.getTransactionInfoAccountId(tx) ==
+              monero!.getCurrentAccount(wallet).id)
           .toList();
 
       final sortedTransactions = [..._accountTransactions];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
-      transactions = ObservableList.of(sortedTransactions.map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      transactions = ObservableList.of(sortedTransactions.map((transaction) =>
+          TransactionListItem(
+              transaction: transaction,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore)));
     } else if (_wallet.type == WalletType.wownero) {
       subname = wow.wownero!.getCurrentAccount(_wallet).label;
 
@@ -179,7 +182,8 @@ abstract class DashboardViewModelBase with Store {
           (_) => wow.wownero!.getWowneroWalletDetails(wallet).balance,
           (wow.WowneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
 
-      final _accountTransactions = _wallet.transactionHistory.transactions.values
+      final _accountTransactions = _wallet
+          .transactionHistory.transactions.values
           .where((tx) =>
               wow.wownero!.getTransactionInfoAccountId(tx) ==
               wow.wownero!.getCurrentAccount(wallet).id)
@@ -188,18 +192,22 @@ abstract class DashboardViewModelBase with Store {
       final sortedTransactions = [..._accountTransactions];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
-      transactions = ObservableList.of(sortedTransactions.map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      transactions = ObservableList.of(sortedTransactions.map((transaction) =>
+          TransactionListItem(
+              transaction: transaction,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore)));
     } else {
-      final sortedTransactions = [...wallet.transactionHistory.transactions.values];
+      final sortedTransactions = [
+        ...wallet.transactionHistory.transactions.values
+      ];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
-      transactions = ObservableList.of(sortedTransactions.map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      transactions = ObservableList.of(sortedTransactions.map((transaction) =>
+          TransactionListItem(
+              transaction: transaction,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore)));
     }
 
     // TODO: nano sub-account generation is disabled:
@@ -215,7 +223,8 @@ abstract class DashboardViewModelBase with Store {
         (TransactionInfo? transaction) => TransactionListItem(
             transaction: transaction!,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore), filter: (TransactionInfo? transaction) {
+            settingsStore: appStore.settingsStore),
+        filter: (TransactionInfo? transaction) {
       if (transaction == null) {
         return false;
       }
@@ -285,38 +294,43 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @computed
-  BalanceDisplayMode get balanceDisplayMode => appStore.settingsStore.balanceDisplayMode;
+  BalanceDisplayMode get balanceDisplayMode =>
+      appStore.settingsStore.balanceDisplayMode;
 
   @computed
   bool get shouldShowMarketPlaceInDashboard =>
       appStore.settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
-  List<TradeListItem> get trades =>
-      tradesStore.trades.where((trade) => trade.trade.walletId == wallet.id).toList();
-
-  @computed
-  List<OrderListItem> get orders =>
-      ordersStore.orders.where((item) => item.order.walletId == wallet.id).toList();
-
-  @computed
-  List<AnonpayTransactionListItem> get anonpayTransactons => anonpayTransactionsStore.transactions
-      .where((item) => item.transaction.walletId == wallet.id)
+  List<TradeListItem> get trades => tradesStore.trades
+      .where((trade) => trade.trade.walletId == wallet.id)
       .toList();
+
+  @computed
+  List<OrderListItem> get orders => ordersStore.orders
+      .where((item) => item.order.walletId == wallet.id)
+      .toList();
+
+  @computed
+  List<AnonpayTransactionListItem> get anonpayTransactons =>
+      anonpayTransactionsStore.transactions
+          .where((item) => item.transaction.walletId == wallet.id)
+          .toList();
 
   @computed
   double get price => balanceViewModel.price;
 
   @computed
   bool get isAutoGenerateSubaddressesEnabled =>
-      settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled;
+      settingsStore.autoGenerateSubaddressStatus !=
+      AutoGenerateSubaddressStatus.disabled;
 
   @computed
   List<ActionListItem> get items {
     final _items = <ActionListItem>[];
 
-    _items.addAll(
-        transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactons]));
+    _items.addAll(transactionFilterStore
+        .filtered(transactions: [...transactions, ...anonpayTransactons]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
     _items.addAll(orders);
 
@@ -324,10 +338,12 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+      wallet;
 
   @computed
-  bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
+  bool get isTestnet =>
+      wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
 
   @computed
   bool get hasRescan =>
@@ -366,22 +382,30 @@ abstract class DashboardViewModelBase with Store {
       // to not cause work duplication, this will do the job as well, it will be slightly less precise
       // about what happened - but still enough.
       // if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
-      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("")) "private view key is 0",
+      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join(""))
+        "private view key is 0",
       // if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
-      if (keys['publicViewKey'] == List.generate(64, (index) => "0").join("")) "public view key is 0",
+      if (keys['publicViewKey'] == List.generate(64, (index) => "0").join(""))
+        "public view key is 0",
       // if (wallet.seed == null) "wallet seed is null",
       // if (wallet.seed == "") "wallet seed is empty",
-      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address == "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4") 
+      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
+          "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
         "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
   }
 
   @computed
-  bool get hasSilentPayments => wallet.type == WalletType.bitcoin && !wallet.isHardwareWallet;
+  bool get hasSilentPayments =>
+      wallet.type == WalletType.bitcoin && !wallet.isHardwareWallet;
 
   @computed
-  bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
+  bool get showSilentPaymentsCard =>
+      hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
+
+  @computed
+  bool get showPayjoinPaymentsCard => wallet.type == WalletType.bitcoin;
 
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
@@ -396,6 +420,16 @@ abstract class DashboardViewModelBase with Store {
     if (hasSilentPayments) {
       bitcoin!.setScanningActive(wallet, active);
     }
+  }
+
+  @observable
+  bool payjoinPaymentsScanningActive = false;
+
+  @action
+  void setPayjoinPaymentsScanning(bool active) {
+    payjoinPaymentsScanningActive = active;
+
+    /// TODO: Set Payjoin receive polling
   }
 
   BalanceViewModel balanceViewModel;
@@ -419,15 +453,18 @@ abstract class DashboardViewModelBase with Store {
   Map<String, List<FilterItem>> filterItems;
 
   BuyProvider? get defaultBuyProvider => ProvidersHelper.getProviderByType(
-      settingsStore.defaultBuyProviders[wallet.type] ?? ProviderType.askEachTime);
+      settingsStore.defaultBuyProviders[wallet.type] ??
+          ProviderType.askEachTime);
 
   BuyProvider? get defaultSellProvider => ProvidersHelper.getProviderByType(
-      settingsStore.defaultSellProviders[wallet.type] ?? ProviderType.askEachTime);
+      settingsStore.defaultSellProviders[wallet.type] ??
+          ProviderType.askEachTime);
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
   List<BuyProvider> get availableBuyProviders {
-    final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(wallet.type);
+    final providerTypes =
+        ProvidersHelper.getAvailableBuyProviderTypes(wallet.type);
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
@@ -435,10 +472,12 @@ abstract class DashboardViewModelBase with Store {
         .toList();
   }
 
-  bool get hasBuyProviders => ProvidersHelper.getAvailableBuyProviderTypes(wallet.type).isNotEmpty;
+  bool get hasBuyProviders =>
+      ProvidersHelper.getAvailableBuyProviderTypes(wallet.type).isNotEmpty;
 
   List<BuyProvider> get availableSellProviders {
-    final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
+    final providerTypes =
+        ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
         .where((provider) => provider != null)
@@ -452,10 +491,12 @@ abstract class DashboardViewModelBase with Store {
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
   @action
-  void furtherShowYatPopup(bool shouldShow) => settingsStore.shouldShowYatPopup = shouldShow;
+  void furtherShowYatPopup(bool shouldShow) =>
+      settingsStore.shouldShowYatPopup = shouldShow;
 
   @computed
-  bool get isEnabledExchangeAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
+  bool get isEnabledExchangeAction =>
+      settingsStore.exchangeStatus != ExchangeApiMode.disabled;
 
   @observable
   bool hasExchangeAction;
@@ -467,7 +508,8 @@ abstract class DashboardViewModelBase with Store {
   bool hasBuyAction;
 
   @computed
-  bool get isEnabledSellAction => !settingsStore.disableSell && hasSellProviders;
+  bool get isEnabledSellAction =>
+      !settingsStore.disableSell && hasSellProviders;
 
   @observable
   bool hasSellAction;
@@ -480,7 +522,8 @@ abstract class DashboardViewModelBase with Store {
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
   @computed
-  bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
+  bool get hasPowNodes =>
+      wallet.type == WalletType.nano || wallet.type == WalletType.banano;
 
   @computed
   bool get hasSignMessages {
@@ -529,7 +572,9 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void _onWalletChange(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet) {
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+              TransactionInfo>?
+          wallet) {
     if (wallet == null) {
       return;
     }
@@ -576,8 +621,8 @@ abstract class DashboardViewModelBase with Store {
 
       transactions.clear();
 
-      transactions.addAll(wallet.transactionHistory.transactions.values.map((transaction) =>
-          TransactionListItem(
+      transactions.addAll(wallet.transactionHistory.transactions.values.map(
+          (transaction) => TransactionListItem(
               transaction: transaction,
               balanceViewModel: balanceViewModel,
               settingsStore: appStore.settingsStore)));
@@ -589,13 +634,15 @@ abstract class DashboardViewModelBase with Store {
         (TransactionInfo? transaction) => TransactionListItem(
             transaction: transaction!,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore), filter: (TransactionInfo? tx) {
+            settingsStore: appStore.settingsStore),
+        filter: (TransactionInfo? tx) {
       if (tx == null) {
         return false;
       }
 
       if (wallet.type == WalletType.monero) {
-        return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
+        return monero!.getTransactionInfoAccountId(tx) ==
+            monero!.getCurrentAccount(wallet).id;
       }
 
       if (wallet.type == WalletType.wownero) {
@@ -626,13 +673,15 @@ abstract class DashboardViewModelBase with Store {
           .transactions
           .values
           .where((tx) =>
-              monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
+              monero!.getTransactionInfoAccountId(tx) ==
+              monero!.getCurrentAccount(wallet).id)
           .toList();
 
-      transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      transactions.addAll(_accountTransactions.map((transaction) =>
+          TransactionListItem(
+              transaction: transaction,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore)));
     } else if (wallet.type == WalletType.wownero) {
       final _accountTransactions = wow.wownero!
           .getTransactionHistory(wallet)
@@ -643,10 +692,11 @@ abstract class DashboardViewModelBase with Store {
               wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
-      transactions.addAll(_accountTransactions.map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      transactions.addAll(_accountTransactions.map((transaction) =>
+          TransactionListItem(
+              transaction: transaction,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore)));
     }
   }
 
@@ -660,7 +710,8 @@ abstract class DashboardViewModelBase with Store {
   SyncMode get syncMode => settingsStore.currentSyncMode;
 
   @action
-  void setSyncMode(SyncMode syncMode) => settingsStore.currentSyncMode = syncMode;
+  void setSyncMode(SyncMode syncMode) =>
+      settingsStore.currentSyncMode = syncMode;
 
   @computed
   bool get syncAll => settingsStore.currentSyncAll;
@@ -669,7 +720,8 @@ abstract class DashboardViewModelBase with Store {
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
   Future<List<String>> checkForHavenWallets() async {
-    final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+    final walletInfoSource =
+        await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
     return walletInfoSource.values
         .where((element) => element.type == WalletType.haven)
         .map((e) => e.name)
@@ -679,24 +731,28 @@ abstract class DashboardViewModelBase with Store {
   Future<List<String>> checkAffectedWallets() async {
     try {
       // await load file
-      final vulnerableSeedsString = await rootBundle
-          .loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
+      final vulnerableSeedsString = await rootBundle.loadString(
+          'assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
       final vulnerableSeeds = vulnerableSeedsString.split("\n");
 
-      final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+      final walletInfoSource =
+          await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
 
       List<String> affectedWallets = [];
       for (var walletInfo in walletInfoSource.values) {
         if (walletInfo.type == WalletType.bitcoin) {
-          final password = await keyService.getWalletPassword(walletName: walletInfo.name);
-          final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
+          final password =
+              await keyService.getWalletPassword(walletName: walletInfo.name);
+          final path =
+              await pathForWallet(name: walletInfo.name, type: walletInfo.type);
           final jsonSource = await read(path: path, password: password);
           final data = json.decode(jsonSource) as Map;
           final mnemonic = data['mnemonic'] as String?;
 
           if (mnemonic == null) continue;
 
-          final hash = await Cryptography.instance.sha256().hash(utf8.encode(mnemonic));
+          final hash =
+              await Cryptography.instance.sha256().hash(utf8.encode(mnemonic));
           final seedSha = bytesToHex(hash.bytes);
 
           if (vulnerableSeeds.contains(seedSha)) {
@@ -726,9 +782,11 @@ abstract class DashboardViewModelBase with Store {
           throw res.body;
         }
 
-        final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
+        final oldSha =
+            sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
 
-        final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
+        final hash =
+            await Cryptography.instance.sha256().hash(utf8.encode(res.body));
         final currentSha = bytesToHex(hash.bytes);
 
         final hasUpdates = oldSha != currentSha;

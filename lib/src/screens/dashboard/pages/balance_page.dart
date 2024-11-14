@@ -60,23 +60,27 @@ class BalancePage extends StatelessWidget {
                         fontSize: 18,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
-                        color:
-                            Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                        color: Theme.of(context)
+                            .extension<DashboardPageTheme>()!
+                            .pageTitleTextColor,
                         height: 1,
                       ),
                       unselectedLabelStyle: TextStyle(
                         fontSize: 18,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
-                        color:
-                            Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                        color: Theme.of(context)
+                            .extension<DashboardPageTheme>()!
+                            .pageTitleTextColor,
                         height: 1,
                       ),
-                      labelColor:
-                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                      labelColor: Theme.of(context)
+                          .extension<DashboardPageTheme>()!
+                          .pageTitleTextColor,
                       dividerColor: Colors.transparent,
-                      indicatorColor:
-                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                      indicatorColor: Theme.of(context)
+                          .extension<DashboardPageTheme>()!
+                          .pageTitleTextColor,
                       unselectedLabelColor: Theme.of(context)
                           .extension<DashboardPageTheme>()!
                           .pageTitleTextColor
@@ -94,7 +98,8 @@ class BalancePage extends StatelessWidget {
                   physics: NeverScrollableScrollPhysics(),
                   children: [
                     CryptoBalanceWidget(dashboardViewModel: dashboardViewModel),
-                    if (isEVMCompatible) NFTListingPage(nftViewModel: nftViewModel)
+                    if (isEVMCompatible)
+                      NFTListingPage(nftViewModel: nftViewModel)
                   ],
                 ),
               ),
@@ -129,7 +134,7 @@ class CryptoBalanceWidget extends StatelessWidget {
               builder: (_) {
                 if (dashboardViewModel.getMoneroError != null) {
                   return Padding(
-                    padding: const EdgeInsets.fromLTRB(16,0,16,16),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     child: DashBoardRoundedCardWidget(
                       title: "Invalid monero bindings",
                       subTitle: dashboardViewModel.getMoneroError.toString(),
@@ -144,13 +149,12 @@ class CryptoBalanceWidget extends StatelessWidget {
               builder: (_) {
                 if (dashboardViewModel.getWowneroError != null) {
                   return Padding(
-                    padding: const EdgeInsets.fromLTRB(16,0,16,16),
-                    child: DashBoardRoundedCardWidget(
-                      title: "Invalid wownero bindings",
-                      subTitle: dashboardViewModel.getWowneroError.toString(),
-                      onTap: () {},
-                    )
-                  );
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: DashBoardRoundedCardWidget(
+                        title: "Invalid wownero bindings",
+                        subTitle: dashboardViewModel.getWowneroError.toString(),
+                        onTap: () {},
+                      ));
                 }
                 return Container();
               },
@@ -183,7 +187,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                                       maxLines: 1,
                                       textAlign: TextAlign.center,
                                     ),
-                                    if (dashboardViewModel.wallet.isHardwareWallet)
+                                    if (dashboardViewModel
+                                        .wallet.isHardwareWallet)
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Image.asset(
@@ -194,18 +199,20 @@ class CryptoBalanceWidget extends StatelessWidget {
                                               .pageTitleTextColor,
                                         ),
                                       ),
-                                    if (dashboardViewModel
-                                        .balanceViewModel.isHomeScreenSettingsEnabled)
+                                    if (dashboardViewModel.balanceViewModel
+                                        .isHomeScreenSettingsEnabled)
                                       InkWell(
                                         onTap: () => Navigator.pushNamed(
                                             context, Routes.homeSettings,
-                                            arguments: dashboardViewModel.balanceViewModel),
+                                            arguments: dashboardViewModel
+                                                .balanceViewModel),
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Image.asset(
                                             'assets/images/home_screen_settings_icon.png',
                                             color: Theme.of(context)
-                                                .extension<DashboardPageTheme>()!
+                                                .extension<
+                                                    DashboardPageTheme>()!
                                                 .pageTitleTextColor,
                                           ),
                                         ),
@@ -224,8 +231,11 @@ class CryptoBalanceWidget extends StatelessWidget {
                   return IntroducingCard(
                       title: S.of(context).introducing_cake_pay,
                       subTitle: S.of(context).cake_pay_learn_more,
-                      borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-                      closeCard: dashboardViewModel.balanceViewModel.disableIntroCakePayCard);
+                      borderColor: Theme.of(context)
+                          .extension<BalancePageTheme>()!
+                          .cardBorderColor,
+                      closeCard: dashboardViewModel
+                          .balanceViewModel.disableIntroCakePayCard);
                 }
                 return Container();
               },
@@ -239,9 +249,11 @@ class CryptoBalanceWidget extends StatelessWidget {
                 child: DashBoardRoundedCardWidget(
                   title: S.current.rep_warning,
                   subTitle: S.current.rep_warning_sub,
-                  onTap: () => Navigator.of(context).pushNamed(Routes.changeRep),
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(Routes.changeRep),
                   onClose: () {
-                    dashboardViewModel.settingsStore.shouldShowRepWarning = false;
+                    dashboardViewModel.settingsStore.shouldShowRepWarning =
+                        false;
                   },
                 ),
               );
@@ -251,11 +263,14 @@ class CryptoBalanceWidget extends StatelessWidget {
                 return ListView.separated(
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  separatorBuilder: (_, __) => Container(padding: EdgeInsets.only(bottom: 8)),
-                  itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length,
+                  separatorBuilder: (_, __) =>
+                      Container(padding: EdgeInsets.only(bottom: 8)),
+                  itemCount: dashboardViewModel
+                      .balanceViewModel.formattedBalances.length,
                   itemBuilder: (__, index) {
-                    final balance =
-                        dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index);
+                    final balance = dashboardViewModel
+                        .balanceViewModel.formattedBalances
+                        .elementAt(index);
                     return Observer(builder: (_) {
                       return BalanceRowWidget(
                         availableBalanceLabel:
@@ -269,8 +284,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                         frozenBalance: balance.frozenBalance,
                         frozenFiatBalance: balance.fiatFrozenBalance,
                         currency: balance.asset,
-                        hasAdditionalBalance:
-                            dashboardViewModel.balanceViewModel.hasAdditionalBalance,
+                        hasAdditionalBalance: dashboardViewModel
+                            .balanceViewModel.hasAdditionalBalance,
                         isTestnet: dashboardViewModel.isTestnet,
                       );
                     });
@@ -281,19 +296,21 @@ class CryptoBalanceWidget extends StatelessWidget {
             Observer(builder: (context) {
               return Column(
                 children: [
-                  if (dashboardViewModel.isMoneroWalletBrokenReasons.isNotEmpty) ...[
+                  if (dashboardViewModel
+                      .isMoneroWalletBrokenReasons.isNotEmpty) ...[
                     SizedBox(height: 10),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                      child: DashBoardRoundedCardWidget(
-                        customBorder: 30,
-                        title: "This wallet has encountered an issue",
-                        subTitle: "Here are the things that you should note:\n - "
-                        +dashboardViewModel.isMoneroWalletBrokenReasons.join("\n - ")
-                        +"\n\nPlease restart your wallet and if it doesn't help contact our support.",
-                        onTap: () {},
-                      )
-                    )
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                        child: DashBoardRoundedCardWidget(
+                          customBorder: 30,
+                          title: "This wallet has encountered an issue",
+                          subTitle:
+                              "Here are the things that you should note:\n - " +
+                                  dashboardViewModel.isMoneroWalletBrokenReasons
+                                      .join("\n - ") +
+                                  "\n\nPlease restart your wallet and if it doesn't help contact our support.",
+                          onTap: () {},
+                        ))
                   ],
                   if (dashboardViewModel.showSilentPaymentsCard) ...[
                     SizedBox(height: 10),
@@ -331,7 +348,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                                         softWrap: true,
                                       ),
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4),
                                         child: Icon(Icons.help_outline,
                                             size: 16,
                                             color: Theme.of(context)
@@ -343,8 +361,10 @@ class CryptoBalanceWidget extends StatelessWidget {
                                 ),
                                 Observer(
                                   builder: (_) => StandardSwitch(
-                                    value: dashboardViewModel.silentPaymentsScanningActive,
-                                    onTaped: () => _toggleSilentPaymentsScanning(context),
+                                    value: dashboardViewModel
+                                        .silentPaymentsScanningActive,
+                                    onTaped: () =>
+                                        _toggleSilentPaymentsScanning(context),
                                   ),
                                 )
                               ],
@@ -354,8 +374,79 @@ class CryptoBalanceWidget extends StatelessWidget {
                         onTap: () => _toggleSilentPaymentsScanning(context),
                         icon: Icon(
                           Icons.lock,
-                          color:
-                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                          color: Theme.of(context)
+                              .extension<DashboardPageTheme>()!
+                              .pageTitleTextColor,
+                          size: 50,
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (dashboardViewModel.showPayjoinPaymentsCard) ...[
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: DashBoardRoundedCardWidget(
+                        customBorder: 30,
+                        title: 'Payjoin Payments',
+                        subTitle: 'Enable payjoin payments',
+                        hint: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => launchUrl(
+                                    Uri.parse(
+                                        "https://github.com/bitcoin/bips/blob/df3bd5239b20a9183d24d27c0d1d46da367a5262/bip-0077.mediawiki"),
+                                    mode: LaunchMode.externalApplication,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "What is payjoin payments?",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context)
+                                              .extension<BalancePageTheme>()!
+                                              .labelTextColor,
+                                          height: 1,
+                                        ),
+                                        softWrap: true,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4),
+                                        child: Icon(Icons.help_outline,
+                                            size: 16,
+                                            color: Theme.of(context)
+                                                .extension<BalancePageTheme>()!
+                                                .labelTextColor),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Observer(
+                                  builder: (_) => StandardSwitch(
+                                    value: dashboardViewModel
+                                        .payjoinPaymentsScanningActive,
+                                    onTaped: () =>
+                                        _togglePayjoinPaymentsScanning(),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                        onTap: () => _togglePayjoinPaymentsScanning(),
+                        icon: Icon(
+                          Icons.join_inner_outlined,
+                          color: Theme.of(context)
+                              .extension<DashboardPageTheme>()!
+                              .pageTitleTextColor,
                           size: 50,
                         ),
                       ),
@@ -371,13 +462,15 @@ class CryptoBalanceWidget extends StatelessWidget {
   }
 
   Future<void> _toggleSilentPaymentsScanning(BuildContext context) async {
-    final isSilentPaymentsScanningActive = dashboardViewModel.silentPaymentsScanningActive;
+    final isSilentPaymentsScanningActive =
+        dashboardViewModel.silentPaymentsScanningActive;
     final newValue = !isSilentPaymentsScanningActive;
 
     dashboardViewModel.silentPaymentsScanningActive = newValue;
 
     final needsToSwitch = !isSilentPaymentsScanningActive &&
-        await bitcoin!.getNodeIsElectrsSPEnabled(dashboardViewModel.wallet) == false;
+        await bitcoin!.getNodeIsElectrsSPEnabled(dashboardViewModel.wallet) ==
+            false;
 
     if (needsToSwitch) {
       return showPopUp<void>(
@@ -392,13 +485,24 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
                 actionLeftButton: () {
-                  dashboardViewModel.silentPaymentsScanningActive = isSilentPaymentsScanningActive;
+                  dashboardViewModel.silentPaymentsScanningActive =
+                      isSilentPaymentsScanningActive;
                   Navigator.of(context).pop();
                 },
               ));
     }
 
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
+  }
+
+  Future<void> _togglePayjoinPaymentsScanning() async {
+    final isPayjoinPaymentsScanningActive =
+        dashboardViewModel.payjoinPaymentsScanningActive;
+    final newValue = !isPayjoinPaymentsScanningActive;
+
+    dashboardViewModel.payjoinPaymentsScanningActive = newValue;
+
+    return dashboardViewModel.setPayjoinPaymentsScanning(newValue);
   }
 }
 
@@ -445,10 +549,13 @@ class BalanceRowWidget extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.0),
         border: Border.all(
-          color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+          color:
+              Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
           width: 1,
         ),
-        color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+        color: Theme.of(context)
+            .extension<SyncIndicatorTheme>()!
+            .syncedBackgroundColor,
       ),
       child: Container(
         margin: const EdgeInsets.only(top: 16, left: 24, right: 8, bottom: 16),
@@ -462,8 +569,8 @@ class BalanceRowWidget extends StatelessWidget {
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: hasAdditionalBalance
-                      ? () =>
-                          _showBalanceDescription(context, S.current.available_balance_description)
+                      ? () => _showBalanceDescription(
+                          context, S.current.available_balance_description)
                       : null,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -485,7 +592,8 @@ class BalanceRowWidget extends StatelessWidget {
                           ),
                           if (hasAdditionalBalance)
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
                               child: Icon(Icons.help_outline,
                                   size: 16,
                                   color: Theme.of(context)
@@ -514,7 +622,9 @@ class BalanceRowWidget extends StatelessWidget {
                                 fontSize: 14,
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w400,
-                                color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                color: Theme.of(context)
+                                    .extension<BalancePageTheme>()!
+                                    .textColor,
                                 height: 1)),
                       if (!isTestnet)
                         Text('${availableFiatBalance}',
@@ -523,7 +633,9 @@ class BalanceRowWidget extends StatelessWidget {
                                 fontSize: 16,
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                color: Theme.of(context)
+                                    .extension<BalancePageTheme>()!
+                                    .textColor,
                                 height: 1)),
                     ],
                   ),
@@ -542,7 +654,8 @@ class BalanceRowWidget extends StatelessWidget {
                             width: 30.0,
                             child: Center(
                               child: Text(
-                                currency.title.substring(0, min(currency.title.length, 2)),
+                                currency.title.substring(
+                                    0, min(currency.title.length, 2)),
                                 style: TextStyle(fontSize: 11),
                               ),
                             ),
@@ -559,7 +672,9 @@ class BalanceRowWidget extends StatelessWidget {
                             fontSize: 15,
                             fontFamily: 'Lato',
                             fontWeight: FontWeight.w800,
-                            color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                            color: Theme.of(context)
+                                .extension<BalancePageTheme>()!
+                                .assetTitleColor,
                             height: 1,
                           ),
                         ),
@@ -573,8 +688,8 @@ class BalanceRowWidget extends StatelessWidget {
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: hasAdditionalBalance
-                    ? () =>
-                        _showBalanceDescription(context, S.current.unavailable_balance_description)
+                    ? () => _showBalanceDescription(
+                        context, S.current.unavailable_balance_description)
                     : null,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -589,7 +704,9 @@ class BalanceRowWidget extends StatelessWidget {
                             fontSize: 12,
                             fontFamily: 'Lato',
                             fontWeight: FontWeight.w400,
-                            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                            color: Theme.of(context)
+                                .extension<BalancePageTheme>()!
+                                .labelTextColor,
                             height: 1,
                           ),
                         ),
@@ -597,8 +714,9 @@ class BalanceRowWidget extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: Icon(Icons.help_outline,
                               size: 16,
-                              color:
-                                  Theme.of(context).extension<BalancePageTheme>()!.labelTextColor),
+                              color: Theme.of(context)
+                                  .extension<BalancePageTheme>()!
+                                  .labelTextColor),
                         ),
                       ],
                     ),
@@ -609,7 +727,9 @@ class BalanceRowWidget extends StatelessWidget {
                         fontSize: 20,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
+                        color: Theme.of(context)
+                            .extension<BalancePageTheme>()!
+                            .balanceAmountColor,
                         height: 1,
                       ),
                       maxLines: 1,
@@ -624,7 +744,9 @@ class BalanceRowWidget extends StatelessWidget {
                           fontSize: 12,
                           fontFamily: 'Lato',
                           fontWeight: FontWeight.w400,
-                          color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                          color: Theme.of(context)
+                              .extension<BalancePageTheme>()!
+                              .textColor,
                           height: 1,
                         ),
                       ),
@@ -643,7 +765,9 @@ class BalanceRowWidget extends StatelessWidget {
                       fontSize: 12,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                      color: Theme.of(context)
+                          .extension<BalancePageTheme>()!
+                          .labelTextColor,
                       height: 1,
                     ),
                   ),
@@ -654,7 +778,9 @@ class BalanceRowWidget extends StatelessWidget {
                       fontSize: 20,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                      color: Theme.of(context)
+                          .extension<BalancePageTheme>()!
+                          .assetTitleColor,
                       height: 1,
                     ),
                     maxLines: 1,
@@ -669,7 +795,9 @@ class BalanceRowWidget extends StatelessWidget {
                         fontSize: 12,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                        color: Theme.of(context)
+                            .extension<BalancePageTheme>()!
+                            .textColor,
                         height: 1,
                       ),
                     ),
@@ -682,6 +810,8 @@ class BalanceRowWidget extends StatelessWidget {
   }
 
   void _showBalanceDescription(BuildContext context, String content) {
-    showPopUp<void>(context: context, builder: (_) => InformationPage(information: content));
+    showPopUp<void>(
+        context: context,
+        builder: (_) => InformationPage(information: content));
   }
 }

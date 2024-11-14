@@ -10,7 +10,8 @@ class AddressValidator extends TextValidator {
       : super(
             errorMessage: S.current.error_text_address,
             useAdditionalValidation: type == CryptoCurrency.btc
-                ? (String txt) => validateAddress(address: txt, network: BitcoinNetwork.mainnet)
+                ? (String txt) => validateAddress(
+                    address: txt, network: BitcoinNetwork.mainnet)
                 : null,
             pattern: getPattern(type),
             length: getLength(type));
