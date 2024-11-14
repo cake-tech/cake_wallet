@@ -154,12 +154,12 @@ mixin ZanoWalletApi {
       _json('assets_whitelist_add $assetId', json);
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
-      if (map!['result']!['result']!['status']! == 'OK') {
-        final assetDescriptor = ZanoAsset.fromJson(map['result']!['result']!['asset_descriptor']! as Map<String, dynamic>);
+      if (map!['result']!['status']! == 'OK') {
+        final assetDescriptor = ZanoAsset.fromJson(map['result']!['asset_descriptor']! as Map<String, dynamic>);
         info('assets_whitelist_add added ${assetDescriptor.fullName} ${assetDescriptor.ticker}');
         return assetDescriptor;
       } else {
-        info('assets_whitelist_add status ${map['result']!['result']!['status']!}');
+        info('assets_whitelist_add status ${map['result']!['status']!}');
         return null;
       }
     } catch (e) {
@@ -174,8 +174,8 @@ mixin ZanoWalletApi {
       _json('assets_whitelist_remove $assetId', json);
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
-      info('assets_whitelist_remove status ${map!['result']!['result']!['status']!}');
-      return (map['result']!['result']!['status']! == 'OK');
+      info('assets_whitelist_remove status ${map!['result']!['status']!}');
+      return (map['result']!['status']! == 'OK');
     } catch (e) {
       error('assets_whitelist_remove $e');
       return false;
@@ -342,7 +342,7 @@ mixin ZanoWalletApi {
     final json = await invokeMethod('transfer', params);
     _json('transfer', json);
     final map = jsonDecode(json);
-    final resultMap = map['result'] as Map<String, dynamic>?;
+    final resultMap = map as Map<String, dynamic>?;
     if (resultMap != null) {
       final transferResultMap = resultMap['result'] as Map<String, dynamic>?;
       if (transferResultMap != null) {
@@ -350,9 +350,9 @@ mixin ZanoWalletApi {
         info('transfer success hash ${transferResult.txHash}');
         return transferResult;
       } else {
-        final errorCode = resultMap['error']['code'];
+        final errorCode = resultMap['error']?['code'];
         final code = errorCode is int ? errorCode.toString() : errorCode as String? ?? '';
-        final message = resultMap['error']['message'] as String? ?? '';
+        final message = resultMap['error']?['message'] as String? ?? '';
         error('transfer error $code $message');
         throw TransferException('Transfer error, $message ($code)');
       }
