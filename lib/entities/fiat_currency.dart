@@ -114,7 +114,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
     FiatCurrency.tur.raw: FiatCurrency.tur,
   };
 
-  static FiatCurrency deserialize({required String raw}) => _all[raw]!;
+  static FiatCurrency deserialize({required String raw}) => _all[raw] ?? FiatCurrency.usd;
 
   @override
   bool operator ==(Object other) => other is FiatCurrency && other.raw == raw;

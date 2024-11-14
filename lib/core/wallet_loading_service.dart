@@ -14,7 +14,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletLoadingService {
-  WalletLoadingService(this.sharedPreferences, this.keyService, this.walletServiceFactory);
+  WalletLoadingService(
+    this.sharedPreferences,
+    this.keyService,
+    this.walletServiceFactory,
+  );
 
   final SharedPreferences sharedPreferences;
   final KeyService keyService;
@@ -77,7 +81,8 @@ class WalletLoadingService {
             await updateMoneroWalletPassword(wallet);
           }
 
-          await sharedPreferences.setString(PreferencesKey.currentWalletName, wallet.name);
+          await sharedPreferences.setString(
+              PreferencesKey.currentWalletName, wallet.name);
           await sharedPreferences.setInt(
               PreferencesKey.currentWalletType, serializeToInt(wallet.type));
 
@@ -128,5 +133,10 @@ class WalletLoadingService {
     final password = await keyService.getWalletPassword(walletName: name);
 
     return "\n\n$type ($name): ${await walletService.getSeeds(name, password, type)}";
+  }
+
+  bool requireHardwareWalletConnection(WalletType type, String name) {
+    final walletService = walletServiceFactory.call(type);
+    return walletService.requireHardwareWalletConnection(name);
   }
 }

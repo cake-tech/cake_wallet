@@ -3,5 +3,6 @@ class WalletRestoreFromKeysException implements Exception {
   
   final String message;
 
+  @override
   String toString() => message;
 }

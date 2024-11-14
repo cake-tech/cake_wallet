@@ -91,8 +91,9 @@ abstract class TransactionFilterStoreBase with Store {
                 (displayOutgoing && item.transaction.direction == TransactionDirection.outgoing) ||
                     (displayIncoming &&
                         item.transaction.direction == TransactionDirection.incoming &&
-                        !bitcoin!.txIsReceivedSilentPayment(item.transaction)) ||
-                    (displaySilentPayments && bitcoin!.txIsReceivedSilentPayment(item.transaction));
+                        !(bitcoin?.txIsReceivedSilentPayment(item.transaction) ?? false)) ||
+                    (displaySilentPayments &&
+                        (bitcoin?.txIsReceivedSilentPayment(item.transaction) ?? false));
           } else if (item is AnonpayTransactionListItem) {
             allowed = displayIncoming;
           }
