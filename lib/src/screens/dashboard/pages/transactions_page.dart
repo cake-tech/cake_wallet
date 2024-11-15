@@ -160,7 +160,8 @@ class TransactionsPage extends StatelessWidget {
                                   createdAtFormattedDate: trade.createdAt != null
                                       ? DateFormat('HH:mm').format(trade.createdAt!)
                                       : null,
-                                  formattedAmount: item.tradeFormattedAmount,
+                                  formattedAmount: item.tradeFormattedAmount, 
+                                  formattedReceiveAmount: item.tradeFormattedReceiveAmount
                                 ),
                               );
                             }
