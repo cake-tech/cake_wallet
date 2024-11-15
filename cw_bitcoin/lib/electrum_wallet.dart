@@ -1500,9 +1500,13 @@ abstract class ElectrumWalletBase
     final bundle = await getTransactionExpanded(hash: txId);
     final outputs = bundle.originalTransaction.outputs;
 
-    final receiverAmount = outputs.isNotEmpty ? outputs[0].amount.toInt() : null;
+    final ownAddresses = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
 
-    if (receiverAmount == null) {
+    final receiverAmount = outputs
+        .where((output) => !ownAddresses.contains(addressFromOutputScript(output.scriptPubKey, network)))
+        .fold<int>(0, (sum, output) => sum + output.amount.toInt());
+
+    if (receiverAmount == 0) {
       throw Exception("Receiver output not found.");
     }
 
@@ -1732,7 +1736,13 @@ abstract class ElectrumWalletBase
         if (key == null) {
           throw Exception("Cannot find private key");
         }
-        return key.signInput(txDigest, sigHash: sighash);
+
+        if (utxo.utxo.isP2tr()) {
+          return key.signTapRoot(txDigest, sighash: sighash);
+        } else {
+          return key.signInput(txDigest, sigHash: sighash);
+        }
+
       });
 
       return PendingBitcoinTransaction(
