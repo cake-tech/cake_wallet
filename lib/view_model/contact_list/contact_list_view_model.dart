@@ -136,10 +136,11 @@ abstract class ContactListViewModelBase with Store {
         _currency?.tag == element.type.toString();
   }
 
-  void dispose() async {
-    _subscription?.cancel();
+  void dispose() => _subscription?.cancel();
+
+  void saveCustomOrder() {
     final List<Contact> contactsSourceCopy = contacts.map((e) => e.original).toList();
-    await reorderContacts(contactsSourceCopy);
+    reorderContacts(contactsSourceCopy);
   }
 
   void reorderAccordingToContactList() =>
