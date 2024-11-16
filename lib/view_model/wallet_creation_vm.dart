@@ -8,7 +8,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -193,7 +192,7 @@ abstract class WalletCreationVMBase with Store {
 
   Future<List<DerivationInfo>> getDerivationInfoFromQRCredentials(
       RestoredWallet restoreWallet) async {
-    var list = <DerivationInfo>[];
+    final list = <DerivationInfo>[];
     final walletType = restoreWallet.type;
     var appStore = getIt.get<AppStore>();
     var node = appStore.settingsStore.getCurrentNode(walletType);
@@ -201,37 +200,11 @@ abstract class WalletCreationVMBase with Store {
     switch (walletType) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        final bitcoinDerivations = await bitcoin!.getDerivationsFromMnemonic(
+        return await bitcoin!.getDerivationInfosFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,
           node: node,
           passphrase: restoreWallet.passphrase,
         );
-
-        List<DerivationInfo> list = [];
-        for (var derivation in bitcoinDerivations) {
-          if (derivation.derivationType == DerivationType.electrum) {
-            list.add(
-              DerivationInfo(
-                derivationType: DerivationType.electrum,
-                derivationPath: "m/0'",
-                description: "Electrum",
-                scriptType: "p2wpkh",
-              ),
-            );
-          } else {
-            list.add(
-              DerivationInfo(
-                derivationType: DerivationType.bip39,
-                derivationPath: "m/84'/0'/0'",
-                description: "Standard BIP84 native segwit",
-                scriptType: "p2wpkh",
-              ),
-            );
-          }
-        }
-
-        return list;
-
       case WalletType.nano:
         return nanoUtil!.getDerivationsFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,

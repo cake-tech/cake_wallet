@@ -71,6 +71,7 @@ abstract class ElectrumWalletBase
     CryptoCurrency? currency,
     this.alwaysScan,
     required this.mempoolAPIEnabled,
+    List<BitcoinUnspent> initialUnspentCoins = const [],
   })  : hdWallets = hdWallets ??
             {
               CWBitcoinDerivationType.bip39: getAccountHDWallet(
@@ -84,8 +85,7 @@ abstract class ElectrumWalletBase
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         isEnabledAutoGenerateSubaddress = true,
-        // TODO: inital unspent coins
-        unspentCoins = BitcoinUnspentCoins(),
+        unspentCoins = BitcoinUnspentCoins.of(initialUnspentCoins),
         scripthashesListening = [],
         balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(currency != null
             ? {
@@ -419,6 +419,7 @@ abstract class ElectrumWalletBase
           workerSendPort!.send(
             ElectrumWorkerConnectionRequest(
               uri: node.uri,
+              useSSL: node.useSSL ?? false,
               network: network,
             ).toJson(),
           );
@@ -1036,6 +1037,7 @@ abstract class ElectrumWalletBase
         'derivationTypeIndex': walletInfo.derivationInfo?.derivationType?.index,
         'derivationPath': walletInfo.derivationInfo?.derivationPath,
         'alwaysScan': alwaysScan,
+        'unspents': unspentCoins.map((e) => e.toJson()).toList(),
       });
 
   int feeAmountForPriority(TransactionPriority priority, int inputsCount, int outputsCount,
@@ -1214,7 +1216,6 @@ abstract class ElectrumWalletBase
       }));
     }));
 
-    unspentCoins.clear();
     unspentCoins.addAll(updatedUnspentCoins);
     unspentCoins.forEach(updateCoin);
 
@@ -1918,8 +1919,14 @@ class TxCreateUtxoDetails {
   });
 }
 
-class BitcoinUnspentCoins extends ObservableList<BitcoinUnspent> {
+class BitcoinUnspentCoins extends ObservableSet<BitcoinUnspent> {
   BitcoinUnspentCoins() : super();
+
+  static BitcoinUnspentCoins of(Iterable<BitcoinUnspent> unspentCoins) {
+    final coins = BitcoinUnspentCoins();
+    coins.addAll(unspentCoins);
+    return coins;
+  }
 
   List<UnspentCoinsInfo> forInfo(Iterable<UnspentCoinsInfo> unspentCoinsInfo) {
     return unspentCoinsInfo.where((element) {

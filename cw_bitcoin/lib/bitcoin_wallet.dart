@@ -55,6 +55,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     bool? alwaysScan,
     required bool mempoolAPIEnabled,
     super.hdWallets,
+    super.initialUnspentCoins,
   }) : super(
           mnemonic: mnemonic,
           passphrase: passphrase,
@@ -111,6 +112,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
 
     for (final derivation in walletInfo.derivations ?? <DerivationInfo>[]) {
+      if (derivation.description?.contains("SP") ?? false) {
+        continue;
+      }
+
       if (derivation.derivationType == DerivationType.bip39) {
         seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
         hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
@@ -134,8 +139,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    hdWallets[CWBitcoinDerivationType.old] =
-        hdWallets[CWBitcoinDerivationType.bip39] ?? hdWallets[CWBitcoinDerivationType.electrum]!;
+    if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
+      hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
+    }
+    if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
+      hdWallets[CWBitcoinDerivationType.old_electrum] = hdWallets[CWBitcoinDerivationType.bip39]!;
+    }
 
     return BitcoinWallet(
       mnemonic: mnemonic,
@@ -155,6 +164,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       networkParam: network,
       mempoolAPIEnabled: mempoolAPIEnabled,
       hdWallets: hdWallets,
+      initialUnspentCoins: [],
     );
   }
 
@@ -217,6 +227,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     if (mnemonic != null) {
       for (final derivation in walletInfo.derivations ?? <DerivationInfo>[]) {
+        if (derivation.description?.contains("SP") ?? false) {
+          continue;
+        }
+
         if (derivation.derivationType == DerivationType.bip39) {
           seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
           hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
@@ -242,8 +256,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         }
       }
 
-      hdWallets[CWBitcoinDerivationType.old] =
-          hdWallets[CWBitcoinDerivationType.bip39] ?? hdWallets[CWBitcoinDerivationType.electrum]!;
+      if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
+        hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
+      }
+      if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
+        hdWallets[CWBitcoinDerivationType.old_electrum] = hdWallets[CWBitcoinDerivationType.bip39]!;
+      }
     }
 
     return BitcoinWallet(
@@ -266,6 +284,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       alwaysScan: alwaysScan,
       mempoolAPIEnabled: mempoolAPIEnabled,
       hdWallets: hdWallets,
+      initialUnspentCoins: snp?.unspentCoins ?? [],
     );
   }
 
@@ -413,41 +432,69 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
   }
 
-  // @override
-  // @action
-  // Future<void> updateAllUnspents() async {
-  //   List<BitcoinUnspent> updatedUnspentCoins = [];
+  @override
+  @action
+  Future<void> updateAllUnspents() async {
+    List<BitcoinUnspent> updatedUnspentCoins = [];
 
-  //   // Update unspents stored from scanned silent payment transactions
-  //   transactionHistory.transactions.values.forEach((tx) {
-  //     if (tx.unspents != null) {
-  //       updatedUnspentCoins.addAll(tx.unspents!);
-  //     }
-  //   });
+    // Update unspents stored from scanned silent payment transactions
+    transactionHistory.transactions.values.forEach((tx) {
+      if (tx.unspents != null) {
+        updatedUnspentCoins.addAll(tx.unspents!);
+      }
+    });
 
-  //   // Set the balance of all non-silent payment and non-mweb addresses to 0 before updating
-  //   walletAddresses.allAddresses
-  //       .where((element) => element.type != SegwitAddresType.mweb)
-  //       .forEach((addr) {
-  //     if (addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
-  //   });
+    unspentCoins.addAll(updatedUnspentCoins);
 
-  //   await Future.wait(walletAddresses.allAddresses
-  //       .where((element) => element.type != SegwitAddresType.mweb)
-  //       .map((address) async {
-  //     updatedUnspentCoins.addAll(await fetchUnspent(address));
-  //   }));
+    await super.updateAllUnspents();
 
-  //   unspentCoins.addAll(updatedUnspentCoins);
+    final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
 
-  //   if (unspentCoinsInfo.length != updatedUnspentCoins.length) {
-  //     unspentCoins.forEach((coin) => addCoinInfo(coin));
-  //     return;
-  //   }
+    walletAddresses.silentPaymentAddresses.forEach((addressRecord) {
+      addressRecord.txCount = 0;
+      addressRecord.balance = 0;
+    });
+    walletAddresses.receivedSPAddresses.forEach((addressRecord) {
+      addressRecord.txCount = 0;
+      addressRecord.balance = 0;
+    });
 
-  //   await updateCoins(unspentCoins.toSet());
-  //   await refreshUnspentCoinsInfo();
-  // }
+    final silentPaymentWallet = walletAddresses.silentPaymentWallet;
+
+    unspentCoins.forEach((unspent) {
+      if (unspent.bitcoinAddressRecord is BitcoinReceivedSPAddressRecord) {
+        _updateSilentAddressRecord(unspent);
+
+        final receiveAddressRecord = unspent.bitcoinAddressRecord as BitcoinReceivedSPAddressRecord;
+        final silentPaymentAddress = SilentPaymentAddress(
+          version: silentPaymentWallet!.version,
+          B_scan: silentPaymentWallet.B_scan,
+          B_spend: receiveAddressRecord.labelHex != null
+              ? silentPaymentWallet.B_spend.tweakAdd(
+                  BigintUtils.fromBytes(
+                    BytesUtils.fromHexString(receiveAddressRecord.labelHex!),
+                  ),
+                )
+              : silentPaymentWallet.B_spend,
+        );
+
+        walletAddresses.silentPaymentAddresses.forEach((addressRecord) {
+          if (addressRecord.address == silentPaymentAddress.toAddress(network)) {
+            addressRecord.txCount += 1;
+            addressRecord.balance += unspent.value;
+          }
+        });
+        walletAddresses.receivedSPAddresses.forEach((addressRecord) {
+          if (addressRecord.address == receiveAddressRecord.address) {
+            addressRecord.txCount += 1;
+            addressRecord.balance += unspent.value;
+          }
+        });
+      }
+    });
+
+    await walletAddresses.updateAddressesInBox();
+  }
 
   @override
   void updateCoin(BitcoinUnspent coin) {
@@ -536,26 +583,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @action
   void _updateSilentAddressRecord(BitcoinUnspent unspent) {
-    final receiveAddressRecord = unspent.bitcoinAddressRecord as BitcoinReceivedSPAddressRecord;
     final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
-    final silentPaymentWallet = walletAddresses.silentPaymentWallet;
-    final silentPaymentAddress = SilentPaymentAddress(
-      version: silentPaymentWallet.version,
-      B_scan: silentPaymentWallet.B_scan,
-      B_spend: receiveAddressRecord.labelHex != null
-          ? silentPaymentWallet.B_spend.tweakAdd(
-              BigintUtils.fromBytes(BytesUtils.fromHexString(receiveAddressRecord.labelHex!)),
-            )
-          : silentPaymentWallet.B_spend,
-    );
-
-    final addressRecord = walletAddresses.silentPaymentAddresses
-        .firstWhere((address) => address.address == silentPaymentAddress.toString());
-    addressRecord.txCount += 1;
-    addressRecord.balance += unspent.value;
-
-    walletAddresses.addSilentAddresses(
-      [unspent.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord],
+    walletAddresses.addReceivedSPAddresses(
+      [unspent.bitcoinAddressRecord as BitcoinReceivedSPAddressRecord],
     );
   }
 
@@ -583,6 +613,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @action
   Future<void> onTweaksSyncResponse(TweaksSyncResponse result) async {
     if (result.transactions?.isNotEmpty == true) {
+      (walletAddresses as BitcoinWalletAddresses).silentPaymentAddresses.forEach((addressRecord) {
+        addressRecord.txCount = 0;
+        addressRecord.balance = 0;
+      });
+      (walletAddresses as BitcoinWalletAddresses).receivedSPAddresses.forEach((addressRecord) {
+        addressRecord.txCount = 0;
+        addressRecord.balance = 0;
+      });
+
       for (final map in result.transactions!.entries) {
         final txid = map.key;
         final tx = map.value;
@@ -628,9 +667,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             // else: First time seeing this TX after scanning
             tx.unspents!.forEach(_updateSilentAddressRecord);
 
-            // Add new TX record
             transactionHistory.addOne(tx);
-            // Update balance record
             balance[currency]!.confirmed += tx.amount;
           }
 
@@ -654,6 +691,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
       await walletInfo.updateRestoreHeight(result.height!);
     }
+
+    await save();
   }
 
   @action
@@ -675,7 +714,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     workerSendPort!.send(
       ElectrumWorkerTweaksSubscribeRequest(
         scanData: ScanData(
-          silentAddress: walletAddresses.silentPaymentWallet,
+          silentPaymentsWallets: walletAddresses.silentPaymentWallets,
           network: network,
           height: height,
           chainTip: chainTip,

@@ -1,7 +1,7 @@
 part of 'methods.dart';
 
 class ScanData {
-  final SilentPaymentOwner silentAddress;
+  final List<SilentPaymentOwner> silentPaymentsWallets;
   final int height;
   final BasedUtxoNetwork network;
   final int chainTip;
@@ -11,7 +11,7 @@ class ScanData {
   final bool isSingleScan;
 
   ScanData({
-    required this.silentAddress,
+    required this.silentPaymentsWallets,
     required this.height,
     required this.network,
     required this.chainTip,
@@ -23,7 +23,7 @@ class ScanData {
 
   factory ScanData.fromHeight(ScanData scanData, int newHeight) {
     return ScanData(
-      silentAddress: scanData.silentAddress,
+      silentPaymentsWallets: scanData.silentPaymentsWallets,
       height: newHeight,
       network: scanData.network,
       chainTip: scanData.chainTip,
@@ -36,7 +36,7 @@ class ScanData {
 
   Map<String, dynamic> toJson() {
     return {
-      'silentAddress': silentAddress.toJson(),
+      'silentAddress': silentPaymentsWallets.map((e) => e.toJson()).toList(),
       'height': height,
       'network': network.value,
       'chainTip': chainTip,
@@ -49,7 +49,9 @@ class ScanData {
 
   static ScanData fromJson(Map<String, dynamic> json) {
     return ScanData(
-      silentAddress: SilentPaymentOwner.fromJson(json['silentAddress'] as Map<String, dynamic>),
+      silentPaymentsWallets: (json['silentAddress'] as List)
+          .map((e) => SilentPaymentOwner.fromJson(e as Map<String, dynamic>))
+          .toList(),
       height: json['height'] as int,
       network: BasedUtxoNetwork.fromName(json['network'] as String),
       chainTip: json['chainTip'] as int,
@@ -123,11 +125,9 @@ class TweaksSyncResponse {
           ? null
           : (json['transactions'] as Map<String, dynamic>).map(
               (key, value) => MapEntry(
-                  key,
-                  ElectrumTransactionInfo.fromJson(
-                    value as Map<String, dynamic>,
-                    WalletType.bitcoin,
-                  )),
+                key,
+                ElectrumTransactionInfo.fromJson(value as Map<String, dynamic>, WalletType.bitcoin),
+              ),
             ),
     );
   }

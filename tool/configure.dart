@@ -176,6 +176,7 @@ abstract class Bitcoin {
   String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate, {int? customRate});
 
   List<Unspent> getUnspents(Object wallet, {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
+  List<DerivationInfo> getOldSPDerivationInfos();
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(
     Box<WalletInfo> walletInfoSource,
@@ -198,6 +199,7 @@ abstract class Bitcoin {
   TransactionPriority getLitecoinTransactionPrioritySlow();
   Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node});
+  List<DerivationInfo> getOldDerivationInfos(List<DerivationInfo> list);
   Future<List<BitcoinDerivationInfo>> getDerivationsFromMnemonic(
       {required String mnemonic, required Node node, String? passphrase});
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();

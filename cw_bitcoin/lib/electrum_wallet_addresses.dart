@@ -11,26 +11,14 @@ import 'package:mobx/mobx.dart';
 
 part 'electrum_wallet_addresses.g.dart';
 
-enum CWBitcoinDerivationType { old, electrum, bip39, mweb }
+enum CWBitcoinDerivationType { old_electrum, electrum, old_bip39, bip39, mweb }
+
+const OLD_DERIVATION_TYPES = [
+  CWBitcoinDerivationType.old_electrum,
+  CWBitcoinDerivationType.old_bip39
+];
 
 class ElectrumWalletAddresses = ElectrumWalletAddressesBase with _$ElectrumWalletAddresses;
-
-const List<BitcoinAddressType> BITCOIN_ADDRESS_TYPES = [
-  SegwitAddresType.p2wpkh,
-  P2pkhAddressType.p2pkh,
-  SegwitAddresType.p2tr,
-  SegwitAddresType.p2wsh,
-  P2shAddressType.p2wpkhInP2sh,
-];
-
-const List<BitcoinAddressType> LITECOIN_ADDRESS_TYPES = [
-  SegwitAddresType.p2wpkh,
-  SegwitAddresType.mweb,
-];
-
-const List<BitcoinAddressType> BITCOIN_CASH_ADDRESS_TYPES = [
-  P2pkhAddressType.p2pkh,
-];
 
 abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   ElectrumWalletAddressesBase(
@@ -435,6 +423,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         .length;
 
     final newAddresses = <BitcoinAddressRecord>[];
+
     for (var i = startIndex; i < count + startIndex; i++) {
       final address = BitcoinAddressRecord(
         await getAddressAsync(
@@ -446,7 +435,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         ),
         index: i,
         isChange: isChange,
-        isHidden: derivationType == CWBitcoinDerivationType.old,
+        isHidden: OLD_DERIVATION_TYPES.contains(derivationType),
         addressType: addressType,
         network: network,
         derivationInfo: derivationInfo,
@@ -466,27 +455,38 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     for (final derivationType in hdWallets.keys) {
-      if (derivationType == CWBitcoinDerivationType.old && addressType == SegwitAddresType.p2wpkh) {
+      // p2wpkh has always had the right derivations, skip if creating old derivations
+      if (OLD_DERIVATION_TYPES.contains(derivationType) && addressType == SegwitAddresType.p2wpkh) {
         continue;
       }
 
-      final derivationInfo = BitcoinAddressUtils.getDerivationFromType(
-        addressType,
-        isElectrum: derivationType == CWBitcoinDerivationType.electrum,
+      final isElectrum = derivationType == CWBitcoinDerivationType.electrum ||
+          derivationType == CWBitcoinDerivationType.old_electrum;
+
+      final derivationInfos = walletInfo.derivations?.where(
+        (element) => element.scriptType == addressType.toString(),
       );
 
-      await discoverNewAddresses(
-        derivationType: derivationType,
-        isChange: false,
-        addressType: addressType,
-        derivationInfo: derivationInfo,
-      );
-      await discoverNewAddresses(
-        derivationType: derivationType,
-        isChange: true,
-        addressType: addressType,
-        derivationInfo: derivationInfo,
-      );
+      for (final derivationInfo in derivationInfos ?? <DerivationInfo>[]) {
+        final bitcoinDerivationInfo = BitcoinDerivationInfo(
+          derivationType: isElectrum ? BitcoinDerivationType.electrum : BitcoinDerivationType.bip39,
+          derivationPath: derivationInfo.derivationPath!,
+          scriptType: addressType,
+        );
+
+        await discoverNewAddresses(
+          derivationType: derivationType,
+          isChange: false,
+          addressType: addressType,
+          derivationInfo: bitcoinDerivationInfo,
+        );
+        await discoverNewAddresses(
+          derivationType: derivationType,
+          isChange: true,
+          addressType: addressType,
+          derivationInfo: bitcoinDerivationInfo,
+        );
+      }
     }
   }
 

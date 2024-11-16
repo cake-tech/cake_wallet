@@ -101,6 +101,7 @@ Map<String, dynamic> syncStatusToJson(SyncStatus? status) {
   if (status == null) {
     return {};
   }
+
   return {
     'progress': status.progress(),
     'type': status.runtimeType.toString(),
@@ -127,6 +128,8 @@ SyncStatus syncStatusFromJson(Map<String, dynamic> json) {
       return SyncingSyncStatus(data!['blocksLeft'] as int, data['ptc'] as double);
     case 'SyncedTipSyncStatus':
       return SyncedTipSyncStatus(data!['tip'] as int);
+    case 'SyncedSyncStatus':
+      return SyncedSyncStatus();
     case 'FailedSyncStatus':
       return FailedSyncStatus(error: data!['error'] as String?);
     case 'SynchronizingSyncStatus':

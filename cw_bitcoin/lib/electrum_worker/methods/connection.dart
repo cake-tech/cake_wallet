@@ -4,10 +4,12 @@ class ElectrumWorkerConnectionRequest implements ElectrumWorkerRequest {
   ElectrumWorkerConnectionRequest({
     required this.uri,
     required this.network,
+    required this.useSSL,
     this.id,
   });
 
   final Uri uri;
+  final bool useSSL;
   final BasedUtxoNetwork network;
   final int? id;
 
@@ -21,6 +23,7 @@ class ElectrumWorkerConnectionRequest implements ElectrumWorkerRequest {
       network: BasedUtxoNetwork.values.firstWhere(
         (e) => e.toString() == json['network'] as String,
       ),
+      useSSL: json['useSSL'] as bool,
       id: json['id'] as int?,
     );
   }
@@ -31,6 +34,7 @@ class ElectrumWorkerConnectionRequest implements ElectrumWorkerRequest {
       'method': method,
       'uri': uri.toString(),
       'network': network.toString(),
+      'useSSL': useSSL,
     };
   }
 }

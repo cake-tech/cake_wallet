@@ -15,13 +15,13 @@ class ElectrumTransactionBundle {
     required this.ins,
     required this.confirmations,
     this.time,
-    this.dateValidated,
+    this.isDateValidated,
   });
 
   final BtcTransaction originalTransaction;
   final List<BtcTransaction> ins;
   final int? time;
-  final bool? dateValidated;
+  final bool? isDateValidated;
   final int confirmations;
 
   Map<String, dynamic> toJson() {
@@ -39,7 +39,7 @@ class ElectrumTransactionBundle {
       ins: (data['ins'] as List<Object>).map((e) => BtcTransaction.fromRaw(e as String)).toList(),
       confirmations: data['confirmations'] as int,
       time: data['time'] as int?,
-      dateValidated: data['dateValidated'] as bool?,
+      isDateValidated: data['isDateValidated'] as bool?,
     );
   }
 }
@@ -62,7 +62,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     bool isReplaced = false,
     required DateTime date,
     required int? time,
-    bool? dateValidated,
+    bool? isDateValidated,
     required int confirmations,
     String? to,
     this.unspents,
@@ -81,7 +81,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.isPending = isPending;
     this.isReplaced = isReplaced;
     this.confirmations = confirmations;
-    this.dateValidated = dateValidated;
+    this.isDateValidated = isDateValidated;
     this.to = to;
     this.additionalInfo = additionalInfo ?? {};
   }
@@ -235,7 +235,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       date: date,
       confirmations: bundle.confirmations,
       time: bundle.time,
-      dateValidated: bundle.dateValidated,
+      isDateValidated: bundle.isDateValidated,
     );
   }
 
@@ -265,7 +265,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
           .toList(),
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
       time: data['time'] as int?,
-      dateValidated: data['dateValidated'] as bool?,
+      isDateValidated: data['isDateValidated'] as bool?,
       additionalInfo: data['additionalInfo'] as Map<String, dynamic>?,
     );
   }
@@ -326,7 +326,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['outputAddresses'] = outputAddresses;
     m['isReceivedSilentPayment'] = isReceivedSilentPayment;
     m['additionalInfo'] = additionalInfo;
-    m['dateValidated'] = dateValidated;
+    m['isDateValidated'] = isDateValidated;
     return m;
   }
 

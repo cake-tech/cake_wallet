@@ -123,27 +123,41 @@ class ElectrumWorker {
     _network = request.network;
 
     _electrumClient = await ElectrumApiProvider.connect(
-      ElectrumTCPService.connect(
-        request.uri,
-        onConnectionStatusChange: (status) {
-          _sendResponse(ElectrumWorkerConnectionResponse(status: status, id: request.id));
-        },
-        defaultRequestTimeOut: const Duration(seconds: 5),
-        connectionTimeOut: const Duration(seconds: 5),
-      ),
+      request.useSSL
+          ? ElectrumSSLService.connect(
+              request.uri,
+              onConnectionStatusChange: (status) {
+                _sendResponse(ElectrumWorkerConnectionResponse(status: status, id: request.id));
+              },
+              defaultRequestTimeOut: const Duration(seconds: 5),
+              connectionTimeOut: const Duration(seconds: 5),
+            )
+          : ElectrumTCPService.connect(
+              request.uri,
+              onConnectionStatusChange: (status) {
+                _sendResponse(ElectrumWorkerConnectionResponse(status: status, id: request.id));
+              },
+              defaultRequestTimeOut: const Duration(seconds: 5),
+              connectionTimeOut: const Duration(seconds: 5),
+            ),
     );
   }
 
   Future<void> _handleHeadersSubscribe(ElectrumWorkerHeadersSubscribeRequest request) async {
-    final listener = _electrumClient!.subscribe(ElectrumHeaderSubscribe());
-    if (listener == null) {
+    final req = ElectrumHeaderSubscribe();
+
+    final stream = _electrumClient!.subscribe(req);
+    if (stream == null) {
       _sendError(ElectrumWorkerHeadersSubscribeError(error: 'Failed to subscribe'));
       return;
     }
 
-    listener((event) {
+    stream.listen((event) {
       _sendResponse(
-        ElectrumWorkerHeadersSubscribeResponse(result: event, id: request.id),
+        ElectrumWorkerHeadersSubscribeResponse(
+          result: req.onResponse(event),
+          id: request.id,
+        ),
       );
     });
   }
@@ -155,22 +169,22 @@ class ElectrumWorker {
       final address = entry.key;
       final scripthash = entry.value;
 
-      final listener = await _electrumClient!.subscribe(
-        ElectrumScriptHashSubscribe(scriptHash: scripthash),
-      );
+      final req = ElectrumScriptHashSubscribe(scriptHash: scripthash);
 
-      if (listener == null) {
+      final stream = await _electrumClient!.subscribe(req);
+
+      if (stream == null) {
         _sendError(ElectrumWorkerScripthashesSubscribeError(error: 'Failed to subscribe'));
         return;
       }
 
       // https://electrumx.readthedocs.io/en/latest/protocol-basics.html#status
       // The status of the script hash is the hash of the tx history, or null if the string is empty because there are no transactions
-      listener((status) async {
+      stream.listen((status) async {
         print("status: $status");
 
         _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
-          result: {address: status},
+          result: {address: req.onResponse(status)},
           id: request.id,
         ));
       });
@@ -210,7 +224,7 @@ class ElectrumWorker {
 
           // date is validated when the API responds with the same date at least twice
           // since sometimes the mempool api returns the wrong date at first, and we update
-          if (tx?.dateValidated != true) {
+          if (tx?.isDateValidated != true) {
             tx = ElectrumTransactionInfo.fromElectrumBundle(
               await _getTransactionExpanded(
                 hash: txid,
@@ -358,7 +372,7 @@ class ElectrumWorker {
   }) async {
     int? time;
     int? height;
-    bool? dateValidated;
+    bool? isDateValidated;
 
     final transactionHex = await _electrumClient!.request(
       ElectrumGetTransactionHex(transactionHash: hash),
@@ -397,7 +411,7 @@ class ElectrumWorker {
 
               if (date != null) {
                 final newDate = DateTime.fromMillisecondsSinceEpoch(time * 1000);
-                dateValidated = newDate == date;
+                isDateValidated = newDate == date;
               }
             }
           }
@@ -430,7 +444,7 @@ class ElectrumWorker {
       ins: ins,
       time: time,
       confirmations: confirmations ?? 0,
-      dateValidated: dateValidated,
+      isDateValidated: isDateValidated,
     );
   }
 
@@ -498,12 +512,16 @@ class ElectrumWorker {
       return amountLeft;
     }
 
-    final receiver = Receiver(
-      scanData.silentAddress.b_scan.toHex(),
-      scanData.silentAddress.B_spend.toHex(),
-      scanData.network == BitcoinNetwork.testnet,
-      scanData.labelIndexes,
-      scanData.labelIndexes.length,
+    final receivers = scanData.silentPaymentsWallets.map(
+      (wallet) {
+        return Receiver(
+          wallet.b_scan.toHex(),
+          wallet.B_spend.toHex(),
+          scanData.network == BitcoinNetwork.testnet,
+          scanData.labelIndexes,
+          scanData.labelIndexes.length,
+        );
+      },
     );
 
     // Initial status UI update, send how many blocks in total to scan
@@ -515,24 +533,38 @@ class ElectrumWorker {
       ),
     ));
 
-    final listener = await _electrumClient!.subscribe(
-      ElectrumTweaksSubscribe(height: syncHeight, count: initialCount),
+    final req = ElectrumTweaksSubscribe(
+      height: syncHeight,
+      count: initialCount,
+      historicalMode: false,
     );
 
-    Future<void> listenFn(ElectrumTweaksSubscribeResponse response) async {
+    final stream = await _electrumClient!.subscribe(req);
+
+    Future<void> listenFn(Map<String, dynamic> event, ElectrumTweaksSubscribe req) async {
+      final response = req.onResponse(event);
+
       // success or error msg
       final noData = response.message != null;
 
       if (noData) {
+        if (scanData.isSingleScan) {
+          return;
+        }
+
         // re-subscribe to continue receiving messages, starting from the next unscanned height
         final nextHeight = syncHeight + 1;
         final nextCount = getCountPerRequest(nextHeight);
 
         if (nextCount > 0) {
-          final nextListener = await _electrumClient!.subscribe(
-            ElectrumTweaksSubscribe(height: syncHeight, count: initialCount),
+          final nextStream = await _electrumClient!.subscribe(
+            ElectrumTweaksSubscribe(
+              height: syncHeight,
+              count: initialCount,
+              historicalMode: false,
+            ),
           );
-          nextListener?.call(listenFn);
+          nextStream?.listen((event) => listenFn(event, req));
         }
 
         return;
@@ -558,7 +590,18 @@ class ElectrumWorker {
 
           try {
             // scanOutputs called from rust here
-            final addToWallet = scanOutputs(outputPubkeys.keys.toList(), tweak, receiver);
+            final addToWallet = {};
+
+            receivers.forEach((receiver) {
+              final scanResult = scanOutputs(outputPubkeys.keys.toList(), tweak, receiver);
+
+              addToWallet.addAll(scanResult);
+            });
+            // final addToWallet = scanOutputs(
+            //   outputPubkeys.keys.toList(),
+            //   tweak,
+            //   receivers.last,
+            // );
 
             if (addToWallet.isEmpty) {
               // no results tx, continue to next tx
@@ -601,7 +644,7 @@ class ElectrumWorker {
                   receivingOutputAddress,
                   labelIndex: 1, // TODO: get actual index/label
                   isUsed: true,
-                  spendKey: scanData.silentAddress.b_spend.tweakAdd(
+                  spendKey: scanData.silentPaymentsWallets.first.b_spend.tweakAdd(
                     BigintUtils.fromBytes(BytesUtils.fromHexString(t_k)),
                   ),
                   txCount: 1,
@@ -618,6 +661,8 @@ class ElectrumWorker {
             _sendResponse(ElectrumWorkerTweaksSubscribeResponse(
               result: TweaksSyncResponse(transactions: {txInfo.id: txInfo}),
             ));
+
+            return;
           } catch (e, stacktrace) {
             print(stacktrace);
             print(e.toString());
@@ -631,23 +676,23 @@ class ElectrumWorker {
       syncHeight = tweakHeight;
 
       if (tweakHeight >= scanData.chainTip || scanData.isSingleScan) {
-        if (tweakHeight >= scanData.chainTip)
-          _sendResponse(ElectrumWorkerTweaksSubscribeResponse(
+        _sendResponse(
+          ElectrumWorkerTweaksSubscribeResponse(
             result: TweaksSyncResponse(
               height: syncHeight,
-              syncStatus: SyncedTipSyncStatus(scanData.chainTip),
+              syncStatus: scanData.isSingleScan
+                  ? SyncedSyncStatus()
+                  : SyncedTipSyncStatus(scanData.chainTip),
             ),
-          ));
+          ),
+        );
 
-        if (scanData.isSingleScan) {
-          _sendResponse(ElectrumWorkerTweaksSubscribeResponse(
-            result: TweaksSyncResponse(height: syncHeight, syncStatus: SyncedSyncStatus()),
-          ));
-        }
+        stream?.close();
+        return;
       }
     }
 
-    listener?.call(listenFn);
+    stream?.listen((event) => listenFn(event, req));
   }
 
   Future<void> _handleGetVersion(ElectrumWorkerGetVersionRequest request) async {

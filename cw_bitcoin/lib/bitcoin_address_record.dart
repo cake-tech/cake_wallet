@@ -153,6 +153,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 }
 
 class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
+  final String derivationPath;
   int get labelIndex => index;
   final String? labelHex;
 
@@ -161,6 +162,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   BitcoinSilentPaymentAddressRecord(
     super.address, {
     required int labelIndex,
+    this.derivationPath = BitcoinDerivationPaths.SILENT_PAYMENTS_SPEND,
     super.txCount = 0,
     super.balance = 0,
     super.name = '',
@@ -180,6 +182,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
 
     return BitcoinSilentPaymentAddressRecord(
       decoded['address'] as String,
+      derivationPath: decoded['derivationPath'] as String,
       labelIndex: decoded['labelIndex'] as int,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
@@ -192,6 +195,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   @override
   String toJSON() => json.encode({
         'address': address,
+        'derivationPath': derivationPath,
         'labelIndex': labelIndex,
         'isUsed': isUsed,
         'txCount': txCount,
@@ -222,13 +226,15 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
 
     return BitcoinReceivedSPAddressRecord(
       decoded['address'] as String,
-      labelIndex: decoded['index'] as int,
+      labelIndex: decoded['index'] as int? ?? 1,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
       labelHex: decoded['label'] as String?,
-      spendKey: ECPrivate.fromHex(decoded['spendKey'] as String),
+      spendKey: (decoded['spendKey'] as String?) == null
+          ? ECPrivate.random()
+          : ECPrivate.fromHex(decoded['spendKey'] as String),
     );
   }
 

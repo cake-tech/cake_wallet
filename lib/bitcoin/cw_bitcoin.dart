@@ -136,13 +136,24 @@ class CWBitcoin extends Bitcoin {
   List<ElectrumSubAddress> getSubAddresses(Object wallet) {
     final electrumWallet = wallet as ElectrumWallet;
     return electrumWallet.walletAddresses.addressesByReceiveType
-        .map((BaseBitcoinAddressRecord addr) => ElectrumSubAddress(
+        .map(
+          (addr) => ElectrumSubAddress(
             id: addr.index,
             name: addr.name,
             address: addr.address,
+            derivationPath: (addr as BitcoinAddressRecord)
+                .derivationInfo
+                .derivationPath
+                .addElem(
+                  Bip32KeyIndex(addr.isChange ? 1 : 0),
+                )
+                .addElem(Bip32KeyIndex(addr.index))
+                .toString(),
             txCount: addr.txCount,
             balance: addr.balance,
-            isChange: addr.isChange))
+            isChange: addr.isChange,
+          ),
+        )
         .toList();
   }
 
@@ -336,12 +347,38 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<List<BitcoinDerivationInfo>> getDerivationsFromMnemonic({
+  List<DerivationInfo> getOldDerivationInfos(List<DerivationInfo> list) {
+    final oldList = <DerivationInfo>[];
+    oldList.addAll(list);
+
+    for (var derivationInfo in list) {
+      final isElectrum = derivationInfo.derivationType == DerivationType.electrum;
+
+      oldList.add(
+        DerivationInfo(
+          derivationType: DerivationType.old,
+          derivationPath: isElectrum
+              ? derivationInfo.derivationPath
+              : BitcoinAddressUtils.getDerivationFromType(
+                  SegwitAddresType.p2wpkh,
+                ).derivationPath.toString(),
+          scriptType: derivationInfo.scriptType,
+        ),
+      );
+    }
+
+    oldList.addAll(bitcoin!.getOldSPDerivationInfos());
+
+    return oldList;
+  }
+
+  @override
+  Future<List<DerivationInfo>> getDerivationInfosFromMnemonic({
     required String mnemonic,
     required Node node,
     String? passphrase,
   }) async {
-    List<BitcoinDerivationInfo> list = [];
+    final list = <DerivationInfo>[];
 
     late BasedUtxoNetwork network;
     switch (node.type) {
@@ -371,7 +408,15 @@ class CWBitcoin extends Bitcoin {
     }
 
     if (electrumSeedBytes != null) {
-      list.add(BitcoinDerivationInfos.ELECTRUM);
+      for (final addressType in BITCOIN_ADDRESS_TYPES) {
+        list.add(
+          DerivationInfo(
+            derivationType: DerivationType.electrum,
+            derivationPath: "m/0'",
+            scriptType: addressType.value,
+          ),
+        );
+      }
     }
 
     var bip39SeedBytes;
@@ -380,7 +425,17 @@ class CWBitcoin extends Bitcoin {
     } catch (_) {}
 
     if (bip39SeedBytes != null) {
-      list.add(BitcoinDerivationInfos.BIP84);
+      for (final addressType in BITCOIN_ADDRESS_TYPES) {
+        list.add(
+          DerivationInfo(
+            derivationType: DerivationType.bip39,
+            derivationPath: BitcoinAddressUtils.getDerivationFromType(
+              addressType,
+            ).derivationPath.toString(),
+            scriptType: addressType.value,
+          ),
+        );
+      }
     }
 
     return list;
@@ -491,6 +546,22 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  List<DerivationInfo> getOldSPDerivationInfos() {
+    return [
+      DerivationInfo(
+        derivationType: DerivationType.bip39,
+        derivationPath: "m/352'/1'/0'/1'/0",
+        description: "Old SP Scan",
+      ),
+      DerivationInfo(
+        derivationType: DerivationType.bip39,
+        derivationPath: "m/352'/1'/0'/0'/0",
+        description: "Old SP Spend",
+      ),
+    ];
+  }
+
+  @override
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet) {
     final walletAddresses = (wallet as BitcoinWallet).walletAddresses as BitcoinWalletAddresses;
     return walletAddresses.silentPaymentAddresses
@@ -498,6 +569,9 @@ class CWBitcoin extends Bitcoin {
               id: addr.index,
               name: addr.name,
               address: addr.address,
+              derivationPath: Bip32PathParser.parse(addr.derivationPath)
+                  .addElem(Bip32KeyIndex(addr.index))
+                  .toString(),
               txCount: addr.txCount,
               balance: addr.balance,
               isChange: addr.isChange,
@@ -508,14 +582,16 @@ class CWBitcoin extends Bitcoin {
   @override
   List<ElectrumSubAddress> getSilentPaymentReceivedAddresses(Object wallet) {
     final walletAddresses = (wallet as BitcoinWallet).walletAddresses as BitcoinWalletAddresses;
-    return walletAddresses.silentPaymentAddresses
+    return walletAddresses.receivedSPAddresses
         .map((addr) => ElectrumSubAddress(
-            id: addr.index,
-            name: addr.name,
-            address: addr.address,
-            txCount: addr.txCount,
-            balance: addr.balance,
-            isChange: addr.isChange))
+              id: addr.index,
+              name: addr.name,
+              address: addr.address,
+              derivationPath: "",
+              txCount: addr.txCount,
+              balance: addr.balance,
+              isChange: addr.isChange,
+            ))
         .toList();
   }
 

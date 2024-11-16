@@ -91,14 +91,17 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     final height = options['height'] as int? ?? 0;
     name = options['name'] as String;
     DerivationInfo? derivationInfo = options["derivationInfo"] as DerivationInfo?;
-    List<DerivationInfo>? derivations = options["derivations"] as List<DerivationInfo>?;
 
     if (mode == WalletRestoreMode.seed) {
       final seed = options['seed'] as String;
       switch (type) {
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromSeedCredentials(
-              name: name, height: height, mnemonic: seed, password: password);
+            name: name,
+            height: height,
+            mnemonic: seed,
+            password: password,
+          );
         case WalletType.bitcoin:
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
@@ -106,7 +109,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
             passphrase: passphrase,
-            derivations: derivations,
+            derivations: options["derivations"] as List<DerivationInfo>?,
           );
         case WalletType.haven:
           return haven!.createHavenRestoreWalletFromSeedCredentials(
@@ -256,36 +259,16 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.litecoin:
         String? mnemonic = credentials['seed'] as String?;
         String? passphrase = credentials['passphrase'] as String?;
-        final bitcoinDerivations = await bitcoin!.getDerivationsFromMnemonic(
+        final list = await bitcoin!.getDerivationInfosFromMnemonic(
           mnemonic: mnemonic!,
           node: node,
           passphrase: passphrase,
         );
 
-        List<DerivationInfo> list = [];
-        for (var derivation in bitcoinDerivations) {
-          if (derivation.derivationType.toString().endsWith("electrum")) {
-            list.add(
-              DerivationInfo(
-                derivationType: DerivationType.electrum,
-                derivationPath: "m/0'",
-                description: "Electrum",
-                scriptType: "p2wpkh",
-              ),
-            );
-          } else {
-            list.add(
-              DerivationInfo(
-                derivationType: DerivationType.bip39,
-                derivationPath: "m/84'/0'/0'",
-                description: "Standard BIP84 native segwit",
-                scriptType: "p2wpkh",
-              ),
-            );
-          }
-        }
+        // is restoring? = add old used derivations
+        final oldList = bitcoin!.getOldDerivationInfos(list);
 
-        return list;
+        return oldList;
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;

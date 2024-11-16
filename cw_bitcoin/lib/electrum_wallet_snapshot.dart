@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -23,6 +24,7 @@ class ElectrumWalletSnapshot {
     required this.silentAddressIndex,
     required this.mwebAddresses,
     required this.alwaysScan,
+    required this.unspentCoins,
     this.passphrase,
     this.derivationType,
     this.derivationPath,
@@ -32,6 +34,7 @@ class ElectrumWalletSnapshot {
   final String password;
   final WalletType type;
   final String? addressPageType;
+  List<BitcoinUnspent> unspentCoins;
 
   @deprecated
   String? mnemonic;
@@ -127,6 +130,12 @@ class ElectrumWalletSnapshot {
       silentAddressIndex: silentAddressIndex,
       mwebAddresses: mwebAddresses,
       alwaysScan: alwaysScan,
+      unspentCoins: (data['unspent_coins'] as List)
+          .map((e) => BitcoinUnspent.fromJSON(
+                null,
+                e as Map<String, dynamic>,
+              ))
+          .toList(),
     );
   }
 }
