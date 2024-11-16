@@ -262,6 +262,7 @@ Future<void> defaultSettingsMigration(
         case 43:
           _updateCakeXmrNode(nodes);
           _deselectExchangeProvider(sharedPreferences, "THORChain");
+          _deselectExchangeProvider(sharedPreferences, "SimpleSwap");
           break;
 
         default:

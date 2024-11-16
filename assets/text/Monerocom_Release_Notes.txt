@@ -1,4 +1,3 @@
-Add Monero Ledger support
-Add Monero Airgap support (best used with our new offline app Cupcake)
+Add airgapped Monero wallet support (best used with our new offline app Cupcake)
 New Buy & Sell flow
 Bug fixes
