@@ -122,7 +122,23 @@ import 'package:mobx/mobx.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
-  
+  const List<BitcoinAddressType> BITCOIN_ADDRESS_TYPES = [
+    SegwitAddresType.p2wpkh,
+    P2pkhAddressType.p2pkh,
+    SegwitAddresType.p2tr,
+    SegwitAddresType.p2wsh,
+    P2shAddressType.p2wpkhInP2sh,
+  ];
+
+  const List<BitcoinAddressType> LITECOIN_ADDRESS_TYPES = [
+    SegwitAddresType.p2wpkh,
+    SegwitAddresType.mweb,
+  ];
+
+  const List<BitcoinAddressType> BITCOIN_CASH_ADDRESS_TYPES = [
+    P2pkhAddressType.p2pkh,
+  ];
+
   class ElectrumSubAddress {
   ElectrumSubAddress({
     required this.id,
@@ -200,7 +216,7 @@ abstract class Bitcoin {
   Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node});
   List<DerivationInfo> getOldDerivationInfos(List<DerivationInfo> list);
-  Future<List<BitcoinDerivationInfo>> getDerivationsFromMnemonic(
+  Future<List<DerivationInfo>> getDerivationInfosFromMnemonic(
       {required String mnemonic, required Node node, String? passphrase});
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
   Future<void> setAddressType(Object wallet, dynamic option);
