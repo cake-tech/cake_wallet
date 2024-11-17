@@ -240,14 +240,16 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             currencyIcon,
-            Padding(
-              padding: EdgeInsets.only(left: 12),
-              child: Text(
-                contact.name,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(left: 12),
+                child: Text(
+                  contact.name,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  ),
                 ),
               ),
             ),
