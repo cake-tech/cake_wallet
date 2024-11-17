@@ -1767,7 +1767,7 @@ abstract class ElectrumWalletBase
       case ConnectionStatus.disconnected:
         if (syncStatus is! NotConnectedSyncStatus &&
             syncStatus is! ConnectingSyncStatus &&
-            syncStatus is! SyncronizingSyncStatus) {
+            syncStatus is! SynchronizingSyncStatus) {
           syncStatus = NotConnectedSyncStatus();
         }
         break;

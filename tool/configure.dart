@@ -122,37 +122,40 @@ import 'package:mobx/mobx.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
-  const List<BitcoinAddressType> BITCOIN_ADDRESS_TYPES = [
-    SegwitAddresType.p2wpkh,
-    P2pkhAddressType.p2pkh,
-    SegwitAddresType.p2tr,
-    SegwitAddresType.p2wsh,
-    P2shAddressType.p2wpkhInP2sh,
-  ];
+const List<BitcoinAddressType> BITCOIN_ADDRESS_TYPES = [
+  SegwitAddresType.p2wpkh,
+  P2pkhAddressType.p2pkh,
+  SegwitAddresType.p2tr,
+  SegwitAddresType.p2wsh,
+  P2shAddressType.p2wpkhInP2sh,
+];
 
-  const List<BitcoinAddressType> LITECOIN_ADDRESS_TYPES = [
-    SegwitAddresType.p2wpkh,
-    SegwitAddresType.mweb,
-  ];
+const List<BitcoinAddressType> LITECOIN_ADDRESS_TYPES = [
+  SegwitAddresType.p2wpkh,
+  SegwitAddresType.mweb,
+];
 
-  const List<BitcoinAddressType> BITCOIN_CASH_ADDRESS_TYPES = [
-    P2pkhAddressType.p2pkh,
-  ];
+const List<BitcoinAddressType> BITCOIN_CASH_ADDRESS_TYPES = [
+  P2pkhAddressType.p2pkh,
+];
 
-  class ElectrumSubAddress {
+class ElectrumSubAddress {
   ElectrumSubAddress({
     required this.id,
     required this.name,
     required this.address,
     required this.txCount,
     required this.balance,
-    required this.isChange});
+    required this.isChange,
+    required this.derivationPath,
+  });
   final int id;
   final String name;
   final String address;
   final int txCount;
   final int balance;
   final bool isChange;
+  final String derivationPath; 
 }
 
 abstract class Bitcoin {
