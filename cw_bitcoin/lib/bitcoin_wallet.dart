@@ -108,44 +108,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     int initialSilentAddressIndex = 0,
     required bool mempoolAPIEnabled,
   }) async {
-    late List<int> seedBytes;
-    final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
-
-    for (final derivation in walletInfo.derivations ?? <DerivationInfo>[]) {
-      if (derivation.description?.contains("SP") ?? false) {
-        continue;
-      }
-
-      if (derivation.derivationType == DerivationType.bip39) {
-        seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
-        hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-        break;
-      } else {
-        try {
-          seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
-          hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-        } catch (e) {
-          print("electrum_v2 seed error: $e");
-
-          try {
-            seedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
-            hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-          } catch (e) {
-            print("electrum_v1 seed error: $e");
-          }
-        }
-
-        break;
-      }
-    }
-
-    if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
-      hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
-    }
-    if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
-      hdWallets[CWBitcoinDerivationType.old_electrum] = hdWallets[CWBitcoinDerivationType.bip39]!;
-    }
-
     return BitcoinWallet(
       mnemonic: mnemonic,
       passphrase: passphrase ?? "",
@@ -157,13 +119,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialSilentAddressIndex: initialSilentAddressIndex,
       initialBalance: initialBalance,
       encryptionFileUtils: encryptionFileUtils,
-      seedBytes: seedBytes,
+      seedBytes: walletInfo.derivationInfo?.derivationType == DerivationType.electrum
+          ? ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase)
+          : Bip39SeedGenerator.generateFromString(mnemonic, passphrase),
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
       networkParam: network,
       mempoolAPIEnabled: mempoolAPIEnabled,
-      hdWallets: hdWallets,
       initialUnspentCoins: [],
     );
   }
