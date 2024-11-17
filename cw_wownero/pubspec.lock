@@ -41,14 +41,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
-  bluez:
-    dependency: transitive
-    description:
-      name: bluez
-      sha256: "203a1924e818a9dd74af2b2c7a8f375ab8e5edf0e486bba8f90a0d8a17ed9fce"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.8.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -217,14 +209,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.4"
-  dbus:
-    dependency: transitive
-    description:
-      name: dbus
-      sha256: "365c771ac3b0e58845f39ec6deebc76e3276aa9922b0cc60840712094d9047ac"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.10"
   encrypt:
     dependency: "direct main"
     description:
@@ -283,14 +267,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_web_bluetooth:
-    dependency: transitive
-    description:
-      name: flutter_web_bluetooth
-      sha256: "52ce64f65d7321c4bf6abfe9dac02fb888731339a5e0ad6de59fb916c20c9f02"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.3"
   frontend_server_client:
     dependency: transitive
     description:
@@ -427,22 +403,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
-  ledger_flutter_plus:
-    dependency: transitive
-    description:
-      name: ledger_flutter_plus
-      sha256: ea3ed586e1697776dacf42ac979095f1ca3bd143bf007cbe5c78e09cb6943f42
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.5"
-  ledger_usb_plus:
-    dependency: transitive
-    description:
-      name: ledger_usb_plus
-      sha256: "21cc5d976cf7edb3518bd2a0c4164139cbb0817d2e4f2054707fc4edfdf9ce87"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.4"
   logging:
     dependency: transitive
     description:
@@ -503,8 +463,8 @@ packages:
     dependency: "direct main"
     description:
       path: "impls/monero.dart"
-      ref: caaf1e56b1d2a254b332fdf848926fb963af4a3b
-      resolved-ref: caaf1e56b1d2a254b332fdf848926fb963af4a3b
+      ref: d72c15f4339791a7bbdf17e9d827b7b56ca144e4
+      resolved-ref: d72c15f4339791a7bbdf17e9d827b7b56ca144e4
       url: "https://github.com/mrcyjanek/monero_c"
     source: git
     version: "0.0.0"
@@ -580,14 +540,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.1"
-  petitparser:
-    dependency: transitive
-    description:
-      name: petitparser
-      sha256: c15605cd28af66339f8eb6fbe0e541bfe2d1b72d5825efc6598f3e0a31b9ad27
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.0.2"
   platform:
     dependency: transitive
     description:
@@ -644,14 +596,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"
-  rxdart:
-    dependency: transitive
-    description:
-      name: rxdart
-      sha256: "5c3004a4a8dbb94bd4bf5412a4def4acdaa12e12f269737a5751369e12d1a962"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.28.0"
   shelf:
     dependency: transitive
     description:
@@ -777,22 +721,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.1"
-  universal_ble:
-    dependency: transitive
-    description:
-      name: universal_ble
-      sha256: "0dfbd6b64bff3ad61ed7a895c232530d9614e9b01ab261a74433a43267edb7f3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.12.0"
-  universal_platform:
-    dependency: transitive
-    description:
-      name: universal_platform
-      sha256: "64e16458a0ea9b99260ceb5467a214c1f298d647c659af1bff6d3bf82536b1ec"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
   unorm_dart:
     dependency: transitive
     description:
@@ -849,14 +777,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
-  xml:
-    dependency: transitive
-    description:
-      name: xml
-      sha256: b015a8ad1c488f66851d762d3090a21c600e479dc75e68328c52774040cf9226
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.5.0"
   yaml:
     dependency: transitive
     description:
@@ -866,5 +786,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=3.3.0 <4.0.0"
-  flutter: ">=3.19.0"
+  dart: ">=3.2.0-0 <4.0.0"
+  flutter: ">=3.7.0"
