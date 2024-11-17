@@ -223,7 +223,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
       }
       if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
-        hdWallets[CWBitcoinDerivationType.old_electrum] = hdWallets[CWBitcoinDerivationType.bip39]!;
+        hdWallets[CWBitcoinDerivationType.old_electrum] =
+            hdWallets[CWBitcoinDerivationType.electrum]!;
       }
     }
 
