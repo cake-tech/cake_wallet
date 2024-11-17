@@ -574,6 +574,8 @@ abstract class ElectrumWalletBase
   Future<void> connectToNode({required Node node}) async {
     this.node = node;
 
+    if (syncStatus is ConnectingSyncStatus) return;
+
     try {
       syncStatus = ConnectingSyncStatus();
 
@@ -2216,13 +2218,14 @@ abstract class ElectrumWalletBase
         if (syncStatus is NotConnectedSyncStatus ||
             syncStatus is LostConnectionSyncStatus ||
             syncStatus is ConnectingSyncStatus) {
-          syncStatus = AttemptingSyncStatus();
-          startSync();
+          syncStatus = ConnectedSyncStatus();
         }
 
         break;
       case ConnectionStatus.disconnected:
-        if (syncStatus is! NotConnectedSyncStatus) {
+        if (syncStatus is! NotConnectedSyncStatus &&
+            syncStatus is! ConnectingSyncStatus &&
+            syncStatus is! SyncronizingSyncStatus) {
           syncStatus = NotConnectedSyncStatus();
         }
         break;
