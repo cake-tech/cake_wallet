@@ -38,13 +38,9 @@ else
     do
         pushd ../monero_c
             env -i ./build_single.sh ${COIN} x86_64-linux-android $NPROC
-            [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/x86_64-linux-android
             # ./build_single.sh ${COIN} i686-linux-android $NPROC
-            # [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/i686-linux-android
             env -i ./build_single.sh ${COIN} armv7a-linux-androideabi $NPROC
-            [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/armv7a-linux-androideabi
             env -i ./build_single.sh ${COIN} aarch64-linux-android $NPROC
-            [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/aarch64-linux-android
 
         popd
         unxz -f ../monero_c/release/${COIN}/x86_64-linux-android_libwallet2_api_c.so.xz
@@ -52,6 +48,10 @@ else
         unxz -f ../monero_c/release/${COIN}/armv7a-linux-androideabi_libwallet2_api_c.so.xz
 
         unxz -f ../monero_c/release/${COIN}/aarch64-linux-android_libwallet2_api_c.so.xz
-        [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/{built,sources}
     done
 fi
+[[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf contrib/depends/x86_64-linux-android || true
+# [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf contrib/depends/i686-linux-android || true
+[[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf contrib/depends/armv7a-linux-androideabi || true
+[[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf contrib/depends/aarch64-linux-android || true
+[[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf contrib/depends/{built,sources} || true
