@@ -208,7 +208,7 @@ class CWBitcoin extends Bitcoin {
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.unspentCoins.where((element) {
-      switch(coinTypeToSpendFrom) {
+      switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
           return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
         case UnspentCoinType.nonMweb:
@@ -216,7 +216,6 @@ class CWBitcoin extends Bitcoin {
         case UnspentCoinType.any:
           return true;
       }
-
     }).toList();
   }
 
@@ -399,19 +398,21 @@ class CWBitcoin extends Bitcoin {
           final history = await electrumClient.getHistory(sh);
 
           final balance = await electrumClient.getBalance(sh);
-          dInfoCopy.balance = balance.entries.first.value.toString();
+          dInfoCopy.balance = balance.entries.firstOrNull?.value.toString() ?? "0";
           dInfoCopy.address = address;
           dInfoCopy.transactionsCount = history.length;
 
           list.add(dInfoCopy);
-        } catch (e) {
-          print(e);
+        } catch (e, s) {
+          print("derivationInfoError: $e");
+          print("derivationInfoStack: $s");
         }
       }
     }
 
     // sort the list such that derivations with the most transactions are first:
     list.sort((a, b) => b.transactionsCount.compareTo(a.transactionsCount));
+
     return list;
   }
 
@@ -486,18 +487,30 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
-    (wallet as BitcoinWallet).setLedger(ledger, device);
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) {
+    (wallet as ElectrumWallet).setLedgerConnection(connection);
   }
 
   @override
-  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
+  Future<List<HardwareAccountData>> getHardwareWalletBitcoinAccounts(LedgerViewModel ledgerVM,
       {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.connection);
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } on LedgerException catch (err) {
-      print(err.message);
+    } catch (err) {
+      print(err);
+      throw err;
+    }
+  }
+
+  @override
+  Future<List<HardwareAccountData>> getHardwareWalletLitecoinAccounts(LedgerViewModel ledgerVM,
+      {int index = 0, int limit = 5}) async {
+    final hardwareWalletService = LitecoinHardwareWalletService(ledgerVM.connection);
+    try {
+      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+    } catch (err) {
+      print(err);
       throw err;
     }
   }
@@ -678,6 +691,17 @@ class CWBitcoin extends Bitcoin {
       final mwebAddress =
           electrumWallet.walletAddresses.mwebAddresses.firstWhere((element) => !element.isUsed);
       return mwebAddress.address;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? getUnusedSegwitAddress(Object wallet) {
+    try {
+      final electrumWallet = wallet as ElectrumWallet;
+      final segwitAddress = electrumWallet.walletAddresses.allAddresses
+          .firstWhere((element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh);
+      return segwitAddress.address;
     } catch (_) {
       return null;
     }

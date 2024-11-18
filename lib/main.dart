@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -43,6 +44,7 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
+import 'package:logging/logging.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -68,8 +70,18 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     };
     await initializeAppAtRoot();
 
-    runApp(App(key: topLevelKey));
+    if (kDebugMode) {
+      final appDocDir = await getAppDir();
 
+      final ledgerFile = File('${appDocDir.path}/ledger_log.txt');
+      if (!ledgerFile.existsSync()) ledgerFile.createSync();
+      Logger.root.onRecord.listen((event) async {
+        final content = ledgerFile.readAsStringSync();
+        ledgerFile.writeAsStringSync("$content\n${event.message}");
+      });
+    }
+
+    runApp(App(key: topLevelKey));
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
@@ -192,7 +204,7 @@ Future<void> initializeAppConfigs() async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 41,
+    initialMigrationVersion: 43,
   );
 }
 

@@ -11,7 +11,9 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
@@ -25,8 +27,8 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/core/address_validator.dart';
@@ -125,7 +127,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get isBatchSending => outputs.length > 1;
 
-  bool get shouldDisplaySendALL => walletType != WalletType.solana;
+  bool get shouldDisplaySendALL {
+    if (walletType == WalletType.solana) return false;
+
+    if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
+      return false;
+
+      if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.matic)
+      return false;
+
+    return true;
+  }
 
   @computed
   String get pendingTransactionFiatAmount {
@@ -393,23 +405,23 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final updatedOutputs = bitcoin!.updateOutputs(pendingTransaction!, outputs);
 
         if (outputs.length == updatedOutputs.length) {
-          outputs = ObservableList.of(updatedOutputs);
+          outputs.replaceRange(0, outputs.length, updatedOutputs);
         }
       }
 
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
-      if (e is LedgerException) {
-        final errorCode = e.errorCode.toRadixString(16);
-        final fallbackMsg =
-            e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
-        final errorMsg = ledgerViewModel!.interpretErrorCode(errorCode) ?? fallbackMsg;
-
-        state = FailureState(errorMsg);
-      } else {
+      // if (e is LedgerException) {
+      //   final errorCode = e.errorCode.toRadixString(16);
+      //   final fallbackMsg =
+      //       e.message.isNotEmpty ? e.message : "Unexpected Ledger Error Code: $errorCode";
+      //   final errorMsg = ledgerViewModel!.interpretErrorCode(errorCode) ?? fallbackMsg;
+      //
+      //   state = FailureState(errorMsg);
+      // } else {
         state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
-      }
+      // }
     }
     return null;
   }
@@ -449,7 +461,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @action
-  Future<void> commitTransaction() async {
+  Future<void> commitTransaction(BuildContext context) async {
     if (pendingTransaction == null) {
       throw Exception("Pending transaction doesn't exist. It should not be happened.");
     }
@@ -468,18 +480,34 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     try {
       state = TransactionCommitting();
-      await pendingTransaction!.commit();
+      
+      if (pendingTransaction!.shouldCommitUR()) {
+        final urstr = await pendingTransaction!.commitUR();
+        final result = await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: urstr);
+        if (result == null) {
+          state = FailureState("Canceled by user");
+          return;
+        }
+      } else {
+        await pendingTransaction!.commit();
+      }
 
       if (walletType == WalletType.nano) {
         nano!.updateTransactions(wallet);
       }
 
+
       if (pendingTransaction!.id.isNotEmpty) {
+
+        final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-                id: pendingTransaction!.id, recipientAddress: address, transactionNote: note))
-            : await transactionDescriptionBox
-                .add(TransactionDescription(id: pendingTransaction!.id, transactionNote: note));
+            id: descriptionKey,
+            recipientAddress: address,
+            transactionNote: note))
+            : await transactionDescriptionBox.add(TransactionDescription(
+            id: descriptionKey,
+            transactionNote: note));
       }
 
       state = TransactionCommitted();

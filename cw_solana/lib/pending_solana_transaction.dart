@@ -40,4 +40,9 @@ class PendingSolanaTransaction with PendingTransaction {
 
   @override
   String get id => '';
+  
+  @override
+  Future<String?> commitUR() {
+    throw UnimplementedError();
+  }
 }
