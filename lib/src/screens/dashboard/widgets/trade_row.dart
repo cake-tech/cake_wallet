@@ -13,6 +13,7 @@ class TradeRow extends StatelessWidget {
     required this.createdAtFormattedDate,
     this.onTap,
     this.formattedAmount,
+    super.key,
   });
 
   final VoidCallback? onTap;

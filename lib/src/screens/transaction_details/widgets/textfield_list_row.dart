@@ -4,12 +4,14 @@ import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
 class TextFieldListRow extends StatefulWidget {
-  TextFieldListRow(
-      {required this.title,
-      required this.value,
-      this.titleFontSize = 14,
-      this.valueFontSize = 16,
-      this.onSubmitted});
+  TextFieldListRow({
+    required this.title,
+    required this.value,
+    this.titleFontSize = 14,
+    this.valueFontSize = 16,
+    this.onSubmitted,
+    super.key,
+  });
 
   final String title;
   final String value;

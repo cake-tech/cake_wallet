@@ -18,7 +18,7 @@
 
 # Cake Wallet
 
-[Cake Wallet](https://cakewallet.com) is an open source, non-custodial, and private multi-currency crypto wallet for Android, iOS, macOS, and Linux.
+[Cake Wallet](https://cakewallet.com) is an open-source, non-custodial, and private multi-currency crypto wallet for Android, iOS, macOS, and Linux.
 
 Cake Wallet includes support for several cryptocurrencies, including:
 * Monero (XMR)
@@ -44,7 +44,7 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Create several wallets
 * Select your own custom nodes/servers
 * Address book
-* Backup to external location or iCloud
+* Backup to an external location or iCloud
 * Send to OpenAlias, Unstoppable Domains, Yats, and FIO Crypto Handles
 * Set desired network fee level
 * Store local transaction notes
@@ -161,7 +161,7 @@ The only parts to be translated, if needed, are the values m and s after the var
 
 4. Add the language to `lib/entities/language_service.dart` under both `supportedLocales` and `localeCountryCode`. Use the name of the language in the local language and in English in parentheses after for `supportedLocales`. Use the [ISO 3166-1 alpha-3 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) for `localeCountryCode`. You must choose one country, so choose the country with the most native speakers of this language or is otherwise best associated with this language.
 
-5. Add a relevant flag to `assets/images/flags/XXXX.png`, replacing XXXX with the 3 letters localeCountryCode. The image must be 42x26 pixels with a 3 pixels of transparent margin on all 4 sides. You can resize the flag with [paint.net](https://www.getpaint.net/) to 36x20 pixels, expand the canvas to 42x26 pixels with the flag anchored in the middle, and then manually delete the 3 pixels on each side to make transparent. Or you can use another program like Photoshop.
+5. Add a relevant flag to `assets/images/flags/XXXX.png`, replacing XXXX with the 3 letters localeCountryCode. The image must be 42x26 pixels with 3 pixels of transparent margin on all 4 sides. You can resize the flag with [paint.net](https://www.getpaint.net/) to 36x20 pixels, expand the canvas to 42x26 pixels with the flag anchored in the middle, and then manually delete the 3 pixels on each side to make it transparent. Or you can use another program like Photoshop.
 
 6. Add the new language code to `tool/utils/translation/translation_constants.dart`
 

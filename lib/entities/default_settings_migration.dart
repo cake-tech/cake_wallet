@@ -252,13 +252,19 @@ Future<void> defaultSettingsMigration(
           await removeMoneroWorld(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 41:
-          _deselectQuantex(sharedPreferences);
+          _deselectExchangeProvider(sharedPreferences, "Quantex");
           await _addSethNode(nodes, sharedPreferences);
           await updateTronNodesWithNowNodes(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 42:
           updateBtcElectrumNodeToUseSSL(nodes, sharedPreferences);
           break;
+        case 43:
+          _updateCakeXmrNode(nodes);
+          _deselectExchangeProvider(sharedPreferences, "THORChain");
+          _deselectExchangeProvider(sharedPreferences, "SimpleSwap");
+          break;
+
         default:
           break;
       }
@@ -273,6 +279,15 @@ Future<void> defaultSettingsMigration(
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
 }
 
+void _updateCakeXmrNode(Box<Node> nodes) {
+  final node = nodes.values.firstWhereOrNull((element) => element.uriRaw == newCakeWalletMoneroUri);
+
+  if (node != null && !node.trusted) {
+    node.trusted = true;
+    node.save();
+  }
+}
+
 void updateBtcElectrumNodeToUseSSL(Box<Node> nodes, SharedPreferences sharedPreferences) {
   final btcElectrumNode = nodes.values.firstWhereOrNull((element) => element.uriRaw == newCakeWalletBitcoinUri);
 
@@ -282,12 +297,12 @@ void updateBtcElectrumNodeToUseSSL(Box<Node> nodes, SharedPreferences sharedPref
   }
 }
 
-void _deselectQuantex(SharedPreferences sharedPreferences) {
+void _deselectExchangeProvider(SharedPreferences sharedPreferences, String providerName) {
   final Map<String, dynamic> exchangeProvidersSelection =
       json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
           as Map<String, dynamic>;
 
-  exchangeProvidersSelection['Quantex'] = false;
+  exchangeProvidersSelection[providerName] = false;
 
   sharedPreferences.setString(
     PreferencesKey.exchangeProvidersSelection,
@@ -843,7 +858,7 @@ Future<void> changeDefaultMoneroNode(
     }
   });
 
-  final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
+  final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero, trusted: true);
 
   await nodeSource.add(newCakeWalletNode);
 

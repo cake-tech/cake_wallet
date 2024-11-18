@@ -68,6 +68,10 @@ abstract class WalletListViewModelBase with Store {
 
   WalletType get currentWalletType => _appStore.wallet!.type;
 
+  bool requireHardwareWalletConnection(WalletListItem walletItem) =>
+      _walletLoadingService.requireHardwareWalletConnection(
+          walletItem.type, walletItem.name);
+
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
     // bool switchingToSameWalletType = walletItem.type == _appStore.wallet?.type;
@@ -76,7 +80,7 @@ abstract class WalletListViewModelBase with Store {
     await _appStore.changeCurrentWallet(wallet);
   }
 
-  WalletListOrderType? get orderType => _appStore.settingsStore.walletListOrder;
+  FilterListOrderType? get orderType => _appStore.settingsStore.walletListOrder;
 
   bool get ascending => _appStore.settingsStore.walletListAscending;
 
@@ -87,7 +91,8 @@ abstract class WalletListViewModelBase with Store {
     singleWalletsList.clear();
 
     wallets.addAll(
-      _walletInfoSource.values.map((info) => convertWalletInfoToWalletListItem(info)),
+      _walletInfoSource.values
+          .map((info) => convertWalletInfoToWalletListItem(info)),
     );
 
     //========== Split into shared seed groups and single wallets list
@@ -95,7 +100,8 @@ abstract class WalletListViewModelBase with Store {
 
     for (var group in _walletManager.walletGroups) {
       if (group.wallets.length == 1) {
-        singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
+        singleWalletsList
+            .add(convertWalletInfoToWalletListItem(group.wallets.first));
       } else {
         multiWalletGroups.add(group);
       }
@@ -108,7 +114,7 @@ abstract class WalletListViewModelBase with Store {
       return;
     }
 
-    _appStore.settingsStore.walletListOrder = WalletListOrderType.Custom;
+    _appStore.settingsStore.walletListOrder = FilterListOrderType.Custom;
 
     // make a copy of the walletInfoSource:
     List<WalletInfo> walletInfoSourceCopy = _walletInfoSource.values.toList();
@@ -148,9 +154,11 @@ abstract class WalletListViewModelBase with Store {
     List<WalletInfo> walletInfoSourceCopy = _walletInfoSource.values.toList();
     await _walletInfoSource.clear();
     if (ascending) {
-      walletInfoSourceCopy.sort((a, b) => a.type.toString().compareTo(b.type.toString()));
+      walletInfoSourceCopy
+          .sort((a, b) => a.type.toString().compareTo(b.type.toString()));
     } else {
-      walletInfoSourceCopy.sort((a, b) => b.type.toString().compareTo(a.type.toString()));
+      walletInfoSourceCopy
+          .sort((a, b) => b.type.toString().compareTo(a.type.toString()));
     }
     await _walletInfoSource.addAll(walletInfoSourceCopy);
     updateList();
@@ -186,22 +194,22 @@ abstract class WalletListViewModelBase with Store {
     _appStore.settingsStore.walletListAscending = ascending;
   }
 
-  Future<void> setOrderType(WalletListOrderType? type) async {
+  Future<void> setOrderType(FilterListOrderType? type) async {
     if (type == null) return;
 
     _appStore.settingsStore.walletListOrder = type;
 
     switch (type) {
-      case WalletListOrderType.CreationDate:
+      case FilterListOrderType.CreationDate:
         await sortByCreationDate();
         break;
-      case WalletListOrderType.Alphabetical:
+      case FilterListOrderType.Alphabetical:
         await sortAlphabetically();
         break;
-      case WalletListOrderType.GroupByType:
+      case FilterListOrderType.GroupByType:
         await sortGroupByType();
         break;
-      case WalletListOrderType.Custom:
+      case FilterListOrderType.Custom:
       default:
         await reorderAccordingToWalletList();
         break;
@@ -213,7 +221,8 @@ abstract class WalletListViewModelBase with Store {
       name: info.name,
       type: info.type,
       key: info.key,
-      isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
+      isCurrent: info.name == _appStore.wallet?.name &&
+          info.type == _appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
     );

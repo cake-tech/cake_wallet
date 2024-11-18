@@ -55,7 +55,7 @@ Need to install flutter. For this please check section [How to install flutter o
 
 ### 3. Verify Installations
 
-Verify that the Flutter have been correctly installed on your system with the following command:
+Verify that the Flutter has been correctly installed on your system with the following command:
 
 `$ flutter doctor`
 
@@ -163,7 +163,7 @@ And then export bundle:
 
 `$ flatpak build-bundle export cake_wallet.flatpak com.cakewallet.CakeWallet`
 
-Result file: `cake_wallet.flatpak` should be generated in current directory.
+Result file: `cake_wallet.flatpak` should be generated in the current directory.
 
 For install generated flatpak file use:
 
