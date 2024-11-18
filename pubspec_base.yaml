@@ -17,7 +17,7 @@ dependencies:
   fast_scanner:
     git:
       url: https://github.com/MrCyjaneK/fast_scanner
-      ref: c8311b46cc67dd02250970a54d2a4526168187f3
+      ref: c5a08720216a508bf1fe3d062ad19d2836545a42
   http: ^1.1.0
   path_provider: ^2.0.11
   mobx: ^2.1.4
