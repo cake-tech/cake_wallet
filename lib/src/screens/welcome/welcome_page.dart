@@ -17,7 +17,7 @@ class WelcomePage extends BasePage {
   final welcomeImageDark = Image.asset('assets/images/wallet_type.png');
 
   @override
-  String? get title => S.current.wallets;
+  String? get title => S.current.wallet;
 
   @override
   bool get resizeToAvoidBottomInset => false;

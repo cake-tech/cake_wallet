@@ -124,7 +124,7 @@ class CreatePinWelcomePage extends BasePage {
             key: ValueKey('create_pin_welcome_page_create_a_pin_button_key'),
             onPressed: () => Navigator.pushNamed(context, Routes.welcomeWallet),
             image: newWalletImage,
-            text: 'Create a PIN',
+            text: S.current.set_a_pin,
             color: Theme.of(context)
                 .extension<WalletListTheme>()!
                 .createNewWalletButtonBackgroundColor,
