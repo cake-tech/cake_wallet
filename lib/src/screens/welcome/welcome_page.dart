@@ -50,29 +50,14 @@ class WelcomePage extends BasePage {
                     child: FittedBox(child: welcomeImage, fit: BoxFit.contain),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: 5),
-                    child: Text(
-                      S.of(context).new_first_wallet_text,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
+                      padding: EdgeInsets.only(top: 5),
+                      child: highlightText(
+                          context, S.of(context).welcome_subtitle_new_wallet, S.of(context).create_new)),
+                  SizedBox(height: 10),
                   Padding(
-                    padding: EdgeInsets.only(top: 5),
-                    child: Text(
-                      S.of(context).new_first_wallet_text,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
+                      padding: EdgeInsets.only(top: 5),
+                      child: highlightText(context, S.of(context).welcome_subtitle_restore_wallet,
+                        S.of(context).restore_existing_wallet)),
                 ],
               ),
             ],
@@ -89,7 +74,7 @@ class WelcomePage extends BasePage {
                   Navigator.pushNamed(context, Routes.restoreOptions, arguments: true);
                 },
                 image: restoreWalletImage,
-                text: S.of(context).restore_wallet,
+                text: S.of(context).restore_existing_wallet,
                 color: Theme.of(context).cardColor,
                 textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
           ),
@@ -109,6 +94,72 @@ class WelcomePage extends BasePage {
           ),
         ],
       ),
+    );
+  }
+
+  RichText highlightText(BuildContext context, String text, String highlightWord) {
+
+    final regex = RegExp(highlightWord, caseSensitive: false);
+    final matches = regex.allMatches(text);
+
+    if (matches.isEmpty) {
+      return RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          text: text,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+          ),
+        ),
+      );
+    }
+
+    List<InlineSpan> spans = [];
+    int lastMatchEnd = 0;
+
+    for (final match in matches) {
+      final start = match.start;
+      final end = match.end;
+
+      if (start > lastMatchEnd) {
+        spans.add(TextSpan(
+          text: text.substring(lastMatchEnd, start),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+          ),
+        ));
+      }
+
+      spans.add(TextSpan(
+        text: text.substring(start, end),
+        style: TextStyle(
+          fontSize: 16,
+          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+          fontWeight: FontWeight.bold,
+        ),
+      ));
+
+      lastMatchEnd = end;
+    }
+
+    if (lastMatchEnd < text.length) {
+      spans.add(TextSpan(
+        text: text.substring(lastMatchEnd),
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+        ),
+      ));
+    }
+
+    return RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(children: spans),
     );
   }
 }
