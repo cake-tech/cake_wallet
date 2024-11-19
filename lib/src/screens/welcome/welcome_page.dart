@@ -23,6 +23,14 @@ class WelcomePage extends BasePage {
   bool get resizeToAvoidBottomInset => false;
 
   @override
+  Widget trailing(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.info_outline),
+      onPressed: () {},
+    );
+  }
+
+  @override
   Widget body(BuildContext context) {
     final welcomeImage = currentTheme.type == ThemeType.dark ? welcomeImageDark : welcomeImageLight;
 
@@ -51,13 +59,13 @@ class WelcomePage extends BasePage {
                   ),
                   Padding(
                       padding: EdgeInsets.only(top: 5),
-                      child: highlightText(
-                          context, S.of(context).welcome_subtitle_new_wallet, S.of(context).create_new)),
+                      child: highlightText(context, S.of(context).welcome_subtitle_new_wallet,
+                          S.of(context).create_new)),
                   SizedBox(height: 10),
                   Padding(
                       padding: EdgeInsets.only(top: 5),
                       child: highlightText(context, S.of(context).welcome_subtitle_restore_wallet,
-                        S.of(context).restore_existing_wallet)),
+                          S.of(context).restore_existing_wallet)),
                 ],
               ),
             ],
@@ -98,7 +106,6 @@ class WelcomePage extends BasePage {
   }
 
   RichText highlightText(BuildContext context, String text, String highlightWord) {
-
     final regex = RegExp(highlightWord, caseSensitive: false);
     final matches = regex.allMatches(text);
 
