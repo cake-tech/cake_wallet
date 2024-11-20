@@ -1,7 +1,5 @@
-Added Litecoin MWEB
-Added wallet groups
-Silent Payment enhancements for speed & reliability
-Monero enhancements
-Introducing StealthEx and LetxExchange
-Additional ERC20 tokens scam detection
+Add Litecoin Ledger support
+Add airgapped Monero wallet support (best used with our new offline app Cupcake)
+MWEB fixes and enhancements
+New Buy & Sell flow
 Bug fixes
