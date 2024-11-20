@@ -59,6 +59,8 @@ class Routes {
   static const supportOtherLinks = '/support/other';
   static const orderDetails = '/order_details';
   static const buySellPage = '/buy_sell_page';
+  static const buyOptionsPage = '/buy_sell_options';
+  static const paymentMethodOptionsPage = '/payment_method_options';
   static const buyWebView = '/buy_web_view';
   static const unspentCoinsList = '/unspent_coins_list';
   static const unspentCoinsDetails = '/unspent_coins_details';
@@ -108,6 +110,7 @@ class Routes {
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
+  static const urqrAnimatedPage = '/urqr/animated_page';
   static const walletGroupsDisplayPage = '/wallet_groups_display_page';
   static const walletGroupDescription = '/wallet_group_description';
 }

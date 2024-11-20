@@ -41,7 +41,8 @@ class AddressResolver {
     'kresus',
     'anime',
     'manga',
-    'binanceus'
+    'binanceus',
+    'xmr',
   ];
 
   static String? extractAddressByType({required String raw, required CryptoCurrency type}) {

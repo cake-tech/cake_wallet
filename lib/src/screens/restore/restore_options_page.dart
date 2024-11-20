@@ -56,8 +56,9 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     }
 
     if (isMoneroOnly) {
-      return DeviceConnectionType.supportedConnectionTypes(WalletType.monero, Platform.isIOS)
-          .isNotEmpty;
+      // return DeviceConnectionType.supportedConnectionTypes(WalletType.monero, Platform.isIOS)
+      //     .isNotEmpty;
+      return false;
     }
 
     return true;
