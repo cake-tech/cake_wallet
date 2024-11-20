@@ -710,6 +710,7 @@
   "show_keys": "Mostrar semilla/claves",
   "show_market_place": "Mostrar mercado",
   "show_seed": "Mostrar semilla",
+  "show_sync_notifications": "Mostrar notificaciones de sincronización",
   "sign_message": "Mensaje de firma",
   "sign_up": "Registrarse",
   "sign_verify_message": "Firmar / verificar",

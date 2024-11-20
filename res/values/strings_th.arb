@@ -709,6 +709,7 @@
   "show_keys": "แสดงซีด/คีย์",
   "show_market_place": "แสดงตลาดกลาง",
   "show_seed": "แสดงซีด",
+  "show_sync_notifications": "แสดงการแจ้งเตือนการซิงค์",
   "sign_message": "ลงนามข้อความ",
   "sign_up": "สมัครสมาชิก",
   "sign_verify_message": "ลงชื่อเข้าใช้หรือตรวจสอบข้อความ",

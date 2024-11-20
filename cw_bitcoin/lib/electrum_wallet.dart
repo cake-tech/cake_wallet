@@ -469,7 +469,8 @@ abstract class ElectrumWalletBase
       await updateBalance();
       await updateFeeRates();
 
-      _updateFeeRateTimer ??=
+      _updateFeeRateTimer?.cancel();
+      _updateFeeRateTimer =
           Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
       if (alwaysScan == true) {
@@ -482,6 +483,19 @@ abstract class ElectrumWalletBase
       print("startSync $e");
       syncStatus = FailedSyncStatus();
     }
+  }
+
+  @action
+  @override
+  Future<void> stopSync() async {
+    syncStatus = NotConnectedSyncStatus();
+    try {
+      await _receiveStream?.cancel();
+      electrumClient.onConnectionStatusChange = null;
+      await electrumClient.close();
+    } catch (_) {}
+    _updateFeeRateTimer?.cancel();
+    _autoSaveTimer?.cancel();
   }
 
   @action
@@ -585,6 +599,15 @@ abstract class ElectrumWalletBase
       electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
 
       await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
+      
+      int secondsWaited = 0;
+      while (!electrumClient.isConnected) {
+        await Future.delayed(const Duration(seconds: 1));
+        secondsWaited++;
+        if (secondsWaited > 5) {
+          break;
+        }
+      }
     } catch (e, stacktrace) {
       print(stacktrace);
       print("connectToNode $e");

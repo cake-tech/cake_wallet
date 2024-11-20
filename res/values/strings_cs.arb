@@ -709,6 +709,7 @@
   "show_keys": "Zobrazit seed/klíče",
   "show_market_place": "Zobrazit trh",
   "show_seed": "Zobrazit seed",
+  "show_sync_notifications": "Zobrazit oznámení synchronizace",
   "sign_message": "Podepsat zprávu",
   "sign_up": "Registrovat se",
   "sign_verify_message": "Podepsat / ověřit",

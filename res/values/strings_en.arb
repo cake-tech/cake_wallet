@@ -709,6 +709,7 @@
   "show_keys": "Show seed/keys",
   "show_market_place": "Show Marketplace",
   "show_seed": "Show seed",
+  "show_sync_notifications": "Show sync notifications",
   "sign_message": "Sign Message",
   "sign_up": "Sign Up",
   "sign_verify_message": "Sign / Verify",

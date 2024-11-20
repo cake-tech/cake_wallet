@@ -710,6 +710,7 @@
   "show_keys": "シード/キーを表示する",
   "show_market_place": "マーケットプレイスを表示",
   "show_seed": "シードを表示",
+  "show_sync_notifications": "同期通知を表示します",
   "sign_message": "署名メッセージ",
   "sign_up": "サインアップ",
   "sign_verify_message": "署名 /検証",

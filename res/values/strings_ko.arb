@@ -710,6 +710,7 @@
   "show_keys": "시드 / 키 표시",
   "show_market_place": "마켓플레이스 표시",
   "show_seed": "종자 표시",
+  "show_sync_notifications": "알림 동기화 표시",
   "sign_message": "서명 메시지",
   "sign_up": "가입",
   "sign_verify_message": "메시지에 서명하거나 확인하십시오",

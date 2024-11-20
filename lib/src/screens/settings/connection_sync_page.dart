@@ -44,7 +44,7 @@ class ConnectionSyncPage extends BasePage {
                   : S.current.rescan,
               handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
             ),
-            if (DeviceInfo.instance.isMobile && FeatureFlag.isBackgroundSyncEnabled) ...[
+            if (Platform.isAndroid && FeatureFlag.isBackgroundSyncEnabled) ...[
               Observer(builder: (context) {
                 return SettingsPickerCell<SyncMode>(
                     title: S.current.background_sync_mode,
@@ -55,31 +55,16 @@ class ConnectionSyncPage extends BasePage {
                       dashboardViewModel.setSyncMode(syncMode);
 
                       if (Platform.isIOS) return;
-
-                      if (syncMode.type != SyncType.disabled) {
-                        final isDisabled = await isBatteryOptimizationDisabled();
-
-                        if (isDisabled) return;
-
-                        await showPopUp<void>(
-                          context: context,
-                          builder: (BuildContext dialogContext) {
-                            return AlertWithTwoActions(
-                              alertTitle: S.current.disableBatteryOptimization,
-                              alertContent: S.current.disableBatteryOptimizationDescription,
-                              leftButtonText: S.of(context).cancel,
-                              rightButtonText: S.of(context).ok,
-                              actionLeftButton: () => Navigator.of(dialogContext).pop(),
-                              actionRightButton: () async {
-                                await requestDisableBatteryOptimization();
-
-                                Navigator.of(dialogContext).pop();
-                              },
-                            );
-                          },
-                        );
-                      }
                     });
+              }),
+              Observer(builder: (context) {
+                return SettingsSwitcherCell(
+                  title: S.current.show_sync_notifications,
+                  value: dashboardViewModel.showSyncNotification,
+                  onValueChange: (BuildContext _, bool isEnabled) async {
+                    dashboardViewModel.setShowSyncNotification(isEnabled);
+                  },
+                );
               }),
               Observer(builder: (context) {
                 return SettingsSwitcherCell(
@@ -109,7 +94,8 @@ class ConnectionSyncPage extends BasePage {
             },
           ),
           if (isWalletConnectCompatibleChain(dashboardViewModel.wallet.type) &&
-              !dashboardViewModel.wallet.isHardwareWallet) ...[ // ToDo: Remove this line once WalletConnect is implemented
+              !dashboardViewModel.wallet.isHardwareWallet) ...[
+            // ToDo: Remove this line once WalletConnect is implemented
             WalletConnectTile(
               onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
             ),
