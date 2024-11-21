@@ -489,7 +489,7 @@ abstract class ElectrumWalletBase
     if (await checkIfMempoolAPIIsEnabled()) {
       try {
         final response =
-            await http.get(Uri.parse("http://mempool.cakewallet.com:8999/api/v1/fees/recommended"));
+            await http.get(Uri.parse("http://mempool-beta.cakewallet.com:8999/api/v1/fees/recommended"));
 
         final result = json.decode(response.body) as Map<String, dynamic>;
         final slowFee = (result['economyFee'] as num?)?.toInt() ?? 0;
@@ -1706,7 +1706,7 @@ abstract class ElectrumWalletBase
         try {
           final blockHash = await http.get(
             Uri.parse(
-              "http://mempool.cakewallet.com:8999/api/v1/block-height/$height",
+              "http://mempool-beta.cakewallet.com:8999/api/v1/block-height/$height",
             ),
           );
 
@@ -1715,7 +1715,7 @@ abstract class ElectrumWalletBase
               jsonDecode(blockHash.body) != null) {
             final blockResponse = await http.get(
               Uri.parse(
-                "http://mempool.cakewallet.com:8999/api/v1/block/${blockHash.body}",
+                "http://mempool-beta.cakewallet.com:8999/api/v1/block/${blockHash.body}",
               ),
             );
             if (blockResponse.statusCode == 200 &&
