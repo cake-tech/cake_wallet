@@ -153,7 +153,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
     unspents.sort((a, b) => a.address.compareTo(b.address));
 
     // sort change addresses to the end:
-    // unspents.sort((a, b) => a.isChange ? 1 : -1);
+    unspents.sort((a, b) => a.isChange ? 1 : -1);
 
     _items.addAll(unspents);
   }
