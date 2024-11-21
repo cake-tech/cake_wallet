@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
@@ -11,14 +12,12 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ContactListPage extends BasePage {
@@ -92,16 +91,19 @@ class ContactPageBody extends StatefulWidget {
 
 class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late ContactListViewModel contactListViewModel;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    contactListViewModel = widget.contactListViewModel;
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    contactListViewModel.dispose();
     super.dispose();
   }
 
@@ -238,14 +240,16 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             currencyIcon,
-            Padding(
-              padding: EdgeInsets.only(left: 12),
-              child: Text(
-                contact.name,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(left: 12),
+                child: Text(
+                  contact.name,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  ),
                 ),
               ),
             ),
@@ -306,13 +310,17 @@ class _ContactListBodyState extends State<ContactListBody> {
   @override
   void dispose() {
     widget.tabController.removeListener(_handleTabChange);
-    widget.contactListViewModel.dispose();
+    if (widget.contactListViewModel.settingsStore.contactListOrder == FilterListOrderType.Custom) {
+      widget.contactListViewModel.saveCustomOrder();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final contacts = widget.contactListViewModel.contactsToShow;
+    final contacts = widget.contactListViewModel.isEditable
+        ? widget.contactListViewModel.contacts
+        : widget.contactListViewModel.contactsToShow;
     return Scaffold(
       body: Container(
         child: FilteredList(
@@ -351,8 +359,9 @@ class _ContactListBodyState extends State<ContactListBody> {
           },
         ),
       ),
-      floatingActionButton:
-          _isContactsTabActive ? filterButtonWidget(context, widget.contactListViewModel) : null,
+      floatingActionButton: _isContactsTabActive && widget.contactListViewModel.isEditable
+          ? filterButtonWidget(context, widget.contactListViewModel)
+          : null,
     );
   }
 
