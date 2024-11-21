@@ -317,6 +317,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         return transactionPriority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
       case WalletType.polygon:
         return transactionPriority == polygon!.getPolygonTransactionPrioritySlow();
+      case WalletType.zano:
+        return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
       default:
         return false;
     }
@@ -738,6 +740,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.wow;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.zano:
+        depositCurrency = CryptoCurrency.zano;
+        receiveCurrency = CryptoCurrency.btc;
+        break;
       case WalletType.none:
         break;
     }
@@ -828,6 +834,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.polygon:
         _settingsStore.priority[wallet.type] = polygon!.getDefaultTransactionPriority();
+        break;
+      case WalletType.zano:
+        _settingsStore.priority[wallet.type] = monero!.getMoneroTransactionPriorityAutomatic();
         break;
       default:
         break;

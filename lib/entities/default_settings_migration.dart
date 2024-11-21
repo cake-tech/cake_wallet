@@ -41,6 +41,7 @@ const solanaDefaultNodeUri = 'rpc.ankr.com';
 const tronDefaultNodeUri = 'trx.nownodes.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
+const zanoDefaultNodeUri = 'zano.org';
 const moneroWorldNodeUri = '.moneroworld.com';
 
 Future<void> defaultSettingsMigration(
@@ -264,6 +265,10 @@ Future<void> defaultSettingsMigration(
           _deselectExchangeProvider(sharedPreferences, "THORChain");
           _deselectExchangeProvider(sharedPreferences, "SimpleSwap");
           break;
+        case 44:
+          await addZanoNodeList(nodes: nodes);
+			    await changeZanoCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+			    break;
 
         default:
           break;
@@ -535,6 +540,12 @@ Node? getBitcoinCashDefaultElectrumServer({required Box<Node> nodes}) {
   return nodes.values
           .firstWhereOrNull((Node node) => node.uriRaw == cakeWalletBitcoinCashDefaultNodeUri) ??
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoinCash);
+}
+
+Node? getZanoDefaultNode({required Box<Node> nodes}) {
+    return nodes.values.firstWhereOrNull(
+          (Node node) => node.uriRaw == zanoDefaultNodeUri)
+          ?? nodes.values.firstWhereOrNull((node) => node.type == WalletType.zano);
 }
 
 Node getMoneroDefaultNode({required Box<Node> nodes}) {
@@ -1032,6 +1043,7 @@ Future<void> checkCurrentNodes(
   final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
   final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
   final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
+  final currentZanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
   final currentMoneroNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
@@ -1056,6 +1068,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentTronNodeId);
   final currentWowneroNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentWowneroNodeId);
+  final currentZanoNode = nodeSource.values.firstWhereOrNull((node) => node.key == currentZanoNodeId);
+
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
     await nodeSource.add(newCakeWalletNode);
@@ -1139,6 +1153,12 @@ Future<void> checkCurrentNodes(
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.key as int);
   }
+
+  if (currentZanoNode == null) {
+    final node = Node(uri: zanoDefaultNodeUri, type: WalletType.zano);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.key as int);
+  }
 }
 
 Future<void> resetBitcoinElectrumServer(
@@ -1214,12 +1234,28 @@ Future<void> addWowneroNodeList({required Box<Node> nodes}) async {
   }
 }
 
+Future<void> addZanoNodeList({required Box<Node> nodes}) async {
+	final nodeList = await loadDefaultZanoNodes();
+	for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }  
+  }
+}
+
 Future<void> changeWowneroCurrentNodeToDefault(
     {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
   final node = getWowneroDefaultNode(nodes: nodes);
   final nodeId = node?.key as int? ?? 0;
 
   await sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, nodeId);
+}
+
+Future<void> changeZanoCurrentNodeToDefault(
+		{required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  final node = getZanoDefaultNode(nodes: nodes);
+	final nodeId = node?.key as int? ?? 0;
+	await sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, nodeId);
 }
 
 Future<void> addNanoNodeList({required Box<Node> nodes}) async {

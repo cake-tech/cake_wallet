@@ -13,6 +13,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -37,6 +38,8 @@ abstract class HomeSettingsViewModelBase with Store {
   final BalanceViewModel _balanceViewModel;
 
   final ObservableSet<CryptoCurrency> tokens;
+
+  WalletType get walletType => _balanceViewModel.wallet.type;
 
   @observable
   bool isAddingToken;
@@ -112,6 +115,36 @@ abstract class HomeSettingsViewModelBase with Store {
     } finally {
       isAddingToken = false;
     }
+
+    if (_balanceViewModel.wallet.type == WalletType.polygon) {
+      final polygonToken = Erc20Token(
+        name: token.name,
+        symbol: token.title,
+        decimal: token.decimals,
+        contractAddress: contractAddress,
+        iconPath: token.iconPath,
+      );
+      await polygon!.addErc20Token(_balanceViewModel.wallet, polygonToken);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.solana) {
+      await solana!.addSPLToken(
+        _balanceViewModel.wallet,
+        token,
+        contractAddress,
+      );
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.tron) {
+      await tron!.addTronToken(_balanceViewModel.wallet, token, contractAddress);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      await zano!.addZanoAssetById(_balanceViewModel.wallet, contractAddress);
+    }
+
+    _updateTokensList();
+    _updateFiatPrices(token);
   }
 
   @action
@@ -132,6 +165,9 @@ abstract class HomeSettingsViewModelBase with Store {
 
       if (_balanceViewModel.wallet.type == WalletType.tron) {
         await tron!.deleteTronToken(_balanceViewModel.wallet, token);
+      }
+      if (_balanceViewModel.wallet.type == WalletType.zano) {
+        await zano!.deleteZanoAsset(_balanceViewModel.wallet, token);
       }
       _updateTokensList();
     } finally {
@@ -339,6 +375,10 @@ abstract class HomeSettingsViewModelBase with Store {
       return await tron!.getTronToken(_balanceViewModel.wallet, contractAddress);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      return await zano!.getZanoAsset(_balanceViewModel.wallet, contractAddress);
+    }
+
     return null;
   }
 
@@ -375,6 +415,10 @@ abstract class HomeSettingsViewModelBase with Store {
     if (_balanceViewModel.wallet.type == WalletType.tron) {
       final address = tron!.getTokenAddress(token);
       tron!.addTronToken(_balanceViewModel.wallet, token, address);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      await zano!.changeZanoAssetAvailability(_balanceViewModel.wallet, token);
     }
 
     _refreshTokensList();
@@ -431,6 +475,13 @@ abstract class HomeSettingsViewModelBase with Store {
           .toList()
         ..sort(_sortFunc));
     }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      tokens.addAll(zano!.getZanoAssets(_balanceViewModel.wallet)
+        .where((element) => _matchesSearchText(element))
+        .toList()
+        ..sort(_sortFunc));
+    }
   }
 
   @action
@@ -473,6 +524,10 @@ abstract class HomeSettingsViewModelBase with Store {
 
     if (_balanceViewModel.wallet.type == WalletType.polygon) {
       return polygon!.getTokenAddress(asset);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      return zano!.getZanoAssetAddress(asset);
     }
 
     // We return null if it's neither Tron, Polygon, Ethereum or Solana wallet (which is actually impossible because we only display home settings for either of these three wallets).
