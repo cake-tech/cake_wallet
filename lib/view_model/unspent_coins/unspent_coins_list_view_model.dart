@@ -146,6 +146,15 @@ abstract class UnspentCoinsListViewModelBase with Store {
       }
     });
 
+    // sort by hash so that even if the addresses are the same, they don't jump around when selected (because that calls updateBalance)
+    unspents.sort((a, b) => a.hash.compareTo(b.hash));
+
+    // sort unspents by address so that if something changes it's easier to see:
+    unspents.sort((a, b) => a.address.compareTo(b.address));
+
+    // sort change addresses to the end:
+    // unspents.sort((a, b) => a.isChange ? 1 : -1);
+
     _items.addAll(unspents);
   }
 }
