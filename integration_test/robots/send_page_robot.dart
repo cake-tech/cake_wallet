@@ -84,7 +84,7 @@ class SendPageRobot {
       return;
     }
 
-    await commonTestCases.scrollUntilVisible(
+    await commonTestCases.dragUntilVisible(
       'picker_items_index_${receiveCurrency.name}_button_key',
       'picker_scrollbar_key',
     );
@@ -117,7 +117,7 @@ class SendPageRobot {
       return;
     }
 
-    await commonTestCases.scrollUntilVisible(
+    await commonTestCases.dragUntilVisible(
       'picker_items_index_${priority.title}_button_key',
       'picker_scrollbar_key',
     );
@@ -198,7 +198,7 @@ class SendPageRobot {
       tester.printToConsole('Starting inner _handleAuth loop checks');
 
       try {
-        await authPageRobot.enterPinCode(CommonTestConstants.pin, false);
+        await authPageRobot.enterPinCode(CommonTestConstants.pin, pumpDuration: 500);
         tester.printToConsole('Auth done');
 
         await tester.pump();
@@ -213,6 +213,7 @@ class SendPageRobot {
   }
 
   Future<void> handleSendResult() async {
+    await tester.pump();
     tester.printToConsole('Inside handle function');
 
     bool hasError = false;
@@ -286,6 +287,8 @@ class SendPageRobot {
       await commonTestCases.tapItemByFinder(sendText, shouldPumpAndSettle: false);
       // Loop to wait for the operation to commit transaction
       await _waitForCommitTransactionCompletion();
+
+      await tester.pump();
 
       await commonTestCases.defaultSleepTime(seconds: 4);
     } else {

@@ -25,23 +25,25 @@ class WalletKeysPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) => IconButton(
-      onPressed: () async {
-        final url = await walletKeysViewModel.url;
+        key: ValueKey('wallet_keys_page_fullscreen_qr_button_key'),
+        onPressed: () async {
+          final url = await walletKeysViewModel.url;
 
-        BrightnessUtil.changeBrightnessForFunction(() async {
-          await Navigator.pushNamed(
-            context,
-            Routes.fullscreenQR,
-            arguments: QrViewData(data: url.toString(), version: QrVersions.auto),
-          );
-        });
-      },
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      hoverColor: Colors.transparent,
-      icon: Image.asset(
-        'assets/images/qr_code_icon.png',
-      ));
+          BrightnessUtil.changeBrightnessForFunction(() async {
+            await Navigator.pushNamed(
+              context,
+              Routes.fullscreenQR,
+              arguments: QrViewData(data: url.toString(), version: QrVersions.auto),
+            );
+          });
+        },
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        icon: Image.asset(
+          'assets/images/qr_code_icon.png',
+        ),
+      );
 
   @override
   Widget body(BuildContext context) {
@@ -60,6 +62,7 @@ class WalletKeysPage extends BasePage {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: AutoSizeText(
+                    key: ValueKey('wallet_keys_page_share_warning_text_key'),
                     S.of(context).do_not_share_warning_text.toUpperCase(),
                     textAlign: TextAlign.center,
                     maxLines: 4,
@@ -92,6 +95,7 @@ class WalletKeysPage extends BasePage {
                     final item = walletKeysViewModel.items[index];
 
                     return GestureDetector(
+                      key: item.key,
                       onTap: () {
                         ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(text: item.value));
                         showBar<void>(context, S.of(context).copied_key_to_clipboard(item.title));

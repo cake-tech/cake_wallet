@@ -1,18 +1,42 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../components/common_test_cases.dart';
+import 'dashboard_menu_widget_robot.dart';
 
 class DashboardPageRobot {
-  DashboardPageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+  DashboardPageRobot(this.tester)
+      : commonTestCases = CommonTestCases(tester),
+        dashboardMenuWidgetRobot = DashboardMenuWidgetRobot(tester);
 
   final WidgetTester tester;
+  final DashboardMenuWidgetRobot dashboardMenuWidgetRobot;
   late CommonTestCases commonTestCases;
 
   Future<void> isDashboardPage() async {
     await commonTestCases.isSpecificPage<DashboardPage>();
+  }
+
+  Future<void> confirmWalletTypeIsDisplayedCorrectly(
+    WalletType type, {
+    bool isHaven = false,
+  }) async {
+    final cryptoBalanceWidget =
+        tester.widget<CryptoBalanceWidget>(find.byType(CryptoBalanceWidget));
+    final hasAccounts = cryptoBalanceWidget.dashboardViewModel.balanceViewModel.hasAccounts;
+
+    if (hasAccounts) {
+      final walletName = cryptoBalanceWidget.dashboardViewModel.name;
+      commonTestCases.hasText(walletName);
+    } else {
+      final walletName = walletTypeToString(type);
+      final assetName = isHaven ? '$walletName Assets' : walletName;
+      commonTestCases.hasText(assetName);
+    }
+    await commonTestCases.defaultSleepTime(seconds: 5);
   }
 
   void confirmServiceUpdateButtonDisplays() {
@@ -27,30 +51,40 @@ class DashboardPageRobot {
     commonTestCases.hasValueKey('dashboard_page_wallet_menu_button_key');
   }
 
-  Future<void> confirmRightCryptoAssetTitleDisplaysPerPageView(WalletType type,
-      {bool isHaven = false}) async {
+  Future<void> confirmRightCryptoAssetTitleDisplaysPerPageView(
+    WalletType type, {
+    bool isHaven = false,
+  }) async {
     //Balance Page
-    final walletName = walletTypeToString(type);
-    final assetName = isHaven ? '$walletName Assets' : walletName;
-    commonTestCases.hasText(assetName);
+    await confirmWalletTypeIsDisplayedCorrectly(type, isHaven: isHaven);
 
     // Swipe to Cake features Page
-    await commonTestCases.swipeByPageKey(key: 'dashboard_page_view_key', swipeRight: false);
-    await commonTestCases.defaultSleepTime();
+    await swipeDashboardTab(false);
     commonTestCases.hasText('Cake ${S.current.features}');
 
     // Swipe back to balance
-    await commonTestCases.swipeByPageKey(key: 'dashboard_page_view_key');
-    await commonTestCases.defaultSleepTime();
+    await swipeDashboardTab(true);
 
     // Swipe to Transactions Page
-    await commonTestCases.swipeByPageKey(key: 'dashboard_page_view_key');
-    await commonTestCases.defaultSleepTime();
+    await swipeDashboardTab(true);
     commonTestCases.hasText(S.current.transactions);
 
     // Swipe back to balance
-    await commonTestCases.swipeByPageKey(key: 'dashboard_page_view_key', swipeRight: false);
-    await commonTestCases.defaultSleepTime(seconds: 5);
+    await swipeDashboardTab(false);
+    await commonTestCases.defaultSleepTime(seconds: 3);
+  }
+
+  Future<void> swipeDashboardTab(bool swipeRight) async {
+    await commonTestCases.swipeByPageKey(
+      key: 'dashboard_page_view_key',
+      swipeRight: swipeRight,
+    );
+    await commonTestCases.defaultSleepTime();
+  }
+
+  Future<void> openDrawerMenu() async {
+    await commonTestCases.tapItemByKey('dashboard_page_wallet_menu_button_key');
+    await commonTestCases.defaultSleepTime();
   }
 
   Future<void> navigateToBuyPage() async {

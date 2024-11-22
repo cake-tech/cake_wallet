@@ -196,6 +196,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
           ),
           if (widget.type == WalletType.monero || widget.type == WalletType.wownero)
             GestureDetector(
+              key: ValueKey('wallet_restore_from_seed_seedtype_picker_button_key'),
               onTap: () async {
                 await showPopUp<void>(
                     context: context,
@@ -269,6 +270,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             BlockchainHeightWidget(
               focusNode: widget.blockHeightFocusNode,
               key: blockchainHeightKey,
+              blockHeightTextFieldKey: ValueKey('wallet_restore_from_seed_blockheight_textfield_key'),
               onHeightOrDateEntered: widget.onHeightOrDateEntered,
               hasDatePicker: widget.type == WalletType.monero || widget.type == WalletType.wownero,
               walletType: widget.type,

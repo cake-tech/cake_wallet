@@ -11,6 +11,7 @@ class MwebUtxo extends HiveObject {
     required this.address,
     required this.outputId,
     required this.blockTime,
+    this.spent = false,
   });
 
   static const typeId = MWEB_UTXO_TYPE_ID;
@@ -30,4 +31,7 @@ class MwebUtxo extends HiveObject {
 
   @HiveField(4)
   int blockTime;
+
+  @HiveField(5, defaultValue: false)
+  bool spent;
 }

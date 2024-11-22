@@ -4,7 +4,13 @@ import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:flutter/material.dart';
 
 class StandardListRow extends StatelessWidget {
-  StandardListRow({required this.title, required this.isSelected, this.onTap, this.decoration});
+  StandardListRow({
+    required this.title,
+    required this.isSelected,
+    this.onTap,
+    this.decoration,
+    super.key,
+  });
 
   final String title;
   final bool isSelected;

@@ -9,4 +9,4 @@ If you need to report a vulnerability, please either:
 
 ## Supported Versions
 
-As we don't maintain prevoius versions of the app, only the latest release for each platform is supported and any updates will bump the version number.
+As we don't maintain previous versions of the app, only the latest release for each platform is supported and any updates will bump the version number.
