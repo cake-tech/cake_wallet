@@ -924,13 +924,13 @@ abstract class ElectrumWalletBase
       );
     } else {
       // Here, lastOutput already is change, return the amount left without the fee to the user's address.
-      updatedOutputs[updatedOutputs.length - 1] = BitcoinOutput(
+      updatedOutputs.last = BitcoinOutput(
         address: lastOutput.address,
         value: BigInt.from(amountLeftForChange),
         isSilentPayment: lastOutput.isSilentPayment,
         isChange: true,
       );
-      outputs[outputs.length - 1] = BitcoinOutput(
+      outputs.last = BitcoinOutput(
         address: lastOutput.address,
         value: BigInt.from(amountLeftForChange),
         isSilentPayment: lastOutput.isSilentPayment,
@@ -1377,20 +1377,16 @@ abstract class ElectrumWalletBase
       updatedUnspentCoins.addAll(await fetchUnspent(address));
     }));
 
-    unspentCoins = updatedUnspentCoins;
-
-    if (unspentCoinsInfo.length != updatedUnspentCoins.length) {
-      unspentCoins.forEach((coin) => addCoinInfo(coin));
-      return;
-    }
-
-    await updateCoins(unspentCoins);
+    unspentCoins = await updateCoinsWithInfoFromBox(updatedUnspentCoins);
     await _refreshUnspentCoinsInfo();
   }
 
-  Future<void> updateCoins(List<BitcoinUnspent> newUnspentCoins) async {
+  Future<List<BitcoinUnspent>> updateCoinsWithInfoFromBox(List<BitcoinUnspent> newUnspentCoins) async {
+    // this function updates and returns unspent coins list (freshly fetched from the server)
+    // with info from the box, if the box doesn't have info for some of the unspents, it adds them to the box
+
     if (newUnspentCoins.isEmpty) {
-      return;
+      return newUnspentCoins;
     }
 
     newUnspentCoins.forEach((coin) {
@@ -1413,12 +1409,14 @@ abstract class ElectrumWalletBase
         addCoinInfo(coin);
       }
     });
+
+    return newUnspentCoins;
   }
 
   @action
   Future<void> updateUnspentsForAddress(BitcoinAddressRecord address) async {
     final newUnspentCoins = await fetchUnspent(address);
-    await updateCoins(newUnspentCoins);
+    unspentCoins = await updateCoinsWithInfoFromBox(newUnspentCoins);
   }
 
   @action
