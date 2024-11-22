@@ -1422,9 +1422,9 @@ Future<void> generatePubspec({
   const flutterSecureStorage = """
   flutter_secure_storage:
     git:
-      url: https://github.com/MrCyjaneK/flutter_secure_storage.git
+      url: https://github.com/cake-tech/flutter_secure_storage.git
       path: flutter_secure_storage
-      ref: 60522bef7287fe56c9574e10599300d1d5d26ee9
+      ref: ca897a08677edb443b366352dd7412735e098e7b
   """;
   const cwEthereum = """
   cw_ethereum:
