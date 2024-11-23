@@ -191,7 +191,7 @@ You can add as many node entries as desired.
 
 - Run the following commands after to generate modified files in cw_core  and lib		
 		
-		cd cw_core && flutter pub get && dart runbuild_runner build --delete-conflicting-outputs && cd ..
+		cd cw_core && flutter pub get && dart run build_runner build --delete-conflicting-outputs && cd ..
 
 		dart runbuild_runner build --delete-conflicting-outputs
 
