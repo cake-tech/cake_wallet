@@ -78,7 +78,7 @@ A `Proxy` class is used to communicate with the specific wallet package we have.
 
 		./app_config.sh
 
-		cd cw_walletx && flutter pub get && dart runbuild_runner build
+		cd cw_walletx && flutter pub get && dart run build_runner build
 
 		dart runbuild_runner build --delete-conflicting-outputs
 
