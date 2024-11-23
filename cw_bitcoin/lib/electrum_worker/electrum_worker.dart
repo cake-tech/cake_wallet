@@ -47,6 +47,8 @@ class ElectrumWorker {
   }
 
   void handleMessage(dynamic message) async {
+    print("Worker received message: $message");
+
     try {
       Map<String, dynamic> messageJson;
       if (message is String) {
@@ -107,7 +109,6 @@ class ElectrumWorker {
             ElectrumWorkerStopScanningRequest.fromJson(messageJson),
           );
           break;
-        case ElectrumRequestMethods.estimateFeeMethod:
         case ElectrumRequestMethods.tweaksSubscribeMethod:
           if (_isScanning) {
             _stopScanRequested = false;
@@ -279,12 +280,8 @@ class ElectrumWorker {
               walletType: result.walletType,
             );
           }
-
-          return Future.value(null);
         }));
       }
-
-      return histories;
     }));
 
     _sendResponse(ElectrumWorkerGetHistoryResponse(
@@ -411,29 +408,36 @@ class ElectrumWorker {
     if (getTime) {
       if (mempoolAPIEnabled) {
         try {
-          final txVerbose = await http.get(
-            Uri.parse(
-              "http://mempool.cakewallet.com:8999/api/v1/tx/$hash/status",
-            ),
-          );
+          // TODO: mempool api class
+          final txVerbose = await http
+              .get(
+                Uri.parse(
+                  "https://mempool.cakewallet.com/api/v1/tx/$hash/status",
+                ),
+              )
+              .timeout(const Duration(seconds: 5));
 
           if (txVerbose.statusCode == 200 &&
               txVerbose.body.isNotEmpty &&
               jsonDecode(txVerbose.body) != null) {
             height = jsonDecode(txVerbose.body)['block_height'] as int;
 
-            final blockHash = await http.get(
-              Uri.parse(
-                "http://mempool.cakewallet.com:8999/api/v1/block-height/$height",
-              ),
-            );
+            final blockHash = await http
+                .get(
+                  Uri.parse(
+                    "https://mempool.cakewallet.com/api/v1/block-height/$height",
+                  ),
+                )
+                .timeout(const Duration(seconds: 5));
 
             if (blockHash.statusCode == 200 && blockHash.body.isNotEmpty) {
-              final blockResponse = await http.get(
-                Uri.parse(
-                  "http://mempool.cakewallet.com:8999/api/v1/block/${blockHash.body}",
-                ),
-              );
+              final blockResponse = await http
+                  .get(
+                    Uri.parse(
+                      "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
+                    ),
+                  )
+                  .timeout(const Duration(seconds: 5));
 
               if (blockResponse.statusCode == 200 &&
                   blockResponse.body.isNotEmpty &&

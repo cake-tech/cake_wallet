@@ -467,7 +467,29 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         (element) => element.scriptType == addressType.toString(),
       );
 
-      for (final derivationInfo in derivationInfos ?? <DerivationInfo>[]) {
+      if (derivationInfos == null || derivationInfos.isEmpty) {
+        final bitcoinDerivationInfo = BitcoinDerivationInfo(
+          derivationType: isElectrum ? BitcoinDerivationType.electrum : BitcoinDerivationType.bip39,
+          derivationPath: walletInfo.derivationInfo!.derivationPath!,
+          scriptType: addressType,
+        );
+
+        await discoverNewAddresses(
+          derivationType: derivationType,
+          isChange: false,
+          addressType: addressType,
+          derivationInfo: bitcoinDerivationInfo,
+        );
+        await discoverNewAddresses(
+          derivationType: derivationType,
+          isChange: true,
+          addressType: addressType,
+          derivationInfo: bitcoinDerivationInfo,
+        );
+        continue;
+      }
+
+      for (final derivationInfo in derivationInfos) {
         final bitcoinDerivationInfo = BitcoinDerivationInfo(
           derivationType: isElectrum ? BitcoinDerivationType.electrum : BitcoinDerivationType.bip39,
           derivationPath: derivationInfo.derivationPath!,

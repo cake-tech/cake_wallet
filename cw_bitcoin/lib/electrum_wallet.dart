@@ -1308,6 +1308,11 @@ abstract class ElectrumWalletBase
   Future<void> onHistoriesResponse(List<AddressHistoriesResponse> histories) async {
     if (histories.isEmpty || _updatingHistories) {
       _updatingHistories = false;
+      _syncedTimes++;
+      if (_syncedTimes == 3) {
+        syncStatus = SyncedSyncStatus();
+      }
+
       return;
     }
 
