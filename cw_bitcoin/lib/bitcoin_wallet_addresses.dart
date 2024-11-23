@@ -361,6 +361,15 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     return labels;
   }
 
+  @override
+  @action
+  void updateHiddenAddresses() {
+    super.updateHiddenAddresses();
+    this.hiddenAddresses.addAll(silentPaymentAddresses
+        .where((addressRecord) => addressRecord.isHidden)
+        .map((addressRecord) => addressRecord.address));
+  }
+
   Map<String, dynamic> toJson() {
     final json = super.toJson();
     json['silentPaymentAddresses'] =

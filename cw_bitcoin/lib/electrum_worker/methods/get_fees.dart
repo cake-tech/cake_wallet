@@ -37,7 +37,7 @@ class ElectrumWorkerGetFeesError extends ElectrumWorkerErrorResponse {
 }
 
 class ElectrumWorkerGetFeesResponse
-    extends ElectrumWorkerResponse<TransactionPriorities, Map<String, int>> {
+    extends ElectrumWorkerResponse<TransactionPriorities?, Map<String, int>> {
   ElectrumWorkerGetFeesResponse({
     required super.result,
     super.error,
@@ -46,13 +46,15 @@ class ElectrumWorkerGetFeesResponse
 
   @override
   Map<String, int> resultJson(result) {
-    return result.toJson();
+    return result?.toJson() ?? {};
   }
 
   @override
   factory ElectrumWorkerGetFeesResponse.fromJson(Map<String, dynamic> json) {
     return ElectrumWorkerGetFeesResponse(
-      result: deserializeTransactionPriorities(json['result'] as Map<String, dynamic>),
+      result: json['result'] == null
+          ? null
+          : deserializeTransactionPriorities(json['result'] as Map<String, dynamic>),
       error: json['error'] as String?,
       id: json['id'] as int?,
     );

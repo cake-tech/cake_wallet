@@ -23,6 +23,8 @@ class ElectrumWorker {
   final SendPort sendPort;
   ElectrumApiProvider? _electrumClient;
   BasedUtxoNetwork? _network;
+  bool _isScanning = false;
+  bool _stopScanRequested = false;
 
   ElectrumWorker._(this.sendPort, {ElectrumApiProvider? electrumClient})
       : _electrumClient = electrumClient;
@@ -45,8 +47,6 @@ class ElectrumWorker {
   }
 
   void handleMessage(dynamic message) async {
-    print("Worker: received message: $message");
-
     try {
       Map<String, dynamic> messageJson;
       if (message is String) {
@@ -97,10 +97,35 @@ class ElectrumWorker {
             ElectrumWorkerBroadcastRequest.fromJson(messageJson),
           );
           break;
-        case ElectrumRequestMethods.tweaksSubscribeMethod:
-          await _handleScanSilentPayments(
-            ElectrumWorkerTweaksSubscribeRequest.fromJson(messageJson),
+        case ElectrumWorkerMethods.checkTweaksMethod:
+          await _handleCheckTweaks(
+            ElectrumWorkerCheckTweaksRequest.fromJson(messageJson),
           );
+          break;
+        case ElectrumWorkerMethods.stopScanningMethod:
+          await _handleStopScanning(
+            ElectrumWorkerStopScanningRequest.fromJson(messageJson),
+          );
+          break;
+        case ElectrumRequestMethods.estimateFeeMethod:
+        case ElectrumRequestMethods.tweaksSubscribeMethod:
+          if (_isScanning) {
+            _stopScanRequested = false;
+          }
+
+          if (!_stopScanRequested) {
+            await _handleScanSilentPayments(
+              ElectrumWorkerTweaksSubscribeRequest.fromJson(messageJson),
+            );
+          } else {
+            _stopScanRequested = false;
+            _sendResponse(
+              ElectrumWorkerTweaksSubscribeResponse(
+                result: TweaksSyncResponse(syncStatus: SyncedSyncStatus()),
+              ),
+            );
+          }
+
           break;
         case ElectrumRequestMethods.estimateFeeMethod:
           await _handleGetFeeRates(
@@ -113,8 +138,7 @@ class ElectrumWorker {
           );
           break;
       }
-    } catch (e, s) {
-      print(s);
+    } catch (e) {
       _sendError(ElectrumWorkerErrorResponse(error: e.toString()));
     }
   }
@@ -122,25 +146,29 @@ class ElectrumWorker {
   Future<void> _handleConnect(ElectrumWorkerConnectionRequest request) async {
     _network = request.network;
 
-    _electrumClient = await ElectrumApiProvider.connect(
-      request.useSSL
-          ? ElectrumSSLService.connect(
-              request.uri,
-              onConnectionStatusChange: (status) {
-                _sendResponse(ElectrumWorkerConnectionResponse(status: status, id: request.id));
-              },
-              defaultRequestTimeOut: const Duration(seconds: 5),
-              connectionTimeOut: const Duration(seconds: 5),
-            )
-          : ElectrumTCPService.connect(
-              request.uri,
-              onConnectionStatusChange: (status) {
-                _sendResponse(ElectrumWorkerConnectionResponse(status: status, id: request.id));
-              },
-              defaultRequestTimeOut: const Duration(seconds: 5),
-              connectionTimeOut: const Duration(seconds: 5),
-            ),
-    );
+    try {
+      _electrumClient = await ElectrumApiProvider.connect(
+        request.useSSL
+            ? ElectrumSSLService.connect(
+                request.uri,
+                onConnectionStatusChange: (status) {
+                  _sendResponse(
+                    ElectrumWorkerConnectionResponse(status: status, id: request.id),
+                  );
+                },
+              )
+            : ElectrumTCPService.connect(
+                request.uri,
+                onConnectionStatusChange: (status) {
+                  _sendResponse(
+                    ElectrumWorkerConnectionResponse(status: status, id: request.id),
+                  );
+                },
+              ),
+      );
+    } catch (e) {
+      _sendError(ElectrumWorkerConnectionError(error: e.toString()));
+    }
   }
 
   Future<void> _handleHeadersSubscribe(ElectrumWorkerHeadersSubscribeRequest request) async {
@@ -230,6 +258,7 @@ class ElectrumWorker {
                 hash: txid,
                 currentChainTip: result.chainTip,
                 mempoolAPIEnabled: result.mempoolAPIEnabled,
+                getTime: true,
                 confirmations: tx?.confirmations,
                 date: tx?.date,
               ),
@@ -367,6 +396,7 @@ class ElectrumWorker {
     required String hash,
     required int currentChainTip,
     required bool mempoolAPIEnabled,
+    bool getTime = false,
     int? confirmations,
     DateTime? date,
   }) async {
@@ -378,52 +408,54 @@ class ElectrumWorker {
       ElectrumGetTransactionHex(transactionHash: hash),
     );
 
-    if (mempoolAPIEnabled) {
-      try {
-        final txVerbose = await http.get(
-          Uri.parse(
-            "http://mempool.cakewallet.com:8999/api/v1/tx/$hash/status",
-          ),
-        );
-
-        if (txVerbose.statusCode == 200 &&
-            txVerbose.body.isNotEmpty &&
-            jsonDecode(txVerbose.body) != null) {
-          height = jsonDecode(txVerbose.body)['block_height'] as int;
-
-          final blockHash = await http.get(
+    if (getTime) {
+      if (mempoolAPIEnabled) {
+        try {
+          final txVerbose = await http.get(
             Uri.parse(
-              "http://mempool.cakewallet.com:8999/api/v1/block-height/$height",
+              "http://mempool.cakewallet.com:8999/api/v1/tx/$hash/status",
             ),
           );
 
-          if (blockHash.statusCode == 200 && blockHash.body.isNotEmpty) {
-            final blockResponse = await http.get(
+          if (txVerbose.statusCode == 200 &&
+              txVerbose.body.isNotEmpty &&
+              jsonDecode(txVerbose.body) != null) {
+            height = jsonDecode(txVerbose.body)['block_height'] as int;
+
+            final blockHash = await http.get(
               Uri.parse(
-                "http://mempool.cakewallet.com:8999/api/v1/block/${blockHash.body}",
+                "http://mempool.cakewallet.com:8999/api/v1/block-height/$height",
               ),
             );
 
-            if (blockResponse.statusCode == 200 &&
-                blockResponse.body.isNotEmpty &&
-                jsonDecode(blockResponse.body)['timestamp'] != null) {
-              time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
+            if (blockHash.statusCode == 200 && blockHash.body.isNotEmpty) {
+              final blockResponse = await http.get(
+                Uri.parse(
+                  "http://mempool.cakewallet.com:8999/api/v1/block/${blockHash.body}",
+                ),
+              );
 
-              if (date != null) {
-                final newDate = DateTime.fromMillisecondsSinceEpoch(time * 1000);
-                isDateValidated = newDate == date;
+              if (blockResponse.statusCode == 200 &&
+                  blockResponse.body.isNotEmpty &&
+                  jsonDecode(blockResponse.body)['timestamp'] != null) {
+                time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
+
+                if (date != null) {
+                  final newDate = DateTime.fromMillisecondsSinceEpoch(time * 1000);
+                  isDateValidated = newDate == date;
+                }
               }
             }
           }
-        }
-      } catch (_) {}
-    }
+        } catch (_) {}
+      }
 
-    if (confirmations == null && height != null) {
-      final tip = currentChainTip;
-      if (tip > 0 && height > 0) {
-        // Add one because the block itself is the first confirmation
-        confirmations = tip - height + 1;
+      if (confirmations == null && height != null) {
+        final tip = currentChainTip;
+        if (tip > 0 && height > 0) {
+          // Add one because the block itself is the first confirmation
+          confirmations = tip - height + 1;
+        }
       }
     }
 
@@ -498,19 +530,46 @@ class ElectrumWorker {
     }
   }
 
+  Future<void> _handleCheckTweaks(ElectrumWorkerCheckTweaksRequest request) async {
+    final response = await _electrumClient!.request(
+      ElectrumTweaksSubscribe(
+        height: 0,
+        count: 1,
+        historicalMode: false,
+      ),
+    );
+
+    final supportsScanning = response != null;
+    _sendResponse(
+      ElectrumWorkerCheckTweaksResponse(result: supportsScanning, id: request.id),
+    );
+  }
+
+  Future<void> _handleStopScanning(ElectrumWorkerStopScanningRequest request) async {
+    _stopScanRequested = true;
+    _sendResponse(
+      ElectrumWorkerStopScanningResponse(result: true, id: request.id),
+    );
+  }
+
   Future<void> _handleScanSilentPayments(ElectrumWorkerTweaksSubscribeRequest request) async {
+    _isScanning = true;
     final scanData = request.scanData;
+
+    // TODO: confirmedSwitch use new connection
+    // final _electrumClient = await ElectrumApiProvider.connect(
+    //   ElectrumTCPService.connect(
+    //     Uri.parse("tcp://electrs.cakewallet.com:50001"),
+    //     onConnectionStatusChange: (status) {
+    //       _sendResponse(
+    //         ElectrumWorkerConnectionResponse(status: status, id: request.id),
+    //       );
+    //     },
+    //   ),
+    // );
+
     int syncHeight = scanData.height;
     int initialSyncHeight = syncHeight;
-
-    int getCountPerRequest(int syncHeight) {
-      if (scanData.isSingleScan) {
-        return 1;
-      }
-
-      final amountLeft = scanData.chainTip - syncHeight + 1;
-      return amountLeft;
-    }
 
     final receivers = scanData.silentPaymentsWallets.map(
       (wallet) {
@@ -525,7 +584,6 @@ class ElectrumWorker {
     );
 
     // Initial status UI update, send how many blocks in total to scan
-    final initialCount = getCountPerRequest(syncHeight);
     _sendResponse(ElectrumWorkerTweaksSubscribeResponse(
       result: TweaksSyncResponse(
         height: syncHeight,
@@ -535,14 +593,19 @@ class ElectrumWorker {
 
     final req = ElectrumTweaksSubscribe(
       height: syncHeight,
-      count: initialCount,
+      count: 1,
       historicalMode: false,
     );
 
     final stream = await _electrumClient!.subscribe(req);
 
-    Future<void> listenFn(Map<String, dynamic> event, ElectrumTweaksSubscribe req) async {
+    void listenFn(Map<String, dynamic> event, ElectrumTweaksSubscribe req) {
       final response = req.onResponse(event);
+      if (_stopScanRequested || response == null) {
+        _stopScanRequested = false;
+        _isScanning = false;
+        return;
+      }
 
       // success or error msg
       final noData = response.message != null;
@@ -554,13 +617,12 @@ class ElectrumWorker {
 
         // re-subscribe to continue receiving messages, starting from the next unscanned height
         final nextHeight = syncHeight + 1;
-        final nextCount = getCountPerRequest(nextHeight);
 
-        if (nextCount > 0) {
-          final nextStream = await _electrumClient!.subscribe(
+        if (nextHeight <= scanData.chainTip) {
+          final nextStream = _electrumClient!.subscribe(
             ElectrumTweaksSubscribe(
-              height: syncHeight,
-              count: initialCount,
+              height: nextHeight,
+              count: 1,
               historicalMode: false,
             ),
           );
@@ -693,6 +755,7 @@ class ElectrumWorker {
     }
 
     stream?.listen((event) => listenFn(event, req));
+    _isScanning = false;
   }
 
   Future<void> _handleGetVersion(ElectrumWorkerGetVersionRequest request) async {

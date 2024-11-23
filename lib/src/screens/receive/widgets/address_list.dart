@@ -167,6 +167,10 @@ class _AddressListState extends State<AddressList> {
                         : backgroundColor,
                 textColor: textColor,
                 onTap: (_) {
+                  if (item.isChange || item.isHidden) {
+                    return;
+                  }
+
                   if (widget.onSelect != null) {
                     widget.onSelect!(item.address);
                     return;

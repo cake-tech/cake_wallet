@@ -20,3 +20,5 @@ part 'list_unspent.dart';
 part 'tweaks_subscribe.dart';
 part 'get_fees.dart';
 part 'version.dart';
+part 'check_tweaks_method.dart';
+part 'stop_scanning.dart';

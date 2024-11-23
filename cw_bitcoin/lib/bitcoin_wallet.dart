@@ -108,6 +108,53 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     int initialSilentAddressIndex = 0,
     required bool mempoolAPIEnabled,
   }) async {
+    List<int>? seedBytes = null;
+    final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
+
+    if (walletInfo.isRecovery) {
+      for (final derivation in walletInfo.derivations ?? <DerivationInfo>[]) {
+        if (derivation.description?.contains("SP") ?? false) {
+          continue;
+        }
+
+        if (derivation.derivationType == DerivationType.bip39) {
+          seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+
+          break;
+        } else {
+          try {
+            seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+            hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+          } catch (e) {
+            print("electrum_v2 seed error: $e");
+
+            try {
+              seedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
+              hdWallets[CWBitcoinDerivationType.electrum] =
+                  Bip32Slip10Secp256k1.fromSeed(seedBytes);
+            } catch (e) {
+              print("electrum_v1 seed error: $e");
+            }
+          }
+
+          break;
+        }
+      }
+
+      if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
+        hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
+      }
+      if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
+        hdWallets[CWBitcoinDerivationType.old_electrum] =
+            hdWallets[CWBitcoinDerivationType.electrum]!;
+      }
+    } else {
+      seedBytes = walletInfo.derivationInfo?.derivationType == DerivationType.electrum
+          ? ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase)
+          : Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+    }
+
     return BitcoinWallet(
       mnemonic: mnemonic,
       passphrase: passphrase ?? "",
@@ -119,9 +166,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialSilentAddressIndex: initialSilentAddressIndex,
       initialBalance: initialBalance,
       encryptionFileUtils: encryptionFileUtils,
-      seedBytes: walletInfo.derivationInfo?.derivationType == DerivationType.electrum
-          ? ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase)
-          : Bip39SeedGenerator.generateFromString(mnemonic, passphrase),
+      seedBytes: seedBytes,
+      hdWallets: hdWallets,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
@@ -253,9 +299,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<bool> getNodeIsElectrs() async {
-    final version = await sendWorker(ElectrumWorkerGetVersionRequest()) as List<String>;
+    if (node?.uri.host.contains("electrs") ?? false) {
+      return true;
+    }
 
-    if (version.isNotEmpty) {
+    final version = await sendWorker(ElectrumWorkerGetVersionRequest());
+
+    if (version is List<String> && version.isNotEmpty) {
       final server = version[0];
 
       if (server.toLowerCase().contains('electrs')) {
@@ -263,6 +313,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         node!.save();
         return node!.isElectrs!;
       }
+    } else if (version is String && version.toLowerCase().contains('electrs')) {
+      node!.isElectrs = true;
+      node!.save();
+      return node!.isElectrs!;
     }
 
     node!.isElectrs = false;
@@ -271,33 +325,39 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<bool> getNodeSupportsSilentPayments() async {
-    return true;
+    // TODO: handle disconnection on check
+    // TODO: use cached values
+    if (node == null) {
+      return false;
+    }
+
+    final isFulcrum = node!.uri.host.contains("fulcrum");
+    if (isFulcrum) {
+      return false;
+    }
+
     // As of today (august 2024), only ElectrumRS supports silent payments
-    // if (!(await getNodeIsElectrs())) {
-    //   return false;
-    // }
+    if (!(await getNodeIsElectrs())) {
+      return false;
+    }
 
-    // if (node == null) {
-    //   return false;
-    // }
+    try {
+      final workerResponse = (await sendWorker(ElectrumWorkerCheckTweaksRequest())) as String;
+      final tweaksResponse = ElectrumWorkerCheckTweaksResponse.fromJson(
+        json.decode(workerResponse) as Map<String, dynamic>,
+      );
+      final supportsScanning = tweaksResponse.result == true;
 
-    // try {
-    //   final tweaksResponse = await electrumClient.getTweaks(height: 0);
+      if (supportsScanning) {
+        node!.supportsSilentPayments = true;
+        node!.save();
+        return node!.supportsSilentPayments!;
+      }
+    } catch (_) {}
 
-    //   if (tweaksResponse != null) {
-    //     node!.supportsSilentPayments = true;
-    //     node!.save();
-    //     return node!.supportsSilentPayments!;
-    //   }
-    // } on RequestFailedTimeoutException catch (_) {
-    //   node!.supportsSilentPayments = false;
-    //   node!.save();
-    //   return node!.supportsSilentPayments!;
-    // } catch (_) {}
-
-    // node!.supportsSilentPayments = false;
-    // node!.save();
-    // return node!.supportsSilentPayments!;
+    node!.supportsSilentPayments = false;
+    node!.save();
+    return node!.supportsSilentPayments!;
   }
 
   LedgerConnection? _ledgerConnection;
@@ -383,16 +443,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       if (tip > walletInfo.restoreHeight) {
         _setListeners(walletInfo.restoreHeight);
       }
-    } else {
-      alwaysScan = false;
-
-      // _isolate?.then((value) => value.kill(priority: Isolate.immediate));
-
-      // if (rpc!.isConnected) {
-      //   syncStatus = SyncedSyncStatus();
-      // } else {
-      //   syncStatus = NotConnectedSyncStatus();
-      // }
+    } else if (syncStatus is! SyncedSyncStatus) {
+      await sendWorker(ElectrumWorkerStopScanningRequest());
+      await startSync();
     }
   }
 
@@ -565,9 +618,16 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       messageJson = message as Map<String, dynamic>;
     }
     final workerMethod = messageJson['method'] as String;
+    final workerError = messageJson['error'] as String?;
 
     switch (workerMethod) {
       case ElectrumRequestMethods.tweaksSubscribeMethod:
+        if (workerError != null) {
+          print(messageJson);
+          // _onConnectionStatusChange(ConnectionStatus.failed);
+          break;
+        }
+
         final response = ElectrumWorkerTweaksSubscribeResponse.fromJson(messageJson);
         onTweaksSyncResponse(response.result);
         break;
@@ -651,9 +711,16 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         syncStatus = SyncingSyncStatus(newSyncStatus.blocksLeft, newSyncStatus.ptc);
       } else {
         syncStatus = newSyncStatus;
+
+        if (newSyncStatus is SyncedSyncStatus) {
+          silentPaymentsScanningActive = false;
+        }
       }
 
-      await walletInfo.updateRestoreHeight(result.height!);
+      final height = result.height;
+      if (height != null) {
+        await walletInfo.updateRestoreHeight(height);
+      }
     }
 
     await save();
@@ -801,6 +868,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       case SyncingSyncStatus:
         return;
       case SyncedTipSyncStatus:
+        silentPaymentsScanningActive = false;
+
         // Message is shown on the UI for 3 seconds, then reverted to synced
         Timer(Duration(seconds: 3), () {
           if (this.syncStatus is SyncedTipSyncStatus) this.syncStatus = SyncedSyncStatus();

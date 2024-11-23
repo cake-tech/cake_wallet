@@ -422,7 +422,9 @@ class CWBitcoin extends Bitcoin {
     var bip39SeedBytes;
     try {
       bip39SeedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
-    } catch (_) {}
+    } catch (e) {
+      print("bip39 seed error: $e");
+    }
 
     if (bip39SeedBytes != null) {
       for (final addressType in BITCOIN_ADDRESS_TYPES) {

@@ -161,16 +161,21 @@ class AddressCell extends StatelessWidget {
                     if (derivationPath.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
-                        child: Flexible(
-                          child: AutoSizeText(
-                            derivationPath,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: isChange ? 10 : 14,
-                              color: textColor,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: AutoSizeText(
+                                derivationPath,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: isChange ? 10 : 14,
+                                  color: textColor,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
                     if (hasBalance || hasReceived)
