@@ -193,7 +193,7 @@ You can add as many node entries as desired.
 		
 		cd cw_core && flutter pub get && dart run build_runner build --delete-conflicting-outputs && cd ..
 
-		dart runbuild_runner build --delete-conflicting-outputs
+		dart run build_runner build --delete-conflicting-outputs
 
 - Lastly, before we run the app to test what we’ve done so far, 
 - Go to `lib/src/dashboard/widgets/menu_widget.dart` and add an icon for walletX to be used within the app.				
