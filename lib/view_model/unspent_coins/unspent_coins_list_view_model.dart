@@ -32,6 +32,9 @@ abstract class UnspentCoinsListViewModelBase with Store {
   @observable
   ObservableList<UnspentCoinsItem> items;
 
+  @computed
+  bool get isAllSelected => items.every((element) => element.isFrozen || element.isSending);
+
   Future<void> initialSetup() async => await _updateUnspents();
 
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
@@ -128,6 +131,15 @@ abstract class UnspentCoinsListViewModelBase with Store {
     unspents.sort((a, b) => b.value.compareTo(a.value));
 
     items.addAll(unspents);
+  }
+
+  @action
+  void toggleSelectAll(bool value) {
+    for (final item in items) {
+      if (item.isFrozen || item.isSending == value) continue;
+      item.isSending = value;
+      saveUnspentCoinInfo(item);
+    }
   }
 
   void dispose() async {
