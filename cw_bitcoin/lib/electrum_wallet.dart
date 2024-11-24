@@ -489,7 +489,7 @@ abstract class ElectrumWalletBase
     if (await checkIfMempoolAPIIsEnabled() && type == WalletType.bitcoin) {
       try {
         final response = await http
-            .get(Uri.parse("http://mempool.cakewallet.com:8999/api/v1/fees/recommended"))
+            .get(Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"))
             .timeout(Duration(seconds: 5));
 
         final result = json.decode(response.body) as Map<String, dynamic>;
