@@ -594,6 +594,7 @@
   "save_backup_password_alert": "บันทึกรหัสผ่านสำรอง",
   "save_to_downloads": "บันทึกลงดาวน์โหลด",
   "saved_the_trade_id": "ฉันได้บันทึก ID ของการซื้อขายแล้ว",
+  "scan": "สแกน",
   "scan_one_block": "สแกนหนึ่งบล็อก",
   "scan_qr_code": "สแกนรหัส QR",
   "scan_qr_code_to_get_address": "สแกน QR code เพื่อรับที่อยู่",

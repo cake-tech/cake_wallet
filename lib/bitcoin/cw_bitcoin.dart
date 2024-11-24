@@ -289,6 +289,11 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  bool isReceiveOptionSP(ReceivePageOption option) {
+    return option.value == BitcoinReceivePageOption.silent_payments.value;
+  }
+
+  @override
   bool hasSelectedSilentPayments(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.addressPageType == SilentPaymentsAddresType.p2sp;
@@ -610,7 +615,7 @@ class CWBitcoin extends Bitcoin {
   @override
   @computed
   bool getScanningActive(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
+    final bitcoinWallet = wallet as BitcoinWallet;
     return bitcoinWallet.silentPaymentsScanningActive;
   }
 
@@ -618,6 +623,12 @@ class CWBitcoin extends Bitcoin {
   Future<void> setScanningActive(Object wallet, bool active) async {
     final bitcoinWallet = wallet as BitcoinWallet;
     bitcoinWallet.setSilentPaymentsScanning(active);
+  }
+
+  @override
+  Future<void> allowToSwitchNodesForScanning(Object wallet, bool allow) async {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    bitcoinWallet.allowedToSwitchNodesForScanning = allow;
   }
 
   @override

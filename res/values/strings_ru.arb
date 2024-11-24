@@ -595,6 +595,7 @@
   "save_backup_password_alert": "Сохранить пароль резервной копии",
   "save_to_downloads": "Сохранить в загрузках",
   "saved_the_trade_id": "Я сохранил ID сделки",
+  "scan": "Сканирование",
   "scan_one_block": "Сканируйте один блок",
   "scan_qr_code": "Сканировать QR-код",
   "scan_qr_code_to_get_address": "Отсканируйте QR-код для получения адреса",

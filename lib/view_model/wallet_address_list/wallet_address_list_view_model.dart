@@ -25,6 +25,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/currency.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -209,6 +210,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     required AppStore appStore,
     required this.yatStore,
     required this.fiatConversionStore,
+    ReceivePageOption? addressType,
   })  : _baseItems = <ListItem>[],
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
@@ -216,6 +218,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             .contains(appStore.wallet!.type),
         amount = '',
         _settingsStore = appStore.settingsStore,
+        _addressType = addressType,
         super(appStore: appStore) {
     _init();
   }
@@ -234,6 +237,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   final FiatConversionStore fiatConversionStore;
   final SettingsStore _settingsStore;
+  final ReceivePageOption? _addressType;
 
   double? _fiatRate;
   String _rawAmount = '';
@@ -264,8 +268,19 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   WalletType get type => wallet.type;
 
   @computed
-  WalletAddressListItem get address =>
-      WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
+  WalletAddressListItem get address {
+    if (_addressType != null) {
+      final shouldForceSP = _addressType != null && bitcoin!.isReceiveOptionSP(_addressType!);
+      if (shouldForceSP) {
+        return WalletAddressListItem(
+          address: bitcoin!.getSilentPaymentAddresses(wallet).first.address,
+          isPrimary: true,
+        );
+      }
+    }
+
+    return WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
+  }
 
   @computed
   PaymentURI get uri {
@@ -354,7 +369,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (isElectrumWallet) {
-      if (bitcoin!.hasSelectedSilentPayments(wallet)) {
+      final hasSelectedSP = bitcoin!.hasSelectedSilentPayments(wallet);
+      final shouldForceSP = _addressType != null && bitcoin!.isReceiveOptionSP(_addressType!);
+
+      if (hasSelectedSP || shouldForceSP) {
         final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
           final isPrimary = address.id == 0;
 

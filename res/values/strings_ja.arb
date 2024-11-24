@@ -595,6 +595,7 @@
   "save_backup_password_alert": "バックアップパスワードを保存する",
   "save_to_downloads": "ダウンロードに保存",
   "saved_the_trade_id": "取引IDを保存しました",
+  "scan": "スキャン",
   "scan_one_block": "1つのブロックをスキャンします",
   "scan_qr_code": "QRコードをスキャン",
   "scan_qr_code_to_get_address": "QRコードをスキャンして住所を取得します",

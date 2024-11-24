@@ -472,10 +472,14 @@ Future<void> setup({
           getIt.get<SeedSettingsViewModel>(),
           type: type));
 
-  getIt.registerFactory<WalletAddressListViewModel>(() => WalletAddressListViewModel(
+  getIt.registerFactoryParam<WalletAddressListViewModel, ReceivePageOption?, void>(
+    (ReceivePageOption? addressType, _) => WalletAddressListViewModel(
       appStore: getIt.get<AppStore>(),
       yatStore: getIt.get<YatStore>(),
-      fiatConversionStore: getIt.get<FiatConversionStore>()));
+      fiatConversionStore: getIt.get<FiatConversionStore>(),
+      addressType: addressType,
+    ),
+  );
 
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
@@ -704,12 +708,26 @@ Future<void> setup({
         getIt.get<ReceiveOptionViewModel>(param1: pageOption));
   });
 
-  getIt.registerFactory<ReceivePage>(
-      () => ReceivePage(addressListViewModel: getIt.get<WalletAddressListViewModel>()));
-  getIt.registerFactory<AddressPage>(() => AddressPage(
-      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+  getIt.registerFactoryParam<ReceivePage, ReceivePageOption?, void>(
+    (ReceivePageOption? addressType, _) => ReceivePage(
+      addressListViewModel: getIt.get<WalletAddressListViewModel>(
+        param1: addressType,
+      ),
+    ),
+  );
+
+  getIt.registerFactoryParam<AddressPage, ReceivePageOption?, void>(
+    (ReceivePageOption? addressType, _) => AddressPage(
+      addressListViewModel: getIt.get<WalletAddressListViewModel>(
+        param1: addressType,
+      ),
       dashboardViewModel: getIt.get<DashboardViewModel>(),
-      receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>()));
+      receiveOptionViewModel: getIt.get<ReceiveOptionViewModel>(
+        param1: addressType,
+      ),
+      addressType: addressType,
+    ),
+  );
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
       (WalletAddressListItem? item, _) =>
@@ -904,11 +922,11 @@ Future<void> setup({
   getIt.registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => WalletKeysPage(getIt.get<WalletKeysViewModel>()));
-  
+
   getIt.registerFactory(() => AnimatedURModel(getIt.get<AppStore>()));
 
-  getIt.registerFactoryParam<AnimatedURPage, String, void>((String urQr, _) =>
-    AnimatedURPage(getIt.get<AnimatedURModel>(), urQr: urQr));
+  getIt.registerFactoryParam<AnimatedURPage, String, void>(
+      (String urQr, _) => AnimatedURPage(getIt.get<AnimatedURModel>(), urQr: urQr));
 
   getIt.registerFactoryParam<ContactViewModel, ContactRecord?, void>(
       (ContactRecord? contact, _) => ContactViewModel(_contactSource, contact: contact));
@@ -1004,8 +1022,8 @@ Future<void> setup({
       ));
 
   getIt.registerFactory<MeldBuyProvider>(() => MeldBuyProvider(
-    wallet: getIt.get<AppStore>().wallet!,
-  ));
+        wallet: getIt.get<AppStore>().wallet!,
+      ));
 
   getIt.registerFactoryParam<WebViewPage, String, Uri>((title, uri) => WebViewPage(title, uri));
 
@@ -1207,16 +1225,15 @@ Future<void> setup({
     final items = args.first as List<SelectableItem>;
     final pickAnOption = args[1] as void Function(SelectableOption option)?;
     final confirmOption = args[2] as void Function(BuildContext contex)?;
-    return BuyOptionsPage(
-        items: items, pickAnOption: pickAnOption, confirmOption: confirmOption);
+    return BuyOptionsPage(items: items, pickAnOption: pickAnOption, confirmOption: confirmOption);
   });
 
-  getIt.registerFactoryParam<PaymentMethodOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
+  getIt
+      .registerFactoryParam<PaymentMethodOptionsPage, List<dynamic>, void>((List<dynamic> args, _) {
     final items = args.first as List<SelectableOption>;
     final pickAnOption = args[1] as void Function(SelectableOption option)?;
 
-    return PaymentMethodOptionsPage(
-        items: items, pickAnOption: pickAnOption);
+    return PaymentMethodOptionsPage(items: items, pickAnOption: pickAnOption);
   });
 
   getIt.registerFactory(() {
@@ -1300,9 +1317,8 @@ Future<void> setup({
   getIt.registerFactory<CakePayService>(
       () => CakePayService(getIt.get<SecureStorage>(), getIt.get<CakePayApi>()));
 
-  getIt.registerFactory(
-      () => CakePayCardsListViewModel(cakePayService: getIt.get<CakePayService>(),
-          settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerFactory(() => CakePayCardsListViewModel(
+      cakePayService: getIt.get<CakePayService>(), settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() => CakePayAuthViewModel(cakePayService: getIt.get<CakePayService>()));
 

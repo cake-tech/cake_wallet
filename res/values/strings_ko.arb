@@ -595,6 +595,7 @@
   "save_backup_password_alert": "백업 비밀번호 저장",
   "save_to_downloads": "다운로드에 저장",
   "saved_the_trade_id": "거래 ID를 저장했습니다",
+  "scan": "주사",
   "scan_one_block": "하나의 블록을 스캔하십시오",
   "scan_qr_code": "QR 코드 스캔",
   "scan_qr_code_to_get_address": "QR 코드를 스캔하여 주소를 얻습니다.",

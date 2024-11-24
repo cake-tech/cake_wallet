@@ -594,6 +594,7 @@
   "save_backup_password_alert": "Uložit heslo pro zálohy",
   "save_to_downloads": "Uložit do Stažených souborů",
   "saved_the_trade_id": "Uložil jsem si ID transakce (trade ID)",
+  "scan": "Skenovat",
   "scan_one_block": "Prohledejte jeden blok",
   "scan_qr_code": "Naskenujte QR kód pro získání adresy",
   "scan_qr_code_to_get_address": "Prohledejte QR kód a získejte adresu",

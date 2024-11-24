@@ -594,6 +594,7 @@
   "save_backup_password_alert": "အရန်စကားဝှက်ကို သိမ်းဆည်းပါ။",
   "save_to_downloads": "ဒေါင်းလုဒ်များထံ သိမ်းဆည်းပါ။",
   "saved_the_trade_id": "ကုန်သွယ်မှု ID ကို သိမ်းဆည်းပြီးပါပြီ။",
+  "scan": "စကင်ဖတ်",
   "scan_one_block": "တစ်ကွက်ကိုစကင်ဖတ်စစ်ဆေးပါ",
   "scan_qr_code": "QR ကုဒ်ကို စကင်န်ဖတ်ပါ။",
   "scan_qr_code_to_get_address": "လိပ်စာရယူရန် QR ကုဒ်ကို စကင်န်ဖတ်ပါ။",

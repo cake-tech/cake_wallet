@@ -14,17 +14,15 @@ import 'package:cw_bitcoin/electrum_worker/electrum_worker_methods.dart';
 import 'package:cw_bitcoin/electrum_worker/electrum_worker_params.dart';
 import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
 import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:http/http.dart' as http;
+import 'package:rxdart/rxdart.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 
 class ElectrumWorker {
   final SendPort sendPort;
   ElectrumApiProvider? _electrumClient;
   BasedUtxoNetwork? _network;
-  bool _isScanning = false;
-  bool _stopScanRequested = false;
+  BehaviorSubject<Map<String, dynamic>>? _scanningStream;
 
   ElectrumWorker._(this.sendPort, {ElectrumApiProvider? electrumClient})
       : _electrumClient = electrumClient;
@@ -47,7 +45,7 @@ class ElectrumWorker {
   }
 
   void handleMessage(dynamic message) async {
-    print("Worker received message: $message");
+    print("Worker: received message: $message");
 
     try {
       Map<String, dynamic> messageJson;
@@ -105,27 +103,15 @@ class ElectrumWorker {
           );
           break;
         case ElectrumWorkerMethods.stopScanningMethod:
+          print("Worker: received message: $message");
           await _handleStopScanning(
             ElectrumWorkerStopScanningRequest.fromJson(messageJson),
           );
           break;
         case ElectrumRequestMethods.tweaksSubscribeMethod:
-          if (_isScanning) {
-            _stopScanRequested = false;
-          }
-
-          if (!_stopScanRequested) {
-            await _handleScanSilentPayments(
-              ElectrumWorkerTweaksSubscribeRequest.fromJson(messageJson),
-            );
-          } else {
-            _stopScanRequested = false;
-            _sendResponse(
-              ElectrumWorkerTweaksSubscribeResponse(
-                result: TweaksSyncResponse(syncStatus: SyncedSyncStatus()),
-              ),
-            );
-          }
+          await _handleScanSilentPayments(
+            ElectrumWorkerTweaksSubscribeRequest.fromJson(messageJson),
+          );
 
           break;
         case ElectrumRequestMethods.estimateFeeMethod:
@@ -550,28 +536,25 @@ class ElectrumWorker {
   }
 
   Future<void> _handleStopScanning(ElectrumWorkerStopScanningRequest request) async {
-    _stopScanRequested = true;
+    _scanningStream?.close();
+    _scanningStream = null;
     _sendResponse(
       ElectrumWorkerStopScanningResponse(result: true, id: request.id),
     );
   }
 
   Future<void> _handleScanSilentPayments(ElectrumWorkerTweaksSubscribeRequest request) async {
-    _isScanning = true;
     final scanData = request.scanData;
 
-    // TODO: confirmedSwitch use new connection
-    // final _electrumClient = await ElectrumApiProvider.connect(
-    //   ElectrumTCPService.connect(
-    //     Uri.parse("tcp://electrs.cakewallet.com:50001"),
-    //     onConnectionStatusChange: (status) {
-    //       _sendResponse(
-    //         ElectrumWorkerConnectionResponse(status: status, id: request.id),
-    //       );
-    //     },
-    //   ),
-    // );
+    var scanningClient = _electrumClient;
 
+    if (scanData.shouldSwitchNodes) {
+      scanningClient = await ElectrumApiProvider.connect(
+        ElectrumTCPService.connect(
+          Uri.parse("tcp://electrs.cakewallet.com:50001"),
+        ),
+      );
+    }
     int syncHeight = scanData.height;
     int initialSyncHeight = syncHeight;
 
@@ -587,6 +570,15 @@ class ElectrumWorker {
       },
     );
 
+    int getCountPerRequest(int syncHeight) {
+      if (scanData.isSingleScan) {
+        return 1;
+      }
+
+      final amountLeft = scanData.chainTip - syncHeight + 1;
+      return amountLeft;
+    }
+
     // Initial status UI update, send how many blocks in total to scan
     _sendResponse(ElectrumWorkerTweaksSubscribeResponse(
       result: TweaksSyncResponse(
@@ -597,17 +589,16 @@ class ElectrumWorker {
 
     final req = ElectrumTweaksSubscribe(
       height: syncHeight,
-      count: 1,
+      count: getCountPerRequest(syncHeight),
       historicalMode: false,
     );
 
-    final stream = await _electrumClient!.subscribe(req);
+    _scanningStream = await scanningClient!.subscribe(req);
 
     void listenFn(Map<String, dynamic> event, ElectrumTweaksSubscribe req) {
       final response = req.onResponse(event);
-      if (_stopScanRequested || response == null) {
-        _stopScanRequested = false;
-        _isScanning = false;
+
+      if (response == null || _scanningStream == null) {
         return;
       }
 
@@ -623,10 +614,10 @@ class ElectrumWorker {
         final nextHeight = syncHeight + 1;
 
         if (nextHeight <= scanData.chainTip) {
-          final nextStream = _electrumClient!.subscribe(
+          final nextStream = scanningClient!.subscribe(
             ElectrumTweaksSubscribe(
               height: nextHeight,
-              count: 1,
+              count: getCountPerRequest(nextHeight),
               historicalMode: false,
             ),
           );
@@ -710,6 +701,7 @@ class ElectrumWorker {
                   receivingOutputAddress,
                   labelIndex: 1, // TODO: get actual index/label
                   isUsed: true,
+                  // TODO: use right wallet
                   spendKey: scanData.silentPaymentsWallets.first.b_spend.tweakAdd(
                     BigintUtils.fromBytes(BytesUtils.fromHexString(t_k)),
                   ),
@@ -753,24 +745,27 @@ class ElectrumWorker {
           ),
         );
 
-        stream?.close();
+        _scanningStream?.close();
+        _scanningStream = null;
         return;
       }
     }
 
-    stream?.listen((event) => listenFn(event, req));
-    _isScanning = false;
+    _scanningStream?.listen((event) => listenFn(event, req));
   }
 
   Future<void> _handleGetVersion(ElectrumWorkerGetVersionRequest request) async {
-    _sendResponse(ElectrumWorkerGetVersionResponse(
-        result: (await _electrumClient!.request(
+    _sendResponse(
+      ElectrumWorkerGetVersionResponse(
+        result: await _electrumClient!.request(
           ElectrumVersion(
             clientName: "",
-            protocolVersion: ["1.4"],
+            protocolVersion: "1.4",
           ),
-        )),
-        id: request.id));
+        ),
+        id: request.id,
+      ),
+    );
   }
 }
 

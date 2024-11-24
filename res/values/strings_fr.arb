@@ -594,6 +594,7 @@
   "save_backup_password_alert": "Enregistrer le mot de passe de sauvegarde",
   "save_to_downloads": "Enregistrer dans les téléchargements",
   "saved_the_trade_id": "J'ai sauvegardé l'ID d'échange",
+  "scan": "Balayage",
   "scan_one_block": "Scanner un bloc",
   "scan_qr_code": "Scannez le QR code",
   "scan_qr_code_to_get_address": "Scannez le QR code pour obtenir l'adresse",

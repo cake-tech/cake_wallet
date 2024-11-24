@@ -9,6 +9,7 @@ class ScanData {
   final Map<String, String> labels;
   final List<int> labelIndexes;
   final bool isSingleScan;
+  final bool shouldSwitchNodes;
 
   ScanData({
     required this.silentPaymentsWallets,
@@ -19,6 +20,7 @@ class ScanData {
     required this.labels,
     required this.labelIndexes,
     required this.isSingleScan,
+    required this.shouldSwitchNodes,
   });
 
   factory ScanData.fromHeight(ScanData scanData, int newHeight) {
@@ -31,6 +33,7 @@ class ScanData {
       labels: scanData.labels,
       labelIndexes: scanData.labelIndexes,
       isSingleScan: scanData.isSingleScan,
+      shouldSwitchNodes: scanData.shouldSwitchNodes,
     );
   }
 
@@ -44,6 +47,7 @@ class ScanData {
       'labels': labels,
       'labelIndexes': labelIndexes,
       'isSingleScan': isSingleScan,
+      'shouldSwitchNodes': shouldSwitchNodes,
     };
   }
 
@@ -60,6 +64,7 @@ class ScanData {
       labels: json['labels'] as Map<String, String>,
       labelIndexes: (json['labelIndexes'] as List).map((e) => e as int).toList(),
       isSingleScan: json['isSingleScan'] as bool,
+      shouldSwitchNodes: json['shouldSwitchNodes'] as bool,
     );
   }
 }

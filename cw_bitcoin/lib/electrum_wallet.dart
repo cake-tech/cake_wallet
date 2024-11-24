@@ -276,11 +276,6 @@ abstract class ElectrumWalletBase
   @override
   bool isTestnet;
 
-  @observable
-  bool nodeSupportsSilentPayments = true;
-  @observable
-  bool silentPaymentsScanningActive = false;
-
   bool _isTryingToConnect = false;
 
   Completer<SharedPreferences> sharedPrefs = Completer();

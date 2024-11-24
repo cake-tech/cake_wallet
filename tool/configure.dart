@@ -227,11 +227,13 @@ abstract class Bitcoin {
   List<ReceivePageOption> getBitcoinReceivePageOptions();
   List<ReceivePageOption> getLitecoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
+  bool isReceiveOptionSP(ReceivePageOption option);
   bool hasSelectedSilentPayments(Object wallet);
   bool isBitcoinReceivePageOption(ReceivePageOption option);
   BitcoinAddressType getOptionToType(ReceivePageOption option);
   bool hasTaprootInput(PendingTransaction pendingTransaction);
   bool getScanningActive(Object wallet);
+  Future<void> allowToSwitchNodesForScanning(Object wallet, bool allow);
   Future<void> setScanningActive(Object wallet, bool active);
   bool isTestnet(Object wallet);
 

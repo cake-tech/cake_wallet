@@ -35,6 +35,13 @@ part 'bitcoin_wallet.g.dart';
 class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
 abstract class BitcoinWalletBase extends ElectrumWallet with Store {
+  @observable
+  bool nodeSupportsSilentPayments = true;
+  @observable
+  bool silentPaymentsScanningActive = false;
+  @observable
+  bool allowedToSwitchNodesForScanning = false;
+
   BitcoinWalletBase({
     required String password,
     required WalletInfo walletInfo,
@@ -307,63 +314,68 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<bool> getNodeIsElectrs() async {
-    if (node?.uri.host.contains("electrs") ?? false) {
-      return true;
-    }
-
-    final version = await sendWorker(ElectrumWorkerGetVersionRequest());
-
-    if (version is List<String> && version.isNotEmpty) {
-      final server = version[0];
-
-      if (server.toLowerCase().contains('electrs')) {
-        node!.isElectrs = true;
-        node!.save();
-        return node!.isElectrs!;
-      }
-    } else if (version is String && version.toLowerCase().contains('electrs')) {
-      node!.isElectrs = true;
-      node!.save();
+    if (node?.isElectrs != null) {
       return node!.isElectrs!;
     }
 
-    node!.isElectrs = false;
+    final isNamedElectrs = node?.uri.host.contains("electrs") ?? false;
+    if (isNamedElectrs) {
+      node!.isElectrs = true;
+    }
+
+    final isNamedFulcrum = node!.uri.host.contains("fulcrum");
+    if (isNamedFulcrum) {
+      node!.isElectrs = false;
+    }
+
+    if (node!.isElectrs == null) {
+      final version = await sendWorker(ElectrumWorkerGetVersionRequest());
+
+      if (version is List<String> && version.isNotEmpty) {
+        final server = version[0];
+
+        if (server.toLowerCase().contains('electrs')) {
+          node!.isElectrs = true;
+        }
+      } else if (version is String && version.toLowerCase().contains('electrs')) {
+        node!.isElectrs = true;
+      } else {
+        node!.isElectrs = false;
+      }
+    }
+
     node!.save();
     return node!.isElectrs!;
   }
 
   Future<bool> getNodeSupportsSilentPayments() async {
-    // TODO: handle disconnection on check
-    // TODO: use cached values
-    if (node == null) {
-      return false;
-    }
-
-    final isFulcrum = node!.uri.host.contains("fulcrum");
-    if (isFulcrum) {
-      return false;
+    if (node?.supportsSilentPayments != null) {
+      return node!.supportsSilentPayments!;
     }
 
     // As of today (august 2024), only ElectrumRS supports silent payments
-    if (!(await getNodeIsElectrs())) {
-      return false;
+    final isElectrs = await getNodeIsElectrs();
+    if (!isElectrs) {
+      node!.supportsSilentPayments = false;
     }
 
-    try {
-      final workerResponse = (await sendWorker(ElectrumWorkerCheckTweaksRequest())) as String;
-      final tweaksResponse = ElectrumWorkerCheckTweaksResponse.fromJson(
-        json.decode(workerResponse) as Map<String, dynamic>,
-      );
-      final supportsScanning = tweaksResponse.result == true;
+    if (node!.supportsSilentPayments == null) {
+      try {
+        final workerResponse = (await sendWorker(ElectrumWorkerCheckTweaksRequest())) as String;
+        final tweaksResponse = ElectrumWorkerCheckTweaksResponse.fromJson(
+          json.decode(workerResponse) as Map<String, dynamic>,
+        );
+        final supportsScanning = tweaksResponse.result == true;
 
-      if (supportsScanning) {
-        node!.supportsSilentPayments = true;
-        node!.save();
-        return node!.supportsSilentPayments!;
+        if (supportsScanning) {
+          node!.supportsSilentPayments = true;
+        } else {
+          node!.supportsSilentPayments = false;
+        }
+      } catch (_) {
+        node!.supportsSilentPayments = false;
       }
-    } catch (_) {}
-
-    node!.supportsSilentPayments = false;
+    }
     node!.save();
     return node!.supportsSilentPayments!;
   }
@@ -437,8 +449,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @action
   Future<void> setSilentPaymentsScanning(bool active) async {
     silentPaymentsScanningActive = active;
+    final nodeSupportsSilentPayments = await getNodeSupportsSilentPayments();
+    final isAllowedToScan = nodeSupportsSilentPayments || allowedToSwitchNodesForScanning;
 
-    if (active) {
+    if (active && isAllowedToScan) {
       syncStatus = AttemptingScanSyncStatus();
 
       final tip = currentChainTip!;
@@ -730,8 +744,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         await walletInfo.updateRestoreHeight(height);
       }
     }
-
-    await save();
   }
 
   @action
@@ -765,6 +777,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
               .map((addr) => addr.labelIndex)
               .toList(),
           isSingleScan: doSingleScan ?? false,
+          shouldSwitchNodes:
+              !(await getNodeSupportsSilentPayments()) && allowedToSwitchNodesForScanning,
         ),
       ).toJson(),
     );
