@@ -75,7 +75,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                                   onChanged: (value) =>
                                       unspentCoinsListViewModel.toggleSelectAll(value)),
                               SizedBox(width: 12),
-                              Text('Select All',
+                              Text(S.current.all_coins,
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold))
                             ],
                           ),
