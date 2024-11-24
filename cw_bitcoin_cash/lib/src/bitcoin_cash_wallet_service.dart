@@ -18,11 +18,17 @@ class BitcoinCashWalletService extends WalletService<
     BitcoinCashRestoreWalletFromSeedCredentials,
     BitcoinCashRestoreWalletFromWIFCredentials,
     BitcoinCashNewWalletCredentials> {
-  BitcoinCashWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.isDirect);
+  BitcoinCashWalletService(
+    this.walletInfoSource,
+    this.unspentCoinsInfoSource,
+    this.isDirect,
+    this.mempoolAPIEnabled,
+  );
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
+  final bool mempoolAPIEnabled;
 
   @override
   WalletType getType() => WalletType.bitcoinCash;
@@ -42,6 +48,7 @@ class BitcoinCashWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       passphrase: credentials.passphrase,
+      mempoolAPIEnabled: mempoolAPIEnabled,
     );
     await wallet.save();
     await wallet.init();
@@ -61,6 +68,7 @@ class BitcoinCashWalletService extends WalletService<
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+        mempoolAPIEnabled: mempoolAPIEnabled,
       );
       await wallet.init();
       saveBackup(name);
@@ -73,6 +81,7 @@ class BitcoinCashWalletService extends WalletService<
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+        mempoolAPIEnabled: mempoolAPIEnabled,
       );
       await wallet.init();
       return wallet;
@@ -92,11 +101,13 @@ class BitcoinCashWalletService extends WalletService<
     final currentWalletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
     final currentWallet = await BitcoinCashWalletBase.open(
-        password: password,
-        name: currentName,
-        walletInfo: currentWalletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect));
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      mempoolAPIEnabled: mempoolAPIEnabled,
+    );
 
     await currentWallet.renameWalletFiles(newName);
     await saveBackup(newName);
@@ -128,12 +139,13 @@ class BitcoinCashWalletService extends WalletService<
     }
 
     final wallet = await BitcoinCashWalletBase.create(
-        password: credentials.password!,
-        mnemonic: credentials.mnemonic,
-        walletInfo: credentials.walletInfo!,
-        unspentCoinsInfo: unspentCoinsInfoSource,
-        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-        passphrase: credentials.passphrase
+      password: credentials.password!,
+      mnemonic: credentials.mnemonic,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      passphrase: credentials.passphrase,
+      mempoolAPIEnabled: mempoolAPIEnabled,
     );
     await wallet.save();
     await wallet.init();

@@ -97,7 +97,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       switch (type) {
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromSeedCredentials(
-              name: name, height: height, mnemonic: seed, password: password);
+            name: name,
+            height: height,
+            mnemonic: seed,
+            password: password,
+          );
         case WalletType.bitcoin:
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
@@ -105,8 +109,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
             passphrase: passphrase,
-            derivationType: derivationInfo!.derivationType!,
-            derivationPath: derivationInfo.derivationPath!,
+            derivations: options["derivations"] as List<DerivationInfo>?,
           );
         case WalletType.haven:
           return haven!.createHavenRestoreWalletFromSeedCredentials(
@@ -256,11 +259,16 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.litecoin:
         String? mnemonic = credentials['seed'] as String?;
         String? passphrase = credentials['passphrase'] as String?;
-        return bitcoin!.getDerivationsFromMnemonic(
+        final list = await bitcoin!.getDerivationInfosFromMnemonic(
           mnemonic: mnemonic!,
           node: node,
           passphrase: passphrase,
         );
+
+        // is restoring? = add old used derivations
+        final oldList = bitcoin!.getOldDerivationInfos(list);
+
+        return oldList;
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;
