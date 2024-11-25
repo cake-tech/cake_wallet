@@ -1379,7 +1379,7 @@ abstract class ElectrumWalletBase
     }));
 
     unspentCoins = await updateCoinsWithInfoFromBox(updatedUnspentCoins);
-    await _refreshUnspentCoinsInfo();
+    // await _refreshUnspentCoinsInfo();
   }
 
   Future<List<BitcoinUnspent>> updateCoinsWithInfoFromBox(List<BitcoinUnspent> newUnspentCoins) async {
