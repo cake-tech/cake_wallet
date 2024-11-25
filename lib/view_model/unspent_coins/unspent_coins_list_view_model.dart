@@ -32,6 +32,9 @@ abstract class UnspentCoinsListViewModelBase with Store {
   @observable
   ObservableList<UnspentCoinsItem> items;
 
+  @observable
+  bool isDisposing = false;
+
   @computed
   bool get isAllSelected => items.every((element) => element.isFrozen || element.isSending);
 
@@ -42,9 +45,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
       final existingInfo = _unspentCoinsInfo.values
           .firstWhereOrNull((element) => element.walletId == wallet.id && element == item);
       if (existingInfo == null) return;
-      existingInfo.isFrozen = item.isFrozen;
-      existingInfo.isSending = item.isSending;
-      existingInfo.note = item.note;
+
+      existingInfo.updateAdjustableFieldsFrom(item);
 
       await existingInfo.save();
       _updateUnspentCoinsInfo();
@@ -142,7 +144,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
     }
   }
 
-  void dispose() async {
+  @action
+  Future<void> dispose() async {
     await _updateUnspents();
     await wallet.updateBalance();
   }

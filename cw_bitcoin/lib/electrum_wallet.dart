@@ -1378,10 +1378,11 @@ abstract class ElectrumWalletBase
     }));
 
     unspentCoins = updatedUnspentCoins;
+    
+    final currentWalletUnspentCoins = unspentCoinsInfo.values.where((element) => element.walletId == id);
 
-    if (unspentCoinsInfo.length != updatedUnspentCoins.length) {
+    if (currentWalletUnspentCoins.length != updatedUnspentCoins.length) {
       unspentCoins.forEach((coin) => addCoinInfo(coin));
-      return;
     }
 
     await updateCoins(unspentCoins);
@@ -1404,9 +1405,8 @@ abstract class ElectrumWalletBase
       if (coinInfoList.isNotEmpty) {
         final coinInfo = coinInfoList.first;
 
-        coin.isFrozen = coinInfo.isFrozen;
-        coin.isSending = coinInfo.isSending;
-        coin.note = coinInfo.note;
+        coin.updateAdjustableFieldsFrom(coinInfo);
+
         if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
           coin.bitcoinAddressRecord.balance += coinInfo.value;
       } else {
@@ -1444,20 +1444,27 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> addCoinInfo(BitcoinUnspent coin) async {
-    final newInfo = UnspentCoinsInfo(
-      walletId: id,
-      hash: coin.hash,
-      isFrozen: coin.isFrozen,
-      isSending: coin.isSending,
-      noteRaw: coin.note,
-      address: coin.bitcoinAddressRecord.address,
-      value: coin.value,
-      vout: coin.vout,
-      isChange: coin.isChange,
-      isSilentPayment: coin is BitcoinSilentPaymentsUnspent,
-    );
 
-    await unspentCoinsInfo.add(newInfo);
+    // Check if the coin is already in the unspentCoinsInfo for the wallet
+    final existingCoinInfo = unspentCoinsInfo.values.firstWhereOrNull(
+          (element) => element.walletId == walletInfo.id && element == coin);
+
+    if (existingCoinInfo == null) {
+      final newInfo = UnspentCoinsInfo(
+        walletId: id,
+        hash: coin.hash,
+        isFrozen: coin.isFrozen,
+        isSending: coin.isSending,
+        noteRaw: coin.note,
+        address: coin.bitcoinAddressRecord.address,
+        value: coin.value,
+        vout: coin.vout,
+        isChange: coin.isChange,
+        isSilentPayment: coin is BitcoinSilentPaymentsUnspent,
+      );
+
+      await unspentCoinsInfo.add(newInfo);
+    }
   }
 
   Future<void> _refreshUnspentCoinsInfo() async {
