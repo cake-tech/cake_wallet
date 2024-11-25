@@ -26,7 +26,7 @@ dependencies:
   share_plus: ^10.0.0
   # date_range_picker: ^1.0.6
   #https://api.flutter.dev/flutter/material/showDateRangePicker.html
-  dio: ^4.0.6
+  dio: ^5.7.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   local_auth_android: ^1.0.46
