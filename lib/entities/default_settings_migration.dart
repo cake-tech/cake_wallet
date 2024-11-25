@@ -299,8 +299,8 @@ Future<void> _changeDefaultNode({
   required WalletType type,
   required String newDefaultUri,
   required String currentNodePreferenceKey,
-  bool useSSL = true,
-  String oldUri = '', // if not provided then force replace the node
+  required bool useSSL,
+  required String oldUri, // leave empty if you want to force replace the node regardless of the user's current node
 }) async {
   final currentNodeId = sharedPreferences.getInt(currentNodePreferenceKey);
   final currentNode = nodes.values.firstWhere((node) => node.key == currentNodeId);
