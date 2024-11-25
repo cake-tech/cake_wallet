@@ -66,8 +66,8 @@ Future<void> defaultSettingsMigration(
 
   await sharedPreferences.setBool(PreferencesKey.isNewInstall, isNewInstall);
 
-  final currentVersion = 33;
-      // sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) ?? 0;
+  final currentVersion =
+      sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) ?? 0;
 
   if (currentVersion >= version) {
     return;
@@ -81,8 +81,6 @@ Future<void> defaultSettingsMigration(
   /// This ensures that this switch case runs the newly added case.
   await Future.forEach(migrationVersions, (int version) async {
     try {
-      print("@@@@@@@@");
-      print(version);
       switch (version) {
         case 1:
           await sharedPreferences.setString(
@@ -307,10 +305,6 @@ Future<void> _changeDefaultNode({
   final currentNodeId = sharedPreferences.getInt(currentNodePreferenceKey);
   final currentNode = nodes.values.firstWhere((node) => node.key == currentNodeId);
   final shouldReplace = currentNode.uriRaw.contains(oldUri);
-
-  print("#########");
-  print(shouldReplace);
-  print(currentNode.uriRaw);
 
   if (shouldReplace) {
     var newNodeId =
