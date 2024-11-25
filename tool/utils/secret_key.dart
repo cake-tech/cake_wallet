@@ -62,7 +62,7 @@ class SecretKey {
     SecretKey('bitcoinTestWalletReceiveAddress', () => ''),
     SecretKey('ethereumTestWalletReceiveAddress', () => ''),
     SecretKey('litecoinTestWalletReceiveAddress', () => ''),
-    SecretKey('bitco inCashTestWalletReceiveAddress', () => ''),
+    SecretKey('bitcoinCashTestWalletReceiveAddress', () => ''),
     SecretKey('polygonTestWalletReceiveAddress', () => ''),
     SecretKey('solanaTestWalletReceiveAddress', () => ''),
     SecretKey('tronTestWalletReceiveAddress', () => ''),
