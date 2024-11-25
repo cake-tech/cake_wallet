@@ -204,7 +204,11 @@ abstract class CakePayCardsListViewModelBase with Store {
   }
 
   @action
-  void setSelectedCountry(Country country) => settingsStore.selectedCakePayCountry = country;
+  void setSelectedCountry(Country country) {
+    // just so it triggers the reaction even when selecting the default country
+    settingsStore.selectedCakePayCountry = null;
+    settingsStore.selectedCakePayCountry = country;
+  }
 
   @action
   void togglePrepaidCards() => displayPrepaidCards = !displayPrepaidCards;
