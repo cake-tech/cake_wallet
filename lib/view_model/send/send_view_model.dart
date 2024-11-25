@@ -129,11 +129,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get shouldDisplaySendALL {
     if (walletType == WalletType.solana) return false;
 
-    if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
-      return false;
+    // if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
+    // return false;
 
-      if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.matic)
-      return false;
+    // if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.maticpoly)
+    // return false;
 
     return true;
   }
@@ -814,8 +814,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       double balanceUsd = balanceEth * assetPriceUsd;
       double txCostUsd = txCostEth * assetPriceUsd;
       double overshotUsd = overshotEth * assetPriceUsd;
-      // 1.99 + 1.03 = 3.02
-      // 1.99 + 2.06 = 4.05
 
       result = EVMTransactionErrorFeesHandler(
         balanceWei: balanceWei.toString(),
