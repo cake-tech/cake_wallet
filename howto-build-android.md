@@ -8,7 +8,7 @@ The following are the system requirements to build Cake Wallet for your Android 
 Ubuntu >= 20.04 
 Android SDK 29 or higher (better to have the latest one 33)
 Android NDK 17c
-Flutter 3.19.x
+Flutter 3.24.4
 ```
 
 ### 1. Installing Package Dependencies
@@ -51,7 +51,7 @@ You may download and install the latest version of Android Studio [here](https:/
 
 ### 3. Installing Flutter
 
-Install Flutter with version `3.19.x`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
+Install Flutter with version `3.24.4`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
 
 ### 4. Installing rustup
 
@@ -66,7 +66,7 @@ Verify that the Android toolchain, Flutter, and Android Studio have been correct
 The output of this command will appear like this, indicating successful installations. If there are problems with your installation, they **must** be corrected before proceeding.
 ```
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 3.19.x, on Linux, locale en_US.UTF-8)
+[✓] Flutter (Channel stable, 3.24.4, on Linux, locale en_US.UTF-8)
 [✓] Android toolchain - develop for Android devices (Android SDK version 29 or higher)
 [✓] Android Studio (version 4.0 or higher)
 ```
@@ -126,17 +126,17 @@ Install Flutter package dependencies with this command:
 
 Your Cake Wallet binary will be built with cryptographic salts, which are used for secure encryption of your data. You may generate these secret salts with the following command:
 
-`$ flutter packages pub run tool/generate_new_secrets.dart`
+`$ dart run tool/generate_new_secrets.dart`
 
 Next, we must generate key properties based on the secure keystore you generated for Android (in step 5). **MODIFY THE FOLLOWING COMMAND** with the "store password" and "key password" you assigned when creating your keystore (in step 5).
 
-`$ flutter packages pub run tool/generate_android_key_properties.dart keyAlias=key storeFile=$HOME/key.jks storePassword=<store password> keyPassword=<key password>`
+`$ dart run tool/generate_android_key_properties.dart keyAlias=key storeFile=$HOME/key.jks storePassword=<store password> keyPassword=<key password>`
 
 **REMINDER:** The *above* command will **not** succeed unless you replaced the `storePassword` and `keyPassword` variables with the correct passwords for your keystore.
 
 Then we need to generate localization files.
 
-`$ flutter packages pub run tool/generate_localization.dart`
+`$ dart run tool/generate_localization.dart`
 
 Finally build mobx models for the app:
 

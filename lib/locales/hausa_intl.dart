@@ -795,6 +795,14 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
   @override
   // TODO: implement shareButtonLabel
   String get shareButtonLabel => "shareButtonLabel";
+  
+  @override
+  // TODO: implement clearButtonTooltip
+  String get clearButtonTooltip => "clearButtonTooltip";
+  
+  @override
+  // TODO: implement selectedDateLabel
+  String get selectedDateLabel => "selectedDateLabel";
 }
 
 /// Cupertino Support

@@ -1,5 +1,6 @@
 #!/bin/bash
-
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/universal_sed.sh"
+set -x -e
 MONERO_COM="monero.com"
 CAKEWALLET="cakewallet"
 HAVEN="haven"
@@ -22,7 +23,7 @@ cp -rf ./ios/Runner/InfoBase.plist ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:1:CFBundleURLName string ${APP_IOS_TYPE}" ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:1:CFBundleURLSchemes array" ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:1:CFBundleURLSchemes: string ${APP_IOS_TYPE}" ./ios/Runner/Info.plist
-sed -i '' "s/PRODUCT_BUNDLE_IDENTIFIER = .*;/PRODUCT_BUNDLE_IDENTIFIER = $APP_IOS_BUNDLE_ID;/g" ./ios/Runner.xcodeproj/project.pbxproj
+universal_sed "s/PRODUCT_BUNDLE_IDENTIFIER = .*;/PRODUCT_BUNDLE_IDENTIFIER = $APP_IOS_BUNDLE_ID;/g" ./ios/Runner.xcodeproj/project.pbxproj
 
 CONFIG_ARGS=""
 
@@ -42,11 +43,12 @@ case $APP_IOS_TYPE in
 		CONFIG_ARGS="--haven"
 		;;
 esac
+CONFIG_ARGS="--monero --ethereum --polygon --nano --solana --tron --wownero"
 
 cp -rf pubspec_description.yaml pubspec.yaml
 flutter pub get
-flutter pub run tool/generate_pubspec.dart
+dart run tool/generate_pubspec.dart
 flutter pub get
-flutter packages pub run tool/configure.dart $CONFIG_ARGS
+dart run tool/configure.dart $CONFIG_ARGS
 cd $DIR
 $DIR/app_icon.sh
