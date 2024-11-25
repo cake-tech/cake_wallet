@@ -13,7 +13,6 @@ universal_sed() {
     local file=$2
 
     if [[ "$SED_TYPE" == "GNU" ]]; then
-        pwd
         sed -i "$expression" "$file"
     else
         sed -i '' "$expression" "$file"
