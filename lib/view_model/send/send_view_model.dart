@@ -681,9 +681,25 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
         walletType == WalletType.haven) {
-      if (errorMessage.contains('gas required exceeds allowance') ||
-          errorMessage.contains('insufficient funds')) {
-        return S.current.do_not_have_enough_gas_asset(currency.toString());
+      if (errorMessage.contains('gas required exceeds allowance')) {
+        return S.current.gas_exceeds_allowance;
+      }
+
+      if (errorMessage.contains('insufficient funds')) {
+        final parsedErrorMessageResult = parseEthereumFeesErrorMessage(
+          errorMessage,
+          _fiatConversationStore.prices[currency]!,
+        );
+
+        if (parsedErrorMessageResult.error != null) {
+          return S.current.insufficient_funds_for_tx;
+        }
+
+        return 
+        '''${S.current.insufficient_funds_for_tx} \n\n'''
+        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ETH (${parsedErrorMessageResult.balanceUsd} USD)\n\n'''
+        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ETH (${parsedErrorMessageResult.txCostUsd} USD)\n\n'''
+        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ETH (${parsedErrorMessageResult.overshotUsd} USD)''';
       }
 
       return errorMessage;
@@ -760,4 +776,92 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     return false;
   }
+
+  EVMTransactionErrorFeesHandler parseEthereumFeesErrorMessage(
+    String errorMessage,
+    double assetPriceUsd,
+  ) {
+    final EVMTransactionErrorFeesHandler result;
+
+    // Define Regular Expressions to extract the numerical values
+    RegExp balanceRegExp = RegExp(r'balance (\d+)');
+    RegExp txCostRegExp = RegExp(r'tx cost (\d+)');
+    RegExp overshotRegExp = RegExp(r'overshot (\d+)');
+
+    // Match the patterns in the error message
+    Match? balanceMatch = balanceRegExp.firstMatch(errorMessage);
+    Match? txCostMatch = txCostRegExp.firstMatch(errorMessage);
+    Match? overshotMatch = overshotRegExp.firstMatch(errorMessage);
+
+    // Check if all required values are found
+    if (balanceMatch != null && txCostMatch != null && overshotMatch != null) {
+      // Extract the numerical strings
+      String balanceStr = balanceMatch.group(1)!;
+      String txCostStr = txCostMatch.group(1)!;
+      String overshotStr = overshotMatch.group(1)!;
+
+      // Parse the numerical strings to BigInt
+      BigInt balanceWei = BigInt.parse(balanceStr);
+      BigInt txCostWei = BigInt.parse(txCostStr);
+      BigInt overshotWei = BigInt.parse(overshotStr);
+
+      // Convert wei to ETH (1 ETH = 1e18 wei)
+      double balanceEth = balanceWei.toDouble() / 1e18;
+      double txCostEth = txCostWei.toDouble() / 1e18;
+      double overshotEth = overshotWei.toDouble() / 1e18;
+
+      // Calculate the USD values
+      double balanceUsd = balanceEth * assetPriceUsd;
+      double txCostUsd = txCostEth * assetPriceUsd;
+      double overshotUsd = overshotEth * assetPriceUsd;
+      // 1.99 + 1.03 = 3.02
+      // 1.99 + 2.06 = 4.05
+
+      result = EVMTransactionErrorFeesHandler(
+        balanceWei: balanceWei.toString(),
+        balanceEth: balanceEth.toString().substring(0, 12),
+        balanceUsd: balanceUsd.toString().substring(0,4),
+        txCostWei: txCostWei.toString(),
+        txCostEth: txCostEth.toString().substring(0, 12),
+        txCostUsd: txCostUsd.toString().substring(0,4),
+        overshotWei: overshotWei.toString(),
+        overshotEth: overshotEth.toString().substring(0, 12),
+        overshotUsd: overshotUsd.toString().substring(0,4),
+      );
+    } else {
+      // If any value is missing, return an error message
+      result = EVMTransactionErrorFeesHandler(error: 'Could not parse the error message.');
+    }
+
+    return result;
+  }
+}
+
+class EVMTransactionErrorFeesHandler {
+  EVMTransactionErrorFeesHandler({
+    this.balanceWei,
+    this.balanceEth,
+    this.balanceUsd,
+    this.txCostWei,
+    this.txCostEth,
+    this.txCostUsd,
+    this.overshotWei,
+    this.overshotEth,
+    this.overshotUsd,
+    this.error,
+  });
+
+  String? balanceWei;
+  String? balanceEth;
+  String? balanceUsd;
+
+  String? txCostWei;
+  String? txCostEth;
+  String? txCostUsd;
+
+  String? overshotWei;
+  String? overshotEth;
+  String? overshotUsd;
+
+  String? error;
 }
