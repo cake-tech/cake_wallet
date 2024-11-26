@@ -246,10 +246,12 @@ class ExceptionHandler {
     final unspentCoinsInfo = wallet.unspentCoinsInfo;
 
     for (var address in receiveAddresses) {
-      file.writeAsString("Receive Address: $address\n\n", mode: FileMode.append);
+      String addressStr = "address: ${address.address}, isHidden: ${address.isHidden}, isUsed: ${address.isUsed}";
+      file.writeAsString("Receive Address: $addressStr\n\n", mode: FileMode.append);
     }
     for (var address in changeAddresses) {
-      file.writeAsString("Change Address: $address\n\n", mode: FileMode.append);
+      String addressStr = "address: ${address.address}, isHidden: ${address.isHidden}, isUsed: ${address.isUsed}";
+      file.writeAsString("Change Address: $addressStr\n\n", mode: FileMode.append);
     }
     for (var coin in unspentCoins) {
       String coinStr =
