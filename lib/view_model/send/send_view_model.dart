@@ -65,6 +65,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.type == WalletType.tron;
   }
 
+  UnspentCoinsListViewModel unspentCoinsListViewModel;
+
   SendViewModelBase(
     AppStore appStore,
     this.sendTemplateViewModel,
@@ -72,7 +74,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.balanceViewModel,
     this.contactListViewModel,
     this.transactionDescriptionBox,
-    this.ledgerViewModel, {
+    this.ledgerViewModel,
+    this.unspentCoinsListViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.any,
   })  : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
@@ -532,9 +535,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     if (hasCoinControl) {
-      final vm = getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom);
       bool isCoinSelected = false;
-      for (var coin in vm.items) {
+      for (var coin in unspentCoinsListViewModel.items) {
         isCoinSelected = isCoinSelected || (coin.isSending && !coin.isFrozen);
       }
       if (!isCoinSelected) {

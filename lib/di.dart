@@ -746,6 +746,7 @@ Future<void> setup({
       _transactionDescriptionBox,
       getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null,
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
+      getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
     ),
   );
 
