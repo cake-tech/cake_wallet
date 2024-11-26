@@ -74,25 +74,25 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
 
     while (generating) {
-      print("generating.....");
+      printV("generating.....");
       // this function was called multiple times in multiple places:
       await Future.delayed(const Duration(milliseconds: 100));
     }
 
-    print("Generating MWEB addresses up to index $index");
+    printV("Generating MWEB addresses up to index $index");
     generating = true;
     try {
       while (mwebAddrs.length <= (index + 1)) {
         final addresses =
             await CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
-        print("generated up to index ${mwebAddrs.length}");
+        printV("generated up to index ${mwebAddrs.length}");
         // sleep for a bit to avoid making the main thread unresponsive:
         await Future.delayed(Duration(milliseconds: 200));
         mwebAddrs.addAll(addresses!);
       }
     } catch (_) {}
     generating = false;
-    print("Done generating MWEB addresses len: ${mwebAddrs.length}");
+    printV("Done generating MWEB addresses len: ${mwebAddrs.length}");
 
     // ensure mweb addresses are up to date:
     // This is the Case if the Litecoin Wallet is a hardware Wallet

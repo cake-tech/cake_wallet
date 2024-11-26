@@ -67,7 +67,7 @@ class ExceptionHandler {
       final bool canSend = await FlutterMailer.canSendMail();
 
       if (Platform.isIOS && !canSend) {
-        debugPrint('Mail app is not available');
+        printV('Mail app is not available');
         return;
       }
 

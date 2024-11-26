@@ -498,7 +498,7 @@ class CWBitcoin extends Bitcoin {
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } catch (err) {
-      print(err);
+      printV(err);
       throw err;
     }
   }

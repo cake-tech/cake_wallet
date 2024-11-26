@@ -114,11 +114,11 @@ class MoonPayProvider extends BuyProvider {
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
-        print('MoonPay does not support fiat: $fiatCurrency');
+        printV('MoonPay does not support fiat: $fiatCurrency');
         return {};
       }
     } catch (e) {
-      print('MoonPay Error fetching fiat currencies: $e');
+      printV('MoonPay Error fetching fiat currencies: $e');
       return {};
     }
   }
@@ -205,11 +205,11 @@ class MoonPayProvider extends BuyProvider {
 
         return [quote];
       } else {
-        print('Moon Pay: Error fetching buy quote: ');
+        printV('Moon Pay: Error fetching buy quote: ');
         return null;
       }
     } catch (e) {
-      print('Moon Pay: Error fetching buy quote: $e');
+      printV('Moon Pay: Error fetching buy quote: $e');
       return null;
     }
   }
@@ -329,13 +329,6 @@ class MoonPayProvider extends BuyProvider {
       return '${currency.title.toLowerCase()}_polygon';
     }
 
-    try {
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      isBuyEnable = responseJSON['isBuyAllowed'] as bool;
-    } catch (e) {
-      isBuyEnable = false;
-      printV(e.toString());
-    }
     if (currency.tag == 'TRX') {
       return '${currency.title.toLowerCase()}_trx';
     }

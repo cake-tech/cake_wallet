@@ -1,6 +1,6 @@
 void printV(dynamic content) {
   CustomTrace programInfo = CustomTrace(StackTrace.current);
-  print("${programInfo.fileName}#${programInfo.lineNumber}:${programInfo.columnNumber} ${programInfo.callerFunctionName}: $content");
+  printV("${programInfo.fileName}#${programInfo.lineNumber}:${programInfo.columnNumber} ${programInfo.callerFunctionName}: $content");
 }
 
 // https://stackoverflow.com/a/59386101
@@ -18,7 +18,7 @@ class CustomTrace {
     try {
       _parseTrace();
     } catch (e) {
-      print("Unable to parse trace (printV): $e");
+      printV("Unable to parse trace (printV): $e");
     }
   }
 

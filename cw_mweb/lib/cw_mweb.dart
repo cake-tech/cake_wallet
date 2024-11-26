@@ -51,7 +51,7 @@ class CwMweb {
   }
 
   static Future<void> _initializeClient() async {
-    print("_initializeClient() called!");
+    printV("_initializeClient() called!");
     final appDir = await getApplicationSupportDirectory();
     const ltcNodeUri = "ltc-electrum.cakewallet.com:9333";
 

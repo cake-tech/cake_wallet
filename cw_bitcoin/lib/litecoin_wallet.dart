@@ -284,7 +284,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> waitForMwebAddresses() async {
-    print("waitForMwebAddresses() called!");
+    printV("waitForMwebAddresses() called!");
     // ensure that we have the full 1000 mweb addresses generated before continuing:
     // should no longer be needed, but leaving here just in case
     await (walletAddresses as LitecoinWalletAddresses).ensureMwebAddressUpToIndexExists(1020);
@@ -325,7 +325,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       try {
         await subscribeForUpdates();
       } catch (e) {
-        print("failed to subcribe for updates: $e");
+        printV("failed to subcribe for updates: $e");
       }
       updateFeeRates();
       _feeRatesTimer?.cancel();
@@ -345,17 +345,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     _syncTimer?.cancel();
-    _syncTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
-      if (syncStatus is FailedSyncStatus) return;
-
-      printV("SYNCING....");
-      printV("DONE SYNC FUNCS");
-    } catch (e, s) {
-      printV("mweb sync failed: $e $s");
-      mwebSyncStatus = FailedSyncStatus(error: "mweb sync failed: $e");
-      return;
-    }
-
     _syncTimer = Timer.periodic(const Duration(milliseconds: 3000), (timer) async {
       if (mwebSyncStatus is FailedSyncStatus) {
         _syncTimer?.cancel();
@@ -413,7 +402,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
                 for (var coin in tx.unspents!) {
                   final utxo = mwebUtxosBox.get(coin.address);
                   if (utxo != null) {
-                    print("deleting utxo ${coin.address} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                    printV("deleting utxo ${coin.address} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
                     await mwebUtxosBox.delete(coin.address);
                   }
                 }
@@ -449,12 +438,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> stopSync() async {
-    print("stopSync() called!");
+    printV("stopSync() called!");
     _syncTimer?.cancel();
     _utxoStream?.cancel();
     _feeRatesTimer?.cancel();
     await CwMweb.stop();
-    print("stopped syncing!");
+    printV("stopped syncing!");
   }
 
   Future<void> initMwebUtxosBox() async {
@@ -592,7 +581,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> processMwebUtxos() async {
-    print("processMwebUtxos() called!");
+    printV("processMwebUtxos() called!");
     if (!mwebEnabled) {
       return;
     }
@@ -633,7 +622,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           // but do update the utxo height if it's somehow different:
           final existingUtxo = mwebUtxosBox.get(utxo.outputId);
           if (existingUtxo!.height != utxo.height) {
-            print(
+            printV(
                 "updating utxo height for $utxo.outputId: ${existingUtxo.height} -> ${utxo.height}");
             existingUtxo.height = utxo.height;
             await mwebUtxosBox.put(utxo.outputId, existingUtxo);
@@ -656,7 +645,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         await handleIncoming(utxo);
       },
       onError: (error) {
-        print("error in utxo stream: $error");
+        printV("error in utxo stream: $error");
         mwebSyncStatus = FailedSyncStatus(error: error.toString());
       },
       cancelOnError: true,
@@ -664,7 +653,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> deleteSpentUtxos() async {
-    print("deleteSpentUtxos() called!");
+    printV("deleteSpentUtxos() called!");
     final chainHeight = await electrumClient.getCurrentBlockChainTip();
     final status = await CwMweb.status(StatusRequest());
     if (chainHeight == null || status.blockHeaderHeight != chainHeight) return;
@@ -688,7 +677,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> checkMwebUtxosSpent() async {
-    print("checkMwebUtxosSpent() called!");
+    printV("checkMwebUtxosSpent() called!");
     if (!mwebEnabled) {
       return;
     }
@@ -803,7 +792,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> updateUnspent() async {
-    print("updateUnspent() called!");
+    printV("updateUnspent() called!");
     await checkMwebUtxosSpent();
     await updateAllUnspents();
   }
@@ -875,7 +864,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       mwebUtxosBox.values.forEach((utxo) {
         bool isConfirmed = utxo.height > 0;
 
-        print(
+        printV(
             "utxo: ${isConfirmed ? "confirmed" : "unconfirmed"} ${utxo.spent ? "spent" : "unspent"} ${utxo.outputId} ${utxo.height} ${utxo.value}");
 
         if (isConfirmed) {
@@ -1013,7 +1002,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final sum1 = _sumOutputAmounts(outputs.map((e) => e.toOutput).toList()) + fee;
     final sum2 = utxos.sumOfUtxosValue();
     if (sum1 != sum2) {
-      print("@@@@@ WE HAD TO ADJUST THE FEE! @@@@@@@@");
+      printV("@@@@@ WE HAD TO ADJUST THE FEE! @@@@@@@@");
       final diff = sum2 - sum1;
       // add the difference to the fee (abs value):
       fee += diff.abs();
@@ -1178,7 +1167,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             addressRecord.balance -= utxo.value.toInt();
           });
           transaction.inputAddresses?.addAll(addresses);
-          print("isPegIn: $isPegIn, isPegOut: $isPegOut");
+          printV("isPegIn: $isPegIn, isPegOut: $isPegOut");
           transaction.additionalInfo["isPegIn"] = isPegIn;
           transaction.additionalInfo["isPegOut"] = isPegOut;
           transactionHistory.addOne(transaction);
@@ -1189,7 +1178,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       printV(e);
       printV(s);
       if (e.toString().contains("commit failed")) {
-        print(e);
+        printV(e);
         throw Exception("Transaction commit failed (no peers responded), please try again.");
       }
       rethrow;
