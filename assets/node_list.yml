@@ -1,6 +1,8 @@
 -
   uri: xmr-node.cakewallet.com:18081
   is_default: true
+  trusted: true
+  useSSL: true
 -
   uri: cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081
   is_default: false

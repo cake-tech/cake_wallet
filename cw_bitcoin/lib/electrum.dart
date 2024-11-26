@@ -68,8 +68,8 @@ class ElectrumClient {
 
     try {
       await socket?.close();
-      socket = null;
     } catch (_) {}
+    socket = null;
 
     try {
       if (useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum"))) {
@@ -102,7 +102,8 @@ class ElectrumClient {
       return;
     }
 
-    _setConnectionStatus(ConnectionStatus.connected);
+    // use ping to determine actual connection status since we could've just not timed out yet:
+    // _setConnectionStatus(ConnectionStatus.connected);
 
     socket!.listen(
       (Uint8List event) {
@@ -123,14 +124,16 @@ class ElectrumClient {
         final errorMsg = error.toString();
         print(errorMsg);
         unterminatedString = '';
+        socket = null;
       },
       onDone: () {
         print("SOCKET CLOSED!!!!!");
         unterminatedString = '';
         try {
-          if (host == socket?.address.host) {
+          if (host == socket?.address.host || socket == null) {
             _setConnectionStatus(ConnectionStatus.disconnected);
             socket?.destroy();
+            socket = null;
           }
         } catch (e) {
           print("onDone: $e");
@@ -178,7 +181,7 @@ class ElectrumClient {
         unterminatedString = '';
       }
     } catch (e) {
-      print(e.toString());
+      print("parse $e");
     }
   }
 
@@ -191,7 +194,7 @@ class ElectrumClient {
     try {
       await callWithTimeout(method: 'server.ping');
       _setConnectionStatus(ConnectionStatus.connected);
-    } on RequestFailedTimeoutException catch (_) {
+    } catch (_) {
       _setConnectionStatus(ConnectionStatus.disconnected);
     }
   }
@@ -422,7 +425,7 @@ class ElectrumClient {
   BehaviorSubject<T>? subscribe<T>(
       {required String id, required String method, List<Object> params = const []}) {
     try {
-      if (socket == null || !isConnected) {
+      if (socket == null) {
         return null;
       }
       final subscription = BehaviorSubject<T>();
@@ -431,14 +434,14 @@ class ElectrumClient {
 
       return subscription;
     } catch (e) {
-      print(e.toString());
+      print("subscribe $e");
       return null;
     }
   }
 
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
-    if (socket == null || !isConnected) {
+    if (socket == null) {
       return null;
     }
     final completer = Completer<dynamic>();
@@ -454,7 +457,7 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
-      if (socket == null || !isConnected) {
+      if (socket == null) {
         return null;
       }
       final completer = Completer<dynamic>();
@@ -470,7 +473,8 @@ class ElectrumClient {
 
       return completer.future;
     } catch (e) {
-      print(e.toString());
+      print("callWithTimeout $e");
+      rethrow;
     }
   }
 
@@ -537,6 +541,12 @@ class ElectrumClient {
     onConnectionStatusChange?.call(status);
     _connectionStatus = status;
     _isConnected = status == ConnectionStatus.connected;
+    if (!_isConnected) {
+      try {
+        socket?.destroy();
+      } catch (_) {}
+      socket = null;
+    }
   }
 
   void _handleResponse(Map<String, dynamic> response) {

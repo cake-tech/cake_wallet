@@ -7,7 +7,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class HeaderRow extends StatelessWidget {
-  HeaderRow({required this.dashboardViewModel});
+  HeaderRow({required this.dashboardViewModel, super.key});
 
   final DashboardViewModel dashboardViewModel;
 
@@ -34,6 +34,7 @@ class HeaderRow extends StatelessWidget {
           Semantics(
             container: true,
             child: GestureDetector(
+              key: ValueKey('transactions_page_header_row_transaction_filter_button_key'),
               onTap: () {
                 showPopUp<void>(
                   context: context,

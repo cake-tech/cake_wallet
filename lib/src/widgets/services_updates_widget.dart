@@ -46,6 +46,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
           "assets/images/notification_icon.svg",
           color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
           width: 30,
+          placeholderBuilder: (_) => Icon(Icons.error),
         ),
       );
     }
@@ -91,15 +92,17 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                           );
                         }
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-                          child: Stack(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Column(
                             children: [
-                              body,
+                              Expanded(child: body),
                               Align(
                                 alignment: Alignment.bottomCenter,
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(
-                                      horizontal: MediaQuery.of(context).size.width / 8),
+                                    horizontal: MediaQuery.of(context).size.width / 8,
+                                    vertical: 20,
+                                  ),
                                   child: PrimaryImageButton(
                                     onPressed: () {
                                       try {
@@ -136,6 +139,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                   "assets/images/notification_icon.svg",
                   color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                   width: 30,
+                  placeholderBuilder: (_) => Icon(Icons.error),
                 ),
                 if (state.hasData && state.data!.hasUpdates && !wasOpened)
                   Container(

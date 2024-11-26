@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_user_credentials.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cake_wallet/entities/country.dart';
 import 'package:http/http.dart' as http;
 
 class CakePayApi {
@@ -171,7 +172,7 @@ class CakePayApi {
   }
 
   /// Get Countries
-  Future<List<String>> getCountries(
+  Future<List<Country>> getCountries(
       {required String CSRFToken, required String authorization}) async {
     final uri = Uri.https(baseCakePayUri, countriesPath);
 
@@ -188,8 +189,11 @@ class CakePayApi {
     }
 
     final bodyJson = json.decode(response.body) as List;
-
-    return bodyJson.map<String>((country) => country['name'] as String).toList();
+    return bodyJson
+        .map<String>((country) => country['name'] as String)
+        .map((name) => Country.fromCakePayName(name))
+        .whereType<Country>()
+        .toList();
   }
 
   /// Get Vendors

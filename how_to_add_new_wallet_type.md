@@ -5,7 +5,7 @@
 **N:B** Throughout this guide, `walletx` refers to the specific wallet type you want to add. If you're adding `BNB` to CakeWallet, then `walletx` for you here is `bnb`.
 
 **Core Folder/Files Setup**
-- Idenitify your core component/package (major project component), which would power the integration e.g web3dart, solana, onchain etc
+- Identify your core component/package (major project component), which would power the integration e.g web3dart, solana, onchain etc
 - Add a new entry to `WalletType` class in `cw_core/wallet_type.dart`. 
 - Fill out the necessary information in the various functions in the files, concerning the wallet name, the native currency type, symbol etc.
 - Go to `cw_core/lib/currency_for_wallet_type.dart`, in the `currencyForWalletType` function, add a case for `walletx`, returning the native cryptocurrency for `walletx`. 
@@ -23,7 +23,7 @@
 
 - Add the code to run the code generation needed for the files in the `cw_walletx` package to the `model_generator.sh` script
 
-		 cd cw_walletx && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+		 cd cw_walletx && flutter pub get && dart run build_runner build --delete-conflicting-outputs && cd ..
 
 - Add the relevant dev_dependencies for generating the files also
     - build_runner
@@ -78,9 +78,9 @@ A `Proxy` class is used to communicate with the specific wallet package we have.
 
 		./app_config.sh
 
-		cd cw_walletx && flutter pub get && flutter packages pub run build_runner build
+		cd cw_walletx && flutter pub get && dart run build_runner build
 
-		flutter packages pub run build_runner build --delete-conflicting-outputs
+		dart run build_runner build --delete-conflicting-outputs
 
 Moving forward, our interactions with the cw_walletx package would be through the proxy class and its methods.
 
@@ -144,7 +144,7 @@ You can add as many node entries as desired.
 			}
 		}
 
-- Next, we’ll write the function to change walletX current node to default. An handy function we would make use of later on. Add a new preference key in `lib/entities/preference_key.dart` with the format `PreferencesKey.currentWalletXNodeIdKey`, we’ll use it to identify the current node id.
+- Next, we’ll write the function to change walletX current node to default. A handy function we would make use of later on. Add a new preference key in `lib/entities/preference_key.dart` with the format `PreferencesKey.currentWalletXNodeIdKey`, we’ll use it to identify the current node id.
 
 		Future<void> changeWalletXCurrentNodeToDefault(
 				{required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
@@ -191,9 +191,9 @@ You can add as many node entries as desired.
 
 - Run the following commands after to generate modified files in cw_core  and lib		
 		
-		cd cw_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+		cd cw_core && flutter pub get && dart run build_runner build --delete-conflicting-outputs && cd ..
 
-		flutter packages pub run build_runner build --delete-conflicting-outputs
+		dart run build_runner build --delete-conflicting-outputs
 
 - Lastly, before we run the app to test what we’ve done so far, 
 - Go to `lib/src/dashboard/widgets/menu_widget.dart` and add an icon for walletX to be used within the app.				
@@ -228,7 +228,7 @@ Now you can run the codebase and successfully create a wallet for type walletX s
 
 **Balance Screen**
 - Go to `lib/view_model/dashboard/balance_view_model.dart`
-- Modify the function to adjust the way the balance is being display on the app: `isHomeScreenSettingsEnabled` 
+- Modify the function to adjust the way the balance is being displayed on the app: `isHomeScreenSettingsEnabled` 
 - Add a case to the `availableBalanceLabel` getter to modify the text being displayed (Available or confirmed)
 - Same for `additionalBalanceLabel` 
 - Next, go to `lib/reactions/fiat_rate_update.dart`
