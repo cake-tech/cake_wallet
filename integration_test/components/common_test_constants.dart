@@ -9,5 +9,5 @@ class CommonTestConstants {
   static final String testWalletName = 'Integrated Testing Wallet';
   static final CryptoCurrency testReceiveCurrency = CryptoCurrency.sol;
   static final CryptoCurrency testDepositCurrency = CryptoCurrency.usdtSol;
-  static final String testWalletAddress = 'An2Y2fsUYKfYvN1zF89GAqR1e6GUMBg3qA83Y5ZWDf8L';
+  static final String testWalletAddress = '5v9gTW1yWPffhnbNKuvtL2frevAf4HpBMw8oYnfqUjhm';
 }

@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -22,6 +24,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required super.mainHd,
     required super.sideHd,
     required super.network,
+    required super.isHardwareWallet,
     required this.mwebHd,
     required this.mwebEnabled,
     super.initialAddresses,
@@ -35,18 +38,19 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     print("initialized with ${mwebAddrs.length} mweb addresses");
   }
 
-  final Bip32Slip10Secp256k1 mwebHd;
+  final Bip32Slip10Secp256k1? mwebHd;
   bool mwebEnabled;
   int mwebTopUpIndex = 1000;
   List<String> mwebAddrs = [];
+  bool generating = false;
 
-  List<int> get scanSecret => mwebHd.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
+  List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendPubkey =>
-      mwebHd.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
+      mwebHd!.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
 
   @override
   Future<void> init() async {
-    await initMwebAddresses();
+    if (!isHardwareWallet) await initMwebAddresses();
     await super.init();
   }
 
@@ -57,26 +61,43 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      return null;
+    }
+
     Uint8List scan = Uint8List.fromList(scanSecret);
     Uint8List spend = Uint8List.fromList(spendPubkey);
-    int count = 0;
-    while (mwebAddrs.length <= (index + 1)) {
-      final address = await CwMweb.address(scan, spend, mwebAddrs.length);
-      mwebAddrs.add(address!);
-      count++;
-      // sleep for a bit to avoid making the main thread unresponsive:
-      if (count > 50) {
-        count = 0;
-        await Future.delayed(Duration(milliseconds: 100));
-      }
-    }
-  }
 
-  Future<void> initMwebAddresses() async {
-    if (mwebAddrs.length < 1000) {
-      print("Generating MWEB addresses...");
-      await ensureMwebAddressUpToIndexExists(1020);
-      print("done generating MWEB addresses");
+    if (index < mwebAddresses.length && index < mwebAddrs.length) {
+      return;
+    }
+
+    while (generating) {
+      print("generating.....");
+      // this function was called multiple times in multiple places:
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    print("Generating MWEB addresses up to index $index");
+    generating = true;
+    try {
+      while (mwebAddrs.length <= (index + 1)) {
+        final addresses =
+            await CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
+        print("generated up to index ${mwebAddrs.length}");
+        // sleep for a bit to avoid making the main thread unresponsive:
+        await Future.delayed(Duration(milliseconds: 200));
+        mwebAddrs.addAll(addresses!);
+      }
+    } catch (_) {}
+    generating = false;
+    print("Done generating MWEB addresses len: ${mwebAddrs.length}");
+
+    // ensure mweb addresses are up to date:
+    // This is the Case if the Litecoin Wallet is a hardware Wallet
+    if (mwebHd == null) return;
+
+    if (mwebAddresses.length < mwebAddrs.length) {
       List<BitcoinAddressRecord> addressRecords = mwebAddrs
           .asMap()
           .entries
@@ -88,7 +109,13 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
               ))
           .toList();
       addMwebAddresses(addressRecords);
-      print("added ${addressRecords.length} mweb addresses");
+      print("set ${addressRecords.length} mweb addresses");
+    }
+  }
+
+  Future<void> initMwebAddresses() async {
+    if (mwebAddrs.length < 1000) {
+      await ensureMwebAddressUpToIndexExists(20);
       return;
     }
   }
@@ -119,14 +146,15 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @action
   @override
-  Future<String> getChangeAddress({List<BitcoinOutput>? outputs, UtxoDetails? utxoDetails}) async {
+  Future<BitcoinAddressRecord> getChangeAddress(
+      {List<BitcoinUnspent>? inputs, List<BitcoinOutput>? outputs, bool isPegIn = false}) async {
     // use regular change address on peg in, otherwise use mweb for change address:
 
-    if (!mwebEnabled) {
+    if (!mwebEnabled || isPegIn) {
       return super.getChangeAddress();
     }
 
-    if (outputs != null && utxoDetails != null) {
+    if (inputs != null && outputs != null) {
       // check if this is a PEGIN:
       bool outputsToMweb = false;
       bool comesFromMweb = false;
@@ -138,14 +166,18 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
           outputsToMweb = true;
         }
       }
-      // TODO: this doesn't respect coin control because it doesn't know which available inputs are selected
-      utxoDetails.availableInputs.forEach((element) {
+
+      inputs.forEach((element) {
+        if (!element.isSending || element.isFrozen) {
+          return;
+        }
         if (element.address.contains("mweb")) {
           comesFromMweb = true;
         }
       });
 
       bool isPegIn = !comesFromMweb && outputsToMweb;
+
       if (isPegIn && mwebEnabled) {
         return super.getChangeAddress();
       }
@@ -158,9 +190,22 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
     if (mwebEnabled) {
       await ensureMwebAddressUpToIndexExists(1);
-      return mwebAddrs[0];
+      return BitcoinAddressRecord(
+        mwebAddrs[0],
+        index: 0,
+        type: SegwitAddresType.mweb,
+        network: network,
+      );
     }
 
     return super.getChangeAddress();
+  }
+
+  @override
+  String get addressForExchange {
+    // don't use mweb addresses for exchange refund address:
+    final addresses = receiveAddresses
+        .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
+    return addresses.first.address;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/transaction_history.dart'
     as monero_transaction_history;
@@ -35,11 +36,32 @@ class PendingMoneroTransaction with PendingTransaction {
   String get feeFormatted => AmountConverter.amountIntToString(
       CryptoCurrency.xmr, pendingTransactionDescription.fee);
 
+  bool shouldCommitUR() => isViewOnly;
+
   @override
   Future<void> commit() async {
     try {
       monero_transaction_history.commitTransactionFromPointerAddress(
-          address: pendingTransactionDescription.pointerAddress);
+          address: pendingTransactionDescription.pointerAddress,
+          useUR: false);
+    } catch (e) {
+      final message = e.toString();
+
+      if (message.contains('Reason: double spend')) {
+        throw DoubleSpendException();
+      }
+
+      rethrow;
+    }
+  }
+
+  @override
+  Future<String?> commitUR() async {
+    try {
+      final ret = monero_transaction_history.commitTransactionFromPointerAddress(
+          address: pendingTransactionDescription.pointerAddress,
+          useUR: true);
+      return ret;
     } catch (e) {
       final message = e.toString();
 

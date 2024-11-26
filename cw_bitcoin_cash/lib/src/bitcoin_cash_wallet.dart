@@ -58,6 +58,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       sideHd: accountHD.childKey(Bip32KeyIndex(1)),
       network: network,
       initialAddressPageType: addressPageType,
+      isHardwareWallet: walletInfo.isHardwareWallet,
     );
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
@@ -83,7 +84,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
-      seedBytes: await MnemonicBip39.toSeed(mnemonic, passphrase: passphrase),
+      seedBytes: MnemonicBip39.toSeed(mnemonic, passphrase: passphrase),
       encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,

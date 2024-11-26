@@ -85,21 +85,9 @@ abstract class WalletCreationVMBase with Store {
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
 
-      WalletCredentials credentials;
-      if (restoreWallet != null) {
-        if (restoreWallet.restoreMode == WalletRestoreMode.seed &&
-            options == null &&
-            (type == WalletType.nano ||
-                type == WalletType.bitcoin ||
-                type == WalletType.litecoin)) {
-          final derivationInfo = await getDerivationInfo(restoreWallet);
-          options ??= {};
-          options["derivationInfo"] = derivationInfo.first;
-        }
-        credentials = getCredentialsFromRestoredWallet(options, restoreWallet);
-      } else {
-        credentials = getCredentials(options);
-      }
+      final credentials = restoreWallet != null
+          ? await getWalletCredentialsFromQRCredentials(restoreWallet)
+          : getCredentials(options);
 
       final walletInfo = WalletInfo.external(
         id: WalletBase.idFor(name, type),
@@ -127,7 +115,9 @@ abstract class WalletCreationVMBase with Store {
       getIt.get<BackgroundTasks>().registerSyncTask();
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
-    } catch (e, _) {
+    } catch (e, s) {
+      print("error: $e");
+      print("stack: $s");
       state = FailureState(e.toString());
     }
   }
@@ -200,7 +190,8 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
-  Future<List<DerivationInfo>> getDerivationInfo(RestoredWallet restoreWallet) async {
+  Future<List<DerivationInfo>> getDerivationInfoFromQRCredentials(
+      RestoredWallet restoreWallet) async {
     var list = <DerivationInfo>[];
     final walletType = restoreWallet.type;
     var appStore = getIt.get<AppStore>();
@@ -209,10 +200,16 @@ abstract class WalletCreationVMBase with Store {
     switch (walletType) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        return bitcoin!.getDerivationsFromMnemonic(
+        final derivationList = await bitcoin!.getDerivationsFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,
           node: node,
+          passphrase: restoreWallet.passphrase,
         );
+
+        if (derivationList.firstOrNull?.transactionsCount == 0 && derivationList.length > 1)
+          return [];
+        return derivationList;
+
       case WalletType.nano:
         return nanoUtil!.getDerivationsFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,
@@ -228,8 +225,8 @@ abstract class WalletCreationVMBase with Store {
 
   Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
 
-  WalletCredentials getCredentialsFromRestoredWallet(
-          dynamic options, RestoredWallet restoreWallet) =>
+  Future<WalletCredentials> getWalletCredentialsFromQRCredentials(
+          RestoredWallet restoreWallet) async =>
       throw UnimplementedError();
 
   Future<WalletBase> processFromRestoredWallet(

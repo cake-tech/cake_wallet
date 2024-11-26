@@ -79,6 +79,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(9)
   bool? supportsSilentPayments;
 
+  @HiveField(10)
+  bool? supportsMweb;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -239,12 +242,15 @@ class Node extends HiveObject with Keyable {
   // you try to communicate with it
   Future<bool> requestElectrumServer() async {
     try {
+      final Socket socket;
       if (useSSL == true) {
-        await SecureSocket.connect(uri.host, uri.port,
+        socket = await SecureSocket.connect(uri.host, uri.port,
             timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
       } else {
-        await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+        socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
       }
+
+      socket.destroy();
       return true;
     } catch (_) {
       return false;

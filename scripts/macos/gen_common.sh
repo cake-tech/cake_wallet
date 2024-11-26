@@ -1,5 +1,5 @@
 #!/bin/sh
-
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/universal_sed.sh"
 gen_podspec() {
 	ARCH=$1
 	CW_PLUGIN_DIR="`pwd`/../../cw_monero/macos"
@@ -9,7 +9,7 @@ gen_podspec() {
 	DEFAULT_FILE_PATH="${CW_PLUGIN_DIR}/${DEFAULT_FILENAME}"
 	rm -f $DEFAULT_FILE_PATH
 	cp $BASE_FILE_PATH $DEFAULT_FILE_PATH
-	sed -i '' "s/#___VALID_ARCHS___#/${ARCH}/g" $DEFAULT_FILE_PATH
+	universal_sed "s/#___VALID_ARCHS___#/${ARCH}/g" $DEFAULT_FILE_PATH
 }
 
 gen_project() {
@@ -17,7 +17,7 @@ gen_project() {
 	CW_DIR="`pwd`/../../macos/Runner.xcodeproj"
 	DEFAULT_FILENAME="project.pbxproj"
 	DEFAULT_FILE_PATH="${CW_DIR}/${DEFAULT_FILENAME}"
-	sed -i '' "s/ARCHS =.*/ARCHS = \"${ARCH}\";/g" $DEFAULT_FILE_PATH
+	universal_sed "s/ARCHS =.*/ARCHS = \"${ARCH}\";/g" $DEFAULT_FILE_PATH
 }
 
 gen() {

@@ -14,5 +14,8 @@ mixin PendingTransaction {
   int? get outputCount => null;
   PendingChange? change;
 
+  bool shouldCommitUR() => false;
+
   Future<void> commit();
+  Future<String?> commitUR();
 }

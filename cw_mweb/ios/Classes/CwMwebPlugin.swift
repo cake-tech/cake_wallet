@@ -12,6 +12,7 @@ public static func register(with registrar: FlutterPluginRegistrar) {
     private static var server: MwebdServer?
     private static var port: Int = 0
     private static var dataDir: String?
+    private static var nodeUri: String?
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
@@ -22,22 +23,35 @@ public static func register(with registrar: FlutterPluginRegistrar) {
                 stopServer()
                 let args = call.arguments as? [String: String]
                 let dataDir = args?["dataDir"]
+                let nodeUri = args?["nodeUri"]
                 CwMwebPlugin.dataDir = dataDir
+                CwMwebPlugin.nodeUri = nodeUri
                 startServer(result: result)
                 break
             case "stop":
                 stopServer()
                 result(nil)
                 break
-            case "address":
+            // case "address":
+            //     let args = call.arguments as! [String: Any]
+            //     let scanSecret = args["scanSecret"] as! FlutterStandardTypedData
+            //     let spendPub = args["spendPub"] as! FlutterStandardTypedData
+            //     let index = args["index"] as! Int32
+                
+            //     let scanSecretData = scanSecret.data
+            //     let spendPubData = spendPub.data
+            //     result(MwebdAddress(scanSecretData, spendPubData, index))
+            //     break
+            case "addresses":
                 let args = call.arguments as! [String: Any]
                 let scanSecret = args["scanSecret"] as! FlutterStandardTypedData
                 let spendPub = args["spendPub"] as! FlutterStandardTypedData
-                let index = args["index"] as! Int32
+                let fromIndex = args["fromIndex"] as! Int32
+                let toIndex = args["toIndex"] as! Int32
                 
                 let scanSecretData = scanSecret.data
                 let spendPubData = spendPub.data
-                result(MwebdAddress(scanSecretData, spendPubData, index))
+                result(MwebdAddresses(scanSecretData, spendPubData, fromIndex, toIndex))
                 break
             default:
                 result(FlutterMethodNotImplemented)
@@ -48,7 +62,7 @@ public static func register(with registrar: FlutterPluginRegistrar) {
     private func startServer(result: @escaping FlutterResult) {
         if CwMwebPlugin.server == nil {
             var error: NSError?
-            CwMwebPlugin.server = MwebdNewServer("", CwMwebPlugin.dataDir, "", &error)
+            CwMwebPlugin.server = MwebdNewServer("", CwMwebPlugin.dataDir, CwMwebPlugin.nodeUri, &error)
 
             if let server = CwMwebPlugin.server {
                 do {

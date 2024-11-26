@@ -19,7 +19,6 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   WalletRestoreFromSeedForm({Key? key,
     required this.displayLanguageSelector,
     required this.displayBlockHeightSelector,
-    required this.displayPassphrase,
     required this.type,
     required this.displayWalletPassword,
     required this.seedSettingsViewModel,
@@ -35,7 +34,6 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   final bool displayLanguageSelector;
   final bool displayBlockHeightSelector;
   final bool displayWalletPassword;
-  final bool displayPassphrase;
   final SeedSettingsViewModel seedSettingsViewModel;
   final FocusNode? blockHeightFocusNode;
   final Function(bool)? onHeightOrDateEntered;
@@ -60,7 +58,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         repeatedPasswordTextEditingController = displayWalletPassword
             ? TextEditingController()
             : null,
-        passphraseController = TextEditingController(),
         seedTypeController = TextEditingController();
 
   final GlobalKey<SeedWidgetState> seedWidgetStateKey;
@@ -70,15 +67,11 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   final TextEditingController? passwordTextEditingController;
   final TextEditingController? repeatedPasswordTextEditingController;
   final TextEditingController seedTypeController;
-  final TextEditingController passphraseController;
   final GlobalKey<FormState> formKey;
   late ReactionDisposer moneroSeedTypeReaction;
   String language;
   void Function()? passwordListener;
   void Function()? repeatedPasswordListener;
-  void Function()? passphraseListener;
-
-  bool obscurePassphrase = true;
 
   @override
   void initState() {
@@ -95,9 +88,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
           () => widget.onRepeatedPasswordChange?.call(repeatedPasswordTextEditingController!.text);
       repeatedPasswordTextEditingController?.addListener(repeatedPasswordListener!);
     }
-
-    passphraseListener = () => widget.seedSettingsViewModel.setPassphrase(passphraseController.text);
-    passphraseController.addListener(passphraseListener!);
 
     moneroSeedTypeReaction =
         reaction((_) => widget.seedSettingsViewModel.moneroSeedType, (MoneroSeedType item) {
@@ -119,8 +109,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     if (repeatedPasswordListener != null) {
       repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
     }
-
-    passphraseController.removeListener(passphraseListener!);
 
     super.dispose();
   }
@@ -203,6 +191,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
           ),
           if (widget.type == WalletType.monero || widget.type == WalletType.wownero)
             GestureDetector(
+              key: ValueKey('wallet_restore_from_seed_seedtype_picker_button_key'),
               onTap: () async {
                 await showPopUp<void>(
                     context: context,
@@ -276,27 +265,11 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             BlockchainHeightWidget(
               focusNode: widget.blockHeightFocusNode,
               key: blockchainHeightKey,
+              blockHeightTextFieldKey: ValueKey('wallet_restore_from_seed_blockheight_textfield_key'),
               onHeightOrDateEntered: widget.onHeightOrDateEntered,
               hasDatePicker: widget.type == WalletType.monero || widget.type == WalletType.wownero,
               walletType: widget.type,
             ),
-          if (widget.displayPassphrase) ...[
-            const SizedBox(height: 10),
-            BaseTextFormField(
-              hintText: S.current.passphrase,
-              controller: passphraseController,
-              obscureText: obscurePassphrase,
-              suffixIcon: GestureDetector(
-                onTap: () => setState(() {
-                  obscurePassphrase = !obscurePassphrase;
-                }),
-                child: Icon(
-                  Icons.remove_red_eye,
-                  color: obscurePassphrase ? Colors.black54 : Colors.black26,
-                ),
-              ),
-            ),
-          ]
         ]));
   }
 

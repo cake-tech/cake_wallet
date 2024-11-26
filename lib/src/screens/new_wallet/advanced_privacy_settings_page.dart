@@ -189,7 +189,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   ),
                 );
               }),
-            if (!widget.isFromRestore) ...[
+            if (!widget.isFromRestore)
               Observer(builder: (_) {
                 if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
                   return SettingsPickerCell<SeedPhraseLength>(
@@ -202,54 +202,53 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   );
                 return Container();
               }),
-              if (widget.privacySettingsViewModel.hasPassphraseOption)
-                Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Form(
-                    key: _passphraseFormKey,
-                    child: Column(
-                      children: [
-                        BaseTextFormField(
-                          hintText: S.of(context).passphrase,
-                          controller: passphraseController,
-                          obscureText: obscurePassphrase,
-                          suffixIcon: GestureDetector(
-                            onTap: () => setState(() {
-                              obscurePassphrase = !obscurePassphrase;
-                            }),
-                            child: Icon(
-                              Icons.remove_red_eye,
-                              color: obscurePassphrase ? Colors.black54 : Colors.black26,
-                            ),
+            if (widget.privacySettingsViewModel.hasPassphraseOption)
+              Padding(
+                padding: EdgeInsets.all(24),
+                child: Form(
+                  key: _passphraseFormKey,
+                  child: Column(
+                    children: [
+                      BaseTextFormField(
+                        hintText: S.of(context).passphrase,
+                        controller: passphraseController,
+                        obscureText: obscurePassphrase,
+                        suffixIcon: GestureDetector(
+                          onTap: () => setState(() {
+                            obscurePassphrase = !obscurePassphrase;
+                          }),
+                          child: Icon(
+                            Icons.remove_red_eye,
+                            color: obscurePassphrase ? Colors.black54 : Colors.black26,
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        BaseTextFormField(
-                          hintText: S.of(context).confirm_passphrase,
-                          controller: confirmPassphraseController,
-                          obscureText: obscurePassphrase,
-                          validator: (text) {
-                            if (text == passphraseController.text) {
-                              return null;
-                            }
+                      ),
+                      const SizedBox(height: 10),
+                      BaseTextFormField(
+                        hintText: S.of(context).confirm_passphrase,
+                        controller: confirmPassphraseController,
+                        obscureText: obscurePassphrase,
+                        validator: (text) {
+                          if (text == passphraseController.text) {
+                            return null;
+                          }
 
-                            return S.of(context).passphrases_doesnt_match;
-                          },
-                          suffixIcon: GestureDetector(
-                            onTap: () => setState(() {
-                              obscurePassphrase = !obscurePassphrase;
-                            }),
-                            child: Icon(
-                              Icons.remove_red_eye,
-                              color: obscurePassphrase ? Colors.black54 : Colors.black26,
-                            ),
+                          return S.of(context).passphrases_doesnt_match;
+                        },
+                        suffixIcon: GestureDetector(
+                          onTap: () => setState(() {
+                            obscurePassphrase = !obscurePassphrase;
+                          }),
+                          child: Icon(
+                            Icons.remove_red_eye,
+                            color: obscurePassphrase ? Colors.black54 : Colors.black26,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-            ],
+              ),
             Observer(builder: (_) {
               return Column(
                 children: [
@@ -311,12 +310,13 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   widget.nodeViewModel.save();
                 }
                 if (passphraseController.text.isNotEmpty) {
-                  if (_passphraseFormKey.currentState != null && !_passphraseFormKey.currentState!.validate()) {
+                  if (_passphraseFormKey.currentState != null &&
+                      !_passphraseFormKey.currentState!.validate()) {
                     return;
                   }
-
-                  widget.seedTypeViewModel.setPassphrase(passphraseController.text);
                 }
+
+                widget.seedTypeViewModel.setPassphrase(passphraseController.text);
 
                 Navigator.pop(context);
               },

@@ -23,7 +23,7 @@ abstract class WalletAddresses {
     return _localAddress ?? address;
   }
 
-  String? get primaryAddress => null;
+  String get primaryAddress => address;
 
   String? _localAddress;
 

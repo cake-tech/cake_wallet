@@ -106,33 +106,32 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Object createBitcoinTransactionCredentials(List<Output> outputs,
-      {required TransactionPriority priority, int? feeRate}) {
+  Object createBitcoinTransactionCredentials(
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    int? feeRate,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+  }) {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
     return BitcoinTransactionCredentials(
-        outputs
-            .map((out) => OutputInfo(
-                fiatAmount: out.fiatAmount,
-                cryptoAmount: out.cryptoAmount,
-                address: out.address,
-                note: out.note,
-                sendAll: out.sendAll,
-                extractedAddress: out.extractedAddress,
-                isParsedAddress: out.isParsedAddress,
-                formattedCryptoAmount: out.formattedCryptoAmount,
-                memo: out.memo))
-            .toList(),
-        priority: priority as BitcoinTransactionPriority,
-        feeRate: bitcoinFeeRate);
+      outputs
+          .map((out) => OutputInfo(
+              fiatAmount: out.fiatAmount,
+              cryptoAmount: out.cryptoAmount,
+              address: out.address,
+              note: out.note,
+              sendAll: out.sendAll,
+              extractedAddress: out.extractedAddress,
+              isParsedAddress: out.isParsedAddress,
+              formattedCryptoAmount: out.formattedCryptoAmount,
+              memo: out.memo))
+          .toList(),
+      priority: priority as BitcoinTransactionPriority,
+      feeRate: bitcoinFeeRate,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
+    );
   }
-
-  @override
-  Object createBitcoinTransactionCredentialsRaw(List<OutputInfo> outputs,
-          {TransactionPriority? priority, required int feeRate}) =>
-      BitcoinTransactionCredentials(outputs,
-          priority: priority != null ? priority as BitcoinTransactionPriority : null,
-          feeRate: feeRate);
 
   @override
   @computed
@@ -205,9 +204,19 @@ class CWBitcoin extends Bitcoin {
       (priority as BitcoinTransactionPriority).labelWithRate(rate, customRate);
 
   @override
-  List<BitcoinUnspent> getUnspents(Object wallet) {
+  List<BitcoinUnspent> getUnspents(Object wallet,
+      {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.unspentCoins;
+    return bitcoinWallet.unspentCoins.where((element) {
+      switch (coinTypeToSpendFrom) {
+        case UnspentCoinType.mweb:
+          return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+        case UnspentCoinType.nonMweb:
+          return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.any:
+          return true;
+      }
+    }).toList();
   }
 
   Future<void> updateUnspents(Object wallet) async {
@@ -262,7 +271,14 @@ class CWBitcoin extends Bitcoin {
   List<ReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
 
   @override
-  List<ReceivePageOption> getLitecoinReceivePageOptions() => BitcoinReceivePageOption.allLitecoin;
+  List<ReceivePageOption> getLitecoinReceivePageOptions() {
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      return BitcoinReceivePageOption.allLitecoin
+          .where((element) => element != BitcoinReceivePageOption.mweb)
+          .toList();
+    }
+    return BitcoinReceivePageOption.allLitecoin;
+  }
 
   @override
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option) {
@@ -382,19 +398,21 @@ class CWBitcoin extends Bitcoin {
           final history = await electrumClient.getHistory(sh);
 
           final balance = await electrumClient.getBalance(sh);
-          dInfoCopy.balance = balance.entries.first.value.toString();
+          dInfoCopy.balance = balance.entries.firstOrNull?.value.toString() ?? "0";
           dInfoCopy.address = address;
           dInfoCopy.transactionsCount = history.length;
 
           list.add(dInfoCopy);
-        } catch (e) {
-          print(e);
+        } catch (e, s) {
+          print("derivationInfoError: $e");
+          print("derivationInfoStack: $s");
         }
       }
     }
 
     // sort the list such that derivations with the most transactions are first:
     list.sort((a, b) => b.transactionsCount.compareTo(a.transactionsCount));
+
     return list;
   }
 
@@ -469,18 +487,30 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
-    (wallet as BitcoinWallet).setLedger(ledger, device);
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) {
+    (wallet as ElectrumWallet).setLedgerConnection(connection);
   }
 
   @override
-  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
+  Future<List<HardwareAccountData>> getHardwareWalletBitcoinAccounts(LedgerViewModel ledgerVM,
       {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.connection);
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } on LedgerException catch (err) {
-      print(err.message);
+    } catch (err) {
+      print(err);
+      throw err;
+    }
+  }
+
+  @override
+  Future<List<HardwareAccountData>> getHardwareWalletLitecoinAccounts(LedgerViewModel ledgerVM,
+      {int index = 0, int limit = 5}) async {
+    final hardwareWalletService = LitecoinHardwareWalletService(ledgerVM.connection);
+    try {
+      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+    } catch (err) {
+      print(err);
       throw err;
     }
   }
@@ -608,7 +638,7 @@ class CWBitcoin extends Bitcoin {
 
     final updatedOutputs = outputs.map((output) {
       try {
-        final pendingOut = pendingTx!.outputs[outputs.indexOf(output)];
+        final pendingOut = pendingTx.outputs[outputs.indexOf(output)];
         final updatedOutput = output;
 
         updatedOutput.stealthAddress = P2trAddress.fromScriptPubkey(script: pendingOut.scriptPubKey)
@@ -653,5 +683,27 @@ class CWBitcoin extends Bitcoin {
 
     // TODO: this could be improved:
     return inputAddressesContainMweb || outputAddressesContainMweb;
+  }
+
+  String? getUnusedMwebAddress(Object wallet) {
+    try {
+      final electrumWallet = wallet as ElectrumWallet;
+      final mwebAddress =
+          electrumWallet.walletAddresses.mwebAddresses.firstWhere((element) => !element.isUsed);
+      return mwebAddress.address;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? getUnusedSegwitAddress(Object wallet) {
+    try {
+      final electrumWallet = wallet as ElectrumWallet;
+      final segwitAddress = electrumWallet.walletAddresses.allAddresses
+          .firstWhere((element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh);
+      return segwitAddress.address;
+    } catch (_) {
+      return null;
+    }
   }
 }
