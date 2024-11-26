@@ -1707,7 +1707,7 @@ abstract class ElectrumWalletBase
         try {
           final blockHash = await http.get(
             Uri.parse(
-              "http://mempool.cakewallet.com:8999/api/v1/block-height/$height",
+              "https://mempool.cakewallet.com/api/v1/block-height/$height",
             ),
           );
 
@@ -1716,7 +1716,7 @@ abstract class ElectrumWalletBase
               jsonDecode(blockHash.body) != null) {
             final blockResponse = await http.get(
               Uri.parse(
-                "http://mempool.cakewallet.com:8999/api/v1/block/${blockHash.body}",
+                "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
               ),
             );
             if (blockResponse.statusCode == 200 &&
