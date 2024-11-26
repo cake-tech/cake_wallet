@@ -42,7 +42,8 @@ class UnspentCoinsListPage extends BasePage {
   final UnspentCoinsListViewModel unspentCoinsListViewModel;
 
   Future<void> handleOnPopInvoked(BuildContext context) async {
-    if (unspentCoinsListViewModel.items.isEmpty) {
+    final hasChanged = unspentCoinsListViewModel.hasAdjustableFieldChanged;
+    if (unspentCoinsListViewModel.items.isEmpty || !hasChanged) {
       Navigator.of(context).pop();
     } else {
       unspentCoinsListViewModel.isDisposing = true;
@@ -98,7 +99,6 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
       context: context,
       builder: (BuildContext context) {
         return AlertWithNoAction(
-          alertTitle: '',
           alertContent: 'Updating, please wait…',
           alertBarrierDismissible: false,
         );
@@ -153,7 +153,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                   SizedBox(height: 15),
                   Expanded(
                     child: unspentCoinsListViewModel.items.isEmpty
-                        ? Center(child: Text('No unspent coins available\ntry to reconnect'))
+                        ? Center(child: Text('No unspent coins available\ntry to reconnect',textAlign: TextAlign.center))
                         : ListView.separated(
                             itemCount: unspentCoinsListViewModel.items.length,
                             separatorBuilder: (_, __) => SizedBox(height: 15),

@@ -23,7 +23,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     this.coinTypeToSpendFrom = UnspentCoinType.any,
   })  : _unspentCoinsInfo = unspentCoinsInfo,
-        items = ObservableList<UnspentCoinsItem>();
+        items = ObservableList<UnspentCoinsItem>(),
+        _originalState = {};
 
   final WalletBase wallet;
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
@@ -32,13 +33,40 @@ abstract class UnspentCoinsListViewModelBase with Store {
   @observable
   ObservableList<UnspentCoinsItem> items;
 
+  final Map<String, Map<String, dynamic>> _originalState;
+
   @observable
   bool isDisposing = false;
 
   @computed
   bool get isAllSelected => items.every((element) => element.isFrozen || element.isSending);
 
-  Future<void> initialSetup() async => await _updateUnspents();
+  Future<void> initialSetup() async {
+    await _updateUnspents();
+    _storeOriginalState();
+  }
+
+  void _storeOriginalState() {
+    _originalState.clear();
+    for (final item in items) {
+      _originalState[item.hash] = {
+        'isFrozen': item.isFrozen,
+        'note': item.note,
+        'isSending': item.isSending,
+      };
+    }
+  }
+
+  bool _hasAdjustableFieldChanged(UnspentCoinsItem item) {
+    final original = _originalState[item.hash];
+    if (original == null) return false;
+    return original['isFrozen'] != item.isFrozen ||
+        original['note'] != item.note ||
+        original['isSending'] != item.isSending;
+  }
+
+  bool get hasAdjustableFieldChanged => items.any(_hasAdjustableFieldChanged);
+
 
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
