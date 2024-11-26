@@ -107,8 +107,8 @@ class WalletLoadingService {
       }
 
       // if all user's wallets are corrupted throw exception
-      secureStorageShared.write(key: "corruptedWalletsSeed", value: corruptedWalletsSeeds);
-      throw error.toString();
+      final msg = error.toString() + "\n" + corruptedWalletsSeeds;
+      throw msg;
     }
   }
 

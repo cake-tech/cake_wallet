@@ -299,15 +299,13 @@ class ExceptionHandler {
 
   static Future<void> _showCopyPopup(String content) async {
     if (navigatorKey.currentContext != null) {
-      final seeds = await secureStorageShared.read(key: "corruptedWalletsSeed");
-      await secureStorageShared.delete(key: "corruptedWalletsSeed");
       final shouldCopy = await showPopUp<bool?>(
         context: navigatorKey.currentContext!,
         builder: (context) {
           return AlertWithTwoActions(
             isDividerExist: true,
             alertTitle: S.of(context).error,
-            alertContent: content+"\n"+(seeds??""),
+            alertContent: content,
             rightButtonText: S.of(context).copy,
             leftButtonText: S.of(context).close,
             actionRightButton: () {

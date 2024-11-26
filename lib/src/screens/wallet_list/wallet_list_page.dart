@@ -462,8 +462,7 @@ class WalletListBodyState extends State<WalletListBody> {
           }
         } catch (e) {
           await ExceptionHandler.resetLastPopupDate();
-          final err = e.toString() + ((await secureStorageShared.read(key: "corruptedWalletsSeed"))??"unable to retrieve seeds");
-          await secureStorageShared.delete(key: "corruptedWalletsSeed");
+          final err = e.toString();
           await ExceptionHandler.onError(FlutterErrorDetails(exception: err));
           if (this.mounted) {
             changeProcessText(S
