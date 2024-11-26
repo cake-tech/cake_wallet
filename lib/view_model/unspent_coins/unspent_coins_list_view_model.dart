@@ -3,6 +3,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -17,9 +18,11 @@ part 'unspent_coins_list_view_model.g.dart';
 class UnspentCoinsListViewModel = UnspentCoinsListViewModelBase with _$UnspentCoinsListViewModel;
 
 abstract class UnspentCoinsListViewModelBase with Store {
-  UnspentCoinsListViewModelBase(
-      {required this.wallet, required Box<UnspentCoinsInfo> unspentCoinsInfo})
-      : _unspentCoinsInfo = unspentCoinsInfo,
+  UnspentCoinsListViewModelBase({
+    required this.wallet,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    this.coinTypeToSpendFrom = UnspentCoinType.any,
+  })  : _unspentCoinsInfo = unspentCoinsInfo,
         _items = ObservableList<UnspentCoinsItem>() {
     _updateUnspentCoinsInfo();
     _updateUnspents();
@@ -27,6 +30,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   WalletBase wallet;
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
+  final UnspentCoinType coinTypeToSpendFrom;
 
   @observable
   ObservableList<UnspentCoinsItem> _items;
@@ -104,7 +108,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return bitcoin!.getUnspents(wallet);
+        return bitcoin!.getUnspents(wallet, coinTypeToSpendFrom: coinTypeToSpendFrom);
       default:
         return List.empty();
     }

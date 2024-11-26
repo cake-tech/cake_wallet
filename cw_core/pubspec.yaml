@@ -17,7 +17,7 @@ dependencies:
   path_provider: ^2.0.11
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1
-  intl: ^0.18.0
+  intl: ^0.19.0
   encrypt: ^5.0.1
   cake_backup:
     git:
@@ -47,6 +47,7 @@ dependency_overrides:
 
 # The following section is specific to Flutter.
 flutter:
+    uses-material-design: true
 
   # To add assets to your package, add an assets section, like this:
   # assets:

@@ -24,6 +24,7 @@ class PendingBitcoinTransaction with PendingTransaction {
     this.isSendAll = false,
     this.hasTaprootInputs = false,
     this.isMweb = false,
+    this.utxos = const [],
   }) : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
@@ -36,7 +37,9 @@ class PendingBitcoinTransaction with PendingTransaction {
   final bool isSendAll;
   final bool hasChange;
   final bool hasTaprootInputs;
+  List<UtxoWithAddress> utxos;
   bool isMweb;
+  String? changeAddressOverride;
   String? idOverride;
   String? hexOverride;
   List<String>? outputAddresses;
@@ -63,6 +66,9 @@ class PendingBitcoinTransaction with PendingTransaction {
   PendingChange? get change {
     try {
       final change = _tx.outputs.firstWhere((out) => out.isChange);
+      if (changeAddressOverride != null) {
+        return PendingChange(changeAddressOverride!, BtcUtils.fromSatoshi(change.amount));
+      }
       return PendingChange(change.scriptPubKey.toAddress(), BtcUtils.fromSatoshi(change.amount));
     } catch (_) {
       return null;
@@ -112,11 +118,12 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   Future<void> _ltcCommit() async {
     try {
-      final stub = await CwMweb.stub();
-      final resp = await stub.broadcast(BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
+      final resp = await CwMweb.broadcast(BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
       idOverride = resp.txid;
     } on GrpcError catch (e) {
       throw BitcoinTransactionCommitFailed(errorMessage: e.message);
+    } catch (e) {
+      throw BitcoinTransactionCommitFailed(errorMessage: "Unknown error: ${e.toString()}");
     }
   }
 
@@ -146,4 +153,9 @@ class PendingBitcoinTransaction with PendingTransaction {
       inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
       outputAddresses: outputAddresses,
       fee: fee);
+      
+  @override
+  Future<String?> commitUR() {
+    throw UnimplementedError();
+  }
 }

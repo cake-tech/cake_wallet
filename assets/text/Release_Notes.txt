@@ -1,4 +1,5 @@
-Enable BIP39 by default for wallet creation also on Bitcoin/Litecoin (Electrum seed type is still accessible through advanced settings page)
-Improve fee calculation for Bitcoin to protect against overpaying or underpaying
-Enhance auto-address generation for Monero
-Bug fixes and enhancements
+Add Litecoin Ledger support
+Add airgapped Monero wallet support (best used with our new offline app Cupcake)
+MWEB fixes and enhancements
+New Buy & Sell flow
+Bug fixes

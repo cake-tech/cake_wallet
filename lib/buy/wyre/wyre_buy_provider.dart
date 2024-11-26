@@ -42,6 +42,9 @@ class WyreBuyProvider extends BuyProvider {
   @override
   String get darkIcon => 'assets/images/robinhood_dark.png';
 
+  @override
+  bool get isAggregator => false;
+
   String get trackUrl => isTestEnvironment ? _trackTestUrl : _trackProductUrl;
 
   String baseApiUrl;
@@ -147,11 +150,5 @@ class WyreBuyProvider extends BuyProvider {
         amount: amount.toString(),
         receiveAddress: wallet.walletAddresses.address,
         walletId: wallet.id);
-  }
-
-  @override
-  Future<void> launchProvider(BuildContext context, bool? isBuyAction) {
-    // TODO: implement launchProvider
-    throw UnimplementedError();
   }
 }

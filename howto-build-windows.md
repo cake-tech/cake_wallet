@@ -6,12 +6,12 @@ The following are the system requirements to build CakeWallet for your Windows P
 
 ```
 Windows 10 or later (64-bit), x86-64 based
-Flutter 3.19.x
+Flutter 3.24.4
 ```
 
 ### 1. Installing Flutter
 
-Install Flutter with version `3.19.x`. Follow the Flutter [installation guide](https://docs.flutter.dev/get-started/install/windows).
+Install Flutter with version `3.24.4`. Follow the Flutter [installation guide](https://docs.flutter.dev/get-started/install/windows).
 
 ### 2. Install Development Tools
 
@@ -22,7 +22,7 @@ Then install `Desktop development with C++` packages via Visual Studio 2022, or 
 - `C++ 2022 Redistributable Update`
 - `C++ core desktop features`
 - `MVC v143 - VS 2022 C++ x64/x86 build tools`
-- `C++ CMake tools for Windwos`
+- `C++ CMake tools for Windows`
 - `Testing tools core features - Build Tools`
 - `C++ AddressSanitizer`.
 
@@ -38,7 +38,7 @@ For building monero dependencies, it is required to install Windows WSL (https:/
 
 ### 5. Pull Cake Wallet source code
 
-You can downlaod CakeWallet source code from our [GitHub repository](github.com/cake-tech/cake_wallet) via git:
+You can download CakeWallet source code from our [GitHub repository](github.com/cake-tech/cake_wallet) via git:
 `$ git clone https://github.com/cake-tech/cake_wallet.git --branch MrCyjaneK-cyjan-monerodart`
 OR you can download it as [Zip archive](https://github.com/cake-tech/cake_wallet/archive/refs/heads/MrCyjaneK-cyjan-monerodart.zip)
 
@@ -52,6 +52,6 @@ For that you need to run the shell (bash - typically same named utility should b
 
 To configure the application, open the directory where you have downloaded or unarchived Cake Wallet sources and run `cakewallet.bat`.
 Or if you used WSL and have active shell session you can run `$ ./cakewallet.sh` script in `scripts/windows` which will run `cakewallet.bat` in WSL.
-After execution of `cakewallet.bat` you should to get `Cake Wallet.zip` in project root directory which will contains `CakeWallet.exe` file and another needed files for run the application. Now you can extract files from `Cake Wallet.zip` archive and run the application.
+After execution of `cakewallet.bat` you should to get `Cake Wallet.zip` in project root directory which will contain `CakeWallet.exe` file and another needed files for run the application. Now you can extract files from `Cake Wallet.zip` archive and run the application.
 
 Copyright (c) 2024 Cake Labs LLC.

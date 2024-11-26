@@ -1,2 +1,3 @@
-Enhance auto-address generation for Monero
-Bug fixes and enhancements
+Add airgapped Monero wallet support (best used with our new offline app Cupcake)
+New Buy & Sell flow
+Bug fixes

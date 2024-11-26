@@ -142,8 +142,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       'coinTo': _normalizeCurrency(request.toCurrency),
       'networkFrom': _networkFor(request.fromCurrency),
       'networkTo': _networkFor(request.toCurrency),
-      'withdrawalAddress': request.toAddress,
-      'refundAddress': request.refundAddress,
+      'withdrawalAddress': _normalizeAddress(request.toAddress),
+      'refundAddress': _normalizeAddress(request.refundAddress),
       'rateType': _getRateType(isFixedRateMode),
       'apiToken': apiKey,
     };
@@ -276,4 +276,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         return tag;
     }
   }
+
+  String _normalizeAddress(String address) =>
+      address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
 }

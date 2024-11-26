@@ -13,7 +13,13 @@ import 'package:mutex/mutex.dart';
 
 
 String getTxKey(String txId) {
-  return monero.Wallet_getTxKey(wptr!, txid: txId);
+  final txKey = monero.Wallet_getTxKey(wptr!, txid: txId);
+  final status = monero.Wallet_status(wptr!);
+  if (status != 0) {
+    final error = monero.Wallet_errorString(wptr!);
+    return txId+"_"+error;
+  }
+  return txKey;
 }
 final txHistoryMutex = Mutex();
 monero.TransactionHistory? txhistory;
@@ -178,23 +184,38 @@ PendingTransactionDescription createTransactionMultDestSync(
   );
 }
 
-void commitTransactionFromPointerAddress({required int address}) =>
-    commitTransaction(transactionPointer: monero.PendingTransaction.fromAddress(address));
+String? commitTransactionFromPointerAddress({required int address, required bool useUR}) =>
+    commitTransaction(transactionPointer: monero.PendingTransaction.fromAddress(address), useUR: useUR);
 
-void commitTransaction({required monero.PendingTransaction transactionPointer}) {
-  
-  final txCommit = monero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
+String? commitTransaction({required monero.PendingTransaction transactionPointer, required bool useUR}) {
+  final txCommit = useUR
+    ? monero.PendingTransaction_commitUR(transactionPointer, 120)
+    : monero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
 
-  final String? error = (() {
+  String? error = (() {
     final status = monero.PendingTransaction_status(transactionPointer.cast());
     if (status == 0) {
       return null;
     }
-    return monero.Wallet_errorString(wptr!);
+    return monero.PendingTransaction_errorString(transactionPointer.cast());
   })();
+  if (error == null) {
+    error = (() {
+      final status = monero.Wallet_status(wptr!);
+      if (status == 0) {
+        return null;
+      }
+      return monero.Wallet_errorString(wptr!);
+    })();
   
+  }
   if (error != null) {
     throw CreationTransactionException(message: error);
+  }
+  if (useUR) {
+    return txCommit as String?;
+  } else {
+    return null;
   }
 }
 
