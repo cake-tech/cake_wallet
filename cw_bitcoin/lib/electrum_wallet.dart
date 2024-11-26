@@ -1459,6 +1459,7 @@ abstract class ElectrumWalletBase
     await unspentCoinsInfo.add(newInfo);
   }
 
+  // delete unspent coins info entries that don't have a corresponding unspent coin:
   Future<void> _refreshUnspentCoinsInfo() async {
     try {
       final List<dynamic> keys = <dynamic>[];
