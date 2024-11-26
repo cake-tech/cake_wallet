@@ -17,7 +17,7 @@ String getTxKey(String txId) {
   final status = monero.Wallet_status(wptr!);
   if (status != 0) {
     final error = monero.Wallet_errorString(wptr!);
-    return txId+"_"+error;
+    return "";
   }
   return txKey;
 }
@@ -91,12 +91,19 @@ Future<PendingTransactionDescription> createTransactionSync(
     List<String> preferredInputs = const []}) async {
 
   final amt = amount == null ? 0 : monero.Wallet_amountFromString(amount);
-  
+
+  final waddr = wptr!.address;
+
+  // force reconnection in case the os killed the connection?
+  // fixes failed to get block height error.
+  Isolate.run(() async {
+    monero.Wallet_synchronized(Pointer.fromAddress(waddr));
+  });
+
   final address_ = address.toNativeUtf8(); 
   final paymentId_ = paymentId.toNativeUtf8(); 
   final preferredInputs_ = preferredInputs.join(monero.defaultSeparatorStr).toNativeUtf8();
 
-  final waddr = wptr!.address;
   final addraddr = address_.address;
   final paymentIdAddr = paymentId_.address;
   final preferredInputsAddr = preferredInputs_.address;
@@ -357,16 +364,7 @@ class Transaction {
         confirmations = monero.TransactionInfo_confirmations(txInfo),
         fee = monero.TransactionInfo_fee(txInfo),
         description = monero.TransactionInfo_description(txInfo),
-        key = getTxKey(txInfo);
-
-  static String getTxKey(monero.TransactionInfo txInfo) {
-    final txKey = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo));
-    final status = monero.Wallet_status(wptr!);
-    if (status != 0) {
-      return "";
-    }
-    return txKey;
-  }
+        key = getTxKey(monero.TransactionInfo_hash(txInfo));
 
   Transaction.dummy({
     required this.displayLabel,
