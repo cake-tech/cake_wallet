@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/universal_sed.sh"
 CAKEWALLET="cakewallet"
 DIR=`pwd`
 
@@ -18,8 +18,8 @@ esac
 
 cp -rf pubspec_description.yaml pubspec.yaml
 flutter pub get
-flutter pub run tool/generate_pubspec.dart
+dart run tool/generate_pubspec.dart
 flutter pub get
-flutter packages pub run tool/configure.dart $CONFIG_ARGS
-sed -i '0,/version: 0.0.0/s//version: '"${APP_LINUX_VERSION}"'+'"${APP_LINUX_BUILD_NUMBER}"'/' pubspec.yaml
+dart run tool/configure.dart $CONFIG_ARGS
+universal_sed '0,/version: 0.0.0/s//version: '"${APP_LINUX_VERSION}"'+'"${APP_LINUX_BUILD_NUMBER}"'/' pubspec.yaml
 cd $DIR

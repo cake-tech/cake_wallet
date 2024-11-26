@@ -23,7 +23,7 @@
 
 - Add the code to run the code generation needed for the files in the `cw_walletx` package to the `model_generator.sh` script
 
-		 cd cw_walletx && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+		 cd cw_walletx && flutter pub get && dart run build_runner build --delete-conflicting-outputs && cd ..
 
 - Add the relevant dev_dependencies for generating the files also
     - build_runner
@@ -78,9 +78,9 @@ A `Proxy` class is used to communicate with the specific wallet package we have.
 
 		./app_config.sh
 
-		cd cw_walletx && flutter pub get && flutter packages pub run build_runner build
+		cd cw_walletx && flutter pub get && dart run build_runner build
 
-		flutter packages pub run build_runner build --delete-conflicting-outputs
+		dart run build_runner build --delete-conflicting-outputs
 
 Moving forward, our interactions with the cw_walletx package would be through the proxy class and its methods.
 
@@ -191,9 +191,9 @@ You can add as many node entries as desired.
 
 - Run the following commands after to generate modified files in cw_core  and lib		
 		
-		cd cw_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..
+		cd cw_core && flutter pub get && dart run build_runner build --delete-conflicting-outputs && cd ..
 
-		flutter packages pub run build_runner build --delete-conflicting-outputs
+		dart run build_runner build --delete-conflicting-outputs
 
 - Lastly, before we run the app to test what we’ve done so far, 
 - Go to `lib/src/dashboard/widgets/menu_widget.dart` and add an icon for walletX to be used within the app.				

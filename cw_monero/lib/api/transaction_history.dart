@@ -197,14 +197,23 @@ String? commitTransaction({required monero.PendingTransaction transactionPointer
     ? monero.PendingTransaction_commitUR(transactionPointer, 120)
     : monero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
 
-  final String? error = (() {
+  String? error = (() {
     final status = monero.PendingTransaction_status(transactionPointer.cast());
     if (status == 0) {
       return null;
     }
-    return monero.Wallet_errorString(wptr!);
+    return monero.PendingTransaction_errorString(transactionPointer.cast());
   })();
+  if (error == null) {
+    error = (() {
+      final status = monero.Wallet_status(wptr!);
+      if (status == 0) {
+        return null;
+      }
+      return monero.Wallet_errorString(wptr!);
+    })();
   
+  }
   if (error != null) {
     throw CreationTransactionException(message: error);
   }
