@@ -69,6 +69,8 @@ class ExceptionHandler {
 
       await _addDeviceInfo(_file!);
 
+      print("ADDING ELECTRUM WALLET DATA");
+
       await _addElectrumWalletData(_file!);
 
       // Check if a mail client is available
@@ -100,15 +102,15 @@ class ExceptionHandler {
   }
 
   static void onError(FlutterErrorDetails errorDetails) async {
-    if (kDebugMode || kProfileMode) {
-      FlutterError.presentError(errorDetails);
-      debugPrint(errorDetails.toString());
-      return;
-    }
+    // if (kDebugMode || kProfileMode) {
+    //   FlutterError.presentError(errorDetails);
+    //   debugPrint(errorDetails.toString());
+    //   return;
+    // }
 
-    if (_ignoreError(errorDetails.exception.toString())) {
-      return;
-    }
+    // if (_ignoreError(errorDetails.exception.toString())) {
+    //   return;
+    // }
 
     _saveException(
       errorDetails.exceptionAsString(),
@@ -116,9 +118,9 @@ class ExceptionHandler {
       library: errorDetails.library,
     );
 
-    if (errorDetails.silent) {
-      return;
-    }
+    // if (errorDetails.silent) {
+    //   return;
+    // }
 
     final sharedPrefs = await SharedPreferences.getInstance();
 
@@ -232,36 +234,49 @@ class ExceptionHandler {
   static Future<void> _addElectrumWalletData(File file) async {
     final walletLoadingService = getIt.get<WalletLoadingService>();
     final walletName = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
-    final walletTypeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType);
-    final walletType = WalletType.values.firstWhere((e) => e.index == walletTypeRaw);
-
+    final walletTypeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType)!;
+    final walletType = deserializeFromInt(walletTypeRaw);
     if (walletName == null) return;
-    if (walletType != WalletType.bitcoin || walletType != WalletType.litecoin) return;
+    if (![WalletType.bitcoin, WalletType.litecoin].contains(walletType)) return;
 
-    final wallet = (await walletLoadingService.load(walletType, walletName)) as ElectrumWallet;
+    final loadedWallet = await walletLoadingService.load(walletType, walletName);
 
-    final receiveAddresses = wallet.walletAddresses.receiveAddresses;
-    final changeAddresses = wallet.walletAddresses.changeAddresses;
-    final unspentCoins = wallet.unspentCoins;
-    final unspentCoinsInfo = wallet.unspentCoinsInfo;
+    final wallet = loadedWallet as ElectrumWallet;
 
+    await wallet.updateAllUnspents();
+
+    final receiveAddresses =
+        wallet.walletAddresses.receiveAddresses.where((e) => !e.address.contains("mweb")).toList();
+    final changeAddresses =
+        wallet.walletAddresses.changeAddresses.where((e) => !e.address.contains("mweb")).toList();
+    final unspentCoins = wallet.unspentCoins.where((e) => !e.address.contains("mweb")).toList();
+    final unspentCoinsInfo =
+        wallet.unspentCoinsInfo.values.where((e) => !e.address.contains("mweb")).toList();
+
+    await file.writeAsString("\n\nReceive Addresses:\n", mode: FileMode.append);
     for (var address in receiveAddresses) {
-      String addressStr = "address: ${address.address}, isHidden: ${address.isHidden}, isUsed: ${address.isUsed}";
-      file.writeAsString("Receive Address: $addressStr\n\n", mode: FileMode.append);
+      String addressStr =
+          "address: ${address.address} isHidden: ${address.isHidden ? "1" : "0"} isUsed: ${address.isUsed ? "1" : "0"}";
+      await file.writeAsString("$addressStr\n", mode: FileMode.append);
     }
+    await file.writeAsString("\n\nChange Addresses:\n", mode: FileMode.append);
     for (var address in changeAddresses) {
-      String addressStr = "address: ${address.address}, isHidden: ${address.isHidden}, isUsed: ${address.isUsed}";
-      file.writeAsString("Change Address: $addressStr\n\n", mode: FileMode.append);
+      String addressStr =
+          "address: ${address.address} isHidden: ${address.isHidden ? "1" : "0"} isUsed: ${address.isUsed ? "1" : "0"}";
+      await file.writeAsString("$addressStr\n", mode: FileMode.append);
     }
+    await file.writeAsString("\n\nUnspent Coins:\n", mode: FileMode.append);
     for (var coin in unspentCoins) {
       String coinStr =
-          "address: ${coin.address}, isChange: ${coin.isChange}, vout: ${coin.vout} value: ${coin.value}";
-      file.writeAsString("Unspent Coin: $coinStr\n\n", mode: FileMode.append);
+          "address: ${coin.address} isChange: ${coin.isChange ? "1" : "0"} vout: ${coin.vout} value: ${coin.value}";
+      await file.writeAsString("$coinStr\n", mode: FileMode.append);
     }
-    unspentCoinsInfo.values.forEach((info) {
-      String infoStr = "address: ${info.address}, isChange: ${info.isChange} vout: ${info.vout} value: ${info.value}";
-      file.writeAsString("Unspent Coin Info: $infoStr\n\n", mode: FileMode.append);
-    });
+    await file.writeAsString("\n\nUnspent Coins Info:\n", mode: FileMode.append);
+    for (var info in unspentCoinsInfo) {
+      String infoStr =
+          "address: ${info.address} isChange: ${info.isChange ? "1" : "0"} vout: ${info.vout} value: ${info.value}";
+      await file.writeAsString("$infoStr\n", mode: FileMode.append);
+    }
   }
 
   static Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
