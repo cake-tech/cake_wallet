@@ -63,6 +63,8 @@ void startCurrentWalletChangeReaction(
       startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
       startCheckConnectionReaction(wallet, settingsStore);
 
+      await Future.delayed(Duration.zero);
+
       if (wallet.type == WalletType.monero ||
           wallet.type == WalletType.wownero ||
           wallet.type == WalletType.bitcoin ||
