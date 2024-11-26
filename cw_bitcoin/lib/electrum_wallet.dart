@@ -304,6 +304,7 @@ abstract class ElectrumWalletBase
   Future<void> init() async {
     await walletAddresses.init();
     await transactionHistory.init();
+    await cleanUpDuplicateUnspentCoins();
     await save();
 
     _autoSaveTimer =
@@ -1490,6 +1491,23 @@ abstract class ElectrumWalletBase
     } catch (e) {
       print("refreshUnspentCoinsInfo $e");
     }
+  }
+
+  Future<void> cleanUpDuplicateUnspentCoins() async {
+    final currentWalletUnspentCoins = unspentCoinsInfo.values.where((element) => element.walletId == id);
+    final Map<String, UnspentCoinsInfo> uniqueUnspentCoins = {};
+    final List<dynamic> duplicateKeys = [];
+
+    for (final unspentCoin in currentWalletUnspentCoins) {
+      final key = '${unspentCoin.hash}:${unspentCoin.vout}';
+      if (!uniqueUnspentCoins.containsKey(key)) {
+        uniqueUnspentCoins[key] = unspentCoin;
+      } else {
+        duplicateKeys.add(unspentCoin.key);
+      }
+    }
+
+    if (duplicateKeys.isNotEmpty) await unspentCoinsInfo.deleteAll(duplicateKeys);
   }
 
   int transactionVSize(String transactionHex) => BtcTransaction.fromRaw(transactionHex).getVSize();
