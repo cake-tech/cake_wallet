@@ -1,3 +1,5 @@
-Monero enhancements
-Improvements for Tron and Nano wallets
+Add Litecoin Ledger support
+Add airgapped Monero wallet support (best used with our new offline app Cupcake)
+MWEB fixes and enhancements
+New Buy & Sell flow
 Bug fixes

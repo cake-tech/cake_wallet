@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -14,35 +16,34 @@ import 'package:cw_tron/tron_exception.dart';
 import 'package:cw_tron/tron_wallet.dart';
 import 'package:cw_tron/tron_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
-import 'package:collection/collection.dart';
 
 class TronWalletService extends WalletService<
     TronNewWalletCredentials,
     TronRestoreWalletFromSeedCredentials,
     TronRestoreWalletFromPrivateKey,
     TronNewWalletCredentials> {
-  TronWalletService(this.walletInfoSource, {required this.client});
+  TronWalletService(this.walletInfoSource, {required this.client, required this.isDirect});
 
   late TronClient client;
 
   final Box<WalletInfo> walletInfoSource;
+  final bool isDirect;
 
   @override
   WalletType getType() => WalletType.tron;
 
   @override
-  Future<TronWallet> create(
-    TronNewWalletCredentials credentials, {
-    bool? isTestnet,
-  }) async {
+  Future<TronWallet> create(TronNewWalletCredentials credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
-    final mnemonic = bip39.generateMnemonic(strength: strength);
+    final mnemonic = credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
 
     final wallet = TronWallet(
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
+      passphrase: credentials.passphrase,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -62,6 +63,7 @@ class TronWalletService extends WalletService<
         name: name,
         password: password,
         walletInfo: walletInfo,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
 
       await wallet.init();
@@ -75,6 +77,7 @@ class TronWalletService extends WalletService<
         name: name,
         password: password,
         walletInfo: walletInfo,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
 
       await wallet.init();
@@ -92,6 +95,7 @@ class TronWalletService extends WalletService<
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -114,6 +118,8 @@ class TronWalletService extends WalletService<
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      passphrase: credentials.passphrase,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
     await wallet.init();
@@ -128,7 +134,11 @@ class TronWalletService extends WalletService<
     final currentWalletInfo = walletInfoSource.values
         .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
     final currentWallet = await TronWalletBase.open(
-        password: password, name: currentName, walletInfo: currentWalletInfo);
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
 
     await currentWallet.renameWalletFiles(newName);
     await saveBackup(newName);
@@ -153,7 +163,8 @@ class TronWalletService extends WalletService<
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> restoreFromHardwareWallet(TronNewWalletCredentials credentials) {
+  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
+      restoreFromHardwareWallet(TronNewWalletCredentials credentials) {
     // TODO: implement restoreFromHardwareWallet
     throw UnimplementedError();
   }

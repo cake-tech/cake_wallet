@@ -1,11 +1,15 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -95,6 +99,11 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         ),
       ];
 
+      final selectedItem = dropDownItems.firstWhere(
+        (element) => element.isSelected,
+        orElse: () => dropDownItems.first,
+      );
+
       return DropdownButton<DesktopDropdownItem>(
         items: dropDownItems
             .map(
@@ -110,7 +119,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         dropdownColor: themeData.extension<CakeMenuTheme>()!.backgroundColor,
         style: TextStyle(color: themeData.extension<CakeTextTheme>()!.titleColor),
         selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
-        value: dropDownItems.firstWhere((element) => element.isSelected),
+        value: selectedItem,
         underline: const SizedBox(),
         focusColor: Colors.transparent,
         borderRadius: BorderRadius.circular(15.0),
@@ -119,9 +128,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   void _onSelectedWallet(WalletListItem selectedWallet) async {
-    if (selectedWallet.isCurrent || !selectedWallet.isEnabled) {
-      return;
-    }
+    if (selectedWallet.isCurrent || !selectedWallet.isEnabled) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final confirmed = await showPopUp<bool>(
@@ -146,9 +153,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   Image _imageFor({required WalletType type, bool? isTestnet}) {
     switch (type) {
       case WalletType.bitcoin:
-        if (isTestnet == true) {
-          return tBitcoinIcon;
-        }
+        if (isTestnet == true) return tBitcoinIcon;
         return bitcoinIcon;
       case WalletType.monero:
         return moneroIcon;
@@ -170,28 +175,42 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return solanaIcon;
       case WalletType.tron:
         return tronIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
       default:
         return nonWalletTypeIcon;
     }
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
+    if (SettingsStoreBase.walletPasswordDirectInput) {
+      Navigator.of(context).pushNamed(Routes.walletUnlockLoadable,
+          arguments: WalletUnlockArguments(
+              callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+                if (isAuthenticatedSuccessfully) {
+                  auth.close();
+                  setState(() {});
+                }
+              },
+              walletName: wallet.name,
+              walletType: wallet.type));
+      return;
+    }
+
     widget._authService.authenticateAction(
       context,
       onAuthSuccess: (isAuthenticatedSuccessfully) async {
-        if (!isAuthenticatedSuccessfully) {
-          return;
-        }
+        if (!isAuthenticatedSuccessfully) return;
 
         try {
-          if (context.mounted) {
+          if (mounted) {
             changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
           }
           await widget.walletListViewModel.loadWallet(wallet);
           hideProgressText();
           setState(() {});
         } catch (e) {
-          if (context.mounted) {
+          if (mounted) {
             changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
           }
         }
@@ -206,7 +225,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       widget._authService.authenticateAction(
         context,
         route: Routes.newWallet,
-        arguments: widget.walletListViewModel.currentWalletType,
+        arguments: NewWalletArguments(type: widget.walletListViewModel.currentWalletType),
         conditionToDetermineIfToUse2FA:
             widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
       );

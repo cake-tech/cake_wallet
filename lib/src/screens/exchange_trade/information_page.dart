@@ -10,7 +10,7 @@ import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 
 class InformationPage extends StatelessWidget {
-  InformationPage({required this.information});
+  InformationPage({required this.information, super.key});
 
   final String information;
 
@@ -47,6 +47,7 @@ class InformationPage extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
                 child: PrimaryButton(
+                  key: ValueKey('information_page_got_it_button_key'),
                   onPressed: () => Navigator.of(context).pop(),
                   text: S.of(context).got_it,
                   color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor,

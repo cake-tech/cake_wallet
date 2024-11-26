@@ -40,7 +40,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static const _txInfoPath = '/thorchain/tx/status/';
   static const _affiliateName = 'cakewallet';
   static const _affiliateBps = '175';
-  static const _nameLookUpPath= 'v2/thorname/lookup/';
+  static const _nameLookUpPath = 'v2/thorname/lookup/';
 
   final Box<Trade> tradesStore;
 
@@ -116,9 +116,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
     required bool isSendAll,
   }) async {
-    String formattedToAddress = request.toAddress.startsWith('bitcoincash:')
-        ? request.toAddress.replaceFirst('bitcoincash:', '')
-        : request.toAddress;
+
 
     final formattedFromAmount = double.parse(request.fromAmount);
 
@@ -126,30 +124,38 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       'from_asset': _normalizeCurrency(request.fromCurrency),
       'to_asset': _normalizeCurrency(request.toCurrency),
       'amount': _doubleToThorChainString(formattedFromAmount),
-      'destination': formattedToAddress,
+      'destination': _normalizeAddress(request.toAddress),
       'affiliate': _affiliateName,
       'affiliate_bps': _affiliateBps,
       'refund_address':
-          isRefundAddressSupported.contains(request.fromCurrency) ? request.refundAddress : '',
+          isRefundAddressSupported.contains(request.fromCurrency) ? _normalizeAddress(request.refundAddress) : '',
     };
 
     final responseJSON = await _getSwapQuote(params);
 
     final inputAddress = responseJSON['inbound_address'] as String?;
     final memo = responseJSON['memo'] as String?;
+    final directAmountOutResponse = responseJSON['expected_amount_out'] as String?;
+
+    String? receiveAmount;
+    if (directAmountOutResponse != null) {
+      receiveAmount = _thorChainAmountToDouble(directAmountOutResponse).toString();
+    }
 
     return Trade(
-        id: '',
-        from: request.fromCurrency,
-        to: request.toCurrency,
-        provider: description,
-        inputAddress: inputAddress,
-        createdAt: DateTime.now(),
-        amount: request.fromAmount,
-        state: TradeState.notFound,
-        payoutAddress: request.toAddress,
-        memo: memo,
-        isSendAll: isSendAll);
+      id: '',
+      from: request.fromCurrency,
+      to: request.toCurrency,
+      provider: description,
+      inputAddress: inputAddress,
+      createdAt: DateTime.now(),
+      amount: request.fromAmount,
+      receiveAmount: receiveAmount ?? request.toAmount,
+      state: TradeState.notFound,
+      payoutAddress: request.toAddress,
+      memo: memo,
+      isSendAll: isSendAll,
+    );
   }
 
   @override
@@ -234,7 +240,6 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     return chainToAddressMap;
   }
 
-
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
     Uri uri = Uri.https(_baseNodeURL, _quotePath, params);
 
@@ -281,4 +286,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     return currentState;
   }
+
+  String _normalizeAddress(String address) =>
+      address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
 }

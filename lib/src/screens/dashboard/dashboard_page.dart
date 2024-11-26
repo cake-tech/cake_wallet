@@ -140,13 +140,14 @@ class _DashboardPageView extends BasePage {
   bool get resizeToAvoidBottomInset => false;
 
   @override
-  Widget get endDrawer => MenuWidget(dashboardViewModel);
+  Widget get endDrawer => MenuWidget(dashboardViewModel, ValueKey('dashboard_page_drawer_menu_widget_key'));
 
   @override
   Widget leading(BuildContext context) {
     return Observer(
       builder: (context) {
         return ServicesUpdatesWidget(
+          key: ValueKey('dashboard_page_services_update_button_key'),
           dashboardViewModel.getServicesStatus(),
           enabled: dashboardViewModel.isEnabledBulletinAction,
         );
@@ -157,6 +158,7 @@ class _DashboardPageView extends BasePage {
   @override
   Widget middle(BuildContext context) {
     return SyncIndicator(
+      key: ValueKey('dashboard_page_sync_indicator_button_key'),
       dashboardViewModel: dashboardViewModel,
       onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(Routes.connectionSync),
     );
@@ -173,6 +175,7 @@ class _DashboardPageView extends BasePage {
       alignment: Alignment.centerRight,
       width: 40,
       child: TextButton(
+        key: ValueKey('dashboard_page_wallet_menu_button_key'),
         // FIX-ME: Style
         //highlightColor: Colors.transparent,
         //splashColor: Colors.transparent,
@@ -226,6 +229,7 @@ class _DashboardPageView extends BasePage {
               child: Observer(
                 builder: (context) {
                   return PageView.builder(
+                    key: ValueKey('dashboard_page_view_key'),
                     controller: controller,
                     itemCount: pages.length,
                     itemBuilder: (context, index) => pages[index],
@@ -237,7 +241,11 @@ class _DashboardPageView extends BasePage {
               padding: EdgeInsets.only(bottom: 24, top: 10),
               child: Observer(
                 builder: (context) {
-                  return ExcludeSemantics(
+                  return Semantics(
+                    button: false,
+                    label: 'Page Indicator',
+                    hint: 'Swipe to change page',
+                    excludeSemantics: true,
                     child: SmoothPageIndicator(
                       controller: controller,
                       count: pages.length,
@@ -283,30 +291,34 @@ class _DashboardPageView extends BasePage {
                           children: MainActions.all
                               .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
                               .map(
-                                (action) => Semantics(
-                                  button: true,
-                                  enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
-                                  child: ActionButton(
-                                    image: Image.asset(
-                                      action.image,
-                                      height: 24,
-                                      width: 24,
-                                      color: action.isEnabled?.call(dashboardViewModel) ?? true
-                                          ? Theme.of(context)
-                                              .extension<DashboardPageTheme>()!
-                                              .mainActionsIconColor
+                                (action) => Expanded(
+                                  child: Semantics(
+                                    button: true,
+                                    enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
+                                    child: ActionButton(
+                                      key: ValueKey(
+                                          'dashboard_page_${action.name(context)}_action_button_key'),
+                                      image: Image.asset(
+                                        action.image,
+                                        height: 24,
+                                        width: 24,
+                                        color: action.isEnabled?.call(dashboardViewModel) ?? true
+                                            ? Theme.of(context)
+                                                .extension<DashboardPageTheme>()!
+                                                .mainActionsIconColor
+                                            : Theme.of(context)
+                                                .extension<BalancePageTheme>()!
+                                                .labelTextColor,
+                                      ),
+                                      title: action.name(context),
+                                      onClick: () async =>
+                                          await action.onTap(context, dashboardViewModel),
+                                      textColor: action.isEnabled?.call(dashboardViewModel) ?? true
+                                          ? null
                                           : Theme.of(context)
                                               .extension<BalancePageTheme>()!
                                               .labelTextColor,
                                     ),
-                                    title: action.name(context),
-                                    onClick: () async =>
-                                        await action.onTap(context, dashboardViewModel),
-                                    textColor: action.isEnabled?.call(dashboardViewModel) ?? true
-                                        ? null
-                                        : Theme.of(context)
-                                            .extension<BalancePageTheme>()!
-                                            .labelTextColor,
                                   ),
                                 ),
                               )

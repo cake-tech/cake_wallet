@@ -1,5 +1,6 @@
 include: package:lints/recommended.yaml
 
+
 analyzer:
   exclude: [
     build/**,
@@ -10,7 +11,18 @@ analyzer:
     lib/generated/*.dart,
     cw_monero/ios/External/**,
     cw_shared_external/**,
-    shared_external/**]
+    shared_external/**,
+    lib/bitcoin/cw_bitcoin.dart,
+    lib/bitcoin_cash/cw_bitcoin_cash.dart,
+    lib/ethereum/cw_ethereum.dart,
+    lib/haven/cw_haven.dart,
+    lib/monero/cw_monero.dart,
+    lib/nano/cw_nano.dart,
+    lib/polygon/cw_polygon.dart,
+    lib/solana/cw_solana.dart,
+    lib/tron/cw_tron.dart,
+    lib/wownero/cw_wownero.dart,
+    ]
   language:
     strict-casts: true
     strict-raw-types: true

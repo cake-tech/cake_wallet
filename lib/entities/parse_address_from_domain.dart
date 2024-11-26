@@ -26,22 +26,80 @@ class AddressResolver {
   final SettingsStore settingsStore;
 
   static const unstoppableDomains = [
-    'crypto',
-    'zil',
-    'x',
-    'wallet',
-    'bitcoin',
-    '888',
-    'nft',
-    'dao',
-    'blockchain',
-    'polygon',
-    'klever',
-    'hi',
-    'kresus',
-    'anime',
-    'manga',
-    'binanceus'
+    "888",
+    "altimist",
+    "anime",
+    "austin",
+    "bald",
+    "benji",
+    "bet",
+    "binanceus",
+    "bitcoin",
+    "bitget",
+    "blockchain",
+    "ca",
+    "chomp",
+    "clay",
+    "co",
+    "com",
+    "crypto",
+    "dao",
+    "dfz",
+    "digital",
+    "dream",
+    "eth",
+    "ethermail",
+    "farms",
+    "fun",
+    "go",
+    "group",
+    "hi",
+    "host",
+    "info",
+    "io",
+    "klever",
+    "kresus",
+    "kryptic",
+    "lfg",
+    "life",
+    "live",
+    "ltd",
+    "manga",
+    "metropolis",
+    "moon",
+    "mumu",
+    "net",
+    "nft",
+    "online",
+    "org",
+    "pog",
+    "polygon",
+    "press",
+    "pro",
+    "propykeys",
+    "pudgy",
+    "pw",
+    "raiin",
+    "secret",
+    "site",
+    "smobler",
+    "space",
+    "stepn",
+    "store",
+    "tball",
+    "tech",
+    "ubu",
+    "uno",
+    "unstoppable",
+    "wallet",
+    "website",
+    "wifi",
+    "witg",
+    "wrkx",
+    "x",
+    "xmr",
+    "xyz",
+    "zil",
   ];
 
   static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
@@ -51,7 +109,7 @@ class AddressResolver {
       throw Exception('Unexpected token: $type for getAddressFromStringPattern');
     }
 
-    final match = RegExp(addressPattern).firstMatch(raw);
+    final match = RegExp(addressPattern, multiLine: true).firstMatch(raw);
     return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'),
         (Match match) {
       String group = match.group(0)!;
@@ -213,8 +271,7 @@ class AddressResolver {
               await NostrProfileHandler.processRelays(context, nostrProfile!, text);
 
           if (nostrUserData != null) {
-            String? addressFromBio = extractAddressByType(
-                raw: nostrUserData.about, type: currency);
+            String? addressFromBio = extractAddressByType(raw: nostrUserData.about, type: currency);
             if (addressFromBio != null) {
               return ParsedAddress.nostrAddress(
                   address: addressFromBio,

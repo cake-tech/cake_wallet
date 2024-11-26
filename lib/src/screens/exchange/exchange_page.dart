@@ -67,17 +67,6 @@ class ExchangePage extends BasePage {
   Debounce _depositAmountDebounce = Debounce(Duration(milliseconds: 500));
   var _isReactionsSet = false;
 
-  final arrowBottomPurple = Image.asset(
-    'assets/images/arrow_bottom_purple_icon.png',
-    color: Colors.white,
-    height: 8,
-  );
-  final arrowBottomCakeGreen = Image.asset(
-    'assets/images/arrow_bottom_cake_green.png',
-    color: Colors.white,
-    height: 8,
-  );
-
   late final String? depositWalletName;
   late final String? receiveWalletName;
 
@@ -101,11 +90,11 @@ class ExchangePage extends BasePage {
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.focusedChild?.unfocus();
-    }
-  };
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
 
   @override
   Widget middle(BuildContext context) => Row(
@@ -239,6 +228,7 @@ class ExchangePage extends BasePage {
                   ),
                   Observer(
                       builder: (_) => LoadingPrimaryButton(
+                          key: ValueKey('exchange_page_exchange_button_key'),
                           text: S.of(context).exchange,
                           onPressed: () {
                             if (_formKey.currentState != null &&
@@ -340,7 +330,6 @@ class ExchangePage extends BasePage {
 
   void applyTemplate(
       BuildContext context, ExchangeViewModel exchangeViewModel, ExchangeTemplate template) async {
-
     final depositCryptoCurrency = CryptoCurrency.fromString(template.depositCurrency);
     final receiveCryptoCurrency = CryptoCurrency.fromString(template.receiveCurrency);
 
@@ -354,10 +343,12 @@ class ExchangePage extends BasePage {
     exchangeViewModel.isFixedRateMode = false;
 
     var domain = template.depositAddress;
-    exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, depositCryptoCurrency);
+    exchangeViewModel.depositAddress =
+        await fetchParsedAddress(context, domain, depositCryptoCurrency);
 
     domain = template.receiveAddress;
-    exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, receiveCryptoCurrency);
+    exchangeViewModel.receiveAddress =
+        await fetchParsedAddress(context, domain, receiveCryptoCurrency);
   }
 
   void _setReactions(BuildContext context, ExchangeViewModel exchangeViewModel) {
@@ -440,6 +431,8 @@ class ExchangePage extends BasePage {
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
+                    key: ValueKey('exchange_page_trade_creation_failure_dialog_key'),
+                    buttonKey: ValueKey('exchange_page_trade_creation_failure_dialog_button_key'),
                     alertTitle: S.of(context).provider_error(state.title),
                     alertContent: state.error,
                     buttonText: S.of(context).ok,
@@ -516,7 +509,7 @@ class ExchangePage extends BasePage {
       }
     });
 
-    reaction((_) => exchangeViewModel.wallet.walletAddresses.address, (String address) {
+    reaction((_) => exchangeViewModel.wallet.walletAddresses.addressForExchange, (String address) {
       if (exchangeViewModel.depositCurrency == CryptoCurrency.xmr) {
         depositKey.currentState!.changeAddress(address: address);
       }
@@ -529,14 +522,16 @@ class ExchangePage extends BasePage {
     _depositAddressFocus.addListener(() async {
       if (!_depositAddressFocus.hasFocus && depositAddressController.text.isNotEmpty) {
         final domain = depositAddressController.text;
-        exchangeViewModel.depositAddress = await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
+        exchangeViewModel.depositAddress =
+            await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
       }
     });
 
     _receiveAddressFocus.addListener(() async {
       if (!_receiveAddressFocus.hasFocus && receiveAddressController.text.isNotEmpty) {
         final domain = receiveAddressController.text;
-        exchangeViewModel.receiveAddress = await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
+        exchangeViewModel.receiveAddress =
+            await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
       }
     });
 
@@ -570,7 +565,7 @@ class ExchangePage extends BasePage {
     key.currentState!.changeWalletName(isCurrentTypeWallet ? exchangeViewModel.wallet.name : '');
 
     key.currentState!.changeAddress(
-        address: isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.address : '');
+        address: isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.addressForExchange : '');
 
     key.currentState!.changeAmount(amount: '');
   }
@@ -581,15 +576,16 @@ class ExchangePage extends BasePage {
 
     if (isCurrentTypeWallet) {
       key.currentState!.changeWalletName(exchangeViewModel.wallet.name);
-      key.currentState!.addressController.text = exchangeViewModel.wallet.walletAddresses.address;
+      key.currentState!.addressController.text = exchangeViewModel.wallet.walletAddresses.addressForExchange;
     } else if (key.currentState!.addressController.text ==
-        exchangeViewModel.wallet.walletAddresses.address) {
+        exchangeViewModel.wallet.walletAddresses.addressForExchange) {
       key.currentState!.changeWalletName('');
       key.currentState!.addressController.text = '';
     }
   }
 
-  Future<String> fetchParsedAddress(BuildContext context, String domain, CryptoCurrency currency) async {
+  Future<String> fetchParsedAddress(
+      BuildContext context, String domain, CryptoCurrency currency) async {
     final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
@@ -619,6 +615,7 @@ class ExchangePage extends BasePage {
   Widget _exchangeCardsSection(BuildContext context) {
     final firstExchangeCard = Observer(
         builder: (_) => ExchangeCard(
+              cardInstanceName: 'deposit_exchange_card',
               onDispose: disposeBestRateSync,
               hasAllAmount: exchangeViewModel.hasAllAmount,
               allAmount: exchangeViewModel.hasAllAmount
@@ -632,7 +629,7 @@ class ExchangePage extends BasePage {
               initialCurrency: exchangeViewModel.depositCurrency,
               initialWalletName: depositWalletName ?? '',
               initialAddress: exchangeViewModel.depositCurrency == exchangeViewModel.wallet.currency
-                  ? exchangeViewModel.wallet.walletAddresses.address
+                  ? exchangeViewModel.wallet.walletAddresses.addressForExchange
                   : exchangeViewModel.depositAddress,
               initialIsAmountEditable: true,
               initialIsAddressEditable: exchangeViewModel.isDepositAddressEnabled,
@@ -658,7 +655,6 @@ class ExchangePage extends BasePage {
 
                 exchangeViewModel.changeDepositCurrency(currency: currency);
               },
-              imageArrow: arrowBottomPurple,
               currencyButtonColor: Colors.transparent,
               addressButtonsColor:
                   Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
@@ -689,6 +685,7 @@ class ExchangePage extends BasePage {
 
     final secondExchangeCard = Observer(
         builder: (_) => ExchangeCard(
+              cardInstanceName: 'receive_exchange_card',
               onDispose: disposeBestRateSync,
               amountFocusNode: _receiveAmountFocus,
               addressFocusNode: _receiveAddressFocus,
@@ -697,7 +694,7 @@ class ExchangePage extends BasePage {
               initialCurrency: exchangeViewModel.receiveCurrency,
               initialWalletName: receiveWalletName ?? '',
               initialAddress: exchangeViewModel.receiveCurrency == exchangeViewModel.wallet.currency
-                  ? exchangeViewModel.wallet.walletAddresses.address
+                  ? exchangeViewModel.wallet.walletAddresses.addressForExchange
                   : exchangeViewModel.receiveAddress,
               initialIsAmountEditable: exchangeViewModel.isReceiveAmountEditable,
               isAmountEstimated: true,
@@ -705,7 +702,6 @@ class ExchangePage extends BasePage {
               currencies: exchangeViewModel.receiveCurrencies,
               onCurrencySelected: (currency) =>
                   exchangeViewModel.changeReceiveCurrency(currency: currency),
-              imageArrow: arrowBottomCakeGreen,
               currencyButtonColor: Colors.transparent,
               addressButtonsColor:
                   Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,

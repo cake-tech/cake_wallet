@@ -1,22 +1,18 @@
-# Building CakeWallet for iOS
+# Building Cake Wallet for iOS
 
 ## Requirements and Setup
 
-The following are the system requirements to build CakeWallet for your iOS device.
+The following are the system requirements to build Cake Wallet for your iOS device.
 
 ```
 macOS >= 14.0 
 Xcode 15.3
-Flutter 3.19.x
+Flutter 3.24.4
 ```
-
-## Building CakeWallet on iOS
-
-These steps will help you configure and execute a build of CakeWallet from its source code.
 
 ### 1. Installing Package Dependencies
 
-CakeWallet cannot be built without the following packages installed on your build system.
+Cake Wallet cannot be built without the following packages installed on your build system.
 
 For installing dependency tools you can use brew [Install brew](https://brew.sh).
 
@@ -30,9 +26,13 @@ You may download and install the latest version of [Xcode](https://developer.app
 
 ### 3. Installing Flutter
 
-Need to install flutter with version `3.19.x`. For this please check section [Install Flutter](https://docs.flutter.dev/get-started/install/macos/mobile-ios?tab=download).
+Need to install flutter with version `3.24.4`. For this please check section [Install Flutter](https://docs.flutter.dev/get-started/install/macos/mobile-ios?tab=download).
 
-### 4. Verify Installations
+### 4. Installing rustup
+
+Install rustup from the [rustup.rs](https://rustup.rs/) website.
+
+### 5. Verify Installations
 
 Verify that the Flutter and Xcode have been correctly installed on your system with the following command:
 
@@ -41,11 +41,11 @@ Verify that the Flutter and Xcode have been correctly installed on your system w
 The output of this command will appear like this, indicating successful installations. If there are problems with your installation, they **must** be corrected before proceeding.
 ```
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 3.19.x, on macOS 14.x.x)
+[✓] Flutter (Channel stable, 3.24.4, on macOS 14.x.x)
 [✓] Xcode - develop for iOS and macOS (Xcode 15.3)
 ```
 
-### 5. Acquiring the CakeWallet source code
+### 6. Acquiring the CakeWallet source code
 
 Download the source code.
 
@@ -55,9 +55,9 @@ Proceed into the source code before proceeding with the next steps:
 
 `$ cd cake_wallet/scripts/ios/`
 
-### 6. Execute Build & Setup Commands for CakeWallet
+### 7. Execute Build & Setup Commands for Cake Wallet
 
-We need to generate project settings like app name, app icon, package name, etc. For this need to setup environment variables and configure project files. 
+We need to generate project settings like app name, app icon, package name, etc. For this, we need to setup environment variables and configure project files. 
 
 Please pick what app you want to build: cakewallet or monero.com.
 
@@ -72,7 +72,7 @@ Build the Monero libraries and their dependencies:
 
 `$ ./build_monero_all.sh`
 
-It is now time to change back to the base directory of the CakeWallet source code:
+It is now time to change back to the base directory of the Cake Wallet source code:
 
 `$ cd ../../`
 
@@ -80,22 +80,22 @@ Install Flutter package dependencies with this command:
 
 `$ flutter pub get`
 
-Your CakeWallet binary will be built with cryptographic salts, which are used for secure encryption of your data. You may generate these secret salts with the following command:
+Your Cake Wallet binary will be built with cryptographic salts, which are used for secure encryption of your data. You may generate these secret salts with the following command:
 
-`$ flutter packages pub run tool/generate_new_secrets.dart`
+`$ dart run tool/generate_new_secrets.dart`
 
 Then we need to generate localization files and mobx models.
 
 `$ ./configure_cake_wallet.sh ios`
 
-### 7. Build!
+### 8. Build!
 
 `$ flutter build ios --release`
 
-Then you can open `ios/Runner.xcworkspace` with Xcode and you can to archive the application.
+Then you can open `ios/Runner.xcworkspace` with Xcode and you can archive the application.
 
 Or if you want to run to connected device:
 
 `$ flutter run --release`
 
-Copyright (c) 2024 Cake Technologies LLC.
+Copyright (c) 2024 Cake Labs LLC

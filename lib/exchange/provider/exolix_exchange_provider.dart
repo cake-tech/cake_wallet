@@ -141,8 +141,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       'coinTo': _normalizeCurrency(request.toCurrency),
       'networkFrom': _networkFor(request.fromCurrency),
       'networkTo': _networkFor(request.toCurrency),
-      'withdrawalAddress': request.toAddress,
-      'refundAddress': request.refundAddress,
+      'withdrawalAddress': _normalizeAddress(request.toAddress),
+      'refundAddress': _normalizeAddress(request.refundAddress),
       'rateType': _getRateType(isFixedRateMode),
       'apiToken': apiKey,
     };
@@ -172,20 +172,23 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final extraId = responseJSON['depositExtraId'] as String?;
     final payoutAddress = responseJSON['withdrawalAddress'] as String;
     final amount = responseJSON['amount'].toString();
+    final receiveAmount = responseJSON['amountTo']?.toString();
 
     return Trade(
-        id: id,
-        from: request.fromCurrency,
-        to: request.toCurrency,
-        provider: description,
-        inputAddress: inputAddress,
-        refundAddress: refundAddress,
-        extraId: extraId,
-        createdAt: DateTime.now(),
-        amount: amount,
-        state: TradeState.created,
-        payoutAddress: payoutAddress,
-        isSendAll: isSendAll);
+      id: id,
+      from: request.fromCurrency,
+      to: request.toCurrency,
+      provider: description,
+      inputAddress: inputAddress,
+      refundAddress: refundAddress,
+      extraId: extraId,
+      createdAt: DateTime.now(),
+      amount: amount,
+      receiveAmount:receiveAmount ?? request.toAmount,
+      state: TradeState.created,
+      payoutAddress: payoutAddress,
+      isSendAll: isSendAll,
+    );
   }
 
   @override
@@ -272,4 +275,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
         return tag;
     }
   }
+
+  String _normalizeAddress(String address) =>
+      address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
 }

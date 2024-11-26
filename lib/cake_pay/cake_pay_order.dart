@@ -1,4 +1,3 @@
-
 class CakePayOrder {
   final String orderId;
   final List<OrderCard> cards;

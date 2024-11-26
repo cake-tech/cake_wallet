@@ -65,7 +65,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool get isReady => address.isNotEmpty && port.isNotEmpty;
 
   bool get hasAuthCredentials =>
-      _walletType == WalletType.monero || _walletType == WalletType.haven;
+      _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
 
   bool get hasTestnetSupport => _walletType == WalletType.bitcoin;
 
@@ -213,7 +213,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       bool isCameraPermissionGranted =
           await PermissionHandler.checkPermission(Permission.camera, context);
       if (!isCameraPermissionGranted) return;
-      String code = await presentQRScanner();
+      String code = await presentQRScanner(context);
 
       if (code.isEmpty) {
         throw Exception('Unexpected scan QR code value: value is empty');

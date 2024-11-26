@@ -14,14 +14,16 @@ abstract class SupportViewModelBase with Store {
   : items = [
       LinkListItem(
           title: 'Email',
+          icon: 'assets/images/support_icon.png',
           linkTitle: 'support@cakewallet.com',
           link: 'mailto:support@cakewallet.com'),
       if (!isMoneroOnly)
         LinkListItem(
             title: 'Website',
+            icon: 'assets/images/global.png',
             linkTitle: 'cakewallet.com',
             link: 'https://cakewallet.com'),
-      if (!isMoneroOnly)      
+      if (!isMoneroOnly)
         LinkListItem(
             title: 'GitHub',
             icon: 'assets/images/github.png',
@@ -29,15 +31,15 @@ abstract class SupportViewModelBase with Store {
             linkTitle: S.current.apk_update,
             link: 'https://github.com/cake-tech/cake_wallet/releases'),
       LinkListItem(
-          title: 'Telegram',
+          title: 'Telegram Community',
+          icon: 'assets/images/Telegram.png',
+          linkTitle: 't.me/cakewallet',
+          link: 'https://t.me/cakewallet'),
+      LinkListItem(
+          title: 'Telegram Support Bot',
           icon: 'assets/images/Telegram.png',
           linkTitle: '@cakewallet_bot',
           link: 'https://t.me/cakewallet_bot'),
-      LinkListItem(
-          title: 'Twitter',
-          icon: 'assets/images/Twitter.png',
-          linkTitle: '@cakewallet',
-          link: 'https://twitter.com/cakewallet'),
       LinkListItem(
           title: 'ChangeNow',
           icon: 'assets/images/change_now.png',
@@ -46,7 +48,7 @@ abstract class SupportViewModelBase with Store {
     LinkListItem(
         title: 'SideShift',
         icon: 'assets/images/sideshift.png',
-        linkTitle: S.current.help,
+        linkTitle: 'help.sideshift.ai',
         link: 'https://help.sideshift.ai/en/'),
     LinkListItem(
         title: 'SimpleSwap',
@@ -58,19 +60,41 @@ abstract class SupportViewModelBase with Store {
         icon: 'assets/images/exolix.png',
         linkTitle: 'support@exolix.com',
         link: 'mailto:support@exolix.com'),
-      if (!isMoneroOnly) ... [    
-         LinkListItem(
-     title: 'Wyre',
-             icon: 'assets/images/wyre.png',
-             linkTitle: S.current.submit_request,
-             link: 'https://wyre-support.zendesk.com/hc/en-us/requests/new'),
+    LinkListItem(
+        title: 'Quantex',
+        icon: 'assets/images/quantex.png',
+        linkTitle: 'help.myquantex.com',
+        link: 'mailto:support@exolix.com'),
+    LinkListItem(
+        title: 'Trocador',
+        icon: 'assets/images/trocador.png',
+        linkTitle: 'mail@trocador.app',
+        link: 'mailto:mail@trocador.app'),
+    LinkListItem(
+        title: 'Onramper',
+        icon: 'assets/images/onramper_dark.png',
+        lightIcon: 'assets/images/onramper_light.png',
+        linkTitle: 'View exchanges',
+        link: 'https://guides.cakewallet.com/docs/service-support/buy/#onramper'),
+    LinkListItem(
+        title: 'DFX',
+        icon: 'assets/images/dfx_dark.png',
+        lightIcon: 'assets/images/dfx_light.png',
+        linkTitle: 'support@dfx.swiss',
+        link: 'mailto:support@dfx.swiss'),
+      if (!isMoneroOnly) ... [
    LinkListItem(
      title: 'MoonPay',
              icon: 'assets/images/moonpay.png',
-             hasIconColor: true,
              linkTitle: S.current.submit_request,
-             link: 'https://support.moonpay.com/hc/en-gb/requests/new')
-    ]
+             link: 'https://support.moonpay.com/hc/en-gb/requests/new'),
+    LinkListItem(
+        title: 'Robinhood Connect',
+        icon: 'assets/images/robinhood_dark.png',
+        lightIcon: 'assets/images/robinhood_light.png',
+        linkTitle: S.current.submit_request,
+        link: 'https://robinhood.com/contact')
+  ]
       //LinkListItem(
       //    title: 'Yat',
       //    icon: 'assets/images/yat_mini_logo.png',

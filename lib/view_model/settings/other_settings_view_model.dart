@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/package_info.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
 // import 'package:package_info/package_info.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
@@ -20,7 +21,7 @@ class OtherSettingsViewModel = OtherSettingsViewModelBase
     with _$OtherSettingsViewModel;
 
 abstract class OtherSettingsViewModelBase with Store {
-  OtherSettingsViewModelBase(this._settingsStore, this._wallet)
+  OtherSettingsViewModelBase(this._settingsStore, this._wallet, this.sendViewModel)
       : walletType = _wallet.type,
         currentVersion = '' {
     PackageInfo.fromPlatform().then(
@@ -42,6 +43,7 @@ abstract class OtherSettingsViewModelBase with Store {
   String currentVersion;
 
   final SettingsStore _settingsStore;
+  final SendViewModel sendViewModel;
 
   @computed
   TransactionPriority get transactionPriority {
@@ -62,29 +64,6 @@ abstract class OtherSettingsViewModelBase with Store {
   bool get displayTransactionPriority => !(changeRepresentativeEnabled ||
       _wallet.type == WalletType.solana ||
       _wallet.type == WalletType.tron);
-
-  @computed
-  bool get isEnabledBuyAction =>
-      !_settingsStore.disableBuy && _wallet.type != WalletType.haven;
-
-  @computed
-  bool get isEnabledSellAction =>
-      !_settingsStore.disableSell && _wallet.type != WalletType.haven;
-
-  List<ProviderType> get availableBuyProvidersTypes {
-    return ProvidersHelper.getAvailableBuyProviderTypes(walletType);
-  }
-
-  List<ProviderType> get availableSellProvidersTypes =>
-      ProvidersHelper.getAvailableSellProviderTypes(walletType);
-
-  ProviderType get buyProviderType =>
-      _settingsStore.defaultBuyProviders[walletType] ??
-      ProviderType.askEachTime;
-
-  ProviderType get sellProviderType =>
-      _settingsStore.defaultSellProviders[walletType] ??
-      ProviderType.askEachTime;
 
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
@@ -111,20 +90,6 @@ abstract class OtherSettingsViewModelBase with Store {
     }
 
     return priority.toString();
-  }
-
-  String getBuyProviderType(dynamic buyProviderType) {
-    final _buyProviderType = buyProviderType as ProviderType;
-    return _buyProviderType == ProviderType.askEachTime
-        ? S.current.ask_each_time
-        : _buyProviderType.title;
-  }
-
-  String getSellProviderType(dynamic sellProviderType) {
-    final _sellProviderType = sellProviderType as ProviderType;
-    return _sellProviderType == ProviderType.askEachTime
-        ? S.current.ask_each_time
-        : _sellProviderType.title;
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
@@ -155,12 +120,4 @@ abstract class OtherSettingsViewModelBase with Store {
     }
     return null;
   }
-
-  @action
-  ProviderType onBuyProviderTypeSelected(ProviderType buyProviderType) =>
-      _settingsStore.defaultBuyProviders[walletType] = buyProviderType;
-
-  @action
-  ProviderType onSellProviderTypeSelected(ProviderType sellProviderType) =>
-      _settingsStore.defaultSellProviders[walletType] = sellProviderType;
 }
