@@ -76,7 +76,7 @@ class WalletLoadingService {
       for (var walletInfo in walletInfoSource.values) {
         try {
           final walletService = walletServiceFactory.call(walletInfo.type);
-          final walletPassword = password ?? await keyService.getWalletPassword(walletName: name);
+          final walletPassword = await keyService.getWalletPassword(walletName: name);
           final wallet = await walletService.openWallet(walletInfo.name, walletPassword);
 
           if (walletInfo.type == WalletType.monero) {
