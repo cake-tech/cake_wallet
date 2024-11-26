@@ -17,7 +17,7 @@ String getTxKey(String txId) {
   final status = monero.Wallet_status(wptr!);
   if (status != 0) {
     final error = monero.Wallet_errorString(wptr!);
-    return txId+"_"+error;
+    return "";
   }
   return txKey;
 }
@@ -364,16 +364,7 @@ class Transaction {
         confirmations = monero.TransactionInfo_confirmations(txInfo),
         fee = monero.TransactionInfo_fee(txInfo),
         description = monero.TransactionInfo_description(txInfo),
-        key = getTxKey(txInfo);
-
-  static String getTxKey(monero.TransactionInfo txInfo) {
-    final txKey = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo));
-    final status = monero.Wallet_status(wptr!);
-    if (status != 0) {
-      return "";
-    }
-    return txKey;
-  }
+        key = getTxKey(monero.TransactionInfo_hash(txInfo));
 
   Transaction.dummy({
     required this.displayLabel,
