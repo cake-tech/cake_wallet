@@ -1,12 +1,19 @@
 import 'dart:io';
 
+import 'package:cake_wallet/core/wallet_loading_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -61,6 +68,8 @@ class ExceptionHandler {
       }
 
       await _addDeviceInfo(_file!);
+
+      await _addElectrumWalletData(_file!);
 
       // Check if a mail client is available
       final bool canSend = await FlutterMailer.canSendMail();
@@ -119,9 +128,9 @@ class ExceptionHandler {
 
     final durationSinceLastReport = DateTime.now().difference(lastPopupDate).inDays;
 
-    if (_hasError || durationSinceLastReport < _coolDownDurationInDays) {
-      return;
-    }
+    // if (_hasError || durationSinceLastReport < _coolDownDurationInDays) {
+    //   return;
+    // }
     _hasError = true;
 
     sharedPrefs.setString(PreferencesKey.lastPopupDate, DateTime.now().toString());
@@ -218,6 +227,39 @@ class ExceptionHandler {
       "App Version: $currentVersion\n\nDevice Info $deviceInfo\n\n",
       mode: FileMode.append,
     );
+  }
+
+  static Future<void> _addElectrumWalletData(File file) async {
+    final walletLoadingService = getIt.get<WalletLoadingService>();
+    final walletName = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
+    final walletTypeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType);
+    final walletType = WalletType.values.firstWhere((e) => e.index == walletTypeRaw);
+
+    if (walletName == null) return;
+    if (walletType != WalletType.bitcoin || walletType != WalletType.litecoin) return;
+
+    final wallet = (await walletLoadingService.load(walletType, walletName)) as ElectrumWallet;
+
+    final receiveAddresses = wallet.walletAddresses.receiveAddresses;
+    final changeAddresses = wallet.walletAddresses.changeAddresses;
+    final unspentCoins = wallet.unspentCoins;
+    final unspentCoinsInfo = wallet.unspentCoinsInfo;
+
+    for (var address in receiveAddresses) {
+      file.writeAsString("Receive Address: $address\n\n", mode: FileMode.append);
+    }
+    for (var address in changeAddresses) {
+      file.writeAsString("Change Address: $address\n\n", mode: FileMode.append);
+    }
+    for (var coin in unspentCoins) {
+      String coinStr =
+          "address: ${coin.address}, isChange: ${coin.isChange}, vout: ${coin.vout} value: ${coin.value}";
+      file.writeAsString("Unspent Coin: $coinStr\n\n", mode: FileMode.append);
+    }
+    unspentCoinsInfo.values.forEach((info) {
+      String infoStr = "address: ${info.address}, isChange: ${info.isChange} vout: ${info.vout} value: ${info.value}";
+      file.writeAsString("Unspent Coin Info: $infoStr\n\n", mode: FileMode.append);
+    });
   }
 
   static Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {

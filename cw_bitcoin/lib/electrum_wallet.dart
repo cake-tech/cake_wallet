@@ -987,6 +987,12 @@ abstract class ElectrumWalletBase
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
+      _onError?.call(FlutterErrorDetails(
+        exception: "testing exception",
+        stack: StackTrace.current,
+        library: this.runtimeType.toString(),
+      ));
+
       final outputs = <BitcoinOutput>[];
       final transactionCredentials = credentials as BitcoinTransactionCredentials;
       final hasMultiDestination = transactionCredentials.outputs.length > 1;
@@ -1382,7 +1388,8 @@ abstract class ElectrumWalletBase
     await _refreshUnspentCoinsInfo();
   }
 
-  Future<List<BitcoinUnspent>> updateCoinsWithInfoFromBox(List<BitcoinUnspent> newUnspentCoins) async {
+  Future<List<BitcoinUnspent>> updateCoinsWithInfoFromBox(
+      List<BitcoinUnspent> newUnspentCoins) async {
     // this function updates and returns unspent coins list (freshly fetched from the server)
     // with info from the box, if the box doesn't have info for some of the unspents, it adds them to the box
 

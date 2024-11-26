@@ -12,7 +12,6 @@ import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
 import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -141,43 +140,16 @@ class _DashboardPageView extends BasePage {
   bool get resizeToAvoidBottomInset => false;
 
   @override
-  Widget get endDrawer =>
-      MenuWidget(dashboardViewModel, ValueKey('dashboard_page_drawer_menu_widget_key'));
+  Widget get endDrawer => MenuWidget(dashboardViewModel, ValueKey('dashboard_page_drawer_menu_widget_key'));
 
   @override
   Widget leading(BuildContext context) {
     return Observer(
       builder: (context) {
-        // return ServicesUpdatesWidget(
-        //   key: ValueKey('dashboard_page_services_update_button_key'),
-        //   dashboardViewModel.getServicesStatus(),
-        //   enabled: dashboardViewModel.isEnabledBulletinAction,
-        // );
-        // 3 icon buttons to download dev data:
-        return Row(
-          children: [
-            IconButton(
-              onPressed: () {
-                var walletAddresses = dashboardViewModel.wallet.walletAddresses;
-                ShareUtil.share(text: 'test', context: context);
-              },
-              icon: Icon(Icons.download),
-            ),
-            IconButton(
-              onPressed: () {
-                var walletAddresses = dashboardViewModel.wallet.walletAddresses;
-                ShareUtil.share(text: 'test2', context: context);
-              },
-              icon: Icon(Icons.download),
-            ),
-            IconButton(
-              onPressed: () {
-                var walletAddresses = dashboardViewModel.wallet.walletAddresses;
-                ShareUtil.share(text: 'test3', context: context);
-              },
-              icon: Icon(Icons.download),
-            ),
-          ],
+        return ServicesUpdatesWidget(
+          key: ValueKey('dashboard_page_services_update_button_key'),
+          dashboardViewModel.getServicesStatus(),
+          enabled: dashboardViewModel.isEnabledBulletinAction,
         );
       },
     );
