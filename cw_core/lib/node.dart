@@ -202,11 +202,12 @@ class Node extends HiveObject with Keyable {
       );
       client.close();
 
-      if (
+      if ((
         response.body.contains("400 Bad Request") // Some other generic error
         || response.body.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
         || response.headers["location"] != null // Generic reverse proxy
         || response.body.contains("301 Moved Permanently") // Poorly configured generic reverse proxy
+      ) && !(useSSL??false)
       ) {
 
         final oldUseSSL = useSSL;
@@ -219,7 +220,7 @@ class Node extends HiveObject with Keyable {
           }
           useSSL = oldUseSSL;
         } catch (e) {
-          useSSL = false;
+          useSSL = oldUseSSL;
         }
       }
 
