@@ -6,6 +6,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/amount_converter.dart';
 
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_monero/api/wallet.dart';
 
 class DoubleSpendException implements Exception {
   DoubleSpendException();
@@ -53,6 +54,7 @@ class PendingMoneroTransaction with PendingTransaction {
 
       rethrow;
     }
+    storeSync(force: true);
   }
 
   @override

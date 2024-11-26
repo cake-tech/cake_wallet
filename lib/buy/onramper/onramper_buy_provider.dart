@@ -251,8 +251,12 @@ class OnRamperBuyProvider extends BuyProvider {
         return tag;
       case 'POL':
         return 'POLYGON';
-      default:
-        return CryptoCurrency.fromString(tag).fullName ?? tag;
+    default:
+        try {
+          return CryptoCurrency.fromString(tag).fullName!;
+        } catch (_) {
+          return tag;
+        }
     }
   }
 
