@@ -18,7 +18,7 @@ class CustomTrace {
     try {
       _parseTrace();
     } catch (e) {
-      printV("Unable to parse trace (printV): $e");
+      print("Unable to parse trace (printV): $e");
     }
   }
 
