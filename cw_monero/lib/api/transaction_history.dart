@@ -17,7 +17,7 @@ String getTxKey(String txId) {
   final status = monero.Wallet_status(wptr!);
   if (status != 0) {
     final error = monero.Wallet_errorString(wptr!);
-    return txId+"_"+error;
+    return "";
   }
   return txKey;
 }
