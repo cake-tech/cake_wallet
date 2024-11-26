@@ -16,7 +16,6 @@ class WelcomePage extends BasePage {
   static const aspectRatioImage = 1.25;
   final welcomeImageLight = Image.asset('assets/images/wallet_type_light.png');
   final welcomeImageDark = Image.asset('assets/images/wallet_type.png');
-  //final Uri _url = Uri.parse('https://flutter.dev');
 
   @override
   String? get title => S.current.wallet;
@@ -165,8 +164,8 @@ class WelcomePage extends BasePage {
       spans.add(TextSpan(
         text: text.substring(lastMatchEnd),
         style: TextStyle(
-          height: 1.5,
           fontSize: 16,
+          height: 1.5,
           fontWeight: FontWeight.w400,
           color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
         ),
