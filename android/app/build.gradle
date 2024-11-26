@@ -38,10 +38,13 @@ if (appPropertiesFile.exists()) {
 
 android {
     compileSdkVersion 34
+    buildToolsVersion "34.0.0"
 
     lintOptions {
         disable 'InvalidPackage'
     }
+
+    namespace 'com.cakewallet.cake_wallet'
 
     defaultConfig {
         applicationId appProperties['id']
@@ -80,7 +83,7 @@ android {
        }
    }
 
-    ndkVersion "25.1.8937393"
+    ndkVersion "27.0.12077973"
 }
 
 flutter {
@@ -91,4 +94,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+}
+configurations {
+    implementation.exclude module:'proto-google-common-protos'
+    implementation.exclude module:'protolite-well-known-types'
+    implementation.exclude module:'protobuf-javalite'
 }

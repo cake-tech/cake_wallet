@@ -12,6 +12,7 @@ class PreferencesKey {
   static const currentBananoNodeIdKey = 'current_node_id_banano';
   static const currentBananoPowNodeIdKey = 'current_node_id_banano_pow';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
+  static const currentCakePayCountry = 'current_cake_pay_country';
   static const currentBitcoinCashNodeIdKey = 'current_node_id_bch';
   static const currentSolanaNodeIdKey = 'current_node_id_sol';
   static const currentTronNodeIdKey = 'current_node_id_trx';
@@ -20,12 +21,12 @@ class PreferencesKey {
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const isAppSecureKey = 'is_app_secure';
-  static const disableBuyKey = 'disable_buy';
-  static const disableSellKey = 'disable_sell';
+  static const disableTradeOption = 'disable_buy';
   static const disableBulletinKey = 'disable_bulletin';
-  static const defaultBuyProvider = 'default_buy_provider';
   static const walletListOrder = 'wallet_list_order';
+  static const contactListOrder = 'contact_list_order';
   static const walletListAscending = 'wallet_list_ascending';
+  static const contactListAscending = 'contact_list_ascending';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
   static const failedTotpTokenTrials = 'failed_token_trials';
   static const disableExchangeKey = 'disable_exchange';
@@ -52,6 +53,7 @@ class PreferencesKey {
   static const mwebEnabled = 'mwebEnabled';
   static const hasEnabledMwebBefore = 'hasEnabledMwebBefore';
   static const mwebAlwaysScan = 'mwebAlwaysScan';
+  static const mwebNodeUri = 'mwebNodeUri';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const shouldShowRepWarning = 'should_show_rep_warning';

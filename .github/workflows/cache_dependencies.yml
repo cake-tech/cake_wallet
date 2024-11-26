@@ -34,7 +34,7 @@ jobs:
       - name: Flutter action
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: "3.19.6"
+          flutter-version: "3.24.4"
           channel: stable
 
       - name: Install package dependencies
@@ -62,10 +62,22 @@ jobs:
             /opt/android/cake_wallet/cw_haven/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
           key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
-
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
         name: Generate Externals
         run: |
           cd /opt/android/cake_wallet/scripts/android/
           source ./app_env.sh cakewallet
           ./build_monero_all.sh
+
+      - name: Cache Keystore
+        id: cache-keystore
+        uses: actions/cache@v3
+        with:
+          path: /opt/android/cake_wallet/android/app/key.jks
+          key: $STORE_PASS
+
+      - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
+        name: Generate KeyStore
+        run: |
+          cd /opt/android/cake_wallet/android/app
+          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS

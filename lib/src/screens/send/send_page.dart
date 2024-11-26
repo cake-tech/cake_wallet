@@ -28,6 +28,7 @@ import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -394,16 +395,19 @@ class SendPage extends BasePage {
 
                         if (sendViewModel.wallet.isHardwareWallet) {
                           if (!sendViewModel.ledgerViewModel!.isConnected) {
-                            await Navigator.of(context).pushNamed(Routes.connectDevices,
+                            await Navigator.of(context).pushNamed(
+                                Routes.connectDevices,
                                 arguments: ConnectDevicePageParams(
                                   walletType: sendViewModel.walletType,
                                   onConnectDevice: (BuildContext context, _) {
-                                    sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
+                                    sendViewModel.ledgerViewModel!
+                                        .setLedger(sendViewModel.wallet);
                                     Navigator.of(context).pop();
                                   },
                                 ));
                           } else {
-                            sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
+                            sendViewModel.ledgerViewModel!
+                                .setLedger(sendViewModel.wallet);
                           }
                         }
 
@@ -494,7 +498,7 @@ class SendPage extends BasePage {
                           ValueKey('send_page_confirm_sending_dialog_cancel_button_key'),
                       actionRightButton: () async {
                         Navigator.of(_dialogContext).pop();
-                        sendViewModel.commitTransaction();
+                        sendViewModel.commitTransaction(context);
                         await showPopUp<void>(
                             context: context,
                             builder: (BuildContext _dialogContext) {
@@ -508,6 +512,10 @@ class SendPage extends BasePage {
                                 if (state is TransactionCommitted) {
                                   newContactAddress =
                                       newContactAddress ?? sendViewModel.newContactAddress();
+
+                                  if (sendViewModel.coinTypeToSpendFrom != UnspentCoinType.any) {
+                                    newContactAddress = null;
+                                  }
 
                                   final successMessage = S.of(_dialogContext).send_success(
                                       sendViewModel.selectedCryptoCurrency.toString());

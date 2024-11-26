@@ -4,7 +4,11 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 
 class TradeListItem extends ActionListItem {
-  TradeListItem({required this.trade, required this.settingsStore});
+  TradeListItem({
+    required this.trade,
+    required this.settingsStore,
+    required super.key,
+  });
 
   final Trade trade;
   final SettingsStore settingsStore;

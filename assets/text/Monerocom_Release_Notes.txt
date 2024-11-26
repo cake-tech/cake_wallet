@@ -1,4 +1,3 @@
-Monero enhancements for sending and address generation
-StealthEx
-LetsExchange
-Visual enhancements and bug fixes
+Add airgapped Monero wallet support (best used with our new offline app Cupcake)
+New Buy & Sell flow
+Bug fixes
