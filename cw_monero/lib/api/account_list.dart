@@ -2,6 +2,7 @@ import 'package:cw_monero/api/wallet.dart';
 import 'package:monero/monero.dart' as monero;
 
 monero.wallet? wptr = null;
+bool get isViewOnly => int.tryParse(monero.Wallet_secretSpendKey(wptr!)) == 0;
 
 int _wlptrForW = 0;
 monero.WalletListener? _wlptr = null;

@@ -16,7 +16,7 @@ dependencies:
   http: ^1.1.0
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1
-  intl: ^0.18.0
+  intl: ^0.19.0
   shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core
@@ -64,7 +64,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v8
+      ref: cake-update-v9
   pointycastle: 3.7.4
   ffi: 2.1.0
 

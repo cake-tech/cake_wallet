@@ -3,19 +3,21 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  intl: ^0.18.0
-  url_launcher: ^6.1.4
+  intl: ^0.19.0
+  url_launcher: 6.3.1
   qr_flutter:
     git:
       url: https://github.com/cake-tech/qr.flutter.git
       ref: cake-4.0.2
       version: 4.0.2
-  shared_preferences: ^2.0.15
+  shared_preferences: 2.3.2
   # provider: ^6.0.3
   rxdart: ^0.28.0
   yaml: ^3.1.1
-  #barcode_scan: any
-  barcode_scan2: ^4.2.1
+  fast_scanner:
+    git:
+      url: https://github.com/MrCyjaneK/fast_scanner
+      ref: c5a08720216a508bf1fe3d062ad19d2836545a42
   http: ^1.1.0
   path_provider: ^2.0.11
   mobx: ^2.1.4
@@ -24,23 +26,25 @@ dependencies:
   share_plus: ^10.0.0
   # date_range_picker: ^1.0.6
   #https://api.flutter.dev/flutter/material/showDateRangePicker.html
-  dio: ^4.0.6
+  dio: ^5.7.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  local_auth_android: 1.0.21
+  local_auth_android: ^1.0.46
   flutter_local_authentication:
     git:
       url: https://github.com/cake-tech/flutter_local_authentication
   package_info_plus: ^8.0.1
-  devicelocale:
-    git:
-      url: https://github.com/cake-tech/flutter-devicelocale
+  devicelocale: 0.8.1
   auto_size_text: ^3.0.0
   dotted_border: ^2.0.0+2
   smooth_page_indicator: ^1.0.0+2
-  flutter_inappwebview: ^6.0.0
+  flutter_inappwebview: ^6.1.5
   flutter_spinkit: ^5.1.0
-  uni_links: ^0.5.1
+  uni_links:
+    git:
+      url: https://github.com/MrCyjaneK/uni_links
+      ref: 8e9efa4d9beb19e4ac44009576337f1ce51c22e2
+      path: uni_links
   lottie: ^1.3.0
   animate_do: ^2.1.0
   cupertino_icons: ^1.0.5
@@ -61,12 +65,15 @@ dependencies:
       ref: master
   permission_handler: ^10.0.0
   device_display_brightness:
-    git:
-      url: https://github.com/cake-tech/device_display_brightness.git
-      ref: master
-  workmanager: ^0.5.1
+   git:
+     url: https://github.com/MrCyjaneK/device_display_brightness.git
+     ref: 4cac18c446ce686f3d75b1565badbd7da439bbd9
+  workmanager: ^0.5.2
   wakelock_plus: ^1.2.5
-  flutter_mailer: ^2.0.2
+  flutter_mailer:       
+    git:
+      url: https://github.com/taljacobson/flutter_mailer
+      ref: 2a7d04d61f56e1ca166ab42e91e0daf1bfddfaf2
   device_info_plus: ^9.1.0
   base32: 2.1.3
   in_app_review: ^2.0.6
@@ -75,19 +82,22 @@ dependencies:
       url: https://github.com/cake-tech/cake_backup.git
       ref: main
       version: 1.0.0
-  flutter_plugin_android_lifecycle: 2.0.9
+  flutter_plugin_android_lifecycle: 2.0.23
   path_provider_android: ^2.2.1
-  shared_preferences_android: 2.0.17
-  url_launcher_android: 6.0.24
+  shared_preferences_android: 2.3.3
+  url_launcher_android: 6.3.14
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
-  sensitive_clipboard: ^1.0.0
+  sensitive_clipboard:
+    git:
+      url: https://github.com/MrCyjaneK/sensitive_clipboard
+      ref: 288c7ee2d63b459bc735f7dc89321b29a1f12fae
   walletconnect_flutter_v2: ^2.1.4
   eth_sig_util: ^0.0.9
   ens_dart:
     git:
       url: https://github.com/cake-tech/ens_dart.git
       ref: main
-  fluttertoast: 8.1.4
+  fluttertoast: 8.2.8
 #  tor:
 #    git:
 #      url: https://github.com/cake-tech/tor.git
@@ -134,7 +144,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v8
+      ref: cake-update-v9
   ffi: 2.1.0
 
 flutter_icons:

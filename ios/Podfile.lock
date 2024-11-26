@@ -1,46 +1,8 @@
 PODS:
-  - barcode_scan2 (0.0.1):
-    - Flutter
-    - MTBBarcodeScanner
-    - SwiftProtobuf
   - connectivity_plus (0.0.1):
     - Flutter
     - ReachabilitySwift
   - CryptoSwift (1.8.3)
-  - cw_mweb (0.0.1):
-    - Flutter
-  - cw_haven (0.0.1):
-    - cw_haven/Boost (= 0.0.1)
-    - cw_haven/Haven (= 0.0.1)
-    - cw_haven/OpenSSL (= 0.0.1)
-    - cw_haven/Sodium (= 0.0.1)
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Boost (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Haven (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/OpenSSL (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Sodium (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_mweb (0.0.1):
-    - Flutter
-  - cw_shared_external (0.0.1):
-    - cw_shared_external/Boost (= 0.0.1)
-    - cw_shared_external/OpenSSL (= 0.0.1)
-    - cw_shared_external/Sodium (= 0.0.1)
-    - Flutter
-  - cw_shared_external/Boost (0.0.1):
-    - Flutter
-  - cw_shared_external/OpenSSL (0.0.1):
-    - Flutter
-  - cw_shared_external/Sodium (0.0.1):
-    - Flutter
   - device_display_brightness (0.0.1):
     - Flutter
   - device_info_plus (0.0.1):
@@ -78,6 +40,8 @@ PODS:
   - DKPhotoGallery/Resource (0.0.19):
     - SDWebImage
     - SwiftyGif
+  - fast_scanner (5.1.1):
+    - Flutter
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
@@ -85,10 +49,10 @@ PODS:
   - flutter_inappwebview_ios (0.0.1):
     - Flutter
     - flutter_inappwebview_ios/Core (= 0.0.1)
-    - OrderedSet (~> 5.0)
+    - OrderedSet (~> 6.0.3)
   - flutter_inappwebview_ios/Core (0.0.1):
     - Flutter
-    - OrderedSet (~> 5.0)
+    - OrderedSet (~> 6.0.3)
   - flutter_local_authentication (1.2.0):
     - Flutter
   - flutter_mailer (0.0.1):
@@ -103,7 +67,7 @@ PODS:
   - integration_test (0.0.1):
     - Flutter
   - MTBBarcodeScanner (5.0.11)
-  - OrderedSet (5.0.0)
+  - OrderedSet (6.0.3)
   - package_info_plus (0.4.5):
     - Flutter
   - path_provider_foundation (0.0.1):
@@ -111,12 +75,7 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.1.1):
     - Flutter
-  - Protobuf (3.28.2)
-  - ReachabilitySwift (5.2.3)
-  - reactive_ble_mobile (0.0.1):
-    - Flutter
-    - Protobuf (~> 3.5)
-    - SwiftProtobuf (~> 1.0)
+  - ReachabilitySwift (5.2.4)
   - SDWebImage (5.19.7):
     - SDWebImage/Core (= 5.19.7)
   - SDWebImage/Core (5.19.7)
@@ -127,13 +86,16 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - SwiftProtobuf (1.28.2)
   - sp_scanner (0.0.1):
     - Flutter
-  - SwiftProtobuf (1.27.1)
   - SwiftyGif (5.4.5)
   - Toast (4.1.1)
   - uni_links (0.0.1):
     - Flutter
+  - universal_ble (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - url_launcher_ios (0.0.1):
     - Flutter
   - wakelock_plus (0.0.1):
@@ -142,15 +104,12 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
-  - barcode_scan2 (from `.symlinks/plugins/barcode_scan2/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
-  - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
-  - cw_mweb (from `.symlinks/plugins/cw_mweb/ios`)
-  - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
+  - fast_scanner (from `.symlinks/plugins/fast_scanner/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
   - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
@@ -163,12 +122,11 @@ DEPENDENCIES:
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
-  - reactive_ble_mobile (from `.symlinks/plugins/reactive_ble_mobile/ios`)
   - sensitive_clipboard (from `.symlinks/plugins/sensitive_clipboard/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
-  - sp_scanner (from `.symlinks/plugins/sp_scanner/ios`)
   - uni_links (from `.symlinks/plugins/uni_links/ios`)
+  - universal_ble (from `.symlinks/plugins/universal_ble/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
   - workmanager (from `.symlinks/plugins/workmanager/ios`)
@@ -178,32 +136,23 @@ SPEC REPOS:
     - CryptoSwift
     - DKImagePickerController
     - DKPhotoGallery
-    - MTBBarcodeScanner
     - OrderedSet
-    - Protobuf
     - ReachabilitySwift
     - SDWebImage
-    - SwiftProtobuf
     - SwiftyGif
     - Toast
 
 EXTERNAL SOURCES:
-  barcode_scan2:
-    :path: ".symlinks/plugins/barcode_scan2/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
-  cw_haven:
-    :path: ".symlinks/plugins/cw_haven/ios"
-  cw_mweb:
-    :path: ".symlinks/plugins/cw_mweb/ios"
-  cw_shared_external:
-    :path: ".symlinks/plugins/cw_shared_external/ios"
   device_display_brightness:
     :path: ".symlinks/plugins/device_display_brightness/ios"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
   devicelocale:
     :path: ".symlinks/plugins/devicelocale/ios"
+  fast_scanner:
+    :path: ".symlinks/plugins/fast_scanner/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
@@ -228,18 +177,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
-  reactive_ble_mobile:
-    :path: ".symlinks/plugins/reactive_ble_mobile/ios"
   sensitive_clipboard:
     :path: ".symlinks/plugins/sensitive_clipboard/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
-  sp_scanner:
-    :path: ".symlinks/plugins/sp_scanner/ios"
   uni_links:
     :path: ".symlinks/plugins/uni_links/ios"
+  universal_ble:
+    :path: ".symlinks/plugins/universal_ble/darwin"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   wakelock_plus:
@@ -248,43 +195,39 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/workmanager/ios"
 
 SPEC CHECKSUMS:
-  barcode_scan2: 0af2bb63c81b4565aab6cd78278e4c0fa136dbb0
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
-  CryptoSwift: c63a805d8bb5e5538e88af4e44bb537776af11ea
-  cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
-  cw_mweb: 87af74f9659fed0c1a2cbfb44413f1070e79e3ae
-  cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
+  CryptoSwift: 967f37cea5a3294d9cce358f78861652155be483
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   devicelocale: b22617f40038496deffba44747101255cee005b0
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
+  fast_scanner: 44c00940355a51258cd6c2085734193cd23d95bc
   file_picker: 15fd9539e4eb735dc54bae8c0534a7a9511a03de
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_inappwebview_ios: 97215cf7d4677db55df76782dbd2930c5e1c1ea0
+  flutter_inappwebview_ios: 6f63631e2c62a7c350263b13fa5427aedefe81d4
   flutter_local_authentication: 1172a4dd88f6306dadce067454e2c4caf07977bb
   flutter_mailer: 2ef5a67087bc8c6c4cefd04a178bf1ae2c94cd83
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
   fluttertoast: 48c57db1b71b0ce9e6bba9f31c940ff4b001293c
   in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
-  integration_test: 13825b8a9334a850581300559b8839134b124670
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
-  OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
-  package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
+  OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
+  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
-  Protobuf: 28c89b24435762f60244e691544ed80f50d82701
-  ReachabilitySwift: 7f151ff156cea1481a8411701195ac6a984f4979
-  reactive_ble_mobile: 9ce6723d37ccf701dbffd202d487f23f5de03b4c
+  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   SDWebImage: 8a6b7b160b4d710e2a22b6900e25301075c34cb3
   sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
-  share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
+  share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
+  SwiftProtobuf: 4dbaffec76a39a8dc5da23b40af1a5dc01a4c02d
   sp_scanner: eaa617fa827396b967116b7f1f43549ca62e9a12
-  SwiftProtobuf: b109bd17979d7993a84da14b1e1fdd8b0ded934a
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
+  universal_ble: cf52a7b3fd2e7c14d6d7262e9fdadb72ab6b88a6
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
   workmanager: 0afdcf5628bbde6924c21af7836fed07b42e30e6

@@ -53,7 +53,7 @@ jobs:
       - name: Flutter action
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: "3.19.6"
+          flutter-version: "3.24.4"
           channel: stable
 
       - name: Install package dependencies
@@ -115,6 +115,14 @@ jobs:
           cd /opt/android/cake_wallet/scripts/android/
           ./build_mwebd.sh --dont-install
 
+#      - name: Cache Keystore
+#        id: cache-keystore
+#        uses: actions/cache@v3
+#        with:
+#          path: /opt/android/cake_wallet/android/app/key.jks
+#          key: $STORE_PASS
+#
+#      - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
       - name: Generate KeyStore
         run: |
           cd /opt/android/cake_wallet/android/app
@@ -123,12 +131,12 @@ jobs:
       - name: Generate key properties
         run: |
           cd /opt/android/cake_wallet
-          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=$STORE_PASS keyPassword=$KEY_PASS
+          dart run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=$STORE_PASS keyPassword=$KEY_PASS
 
       - name: Generate localization
         run: |
           cd /opt/android/cake_wallet
-          flutter packages pub run tool/generate_localization.dart
+          dart run tool/generate_localization.dart
 
       - name: Build generated code
         run: |
@@ -192,6 +200,8 @@ jobs:
           echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
           echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          echo "const meldTestApiKey = '${{ secrets.MELD_TEST_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const meldTestPublicKey = '${{ secrets.MELD_TEST_PUBLIC_KEY}}';" >> lib/.secrets.g.dar
           echo "const letsExchangeBearerToken = '${{ secrets.LETS_EXCHANGE_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const letsExchangeAffiliateId = '${{ secrets.LETS_EXCHANGE_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
           echo "const stealthExBearerToken = '${{ secrets.STEALTH_EX_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
@@ -200,6 +210,36 @@ jobs:
       - name: Rename app
         run: |
           echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
+
+      # Step 3: Download previous build number
+      - name: Download previous build number
+        id: download-build-number
+        run: |
+          # Download the artifact if it exists
+          if [[ ! -f build_number.txt ]]; then
+            echo "1" > build_number.txt
+          fi
+
+      # Step 4: Read and Increment Build Number
+      - name: Increment Build Number
+        id: increment-build-number
+        run: |
+          # Read current build number from file
+          BUILD_NUMBER=$(cat build_number.txt)
+          BUILD_NUMBER=$((BUILD_NUMBER + 1))
+          echo "New build number: $BUILD_NUMBER"
+
+          # Save the incremented build number
+          echo "$BUILD_NUMBER" > build_number.txt
+
+          # Export the build number to use in later steps
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
+
+      # Step 5: Update pubspec.yaml with new build number
+      - name: Update build number
+        run: |
+          cd /opt/android/cake_wallet
+          sed -i "s/^version: .*/version: 1.0.$BUILD_NUMBER/" pubspec.yaml
 
       - name: Build
         run: |
@@ -231,6 +271,13 @@ jobs:
         with:
           path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/
 
+      # Re-upload updated build number for the next run
+      - name: Upload updated build number
+        uses: actions/upload-artifact@v3
+        with:
+          name: build_number
+          path: build_number.txt
+
       - name: Send Test APK
         continue-on-error: true
         uses: adrey/slack-file-upload-action@1.0.5
@@ -241,3 +288,4 @@ jobs:
           title: "${{ env.BRANCH_NAME }}.apk"
           filename: ${{ env.BRANCH_NAME }}.apk
           initial_comment: ${{ github.event.head_commit.message }}
+

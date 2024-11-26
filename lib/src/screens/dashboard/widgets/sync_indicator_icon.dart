@@ -8,7 +8,7 @@ class SyncIndicatorIcon extends StatelessWidget {
       {this.boolMode = true,
       this.isSynced = false,
       this.value = waiting,
-      this.size = 4.0});
+      this.size = 6.0});
 
   final bool boolMode;
   final bool isSynced;

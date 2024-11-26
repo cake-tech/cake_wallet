@@ -1,44 +1,56 @@
+import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/grouped_wallet_expansion_tile.dart';
 import 'package:cake_wallet/src/screens/wallet_list/edit_wallet_button_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
-import 'package:another_flushbar/flushbar.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 
 class WalletListPage extends BasePage {
-  WalletListPage({required this.walletListViewModel, required this.authService});
+  WalletListPage({
+    required this.walletListViewModel,
+    required this.authService,
+    this.onWalletLoaded,
+  });
 
   final WalletListViewModel walletListViewModel;
   final AuthService authService;
+  final Function(BuildContext)? onWalletLoaded;
 
   @override
   String get title => S.current.wallets;
 
   @override
-  Widget body(BuildContext context) =>
-      WalletListBody(walletListViewModel: walletListViewModel, authService: authService);
+  Widget body(BuildContext context) => WalletListBody(
+        walletListViewModel: walletListViewModel,
+        authService: authService,
+        onWalletLoaded:
+            onWalletLoaded ?? (context) => Navigator.of(context).pop(),
+      );
 
   @override
   Widget trailing(BuildContext context) {
@@ -59,7 +71,7 @@ class WalletListPage extends BasePage {
                   builder: (context) => FilterListWidget(
                     initalType: walletListViewModel.orderType,
                     initalAscending: walletListViewModel.ascending,
-                    onClose: (bool ascending, WalletListOrderType type) async {
+                    onClose: (bool ascending, FilterListOrderType type) async {
                       walletListViewModel.setAscending(ascending);
                       await walletListViewModel.setOrderType(type);
                     },
@@ -89,10 +101,15 @@ class WalletListPage extends BasePage {
 }
 
 class WalletListBody extends StatefulWidget {
-  WalletListBody({required this.walletListViewModel, required this.authService});
+  WalletListBody({
+    required this.walletListViewModel,
+    required this.authService,
+    required this.onWalletLoaded,
+  });
 
   final WalletListViewModel walletListViewModel;
   final AuthService authService;
+  final Function(BuildContext) onWalletLoaded;
 
   @override
   WalletListBodyState createState() => WalletListBodyState();
@@ -118,8 +135,8 @@ class WalletListBodyState extends State<WalletListBody> {
 
   @override
   Widget build(BuildContext context) {
-    final newWalletImage =
-        Image.asset('assets/images/new_wallet.png', height: 12, width: 12, color: Colors.white);
+    final newWalletImage = Image.asset('assets/images/new_wallet.png',
+        height: 12, width: 12, color: Colors.white);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
         height: 12,
         width: 12,
@@ -180,8 +197,7 @@ class WalletListBodyState extends State<WalletListBody> {
                               trailingWidget: EditWalletButtonWidget(
                                 width: 74,
                                 isGroup: true,
-                                isExpanded:
-                                    widget.walletListViewModel.expansionTileStateTrack[index]!,
+                                isExpanded: widget.walletListViewModel.expansionTileStateTrack[index]!,
                                 onTap: () {
                                   final wallet = widget.walletListViewModel
                                       .convertWalletInfoToWalletListItem(group.wallets.first);
@@ -198,8 +214,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 },
                               ),
                               childWallets: group.wallets.map((walletInfo) {
-                                return widget.walletListViewModel
-                                    .convertWalletInfoToWalletListItem(walletInfo);
+                                return widget.walletListViewModel.convertWalletInfoToWalletListItem(walletInfo);
                               }).toList(),
                               isSelected: false,
                               onChildItemTapped: (wallet) =>
@@ -329,8 +344,7 @@ class WalletListBodyState extends State<WalletListBody> {
                           arguments: NewWalletArguments(
                             type: widget.walletListViewModel.currentWalletType,
                           ),
-                          conditionToDetermineIfToUse2FA:
-                              widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+                          conditionToDetermineIfToUse2FA: widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
                         );
                       } else {
                         Navigator.of(context).pushNamed(
@@ -345,8 +359,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         widget.authService.authenticateAction(
                           context,
                           route: Routes.newWalletType,
-                          conditionToDetermineIfToUse2FA:
-                              widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+                          conditionToDetermineIfToUse2FA: widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
                         );
                       } else {
                         Navigator.of(context).pushNamed(Routes.newWalletType);
@@ -367,8 +380,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         context,
                         route: Routes.restoreOptions,
                         arguments: false,
-                        conditionToDetermineIfToUse2FA:
-                            widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+                        conditionToDetermineIfToUse2FA: widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
                       );
                     } else {
                       Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
@@ -385,39 +397,6 @@ class WalletListBodyState extends State<WalletListBody> {
         ],
       ),
     );
-  }
-
-  Image _imageFor({required WalletType type, bool? isTestnet}) {
-    switch (type) {
-      case WalletType.bitcoin:
-        if (isTestnet == true) {
-          return tBitcoinIcon;
-        }
-        return bitcoinIcon;
-      case WalletType.monero:
-        return moneroIcon;
-      case WalletType.litecoin:
-        return litecoinIcon;
-      case WalletType.haven:
-        return havenIcon;
-      case WalletType.ethereum:
-        return ethereumIcon;
-      case WalletType.bitcoinCash:
-        return bitcoinCashIcon;
-      case WalletType.nano:
-      case WalletType.banano:
-        return nanoIcon;
-      case WalletType.polygon:
-        return polygonIcon;
-      case WalletType.solana:
-        return solanaIcon;
-      case WalletType.tron:
-        return tronIcon;
-      case WalletType.wownero:
-        return wowneroIcon;
-      case WalletType.none:
-        return nonWalletTypeIcon;
-    }
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
@@ -438,12 +417,36 @@ class WalletListBodyState extends State<WalletListBody> {
     await widget.authService.authenticateAction(
       context,
       onAuthSuccess: (isAuthenticatedSuccessfully) async {
-        if (!isAuthenticatedSuccessfully) {
-          return;
-        }
+        if (!isAuthenticatedSuccessfully) return;
 
         try {
-          changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
+          if (widget.walletListViewModel
+              .requireHardwareWalletConnection(wallet)) {
+            await Navigator.of(context).pushNamed(
+              Routes.connectDevices,
+              arguments: ConnectDevicePageParams(
+                walletType: WalletType.monero,
+                onConnectDevice: (context, ledgerVM) async {
+                  monero!.setGlobalLedgerConnection(ledgerVM.connection);
+                  Navigator.of(context).pop();
+                },
+              ),
+            );
+
+            showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) => AlertWithOneAction(
+                  alertTitle: S.of(context).proceed_on_device,
+                  alertContent: S.of(context).proceed_on_device_description,
+                  buttonText: S.of(context).cancel,
+                  buttonAction: () => Navigator.of(context).pop()),
+            );
+          }
+
+
+
+          changeProcessText(
+              S.of(context).wallet_list_loading_wallet(wallet.name));
           await widget.walletListViewModel.loadWallet(wallet);
           await hideProgressText();
           // only pop the wallets route in mobile as it will go back to dashboard page
@@ -451,13 +454,15 @@ class WalletListBodyState extends State<WalletListBody> {
           if (responsiveLayoutUtil.shouldRenderMobileUI) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (this.mounted) {
-                Navigator.of(context).pop();
+                widget.onWalletLoaded.call(context);
               }
             });
           }
         } catch (e) {
           if (this.mounted) {
-            changeProcessText(S.of(context).wallet_list_failed_to_load(wallet.name, e.toString()));
+            changeProcessText(S
+                .of(context)
+                .wallet_list_failed_to_load(wallet.name, e.toString()));
           }
         }
       },

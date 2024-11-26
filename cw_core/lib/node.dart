@@ -79,6 +79,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(9)
   bool? supportsSilentPayments;
 
+  @HiveField(10)
+  bool? supportsMweb;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -200,8 +203,29 @@ class Node extends HiveObject with Keyable {
         headers: {'Content-Type': 'application/json'},
         body: json.encode(body),
       );
-
       client.close();
+
+      if ((
+        response.body.contains("400 Bad Request") // Some other generic error
+        || response.body.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+        || response.headers["location"] != null // Generic reverse proxy
+        || response.body.contains("301 Moved Permanently") // Poorly configured generic reverse proxy
+      ) && !(useSSL??false)
+      ) {
+
+        final oldUseSSL = useSSL;
+        useSSL = true;
+        try {
+          final ret = await requestMoneroNode();
+          if (ret == true) {
+            await save();
+            return ret;
+          }
+          useSSL = oldUseSSL;
+        } catch (e) {
+          useSSL = oldUseSSL;
+        }
+      }
 
       final resBody = json.decode(response.body) as Map<String, dynamic>;
       return !(resBody['result']['offline'] as bool);

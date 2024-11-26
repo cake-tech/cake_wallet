@@ -53,7 +53,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.bitcoin:
         _addElectrumListItems(tx, dateFormat);
-        if(!canReplaceByFee)_checkForRBF(tx);
+        if (!canReplaceByFee) _checkForRBF(tx);
         break;
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
@@ -84,8 +84,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
     }
 
-    final descriptionKey =
-        '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
+    final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
     final description = transactionDescriptionBox.values.firstWhere(
         (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
         orElse: () => TransactionDescription(id: descriptionKey));
@@ -94,9 +93,13 @@ abstract class TransactionDetailsViewModelBase with Store {
       final recipientAddress = description.recipientAddress;
 
       if (recipientAddress?.isNotEmpty ?? false) {
-        items.add(StandartListItem(
-          title: S.current.transaction_details_recipient_address,
-          value: recipientAddress!, key: ValueKey('standard_list_item_${recipientAddress}_key'),));
+        items.add(
+          StandartListItem(
+            title: S.current.transaction_details_recipient_address,
+            value: recipientAddress!,
+            key: ValueKey('standard_list_item_${recipientAddress}_key'),
+          ),
+        );
       }
     }
 
@@ -116,7 +119,8 @@ abstract class TransactionDetailsViewModelBase with Store {
       ),
     );
 
-    items.add(TextFieldListItem(
+    items.add(
+      TextFieldListItem(
         title: S.current.note_tap_to_change,
         value: description.note,
         onSubmitted: (value) {
@@ -155,7 +159,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return 'https://monero.com/tx/${txId}';
       case WalletType.bitcoin:
-        return 'https://mempool.space/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
+        return 'https://mempool.cakewallet.com/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.bitcoinCash:

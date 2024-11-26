@@ -19,6 +19,7 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/coins_info.dart';
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
@@ -27,6 +28,7 @@ import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/exceptions/monero_transaction_no_inputs_exception.dart';
+import 'package:cw_monero/ledger.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
@@ -35,6 +37,7 @@ import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
 import 'package:monero/monero.dart' as monero;
 
@@ -121,6 +124,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
+      primaryAddress: monero_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: monero_wallet.getSecretSpendKey(),
       privateViewKey: monero_wallet.getSecretViewKey(),
       publicSpendKey: monero_wallet.getPublicSpendKey(),
@@ -228,6 +232,36 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       print(e);
       rethrow;
     }
+  }
+
+  Future<bool> submitTransactionUR(String ur) async {
+    final retStatus = monero.Wallet_submitTransactionUR(wptr!, ur);
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(wptr!);
+      throw MoneroTransactionCreationException("unable to broadcast signed transaction: $err");
+    }
+    return retStatus;
+  }
+
+  bool importKeyImagesUR(String ur) {
+    final retStatus = monero.Wallet_importKeyImagesUR(wptr!, ur);
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(wptr!);
+      throw Exception("unable to import key images: $err");
+    }
+    return retStatus;
+  }
+
+  String exportOutputsUR(bool all) {
+    final str = monero.Wallet_exportOutputsUR(wptr!, all: all);
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(wptr!);
+      throw MoneroTransactionCreationException("unable to export UR: $err");
+    }
+    return str;
   }
 
   @override
@@ -796,4 +830,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return monero_wallet.verifyMessage(message, address, signature);
   }
 
+  void setLedgerConnection(LedgerConnection connection) {
+    final dummyWPtr = wptr ??
+        monero.WalletManager_openWallet(wmPtr, path: '', password: '');
+    enableLedgerExchange(dummyWPtr, connection);
+  }
 }
