@@ -1,6 +1,6 @@
 void printV(dynamic content) {
   CustomTrace programInfo = CustomTrace(StackTrace.current);
-  printV("${programInfo.fileName}#${programInfo.lineNumber}:${programInfo.columnNumber} ${programInfo.callerFunctionName}: $content");
+  print("${programInfo.fileName}#${programInfo.lineNumber}:${programInfo.columnNumber} ${programInfo.callerFunctionName}: $content");
 }
 
 // https://stackoverflow.com/a/59386101
