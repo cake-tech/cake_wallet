@@ -10,11 +10,13 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WelcomePage extends BasePage {
   static const aspectRatioImage = 1.25;
   final welcomeImageLight = Image.asset('assets/images/wallet_type_light.png');
   final welcomeImageDark = Image.asset('assets/images/wallet_type.png');
+  //final Uri _url = Uri.parse('https://flutter.dev');
 
   @override
   String? get title => S.current.wallet;
@@ -24,9 +26,12 @@ class WelcomePage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
+    final Uri _url = Uri.parse('https://guides.cakewallet.com/docs/basic-features/basic-features/');
     return IconButton(
       icon: Icon(Icons.info_outline),
-      onPressed: () {},
+      onPressed: () async {
+        await launchUrl(_url);
+      },
     );
   }
 
@@ -58,7 +63,7 @@ class WelcomePage extends BasePage {
                     child: FittedBox(child: welcomeImage, fit: BoxFit.contain),
                   ),
                   Padding(
-                      padding: EdgeInsets.only(top: 5),
+                      padding: EdgeInsets.only(top: 20),
                       child: highlightText(context, S.of(context).welcome_subtitle_new_wallet,
                           S.of(context).create_new)),
                   SizedBox(height: 10),
@@ -116,8 +121,9 @@ class WelcomePage extends BasePage {
           text: text,
           style: TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+            height: 1.5,
+            fontWeight: FontWeight.w400,
+            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
           ),
         ),
       );
@@ -135,8 +141,9 @@ class WelcomePage extends BasePage {
           text: text.substring(lastMatchEnd, start),
           style: TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+            height: 1.5,
+            fontWeight: FontWeight.w400,
+            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
           ),
         ));
       }
@@ -145,7 +152,8 @@ class WelcomePage extends BasePage {
         text: text.substring(start, end),
         style: TextStyle(
           fontSize: 16,
-          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+          height: 1.5,
+          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
           fontWeight: FontWeight.bold,
         ),
       ));
@@ -157,9 +165,10 @@ class WelcomePage extends BasePage {
       spans.add(TextSpan(
         text: text.substring(lastMatchEnd),
         style: TextStyle(
+          height: 1.5,
           fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+          fontWeight: FontWeight.w400,
+          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
         ),
       ));
     }
