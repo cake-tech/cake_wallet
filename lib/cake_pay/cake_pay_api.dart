@@ -233,7 +233,8 @@ class CakePayApi {
     var response = await http.get(uri, headers: headers);
 
     if (response.statusCode != 200) {
-      throw Exception(response.body);
+      throw Exception(
+          'Failed to fetch vendors: statusCode - ${response.statusCode}, queryParams -$queryParams, response - ${response.body}');
     }
 
     final bodyJson = json.decode(response.body);
