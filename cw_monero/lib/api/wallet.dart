@@ -160,14 +160,15 @@ final storeMutex = Mutex();
 
 int lastStorePointer = 0;
 int lastStoreHeight = 0;
-void storeSync() async {
+void storeSync({bool force = false}) async {
   final addr = wptr!.address;
   final synchronized = await Isolate.run(() {
     return monero.Wallet_synchronized(Pointer.fromAddress(addr));
   });
   if (lastStorePointer == wptr!.address &&
       lastStoreHeight + 5000 > monero.Wallet_blockChainHeight(wptr!) &&
-      !synchronized) {
+      !synchronized && 
+      !force) {
     return;
   }
   lastStorePointer = wptr!.address;
