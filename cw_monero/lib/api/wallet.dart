@@ -4,6 +4,7 @@ import 'dart:isolate';
 
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
+import 'package:flutter/foundation.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:mutex/mutex.dart';
 
@@ -127,6 +128,15 @@ Future<bool> setupNodeSync(
     final error = monero.Wallet_errorString(wptr!);
     print("error: $error");
     throw SetupWalletException(message: error);
+  }
+
+  if (kDebugMode) {
+    monero.Wallet_init3(
+      wptr!, argv0: '',
+      defaultLogBaseName: 'moneroc',
+      console: true,
+      logPath: '',
+    );
   }
 
   return status == 0;
