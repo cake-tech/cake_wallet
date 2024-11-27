@@ -1,5 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +10,8 @@ import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:flutter/services.dart';
 
 typedef OnAuthenticationFinished = void Function(bool, AuthPageState);
 
@@ -66,7 +69,7 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
           dismissFlushBar(_authBar);
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
-
+          if (state.error.contains("currupt"))
           widget.onAuthenticationFinished(false, this);
         });
       }
@@ -75,13 +78,29 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           _pinCodeKey.currentState?.clear();
           dismissFlushBar(_authBar);
-          showBar<void>(
-              context, S.of(context).failed_authentication(state.error));
+          if (state.error.contains("corrupted wallets seeds")) {
+            await showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithTwoActions(
+                    alertTitle: "Corrupted seeds",
+                    alertContent: state.error,
+                    leftButtonText: S.of(context).cancel,
+                    rightButtonText: S.of(context).show_seed,
+                    actionLeftButton: () => Navigator.of(context).pop(),
+                    actionRightButton: () => _showSeedsPopup(context, state.error),
+                  );
+              });
+          } else {
+            showBar<void>(
+                context, S.of(context).failed_authentication(state.error));
+          }
 
           widget.onAuthenticationFinished(false, this);
         });
       }
     });
+
 
     if (widget.authViewModel.isBiometricalAuthenticationAllowed) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -92,6 +111,23 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
 
     super.initState();
   }
+
+   Future<void> _showSeedsPopup(BuildContext context, String message) async {
+      await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithTwoActions(
+            alertTitle: "Corrupted seeds",
+            alertContent: message,
+            leftButtonText: S.of(context).copy,
+            rightButtonText: S.of(context).ok,
+            actionLeftButton: () async {
+              await Clipboard.setData(ClipboardData(text: message));
+            },
+            actionRightButton: () => Navigator.of(context).pop(),
+          );
+      });
+    }
 
   @override
   void dispose() {

@@ -295,6 +295,11 @@ Future<void> loadWallet(
         password: password,
         kdfRounds: 1,
       );
+      final status = monero.WalletManager_errorString(wmPtr);
+      if (status != "") {
+        print("loadWallet:"+status);
+        throw WalletOpeningException(message: status);
+      }
     } else {
       deviceType = 0;
     }
