@@ -50,6 +50,7 @@ class ActionButton extends StatelessWidget {
                   fontSize: 10,
                   color: textColor ??
                       Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor),
+              textAlign: TextAlign.center,
             )
           ],
         ),
