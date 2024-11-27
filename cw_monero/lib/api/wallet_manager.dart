@@ -286,8 +286,18 @@ Future<void> loadWallet(
     /// 0: Software Wallet
     /// 1: Ledger
     /// 2: Trezor
-    final deviceType = monero.WalletManager_queryWalletDevice(wmPtr,
-        keysFileName: "$path.keys", password: password, kdfRounds: 1);
+    late final deviceType;
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      deviceType = monero.WalletManager_queryWalletDevice(
+        wmPtr,
+        keysFileName: "$path.keys",
+        password: password,
+        kdfRounds: 1,
+      );
+    } else {
+      deviceType = 0;
+    }
 
     if (deviceType == 1) {
       final dummyWPtr = wptr ??
