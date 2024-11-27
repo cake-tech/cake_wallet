@@ -106,6 +106,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
                 index: e.key,
                 type: SegwitAddresType.mweb,
                 network: network,
+                isHidden: false,
               ))
           .toList();
       addMwebAddresses(addressRecords);
@@ -195,6 +196,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         index: 0,
         type: SegwitAddresType.mweb,
         network: network,
+        isHidden: true,
       );
     }
 
