@@ -273,7 +273,19 @@ Future<void> defaultSettingsMigration(
             newDefaultUri: newCakeWalletBitcoinUri,
             currentNodePreferenceKey: PreferencesKey.currentBitcoinElectrumSererIdKey,
             useSSL: true,
-            oldUri: 'cakewallet.com',
+            oldUri: ['cakewallet.com'],
+          );
+          _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.tron,
+            newDefaultUri: tronDefaultNodeUri,
+            currentNodePreferenceKey: PreferencesKey.currentTronNodeIdKey,
+            useSSL: true,
+            oldUri: [
+              'tron-rpc.publicnode.com:443',
+              'api.trongrid.io',
+            ],
           );
           break;
 
@@ -300,11 +312,11 @@ Future<void> _changeDefaultNode({
   required String newDefaultUri,
   required String currentNodePreferenceKey,
   required bool useSSL,
-  required String oldUri, // leave empty if you want to force replace the node regardless of the user's current node
+  required List<String> oldUri, // leave empty if you want to force replace the node regardless of the user's current node
 }) async {
   final currentNodeId = sharedPreferences.getInt(currentNodePreferenceKey);
   final currentNode = nodes.values.firstWhere((node) => node.key == currentNodeId);
-  final shouldReplace = currentNode.uriRaw.contains(oldUri);
+  final shouldReplace = oldUri.any((e) => currentNode.uriRaw.contains(e));
 
   if (shouldReplace) {
     var newNodeId =
