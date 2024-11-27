@@ -3,6 +3,38 @@ PODS:
     - Flutter
     - ReachabilitySwift
   - CryptoSwift (1.8.3)
+  - cw_haven (0.0.1):
+    - cw_haven/Boost (= 0.0.1)
+    - cw_haven/Haven (= 0.0.1)
+    - cw_haven/OpenSSL (= 0.0.1)
+    - cw_haven/Sodium (= 0.0.1)
+    - cw_shared_external
+    - Flutter
+  - cw_haven/Boost (0.0.1):
+    - cw_shared_external
+    - Flutter
+  - cw_haven/Haven (0.0.1):
+    - cw_shared_external
+    - Flutter
+  - cw_haven/OpenSSL (0.0.1):
+    - cw_shared_external
+    - Flutter
+  - cw_haven/Sodium (0.0.1):
+    - cw_shared_external
+    - Flutter
+  - cw_mweb (0.0.1):
+    - Flutter
+  - cw_shared_external (0.0.1):
+    - cw_shared_external/Boost (= 0.0.1)
+    - cw_shared_external/OpenSSL (= 0.0.1)
+    - cw_shared_external/Sodium (= 0.0.1)
+    - Flutter
+  - cw_shared_external/Boost (0.0.1):
+    - Flutter
+  - cw_shared_external/OpenSSL (0.0.1):
+    - Flutter
+  - cw_shared_external/Sodium (0.0.1):
+    - Flutter
   - device_display_brightness (0.0.1):
     - Flutter
   - device_info_plus (0.0.1):
@@ -62,11 +94,10 @@ PODS:
   - fluttertoast (0.0.2):
     - Flutter
     - Toast
-  - in_app_review (0.2.0):
+  - in_app_review (2.0.0):
     - Flutter
   - integration_test (0.0.1):
     - Flutter
-  - MTBBarcodeScanner (5.0.11)
   - OrderedSet (6.0.3)
   - package_info_plus (0.4.5):
     - Flutter
@@ -86,7 +117,6 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - SwiftProtobuf (1.28.2)
   - sp_scanner (0.0.1):
     - Flutter
   - SwiftyGif (5.4.5)
@@ -106,6 +136,9 @@ PODS:
 DEPENDENCIES:
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
+  - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
+  - cw_mweb (from `.symlinks/plugins/cw_mweb/ios`)
+  - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
@@ -125,6 +158,7 @@ DEPENDENCIES:
   - sensitive_clipboard (from `.symlinks/plugins/sensitive_clipboard/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - sp_scanner (from `.symlinks/plugins/sp_scanner/ios`)
   - uni_links (from `.symlinks/plugins/uni_links/ios`)
   - universal_ble (from `.symlinks/plugins/universal_ble/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
@@ -145,6 +179,12 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
+  cw_haven:
+    :path: ".symlinks/plugins/cw_haven/ios"
+  cw_mweb:
+    :path: ".symlinks/plugins/cw_mweb/ios"
+  cw_shared_external:
+    :path: ".symlinks/plugins/cw_shared_external/ios"
   device_display_brightness:
     :path: ".symlinks/plugins/device_display_brightness/ios"
   device_info_plus:
@@ -183,6 +223,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  sp_scanner:
+    :path: ".symlinks/plugins/sp_scanner/ios"
   uni_links:
     :path: ".symlinks/plugins/uni_links/ios"
   universal_ble:
@@ -197,9 +239,12 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   CryptoSwift: 967f37cea5a3294d9cce358f78861652155be483
+  cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
+  cw_mweb: 87af74f9659fed0c1a2cbfb44413f1070e79e3ae
+  cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
-  devicelocale: b22617f40038496deffba44747101255cee005b0
+  devicelocale: 35ba84dc7f45f527c3001535d8c8d104edd5d926
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
   fast_scanner: 44c00940355a51258cd6c2085734193cd23d95bc
@@ -209,10 +254,9 @@ SPEC CHECKSUMS:
   flutter_local_authentication: 1172a4dd88f6306dadce067454e2c4caf07977bb
   flutter_mailer: 2ef5a67087bc8c6c4cefd04a178bf1ae2c94cd83
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
-  fluttertoast: 48c57db1b71b0ce9e6bba9f31c940ff4b001293c
-  in_app_review: 318597b3a06c22bb46dc454d56828c85f444f99d
+  fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
+  in_app_review: a31b5257259646ea78e0e35fc914979b0031d011
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
-  MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
@@ -222,7 +266,6 @@ SPEC CHECKSUMS:
   sensitive_clipboard: d4866e5d176581536c27bb1618642ee83adca986
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  SwiftProtobuf: 4dbaffec76a39a8dc5da23b40af1a5dc01a4c02d
   sp_scanner: eaa617fa827396b967116b7f1f43549ca62e9a12
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
