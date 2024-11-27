@@ -424,6 +424,7 @@ abstract class ElectrumWalletBase
               uri: node.uri,
               useSSL: node.useSSL ?? false,
               network: network,
+              walletType: walletInfo.type,
             ).toJson(),
           );
         } else {

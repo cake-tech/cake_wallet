@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 // import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
@@ -58,7 +59,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required EncryptionFileUtils encryptionFileUtils,
-    Uint8List? seedBytes,
+    List<int>? seedBytes,
     String? mnemonic,
     String? xpub,
     String? passphrase,
@@ -155,20 +156,61 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialChangeAddressIndex,
     required bool mempoolAPIEnabled,
   }) async {
-    late Uint8List seedBytes;
+    List<int>? seedBytes = null;
+    final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
 
-    switch (walletInfo.derivationInfo?.derivationType) {
-      case DerivationType.bip39:
-        seedBytes = await bip39.mnemonicToSeed(
-          mnemonic,
-          passphrase: passphrase ?? "",
-        );
-        break;
-      case DerivationType.electrum:
-      default:
-        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
-        break;
+    if (walletInfo.isRecovery) {
+      for (final derivation in walletInfo.derivations ?? <DerivationInfo>[]) {
+        if (derivation.description?.contains("SP") ?? false) {
+          continue;
+        }
+
+        if (derivation.derivationType == DerivationType.bip39) {
+          seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+
+          break;
+        } else {
+          try {
+            seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+            hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+          } catch (e) {
+            print("electrum_v2 seed error: $e");
+
+            try {
+              seedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
+              hdWallets[CWBitcoinDerivationType.electrum] =
+                  Bip32Slip10Secp256k1.fromSeed(seedBytes);
+            } catch (e) {
+              print("electrum_v1 seed error: $e");
+            }
+          }
+
+          break;
+        }
+      }
+
+      if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
+        hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
+      }
+      if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
+        hdWallets[CWBitcoinDerivationType.old_electrum] =
+            hdWallets[CWBitcoinDerivationType.electrum]!;
+      }
+    } else {
+      switch (walletInfo.derivationInfo?.derivationType) {
+        case DerivationType.bip39:
+          seedBytes = await Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+          break;
+        case DerivationType.electrum:
+        default:
+          seedBytes = await ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+          hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+          break;
+      }
     }
+
     return LitecoinWallet(
       mnemonic: mnemonic,
       password: password,
@@ -232,7 +274,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? ELECTRUM_PATH;
     walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
 
-    Uint8List? seedBytes = null;
+    List<int>? seedBytes = null;
     final mnemonic = keysData.mnemonic;
     final passphrase = keysData.passphrase;
 

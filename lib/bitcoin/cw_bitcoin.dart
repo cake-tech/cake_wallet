@@ -372,8 +372,6 @@ class CWBitcoin extends Bitcoin {
       );
     }
 
-    oldList.addAll(bitcoin!.getOldSPDerivationInfos());
-
     return oldList;
   }
 
@@ -385,24 +383,13 @@ class CWBitcoin extends Bitcoin {
   }) async {
     final list = <DerivationInfo>[];
 
-    late BasedUtxoNetwork network;
-    switch (node.type) {
-      case WalletType.litecoin:
-        network = LitecoinNetwork.mainnet;
-        break;
-      case WalletType.bitcoin:
-      default:
-        network = BitcoinNetwork.mainnet;
-        break;
-    }
-
     var electrumSeedBytes;
     try {
       electrumSeedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
     } catch (e) {
       print("electrum_v2 seed error: $e");
 
-      if (passphrase != null && passphrase.isEmpty) {
+      if (passphrase == null || passphrase.isEmpty) {
         try {
           // TODO: language pick
           electrumSeedBytes = ElectrumV1SeedGenerator(mnemonic).generate();

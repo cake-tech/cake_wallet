@@ -117,26 +117,26 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       await ensureMwebAddressUpToIndexExists(20);
       return;
     }
+  }
 
-    @override
-    BitcoinBaseAddress generateAddress({
-      required CWBitcoinDerivationType derivationType,
-      required bool isChange,
-      required int index,
-      required BitcoinAddressType addressType,
-      required BitcoinDerivationInfo derivationInfo,
-    }) {
-      if (addressType == SegwitAddresType.mweb) {
-        return MwebAddress.fromAddress(address: mwebAddrs[0], network: network);
-      }
-
-      return P2wpkhAddress.fromDerivation(
-        bip32: hdWallet,
-        derivationInfo: derivationInfo,
-        isChange: isChange,
-        index: index,
-      );
+  @override
+  BitcoinBaseAddress generateAddress({
+    required CWBitcoinDerivationType derivationType,
+    required bool isChange,
+    required int index,
+    required BitcoinAddressType addressType,
+    required BitcoinDerivationInfo derivationInfo,
+  }) {
+    if (addressType == SegwitAddresType.mweb) {
+      return MwebAddress.fromAddress(address: mwebAddrs[0], network: network);
     }
+
+    return P2wpkhAddress.fromDerivation(
+      bip32: hdWallets[derivationType]!,
+      derivationInfo: derivationInfo,
+      isChange: isChange,
+      index: index,
+    );
   }
 
   @override

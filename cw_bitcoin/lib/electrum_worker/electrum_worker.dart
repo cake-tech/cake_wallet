@@ -23,8 +23,10 @@ import 'package:sp_scanner/sp_scanner.dart';
 class ElectrumWorker {
   final SendPort sendPort;
   ElectrumApiProvider? _electrumClient;
-  BasedUtxoNetwork? _network;
   BehaviorSubject<Map<String, dynamic>>? _scanningStream;
+
+  BasedUtxoNetwork? _network;
+  WalletType? _walletType;
 
   ElectrumWorker._(this.sendPort, {ElectrumApiProvider? electrumClient})
       : _electrumClient = electrumClient;
@@ -134,6 +136,7 @@ class ElectrumWorker {
 
   Future<void> _handleConnect(ElectrumWorkerConnectionRequest request) async {
     _network = request.network;
+    _walletType = request.walletType;
 
     try {
       _electrumClient = await ElectrumApiProvider.connect(
@@ -198,6 +201,10 @@ class ElectrumWorker {
       // https://electrumx.readthedocs.io/en/latest/protocol-basics.html#status
       // The status of the script hash is the hash of the tx history, or null if the string is empty because there are no transactions
       stream.listen((status) async {
+        if (status == null) {
+          return;
+        }
+
         print("status: $status");
 
         _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
@@ -213,6 +220,10 @@ class ElectrumWorker {
     final addresses = result.addresses;
 
     await Future.wait(addresses.map((addressRecord) async {
+      if (addressRecord.scriptHash.isEmpty) {
+        return;
+      }
+
       final history = await _electrumClient!.request(ElectrumScriptHashGetHistory(
         scriptHash: addressRecord.scriptHash,
       ));
@@ -313,6 +324,10 @@ class ElectrumWorker {
     final balanceFutures = <Future<Map<String, dynamic>>>[];
 
     for (final scripthash in request.scripthashes) {
+      if (scripthash.isEmpty) {
+        continue;
+      }
+
       final balanceFuture = _electrumClient!.request(
         ElectrumGetScriptHashBalance(scriptHash: scripthash),
       );
@@ -347,9 +362,15 @@ class ElectrumWorker {
     final unspents = <String, List<ElectrumUtxo>>{};
 
     await Future.wait(request.scripthashes.map((scriptHash) async {
-      final scriptHashUnspents = await _electrumClient!.request(
-        ElectrumScriptHashListUnspent(scriptHash: scriptHash),
-      );
+      if (scriptHash.isEmpty) {
+        return;
+      }
+
+      final scriptHashUnspents = await _electrumClient!
+          .request(
+            ElectrumScriptHashListUnspent(scriptHash: scriptHash),
+          )
+          .timeout(const Duration(seconds: 3));
 
       if (scriptHashUnspents.isNotEmpty) {
         unspents[scriptHash] = scriptHashUnspents;
@@ -389,65 +410,76 @@ class ElectrumWorker {
     int? height;
     bool? isDateValidated;
 
-    final transactionHex = await _electrumClient!.request(
-      ElectrumGetTransactionHex(transactionHash: hash),
+    final transactionVerbose = await _electrumClient!.request(
+      ElectrumGetTransactionVerbose(transactionHash: hash),
     );
+    String transactionHex;
 
-    if (getTime) {
-      if (mempoolAPIEnabled) {
-        try {
-          // TODO: mempool api class
-          final txVerbose = await http
-              .get(
-                Uri.parse(
-                  "https://mempool.cakewallet.com/api/v1/tx/$hash/status",
-                ),
-              )
-              .timeout(const Duration(seconds: 5));
+    if (transactionVerbose.isNotEmpty) {
+      transactionHex = transactionVerbose['hex'] as String;
+      time = transactionVerbose['time'] as int?;
+      confirmations = transactionVerbose['confirmations'] as int?;
+    } else {
+      transactionHex = await _electrumClient!.request(
+        ElectrumGetTransactionHex(transactionHash: hash),
+      );
 
-          if (txVerbose.statusCode == 200 &&
-              txVerbose.body.isNotEmpty &&
-              jsonDecode(txVerbose.body) != null) {
-            height = jsonDecode(txVerbose.body)['block_height'] as int;
-
-            final blockHash = await http
+      if (getTime && _walletType == WalletType.bitcoin) {
+        if (mempoolAPIEnabled) {
+          try {
+            // TODO: mempool api class
+            final txVerbose = await http
                 .get(
                   Uri.parse(
-                    "https://mempool.cakewallet.com/api/v1/block-height/$height",
+                    "https://mempool.cakewallet.com/api/v1/tx/$hash/status",
                   ),
                 )
                 .timeout(const Duration(seconds: 5));
 
-            if (blockHash.statusCode == 200 && blockHash.body.isNotEmpty) {
-              final blockResponse = await http
+            if (txVerbose.statusCode == 200 &&
+                txVerbose.body.isNotEmpty &&
+                jsonDecode(txVerbose.body) != null) {
+              height = jsonDecode(txVerbose.body)['block_height'] as int;
+
+              final blockHash = await http
                   .get(
                     Uri.parse(
-                      "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
+                      "https://mempool.cakewallet.com/api/v1/block-height/$height",
                     ),
                   )
                   .timeout(const Duration(seconds: 5));
 
-              if (blockResponse.statusCode == 200 &&
-                  blockResponse.body.isNotEmpty &&
-                  jsonDecode(blockResponse.body)['timestamp'] != null) {
-                time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
+              if (blockHash.statusCode == 200 && blockHash.body.isNotEmpty) {
+                final blockResponse = await http
+                    .get(
+                      Uri.parse(
+                        "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
+                      ),
+                    )
+                    .timeout(const Duration(seconds: 5));
 
-                if (date != null) {
-                  final newDate = DateTime.fromMillisecondsSinceEpoch(time * 1000);
-                  isDateValidated = newDate == date;
+                if (blockResponse.statusCode == 200 &&
+                    blockResponse.body.isNotEmpty &&
+                    jsonDecode(blockResponse.body)['timestamp'] != null) {
+                  time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
+
+                  if (date != null) {
+                    final newDate = DateTime.fromMillisecondsSinceEpoch(time * 1000);
+                    isDateValidated = newDate == date;
+                  }
                 }
               }
             }
-          }
-        } catch (_) {}
-      }
-
-      if (confirmations == null && height != null) {
-        final tip = currentChainTip;
-        if (tip > 0 && height > 0) {
-          // Add one because the block itself is the first confirmation
-          confirmations = tip - height + 1;
+          } catch (_) {}
         }
+      }
+    }
+
+    if (confirmations == null && height != null) {
+      final tip = currentChainTip;
+      if (tip > 0 && height > 0) {
+        // Add one because the block itself is the first confirmation
+        confirmations = tip - height + 1;
       }
     }
 

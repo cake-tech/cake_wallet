@@ -5,12 +5,14 @@ class ElectrumWorkerConnectionRequest implements ElectrumWorkerRequest {
     required this.uri,
     required this.network,
     required this.useSSL,
+    required this.walletType,
     this.id,
   });
 
   final Uri uri;
   final bool useSSL;
   final BasedUtxoNetwork network;
+  final WalletType walletType;
   final int? id;
 
   @override
@@ -23,6 +25,9 @@ class ElectrumWorkerConnectionRequest implements ElectrumWorkerRequest {
       network: BasedUtxoNetwork.values.firstWhere(
         (e) => e.toString() == json['network'] as String,
       ),
+      walletType: WalletType.values.firstWhere(
+        (e) => e.toString() == json['walletType'] as String,
+      ),
       useSSL: json['useSSL'] as bool,
       id: json['id'] as int?,
     );
@@ -34,6 +39,7 @@ class ElectrumWorkerConnectionRequest implements ElectrumWorkerRequest {
       'method': method,
       'uri': uri.toString(),
       'network': network.toString(),
+      'walletType': walletType.toString(),
       'useSSL': useSSL,
     };
   }

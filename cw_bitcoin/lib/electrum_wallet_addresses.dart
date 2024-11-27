@@ -414,11 +414,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required BitcoinAddressType addressType,
     required BitcoinDerivationInfo derivationInfo,
   }) async {
-    final count = (isChange
+    final count = isChange
         ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
-        : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
+        : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
 
-    final startIndex = (isChange ? receiveAddresses : changeAddresses)
+    final startIndex = (isChange ? changeAddresses : receiveAddresses)
         .where((addr) => addr.derivationType == derivationType && addr.addressType == addressType)
         .length;
 

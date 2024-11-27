@@ -27,16 +27,12 @@ dependencies:
   rxdart: ^0.28.0
   cryptography: ^2.0.5
   blockchain_utils:
-    git:
-      url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v3
+    path: /home/rafael/Working/blockchain_utils
   cw_mweb:
     path: ../cw_mweb
   grpc: ^3.2.4
   sp_scanner:
-    git:
-      url: https://github.com/cake-tech/sp_scanner.git
-      ref: cake-update-v3
+    path: /home/rafael/Working/sp_scanner
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
@@ -62,13 +58,9 @@ dependency_overrides:
   watcher: ^1.1.0
   protobuf: ^3.1.0
   bitcoin_base:
-    git:
-      url: https://github.com/cake-tech/bitcoin_base.git
-      ref: cake-update-v15
+    path: /home/rafael/Working/bitcoin_base
   blockchain_utils:
-    git:
-      url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v3
+    path: /home/rafael/Working/blockchain_utils
   pointycastle: 3.7.4
   ffi: 2.1.0
 
