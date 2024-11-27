@@ -6,7 +6,7 @@ abstract class BaseBitcoinAddressRecord {
   BaseBitcoinAddressRecord(
     this.address, {
     required this.index,
-    this.isHidden = false,
+    required this.isHidden,
     int txCount = 0,
     int balance = 0,
     String name = '',
@@ -56,7 +56,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   BitcoinAddressRecord(
     super.address, {
     required super.index,
-    super.isHidden = false,
+    required super.isHidden,
     super.txCount = 0,
     super.balance = 0,
     super.name = '',
