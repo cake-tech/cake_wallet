@@ -223,7 +223,7 @@ String? commitTransaction({required monero.PendingTransaction transactionPointer
     })();
   
   }
-  if (error != null) {
+  if (error != null && error != "no tx keys found for this txid") {
     throw CreationTransactionException(message: error);
   }
   if (useUR) {
