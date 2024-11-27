@@ -5,6 +5,7 @@ import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:fast_scanner/fast_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -61,7 +62,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
           );
         },
       );
-      print(e);
+      printV(e);
     }
   }
 

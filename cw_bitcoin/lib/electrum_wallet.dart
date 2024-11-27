@@ -4,6 +4,8 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -478,8 +480,8 @@ abstract class ElectrumWalletBase
         syncStatus = SyncedSyncStatus();
       }
     } catch (e, stacktrace) {
-      print(stacktrace);
-      print("startSync $e");
+      printV(stacktrace);
+      printV("startSync $e");
       syncStatus = FailedSyncStatus();
     }
   }
@@ -505,7 +507,7 @@ abstract class ElectrumWalletBase
         _feeRates = [slowFee, mediumFee, fastFee];
         return;
       } catch (e) {
-        print(e);
+        printV(e);
       }
     }
 
@@ -587,8 +589,8 @@ abstract class ElectrumWalletBase
 
       await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
     } catch (e, stacktrace) {
-      print(stacktrace);
-      print("connectToNode $e");
+      printV(stacktrace);
+      printV("connectToNode $e");
       syncStatus = FailedSyncStatus();
     }
   }
@@ -1482,7 +1484,7 @@ abstract class ElectrumWalletBase
         await unspentCoinsInfo.deleteAll(keys);
       }
     } catch (e) {
-      print("refreshUnspentCoinsInfo $e");
+      printV("refreshUnspentCoinsInfo $e");
     }
   }
 
@@ -1827,7 +1829,7 @@ abstract class ElectrumWalletBase
 
       return historiesWithDetails;
     } catch (e) {
-      print("fetchTransactions $e");
+      printV("fetchTransactions $e");
       return {};
     }
   }
@@ -1951,7 +1953,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> updateTransactions() async {
-    print("updateTransactions() called!");
+    printV("updateTransactions() called!");
     try {
       if (_isTransactionUpdating) {
         return;
@@ -1983,8 +1985,8 @@ abstract class ElectrumWalletBase
       walletAddresses.updateReceiveAddresses();
       _isTransactionUpdating = false;
     } catch (e, stacktrace) {
-      print(stacktrace);
-      print(e);
+      printV(stacktrace);
+      printV(e);
       _isTransactionUpdating = false;
     }
   }
@@ -2002,13 +2004,13 @@ abstract class ElectrumWalletBase
         try {
           await _scripthashesUpdateSubject[sh]?.close();
         } catch (e) {
-          print("failed to close: $e");
+          printV("failed to close: $e");
         }
       }
       try {
         _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
       } catch (e) {
-        print("failed scripthashUpdate: $e");
+        printV("failed scripthashUpdate: $e");
       }
       _scripthashesUpdateSubject[sh]?.listen((event) async {
         try {
@@ -2018,7 +2020,7 @@ abstract class ElectrumWalletBase
 
           await _fetchAddressHistory(address, await getCurrentChainTip());
         } catch (e, s) {
-          print("sub error: $e");
+          printV("sub error: $e");
           _onError?.call(FlutterErrorDetails(
             exception: e,
             stack: s,
@@ -2026,7 +2028,7 @@ abstract class ElectrumWalletBase
           ));
         }
       }, onError: (e, s) {
-        print("sub_listen error: $e $s");
+        printV("sub_listen error: $e $s");
       });
     }));
   }
@@ -2078,7 +2080,7 @@ abstract class ElectrumWalletBase
 
     if (balances.isNotEmpty && balances.first['confirmed'] == null) {
       // if we got null balance responses from the server, set our connection status to lost and return our last known balance:
-      print("got null balance responses from the server, setting connection status to lost");
+      printV("got null balance responses from the server, setting connection status to lost");
       syncStatus = LostConnectionSyncStatus();
       return balance[currency] ?? ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
     }
@@ -2105,7 +2107,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> updateBalance() async {
-    print("updateBalance() called!");
+    printV("updateBalance() called!");
     balance[currency] = await fetchBalances();
     await save();
   }
@@ -2245,7 +2247,7 @@ abstract class ElectrumWalletBase
   }
 
   void _syncStatusReaction(SyncStatus syncStatus) async {
-    print("SYNC_STATUS_CHANGE: ${syncStatus}");
+    printV("SYNC_STATUS_CHANGE: ${syncStatus}");
     if (syncStatus is SyncingSyncStatus) {
       return;
     }

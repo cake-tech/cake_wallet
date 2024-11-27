@@ -10,6 +10,7 @@ import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -82,7 +83,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     // } on LedgerException catch (e) {
     //   error = ledgerViewModel.interpretErrorCode(e.errorCode.toRadixString(16));
     } catch (e) {
-      print(e);
+      printV(e);
       error = S.current.ledger_connection_error;
     }
 

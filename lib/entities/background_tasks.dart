@@ -8,6 +8,7 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -83,8 +84,8 @@ void callbackDispatcher() {
 
       return Future.value(true);
     } catch (error, stackTrace) {
-      print(error);
-      print(stackTrace);
+      printV(error);
+      printV(stackTrace);
       return Future.error(error);
     }
   });
@@ -149,8 +150,8 @@ class BackgroundTasks {
         constraints: constraints,
       );
     } catch (error, stackTrace) {
-      print(error);
-      print(stackTrace);
+      printV(error);
+      printV(stackTrace);
     }
   }
 
@@ -158,8 +159,8 @@ class BackgroundTasks {
     try {
       Workmanager().cancelByUniqueName(moneroSyncTaskKey);
     } catch (error, stackTrace) {
-      print(error);
-      print(stackTrace);
+      printV(error);
+      printV(stackTrace);
     }
   }
 }

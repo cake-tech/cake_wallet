@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_user_credentials.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:http/http.dart' as http;
 
@@ -140,7 +141,7 @@ class CakePayApi {
 
     final response = await http.get(uri, headers: headers);
 
-    print('Response: ${response.statusCode}');
+    printV('Response: ${response.statusCode}');
 
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
@@ -167,7 +168,7 @@ class CakePayApi {
         throw Exception('Unexpected http status: ${response.statusCode}');
       }
     } catch (e) {
-      print('Caught exception: $e');
+      printV('Caught exception: $e');
     }
   }
 

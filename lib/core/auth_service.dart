@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -51,7 +52,7 @@ class AuthService with Store {
     try {
       password = await secureStorage.read(key: key) ?? '';
     } catch (e) {
-      print(e);
+      printV(e);
     }
 
     return walletName.isNotEmpty && password.isNotEmpty;

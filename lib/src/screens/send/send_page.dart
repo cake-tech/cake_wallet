@@ -28,6 +28,7 @@ import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -584,7 +585,7 @@ class SendPage extends BasePage {
                                 mode: LaunchMode.externalApplication,
                               );
                             } catch (e) {
-                              print(e);
+                              printV(e);
                             }
                           }
                         }

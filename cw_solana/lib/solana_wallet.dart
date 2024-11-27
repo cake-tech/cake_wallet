@@ -11,6 +11,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -454,7 +455,7 @@ abstract class SolanaWalletBase
                   SolanaBalance(0.0);
           balance[token] = tokenBalance;
         } catch (e) {
-          print('Error fetching spl token (${token.symbol}) balance ${e.toString()}');
+          printV('Error fetching spl token (${token.symbol}) balance ${e.toString()}');
         }
       } else {
         balance.remove(token);

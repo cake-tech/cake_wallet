@@ -18,6 +18,7 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -113,11 +114,11 @@ class MoonPayProvider extends BuyProvider {
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
-        print('MoonPay does not support fiat: $fiatCurrency');
+        printV('MoonPay does not support fiat: $fiatCurrency');
         return {};
       }
     } catch (e) {
-      print('MoonPay Error fetching fiat currencies: $e');
+      printV('MoonPay Error fetching fiat currencies: $e');
       return {};
     }
   }
@@ -204,11 +205,11 @@ class MoonPayProvider extends BuyProvider {
 
         return [quote];
       } else {
-        print('Moon Pay: Error fetching buy quote: ');
+        printV('Moon Pay: Error fetching buy quote: ');
         return null;
       }
     } catch (e) {
-      print('Moon Pay: Error fetching buy quote: $e');
+      printV('Moon Pay: Error fetching buy quote: $e');
       return null;
     }
   }

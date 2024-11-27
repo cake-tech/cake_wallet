@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -136,7 +137,7 @@ class DFXBuyProvider extends BuyProvider {
         return {};
       }
     } catch (e) {
-      print('DFX Error fetching fiat currencies: $e');
+      printV('DFX Error fetching fiat currencies: $e');
       return {};
     }
   }
@@ -266,19 +267,19 @@ class DFXBuyProvider extends BuyProvider {
           quote.setCryptoCurrency = cryptoCurrency;
           return [quote];
         } else {
-          print('DFX: Unexpected data type: ${responseData.runtimeType}');
+          printV('DFX: Unexpected data type: ${responseData.runtimeType}');
           return null;
         }
       } else {
         if (responseData is Map<String, dynamic> && responseData.containsKey('message')) {
-          print('DFX Error: ${responseData['message']}');
+          printV('DFX Error: ${responseData['message']}');
         } else {
-          print('DFX Failed to fetch buy quote: ${response.statusCode}');
+          printV('DFX Failed to fetch buy quote: ${response.statusCode}');
         }
         return null;
       }
     } catch (e) {
-      print('DFX Error fetching buy quote: $e');
+      printV('DFX Error fetching buy quote: $e');
       return null;
     }
   }

@@ -1,3 +1,5 @@
+import 'package:cw_core/utils/print_verbose.dart';
+
 const prefixLength = 3;
 
 String swapEndianBytes(String original) {
@@ -37,14 +39,14 @@ String mnemonicDecode(String seed) {
         .indexOf(wlist[i + 2].substring(0, prefixLength));
 
     if (w1 == -1 || w2 == -1 || w3 == -1) {
-      print("invalid word in mnemonic");
+      printV("invalid word in mnemonic");
       return '';
     }
 
     final x = w1 + n * (((n - w1) + w2) % n) + n * n * (((n - w2) + w3) % n);
 
     if (x % n != w1) {
-      print("Something went wrong when decoding your private key, please try again");
+      printV("Something went wrong when decoding your private key, please try again");
       return '';
     }
 

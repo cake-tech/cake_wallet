@@ -36,6 +36,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/set_app_secure_native.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
@@ -1663,8 +1664,8 @@ abstract class SettingsStoreBase with Store {
         final windowsInfo = await deviceInfoPlugin.windowsInfo;
         deviceName = windowsInfo.productName;
       } catch (e) {
-        print(e);
-        print(
+        printV(e);
+        printV(
             'likely digitalProductId is null wait till https://github.com/fluttercommunity/plus_plugins/pull/3188 is merged');
         deviceName = "Windows Device";
       }

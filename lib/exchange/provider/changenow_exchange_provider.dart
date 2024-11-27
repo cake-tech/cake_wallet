@@ -15,6 +15,7 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/distribution_info.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart';
 
 class ChangeNowExchangeProvider extends ExchangeProvider {
@@ -127,7 +128,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
       return isReverse ? (amount / fromAmount) : (toAmount / amount);
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       return 0.0;
     }
   }

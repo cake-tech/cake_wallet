@@ -6,6 +6,7 @@ import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 class BitcoinHardwareWalletService {
   BitcoinHardwareWalletService(this.ledgerConnection);

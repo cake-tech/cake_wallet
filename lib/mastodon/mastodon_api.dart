@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart' as http;
 import 'package:cake_wallet/mastodon/mastodon_user.dart';
 
@@ -27,7 +28,7 @@ class MastodonAPI {
 
       return MastodonUser.fromJson(responseJSON);
     } catch (e) {
-      print('Error in lookupUserByUserName: $e');
+      printV('Error in lookupUserByUserName: $e');
       return null;
     }
   }
@@ -56,7 +57,7 @@ class MastodonAPI {
 
       return responseJSON.map((json) => PinnedPost.fromJson(json as Map<String, dynamic>)).toList();
     } catch (e) {
-      print('Error in getPinnedPosts: $e');
+      printV('Error in getPinnedPosts: $e');
       throw e;
     }
   }

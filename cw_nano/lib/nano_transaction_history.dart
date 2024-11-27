@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:core';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:mobx/mobx.dart';
@@ -37,7 +38,7 @@ abstract class NanoTransactionHistoryBase extends TransactionHistoryBase<NanoTra
       final data = json.encode({'transactions': transactions});
       await encryptionFileUtils.write(path: path, password: _password, data: data);
     } catch (e) {
-      print('Error while save nano transaction history: ${e.toString()}');
+      printV('Error while save nano transaction history: ${e.toString()}');
     }
   }
 
@@ -72,7 +73,7 @@ abstract class NanoTransactionHistoryBase extends TransactionHistoryBase<NanoTra
         }
       });
     } catch (e) {
-      print(e);
+      printV(e);
     }
   }
 

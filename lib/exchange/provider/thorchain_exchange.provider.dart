@@ -8,6 +8,7 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 
@@ -86,7 +87,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
       return _thorChainAmountToDouble(expectedAmountOut) / amount;
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       return 0.0;
     }
   }

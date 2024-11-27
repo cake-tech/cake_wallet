@@ -1,4 +1,5 @@
 import 'package:cw_core/subaddress.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_wownero/api/coins_info.dart';
 import 'package:cw_wownero/api/subaddress_list.dart' as subaddress_list;
 import 'package:cw_wownero/api/wallet.dart';
@@ -95,7 +96,7 @@ abstract class WowneroSubaddressListBase with Store {
       _isRefreshing = false;
     } on PlatformException catch (e) {
       _isRefreshing = false;
-      print(e);
+      printV(e);
       rethrow;
     }
   }

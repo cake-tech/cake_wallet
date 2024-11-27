@@ -9,6 +9,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -95,7 +96,7 @@ abstract class LedgerViewModelBase with Store {
 
     if (_connectionChangeListener == null) {
       _connectionChangeListener = ledger.deviceStateChanges.listen((event) {
-        print('Ledger Device State Changed: $event');
+        printV('Ledger Device State Changed: $event');
         if (event == sdk.BleConnectionState.disconnected) {
           _connection = null;
           if (type == WalletType.monero) {

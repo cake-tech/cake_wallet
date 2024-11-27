@@ -1,4 +1,5 @@
 import 'package:cw_core/subaddress.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/coins_info.dart';
 import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
 import 'package:cw_monero/api/wallet.dart';
@@ -87,7 +88,7 @@ abstract class MoneroSubaddressListBase with Store {
       _isRefreshing = false;
     } on PlatformException catch (e) {
       _isRefreshing = false;
-      print(e);
+      printV(e);
       rethrow;
     }
   }
