@@ -2047,18 +2047,6 @@ abstract class ElectrumWalletBase
     var totalConfirmed = 0;
     var totalUnconfirmed = 0;
 
-    unspentCoinsInfo.values.forEach((info) {
-      unspentCoins.forEach((element) {
-        if (element.hash == info.hash &&
-            element.vout == info.vout &&
-            info.isFrozen &&
-            element.bitcoinAddressRecord.address == info.address &&
-            element.value == info.value) {
-          totalFrozen += element.value;
-        }
-      });
-    });
-
     if (hasSilentPaymentsScanning) {
       // Add values from unspent coins that are not fetched by the address list
       // i.e. scanned silent payments
@@ -2073,6 +2061,20 @@ abstract class ElectrumWalletBase
         }
       });
     }
+
+    unspentCoinsInfo.values.forEach((info) {
+      unspentCoins.forEach((element) {
+        if (element.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) return;
+
+        if (element.hash == info.hash &&
+            element.vout == info.vout &&
+            info.isFrozen &&
+            element.bitcoinAddressRecord.address == info.address &&
+            element.value == info.value) {
+          totalFrozen += element.value;
+        }
+      });
+    });
 
     final balances = await Future.wait(balanceFutures);
 
