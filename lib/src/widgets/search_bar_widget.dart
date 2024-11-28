@@ -17,6 +17,7 @@ class SearchBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      key: ValueKey('search_bar_widget_key'),
       controller: searchController,
       style: TextStyle(color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
       decoration: InputDecoration(

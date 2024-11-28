@@ -149,10 +149,8 @@ class ExchangePageRobot {
       return;
     }
 
-    await commonTestCases.dragUntilVisible(
-      'picker_items_index_${receiveCurrency.name}_button_key',
-      'picker_scrollbar_key',
-    );
+    await commonTestCases.enterText(receiveCurrency.name, 'search_bar_widget_key');
+
     await commonTestCases.defaultSleepTime();
 
     await commonTestCases.tapItemByKey('picker_items_index_${receiveCurrency.name}_button_key');
@@ -318,7 +316,7 @@ class ExchangePageRobot {
 
   Future<void> handleErrors(String initialAmount) async {
     await tester.pumpAndSettle();
-    
+
     await _handleMinLimitError(initialAmount);
 
     await _handleMaxLimitError(initialAmount);
