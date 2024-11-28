@@ -155,12 +155,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     final hasSelectedPaymentMethod = selectedPaymentMethod != null;
     final isPaymentMethodLoaded = paymentMethodState is PaymentMethodLoaded;
     final isBuySellQuotLoaded = buySellQuotState is BuySellQuotLoaded;
+    final isBuySellQuotFailed = buySellQuotState is BuySellQuotFailed;
 
     return hasSelectedQuote &&
         hasSelectedPaymentMethod &&
         isPaymentMethodLoaded &&
-        isBuySellQuotLoaded;
+        isBuySellQuotLoaded &&
+        !isBuySellQuotFailed;
   }
+
+  @computed
+  bool get isBuySellQuotFailed => buySellQuotState is BuySellQuotFailed;
 
   @action
   void reset() {
