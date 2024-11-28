@@ -118,7 +118,7 @@ class WalletLoadingService {
         builder: (BuildContext context) {
           return AlertWithTwoActions(
               alertTitle: "Corrupted seeds",
-              alertContent: "Unable to open wallet",
+              alertContent: S.of(context).corrupted_seed_notice,
               leftButtonText: S.of(context).cancel,
               rightButtonText: S.of(context).show_seed,
               actionLeftButton: () => Navigator.of(context).pop(),
