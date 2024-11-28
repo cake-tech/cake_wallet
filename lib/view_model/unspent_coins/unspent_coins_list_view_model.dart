@@ -10,6 +10,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
+import 'package:collection/collection.dart';
 import 'package:mobx/mobx.dart';
 
 part 'unspent_coins_list_view_model.g.dart';
@@ -22,55 +23,66 @@ abstract class UnspentCoinsListViewModelBase with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     this.coinTypeToSpendFrom = UnspentCoinType.any,
   })  : _unspentCoinsInfo = unspentCoinsInfo,
-        _items = ObservableList<UnspentCoinsItem>() {
-    _updateUnspentCoinsInfo();
-    _updateUnspents();
-  }
+        items = ObservableList<UnspentCoinsItem>(),
+        _originalState = {};
 
-  WalletBase wallet;
+  final WalletBase wallet;
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
   final UnspentCoinType coinTypeToSpendFrom;
 
   @observable
-  ObservableList<UnspentCoinsItem> _items;
+  ObservableList<UnspentCoinsItem> items;
+
+  final Map<String, Map<String, dynamic>> _originalState;
+
+  @observable
+  bool isDisposing = false;
 
   @computed
-  ObservableList<UnspentCoinsItem> get items => _items;
+  bool get isAllSelected => items.every((element) => element.isFrozen || element.isSending);
 
-  Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
-    try {
-      final info =
-          getUnspentCoinInfo(item.hash, item.address, item.amountRaw, item.vout, item.keyImage);
+  Future<void> initialSetup() async {
+    await _updateUnspents();
+    _storeOriginalState();
+  }
 
-      if (info == null) {
-        return;
-      }
-
-      info.isFrozen = item.isFrozen;
-      info.isSending = item.isSending;
-      info.note = item.note;
-
-      await info.save();
-      await _updateUnspents();
-      await wallet.updateBalance();
-    } catch (e) {
-      print(e.toString());
+  void _storeOriginalState() {
+    _originalState.clear();
+    for (final item in items) {
+      _originalState[item.hash] = {
+        'isFrozen': item.isFrozen,
+        'note': item.note,
+        'isSending': item.isSending,
+      };
     }
   }
 
-  UnspentCoinsInfo? getUnspentCoinInfo(
-      String hash, String address, int value, int vout, String? keyImage) {
+  bool _hasAdjustableFieldChanged(UnspentCoinsItem item) {
+    final original = _originalState[item.hash];
+    if (original == null) return false;
+    return original['isFrozen'] != item.isFrozen ||
+        original['note'] != item.note ||
+        original['isSending'] != item.isSending;
+  }
+
+  bool get hasAdjustableFieldChanged => items.any(_hasAdjustableFieldChanged);
+
+
+  Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
-      return _unspentCoinsInfo.values.firstWhere((element) =>
-          element.walletId == wallet.id &&
-          element.hash == hash &&
-          element.address == address &&
-          element.value == value &&
-          element.vout == vout &&
-          element.keyImage == keyImage);
+      final existingInfo = _unspentCoinsInfo.values
+          .firstWhereOrNull((element) => element.walletId == wallet.id && element == item);
+      if (existingInfo == null) return;
+
+      existingInfo.isFrozen = item.isFrozen;
+      existingInfo.isSending = item.isSending;
+      existingInfo.note = item.note;
+
+
+      await existingInfo.save();
+      _updateUnspentCoinsInfo();
     } catch (e) {
-      print("UnspentCoinsInfo not found for coin: $e");
-      return null;
+      print('Error saving coin info: $e');
     }
   }
 
@@ -115,37 +127,60 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   @action
   void _updateUnspentCoinsInfo() {
-    _items.clear();
+    items.clear();
 
-    List<UnspentCoinsItem> unspents = [];
-    _getUnspents().forEach((Unspent elem) {
-      try {
-        final info =
-            getUnspentCoinInfo(elem.hash, elem.address, elem.value, elem.vout, elem.keyImage);
-        if (info == null) {
-          return;
-        }
+    final unspents = _getUnspents()
+        .map((elem) {
+          try {
+            final existingItem = _unspentCoinsInfo.values
+                .firstWhereOrNull((item) => item.walletId == wallet.id && item == elem);
 
-        unspents.add(UnspentCoinsItem(
-          address: elem.address,
-          amount: '${formatAmountToString(elem.value)} ${wallet.currency.title}',
-          hash: elem.hash,
-          isFrozen: info.isFrozen,
-          note: info.note,
-          isSending: info.isSending,
-          amountRaw: elem.value,
-          vout: elem.vout,
-          keyImage: elem.keyImage,
-          isChange: elem.isChange,
-          isSilentPayment: info.isSilentPayment ?? false,
-        ));
-      } catch (e, s) {
-        print(s);
-        print(e.toString());
-        ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s));
-      }
-    });
+            if (existingItem == null) return null;
 
-    _items.addAll(unspents);
+            return UnspentCoinsItem(
+              address: elem.address,
+              amount: '${formatAmountToString(elem.value)} ${wallet.currency.title}',
+              hash: elem.hash,
+              isFrozen: existingItem.isFrozen,
+              note: existingItem.note,
+              isSending: existingItem.isSending,
+              value: elem.value,
+              vout: elem.vout,
+              keyImage: elem.keyImage,
+              isChange: elem.isChange,
+              isSilentPayment: existingItem.isSilentPayment ?? false,
+            );
+          } catch (e, s) {
+            print('Error: $e\nStack: $s');
+            ExceptionHandler.onError(
+              FlutterErrorDetails(exception: e, stack: s),
+            );
+            return null;
+          }
+        })
+        .whereType<UnspentCoinsItem>()
+        .toList();
+
+    unspents.sort((a, b) => b.value.compareTo(a.value));
+
+    items.addAll(unspents);
+  }
+
+  @action
+  void toggleSelectAll(bool value) {
+    for (final item in items) {
+      if (item.isFrozen || item.isSending == value) continue;
+      item.isSending = value;
+      saveUnspentCoinInfo(item);
+    }
+  }
+
+  @action
+  void setIsDisposing(bool value) => isDisposing = value;
+
+  @action
+  Future<void> dispose() async {
+    await _updateUnspents();
+    await wallet.updateBalance();
   }
 }
