@@ -69,7 +69,6 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
           dismissFlushBar(_authBar);
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
-          if (state.error.contains("currupt"))
           widget.onAuthenticationFinished(false, this);
         });
       }
@@ -78,24 +77,8 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           _pinCodeKey.currentState?.clear();
           dismissFlushBar(_authBar);
-          if (state.error.contains("corrupted wallets seeds")) {
-            await showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithTwoActions(
-                    alertTitle: "Corrupted seeds",
-                    alertContent: state.error,
-                    leftButtonText: S.of(context).cancel,
-                    rightButtonText: S.of(context).show_seed,
-                    actionLeftButton: () => Navigator.of(context).pop(),
-                    actionRightButton: () => _showSeedsPopup(context, state.error),
-                  );
-              });
-          } else {
-            showBar<void>(
-                context, S.of(context).failed_authentication(state.error));
-          }
-
+          showBar<void>(
+              context, S.of(context).failed_authentication(state.error));
           widget.onAuthenticationFinished(false, this);
         });
       }
