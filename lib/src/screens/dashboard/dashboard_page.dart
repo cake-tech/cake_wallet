@@ -285,7 +285,7 @@ class _DashboardPageView extends BasePage {
                             .syncedBackgroundColor,
                       ),
                       child: Container(
-                        padding: EdgeInsets.only(left: 24, right: 32),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: MainActions.all
