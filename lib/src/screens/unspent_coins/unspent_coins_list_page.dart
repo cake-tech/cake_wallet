@@ -28,7 +28,7 @@ class UnspentCoinsListPage extends BasePage {
             label: S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+                overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () async => await handleOnPopInvoked(context),
               child: backButton(context),
@@ -116,8 +116,9 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (bool didPop) async {
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
         if (didPop) return;
+        if(mounted)
         await widget.handleOnPopInvoked(context);
       },
       child: FutureBuilder<void>(
