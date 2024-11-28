@@ -59,7 +59,7 @@ jobs:
       - name: Install package dependencies
         run: |
           sudo apt update
-          sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
+          sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang llvm
 
       - name: Execute Build and Setup Commands
         run: |
