@@ -1407,7 +1407,9 @@ abstract class ElectrumWalletBase
       if (coinInfoList.isNotEmpty) {
         final coinInfo = coinInfoList.first;
 
-        coin.updateAdjustableFieldsFrom(coinInfo);
+        coin.isFrozen = coinInfo.isFrozen;
+        coin.isSending = coinInfo.isSending;
+        coin.note = coinInfo.note;
 
         if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
           coin.bitcoinAddressRecord.balance += coinInfo.value;

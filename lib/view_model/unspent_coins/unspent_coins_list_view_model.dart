@@ -74,7 +74,10 @@ abstract class UnspentCoinsListViewModelBase with Store {
           .firstWhereOrNull((element) => element.walletId == wallet.id && element == item);
       if (existingInfo == null) return;
 
-      existingInfo.updateAdjustableFieldsFrom(item);
+      existingInfo.isFrozen = item.isFrozen;
+      existingInfo.isSending = item.isSending;
+      existingInfo.note = item.note;
+
 
       await existingInfo.save();
       _updateUnspentCoinsInfo();
@@ -171,6 +174,9 @@ abstract class UnspentCoinsListViewModelBase with Store {
       saveUnspentCoinInfo(item);
     }
   }
+
+  @action
+  void setIsDisposing(bool value) => isDisposing = value;
 
   @action
   Future<void> dispose() async {
