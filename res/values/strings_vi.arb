@@ -176,6 +176,7 @@
   "copy_address": "Sao chép Địa chỉ",
   "copy_id": "Sao chép ID",
   "copyWalletConnectLink": "Sao chép liên kết WalletConnect từ dApp và dán vào đây",
+  "corrupted_seed_notice": "Các tệp cho ví này bị hỏng và không thể mở. Vui lòng xem cụm từ hạt giống, lưu nó và khôi phục ví.\n\nNếu giá trị trống, thì hạt giống không thể được phục hồi chính xác.",
   "countries": "Quốc gia",
   "create_account": "Tạo tài khoản",
   "create_backup": "Tạo sao lưu",

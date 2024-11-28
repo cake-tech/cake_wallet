@@ -177,6 +177,7 @@
   "copy_address": "Copiar endereço",
   "copy_id": "Copiar ID",
   "copyWalletConnectLink": "Copie o link WalletConnect do dApp e cole aqui",
+  "corrupted_seed_notice": "Os arquivos para esta carteira estão corrompidos e não podem ser abertos. Veja a frase das sementes, salve -a e restaure a carteira.\n\nSe o valor estiver vazio, a semente não pôde ser recuperada corretamente.",
   "countries": "Países",
   "create_account": "Criar conta",
   "create_backup": "Criar backup",

@@ -177,6 +177,7 @@
   "copy_address": "Kwafi Adireshin",
   "copy_id": "Kwafi ID",
   "copyWalletConnectLink": "Kwafi hanyar haɗin WalletConnect daga dApp kuma liƙa a nan",
+  "corrupted_seed_notice": "Fayilolin don wannan walat ɗin sun lalata kuma ba za a iya buɗe su ba. Da fatan za a duba kalmar iri, adana shi, da dawo da walat.\n\nIdan darajar ta kasance fanko, to sai zuriyar da ba ta iya murmurewa daidai ba.",
   "countries": "Kasashe",
   "create_account": "Kirkira ajiya",
   "create_backup": "Ƙirƙiri madadin",

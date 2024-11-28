@@ -177,6 +177,7 @@
   "copy_address": "Adresse kopieren",
   "copy_id": "ID kopieren",
   "copyWalletConnectLink": "Kopieren Sie den WalletConnect-Link von dApp und fügen Sie ihn hier ein",
+  "corrupted_seed_notice": "Die Dateien für diese Brieftasche sind beschädigt und können nicht geöffnet werden. Bitte sehen Sie sich die Saatgutphrase an, speichern Sie sie und stellen Sie die Brieftasche wieder her.\n\nWenn der Wert leer ist, konnte der Samen nicht korrekt wiederhergestellt werden.",
   "countries": "Länder",
   "create_account": "Konto erstellen",
   "create_backup": "Backup erstellen",

@@ -177,6 +177,7 @@
   "copy_address": "Adresi kopyala",
   "copy_id": "ID'yi kopyala",
   "copyWalletConnectLink": "WalletConnect bağlantısını dApp'ten kopyalayıp buraya yapıştırın",
+  "corrupted_seed_notice": "Bu cüzdanın dosyaları bozuk ve açılamıyor. Lütfen tohum ifadesini görüntüleyin, kaydedin ve cüzdanı geri yükleyin.\n\nDeğer boşsa, tohum doğru bir şekilde geri kazanılamadı.",
   "countries": "Ülkeler",
   "create_account": "Hesap oluştur",
   "create_backup": "Yedek oluştur",

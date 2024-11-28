@@ -178,6 +178,7 @@
   "copy_address": "Copia Indirizzo",
   "copy_id": "Copia ID",
   "copyWalletConnectLink": "Copia il collegamento WalletConnect dalla dApp e incollalo qui",
+  "corrupted_seed_notice": "I file per questo portafoglio sono corrotti e non sono in grado di essere aperti. Visualizza la frase del seme, salvala e ripristina il portafoglio.\n\nSe il valore è vuoto, il seme non è stato in grado di essere recuperato correttamente.",
   "countries": "Paesi",
   "create_account": "Crea account",
   "create_backup": "Crea backup",

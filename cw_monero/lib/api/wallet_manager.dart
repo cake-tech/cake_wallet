@@ -81,6 +81,7 @@ void createWalletSync(
   wptr = newWptr;
   monero.Wallet_store(wptr!, path: path);
   openedWalletsByPath[path] = wptr!;
+  _lastOpenedWallet = path;
 
   // is the line below needed?
   // setupNodeSync(address: "node.moneroworld.com:18089");
@@ -116,6 +117,7 @@ void restoreWalletFromSeedSync(
   wptr = newWptr;
 
   openedWalletsByPath[path] = wptr!;
+  _lastOpenedWallet = path;
 }
 
 void restoreWalletFromKeysSync(
@@ -183,6 +185,7 @@ void restoreWalletFromKeysSync(
   wptr = newWptr;
 
   openedWalletsByPath[path] = wptr!;
+  _lastOpenedWallet = path;
 }
 
 void restoreWalletFromSpendKeySync(
@@ -231,6 +234,7 @@ void restoreWalletFromSpendKeySync(
   storeSync();
 
   openedWalletsByPath[path] = wptr!;
+  _lastOpenedWallet = path;
 }
 
 String _lastOpenedWallet = "";
@@ -260,7 +264,7 @@ Future<void> restoreWalletFromHardwareWallet(
     throw WalletRestoreFromSeedException(message: error);
   }
   wptr = newWptr;
-
+  _lastOpenedWallet = path;
   openedWalletsByPath[path] = wptr!;
 }
 
@@ -295,6 +299,11 @@ Future<void> loadWallet(
         password: password,
         kdfRounds: 1,
       );
+      final status = monero.WalletManager_errorString(wmPtr);
+      if (status != "") {
+        print("loadWallet:"+status);
+        throw WalletOpeningException(message: status);
+      }
     } else {
       deviceType = 0;
     }
@@ -314,15 +323,15 @@ Future<void> loadWallet(
 
     final newWptr = Pointer<Void>.fromAddress(newWptrAddr);
 
-    _lastOpenedWallet = path;
     final status = monero.Wallet_status(newWptr);
     if (status != 0) {
       final err = monero.Wallet_errorString(newWptr);
-      print(err);
+      print("loadWallet:"+err);
       throw WalletOpeningException(message: err);
     }
 
     wptr = newWptr;
+    _lastOpenedWallet = path;
     openedWalletsByPath[path] = wptr!;
   }
 }

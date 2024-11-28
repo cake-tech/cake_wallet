@@ -177,6 +177,7 @@
   "copy_address": "Salin Alamat",
   "copy_id": "Salin ID",
   "copyWalletConnectLink": "Salin tautan WalletConnect dari dApp dan tempel di sini",
+  "corrupted_seed_notice": "File untuk dompet ini rusak dan tidak dapat dibuka. Silakan lihat frasa benih, simpan, dan kembalikan dompet.\n\nJika nilainya kosong, maka benih tidak dapat dipulihkan dengan benar.",
   "countries": "Negara",
   "create_account": "Buat Akun",
   "create_backup": "Buat cadangan",

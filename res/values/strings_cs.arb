@@ -177,6 +177,7 @@
   "copy_address": "Zkopírovat adresu",
   "copy_id": "Kopírovat ID",
   "copyWalletConnectLink": "Zkopírujte odkaz WalletConnect z dApp a vložte jej sem",
+  "corrupted_seed_notice": "Soubory pro tuto peněženku jsou poškozeny a nemohou být otevřeny. Podívejte se prosím na osivo, uložte ji a obnovte peněženku.\n\nPokud je hodnota prázdná, pak semeno nebylo možné správně obnovit.",
   "countries": "Země",
   "create_account": "Vytvořit účet",
   "create_backup": "Vytvořit zálohu",
