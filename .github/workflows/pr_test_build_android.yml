@@ -31,7 +31,7 @@ jobs:
         run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
 
       - name: Free Disk Space (Ubuntu)
-        uses: insightsengineering/disk-space-reclaimer@v1
+        uses: jlumbroso/free-disk-space@main
         with:
           tools-cache: true
           android: false
