@@ -1,10 +1,11 @@
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/unspent_comparable_mixin.dart';
 import 'package:hive/hive.dart';
 
 part 'unspent_coins_info.g.dart';
 
 @HiveType(typeId: UnspentCoinsInfo.typeId)
-class UnspentCoinsInfo extends HiveObject {
+class UnspentCoinsInfo extends HiveObject with UnspentComparable {
   UnspentCoinsInfo({
     required this.walletId,
     required this.hash,
