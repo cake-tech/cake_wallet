@@ -12,7 +12,7 @@ on:
 
 jobs:
   PR_test_build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         api-level: [29]
@@ -59,7 +59,7 @@ jobs:
       - name: Install package dependencies
         run: |
           sudo apt update
-          sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang llvm
+          sudo apt-get install -y pigz curl unzip automake build-essential file pkg-config git python libtool libtinfo6 cmake clang llvm
 
       - name: Execute Build and Setup Commands
         run: |
