@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_payment_credantials.dart';
@@ -246,16 +248,24 @@ class CakePayBuyCardPage extends BasePage {
   }
 
   bool isWordInCardsName(CakePayCard card, String word) {
-    return card.name.toLowerCase().contains(word.toLowerCase());
+    // word must be followed by a space or beginning of the string
+    final regex = RegExp(r'(^|\s)' + word + r'(\s|$)', caseSensitive: false);
+
+    return regex.hasMatch(card.name.toLowerCase());
   }
 
   bool isIOSUnavailable(CakePayCard card) {
+    if (!Platform.isIOS) {
+      return false;
+    }
+
     final isDigitalGameStores = isWordInCardsName(card, 'playstation') ||
         isWordInCardsName(card, 'xbox') ||
         isWordInCardsName(card, 'steam') ||
         isWordInCardsName(card, 'meta quest') ||
         isWordInCardsName(card, 'kigso') ||
         isWordInCardsName(card, 'game world') ||
+        isWordInCardsName(card, 'google') ||
         isWordInCardsName(card, 'nintendo');
     final isGCodes = isWordInCardsName(card, 'gcodes');
     final isApple = isWordInCardsName(card, 'itunes') || isWordInCardsName(card, 'apple');
