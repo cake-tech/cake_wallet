@@ -43,8 +43,8 @@ void startAuthenticationStateChange(
         if (!requireHardwareWalletConnection()) await loadCurrentWallet();
       } catch (error, stack) {
         loginError = error;
-        ExceptionHandler.onError(
-            FlutterErrorDetails(exception: error, stack: stack));
+        await ExceptionHandler.resetLastPopupDate();
+        await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
       }
       return;
     }
@@ -81,7 +81,7 @@ void startAuthenticationStateChange(
             .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
       }
       if (!(await authenticatedErrorStreamController.stream.isEmpty)) {
-        ExceptionHandler.showError(
+        await ExceptionHandler.showError(
             (await authenticatedErrorStreamController.stream.first).toString());
         authenticatedErrorStreamController.stream.drain();
       }

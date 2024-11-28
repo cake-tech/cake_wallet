@@ -177,6 +177,7 @@
   "copy_address": "Kopiraj adresu",
   "copy_id": "Kopirati ID",
   "copyWalletConnectLink": "Kopirajte vezu WalletConnect iz dApp-a i zalijepite je ovdje",
+  "corrupted_seed_notice": "Datoteke za ovaj novčanik su oštećene i nisu u mogućnosti otvoriti. Molimo pogledajte sjemensku frazu, spremite je i vratite novčanik.\n\nAko je vrijednost prazna, tada sjeme nije bilo u stanju ispravno oporaviti.",
   "countries": "Zemalja",
   "create_account": "Stvori račun",
   "create_backup": "Stvori sigurnosnu kopiju",

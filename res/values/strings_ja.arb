@@ -177,6 +177,7 @@
   "copy_address": "住所をコピー",
   "copy_id": "IDをコピー",
   "copyWalletConnectLink": "dApp から WalletConnect リンクをコピーし、ここに貼り付けます",
+  "corrupted_seed_notice": "このウォレットのファイルは破損しており、開くことができません。シードフレーズを表示し、保存し、財布を復元してください。\n\n値が空の場合、種子を正しく回復することができませんでした。",
   "countries": "国",
   "create_account": "アカウントの作成",
   "create_backup": "バックアップを作成",
