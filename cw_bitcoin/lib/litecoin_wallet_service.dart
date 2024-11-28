@@ -126,6 +126,15 @@ class LitecoinWalletService extends WalletService<
         mwebdLogs.deleteSync();
       }
     }
+
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
+            (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+
+    final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
+
+    if (keysToDelete.isNotEmpty) {
+      await unspentCoinsInfoSource.deleteAll(keysToDelete);
+    }
   }
 
   @override
