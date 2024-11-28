@@ -181,7 +181,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     final address = changeAddresses.firstWhere(
       // TODO: feature to choose change type
-      (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh),
+      (addressRecord) => _isUnusedChangeAddressByType(addressRecord, SegwitAddresType.p2wpkh),
     );
     return address;
   }
@@ -567,6 +567,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   bool _isAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) =>
       addr.addressType == type;
+
+  bool _isUnusedChangeAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) {
+    return addr.isChange && !addr.isUsed && addr.addressType == type;
+  }
 
   bool _isUnusedReceiveAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) {
     return !addr.isChange && !addr.isUsed && addr.addressType == type;
