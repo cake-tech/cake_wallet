@@ -177,6 +177,7 @@
   "copy_address": "Copiar dirección ",
   "copy_id": "Copiar ID",
   "copyWalletConnectLink": "Copie el enlace de WalletConnect de dApp y péguelo aquí",
+  "corrupted_seed_notice": "Los archivos para esta billetera están dañados y no pueden abrirse. Vea la frase de semillas, guárdela y restaura la billetera.\n\nSi el valor está vacío, entonces la semilla no pudo recuperarse correctamente.",
   "countries": "Países",
   "create_account": "Crear Cuenta",
   "create_backup": "Crear copia de seguridad",

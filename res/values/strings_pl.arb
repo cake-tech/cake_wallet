@@ -177,6 +177,7 @@
   "copy_address": "Skopiuj adress",
   "copy_id": "skopiuj ID",
   "copyWalletConnectLink": "Skopiuj link do WalletConnect z dApp i wklej tutaj",
+  "corrupted_seed_notice": "Pliki dla tego portfela są uszkodzone i nie można ich otworzyć. Zobacz wyrażenie nasion, zapisz je i przywróć portfel.\n\nJeśli wartość jest pusta, ziarno nie można było poprawnie odzyskać.",
   "countries": "Kraje",
   "create_account": "Utwórz konto",
   "create_backup": "Utwórz kopię zapasową",

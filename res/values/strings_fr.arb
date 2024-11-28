@@ -177,6 +177,7 @@
   "copy_address": "Copier l'Adresse",
   "copy_id": "Copier l'ID",
   "copyWalletConnectLink": "Copiez le lien WalletConnect depuis l'application décentralisée (dApp) et collez-le ici",
+  "corrupted_seed_notice": "Les fichiers de ce portefeuille sont corrompus et ne peuvent pas être ouverts. Veuillez consulter la phrase de graines, sauver et restaurer le portefeuille.\n\nSi la valeur est vide, la graine n'a pas pu être correctement récupérée.",
   "countries": "Des pays",
   "create_account": "Créer un compte",
   "create_backup": "Créer une sauvegarde",

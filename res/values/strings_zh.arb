@@ -177,6 +177,7 @@
   "copy_address": "复制地址",
   "copy_id": "复制ID",
   "copyWalletConnectLink": "从 dApp 复制 WalletConnect 链接并粘贴到此处",
+  "corrupted_seed_notice": "该钱包的文件被损坏，无法打开。请查看种子短语，保存并恢复钱包。\n\n如果该值为空，则种子无法正确恢复。",
   "countries": "国家",
   "create_account": "创建账户",
   "create_backup": "创建备份",
