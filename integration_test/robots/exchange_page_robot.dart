@@ -123,10 +123,8 @@ class ExchangePageRobot {
       return;
     }
 
-    await commonTestCases.dragUntilVisible(
-      'picker_items_index_${depositCurrency.name}_button_key',
-      'picker_scrollbar_key',
-    );
+    await commonTestCases.enterText(depositCurrency.name, 'search_bar_widget_key');
+
     await commonTestCases.defaultSleepTime();
 
     await commonTestCases.tapItemByKey('picker_items_index_${depositCurrency.name}_button_key');
