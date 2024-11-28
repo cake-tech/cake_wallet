@@ -19,6 +19,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -64,6 +65,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.type == WalletType.tron;
   }
 
+  UnspentCoinsListViewModel unspentCoinsListViewModel;
+
   SendViewModelBase(
     AppStore appStore,
     this.sendTemplateViewModel,
@@ -71,7 +74,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.balanceViewModel,
     this.contactListViewModel,
     this.transactionDescriptionBox,
-    this.ledgerViewModel, {
+    this.ledgerViewModel,
+    this.unspentCoinsListViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.any,
   })  : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
@@ -528,6 +532,16 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.type != WalletType.solana &&
         wallet.type != WalletType.tron) {
       throw Exception('Priority is null for wallet type: ${wallet.type}');
+    }
+
+    if (hasCoinControl) {
+      bool isCoinSelected = false;
+      for (var coin in unspentCoinsListViewModel.items) {
+        isCoinSelected = isCoinSelected || (coin.isSending && !coin.isFrozen);
+      }
+      if (!isCoinSelected) {
+        throw Exception("No coin selected in coin control, you need to select a coin in order to spend");
+      }
     }
 
     switch (wallet.type) {
