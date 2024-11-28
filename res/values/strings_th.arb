@@ -102,6 +102,7 @@
   "cake_pay_web_cards_subtitle": "ซื้อบัตรพร้อมเงินระดับโลกและบัตรของขวัญ",
   "cake_pay_web_cards_title": "Cake Pay Web Cards",
   "cake_wallet": "Cake Wallet",
+  "cakepay_ios_not_available": "ขออภัยบัตรของขวัญนี้ไม่มีใน iOS คุณสามารถซื้อได้บน Android หรือผ่านเว็บไซต์ของเราแทน",
   "cakepay_prepaid_card": "บัตรเดบิตเติมเงินของ CakePay",
   "camera_consent": "กล้องของคุณจะถูกนำมาใช้เพื่อจับภาพเพื่อวัตถุประสงค์ในการระบุตัวตนภายใน ${provider} โปรดตรวจสอบนโยบายความเป็นส่วนตัวเพื่อดูรายละเอียด",
   "camera_permission_is_required": "ต้องได้รับอนุญาตจากกล้อง\nโปรดเปิดใช้งานจากการตั้งค่าแอป",

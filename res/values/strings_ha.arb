@@ -102,6 +102,7 @@
   "cake_pay_web_cards_subtitle": "Sayi katunan da aka riga aka biya na duniya da katunan kyauta",
   "cake_pay_web_cards_title": "Cake Pay Web Cards",
   "cake_wallet": "Cake Wallet",
+  "cakepay_ios_not_available": "Yi haƙuri, wannan katin kyautar ba a samuwa akan iOS. Kuna iya sayan shi a kan Android ko ta yanar gizo a maimakon.",
   "cakepay_prepaid_card": "Katin zare kudi na CakePay",
   "camera_consent": "Za a yi amfani da kyamarar ku don ɗaukar hoto don dalilai na tantancewa ta ${provider}. Da fatan za a duba Manufar Sirri don cikakkun bayanai.",
   "camera_permission_is_required": "Ana buƙatar izinin kyamara.\nDa fatan za a kunna shi daga saitunan app.",

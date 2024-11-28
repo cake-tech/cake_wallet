@@ -102,6 +102,7 @@
   "cake_pay_web_cards_subtitle": "Bumili ng mga pandaigdigang prepaid card at gift card",
   "cake_pay_web_cards_title": "Cake Pay Web Cards",
   "cake_wallet": "Cake Wallet",
+  "cakepay_ios_not_available": "Paumanhin, ang gift card na ito ay hindi magagamit sa iOS. Maaari mo itong bilhin sa Android o sa pamamagitan ng aming website sa halip.",
   "cakepay_prepaid_card": "CakePay Prepaid Debit Card",
   "camera_consent": "Gagamitin ang iyong camera upang kumuha ng larawan para sa mga layunin ng pagkakakilanlan sa pamamagitan ng ${provider}. Pakisuri ang kanilang Patakaran sa Privacy para sa mga detalye.",
   "camera_permission_is_required": "Kinakailangan ang pahintulot sa camera.\nMangyaring paganahin ito mula sa mga setting ng app.",

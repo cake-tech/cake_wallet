@@ -102,6 +102,7 @@
   "cake_pay_web_cards_subtitle": "Dünya çapında ön ödemeli kartlar ve hediye kartları satın alın",
   "cake_pay_web_cards_title": "Cake Pay Web Kartları",
   "cake_wallet": "Cake Wallet",
+  "cakepay_ios_not_available": "Üzgünüm, bu hediye kartı iOS'ta mevcut değil. Bunun yerine Android'de veya web sitemizden satın alabilirsiniz.",
   "cakepay_prepaid_card": "CakePay Ön Ödemeli Kart",
   "camera_consent": "Kameranız ${provider} tarihine kadar tanımlama amacıyla bir görüntü yakalamak için kullanılacaktır. Ayrıntılar için lütfen Gizlilik Politikalarını kontrol edin.",
   "camera_permission_is_required": "Kamera izni gereklidir.\nLütfen uygulama ayarlarından etkinleştirin.",

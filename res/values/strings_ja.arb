@@ -102,6 +102,7 @@
   "cake_pay_web_cards_subtitle": "世界中のプリペイド カードとギフト カードを購入する",
   "cake_pay_web_cards_title": "Cake Pay ウェブカード",
   "cake_wallet": "Cake Wallet",
+  "cakepay_ios_not_available": "申し訳ありませんが、このギフトカードはiOSでは利用できません。代わりにAndroidまたは当社のWebサイトから購入できます。",
   "cakepay_prepaid_card": "CakePayプリペイドデビットカード",
   "camera_consent": "あなたのカメラは、${provider}_ までに識別目的で画像を撮影するために使用されます。詳細については、プライバシー ポリシーをご確認ください。",
   "camera_permission_is_required": "カメラの許可が必要です。\nアプリの設定から有効にしてください。",

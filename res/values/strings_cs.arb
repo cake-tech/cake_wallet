@@ -102,6 +102,7 @@
   "cake_pay_web_cards_subtitle": "Kupte si celosvětové předplacené a dárkové karty",
   "cake_pay_web_cards_title": "Cake Pay webové karty",
   "cake_wallet": "Cake Wallet",
+  "cakepay_ios_not_available": "Je nám líto, tato dárková karta není k dispozici na iOS. Místo toho si jej můžete zakoupit na Androidu nebo prostřednictvím našeho webu.",
   "cakepay_prepaid_card": "CakePay předplacená debetní karta",
   "camera_consent": "Váš fotoaparát použije k pořízení snímku pro účely identifikace ${provider}. Podrobnosti najdete v jejich Zásadách ochrany osobních údajů.",
   "camera_permission_is_required": "Vyžaduje se povolení fotoaparátu.\nPovolte jej v nastavení aplikace.",

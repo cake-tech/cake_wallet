@@ -102,6 +102,7 @@
   "cake_pay_web_cards_subtitle": "Kaufen Sie weltweit Prepaid-Karten und Geschenkkarten",
   "cake_pay_web_cards_title": "Cake Pay-Webkarten",
   "cake_wallet": "Cake Wallet",
+  "cakepay_ios_not_available": "Entschuldigung, diese Geschenkkarte ist auf iOS nicht erhältlich. Sie können es stattdessen auf Android oder über unsere Website kaufen.",
   "cakepay_prepaid_card": "CakePay-Prepaid-Debitkarte",
   "camera_consent": "Mit Ihrer Kamera wird bis zum ${provider} ein Bild zur Identifizierung aufgenommen. Weitere Informationen finden Sie in deren Datenschutzbestimmungen.",
   "camera_permission_is_required": "Eine Kameraerlaubnis ist erforderlich.\nBitte aktivieren Sie es in den App-Einstellungen.",

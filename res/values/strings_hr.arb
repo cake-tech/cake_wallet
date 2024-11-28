@@ -102,6 +102,7 @@
   "cake_pay_web_cards_subtitle": "Kupujte prepaid kartice i poklon kartice diljem svijeta",
   "cake_pay_web_cards_title": "Cake Pay Web kartice",
   "cake_wallet": "Cake Wallet",
+  "cakepay_ios_not_available": "Oprostite, ova poklon kartica nije dostupna na iOS -u. Umjesto toga, možete ga kupiti na Androidu ili putem naše web stranice.",
   "cakepay_prepaid_card": "CakePay unaprijed plaćena debitna kartica",
   "camera_consent": "Vaš će fotoaparat koristiti za snimanje slike u svrhu identifikacije od strane ${provider}. Pojedinosti potražite u njihovoj politici privatnosti.",
   "camera_permission_is_required": "Potrebno je dopuštenje kamere.\nOmogućite ga u postavkama aplikacije.",

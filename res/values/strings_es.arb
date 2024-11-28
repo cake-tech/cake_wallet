@@ -102,6 +102,7 @@
   "cake_pay_web_cards_subtitle": "Compra tarjetas de prepago y tarjetas de regalo en todo el mundo",
   "cake_pay_web_cards_title": "Tarjetas Web Cake Pay",
   "cake_wallet": "Cake Wallet",
+  "cakepay_ios_not_available": "Lo siento, esta tarjeta de regalo no está disponible en iOS. Puede comprarlo en Android o a través de nuestro sitio web.",
   "cakepay_prepaid_card": "Tarjeta de Débito Prepago CakePay",
   "camera_consent": "Su cámara será utilizada para capturar una imagen con fines de identificación por ${provider}. Consulta tu Política de privacidad para obtener más detalles.",
   "camera_permission_is_required": "Se requiere permiso de la cámara.\nHabilítalo desde la configuración de la aplicación.",

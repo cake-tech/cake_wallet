@@ -102,6 +102,7 @@
   "cake_pay_web_cards_subtitle": "Mua thẻ trả trước toàn cầu và thẻ quà tặng",
   "cake_pay_web_cards_title": "Thẻ Cake Pay Web",
   "cake_wallet": "Ví Cake",
+  "cakepay_ios_not_available": "Xin lỗi, thẻ quà tặng này không có sẵn trên iOS. Thay vào đó, bạn có thể mua nó trên Android hoặc thông qua trang web của chúng tôi.",
   "cakepay_prepaid_card": "Thẻ Ghi Nợ Trả Trước CakePay",
   "camera_consent": "Máy ảnh của bạn sẽ được sử dụng để chụp hình nhằm mục đích xác minh danh tính bởi ${provider}. Vui lòng kiểm tra Chính sách quyền riêng tư của họ để biết thêm chi tiết.",
   "camera_permission_is_required": "Cần có quyền truy cập máy ảnh. \nVui lòng bật nó từ cài đặt ứng dụng.",
