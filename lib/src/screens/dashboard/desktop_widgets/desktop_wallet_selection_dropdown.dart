@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.da
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';

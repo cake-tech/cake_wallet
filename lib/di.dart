@@ -569,7 +569,7 @@ Future<void> setup({
               totpAuthPageState.changeProcessText('Loading the wallet');
 
               if (loginError != null) {
-                totpAuthPageState.changeProcessText('ERROR: ${loginError.toString()}');
+                totpAuthPageState.changeProcessText('ERROR: ${loginError.toString()}'.trim());
               }
 
               ReactionDisposer? _reaction;
@@ -598,7 +598,7 @@ Future<void> setup({
         authPageState.changeProcessText('Loading the wallet');
 
         if (loginError != null) {
-          authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+          authPageState.changeProcessText('ERROR: ${loginError.toString()}'.trim());
           loginError = null;
         }
 
@@ -618,7 +618,7 @@ Future<void> setup({
           }
 
           if (loginError != null) {
-            authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+            authPageState.changeProcessText('ERROR: ${loginError.toString()}'.trim());
             timer.cancel();
           }
         });
