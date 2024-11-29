@@ -259,7 +259,7 @@
   "enterTokenID": "Entrez l'ID du jeton",
   "enterWalletConnectURI": "Saisissez l'URI de WalletConnect.",
   "error": "Erreur",
-  "error_dialog_content": "Oups, nous avons rencontré une erreur.\n\nMerci d'envoyer le rapport d'erreur à notre équipe d'assistance afin de nous permettre d'améliorer l'application.",
+  "error_dialog_content": "Oups, nous avons eu une erreur.\n\nVeuillez envoyer le rapport d'erreur à notre équipe d'assistance pour améliorer l'application.",
   "error_text_account_name": "Le nom de compte ne peut contenir que des lettres et des chiffres\net sa longueur doit être comprise entre 1 et 15 caractères",
   "error_text_address": "L'adresse du portefeuille (wallet) doit correspondre au type de\ncryptomonnaie",
   "error_text_amount": "Le montant ne peut comporter que des nombres",

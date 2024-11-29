@@ -259,7 +259,7 @@
   "enterTokenID": "Voer de token-ID in",
   "enterWalletConnectURI": "Voer WalletConnect-URI in",
   "error": "Fout",
-  "error_dialog_content": "Oeps, er is een fout opgetreden.\n\nStuur het crashrapport naar ons ondersteuningsteam om de applicatie te verbeteren.",
+  "error_dialog_content": "Oeps, we hebben wat fout.\n\nStuur het foutrapport naar ons ondersteuningsteam om de applicatie beter te maken.",
   "error_text_account_name": "Accountnaam mag alleen letters, cijfers bevatten\nen moet tussen de 1 en 15 tekens lang zijn",
   "error_text_address": "Portemonnee-adres moet overeenkomen met het type\nvan cryptocurrency",
   "error_text_amount": "Bedrag kan alleen cijfers bevatten",

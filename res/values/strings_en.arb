@@ -259,7 +259,7 @@
   "enterTokenID": "Enter the token ID",
   "enterWalletConnectURI": "Enter WalletConnect URI",
   "error": "Error",
-  "error_dialog_content": "Oops, we got some error.\n\nPlease send the crash report to our support team to make the application better.",
+  "error_dialog_content": "Oops, we got some error.\n\nPlease send the error report to our support team to make the application better.",
   "error_text_account_name": "Account name can only contain letters, numbers\nand must be between 1 and 15 characters long",
   "error_text_address": "Wallet address must correspond to the type\nof cryptocurrency",
   "error_text_amount": "Amount can only contain numbers",

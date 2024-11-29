@@ -259,7 +259,7 @@
   "enterTokenID": "Insira o ID do token",
   "enterWalletConnectURI": "Insira o URI do WalletConnect",
   "error": "Erro",
-  "error_dialog_content": "Ops, houve algum erro.\n\nPor favor, envie o relatório de falha para nossa equipe de suporte para melhorar o aplicativo.",
+  "error_dialog_content": "Opa, recebemos algum erro.\n\nEnvie o relatório de erro à nossa equipe de suporte para melhorar o aplicativo.",
   "error_text_account_name": "O nome da conta só pode conter letras, números\ne deve ter entre 1 e 15 caracteres",
   "error_text_address": "O endereço da carteira deve corresponder à\ncriptomoeda selecionada",
   "error_text_amount": "A quantia deve conter apenas números",

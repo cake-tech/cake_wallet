@@ -258,7 +258,7 @@
   "enterTokenID": "Nhập ID token",
   "enterWalletConnectURI": "Nhập URI WalletConnect",
   "error": "Lỗi",
-  "error_dialog_content": "Oops, chúng tôi gặp một số lỗi.\n\nVui lòng gửi báo cáo sự cố cho nhóm hỗ trợ của chúng tôi để cải thiện ứng dụng.",
+  "error_dialog_content": "Rất tiếc, chúng tôi đã gặp một số lỗi.\n\nVui lòng gửi báo cáo lỗi cho nhóm hỗ trợ của chúng tôi để làm cho ứng dụng tốt hơn.",
   "error_text_account_name": "Tên tài khoản chỉ được chứa chữ cái, số\nvà phải từ 1 đến 15 ký tự",
   "error_text_address": "Địa chỉ ví phải tương ứng với loại tiền điện tử",
   "error_text_amount": "Số tiền chỉ được chứa số",

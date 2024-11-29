@@ -259,7 +259,7 @@
   "enterTokenID": "Wprowadź identyfikator tokena",
   "enterWalletConnectURI": "Wprowadź identyfikator URI WalletConnect",
   "error": "Błąd",
-  "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację.",
+  "error_dialog_content": "Ups, mamy trochę błędu.\n\nProszę o przesłanie raportu o błędach do naszego zespołu wsparcia, aby aplikacja była lepsza.",
   "error_text_account_name": "Nazwa konta może zawierać tylko litery, cyfry\ni musi mieć od 1 do 15 znaków",
   "error_text_address": "Adres musi odpowiadać typowi kryptowaluty",
   "error_text_amount": "Kwota może zawierać tylko liczby",

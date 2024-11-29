@@ -259,7 +259,7 @@
   "enterTokenID": "Ipasok ang token ID",
   "enterWalletConnectURI": "Ipasok ang WalletConnect URI",
   "error": "Error",
-  "error_dialog_content": "Oops, nakakuha kami ng ilang error.\n\nMangyaring ipadala ang crash report sa aming koponan ng suporta upang maging mas mahusay ang application.",
+  "error_dialog_content": "Oops, nakakuha kami ng ilang error.\n\nMangyaring ipadala ang ulat ng error sa aming koponan ng suporta upang maging mas mahusay ang application.",
   "error_text_account_name": "Ang pangalan ng account ay maaari lamang maglaman ng mga titik, numero\nat dapat sa pagitan ng 1 at 15 character ang haba",
   "error_text_address": "Ang wallet address ay dapat na tumutugma sa uri\nng cryptocurrency",
   "error_text_amount": "Ang halaga ay maaari lamang maglaman ng mga numero",

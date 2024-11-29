@@ -259,7 +259,7 @@
   "enterTokenID": "Geben Sie die Token-ID ein",
   "enterWalletConnectURI": "Geben Sie den WalletConnect-URI ein",
   "error": "Fehler",
-  "error_dialog_content": "Hoppla, wir haben einen Fehler.\n\nBitte senden Sie den Absturzbericht an unser Support-Team, um die Anwendung zu verbessern.",
+  "error_dialog_content": "Hoppla, wir haben einen Fehler.\n\nBitte senden Sie den Fehlerbericht an unser Support -Team, um die Anwendung zu verbessern.",
   "error_text_account_name": "Der Kontoname darf nur Buchstaben und Zahlen enthalten\nund muss zwischen 1 und 15 Zeichen lang sein",
   "error_text_address": "Die Walletadresse muss dem Typ der Kryptowährung\nentsprechen",
   "error_text_amount": "Betrag darf nur Zahlen enthalten",

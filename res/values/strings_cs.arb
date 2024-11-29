@@ -259,7 +259,7 @@
   "enterTokenID": "Zadejte ID tokenu",
   "enterWalletConnectURI": "Zadejte identifikátor URI WalletConnect",
   "error": "Chyba",
-  "error_dialog_content": "Nastala chyba.\n\nProsím odešlete zprávu o chybě naší podpoře, aby mohli zajistit opravu.",
+  "error_dialog_content": "Jejda, dostali jsme nějakou chybu.\n\nZašlete prosím chybovou zprávu našemu týmu podpory, abyste aplikaci vylepšili.",
   "error_text_account_name": "Název účtu může obsahovat jen písmena a čísla\na musí mít délku 1 až 15 znaků",
   "error_text_address": "Adresa peněženky musí odpovídat typu\nkryptoměny",
   "error_text_amount": "Částka může obsahovat pouze čísla",

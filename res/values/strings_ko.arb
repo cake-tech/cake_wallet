@@ -259,7 +259,7 @@
   "enterTokenID": "토큰 ID를 입력하세요",
   "enterWalletConnectURI": "WalletConnect URI를 입력하세요.",
   "error": "오류",
-  "error_dialog_content": "죄송합니다. 오류가 발생했습니다.\n\n응용 프로그램을 개선하려면 지원 팀에 충돌 보고서를 보내주십시오.",
+  "error_dialog_content": "죄송합니다. 오류가 발생했습니다.\n\n오류 보고서를 지원 팀에 보내 응용 프로그램을 개선하십시오.",
   "error_text_account_name": "계정 이름은 문자, 숫자 만 포함 할 수 있습니다\n1 ~ 15 자 사이 여야합니다",
   "error_text_address": "지갑 주소는 유형과 일치해야합니다\n암호 화폐",
   "error_text_amount": "금액은 숫자 만 포함 할 수 있습니다",

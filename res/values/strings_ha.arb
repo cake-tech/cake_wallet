@@ -259,7 +259,7 @@
   "enterTokenID": "Shigar da alamar alama",
   "enterWalletConnectURI": "Shigar da WalletConnect URI",
   "error": "Kuskure",
-  "error_dialog_content": "Ai, yanzu muka ga alamar kuskure. \n\nDa fatan, aika rahoton kuskuren da muka kira zuwa gasar tsarinmu don gaskiyar shirya.",
+  "error_dialog_content": "Oops, mun sami kuskure.\n\nDon Allah a aika rahoton kuskuren zuwa ga ƙungiyar goyon bayanmu don yin aikace-aikacen da kyau.",
   "error_text_account_name": "Sunan ajiya zai iya ɗauka ne kawai da haruffa, lambobi\nkuma ya zama tsakanin 1 zuwa 15 haruffa",
   "error_text_address": "Adireshin hujja ya kamata ya dace da irin\nna cryptocurrency",
   "error_text_amount": "Adadin biya zai iya ƙunsar lambobi kawai",

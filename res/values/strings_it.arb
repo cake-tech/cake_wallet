@@ -260,7 +260,7 @@
   "enterTokenID": "Inserisci l'ID del token",
   "enterWalletConnectURI": "Inserisci l'URI di WalletConnect",
   "error": "Errore",
-  "error_dialog_content": "Spiacenti, abbiamo riscontrato un errore.\n\nSi prega di inviare il rapporto sull'arresto anomalo al nostro team di supporto per migliorare l'applicazione.",
+  "error_dialog_content": "Oops, abbiamo ricevuto qualche errore.\n\nSi prega di inviare il rapporto di errore al nostro team di supporto per migliorare l'applicazione.",
   "error_text_account_name": "Il nome del conto può contenere solo lettere, numeri\ne deve avere una lunghezza compresa tra 1 e 15 caratteri",
   "error_text_address": "L'indirizzo del Portafoglio deve corrispondere alla tipologia\ndi criptovaluta",
   "error_text_amount": "L'ammontare può contenere solo numeri",

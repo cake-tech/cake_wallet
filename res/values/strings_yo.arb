@@ -260,7 +260,7 @@
   "enterTokenID": "Tẹ ID ami sii",
   "enterWalletConnectURI": "Tẹ WalletConnect URI sii",
   "error": "Àṣìṣe",
-  "error_dialog_content": "Àṣìṣe ti dé.\n\nẸ jọ̀wọ́, fi àkọsílẹ̀ àṣìṣe ránṣẹ́ sí ẹgbẹ́ ìranlọ́wọ́ wa kí áàpù wa bá túbọ̀ dára.",
+  "error_dialog_content": "Oops, a ni aṣiṣe diẹ.\n\nJọwọ fi aṣiṣe naa ranṣẹ si ẹgbẹ atilẹyin wa lati jẹ ki ohun elo naa dara julọ.",
   "error_text_account_name": "Orúkọ àkáǹtì lè ni nìkan nínú ẹyọ ọ̀rọ̀ àti òǹkà\nGígun rẹ̀ kò gbọ́dọ̀ kéré ju oókan. Gígun rẹ̀ sì kò gbọ́dọ̀  tóbi ju márùndínlógún.",
   "error_text_address": "Àdírẹ́sì àpamọ́wọ́ gbọ́dọ̀ báramu irú owó",
   "error_text_amount": "Iye lè ni nìkan nínú àwọn òǹkà",

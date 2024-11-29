@@ -259,7 +259,7 @@
   "enterTokenID": "Masukkan ID tokennya",
   "enterWalletConnectURI": "Masukkan URI WalletConnect",
   "error": "Kesalahan",
-  "error_dialog_content": "Ups, kami mendapat kesalahan.\n\nSilakan kirim laporan crash ke tim dukungan kami untuk membuat aplikasi lebih baik.",
+  "error_dialog_content": "Ups, kami mendapat kesalahan.\n\nSilakan kirim laporan kesalahan ke tim dukungan kami untuk membuat aplikasi lebih baik.",
   "error_text_account_name": "Nama akun hanya dapat berisi huruf, angka\ndan harus antara 1 dan 15 karakter panjang",
   "error_text_address": "Alamat dompet harus sesuai dengan tipe\nmata uang kripto",
   "error_text_amount": "Jumlah hanya dapat berisi angka",

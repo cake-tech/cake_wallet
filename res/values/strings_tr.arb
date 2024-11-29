@@ -259,7 +259,7 @@
   "enterTokenID": "Belirteç kimliğini girin",
   "enterWalletConnectURI": "WalletConnect URI'sini girin",
   "error": "Hata",
-  "error_dialog_content": "Hay aksi, bir hatamız var.\n\nUygulamayı daha iyi hale getirmek için lütfen kilitlenme raporunu destek ekibimize gönderin.",
+  "error_dialog_content": "Oops, biraz hata aldık.\n\nLütfen uygulamayı daha iyi hale getirmek için hata raporunu destek ekibimize gönderin.",
   "error_text_account_name": "Hesap ismi yalnızca harf, rakam \nve 1 ile 15 uzunluğunda karakter içermelidir.",
   "error_text_address": "Cüzdan adresi kripto para biriminin\ntürüne karşılık gelmelidir",
   "error_text_amount": "Miktar sadece sayı içerebilir",
