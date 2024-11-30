@@ -99,6 +99,17 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * F-Droid: https://fdroid.cakelabs.com
 * APK: https://github.com/cake-tech/cake_wallet/releases
 
+### APK Verification
+
+APK releases on GitHub, Accrescent, and F-Droid use the same key. They can easily be verified using [apksigner](https://developer.android.com/tools/apksigner#options-verify) or [AppVerifier](https://github.com/soupslurpr/AppVerifier).
+
+See below for Cake Wallet's SHA-256 signing certificate hash:
+
+```
+com.cakewallet.cake_wallet
+C5:40:53:AB:0F:10:D9:54:17:62:A3:DA:76:65:AE:3D:BA:5E:7C:74:3A:B4:F1:08:A5:34:9D:62:AC:10:6E:F5
+```
+
 # Support
 
 We have 24/7 free support. Please contact support@cakewallet.com
