@@ -31,7 +31,7 @@ class _HeaderTileState extends State<HeaderTile> {
 
   @override
   Widget build(BuildContext context) {
-    final searchIcon = Image.asset("assets/images/search_icon.png",
+    final searchIcon = Icon( Icons.search,
         color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor);
 
     return Container(
