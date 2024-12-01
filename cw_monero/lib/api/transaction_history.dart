@@ -6,6 +6,7 @@ import 'package:cw_monero/api/exceptions/creation_transaction_exception.dart';
 import 'package:cw_monero/api/monero_output.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
 import 'package:ffi/ffi.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
@@ -17,7 +18,7 @@ String getTxKey(String txId) {
   final status = monero.Wallet_status(wptr!);
   if (status != 0) {
     final error = monero.Wallet_errorString(wptr!);
-    return txId+"_"+error;
+    return "";
   }
   return txKey;
 }
@@ -91,12 +92,23 @@ Future<PendingTransactionDescription> createTransactionSync(
     List<String> preferredInputs = const []}) async {
 
   final amt = amount == null ? 0 : monero.Wallet_amountFromString(amount);
-  
-  final address_ = address.toNativeUtf8(); 
-  final paymentId_ = paymentId.toNativeUtf8(); 
-  final preferredInputs_ = preferredInputs.join(monero.defaultSeparatorStr).toNativeUtf8();
 
   final waddr = wptr!.address;
+
+  // force reconnection in case the os killed the connection?
+  // fixes failed to get block height error.
+  Isolate.run(() async {
+    monero.Wallet_synchronized(Pointer.fromAddress(waddr));
+  });
+
+  final address_ = address.toNativeUtf8(); 
+  final paymentId_ = paymentId.toNativeUtf8();
+  if (preferredInputs.isEmpty) {
+    throw MoneroTransactionCreationException("No inputs provided, transaction cannot be constructed");
+  }
+
+  final preferredInputs_ = preferredInputs.join(monero.defaultSeparatorStr).toNativeUtf8();
+
   final addraddr = address_.address;
   final paymentIdAddr = paymentId_.address;
   final preferredInputsAddr = preferredInputs_.address;
@@ -192,14 +204,23 @@ String? commitTransaction({required monero.PendingTransaction transactionPointer
     ? monero.PendingTransaction_commitUR(transactionPointer, 120)
     : monero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
 
-  final String? error = (() {
+  String? error = (() {
     final status = monero.PendingTransaction_status(transactionPointer.cast());
     if (status == 0) {
       return null;
     }
-    return monero.Wallet_errorString(wptr!);
+    return monero.PendingTransaction_errorString(transactionPointer.cast());
   })();
+  if (error == null) {
+    error = (() {
+      final status = monero.Wallet_status(wptr!);
+      if (status == 0) {
+        return null;
+      }
+      return monero.Wallet_errorString(wptr!);
+    })();
   
+  }
   if (error != null) {
     throw CreationTransactionException(message: error);
   }
@@ -348,16 +369,7 @@ class Transaction {
         confirmations = monero.TransactionInfo_confirmations(txInfo),
         fee = monero.TransactionInfo_fee(txInfo),
         description = monero.TransactionInfo_description(txInfo),
-        key = getTxKey(txInfo);
-
-  static String getTxKey(monero.TransactionInfo txInfo) {
-    final txKey = monero.Wallet_getTxKey(wptr!, txid: monero.TransactionInfo_hash(txInfo));
-    final status = monero.Wallet_status(wptr!);
-    if (status != 0) {
-      return "";
-    }
-    return txKey;
-  }
+        key = getTxKey(monero.TransactionInfo_hash(txInfo));
 
   Transaction.dummy({
     required this.displayLabel,

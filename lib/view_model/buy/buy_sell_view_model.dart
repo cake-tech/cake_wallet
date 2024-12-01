@@ -162,6 +162,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         isBuySellQuotLoaded;
   }
 
+  @computed
+  bool get isBuySellQuotFailed => buySellQuotState is BuySellQuotFailed;
+
   @action
   void reset() {
     cryptoCurrency = wallet.currency;

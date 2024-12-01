@@ -94,6 +94,10 @@ class CakePayCardsPage extends BasePage {
             _cardsListViewModel.resetLoadingNextPageState();
             _cardsListViewModel.getVendors();
           }
+
+          _cardsListViewModel.settingsStore.selectedCakePayCountry =
+              _cardsListViewModel.selectedCountry;
+
         }
       });
     });

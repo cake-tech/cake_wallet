@@ -172,14 +172,12 @@ class CakePayApi {
   }
 
   /// Get Countries
-  Future<List<Country>> getCountries(
-      {required String CSRFToken, required String authorization}) async {
+  Future<List<Country>> getCountries({required String apiKey}) async {
     final uri = Uri.https(baseCakePayUri, countriesPath);
 
     final headers = {
       'accept': 'application/json',
-      'authorization': authorization,
-      'X-CSRFToken': CSRFToken,
+      'Authorization': 'Api-Key $apiKey',
     };
 
     final response = await http.get(uri, headers: headers);
@@ -198,8 +196,7 @@ class CakePayApi {
 
   /// Get Vendors
   Future<List<CakePayVendor>> getVendors({
-    required String CSRFToken,
-    required String authorization,
+    required String apiKey,
     int? page,
     String? country,
     String? countryCode,
@@ -226,14 +223,14 @@ class CakePayApi {
 
     var headers = {
       'accept': 'application/json; charset=UTF-8',
-      'authorization': authorization,
-      'X-CSRFToken': CSRFToken,
+      'Authorization': 'Api-Key $apiKey',
     };
 
     var response = await http.get(uri, headers: headers);
 
     if (response.statusCode != 200) {
-      throw Exception(response.body);
+      throw Exception(
+          'Failed to fetch vendors: statusCode - ${response.statusCode}, queryParams -$queryParams, response - ${response.body}');
     }
 
     final bodyJson = json.decode(response.body);

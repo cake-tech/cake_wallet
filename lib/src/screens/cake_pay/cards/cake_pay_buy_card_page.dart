@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_payment_credantials.dart';
@@ -7,6 +9,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/image_placeholder.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/link_extractor.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/number_text_fild_widget.dart';
@@ -17,6 +20,7 @@ import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item_widget.dart';
 import 'package:flutter/material.dart';
@@ -226,7 +230,9 @@ class CakePayBuyCardPage extends BasePage {
                 return Padding(
                   padding: EdgeInsets.only(bottom: 12),
                   child: PrimaryButton(
-                    onPressed: () => navigateToCakePayBuyCardDetailPage(context, card),
+                    onPressed: () => isIOSUnavailable(card)
+                        ? alertIOSAvailability(context, card)
+                        : navigateToCakePayBuyCardDetailPage(context, card),
                     text: S.of(context).buy_now,
                     isDisabled: !cakePayBuyCardViewModel.isEnablePurchase,
                     color: Theme.of(context).primaryColor,
@@ -239,6 +245,65 @@ class CakePayBuyCardPage extends BasePage {
         ),
       ),
     );
+  }
+
+  bool isWordInCardsName(CakePayCard card, String word) {
+    // word must be followed by a space or beginning of the string
+    final regex = RegExp(r'(^|\s)' + word + r'(\s|$)', caseSensitive: false);
+
+    return regex.hasMatch(card.name.toLowerCase());
+  }
+
+  bool isIOSUnavailable(CakePayCard card) {
+    if (!Platform.isIOS) {
+      return false;
+    }
+
+    final isDigitalGameStores = isWordInCardsName(card, 'playstation') ||
+        isWordInCardsName(card, 'xbox') ||
+        isWordInCardsName(card, 'steam') ||
+        isWordInCardsName(card, 'meta quest') ||
+        isWordInCardsName(card, 'kigso') ||
+        isWordInCardsName(card, 'game world') ||
+        isWordInCardsName(card, 'google') ||
+        isWordInCardsName(card, 'nintendo');
+    final isGCodes = isWordInCardsName(card, 'gcodes');
+    final isApple = isWordInCardsName(card, 'itunes') || isWordInCardsName(card, 'apple');
+    final isTidal = isWordInCardsName(card, 'tidal');
+    final isVPNServices = isWordInCardsName(card, 'nordvpn') ||
+        isWordInCardsName(card, 'expressvpn') ||
+        isWordInCardsName(card, 'surfshark') ||
+        isWordInCardsName(card, 'proton');
+    final isStreamingServices = isWordInCardsName(card, 'netflix') ||
+        isWordInCardsName(card, 'spotify') ||
+        isWordInCardsName(card, 'hulu') ||
+        isWordInCardsName(card, 'hbo') ||
+        isWordInCardsName(card, 'soundcloud') ||
+        isWordInCardsName(card, 'twitch');
+    final isDatingServices = isWordInCardsName(card, 'tinder');
+
+    return isDigitalGameStores ||
+        isGCodes ||
+        isApple ||
+        isTidal ||
+        isVPNServices ||
+        isStreamingServices ||
+        isDatingServices;
+  }
+
+  Future<void> alertIOSAvailability(BuildContext context, CakePayCard card) async {
+    return await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: S.of(context).error,
+              alertContent: S.of(context).cakepay_ios_not_available,
+              buttonText: S.of(context).ok,
+              buttonAction: () {
+                // _walletHardwareRestoreVM.error = null;
+                Navigator.of(context).pop();
+              });
+        });
   }
 
   Future<void> navigateToCakePayBuyCardDetailPage(BuildContext context, CakePayCard card) async {

@@ -1,7 +1,2 @@
-Added Litecoin MWEB
-Added wallet groups
-Silent Payment enhancements for speed & reliability
-Monero enhancements
-Introducing StealthEx and LetxExchange
-Additional ERC20 tokens scam detection
-Bug fixes
+UI/UX enhancements
+Bug fixes and app improvements

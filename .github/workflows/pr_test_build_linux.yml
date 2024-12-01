@@ -38,7 +38,7 @@ jobs:
       - name: Flutter action
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: "3.19.6"
+          flutter-version: "3.24.4"
           channel: stable
 
       - name: Install package dependencies
@@ -111,7 +111,7 @@ jobs:
       - name: Generate localization
         run: |
           cd /opt/android/cake_wallet
-          flutter packages pub run tool/generate_localization.dart
+          dart run tool/generate_localization.dart
 
       - name: Build generated code
         run: |
