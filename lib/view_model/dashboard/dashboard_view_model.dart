@@ -133,6 +133,11 @@ abstract class DashboardViewModelBase with Store {
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
             FilterItem(
+                value: () => tradeFilterStore.displayChainflip,
+                caption: ExchangeProviderDescription.chainflip.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.chainflip)),
+            FilterItem(
                 value: () => tradeFilterStore.displayThorChain,
                 caption: ExchangeProviderDescription.thorChain.title,
                 onChanged: () =>
