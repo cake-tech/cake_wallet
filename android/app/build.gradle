@@ -44,7 +44,7 @@ android {
         disable 'InvalidPackage'
     }
 
-    namespace 'com.cakewallet.cake_wallet'
+    namespace appProperties['id']
 
     defaultConfig {
         applicationId appProperties['id']
