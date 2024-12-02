@@ -534,16 +534,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       throw Exception('Priority is null for wallet type: ${wallet.type}');
     }
 
-    if (hasCoinControl) {
-      bool isCoinSelected = false;
-      for (var coin in unspentCoinsListViewModel.items) {
-        isCoinSelected = isCoinSelected || (coin.isSending && !coin.isFrozen);
-      }
-      if (!isCoinSelected) {
-        throw Exception("No coin selected in coin control, you need to select a coin in order to spend");
-      }
-    }
-
     switch (wallet.type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
