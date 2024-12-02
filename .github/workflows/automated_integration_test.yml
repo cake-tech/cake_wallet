@@ -194,6 +194,8 @@ jobs:
           echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
           echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          echo "const meldTestApiKey = '${{ secrets.MELD_TEST_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const meldTestPublicKey = '${{ secrets.MELD_TEST_PUBLIC_KEY}}';" >> lib/.secrets.g.dart
           echo "const letsExchangeBearerToken = '${{ secrets.LETS_EXCHANGE_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const letsExchangeAffiliateId = '${{ secrets.LETS_EXCHANGE_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
           echo "const stealthExBearerToken = '${{ secrets.STEALTH_EX_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
