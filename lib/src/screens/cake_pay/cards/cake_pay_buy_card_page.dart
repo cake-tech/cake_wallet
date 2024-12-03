@@ -252,7 +252,7 @@ class CakePayBuyCardPage extends BasePage {
   }
 
   bool isIOSUnavailable(CakePayCard card) {
-    if (!Platform.isIOS) {
+    if (!Platform.isIOS && !Platform.isMacOS) {
       return false;
     }
 
