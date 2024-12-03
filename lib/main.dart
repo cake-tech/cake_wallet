@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -164,6 +165,10 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(HavenSeedStore.typeId)) {
+    CakeHive.registerAdapter(HavenSeedStoreAdapter());
+  }
+
   if (!CakeHive.isAdapterRegistered(MwebUtxo.typeId)) {
     CakeHive.registerAdapter(MwebUtxoAdapter());
   }
@@ -188,6 +193,12 @@ Future<void> initializeAppConfigs() async {
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
   final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
 
+  final havenSeedStoreBoxKey =
+      await getEncryptionKey(secureStorage: secureStorage, forKey: HavenSeedStore.boxKey);
+  final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(
+      HavenSeedStore.boxName,
+      encryptionKey: havenSeedStoreBoxKey);
+
   await initialSetup(
     sharedPreferences: await SharedPreferences.getInstance(),
     nodes: nodes,
@@ -203,7 +214,8 @@ Future<void> initializeAppConfigs() async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 44,
+    havenSeedStore: havenSeedStore,
+    initialMigrationVersion: 45,
   );
 }
 
@@ -222,7 +234,8 @@ Future<void> initialSetup(
     required SecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
-    int initialMigrationVersion = 15}) async {
+    required Box<HavenSeedStore> havenSeedStore,
+    int initialMigrationVersion = 15, }) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,
@@ -232,7 +245,8 @@ Future<void> initialSetup(
       contactSource: contactSource,
       tradeSource: tradesSource,
       nodes: nodes,
-      powNodes: powNodes);
+      powNodes: powNodes,
+      havenSeedStore: havenSeedStore);
   await setup(
     walletInfoSource: walletInfoSource,
     nodeSource: nodes,
