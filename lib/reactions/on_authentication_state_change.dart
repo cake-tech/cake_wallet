@@ -52,9 +52,8 @@ void startAuthenticationStateChange(
 
     if ([AuthenticationState.allowed, AuthenticationState.allowedCreate]
         .contains(state)) {
-      if (requireHardwareWalletConnection() &&
-          state == AuthenticationState.allowed) {
-        print("onAuthTriggerd");
+      if (state == AuthenticationState.allowed &&
+          requireHardwareWalletConnection()) {
         await navigatorKey.currentState!.pushNamedAndRemoveUntil(
           Routes.connectDevices,
           (route) => false,
