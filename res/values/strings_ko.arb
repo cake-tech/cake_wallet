@@ -711,6 +711,7 @@
   "share_address": "주소 공유",
   "shared_seed_wallet_groups": "공유 종자 지갑 그룹",
   "show": "보여주다",
+  "show_address_book_popup": "전송 후 '주소 책에 추가'팝업을 표시하십시오",
   "show_details": "세부정보 표시",
   "show_keys": "시드 / 키 표시",
   "show_market_place": "마켓플레이스 표시",

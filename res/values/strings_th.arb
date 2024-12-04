@@ -710,6 +710,7 @@
   "share_address": "แชร์ที่อยู่",
   "shared_seed_wallet_groups": "กลุ่มกระเป๋าเงินที่ใช้ร่วมกัน",
   "show": "แสดง",
+  "show_address_book_popup": "แสดง 'เพิ่มในสมุดรายชื่อ' ป๊อปอัพหลังจากส่ง",
   "show_details": "แสดงรายละเอียด",
   "show_keys": "แสดงซีด/คีย์",
   "show_market_place": "แสดงตลาดกลาง",
