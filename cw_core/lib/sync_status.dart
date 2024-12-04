@@ -1,13 +1,5 @@
 abstract class SyncStatus {
   const SyncStatus();
-  double progress();
-}
-
-class StartingScanSyncStatus extends SyncStatus {
-  StartingScanSyncStatus(this.beginHeight);
-
-  final int beginHeight;
-  @override
   double progress() => 0.0;
 }
 
@@ -39,16 +31,25 @@ class SyncedSyncStatus extends SyncStatus {
   double progress() => 1.0;
 }
 
+/// ===========================================================================
+
+abstract class ScanSyncStatus extends SyncStatus {}
+
+class StartingScanSyncStatus extends SyncStatus {
+  StartingScanSyncStatus(this.beginHeight);
+
+  final int beginHeight;
+}
+
 class SyncedTipSyncStatus extends SyncedSyncStatus {
   SyncedTipSyncStatus(this.tip);
 
   final int tip;
 }
 
-class SyncronizingSyncStatus extends SyncStatus {
-  @override
-  double progress() => 0.0;
-}
+/// ===========================================================================
+
+class SyncronizingSyncStatus extends SyncStatus {}
 
 class NotConnectedSyncStatus extends SyncStatus {
   const NotConnectedSyncStatus();
@@ -75,15 +76,9 @@ class FailedSyncStatus extends NotConnectedSyncStatus {
   String toString() => error ?? super.toString();
 }
 
-class ConnectingSyncStatus extends SyncStatus {
-  @override
-  double progress() => 0.0;
-}
+class ConnectingSyncStatus extends SyncStatus {}
 
-class ConnectedSyncStatus extends SyncStatus {
-  @override
-  double progress() => 0.0;
-}
+class ConnectedSyncStatus extends SyncStatus {}
 
 class UnsupportedSyncStatus extends NotConnectedSyncStatus {}
 
