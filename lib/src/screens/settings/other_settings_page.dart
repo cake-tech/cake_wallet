@@ -64,7 +64,7 @@ class OtherSettingsPage extends BasePage {
                     Navigator.of(context).pushNamed(Routes.readDisclaimer),
               ),
               SettingsSwitcherCell(
-                title: 'S.of(context).show_address_book_popup',
+                title: S.of(context).show_address_book_popup,
                 value: _otherSettingsViewModel.showAddressBookPopup,
                 onValueChange: (_, bool value) {
                   _otherSettingsViewModel.setShowAddressBookPopup(value);
