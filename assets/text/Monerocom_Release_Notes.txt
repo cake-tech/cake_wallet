@@ -1,3 +1,2 @@
-Monero enhancements
-Introducing StealthEx and LetxExchange
-Bug fixes
+UI/UX enhancements
+Bug fixes and app improvements

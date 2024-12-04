@@ -28,6 +28,7 @@ import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
 import 'package:cw_monero/exceptions/monero_transaction_no_inputs_exception.dart';
+import 'package:cw_monero/ledger.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
@@ -36,6 +37,7 @@ import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
 import 'package:monero/monero.dart' as monero;
 
@@ -307,9 +309,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             'You do not have enough XMR to send this amount.');
       }
 
-      if (!spendAllCoins && (allInputsAmount < totalAmount + estimatedFee)) {
-        throw MoneroTransactionNoInputsException(inputs.length);
-      }
+      if (inputs.isEmpty) MoneroTransactionCreationException(
+        'No inputs selected');
 
       final moneroOutputs = outputs.map((output) {
         final outputAddress =
@@ -335,23 +336,18 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final formattedAmount =
           output.sendAll ? null : output.formattedCryptoAmount;
 
-      if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
-          (formattedAmount == null && unlockedBalance <= 0)) {
-        final formattedBalance = moneroAmountToString(amount: unlockedBalance);
-
-        throw MoneroTransactionCreationException(
-            'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
-      }
+      // if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
+      //     (formattedAmount == null && unlockedBalance <= 0)) {
+      //   final formattedBalance = moneroAmountToString(amount: unlockedBalance);
+      //
+      //   throw MoneroTransactionCreationException(
+      //       'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
+      // }
 
       final estimatedFee =
           calculateEstimatedFee(_credentials.priority, formattedAmount);
-      if (!spendAllCoins &&
-          ((formattedAmount != null &&
-                  allInputsAmount < (formattedAmount + estimatedFee)) ||
-              formattedAmount == null)) {
-        throw MoneroTransactionNoInputsException(inputs.length);
-      }
-
+      if (inputs.isEmpty) MoneroTransactionCreationException(
+        'No inputs selected');
       pendingTransactionDescription =
           await transaction_history.createTransaction(
               address: address!,
@@ -360,6 +356,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
               accountIndex: walletAddresses.account!.id,
               preferredInputs: inputs);
     }
+
+    // final status = monero.PendingTransaction_status(pendingTransactionDescription);
 
     return PendingMoneroTransaction(pendingTransactionDescription);
   }
@@ -513,7 +511,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       for (var i = 0; i < coinCount; i++) {
         final coin = getCoin(i);
         final coinSpent = monero.CoinsInfo_spent(coin);
-        if (coinSpent == false) {
+        if (coinSpent == false && monero.CoinsInfo_subaddrAccount(coin) == walletAddresses.account!.id) {
           final unspent = MoneroUnspent(
             monero.CoinsInfo_address(coin),
             monero.CoinsInfo_hash(coin),
@@ -727,9 +725,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   void _askForUpdateBalance() {
     final unlockedBalance = _getUnlockedBalance();
-    final fullBalance = _getFullBalance();
+    final fullBalance = monero_wallet.getFullBalance(
+      accountIndex: walletAddresses.account!.id);
     final frozenBalance = _getFrozenBalance();
-
     if (balance[currency]!.fullBalance != fullBalance ||
         balance[currency]!.unlockedBalance != unlockedBalance ||
         balance[currency]!.frozenBalance != frozenBalance) {
@@ -755,9 +753,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     for (var coin in unspentCoinsInfo.values.where((element) =>
         element.walletId == id &&
         element.accountIndex == walletAddresses.account!.id)) {
-      if (coin.isFrozen) frozenBalance += coin.value;
+      if (coin.isFrozen && !coin.isSending) frozenBalance += coin.value;
     }
-
     return frozenBalance;
   }
 
@@ -828,4 +825,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return monero_wallet.verifyMessage(message, address, signature);
   }
 
+  void setLedgerConnection(LedgerConnection connection) {
+    final dummyWPtr = wptr ??
+        monero.WalletManager_openWallet(wmPtr, path: '', password: '');
+    enableLedgerExchange(dummyWPtr, connection);
+  }
 }

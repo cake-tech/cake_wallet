@@ -89,13 +89,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
     final params = {
-      'api_key': apiKey,
       'ticker': _normalizeCurrency(from),
       'name': from.name,
     };
 
     final uri = await _getUri(coinPath, params);
-    final response = await get(uri);
+    final response = await get(uri, headers: {'API-Key': apiKey});
 
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
@@ -123,7 +122,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       if (amount == 0) return 0.0;
 
       final params = <String, String>{
-        'api_key': apiKey,
         'ticker_from': _normalizeCurrency(from),
         'ticker_to': _normalizeCurrency(to),
         'network_from': _networkFor(from),
@@ -136,7 +134,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       };
 
       final uri = await _getUri(newRatePath, params);
-      final response = await get(uri);
+      final response = await get(uri, headers: {'API-Key': apiKey});
+
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final fromAmount = double.parse(responseJSON['amount_from'].toString());
       final toAmount = double.parse(responseJSON['amount_to'].toString());
@@ -161,7 +160,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     required bool isSendAll,
   }) async {
     final params = {
-      'api_key': apiKey,
       'ticker_from': _normalizeCurrency(request.fromCurrency),
       'ticker_to': _normalizeCurrency(request.toCurrency),
       'network_from': _networkFor(request.fromCurrency),
@@ -202,7 +200,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     params['provider'] = firstAvailableProvider;
 
     final uri = await _getUri(createTradePath, params);
-    final response = await get(uri);
+    final response = await get(uri, headers: {'API-Key': apiKey});
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -248,8 +246,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    final uri = await _getUri(tradePath, {'api_key': apiKey, 'id': id});
-    return get(uri).then((response) {
+    final uri = await _getUri(tradePath, {'id': id});
+    return get(uri, headers: {'API-Key': apiKey}).then((response) {
       if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
 
