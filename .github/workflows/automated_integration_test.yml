@@ -1,8 +1,8 @@
-name: PR Test Build
+name: Automated Integration Tests
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, CW-659-Transaction-History-Automated-Tests]
   workflow_dispatch:
     inputs:
       branch:
@@ -11,11 +11,13 @@ on:
         default: "main"
 
 jobs:
-  PR_test_build:
+  Automated_integration_test:
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         api-level: [29]
+        # arch: [x86, x86_64]
     env:
       STORE_PASS: test@cake_wallet
       KEY_PASS: test@cake_wallet
@@ -115,14 +117,6 @@ jobs:
           cd /opt/android/cake_wallet/scripts/android/
           ./build_mwebd.sh --dont-install
 
-#      - name: Cache Keystore
-#        id: cache-keystore
-#        uses: actions/cache@v3
-#        with:
-#          path: /opt/android/cake_wallet/android/app/key.jks
-#          key: $STORE_PASS
-#
-#      - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
       - name: Generate KeyStore
         run: |
           cd /opt/android/cake_wallet/android/app
@@ -131,12 +125,12 @@ jobs:
       - name: Generate key properties
         run: |
           cd /opt/android/cake_wallet
-          dart run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=$STORE_PASS keyPassword=$KEY_PASS
+          flutter packages pub run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=$STORE_PASS keyPassword=$KEY_PASS
 
       - name: Generate localization
         run: |
           cd /opt/android/cake_wallet
-          dart run tool/generate_localization.dart
+          flutter packages pub run tool/generate_localization.dart
 
       - name: Build generated code
         run: |
@@ -206,86 +200,99 @@ jobs:
           echo "const letsExchangeAffiliateId = '${{ secrets.LETS_EXCHANGE_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
           echo "const stealthExBearerToken = '${{ secrets.STEALTH_EX_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const stealthExAdditionalFeePercent = '${{ secrets.STEALTH_EX_ADDITIONAL_FEE_PERCENT }}';" >> lib/.secrets.g.dart
+          echo "const moneroTestWalletSeeds ='${{ secrets.MONERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const moneroLegacyTestWalletSeeds = '${{ secrets.MONERO_LEGACY_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinTestWalletSeeds = '${{ secrets.BITCOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const ethereumTestWalletSeeds = '${{ secrets.ETHEREUM_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const litecoinTestWalletSeeds =  '${{ secrets.LITECOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinCashTestWalletSeeds =  '${{ secrets.BITCOIN_CASH_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const polygonTestWalletSeeds = '${{ secrets.POLYGON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const solanaTestWalletSeeds = '${{ secrets.SOLANA_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const tronTestWalletSeeds = '${{ secrets.TRON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const nanoTestWalletSeeds =  '${{ secrets.NANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const wowneroTestWalletSeeds = '${{ secrets.WOWNERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const moneroTestWalletReceiveAddress = '${{ secrets.MONERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinTestWalletReceiveAddress =  '${{ secrets.BITCOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const ethereumTestWalletReceiveAddress =  '${{ secrets.ETHEREUM_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const litecoinTestWalletReceiveAddress =  '${{ secrets.LITECOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinCashTestWalletReceiveAddress = '${{ secrets.BITCOIN_CASH_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const polygonTestWalletReceiveAddress =  '${{ secrets.POLYGON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const solanaTestWalletReceiveAddress =  '${{ secrets.SOLANA_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const tronTestWalletReceiveAddress =  '${{ secrets.TRON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const wowneroTestWalletReceiveAddress = '${{ secrets.WOWNERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const moneroTestWalletBlockHeight =  '${{ secrets.MONERO_TEST_WALLET_BLOCK_HEIGHT }}';" >> lib/.secrets.g.dart
 
       - name: Rename app
         run: |
           echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
-
-      # Step 3: Download previous build number
-      - name: Download previous build number
-        id: download-build-number
-        run: |
-          # Download the artifact if it exists
-          if [[ ! -f build_number.txt ]]; then
-            echo "1" > build_number.txt
-          fi
-
-      # Step 4: Read and Increment Build Number
-      - name: Increment Build Number
-        id: increment-build-number
-        run: |
-          # Read current build number from file
-          BUILD_NUMBER=$(cat build_number.txt)
-          BUILD_NUMBER=$((BUILD_NUMBER + 1))
-          echo "New build number: $BUILD_NUMBER"
-
-          # Save the incremented build number
-          echo "$BUILD_NUMBER" > build_number.txt
-
-          # Export the build number to use in later steps
-          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
-
-      # Step 5: Update pubspec.yaml with new build number
-      - name: Update build number
-        run: |
-          cd /opt/android/cake_wallet
-          sed -i "s/^version: .*/version: 1.0.$BUILD_NUMBER/" pubspec.yaml
 
       - name: Build
         run: |
           cd /opt/android/cake_wallet
           flutter build apk --release --split-per-abi
 
-      #            - name: Push to App Center
-      #              run: |
-      #                echo 'Installing App Center CLI tools'
-      #                npm install -g appcenter-cli
-      #                echo "Publishing test to App Center"
-      #                appcenter distribute release \
-      #                    --group "Testers" \
-      #                    --file "/opt/android/cake_wallet/build/app/outputs/apk/release/app-release.apk" \
-      #                    --release-notes ${{ env.BRANCH_NAME }} \
-      #                    --app Cake-Labs/Cake-Wallet \
-      #                    --token ${{ secrets.APP_CENTER_TOKEN }} \
-      #                    --quiet
+      # - name: Rename apk file
+      #   run: |
+      #     cd /opt/android/cake_wallet/build/app/outputs/flutter-apk
+      #     mkdir test-apk
+      #     cp app-arm64-v8a-release.apk test-apk/${{env.BRANCH_NAME}}.apk
+      #     cp app-x86_64-release.apk test-apk/${{env.BRANCH_NAME}}_x86.apk
 
-      - name: Rename apk file
+      # - name: Upload Artifact
+      #   uses: kittaakos/upload-artifact-as-is@v0
+      #   with:
+      #     path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/
+
+      # - name: Send Test APK
+      #   continue-on-error: true
+      #   uses: adrey/slack-file-upload-action@1.0.5
+      #   with:
+      #     token: ${{ secrets.SLACK_APP_TOKEN }}
+      #     path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/${{env.BRANCH_NAME}}.apk
+      #     channel: ${{ secrets.SLACK_APK_CHANNEL }}
+      #     title: "${{ env.BRANCH_NAME }}.apk"
+      #     filename: ${{ env.BRANCH_NAME }}.apk
+      #     initial_comment: ${{ github.event.head_commit.message }}
+
+      - name: 🦾 Enable KVM
         run: |
-          cd /opt/android/cake_wallet/build/app/outputs/flutter-apk
-          mkdir test-apk
-          cp app-arm64-v8a-release.apk test-apk/${{env.BRANCH_NAME}}.apk
-          cp app-x86_64-release.apk test-apk/${{env.BRANCH_NAME}}_x86.apk
-
-      - name: Upload Artifact
-        uses: kittaakos/upload-artifact-as-is@v0
+            echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+            sudo udevadm control --reload-rules
+            sudo udevadm trigger --name-match=kvm
+  
+      - name: 🦾 Cache gradle
+        uses: gradle/actions/setup-gradle@v3
+  
+      - name: 🦾 Cache AVD
+        uses: actions/cache@v4
+        id: avd-cache
         with:
-          path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/
-
-      # Re-upload updated build number for the next run
-      - name: Upload updated build number
-        uses: actions/upload-artifact@v3
+            path: |
+                ~/.android/avd/*
+                ~/.android/adb*
+            key: avd-${{ matrix.api-level }}
+  
+      - name: 🦾 Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
         with:
-          name: build_number
-          path: build_number.txt
+            api-level: ${{ matrix.api-level }}
+            force-avd-creation: false
+            # arch: ${{ matrix.arch }}
+            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+            working-directory: /opt/android/cake_wallet
+            disable-animations: false
+            script: echo "Generated AVD snapshot for caching."
 
-      - name: Send Test APK
-        continue-on-error: true
-        uses: adrey/slack-file-upload-action@1.0.5
+      - name: 🚀 Integration tests on Android Emulator
+        uses: reactivecircus/android-emulator-runner@v2
         with:
-          token: ${{ secrets.SLACK_APP_TOKEN }}
-          path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/test-apk/${{env.BRANCH_NAME}}.apk
-          channel: ${{ secrets.SLACK_APK_CHANNEL }}
-          title: "${{ env.BRANCH_NAME }}.apk"
-          filename: ${{ env.BRANCH_NAME }}.apk
-          initial_comment: ${{ github.event.head_commit.message }}
-
+            api-level: ${{ matrix.api-level }}
+            force-avd-creation: false
+            emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+            disable-animations: true
+            working-directory: /opt/android/cake_wallet
+            script: |
+                chmod a+rx integration_test_runner.sh
+                ./integration_test_runner.sh

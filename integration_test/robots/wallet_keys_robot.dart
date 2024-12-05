@@ -42,11 +42,11 @@ class WalletKeysAndSeedPageRobot {
     bool hasPrivateKey = appStore.wallet!.privateKey != null;
 
     if (walletType == WalletType.monero) {
-      final moneroWallet = appStore.wallet as MoneroWallet;
+      final moneroWallet = appStore.wallet as MoneroWalletBase;
       final lang = PolyseedLang.getByPhrase(moneroWallet.seed);
       final legacySeed = moneroWallet.seedLegacy(lang.nameEnglish);
 
-      _confirmMoneroWalletCredentials(
+      await _confirmMoneroWalletCredentials(
         appStore,
         walletName,
         moneroWallet.seed,
@@ -59,7 +59,7 @@ class WalletKeysAndSeedPageRobot {
       final lang = PolyseedLang.getByPhrase(wowneroWallet.seed);
       final legacySeed = wowneroWallet.seedLegacy(lang.nameEnglish);
 
-      _confirmMoneroWalletCredentials(
+      await _confirmMoneroWalletCredentials(
         appStore,
         walletName,
         wowneroWallet.seed,
@@ -105,12 +105,12 @@ class WalletKeysAndSeedPageRobot {
     await commonTestCases.defaultSleepTime(seconds: 5);
   }
 
-  void _confirmMoneroWalletCredentials(
+  Future<void> _confirmMoneroWalletCredentials(
     AppStore appStore,
     String walletName,
     String seed,
     String legacySeed,
-  ) {
+  ) async {
     final keys = appStore.wallet!.keys as MoneroWalletKeys;
 
     final hasPublicSpendKey = commonTestCases.isKeyPresent(
@@ -145,10 +145,18 @@ class WalletKeysAndSeedPageRobot {
       tester.printToConsole('$walletName wallet has private view key properly displayed');
     }
     if (hasSeeds) {
+      await commonTestCases.dragUntilVisible(
+        '${walletName}_wallet_seed_item_key',
+        'wallet_keys_page_credentials_list_view_key',
+      );
       commonTestCases.hasText(seed);
       tester.printToConsole('$walletName wallet has seeds properly displayed');
     }
     if (hasSeedLegacy) {
+      await commonTestCases.dragUntilVisible(
+        '${walletName}_wallet_seed_legacy_item_key',
+        'wallet_keys_page_credentials_list_view_key',
+      );
       commonTestCases.hasText(legacySeed);
       tester.printToConsole('$walletName wallet has legacy seeds properly displayed');
     }

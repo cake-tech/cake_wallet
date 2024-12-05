@@ -101,7 +101,7 @@ Future<void> _confirmSeedsFlowForWalletType(
   walletKeysAndSeedPageRobot.hasTitle();
   walletKeysAndSeedPageRobot.hasShareWarning();
 
-  walletKeysAndSeedPageRobot.confirmWalletCredentials(walletType);
+  await walletKeysAndSeedPageRobot.confirmWalletCredentials(walletType);
 
   await walletKeysAndSeedPageRobot.backToDashboard();
 }
