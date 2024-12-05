@@ -725,8 +725,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   void _askForUpdateBalance() {
     final unlockedBalance = _getUnlockedBalance();
-    final fullBalance = _getUnlockedBalance() + _getFrozenBalance();
-    final frozenBalance = 0; // this is calculated on the monero side now
+    final fullBalance = monero_wallet.getFullBalance(
+      accountIndex: walletAddresses.account!.id);
+    final frozenBalance = _getFrozenBalance();
     if (balance[currency]!.fullBalance != fullBalance ||
         balance[currency]!.unlockedBalance != unlockedBalance ||
         balance[currency]!.frozenBalance != frozenBalance) {
