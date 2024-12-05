@@ -81,6 +81,7 @@ class SecretKey {
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
     SecretKey('moralisApiKey', () => ''),
+    SecretKey('nowNodesApiKey ', () => ''),
   ];
 
   static final solanaSecrets = [

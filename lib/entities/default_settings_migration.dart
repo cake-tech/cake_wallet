@@ -288,7 +288,9 @@ Future<void> defaultSettingsMigration(
             ],
           );
           break;
-
+        case 45:
+          await updateETHNodesWithNowNodes(sharedPreferences: sharedPreferences, nodes: nodes);
+         await updatePolygonNodesWithNowNodes(sharedPreferences: sharedPreferences, nodes: nodes);
         default:
           break;
       }
@@ -1425,4 +1427,26 @@ Future<void> updateTronNodesWithNowNodes({
   await nodes.add(Node(uri: tronNowNodesUri, type: WalletType.tron));
 
   await replaceTronDefaultNode(sharedPreferences: sharedPreferences, nodes: nodes);
+}
+
+Future<void> updateETHNodesWithNowNodes({
+  required SharedPreferences sharedPreferences,
+  required Box<Node> nodes,
+}) async {
+  final ethNowNodesUri = 'eth.nownodes.io';
+
+  if (nodes.values.any((node) => node.uriRaw == ethNowNodesUri)) return;
+
+  await nodes.add(Node(uri: ethNowNodesUri, type: WalletType.ethereum));
+}
+
+Future<void> updatePolygonNodesWithNowNodes({
+  required SharedPreferences sharedPreferences,
+  required Box<Node> nodes,
+}) async {
+  final polygonNowNodesUri = 'matic.nownodes.io';
+
+  if (nodes.values.any((node) => node.uriRaw == polygonNowNodesUri)) return;
+
+  await nodes.add(Node(uri: polygonNowNodesUri, type: WalletType.polygon));
 }
