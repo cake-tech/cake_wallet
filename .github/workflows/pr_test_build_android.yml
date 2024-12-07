@@ -115,15 +115,20 @@ jobs:
           cd /opt/android/cake_wallet/scripts/android/
           ./build_mwebd.sh --dont-install
 
-#      - name: Cache Keystore
-#        id: cache-keystore
-#        uses: actions/cache@v3
-#        with:
-#          path: /opt/android/cake_wallet/android/app/key.jks
-#          key: $STORE_PASS
-#
-#      - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
-      - name: Generate KeyStore
+
+      - name: Set up cache path
+        id: cache-path
+        run: echo "cache-file-path=/opt/android/cake_wallet/android/app/key.jks" >> $GITHUB_ENV
+
+      - name: Cache Keystore
+        id: cache-keystore
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.cache-file-path }}
+          key: keystore
+
+      - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
+        name: Generate KeyStore
         run: |
           cd /opt/android/cake_wallet/android/app
           keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
