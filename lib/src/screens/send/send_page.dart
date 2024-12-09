@@ -525,14 +525,14 @@ class SendPage extends BasePage {
                                       ? '. ${S.of(_dialogContext).waitFewSecondForTxUpdate}'
                                       : '';
 
-                                  final newContactMessage = newContactAddress != null
+                                  final newContactMessage = newContactAddress != null && sendViewModel.showAddressBookPopup
                                       ? '\n${S.of(_dialogContext).add_contact_to_address_book}'
                                       : '';
 
                                   String alertContent =
                                       "$successMessage$waitMessage$newContactMessage";
 
-                                  if (newContactAddress != null) {
+                                  if (newContactMessage.isNotEmpty) {
                                     return AlertWithTwoActions(
                                         alertDialogKey: ValueKey('send_page_sent_dialog_key'),
                                         alertTitle: '',

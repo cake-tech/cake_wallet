@@ -109,6 +109,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   final UnspentCoinType coinTypeToSpendFrom;
 
+  bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
+
   @action
   void addOutput() {
     outputs

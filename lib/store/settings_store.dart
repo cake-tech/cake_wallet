@@ -54,6 +54,7 @@ abstract class SettingsStoreBase with Store {
       required BackgroundTasks backgroundTasks,
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
+      required bool initialShowAddressBookPopupEnabled,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
@@ -157,6 +158,7 @@ abstract class SettingsStoreBase with Store {
         walletListAscending = initialWalletListAscending,
         contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
+        showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
         pinCodeLength = initialPinLength,
@@ -353,6 +355,11 @@ abstract class SettingsStoreBase with Store {
         (_) => shouldShowMarketPlaceInDashboard,
         (bool value) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
+
+    reaction(
+            (_) => showAddressBookPopupEnabled,
+            (bool value) =>
+            sharedPreferences.setBool(PreferencesKey.showAddressBookPopupEnabled, value));
 
     reaction((_) => pinCodeLength,
         (int pinLength) => sharedPreferences.setInt(PreferencesKey.currentPinLength, pinLength));
@@ -605,6 +612,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldShowMarketPlaceInDashboard;
+
+  @observable
+  bool showAddressBookPopupEnabled;
 
   @observable
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
@@ -917,6 +927,8 @@ abstract class SettingsStoreBase with Store {
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
+    final showAddressBookPopupEnabled =
+        sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -1185,6 +1197,7 @@ abstract class SettingsStoreBase with Store {
       secureStorage: secureStorage,
       sharedPreferences: sharedPreferences,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
+      initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
       nodes: nodes,
       powNodes: powNodes,
       appVersion: packageInfo.version,
@@ -1361,6 +1374,9 @@ abstract class SettingsStoreBase with Store {
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
+    showAddressBookPopupEnabled =
+        sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
+            showAddressBookPopupEnabled;
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);

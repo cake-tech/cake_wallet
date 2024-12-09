@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/setting_priority_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -61,6 +62,13 @@ class OtherSettingsPage extends BasePage {
                 title: S.current.settings_terms_and_conditions,
                 handler: (BuildContext context) =>
                     Navigator.of(context).pushNamed(Routes.readDisclaimer),
+              ),
+              SettingsSwitcherCell(
+                title: S.of(context).show_address_book_popup,
+                value: _otherSettingsViewModel.showAddressBookPopup,
+                onValueChange: (_, bool value) {
+                  _otherSettingsViewModel.setShowAddressBookPopup(value);
+                },
               ),
               Spacer(),
               SettingsVersionCell(
