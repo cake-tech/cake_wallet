@@ -8,6 +8,7 @@ import 'package:cw_bitcoin/electrum_worker/electrum_worker.dart';
 import 'package:cw_bitcoin/electrum_worker/electrum_worker_methods.dart';
 import 'package:cw_bitcoin/electrum_worker/electrum_worker_params.dart';
 import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
@@ -135,7 +136,7 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> handleWorkerResponse(dynamic message) async {
-    print('Main: received message: $message');
+    printV('Main: received message: $message');
 
     Map<String, dynamic> messageJson;
     if (message is String) {
@@ -370,8 +371,8 @@ abstract class ElectrumWalletBase
 
       await save();
     } catch (e, stacktrace) {
-      print("startSync $e");
-      print(stacktrace);
+      printV(stacktrace);
+      printV("startSync $e");
       syncStatus = FailedSyncStatus();
     }
   }
@@ -416,7 +417,7 @@ abstract class ElectrumWalletBase
       _workerIsolate = await Isolate.spawn<SendPort>(ElectrumWorker.run, receivePort!.sendPort);
 
       _workerSubscription = receivePort!.listen((message) {
-        print('Main: received message: $message');
+        printV('Main: received message: $message');
         if (message is SendPort) {
           workerSendPort = message;
           workerSendPort!.send(
@@ -432,8 +433,8 @@ abstract class ElectrumWalletBase
         }
       });
     } catch (e, stacktrace) {
-      print(stacktrace);
-      print("connectToNode $e");
+      printV(stacktrace);
+      printV("connectToNode $e");
       syncStatus = FailedSyncStatus();
     }
   }
@@ -1272,7 +1273,7 @@ abstract class ElectrumWalletBase
         await unspentCoinsInfo.deleteAll(keys);
       }
     } catch (e) {
-      print("refreshUnspentCoinsInfo $e");
+      printV("refreshUnspentCoinsInfo $e");
     }
   }
 
@@ -1371,7 +1372,7 @@ abstract class ElectrumWalletBase
                   (element) =>
                       element.addressType == addressRecord.addressType &&
                       element.derivationType == addressRecord.derivationType);
-          print(
+          printV(
               "discovered ${newAddresses.length} new addresses, new total: ${newAddressList.length}");
 
           if (newAddresses.isNotEmpty) {

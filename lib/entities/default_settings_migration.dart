@@ -7,6 +7,7 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -296,7 +297,7 @@ Future<void> defaultSettingsMigration(
       await sharedPreferences.setInt(
           PreferencesKey.currentDefaultSettingsMigrationVersion, version);
     } catch (e) {
-      print('Migration error: ${e.toString()}');
+      printV('Migration error: ${e.toString()}');
     }
   });
 
@@ -714,7 +715,7 @@ Future<void> insecureStorageMigration({
     await secureStorage.write(
         key: SecureKey.lastAuthTimeMilliseconds, value: lastAuthTimeMilliseconds.toString());
   } catch (e) {
-    print("Error migrating shared preferences to secure storage!: $e");
+    printV("Error migrating shared preferences to secure storage!: $e");
     // this actually shouldn't be that big of a problem since we don't delete the old keys in this update
     // and we read and write to the new locations when loading storage, the migration is just for extra safety
   }
@@ -870,7 +871,7 @@ Future<void> addAddressesForMoneroWallets(Box<WalletInfo> walletInfoSource) asyn
       info.address = addressText;
       await info.save();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 }

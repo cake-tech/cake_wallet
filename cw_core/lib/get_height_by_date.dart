@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -152,7 +153,7 @@ int getMoneroHeigthByDate({required DateTime date}) {
       height = startHeight + daysHeight - heightPerDay;
     }
   } catch (e) {
-    print(e.toString());
+    printV(e.toString());
   }
 
   return height;

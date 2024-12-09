@@ -11,6 +11,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
@@ -47,7 +48,7 @@ abstract class AnonpayDetailsViewModelBase with Store {
       invoiceDetail.status = data.status;
       _updateItems();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 

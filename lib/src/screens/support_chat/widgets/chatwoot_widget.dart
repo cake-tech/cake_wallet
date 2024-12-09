@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -38,7 +39,7 @@ class ChatwootWidgetState extends State<ChatwootWidget> {
                   final eventType = parsedMessage["event"];
                   if (eventType == 'loaded') {
                     final authToken = parsedMessage["config"]["authToken"];
-                    print(authToken);
+                    printV(authToken);
                     storeCookie(authToken as String);
                   }
                 }

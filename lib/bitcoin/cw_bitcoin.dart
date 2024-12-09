@@ -387,14 +387,14 @@ class CWBitcoin extends Bitcoin {
     try {
       electrumSeedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
     } catch (e) {
-      print("electrum_v2 seed error: $e");
+      printV("electrum_v2 seed error: $e");
 
       if (passphrase == null || passphrase.isEmpty) {
         try {
           // TODO: language pick
           electrumSeedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
         } catch (e) {
-          print("electrum_v1 seed error: $e");
+          printV("electrum_v1 seed error: $e");
         }
       }
     }
@@ -415,7 +415,7 @@ class CWBitcoin extends Bitcoin {
     try {
       bip39SeedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
     } catch (e) {
-      print("bip39 seed error: $e");
+      printV("bip39 seed error: $e");
     }
 
     if (bip39SeedBytes != null) {
@@ -522,7 +522,7 @@ class CWBitcoin extends Bitcoin {
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } catch (err) {
-      print(err);
+      printV(err);
       throw err;
     }
   }
@@ -534,7 +534,7 @@ class CWBitcoin extends Bitcoin {
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } catch (err) {
-      print(err);
+      printV(err);
       throw err;
     }
   }

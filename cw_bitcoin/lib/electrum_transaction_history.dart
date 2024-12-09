@@ -4,6 +4,7 @@ import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
 
@@ -48,7 +49,7 @@ abstract class ElectrumTransactionHistoryBase
       final data = json.encode({'height': _height, 'transactions': txjson});
       await encryptionFileUtils.write(path: path, password: _password, data: data);
     } catch (e) {
-      print('Error while save bitcoin transaction history: ${e.toString()}');
+      printV('Error while save bitcoin transaction history: ${e.toString()}');
     }
   }
 
@@ -85,7 +86,7 @@ abstract class ElectrumTransactionHistoryBase
 
       _height = content['height'] as int;
     } catch (e) {
-      print(e);
+      printV(e);
     }
   }
 
