@@ -9,6 +9,7 @@ import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart'
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
@@ -944,7 +945,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
       return isContractAddress;
     } catch (e) {
-      print(e);
+      printV(e);
       return false;
     }
   }

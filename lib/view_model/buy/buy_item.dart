@@ -2,6 +2,7 @@ import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 class BuyItem {
   BuyItem({required this.provider, required this.buyAmountViewModel});
@@ -21,7 +22,7 @@ class BuyItem {
           .calculateAmount(amount?.toString() ?? '', fiatCurrency.title);
     } catch (e) {
       _buyAmount = BuyAmount(sourceAmount: 0.0, destAmount: 0.0);
-      print(e.toString());
+      printV(e.toString());
     }
 
     return _buyAmount;

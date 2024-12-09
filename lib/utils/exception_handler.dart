@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +68,7 @@ class ExceptionHandler {
       final bool canSend = await FlutterMailer.canSendMail();
 
       if (Platform.isIOS && !canSend) {
-        debugPrint('Mail app is not available');
+        printV('Mail app is not available');
         return;
       }
 
@@ -99,7 +100,7 @@ class ExceptionHandler {
   static Future<void> onError(FlutterErrorDetails errorDetails) async {
     if (kDebugMode || kProfileMode) {
       FlutterError.presentError(errorDetails);
-      debugPrint(errorDetails.toString());
+      printV(errorDetails.toString());
       return;
     }
 

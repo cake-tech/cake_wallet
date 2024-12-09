@@ -1,4 +1,5 @@
 import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/coins_info.dart';
 import 'package:monero/monero.dart' as monero;
 
@@ -10,7 +11,7 @@ class MoneroUnspent extends Unspent {
 
   @override
   set isFrozen(bool freeze) {
-    print("set isFrozen: $freeze ($keyImage): $freeze");
+    printV("set isFrozen: $freeze ($keyImage): $freeze");
     final coinId = getCoinByKeyImage(keyImage!);
     if (coinId == null) throw Exception("Unable to find a coin for address $address");
     if (freeze) {
@@ -22,7 +23,7 @@ class MoneroUnspent extends Unspent {
 
   @override
   bool get isFrozen {
-    print("get isFrozen");
+    printV("get isFrozen");
     final coinId = getCoinByKeyImage(keyImage!);
     if (coinId == null) throw Exception("Unable to find a coin for address $address");
     final coin = getCoin(coinId);

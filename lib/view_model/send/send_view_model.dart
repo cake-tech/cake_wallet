@@ -27,6 +27,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -672,7 +673,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               lamportsNeeded != null ? ((lamportsNeeded + 5000) / lamportsPerSol) : 0.0;
           return S.current.insufficient_lamports(solValueNeeded.toString());
         } else {
-          print("No match found.");
+          printV("No match found.");
           return S.current.insufficient_lamport_for_tx;
         }
       }
