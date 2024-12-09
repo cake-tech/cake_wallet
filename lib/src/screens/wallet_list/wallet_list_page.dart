@@ -422,8 +422,9 @@ class WalletListBodyState extends State<WalletListBody> {
         if (!isAuthenticatedSuccessfully) return;
 
         try {
-          if (widget.walletListViewModel
-              .requireHardwareWalletConnection(wallet)) {
+          final requireHardwareWalletConnection = widget.walletListViewModel
+              .requireHardwareWalletConnection(wallet);
+          if (requireHardwareWalletConnection) {
             await Navigator.of(context).pushNamed(
               Routes.connectDevices,
               arguments: ConnectDevicePageParams(
@@ -445,8 +446,6 @@ class WalletListBodyState extends State<WalletListBody> {
             );
           }
 
-
-
           changeProcessText(
               S.of(context).wallet_list_loading_wallet(wallet.name));
           await widget.walletListViewModel.loadWallet(wallet);
@@ -456,6 +455,9 @@ class WalletListBodyState extends State<WalletListBody> {
           if (responsiveLayoutUtil.shouldRenderMobileUI) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (this.mounted) {
+                if (requireHardwareWalletConnection) {
+                  Navigator.of(context).pop();
+                }
                 widget.onWalletLoaded.call(context);
               }
             });
