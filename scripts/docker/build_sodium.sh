@@ -3,7 +3,7 @@ set -x -e
 
 . ./config.sh
 SODIUM_SRC_DIR=${WORKDIR}/libsodium
-SODIUM_BRANCH=1.0.16
+SODIUM_BRANCH=1.0.18
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
