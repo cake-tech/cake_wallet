@@ -302,7 +302,7 @@ Future<void> loadWallet(
       );
       final status = monero.WalletManager_errorString(wmPtr);
       if (status != "") {
-        print("loadWallet:"+status);
+        printV("loadWallet:"+status);
         throw WalletOpeningException(message: status);
       }
     } else {
