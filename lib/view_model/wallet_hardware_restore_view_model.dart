@@ -1,13 +1,16 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -56,8 +59,8 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
       List<HardwareAccountData> accounts;
       switch (type) {
         case WalletType.bitcoin:
-        accounts = await bitcoin!
-            .getHardwareWalletBitcoinAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+          accounts = await bitcoin!
+              .getHardwareWalletBitcoinAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
         break;
       case WalletType.litecoin:
         accounts = await bitcoin!
@@ -80,7 +83,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     // } on LedgerException catch (e) {
     //   error = ledgerViewModel.interpretErrorCode(e.errorCode.toRadixString(16));
     } catch (e) {
-      print(e);
+      printV(e);
       error = S.current.ledger_connection_error;
     }
 
@@ -104,6 +107,15 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
       case WalletType.polygon:
         credentials = polygon!.createPolygonHardwareWalletCredentials(name: name, hwAccountData: selectedAccount!);
         break;
+      case WalletType.monero:
+        final password = walletPassword ?? generateWalletPassword();
+
+        credentials = monero!.createMoneroRestoreWalletFromHardwareCredentials(
+          name: name,
+          ledgerConnection: ledgerViewModel.connection,
+          password: password,
+          height: _options['height'] as int? ?? 0,
+        );
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }

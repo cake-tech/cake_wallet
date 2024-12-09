@@ -1,6 +1,7 @@
 import 'package:cw_core/account.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/subaddress.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_wownero/api/transaction_history.dart';
@@ -94,7 +95,7 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
 
       await saveAddressesInBox();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 

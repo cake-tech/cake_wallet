@@ -7,6 +7,7 @@ import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -110,11 +111,11 @@ class BackupService {
       for (var ignore in ignoreFiles) {
         final filename = entity.absolute.path;
         if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
-          print("ignoring backup file: $filename");
+          printV("ignoring backup file: $filename");
           return;
         }
       }
-      print("restoring: $filename");
+      printV("restoring: $filename");
       if (entity.statSync().type == FileSystemEntityType.directory) {
         zipEncoder.addDirectory(Directory(entity.path));
       } else {
@@ -175,11 +176,11 @@ class BackupService {
       final filename = file.name;
       for (var ignore in ignoreFiles) { 
         if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
-          print("ignoring backup file: $filename");
+          printV("ignoring backup file: $filename");
           continue outer;
         }
       }
-      print("restoring: $filename");
+      printV("restoring: $filename");
       if (file.isFile) {
         final content = file.content as List<int>;
         File('${appDir.path}/' + filename)
@@ -193,7 +194,7 @@ class BackupService {
     await _verifyWallets();
     await _importKeychainDumpV2(password);
     await _importPreferencesDump();
-    await _importTransactionDescriptionDump();
+    await _importTransactionDescriptionDump(); // HiveError: Box has already been closed
   }
 
   Future<void> _verifyWallets() async {
@@ -230,17 +231,15 @@ class BackupService {
         json.decode(transactionDescriptionFile.readAsStringSync()) as Map<String, dynamic>;
     final descriptionsMap = jsonData.map((key, value) =>
         MapEntry(key, TransactionDescription.fromJson(value as Map<String, dynamic>)));
-
-    if (!_transactionDescriptionBox.isOpen) {
-      final transactionDescriptionsBoxKey = await getEncryptionKey(secureStorage: secureStorageShared, forKey: TransactionDescription.boxKey);
-      final transactionDescriptionBox = await CakeHive.openBox<TransactionDescription>(
+    var box = _transactionDescriptionBox;
+    if (!box.isOpen) {
+      final transactionDescriptionsBoxKey = 
+        await getEncryptionKey(secureStorage: _secureStorage, forKey: TransactionDescription.boxKey);
+      box = await CakeHive.openBox<TransactionDescription>(
         TransactionDescription.boxName,
-        encryptionKey: transactionDescriptionsBoxKey,
-      );
-      await transactionDescriptionBox.putAll(descriptionsMap);
-      return;
-    }
-    await _transactionDescriptionBox.putAll(descriptionsMap);
+        encryptionKey: transactionDescriptionsBoxKey);
+      }
+    await box.putAll(descriptionsMap);
   }
 
   Future<void> _importPreferencesDump() async {

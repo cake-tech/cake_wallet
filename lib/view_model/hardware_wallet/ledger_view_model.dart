@@ -4,10 +4,12 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -94,10 +96,12 @@ abstract class LedgerViewModelBase with Store {
 
     if (_connectionChangeListener == null) {
       _connectionChangeListener = ledger.deviceStateChanges.listen((event) {
-        print('Ledger Device State Changed: $event');
+        printV('Ledger Device State Changed: $event');
         if (event == sdk.BleConnectionState.disconnected) {
           _connection = null;
-          _connectionChangeListener?.cancel();
+          if (type == WalletType.monero) {
+            monero!.resetLedgerConnection();
+          }
         }
       });
     }
@@ -114,6 +118,8 @@ abstract class LedgerViewModelBase with Store {
 
   void setLedger(WalletBase wallet) {
     switch (wallet.type) {
+      case WalletType.monero:
+        return monero!.setLedgerConnection(wallet, connection);
       case WalletType.bitcoin:
       case WalletType.litecoin:
         return bitcoin!.setLedgerConnection(wallet, connection);

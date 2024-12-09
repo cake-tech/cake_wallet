@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
@@ -17,7 +18,6 @@ import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ContactListPage extends BasePage {
@@ -91,16 +91,19 @@ class ContactPageBody extends StatefulWidget {
 
 class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late ContactListViewModel contactListViewModel;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    contactListViewModel = widget.contactListViewModel;
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    contactListViewModel.dispose();
     super.dispose();
   }
 
@@ -160,25 +163,60 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
   Widget _buildWalletContacts(BuildContext context) {
     final walletContacts = widget.contactListViewModel.walletContactsToShow;
 
+    final groupedContacts = <String, List<ContactBase>>{};
+    for (var contact in walletContacts) {
+      final baseName = _extractBaseName(contact.name);
+      groupedContacts.putIfAbsent(baseName, () => []).add(contact);
+    }
+
     return ListView.builder(
-      shrinkWrap: true,
-      itemCount: walletContacts.length * 2,
+      itemCount: groupedContacts.length * 2,
       itemBuilder: (context, index) {
         if (index.isOdd) {
           return StandardListSeparator();
         } else {
-          final walletInfo = walletContacts[index ~/ 2];
-          return generateRaw(context, walletInfo);
+          final groupIndex = index ~/ 2;
+          final groupName = groupedContacts.keys.elementAt(groupIndex);
+          final groupContacts = groupedContacts[groupName]!;
+
+          if (groupContacts.length == 1) {
+            final contact = groupContacts[0];
+            return generateRaw(context, contact);
+          } else {
+            final activeContact = groupContacts.firstWhere(
+              (contact) => contact.name.contains('Active'),
+              orElse: () => groupContacts[0],
+            );
+
+            return ExpansionTile(
+              title: Text(
+                groupName,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                ),
+              ),
+              leading: _buildCurrencyIcon(activeContact),
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: const EdgeInsets.only(left: 16),
+              expandedCrossAxisAlignment: CrossAxisAlignment.start,
+              expandedAlignment: Alignment.topLeft,
+              children: groupContacts.map((contact) => generateRaw(context, contact)).toList(),
+            );
+          }
         }
       },
     );
   }
 
+  String _extractBaseName(String name) {
+    final bracketIndex = name.indexOf('(');
+    return (bracketIndex != -1) ? name.substring(0, bracketIndex).trim() : name;
+  }
+
   Widget generateRaw(BuildContext context, ContactBase contact) {
-    final image = contact.type.iconPath;
-    final currencyIcon = image != null
-        ? Image.asset(image, height: 24, width: 24)
-        : const SizedBox(height: 24, width: 24);
+    final currencyIcon = _buildCurrencyIcon(contact);
 
     return GestureDetector(
       onTap: () async {
@@ -202,14 +240,16 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             currencyIcon,
-            Padding(
-              padding: EdgeInsets.only(left: 12),
-              child: Text(
-                contact.name,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(left: 12),
+                child: Text(
+                  contact.name,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  ),
                 ),
               ),
             ),
@@ -217,6 +257,13 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
         ),
       ),
     );
+  }
+
+  Widget _buildCurrencyIcon(ContactBase contact) {
+    final image = contact.type.iconPath;
+    return image != null
+        ? Image.asset(image, height: 24, width: 24)
+        : const SizedBox(height: 24, width: 24);
   }
 
   Future<bool> showNameAndAddressDialog(BuildContext context, String name, String address) async {
@@ -263,12 +310,17 @@ class _ContactListBodyState extends State<ContactListBody> {
   @override
   void dispose() {
     widget.tabController.removeListener(_handleTabChange);
+    if (widget.contactListViewModel.settingsStore.contactListOrder == FilterListOrderType.Custom) {
+      widget.contactListViewModel.saveCustomOrder();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final contacts = widget.contactListViewModel.contacts;
+    final contacts = widget.contactListViewModel.isEditable
+        ? widget.contactListViewModel.contacts
+        : widget.contactListViewModel.contactsToShow;
     return Scaffold(
       body: Container(
         child: FilteredList(
@@ -307,8 +359,9 @@ class _ContactListBodyState extends State<ContactListBody> {
           },
         ),
       ),
-      floatingActionButton:
-          _isContactsTabActive ? filterButtonWidget(context, widget.contactListViewModel) : null,
+      floatingActionButton: _isContactsTabActive && widget.contactListViewModel.isEditable
+          ? filterButtonWidget(context, widget.contactListViewModel)
+          : null,
     );
   }
 

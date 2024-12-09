@@ -56,8 +56,9 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     }
 
     if (isMoneroOnly) {
-      return DeviceConnectionType.supportedConnectionTypes(WalletType.monero, Platform.isIOS)
-          .isNotEmpty;
+      // return DeviceConnectionType.supportedConnectionTypes(WalletType.monero, Platform.isIOS)
+      //     .isNotEmpty;
+      return false;
     }
 
     return true;
@@ -84,9 +85,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                   key: ValueKey('restore_options_from_seeds_or_keys_button_key'),
                   onPressed: () => Navigator.pushNamed(
                     context,
-                    Routes.restoreWalletFromSeedKeys,
-                    arguments: widget.isNewInstall,
-                  ),
+                    Routes.restoreWalletFromSeedKeys),
                   image: imageSeedKeys,
                   title: S.of(context).restore_title_from_seed_keys,
                   description: S.of(context).restore_description_from_seed_keys,
@@ -108,8 +107,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     child: OptionTile(
                       key: ValueKey('restore_options_from_hardware_wallet_button_key'),
                       onPressed: () => Navigator.pushNamed(
-                          context, Routes.restoreWalletFromHardwareWallet,
-                          arguments: widget.isNewInstall),
+                          context, Routes.restoreWalletFromHardwareWallet),
                       image: imageLedger,
                       title: S.of(context).restore_title_from_hardware_wallet,
                       description: S.of(context).restore_description_from_hardware_wallet,
@@ -157,15 +155,6 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
         await PermissionHandler.checkPermission(Permission.camera, context);
 
     if (!isCameraPermissionGranted) return;
-    bool isPinSet = false;
-    if (widget.isNewInstall) {
-      await Navigator.pushNamed(context, Routes.setupPin,
-          arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
-        setupPinContext.close();
-        isPinSet = true;
-      });
-    }
-    if (!widget.isNewInstall || isPinSet) {
       try {
         if (isRestoring) {
           return;
@@ -187,5 +176,4 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
         _onWalletCreateFailure(context, e.toString());
       }
     }
-  }
 }

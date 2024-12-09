@@ -285,38 +285,40 @@ class _DashboardPageView extends BasePage {
                             .syncedBackgroundColor,
                       ),
                       child: Container(
-                        padding: EdgeInsets.only(left: 24, right: 32),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: MainActions.all
                               .where((element) => element.canShow?.call(dashboardViewModel) ?? true)
                               .map(
-                                (action) => Semantics(
-                                  button: true,
-                                  enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
-                                  child: ActionButton(
-                                    key: ValueKey(
-                                        'dashboard_page_${action.name(context)}_action_button_key'),
-                                    image: Image.asset(
-                                      action.image,
-                                      height: 24,
-                                      width: 24,
-                                      color: action.isEnabled?.call(dashboardViewModel) ?? true
-                                          ? Theme.of(context)
-                                              .extension<DashboardPageTheme>()!
-                                              .mainActionsIconColor
+                                (action) => Expanded(
+                                  child: Semantics(
+                                    button: true,
+                                    enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
+                                    child: ActionButton(
+                                      key: ValueKey(
+                                          'dashboard_page_${action.name(context)}_action_button_key'),
+                                      image: Image.asset(
+                                        action.image,
+                                        height: 24,
+                                        width: 24,
+                                        color: action.isEnabled?.call(dashboardViewModel) ?? true
+                                            ? Theme.of(context)
+                                                .extension<DashboardPageTheme>()!
+                                                .mainActionsIconColor
+                                            : Theme.of(context)
+                                                .extension<BalancePageTheme>()!
+                                                .labelTextColor,
+                                      ),
+                                      title: action.name(context),
+                                      onClick: () async =>
+                                          await action.onTap(context, dashboardViewModel),
+                                      textColor: action.isEnabled?.call(dashboardViewModel) ?? true
+                                          ? null
                                           : Theme.of(context)
                                               .extension<BalancePageTheme>()!
                                               .labelTextColor,
                                     ),
-                                    title: action.name(context),
-                                    onClick: () async =>
-                                        await action.onTap(context, dashboardViewModel),
-                                    textColor: action.isEnabled?.call(dashboardViewModel) ?? true
-                                        ? null
-                                        : Theme.of(context)
-                                            .extension<BalancePageTheme>()!
-                                            .labelTextColor,
                                   ),
                                 ),
                               )
