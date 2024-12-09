@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
@@ -21,7 +20,8 @@ class ExceptionHandler {
   static const _coolDownDurationInDays = 7;
   static File? _file;
 
-  static Future<void> _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
+  static Future<void> _saveException(String? error, StackTrace? stackTrace,
+      {String? library}) async {
     final appDocDir = await getAppDir();
 
     if (_file == null) {
@@ -103,7 +103,8 @@ class ExceptionHandler {
       return;
     }
 
-    if (_ignoreError(errorDetails.exception.toString())) {
+    if (_ignoreError(errorDetails.exception.toString()) ||
+        _ignoreError(errorDetails.stack.toString())) {
       return;
     }
 
@@ -199,6 +200,13 @@ class ExceptionHandler {
     "input stream error",
     "invalid signature",
     "invalid password",
+    // Temporary ignored, More context: Flutter secure storage reads the values as null some times
+    // probably when the device was locked and then opened on Cake
+    // this is solved by a restart of the app
+    // just ignoring until we find a solution to this issue or migrate from flutter secure storage
+    "core/auth_service.dart:63",
+    "core/key_service.dart:14",
+    "core/wallet_loading_service.dart:132",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
