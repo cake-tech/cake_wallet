@@ -287,6 +287,18 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         hdWallets[CWBitcoinDerivationType.old_electrum] =
             hdWallets[CWBitcoinDerivationType.electrum]!;
       }
+
+      switch (walletInfo.derivationInfo?.derivationType) {
+        case DerivationType.bip39:
+          seedBytes = await Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+          break;
+        case DerivationType.electrum:
+        default:
+          seedBytes = await ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+          hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+          break;
+      }
     }
 
     return BitcoinWallet(

@@ -1229,19 +1229,6 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> addCoinInfo(BitcoinUnspent coin) async {
-    final newInfo = UnspentCoinsInfo(
-      walletId: id,
-      hash: coin.hash,
-      isFrozen: coin.isFrozen,
-      isSending: coin.isSending,
-      noteRaw: coin.note,
-      address: coin.bitcoinAddressRecord.address,
-      value: coin.value,
-      vout: coin.vout,
-      isChange: coin.isChange,
-      isSilentPayment: coin.bitcoinAddressRecord is BitcoinReceivedSPAddressRecord,
-    );
-
     // Check if the coin is already in the unspentCoinsInfo for the wallet
     final existingCoinInfo = unspentCoinsInfo.values
         .firstWhereOrNull((element) => element.walletId == walletInfo.id && element == coin);
@@ -1257,7 +1244,7 @@ abstract class ElectrumWalletBase
         value: coin.value,
         vout: coin.vout,
         isChange: coin.isChange,
-        isSilentPayment: coin is BitcoinSilentPaymentsUnspent,
+        isSilentPayment: coin.address is BitcoinReceivedSPAddressRecord,
       );
 
       await unspentCoinsInfo.add(newInfo);
@@ -1423,12 +1410,15 @@ abstract class ElectrumWalletBase
     final bundle = await getTransactionExpanded(hash: txId);
     final outputs = bundle.originalTransaction.outputs;
 
-    final changeAddresses = walletAddresses.allAddresses.where((element) => element.isChange);
+    final ownAddresses = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
 
-    // look for a change address in the outputs
-    final changeOutput = outputs.firstWhereOrNull((output) => changeAddresses.any((element) =>
-        element.address ==
-        BitcoinAddressUtils.addressFromOutputScript(output.scriptPubKey, network)));
+    final receiverAmount = outputs
+        .where(
+          (output) => !ownAddresses.contains(
+            BitcoinAddressUtils.addressFromOutputScript(output.scriptPubKey, network),
+          ),
+        )
+        .fold<int>(0, (sum, output) => sum + output.amount.toInt());
 
     if (receiverAmount == 0) {
       throw Exception("Receiver output not found.");
@@ -1474,7 +1464,7 @@ abstract class ElectrumWalletBase
         final outTransaction = inputTransaction.outputs[vout];
         final address =
             BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network);
-        // allInputsAmount += outTransaction.amount.toInt();
+        allInputsAmount += outTransaction.amount.toInt();
 
         final addressRecord =
             walletAddresses.allAddresses.firstWhere((element) => element.address == address);
@@ -1566,24 +1556,20 @@ abstract class ElectrumWalletBase
 
         for (final utxo in unusedUtxos) {
           final address = RegexUtils.addressTypeFromStr(utxo.address, network);
-          final privkey = generateECPrivate(
-            hd: utxo.bitcoinAddressRecord.isHidden
-                ? walletAddresses.sideHd
-                : walletAddresses.mainHd,
-            index: utxo.bitcoinAddressRecord.index,
-            network: network,
-          );
+          final privkey = ECPrivate.fromBip32(bip32: bip32);
           privateKeys.add(privkey);
 
-          utxos.add(UtxoWithAddress(
-            utxo: BitcoinUtxo(
-                txHash: utxo.hash,
-                value: BigInt.from(utxo.value),
-                vout: utxo.vout,
-                scriptType: _getScriptType(address)),
-            ownerDetails:
-                UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: address),
-          ));
+          utxos.add(
+            UtxoWithAddress(
+              utxo: BitcoinUtxo(
+                  txHash: utxo.hash,
+                  value: BigInt.from(utxo.value),
+                  vout: utxo.vout,
+                  scriptType: BitcoinAddressUtils.getScriptType(address)),
+              ownerDetails:
+                  UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: address),
+            ),
+          );
 
           allInputsAmount += utxo.value;
           remainingFee -= utxo.value;
@@ -1636,7 +1622,7 @@ abstract class ElectrumWalletBase
       }
 
       // Identify all change outputs
-      final changeAddresses = walletAddresses.allAddresses.where((element) => element.isChange);
+      final changeAddresses = walletAddresses.changeAddresses;
       final List<BitcoinOutput> changeOutputs = outputs
           .where((output) => changeAddresses
               .any((element) => element.address == output.address.toAddress(network)))
