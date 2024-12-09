@@ -49,7 +49,9 @@ final monero.WalletManager wmPtr = Pointer.fromAddress((() {
     // codebase, so it will be easier to debug what happens. At least easier
     // than plugging gdb in. Especially on windows/android.
     monero.printStarts = false;
+    monero.WalletManagerFactory_setLogLevel(1);
     _wmPtr ??= monero.WalletManagerFactory_getWalletManager();
+    monero.WalletManagerFactory_setLogLevel(1);
     print("ptr: $_wmPtr");
   } catch (e) {
     print(e);
