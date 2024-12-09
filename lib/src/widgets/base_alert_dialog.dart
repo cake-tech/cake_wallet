@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class BaseAlertDialog extends StatelessWidget {
   String? get headerText => '';
 
-  String get titleText => '';
+  String? get titleText => '';
 
   String get contentText => '';
 
@@ -43,7 +43,7 @@ class BaseAlertDialog extends StatelessWidget {
 
   Widget title(BuildContext context) {
     return Text(
-      titleText,
+      titleText!,
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 20,
@@ -73,15 +73,22 @@ class BaseAlertDialog extends StatelessWidget {
   }
 
   Widget content(BuildContext context) {
-    return Text(
-      contentText,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.normal,
-        fontFamily: 'Lato',
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-        decoration: TextDecoration.none,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            contentText,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+              fontFamily: 'Lato',
+              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              decoration: TextDecoration.none,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -191,10 +198,11 @@ class BaseAlertDialog extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               if (headerText?.isNotEmpty ?? false) headerTitle(context),
+                              titleText != null ?
                               Padding(
                                 padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
                                 child: title(context),
-                              ),
+                              ) : SizedBox(height: 16),
                               isDividerExists
                                   ? Padding(
                                       padding: EdgeInsets.only(top: 16, bottom: 8),

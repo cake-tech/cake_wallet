@@ -249,9 +249,12 @@ class OnRamperBuyProvider extends BuyProvider {
   String _tagToNetwork(String tag) {
     switch (tag) {
       case 'OMNI':
+      case 'BSC':
         return tag;
       case 'POL':
         return 'POLYGON';
+      case 'ZEC':
+        return 'ZCASH';
     default:
         try {
           return CryptoCurrency.fromString(tag).fullName!;

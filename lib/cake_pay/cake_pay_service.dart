@@ -25,7 +25,7 @@ class CakePayService {
 
   /// Get Available Countries
   Future<List<Country>> getCountries() async =>
-      await cakePayApi.getCountries(CSRFToken: CSRFToken, authorization: authorization);
+      await cakePayApi.getCountries(apiKey: cakePayApiKey);
 
   /// Get Vendors
   Future<List<CakePayVendor>> getVendors({
@@ -40,8 +40,7 @@ class CakePayService {
     bool? custom,
   }) async {
     final result = await cakePayApi.getVendors(
-        CSRFToken: CSRFToken,
-        authorization: authorization,
+        apiKey: cakePayApiKey,
         page: page,
         country: country,
         countryCode: countryCode,

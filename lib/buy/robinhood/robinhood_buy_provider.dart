@@ -146,7 +146,7 @@ class RobinhoodBuyProvider extends BuyProvider {
 
     if (paymentType != null && paymentType != PaymentType.all) {
       paymentMethod = normalizePaymentMethod(paymentType);
-      if (paymentMethod == null) paymentMethod = paymentType.name;
+      if (paymentMethod == null) return null;
     }
 
     final action = isBuyAction ? 'buy' : 'sell';
@@ -186,6 +186,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       return null;
     }
 
+    // Supported payment methods:
     // ● buying_power
     // ● crypto_balance
     // ● debit_card

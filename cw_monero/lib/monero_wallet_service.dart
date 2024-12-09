@@ -169,7 +169,7 @@ class MoneroWalletService extends WalletService<
       }
 
       await restoreOrResetWalletFiles(name);
-      return openWallet(name, password, retryOnFailure: false);
+      return await openWallet(name, password, retryOnFailure: false);
     }
   }
 

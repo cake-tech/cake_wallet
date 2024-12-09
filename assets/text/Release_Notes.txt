@@ -1,5 +1,2 @@
-Add Litecoin Ledger support
-Add airgapped Monero wallet support (best used with our new offline app Cupcake)
-MWEB fixes and enhancements
-New Buy & Sell flow
-Bug fixes
+UI/UX enhancements
+Bug fixes and app improvements
