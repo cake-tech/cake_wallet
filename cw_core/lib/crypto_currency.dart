@@ -107,6 +107,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.tbtc,
     CryptoCurrency.wow,
     CryptoCurrency.ton,
+    CryptoCurrency.flip
   ];
 
   static const havenCurrencies = [
@@ -226,6 +227,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const wow = CryptoCurrency(title: 'WOW', fullName: 'Wownero', raw: 94, name: 'wow', iconPath: 'assets/images/wownero_icon.png', decimals: 11);
   static const ton = CryptoCurrency(title: 'TON', fullName: 'Toncoin', raw: 95, name: 'ton', iconPath: 'assets/images/ton_icon.png', decimals: 8);
 
+  static const flip = CryptoCurrency(title: 'FLIP', tag: 'ETH', fullName: 'Chainflip', raw: 96, name: 'flip', iconPath: 'assets/images/flip_icon.png', decimals: 18);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
