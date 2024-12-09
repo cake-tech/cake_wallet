@@ -6,6 +6,7 @@ import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/format_amount.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hex/hex.dart';
 
@@ -173,10 +174,10 @@ class ElectrumTransactionInfo extends TransactionInfo {
         }
       }
     } catch (e) {
-      print(bundle.originalTransaction.txId());
-      print("original: ${bundle.originalTransaction}");
-      print("bundle.inputs: ${bundle.originalTransaction.inputs}");
-      print("ins: ${bundle.ins}");
+      printV(bundle.originalTransaction.txId());
+      printV("original: ${bundle.originalTransaction}");
+      printV("bundle.inputs: ${bundle.originalTransaction.inputs}");
+      printV("ins: ${bundle.ins}");
       rethrow;
     }
 

@@ -15,6 +15,7 @@ import 'package:cw_bitcoin/electrum_worker/electrum_worker_params.dart';
 import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
@@ -49,7 +50,7 @@ class ElectrumWorker {
   }
 
   void handleMessage(dynamic message) async {
-    print("Worker: received message: $message");
+    printV("Worker: received message: $message");
 
     try {
       Map<String, dynamic> messageJson;
@@ -107,7 +108,7 @@ class ElectrumWorker {
           );
           break;
         case ElectrumWorkerMethods.stopScanningMethod:
-          print("Worker: received message: $message");
+          printV("Worker: received message: $message");
           await _handleStopScanning(
             ElectrumWorkerStopScanningRequest.fromJson(messageJson),
           );
@@ -205,7 +206,7 @@ class ElectrumWorker {
           return;
         }
 
-        print("status: $status");
+        printV("status: $status");
 
         _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
           result: {address: req.onResponse(status)},
@@ -756,13 +757,13 @@ class ElectrumWorker {
 
             return;
           } catch (e, stacktrace) {
-            print(stacktrace);
-            print(e.toString());
+            printV(stacktrace);
+            printV(e.toString());
           }
         }
       } catch (e, stacktrace) {
-        print(stacktrace);
-        print(e.toString());
+        printV(stacktrace);
+        printV(e.toString());
       }
 
       syncHeight = tweakHeight;

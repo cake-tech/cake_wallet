@@ -21,6 +21,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 // import 'package:cw_core/wallet_type.dart';
@@ -134,14 +135,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
             hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
           } catch (e) {
-            print("electrum_v2 seed error: $e");
+            printV("electrum_v2 seed error: $e");
 
             try {
               seedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
               hdWallets[CWBitcoinDerivationType.electrum] =
                   Bip32Slip10Secp256k1.fromSeed(seedBytes);
             } catch (e) {
-              print("electrum_v1 seed error: $e");
+              printV("electrum_v1 seed error: $e");
             }
           }
 
@@ -265,14 +266,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
             hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
           } catch (e) {
-            print("electrum_v2 seed error: $e");
+            printV("electrum_v2 seed error: $e");
 
             try {
               seedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
               hdWallets[CWBitcoinDerivationType.electrum] =
                   Bip32Slip10Secp256k1.fromSeed(seedBytes);
             } catch (e) {
-              print("electrum_v1 seed error: $e");
+              printV("electrum_v1 seed error: $e");
             }
           }
 
@@ -629,7 +630,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     //       .toList(),
     // );
 
-    // print("registered: $registered");
+    // printV("registered: $registered");
   }
 
   @action
@@ -657,7 +658,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     switch (workerMethod) {
       case ElectrumRequestMethods.tweaksSubscribeMethod:
         if (workerError != null) {
-          print(messageJson);
+          printV(messageJson);
           // _onConnectionStatusChange(ConnectionStatus.failed);
           break;
         }
@@ -827,7 +828,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     //   return historiesWithDetails;
     // } catch (e) {
-    //   print("fetchTransactions $e");
+    //   printV("fetchTransactions $e");
     //   return {};
     // }
   }
