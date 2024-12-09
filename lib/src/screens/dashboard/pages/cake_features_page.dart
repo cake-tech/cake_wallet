@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -40,7 +42,13 @@ class CakeFeaturesPage extends StatelessWidget {
                 children: <Widget>[
                   SizedBox(height: 20),
                   DashBoardRoundedCardWidget(
-                    onTap: () => _navigatorToGiftCardsPage(context),
+                    onTap: () {
+                      if (Platform.isMacOS) {
+                        _launchUrl("buy.cakepay.com");
+                      } else {
+                        _navigatorToGiftCardsPage(context);
+                      }
+                    },
                     title: 'Cake Pay',
                     subTitle: S.of(context).cake_pay_subtitle,
                     image: Image.asset(
@@ -75,7 +83,7 @@ class CakeFeaturesPage extends StatelessWidget {
                         icon: Icon(
                           Icons.speaker_notes_rounded,
                           color:
-                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                           size: 75,
                         ),
                       );

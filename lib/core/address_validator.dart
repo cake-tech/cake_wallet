@@ -134,7 +134,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.btcln:
         pattern = '(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+)';
       default:
-        pattern = '[0-9a-zA-Z]+';
+        return '';
     }
 
     return '$BEFORE_REGEX($pattern)$AFTER_REGEX';
