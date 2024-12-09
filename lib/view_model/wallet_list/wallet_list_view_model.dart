@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
+import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -99,9 +100,29 @@ abstract class WalletListViewModelBase with Store {
     _walletManager.updateWalletGroups();
 
     for (var group in _walletManager.walletGroups) {
-      if (group.wallets.length == 1) {
-        singleWalletsList
-            .add(convertWalletInfoToWalletListItem(group.wallets.first));
+      bool shouldAddToSingleWallets = group.wallets.any((wallet) {
+        // Check for non-BIP39 wallet types
+        bool isNonBIP39Wallet = !isBIP39Wallet(wallet.type);
+
+        // Check for nano derivation type
+        bool isNanoDerivationType = wallet.type == WalletType.nano &&
+            wallet.derivationInfo?.derivationType == DerivationType.nano;
+
+        // Check for electrum derivation type
+        bool isElectrumDerivationType =
+            (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) &&
+                wallet.derivationInfo?.derivationType == DerivationType.electrum;
+
+        // Exclude if any of these conditions are true
+        return isNonBIP39Wallet || isNanoDerivationType || isElectrumDerivationType;
+      });
+
+      if (shouldAddToSingleWallets) {
+        for (var wallet in group.wallets) {
+          singleWalletsList.add(convertWalletInfoToWalletListItem(wallet));
+        }
+      } else if (group.wallets.length == 1) {
+        singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
       } else {
         multiWalletGroups.add(group);
       }
