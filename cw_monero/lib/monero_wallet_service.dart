@@ -15,6 +15,7 @@ import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/ledger.dart';
 import 'package:cw_monero/monero_wallet.dart';
+import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:monero/monero.dart' as monero;
@@ -404,15 +405,10 @@ class MoneroWalletService extends WalletService<
 
   @override
   bool requireHardwareWalletConnection(String name) {
-    bool checkWalletInfo(WalletInfo info) =>
-        info.id == WalletBase.idFor(name, getType());
-
-    if (walletInfoSource.values.any(checkWalletInfo)) {
-      return walletInfoSource.values
-          .firstWhere(checkWalletInfo)
-          .isHardwareWallet;
-    }
-
-    return false;
+    return walletInfoSource.values
+            .firstWhereOrNull(
+                (info) => info.id == WalletBase.idFor(name, getType()))
+            ?.isHardwareWallet ??
+        false;
   }
 }
