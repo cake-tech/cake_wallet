@@ -84,6 +84,10 @@ add_library(cryptonote_core STATIC IMPORTED)
 set_target_properties(cryptonote_core PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libcryptonote_core.a)
 
+add_library(cryptonote_format_utils_basic STATIC IMPORTED)
+set_target_properties(cryptonote_format_utils_basic PROPERTIES IMPORTED_LOCATION
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libcryptonote_format_utils_basic.a)
+
 add_library(cryptonote_basic STATIC IMPORTED)
 set_target_properties(cryptonote_basic PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libcryptonote_basic.a)
@@ -181,6 +185,7 @@ target_link_libraries(  cw_haven
                         wallet
                         cryptonote_core
                         cryptonote_basic
+                        cryptonote_format_utils_basic
                         mnemonics
                         ringct
                         ringct_basic
