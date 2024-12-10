@@ -13,6 +13,8 @@ dependencies:
   grpc: ^3.2.4
   path_provider: ^2.1.2
   plugin_platform_interface: ^2.0.2
+  cw_core:
+    path: ../cw_core
 
 dev_dependencies:
   flutter_test:

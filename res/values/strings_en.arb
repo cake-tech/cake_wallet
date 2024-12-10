@@ -710,6 +710,7 @@
   "share_address": "Share address",
   "shared_seed_wallet_groups": "Shared Seed Wallet Groups",
   "show": "Show",
+  "show_address_book_popup": "Show 'Add to Address Book' popup after sending",
   "show_details": "Show Details",
   "show_keys": "Show seed/keys",
   "show_market_place": "Show Marketplace",

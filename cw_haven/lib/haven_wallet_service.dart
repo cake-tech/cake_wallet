@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:collection/collection.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:hive/hive.dart';
@@ -81,7 +82,7 @@ class HavenWalletService extends WalletService<
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('HavenWalletsManager Error: ${e.toString()}');
+      printV('HavenWalletsManager Error: ${e.toString()}');
       rethrow;
     }
   }
@@ -93,7 +94,7 @@ class HavenWalletService extends WalletService<
       return haven_wallet_manager.isWalletExist(path: path);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('HavenWalletsManager Error: $e');
+      printV('HavenWalletsManager Error: $e');
       rethrow;
     }
   }
@@ -197,7 +198,7 @@ class HavenWalletService extends WalletService<
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('HavenWalletsManager Error: $e');
+      printV('HavenWalletsManager Error: $e');
       rethrow;
     }
   }
@@ -218,7 +219,7 @@ class HavenWalletService extends WalletService<
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('HavenWalletsManager Error: $e');
+      printV('HavenWalletsManager Error: $e');
       rethrow;
     }
   }
@@ -252,7 +253,7 @@ class HavenWalletService extends WalletService<
         newFile.writeAsBytesSync(file.readAsBytesSync());
       });
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 }
