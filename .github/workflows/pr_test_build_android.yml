@@ -69,15 +69,15 @@ jobs:
           cd /opt/android
           git clone https://github.com/cake-tech/cake_wallet.git --branch ${{ env.BRANCH_NAME }}
 
-      - name: Cache Keystore
-        id: cache-keystore
-        uses: actions/cache@v3
-        with:
-          path: /opt/android/cake_wallet/android/app
-          key: keystore
-
-      - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
-        name: Generate KeyStore
+#      - name: Cache Keystore
+#        id: cache-keystore
+#        uses: actions/cache@v3
+#        with:
+#          path: /opt/android/cake_wallet/android/app
+#          key: keystore
+#
+#      - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
+      - name: Generate KeyStore
         run: |
           cd /opt/android/cake_wallet/android/app
           keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
