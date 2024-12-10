@@ -97,6 +97,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
       final amountToGet = double.tryParse(responseJSON['amount'] as String) ?? 0.0;
 
+      if (amountToGet == 0.0) return 0.0;
+
       return isFixedRateMode ? amount / amountToGet : amountToGet / amount;
     } catch (e) {
       log(e.toString());

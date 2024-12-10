@@ -7,6 +7,7 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -273,7 +274,19 @@ Future<void> defaultSettingsMigration(
             newDefaultUri: newCakeWalletBitcoinUri,
             currentNodePreferenceKey: PreferencesKey.currentBitcoinElectrumSererIdKey,
             useSSL: true,
-            oldUri: 'cakewallet.com',
+            oldUri: ['cakewallet.com'],
+          );
+          _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.tron,
+            newDefaultUri: tronDefaultNodeUri,
+            currentNodePreferenceKey: PreferencesKey.currentTronNodeIdKey,
+            useSSL: true,
+            oldUri: [
+              'tron-rpc.publicnode.com:443',
+              'api.trongrid.io',
+            ],
           );
           break;
         case 45:
@@ -286,7 +299,7 @@ Future<void> defaultSettingsMigration(
       await sharedPreferences.setInt(
           PreferencesKey.currentDefaultSettingsMigrationVersion, version);
     } catch (e) {
-      print('Migration error: ${e.toString()}');
+      printV('Migration error: ${e.toString()}');
     }
   });
 
@@ -302,11 +315,11 @@ Future<void> _changeDefaultNode({
   required String newDefaultUri,
   required String currentNodePreferenceKey,
   required bool useSSL,
-  required String oldUri, // leave empty if you want to force replace the node regardless of the user's current node
+  required List<String> oldUri, // leave empty if you want to force replace the node regardless of the user's current node
 }) async {
   final currentNodeId = sharedPreferences.getInt(currentNodePreferenceKey);
   final currentNode = nodes.values.firstWhere((node) => node.key == currentNodeId);
-  final shouldReplace = currentNode.uriRaw.contains(oldUri);
+  final shouldReplace = oldUri.any((e) => currentNode.uriRaw.contains(e));
 
   if (shouldReplace) {
     var newNodeId =
@@ -704,7 +717,7 @@ Future<void> insecureStorageMigration({
     await secureStorage.write(
         key: SecureKey.lastAuthTimeMilliseconds, value: lastAuthTimeMilliseconds.toString());
   } catch (e) {
-    print("Error migrating shared preferences to secure storage!: $e");
+    printV("Error migrating shared preferences to secure storage!: $e");
     // this actually shouldn't be that big of a problem since we don't delete the old keys in this update
     // and we read and write to the new locations when loading storage, the migration is just for extra safety
   }
@@ -860,7 +873,7 @@ Future<void> addAddressesForMoneroWallets(Box<WalletInfo> walletInfoSource) asyn
       info.address = addressText;
       await info.save();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 }
