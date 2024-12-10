@@ -7,4 +7,6 @@
 -
   uri: eth-mainnet.public.blastapi.io
 -
+  uri: eth.nownodes.io
+-
   uri: ethereum.publicnode.com

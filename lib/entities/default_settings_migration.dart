@@ -289,7 +289,21 @@ Future<void> defaultSettingsMigration(
             ],
           );
           break;
-
+        case 45:
+          await updateWalletTypeNodesWithNewNode(
+            newNodeUri: 'matic.nownodes.io',
+            sharedPreferences: sharedPreferences,
+            nodes: nodes,
+            type: WalletType.polygon,
+            useSSL: true,
+          );
+        await updateWalletTypeNodesWithNewNode(
+          newNodeUri: 'eth.nownodes.io',
+          sharedPreferences: sharedPreferences,
+          nodes: nodes,
+          type: WalletType.ethereum,
+          useSSL: true,
+        );
         default:
           break;
       }
@@ -337,6 +351,26 @@ Future<void> _changeDefaultNode({
 
     await sharedPreferences.setInt(currentNodePreferenceKey, newNodeId as int);
   }
+}
+
+/// Generic function for adding a new Node for a Wallet Type.
+Future<void> updateWalletTypeNodesWithNewNode({
+  required SharedPreferences sharedPreferences,
+  required Box<Node> nodes,
+  required WalletType type,
+  required String newNodeUri,
+  required bool useSSL,
+}) async {
+  // If it already exists in the box of nodes, no need to add it annymore.
+  if (nodes.values.any((node) => node.uriRaw == newNodeUri)) return;
+
+  await nodes.add(
+    Node(
+      uri: newNodeUri,
+      type: type,
+      useSSL: useSSL,
+    ),
+  );
 }
 
 Future<void> _updateCakeXmrNode(Box<Node> nodes) async {

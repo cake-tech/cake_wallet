@@ -1,5 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -136,11 +137,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get shouldDisplaySendALL {
     if (walletType == WalletType.solana) return false;
 
-    if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
-      return false;
+    // if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
+    // return false;
 
-      if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.matic)
-      return false;
+    // if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.maticpoly)
+    // return false;
 
     return true;
   }
@@ -502,9 +503,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         nano!.updateTransactions(wallet);
       }
 
-
       if (pendingTransaction!.id.isNotEmpty) {
-
         final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
@@ -688,9 +687,26 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
         walletType == WalletType.haven) {
-      if (errorMessage.contains('gas required exceeds allowance') ||
-          errorMessage.contains('insufficient funds')) {
-        return S.current.do_not_have_enough_gas_asset(currency.toString());
+      if (errorMessage.contains('gas required exceeds allowance')) {
+        return S.current.gas_exceeds_allowance;
+      }
+
+      if (errorMessage.contains('insufficient funds')) {
+        final parsedErrorMessageResult =
+            EVMTransactionErrorFeesHandler.parseEthereumFeesErrorMessage(
+          errorMessage,
+          _fiatConversationStore.prices[currency]!,
+        );
+
+        if (parsedErrorMessageResult.error != null) {
+          return S.current.insufficient_funds_for_tx;
+        }
+
+        return 
+        '''${S.current.insufficient_funds_for_tx} \n\n'''
+        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ETH (${parsedErrorMessageResult.balanceUsd} USD)\n\n'''
+        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ETH (${parsedErrorMessageResult.txCostUsd} USD)\n\n'''
+        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ETH (${parsedErrorMessageResult.overshotUsd} USD)''';
       }
 
       return errorMessage;

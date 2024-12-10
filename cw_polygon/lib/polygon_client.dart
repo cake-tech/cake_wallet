@@ -14,11 +14,19 @@ class PolygonClient extends EVMChainClient {
     required EtherAmount amount,
     EtherAmount? maxPriorityFeePerGas,
     Uint8List? data,
+    int? maxGas,
+    EtherAmount? gasPrice,
+    EtherAmount? maxFeePerGas,
   }) {
     return Transaction(
       from: from,
       to: to,
       value: amount,
+      data: data,
+      maxGas: maxGas,
+      gasPrice: gasPrice,
+      maxFeePerGas: maxFeePerGas,
+      maxPriorityFeePerGas: maxPriorityFeePerGas,
     );
   }
 
