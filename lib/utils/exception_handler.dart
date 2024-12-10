@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/root_dir.dart';
@@ -29,9 +31,21 @@ class ExceptionHandler {
       _file = File('${appDocDir.path}/error.txt');
     }
 
+    String? walletType;
+    CustomTrace? programInfo;
+
+    try {
+      walletType = getIt.get<AppStore>().wallet?.type.name;
+
+      programInfo = CustomTrace(stackTrace ?? StackTrace.current);
+    } catch (_) {}
+
     final exception = {
       "${DateTime.now()}": {
         "Error": "$error\n\n",
+        "WalletType": "$walletType\n\n",
+        "VerboseLog":
+            "${programInfo?.fileName}#${programInfo?.lineNumber}:${programInfo?.columnNumber} ${programInfo?.callerFunctionName}\n\n",
         "Library": "$library\n\n",
         "StackTrace": stackTrace.toString(),
       }
