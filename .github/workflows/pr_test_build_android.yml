@@ -61,6 +61,14 @@ jobs:
           sudo apt update
           sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
 
+
+      - name: Clone Repo
+        run: |
+          sudo mkdir -p /opt/android
+          sudo chown $USER /opt/android
+          cd /opt/android
+          git clone https://github.com/cake-tech/cake_wallet.git --branch ${{ env.BRANCH_NAME }}
+
       - name: Cache Keystore
         id: cache-keystore
         uses: actions/cache@v3
@@ -76,12 +84,9 @@ jobs:
 
       - name: Execute Build and Setup Commands
         run: |
-          sudo mkdir -p /opt/android
-          sudo chown $USER /opt/android
           cd /opt/android
           -y curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
           cargo install cargo-ndk
-          git clone https://github.com/cake-tech/cake_wallet.git --branch ${{ env.BRANCH_NAME }}
           cd cake_wallet/scripts/android/
           ./install_ndk.sh
           source ./app_env.sh cakewallet
