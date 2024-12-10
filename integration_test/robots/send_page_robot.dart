@@ -84,13 +84,11 @@ class SendPageRobot {
       return;
     }
 
-    await commonTestCases.dragUntilVisible(
-      'picker_items_index_${receiveCurrency.name}_button_key',
-      'picker_scrollbar_key',
-    );
+    await commonTestCases.enterText(receiveCurrency.title, 'search_bar_widget_key');
+
     await commonTestCases.defaultSleepTime();
 
-    await commonTestCases.tapItemByKey('picker_items_index_${receiveCurrency.name}_button_key');
+    await commonTestCases.tapItemByKey('picker_items_index_${receiveCurrency.fullName}_button_key');
   }
 
   Future<void> enterReceiveAddress(String receiveAddress) async {
@@ -210,6 +208,7 @@ class SendPageRobot {
         _handleAuthPage();
       }
     }
+    await tester.pump();
   }
 
   Future<void> handleSendResult() async {
