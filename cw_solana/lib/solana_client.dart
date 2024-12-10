@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:cw_core/crypto_currency.dart';
@@ -8,6 +7,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
+import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:solana/dto.dart';
@@ -357,28 +357,17 @@ class SolanaWalletClient {
     return fee;
   }
 
-  Future<bool> hasSufficientFundsLeftForRent(
-      double inputAmount, double fee, double solBalance) async {
+  Future<bool> hasSufficientFundsLeftForRent({
+    required double inputAmount,
+    required double solBalance,
+    required double fee,
+  }) async {
     final rent =
         await _client!.getMinimumBalanceForMintRentExemption(commitment: Commitment.confirmed);
 
     final rentInSol = (rent / lamportsPerSol).toDouble();
 
     final remnant = solBalance - (inputAmount + fee);
-
-    log('Fee: $fee');
-
-    log('Rent: $rent');
-
-    log('Remnant: $remnant');
-
-    log('Rent In Sol: $rentInSol');
-
-    log('Sol Balance: $solBalance');
-
-    log('Total amount: $inputAmount');
-
-    log("Remnant is more than rent: ${remnant > rentInSol}");
 
     if (remnant > rentInSol) return true;
 
@@ -411,12 +400,14 @@ class SolanaWalletClient {
       commitment,
     );
 
-    bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(inputAmount, fee, solBalance);
+    bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(
+      inputAmount: inputAmount,
+      fee: fee,
+      solBalance: solBalance,
+    );
 
     if (!hasSufficientFundsLeft) {
-      throw Exception(
-        'Transaction cannot be completed. Insufficient SOL left for rent after transaction. Kindly top up your SOL balance or reduce the amount of SOL you\'re sending.',
-      );
+      throw SolanaSignNativeTokenTransactionRentException();
     }
 
     SignedTx signedTx;
@@ -489,7 +480,7 @@ class SolanaWalletClient {
     // Throw an appropriate exception if the sender has no associated
     // token account
     if (associatedSenderAccount == null) {
-      throw NoAssociatedTokenAccountException(ownerKeypair.address, mint.toBase58());
+      throw SolanaNoAssociatedTokenAccountException(ownerKeypair.address, mint.toBase58());
     }
 
     try {
@@ -499,8 +490,7 @@ class SolanaWalletClient {
         funder: ownerKeypair,
       );
     } catch (e) {
-      throw Exception(
-          'Error creating associated token account for receipient address. ${e.toString()}');
+      throw SolanaCreateAssociatedTokenAccountException(e.toString());
     }
 
     // Input by the user
@@ -526,12 +516,14 @@ class SolanaWalletClient {
       commitment,
     );
 
-    bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(inputAmount, fee, solBalance);
+    bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(
+      inputAmount: inputAmount,
+      fee: fee,
+      solBalance: solBalance,
+    );
 
     if (!hasSufficientFundsLeft) {
-      throw Exception(
-        'Transaction cannot be completed. Insufficient SOL left for rent after transaction. Kindly top up your SOL balance.',
-      );
+      throw SolanaSignSPLTokenTransactionRentException();
     }
 
     final signedTx = await _signTransactionInternal(
