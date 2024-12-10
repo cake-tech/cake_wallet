@@ -290,8 +290,20 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 45:
-          await updateETHNodesWithNowNodes(sharedPreferences: sharedPreferences, nodes: nodes);
-         await updatePolygonNodesWithNowNodes(sharedPreferences: sharedPreferences, nodes: nodes);
+          await updateWalletTypeNodesWithNewNode(
+            newNodeUri: 'matic.nownodes.io',
+            sharedPreferences: sharedPreferences,
+            nodes: nodes,
+            type: WalletType.polygon,
+            useSSL: true,
+          );
+        await updateWalletTypeNodesWithNewNode(
+          newNodeUri: 'eth.nownodes.io',
+          sharedPreferences: sharedPreferences,
+          nodes: nodes,
+          type: WalletType.ethereum,
+          useSSL: true,
+        );
         default:
           break;
       }
@@ -339,6 +351,26 @@ Future<void> _changeDefaultNode({
 
     await sharedPreferences.setInt(currentNodePreferenceKey, newNodeId as int);
   }
+}
+
+/// Generic function for adding a new Node for a Wallet Type.
+Future<void> updateWalletTypeNodesWithNewNode({
+  required SharedPreferences sharedPreferences,
+  required Box<Node> nodes,
+  required WalletType type,
+  required String newNodeUri,
+  required bool useSSL,
+}) async {
+  // If it already exists in the box of nodes, no need to add it annymore.
+  if (nodes.values.any((node) => node.uriRaw == newNodeUri)) return;
+
+  await nodes.add(
+    Node(
+      uri: newNodeUri,
+      type: type,
+      useSSL: useSSL,
+    ),
+  );
 }
 
 Future<void> _updateCakeXmrNode(Box<Node> nodes) async {
@@ -1428,26 +1460,4 @@ Future<void> updateTronNodesWithNowNodes({
   await nodes.add(Node(uri: tronNowNodesUri, type: WalletType.tron));
 
   await replaceTronDefaultNode(sharedPreferences: sharedPreferences, nodes: nodes);
-}
-
-Future<void> updateETHNodesWithNowNodes({
-  required SharedPreferences sharedPreferences,
-  required Box<Node> nodes,
-}) async {
-  final ethNowNodesUri = 'eth.nownodes.io';
-
-  if (nodes.values.any((node) => node.uriRaw == ethNowNodesUri)) return;
-
-  await nodes.add(Node(uri: ethNowNodesUri, type: WalletType.ethereum));
-}
-
-Future<void> updatePolygonNodesWithNowNodes({
-  required SharedPreferences sharedPreferences,
-  required Box<Node> nodes,
-}) async {
-  final polygonNowNodesUri = 'matic.nownodes.io';
-
-  if (nodes.values.any((node) => node.uriRaw == polygonNowNodesUri)) return;
-
-  await nodes.add(Node(uri: polygonNowNodesUri, type: WalletType.polygon));
 }
