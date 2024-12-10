@@ -31,7 +31,7 @@ Cake Wallet includes support for several cryptocurrencies, including:
 - Solana (SOL)
 - Nano (XNO)
 - Haven (XHV)
-- Salvium (XRM)
+- Salvium (SAL)
 
 ## Features
 

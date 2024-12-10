@@ -33,9 +33,6 @@ abstract class ReceiveOptionViewModelBase with Store {
       case WalletType.haven:
         _options = [ReceivePageOption.mainnet];
         break;
-      case WalletType.salvium:
-        _options = [ReceivePageOption.mainnet];
-        break;
       default:
         _options = ReceivePageOptions;
     }

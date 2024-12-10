@@ -4,6 +4,7 @@ set -x -e
 MONERO_COM="monero.com"
 CAKEWALLET="cakewallet"
 HAVEN="haven"
+SALVIUM="salvium"
 DIR=`pwd`
 
 if [ -z "$APP_IOS_TYPE" ]; then
@@ -38,9 +39,10 @@ case $APP_IOS_TYPE in
 		fi
 		;;
 	$HAVEN)
-
-
 		CONFIG_ARGS="--haven"
+		;;
+	$SALVIUM)
+		CONFIG_ARGS="--salvium"
 		;;
 esac
 

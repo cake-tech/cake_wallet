@@ -15,7 +15,7 @@ CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
     case WalletType.haven:
       return CryptoCurrency.xhv;
     case WalletType.salvium:
-      return CryptoCurrency.salvium;
+      return CryptoCurrency.sal;
     case WalletType.ethereum:
       return CryptoCurrency.eth;
     case WalletType.bitcoinCash:
@@ -48,7 +48,7 @@ WalletType? walletTypeForCurrency(CryptoCurrency currency) {
       return WalletType.litecoin;
     case CryptoCurrency.xhv:
       return WalletType.haven;
-    case CryptoCurrency.salvium:
+    case CryptoCurrency.sal:
       return WalletType.salvium;
     case CryptoCurrency.eth:
       return WalletType.ethereum;

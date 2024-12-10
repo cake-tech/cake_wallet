@@ -1,6 +1,6 @@
 # cw_shared_external
 
-Part of Cake Wallet. Shared external libraries for cw_monero, cw_haven and cw_salvium.
+Part of Cake Wallet. Shared external libraries for cw_monero, cw_salvium and cw_haven.
 Libraries:
 
 - Boost

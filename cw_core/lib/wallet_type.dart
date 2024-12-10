@@ -226,7 +226,7 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
     case WalletType.wownero:
       return CryptoCurrency.wow;
     case WalletType.salvium:
-      return CryptoCurrency.salvium;
+      return CryptoCurrency.sal;
     case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');

@@ -94,6 +94,7 @@ abstract class OutputBase with Store {
         int _amount = 0;
         switch (walletType) {
           case WalletType.monero:
+          case WalletType.salvium:
             _amount = monero!.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.bitcoin:
@@ -103,9 +104,6 @@ abstract class OutputBase with Store {
             break;
           case WalletType.haven:
             _amount = haven!.formatterMoneroParseAmount(amount: _cryptoAmount);
-            break;
-          case WalletType.salvium:
-            _amount = salvium!.formatterSalviumParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.ethereum:
             _amount = ethereum!.formatterEthereumParseAmount(_cryptoAmount);
@@ -165,7 +163,7 @@ abstract class OutputBase with Store {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
-      if (_wallet.type == WalletType.monero) {
+      if (_wallet.type == WalletType.monero || _wallet.type == WalletType.salvium) {
         return monero!.formatterMoneroAmountToDouble(amount: fee);
       }
 
@@ -175,10 +173,6 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.haven) {
         return haven!.formatterMoneroAmountToDouble(amount: fee);
-      }
-
-      if (_wallet.type == WalletType.salvium) {
-        return salvium!.formatterSalviumAmountToDouble(amount: fee);
       }
 
       if (_wallet.type == WalletType.ethereum) {
@@ -304,7 +298,7 @@ abstract class OutputBase with Store {
         maximumFractionDigits = 12;
         break;
       case WalletType.salvium:
-        maximumFractionDigits = 12;
+        maximumFractionDigits = 8;
         break;
       case WalletType.ethereum:
       case WalletType.polygon:

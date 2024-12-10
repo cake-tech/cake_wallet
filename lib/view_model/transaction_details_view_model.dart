@@ -171,7 +171,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.haven:
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
       case WalletType.salvium:
-        return 'https://explorer.salvium.com/search?value=${txId}';
+        return 'https://explorer.salvium.io/search?value=${txId}';
       case WalletType.ethereum:
         return 'https://etherscan.io/tx/${txId}';
       case WalletType.nano:
@@ -203,7 +203,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
       case WalletType.salvium:
-        return S.current.view_transaction_on + 'explorer.salvium.com';
+        return S.current.view_transaction_on + 'explorer.salvium.io';
       case WalletType.ethereum:
         return S.current.view_transaction_on + 'etherscan.io';
       case WalletType.nano:

@@ -5,8 +5,8 @@
 Pod::Spec.new do |s|
   s.name             = 'cw_shared_external'
   s.version          = '0.0.1'
-  s.summary          = 'Shared libraries for monero, haven and salvium.'
-  s.description      = 'Shared libraries for monero, haven and salvium.'
+  s.summary          = 'Shared libraries for monero, salvium and haven.'
+  s.description      = 'Shared libraries for monero, salvium and haven.'
   s.homepage         = 'http://cakewallet.com'
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Cake Wallet' => 'm@cakewallet.com' }

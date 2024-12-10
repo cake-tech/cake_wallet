@@ -278,6 +278,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.salvium ||
       wallet.type == WalletType.wownero ||
       wallet.type == WalletType.bitcoinCash;
 
@@ -692,8 +693,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
-        walletType == WalletType.haven ||
-        walletType == WalletType.salvium) {
+        walletType == WalletType.haven) {
       if (errorMessage.contains('gas required exceeds allowance') ||
           errorMessage.contains('insufficient funds')) {
         return S.current.do_not_have_enough_gas_asset(currency.toString());

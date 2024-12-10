@@ -3,6 +3,7 @@
 MONERO_COM=monero.com
 CAKEWALLET=cakewallet
 HAVEN=haven
+SALVIUM=salvium
 CONFIG_ARGS=""
 
 case $APP_ANDROID_TYPE in
@@ -17,6 +18,9 @@ case $APP_ANDROID_TYPE in
                 ;;
         $HAVEN)
                 CONFIG_ARGS="--haven"
+                ;;
+        $SALVIUM)
+                CONFIG_ARGS="--salvium"
                 ;;
 esac
 

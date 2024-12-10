@@ -33,7 +33,7 @@ const publicBitcoinTestnetElectrumUri =
     '$publicBitcoinTestnetElectrumAddress:$publicBitcoinTestnetElectrumPort';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
-const salviumDefaultNodeUri = 'nodes.salvium.org:443';
+const salviumDefaultNodeUri = 'seed01.salvium.io:19081';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
 const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
@@ -295,10 +295,6 @@ Future<void> defaultSettingsMigration(
           await addSalviumNodeList(nodes: nodes);
           await changeSalviumCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           await checkCurrentNodes(nodes, powNodes, sharedPreferences);
-          break;
-
-        case 46:
-          await changeDefaultSalviumNode(nodes);
           break;
         default:
           break;
@@ -1281,7 +1277,7 @@ Future<void> changeDefaultHavenNode(Box<Node> nodeSource) async {
 }
 
 Future<void> changeDefaultSalviumNode(Box<Node> nodeSource) async {
-  const previousSalviumDefaultNodeUri = 'nodes.salvium.org:443';
+  const previousSalviumDefaultNodeUri = 'seed01.salvium.io:19081';
   final salviumNodes = nodeSource.values.where((node) => node.uriRaw == previousSalviumDefaultNodeUri);
   salviumNodes.forEach((node) async {
     node.uriRaw = salviumDefaultNodeUri;

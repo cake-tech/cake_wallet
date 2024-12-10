@@ -307,9 +307,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.haven:
-        return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
       case WalletType.salvium:
-        return transactionPriority == salvium!.getSalviumTransactionPrioritySlow();
+        return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
       case WalletType.bitcoin:
         return transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
       case WalletType.litecoin:

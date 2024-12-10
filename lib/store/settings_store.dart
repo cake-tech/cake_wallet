@@ -25,6 +25,7 @@ import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/salvium/salvium.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
@@ -885,7 +886,7 @@ abstract class SettingsStoreBase with Store {
           raw: sharedPreferences.getInt(PreferencesKey.havenTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.salviumTransactionPriority) != null) {
-      salviumTransactionPriority = monero?.deserializeMoneroTransactionPriority(
+      salviumTransactionPriority = salvium?.deserializeMoneroTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.salviumTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority) != null) {
@@ -912,7 +913,7 @@ abstract class SettingsStoreBase with Store {
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
     havenTransactionPriority ??= monero?.getDefaultTransactionPriority();
-    salviumTransactionPriority ??= monero?.getDefaultTransactionPriority();
+    salviumTransactionPriority ??= salvium?.getDefaultTransactionPriority();
     litecoinTransactionPriority ??= bitcoin?.getLitecoinTransactionPriorityMedium();
     ethereumTransactionPriority ??= ethereum?.getDefaultTransactionPriority();
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();

@@ -245,7 +245,10 @@ Future<int> getHavenCurrentHeight() async {
 }
 
 const salviumDates = {
-  
+  "2024-11": 86752
+  "2024-10": 65675
+  "2024-09": 44680
+  "2024-08": 22339
 };
 
 int getSalviumHeightByDate({required DateTime date}) {
@@ -256,7 +259,7 @@ int getSalviumHeightByDate({required DateTime date}) {
 }
 
 Future<int> getSalviumCurrentHeight() async {
-  final response = await http.get(Uri.parse('https://explorer.salvium.org/api/networkinfo'));
+  final response = await http.get(Uri.parse('https://explorer.salvium.io/api/networkinfo'));
 
   if (response.statusCode == 200) {
     final info = jsonDecode(response.body);
