@@ -198,8 +198,9 @@ class TOTPEnterCode extends BasePage {
                     },
                   );
                   if (isForSetup && result) {
-                    Navigator.pushReplacementNamed(
-                        context, Routes.modify2FAPage);
+                    if (context.mounted) {
+                      Navigator.pushReplacementNamed(context, Routes.modify2FAPage);
+                    }
                   }
                
                 },
