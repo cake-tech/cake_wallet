@@ -248,14 +248,11 @@ class CakePayBuyCardPage extends BasePage {
   }
 
   bool isWordInCardsName(CakePayCard card, String word) {
-    // word must be followed by a space or beginning of the string
-    final regex = RegExp(r'(^|\s)' + word + r'(\s|$)', caseSensitive: false);
-
-    return regex.hasMatch(card.name.toLowerCase());
+    return card.name.toLowerCase().contains(word.toLowerCase());
   }
 
   bool isIOSUnavailable(CakePayCard card) {
-    if (!Platform.isIOS) {
+    if (!Platform.isIOS && !Platform.isMacOS) {
       return false;
     }
 

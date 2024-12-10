@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/store/secret_store.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:intl/intl.dart';
@@ -67,7 +68,7 @@ abstract class BackupViewModelBase with Store {
 
       return BackupExportFile(backupContent.toList(), name: fileName);
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       state = FailureState(e.toString());
       return null;
     }
