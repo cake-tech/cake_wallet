@@ -20,6 +20,9 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
   @computed
   bool get silentPaymentsAlwaysScan => _settingsStore.silentPaymentsAlwaysScan;
 
+  @computed
+  bool get silentPaymentsKeyRegistered => _settingsStore.silentPaymentsKeyRegistered;
+
   @action
   void setSilentPaymentsCardDisplay(bool value) {
     _settingsStore.silentPaymentsCardDisplay = value;
@@ -29,5 +32,11 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
   void setSilentPaymentsAlwaysScan(bool value) {
     _settingsStore.silentPaymentsAlwaysScan = value;
     if (value) bitcoin!.setScanningActive(_wallet, true);
+  }
+
+  @action
+  void registerSilentPaymentsKey(bool value) {
+    _settingsStore.silentPaymentsKeyRegistered = value;
+    bitcoin!.registerSilentPaymentsKey(_wallet, true);
   }
 }

@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class ElectrumWalletSnapshot {
@@ -25,6 +24,7 @@ class ElectrumWalletSnapshot {
     required this.silentAddressIndex,
     required this.mwebAddresses,
     required this.alwaysScan,
+    required this.unspentCoins,
     this.passphrase,
     this.derivationType,
     this.derivationPath,
@@ -34,6 +34,7 @@ class ElectrumWalletSnapshot {
   final String password;
   final WalletType type;
   final String? addressPageType;
+  List<BitcoinUnspent> unspentCoins;
 
   @deprecated
   String? mnemonic;
@@ -68,7 +69,7 @@ class ElectrumWalletSnapshot {
     final addressesTmp = data['addresses'] as List? ?? <Object>[];
     final addresses = addressesTmp
         .whereType<String>()
-        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network: network))
+        .map((addr) => BitcoinAddressRecord.fromJSON(addr))
         .toList();
 
     final silentAddressesTmp = data['silent_addresses'] as List? ?? <Object>[];
@@ -80,7 +81,7 @@ class ElectrumWalletSnapshot {
     final mwebAddressTmp = data['mweb_addresses'] as List? ?? <Object>[];
     final mwebAddresses = mwebAddressTmp
         .whereType<String>()
-        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network: network))
+        .map((addr) => BitcoinAddressRecord.fromJSON(addr))
         .toList();
 
     final alwaysScan = data['alwaysScan'] as bool? ?? false;
@@ -93,7 +94,7 @@ class ElectrumWalletSnapshot {
 
     final derivationType = DerivationType
         .values[(data['derivationTypeIndex'] as int?) ?? DerivationType.electrum.index];
-    final derivationPath = data['derivationPath'] as String? ?? electrum_path;
+    final derivationPath = data['derivationPath'] as String? ?? ELECTRUM_PATH;
 
     try {
       regularAddressIndexByType = {
@@ -129,6 +130,12 @@ class ElectrumWalletSnapshot {
       silentAddressIndex: silentAddressIndex,
       mwebAddresses: mwebAddresses,
       alwaysScan: alwaysScan,
+      unspentCoins: (data['unspent_coins'] as List)
+          .map((e) => BitcoinUnspent.fromJSON(
+                null,
+                e as Map<String, dynamic>,
+              ))
+          .toList(),
     );
   }
 }
