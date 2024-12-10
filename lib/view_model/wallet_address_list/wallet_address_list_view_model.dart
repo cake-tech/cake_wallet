@@ -6,18 +6,14 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/cake_pay_alert_modal.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/list_item.dart';
-import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
@@ -29,7 +25,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
-
 part 'wallet_address_list_view_model.g.dart';
 
 class WalletAddressListViewModel = WalletAddressListViewModelBase
@@ -625,10 +620,13 @@ abstract class WalletAddressListViewModelBase
   String payjoinUri = '';
 
   @observable
-  ActiveSession? session;
+  Receiver? session;
 
   @observable
-  RequestContext? reqCtx;
+  PayjoinProposal? payjoinProposal;
+
+  @observable
+  UncheckedProposal? uncheckedProposal;
 
   @observable
   PayjoinException? pjException;
@@ -648,7 +646,8 @@ abstract class WalletAddressListViewModelBase
         '[+] wallet_address_list_view_model.dart || buildV2PjStr() => satsAmount: $satsAmount');
 
     try {
-      final expireAfter = 60 * 5; // 5 minutes
+      final expireAfter = BigInt.from(60 * 5); // 5 minutes
+
       final res = await bitcoin!.buildV2PjStr(
         amount: satsAmount,
         address: address.address,
@@ -656,45 +655,45 @@ abstract class WalletAddressListViewModelBase
         expireAfter: expireAfter,
       );
       payjoinUri = res['pjUri'] as String;
-      session = res['session'] as ActiveSession;
+      session = res['session'] as Receiver;
 
       print(
           '[+] wallet_address_list_view_model.dart || buildV2PjStr() => payjoinUri: $payjoinUri');
 
-      // Poll for requests made by the sender to this payjoin uri
-      final requestProposal = await bitcoin!.pollV2Request(session!);
+      final proposal = await bitcoin!.handleReceiverSession(session!);
+      uncheckedProposal = proposal;
+
+      final originalTx = await bitcoin!.extractOriginalTransaction(proposal);
 
       // Handle the request and send back the payjoin proposal
-      final handleV2 = await bitcoin!.handleV2Request(
-        uncheckedProposal: requestProposal,
+      final finalizedProposal = await bitcoin!.processProposal(
+        proposal: proposal,
         receiverWallet: wallet,
       );
-      final proposedPayjoin = handleV2['payjoinProposal'] as PayjoinProposal;
-      final originalTxId = handleV2['originalTx'] as String;
+      payjoinProposal = finalizedProposal;
 
-      // Wait some time for the tx to be broadcasted
-      await Future.delayed(const Duration(seconds: 3));
-
-      // Wait for the original or payjoin tx to be broadcasted
-      final proposalTxId =
-          await bitcoin!.getTxIdFromPsbt(await proposedPayjoin.psbt());
+      final proposalTxId = await bitcoin!.sendFinalProposal(finalizedProposal);
 
       final receivedTxId = await waitForTransaction(
-        originalTxId: originalTxId,
+        originalTxId: await originalTx,
         proposalTxId: proposalTxId,
       );
 
       disposePayjoinSession();
+
+      if (receivedTxId.isNotEmpty) {
+        final msg =
+            '${receivedTxId == proposalTxId ? 'Payjoin' : 'Original'} tx received!';
+        print('[+] wallet_address_list_vm.dart => msg: $msg');
+      }
     } catch (e, st) {
+      debugPrint('[!] WALLETADDRESSLISTVM => buildV2PjStr() - ${e.toString()}');
+
       if (e is PayjoinException) {
         // TODO: Handle the error appropriately
-        print(
-            '[!] wallet_address_list_vm.dart || buildV2PjStr() => e: $e, st: $st');
+        debugPrint(
+            '[!] WALLETADDRESSLISTVM => buildV2PjStr() - e: $e, st: $st');
         pjException = e;
-        disposePayjoinSession();
-      } else {
-        print(
-            '[!] wallet_address_list_vm.dart || buildV2PjStr() => e: $e, st: $st');
         disposePayjoinSession();
       }
     }
@@ -704,7 +703,8 @@ abstract class WalletAddressListViewModelBase
   void disposePayjoinSession() {
     // payjoinUri = '';
     session = null;
-    reqCtx = null;
+    uncheckedProposal = null;
+    payjoinProposal = null;
   }
 
   Future<String> waitForTransaction({
@@ -715,14 +715,11 @@ abstract class WalletAddressListViewModelBase
     final txs = wallet.transactionHistory.transactions;
 
     try {
-      // Search for the first transaction in the list that matches either the original or proposal transaction ID
       final tx = txs.values
           .firstWhere((tx) => tx.id == originalTxId || tx.id == proposalTxId);
       return tx.id;
     } catch (e) {
-      // Check if the request context (`reqCtx`) is null, which could indicate that the session was canceled
-      if (reqCtx == null) {
-        // If the session is canceled, return an empty string to stop the polling process
+      if (session == null) {
         return '';
       }
 

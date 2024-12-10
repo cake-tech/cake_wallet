@@ -37,14 +37,13 @@ dependencies:
     git:
       url: https://github.com/rafael-xmr/sp_scanner
       ref: sp_v4.0.0
-  payjoin_flutter:
-    git:
-      url: https://github.com/J0J0XMR/payjoin-flutter
-
   # payjoin_flutter:
   #   git:
-  #     url: https://github.com/kumulynja/payjoin-flutter
-  #     ref: override-ffi-functions
+  #     url: https://github.com/DanGould/payjoin-flutter
+  #     ref: payjoin-21 # dangould payjoin-21 branch
+  payjoin_flutter:
+    git:
+      url: https://github.com/LtbLightning/payjoin-flutter
 
 
 dev_dependencies:

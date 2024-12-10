@@ -171,14 +171,22 @@ abstract class Bitcoin {
     int? amount,
     required String address,
     required bool isTestnet,
-    required int expireAfter,
+    required BigInt expireAfter,
   });
-  Future<UncheckedProposal> pollV2Request(ActiveSession session);
-  Future<Map<String, dynamic>> handleV2Request({
-    required UncheckedProposal uncheckedProposal,
+
+  Future<UncheckedProposal> handleReceiverSession(Receiver session);
+
+  Future<String> extractOriginalTransaction(UncheckedProposal proposal);
+
+  Future<PayjoinProposal> processProposal({
+    required UncheckedProposal proposal,
     required Object receiverWallet,
   });
+
+  Future<String> sendFinalProposal(PayjoinProposal finalProposal);
+
   Future<String> getTxIdFromPsbt(String psbtBase64);
+
   Future<Uri?> stringToPjUri(String pj);
   Future<String> buildOriginalPsbt(
     Object wallet,
@@ -187,14 +195,17 @@ abstract class Bitcoin {
     double amount,
     Object credentials,
   );
-  Future<RequestContext> buildPayjoinRequest(
+
+  Future<Sender> buildPayjoinRequest(
     String originalPsbt,
     dynamic pjUri,
     int fee,
   );
+
   Future<String> requestAndPollV2Proposal(
-    RequestContext requestContext,
+    Sender sender,
   );
+
   Future<PendingBitcoinTransaction> extractPjTx(
     Object wallet,
     String psbtString,

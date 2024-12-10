@@ -589,7 +589,7 @@ class CWBitcoin extends Bitcoin {
     int? amount,
     required String address,
     required bool isTestnet,
-    required int expireAfter,
+    required BigInt expireAfter,
   }) async {
     final res = await payjoin.buildV2PjStr(
       amount: amount,
@@ -601,20 +601,30 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<UncheckedProposal> pollV2Request(ActiveSession session) async {
-    final res = await payjoin.pollV2Request(session);
+  Future<UncheckedProposal> handleReceiverSession(Receiver session) async {
+    final res = await payjoin.handleReceiverSession(session);
     return res;
   }
 
   @override
-  Future<Map<String, dynamic>> handleV2Request({
-    required UncheckedProposal uncheckedProposal,
+  Future<String> extractOriginalTransaction(UncheckedProposal proposal) async {
+    final res = await payjoin.extractOriginalTransaction(proposal);
+    return res;
+  }
+
+  @override
+  Future<PayjoinProposal> processProposal({
+    required UncheckedProposal proposal,
     required Object receiverWallet,
   }) async {
-    final res = await payjoin.handleV2Request(
-      uncheckedProposal: uncheckedProposal,
-      receiverWallet: receiverWallet,
-    );
+    final res = await payjoin.processProposal(
+        proposal: proposal, receiverWallet: receiverWallet);
+    return res;
+  }
+
+  @override
+  Future<String> sendFinalProposal(PayjoinProposal finalProposal) async {
+    final res = await payjoin.sendFinalProposal(finalProposal);
     return res;
   }
 
@@ -650,7 +660,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<RequestContext> buildPayjoinRequest(
+  Future<Sender> buildPayjoinRequest(
     String originalPsbt,
     dynamic pjUri,
     int fee,
@@ -665,9 +675,9 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<String> requestAndPollV2Proposal(
-    RequestContext requestContext,
+    Sender sender,
   ) async {
-    final res = await payjoin.requestAndPollV2Proposal(requestContext);
+    final res = await payjoin.requestAndPollV2Proposal(sender);
     return res;
   }
 
