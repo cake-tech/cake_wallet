@@ -228,6 +228,8 @@ abstract class SolanaWalletBase
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
 
+    final solBalance = balance[CryptoCurrency.sol]!.balance;
+
     double totalAmount = 0.0;
 
     bool isSendAll = false;
@@ -279,6 +281,7 @@ abstract class SolanaWalletBase
           ? solCredentials.outputs.first.extractedAddress!
           : solCredentials.outputs.first.address,
       isSendAll: isSendAll,
+      solBalance: solBalance,
     );
 
     return pendingSolanaTransaction;
