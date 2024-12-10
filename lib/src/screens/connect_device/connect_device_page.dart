@@ -10,6 +10,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -127,7 +128,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
         _bleRefreshTimer = null;
       }
     } catch (e) {
-      print(e);
+      printV(e);
     }
   }
 

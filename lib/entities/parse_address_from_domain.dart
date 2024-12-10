@@ -11,6 +11,7 @@ import 'package:cake_wallet/nostr/nostr_api.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
@@ -283,7 +284,7 @@ class AddressResolver {
         }
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
 
     return ParsedAddress(addresses: [text]);

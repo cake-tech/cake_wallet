@@ -223,10 +223,10 @@
 //               setState(() => status = "Sending...");
 //               final acc = await func();
 //               setState(() => status = "$method: $acc");
-//               print("$method: $acc");
+//               printV("$method: $acc");
 //             } on LedgerException catch (ex) {
 //               setState(() => status = "${ex.errorCode.toRadixString(16)} ${ex.message}");
-//               print("${ex.errorCode.toRadixString(16)} ${ex.message}");
+//               printV("${ex.errorCode.toRadixString(16)} ${ex.message}");
 //             }
 //           },
 //           color: Theme.of(context).primaryColor,

@@ -11,6 +11,7 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart';
 
 class QuantexExchangeProvider extends ExchangeProvider {
@@ -86,7 +87,7 @@ class QuantexExchangeProvider extends ExchangeProvider {
       // coin not found:
       return Limits(min: 0, max: 0);
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       return Limits(min: 0, max: 0);
     }
   }
@@ -121,7 +122,7 @@ class QuantexExchangeProvider extends ExchangeProvider {
       double rate = double.parse(data['price'].toString());
       return rate;
     } catch (e) {
-      print("error fetching rate: ${e.toString()}");
+      printV("error fetching rate: ${e.toString()}");
       return 0.0;
     }
   }
@@ -178,7 +179,7 @@ class QuantexExchangeProvider extends ExchangeProvider {
         isSendAll: isSendAll,
       );
     } catch (e) {
-      print("error creating trade: ${e.toString()}");
+      printV("error creating trade: ${e.toString()}");
       throw TradeNotCreatedException(description, description: e.toString());
     }
   }
@@ -225,7 +226,7 @@ class QuantexExchangeProvider extends ExchangeProvider {
         state: state,
       );
     } catch (e) {
-      print("error getting trade: ${e.toString()}");
+      printV("error getting trade: ${e.toString()}");
       throw TradeNotFoundException(
         id,
         provider: description,
