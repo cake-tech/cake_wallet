@@ -244,6 +244,28 @@ Future<int> getHavenCurrentHeight() async {
   }
 }
 
+const salviumDates = {
+  
+};
+
+int getSalviumHeightByDate({required DateTime date}) {
+  String closestKey =
+      salviumDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
+
+  return salviumDates[closestKey] ?? 0;
+}
+
+Future<int> getSalviumCurrentHeight() async {
+  final response = await http.get(Uri.parse('https://explorer.salvium.org/api/networkinfo'));
+
+  if (response.statusCode == 200) {
+    final info = jsonDecode(response.body);
+    return info['data']['height'] as int;
+  } else {
+    throw Exception('Failed to load current blockchain height');
+  }
+}
+
 // Data taken from https://timechaincalendar.com/
 const bitcoinDates = {
   "2024-08": 854889,

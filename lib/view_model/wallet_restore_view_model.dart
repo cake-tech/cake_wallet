@@ -5,6 +5,7 @@ import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/salvium/salvium.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
@@ -31,9 +32,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       Box<WalletInfo> walletInfoSource, SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type})
       : hasSeedLanguageSelector =
-            type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero,
+            type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero || type == WalletType.salvium,
         hasBlockchainHeightLanguageSelector =
-            type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero,
+            type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero || type == WalletType.salvium,
         hasRestoreFromPrivateKey = type == WalletType.ethereum ||
             type == WalletType.polygon ||
             type == WalletType.nano ||
@@ -54,6 +55,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.tron:
       case WalletType.wownero:
       case WalletType.haven:
+      case WalletType.salvium:
       case WalletType.ethereum:
       case WalletType.polygon:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
@@ -110,6 +112,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.haven:
           return haven!.createHavenRestoreWalletFromSeedCredentials(
+              name: name, height: height, mnemonic: seed, password: password);
+        case WalletType.salvium:
+          return salvium!.createSalviumRestoreWalletFromSeedCredentials(
               name: name, height: height, mnemonic: seed, password: password);
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
@@ -186,6 +191,17 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
         case WalletType.haven:
           return haven!.createHavenRestoreWalletFromKeysCredentials(
+            name: name,
+            height: height,
+            spendKey: spendKey!,
+            viewKey: viewKey!,
+            address: address!,
+            password: password,
+            language: 'English',
+          );
+
+        case WalletType.salvium:
+          return salvium!.createSalviumRestoreWalletFromKeysCredentials(
             name: name,
             height: height,
             spendKey: spendKey!,

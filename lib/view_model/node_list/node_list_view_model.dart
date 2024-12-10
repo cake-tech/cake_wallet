@@ -67,6 +67,9 @@ abstract class NodeListViewModelBase with Store {
       case WalletType.haven:
         node = getHavenDefaultNode(nodes: _nodeSource)!;
         break;
+      case WalletType.salvium:
+        node = getSalviumDefaultNode(nodes: _nodeSource)!;
+        break;
       case WalletType.ethereum:
         node = getEthereumDefaultNode(nodes: _nodeSource)!;
         break;

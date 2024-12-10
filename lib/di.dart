@@ -57,6 +57,7 @@ import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/salvium/salvium.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
@@ -828,7 +829,8 @@ Future<void> setup({
     final wallet = getIt.get<AppStore>().wallet!;
     if (wallet.type == WalletType.monero ||
         wallet.type == WalletType.wownero ||
-        wallet.type == WalletType.haven) {
+        wallet.type == WalletType.haven ||
+        wallet.type == WalletType.salvium) {
       return MoneroAccountListViewModel(wallet);
     }
     throw Exception(
@@ -861,6 +863,7 @@ Future<void> setup({
           monero!.getAccountList(getIt.get<AppStore>().wallet!),
           wownero?.getAccountList(getIt.get<AppStore>().wallet!),
           haven?.getAccountList(getIt.get<AppStore>().wallet!),
+          salvium?.getAccountList(getIt.get<AppStore>().wallet!),
           wallet: getIt.get<AppStore>().wallet!,
           accountListItem: account));
 
@@ -1056,6 +1059,8 @@ Future<void> setup({
     switch (param1) {
       case WalletType.haven:
         return haven!.createHavenWalletService(_walletInfoSource);
+      case WalletType.salvium:
+        return salvium!.createSalviumWalletService(_walletInfoSource);
       case WalletType.monero:
         return monero!.createMoneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.bitcoin:

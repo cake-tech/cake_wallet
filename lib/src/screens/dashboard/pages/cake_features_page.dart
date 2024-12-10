@@ -115,6 +115,7 @@ class CakeFeaturesPage extends StatelessWidget {
 
     switch (walletType) {
       case WalletType.haven:
+      case WalletType.salvium:
         showPopUp<void>(
             context: context,
             builder: (BuildContext context) {

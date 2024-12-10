@@ -3,6 +3,7 @@ import 'dart:io';
 const bitcoinOutputPath = 'lib/bitcoin/bitcoin.dart';
 const moneroOutputPath = 'lib/monero/monero.dart';
 const havenOutputPath = 'lib/haven/haven.dart';
+const salviumOutputPath = 'lib/salvium/salvium.dart';
 const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
 const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
 const nanoOutputPath = 'lib/nano/nano.dart';
@@ -20,6 +21,7 @@ Future<void> main(List<String> args) async {
   final hasBitcoin = args.contains('${prefix}bitcoin');
   final hasMonero = args.contains('${prefix}monero');
   final hasHaven = args.contains('${prefix}haven');
+  final hasSalvium = args.contains('${prefix}salvium');
   final hasEthereum = args.contains('${prefix}ethereum');
   final hasBitcoinCash = args.contains('${prefix}bitcoinCash');
   final hasNano = args.contains('${prefix}nano');
@@ -33,6 +35,7 @@ Future<void> main(List<String> args) async {
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
   await generateHaven(hasHaven);
+  await generateSalvium(hasSalvium);
   await generateEthereum(hasEthereum);
   await generateBitcoinCash(hasBitcoinCash);
   await generateNano(hasNano);
@@ -46,6 +49,7 @@ Future<void> main(List<String> args) async {
     hasMonero: hasMonero,
     hasBitcoin: hasBitcoin,
     hasHaven: hasHaven,
+    hasSalvium: hasSalvium,
     hasEthereum: hasEthereum,
     hasNano: hasNano,
     hasBanano: hasBanano,
@@ -60,6 +64,7 @@ Future<void> main(List<String> args) async {
     hasMonero: hasMonero,
     hasBitcoin: hasBitcoin,
     hasHaven: hasHaven,
+    hasSalvium: hasSalvium,
     hasEthereum: hasEthereum,
     hasNano: hasNano,
     hasBanano: hasBanano,
@@ -812,6 +817,185 @@ abstract class HavenAccountList {
       (hasImplementation ? havenCWDefinition : havenEmptyDefinition) +
       '\n' +
       havenContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
+Future<void> generateSalvium(bool hasImplementation) async {
+  final outputFile = File(salviumOutputPath);
+  const salviumCommonHeaders = """
+import 'package:mobx/mobx.dart';
+import 'package:flutter/foundation.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+import 'package:cw_core/crypto_currency.dart';""";
+  const salviumCWHeaders = """
+import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_core/monero_amount_format.dart';
+import 'package:cw_core/monero_transaction_priority.dart';
+import 'package:cw_salvium/salvium_wallet_service.dart';
+import 'package:cw_salvium/salvium_wallet.dart';
+import 'package:cw_salvium/salvium_transaction_info.dart';
+import 'package:cw_salvium/salvium_transaction_history.dart';
+import 'package:cw_core/account.dart' as monero_account;
+import 'package:cw_salvium/api/wallet.dart' as monero_wallet_api;
+import 'package:cw_salvium/mnemonics/english.dart';
+import 'package:cw_salvium/mnemonics/chinese_simplified.dart';
+import 'package:cw_salvium/mnemonics/dutch.dart';
+import 'package:cw_salvium/mnemonics/german.dart';
+import 'package:cw_salvium/mnemonics/japanese.dart';
+import 'package:cw_salvium/mnemonics/russian.dart';
+import 'package:cw_salvium/mnemonics/spanish.dart';
+import 'package:cw_salvium/mnemonics/portuguese.dart';
+import 'package:cw_salvium/mnemonics/french.dart';
+import 'package:cw_salvium/mnemonics/italian.dart';
+import 'package:cw_salvium/salvium_transaction_creation_credentials.dart';
+import 'package:cw_salvium/api/balance_list.dart';
+""";
+  const salviumCwPart = "part 'cw_salvium.dart';";
+  const salviumContent = """
+class Account {
+  Account({required this.id, required this.label});
+  final int id;
+  final String label;
+}
+
+class Subaddress {
+  Subaddress({
+    required this.id,
+    required this.label,
+    required this.address});
+  final int id;
+  final String label;
+  final String address;
+}
+
+class SalviumBalance extends Balance {
+  SalviumBalance({required this.fullBalance, required this.unlockedBalance})
+      : formattedFullBalance = salvium!.formatterMoneroAmountToString(amount: fullBalance),
+        formattedUnlockedBalance =
+            salvium!.formatterMoneroAmountToString(amount: unlockedBalance),
+        super(unlockedBalance, fullBalance);
+
+  SalviumBalance.fromString(
+      {required this.formattedFullBalance,
+      required this.formattedUnlockedBalance})
+      : fullBalance = salvium!.formatterMoneroParseAmount(amount: formattedFullBalance),
+        unlockedBalance = salvium!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
+        super(salvium!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
+            salvium!.formatterMoneroParseAmount(amount: formattedFullBalance));
+
+  final int fullBalance;
+  final int unlockedBalance;
+  final String formattedFullBalance;
+  final String formattedUnlockedBalance;
+
+  @override
+  String get formattedAvailableBalance => formattedUnlockedBalance;
+
+  @override
+  String get formattedAdditionalBalance => formattedFullBalance;
+}
+
+class AssetRate {
+  AssetRate(this.asset, this.rate);
+
+  final String asset;
+  final int rate;
+}
+
+abstract class SalviumWalletDetails {
+  // FIX-ME: it's abstract class
+  @observable
+  late Account account;
+  // FIX-ME: it's abstract class
+  @observable
+  late SalviumBalance balance;
+}
+
+abstract class Salvium {
+  SalviumAccountList getAccountList(Object wallet);
+  
+  MoneroSubaddressList getSubaddressList(Object wallet);
+
+  TransactionHistoryBase getTransactionHistory(Object wallet);
+
+  SalviumWalletDetails getMoneroWalletDetails(Object wallet);
+
+  String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
+
+  int getHeightByDate({required DateTime date});
+  Future<int> getCurrentHeight();
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority deserializeMoneroTransactionPriority({required int raw});
+  List<TransactionPriority> getTransactionPriorities();
+  List<String> getMoneroWordList(String language);
+
+  WalletCredentials createSalviumRestoreWalletFromKeysCredentials({
+      required String name,
+      required String spendKey,
+      required String viewKey,
+      required String address,
+      required String password,
+      required String language,
+      required int height});
+  WalletCredentials createSalviumRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
+  WalletCredentials createSalviumNewWalletCredentials({required String name, required String language, String? password});
+  Map<String, String> getKeys(Object wallet);
+  Object createSalviumTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority, required String assetType});
+  String formatterMoneroAmountToString({required int amount});
+  double formatterMoneroAmountToDouble({required int amount});
+  int formatterMoneroParseAmount({required String amount});
+  Account getCurrentAccount(Object wallet);
+  void setCurrentAccount(Object wallet, int id, String label);
+  void onStartup();
+  int getTransactionInfoAccountId(TransactionInfo tx);
+  WalletService createSalviumWalletService(Box<WalletInfo> walletInfoSource);
+  CryptoCurrency assetOfTransaction(TransactionInfo tx);
+  List<AssetRate> getAssetRate();
+}
+
+abstract class MoneroSubaddressList {
+  ObservableList<Subaddress> get subaddresses;
+  void update(Object wallet, {required int accountIndex});
+  void refresh(Object wallet, {required int accountIndex});
+  List<Subaddress> getAll(Object wallet);
+  Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
+  Future<void> setLabelSubaddress(Object wallet,
+      {required int accountIndex, required int addressIndex, required String label});
+}
+
+abstract class SalviumAccountList {
+  ObservableList<Account> get accounts;
+  void update(Object wallet);
+  void refresh(Object wallet);
+  List<Account> getAll(Object wallet);
+  Future<void> addAccount(Object wallet, {required String label});
+  Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
+}
+  """;
+
+  const salviumEmptyDefinition = 'Salvium? salvium;\n';
+  const salviumCWDefinition = 'Salvium? salvium = CWSalvium();\n';
+
+  final output = '$salviumCommonHeaders\n' +
+      (hasImplementation ? '$salviumCWHeaders\n' : '\n') +
+      (hasImplementation ? '$salviumCwPart\n\n' : '\n') +
+      (hasImplementation ? salviumCWDefinition : salviumEmptyDefinition) +
+      '\n' +
+      salviumContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();

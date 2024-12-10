@@ -1,5 +1,5 @@
 name: cw_shared_external
-description: Shared external libraries for monero and haven
+description: Shared external libraries for monero, haven and salvium
 version: 0.0.1
 author: Cake Walelt
 homepage: https://cakewallet.com

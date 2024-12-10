@@ -28,7 +28,7 @@ abstract class ContactListViewModelBase with Store {
         isAutoGenerateEnabled =
             settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
     walletInfoSource.values.forEach((info) {
-      if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) &&
+      if ([WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.salvium].contains(info.type) &&
           info.addressInfos != null) {
         for (var key in info.addressInfos!.keys) {
           final value = info.addressInfos![key];
@@ -43,7 +43,7 @@ abstract class ContactListViewModelBase with Store {
           }
         }
       } else if (info.addresses?.isNotEmpty == true && info.addresses!.length > 1) {
-        if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)) {
+        if ([WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.salvium].contains(info.type)) {
           final address = info.address;
           final name = _createName(info.name, "", key: 0);
           walletContacts.add(WalletContact(
@@ -71,7 +71,7 @@ abstract class ContactListViewModelBase with Store {
         walletContacts.add(WalletContact(
           info.address,
           _createName(info.name, "",
-              key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
+              key: [WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.salvium].contains(info.type)
                   ? 0
                   : null),
           walletTypeToCryptoCurrency(info.type),

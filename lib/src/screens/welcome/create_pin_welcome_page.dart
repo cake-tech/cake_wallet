@@ -25,6 +25,10 @@ class CreatePinWelcomePage extends BasePage {
       return S.of(context).haven_app;
     }
 
+    if (isSalvium) {
+      return S.of(context).salvium_app;
+    }
+
     return S.of(context).cake_wallet;
   }
 
@@ -35,6 +39,10 @@ class CreatePinWelcomePage extends BasePage {
 
     if (isHaven) {
       return S.of(context).haven_app_wallet_text;
+    }
+
+    if (isSalvium) {
+      return S.of(context).salvium_app_wallet_text;
     }
 
     return S.of(context).new_first_wallet_text;

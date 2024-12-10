@@ -127,6 +127,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialWowneroTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
+      TransactionPriority? initialSalviumTransactionPriority,
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority,
       TransactionPriority? initialPolygonTransactionPriority,
@@ -198,6 +199,10 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.haven] = initialHavenTransactionPriority;
     }
 
+    if (initialSalviumTransactionPriority != null) {
+      priority[WalletType.salvium] = initialSalviumTransactionPriority;
+    }
+
     if (initialLitecoinTransactionPriority != null) {
       priority[WalletType.litecoin] = initialLitecoinTransactionPriority;
     }
@@ -257,6 +262,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.haven:
           key = PreferencesKey.havenTransactionPriority;
+          break;
+        case WalletType.salvium:
+          key = PreferencesKey.salviumTransactionPriority;
           break;
         case WalletType.ethereum:
           key = PreferencesKey.ethereumTransactionPriority;
@@ -865,6 +873,7 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority)!);
 
     TransactionPriority? havenTransactionPriority;
+    TransactionPriority? salviumTransactionPriority;
     TransactionPriority? litecoinTransactionPriority;
     TransactionPriority? ethereumTransactionPriority;
     TransactionPriority? polygonTransactionPriority;
@@ -874,6 +883,10 @@ abstract class SettingsStoreBase with Store {
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.havenTransactionPriority)!);
+    }
+    if (sharedPreferences.getInt(PreferencesKey.salviumTransactionPriority) != null) {
+      salviumTransactionPriority = monero?.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.salviumTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority) != null) {
       litecoinTransactionPriority = bitcoin?.deserializeLitecoinTransactionPriority(
@@ -899,6 +912,7 @@ abstract class SettingsStoreBase with Store {
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
     havenTransactionPriority ??= monero?.getDefaultTransactionPriority();
+    salviumTransactionPriority ??= monero?.getDefaultTransactionPriority();
     litecoinTransactionPriority ??= bitcoin?.getLitecoinTransactionPriorityMedium();
     ethereumTransactionPriority ??= ethereum?.getDefaultTransactionPriority();
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
@@ -995,6 +1009,7 @@ abstract class SettingsStoreBase with Store {
     final bitcoinCashElectrumServerId =
         sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
+    final salviumNodeId = sharedPreferences.getInt(PreferencesKey.currentSalviumNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
@@ -1006,6 +1021,7 @@ abstract class SettingsStoreBase with Store {
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
+    final salviumNode = nodeSource.get(salviumNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
     final polygonNode = nodeSource.get(polygonNodeId);
     final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId);
@@ -1061,6 +1077,10 @@ abstract class SettingsStoreBase with Store {
 
     if (havenNode != null) {
       nodes[WalletType.haven] = havenNode;
+    }
+
+    if (salviumNode != null) {
+      nodes[WalletType.salvium] = salviumNode;
     }
 
     if (ethereumNode != null) {
@@ -1257,6 +1277,7 @@ abstract class SettingsStoreBase with Store {
       initialWowneroTransactionPriority: wowneroTransactionPriority,
       initialBitcoinTransactionPriority: bitcoinTransactionPriority,
       initialHavenTransactionPriority: havenTransactionPriority,
+      initialSalviumTransactionPriority: salviumTransactionPriority,
       initialLitecoinTransactionPriority: litecoinTransactionPriority,
       initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
@@ -1308,6 +1329,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       priority[WalletType.haven] = monero!.deserializeMoneroTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.havenTransactionPriority)!);
+    }
+    if (monero != null &&
+        sharedPreferences.getInt(PreferencesKey.salviumTransactionPriority) != null) {
+      priority[WalletType.salvium] = monero!.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.salviumTransactionPriority)!);
     }
     if (bitcoin != null &&
         sharedPreferences.getInt(PreferencesKey.litecoinTransactionPriority) != null) {
@@ -1431,6 +1457,7 @@ abstract class SettingsStoreBase with Store {
     final bitcoinCashElectrumServerId =
         sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
+    final salviumNodeId = sharedPreferences.getInt(PreferencesKey.currentSalviumNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
@@ -1441,6 +1468,7 @@ abstract class SettingsStoreBase with Store {
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
+    final salviumNode = nodeSource.get(salviumNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
     final polygonNode = nodeSource.get(polygonNodeId);
     final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
@@ -1462,6 +1490,10 @@ abstract class SettingsStoreBase with Store {
 
     if (havenNode != null) {
       nodes[WalletType.haven] = havenNode;
+    }
+
+    if (salviumNode != null) {
+      nodes[WalletType.salvium] = salviumNode;
     }
 
     if (ethereumNode != null) {
@@ -1605,6 +1637,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.haven:
         await _sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, node.key as int);
+        break;
+      case WalletType.salvium:
+        await _sharedPreferences.setInt(PreferencesKey.currentSalviumNodeIdKey, node.key as int);
         break;
       case WalletType.ethereum:
         await _sharedPreferences.setInt(PreferencesKey.currentEthereumNodeIdKey, node.key as int);

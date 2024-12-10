@@ -152,6 +152,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.haven:
+      case WalletType.salvium:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.nano:
@@ -170,6 +171,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.haven:
+      case WalletType.salvium:
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.solana:

@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
+import 'package:cake_wallet/entities/update_salvium_rate.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -82,6 +83,10 @@ void startCurrentWalletChangeReaction(
 
       if (wallet.type == WalletType.haven) {
         await updateHavenRate(fiatConversionStore);
+      }
+
+      if (wallet.type == WalletType.salvium) {
+        await updateSalviumRate(fiatConversionStore);
       }
 
       if (wallet.walletInfo.address.isEmpty) {

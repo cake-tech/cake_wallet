@@ -5,6 +5,7 @@ class PreferencesKey {
   static const currentBitcoinElectrumSererIdKey = 'current_node_id_btc';
   static const currentLitecoinElectrumSererIdKey = 'current_node_id_ltc';
   static const currentHavenNodeIdKey = 'current_node_id_xhv';
+  static const currentSalviumNodeIdKey = 'current_node_id_sal';
   static const currentEthereumNodeIdKey = 'current_node_id_eth';
   static const currentPolygonNodeIdKey = 'current_node_id_matic';
   static const currentNanoNodeIdKey = 'current_node_id_nano';
@@ -41,6 +42,7 @@ class PreferencesKey {
   static const moneroTransactionPriority = 'current_fee_priority_monero';
   static const bitcoinTransactionPriority = 'current_fee_priority_bitcoin';
   static const havenTransactionPriority = 'current_fee_priority_haven';
+  static const salviumTransactionPriority = 'current_fee_priority_salvium';
   static const litecoinTransactionPriority = 'current_fee_priority_litecoin';
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';

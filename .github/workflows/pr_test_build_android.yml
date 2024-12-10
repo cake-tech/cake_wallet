@@ -81,6 +81,7 @@ jobs:
         with:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
+            /opt/android/cake_wallet/cw_salvium/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
           key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
 
@@ -95,7 +96,6 @@ jobs:
         run: |
           cd /opt/android/cake_wallet
           flutter pub get
-
 
       - name: Install go and gomobile
         run: |
@@ -114,7 +114,6 @@ jobs:
           export PATH=$PATH:~/go/bin
           cd /opt/android/cake_wallet/scripts/android/
           ./build_mwebd.sh --dont-install
-
 
       - name: Set up cache path
         id: cache-path
@@ -293,4 +292,3 @@ jobs:
           title: "${{ env.BRANCH_NAME }}.apk"
           filename: ${{ env.BRANCH_NAME }}.apk
           initial_comment: ${{ github.event.head_commit.message }}
-

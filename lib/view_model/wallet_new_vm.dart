@@ -5,6 +5,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/salvium/salvium.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -46,7 +47,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   String selectedMnemonicLanguage;
 
   bool get hasLanguageSelector =>
-      [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
+      [WalletType.monero, WalletType.haven, WalletType.wownero, WalletType.salvium].contains(type);
 
   int get seedPhraseWordsLength {
     switch (type) {
@@ -99,6 +100,9 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
+            name: name, language: options!.first as String, password: walletPassword);
+      case WalletType.salvium:
+        return salvium!.createSalviumNewWalletCredentials(
             name: name, language: options!.first as String, password: walletPassword);
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(

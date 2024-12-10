@@ -6,6 +6,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/salvium/salvium.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 
 part 'monero_account_edit_or_create_view_model.g.dart';
@@ -14,7 +15,7 @@ class MoneroAccountEditOrCreateViewModel = MoneroAccountEditOrCreateViewModelBas
     with _$MoneroAccountEditOrCreateViewModel;
 
 abstract class MoneroAccountEditOrCreateViewModelBase with Store {
-  MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList, this._wowneroAccountList, this._havenAccountList,
+  MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList, this._wowneroAccountList, this._havenAccountList, this._salviumAccountList,
       {required WalletBase wallet, AccountListItem? accountListItem})
       : state = InitialExecutionState(),
         isEdit = accountListItem != null,
@@ -33,6 +34,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   final MoneroAccountList _moneroAccountList;
   final WowneroAccountList? _wowneroAccountList;
   final HavenAccountList? _havenAccountList;
+  final SalviumAccountList? _salviumAccountList;
   final AccountListItem? _accountListItem;
   final WalletBase _wallet;
 
@@ -43,6 +45,10 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
 
     if (_wallet.type == WalletType.haven) {
       await saveHaven();
+    }
+
+    if (_wallet.type == WalletType.salvium) {
+      await saveSalvium();
     }
 
     if (_wallet.type == WalletType.wownero) {
@@ -87,6 +93,32 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
             label: label);
       } else {
         await _havenAccountList!.addAccount(
+          _wallet,
+          label: label);
+      }
+
+      await _wallet.save();
+      state = ExecutedSuccessfullyState();
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
+  }
+
+  Future<void> saveSalvium() async {
+    if (!(_wallet.type == WalletType.salvium)) {
+      return;
+    }
+
+    try {
+      state = IsExecutingState();
+
+      if (_accountListItem != null) {
+        await _salviumAccountList!.setLabelAccount(
+            _wallet,
+            accountIndex: _accountListItem!.id,
+            label: label);
+      } else {
+        await _salviumAccountList!.addAccount(
           _wallet,
           label: label);
       }

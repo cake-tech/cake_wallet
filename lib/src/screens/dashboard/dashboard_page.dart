@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart'
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/haven_wallet_removal_popup.dart';
+import 'package:cake_wallet/src/widgets/salvium_wallet_removal_popup.dart';
 import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
 import 'package:cake_wallet/src/widgets/vulnerable_seeds_popup.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
@@ -366,6 +367,8 @@ class _DashboardPageView extends BasePage {
 
     _showHavenPopup(context);
 
+    _showSalviumPopup(context);
+
     var needToPresentYat = false;
     var isInactive = false;
 
@@ -455,6 +458,24 @@ class _DashboardPageView extends BasePage {
             context: context,
             builder: (BuildContext context) {
               return HavenWalletRemovalPopup(havenWalletList);
+            },
+          );
+        },
+      );
+    }
+  }
+
+  void _showSalviumPopup(BuildContext context) async {
+    final List<String> salviumWalletList = await dashboardViewModel.checkForSalviumWallets();
+
+    if (salviumWalletList.isNotEmpty) {
+      Future<void>.delayed(
+        Duration(seconds: 1),
+        () {
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return SalviumWalletRemovalPopup(salviumWalletList);
             },
           );
         },

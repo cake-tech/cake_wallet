@@ -1,0 +1,3 @@
+- uri: nodes.salvium.org:443
+  useSSL: true
+  is_default: true

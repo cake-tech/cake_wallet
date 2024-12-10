@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/salvium/salvium.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
@@ -37,6 +38,7 @@ abstract class WalletKeysViewModelBase with Store {
 
     if (_appStore.wallet!.type == WalletType.monero ||
         _appStore.wallet!.type == WalletType.haven ||
+        _appStore.wallet!.type == WalletType.salvium ||
         _appStore.wallet!.type == WalletType.wownero) {
       final accountTransactions = _getWalletTransactions(_appStore.wallet!);
       if (accountTransactions.isNotEmpty) {
@@ -133,6 +135,47 @@ abstract class WalletKeysViewModelBase with Store {
 
     if (_appStore.wallet!.type == WalletType.haven) {
       final keys = haven!.getKeys(_appStore.wallet!);
+
+      items.addAll([
+        if (keys['primaryAddress'] != null)
+          StandartListItem(
+              title: S.current.primary_address,
+              value: keys['primaryAddress']!),
+        if (keys['publicSpendKey'] != null)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_public_spend_key_item_key'),
+            title: S.current.spend_key_public,
+            value: keys['publicSpendKey']!,
+          ),
+        if (keys['privateSpendKey'] != null)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_private_spend_key_item_key'),
+            title: S.current.spend_key_private,
+            value: keys['privateSpendKey']!,
+          ),
+        if (keys['publicViewKey'] != null)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_public_view_key_item_key'),
+            title: S.current.view_key_public,
+            value: keys['publicViewKey']!,
+          ),
+        if (keys['privateViewKey'] != null)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_private_view_key_item_key'),
+            title: S.current.view_key_private,
+            value: keys['privateViewKey']!,
+          ),
+        if (_appStore.wallet!.seed!.isNotEmpty)
+          StandartListItem(
+            key: ValueKey('${_walletName}_wallet_seed_item_key'),
+            title: S.current.wallet_seed,
+            value: _appStore.wallet!.seed!,
+          ),
+      ]);
+    }
+
+    if (_appStore.wallet!.type == WalletType.salvium) {
+      final keys = salvium!.getKeys(_appStore.wallet!);
 
       items.addAll([
         if (keys['primaryAddress'] != null)
@@ -295,6 +338,9 @@ abstract class WalletKeysViewModelBase with Store {
     if (_appStore.wallet!.type == WalletType.haven) {
       return await haven!.getCurrentHeight();
     }
+    if (_appStore.wallet!.type == WalletType.salvium) {
+      return await salvium!.getCurrentHeight();
+    }
     if (_appStore.wallet!.type == WalletType.monero) {
       return await monero!.getCurrentHeight();
     }
@@ -314,6 +360,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'litecoin-wallet';
       case WalletType.haven:
         return 'haven-wallet';
+      case WalletType.salvium:
+        return 'salvium-wallet';
       case WalletType.ethereum:
         return 'ethereum-wallet';
       case WalletType.bitcoinCash:
@@ -369,6 +417,8 @@ abstract class WalletKeysViewModelBase with Store {
       return monero!.getTransactionHistory(wallet).transactions.values.toList();
     } else if (wallet.type == WalletType.haven) {
       return haven!.getTransactionHistory(wallet).transactions.values.toList();
+    } else if (wallet.type == WalletType.salvium) {
+      return salvium!.getTransactionHistory(wallet).transactions.values.toList();
     } else if (wallet.type == WalletType.wownero) {
       return wownero!.getTransactionHistory(wallet).transactions.values.toList();
     }
@@ -380,6 +430,8 @@ abstract class WalletKeysViewModelBase with Store {
       return monero!.getHeightByDate(date: date);
     } else if (type == WalletType.haven) {
       return haven!.getHeightByDate(date: date);
+    } else if (type == WalletType.salvium) {
+      return salvium!.getHeightByDate(date: date);
     } else if (type == WalletType.wownero) {
       return wownero!.getHeightByDate(date: date);
     }
