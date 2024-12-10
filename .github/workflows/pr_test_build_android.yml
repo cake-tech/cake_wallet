@@ -61,6 +61,19 @@ jobs:
           sudo apt update
           sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
 
+      - name: Cache Keystore
+        id: cache-keystore
+        uses: actions/cache@v3
+        with:
+          path: /opt/android/cake_wallet/android/app
+          key: keystore
+
+      - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
+        name: Generate KeyStore
+        run: |
+          cd /opt/android/cake_wallet/android/app
+          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
+
       - name: Execute Build and Setup Commands
         run: |
           sudo mkdir -p /opt/android
@@ -114,24 +127,6 @@ jobs:
           export PATH=$PATH:~/go/bin
           cd /opt/android/cake_wallet/scripts/android/
           ./build_mwebd.sh --dont-install
-
-
-      - name: Set up cache path
-        id: cache-path
-        run: echo "cache-file-path=/opt/android/cake_wallet/android/app/key.jks" >> $GITHUB_ENV
-
-      - name: Cache Keystore
-        id: cache-keystore
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.cache-file-path }}
-          key: keystore
-
-      - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
-        name: Generate KeyStore
-        run: |
-          cd /opt/android/cake_wallet/android/app
-          keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass $STORE_PASS -keypass $KEY_PASS
 
       - name: Generate key properties
         run: |
