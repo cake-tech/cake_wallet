@@ -25,7 +25,10 @@ abstract class TronTransactionHistoryBase extends TransactionHistoryBase<TronTra
   final WalletInfo walletInfo;
   final EncryptionFileUtils encryptionFileUtils;
 
-  Future<void> init() async => await _load();
+  Future<void> init() async {
+    clear();
+    await _load();
+  }
 
   @override
   Future<void> save() async {

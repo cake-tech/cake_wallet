@@ -34,7 +34,10 @@ abstract class EVMChainTransactionHistoryBase
 
   //! Common methods across all child classes
 
-  Future<void> init() async => await _load();
+  Future<void> init() async {
+    clear();
+    await _load();
+  }
 
   @override
   Future<void> save() async {
@@ -81,6 +84,7 @@ abstract class EVMChainTransactionHistoryBase
           _update(tx);
         }
       }
+      print('doneee');
     } catch (e) {
       log(e.toString());
     }
