@@ -91,40 +91,59 @@ abstract class WalletListViewModelBase with Store {
     multiWalletGroups.clear();
     singleWalletsList.clear();
 
-    wallets.addAll(
-      _walletInfoSource.values
-          .map((info) => convertWalletInfoToWalletListItem(info)),
-    );
+    for (var info in _walletInfoSource.values) {
+      wallets.add(convertWalletInfoToWalletListItem(info));
+    }
 
     //========== Split into shared seed groups and single wallets list
     _walletManager.updateWalletGroups();
 
-    for (var group in _walletManager.walletGroups) {
-      bool shouldAddToSingleWallets = group.wallets.any((wallet) {
+    final walletGroupsFromManager = _walletManager.walletGroups;
+
+    for (var group in walletGroupsFromManager) {
+      if (group.wallets.length == 1) {
+        singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
+        continue;
+      }
+
+      // Identify wallets that should be moved to singleWalletsList using the filters: the type/derivation
+      final excludedWallets = <WalletInfo>[];
+
+      for (var wallet in group.wallets) {
         // Check for non-BIP39 wallet types
-        bool isNonBIP39Wallet = !isBIP39Wallet(wallet.type);
+        final isNonBIP39 = !isBIP39Wallet(wallet.type);
 
         // Check for nano derivation type
-        bool isNanoDerivationType = wallet.type == WalletType.nano &&
+        final isNanoDerivation = wallet.type == WalletType.nano &&
             wallet.derivationInfo?.derivationType == DerivationType.nano;
 
         // Check for electrum derivation type
-        bool isElectrumDerivationType =
+        final isElectrumDerivation =
             (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) &&
                 wallet.derivationInfo?.derivationType == DerivationType.electrum;
 
-        // Exclude if any of these conditions are true
-        return isNonBIP39Wallet || isNanoDerivationType || isElectrumDerivationType;
+        if (isNonBIP39 || isNanoDerivation || isElectrumDerivation) {
+          excludedWallets.add(wallet);
+        }
+      }
+
+      // Add excluded wallets to singleWalletsList
+      for (var excludedWallet in excludedWallets) {
+        singleWalletsList.add(convertWalletInfoToWalletListItem(excludedWallet));
+      }
+
+      // Remove excluded wallets from the group's wallets to avoid duplication
+      group.wallets.removeWhere((wallet) {
+        return excludedWallets.any((excluded) => excluded.address == wallet.address);
       });
 
-      if (shouldAddToSingleWallets) {
-        for (var wallet in group.wallets) {
-          singleWalletsList.add(convertWalletInfoToWalletListItem(wallet));
-        }
-      } else if (group.wallets.length == 1) {
-        singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
-      } else {
+      // Check if the group has more than one wallet after the excluded wallets are removed.
+      if (group.wallets.length > 1) {
+        //Add the entire group to the multi wallet group list since its still a multi wallet
         multiWalletGroups.add(group);
+      } else if (group.wallets.length == 1) {
+        // Add the group to the wallet left to the single wallets list
+        singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
       }
     }
   }
