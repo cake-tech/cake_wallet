@@ -6,6 +6,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/salvium/salvium.dart';
 
 part 'monero_account_list_view_model.g.dart';
 
@@ -34,6 +35,14 @@ abstract class MoneroAccountListViewModelBase with Store {
             label: acc.label,
             id: acc.id,
             isSelected: acc.id == haven!.getCurrentAccount(_wallet).id))
+        .toList();
+    }
+
+    if (_wallet.type == WalletType.salvium) {
+      return salvium!.getAccountList(_wallet).accounts.map((acc) => AccountListItem(
+            label: acc.label,
+            id: acc.id,
+            isSelected: acc.id == salvium!.getCurrentAccount(_wallet).id))
         .toList();
     }
 
@@ -85,6 +94,13 @@ abstract class MoneroAccountListViewModelBase with Store {
 
     if (_wallet.type == WalletType.haven) {
       haven!.setCurrentAccount(
+        _wallet,
+        item.id,
+        item.label);
+    }
+
+    if (_wallet.type == WalletType.salvium) {
+      salvium!.setCurrentAccount(
         _wallet,
         item.id,
         item.label);

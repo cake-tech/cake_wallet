@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/salvium/salvium.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -102,6 +103,9 @@ abstract class OutputBase with Store {
           case WalletType.haven:
             _amount = haven!.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
+          case WalletType.salvium:
+            _amount = salvium!.formatterSalviumParseAmount(amount: _cryptoAmount);
+            break;
           case WalletType.ethereum:
             _amount = ethereum!.formatterEthereumParseAmount(_cryptoAmount);
             break;
@@ -170,6 +174,10 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.haven) {
         return haven!.formatterMoneroAmountToDouble(amount: fee);
+      }
+
+      if (_wallet.type == WalletType.salvium) {
+        return salvium!.formatterSalviumAmountToDouble(amount: fee);
       }
 
       if (_wallet.type == WalletType.ethereum) {
@@ -292,6 +300,9 @@ abstract class OutputBase with Store {
         maximumFractionDigits = 8;
         break;
       case WalletType.haven:
+        maximumFractionDigits = 12;
+        break;
+      case WalletType.salvium:
         maximumFractionDigits = 12;
         break;
       case WalletType.ethereum:

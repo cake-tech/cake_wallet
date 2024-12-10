@@ -9,6 +9,7 @@ const walletTypes = [
   WalletType.bitcoin,
   WalletType.litecoin,
   WalletType.haven,
+  WalletType.salvium,
   WalletType.ethereum,
   WalletType.bitcoinCash,
   WalletType.nano,
@@ -58,6 +59,9 @@ enum WalletType {
 
   @HiveField(12)
   wownero,
+
+  @HiveField(13)
+  salvium,
 }
 
 int serializeToInt(WalletType type) {
@@ -86,6 +90,8 @@ int serializeToInt(WalletType type) {
       return 10;
     case WalletType.wownero:
       return 11;
+    case WalletType.salvium:
+      return 12;
     case WalletType.none:
       return -1;
   }
@@ -117,6 +123,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.tron;
     case 11:
       return WalletType.wownero;
+    case 12:
+      return WalletType.salvium;
     default:
       throw Exception('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -148,6 +156,8 @@ String walletTypeToString(WalletType type) {
       return 'Tron';
     case WalletType.wownero:
       return 'Wownero';
+    case WalletType.salvium:
+      return 'Salvium';
     case WalletType.none:
       return '';
   }
@@ -179,6 +189,8 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Tron (TRX)';
     case WalletType.wownero:
       return 'Wownero (WOW)';
+    case WalletType.salvium:
+      return 'Salvium (SAL)';
     case WalletType.none:
       return '';
   }
@@ -213,6 +225,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.trx;
     case WalletType.wownero:
       return CryptoCurrency.wow;
+    case WalletType.salvium:
+      return CryptoCurrency.salvium;
     case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');

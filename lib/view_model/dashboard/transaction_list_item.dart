@@ -15,6 +15,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/salvium/salvium.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -67,6 +68,11 @@ class TransactionListItem extends ActionListItem with Keyable {
           return ' (${transaction.confirmations}/10)';
         }
         break;
+      case WalletType.salvium:
+        if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
+          return ' (${transaction.confirmations}/10)';
+        }
+        break;
       case WalletType.wownero:
         if (transaction.confirmations >= 0 && transaction.confirmations < 3) {
           return ' (${transaction.confirmations}/3)';
@@ -101,6 +107,7 @@ class TransactionListItem extends ActionListItem with Keyable {
     if ([
       WalletType.monero,
       WalletType.haven,
+      WalletType.salvium,
       WalletType.wownero,
       WalletType.litecoin,
     ].contains(balanceViewModel.wallet.type)) {
@@ -171,6 +178,13 @@ class TransactionListItem extends ActionListItem with Keyable {
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
             cryptoAmount: haven!.formatterMoneroAmountToDouble(amount: transaction.amount),
+            price: price);
+        break;
+      case WalletType.salvium:
+        final asset = salvium!.assetOfTransaction(transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: salvium!.formatterSalviumAmountToDouble(amount: transaction.amount),
             price: price);
         break;
       case WalletType.ethereum:

@@ -126,10 +126,15 @@ cw_shared_external/ios/External/
 cw_haven/ios/External/
 cw_haven/android/.externalNativeBuild/
 cw_haven/android/.cxx/
+# cw_salvium/**
+cw_salvium/ios/External/
+cw_salvium/android/.externalNativeBuild/
+cw_salvium/android/.cxx/
 
 lib/bitcoin/bitcoin.dart
 lib/monero/monero.dart
 lib/haven/haven.dart
+lib/salvium/salvium.dart
 lib/ethereum/ethereum.dart
 lib/bitcoin_cash/bitcoin_cash.dart
 lib/nano/nano.dart

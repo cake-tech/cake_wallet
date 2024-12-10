@@ -74,6 +74,7 @@ jobs:
         with:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
+            /opt/android/cake_wallet/cw_salvium/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
           key: linux_${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
 
@@ -200,7 +201,6 @@ jobs:
         uses: kittaakos/upload-artifact-as-is@v0
         with:
           path: /opt/android/cake_wallet/build/linux/x64/release/${{env.BRANCH_NAME}}.zip
-
 #        Just as an artifact would be enough
 #      - name: Send Test APK
 #        continue-on-error: true

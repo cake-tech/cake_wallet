@@ -21,83 +21,89 @@
 [Cake Wallet](https://cakewallet.com) is an open-source, non-custodial, and private multi-currency crypto wallet for Android, iOS, macOS, and Linux.
 
 Cake Wallet includes support for several cryptocurrencies, including:
-* Monero (XMR)
-* Bitcoin (BTC)
-* Ethereum (ETH)
-* Litecoin (LTC)
-* Bitcoin Cash (BCH)
-* Polygon (Pol)
-* Solana (SOL)
-* Nano (XNO)
-* Haven (XHV)
+
+- Monero (XMR)
+- Bitcoin (BTC)
+- Ethereum (ETH)
+- Litecoin (LTC)
+- Bitcoin Cash (BCH)
+- Polygon (Pol)
+- Solana (SOL)
+- Nano (XNO)
+- Haven (XHV)
+- Salvium (XRM)
 
 ## Features
 
 ### App-Wide Features
 
-* Completely noncustodial. *Your keys, your coins.*
-* Built-in exchange for dozens of pairs
-* Easily pay cryptocurrency invoices with fixed rate exchanges
-* Buy cryptocurrency (BTC/LTC/XMR/ETH) with credit/debit/bank
-* Sell cryptocurrency by bank transfer
-* Scan QR codes for easy cryptocurrency transfers
-* Create several wallets
-* Select your own custom nodes/servers
-* Address book
-* Backup to an external location or iCloud
-* Send to OpenAlias, Unstoppable Domains, Yats, and FIO Crypto Handles
-* Set desired network fee level
-* Store local transaction notes
-* Extremely simple user experience
-* Convenient exchange and sending templates for recurring payments
-* Create donation links and invoices in the receive screen
-* Robust privacy settings (eg: Tor-only connections)
-* Robust security settings (eg: Cake 2FA)
+- Completely noncustodial. _Your keys, your coins._
+- Built-in exchange for dozens of pairs
+- Easily pay cryptocurrency invoices with fixed rate exchanges
+- Buy cryptocurrency (BTC/LTC/XMR/ETH) with credit/debit/bank
+- Sell cryptocurrency by bank transfer
+- Scan QR codes for easy cryptocurrency transfers
+- Create several wallets
+- Select your own custom nodes/servers
+- Address book
+- Backup to an external location or iCloud
+- Send to OpenAlias, Unstoppable Domains, Yats, and FIO Crypto Handles
+- Set desired network fee level
+- Store local transaction notes
+- Extremely simple user experience
+- Convenient exchange and sending templates for recurring payments
+- Create donation links and invoices in the receive screen
+- Robust privacy settings (eg: Tor-only connections)
+- Robust security settings (eg: Cake 2FA)
 
 ### Monero Specific Features
 
-* The Monero view key is retained on the device for maximum privacy
-* Full support for Monero subaddresses and accounts
-* Specify restore height for faster syncing
-* Specify multiple recipients for batch sending
-* Optionally set Monero nodes as trusted for faster syncing
-* Specify a proxy for Monero nodes, compatible with Tor and i2p
+- The Monero view key is retained on the device for maximum privacy
+- Full support for Monero subaddresses and accounts
+- Specify restore height for faster syncing
+- Specify multiple recipients for batch sending
+- Optionally set Monero nodes as trusted for faster syncing
+- Specify a proxy for Monero nodes, compatible with Tor and i2p
 
 ### Bitcoin Specific Features
 
-* Bitcoin coin control (specify specific outputs to spend)
-* Automatically generate new addresses
-* Specify multiple recipients for batch sending
+- Bitcoin coin control (specify specific outputs to spend)
+- Automatically generate new addresses
+- Specify multiple recipients for batch sending
 
 ### Ethereum Specific Features
 
-* Store ETH and all ERc-20 tokens
-* Add custom tokens by contract address
-* Enable or disable Etherscan for transaction history
+- Store ETH and all ERc-20 tokens
+- Add custom tokens by contract address
+- Enable or disable Etherscan for transaction history
 
 ### Litecoin Specific Features
 
-* Litecoin coin control (specify specific outputs to spend)
-* Automatically generate new addresses
-* Specify multiple recipients for batch sending
+- Litecoin coin control (specify specific outputs to spend)
+- Automatically generate new addresses
+- Specify multiple recipients for batch sending
 
 ### Haven Specific Features
 
-* Send, receive, and store XHV and all xAssets like xUSD, xEUR, xAG, etc.
+- Send, receive, and store XHV and all xAssets like xUSD, xEUR, xAG, etc.
+
+### Salvium Specific Features
+
+- Add Salvium specfic features here
 
 # Monero.com by Cake Wallet for Android and iOS
 
 ## Open Source Monero-Only Wallet
 
-*Exchanging to/from other assets is also supported.*
+_Exchanging to/from other assets is also supported._
 
 ## Links
 
-* Website: https://monero.com
-* App Store (iOS): https://apps.apple.com/app/id1601990386
-* Google Play: https://play.google.com/store/apps/details?id=com.monero.app
-* F-Droid: https://fdroid.cakelabs.com
-* APK: https://github.com/cake-tech/cake_wallet/releases
+- Website: https://monero.com
+- App Store (iOS): https://apps.apple.com/app/id1601990386
+- Google Play: https://play.google.com/store/apps/details?id=com.monero.app
+- F-Droid: https://fdroid.cakelabs.com
+- APK: https://github.com/cake-tech/cake_wallet/releases
 
 ### APK Verification
 

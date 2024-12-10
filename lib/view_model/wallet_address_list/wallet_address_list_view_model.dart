@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/salvium/salvium.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -62,6 +63,21 @@ class HavenURI extends PaymentURI {
   @override
   String toString() {
     var base = 'haven:$address';
+
+    if (amount.isNotEmpty) {
+      base += '?tx_amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
+class SalviumURI extends PaymentURI {
+  SalviumURI({required super.amount, required super.address});
+
+  @override
+  String toString() {
+    var base = 'salvium:$address';
 
     if (amount.isNotEmpty) {
       base += '?tx_amount=${amount.replaceAll(',', '.')}';
@@ -214,7 +230,7 @@ abstract class WalletAddressListViewModelBase
   })  : _baseItems = <ListItem>[],
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
-        hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven]
+        hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.salvium]
             .contains(appStore.wallet!.type),
         amount = '',
         _settingsStore = appStore.settingsStore,
@@ -227,7 +243,7 @@ abstract class WalletAddressListViewModelBase
     _init();
 
     selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
-    hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven]
+    hasAccounts = [WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.salvium]
         .contains(wallet.type);
   }
 
@@ -278,6 +294,8 @@ abstract class WalletAddressListViewModelBase
         return MoneroURI(amount: amount, address: address.address);
       case WalletType.haven:
         return HavenURI(amount: amount, address: address.address);
+      case WalletType.salvium:
+        return SalviumURI(amount: amount, address: address.address);
       case WalletType.bitcoin:
         return BitcoinURI(amount: amount, address: address.address);
       case WalletType.litecoin:
@@ -359,6 +377,21 @@ abstract class WalletAddressListViewModelBase
             isPrimary: isPrimary,
             name: subaddress.label,
             address: subaddress.address);
+      });
+      addressList.addAll(addressItems);
+    }
+
+    if (wallet.type == WalletType.salvium) {
+      final primaryAddress = salvium!.getSubaddressList(wallet).subaddresses.first;
+      final addressItems = salvium!.getSubaddressList(wallet).subaddresses.map((subaddress) {
+        final isPrimary = subaddress == primaryAddress;
+
+        return WalletAddressListItem(
+          id: subaddress.id,
+          isPrimary: isPrimary,
+          name: subaddress.label,
+          address: subaddress.address,
+        );
       });
       addressList.addAll(addressItems);
     }
@@ -511,6 +544,8 @@ abstract class WalletAddressListViewModelBase
       haven!
           .getSubaddressList(wallet)
           .update(wallet, accountIndex: haven!.getCurrentAccount(wallet).id);
+    } else if (wallet.type == WalletType.salvium) {
+      salvium!.getSubaddressList(wallet).update(wallet, accountIndex: salvium!.getCurrentAccount(wallet).id);
     }
   }
 
@@ -526,6 +561,8 @@ abstract class WalletAddressListViewModelBase
         wownero!.getCurrentAccount(wallet).label;
       case WalletType.haven:
         return haven!.getCurrentAccount(wallet).label;
+      case WalletType.salvium:
+        return salvium!.getCurrentAccount(wallet).label;
       default:
         return '';
     }
@@ -537,6 +574,7 @@ abstract class WalletAddressListViewModelBase
         WalletType.monero,
         WalletType.wownero,
         WalletType.haven,
+        WalletType.salvium,
         WalletType.bitcoinCash,
         WalletType.bitcoin,
         WalletType.litecoin
@@ -598,6 +636,7 @@ abstract class WalletAddressListViewModelBase
       WalletType.monero,
       WalletType.wownero,
       WalletType.haven,
+      WalletType.salvium,
     ].contains(wallet.type)) {
       _baseItems.add(WalletAccountListHeader());
     }

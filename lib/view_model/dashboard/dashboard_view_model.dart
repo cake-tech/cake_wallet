@@ -390,7 +390,8 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.monero ||
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.wownero ||
-      wallet.type == WalletType.haven;
+      wallet.type == WalletType.haven ||
+      wallet.type == WalletType.salvium;
 
   @computed
   bool get isMoneroViewOnly {
@@ -568,6 +569,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.wownero:
         return true;
       case WalletType.haven:
+      case WalletType.salvium:
       case WalletType.none:
         return false;
     }
@@ -739,8 +741,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
   void updateActions() {
-    hasExchangeAction = !isHaven;
-    hasTradeAction = !isHaven;
+    hasExchangeAction = !isHaven || !isSalvium;
+    hasTradeAction = !isHaven || !isSalvium;
   }
 
   @computed
@@ -759,6 +761,14 @@ abstract class DashboardViewModelBase with Store {
     final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
     return walletInfoSource.values
         .where((element) => element.type == WalletType.haven)
+        .map((e) => e.name)
+        .toList();
+  }
+
+  Future<List<String>> checkForSalviumWallets() async {
+    final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+    return walletInfoSource.values
+        .where((element) => element.type == WalletType.salvium)
         .map((e) => e.name)
         .toList();
   }

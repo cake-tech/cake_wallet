@@ -90,6 +90,7 @@ class Node extends HiveObject with Keyable {
     switch (type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.salvium:
       case WalletType.wownero:
         return Uri.http(uriRaw, '');
       case WalletType.bitcoin:
@@ -155,6 +156,7 @@ class Node extends HiveObject with Keyable {
       switch (type) {
         case WalletType.monero:
         case WalletType.haven:
+        case WalletType.salvium:
         case WalletType.wownero:
           return requestMoneroNode();
         case WalletType.nano:

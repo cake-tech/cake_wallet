@@ -32,6 +32,7 @@ const publicBitcoinTestnetElectrumUri =
     '$publicBitcoinTestnetElectrumAddress:$publicBitcoinTestnetElectrumPort';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
+const salviumDefaultNodeUri = 'nodes.salvium.org:443';
 const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
 const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
@@ -98,6 +99,7 @@ Future<void> defaultSettingsMigration(
           await changeLitecoinCurrentElectrumServerToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
           await changeHavenCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+          await changeSalviumCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
           await changeBitcoinCashCurrentNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
 
@@ -288,7 +290,15 @@ Future<void> defaultSettingsMigration(
             ],
           );
           break;
+        case 45:
+          await addSalviumNodeList(nodes: nodes);
+          await changeSalviumCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+          await checkCurrentNodes(nodes, powNodes, sharedPreferences);
+          break;
 
+        case 46:
+          await changeDefaultSalviumNode(nodes);
+          break;
         default:
           break;
       }
@@ -465,7 +475,7 @@ Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async 
           continue;
         }
 
-        if (type == WalletType.monero || type == WalletType.haven) {
+        if (type == WalletType.monero || type == WalletType.haven || type == WalletType.salvium) {
           final hasKeysFile = walletFiles.any((element) => element.path.contains(".keys"));
 
           if (!hasKeysFile) {
@@ -570,6 +580,11 @@ Node? getLitecoinDefaultElectrumServer({required Box<Node> nodes}) {
 Node? getHavenDefaultNode({required Box<Node> nodes}) {
   return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == havenDefaultNodeUri) ??
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.haven);
+}
+
+Node? getSalviumDefaultNode({required Box<Node> nodes}) {
+  return nodes.values.firstWhereOrNull((Node node) => node.uriRaw == salviumDefaultNodeUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.salvium);
 }
 
 Node? getEthereumDefaultNode({required Box<Node> nodes}) {
@@ -791,6 +806,14 @@ Future<void> changeHavenCurrentNodeToDefault(
   await sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, nodeId);
 }
 
+Future<void> changeSalviumCurrentNodeToDefault(
+    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
+  final node = getSalviumDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int? ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentSalviumNodeIdKey, nodeId);
+}
+
 Future<void> replaceDefaultNode(
     {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
   const nodesForReplace = <String>[
@@ -847,6 +870,15 @@ Future<void> addBitcoinCashElectrumServerList({required Box<Node> nodes}) async 
 
 Future<void> addHavenNodeList({required Box<Node> nodes}) async {
   final nodeList = await loadDefaultHavenNodes();
+  for (var node in nodeList) {
+    if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
+      await nodes.add(node);
+    }
+  }
+}
+
+Future<void> addSalviumNodeList({required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultSalviumNodes();
   for (var node in nodeList) {
     if (nodes.values.firstWhereOrNull((element) => element.uriRaw == node.uriRaw) == null) {
       await nodes.add(node);
@@ -1085,6 +1117,7 @@ Future<void> checkCurrentNodes(
   final currentLitecoinElectrumSeverId =
       sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
   final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
+  final currentSalviumNodeId = sharedPreferences.getInt(PreferencesKey.currentSalviumNodeIdKey);
   final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
   final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
@@ -1102,6 +1135,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentLitecoinElectrumSeverId);
   final currentHavenNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentHavenNodeId);
+  final currentSalviumNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentSalviumNodeId);
   final currentEthereumNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
   final currentPolygonNodeServer =
@@ -1147,6 +1182,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: havenDefaultNodeUri, type: WalletType.haven);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, node.key as int);
+  }
+
+  if (currentSalviumNodeServer == null) {
+    final node = Node(uri: salviumDefaultNodeUri, type: WalletType.salvium);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentSalviumNodeIdKey, node.key as int);
   }
 
   if (currentEthereumNodeServer == null) {
@@ -1234,6 +1275,15 @@ Future<void> changeDefaultHavenNode(Box<Node> nodeSource) async {
   final havenNodes = nodeSource.values.where((node) => node.uriRaw == previousHavenDefaultNodeUri);
   havenNodes.forEach((node) async {
     node.uriRaw = havenDefaultNodeUri;
+    await node.save();
+  });
+}
+
+Future<void> changeDefaultSalviumNode(Box<Node> nodeSource) async {
+  const previousSalviumDefaultNodeUri = 'nodes.salvium.org:443';
+  final salviumNodes = nodeSource.values.where((node) => node.uriRaw == previousSalviumDefaultNodeUri);
+  salviumNodes.forEach((node) async {
+    node.uriRaw = salviumDefaultNodeUri;
     await node.save();
   });
 }

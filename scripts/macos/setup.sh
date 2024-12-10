@@ -11,17 +11,29 @@ cd $EXTERNAL_MACOS_LIB_DIR
 #     cp $LIBRANDOMX_PATH ./haven
 # fi
 
+# if [ -f "$LIBRANDOMX_PATH" ]; then
+#     cp $LIBRANDOMX_PATH ./salvium
+# fi
+
 libtool -static -o libboost.a ./libboost_*.a
 libtool -static -o libmonero.a ./monero/*.a
 
 # CW_HAVEN_EXTERNAL_LIB=../../../../../cw_haven/macos/External/macos/lib
 # CW_HAVEN_EXTERNAL_INCLUDE=../../../../../cw_haven/macos/External/macos/include
+
+# CW_SALVIUM_EXTERNAL_LIB=../../../../../cw_salvium/macos/External/macos/lib
+# CW_SALVIUM_EXTERNAL_INCLUDE=../../../../../cw_salvium/macos/External/macos/include
+
 CW_MONERO_EXTERNAL_LIB=../../../../../cw_monero/macos/External/macos/lib
 CW_MONERO_EXTERNAL_INCLUDE=../../../../../cw_monero/macos/External/macos/include
 
 # mkdir -p $CW_HAVEN_EXTERNAL_INCLUDE
-mkdir -p $CW_MONERO_EXTERNAL_INCLUDE
 # mkdir -p $CW_HAVEN_EXTERNAL_LIB
+
+# mkdir -p $CW_SALVIUM_EXTERNAL_INCLUDE
+# mkdir -p $CW_SALVIUM_EXTERNAL_LIB
+
+mkdir -p $CW_MONERO_EXTERNAL_INCLUDE
 mkdir -p $CW_MONERO_EXTERNAL_LIB
 
 # ln ./libboost.a ${CW_HAVEN_EXTERNAL_LIB}/libboost.a
@@ -30,6 +42,13 @@ mkdir -p $CW_MONERO_EXTERNAL_LIB
 # ln ./libsodium.a ${CW_HAVEN_EXTERNAL_LIB}/libsodium.a
 # cp ./libhaven.a $CW_HAVEN_EXTERNAL_LIB
 # cp ../include/haven/* $CW_HAVEN_EXTERNAL_INCLUDE
+
+# ln ./libboost.a ${CW_SALVIUM_EXTERNAL_LIB}/libboost.a
+# ln ./libcrypto.a ${CW_SALVIUM_EXTERNAL_LIB}/libcrypto.a
+# ln ./libssl.a ${CW_SALVIUM_EXTERNAL_LIB}/libssl.a
+# ln ./libsodium.a ${CW_SALVIUM_EXTERNAL_LIB}/libsodium.a
+# cp ./libsalvium.a $CW_SALVIUM_EXTERNAL_LIB
+# cp ../include/salvium/* $CW_SALVIUM_EXTERNAL_INCLUDE
 
 ln ./libboost.a ${CW_MONERO_EXTERNAL_LIB}/libboost.a
 ln ./libcrypto.a ${CW_MONERO_EXTERNAL_LIB}/libcrypto.a

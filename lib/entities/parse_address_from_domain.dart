@@ -214,7 +214,7 @@ class AddressResolver {
       }
       if (text.hasOnlyEmojis) {
         if (settingsStore.lookupsYatService) {
-          if (walletType != WalletType.haven) {
+          if (walletType != WalletType.haven && walletType != WalletType.salvium) {
             final addresses = await yatService.fetchYatAddress(text, ticker);
             return ParsedAddress.fetchEmojiAddress(addresses: addresses, name: text);
           }

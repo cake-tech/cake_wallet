@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/update_haven_rate.dart';
+import 'package:cake_wallet/entities/update_salvium_rate.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -22,6 +23,10 @@ void startWalletSyncStatusChangeReaction(
 
         if (wallet.type == WalletType.haven) {
           await updateHavenRate(fiatConversionStore);
+        }
+
+        if (wallet.type == WalletType.salvium) {
+          await updateSalviumRate(fiatConversionStore);
         }
       }
       if (status is SyncingSyncStatus) {

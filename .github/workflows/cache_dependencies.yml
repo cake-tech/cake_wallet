@@ -3,11 +3,10 @@ name: Cache Dependencies
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
-
     runs-on: ubuntu-20.04
 
     steps:
@@ -60,6 +59,7 @@ jobs:
         with:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
+            /opt/android/cake_wallet/cw_salvium/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
           key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
       - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}

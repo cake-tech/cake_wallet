@@ -48,6 +48,7 @@ import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/salvium/salvium.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:collection/collection.dart';
 
@@ -557,6 +558,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return haven!.createHavenTransactionCreationCredentials(
             outputs: outputs, priority: priority!, assetType: selectedCryptoCurrency.title);
 
+      case WalletType.salvium:
+        return salvium!.createSalviumTransactionCreationCredentials(
+            outputs: outputs, priority: priority!, assetType: selectedCryptoCurrency.title);
+
       case WalletType.ethereum:
         return ethereum!.createEthereumTransactionCredentials(outputs,
             priority: priority!, currency: selectedCryptoCurrency);
@@ -684,7 +689,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
-        walletType == WalletType.haven) {
+        walletType == WalletType.haven ||
+        walletType == WalletType.salvium) {
       if (errorMessage.contains('gas required exceeds allowance') ||
           errorMessage.contains('insufficient funds')) {
         return S.current.do_not_have_enough_gas_asset(currency.toString());

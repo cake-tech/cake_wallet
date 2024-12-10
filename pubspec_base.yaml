@@ -65,12 +65,12 @@ dependencies:
       ref: master
   permission_handler: ^10.0.0
   device_display_brightness:
-   git:
-     url: https://github.com/MrCyjaneK/device_display_brightness.git
-     ref: 4cac18c446ce686f3d75b1565badbd7da439bbd9
+    git:
+      url: https://github.com/MrCyjaneK/device_display_brightness.git
+      ref: 4cac18c446ce686f3d75b1565badbd7da439bbd9
   workmanager: ^0.5.2
   wakelock_plus: ^1.2.5
-  flutter_mailer:       
+  flutter_mailer:
     git:
       url: https://github.com/taljacobson/flutter_mailer
       ref: 2a7d04d61f56e1ca166ab42e91e0daf1bfddfaf2
@@ -98,10 +98,10 @@ dependencies:
       url: https://github.com/cake-tech/ens_dart.git
       ref: main
   fluttertoast: 8.2.8
-#  tor:
-#    git:
-#      url: https://github.com/cake-tech/tor.git
-#      ref: main
+  #  tor:
+  #    git:
+  #      url: https://github.com/cake-tech/tor.git
+  #      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
   polyseed: ^0.0.6
@@ -164,6 +164,7 @@ flutter:
     - assets/images/hardware_wallet/
     - assets/node_list.yml
     - assets/haven_node_list.yml
+    - assets/salvium_node_list.yml
     - assets/bitcoin_electrum_server_list.yml
     - assets/litecoin_electrum_server_list.yml
     - assets/ethereum_server_list.yml

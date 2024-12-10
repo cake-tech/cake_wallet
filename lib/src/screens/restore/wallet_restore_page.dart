@@ -277,14 +277,15 @@ class WalletRestorePage extends BasePage {
 
     if ((walletRestoreViewModel.type == WalletType.monero ||
             walletRestoreViewModel.type == WalletType.wownero ||
-            walletRestoreViewModel.type == WalletType.haven) &&
+            walletRestoreViewModel.type == WalletType.haven ||
+            walletRestoreViewModel.type == WalletType.salvium) &&
         seedWords.length != WalletRestoreViewModelBase.moneroSeedMnemonicLength) {
       return false;
     }
 
     // bip39:
     final validBip39SeedLengths = [12, 18, 24];
-    final nonBip39WalletTypes = [WalletType.monero, WalletType.wownero, WalletType.haven];
+    final nonBip39WalletTypes = [WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.salvium];
     // if it's a bip39 wallet and the length is not valid return false
     if (!nonBip39WalletTypes.contains(walletRestoreViewModel.type) &&
         !(validBip39SeedLengths.contains(seedWords.length))) {

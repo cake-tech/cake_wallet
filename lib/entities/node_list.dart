@@ -68,6 +68,22 @@ Future<List<Node>> loadDefaultHavenNodes() async {
   return nodes;
 }
 
+Future<List<Node>> loadDefaultSalviumNodes() async {
+  final nodesRaw = await rootBundle.loadString('assets/salvium_node_list.yml');
+  final loadedNodes = loadYaml(nodesRaw) as YamlList;
+  final nodes = <Node>[];
+
+  for (final raw in loadedNodes) {
+    if (raw is Map) {
+      final node = Node.fromMap(Map<String, Object>.from(raw));
+      node.type = WalletType.salvium;
+      nodes.add(node);
+    }
+  }
+
+  return nodes;
+}
+
 Future<List<Node>> loadDefaultEthereumNodes() async {
   final nodesRaw = await rootBundle.loadString('assets/ethereum_server_list.yml');
   final loadedNodes = loadYaml(nodesRaw) as YamlList;
@@ -206,6 +222,7 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
   final litecoinElectrumServerList = await loadLitecoinElectrumServerList();
   final bitcoinCashElectrumServerList = await loadBitcoinCashElectrumServerList();
   final havenNodes = await loadDefaultHavenNodes();
+  final salviumNodes = await loadDefaultSalviumNodes();
   final ethereumNodes = await loadDefaultEthereumNodes();
   final nanoNodes = await loadDefaultNanoNodes();
   final polygonNodes = await loadDefaultPolygonNodes();
@@ -216,6 +233,7 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
       bitcoinElectrumServerList +
       litecoinElectrumServerList +
       havenNodes +
+      salviumNodes +
       ethereumNodes +
       bitcoinCashElectrumServerList +
       nanoNodes +
