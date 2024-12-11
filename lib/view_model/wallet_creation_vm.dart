@@ -22,7 +22,8 @@ part 'wallet_creation_vm.g.dart';
 class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
 abstract class WalletCreationVMBase with Store {
-  WalletCreationVMBase(this._appStore, this._walletInfoSource, this.walletCreationService,
+  WalletCreationVMBase(
+      this._appStore, this._walletInfoSource, this.walletCreationService,
       {required this.type, required this.isRecovery})
       : state = InitialExecutionState(),
         name = '';
@@ -62,7 +63,12 @@ abstract class WalletCreationVMBase with Store {
   bool typeExists(WalletType type) => walletCreationService.typeExists(type);
 
   Future<void> create({dynamic options, RestoredWallet? restoreWallet}) async {
+    print('[+] wallet_creation_vm.dart || create()');
+
     final type = restoreWallet?.type ?? this.type;
+
+    print('[+] wallet_creation_vm.dart || create() => type: $type');
+
     try {
       state = IsExecutingState();
       if (name.isEmpty) {
@@ -94,7 +100,8 @@ abstract class WalletCreationVMBase with Store {
         path: path,
         dirPath: dirPath,
         address: '',
-        showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
+        showIntroCakePayCard: (!walletCreationService.typeExists(type)) &&
+            type != WalletType.haven,
         derivationInfo: credentials.derivationInfo ?? getDefaultDerivation(),
         hardwareWalletType: credentials.hardwareWalletType,
       );
@@ -120,7 +127,9 @@ abstract class WalletCreationVMBase with Store {
         return DerivationInfo(derivationType: DerivationType.nano);
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+        return bitcoin!
+            .getElectrumDerivations()[DerivationType.electrum]!
+            .first;
       default:
         return null;
     }
@@ -149,9 +158,11 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
-  WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
+  WalletCredentials getCredentials(dynamic options) =>
+      throw UnimplementedError();
 
-  Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
+  Future<WalletBase> process(WalletCredentials credentials) =>
+      throw UnimplementedError();
 
   WalletCredentials getCredentialsFromRestoredWallet(
           dynamic options, RestoredWallet restoreWallet) =>

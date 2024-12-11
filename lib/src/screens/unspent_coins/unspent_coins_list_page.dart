@@ -18,7 +18,8 @@ class UnspentCoinsListPage extends BasePage {
   final UnspentCoinsListViewModel unspentCoinsListViewModel;
 
   @override
-  Widget body(BuildContext context) => UnspentCoinsListForm(unspentCoinsListViewModel);
+  Widget body(BuildContext context) =>
+      UnspentCoinsListForm(unspentCoinsListViewModel);
 }
 
 class UnspentCoinsListForm extends StatefulWidget {
@@ -27,7 +28,8 @@ class UnspentCoinsListForm extends StatefulWidget {
   final UnspentCoinsListViewModel unspentCoinsListViewModel;
 
   @override
-  UnspentCoinsListFormState createState() => UnspentCoinsListFormState(unspentCoinsListViewModel);
+  UnspentCoinsListFormState createState() =>
+      UnspentCoinsListFormState(unspentCoinsListViewModel);
 }
 
 class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
@@ -46,9 +48,9 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                 itemBuilder: (_, int index) {
                   return Observer(builder: (_) {
                     final item = unspentCoinsListViewModel.items[index];
-
                     return GestureDetector(
-                        onTap: () => Navigator.of(context).pushNamed(Routes.unspentCoinsDetails,
+                        onTap: () => Navigator.of(context).pushNamed(
+                            Routes.unspentCoinsDetails,
                             arguments: [item, unspentCoinsListViewModel]),
                         child: UnspentCoinsListItem(
                             note: item.note,
@@ -62,7 +64,8 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                                 ? null
                                 : () async {
                                     item.isSending = !item.isSending;
-                                    await unspentCoinsListViewModel.saveUnspentCoinInfo(item);
+                                    await unspentCoinsListViewModel
+                                        .saveUnspentCoinInfo(item);
                                   }));
                   });
                 })));

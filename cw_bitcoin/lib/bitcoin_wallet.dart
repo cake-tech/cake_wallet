@@ -61,8 +61,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           initialBalance: initialBalance,
           seedBytes: seedBytes,
           encryptionFileUtils: encryptionFileUtils,
-          currency:
-              networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
+          currency: networkParam == BitcoinNetwork.testnet
+              ? CryptoCurrency.tbtc
+              : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
@@ -80,11 +81,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       mainHd: hd,
       sideHd: accountHD.childKey(Bip32KeyIndex(1)),
       network: networkParam ?? network,
-      masterHd: seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
+      masterHd:
+          seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
     );
 
     autorun((_) {
-      this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
+      this.walletAddresses.isEnabledAutoGenerateSubaddress =
+          this.isEnabledAutoGenerateSubaddress;
     });
   }
 
@@ -185,8 +188,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     walletInfo.derivationInfo ??= DerivationInfo();
 
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
-    walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
+    walletInfo.derivationInfo!.derivationPath ??=
+        snp?.derivationPath ?? electrum_path;
+    walletInfo.derivationInfo!.derivationType ??=
+        snp?.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
     final mnemonic = keysData.mnemonic;
@@ -235,8 +240,44 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   void setLedger(Ledger setLedger, LedgerDevice setLedgerDevice) {
     _ledger = setLedger;
     _ledgerDevice = setLedgerDevice;
-    _bitcoinLedgerApp =
-        BitcoinLedgerApp(_ledger!, derivationPath: walletInfo.derivationInfo!.derivationPath!);
+    _bitcoinLedgerApp = BitcoinLedgerApp(_ledger!,
+        derivationPath: walletInfo.derivationInfo!.derivationPath!);
+  }
+
+  @override
+  Future<PSBTTransactionBuild> buildPayjoinTransaction({
+    required List<BitcoinBaseOutput> outputs,
+    required BigInt fee,
+    required BasedUtxoNetwork network,
+    required List<UtxoWithAddress> utxos,
+    required Map<String, PublicKeyWithDerivationPath> publicKeys,
+    String? memo,
+    bool enableRBF = false,
+    BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
+    BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
+  }) async {
+    final psbtReadyInputs = <PSBTReadyUtxoWithAddress>[];
+    for (final UtxoWithAddress utxo in utxos) {
+      debugPrint('[+] BITCOINWALLET => UTXO.utxo - ${utxo.utxo.toString()}');
+      final rawTx =
+          await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+      final publicKeyAndDerivationPath =
+          publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
+
+      psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
+        utxo: utxo.utxo,
+        rawTx: rawTx,
+        ownerDetails: utxo.ownerDetails,
+        ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
+        ownerMasterFingerprint: Uint8List(0),
+        ownerPublicKey: publicKeyAndDerivationPath.publicKey,
+      ));
+    }
+
+    final psbt = PSBTTransactionBuild(
+        inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF);
+
+    return psbt;
   }
 
   @override
@@ -251,12 +292,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
     BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
   }) async {
-    final masterFingerprint = await _bitcoinLedgerApp!.getMasterFingerprint(_ledgerDevice!);
+    final masterFingerprint =
+        await _bitcoinLedgerApp!.getMasterFingerprint(_ledgerDevice!);
 
     final psbtReadyInputs = <PSBTReadyUtxoWithAddress>[];
     for (final utxo in utxos) {
-      final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
-      final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
+      final rawTx =
+          await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+      final publicKeyAndDerivationPath =
+          publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
       psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
         utxo: utxo.utxo,
@@ -268,10 +312,32 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       ));
     }
 
-    final psbt =
-        PSBTTransactionBuild(inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF);
+    final psbt = PSBTTransactionBuild(
+        inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF);
 
-    final rawHex = await _bitcoinLedgerApp!.signPsbt(_ledgerDevice!, psbt: psbt.psbt);
+    final rawHex =
+        await _bitcoinLedgerApp!.signPsbt(_ledgerDevice!, psbt: psbt.psbt);
+    return BtcTransaction.fromRaw(BytesUtils.toHexString(rawHex));
+  }
+
+  @override
+  Future<String> signPsbt(String preProcessedPsbt) async {
+    final psbt = PsbtV2()..deserialize(base64.decode(preProcessedPsbt));
+    final rawHex = await _bitcoinLedgerApp!.signPsbt(
+      _ledgerDevice!,
+      psbt: psbt,
+    );
+    return BytesUtils.toHexString(rawHex);
+  }
+
+  @override
+  Future<BtcTransaction> getBtcTransactionFromPsbt(
+      String preProcessedPsbt) async {
+    final psbt = PsbtV2()..deserialize(base64.decode(preProcessedPsbt));
+    final rawHex = await _bitcoinLedgerApp!.signPsbt(
+      _ledgerDevice!,
+      psbt: psbt,
+    );
     return BtcTransaction.fromRaw(BytesUtils.toHexString(rawHex));
   }
 
@@ -279,12 +345,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<String> signMessage(String message, {String? address = null}) async {
     if (walletInfo.isHardwareWallet) {
       final addressEntry = address != null
-          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address)
+          ? walletAddresses.allAddresses
+              .firstWhere((element) => element.address == address)
           : null;
       final index = addressEntry?.index ?? 0;
       final isChange = addressEntry?.isHidden == true ? 1 : 0;
       final accountPath = walletInfo.derivationInfo?.derivationPath;
-      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
+      final derivationPath =
+          accountPath != null ? "$accountPath/$isChange/$index" : null;
 
       final signature = await _bitcoinLedgerApp!.signMessage(_ledgerDevice!,
           message: ascii.encode(message), signDerivationPath: derivationPath);

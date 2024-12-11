@@ -6,7 +6,6 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -19,15 +18,17 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_h
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_bitcoin/bitcoin_payjoin.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
-
 part 'wallet_address_list_view_model.g.dart';
 
-class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletAddressListViewModel;
+class WalletAddressListViewModel = WalletAddressListViewModelBase
+    with _$WalletAddressListViewModel;
 
 abstract class PaymentURI {
   PaymentURI({required this.amount, required this.address});
@@ -79,6 +80,18 @@ class BitcoinURI extends PaymentURI {
     if (amount.isNotEmpty) {
       base += '?amount=${amount.replaceAll(',', '.')}';
     }
+
+    return base;
+  }
+}
+
+class PayjoinBitcoinURI extends PaymentURI {
+  PayjoinBitcoinURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = address;
 
     return base;
   }
@@ -209,7 +222,8 @@ class WowneroURI extends PaymentURI {
   }
 }
 
-abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
+abstract class WalletAddressListViewModelBase
+    extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
     required this.yatStore,
@@ -217,8 +231,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   })  : _baseItems = <ListItem>[],
         selectedCurrency = walletTypeToCryptoCurrency(appStore.wallet!.type),
         _cryptoNumberFormat = NumberFormat(_cryptoNumberPattern),
-        hasAccounts =
-            appStore.wallet!.type == WalletType.monero || appStore.wallet!.type ==  WalletType.wownero || appStore.wallet!.type == WalletType.haven,
+        hasAccounts = appStore.wallet!.type == WalletType.monero ||
+            appStore.wallet!.type == WalletType.wownero ||
+            appStore.wallet!.type == WalletType.haven,
         amount = '',
         _settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
@@ -230,7 +245,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     _init();
 
     selectedCurrency = walletTypeToCryptoCurrency(wallet.type);
-    hasAccounts = wallet.type == WalletType.monero || wallet.type == WalletType.wownero || wallet.type == WalletType.haven;
+    hasAccounts = wallet.type == WalletType.monero ||
+        wallet.type == WalletType.wownero ||
+        wallet.type == WalletType.haven;
   }
 
   static const String _cryptoNumberPattern = '0.00000000';
@@ -240,7 +257,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   final FiatConversionStore fiatConversionStore;
   final SettingsStore _settingsStore;
 
-  List<Currency> get currencies => [walletTypeToCryptoCurrency(wallet.type), ...FiatCurrency.all];
+  List<Currency> get currencies =>
+      [walletTypeToCryptoCurrency(wallet.type), ...FiatCurrency.all];
 
   String get buttonTitle {
     if (isElectrumWallet) {
@@ -266,8 +284,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   WalletType get type => wallet.type;
 
   @computed
-  WalletAddressListItem get address =>
-      WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
+  WalletAddressListItem get address => WalletAddressListItem(
+      address: wallet.walletAddresses.address, isPrimary: false);
 
   @computed
   PaymentURI get uri {
@@ -277,6 +295,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (wallet.type == WalletType.haven) {
       return HavenURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.bitcoin && isPayjoinOption) {
+      print(
+          '[+] wallet_address_list_view_model.dart || PaymentURI => isPayjoinOption: $isPayjoinOption');
+      return PayjoinBitcoinURI(amount: amount, address: payjoinUri);
     }
 
     if (wallet.type == WalletType.bitcoin) {
@@ -328,8 +352,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     final addressList = ObservableList<ListItem>();
 
     if (wallet.type == WalletType.monero) {
-      final primaryAddress = monero!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = monero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
+      final primaryAddress =
+          monero!.getSubaddressList(wallet).subaddresses.first;
+      final addressItems =
+          monero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -342,8 +368,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (wallet.type == WalletType.wownero) {
-      final primaryAddress = wownero!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = wownero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
+      final primaryAddress =
+          wownero!.getSubaddressList(wallet).subaddresses.first;
+      final addressItems =
+          wownero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -356,8 +384,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (wallet.type == WalletType.haven) {
-      final primaryAddress = haven!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = haven!.getSubaddressList(wallet).subaddresses.map((subaddress) {
+      final primaryAddress =
+          haven!.getSubaddressList(wallet).subaddresses.first;
+      final addressItems =
+          haven!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -371,7 +401,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (isElectrumWallet) {
       if (bitcoin!.hasSelectedSilentPayments(wallet)) {
-        final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
+        final addressItems =
+            bitcoin!.getSilentPaymentAddresses(wallet).map((address) {
           final isPrimary = address.id == 0;
 
           return WalletAddressListItem(
@@ -424,19 +455,22 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (wallet.type == WalletType.ethereum) {
       final primaryAddress = ethereum!.getAddress(wallet);
 
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+      addressList.add(WalletAddressListItem(
+          isPrimary: true, name: null, address: primaryAddress));
     }
 
     if (wallet.type == WalletType.polygon) {
       final primaryAddress = polygon!.getAddress(wallet);
 
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+      addressList.add(WalletAddressListItem(
+          isPrimary: true, name: null, address: primaryAddress));
     }
 
     if (wallet.type == WalletType.solana) {
       final primaryAddress = solana!.getAddress(wallet);
 
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+      addressList.add(WalletAddressListItem(
+          isPrimary: true, name: null, address: primaryAddress));
     }
 
     if (wallet.type == WalletType.nano) {
@@ -446,11 +480,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         address: wallet.walletAddresses.address,
       ));
     }
-    
+
     if (wallet.type == WalletType.tron) {
       final primaryAddress = tron!.getAddress(wallet);
 
-      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+      addressList.add(WalletAddressListItem(
+          isPrimary: true, name: null, address: primaryAddress));
     }
 
     if (searchText.isNotEmpty) {
@@ -502,11 +537,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   bool get isSilentPayments =>
-      wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
+      wallet.type == WalletType.bitcoin &&
+      bitcoin!.hasSelectedSilentPayments(wallet);
 
   @computed
   bool get isAutoGenerateSubaddressEnabled =>
-      _settingsStore.autoGenerateSubaddressStatus != AutoGenerateSubaddressStatus.disabled &&
+      _settingsStore.autoGenerateSubaddressStatus !=
+          AutoGenerateSubaddressStatus.disabled &&
       !isSilentPayments;
 
   List<ListItem> _baseItems;
@@ -527,7 +564,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void _init() {
     _baseItems = [];
 
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero || wallet.type == WalletType.haven) {
+    if (wallet.type == WalletType.monero ||
+        wallet.type == WalletType.wownero ||
+        wallet.type == WalletType.haven) {
       _baseItems.add(WalletAccountListHeader());
     }
 
@@ -546,6 +585,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     this.amount = amount;
     if (selectedCurrency is FiatCurrency) {
       _convertAmountToCrypto();
+    } else if (isPayjoinOption) {
+      buildV2PjStr();
     }
   }
 
@@ -557,8 +598,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void _convertAmountToCrypto() {
     final cryptoCurrency = walletTypeToCryptoCurrency(wallet.type);
     try {
-      final crypto =
-          double.parse(amount.replaceAll(',', '.')) / fiatConversionStore.prices[cryptoCurrency]!;
+      final crypto = double.parse(amount.replaceAll(',', '.')) /
+          fiatConversionStore.prices[cryptoCurrency]!;
       final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
       if (amount != cryptoAmountTmp) {
         amount = cryptoAmountTmp;
@@ -572,6 +613,124 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   void deleteAddress(ListItem item) {
     if (wallet.type == WalletType.bitcoin && item is WalletAddressListItem) {
       bitcoin!.deleteSilentPaymentAddress(wallet, item.address);
+    }
+  }
+
+  @observable
+  String payjoinUri = '';
+
+  @observable
+  Receiver? session;
+
+  @observable
+  PayjoinProposal? payjoinProposal;
+
+  @observable
+  UncheckedProposal? uncheckedProposal;
+
+  @observable
+  PayjoinException? pjException;
+
+  @computed
+  bool get isPayjoinOption => payjoinUri.trim().isNotEmpty && session != null;
+
+  @action
+  Future<void> buildV2PjStr() async {
+    print('[+] wallet_address_list_view_model.dart || buildV2PjStr()');
+    final btcAmount =
+        !(selectedCurrency is FiatCurrency) ? double.tryParse(amount) : null;
+    final satsAmount =
+        btcAmount != null ? (btcAmount * 100000000).round() : null;
+
+    print(
+        '[+] wallet_address_list_view_model.dart || buildV2PjStr() => satsAmount: $satsAmount');
+
+    try {
+      final expireAfter = BigInt.from(60 * 5); // 5 minutes
+
+      final res = await bitcoin!.buildV2PjStr(
+        amount: satsAmount,
+        address: address.address,
+        isTestnet: wallet.isTestnet,
+        expireAfter: expireAfter,
+      );
+      payjoinUri = res['pjUri'] as String;
+      session = res['session'] as Receiver;
+
+      print(
+          '[+] wallet_address_list_view_model.dart || buildV2PjStr() => payjoinUri: $payjoinUri');
+
+      final proposal = await bitcoin!.handleReceiverSession(session!);
+      uncheckedProposal = proposal;
+
+      final originalTx = await bitcoin!.extractOriginalTransaction(proposal);
+
+      // Handle the request and send back the payjoin proposal
+      final finalizedProposal = await bitcoin!.processProposal(
+        proposal: proposal,
+        receiverWallet: wallet,
+      );
+      payjoinProposal = finalizedProposal;
+
+      final proposalTxId = await bitcoin!.sendFinalProposal(finalizedProposal);
+
+      final receivedTxId = await waitForTransaction(
+        originalTxId: await originalTx,
+        proposalTxId: proposalTxId,
+      );
+
+      disposePayjoinSession();
+
+      if (receivedTxId.isNotEmpty) {
+        final msg =
+            '${receivedTxId == proposalTxId ? 'Payjoin' : 'Original'} tx received!';
+        print('[+] wallet_address_list_vm.dart => msg: $msg');
+      }
+    } catch (e, st) {
+      debugPrint('[!] WALLETADDRESSLISTVM => buildV2PjStr() - ${e.toString()}');
+
+      if (e is PayjoinException) {
+        // TODO: Handle the error appropriately
+        debugPrint(
+            '[!] WALLETADDRESSLISTVM => buildV2PjStr() - e: $e, st: $st');
+        pjException = e;
+        disposePayjoinSession();
+      }
+    }
+  }
+
+  @action
+  void disposePayjoinSession() {
+    // payjoinUri = '';
+    session = null;
+    uncheckedProposal = null;
+    payjoinProposal = null;
+  }
+
+  Future<String> waitForTransaction({
+    required String originalTxId,
+    required String proposalTxId,
+    int timeout = 1,
+  }) async {
+    final txs = wallet.transactionHistory.transactions;
+
+    try {
+      final tx = txs.values
+          .firstWhere((tx) => tx.id == originalTxId || tx.id == proposalTxId);
+      return tx.id;
+    } catch (e) {
+      if (session == null) {
+        return '';
+      }
+
+      // Wait for the specified timeout duration before retrying
+      await Future.delayed(Duration(seconds: timeout));
+
+      // Recursively call `waitForTransaction` to continue polling for the transaction
+      return waitForTransaction(
+        originalTxId: originalTxId,
+        proposalTxId: proposalTxId,
+      );
     }
   }
 }

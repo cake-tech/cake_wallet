@@ -43,12 +43,14 @@ import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
 
+// exact shoulder use lock twenty fragile fury hurry often prefer fabric spring retire ankle ride sight pig bitter ribbon script play execute fatigue science
+
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
-final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
+final RouteObserver<PageRoute<dynamic>> routeObserver =
+    RouteObserver<PageRoute<dynamic>>();
 
 Future<void> main() async {
-
   bool isAppRunning = false;
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -58,7 +60,8 @@ Future<void> main() async {
     /// A callback that is invoked when an unhandled error occurs in the root
     /// isolate.
     PlatformDispatcher.instance.onError = (error, stack) {
-      ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+      ExceptionHandler.onError(
+          FlutterErrorDetails(exception: error, stack: stack));
 
       return true;
     };
@@ -81,7 +84,8 @@ Future<void> main() async {
           home: Scaffold(
             body: SingleChildScrollView(
               child: Container(
-                margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
+                margin:
+                    EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
                 child: Column(
                   children: [
                     Text(
@@ -101,11 +105,14 @@ Future<void> main() async {
       );
     }
 
-    ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
+    ExceptionHandler.onError(
+        FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
 
 Future<void> initializeAppConfigs() async {
+  debugPrint('[+] main.dart || initializeAppConfigs()');
+
   setRootDirFromEnv();
   final appDir = await getAppDir();
   CakeHive.init(appDir.path);
@@ -171,24 +178,33 @@ Future<void> initializeAppConfigs() async {
   }
 
   final secureStorage = secureStorageShared;
-  final transactionDescriptionsBoxKey =
-      await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-  final tradesBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Trade.boxKey);
-  final ordersBoxKey = await getEncryptionKey(secureStorage: secureStorage, forKey: Order.boxKey);
+  final transactionDescriptionsBoxKey = await getEncryptionKey(
+      secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+  final tradesBoxKey = await getEncryptionKey(
+      secureStorage: secureStorage, forKey: Trade.boxKey);
+  final ordersBoxKey = await getEncryptionKey(
+      secureStorage: secureStorage, forKey: Order.boxKey);
   final contacts = await CakeHive.openBox<Contact>(Contact.boxName);
   final nodes = await CakeHive.openBox<Node>(Node.boxName);
-  final powNodes =
-      await CakeHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
-  final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
-      TransactionDescription.boxName,
-      encryptionKey: transactionDescriptionsBoxKey);
-  final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-  final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
-  final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+  final powNodes = await CakeHive.openBox<Node>(
+      Node.boxName + "pow"); // must be different from Node.boxName
+  final transactionDescriptions =
+      await CakeHive.openBox<TransactionDescription>(
+          TransactionDescription.boxName,
+          encryptionKey: transactionDescriptionsBoxKey);
+  final trades =
+      await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+  final orders =
+      await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
+  final walletInfoSource =
+      await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
   final templates = await CakeHive.openBox<Template>(Template.boxName);
-  final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-  final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
-  final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+  final exchangeTemplates =
+      await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+  final anonpayInvoiceInfo =
+      await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
+  final unspentCoinsInfoSource =
+      await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
 
   await initialSetup(
     sharedPreferences: await SharedPreferences.getInstance(),
@@ -225,6 +241,8 @@ Future<void> initialSetup(
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
     int initialMigrationVersion = 15}) async {
+  debugPrint('[+] main.dart || initialSetup(...)');
+
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,
@@ -269,18 +287,23 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       final settingsStore = appStore.settingsStore;
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
-      final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-          ? Routes.disclaimer
-          : Routes.login;
+      final initialRoute =
+          authenticationStore.state == AuthenticationState.uninitialized
+              ? Routes.disclaimer
+              : Routes.login;
       final currentTheme = settingsStore.currentTheme;
-      final statusBarBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
-      final statusBarIconBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
+      final statusBarBrightness = currentTheme.type == ThemeType.dark
+          ? Brightness.light
+          : Brightness.dark;
+      final statusBarIconBrightness = currentTheme.type == ThemeType.dark
+          ? Brightness.light
+          : Brightness.dark;
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
           statusBarColor: statusBarColor,
           statusBarBrightness: statusBarBrightness,
           statusBarIconBrightness: statusBarIconBrightness));
+
+      debugPrint('[+] main.dart || initialRoute => $initialRoute');
 
       return Root(
           key: rootKey,
@@ -327,8 +350,10 @@ class _HomeState extends State<_Home> {
         SystemChrome.setPreferredOrientations(
             [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
       } else {
-        SystemChrome.setPreferredOrientations(
-            [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight
+        ]);
       }
     }
   }

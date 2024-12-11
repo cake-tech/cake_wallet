@@ -5,6 +5,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -67,8 +68,9 @@ class AddressPage extends BasePage {
       color: titleColor(context),
       size: 16,
     );
-    final _closeButton =
-        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+    final _closeButton = currentTheme.type == ThemeType.dark
+        ? closeButtonImageDarkTheme
+        : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -79,10 +81,13 @@ class AddressPage extends BasePage {
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
-            label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
+            label: !isMobileView
+                ? S.of(context).close
+                : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+                overlayColor: WidgetStateColor.resolveWith(
+                    (states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: !isMobileView ? _closeButton : _backButton,
@@ -95,11 +100,13 @@ class AddressPage extends BasePage {
 
   @override
   Widget middle(BuildContext context) => PresentReceiveOptionPicker(
-      color: titleColor(context), receiveOptionViewModel: receiveOptionViewModel);
+      color: titleColor(context),
+      receiveOptionViewModel: receiveOptionViewModel);
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) =>
+          GradientBackground(scaffold: scaffold);
 
   @override
   Widget? trailing(BuildContext context) {
@@ -135,7 +142,8 @@ class AddressPage extends BasePage {
         tapOutsideBehavior: TapOutsideBehavior.translucentDismiss,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+            keyboardBarColor:
+                Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -154,18 +162,29 @@ class AddressPage extends BasePage {
                           addressListViewModel: addressListViewModel,
                           amountTextFieldFocusNode: _cryptoAmountFocus,
                           amountController: _amountController,
-                          isLight: dashboardViewModel.settingsStore.currentTheme.type ==
+                          isLight: dashboardViewModel
+                                  .settingsStore.currentTheme.type ==
                               ThemeType.light))),
               SizedBox(height: 16),
               Observer(builder: (_) {
-                if (addressListViewModel.hasAddressList) {
+                if (addressListViewModel.hasAddressList &&
+                    !addressListViewModel.isPayjoinOption) {
                   return SelectButton(
                     text: addressListViewModel.buttonTitle,
-                    onTap: () async => Navigator.of(context).pushNamed(Routes.receive),
-                    textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
-                    color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                    borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-                    arrowColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
+                    onTap: () async =>
+                        Navigator.of(context).pushNamed(Routes.receive),
+                    textColor: Theme.of(context)
+                        .extension<SyncIndicatorTheme>()!
+                        .textColor,
+                    color: Theme.of(context)
+                        .extension<SyncIndicatorTheme>()!
+                        .syncedBackgroundColor,
+                    borderColor: Theme.of(context)
+                        .extension<BalancePageTheme>()!
+                        .cardBorderColor,
+                    arrowColor: Theme.of(context)
+                        .extension<SyncIndicatorTheme>()!
+                        .textColor,
                     textSize: 14,
                     height: 50,
                   );
@@ -183,9 +202,24 @@ class AddressPage extends BasePage {
       return;
     }
 
-    reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
+    reaction((_) => receiveOptionViewModel.selectedReceiveOption,
+        (ReceivePageOption option) {
       if (bitcoin!.isBitcoinReceivePageOption(option)) {
+        debugPrint('[+] address_page.dart || _setEffects() => option: $option');
+        debugPrint(
+            '[+] address_page.dart || _setEffects() => address: ${addressListViewModel.address.address}');
+        debugPrint(
+            '[+] address_page.dart || _setEffects() => isTestnet: ${addressListViewModel.wallet.isTestnet}');
+        debugPrint(
+            '[+] address_page.dart || _setEffects() => isPayjoinOption: ${addressListViewModel.isPayjoinOption}');
+
         addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
+
+        if (option == BitcoinReceivePageOption.payjoin_payments) {
+          addressListViewModel.buildV2PjStr();
+        } else {
+          addressListViewModel.disposePayjoinSession();
+        }
         return;
       }
 
@@ -199,10 +233,12 @@ class AddressPage extends BasePage {
           break;
         case ReceivePageOption.anonPayDonationLink:
           final sharedPreferences = getIt.get<SharedPreferences>();
-          final clearnetUrl = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
-          final onionUrl = sharedPreferences.getString(PreferencesKey.onionDonationLink);
-          final donationWalletName =
-              sharedPreferences.getString(PreferencesKey.donationLinkWalletName);
+          final clearnetUrl =
+              sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
+          final onionUrl =
+              sharedPreferences.getString(PreferencesKey.onionDonationLink);
+          final donationWalletName = sharedPreferences
+              .getString(PreferencesKey.donationLinkWalletName);
 
           if (clearnetUrl != null &&
               onionUrl != null &&
@@ -226,7 +262,8 @@ class AddressPage extends BasePage {
           break;
         default:
           if (addressListViewModel.type == WalletType.bitcoin) {
-            addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
+            addressListViewModel
+                .setAddressType(bitcoin!.getBitcoinAddressType(option));
           }
       }
     });
