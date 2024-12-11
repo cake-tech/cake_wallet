@@ -110,15 +110,18 @@ class WalletSeedPage extends BasePage {
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
-                            borderRadius: BorderRadius.all(Radius.circular(12)),
-                          ),
+                              color: Color.fromRGBO(255, 221, 44, 0.37),
+                              borderRadius: BorderRadius.all(Radius.circular(12)),
+                              border: Border.all(
+                                color: Color.fromRGBO(223, 214, 0, 0.7),
+                                width: 2.0,
+                              )),
                           child: Row(
                             children: [
                               Icon(
                                 Icons.warning_amber_rounded,
                                 size: 64,
-                                color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                               ),
                               SizedBox(width: 8),
                               Expanded(
@@ -128,9 +131,7 @@ class WalletSeedPage extends BasePage {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w800,
-                                    color: Theme.of(context)
-                                        .extension<DashboardPageTheme>()!
-                                        .textColor,
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                                   ),
                                 ),
                               ),
@@ -224,9 +225,8 @@ class WalletSeedPage extends BasePage {
                               },
                               text: S.of(context).save,
                               color: Theme.of(context).primaryColor,
-                              textColor:
-                               currentTheme.type == ThemeType.dark ? 
-                                  Theme.of(context).extension<DashboardPageTheme>()!.textColor
+                              textColor: currentTheme.type == ThemeType.dark
+                                  ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
                                   : Colors.white,
                             ),
                           ),
