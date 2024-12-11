@@ -8,7 +8,7 @@ if [[ ! -d "monero_c" ]];
 then
     git clone https://github.com/mrcyjanek/monero_c --branch master
     cd monero_c
-    git checkout c41c4dad9aa5003a914cfb2c528c76386f952665
+    git checkout daaa49f9756f24b9b588c746a65851748e67eaf0
     git reset --hard
     git submodule update --init --force --recursive
     ./apply_patches.sh monero
@@ -17,15 +17,13 @@ else
     cd monero_c
 fi
 
-if [[ ! -f "monero/.patch-applied" ]];
-then
-    ./apply_patches.sh monero
-fi
-
-if [[ ! -f "wownero/.patch-applied" ]];
-then
-    ./apply_patches.sh wownero
-fi
+for coin in monero wownero zano;
+do
+    if [[ ! -f "$coin/.patch-applied" ]];
+    then
+        ./apply_patches.sh $coin
+    fi
+done
 cd ..
 
 echo "monero_c source prepared".
