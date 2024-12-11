@@ -19,3 +19,4 @@ const DERIVATION_INFO_TYPE_ID       = 17;
 const TRON_TOKEN_TYPE_ID            = 18;
 const HARDWARE_WALLET_TYPE_TYPE_ID  = 19;
 const MWEB_UTXO_TYPE_ID             = 20;
+const HAVEN_SEED_STORE_TYPE_ID      = 21;

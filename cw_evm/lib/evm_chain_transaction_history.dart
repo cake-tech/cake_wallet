@@ -84,7 +84,6 @@ abstract class EVMChainTransactionHistoryBase
           _update(tx);
         }
       }
-      print('doneee');
     } catch (e) {
       log(e.toString());
     }
