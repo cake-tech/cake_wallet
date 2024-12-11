@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cw_core/hardware/device_not_connected_exception.dart'
     as exception;
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:ledger_ethereum/ledger_ethereum.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:web3dart/crypto.dart';
@@ -96,7 +97,7 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
       await ethereumLedgerApp!.getAndProvideERC20TokenInformation(
           erc20ContractAddress: erc20ContractAddress, chainId: chainId);
     } catch (e) {
-      print(e);
+      printV(e);
       rethrow;
       // if (e.errorCode != -28672) rethrow;
     }

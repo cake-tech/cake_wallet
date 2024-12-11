@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -152,7 +153,7 @@ int getMoneroHeigthByDate({required DateTime date}) {
       height = startHeight + daysHeight - heightPerDay;
     }
   } catch (e) {
-    print(e.toString());
+    printV(e.toString());
   }
 
   return height;
@@ -270,7 +271,7 @@ const bitcoinDates = {
 Future<int> getBitcoinHeightByDateAPI({required DateTime date}) async {
   final response = await http.get(
     Uri.parse(
-      "http://mempool.cakewallet.com:8999/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}",
+      "https://mempool.cakewallet.com/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}",
     ),
   );
 

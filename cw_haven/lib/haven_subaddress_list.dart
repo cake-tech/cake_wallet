@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_haven/api/structs/subaddress_row.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
@@ -79,7 +80,7 @@ abstract class HavenSubaddressListBase with Store {
       _isRefreshing = false;
     } on PlatformException catch (e) {
       _isRefreshing = false;
-      print(e);
+      printV(e);
       rethrow;
     }
   }
