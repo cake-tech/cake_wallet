@@ -16,9 +16,13 @@ import 'package:mobx/mobx.dart';
 
 part 'unspent_coins_list_view_model.g.dart';
 
-class UnspentCoinsListViewModel = UnspentCoinsListViewModelBase with _$UnspentCoinsListViewModel;
+class UnspentCoinsListViewModel = UnspentCoinsListViewModelBase
+    with _$UnspentCoinsListViewModel;
 
 abstract class UnspentCoinsListViewModelBase with Store {
+  @observable
+  ObservableList<UnspentCoinsItem> _items = ObservableList<UnspentCoinsItem>();
+
   UnspentCoinsListViewModelBase({
     required this.wallet,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
@@ -40,7 +44,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
   bool isDisposing = false;
 
   @computed
-  bool get isAllSelected => items.every((element) => element.isFrozen || element.isSending);
+  bool get isAllSelected =>
+      items.every((element) => element.isFrozen || element.isSending);
 
   Future<void> initialSetup() async {
     await _updateUnspents();
@@ -68,17 +73,15 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   bool get hasAdjustableFieldChanged => items.any(_hasAdjustableFieldChanged);
 
-
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
-      final existingInfo = _unspentCoinsInfo.values
-          .firstWhereOrNull((element) => element.walletId == wallet.id && element == item);
+      final existingInfo = _unspentCoinsInfo.values.firstWhereOrNull(
+          (element) => element.walletId == wallet.id && element == item);
       if (existingInfo == null) return;
 
       existingInfo.isFrozen = item.isFrozen;
       existingInfo.isSending = item.isSending;
       existingInfo.note = item.note;
-
 
       await existingInfo.save();
       _updateUnspentCoinsInfo();
@@ -92,7 +95,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
       return monero!.formatterMoneroAmountToString(amount: fullBalance);
     if (wallet.type == WalletType.wownero)
       return wownero!.formatterWowneroAmountToString(amount: fullBalance);
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash]
+        .contains(wallet.type))
       return bitcoin!.formatterBitcoinAmountToString(amount: fullBalance);
     return '';
   }
@@ -104,7 +108,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
     if (wallet.type == WalletType.wownero) {
       await wownero!.updateUnspents(wallet);
     }
-    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type)) {
+    if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash]
+        .contains(wallet.type)) {
       await bitcoin!.updateUnspents(wallet);
     }
 
@@ -120,7 +125,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return bitcoin!.getUnspents(wallet, coinTypeToSpendFrom: coinTypeToSpendFrom);
+        return bitcoin!
+            .getUnspents(wallet, coinTypeToSpendFrom: coinTypeToSpendFrom);
       default:
         return List.empty();
     }
@@ -133,14 +139,15 @@ abstract class UnspentCoinsListViewModelBase with Store {
     final unspents = _getUnspents()
         .map((elem) {
           try {
-            final existingItem = _unspentCoinsInfo.values
-                .firstWhereOrNull((item) => item.walletId == wallet.id && item == elem);
+            final existingItem = _unspentCoinsInfo.values.firstWhereOrNull(
+                (item) => item.walletId == wallet.id && item == elem);
 
             if (existingItem == null) return null;
 
             return UnspentCoinsItem(
               address: elem.address,
-              amount: '${formatAmountToString(elem.value)} ${wallet.currency.title}',
+              amount:
+                  '${formatAmountToString(elem.value)} ${wallet.currency.title}',
               hash: elem.hash,
               isFrozen: existingItem.isFrozen,
               note: existingItem.note,

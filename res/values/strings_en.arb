@@ -593,6 +593,8 @@
   "restore_wallet_restore_description": "Wallet restore description",
   "robinhood_option_description": "Buy and transfer instantly using your debit card, bank account, or Robinhood balance. USA only.",
   "router_no_route": "No route defined for ${name}",
+  "salvium_app": "Salvium by Cake Wallet",
+  "salvium_app_wallet_text": "Awesome wallet for Salvium",
   "save": "Save",
   "save_backup_password": "Please make sure that you have saved your backup password.  You will not be able to import your backup files without it.",
   "save_backup_password_alert": "Save backup password",

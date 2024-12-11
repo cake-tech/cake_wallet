@@ -1,7 +1,6 @@
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
-import 'package:cake_wallet/entities/update_salvium_rate.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -25,8 +24,8 @@ ReactionDisposer? _onCurrentWalletChangeReaction;
 ReactionDisposer? _onCurrentWalletChangeFiatRateUpdateReaction;
 //ReactionDisposer _onCurrentWalletAddressChangeReaction;
 
-void startCurrentWalletChangeReaction(
-    AppStore appStore, SettingsStore settingsStore, FiatConversionStore fiatConversionStore) {
+void startCurrentWalletChangeReaction(AppStore appStore,
+    SettingsStore settingsStore, FiatConversionStore fiatConversionStore) {
   _onCurrentWalletChangeReaction?.reaction.dispose();
   _onCurrentWalletChangeFiatRateUpdateReaction?.reaction.dispose();
   //_onCurrentWalletAddressChangeReaction?.reaction?dispose();
@@ -52,9 +51,9 @@ void startCurrentWalletChangeReaction(
   //}
   //});
 
-  _onCurrentWalletChangeReaction = reaction((_) => appStore.wallet,
-      (WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
-          wallet) async {
+  _onCurrentWalletChangeReaction = reaction((_) => appStore.wallet, (WalletBase<
+          Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
+      wallet) async {
     try {
       if (wallet == null) {
         return;
@@ -69,6 +68,7 @@ void startCurrentWalletChangeReaction(
 
       if (wallet.type == WalletType.monero ||
           wallet.type == WalletType.wownero ||
+          wallet.type == WalletType.salvium ||
           wallet.type == WalletType.bitcoin ||
           wallet.type == WalletType.litecoin ||
           wallet.type == WalletType.bitcoinCash) {
@@ -85,10 +85,6 @@ void startCurrentWalletChangeReaction(
         await updateHavenRate(fiatConversionStore);
       }
 
-      if (wallet.type == WalletType.salvium) {
-        await updateSalviumRate(fiatConversionStore);
-      }
-
       if (wallet.walletInfo.address.isEmpty) {
         wallet.walletInfo.address = wallet.walletAddresses.address;
 
@@ -101,8 +97,9 @@ void startCurrentWalletChangeReaction(
     }
   });
 
-  _onCurrentWalletChangeFiatRateUpdateReaction = reaction((_) => appStore.wallet,
-      (WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
+  _onCurrentWalletChangeFiatRateUpdateReaction =
+      reaction((_) => appStore.wallet, (WalletBase<Balance,
+              TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
           wallet) async {
     try {
       if (wallet == null || settingsStore.fiatApiMode == FiatApiMode.disabled) {
@@ -110,36 +107,42 @@ void startCurrentWalletChangeReaction(
       }
 
       fiatConversionStore.prices[wallet.currency] = 0;
-      fiatConversionStore.prices[wallet.currency] = await FiatConversionService.fetchPrice(
-          crypto: wallet.currency,
-          fiat: settingsStore.fiatCurrency,
-          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+      fiatConversionStore.prices[wallet.currency] =
+          await FiatConversionService.fetchPrice(
+              crypto: wallet.currency,
+              fiat: settingsStore.fiatCurrency,
+              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
 
       Iterable<CryptoCurrency>? currencies;
       if (wallet.type == WalletType.ethereum) {
-        currencies =
-            ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+        currencies = ethereum!
+            .getERC20Currencies(appStore.wallet!)
+            .where((element) => element.enabled);
       }
       if (wallet.type == WalletType.polygon) {
-        currencies =
-            polygon!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+        currencies = polygon!
+            .getERC20Currencies(appStore.wallet!)
+            .where((element) => element.enabled);
       }
       if (wallet.type == WalletType.solana) {
-        currencies =
-            solana!.getSPLTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+        currencies = solana!
+            .getSPLTokenCurrencies(appStore.wallet!)
+            .where((element) => element.enabled);
       }
       if (wallet.type == WalletType.tron) {
-        currencies =
-            tron!.getTronTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+        currencies = tron!
+            .getTronTokenCurrencies(appStore.wallet!)
+            .where((element) => element.enabled);
       }
 
       if (currencies != null) {
         for (final currency in currencies) {
           () async {
-            fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-                crypto: currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+            fiatConversionStore.prices[currency] =
+                await FiatConversionService.fetchPrice(
+                    crypto: currency,
+                    fiat: settingsStore.fiatCurrency,
+                    torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
           }.call();
         }
       }
@@ -150,10 +153,13 @@ void startCurrentWalletChangeReaction(
 }
 
 void _setAutoGenerateSubaddressStatus(
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+      wallet,
   SettingsStore settingsStore,
 ) async {
   wallet.isEnabledAutoGenerateSubaddress =
-      settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled ||
-          settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.initialized;
+      settingsStore.autoGenerateSubaddressStatus ==
+              AutoGenerateSubaddressStatus.enabled ||
+          settingsStore.autoGenerateSubaddressStatus ==
+              AutoGenerateSubaddressStatus.initialized;
 }

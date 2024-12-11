@@ -52,4 +52,7 @@ abstract class UnspentCoinsItemBase with Store, UnspentComparable {
 
   @observable
   bool isSilentPayment;
+
+  int get amountRaw => value;
+  set amountRaw(int value) => this.value = value;
 }

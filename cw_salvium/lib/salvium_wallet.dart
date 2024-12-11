@@ -11,7 +11,7 @@ import 'package:cw_salvium/salvium_wallet_addresses.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_salvium/api/structs/pending_transaction.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_salvium/api/transaction_history.dart' as salvium_transaction_history;
+import 'package:cw_salvium/api/transaction_history.dart' as transaction_history;
 import 'package:cw_salvium/api/wallet.dart' as salvium_wallet;
 import 'package:cw_salvium/api/monero_output.dart';
 import 'package:cw_salvium/pending_salvium_transaction.dart';
@@ -33,8 +33,8 @@ const moneroBlockSize = 1000;
 
 class SalviumWallet = SalviumWalletBase with _$SalviumWallet;
 
-abstract class SalviumWalletBase
-    extends WalletBase<MoneroBalance, SalviumTransactionHistory, SalviumTransactionInfo> with Store {
+abstract class SalviumWalletBase extends WalletBase<MoneroBalance,
+    SalviumTransactionHistory, SalviumTransactionInfo> with Store {
   SalviumWalletBase({required WalletInfo walletInfo, String? password})
       : balance = ObservableMap.of(getSalviumBalance(accountIndex: 0)),
         _isTransactionUpdating = false,
@@ -44,7 +44,8 @@ abstract class SalviumWalletBase
         syncStatus = NotConnectedSyncStatus(),
         super(walletInfo) {
     transactionHistory = SalviumTransactionHistory();
-    _onAccountChangeReaction = reaction((_) => walletAddresses.account, (Account? account) {
+    _onAccountChangeReaction =
+        reaction((_) => walletAddresses.account, (Account? account) {
       if (account == null) {
         return;
       }
@@ -72,7 +73,8 @@ abstract class SalviumWalletBase
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
-      primaryAddress: salvium_wallet.getAddress(accountIndex: 0, addressIndex: 0),
+      primaryAddress:
+          salvium_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: salvium_wallet.getSecretSpendKey(),
       privateViewKey: salvium_wallet.getSecretViewKey(),
       publicSpendKey: salvium_wallet.getPublicSpendKey(),
@@ -86,7 +88,8 @@ abstract class SalviumWalletBase
 
   Future<void> init() async {
     await walletAddresses.init();
-    balance.addAll(getSalviumBalance(accountIndex: walletAddresses.account?.id ?? 0));
+    balance.addAll(
+        getSalviumBalance(accountIndex: walletAddresses.account?.id ?? 0));
     _setListeners();
     await updateTransactions();
 
@@ -94,12 +97,13 @@ abstract class SalviumWalletBase
       salvium_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
 
       if (salvium_wallet.getCurrentHeight() <= 1) {
-        salvium_wallet.setRefreshFromBlockHeight(height: walletInfo.restoreHeight);
+        salvium_wallet.setRefreshFromBlockHeight(
+            height: walletInfo.restoreHeight);
       }
     }
 
-    _autoSaveTimer =
-        Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
+    _autoSaveTimer = Timer.periodic(
+        Duration(seconds: _autoSaveInterval), (_) async => await save());
   }
 
   @override
@@ -156,8 +160,10 @@ abstract class SalviumWalletBase
     final _credentials = credentials as SalviumTransactionCreationCredentials;
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final assetType = CryptoCurrency.fromString(_credentials.assetType.toLowerCase());
-    final balances = getSalviumBalance(accountIndex: walletAddresses.account!.id);
+    final assetType =
+        CryptoCurrency.fromString(_credentials.assetType.toLowerCase());
+    final balances =
+        getSalviumBalance(accountIndex: walletAddresses.account!.id);
     final unlockedBalance = balances[assetType]!.unlockedBalance;
 
     PendingTransactionDescription pendingTransactionDescription;
@@ -167,13 +173,14 @@ abstract class SalviumWalletBase
     }
 
     if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+      if (outputs.any(
+          (item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
         throw SalviumTransactionCreationException(
             'You do not have enough coins to send this amount.');
       }
 
-      final int totalAmount =
-          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
+      final int totalAmount = outputs.fold(
+          0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
       if (unlockedBalance < totalAmount) {
         throw SalviumTransactionCreationException(
@@ -182,20 +189,25 @@ abstract class SalviumWalletBase
 
       final moneroOutputs = outputs
           .map((output) => MoneroOutput(
-              address: output.address, amount: output.cryptoAmount!.replaceAll(',', '.')))
+              address: output.address,
+              amount: output.cryptoAmount!.replaceAll(',', '.')))
           .toList();
 
-      pendingTransactionDescription = await transaction_history.createTransactionMultDest(
-          outputs: moneroOutputs,
-          priorityRaw: _credentials.priority.serialize(),
-          accountIndex: walletAddresses.account!.id);
+      pendingTransactionDescription =
+          await transaction_history.createTransactionMultDest(
+              outputs: moneroOutputs,
+              priorityRaw: _credentials.priority.serialize(),
+              accountIndex: walletAddresses.account!.id);
     } else {
       final output = outputs.first;
-      final address = output.isParsedAddress && (output.extractedAddress?.isNotEmpty ?? false)
+      final address = output.isParsedAddress &&
+              (output.extractedAddress?.isNotEmpty ?? false)
           ? output.extractedAddress!
           : output.address;
-      final amount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
-      final int? formattedAmount = output.sendAll ? null : output.formattedCryptoAmount;
+      final amount =
+          output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
+      final int? formattedAmount =
+          output.sendAll ? null : output.formattedCryptoAmount;
 
       if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
           (formattedAmount == null && unlockedBalance <= 0)) {
@@ -205,12 +217,13 @@ abstract class SalviumWalletBase
             'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       }
 
-      pendingTransactionDescription = await transaction_history.createTransaction(
-          address: address,
-          assetType: _credentials.assetType,
-          amount: amount,
-          priorityRaw: _credentials.priority.serialize(),
-          accountIndex: walletAddresses.account!.id);
+      pendingTransactionDescription =
+          await transaction_history.createTransaction(
+              address: address,
+              assetType: _credentials.assetType,
+              amount: amount,
+              priorityRaw: _credentials.priority.serialize(),
+              accountIndex: walletAddresses.account!.id);
     }
 
     return PendingSalviumTransaction(pendingTransactionDescription, assetType);
@@ -298,14 +311,15 @@ abstract class SalviumWalletBase
   }
 
   String getTransactionAddress(int accountIndex, int addressIndex) =>
-      salvium_wallet.getAddress(accountIndex: accountIndex, addressIndex: addressIndex);
+      salvium_wallet.getAddress(
+          accountIndex: accountIndex, addressIndex: addressIndex);
 
   @override
   Future<Map<String, SalviumTransactionInfo>> fetchTransactions() async {
-    salvium_transaction_history.refreshTransactions();
-    return _getAllTransactions(null)
-        .fold<Map<String, SalviumTransactionInfo>>(<String, SalviumTransactionInfo>{},
-            (Map<String, SalviumTransactionInfo> acc, SalviumTransactionInfo tx) {
+    transaction_history.refreshTransactions();
+    return _getAllTransactions(null).fold<Map<String, SalviumTransactionInfo>>(
+        <String, SalviumTransactionInfo>{},
+        (Map<String, SalviumTransactionInfo> acc, SalviumTransactionInfo tx) {
       acc[tx.id] = tx;
       return acc;
     });
@@ -328,10 +342,11 @@ abstract class SalviumWalletBase
     }
   }
 
-  List<SalviumTransactionInfo> _getAllTransactions(dynamic _) => salvium_transaction_history
-      .getAllTransations()
-      .map((row) => SalviumTransactionInfo.fromRow(row))
-      .toList();
+  List<SalviumTransactionInfo> _getAllTransactions(dynamic _) =>
+      transaction_history
+          .getAllTransations()
+          .map((row) => SalviumTransactionInfo.fromRow(row))
+          .toList();
 
   void _setListeners() {
     _listener?.stop();
@@ -353,7 +368,8 @@ abstract class SalviumWalletBase
   }
 
   int _getHeightDistance(DateTime date) {
-    final distance = DateTime.now().millisecondsSinceEpoch - date.millisecondsSinceEpoch;
+    final distance =
+        DateTime.now().millisecondsSinceEpoch - date.millisecondsSinceEpoch;
     final daysTmp = (distance / 86400).round();
     final days = daysTmp < 1 ? 1 : daysTmp;
 
@@ -371,10 +387,11 @@ abstract class SalviumWalletBase
     return nodeHeight - heightDistance;
   }
 
-  void _askForUpdateBalance() =>
-      balance.addAll(getSalviumBalance(accountIndex: walletAddresses.account!.id));
+  void _askForUpdateBalance() => balance
+      .addAll(getSalviumBalance(accountIndex: walletAddresses.account!.id));
 
-  Future<void> _askForUpdateTransactionHistory() async => await updateTransactions();
+  Future<void> _askForUpdateTransactionHistory() async =>
+      await updateTransactions();
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
     try {
@@ -424,6 +441,7 @@ abstract class SalviumWalletBase
       throw UnimplementedError();
 
   @override
-  Future<bool> verifyMessage(String message, String signature, {String? address = null}) =>
+  Future<bool> verifyMessage(String message, String signature,
+          {String? address = null}) =>
       throw UnimplementedError();
 }

@@ -29,43 +29,49 @@ abstract class MoneroAccountListViewModelBase with Store {
   @computed
   List<AccountListItem> get accounts {
     if (_wallet.type == WalletType.haven) {
-      return haven
-        !.getAccountList(_wallet)
-        .accounts.map((acc) => AccountListItem(
-            label: acc.label,
-            id: acc.id,
-            isSelected: acc.id == haven!.getCurrentAccount(_wallet).id))
-        .toList();
+      return haven!
+          .getAccountList(_wallet)
+          .accounts
+          .map((acc) => AccountListItem(
+              label: acc.label,
+              id: acc.id,
+              isSelected: acc.id == haven!.getCurrentAccount(_wallet).id))
+          .toList();
     }
 
     if (_wallet.type == WalletType.salvium) {
-      return salvium!.getAccountList(_wallet).accounts.map((acc) => AccountListItem(
-            label: acc.label,
-            id: acc.id,
-            isSelected: acc.id == salvium!.getCurrentAccount(_wallet).id))
-        .toList();
+      return salvium!
+          .getAccountList(_wallet)
+          .accounts
+          .map((acc) => AccountListItem(
+              label: acc.label,
+              id: acc.id,
+              isSelected: acc.id == salvium!.getCurrentAccount(_wallet).id))
+          .toList();
     }
 
     if (_wallet.type == WalletType.monero) {
-      return monero
-        !.getAccountList(_wallet)
-        .accounts.map((acc) => AccountListItem(
-            label: acc.label,
-            id: acc.id,
-            balance: acc.balance,
-            isSelected: acc.id == monero!.getCurrentAccount(_wallet).id))
-        .toList();
+      return monero!
+          .getAccountList(_wallet)
+          .accounts
+          .map((acc) => AccountListItem(
+              label: acc.label,
+              id: acc.id,
+              balance: acc.balance,
+              isSelected: acc.id == monero!.getCurrentAccount(_wallet).id))
+          .toList();
     }
 
     if (_wallet.type == WalletType.wownero) {
-      return wownero
-        !.getAccountList(_wallet)
-        .accounts.map((acc) => AccountListItem(
-            label: acc.label,
-            id: acc.id,
-            balance: acc.balance,
-            isSelected: acc.id == wownero!.getCurrentAccount(_wallet).id))
-        .toList();
+      return wownero!
+          .getAccountList(_wallet)
+          .accounts
+          .map((acc) => AccountListItem(
+              label: acc.label,
+              id: acc.id,
+              balance: acc.balance,
+              isSelected: acc.id == wownero!.getCurrentAccount(_wallet).id))
+          .toList();
     }
 
     throw Exception('Unexpected wallet type: ${_wallet.type}');
@@ -80,7 +86,7 @@ abstract class MoneroAccountListViewModelBase with Store {
         item.id,
         item.label,
         item.balance,
-        );
+      );
     }
 
     if (_wallet.type == WalletType.wownero) {
@@ -89,21 +95,15 @@ abstract class MoneroAccountListViewModelBase with Store {
         item.id,
         item.label,
         item.balance,
-        );
+      );
     }
 
     if (_wallet.type == WalletType.haven) {
-      haven!.setCurrentAccount(
-        _wallet,
-        item.id,
-        item.label);
+      haven!.setCurrentAccount(_wallet, item.id, item.label);
     }
 
     if (_wallet.type == WalletType.salvium) {
-      salvium!.setCurrentAccount(
-        _wallet,
-        item.id,
-        item.label);
+      salvium!.setCurrentAccount(_wallet, item.id, item.label, item.balance);
     }
   }
 }

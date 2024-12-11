@@ -192,11 +192,9 @@ class TransactionListItem extends ActionListItem with Keyable {
             price: price);
         break;
       case WalletType.salvium:
-        final asset = salvium!.assetOfTransaction(transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
             cryptoAmount: salvium!
-                .formatterMoneroAmountToDouble(amount: transaction.amount),
+                .formatterSalviumAmountToDouble(amount: transaction.amount),
             price: price);
         break;
       case WalletType.ethereum:

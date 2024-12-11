@@ -37,7 +37,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
     SeedSettingsViewModel seedSettingsViewModel, {
     required this.newWalletArguments,
   })  : selectedMnemonicLanguage = '',
-        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
+        super(appStore, walletInfoSource, walletCreationService,
+            seedSettingsViewModel,
             type: newWalletArguments!.type, isRecovery: false);
 
   final NewWalletArguments? newWalletArguments;
@@ -46,8 +47,12 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   @observable
   String selectedMnemonicLanguage;
 
-  bool get hasLanguageSelector =>
-      [WalletType.monero, WalletType.haven, WalletType.wownero, WalletType.salvium].contains(type);
+  bool get hasLanguageSelector => [
+        WalletType.monero,
+        WalletType.haven,
+        WalletType.wownero,
+        WalletType.salvium
+      ].contains(type);
 
   int get seedPhraseWordsLength {
     switch (type) {
@@ -74,7 +79,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
     }
   }
 
-  bool get hasSeedType => [WalletType.monero, WalletType.wownero].contains(type);
+  bool get hasSeedType =>
+      [WalletType.monero, WalletType.wownero].contains(type);
 
   @override
   WalletCredentials getCredentials(dynamic _options) {
@@ -100,10 +106,15 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
-            name: name, language: options!.first as String, password: walletPassword);
+            name: name,
+            language: options!.first as String,
+            password: walletPassword);
       case WalletType.salvium:
         return salvium!.createSalviumNewWalletCredentials(
-            name: name, language: options!.first as String, password: walletPassword);
+            name: name,
+            language: options!.first as String,
+            password: walletPassword,
+            isPolyseed: options.last as bool);
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(
           name: name,

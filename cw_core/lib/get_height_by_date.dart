@@ -227,14 +227,15 @@ const havenDates = {
 DateTime formatMapKey(String key) => dateFormat.parse(key);
 
 int getHavenHeightByDate({required DateTime date}) {
-  String closestKey =
-      havenDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
+  String closestKey = havenDates.keys
+      .firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
 
   return havenDates[closestKey] ?? 0;
 }
 
 Future<int> getHavenCurrentHeight() async {
-  final response = await http.get(Uri.parse('https://explorer.havenprotocol.org/api/networkinfo'));
+  final response = await http
+      .get(Uri.parse('https://explorer.havenprotocol.org/api/networkinfo'));
 
   if (response.statusCode == 200) {
     final info = jsonDecode(response.body);
@@ -245,21 +246,22 @@ Future<int> getHavenCurrentHeight() async {
 }
 
 const salviumDates = {
-  "2024-11": 86752
-  "2024-10": 65675
-  "2024-09": 44680
+  "2024-11": 86752,
+  "2024-10": 65675,
+  "2024-09": 44680,
   "2024-08": 22339
 };
 
 int getSalviumHeightByDate({required DateTime date}) {
-  String closestKey =
-      salviumDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
+  String closestKey = salviumDates.keys
+      .firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
 
   return salviumDates[closestKey] ?? 0;
 }
 
 Future<int> getSalviumCurrentHeight() async {
-  final response = await http.get(Uri.parse('https://explorer.salvium.io/api/networkinfo'));
+  final response =
+      await http.get(Uri.parse('https://explorer.salvium.io/api/networkinfo'));
 
   if (response.statusCode == 200) {
     final info = jsonDecode(response.body);
@@ -305,8 +307,9 @@ Future<int> getBitcoinHeightByDateAPI({required DateTime date}) async {
 
 int getBitcoinHeightByDate({required DateTime date}) {
   String dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
-  final closestKey = bitcoinDates.keys
-      .firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => bitcoinDates.keys.last);
+  final closestKey = bitcoinDates.keys.firstWhere(
+      (key) => formatMapKey(key).isBefore(date),
+      orElse: () => bitcoinDates.keys.last);
   final beginningBlock = bitcoinDates[dateKey] ?? bitcoinDates[closestKey]!;
 
   final startOfMonth = DateTime(date.year, date.month);
@@ -319,15 +322,17 @@ int getBitcoinHeightByDate({required DateTime date}) {
 }
 
 DateTime getDateByBitcoinHeight(int height) {
-  final closestEntry = bitcoinDates.entries
-      .lastWhere((entry) => entry.value >= height, orElse: () => bitcoinDates.entries.first);
+  final closestEntry = bitcoinDates.entries.lastWhere(
+      (entry) => entry.value >= height,
+      orElse: () => bitcoinDates.entries.first);
   final beginningBlock = closestEntry.value;
 
   final startOfMonth = formatMapKey(closestEntry.key);
   final blocksDifference = height - beginningBlock;
   final hoursDifference = blocksDifference / 5.5;
 
-  final estimatedDate = startOfMonth.add(Duration(hours: hoursDifference.ceil()));
+  final estimatedDate =
+      startOfMonth.add(Duration(hours: hoursDifference.ceil()));
 
   if (estimatedDate.isAfter(DateTime.now())) {
     return DateTime.now();
@@ -413,8 +418,8 @@ const wowDates = {
 };
 
 int getWowneroHeightByDate({required DateTime date}) {
-  String closestKey =
-      wowDates.keys.firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
+  String closestKey = wowDates.keys
+      .firstWhere((key) => formatMapKey(key).isBefore(date), orElse: () => '');
 
   return wowDates[closestKey] ?? 0;
 }

@@ -841,16 +841,14 @@ import 'package:cw_core/output_info.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:polyseed/polyseed.dart';""";
   const salviumCWHeaders = """
 import 'package:cw_core/account.dart' as salvium_account;
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/salvium_amount_format.dart';
-import 'package:cw_core/salvium_transaction_priority.dart';
+import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_salvium/api/wallet_manager.dart';
 import 'package:cw_salvium/api/wallet.dart' as salvium_wallet_api;
-import 'package:cw_salvium/ledger.dart';
 import 'package:cw_salvium/salvium_unspent.dart';
 import 'package:cw_salvium/api/account_list.dart';
 import 'package:cw_salvium/salvium_wallet_service.dart';
@@ -894,18 +892,18 @@ class Subaddress {
 
 class SalviumBalance extends Balance {
   SalviumBalance({required this.fullBalance, required this.unlockedBalance})
-      : formattedFullBalance = salvium!.formatterMoneroAmountToString(amount: fullBalance),
+      : formattedFullBalance = salvium!.formatterSalviumAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
-            salvium!.formatterMoneroAmountToString(amount: unlockedBalance),
+            salvium!.formatterSalviumAmountToString(amount: unlockedBalance),
         super(unlockedBalance, fullBalance);
 
   SalviumBalance.fromString(
       {required this.formattedFullBalance,
       required this.formattedUnlockedBalance})
-      : fullBalance = salvium!.formatterMoneroParseAmount(amount: formattedFullBalance),
-        unlockedBalance = salvium!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-        super(salvium!.formatterMoneroParseAmount(amount: formattedUnlockedBalance),
-            salvium!.formatterMoneroParseAmount(amount: formattedFullBalance));
+      : fullBalance = salvium!.formatterSalviumParseAmount(amount: formattedFullBalance),
+        unlockedBalance = salvium!.formatterSalviumParseAmount(amount: formattedUnlockedBalance),
+        super(salvium!.formatterSalviumParseAmount(amount: formattedUnlockedBalance),
+            salvium!.formatterSalviumParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
   final int unlockedBalance;
@@ -944,7 +942,7 @@ abstract class Salvium {
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority getSalviumTransactionPrioritySlow();
   TransactionPriority getSalviumTransactionPriorityAutomatic();
-  TransactionPriority deserializeSalviumTransactionPriority({required int raw});
+  TransactionPriority deserializeMoneroTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   List<String> getSalviumWordList(String language);
   
@@ -968,7 +966,6 @@ abstract class Salvium {
     required String language,
     required int height});
   WalletCredentials createSalviumRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
-  WalletCredentials createSalviumRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required ledger.LedgerConnection ledgerConnection});
   WalletCredentials createSalviumNewWalletCredentials({required String name, required String language, required bool isPolyseed, String? password});
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
@@ -985,9 +982,6 @@ abstract class Salvium {
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createSalviumWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
-  void setLedgerConnection(Object wallet, ledger.LedgerConnection connection);
-  void resetLedgerConnection();
-  void setGlobalLedgerConnection(ledger.LedgerConnection connection);
 }
 
 abstract class SalviumSubaddressList {
