@@ -153,6 +153,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
     items.add(TradeDetailsListCardItem.tradeDetails(
       id: trade.id,
+      extraId: trade.extraId,
       createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
       from: trade.from,
       to: trade.to,

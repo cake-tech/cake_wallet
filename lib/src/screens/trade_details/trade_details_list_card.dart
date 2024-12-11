@@ -8,7 +8,8 @@ class TradeDetailsListCardItem extends StandartListItem {
       {required this.id,
       required this.createdAt,
       required this.pair,
-      required this.onTap})
+      required this.onTap,
+      this.extraId})
       : super(title: '', value: '');
 
   factory TradeDetailsListCardItem.tradeDetails(
@@ -16,9 +17,19 @@ class TradeDetailsListCardItem extends StandartListItem {
       required String createdAt,
       required CryptoCurrency from,
       required CryptoCurrency to,
-      required void Function(BuildContext) onTap}) {
+      required void Function(BuildContext) onTap,
+      String? extraId}) {
+
+
+      final extraIdTitle = from == CryptoCurrency.xrp
+          ? S.current.destination_tag
+          : from == CryptoCurrency.xlm
+          ? S.current.memo
+          : S.current.extra_id;
+
     return TradeDetailsListCardItem(
         id: '${S.current.trade_details_id}  ${formatAsText(id)}',
+        extraId: extraId != null ? '$extraIdTitle  $extraId' : null,
         createdAt: formatAsText(createdAt),
         pair: '${formatAsText(from)} → ${formatAsText(to)}',
         onTap: onTap);
@@ -27,6 +38,7 @@ class TradeDetailsListCardItem extends StandartListItem {
   final String id;
   final String createdAt;
   final String pair;
+  final String? extraId;
   final void Function(BuildContext) onTap;
 
   static String formatAsText<T>(T value) => value?.toString() ?? '';

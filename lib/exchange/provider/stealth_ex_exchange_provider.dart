@@ -154,6 +154,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
       final receiveAmount = toDouble(withdrawal['amount']);
       final status = responseJSON['status'] as String;
       final createdAtString = responseJSON['created_at'] as String;
+      final extraId = deposit['extra_id'] as String?;
 
       final createdAt = DateTime.parse(createdAtString);
       final expiredAt = validUntil != null
@@ -188,6 +189,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
         state: TradeState.deserialize(raw: status),
         createdAt: createdAt,
         expiredAt: expiredAt,
+        extraId: extraId,
       );
     } catch (e) {
       log(e.toString());
@@ -220,6 +222,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
     final status = responseJSON['status'] as String;
     final createdAtString = responseJSON['created_at'] as String;
     final createdAt = DateTime.parse(createdAtString);
+    final extraId = deposit['extra_id'] as String?;
 
     return Trade(
       id: respId,
@@ -234,6 +237,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
       state: TradeState.deserialize(raw: status),
       createdAt: createdAt,
       isRefund: status == 'refunded',
+      extraId: extraId,
     );
   }
 
