@@ -166,7 +166,7 @@ abstract class ExchangeTradeViewModelBase with Store {
               ? S.current.memo
               : S.current.extra_id;
 
-      items.add(ExchangeTradeItem(title: title, data: '${trade.extraId}', isCopied: false));
+      items.add(ExchangeTradeItem(title: title, data: '${trade.extraId}', isCopied: true));
     }
 
     items.addAll([
