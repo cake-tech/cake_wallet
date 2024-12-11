@@ -119,9 +119,7 @@ class CryptoBalanceWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPress: () => dashboardViewModel.balanceViewModel.isReversing =
-          !dashboardViewModel.balanceViewModel.isReversing,
-      onLongPressUp: () => dashboardViewModel.balanceViewModel.isReversing =
+      onTap: () => dashboardViewModel.balanceViewModel.isReversing =
           !dashboardViewModel.balanceViewModel.isReversing,
       child: SingleChildScrollView(
         child: Column(
@@ -601,40 +599,41 @@ class BalanceRowWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: hasAdditionalBalance
-                        ? () => _showBalanceDescription(
-                            context, S.of(context).available_balance_description)
-                        : null,
-                    child: Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Semantics(
-                              hint: 'Double tap to see more information',
-                              container: true,
-                              child: Text('${availableBalanceLabel}',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontFamily: 'Lato',
-                                      fontWeight: FontWeight.w400,
-                                      color: Theme.of(context)
-                                          .extension<BalancePageTheme>()!
-                                          .labelTextColor,
-                                      height: 1)),
+                        GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: hasAdditionalBalance
+                                ? () => _showBalanceDescription(
+                                context, S.of(context).available_balance_description)
+                                : null,
+                            child: Row(
+                              children: [
+                                Semantics(
+                                  hint: 'Double tap to see more information',
+                                  container: true,
+                                  child: Text('${availableBalanceLabel}',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context)
+                                              .extension<BalancePageTheme>()!
+                                              .labelTextColor,
+                                          height: 1)),
+                                ),
+                                if (hasAdditionalBalance)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    child: Icon(Icons.help_outline,
+                                        size: 16,
+                                        color: Theme.of(context)
+                                            .extension<BalancePageTheme>()!
+                                            .labelTextColor),
+                                  ),
+                              ],
                             ),
-                            if (hasAdditionalBalance)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
-                                child: Icon(Icons.help_outline,
-                                    size: 16,
-                                    color: Theme.of(context)
-                                        .extension<BalancePageTheme>()!
-                                        .labelTextColor),
-                              ),
-                          ],
                         ),
                         SizedBox(height: 6),
                         AutoSizeText(availableBalance,
@@ -667,9 +666,10 @@ class BalanceRowWidget extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                                   height: 1)),
+
                       ],
                     ),
-                  ),
+
                   SizedBox(
                     width: min(MediaQuery.of(context).size.width * 0.2, 100),
                     child: Center(
