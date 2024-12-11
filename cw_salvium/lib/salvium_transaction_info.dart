@@ -1,48 +1,50 @@
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/monero_amount_format.dart';
-import 'package:cw_salvium/api/structs/transaction_info_row.dart';
+import 'package:cw_core/salvium_amount_format.dart';
 import 'package:cw_core/parseBoolFromString.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_salvium/api/transaction_history.dart';
 
 class SalviumTransactionInfo extends TransactionInfo {
-  SalviumTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee,
-      this.confirmations);
+  SalviumTransactionInfo(
+      this.txHash,
+      this.height,
+      this.direction,
+      this.date,
+      this.isPending,
+      this.amount,
+      this.accountIndex,
+      this.addressIndex,
+      this.fee,
+      this.confirmations)
+      : id = "${txHash}_${amount}_${accountIndex}_${addressIndex}";
 
-  SalviumTransactionInfo.fromMap(Map<String, Object> map)
-      : id = (map['hash'] ?? '') as String,
+  SalviumTransactionInfo.fromMap(Map<String, Object?> map)
+      : id =
+            "${map['hash']}_${map['amount']}_${map['accountIndex']}_${map['addressIndex']}",
+        txHash = map['hash'] as String,
         height = (map['height'] ?? 0) as int,
-        direction =
-            parseTransactionDirectionFromNumber(map['direction'] as String) ??
-                TransactionDirection.incoming,
+        direction = map['direction'] != null
+            ? parseTransactionDirectionFromNumber(map['direction'] as String)
+            : TransactionDirection.incoming,
         date = DateTime.fromMillisecondsSinceEpoch(
-            int.parse(map['timestamp'] as String? ?? '0') * 1000),
+            (int.tryParse(map['timestamp'] as String? ?? '') ?? 0) * 1000),
         isPending = parseBoolFromString(map['isPending'] as String),
         amount = map['amount'] as int,
         accountIndex = int.parse(map['accountIndex'] as String),
         addressIndex = map['addressIndex'] as int,
         confirmations = map['confirmations'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
-        fee = map['fee'] as int? ?? 0;
-
-    SalviumTransactionInfo.fromRow(TransactionInfoRow row)
-      : id = row.getHash(),
-        height = row.blockHeight,
-        direction = parseTransactionDirectionFromInt(row.direction) ??
-            TransactionDirection.incoming,
-        date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime() * 1000),
-        isPending = row.isPending != 0,
-        amount = row.getAmount(),
-        accountIndex = row.subaddrAccount,
-        addressIndex = row.subaddrIndex,
-        confirmations = row.confirmations,
-        key = null, //getTxKey(row.getHash()),
-        fee = row.fee,
-        assetType = row.getAssetType();
+        fee = map['fee'] as int? ?? 0 {
+    additionalInfo = <String, dynamic>{
+      'key': key,
+      'accountIndex': accountIndex,
+      'addressIndex': addressIndex
+    };
+  }
 
   final String id;
+  final String txHash;
   final int height;
   final TransactionDirection direction;
   final DateTime date;
@@ -52,14 +54,13 @@ class SalviumTransactionInfo extends TransactionInfo {
   final int fee;
   final int addressIndex;
   final int confirmations;
-  late String recipientAddress;
-  late String assetType;
-  String? _fiatAmount;
+  String? recipientAddress;
   String? key;
+  String? _fiatAmount;
 
   @override
   String amountFormatted() =>
-      '${formatAmount(moneroAmountToString(amount: amount))} $assetType';
+      '${formatAmount(salviumAmountToString(amount: amount))} WOW';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -69,5 +70,5 @@ class SalviumTransactionInfo extends TransactionInfo {
 
   @override
   String feeFormatted() =>
-      '${formatAmount(moneroAmountToString(amount: fee))} $assetType';
+      '${formatAmount(salviumAmountToString(amount: fee))} WOW';
 }

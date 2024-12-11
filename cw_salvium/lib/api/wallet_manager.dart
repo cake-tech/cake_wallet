@@ -1,71 +1,92 @@
 import 'dart:ffi';
-import 'package:ffi/ffi.dart';
-import 'package:flutter/foundation.dart';
-import 'package:cw_salvium/api/convert_utf8_to_string.dart';
-import 'package:cw_salvium/api/signatures.dart';
-import 'package:cw_salvium/api/types.dart';
-import 'package:cw_salvium/api/salvium_api.dart';
-import 'package:cw_salvium/api/wallet.dart';
-import 'package:cw_salvium/api/exceptions/wallet_opening_exception.dart';
+import 'dart:io';
+import 'dart:isolate';
+
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_salvium/api/account_list.dart';
 import 'package:cw_salvium/api/exceptions/wallet_creation_exception.dart';
+import 'package:cw_salvium/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_salvium/api/exceptions/wallet_restore_from_keys_exception.dart';
 import 'package:cw_salvium/api/exceptions/wallet_restore_from_seed_exception.dart';
+import 'package:cw_salvium/api/transaction_history.dart';
+import 'package:cw_salvium/api/wallet.dart';
+import 'package:monero/monero.dart' as salvium;
 
-final createWalletNative = salviumApi
-    .lookup<NativeFunction<create_wallet>>('create_wallet')
-    .asFunction<CreateWallet>();
+class MoneroCException implements Exception {
+  final String message;
 
-final restoreWalletFromSeedNative = salviumApi
-    .lookup<NativeFunction<restore_wallet_from_seed>>(
-        'restore_wallet_from_seed')
-    .asFunction<RestoreWalletFromSeed>();
+  MoneroCException(this.message);
 
-final restoreWalletFromKeysNative = salviumApi
-    .lookup<NativeFunction<restore_wallet_from_keys>>(
-        'restore_wallet_from_keys')
-    .asFunction<RestoreWalletFromKeys>();
+  @override
+  String toString() {
+    return message;
+  }
+}
 
-final isWalletExistNative = salviumApi
-    .lookup<NativeFunction<is_wallet_exist>>('is_wallet_exist')
-    .asFunction<IsWalletExist>();
+void checkIfMoneroCIsFine() {
+  final cppCsCpp = salvium.MONERO_checksum_wallet2_api_c_cpp();
+  final cppCsH = salvium.MONERO_checksum_wallet2_api_c_h();
+  final cppCsExp = salvium.MONERO_checksum_wallet2_api_c_exp();
 
-final loadWalletNative = salviumApi
-    .lookup<NativeFunction<load_wallet>>('load_wallet')
-    .asFunction<LoadWallet>();
+  final dartCsCpp = salvium.wallet2_api_c_cpp_sha256;
+  final dartCsH = salvium.wallet2_api_c_h_sha256;
+  final dartCsExp = salvium.wallet2_api_c_exp_sha256;
 
-final errorStringNative = salviumApi
-    .lookup<NativeFunction<error_string>>('error_string')
-    .asFunction<ErrorString>();
-
-void createWalletSync(
-    {required String path, required String password, required String language, int nettype = 0}) {
-  final pathPointer = path.toNativeUtf8();
-  final passwordPointer = password.toNativeUtf8();
-  final languagePointer = language.toNativeUtf8();
-  final errorMessagePointer = ''.toNativeUtf8();
-  final isWalletCreated = createWalletNative(pathPointer, passwordPointer,
-          languagePointer, nettype, errorMessagePointer) !=
-      0;
-
-  calloc.free(pathPointer);
-  calloc.free(passwordPointer);
-  calloc.free(languagePointer);
-
-  if (!isWalletCreated) {
-    throw WalletCreationException(
-        message: convertUTF8ToString(pointer: errorMessagePointer));
+  if (cppCsCpp != dartCsCpp) {
+    throw MoneroCException(
+        "monero_c and monero.dart cpp wrapper code mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsCpp'\ndart: '$dartCsCpp'");
   }
 
-  // setupNodeSync(address: "node.moneroworld.com:18089");
+  if (cppCsH != dartCsH) {
+    throw MoneroCException(
+        "monero_c and monero.dart cpp wrapper header mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsH'\ndart: '$dartCsH'");
+  }
+
+  if (cppCsExp != dartCsExp && (Platform.isIOS || Platform.isMacOS)) {
+    throw MoneroCException(
+        "monero_c and monero.dart wrapper export list mismatch.\nLogic errors can occur.\nRefusing to run in release mode.\ncpp: '$cppCsExp'\ndart: '$dartCsExp'");
+  }
+}
+
+salvium.WalletManager? _wmPtr;
+final salvium.WalletManager wmPtr = Pointer.fromAddress((() {
+  try {
+    // Problems with the wallet? Crashes? Lags? this will print all calls to wow
+    // codebase, so it will be easier to debug what happens. At least easier
+    // than plugging gdb in. Especially on windows/android.
+    salvium.printStarts = false;
+    _wmPtr ??= salvium.WalletManagerFactory_getWalletManager();
+    printV("ptr: $_wmPtr");
+  } catch (e) {
+    printV(e);
+    rethrow;
+  }
+  return _wmPtr!.address;
+})());
+
+void createWalletSync(
+    {required String path,
+    required String password,
+    required String language,
+    int nettype = 0}) {
+  txhistory = null;
+  final newWptr = salvium.WalletManager_createWallet(wmPtr,
+      path: path, password: password, language: language, networkType: 0);
+
+  final status = salvium.Wallet_status(newWptr);
+  if (status != 0) {
+    throw WalletCreationException(message: salvium.Wallet_errorString(newWptr));
+  }
+  wptr = newWptr;
+  salvium.Wallet_store(wptr!, path: path);
+  openedWalletsByPath[path] = wptr!;
+
+  // is the line below needed?
+  // setupNodeSync(address: "node.salviumworld.com:18089");
 }
 
 bool isWalletExistSync({required String path}) {
-  final pathPointer = path.toNativeUtf8();
-  final isExist = isWalletExistNative(pathPointer) != 0;
-
-  calloc.free(pathPointer);
-
-  return isExist;
+  return salvium.WalletManager_walletExists(wmPtr, path);
 }
 
 void restoreWalletFromSeedSync(
@@ -74,27 +95,42 @@ void restoreWalletFromSeedSync(
     required String seed,
     int nettype = 0,
     int restoreHeight = 0}) {
-  final pathPointer = path.toNativeUtf8();
-  final passwordPointer = password.toNativeUtf8();
-  final seedPointer = seed.toNativeUtf8();
-  final errorMessagePointer = ''.toNativeUtf8();
-  final isWalletRestored = restoreWalletFromSeedNative(
-          pathPointer,
-          passwordPointer,
-          seedPointer,
-          nettype,
-          restoreHeight,
-          errorMessagePointer) !=
-      0;
+  var newWptr;
+  if (seed.split(" ").length == 14) {
+    txhistory = null;
+    // newWptr = salvium.SALVIUM_deprecated_restore14WordSeed(
+    //   path: path,
+    //   password: password,
+    //   language: seed, // I KNOW - this is supposed to be called seed
+    //   networkType: 0,
+    // );
 
-  calloc.free(pathPointer);
-  calloc.free(passwordPointer);
-  calloc.free(seedPointer);
-
-  if (!isWalletRestored) {
-    throw WalletRestoreFromSeedException(
-        message: convertUTF8ToString(pointer: errorMessagePointer));
+    // setRefreshFromBlockHeight(
+    //   height: salvium.SALVIUM_deprecated_14WordSeedHeight(seed: seed),
+    // );
+  } else {
+    txhistory = null;
+    newWptr = salvium.WalletManager_recoveryWallet(
+      wmPtr,
+      path: path,
+      password: password,
+      mnemonic: seed,
+      restoreHeight: restoreHeight,
+      seedOffset: '',
+      networkType: 0,
+    );
   }
+
+  final status = salvium.Wallet_status(newWptr);
+
+  if (status != 0) {
+    final error = salvium.Wallet_errorString(newWptr);
+    throw WalletRestoreFromSeedException(message: error);
+  }
+
+  wptr = newWptr;
+
+  openedWalletsByPath[path] = wptr!;
 }
 
 void restoreWalletFromKeysSync(
@@ -106,48 +142,170 @@ void restoreWalletFromKeysSync(
     required String spendKey,
     int nettype = 0,
     int restoreHeight = 0}) {
-  final pathPointer = path.toNativeUtf8();
-  final passwordPointer = password.toNativeUtf8();
-  final languagePointer = language.toNativeUtf8();
-  final addressPointer = address.toNativeUtf8();
-  final viewKeyPointer = viewKey.toNativeUtf8();
-  final spendKeyPointer = spendKey.toNativeUtf8();
-  final errorMessagePointer = ''.toNativeUtf8();
-  final isWalletRestored = restoreWalletFromKeysNative(
-          pathPointer,
-          passwordPointer,
-          languagePointer,
-          addressPointer,
-          viewKeyPointer,
-          spendKeyPointer,
-          nettype,
-          restoreHeight,
-          errorMessagePointer) !=
-      0;
+  txhistory = null;
+  var newWptr = (spendKey != "")
+      ? salvium.WalletManager_createDeterministicWalletFromSpendKey(wmPtr,
+          path: path,
+          password: password,
+          language: language,
+          spendKeyString: spendKey,
+          newWallet: true, // TODO(mrcyjanek): safe to remove
+          restoreHeight: restoreHeight)
+      : salvium.WalletManager_createWalletFromKeys(
+          wmPtr,
+          path: path,
+          password: password,
+          restoreHeight: restoreHeight,
+          addressString: address,
+          viewKeyString: viewKey,
+          spendKeyString: spendKey,
+          nettype: 0,
+        );
 
-  calloc.free(pathPointer);
-  calloc.free(passwordPointer);
-  calloc.free(languagePointer);
-  calloc.free(addressPointer);
-  calloc.free(viewKeyPointer);
-  calloc.free(spendKeyPointer);
-
-  if (!isWalletRestored) {
+  final status = salvium.Wallet_status(newWptr);
+  if (status != 0) {
     throw WalletRestoreFromKeysException(
-        message: convertUTF8ToString(pointer: errorMessagePointer));
+        message: salvium.Wallet_errorString(newWptr));
   }
+  // CW-712 - Try to restore deterministic wallet first, if the view key doesn't
+  // match the view key provided
+  if (spendKey != "") {
+    final viewKeyRestored = salvium.Wallet_secretViewKey(newWptr);
+    if (viewKey != viewKeyRestored && viewKey != "") {
+      salvium.WalletManager_closeWallet(wmPtr, newWptr, false);
+      File(path).deleteSync();
+      File(path + ".keys").deleteSync();
+      newWptr = salvium.WalletManager_createWalletFromKeys(
+        wmPtr,
+        path: path,
+        password: password,
+        restoreHeight: restoreHeight,
+        addressString: address,
+        viewKeyString: viewKey,
+        spendKeyString: spendKey,
+        nettype: 0,
+      );
+      final status = salvium.Wallet_status(newWptr);
+      if (status != 0) {
+        throw WalletRestoreFromKeysException(
+            message: salvium.Wallet_errorString(newWptr));
+      }
+    }
+  }
+  wptr = newWptr;
+
+  openedWalletsByPath[path] = wptr!;
 }
 
-void loadWallet({required String path, required String password, int nettype = 0}) {
-  final pathPointer = path.toNativeUtf8();
-  final passwordPointer = password.toNativeUtf8();
-  final loaded = loadWalletNative(pathPointer, passwordPointer, nettype) != 0;
-  calloc.free(pathPointer);
-  calloc.free(passwordPointer);
+void restoreWalletFromSpendKeySync(
+    {required String path,
+    required String password,
+    required String seed,
+    required String language,
+    required String spendKey,
+    int nettype = 0,
+    int restoreHeight = 0}) {
+  // txhistory = null;
+  // wptr = salvium.WalletManager_createWalletFromKeys(
+  //   wmPtr,
+  //   path: path,
+  //   password: password,
+  //   restoreHeight: restoreHeight,
+  //   addressString: '',
+  //   spendKeyString: spendKey,
+  //   viewKeyString: '',
+  //   nettype: 0,
+  // );
 
-  if (!loaded) {
-    throw WalletOpeningException(
-        message: convertUTF8ToString(pointer: errorStringNative()));
+  txhistory = null;
+  final newWptr = salvium.WalletManager_createDeterministicWalletFromSpendKey(
+    wmPtr,
+    path: path,
+    password: password,
+    language: language,
+    spendKeyString: spendKey,
+    newWallet: true, // TODO(mrcyjanek): safe to remove
+    restoreHeight: restoreHeight,
+  );
+
+  final status = salvium.Wallet_status(newWptr);
+
+  if (status != 0) {
+    final err = salvium.Wallet_errorString(newWptr);
+    printV("err: $err");
+    throw WalletRestoreFromKeysException(message: err);
+  }
+
+  wptr = newWptr;
+
+  salvium.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
+
+  storeSync();
+
+  openedWalletsByPath[path] = wptr!;
+}
+
+String _lastOpenedWallet = "";
+
+// void restoreSalviumWalletFromDevice(
+//     {required String path,
+//       required String password,
+//       required String deviceName,
+//       int nettype = 0,
+//       int restoreHeight = 0}) {
+//
+//   final pathPointer = path.toNativeUtf8();
+//   final passwordPointer = password.toNativeUtf8();
+//   final deviceNamePointer = deviceName.toNativeUtf8();
+//   final errorMessagePointer = ''.toNativeUtf8();
+//
+//   final isWalletRestored = restoreWalletFromDeviceNative(
+//       pathPointer,
+//       passwordPointer,
+//       deviceNamePointer,
+//       nettype,
+//       restoreHeight,
+//       errorMessagePointer) != 0;
+//
+//   calloc.free(pathPointer);
+//   calloc.free(passwordPointer);
+//
+//   storeSync();
+//
+//   if (!isWalletRestored) {
+//     throw WalletRestoreFromKeysException(
+//         message: convertUTF8ToString(pointer: errorMessagePointer));
+//   }
+// }
+
+Map<String, salvium.wallet> openedWalletsByPath = {};
+
+void loadWallet(
+    {required String path, required String password, int nettype = 0}) {
+  if (openedWalletsByPath[path] != null) {
+    txhistory = null;
+    wptr = openedWalletsByPath[path]!;
+    return;
+  }
+  if (wptr == null || path != _lastOpenedWallet) {
+    if (wptr != null) {
+      final addr = wptr!.address;
+      Isolate.run(() {
+        salvium.Wallet_store(Pointer.fromAddress(addr));
+      });
+    }
+    txhistory = null;
+    final newWptr =
+        salvium.WalletManager_openWallet(wmPtr, path: path, password: password);
+    _lastOpenedWallet = path;
+    final status = salvium.Wallet_status(newWptr);
+    if (status != 0) {
+      final err = salvium.Wallet_errorString(newWptr);
+      printV(err);
+      throw WalletOpeningException(message: err);
+    }
+    wptr = newWptr;
+    openedWalletsByPath[path] = wptr!;
   }
 }
 
@@ -188,23 +346,43 @@ void _restoreFromKeys(Map<String, dynamic> args) {
       spendKey: spendKey);
 }
 
-Future<void> _openWallet(Map<String, String> args) async =>
-    loadWallet(path: args['path'] as String, password: args['password'] as String);
+void _restoreFromSpendKey(Map<String, dynamic> args) {
+  final path = args['path'] as String;
+  final password = args['password'] as String;
+  final seed = args['seed'] as String;
+  final language = args['language'] as String;
+  final spendKey = args['spendKey'] as String;
+  final restoreHeight = args['restoreHeight'] as int;
 
-bool _isWalletExist(String path) => isWalletExistSync(path: path);
+  restoreWalletFromSpendKeySync(
+      path: path,
+      password: password,
+      seed: seed,
+      language: language,
+      restoreHeight: restoreHeight,
+      spendKey: spendKey);
+}
 
-void openWallet({required String path, required String password, int nettype = 0}) async =>
+Future<void> _openWallet(Map<String, String> args) async => loadWallet(
+    path: args['path'] as String, password: args['password'] as String);
+
+Future<bool> _isWalletExist(String path) async => isWalletExistSync(path: path);
+
+void openWallet(
+        {required String path,
+        required String password,
+        int nettype = 0}) async =>
     loadWallet(path: path, password: password, nettype: nettype);
 
 Future<void> openWalletAsync(Map<String, String> args) async =>
-    compute(_openWallet, args);
+    _openWallet(args);
 
 Future<void> createWallet(
         {required String path,
         required String password,
         required String language,
         int nettype = 0}) async =>
-    compute(_createWallet, {
+    _createWallet({
       'path': path,
       'password': password,
       'language': language,
@@ -217,7 +395,7 @@ Future<void> restoreFromSeed(
         required String seed,
         int nettype = 0,
         int restoreHeight = 0}) async =>
-    compute<Map<String, Object>, void>(_restoreFromSeed, {
+    _restoreFromSeed({
       'path': path,
       'password': password,
       'seed': seed,
@@ -234,7 +412,7 @@ Future<void> restoreFromKeys(
         required String spendKey,
         int nettype = 0,
         int restoreHeight = 0}) async =>
-    compute<Map<String, Object>, void>(_restoreFromKeys, {
+    _restoreFromKeys({
       'path': path,
       'password': password,
       'language': language,
@@ -245,4 +423,22 @@ Future<void> restoreFromKeys(
       'restoreHeight': restoreHeight
     });
 
-Future<bool> isWalletExist({required String path}) => compute(_isWalletExist, path);
+Future<void> restoreFromSpendKey(
+        {required String path,
+        required String password,
+        required String seed,
+        required String language,
+        required String spendKey,
+        int nettype = 0,
+        int restoreHeight = 0}) async =>
+    _restoreFromSpendKey({
+      'path': path,
+      'password': password,
+      'seed': seed,
+      'language': language,
+      'spendKey': spendKey,
+      'nettype': nettype,
+      'restoreHeight': restoreHeight
+    });
+
+Future<bool> isWalletExist({required String path}) => _isWalletExist(path);

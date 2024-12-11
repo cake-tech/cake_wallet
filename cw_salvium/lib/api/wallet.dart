@@ -1,257 +1,216 @@
 import 'dart:async';
 import 'dart:ffi';
-import 'package:ffi/ffi.dart';
-import 'package:cw_salvium/api/structs/ut8_box.dart';
-import 'package:cw_salvium/api/convert_utf8_to_string.dart';
-import 'package:cw_salvium/api/signatures.dart';
-import 'package:cw_salvium/api/types.dart';
-import 'package:cw_salvium/api/salvium_api.dart';
+import 'dart:isolate';
+
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_salvium/api/account_list.dart';
 import 'package:cw_salvium/api/exceptions/setup_wallet_exception.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
+import 'package:monero/monero.dart' as salvium;
+import 'package:mutex/mutex.dart';
 
-int _boolToInt(bool value) => value ? 1 : 0;
+int getSyncingHeight() {
+  // final height = salvium.SALVIUM_cw_WalletListener_height(getWlptr());
+  final h2 = salvium.Wallet_blockChainHeight(wptr!);
+  // printV("height: $height / $h2");
+  return h2;
+}
 
-final getFileNameNative = salviumApi
-    .lookup<NativeFunction<get_filename>>('get_filename')
-    .asFunction<GetFilename>();
+bool isNeededToRefresh() {
+  // final ret = salvium.SALVIUM_cw_WalletListener_isNeedToRefresh(getWlptr());
+  // salvium.SALVIUM_cw_WalletListener_resetNeedToRefresh(getWlptr());
+  return true;
+}
 
-final getSeedNative =
-    salviumApi.lookup<NativeFunction<get_seed>>('seed').asFunction<GetSeed>();
+bool isNewTransactionExist() {
+  // final ret =
+  //     salvium.SALVIUM_cw_WalletListener_isNewTransactionExist(getWlptr());
+  // salvium.SALVIUM_cw_WalletListener_resetIsNewTransactionExist(getWlptr());
+  // NOTE: I don't know why salvium is being funky, but
+  return true;
+}
 
-final getAddressNative = salviumApi
-    .lookup<NativeFunction<get_address>>('get_address')
-    .asFunction<GetAddress>();
+String getFilename() => salvium.Wallet_filename(wptr!);
 
-final getFullBalanceNative = salviumApi
-    .lookup<NativeFunction<get_full_balanace>>('get_full_balance')
-    .asFunction<GetFullBalance>();
+String getSeed() {
+  // salvium.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
+  final cakepolyseed =
+      salvium.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
+  if (cakepolyseed != "") {
+    return cakepolyseed;
+  }
+  final polyseed = salvium.Wallet_getPolyseed(wptr!, passphrase: '');
+  if (polyseed != "") {
+    return polyseed;
+  }
+  final legacy = getSeedLegacy(null);
+  return legacy;
+}
 
-final getUnlockedBalanceNative = salviumApi
-    .lookup<NativeFunction<get_unlocked_balanace>>('get_unlocked_balance')
-    .asFunction<GetUnlockedBalance>();
+String getSeedLegacy(String? language) {
+  var legacy = salvium.Wallet_seed(wptr!, seedOffset: '');
+  switch (language) {
+    case "Chinese (Traditional)":
+      language = "Chinese (simplified)";
+      break;
+    case "Chinese (Simplified)":
+      language = "Chinese (simplified)";
+      break;
+    case "Korean":
+      language = "English";
+      break;
+    case "Czech":
+      language = "English";
+      break;
+    case "Japanese":
+      language = "English";
+      break;
+  }
+  if (salvium.Wallet_status(wptr!) != 0) {
+    salvium.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
+    legacy = salvium.Wallet_seed(wptr!, seedOffset: '');
+  }
+  if (salvium.Wallet_status(wptr!) != 0) {
+    final err = salvium.Wallet_errorString(wptr!);
+    if (legacy.isNotEmpty) {
+      return "$err\n\n$legacy";
+    }
+    return err;
+  }
+  return legacy;
+}
 
-final getCurrentHeightNative = salviumApi
-    .lookup<NativeFunction<get_current_height>>('get_current_height')
-    .asFunction<GetCurrentHeight>();
+Map<int, Map<int, Map<int, String>>> addressCache = {};
 
-final getNodeHeightNative = salviumApi
-    .lookup<NativeFunction<get_node_height>>('get_node_height')
-    .asFunction<GetNodeHeight>();
-
-final isConnectedNative = salviumApi
-    .lookup<NativeFunction<is_connected>>('is_connected')
-    .asFunction<IsConnected>();
-
-final setupNodeNative = salviumApi
-    .lookup<NativeFunction<setup_node>>('setup_node')
-    .asFunction<SetupNode>();
-
-final startRefreshNative = salviumApi
-    .lookup<NativeFunction<start_refresh>>('start_refresh')
-    .asFunction<StartRefresh>();
-
-final connecToNodeNative = salviumApi
-    .lookup<NativeFunction<connect_to_node>>('connect_to_node')
-    .asFunction<ConnectToNode>();
-
-final setRefreshFromBlockHeightNative = salviumApi
-    .lookup<NativeFunction<set_refresh_from_block_height>>(
-        'set_refresh_from_block_height')
-    .asFunction<SetRefreshFromBlockHeight>();
-
-final setRecoveringFromSeedNative = salviumApi
-    .lookup<NativeFunction<set_recovering_from_seed>>(
-        'set_recovering_from_seed')
-    .asFunction<SetRecoveringFromSeed>();
-
-final storeNative =
-    salviumApi.lookup<NativeFunction<store_c>>('store').asFunction<Store>();
-
-final setPasswordNative =
-    salviumApi.lookup<NativeFunction<set_password>>('set_password').asFunction<SetPassword>();
-
-final setListenerNative = salviumApi
-    .lookup<NativeFunction<set_listener>>('set_listener')
-    .asFunction<SetListener>();
-
-final getSyncingHeightNative = salviumApi
-    .lookup<NativeFunction<get_syncing_height>>('get_syncing_height')
-    .asFunction<GetSyncingHeight>();
-
-final isNeededToRefreshNative = salviumApi
-    .lookup<NativeFunction<is_needed_to_refresh>>('is_needed_to_refresh')
-    .asFunction<IsNeededToRefresh>();
-
-final isNewTransactionExistNative = salviumApi
-    .lookup<NativeFunction<is_new_transaction_exist>>(
-        'is_new_transaction_exist')
-    .asFunction<IsNewTransactionExist>();
-
-final getSecretViewKeyNative = salviumApi
-    .lookup<NativeFunction<secret_view_key>>('secret_view_key')
-    .asFunction<SecretViewKey>();
-
-final getPublicViewKeyNative = salviumApi
-    .lookup<NativeFunction<public_view_key>>('public_view_key')
-    .asFunction<PublicViewKey>();
-
-final getSecretSpendKeyNative = salviumApi
-    .lookup<NativeFunction<secret_spend_key>>('secret_spend_key')
-    .asFunction<SecretSpendKey>();
-
-final getPublicSpendKeyNative = salviumApi
-    .lookup<NativeFunction<secret_view_key>>('public_spend_key')
-    .asFunction<PublicSpendKey>();
-
-final closeCurrentWalletNative = salviumApi
-    .lookup<NativeFunction<close_current_wallet>>('close_current_wallet')
-    .asFunction<CloseCurrentWallet>();
-
-final onStartupNative = salviumApi
-    .lookup<NativeFunction<on_startup>>('on_startup')
-    .asFunction<OnStartup>();
-
-final rescanBlockchainAsyncNative = salviumApi
-    .lookup<NativeFunction<rescan_blockchain>>('rescan_blockchain')
-    .asFunction<RescanBlockchainAsync>();
-
-final setTrustedDaemonNative = salviumApi
-    .lookup<NativeFunction<set_trusted_daemon>>('set_trusted_daemon')
-    .asFunction<SetTrustedDaemon>();
-
-final trustedDaemonNative = salviumApi
-    .lookup<NativeFunction<trusted_daemon>>('trusted_daemon')
-    .asFunction<TrustedDaemon>();
-
-int getSyncingHeight() => getSyncingHeightNative();
-
-bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
-
-bool isNewTransactionExist() => isNewTransactionExistNative() != 0;
-
-String getFilename() => convertUTF8ToString(pointer: getFileNameNative());
-
-String getSeed() => convertUTF8ToString(pointer: getSeedNative());
-
-String getAddress({int accountIndex = 0, int addressIndex = 0}) =>
-    convertUTF8ToString(pointer: getAddressNative(accountIndex, addressIndex));
+String getAddress({int accountIndex = 0, int addressIndex = 1}) {
+  while (salvium.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex) - 1 <
+      addressIndex) {
+    printV("adding subaddress");
+    salvium.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
+  }
+  addressCache[wptr!.address] ??= {};
+  addressCache[wptr!.address]![accountIndex] ??= {};
+  addressCache[wptr!.address]![accountIndex]![addressIndex] ??=
+      salvium.Wallet_address(wptr!,
+          accountIndex: accountIndex, addressIndex: addressIndex);
+  return addressCache[wptr!.address]![accountIndex]![addressIndex]!;
+}
 
 int getFullBalance({int accountIndex = 0}) =>
-    getFullBalanceNative(accountIndex);
+    salvium.Wallet_balance(wptr!, accountIndex: accountIndex);
 
 int getUnlockedBalance({int accountIndex = 0}) =>
-    getUnlockedBalanceNative(accountIndex);
+    salvium.Wallet_unlockedBalance(wptr!, accountIndex: accountIndex);
 
-int getCurrentHeight() => getCurrentHeightNative();
+int getCurrentHeight() => salvium.Wallet_blockChainHeight(wptr!);
 
-int getNodeHeightSync() => getNodeHeightNative();
+int getNodeHeightSync() => salvium.Wallet_daemonBlockChainHeight(wptr!);
 
-bool isConnectedSync() => isConnectedNative() != 0;
+bool isConnectedSync() => salvium.Wallet_connected(wptr!) != 0;
 
-bool setupNodeSync(
+Future<bool> setupNodeSync(
     {required String address,
     String? login,
     String? password,
     bool useSSL = false,
     bool isLightWallet = false,
-    String? socksProxyAddress}) {
-  final addressPointer = address.toNativeUtf8();
-  Pointer<Utf8>? loginPointer;
-  Pointer<Utf8>? socksProxyAddressPointer;
-  Pointer<Utf8>? passwordPointer;
+    String? socksProxyAddress}) async {
+  printV('''
+{
+  wptr!,
+  daemonAddress: $address,
+  useSsl: $useSSL,
+  proxyAddress: $socksProxyAddress ?? '',
+  daemonUsername: $login ?? '',
+  daemonPassword: $password ?? ''
+}
+''');
+  final addr = wptr!.address;
+  await Isolate.run(() {
+    salvium.Wallet_init(Pointer.fromAddress(addr),
+        daemonAddress: address,
+        useSsl: useSSL,
+        proxyAddress: socksProxyAddress ?? '',
+        daemonUsername: login ?? '',
+        daemonPassword: password ?? '');
+  });
+  // salvium.Wallet_init3(wptr!, argv0: '', defaultLogBaseName: 'salviumc', console: true);
 
-  if (login != null) {
-    loginPointer = login.toNativeUtf8();
+  final status = salvium.Wallet_status(wptr!);
+
+  if (status != 0) {
+    final error = salvium.Wallet_errorString(wptr!);
+    printV("error: $error");
+    throw SetupWalletException(message: error);
   }
 
-  if (password != null) {
-    passwordPointer = password.toNativeUtf8();
-  }
-
-  if (socksProxyAddress != null) {
-    socksProxyAddressPointer = socksProxyAddress.toNativeUtf8();
-  }
-
-  final errorMessagePointer = ''.toNativeUtf8();
-  final isSetupNode = setupNodeNative(
-          addressPointer,
-          loginPointer,
-          passwordPointer,
-          _boolToInt(useSSL),
-          _boolToInt(isLightWallet),
-      socksProxyAddressPointer,
-          errorMessagePointer) !=
-      0;
-
-  calloc.free(addressPointer);
-
-  if (loginPointer != null) {
-    calloc.free(loginPointer);
-  }
-
-  if (passwordPointer != null) {
-    calloc.free(passwordPointer);
-  }
-
-  if (!isSetupNode) {
-    throw SetupWalletException(
-        message: convertUTF8ToString(pointer: errorMessagePointer));
-  }
-
-  return isSetupNode;
+  return status == 0;
 }
 
-void startRefreshSync() => startRefreshNative();
+void startRefreshSync() {
+  salvium.Wallet_refreshAsync(wptr!);
+  salvium.Wallet_startRefresh(wptr!);
+}
 
-Future<bool> connectToNode() async => connecToNodeNative() != 0;
+Future<bool> connectToNode() async {
+  return true;
+}
 
 void setRefreshFromBlockHeight({required int height}) =>
-    setRefreshFromBlockHeightNative(height);
+    salvium.Wallet_setRefreshFromBlockHeight(wptr!,
+        refresh_from_block_height: height);
 
 void setRecoveringFromSeed({required bool isRecovery}) =>
-    setRecoveringFromSeedNative(_boolToInt(isRecovery));
+    salvium.Wallet_setRecoveringFromSeed(wptr!, recoveringFromSeed: isRecovery);
 
-void storeSync() {
-  final pathPointer = ''.toNativeUtf8();
-  storeNative(pathPointer);
-  calloc.free(pathPointer);
+final storeMutex = Mutex();
+
+int lastStorePointer = 0;
+int lastStoreHeight = 0;
+void storeSync() async {
+  final addr = wptr!.address;
+  final synchronized = await Isolate.run(() {
+    return salvium.Wallet_synchronized(Pointer.fromAddress(addr));
+  });
+  if (lastStorePointer == wptr!.address &&
+      lastStoreHeight + 5000 < salvium.Wallet_blockChainHeight(wptr!) &&
+      !synchronized) {
+    return;
+  }
+  lastStorePointer = wptr!.address;
+  lastStoreHeight = salvium.Wallet_blockChainHeight(wptr!);
+  await storeMutex.acquire();
+  Isolate.run(() {
+    salvium.Wallet_store(Pointer.fromAddress(addr));
+  });
+  storeMutex.release();
 }
 
 void setPasswordSync(String password) {
-  final passwordPointer = password.toNativeUtf8();
-  final errorMessagePointer = calloc<Utf8Box>();
-  final changed = setPasswordNative(passwordPointer, errorMessagePointer) != 0;
-  calloc.free(passwordPointer);
-  
-  if (!changed) {
-    final message = errorMessagePointer.ref.getValue();
-    calloc.free(errorMessagePointer);
-    throw Exception(message);
-  }
+  salvium.Wallet_setPassword(wptr!, password: password);
 
-  calloc.free(errorMessagePointer);
+  final status = salvium.Wallet_status(wptr!);
+  if (status != 0) {
+    throw Exception(salvium.Wallet_errorString(wptr!));
+  }
 }
 
-void closeCurrentWallet() => closeCurrentWalletNative();
+void closeCurrentWallet() {
+  salvium.Wallet_stop(wptr!);
+}
 
-String getSecretViewKey() =>
-    convertUTF8ToString(pointer: getSecretViewKeyNative());
+String getSecretViewKey() => salvium.Wallet_secretViewKey(wptr!);
 
-String getPublicViewKey() =>
-    convertUTF8ToString(pointer: getPublicViewKeyNative());
+String getPublicViewKey() => salvium.Wallet_publicViewKey(wptr!);
 
-String getSecretSpendKey() =>
-    convertUTF8ToString(pointer: getSecretSpendKeyNative());
+String getSecretSpendKey() => salvium.Wallet_secretSpendKey(wptr!);
 
-String getPublicSpendKey() =>
-    convertUTF8ToString(pointer: getPublicSpendKeyNative());
+String getPublicSpendKey() => salvium.Wallet_publicSpendKey(wptr!);
 
 class SyncListener {
   SyncListener(this.onNewBlock, this.onNewTransaction)
-    : _cachedBlockchainHeight = 0,
-      _lastKnownBlockHeight = 0,
-      _initialSyncHeight = 0;
+      : _cachedBlockchainHeight = 0,
+        _lastKnownBlockHeight = 0,
+        _initialSyncHeight = 0;
 
   void Function(int, int, double) onNewBlock;
   void Function() onNewTransaction;
@@ -276,7 +235,7 @@ class SyncListener {
     _updateSyncInfoTimer ??=
         Timer.periodic(Duration(milliseconds: 1200), (_) async {
       if (isNewTransactionExist()) {
-        onNewTransaction?.call();
+        onNewTransaction();
       }
 
       var syncHeight = getSyncingHeight();
@@ -291,7 +250,7 @@ class SyncListener {
 
       final bchHeight = await getNodeHeightOrUpdate(syncHeight);
 
-      if (_lastKnownBlockHeight == syncHeight || syncHeight == null) {
+      if (_lastKnownBlockHeight == syncHeight) {
         return;
       }
 
@@ -306,7 +265,7 @@ class SyncListener {
       }
 
       // 1. Actual new height; 2. Blocks left to finish; 3. Progress in percents;
-      onNewBlock?.call(syncHeight, left, ptc);
+      onNewBlock.call(syncHeight, left, ptc);
     });
   }
 
@@ -316,15 +275,15 @@ class SyncListener {
 SyncListener setListeners(void Function(int, int, double) onNewBlock,
     void Function() onNewTransaction) {
   final listener = SyncListener(onNewBlock, onNewTransaction);
-  setListenerNative();
+  // setListenerNative();
   return listener;
 }
 
-void onStartup() => onStartupNative();
+void onStartup() {}
 
 void _storeSync(Object _) => storeSync();
 
-bool _setupNodeSync(Map args) {
+Future<bool> _setupNodeSync(Map<String, Object?> args) async {
   final address = args['address'] as String;
   final login = (args['login'] ?? '') as String;
   final password = (args['password'] ?? '') as String;
@@ -353,8 +312,8 @@ Future<void> setupNode(
         String? password,
         bool useSSL = false,
         String? socksProxyAddress,
-        bool isLightWallet = false}) =>
-    compute<Map<String, Object?>, void>(_setupNodeSync, {
+        bool isLightWallet = false}) async =>
+    _setupNodeSync({
       'address': address,
       'login': login,
       'password': password,
@@ -363,14 +322,29 @@ Future<void> setupNode(
       'socksProxyAddress': socksProxyAddress
     });
 
-Future<void> store() => compute<int, void>(_storeSync, 0);
+Future<void> store() async => _storeSync(0);
 
-Future<bool> isConnected() => compute(_isConnected, 0);
+Future<bool> isConnected() async => _isConnected(0);
 
-Future<int> getNodeHeight() => compute(_getNodeHeight, 0);
+Future<int> getNodeHeight() async => _getNodeHeight(0);
 
-void rescanBlockchainAsync() => rescanBlockchainAsyncNative();
+void rescanBlockchainAsync() => salvium.Wallet_rescanBlockchainAsync(wptr!);
 
-Future setTrustedDaemon(bool trusted) async => setTrustedDaemonNative(_boolToInt(trusted));
+String getSubaddressLabel(int accountIndex, int addressIndex) {
+  return salvium.Wallet_getSubaddressLabel(wptr!,
+      accountIndex: accountIndex, addressIndex: addressIndex);
+}
 
-Future<bool> trustedDaemon() async => trustedDaemonNative() != 0;
+Future setTrustedDaemon(bool trusted) async =>
+    salvium.Wallet_setTrustedDaemon(wptr!, arg: trusted);
+
+Future<bool> trustedDaemon() async => salvium.Wallet_trustedDaemon(wptr!);
+
+String signMessage(String message, {String address = ""}) {
+  return salvium.Wallet_signMessage(wptr!, message: message, address: address);
+}
+
+bool verifyMessage(String message, String address, String signature) {
+  return salvium.Wallet_verifySignedMessage(wptr!,
+      message: message, address: address, signature: signature);
+}

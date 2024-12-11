@@ -3,6 +3,7 @@ import 'package:cw_salvium/api/transaction_history.dart'
     as salvium_transaction_history;
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/amount_converter.dart';
+
 import 'package:cw_core/pending_transaction.dart';
 
 class DoubleSpendException implements Exception {
@@ -10,28 +11,29 @@ class DoubleSpendException implements Exception {
 
   @override
   String toString() =>
-      'This transaction cannot be committed. This can be due to many reasons including the wallet not being synced, there is not enough XMR in your available balance, or previous transactions are not yet fully processed.';
+      'This transaction cannot be committed. This can be due to many reasons including the wallet not being synced, there is not enough WOW in your available balance, or previous transactions are not yet fully processed.';
 }
 
 class PendingSalviumTransaction with PendingTransaction {
-  PendingSalviumTransaction(this.pendingTransactionDescription, this.cryptoCurrency);
+  PendingSalviumTransaction(this.pendingTransactionDescription);
 
   final PendingTransactionDescription pendingTransactionDescription;
-  final CryptoCurrency cryptoCurrency;
 
   @override
   String get id => pendingTransactionDescription.hash;
 
   @override
-  String get hex => '';
+  String get hex => pendingTransactionDescription.hex;
+
+  String get txKey => pendingTransactionDescription.txKey;
 
   @override
   String get amountFormatted => AmountConverter.amountIntToString(
-      cryptoCurrency, pendingTransactionDescription.amount);
+      CryptoCurrency.wow, pendingTransactionDescription.amount);
 
   @override
   String get feeFormatted => AmountConverter.amountIntToString(
-      cryptoCurrency, pendingTransactionDescription.fee);
+      CryptoCurrency.wow, pendingTransactionDescription.fee);
 
   @override
   Future<void> commit() async {
@@ -48,7 +50,7 @@ class PendingSalviumTransaction with PendingTransaction {
       rethrow;
     }
   }
-  
+
   @override
   Future<String?> commitUR() {
     throw UnimplementedError();

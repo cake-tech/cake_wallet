@@ -30,7 +30,8 @@ Future<void> main(List<String> args) async {
   final hasSolana = args.contains('${prefix}solana');
   final hasTron = args.contains('${prefix}tron');
   final hasWownero = args.contains('${prefix}wownero');
-  final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
+  final excludeFlutterSecureStorage =
+      args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
@@ -843,18 +844,17 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:polyseed/polyseed.dart';""";
   const salviumCWHeaders = """
-import 'package:cw_core/account.dart' as salvium_account;
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/salvium_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
-import 'package:cw_salvium/api/wallet_manager.dart';
-import 'package:cw_salvium/api/wallet.dart' as salvium_wallet_api;
 import 'package:cw_salvium/salvium_unspent.dart';
-import 'package:cw_salvium/api/account_list.dart';
 import 'package:cw_salvium/salvium_wallet_service.dart';
 import 'package:cw_salvium/salvium_wallet.dart';
 import 'package:cw_salvium/salvium_transaction_info.dart';
 import 'package:cw_salvium/salvium_transaction_creation_credentials.dart';
+import 'package:cw_core/account.dart' as salvium_account;
+import 'package:cw_salvium/api/wallet.dart' as salvium_wallet_api;
+import 'package:cw_salvium/api/wallet_manager.dart';
 import 'package:cw_salvium/mnemonics/english.dart';
 import 'package:cw_salvium/mnemonics/chinese_simplified.dart';
 import 'package:cw_salvium/mnemonics/dutch.dart';
@@ -880,14 +880,10 @@ class Subaddress {
   Subaddress({
     required this.id,
     required this.label,
-    required this.address,
-    required this.received,
-    required this.txCount});
+    required this.address});
   final int id;
   final String label;
   final String address;
-  final String? received;
-  final int txCount;
 }
 
 class SalviumBalance extends Balance {
@@ -942,7 +938,7 @@ abstract class Salvium {
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority getSalviumTransactionPrioritySlow();
   TransactionPriority getSalviumTransactionPriorityAutomatic();
-  TransactionPriority deserializeMoneroTransactionPriority({required int raw});
+  TransactionPriority deserializeSalviumTransactionPriority({required int raw});
   List<TransactionPriority> getTransactionPriorities();
   List<String> getSalviumWordList(String language);
   
@@ -950,12 +946,7 @@ abstract class Salvium {
   Future<void> updateUnspents(Object wallet);
 
   Future<int> getCurrentHeight();
-
-  Future<bool> commitTransactionUR(Object wallet, String ur);
-
-  String exportOutputsUR(Object wallet, bool all);
-
-  bool importKeyImagesUR(Object wallet, String ur);
+  void salviumcCheck();
 
   WalletCredentials createSalviumRestoreWalletFromKeysCredentials({
     required String name,
@@ -968,20 +959,18 @@ abstract class Salvium {
   WalletCredentials createSalviumRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
   WalletCredentials createSalviumNewWalletCredentials({required String name, required String language, required bool isPolyseed, String? password});
   Map<String, String> getKeys(Object wallet);
-  int? getRestoreHeight(Object wallet);
   Object createSalviumTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
   Object createSalviumTransactionCreationCredentialsRaw({required List<OutputInfo> outputs, required TransactionPriority priority});
   String formatterSalviumAmountToString({required int amount});
   double formatterSalviumAmountToDouble({required int amount});
   int formatterSalviumParseAmount({required String amount});
   Account getCurrentAccount(Object wallet);
-  void salviumCheck();
-  bool isViewOnly();
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createSalviumWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
+  String getLegacySeed(Object wallet, String langName);
 }
 
 abstract class SalviumSubaddressList {
@@ -1273,12 +1262,15 @@ abstract class BitcoinCash {
   """;
 
   const bitcoinCashEmptyDefinition = 'BitcoinCash? bitcoinCash;\n';
-  const bitcoinCashCWDefinition = 'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
+  const bitcoinCashCWDefinition =
+      'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
 
   final output = '$bitcoinCashCommonHeaders\n' +
       (hasImplementation ? '$bitcoinCashCWHeaders\n' : '\n') +
       (hasImplementation ? '$bitcoinCashCwPart\n\n' : '\n') +
-      (hasImplementation ? bitcoinCashCWDefinition : bitcoinCashEmptyDefinition) +
+      (hasImplementation
+          ? bitcoinCashCWDefinition
+          : bitcoinCashEmptyDefinition) +
       '\n' +
       bitcoinCashContent;
 
@@ -1414,7 +1406,8 @@ abstract class NanoUtil {
   """;
 
   const nanoEmptyDefinition = 'Nano? nano;\nNanoUtil? nanoUtil;\n';
-  const nanoCWDefinition = 'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
+  const nanoCWDefinition =
+      'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
 
   final output = '$nanoCommonHeaders\n' +
       (hasImplementation ? '$nanoCWHeaders\n' : '\n') +
@@ -1677,7 +1670,8 @@ Future<void> generatePubspec({
   final inputLines = inputText.split('\n');
   final dependenciesIndex = inputLines.indexWhere((line) => Platform.isWindows
       // On Windows it could contains `\r` (Carriage Return). It could be fixed in newer dart versions.
-      ? line.toLowerCase() == 'dependencies:\r' || line.toLowerCase() == 'dependencies:'
+      ? line.toLowerCase() == 'dependencies:\r' ||
+          line.toLowerCase() == 'dependencies:'
       : line.toLowerCase() == 'dependencies:');
   var output = cwCore;
 

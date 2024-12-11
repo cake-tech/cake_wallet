@@ -30,8 +30,6 @@ class TransactionInfoRow extends Struct {
 
   external Pointer<Utf8> paymentId;
 
-  external Pointer<Utf8> assetType;
-
   @Int64()
   external int datetime;
 
@@ -40,5 +38,4 @@ class TransactionInfoRow extends Struct {
   bool getIsPending() => isPending != 0;
   String getHash() => hash.toDartString();
   String getPaymentId() => paymentId.toDartString();
-  String getAssetType() => assetType.toDartString();
 }

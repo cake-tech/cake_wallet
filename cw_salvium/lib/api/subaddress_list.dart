@@ -1,38 +1,23 @@
-import 'dart:ffi';
-import 'package:ffi/ffi.dart';
-import 'package:flutter/foundation.dart';
-import 'package:cw_salvium/api/signatures.dart';
-import 'package:cw_salvium/api/types.dart';
-import 'package:cw_salvium/api/salvium_api.dart';
-import 'package:cw_salvium/api/structs/subaddress_row.dart';
+import 'package:cw_salvium/api/account_list.dart';
+import 'package:cw_salvium/api/transaction_history.dart';
 import 'package:cw_salvium/api/wallet.dart';
-
-final subaddressSizeNative = salviumApi
-    .lookup<NativeFunction<subaddrress_size>>('subaddrress_size')
-    .asFunction<SubaddressSize>();
-
-final subaddressRefreshNative = salviumApi
-    .lookup<NativeFunction<subaddrress_refresh>>('subaddress_refresh')
-    .asFunction<SubaddressRefresh>();
-
-final subaddrressGetAllNative = salviumApi
-    .lookup<NativeFunction<subaddress_get_all>>('subaddrress_get_all')
-    .asFunction<SubaddressGetAll>();
-
-final subaddrressAddNewNative = salviumApi
-    .lookup<NativeFunction<subaddress_add_new>>('subaddress_add_row')
-    .asFunction<SubaddressAddNew>();
-
-final subaddrressSetLabelNative = salviumApi
-    .lookup<NativeFunction<subaddress_set_label>>('subaddress_set_label')
-    .asFunction<SubaddressSetLabel>();
+import 'package:monero/monero.dart' as salvium;
 
 bool isUpdating = false;
+
+class SubaddressInfoMetadata {
+  SubaddressInfoMetadata({
+    required this.accountIndex,
+  });
+  int accountIndex;
+}
+
+SubaddressInfoMetadata? subaddress = null;
 
 void refreshSubaddresses({required int accountIndex}) {
   try {
     isUpdating = true;
-    subaddressRefreshNative(accountIndex);
+    subaddress = SubaddressInfoMetadata(accountIndex: accountIndex);
     isUpdating = false;
   } catch (e) {
     isUpdating = false;
@@ -40,28 +25,108 @@ void refreshSubaddresses({required int accountIndex}) {
   }
 }
 
-List<SubaddressRow> getAllSubaddresses() {
-  final size = subaddressSizeNative();
-  final subaddressAddressesPointer = subaddrressGetAllNative();
-  final subaddressAddresses = subaddressAddressesPointer.asTypedList(size);
+class Subaddress {
+  Subaddress({
+    required this.addressIndex,
+    required this.accountIndex,
+    required this.txCount,
+    required this.received,
+  });
+  late String address = getAddress(
+    accountIndex: accountIndex,
+    addressIndex: addressIndex,
+  );
+  final int addressIndex;
+  final int accountIndex;
+  String get label => salvium.Wallet_getSubaddressLabel(wptr!,
+      accountIndex: accountIndex, addressIndex: addressIndex);
+  final int txCount;
+  final int received;
+}
 
-  return subaddressAddresses
-      .map((addr) => Pointer<SubaddressRow>.fromAddress(addr).ref)
-      .toList();
+class TinyTransactionDetails {
+  TinyTransactionDetails({
+    required this.address,
+    required this.amount,
+  });
+  final List<String> address;
+  final int amount;
+}
+
+int lastWptr = 0;
+int lastTxCount = 0;
+List<TinyTransactionDetails> ttDetails = [];
+
+List<Subaddress> getAllSubaddresses() {
+  txhistory = salvium.Wallet_history(wptr!);
+  final txCount = salvium.TransactionHistory_count(txhistory!);
+  if (lastTxCount != txCount && lastWptr != wptr!.address) {
+    final List<TinyTransactionDetails> newttDetails = [];
+    lastTxCount = txCount;
+    lastWptr = wptr!.address;
+    for (var i = 0; i < txCount; i++) {
+      final tx = salvium.TransactionHistory_transaction(txhistory!, index: i);
+      final subaddrs = salvium.TransactionInfo_subaddrIndex(tx).split(",");
+      final account = salvium.TransactionInfo_subaddrAccount(tx);
+      newttDetails.add(TinyTransactionDetails(
+        address: List.generate(
+            subaddrs.length,
+            (index) => getAddress(
+                accountIndex: account,
+                addressIndex: int.tryParse(subaddrs[index]) ?? 0)),
+        amount: salvium.TransactionInfo_amount(tx),
+      ));
+    }
+    ttDetails.clear();
+    ttDetails.addAll(newttDetails);
+  }
+  final size = salvium.Wallet_numSubaddresses(wptr!,
+      accountIndex: subaddress!.accountIndex);
+  final list = List.generate(size, (index) {
+    final ttDetailsLocal = ttDetails.where((element) {
+      final address = getAddress(
+        accountIndex: subaddress!.accountIndex,
+        addressIndex: index,
+      );
+      if (address == element.address) return true;
+      return false;
+    }).toList();
+    int received = 0;
+    for (var i = 0; i < ttDetailsLocal.length; i++) {
+      received += ttDetailsLocal[i].amount;
+    }
+    return Subaddress(
+      accountIndex: subaddress!.accountIndex,
+      addressIndex: index,
+      received: received,
+      txCount: ttDetailsLocal.length,
+    );
+  }).reversed.toList();
+  if (list.isEmpty) {
+    list.add(Subaddress(
+        addressIndex: 0,
+        accountIndex: subaddress!.accountIndex,
+        txCount: 0,
+        received: 0));
+  }
+  return list;
 }
 
 void addSubaddressSync({required int accountIndex, required String label}) {
-  final labelPointer = label.toNativeUtf8();
-  subaddrressAddNewNative(accountIndex, labelPointer);
-  calloc.free(labelPointer);
+  salvium.Wallet_addSubaddress(wptr!, accountIndex: accountIndex, label: label);
+  refreshSubaddresses(accountIndex: accountIndex);
+}
+
+int numSubaddresses(int subaccountIndex) {
+  return salvium.Wallet_numSubaddresses(wptr!, accountIndex: subaccountIndex);
 }
 
 void setLabelForSubaddressSync(
-    {required int accountIndex, required int addressIndex, required String label}) {
-  final labelPointer = label.toNativeUtf8();
-
-  subaddrressSetLabelNative(accountIndex, addressIndex, labelPointer);
-  calloc.free(labelPointer);
+    {required int accountIndex,
+    required int addressIndex,
+    required String label}) {
+  salvium.Wallet_setSubaddressLabel(wptr!,
+      accountIndex: accountIndex, addressIndex: addressIndex, label: label);
 }
 
 void _addSubaddress(Map<String, dynamic> args) {
@@ -80,15 +145,17 @@ void _setLabelForSubaddress(Map<String, dynamic> args) {
       accountIndex: accountIndex, addressIndex: addressIndex, label: label);
 }
 
-Future addSubaddress({required int accountIndex, required String label}) async {
-    await compute<Map<String, Object>, void>(
-        _addSubaddress, {'accountIndex': accountIndex, 'label': label});
-    await store();
+Future<void> addSubaddress(
+    {required int accountIndex, required String label}) async {
+  _addSubaddress({'accountIndex': accountIndex, 'label': label});
+  await store();
 }
 
-Future setLabelForSubaddress(
-        {required int accountIndex, required int addressIndex, required String label}) async {
-  await compute<Map<String, Object>, void>(_setLabelForSubaddress, {
+Future<void> setLabelForSubaddress(
+    {required int accountIndex,
+    required int addressIndex,
+    required String label}) async {
+  _setLabelForSubaddress({
     'accountIndex': accountIndex,
     'addressIndex': addressIndex,
     'label': label

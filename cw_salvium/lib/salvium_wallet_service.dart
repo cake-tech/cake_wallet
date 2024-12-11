@@ -1,31 +1,42 @@
+import 'dart:ffi';
 import 'dart:io';
-import 'package:collection/collection.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
-import 'package:hive/hive.dart';
-import 'package:cw_salvium/api/wallet_manager.dart' as salvium_wallet_manager;
-import 'package:cw_salvium/api/wallet.dart' as salvium_wallet;
-import 'package:cw_salvium/api/exceptions/wallet_opening_exception.dart';
-import 'package:cw_salvium/salvium_wallet.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_salvium/api/exceptions/wallet_opening_exception.dart';
+import 'package:cw_salvium/api/wallet_manager.dart' as salvium_wallet_manager;
+import 'package:cw_salvium/api/wallet_manager.dart';
+import 'package:cw_salvium/salvium_wallet.dart';
+import 'package:flutter/widgets.dart';
+import 'package:hive/hive.dart';
+import 'package:polyseed/polyseed.dart';
+import 'package:monero/monero.dart' as salvium;
 
 class SalviumNewWalletCredentials extends WalletCredentials {
-  SalviumNewWalletCredentials({required String name, required this.language, String? password})
+  SalviumNewWalletCredentials(
+      {required String name,
+      required this.language,
+      required this.isPolyseed,
+      String? password})
       : super(name: name, password: password);
 
   final String language;
+  final bool isPolyseed;
 }
 
 class SalviumRestoreWalletFromSeedCredentials extends WalletCredentials {
   SalviumRestoreWalletFromSeedCredentials(
       {required String name,
-      required String password,
-      required int height,
-      required this.mnemonic})
+      required this.mnemonic,
+      int height = 0,
+      String? password})
       : super(name: name, password: password, height: height);
 
   final String mnemonic;
@@ -44,7 +55,7 @@ class SalviumRestoreWalletFromKeysCredentials extends WalletCredentials {
       required this.address,
       required this.viewKey,
       required this.spendKey,
-      required int height})
+      int height = 0})
       : super(name: name, password: password, height: height);
 
   final String language;
@@ -58,10 +69,11 @@ class SalviumWalletService extends WalletService<
     SalviumRestoreWalletFromSeedCredentials,
     SalviumRestoreWalletFromKeysCredentials,
     SalviumNewWalletCredentials> {
-  SalviumWalletService(this.walletInfoSource);
+  SalviumWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
-  
+  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
 
@@ -69,19 +81,37 @@ class SalviumWalletService extends WalletService<
   WalletType getType() => WalletType.salvium;
 
   @override
-  Future<SalviumWallet> create(SalviumNewWalletCredentials credentials, {bool? isTestnet}) async {
+  Future<SalviumWallet> create(SalviumNewWalletCredentials credentials,
+      {bool? isTestnet}) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
+
+      if (credentials.isPolyseed) {
+        final polyseed = Polyseed.create();
+        final lang = PolyseedLang.getByEnglishName(credentials.language);
+
+        final heightOverride = getSalviumHeightByDate(
+            date: DateTime.now().subtract(Duration(days: 2)));
+
+        return _restoreFromPolyseed(path, credentials.password!, polyseed,
+            credentials.walletInfo!, lang,
+            overrideHeight: heightOverride);
+      }
+
       await salvium_wallet_manager.createWallet(
           path: path,
           password: credentials.password!,
           language: credentials.language);
-      final wallet = SalviumWallet(walletInfo: credentials.walletInfo!);
+      final wallet = SalviumWallet(
+          walletInfo: credentials.walletInfo!,
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: credentials.password!);
       await wallet.init();
+
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('SalviumWalletsManager Error: ${e.toString()}');
+      printV('SalviumWalletsManager Error: ${e.toString()}');
       rethrow;
     }
   }
@@ -93,13 +123,14 @@ class SalviumWalletService extends WalletService<
       return salvium_wallet_manager.isWalletExist(path: path);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('SalviumWalletsManager Error: $e');
+      printV('SalviumWalletsManager Error: $e');
       rethrow;
     }
   }
 
   @override
   Future<SalviumWallet> openWallet(String name, String password) async {
+    SalviumWallet? wallet;
     try {
       final path = await pathForWallet(name: name, type: getType());
 
@@ -109,9 +140,12 @@ class SalviumWalletService extends WalletService<
 
       await salvium_wallet_manager
           .openWalletAsync({'path': path, 'password': password});
-      final walletInfo = walletInfoSource.values.firstWhereOrNull(
-          (info) => info.id == WalletBase.idFor(name, getType()))!;
-      final wallet = SalviumWallet(walletInfo: walletInfo);
+      final walletInfo = walletInfoSource.values
+          .firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
+      wallet = SalviumWallet(
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: password);
       final isValid = wallet.walletAddresses.validate();
 
       if (!isValid) {
@@ -123,27 +157,67 @@ class SalviumWalletService extends WalletService<
       await wallet.init();
 
       return wallet;
-    } catch (e) {
+    } catch (e, s) {
       // TODO: Implement Exception for wallet list service.
 
-      if ((e.toString().contains('bad_alloc') ||
+      final bool isBadAlloc = e.toString().contains('bad_alloc') ||
           (e is WalletOpeningException &&
               (e.message == 'std::bad_alloc' ||
-                  e.message.contains('bad_alloc')))) ||
-          (e.toString().contains('does not correspond') ||
-          (e is WalletOpeningException &&
-            e.message.contains('does not correspond')))) {
-        await restoreOrResetWalletFiles(name);
-        return openWallet(name, password);
+                  e.message.contains('bad_alloc')));
+
+      final bool doesNotCorrespond =
+          e.toString().contains('does not correspond') ||
+              (e is WalletOpeningException &&
+                  e.message.contains('does not correspond'));
+
+      final bool isMissingCacheFilesIOS = e
+              .toString()
+              .contains('basic_string') ||
+          (e is WalletOpeningException && e.message.contains('basic_string'));
+
+      final bool isMissingCacheFilesAndroid =
+          e.toString().contains('input_stream') ||
+              e.toString().contains('input stream error') ||
+              (e is WalletOpeningException &&
+                  (e.message.contains('input_stream') ||
+                      e.message.contains('input stream error')));
+
+      final bool invalidSignature =
+          e.toString().contains('invalid signature') ||
+              (e is WalletOpeningException &&
+                  e.message.contains('invalid signature'));
+
+      if (!isBadAlloc &&
+          !doesNotCorrespond &&
+          !isMissingCacheFilesIOS &&
+          !isMissingCacheFilesAndroid &&
+          !invalidSignature &&
+          wallet != null &&
+          wallet.onError != null) {
+        wallet.onError!(FlutterErrorDetails(exception: e, stack: s));
       }
 
-      rethrow;
+      await restoreOrResetWalletFiles(name);
+      return openWallet(name, password);
     }
   }
 
   @override
   Future<void> remove(String wallet) async {
     final path = await pathForWalletDir(name: wallet, type: getType());
+    if (openedWalletsByPath["$path/$wallet"] != null) {
+      // NOTE: this is realistically only required on windows.
+      printV("closing wallet");
+      final wmaddr = wmPtr.address;
+      final waddr = openedWalletsByPath["$path/$wallet"]!.address;
+      // await Isolate.run(() {
+      salvium.WalletManager_closeWallet(
+          Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), false);
+      // });
+      openedWalletsByPath.remove("$path/$wallet");
+      printV("wallet closed");
+    }
+
     final file = Directory(path);
     final isExist = file.existsSync();
 
@@ -161,10 +235,12 @@ class SalviumWalletService extends WalletService<
       String currentName, String password, String newName) async {
     final currentWalletInfo = walletInfoSource.values.firstWhere(
         (info) => info.id == WalletBase.idFor(currentName, getType()));
-    final currentWallet = SalviumWallet(walletInfo: currentWalletInfo);
+    final currentWallet = SalviumWallet(
+        walletInfo: currentWalletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: password);
 
     await currentWallet.renameWalletFiles(newName);
-    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
@@ -174,13 +250,9 @@ class SalviumWalletService extends WalletService<
   }
 
   @override
-  Future<SalviumWallet> restoreFromHardwareWallet(SalviumNewWalletCredentials credentials) {
-    throw UnimplementedError("Restoring a Salvium wallet from a hardware wallet is not yet supported!");
-  }
-
-  @override
   Future<SalviumWallet> restoreFromKeys(
-      SalviumRestoreWalletFromKeysCredentials credentials, {bool? isTestnet}) async {
+      SalviumRestoreWalletFromKeysCredentials credentials,
+      {bool? isTestnet}) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await salvium_wallet_manager.restoreFromKeys(
@@ -191,20 +263,36 @@ class SalviumWalletService extends WalletService<
           address: credentials.address,
           viewKey: credentials.viewKey,
           spendKey: credentials.spendKey);
-      final wallet = SalviumWallet(walletInfo: credentials.walletInfo!);
+      final wallet = SalviumWallet(
+          walletInfo: credentials.walletInfo!,
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: credentials.password!);
       await wallet.init();
 
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('SalviumWalletsManager Error: $e');
+      printV('SalviumWalletsManager Error: $e');
       rethrow;
     }
   }
 
   @override
+  Future<SalviumWallet> restoreFromHardwareWallet(
+      SalviumNewWalletCredentials credentials) {
+    throw UnimplementedError(
+        "Restoring a salvium wallet from a hardware wallet is not yet supported!");
+  }
+
+  @override
   Future<SalviumWallet> restoreFromSeed(
-      SalviumRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
+      SalviumRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
+    // Restore from Polyseed
+    if (Polyseed.isValidSeed(credentials.mnemonic)) {
+      return restoreFromPolyseed(credentials);
+    }
+
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       await salvium_wallet_manager.restoreFromSeed(
@@ -212,15 +300,67 @@ class SalviumWalletService extends WalletService<
           password: credentials.password!,
           seed: credentials.mnemonic,
           restoreHeight: credentials.height!);
-      final wallet = SalviumWallet(walletInfo: credentials.walletInfo!);
+      final wallet = SalviumWallet(
+          walletInfo: credentials.walletInfo!,
+          unspentCoinsInfo: unspentCoinsInfoSource,
+          password: credentials.password!);
       await wallet.init();
 
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('SalviumWalletsManager Error: $e');
+      printV('SalviumWalletsManager Error: $e');
       rethrow;
     }
+  }
+
+  Future<SalviumWallet> restoreFromPolyseed(
+      SalviumRestoreWalletFromSeedCredentials credentials) async {
+    try {
+      final path = await pathForWallet(name: credentials.name, type: getType());
+      final polyseedCoin = PolyseedCoin.POLYSEED_WOWNERO;
+      final lang = PolyseedLang.getByPhrase(credentials.mnemonic);
+      final polyseed =
+          Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
+
+      return _restoreFromPolyseed(
+          path, credentials.password!, polyseed, credentials.walletInfo!, lang);
+    } catch (e) {
+      // TODO: Implement Exception for wallet list service.
+      printV('SalviumWalletsManager Error: $e');
+      rethrow;
+    }
+  }
+
+  Future<SalviumWallet> _restoreFromPolyseed(String path, String password,
+      Polyseed polyseed, WalletInfo walletInfo, PolyseedLang lang,
+      {PolyseedCoin coin = PolyseedCoin.POLYSEED_WOWNERO,
+      int? overrideHeight}) async {
+    final height = overrideHeight ??
+        getSalviumHeightByDate(
+            date:
+                DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
+    final spendKey = polyseed.generateKey(coin, 32).toHexString();
+    final seed = polyseed.encode(lang, coin);
+
+    walletInfo.isRecovery = true;
+    walletInfo.restoreHeight = height;
+
+    await salvium_wallet_manager.restoreFromSpendKey(
+        path: path,
+        password: password,
+        seed: seed,
+        language: lang.nameEnglish,
+        restoreHeight: height,
+        spendKey: spendKey);
+
+    final wallet = SalviumWallet(
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: password);
+    await wallet.init();
+
+    return wallet;
   }
 
   Future<void> repairOldAndroidWallet(String name) async {
@@ -252,7 +392,7 @@ class SalviumWalletService extends WalletService<
         newFile.writeAsBytesSync(file.readAsBytesSync());
       });
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 }

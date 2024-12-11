@@ -1,37 +1,27 @@
-import 'dart:ffi';
-import 'package:ffi/ffi.dart';
-import 'package:cw_salvium/api/signatures.dart';
-import 'package:cw_salvium/api/types.dart';
-import 'package:cw_salvium/api/salvium_api.dart';
-import 'package:cw_salvium/api/structs/account_row.dart';
 import 'package:cw_salvium/api/wallet.dart';
+import 'package:monero/monero.dart' as salvium;
 
-final accountSizeNative = salviumApi
-    .lookup<NativeFunction<account_size>>('account_size')
-    .asFunction<SubaddressSize>();
+salvium.wallet? wptr = null;
 
-final accountRefreshNative = salviumApi
-    .lookup<NativeFunction<account_refresh>>('account_refresh')
-    .asFunction<AccountRefresh>();
+int _wlptrForW = 0;
+salvium.WalletListener? _wlptr = null;
 
-final accountGetAllNative = salviumApi
-    .lookup<NativeFunction<account_get_all>>('account_get_all')
-    .asFunction<AccountGetAll>();
+salvium.WalletListener getWlptr() {
+  if (wptr!.address == _wlptrForW) return _wlptr!;
+  _wlptrForW = wptr!.address;
+  _wlptr = salvium.MONERO_cw_getWalletListener(wptr!);
+  return _wlptr!;
+}
 
-final accountAddNewNative = salviumApi
-    .lookup<NativeFunction<account_add_new>>('account_add_row')
-    .asFunction<AccountAddNew>();
-
-final accountSetLabelNative = salviumApi
-    .lookup<NativeFunction<account_set_label>>('account_set_label_row')
-    .asFunction<AccountSetLabel>();
+salvium.SubaddressAccount? subaddressAccount;
 
 bool isUpdating = false;
 
 void refreshAccounts() {
   try {
     isUpdating = true;
-    accountRefreshNative();
+    subaddressAccount = salvium.Wallet_subaddressAccount(wptr!);
+    salvium.SubaddressAccount_refresh(subaddressAccount!);
     isUpdating = false;
   } catch (e) {
     isUpdating = false;
@@ -39,26 +29,29 @@ void refreshAccounts() {
   }
 }
 
-List<AccountRow> getAllAccount() {
-  final size = accountSizeNative();
-  final accountAddressesPointer = accountGetAllNative();
-  final accountAddresses = accountAddressesPointer.asTypedList(size);
-
-  return accountAddresses
-      .map((addr) => Pointer<AccountRow>.fromAddress(addr).ref)
-      .toList();
+List<salvium.SubaddressAccountRow> getAllAccount() {
+  // final size = salvium.Wallet_numSubaddressAccounts(wptr!);
+  refreshAccounts();
+  int size = salvium.SubaddressAccount_getAll_size(subaddressAccount!);
+  if (size == 0) {
+    salvium.Wallet_addSubaddressAccount(wptr!);
+    return getAllAccount();
+  }
+  return List.generate(size, (index) {
+    return salvium.SubaddressAccount_getAll_byIndex(subaddressAccount!,
+        index: index);
+  });
 }
 
 void addAccountSync({required String label}) {
-  final labelPointer = label.toNativeUtf8();
-  accountAddNewNative(labelPointer);
-  calloc.free(labelPointer);
+  salvium.Wallet_addSubaddressAccount(wptr!, label: label);
 }
 
-void setLabelForAccountSync({required int accountIndex, required String label}) {
-  final labelPointer = label.toNativeUtf8();
-  accountSetLabelNative(accountIndex, labelPointer);
-  calloc.free(labelPointer);
+void setLabelForAccountSync(
+    {required int accountIndex, required String label}) {
+  // TODO(mrcyjanek): this may be wrong function?
+  salvium.Wallet_setSubaddressLabel(wptr!,
+      accountIndex: accountIndex, addressIndex: 0, label: label);
 }
 
 void _addAccount(String label) => addAccountSync(label: label);
@@ -75,7 +68,8 @@ Future<void> addAccount({required String label}) async {
   await store();
 }
 
-Future<void> setLabelForAccount({required int accountIndex, required String label}) async {
-    _setLabelForAccount({'accountIndex': accountIndex, 'label': label});
-    await store();
+Future<void> setLabelForAccount(
+    {required int accountIndex, required String label}) async {
+  _setLabelForAccount({'accountIndex': accountIndex, 'label': label});
+  await store();
 }

@@ -4,7 +4,5 @@ class SetupWalletException implements Exception {
   final String message;
 
   @override
-  String toString() {
-    return message;
-  }
+  String toString() => message;
 }
