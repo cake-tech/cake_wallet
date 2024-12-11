@@ -70,15 +70,11 @@ jobs:
           source ./app_env.sh cakewallet
           ./build_monero_all.sh
 
-      - name: Set up cache path
-        id: cache-path
-        run: echo "cache-file-path=/opt/android/cake_wallet/android/app/key.jks" >> $GITHUB_ENV
-
       - name: Cache Keystore
         id: cache-keystore
         uses: actions/cache@v3
         with:
-          path: ${{ env.cache-file-path }}
+          path: /opt/android/cake_wallet/android/app
           key: keystore
 
       - if: ${{ steps.cache-keystore.outputs.cache-hit != 'true' }}
