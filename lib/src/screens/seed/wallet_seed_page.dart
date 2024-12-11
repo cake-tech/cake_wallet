@@ -16,6 +16,8 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 
+import '../../../themes/extensions/menu_theme.dart';
+
 class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
 
@@ -111,10 +113,14 @@ class WalletSeedPage extends BasePage {
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                              color: Color.fromRGBO(255, 221, 44, 0.37),
+                              color: currentTheme.type == ThemeType.dark
+                              ? Color.fromRGBO(126, 116, 59, 1)
+                              : Color.fromRGBO(189, 169, 90, 1),
                               borderRadius: BorderRadius.all(Radius.circular(12)),
                               border: Border.all(
-                                color: Color.fromRGBO(223, 214, 0, 0.7),
+                                color: currentTheme.type == ThemeType.dark
+                                ? Color.fromRGBO(171, 171, 41, 1)
+                                    : Color.fromRGBO(125, 122, 15, 1),
                                 width: 2.0,
                               )),
                           child: Row(
@@ -122,7 +128,7 @@ class WalletSeedPage extends BasePage {
                               Icon(
                                 Icons.warning_amber_rounded,
                                 size: 64,
-                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                color: Colors.white.withOpacity(0.75),
                               ),
                               SizedBox(width: 8),
                               Expanded(
@@ -132,7 +138,9 @@ class WalletSeedPage extends BasePage {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w800,
-                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                    color: currentTheme.type == ThemeType.dark
+                                      ? Colors.white.withOpacity(0.75)
+                                      : Colors.white.withOpacity(0.85),
                                   ),
                                 ),
                               ),
@@ -223,10 +231,10 @@ class WalletSeedPage extends BasePage {
                               );
                             },
                             text: S.of(context).save,
-                            color: Theme.of(context).primaryColor,
+                            color: Theme.of(context).cardColor,
                             textColor: currentTheme.type == ThemeType.dark
                                 ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                                : Colors.white,
+                                : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
                           ),
                         ),
                       ),
@@ -243,9 +251,8 @@ class WalletSeedPage extends BasePage {
                                 showBar<void>(context, S.of(context).copied_to_clipboard);
                               },
                               text: S.of(context).copy,
-                              color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
-                              textColor:
-                                  Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                              color: Theme.of(context).primaryColor,
+                              textColor: Colors.white,
                             ),
                           ),
                         ),
