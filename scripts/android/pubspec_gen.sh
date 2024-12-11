@@ -23,7 +23,7 @@ esac
 cd ../..
 cp -rf pubspec_description.yaml pubspec.yaml
 flutter pub get
-flutter pub run tool/generate_pubspec.dart
+dart run tool/generate_pubspec.dart
 flutter pub get
-flutter packages pub run tool/configure.dart $CONFIG_ARGS
+dart run tool/configure.dart $CONFIG_ARGS
 cd scripts/android

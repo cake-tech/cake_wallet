@@ -138,7 +138,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.zano:
         pattern = r'([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d-.]+)';
       default:
-        pattern = '[0-9a-zA-Z]+';
+        return '';
     }
 
     return '$BEFORE_REGEX($pattern)$AFTER_REGEX';

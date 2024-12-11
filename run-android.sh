@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/universal_sed.sh"
 # Get the current git branch
 get_current_branch() {
     if git rev-parse --git-dir > /dev/null 2>&1; then
@@ -15,9 +15,8 @@ get_current_branch() {
 update_app_properties() {
     local branch=$1
     local file_path="./android/app.properties"
-    
-    sed -i "s/^id=.*/id=com.cakewallet.$branch/" "$file_path"
-    sed -i "s/^name=.*/name=$branch-Cake Wallet/" "$file_path"
+    universal_sed "s/^id=.*/id=com.cakewallet.$branch/" "$file_path"
+    universal_sed "s/^name=.*/name=$branch-Cake Wallet/" "$file_path"
 }
 
 # only update app.properties if getting the current branch was successful

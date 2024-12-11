@@ -1,5 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -19,6 +20,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/exceptions.dart';
@@ -27,6 +29,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -66,6 +69,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.type == WalletType.zano;
   }
 
+  UnspentCoinsListViewModel unspentCoinsListViewModel;
+
   SendViewModelBase(
     AppStore appStore,
     this.sendTemplateViewModel,
@@ -73,7 +78,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.balanceViewModel,
     this.contactListViewModel,
     this.transactionDescriptionBox,
-    this.ledgerViewModel, {
+    this.ledgerViewModel,
+    this.unspentCoinsListViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.any,
   })  : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
@@ -107,6 +113,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   final UnspentCoinType coinTypeToSpendFrom;
 
+  bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
+
   @action
   void addOutput() {
     outputs
@@ -132,11 +140,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get shouldDisplaySendALL {
     if (walletType == WalletType.solana) return false;
 
-    if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
-      return false;
+    // if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
+    // return false;
 
-      if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.matic)
-      return false;
+    // if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.maticpoly)
+    // return false;
 
     return true;
   }
@@ -498,9 +506,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         nano!.updateTransactions(wallet);
       }
 
-
       if (pendingTransaction!.id.isNotEmpty) {
-
         final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
@@ -674,7 +680,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               lamportsNeeded != null ? ((lamportsNeeded + 5000) / lamportsPerSol) : 0.0;
           return S.current.insufficient_lamports(solValueNeeded.toString());
         } else {
-          print("No match found.");
+          printV("No match found.");
           return S.current.insufficient_lamport_for_tx;
         }
       }
@@ -687,9 +693,26 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
         walletType == WalletType.haven) {
-      if (errorMessage.contains('gas required exceeds allowance') ||
-          errorMessage.contains('insufficient funds')) {
-        return S.current.do_not_have_enough_gas_asset(currency.toString());
+      if (errorMessage.contains('gas required exceeds allowance')) {
+        return S.current.gas_exceeds_allowance;
+      }
+
+      if (errorMessage.contains('insufficient funds')) {
+        final parsedErrorMessageResult =
+            EVMTransactionErrorFeesHandler.parseEthereumFeesErrorMessage(
+          errorMessage,
+          _fiatConversationStore.prices[currency]!,
+        );
+
+        if (parsedErrorMessageResult.error != null) {
+          return S.current.insufficient_funds_for_tx;
+        }
+
+        return 
+        '''${S.current.insufficient_funds_for_tx} \n\n'''
+        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ETH (${parsedErrorMessageResult.balanceUsd} USD)\n\n'''
+        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ETH (${parsedErrorMessageResult.txCostUsd} USD)\n\n'''
+        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ETH (${parsedErrorMessageResult.overshotUsd} USD)''';
       }
 
       return errorMessage;

@@ -28,9 +28,9 @@ void enableLedgerExchange(monero.wallet ptr, LedgerConnection connection) {
           ptr, emptyPointer.cast<UnsignedChar>(), 0);
       malloc.free(emptyPointer);
 
-      // print("> ${ledgerRequest.toHexString()}");
+      // printV("> ${ledgerRequest.toHexString()}");
       final response = await exchange(connection, ledgerRequest);
-      // print("< ${response.toHexString()}");
+      // printV("< ${response.toHexString()}");
 
       final Pointer<Uint8> result = malloc<Uint8>(response.length);
       for (var i = 0; i < response.length; i++) {
