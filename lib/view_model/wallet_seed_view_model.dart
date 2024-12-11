@@ -15,4 +15,8 @@ abstract class WalletSeedViewModelBase with Store {
 
   @observable
   String seed;
+
+  List<String> get seedSplit => seed.split(' ');
+
+  int get columnCount => seedSplit.length <= 16 ? 2 : 3;
 }
