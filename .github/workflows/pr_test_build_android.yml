@@ -12,7 +12,7 @@ on:
 
 jobs:
   PR_test_build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         api-level: [29]
@@ -31,7 +31,7 @@ jobs:
         run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
 
       - name: Free Disk Space (Ubuntu)
-        uses: insightsengineering/disk-space-reclaimer@v1
+        uses: jlumbroso/free-disk-space@main
         with:
           tools-cache: true
           android: false
@@ -59,7 +59,7 @@ jobs:
       - name: Install package dependencies
         run: |
           sudo apt update
-          sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake clang
+          sudo apt-get install -y pigz curl unzip automake build-essential file pkg-config git python-is-python3 libtool libtinfo6 cmake clang llvm
 
 
       - name: Clone Repo
