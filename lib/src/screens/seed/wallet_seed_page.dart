@@ -92,17 +92,18 @@ class WalletSeedPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return WillPopScope(
-        onWillPop: () async => false,
-        child: Container(
-          padding: EdgeInsets.all(24),
-          alignment: Alignment.center,
-          child: ConstrainedBox(
-            constraints:
-                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Observer(builder: (_) {
+      onWillPop: () async => false,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        alignment: Alignment.center,
+        child: ConstrainedBox(
+          constraints:
+              BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Observer(
+                builder: (_) {
                   return Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -151,12 +152,11 @@ class WalletSeedPage extends BasePage {
                         SizedBox(height: 24),
                         Expanded(
                           child: GridView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
                             padding: const EdgeInsets.symmetric(horizontal: 4),
                             itemCount: walletSeedViewModel.seedSplit.length,
                             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: walletSeedViewModel.columnCount,
-                              childAspectRatio: 3,
+                              childAspectRatio: 3.6,
                               mainAxisSpacing: 8.0,
                               crossAxisSpacing: 8.0,
                             ),
@@ -165,25 +165,29 @@ class WalletSeedPage extends BasePage {
                               final numberCount = index + 1;
 
                               return Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(24),
+                                  borderRadius: BorderRadius.circular(8),
                                   color:
                                       Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
                                 ),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text(
-                                      numberCount.toString(),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: Theme.of(context)
-                                            .extension<DashboardPageTheme>()!
-                                            .textColor
-                                            .withOpacity(0.6),
+                                    SizedBox(
+                                      width: 20,
+                                      child: Text(
+                                        numberCount.toString(),
+                                        textAlign: TextAlign.right,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(context)
+                                              .extension<DashboardPageTheme>()!
+                                              .textColor
+                                              .withOpacity(0.6),
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
@@ -206,59 +210,61 @@ class WalletSeedPage extends BasePage {
                       ],
                     ),
                   );
-                }),
-                Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Flexible(
-                          child: Container(
-                            padding: EdgeInsets.only(right: 8.0),
-                            child: PrimaryButton(
-                              key: ValueKey('wallet_seed_page_save_seeds_button_key'),
+                },
+              ),
+              Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      Flexible(
+                        child: Container(
+                          padding: EdgeInsets.only(right: 8.0),
+                          child: PrimaryButton(
+                            key: ValueKey('wallet_seed_page_save_seeds_button_key'),
+                            onPressed: () {
+                              ShareUtil.share(
+                                text: walletSeedViewModel.seed,
+                                context: context,
+                              );
+                            },
+                            text: S.of(context).save,
+                            color: Theme.of(context).primaryColor,
+                            textColor: currentTheme.type == ThemeType.dark
+                                ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
+                                : Colors.white,
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        child: Container(
+                          padding: EdgeInsets.only(left: 8.0),
+                          child: Builder(
+                            builder: (context) => PrimaryButton(
+                              key: ValueKey('wallet_seed_page_copy_seeds_button_key'),
                               onPressed: () {
-                                ShareUtil.share(
-                                  text: walletSeedViewModel.seed,
-                                  context: context,
+                                ClipboardUtil.setSensitiveDataToClipboard(
+                                  ClipboardData(text: walletSeedViewModel.seed),
                                 );
+                                showBar<void>(context, S.of(context).copied_to_clipboard);
                               },
-                              text: S.of(context).save,
-                              color: Theme.of(context).primaryColor,
-                              textColor: currentTheme.type == ThemeType.dark
-                                  ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                                  : Colors.white,
+                              text: S.of(context).copy,
+                              color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
+                              textColor:
+                                  Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                             ),
                           ),
                         ),
-                        Flexible(
-                          child: Container(
-                            padding: EdgeInsets.only(left: 8.0),
-                            child: Builder(
-                              builder: (context) => PrimaryButton(
-                                key: ValueKey('wallet_seed_page_copy_seeds_button_key'),
-                                onPressed: () {
-                                  ClipboardUtil.setSensitiveDataToClipboard(
-                                    ClipboardData(text: walletSeedViewModel.seed),
-                                  );
-                                  showBar<void>(context, S.of(context).copied_to_clipboard);
-                                },
-                                text: S.of(context).copy,
-                                color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
-                                textColor:
-                                    Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                    SizedBox(height: 24),
-                  ],
-                )
-              ],
-            ),
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 24),
+                ],
+              )
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
