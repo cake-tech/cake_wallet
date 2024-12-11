@@ -440,7 +440,8 @@ class SendCardState extends State<SendCard>
       return;
     }
 
-    print("[+] SendCard || _setEffects => output.address: ${output.address}");
+    debugPrint(
+        "[+] SENDCARD => _setEffects - output.address: ${output.address}");
 
     if (output.address.isNotEmpty) {
       addressController.text = output.address;
@@ -510,13 +511,13 @@ class SendCardState extends State<SendCard>
       }
     });
 
-    addressController.addListener(() {
+    addressController.addListener(() async {
       final address = addressController.text;
 
       if (output.address != address) {
         output.resetParsedAddress();
         output.address = address;
-        sendViewModel.stringToPjUri();
+        await sendViewModel.stringToPjUri();
       }
     });
 
@@ -537,11 +538,14 @@ class SendCardState extends State<SendCard>
     });
 
     reaction((_) => sendViewModel.pjUri, (dynamic pjUri) {
-      print('[+] SendCard || pjUri reaction');
+      debugPrint(
+          '[+] SENDCARD => pjUri reaction - address: ${pjUri.address()}, amount: ${pjUri.amountSats()}');
       if (pjUri != null) {
-        final amount = pjUri.amount();
+        final amount = pjUri.amountSats();
         if (amount != null) {
-          cryptoAmountController.text = amount.toString();
+          final amountSats = int.parse(amount.toString());
+          final amountBtc = (amountSats / 100000000.0).toStringAsFixed(8);
+          cryptoAmountController.text = amountBtc.toString();
         }
       }
     });

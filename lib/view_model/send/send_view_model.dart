@@ -22,6 +22,7 @@ import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter/ledger_flutter.dart';
 import 'package:mobx/mobx.dart';
@@ -734,6 +735,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
 
   @action
   Future<void> stringToPjUri() async {
+    debugPrint('[+] SENDVIEWMODEL => stringToPjUri()');
     final address = outputs.first.address;
     final uri = await bitcoin!.stringToPjUri(address);
     pjUri = uri;

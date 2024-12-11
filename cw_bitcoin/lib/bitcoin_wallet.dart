@@ -257,7 +257,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
   }) async {
     final psbtReadyInputs = <PSBTReadyUtxoWithAddress>[];
-    for (final utxo in utxos) {
+    for (final UtxoWithAddress utxo in utxos) {
+      debugPrint('[+] BITCOINWALLET => UTXO.utxo - ${utxo.utxo.toString()}');
       final rawTx =
           await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
       final publicKeyAndDerivationPath =

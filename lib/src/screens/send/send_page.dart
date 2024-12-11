@@ -443,12 +443,13 @@ class SendPage extends BasePage {
                           context,
                           conditionToDetermineIfToUse2FA: check,
                           onAuthSuccess: (value) async {
-                            debugPrint('[+] SendPage | value: $value');
+                            debugPrint(
+                                '[+] SENDPAGE => onAuthSuccess - value: $value');
                             if (value) {
                               // await sendViewModel.stringToPjUri();
                               if (sendViewModel.pjUri != null) {
                                 debugPrint(
-                                    '[+] SendPage || INITIATE PAYJOIN SEND');
+                                    '[+] SENDPAGE => onAuthSuccess - INITIATE PAYJOIN SEND');
                                 await sendViewModel.performPayjoinSend();
                               } else {
                                 await sendViewModel.createTransaction();
@@ -481,7 +482,6 @@ class SendPage extends BasePage {
     }
 
     if (sendViewModel.isElectrumWallet) {
-      debugPrint('[+] SendPage || _setEffects() => isElectrumWallet');
       bitcoin!.updateFeeRates(sendViewModel.wallet);
     }
 
