@@ -169,8 +169,7 @@ class WalletSeedPage extends BasePage {
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
-                                  color:
-                                      Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
+                                  color: Theme.of(context).cardColor,
                                 ),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -183,10 +182,7 @@ class WalletSeedPage extends BasePage {
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
-                                          color: Theme.of(context)
-                                              .extension<DashboardPageTheme>()!
-                                              .textColor
-                                              .withOpacity(0.6),
+                                            color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor.withOpacity(0.5)
                                         ),
                                       ),
                                     ),
@@ -196,9 +192,7 @@ class WalletSeedPage extends BasePage {
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w700,
-                                        color: Theme.of(context)
-                                            .extension<DashboardPageTheme>()!
-                                            .textColor,
+                                          color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor
                                       ),
                                     ),
                                   ],
