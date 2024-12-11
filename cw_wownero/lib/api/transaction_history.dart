@@ -181,13 +181,23 @@ void commitTransaction({required wownero.PendingTransaction transactionPointer})
   
   final txCommit = wownero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
 
-  final String? error = (() {
-    final status = wownero.PendingTransaction_status(transactionPointer.cast());
+  String? error = (() {
+    final status = monero.PendingTransaction_status(transactionPointer.cast());
     if (status == 0) {
       return null;
     }
-    return wownero.Wallet_errorString(wptr!);
+    return monero.PendingTransaction_errorString(transactionPointer.cast());
   })();
+  if (error == null) {
+    error = (() {
+      final status = monero.Wallet_status(wptr!);
+      if (status == 0) {
+        return null;
+      }
+      return monero.Wallet_errorString(wptr!);
+    })();
+
+  }
   
   if (error != null) {
     throw CreationTransactionException(message: error);
