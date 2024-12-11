@@ -1475,19 +1475,18 @@ abstract class ElectrumWalletBase
 
   Future<void> _refreshUnspentCoinsInfo() async {
     try {
-      final List<dynamic> keys = <dynamic>[];
+      final List<dynamic> keys = [];
       final currentWalletUnspentCoins =
-          unspentCoinsInfo.values.where((element) => element.walletId.contains(id));
+      unspentCoinsInfo.values.where((record) => record.walletId == id);
 
-      if (currentWalletUnspentCoins.isNotEmpty) {
-        currentWalletUnspentCoins.forEach((element) {
-          final existUnspentCoins = unspentCoins
-              .where((coin) => element.hash.contains(coin.hash) && element.vout == coin.vout);
+      for (final element in currentWalletUnspentCoins) {
+        if (RegexUtils.addressTypeFromStr(element.address, network) is MwebAddress) continue;
 
-          if (existUnspentCoins.isEmpty) {
-            keys.add(element.key);
-          }
-        });
+        final existUnspentCoins = unspentCoins.where((coin) => element == coin);
+
+        if (existUnspentCoins.isEmpty) {
+          keys.add(element.key);
+        }
       }
 
       if (keys.isNotEmpty) {
