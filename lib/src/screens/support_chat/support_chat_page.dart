@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/widgets/chatwoot_widget.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 
 
@@ -22,7 +23,7 @@ class SupportChatPage extends BasePage {
   Widget body(BuildContext context) => FutureBuilder<String>(
         future: getCookie(),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-          print(snapshot.data);
+          printV(snapshot.data);
           if (snapshot.hasData)
             return ChatwootWidget(
               secureStorage,

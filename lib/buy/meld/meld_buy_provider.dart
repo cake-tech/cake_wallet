@@ -9,6 +9,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
@@ -75,11 +76,11 @@ class MeldBuyProvider extends BuyProvider {
             data.map((e) => PaymentMethod.fromMeldJson(e as Map<String, dynamic>)).toList();
         return paymentMethods;
       } else {
-        print('Meld: Failed to fetch payment types');
+        printV('Meld: Failed to fetch payment types');
         return List<PaymentMethod>.empty();
       }
     } catch (e) {
-      print('Meld: Failed to fetch payment types: $e');
+      printV('Meld: Failed to fetch payment types: $e');
       return List<PaymentMethod>.empty();
     }
   }
@@ -132,7 +133,7 @@ class MeldBuyProvider extends BuyProvider {
         return null;
       }
     } catch (e) {
-      print('Error fetching buy quote: $e');
+      printV('Error fetching buy quote: $e');
       return null;
     }
   }

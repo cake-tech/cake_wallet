@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart' as http;
 
 Future<String> fetchUnstoppableDomainAddress(String domain, String ticker) async {
@@ -20,7 +21,7 @@ Future<String> fetchUnstoppableDomainAddress(String domain, String ticker) async
 
     return records[key] as String? ?? '';
   } catch (e) {
-    print('Unstoppable domain error: ${e.toString()}');
+    printV('Unstoppable domain error: ${e.toString()}');
     address = '';
   }
 
