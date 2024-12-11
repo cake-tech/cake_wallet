@@ -123,7 +123,7 @@ class WalletSeedPage extends BasePage {
                               SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'Please save these words in a secure place! If you lose access to your wallet, Cake Wallet support CANNOT help you!',
+                                  S.current.cake_seeds_save_disclaimer,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 12,
