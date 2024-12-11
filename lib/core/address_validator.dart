@@ -80,7 +80,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.shib:
         pattern = '0x[0-9a-zA-Z]+';
       case CryptoCurrency.xrp:
-        pattern = '[0-9a-zA-Z]{34}|X[0-9a-zA-Z]{46}';
+        pattern = '[0-9a-zA-Z]{34}|[0-9a-zA-Z]{33}|X[0-9a-zA-Z]{46}';
       case CryptoCurrency.xhv:
         pattern = 'hvx|hvi|hvs[0-9a-zA-Z]+';
       case CryptoCurrency.xag:
@@ -282,9 +282,13 @@ class AddressValidator extends TextValidator {
 
     switch (type) {
       case CryptoCurrency.xmr:
-      case CryptoCurrency.wow:
         pattern = '(4[0-9a-zA-Z]{94})'
             '|(8[0-9a-zA-Z]{94})'
+            '|([0-9a-zA-Z]{106})';
+      case CryptoCurrency.wow:
+        pattern = '(W[0-9a-zA-Z]{94})'
+            '|(W[0-9a-zA-Z]{94})'
+            '|(W[0-9a-zA-Z]{96})'
             '|([0-9a-zA-Z]{106})';
       case CryptoCurrency.btc:
         pattern =
