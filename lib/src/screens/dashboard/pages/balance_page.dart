@@ -828,7 +828,7 @@ class BalanceRowWidget extends StatelessWidget {
         ),
       ),
       if (hasSecondAdditionalBalance || hasSecondAvailableBalance) ...[
-        SizedBox(height: 16),
+        SizedBox(height: 10),
         Container(
           margin: const EdgeInsets.only(left: 16, right: 16),
           decoration: BoxDecoration(
