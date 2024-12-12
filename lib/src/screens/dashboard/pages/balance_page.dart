@@ -118,10 +118,7 @@ class CryptoBalanceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => dashboardViewModel.balanceViewModel.isReversing =
-          !dashboardViewModel.balanceViewModel.isReversing,
-      child: SingleChildScrollView(
+      return SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -457,7 +454,6 @@ class CryptoBalanceWidget extends StatelessWidget {
             }),
           ],
         ),
-      ),
     );
   }
 
@@ -595,7 +591,10 @@ class BalanceRowWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              GestureDetector(
+                  onTap: () => dashboardViewModel.balanceViewModel.isReversing =
+                  !dashboardViewModel.balanceViewModel.isReversing,
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -711,6 +710,7 @@ class BalanceRowWidget extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
               ),
               if (frozenBalance.isNotEmpty)
                 GestureDetector(
@@ -881,7 +881,10 @@ class BalanceRowWidget extends StatelessWidget {
                           ],
                         ),
                       if (hasSecondAvailableBalance)
-                        Row(
+                        GestureDetector(
+                        onTap: () => dashboardViewModel.balanceViewModel.isReversing =
+                        !dashboardViewModel.balanceViewModel.isReversing,
+                        child: Row(
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -952,6 +955,7 @@ class BalanceRowWidget extends StatelessWidget {
                               ],
                             ),
                           ],
+                        ),
                         ),
                     ],
                   ),
