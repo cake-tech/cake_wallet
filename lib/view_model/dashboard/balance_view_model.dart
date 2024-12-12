@@ -287,7 +287,7 @@ abstract class BalanceViewModelBase with Store {
             BalanceRecord(
                 availableBalance: '---',
                 additionalBalance: '---',
-                frozenBalance: '---',
+                frozenBalance: '',
                 secondAvailableBalance: '---',
                 secondAdditionalBalance: '---',
                 fiatAdditionalBalance: isFiatDisabled ? '' : '---',
