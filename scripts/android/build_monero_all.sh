@@ -7,7 +7,6 @@ set -x -e
 cd "$(dirname "$0")"
 
 NPROC="-j$(nproc)"
-
 if [[ "x$(uname)" == "xDarwin" ]];
 then
     USE_DOCKER="ON"
@@ -38,13 +37,13 @@ else
     for COIN in monero wownero zano;
     do
         pushd ../monero_c
-            [[ ! "x$BUILD_ONLY_AARCH64" == "x" ]] && env -i ./build_single.sh ${COIN} x86_64-linux-android $NPROC
+            [[ ! "x$BUILD_ONLY_AARCH64" == "x" ]] && ./build_single.sh ${COIN} x86_64-linux-android $NPROC
             [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/x86_64-linux-android
             # ./build_single.sh ${COIN} i686-linux-android $NPROC
             # [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/i686-linux-android
-            [[ ! "x$BUILD_ONLY_AARCH64" == "x" ]] && env -i ./build_single.sh ${COIN} armv7a-linux-androideabi $NPROC
+            [[ ! "x$BUILD_ONLY_AARCH64" == "x" ]] && ./build_single.sh ${COIN} armv7a-linux-androideabi $NPROC
             [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/armv7a-linux-androideabi
-            env -i ./build_single.sh ${COIN} aarch64-linux-android $NPROC
+            ./build_single.sh ${COIN} aarch64-linux-android $NPROC
             [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/aarch64-linux-android
 
         popd
