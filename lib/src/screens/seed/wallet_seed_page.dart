@@ -1,6 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
@@ -15,6 +14,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
+
 
 class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
@@ -111,10 +111,14 @@ class WalletSeedPage extends BasePage {
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                              color: Color.fromRGBO(255, 221, 44, 0.37),
+                              color: currentTheme.type == ThemeType.dark
+                                  ? Color.fromRGBO(132, 110, 64, 1)
+                                  : Color.fromRGBO(194, 165, 94, 1),
                               borderRadius: BorderRadius.all(Radius.circular(12)),
                               border: Border.all(
-                                color: Color.fromRGBO(223, 214, 0, 0.7),
+                                color: currentTheme.type == ThemeType.dark
+                                    ? Color.fromRGBO(177, 147, 41, 1)
+                                    : Color.fromRGBO(125, 122, 15, 1),
                                 width: 2.0,
                               )),
                           child: Row(
@@ -122,7 +126,7 @@ class WalletSeedPage extends BasePage {
                               Icon(
                                 Icons.warning_amber_rounded,
                                 size: 64,
-                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                color: Colors.white.withOpacity(0.75),
                               ),
                               SizedBox(width: 8),
                               Expanded(
@@ -132,7 +136,9 @@ class WalletSeedPage extends BasePage {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w800,
-                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                    color: currentTheme.type == ThemeType.dark
+                                      ? Colors.white.withOpacity(0.75)
+                                      : Colors.white.withOpacity(0.85),
                                   ),
                                 ),
                               ),
@@ -169,8 +175,7 @@ class WalletSeedPage extends BasePage {
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
-                                  color:
-                                      Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
+                                  color: Theme.of(context).cardColor,
                                 ),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -183,10 +188,7 @@ class WalletSeedPage extends BasePage {
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
-                                          color: Theme.of(context)
-                                              .extension<DashboardPageTheme>()!
-                                              .textColor
-                                              .withOpacity(0.6),
+                                            color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor.withOpacity(0.5)
                                         ),
                                       ),
                                     ),
@@ -196,9 +198,7 @@ class WalletSeedPage extends BasePage {
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w700,
-                                        color: Theme.of(context)
-                                            .extension<DashboardPageTheme>()!
-                                            .textColor,
+                                          color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor
                                       ),
                                     ),
                                   ],
@@ -229,10 +229,10 @@ class WalletSeedPage extends BasePage {
                               );
                             },
                             text: S.of(context).save,
-                            color: Theme.of(context).primaryColor,
+                            color: Theme.of(context).cardColor,
                             textColor: currentTheme.type == ThemeType.dark
                                 ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                                : Colors.white,
+                                : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
                           ),
                         ),
                       ),
@@ -249,9 +249,8 @@ class WalletSeedPage extends BasePage {
                                 showBar<void>(context, S.of(context).copied_to_clipboard);
                               },
                               text: S.of(context).copy,
-                              color: Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor,
-                              textColor:
-                                  Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                              color: Theme.of(context).primaryColor,
+                              textColor: Colors.white,
                             ),
                           ),
                         ),
