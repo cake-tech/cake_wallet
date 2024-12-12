@@ -21,11 +21,13 @@ class ConnectDevicePageParams {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
+  final bool allowBack;
 
   ConnectDevicePageParams({
     required this.walletType,
     required this.onConnectDevice,
     this.allowChangeWallet = false,
+    this.allowBack = true,
   });
 }
 
@@ -33,19 +35,31 @@ class ConnectDevicePage extends BasePage {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
+  final bool allowBack;
   final LedgerViewModel ledgerVM;
 
   ConnectDevicePage(ConnectDevicePageParams params, this.ledgerVM)
       : walletType = params.walletType,
         onConnectDevice = params.onConnectDevice,
-        allowChangeWallet = params.allowChangeWallet;
+        allowChangeWallet = params.allowChangeWallet,
+        allowBack = params.allowBack;
 
   @override
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) => ConnectDevicePageBody(
-      walletType, onConnectDevice, allowChangeWallet, ledgerVM);
+  Widget? leading(BuildContext context) =>
+      allowBack ? super.leading(context) : null;
+
+  @override
+  Widget body(BuildContext context) => PopScope(
+      canPop: allowBack,
+      child: ConnectDevicePageBody(
+        walletType,
+        onConnectDevice,
+        allowChangeWallet,
+        ledgerVM,
+      ));
 }
 
 class ConnectDevicePageBody extends StatefulWidget {
