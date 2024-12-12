@@ -592,8 +592,7 @@ class BalanceRowWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
-                  onTap: () => dashboardViewModel.balanceViewModel.setShouldDisplayBalance
-                    (dashboardViewModel.balanceViewModel.getHiddenBalanceValue()),
+                  onTap: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -779,8 +778,7 @@ class BalanceRowWidget extends StatelessWidget {
                 ),
               if (hasAdditionalBalance)
               GestureDetector(
-                onTap: () => dashboardViewModel.balanceViewModel.setShouldDisplayBalance
-                  (dashboardViewModel.balanceViewModel.getHiddenBalanceValue()),
+                onTap: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -886,8 +884,7 @@ class BalanceRowWidget extends StatelessWidget {
                         ),
                       if (hasSecondAvailableBalance)
                         GestureDetector(
-                          onTap: () => dashboardViewModel.balanceViewModel.setShouldDisplayBalance
-                            (dashboardViewModel.balanceViewModel.getHiddenBalanceValue()),
+                          onTap: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
                         child: Row(
                           children: [
                             Column(
