@@ -778,7 +778,10 @@ class BalanceRowWidget extends StatelessWidget {
                   ),
                 ),
               if (hasAdditionalBalance)
-                Column(
+              GestureDetector(
+              onTap: () => dashboardViewModel.balanceViewModel.isReversing =
+                      !dashboardViewModel.balanceViewModel.isReversing,
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 24),
@@ -821,6 +824,7 @@ class BalanceRowWidget extends StatelessWidget {
                       ),
                   ],
                 ),
+              ),
             ],
           ),
         ),
