@@ -18,7 +18,6 @@ fi
 if [[ ! "x$RUNNER_OS" == "x" ]];
 then
     REMOVE_CACHES=ON
-    BUILD_ONLY_AARCH64=ON
 fi
 
 # NOTE: -j1 is intentional. Otherwise you will run into weird behaviour on macos
@@ -38,14 +37,8 @@ else
     do
         pushd ../monero_c
             [[ ! "x$BUILD_ONLY_AARCH64" == "x" ]] && ./build_single.sh ${COIN} x86_64-linux-android $NPROC
-            [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/x86_64-linux-android
-            # ./build_single.sh ${COIN} i686-linux-android $NPROC
-            # [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/i686-linux-android
             [[ ! "x$BUILD_ONLY_AARCH64" == "x" ]] && ./build_single.sh ${COIN} armv7a-linux-androideabi $NPROC
-            [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/armv7a-linux-androideabi
             ./build_single.sh ${COIN} aarch64-linux-android $NPROC
-            [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/aarch64-linux-android
-
         popd
         [[ ! "x$BUILD_ONLY_AARCH64" == "x" ]] && unxz -f ../monero_c/release/${COIN}/x86_64-linux-android_libwallet2_api_c.so.xz
 
@@ -53,5 +46,6 @@ else
 
         unxz -f ../monero_c/release/${COIN}/aarch64-linux-android_libwallet2_api_c.so.xz
         [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf ${COIN}/contrib/depends/{built,sources}
+        [[ ! "x$REMOVE_CACHES" == "x" ]] && rm -rf contrib/depends/{built,sources}
     done
 fi
