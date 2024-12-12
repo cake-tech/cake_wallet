@@ -1375,22 +1375,27 @@ abstract class ElectrumWalletBase
       if (addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
     });
 
-    await Future.wait(walletAddresses.allAddresses
-        .where((element) => element.type != SegwitAddresType.mweb)
-        .map((address) async {
-      updatedUnspentCoins.addAll(await fetchUnspent(address));
-    }));
+    try {
+      await Future.wait(walletAddresses.allAddresses
+          .where((element) => element.type != SegwitAddresType.mweb)
+          .map((address) async {
+        updatedUnspentCoins.addAll(await fetchUnspent(address));
+      }));
 
-    unspentCoins = updatedUnspentCoins;
-    
-    final currentWalletUnspentCoins = unspentCoinsInfo.values.where((element) => element.walletId == id);
+      unspentCoins = updatedUnspentCoins;
 
-    if (currentWalletUnspentCoins.length != updatedUnspentCoins.length) {
-      unspentCoins.forEach((coin) => addCoinInfo(coin));
+      final currentWalletUnspentCoins =
+      unspentCoinsInfo.values.where((element) => element.walletId == id);
+
+      if (currentWalletUnspentCoins.length != updatedUnspentCoins.length) {
+        unspentCoins.forEach((coin) => addCoinInfo(coin));
+      }
+
+      await updateCoins(unspentCoins);
+      await _refreshUnspentCoinsInfo();
+    } catch (e) {
+      printV("updateAllUnspents $e");
     }
-
-    await updateCoins(unspentCoins);
-    await _refreshUnspentCoinsInfo();
   }
 
   Future<void> updateCoins(List<BitcoinUnspent> newUnspentCoins) async {
@@ -1432,6 +1437,7 @@ abstract class ElectrumWalletBase
     List<Map<String, dynamic>> unspents = [];
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
+    try {
     unspents = await electrumClient.getListUnspent(address.getScriptHash(network));
 
     await Future.wait(unspents.map((unspent) async {
@@ -1444,6 +1450,9 @@ abstract class ElectrumWalletBase
         updatedUnspentCoins.add(coin);
       } catch (_) {}
     }));
+    } catch (_) {
+      rethrow;
+    }
 
     return updatedUnspentCoins;
   }
