@@ -164,7 +164,7 @@ class WalletSeedPage extends BasePage {
                         Expanded(
                           child: GridView.builder(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
-                            itemCount: walletSeedViewModel.seedWords.length,
+                            itemCount: walletSeedViewModel.seedSplit.length,
                             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: walletSeedViewModel.columnCount,
                               childAspectRatio: 3.6,
@@ -172,7 +172,7 @@ class WalletSeedPage extends BasePage {
                               crossAxisSpacing: 8.0,
                             ),
                             itemBuilder: (context, index) {
-                              final item = walletSeedViewModel.seedWords[index];
+                              final item = walletSeedViewModel.seedSplit[index];
                               final numberCount = index + 1;
 
                               return Container(

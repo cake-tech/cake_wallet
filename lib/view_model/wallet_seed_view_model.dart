@@ -23,9 +23,12 @@ abstract class WalletSeedViewModelBase with Store {
   @observable
   String seed;
 
-  List<String> get seedWords => seed.split(' ');
+  /// The Regex split the words based on any whitespace character.
+  ///
+  /// Either standard ASCII space (U+0020) or the full-width space character (U+3000) used by the Japanese.
+  List<String> get seedSplit => seed.split(RegExp(r'\s+'));
 
-  int get columnCount => seedWords.length <= 16 ? 2 : 3;
+  int get columnCount => seedSplit.length <= 16 ? 2 : 3;
 
   /// The indices of the seed to be verified.
   ObservableList<int> verificationIndices;
@@ -50,7 +53,7 @@ abstract class WalletSeedViewModelBase with Store {
 
   int get currentWordIndex => verificationIndices[currentStepIndex];
 
-  String get currentCorrectWord => seedWords[currentWordIndex];
+  String get currentCorrectWord => seedSplit[currentWordIndex];
 
   @observable
   bool isVerificationComplete = false;
@@ -69,7 +72,7 @@ abstract class WalletSeedViewModelBase with Store {
     final random = Random();
     final indices = <int>[];
     while (indices.length < verificationWordCount) {
-      final i = random.nextInt(seedWords.length);
+      final i = random.nextInt(seedSplit.length);
       if (!indices.contains(i)) {
         indices.add(i);
       }
@@ -84,7 +87,7 @@ abstract class WalletSeedViewModelBase with Store {
     currentOptions.clear();
 
     final correctWord = currentCorrectWord;
-    final incorrectWords = seedWords.where((word) => word != correctWord).toList();
+    final incorrectWords = seedSplit.where((word) => word != correctWord).toList();
     incorrectWords.shuffle();
 
     final options = [correctWord, ...incorrectWords.take(5)];
