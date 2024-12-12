@@ -67,7 +67,7 @@ class WalletSeedPage extends BasePage {
   Widget trailing(BuildContext context) {
     final copyImage = Image.asset(
       'assets/images/copy_address.png',
-      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor.withOpacity(0.5),
+      color: Color.fromRGBO(91, 112, 146, 1),
     );
 
     return isNewWalletCreated
