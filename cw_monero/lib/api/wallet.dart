@@ -121,7 +121,6 @@ Future<bool> setupNodeSync(
         daemonUsername: login ?? '',
         daemonPassword: password ?? '');
   });
-  // monero.Wallet_init3(wptr!, argv0: '', defaultLogBaseName: 'moneroc', console: true, logPath: '');
 
   final status = monero.Wallet_status(wptr!);
 
