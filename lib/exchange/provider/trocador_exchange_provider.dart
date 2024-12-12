@@ -171,7 +171,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       if (!isFixedRateMode) 'amount_from': request.fromAmount,
       if (isFixedRateMode) 'amount_to': request.toAmount,
       'address': request.toAddress,
-      'refund': request.refundAddress
+      'refund': request.refundAddress,
+      'refund_memo' : '0',
     };
 
     if (isFixedRateMode) {
@@ -262,6 +263,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final password = responseJSON['password'] as String;
       final providerId = responseJSON['id_provider'] as String;
       final providerName = responseJSON['provider'] as String;
+      final addressProviderMemo = responseJSON['address_provider_memo'] as String?;
 
       return Trade(
         id: id,
@@ -277,6 +279,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         password: password,
         providerId: providerId,
         providerName: providerName,
+        extraId: addressProviderMemo,
       );
     });
   }
