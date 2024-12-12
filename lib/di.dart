@@ -997,12 +997,12 @@ Future<void> setup({
   getIt.registerFactory<RobinhoodBuyProvider>(() => RobinhoodBuyProvider(
       wallet: getIt.get<AppStore>().wallet!,
       ledgerVM:
-          getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null));
+          getIt.get<AppStore>().wallet!.isLedger ? getIt.get<LedgerViewModel>() : null));
 
   getIt.registerFactory<DFXBuyProvider>(() => DFXBuyProvider(
       wallet: getIt.get<AppStore>().wallet!,
       ledgerVM:
-          getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null));
+          getIt.get<AppStore>().wallet!.isLedger ? getIt.get<LedgerViewModel>() : null));
 
   getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
         settingsStore: getIt.get<AppStore>().settingsStore,
