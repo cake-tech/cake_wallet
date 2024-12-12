@@ -61,6 +61,7 @@ import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
+import 'package:cake_wallet/src/screens/restore/restore_from_keystone_private_mode_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
@@ -595,6 +596,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreFromBackup:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<RestoreFromBackupPage>());
+
+    case Routes.restoreFromKeystonePrivateMode:
+      final args = settings.arguments as String;
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<RestoreFromKeystonePrivateModePage>(param1: args));
 
     case Routes.support:
       return CupertinoPageRoute<void>(

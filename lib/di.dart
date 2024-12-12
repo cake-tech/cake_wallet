@@ -39,6 +39,7 @@ import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
+import 'package:cake_wallet/src/screens/restore/restore_from_keystone_private_mode_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_node_page.dart';
@@ -745,7 +746,7 @@ Future<void> setup({
       getIt.get<BalanceViewModel>(),
       getIt.get<ContactListViewModel>(),
       _transactionDescriptionBox,
-      getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null,
+      getIt.get<AppStore>().wallet!.isLedger ? getIt.get<LedgerViewModel>() : null,
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
       getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
     ),
@@ -1203,6 +1204,9 @@ Future<void> setup({
   getIt.registerFactory(() => RestoreFromBackupViewModel(getIt.get<BackupService>()));
 
   getIt.registerFactory(() => RestoreFromBackupPage(getIt.get<RestoreFromBackupViewModel>()));
+
+  getIt.registerFactoryParam<RestoreFromKeystonePrivateModePage, String, void>(
+      (String code, _) => RestoreFromKeystonePrivateModePage(code));
 
   getIt.registerFactoryParam<TradeDetailsPage, Trade, void>(
       (Trade trade, _) => TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));
