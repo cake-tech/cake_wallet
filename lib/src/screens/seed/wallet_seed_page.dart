@@ -114,12 +114,12 @@ class WalletSeedPage extends BasePage {
                           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
                               color: currentTheme.type == ThemeType.dark
-                              ? Color.fromRGBO(126, 116, 59, 1)
-                              : Color.fromRGBO(189, 169, 90, 1),
+                                  ? Color.fromRGBO(132, 110, 64, 1)
+                                  : Color.fromRGBO(194, 165, 94, 1),
                               borderRadius: BorderRadius.all(Radius.circular(12)),
                               border: Border.all(
                                 color: currentTheme.type == ThemeType.dark
-                                ? Color.fromRGBO(171, 171, 41, 1)
+                                    ? Color.fromRGBO(177, 147, 41, 1)
                                     : Color.fromRGBO(125, 122, 15, 1),
                                 width: 2.0,
                               )),
