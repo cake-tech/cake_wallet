@@ -22,8 +22,8 @@ class SearchBarWidget extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText ?? S.of(context).search,
         hintStyle: TextStyle(color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
-        prefixIcon: Image.asset("assets/images/search_icon.png",
-            color: Theme.of(context).extension<PickerTheme>()!.searchIconColor),
+        prefixIcon: Icon( Icons.search,
+            color: Theme.of(context).primaryColor),
         filled: true,
         fillColor: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
         alignLabelWithHint: false,
