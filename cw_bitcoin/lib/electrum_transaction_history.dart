@@ -31,7 +31,10 @@ abstract class ElectrumTransactionHistoryBase
   String _password;
   int _height;
 
-  Future<void> init() async => await _load();
+  Future<void> init() async {
+    clear();
+    await _load();
+  }
 
   @override
   void addOne(ElectrumTransactionInfo transaction) => transactions[transaction.id] = transaction;

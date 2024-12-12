@@ -40,7 +40,7 @@ class SelectButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = color ?? (isSelected ? Colors.green : Theme.of(context).cardColor);
+    final backgroundColor = color ?? (isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor);
     final effectiveTextColor = textColor ??
         (isSelected
             ? Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor
