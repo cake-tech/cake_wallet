@@ -60,15 +60,17 @@ class ExolixExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required bool isFixedRateMode}) async {
+  Future<Limits> fetchLimits({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required bool isFixedRateMode,
+  }) async {
     final params = <String, String>{
       'rateType': _getRateType(isFixedRateMode),
       'amount': '1',
       'apiToken': apiKey,
     };
+
     if (isFixedRateMode) {
       params['coinFrom'] = _normalizeCurrency(to);
       params['coinTo'] = _normalizeCurrency(from);
@@ -80,14 +82,30 @@ class ExolixExchangeProvider extends ExchangeProvider {
       params['networkFrom'] = _networkFor(from);
       params['networkTo'] = _networkFor(to);
     }
-    final uri = Uri.https(apiBaseUrl, ratePath, params);
-    final response = await get(uri);
 
-    if (response.statusCode != 200)
-      throw Exception('Unexpected http status: ${response.statusCode}');
+    // Maximum of 2 attempts to fetch limits
+    for (int i = 0; i < 2; i++) {
+      final uri = Uri.https(apiBaseUrl, ratePath, params);
+      final response = await get(uri);
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    return Limits(min: responseJSON['minAmount'] as double?);
+      if (response.statusCode == 200) {
+        final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+        final minAmount = responseJSON['minAmount'];
+        final maxAmount = responseJSON['maxAmount'];
+        return Limits(min: _toDouble(minAmount), max: _toDouble(maxAmount));
+      } else if (response.statusCode == 422) {
+        final errorResponse = json.decode(response.body) as Map<String, dynamic>;
+        if (errorResponse.containsKey('minAmount')) {
+          params['amount'] = errorResponse['minAmount'].toString();
+          continue;
+        }
+        throw Exception('Error 422: ${errorResponse['message'] ?? 'Unknown error'}');
+      } else {
+        throw Exception('Unexpected HTTP status: ${response.statusCode}');
+      }
+    }
+
+    throw Exception('Failed to fetch limits after retrying.');
   }
 
   @override
@@ -279,4 +297,15 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
   String _normalizeAddress(String address) =>
       address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
+
+  static double? _toDouble(dynamic value) {
+    if (value is int) {
+      return value.toDouble();
+    } else if (value is double) {
+      return value;
+    } else if (value is String) {
+      return double.tryParse(value);
+    }
+    return null;
+  }
 }
