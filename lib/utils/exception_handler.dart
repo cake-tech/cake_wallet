@@ -1,13 +1,15 @@
 import 'dart:io';
 
-import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -21,16 +23,29 @@ class ExceptionHandler {
   static const _coolDownDurationInDays = 7;
   static File? _file;
 
-  static Future<void> _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
+  static Future<void> _saveException(String? error, StackTrace? stackTrace,
+      {String? library}) async {
     final appDocDir = await getAppDir();
 
     if (_file == null) {
       _file = File('${appDocDir.path}/error.txt');
     }
 
+    String? walletType;
+    CustomTrace? programInfo;
+
+    try {
+      walletType = getIt.get<AppStore>().wallet?.type.name;
+
+      programInfo = CustomTrace(stackTrace ?? StackTrace.current);
+    } catch (_) {}
+
     final exception = {
       "${DateTime.now()}": {
         "Error": "$error\n\n",
+        "WalletType": "$walletType\n\n",
+        "VerboseLog":
+            "${programInfo?.fileName}#${programInfo?.lineNumber}:${programInfo?.columnNumber} ${programInfo?.callerFunctionName}\n\n",
         "Library": "$library\n\n",
         "StackTrace": stackTrace.toString(),
       }
@@ -67,7 +82,7 @@ class ExceptionHandler {
       final bool canSend = await FlutterMailer.canSendMail();
 
       if (Platform.isIOS && !canSend) {
-        debugPrint('Mail app is not available');
+        printV('Mail app is not available');
         return;
       }
 
@@ -99,11 +114,12 @@ class ExceptionHandler {
   static Future<void> onError(FlutterErrorDetails errorDetails) async {
     if (kDebugMode || kProfileMode) {
       FlutterError.presentError(errorDetails);
-      debugPrint(errorDetails.toString());
+      printV(errorDetails.toString());
       return;
     }
 
-    if (_ignoreError(errorDetails.exception.toString())) {
+    if (_ignoreError(errorDetails.exception.toString()) ||
+        _ignoreError(errorDetails.stack.toString())) {
       return;
     }
 
@@ -199,6 +215,13 @@ class ExceptionHandler {
     "input stream error",
     "invalid signature",
     "invalid password",
+    // Temporary ignored, More context: Flutter secure storage reads the values as null some times
+    // probably when the device was locked and then opened on Cake
+    // this is solved by a restart of the app
+    // just ignoring until we find a solution to this issue or migrate from flutter secure storage
+    "core/auth_service.dart:63",
+    "core/key_service.dart:14",
+    "core/wallet_loading_service.dart:132",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {

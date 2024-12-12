@@ -129,9 +129,9 @@ void _logLedgerCommand(Uint8List command, [bool isResponse = true]) {
   };
 
   if (isResponse) {
-    print("< ${toHexString(command)}");
+    printV("< ${toHexString(command)}");
   } else {
-    print(
+    printV(
         "> ${ledgerMoneroCommands[command[1]]} ${toHexString(command.sublist(2))}");
   }
 }

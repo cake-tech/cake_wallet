@@ -171,8 +171,8 @@ PendingTransactionDescription createTransactionMultDestSync(
   final dstAddrs = outputs.map((e) => e.address).toList();
   final amounts = outputs.map((e) => monero.Wallet_amountFromString(e.amount)).toList();
 
-  // print("multDest: dstAddrs: $dstAddrs");
-  // print("multDest: amounts: $amounts");
+  // printV("multDest: dstAddrs: $dstAddrs");
+  // printV("multDest: amounts: $amounts");
 
   final txptr = monero.Wallet_createTransactionMultDest(
     wptr!,
