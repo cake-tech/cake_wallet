@@ -461,6 +461,15 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
+  bool getHiddenBalanceValue() {
+    if (settingsStore.balanceDisplayMode == BalanceDisplayMode.displayableBalance) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @computed
   CryptoCurrency get currency => appStore.wallet!.currency;
 
   @observable
@@ -487,6 +496,16 @@ abstract class BalanceViewModelBase with Store {
     await wallet.walletInfo.save();
     isShowCard = cardDisplayStatus;
   }
+
+  @action
+  void setShouldDisplayBalance(bool value) {
+    if (value) {
+      settingsStore.balanceDisplayMode = BalanceDisplayMode.hiddenBalance;
+    } else {
+      settingsStore.balanceDisplayMode = BalanceDisplayMode.displayableBalance;
+    }
+  }
+
 
   String _getFiatBalance({required double price, String? cryptoAmount}) {
     if (cryptoAmount == null || cryptoAmount.isEmpty || double.tryParse(cryptoAmount) == null) {
