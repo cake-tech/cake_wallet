@@ -29,41 +29,6 @@ class WalletSeedPage extends BasePage {
   final WalletSeedViewModel walletSeedViewModel;
 
   @override
-  void onClose(BuildContext context) async {
-    if (isNewWalletCreated) {
-      final confirmed = await showPopUp<bool>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithTwoActions(
-                alertDialogKey: ValueKey('wallet_seed_page_seed_alert_dialog_key'),
-                alertRightActionButtonKey:
-                    ValueKey('wallet_seed_page_seed_alert_confirm_button_key'),
-                alertLeftActionButtonKey: ValueKey('wallet_seed_page_seed_alert_back_button_key'),
-                alertTitle: S.of(context).seed_alert_title,
-                alertContent: S.of(context).seed_alert_content,
-                leftButtonText: S.of(context).seed_alert_back,
-                rightButtonText: S.of(context).seed_alert_yes,
-                actionLeftButton: () => Navigator.of(context).pop(false),
-                actionRightButton: () => Navigator.of(context).pop(true),
-              );
-            },
-          ) ??
-          false;
-
-      if (confirmed) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
-
-      return;
-    }
-
-    Navigator.of(context).pop();
-  }
-
-  @override
-  Widget? leading(BuildContext context) => isNewWalletCreated ? null : super.leading(context);
-
-  @override
   Widget trailing(BuildContext context) {
     final copyImage = Image.asset(
       'assets/images/copy_address.png',

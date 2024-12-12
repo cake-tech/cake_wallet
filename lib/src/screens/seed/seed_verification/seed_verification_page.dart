@@ -26,6 +26,7 @@ class SeedVerificationPage extends BasePage {
                 )
               : SeedVerificationStepView(
                   walletSeedViewModel: walletSeedViewModel,
+                  questionTextColor: titleColor(context),
                 ),
         );
       },

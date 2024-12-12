@@ -8,10 +8,12 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 class SeedVerificationStepView extends StatelessWidget {
   const SeedVerificationStepView({
     required this.walletSeedViewModel,
+    required this.questionTextColor,
     super.key,
   });
 
   final WalletSeedViewModel walletSeedViewModel;
+  final Color questionTextColor;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,7 @@ class SeedVerificationStepView extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                          color: questionTextColor,
                         ),
                       ),
                       TextSpan(
@@ -41,7 +43,7 @@ class SeedVerificationStepView extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                          color: questionTextColor,
                         ),
                       ),
                       TextSpan(
@@ -49,7 +51,7 @@ class SeedVerificationStepView extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                          color: questionTextColor,
                         ),
                       ),
                     ],
