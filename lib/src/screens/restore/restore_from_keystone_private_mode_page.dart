@@ -54,22 +54,19 @@ class RestoreFromKeystonePrivateModePage extends BasePage {
 
           final restoreJson = json.decode(code);
 
-          final cipherPrimaryAddress = Uint8List.fromList(
-              Hex.HEX.decode(restoreJson['primaryAddress'] as String));
+          restoreJson['primaryAddress'] = await _decryptData(
+              Uint8List.fromList(
+                  Hex.HEX.decode(restoreJson['primaryAddress'] as String)),
+              secretKey);
 
-          restoreJson['primaryAddress'] =
-              await _decryptData(cipherPrimaryAddress, secretKey);
-
-          final cipherPrivateViewKey = Uint8List.fromList(
-              Hex.HEX.decode(restoreJson['privateViewKey'] as String));
-
-          restoreJson['privateViewKey'] =
-              await _decryptData(cipherPrivateViewKey, secretKey);
+          restoreJson['privateViewKey'] = await _decryptData(
+              Uint8List.fromList(
+                  Hex.HEX.decode(restoreJson['privateViewKey'] as String)),
+              secretKey);
 
           final res = json.encode(restoreJson);
-          print(res);
           Navigator.of(context).pop(res);
-        } catch (e) {
+        } catch (_) {
           pinCodeStateKey.currentState?.reset();
           showBar<void>(
               context,
