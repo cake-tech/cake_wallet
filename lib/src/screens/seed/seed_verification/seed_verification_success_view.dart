@@ -40,7 +40,7 @@ class SeedVerificationSuccessView extends StatelessWidget {
                   text: '${S.current.seed_verified_subtext} ',
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                   ),
                 ),
