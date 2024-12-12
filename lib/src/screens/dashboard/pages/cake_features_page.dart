@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -5,6 +7,7 @@ import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +43,13 @@ class CakeFeaturesPage extends StatelessWidget {
                 children: <Widget>[
                   SizedBox(height: 20),
                   DashBoardRoundedCardWidget(
-                    onTap: () => _navigatorToGiftCardsPage(context),
+                    onTap: () {
+                      if (Platform.isMacOS) {
+                        _launchUrl("buy.cakepay.com");
+                      } else {
+                        _navigatorToGiftCardsPage(context);
+                      }
+                    },
                     title: 'Cake Pay',
                     subTitle: S.of(context).cake_pay_subtitle,
                     image: Image.asset(
@@ -75,7 +84,7 @@ class CakeFeaturesPage extends StatelessWidget {
                         icon: Icon(
                           Icons.speaker_notes_rounded,
                           color:
-                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                           size: 75,
                         ),
                       );
@@ -97,7 +106,7 @@ class CakeFeaturesPage extends StatelessWidget {
         mode: LaunchMode.externalApplication,
       );
     } catch (e) {
-      print(e);
+      printV(e);
     }
   }
 

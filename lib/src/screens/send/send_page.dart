@@ -28,6 +28,7 @@ import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -524,14 +525,14 @@ class SendPage extends BasePage {
                                       ? '. ${S.of(_dialogContext).waitFewSecondForTxUpdate}'
                                       : '';
 
-                                  final newContactMessage = newContactAddress != null
+                                  final newContactMessage = newContactAddress != null && sendViewModel.showAddressBookPopup
                                       ? '\n${S.of(_dialogContext).add_contact_to_address_book}'
                                       : '';
 
                                   String alertContent =
                                       "$successMessage$waitMessage$newContactMessage";
 
-                                  if (newContactAddress != null) {
+                                  if (newContactMessage.isNotEmpty) {
                                     return AlertWithTwoActions(
                                         alertDialogKey: ValueKey('send_page_sent_dialog_key'),
                                         alertTitle: '',
@@ -584,7 +585,7 @@ class SendPage extends BasePage {
                                 mode: LaunchMode.externalApplication,
                               );
                             } catch (e) {
-                              print(e);
+                              printV(e);
                             }
                           }
                         }

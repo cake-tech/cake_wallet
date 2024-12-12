@@ -404,8 +404,8 @@ class CWBitcoin extends Bitcoin {
 
           list.add(dInfoCopy);
         } catch (e, s) {
-          print("derivationInfoError: $e");
-          print("derivationInfoStack: $s");
+          printV("derivationInfoError: $e");
+          printV("derivationInfoStack: $s");
         }
       }
     }
@@ -498,7 +498,7 @@ class CWBitcoin extends Bitcoin {
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } catch (err) {
-      print(err);
+      printV(err);
       throw err;
     }
   }
@@ -510,7 +510,7 @@ class CWBitcoin extends Bitcoin {
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } catch (err) {
-      print(err);
+      printV(err);
       throw err;
     }
   }
