@@ -96,7 +96,7 @@ abstract class WalletSeedViewModelBase with Store {
   bool isChosenWordCorrect(String chosenWord) {
     if (chosenWord == currentCorrectWord) {
       wrongEntries = 0;
-      
+
       if (currentStepIndex + 1 < verificationWordCount) {
         currentStepIndex++;
         generateOptions();

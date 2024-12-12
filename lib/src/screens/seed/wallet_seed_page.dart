@@ -117,12 +117,12 @@ class WalletSeedPage extends BasePage {
                           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
                               color: currentTheme.type == ThemeType.dark
-                              ? Color.fromRGBO(132, 110, 64, 1)
-                              : Color.fromRGBO(194, 165, 94, 1),
+                                  ? Color.fromRGBO(132, 110, 64, 1)
+                                  : Color.fromRGBO(194, 165, 94, 1),
                               borderRadius: BorderRadius.all(Radius.circular(12)),
                               border: Border.all(
                                 color: currentTheme.type == ThemeType.dark
-                                ? Color.fromRGBO(177, 147, 41, 1)
+                                    ? Color.fromRGBO(177, 147, 41, 1)
                                     : Color.fromRGBO(125, 122, 15, 1),
                                 width: 2.0,
                               )),
@@ -142,8 +142,8 @@ class WalletSeedPage extends BasePage {
                                     fontSize: 12,
                                     fontWeight: FontWeight.w800,
                                     color: currentTheme.type == ThemeType.dark
-                                      ? Colors.white.withOpacity(0.75)
-                                      : Colors.white.withOpacity(0.85),
+                                        ? Colors.white.withOpacity(0.75)
+                                        : Colors.white.withOpacity(0.85),
                                   ),
                                 ),
                               ),
@@ -191,8 +191,8 @@ class WalletSeedPage extends BasePage {
                                         numberCount.toString(),
                                         textAlign: TextAlign.right,
                                         style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w700,
                                             color: Theme.of(context)
                                                 .extension<CakeTextTheme>()!
                                                 .buttonTextColor
@@ -250,7 +250,8 @@ class WalletSeedPage extends BasePage {
                           child: Builder(
                             builder: (context) => PrimaryButton(
                               key: ValueKey('wallet_seed_page_verify_seed_button_key'),
-                              onPressed: () => Navigator.pushNamed(context, Routes.walletSeedVerificationPage),
+                              onPressed: () =>
+                                  Navigator.pushNamed(context, Routes.walletSeedVerificationPage),
                               text: S.current.verify_seed,
                               color: Theme.of(context).primaryColor,
                               textColor: Colors.white,
