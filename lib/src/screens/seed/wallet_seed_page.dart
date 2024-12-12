@@ -1,6 +1,6 @@
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
@@ -15,8 +15,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
-
-import '../../../themes/extensions/menu_theme.dart';
 
 class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
@@ -67,25 +65,30 @@ class WalletSeedPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
+    final copyImage = Image.asset(
+      'assets/images/copy_address.png',
+      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor.withOpacity(0.5),
+    );
+
     return isNewWalletCreated
         ? GestureDetector(
-            key: ValueKey('wallet_seed_page_next_button_key'),
-            onTap: () => onClose(context),
+            key: ValueKey('wallet_seed_page_copy_seeds_button_key'),
+            onTap: () {
+              ClipboardUtil.setSensitiveDataToClipboard(
+                ClipboardData(text: walletSeedViewModel.seed),
+              );
+              showBar<void>(context, S.of(context).copied_to_clipboard);
+            },
             child: Container(
-              width: 100,
-              height: 32,
+              padding: EdgeInsets.all(8),
+              width: 40,
               alignment: Alignment.center,
               margin: EdgeInsets.only(left: 10),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                  color: Theme.of(context).cardColor),
-              child: Text(
-                S.of(context).seed_language_next,
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor),
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+                color: Theme.of(context).cardColor,
               ),
+              child: copyImage,
             ),
           )
         : Offstage();
@@ -161,7 +164,7 @@ class WalletSeedPage extends BasePage {
                         Expanded(
                           child: GridView.builder(
                             padding: const EdgeInsets.symmetric(horizontal: 4),
-                            itemCount: walletSeedViewModel.seedSplit.length,
+                            itemCount: walletSeedViewModel.seedWords.length,
                             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: walletSeedViewModel.columnCount,
                               childAspectRatio: 3.6,
@@ -169,7 +172,7 @@ class WalletSeedPage extends BasePage {
                               crossAxisSpacing: 8.0,
                             ),
                             itemBuilder: (context, index) {
-                              final item = walletSeedViewModel.seedSplit[index];
+                              final item = walletSeedViewModel.seedWords[index];
                               final numberCount = index + 1;
 
                               return Container(
@@ -190,18 +193,21 @@ class WalletSeedPage extends BasePage {
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
-                                            color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor.withOpacity(0.5)
-                                        ),
+                                            color: Theme.of(context)
+                                                .extension<CakeTextTheme>()!
+                                                .buttonTextColor
+                                                .withOpacity(0.5)),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
                                       '${item[0].toUpperCase()}${item.substring(1)}',
                                       style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                          color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor
-                                      ),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(context)
+                                              .extension<CakeTextTheme>()!
+                                              .buttonTextColor),
                                     ),
                                   ],
                                 ),
@@ -243,14 +249,9 @@ class WalletSeedPage extends BasePage {
                           padding: EdgeInsets.only(left: 8.0),
                           child: Builder(
                             builder: (context) => PrimaryButton(
-                              key: ValueKey('wallet_seed_page_copy_seeds_button_key'),
-                              onPressed: () {
-                                ClipboardUtil.setSensitiveDataToClipboard(
-                                  ClipboardData(text: walletSeedViewModel.seed),
-                                );
-                                showBar<void>(context, S.of(context).copied_to_clipboard);
-                              },
-                              text: S.of(context).copy,
+                              key: ValueKey('wallet_seed_page_verify_seed_button_key'),
+                              onPressed: () => Navigator.pushNamed(context, Routes.walletSeedVerificationPage),
+                              text: S.current.verify_seed,
                               color: Theme.of(context).primaryColor,
                               textColor: Colors.white,
                             ),
