@@ -91,6 +91,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   late Timer? _bleStateTimer = null;
   late StreamSubscription<LedgerDevice>? _bleRefresh = null;
 
+  bool longWait = false;
+
   @override
   void initState() {
     super.initState();
@@ -105,6 +107,11 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
         _usbRefreshTimer =
             Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
       }
+
+      Future.delayed(Duration(seconds: 10), () {
+        if (widget.ledgerVM.bleIsEnabled && bleDevices.isEmpty)
+          setState(() => longWait = true);
+      });
     });
   }
 
@@ -114,6 +121,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     _bleStateTimer?.cancel();
     _usbRefreshTimer?.cancel();
     _bleRefresh?.cancel();
+
+    widget.ledgerVM.stopScanning();
     super.dispose();
   }
 
@@ -134,12 +143,14 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   Future<void> _refreshBleDevices() async {
     try {
       if (widget.ledgerVM.bleIsEnabled) {
-        _bleRefresh = widget.ledgerVM
-            .scanForBleDevices()
-            .listen((device) => setState(() => bleDevices.add(device)))
-          ..onError((e) {
-            throw e.toString();
-          });
+        _bleRefresh =
+            widget.ledgerVM.scanForBleDevices().listen((device) => setState(() {
+                  bleDevices.add(device);
+                  if (longWait) longWait = false;
+                }))
+              ..onError((e) {
+                throw e.toString();
+              });
         _bleRefreshTimer?.cancel();
         _bleRefreshTimer = null;
       }
@@ -191,15 +202,21 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              // DeviceTile(
-              //   onPressed: () => Navigator.of(context).push(
-              //     MaterialPageRoute<void>(
-              //       builder: (BuildContext context) => DebugDevicePage(),
-              //     ),
-              //   ),
-              //   title: "Debug Ledger",
-              //   leading: imageLedger,
-              // ),
+              Offstage(
+                offstage: !longWait,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                  child: Text(S.of(context).if_you_dont_see_your_device,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context)
+                            .extension<CakeTextTheme>()!
+                            .titleColor),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
               Observer(
                 builder: (_) => Offstage(
                   offstage: widget.ledgerVM.bleIsEnabled,

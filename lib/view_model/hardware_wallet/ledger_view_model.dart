@@ -63,15 +63,18 @@ abstract class LedgerViewModelBase with Store {
   bool _bleIsInitialized = false;
   Future<void> _initBLE() async {
     if (bleIsEnabled && !_bleIsInitialized) {
-      ledgerPlusBLE = sdk.LedgerInterface.ble(onPermissionRequest: (_) async {
-        Map<Permission, PermissionStatus> statuses = await [
-          Permission.bluetoothScan,
-          Permission.bluetoothConnect,
-          Permission.bluetoothAdvertise,
-        ].request();
+      ledgerPlusBLE = sdk.LedgerInterface.ble(
+          onPermissionRequest: (_) async {
+            Map<Permission, PermissionStatus> statuses = await [
+              Permission.bluetoothScan,
+              Permission.bluetoothConnect,
+              Permission.bluetoothAdvertise,
+            ].request();
 
-        return statuses.values.where((status) => status.isDenied).isEmpty;
-      },  bleOptions: sdk.BluetoothOptions(maxScanDuration: Duration(minutes: 2)));
+            return statuses.values.where((status) => status.isDenied).isEmpty;
+          },
+          bleOptions:
+              sdk.BluetoothOptions(maxScanDuration: Duration(minutes: 5)));
       _bleIsInitialized = true;
     }
   }
@@ -88,12 +91,19 @@ abstract class LedgerViewModelBase with Store {
 
   Stream<sdk.LedgerDevice> scanForUsbDevices() => ledgerPlusUSB.scan();
 
+  Future<void> stopScanning() async {
+    await ledgerPlusBLE.stopScanning();
+    if (!Platform.isIOS) {
+      await ledgerPlusUSB.stopScanning();
+    }
+  }
+
   Future<void> connectLedger(sdk.LedgerDevice device, WalletType type) async {
     if (isConnected) {
       try {
         await _connectionChangeListener?.cancel();
         _connectionChangeListener = null;
-        await _connection!.disconnect();
+        await _connection!.disconnect().catchError((_) {});
       } catch (_) {}
     }
     final ledger = device.connectionType == sdk.ConnectionType.ble

@@ -355,6 +355,7 @@
   "how_to_use": "Paano gamitin",
   "how_to_use_card": "Paano gamitin ang card na ito",
   "id": "ID: ",
+  "if_you_dont_see_your_device": "Kung hindi mo nakikita ang iyong aparato sa itaas, siguraduhin na ang iyong ledger ay gising at naka -lock!",
   "ignor": "Huwag pansinin",
   "import": "Mag-import",
   "importNFTs": "Mag-import ng mga NFT",
