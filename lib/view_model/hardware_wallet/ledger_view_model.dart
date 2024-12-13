@@ -71,7 +71,7 @@ abstract class LedgerViewModelBase with Store {
         ].request();
 
         return statuses.values.where((status) => status.isDenied).isEmpty;
-      });
+      },  bleOptions: sdk.BluetoothOptions(maxScanDuration: Duration(minutes: 2)));
       _bleIsInitialized = true;
     }
   }
@@ -100,7 +100,6 @@ abstract class LedgerViewModelBase with Store {
         ? ledgerPlusBLE
         : ledgerPlusUSB;
 
-    await ledger.stopScanning();
 
     if (_connectionChangeListener == null) {
       _connectionChangeListener = ledger.deviceStateChanges.listen((event) {
