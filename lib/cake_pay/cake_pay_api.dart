@@ -93,6 +93,9 @@ class CakePayApi {
     required int quantity,
     required String userEmail,
     required String token,
+    required bool confirmsNoVpn,
+    required bool confirmsVoidedRefund,
+    required bool confirmsTermsAgreed,
   }) async {
     final uri = Uri.https(baseCakePayUri, createOrderPath);
     final headers = {
@@ -106,7 +109,10 @@ class CakePayApi {
       'quantity': quantity,
       'user_email': userEmail,
       'token': token,
-      'send_email': true
+      'send_email': true,
+      'confirms_no_vpn': confirmsNoVpn,
+      'confirms_voided_refund': confirmsVoidedRefund,
+      'confirms_terms_agreed': confirmsTermsAgreed,
     };
 
     try {
