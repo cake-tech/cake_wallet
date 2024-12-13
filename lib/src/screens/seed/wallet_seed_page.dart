@@ -1,6 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
@@ -139,8 +138,8 @@ class WalletSeedPage extends BasePage {
                                     fontSize: 12,
                                     fontWeight: FontWeight.w800,
                                     color: currentTheme.type == ThemeType.dark
-                                      ? Colors.white.withOpacity(0.75)
-                                      : Colors.white.withOpacity(0.85),
+                                        ? Colors.white.withOpacity(0.75)
+                                        : Colors.white.withOpacity(0.85),
                                   ),
                                 ),
                               ),
@@ -188,19 +187,24 @@ class WalletSeedPage extends BasePage {
                                         numberCount.toString(),
                                         textAlign: TextAlign.right,
                                         style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                            color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor.withOpacity(0.5)
-                                        ),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w700,
+                                            color: Theme.of(context)
+                                                .extension<CakeTextTheme>()!
+                                                .buttonTextColor
+                                                .withOpacity(0.5)),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      '${item[0].toUpperCase()}${item.substring(1)}',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                          color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor
+                                    Expanded(
+                                      child: Text(
+                                        '${item[0].toUpperCase()}${item.substring(1)}',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w700,
+                                            color: Theme.of(context)
+                                                .extension<CakeTextTheme>()!
+                                                .buttonTextColor),
                                       ),
                                     ),
                                   ],
