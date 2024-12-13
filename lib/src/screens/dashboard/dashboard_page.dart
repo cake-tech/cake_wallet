@@ -173,6 +173,7 @@ class _DashboardPageView extends BasePage {
 
     return Container(
       alignment: Alignment.centerRight,
+      //padding: EdgeInsets.all(20),
       width: 40,
       child: TextButton(
         key: ValueKey('dashboard_page_wallet_menu_button_key'),

@@ -1,6 +1,10 @@
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 
 class SettingActionButton extends StatelessWidget {
   final bool isLastTile;
@@ -34,18 +38,29 @@ class SettingActionButton extends StatelessWidget {
         : selectionActive
             ? Palette.darkBlue
             : Theme.of(context).extension<CakeMenuTheme>()!.settingTitleColor;
-    return InkWell(
-      onTap: onTap,
-      hoverColor: Colors.transparent,
+    return Container(
+      //padding: EdgeInsets.only(top: 5, left: 15, bottom: 5),
+      margin: EdgeInsets.only(top: 5, left: 20, bottom: 5),
+    child: TextButton(
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(Colors.black12),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            side: BorderSide(
+              //color: Colors.black12,
+              width: 100
+            ),
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20),
+          ),
+        ),
+      ),
+      ),
+    onPressed: onTap,
+      //hoverColor: Colors.transparent,
       child: Container(
-        height: tileHeight,
-        padding: isLastTile
-            ? EdgeInsets.only(
-                left: 24,
-                right: 24,
-                top: fromBottomEdge,
-              )
-            : EdgeInsets.only(left: 24, right: 24),
+        width: double.infinity,
+        padding: EdgeInsets.only(top: 12, left: 20, bottom: 12, right: 15),
+        //margin: EdgeInsets.only(top: 5, left: 15, bottom: 5),
         alignment: isLastTile ? Alignment.topLeft : null,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -70,15 +85,16 @@ class SettingActionButton extends StatelessWidget {
                 ),
               ),
             ),
-            if (isArrowVisible)
+              if(isArrowVisible)
               Icon(
                 Icons.arrow_forward_ios,
-                color: color,
+                color: Colors.grey,
                 size: 16,
               )
           ],
         ),
       ),
+    ),
     );
   }
 }
