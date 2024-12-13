@@ -203,6 +203,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final inputAddress = responseJSON['depositAddress'] as String;
     final settleAddress = responseJSON['settleAddress'] as String;
     final depositAmount = responseJSON['depositAmount'] as String?;
+    final depositMemo = responseJSON['depositMemo'] as String?;
 
     return Trade(
       id: id,
@@ -217,6 +218,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       payoutAddress: settleAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
+      extraId: depositMemo
     );
   }
 
@@ -251,6 +253,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final isVariable = (responseJSON['type'] as String) == 'variable';
     final expiredAtRaw = responseJSON['expiresAt'] as String;
     final expiredAt = isVariable ? null : DateTime.tryParse(expiredAtRaw)?.toLocal();
+    final depositMemo = responseJSON['depositMemo'] as String?;
 
     return Trade(
         id: id,
@@ -261,7 +264,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         amount: expectedSendAmount ?? '',
         state: TradeState.deserialize(raw: status ?? 'created'),
         expiredAt: expiredAt,
-        payoutAddress: settleAddress);
+        payoutAddress: settleAddress,
+        extraId: depositMemo);
   }
 
   Future<String> _createQuote(TradeRequest request) async {

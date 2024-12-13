@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cake_wallet/main.dart' as app;
 
+import '../robots/create_pin_welcome_page_robot.dart';
 import '../robots/dashboard_page_robot.dart';
 import '../robots/disclaimer_page_robot.dart';
 import '../robots/new_wallet_page_robot.dart';
@@ -37,6 +38,7 @@ class CommonTestFlows {
         _walletListPageRobot = WalletListPageRobot(_tester),
         _newWalletTypePageRobot = NewWalletTypePageRobot(_tester),
         _restoreOptionsPageRobot = RestoreOptionsPageRobot(_tester),
+        _createPinWelcomePageRobot = CreatePinWelcomePageRobot(_tester),
         _restoreFromSeedOrKeysPageRobot = RestoreFromSeedOrKeysPageRobot(_tester),
         _walletGroupDescriptionPageRobot = WalletGroupDescriptionPageRobot(_tester);
 
@@ -53,6 +55,7 @@ class CommonTestFlows {
   final WalletListPageRobot _walletListPageRobot;
   final NewWalletTypePageRobot _newWalletTypePageRobot;
   final RestoreOptionsPageRobot _restoreOptionsPageRobot;
+  final CreatePinWelcomePageRobot _createPinWelcomePageRobot;
   final RestoreFromSeedOrKeysPageRobot _restoreFromSeedOrKeysPageRobot;
   final WalletGroupDescriptionPageRobot _walletGroupDescriptionPageRobot;
 
@@ -190,9 +193,11 @@ class CommonTestFlows {
     WalletType walletTypeToCreate,
     List<int> pin,
   ) async {
-    await _welcomePageRobot.navigateToCreateNewWalletPage();
+    await _createPinWelcomePageRobot.tapSetAPinButton();
 
     await setupPinCodeForWallet(pin);
+
+    await _welcomePageRobot.navigateToCreateNewWalletPage();
 
     await _selectWalletTypeForWallet(walletTypeToCreate);
   }
@@ -201,11 +206,13 @@ class CommonTestFlows {
     WalletType walletTypeToRestore,
     List<int> pin,
   ) async {
+    await _createPinWelcomePageRobot.tapSetAPinButton();
+
+    await setupPinCodeForWallet(pin);
+
     await _welcomePageRobot.navigateToRestoreWalletPage();
 
     await _restoreOptionsPageRobot.navigateToRestoreFromSeedsOrKeysPage();
-
-    await setupPinCodeForWallet(pin);
 
     await _selectWalletTypeForWallet(walletTypeToRestore);
   }
