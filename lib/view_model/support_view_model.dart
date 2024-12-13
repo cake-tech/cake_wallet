@@ -31,10 +31,15 @@ abstract class SupportViewModelBase with Store {
             linkTitle: S.current.apk_update,
             link: 'https://github.com/cake-tech/cake_wallet/releases'),
       LinkListItem(
-          title: 'Telegram Community',
-          icon: 'assets/images/Telegram.png',
-          linkTitle: 't.me/cakewallet',
-          link: 'https://t.me/cakewallet'),
+          title: 'Discord',
+          icon: 'assets/images/discord.png',
+          linkTitle: 'discord.gg/pwmWa6aFpX',
+          link: 'https://discord.gg/pwmWa6aFpX'),
+    LinkListItem(
+        title: 'Telegram',
+        icon: 'assets/images/Telegram.png',
+        linkTitle: 't.me/cakewallet',
+        link: 'https://t.me/cakewalletannouncements'),
       LinkListItem(
           title: 'Telegram Support Bot',
           icon: 'assets/images/Telegram.png',
@@ -75,7 +80,7 @@ abstract class SupportViewModelBase with Store {
         icon: 'assets/images/onramper_dark.png',
         lightIcon: 'assets/images/onramper_light.png',
         linkTitle: 'View exchanges',
-        link: 'https://guides.cakewallet.com/docs/service-support/buy/#onramper'),
+        link: 'https://docs.cakewallet.com/support/buy/#onramper'),
     LinkListItem(
         title: 'DFX',
         icon: 'assets/images/dfx_dark.png',
@@ -103,7 +108,7 @@ abstract class SupportViewModelBase with Store {
       //    link: 'mailto:support@y.at')
   ];
 
-  final guidesUrl = 'https://guides.cakewallet.com';
+  final docsUrl = 'https://docs.cakewallet.com';
 
   String fetchUrl({String locale = "en", String authToken = ""}) {
     var supportUrl =

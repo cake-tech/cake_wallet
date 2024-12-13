@@ -320,7 +320,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () => launchUrl(
                                     Uri.parse(
-                                        "https://guides.cakewallet.com/docs/cryptos/bitcoin/#silent-payments"),
+                                        "https://docs.cakewallet.com/cryptos/bitcoin#silent-payments"),
                                     mode: LaunchMode.externalApplication,
                                   ),
                                   child: Row(
@@ -894,7 +894,7 @@ class BalanceRowWidget extends StatelessWidget {
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () => launchUrl(
                                     Uri.parse(
-                                        "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
+                                        "https://docs.cakewallet.com/cryptos/litecoin.html#mweb"),
                                     mode: LaunchMode.externalApplication,
                                   ),
                                   child: Row(

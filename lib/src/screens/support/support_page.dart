@@ -70,7 +70,7 @@ class SupportPage extends BasePage {
                   ),
                   title: S.of(context).support_title_guides,
                   description: S.of(context).support_description_guides,
-                  onPressed: () => _launchUrl(supportViewModel.guidesUrl),
+                  onPressed: () => _launchUrl(supportViewModel.docsUrl),
                 ),
               ),
               Padding(
