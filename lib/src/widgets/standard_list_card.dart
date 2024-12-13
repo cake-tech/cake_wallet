@@ -6,12 +6,14 @@ import 'package:cake_wallet/themes/theme_base.dart';
 class TradeDetailsStandardListCard extends StatelessWidget {
   TradeDetailsStandardListCard(
       {required this.id,
+      this.extraId,
       required this.create,
       required this.pair,
       required this.onTap,
       required this.currentTheme});
 
   final String id;
+  final String? extraId;
   final String create;
   final String pair;
   final ThemeType currentTheme;
@@ -56,6 +58,16 @@ class TradeDetailsStandardListCard extends StatelessWidget {
                           color: textColor)),
                   SizedBox(
                     height: 8,
+                  ),
+                  if (extraId != null && extraId!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(extraId!,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w400,
+                            color: textColor)),
                   ),
                   Text(create,
                       style: TextStyle(

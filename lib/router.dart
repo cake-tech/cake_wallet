@@ -69,6 +69,7 @@ import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
+import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -584,6 +585,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.preSeedPage:
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<PreSeedPage>(param1: settings.arguments as int));
+
+    case Routes.transactionSuccessPage:
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<TransactionSuccessPage>(param1: settings.arguments as String));
 
     case Routes.backup:
       return CupertinoPageRoute<void>(
