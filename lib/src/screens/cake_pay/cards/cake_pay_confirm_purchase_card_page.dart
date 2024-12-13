@@ -311,8 +311,8 @@ class CakePayBuyCardDetailPage extends BasePage {
         await cakePayPurchaseViewModel.cakePayService.logout();
       }
 
-      cakePayPurchaseViewModel.isPurchasing = false;
-    }
+   }
+   cakePayPurchaseViewModel.isPurchasing = false;
   }
 
   void _showHowToUseCard(
