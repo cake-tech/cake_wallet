@@ -16,6 +16,8 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 
+import '../../../themes/extensions/send_page_theme.dart';
+
 class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
 
@@ -32,7 +34,9 @@ class WalletSeedPage extends BasePage {
   Widget trailing(BuildContext context) {
     final copyImage = Image.asset(
       'assets/images/copy_address.png',
-      color: Color.fromRGBO(91, 112, 146, 1),
+      color: Theme.of(context)
+          .extension<CakeTextTheme>()!
+          .buttonTextColor
     );
 
     return isNewWalletCreated
@@ -64,7 +68,7 @@ class WalletSeedPage extends BasePage {
     return WillPopScope(
       onWillPop: () async => false,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         alignment: Alignment.center,
         child: ConstrainedBox(
           constraints:
@@ -98,7 +102,7 @@ class WalletSeedPage extends BasePage {
                                 size: 64,
                                 color: Colors.white.withOpacity(0.75),
                               ),
-                              SizedBox(width: 8),
+                              SizedBox(width: 6),
                               Expanded(
                                 child: Text(
                                   S.current.cake_seeds_save_disclaimer,
@@ -115,24 +119,23 @@ class WalletSeedPage extends BasePage {
                             ],
                           ),
                         ),
-                        SizedBox(height: 32),
+                        SizedBox(height: 20),
                         Text(
                           key: ValueKey('wallet_seed_page_wallet_name_text_key'),
                           walletSeedViewModel.name,
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 18,
                             fontWeight: FontWeight.w600,
                             color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                           ),
                         ),
-                        SizedBox(height: 24),
+                        SizedBox(height: 20),
                         Expanded(
                           child: GridView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
                             itemCount: walletSeedViewModel.seedSplit.length,
                             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: walletSeedViewModel.columnCount,
-                              childAspectRatio: 3.6,
+                              crossAxisCount: 3,
+                              childAspectRatio: 2.8,
                               mainAxisSpacing: 8.0,
                               crossAxisSpacing: 8.0,
                             ),
@@ -141,7 +144,7 @@ class WalletSeedPage extends BasePage {
                               final numberCount = index + 1;
 
                               return Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
@@ -151,28 +154,32 @@ class WalletSeedPage extends BasePage {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     SizedBox(
-                                      width: 20,
                                       child: Text(
+                                        //maxLines: 1,
                                         numberCount.toString(),
-                                        textAlign: TextAlign.right,
+                                        textAlign: TextAlign.center,
                                         style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
+                                            fontSize: 12,
+                                            height: 1,
+                                            fontWeight: FontWeight.w800,
                                             color: Theme.of(context)
                                                 .extension<CakeTextTheme>()!
                                                 .buttonTextColor
                                                 .withOpacity(0.5)),
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      '${item[0].toUpperCase()}${item.substring(1)}',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                          color: Theme.of(context)
-                                              .extension<CakeTextTheme>()!
-                                              .buttonTextColor),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        '${item[0].toLowerCase()}${item.substring(1)}',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            height: 0.8,
+                                            fontWeight: FontWeight.w700,
+                                            color: Theme.of(context)
+                                                .extension<CakeTextTheme>()!
+                                                .buttonTextColor),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -192,7 +199,7 @@ class WalletSeedPage extends BasePage {
                     children: <Widget>[
                       Flexible(
                         child: Container(
-                          padding: EdgeInsets.only(right: 8.0),
+                          padding: EdgeInsets.only(right: 8.0, top: 8.0),
                           child: PrimaryButton(
                             key: ValueKey('wallet_seed_page_save_seeds_button_key'),
                             onPressed: () {
@@ -211,7 +218,7 @@ class WalletSeedPage extends BasePage {
                       ),
                       Flexible(
                         child: Container(
-                          padding: EdgeInsets.only(left: 8.0),
+                          padding: EdgeInsets.only(left: 8.0, top: 8.0),
                           child: Builder(
                             builder: (context) => PrimaryButton(
                               key: ValueKey('wallet_seed_page_verify_seed_button_key'),
@@ -226,7 +233,7 @@ class WalletSeedPage extends BasePage {
                       )
                     ],
                   ),
-                  SizedBox(height: 24),
+                  SizedBox(height: 12),
                 ],
               )
             ],

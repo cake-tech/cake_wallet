@@ -29,6 +29,7 @@ abstract class WalletSeedViewModelBase with Store {
   List<String> get seedSplit => seed.split(RegExp(r'\s+'));
 
   int get columnCount => seedSplit.length <= 16 ? 2 : 3;
+  double get columnAspectRatio => seedSplit.length <= 16 ? 1.8 : 2.8;
 
   /// The indices of the seed to be verified.
   ObservableList<int> verificationIndices;
