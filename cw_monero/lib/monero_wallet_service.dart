@@ -1,5 +1,7 @@
 import 'dart:ffi';
 import 'dart:io';
+
+import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -9,16 +11,16 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/ledger.dart';
 import 'package:cw_monero/monero_wallet.dart';
+import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
-import 'package:polyseed/polyseed.dart';
 import 'package:monero/monero.dart' as monero;
+import 'package:polyseed/polyseed.dart';
 
 class MoneroNewWalletCredentials extends WalletCredentials {
   MoneroNewWalletCredentials(
@@ -133,14 +135,12 @@ class MoneroWalletService extends WalletService<
     try {
       final path = await pathForWallet(name: name, type: getType());
 
-      if (walletFilesExist(path)) {
-        await repairOldAndroidWallet(name);
-      }
+      if (walletFilesExist(path)) await repairOldAndroidWallet(name);
 
       await monero_wallet_manager
           .openWalletAsync({'path': path, 'password': password});
-      final walletInfo = walletInfoSource.values.firstWhere(
-              (info) => info.id == WalletBase.idFor(name, getType()));
+      final walletInfo = walletInfoSource.values
+          .firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
       final wallet = MoneroWallet(
           walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfoSource,
@@ -204,7 +204,7 @@ class MoneroWalletService extends WalletService<
   @override
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = walletInfoSource.values.firstWhere(
-            (info) => info.id == WalletBase.idFor(currentName, getType()));
+        (info) => info.id == WalletBase.idFor(currentName, getType()));
     final currentWallet = MoneroWallet(
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
@@ -255,14 +255,14 @@ class MoneroWalletService extends WalletService<
       final password = credentials.password;
       final height = credentials.height;
 
-      if (wptr == null ) monero_wallet_manager.createWalletPointer();
+      if (wptr == null) monero_wallet_manager.createWalletPointer();
 
       enableLedgerExchange(wptr!, credentials.ledgerConnection);
       await monero_wallet_manager.restoreWalletFromHardwareWallet(
-            path: path,
-            password: password!,
-            restoreHeight: height!,
-            deviceName: 'Ledger');
+          path: path,
+          password: password!,
+          restoreHeight: height!,
+          deviceName: 'Ledger');
 
       final wallet = MoneroWallet(
           walletInfo: credentials.walletInfo!,
@@ -279,7 +279,8 @@ class MoneroWalletService extends WalletService<
   }
 
   @override
-  Future<MoneroWallet> restoreFromSeed(MoneroRestoreWalletFromSeedCredentials credentials,
+  Future<MoneroWallet> restoreFromSeed(
+      MoneroRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
     // Restore from Polyseed
     if (Polyseed.isValidSeed(credentials.mnemonic)) {
@@ -313,7 +314,8 @@ class MoneroWalletService extends WalletService<
       final path = await pathForWallet(name: credentials.name, type: getType());
       final polyseedCoin = PolyseedCoin.POLYSEED_MONERO;
       final lang = PolyseedLang.getByPhrase(credentials.mnemonic);
-      final polyseed = Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
+      final polyseed =
+          Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
 
       return _restoreFromPolyseed(
           path, credentials.password!, polyseed, credentials.walletInfo!, lang);
@@ -355,24 +357,18 @@ class MoneroWalletService extends WalletService<
 
   Future<void> repairOldAndroidWallet(String name) async {
     try {
-      if (!Platform.isAndroid) {
-        return;
-      }
+      if (!Platform.isAndroid) return;
 
       final oldAndroidWalletDirPath = await outdatedAndroidPathForWalletDir(name: name);
       final dir = Directory(oldAndroidWalletDirPath);
 
-      if (!dir.existsSync()) {
-        return;
-      }
+      if (!dir.existsSync()) return;
 
       final newWalletDirPath = await pathForWalletDir(name: name, type: getType());
 
       dir.listSync().forEach((f) {
         final file = File(f.path);
-        final name = f.path
-            .split('/')
-            .last;
+        final name = f.path.split('/').last;
         final newPath = newWalletDirPath + '/$name';
         final newFile = File(newPath);
 
@@ -391,9 +387,7 @@ class MoneroWalletService extends WalletService<
     try {
       final path = await pathForWallet(name: name, type: getType());
 
-      if (walletFilesExist(path)) {
-        await repairOldAndroidWallet(name);
-      }
+      if (walletFilesExist(path)) await repairOldAndroidWallet(name);
 
       await monero_wallet_manager.openWalletAsync({'path': path, 'password': password});
       final walletInfo = walletInfoSource.values
@@ -412,8 +406,10 @@ class MoneroWalletService extends WalletService<
 
   @override
   bool requireHardwareWalletConnection(String name) {
-    final walletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
-    return walletInfo.isHardwareWallet;
+    return walletInfoSource.values
+            .firstWhereOrNull(
+                (info) => info.id == WalletBase.idFor(name, getType()))
+            ?.isHardwareWallet ??
+        false;
   }
 }

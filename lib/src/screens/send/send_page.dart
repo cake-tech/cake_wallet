@@ -580,7 +580,10 @@ class SendPage extends BasePage {
                     alertTitle: S.of(context).proceed_on_device,
                     alertContent: S.of(context).proceed_on_device_description,
                     buttonText: S.of(context).cancel,
-                    buttonAction: () => Navigator.of(context).pop());
+                    buttonAction: () {
+                      sendViewModel.state = InitialExecutionState();
+                      Navigator.of(context).pop();
+                    });
               });
         });
       }

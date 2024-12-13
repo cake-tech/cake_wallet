@@ -200,9 +200,16 @@ String? commitTransactionFromPointerAddress({required int address, required bool
     commitTransaction(transactionPointer: monero.PendingTransaction.fromAddress(address), useUR: useUR);
 
 String? commitTransaction({required monero.PendingTransaction transactionPointer, required bool useUR}) {
+  final transactionPointerAddress = transactionPointer.address;
   final txCommit = useUR
-    ? monero.PendingTransaction_commitUR(transactionPointer, 120)
-    : monero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
+      ? monero.PendingTransaction_commitUR(transactionPointer, 120)
+      : Isolate.run(() {
+          monero.PendingTransaction_commit(
+            Pointer.fromAddress(transactionPointerAddress),
+            filename: '',
+            overwrite: false,
+          );
+        });
 
   String? error = (() {
     final status = monero.PendingTransaction_status(transactionPointer.cast());
@@ -221,7 +228,7 @@ String? commitTransaction({required monero.PendingTransaction transactionPointer
     })();
   
   }
-  if (error != null) {
+  if (error != null && error != "no tx keys found for this txid") {
     throw CreationTransactionException(message: error);
   }
   if (useUR) {
