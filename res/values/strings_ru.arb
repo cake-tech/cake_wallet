@@ -539,6 +539,7 @@
   "recipient_address": "Адрес получателя",
   "reconnect": "Переподключиться",
   "reconnect_alert_text": "Вы хотите переподключиться?",
+  "reconnect_your_hardware_wallet": "Воссоедините свой аппаратный кошелек",
   "reconnection": "Переподключение",
   "red_dark_theme": "Красная темная тема",
   "red_light_theme": "Тема красного света",

@@ -538,6 +538,7 @@
   "recipient_address": "Адрес на получател",
   "reconnect": "Reconnect",
   "reconnect_alert_text": "Сигурни ли сте, че искате да се свържете отново?",
+  "reconnect_your_hardware_wallet": "Свържете отново хардуерния си портфейл",
   "reconnection": "Свързване отново",
   "red_dark_theme": "Червена тъмна тема",
   "red_light_theme": "Тема на червената светлина",

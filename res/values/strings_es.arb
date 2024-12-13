@@ -539,6 +539,7 @@
   "recipient_address": "Dirección del receptor",
   "reconnect": "Volver a conectar",
   "reconnect_alert_text": "¿Estás seguro de reconectar?",
+  "reconnect_your_hardware_wallet": "Vuelva a conectar su billetera de hardware",
   "reconnection": "Reconexión",
   "red_dark_theme": "Tema rojo oscuro",
   "red_light_theme": "Tema de la luz roja",

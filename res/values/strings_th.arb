@@ -538,6 +538,7 @@
   "recipient_address": "ที่อยู่ผู้รับ",
   "reconnect": "เชื่อมต่อใหม่",
   "reconnect_alert_text": "คุณแน่ใจหรือไม่ว่าต้องการเชื่อมต่อใหม่?",
+  "reconnect_your_hardware_wallet": "เชื่อมต่อกระเป๋าเงินฮาร์ดแวร์ของคุณอีกครั้ง",
   "reconnection": "เชื่อมต่อใหม่",
   "red_dark_theme": "ธีมสีแดงเข้ม",
   "red_light_theme": "ธีมแสงสีแดง",

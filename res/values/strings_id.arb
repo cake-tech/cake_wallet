@@ -540,6 +540,7 @@
   "recipient_address": "Alamat penerima",
   "reconnect": "Sambungkan kembali",
   "reconnect_alert_text": "Apakah Anda yakin ingin menyambungkan kembali?",
+  "reconnect_your_hardware_wallet": "Hubungkan kembali dompet perangkat keras Anda",
   "reconnection": "Koneksi kembali",
   "red_dark_theme": "Tema gelap merah",
   "red_light_theme": "Tema lampu merah",

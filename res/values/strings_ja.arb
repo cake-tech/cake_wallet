@@ -539,6 +539,7 @@
   "recipient_address": "受信者のアドレス",
   "reconnect": "再接続",
   "reconnect_alert_text": "再接続しますか？",
+  "reconnect_your_hardware_wallet": "ハードウェアウォレットを再接続します",
   "reconnection": "再接続",
   "red_dark_theme": "赤い暗いテーマ",
   "red_light_theme": "赤色光のテーマ",

@@ -540,6 +540,7 @@
   "recipient_address": "Indirizzo di destinazione",
   "reconnect": "Riconnetti",
   "reconnect_alert_text": "Sei sicuro di volerti riconnettere?",
+  "reconnect_your_hardware_wallet": "Ricollega il tuo portafoglio hardware",
   "reconnection": "Riconnessione",
   "red_dark_theme": "Red Dark Theme",
   "red_light_theme": "Tema della luce rossa",

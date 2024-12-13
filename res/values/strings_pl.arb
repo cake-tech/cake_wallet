@@ -538,6 +538,7 @@
   "recipient_address": "Adres odbiorcy",
   "reconnect": "Połącz ponownie",
   "reconnect_alert_text": "Czy na pewno ponownie się ponownie połączysz?",
+  "reconnect_your_hardware_wallet": "Ponownie podłącz portfel sprzętowy",
   "reconnection": "Ponowne łączenie",
   "red_dark_theme": "Czerwony Mroczny motyw",
   "red_light_theme": "Motyw czerwony światło",

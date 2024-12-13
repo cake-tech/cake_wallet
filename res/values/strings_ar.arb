@@ -538,6 +538,7 @@
   "recipient_address": "عنوان المستلم",
   "reconnect": "أعد الاتصال",
   "reconnect_alert_text": "هل أنت متأكد من رغبتك في إعادة الاتصال؟",
+  "reconnect_your_hardware_wallet": "أعد توصيل محفظة الأجهزة الخاصة بك",
   "reconnection": "إعادة الاتصال",
   "red_dark_theme": "موضوع الظلام الأحمر",
   "red_light_theme": "موضوع الضوء الأحمر",

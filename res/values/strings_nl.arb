@@ -538,6 +538,7 @@
   "recipient_address": "Adres ontvanger",
   "reconnect": "Sluit",
   "reconnect_alert_text": "Weet u zeker dat u opnieuw verbinding wilt maken?",
+  "reconnect_your_hardware_wallet": "Sluit uw hardware -portemonnee opnieuw aan",
   "reconnection": "Reconnection",
   "red_dark_theme": "Rood donker thema",
   "red_light_theme": "Rood licht thema",

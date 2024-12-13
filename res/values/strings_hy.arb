@@ -538,6 +538,7 @@
   "recipient_address": "Ստացողի հասցե",
   "reconnect": "Վերակապվել",
   "reconnect_alert_text": "Դուք վստահ եք, որ ուզում եք վերակապվել?",
+  "reconnect_your_hardware_wallet": "Միացրեք ձեր ապարատային դրամապանակը",
   "reconnection": "Վերակապում",
   "red_dark_theme": "Կարմիր մութ տեսք",
   "red_light_theme": "Կարմիր պայծառ տեսք",

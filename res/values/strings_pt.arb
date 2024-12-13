@@ -540,6 +540,7 @@
   "recipient_address": "Endereço do destinatário",
   "reconnect": "Reconectar",
   "reconnect_alert_text": "Você tem certeza de que deseja reconectar?",
+  "reconnect_your_hardware_wallet": "Reconecte sua carteira de hardware",
   "reconnection": "Reconectar",
   "red_dark_theme": "Tema escuro vermelho",
   "red_light_theme": "Tema da luz vermelha",

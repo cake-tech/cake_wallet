@@ -22,13 +22,13 @@ class ConnectDevicePageParams {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
-  final bool allowBack;
+  final bool isReconnect;
 
   ConnectDevicePageParams({
     required this.walletType,
     required this.onConnectDevice,
     this.allowChangeWallet = false,
-    this.allowBack = true,
+    this.isReconnect = false,
   });
 }
 
@@ -36,25 +36,27 @@ class ConnectDevicePage extends BasePage {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
-  final bool allowBack;
+  final bool isReconnect;
   final LedgerViewModel ledgerVM;
 
   ConnectDevicePage(ConnectDevicePageParams params, this.ledgerVM)
       : walletType = params.walletType,
         onConnectDevice = params.onConnectDevice,
         allowChangeWallet = params.allowChangeWallet,
-        allowBack = params.allowBack;
+        isReconnect = params.isReconnect;
 
   @override
-  String get title => S.current.restore_title_from_hardware_wallet;
+  String get title => isReconnect
+      ? S.current.reconnect_your_hardware_wallet
+      : S.current.restore_title_from_hardware_wallet;
 
   @override
   Widget? leading(BuildContext context) =>
-      allowBack ? super.leading(context) : null;
+      !isReconnect ? super.leading(context) : null;
 
   @override
   Widget body(BuildContext context) => PopScope(
-      canPop: allowBack,
+      canPop: !isReconnect,
       child: ConnectDevicePageBody(
         walletType,
         onConnectDevice,

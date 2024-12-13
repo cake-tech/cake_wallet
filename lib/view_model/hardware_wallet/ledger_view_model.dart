@@ -115,7 +115,7 @@ abstract class LedgerViewModelBase with Store {
               arguments: ConnectDevicePageParams(
                 walletType: WalletType.monero,
                 allowChangeWallet: true,
-                allowBack: false,
+                isReconnect: true,
                 onConnectDevice: (context, ledgerVM) async {
                   Navigator.of(context).pop();
                 },

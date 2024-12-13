@@ -538,6 +538,7 @@
   "recipient_address": "Recipient address",
   "reconnect": "Reconnect",
   "reconnect_alert_text": "Are you sure you want to reconnect?",
+  "reconnect_your_hardware_wallet": "Reconnect your Hardware Wallet",
   "reconnection": "Reconnection",
   "red_dark_theme": "Red Dark Theme",
   "red_light_theme": "Red Light Theme",

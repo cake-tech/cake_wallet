@@ -538,6 +538,7 @@
   "recipient_address": "Adresa příjemce",
   "reconnect": "Znovu připojit",
   "reconnect_alert_text": "Opravdu se chcete znovu připojit?",
+  "reconnect_your_hardware_wallet": "Znovu připojte svou hardwarovou peněženku",
   "reconnection": "Znovu připojit",
   "red_dark_theme": "Červené temné téma",
   "red_light_theme": "Téma červeného světla",

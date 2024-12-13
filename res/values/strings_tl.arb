@@ -538,6 +538,7 @@
   "recipient_address": "Address ng tatanggap",
   "reconnect": "Kumonekta muli",
   "reconnect_alert_text": "Sigurado ka bang gusto mong kumonekta uli?",
+  "reconnect_your_hardware_wallet": "Ikonekta muli ang iyong wallet ng hardware",
   "reconnection": "Muling pagkakakonekta",
   "red_dark_theme": "Red Dark Theme",
   "red_light_theme": "Red Light Theme",

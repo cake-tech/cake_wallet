@@ -538,6 +538,7 @@
   "recipient_address": "လက်ခံသူလိပ်စာ",
   "reconnect": "ပြန်လည်ချိတ်ဆက်ပါ။",
   "reconnect_alert_text": "ပြန်လည်ချိတ်ဆက်လိုသည်မှာ သေချာပါသလား။ ?",
+  "reconnect_your_hardware_wallet": "သင့်ရဲ့ hardware ပိုက်ဆံအိတ်ကိုပြန်လည်ချိတ်ဆက်ပါ",
   "reconnection": "ပြန်လည်ချိတ်ဆက်မှု",
   "red_dark_theme": "အနီရောင်မှောင်မိုက်ဆောင်ပုဒ်",
   "red_light_theme": "အနီရောင်အလင်းအကြောင်းအရာ",

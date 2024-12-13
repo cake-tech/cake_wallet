@@ -538,6 +538,7 @@
   "recipient_address": "Adresse bénéficiaire",
   "reconnect": "Reconnecter",
   "reconnect_alert_text": "Êtes vous certain de vouloir vous reconnecter ?",
+  "reconnect_your_hardware_wallet": "Reconnectez votre portefeuille matériel",
   "reconnection": "Reconnexion",
   "red_dark_theme": "Thème rouge sombre",
   "red_light_theme": "Thème rouge clair",

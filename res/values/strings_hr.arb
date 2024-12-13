@@ -538,6 +538,7 @@
   "recipient_address": "Primateljeva adresa",
   "reconnect": "Ponovno povezivanje",
   "reconnect_alert_text": "Jeste li sigurni da se želite ponovno povezati?",
+  "reconnect_your_hardware_wallet": "Ponovno spojite svoj hardverski novčanik",
   "reconnection": "Ponovno povezivanje",
   "red_dark_theme": "Crvena tamna tema",
   "red_light_theme": "Tema crvenog svjetla",

@@ -537,6 +537,7 @@
   "recipient_address": "Địa chỉ người nhận",
   "reconnect": "Kết nối lại",
   "reconnect_alert_text": "Bạn có chắc chắn muốn kết nối lại không?",
+  "reconnect_your_hardware_wallet": "Kết nối lại ví phần cứng của bạn",
   "reconnection": "Kết nối lại",
   "red_dark_theme": "Chủ đề tối đỏ",
   "red_light_theme": "Chủ đề sáng đỏ",
