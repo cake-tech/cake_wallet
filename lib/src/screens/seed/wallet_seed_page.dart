@@ -64,7 +64,7 @@ class WalletSeedPage extends BasePage {
     return WillPopScope(
       onWillPop: () async => false,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         alignment: Alignment.center,
         child: ConstrainedBox(
           constraints:
