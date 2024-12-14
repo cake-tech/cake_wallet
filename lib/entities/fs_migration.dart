@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -171,7 +172,7 @@ Future<void> ios_migrate_wallet_passwords() async {
         await keyService.saveWalletPassword(walletName: name, password: password!);
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 
@@ -326,7 +327,7 @@ Future<void> ios_migrate_wallet_info(Box<WalletInfo> walletsInfoSource) async {
               return walletInfo;
             }
           } catch (e) {
-            print(e.toString());
+            printV(e.toString());
             return null;
           }
         })
@@ -336,7 +337,7 @@ Future<void> ios_migrate_wallet_info(Box<WalletInfo> walletsInfoSource) async {
     await walletsInfoSource.addAll(infoRecords);
     await prefs.setBool('ios_migration_wallet_info_completed', true);
   } catch (e) {
-    print(e.toString());
+    printV(e.toString());
   }
 }
 
@@ -403,7 +404,7 @@ Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
     await tradeSource.addAll(trades);
     await prefs.setBool('ios_migration_trade_list_completed', true);
   } catch (e) {
-    print(e.toString());
+    printV(e.toString());
   }
 }
 
@@ -437,6 +438,6 @@ Future<void> ios_migrate_address_book(Box<Contact> contactSource) async {
     await contactSource.addAll(contacts);
     await prefs.setBool('ios_migration_address_book_completed', true);
   } catch (e) {
-    print(e.toString());
+    printV(e.toString());
   }
 }

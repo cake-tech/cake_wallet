@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_user_credentials.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:http/http.dart' as http;
 
@@ -92,6 +93,9 @@ class CakePayApi {
     required int quantity,
     required String userEmail,
     required String token,
+    required bool confirmsNoVpn,
+    required bool confirmsVoidedRefund,
+    required bool confirmsTermsAgreed,
   }) async {
     final uri = Uri.https(baseCakePayUri, createOrderPath);
     final headers = {
@@ -105,7 +109,10 @@ class CakePayApi {
       'quantity': quantity,
       'user_email': userEmail,
       'token': token,
-      'send_email': true
+      'send_email': true,
+      'confirms_no_vpn': confirmsNoVpn,
+      'confirms_voided_refund': confirmsVoidedRefund,
+      'confirms_terms_agreed': confirmsTermsAgreed,
     };
 
     try {
@@ -140,7 +147,7 @@ class CakePayApi {
 
     final response = await http.get(uri, headers: headers);
 
-    print('Response: ${response.statusCode}');
+    printV('Response: ${response.statusCode}');
 
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
@@ -167,19 +174,17 @@ class CakePayApi {
         throw Exception('Unexpected http status: ${response.statusCode}');
       }
     } catch (e) {
-      print('Caught exception: $e');
+      printV('Caught exception: $e');
     }
   }
 
   /// Get Countries
-  Future<List<Country>> getCountries(
-      {required String CSRFToken, required String authorization}) async {
+  Future<List<Country>> getCountries({required String apiKey}) async {
     final uri = Uri.https(baseCakePayUri, countriesPath);
 
     final headers = {
       'accept': 'application/json',
-      'authorization': authorization,
-      'X-CSRFToken': CSRFToken,
+      'Authorization': 'Api-Key $apiKey',
     };
 
     final response = await http.get(uri, headers: headers);
@@ -198,8 +203,7 @@ class CakePayApi {
 
   /// Get Vendors
   Future<List<CakePayVendor>> getVendors({
-    required String CSRFToken,
-    required String authorization,
+    required String apiKey,
     int? page,
     String? country,
     String? countryCode,
@@ -226,14 +230,14 @@ class CakePayApi {
 
     var headers = {
       'accept': 'application/json; charset=UTF-8',
-      'authorization': authorization,
-      'X-CSRFToken': CSRFToken,
+      'Authorization': 'Api-Key $apiKey',
     };
 
     var response = await http.get(uri, headers: headers);
 
     if (response.statusCode != 200) {
-      throw Exception(response.body);
+      throw Exception(
+          'Failed to fetch vendors: statusCode - ${response.statusCode}, queryParams -$queryParams, response - ${response.body}');
     }
 
     final bodyJson = json.decode(response.body);

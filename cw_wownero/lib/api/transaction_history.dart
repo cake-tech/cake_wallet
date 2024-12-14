@@ -6,13 +6,16 @@ import 'package:cw_wownero/api/exceptions/creation_transaction_exception.dart';
 import 'package:cw_wownero/api/wallet.dart';
 import 'package:cw_wownero/api/wownero_output.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
+import 'package:cw_wownero/exceptions/wownero_transaction_creation_exception.dart';
 import 'package:ffi/ffi.dart';
 import 'package:monero/wownero.dart' as wownero;
 import 'package:monero/src/generated_bindings_wownero.g.dart' as wownero_gen;
 
 
 String getTxKey(String txId) {
-  return wownero.Wallet_getTxKey(wptr!, txid: txId);
+  final ret = wownero.Wallet_getTxKey(wptr!, txid: txId);
+  wownero.Wallet_status(wptr!);
+  return ret;
 }
 
 wownero.TransactionHistory? txhistory;
@@ -86,7 +89,10 @@ Future<PendingTransactionDescription> createTransactionSync(
   final amt = amount == null ? 0 : wownero.Wallet_amountFromString(amount);
   
   final address_ = address.toNativeUtf8(); 
-  final paymentId_ = paymentId.toNativeUtf8(); 
+  final paymentId_ = paymentId.toNativeUtf8();
+  if (preferredInputs.isEmpty) {
+    throw WowneroTransactionCreationException("No inputs provided, transaction cannot be constructed");
+  }
   final preferredInputs_ = preferredInputs.join(wownero.defaultSeparatorStr).toNativeUtf8();
 
   final waddr = wptr!.address;
@@ -175,13 +181,23 @@ void commitTransaction({required wownero.PendingTransaction transactionPointer})
   
   final txCommit = wownero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
 
-  final String? error = (() {
+  String? error = (() {
     final status = wownero.PendingTransaction_status(transactionPointer.cast());
     if (status == 0) {
       return null;
     }
-    return wownero.Wallet_errorString(wptr!);
+    return wownero.PendingTransaction_errorString(transactionPointer.cast());
   })();
+  if (error == null) {
+    error = (() {
+      final status = wownero.Wallet_status(wptr!);
+      if (status == 0) {
+        return null;
+      }
+      return wownero.Wallet_errorString(wptr!);
+    })();
+
+  }
   
   if (error != null) {
     throw CreationTransactionException(message: error);

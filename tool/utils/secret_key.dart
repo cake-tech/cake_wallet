@@ -62,7 +62,7 @@ class SecretKey {
     SecretKey('bitcoinTestWalletReceiveAddress', () => ''),
     SecretKey('ethereumTestWalletReceiveAddress', () => ''),
     SecretKey('litecoinTestWalletReceiveAddress', () => ''),
-    SecretKey('bitco inCashTestWalletReceiveAddress', () => ''),
+    SecretKey('bitcoinCashTestWalletReceiveAddress', () => ''),
     SecretKey('polygonTestWalletReceiveAddress', () => ''),
     SecretKey('solanaTestWalletReceiveAddress', () => ''),
     SecretKey('tronTestWalletReceiveAddress', () => ''),
@@ -81,6 +81,7 @@ class SecretKey {
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
     SecretKey('moralisApiKey', () => ''),
+    SecretKey('nowNodesApiKey ', () => ''),
   ];
 
   static final solanaSecrets = [

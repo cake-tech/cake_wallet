@@ -13,6 +13,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -145,7 +146,7 @@ class RobinhoodBuyProvider extends BuyProvider {
 
     if (paymentType != null && paymentType != PaymentType.all) {
       paymentMethod = normalizePaymentMethod(paymentType);
-      if (paymentMethod == null) paymentMethod = paymentType.name;
+      if (paymentMethod == null) return null;
     }
 
     final action = isBuyAction ? 'buy' : 'sell';
@@ -176,7 +177,7 @@ class RobinhoodBuyProvider extends BuyProvider {
         if (responseData.containsKey('message')) {
           log('Robinhood Error: ${responseData['message']}');
         } else {
-          print('Robinhood Failed to fetch $action quote: ${response.statusCode}');
+          printV('Robinhood Failed to fetch $action quote: ${response.statusCode}');
         }
         return null;
       }
@@ -185,6 +186,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       return null;
     }
 
+    // Supported payment methods:
     // ● buying_power
     // ● crypto_balance
     // ● debit_card

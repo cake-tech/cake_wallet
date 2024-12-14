@@ -1,5 +1,6 @@
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -159,7 +160,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.monero:
         return 'https://monero.com/tx/${txId}';
       case WalletType.bitcoin:
-        return 'https://mempool.space/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
+        return 'https://mempool.cakewallet.com/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.bitcoinCash:
@@ -279,7 +280,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           ));
         }
       } catch (e) {
-        print(e.toString());
+        printV(e.toString());
       }
     }
 
@@ -769,7 +770,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           );
         }
       } catch (e) {
-        print(e.toString());
+        printV(e.toString());
       }
     }
 
