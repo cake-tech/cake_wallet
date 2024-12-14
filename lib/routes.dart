@@ -53,6 +53,7 @@ class Routes {
   static const restoreWalletType = '/restore_wallet_type';
   static const restoreWallet = '/restore_wallet';
   static const preSeedPage = '/pre_seed_page';
+  static const transactionSuccessPage = '/transaction_success_info_page';
   static const backup = '/backup';
   static const editBackupPassword = '/edit_backup_passowrd';
   static const restoreFromBackup = '/restore_from_backup';

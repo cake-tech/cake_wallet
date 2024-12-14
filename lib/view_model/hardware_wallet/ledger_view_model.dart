@@ -4,14 +4,18 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as sdk;
 import 'package:mobx/mobx.dart';
@@ -59,15 +63,18 @@ abstract class LedgerViewModelBase with Store {
   bool _bleIsInitialized = false;
   Future<void> _initBLE() async {
     if (bleIsEnabled && !_bleIsInitialized) {
-      ledgerPlusBLE = sdk.LedgerInterface.ble(onPermissionRequest: (_) async {
-        Map<Permission, PermissionStatus> statuses = await [
-          Permission.bluetoothScan,
-          Permission.bluetoothConnect,
-          Permission.bluetoothAdvertise,
-        ].request();
+      ledgerPlusBLE = sdk.LedgerInterface.ble(
+          onPermissionRequest: (_) async {
+            Map<Permission, PermissionStatus> statuses = await [
+              Permission.bluetoothScan,
+              Permission.bluetoothConnect,
+              Permission.bluetoothAdvertise,
+            ].request();
 
-        return statuses.values.where((status) => status.isDenied).isEmpty;
-      });
+            return statuses.values.where((status) => status.isDenied).isEmpty;
+          },
+          bleOptions:
+              sdk.BluetoothOptions(maxScanDuration: Duration(minutes: 5)));
       _bleIsInitialized = true;
     }
   }
@@ -84,15 +91,25 @@ abstract class LedgerViewModelBase with Store {
 
   Stream<sdk.LedgerDevice> scanForUsbDevices() => ledgerPlusUSB.scan();
 
+  Future<void> stopScanning() async {
+    await ledgerPlusBLE.stopScanning();
+    if (!Platform.isIOS) {
+      await ledgerPlusUSB.stopScanning();
+    }
+  }
+
   Future<void> connectLedger(sdk.LedgerDevice device, WalletType type) async {
     if (isConnected) {
       try {
-        await _connection!.disconnect();
+        await _connectionChangeListener?.cancel();
+        _connectionChangeListener = null;
+        await _connection!.disconnect().catchError((_) {});
       } catch (_) {}
     }
     final ledger = device.connectionType == sdk.ConnectionType.ble
         ? ledgerPlusBLE
         : ledgerPlusUSB;
+
 
     if (_connectionChangeListener == null) {
       _connectionChangeListener = ledger.deviceStateChanges.listen((event) {
@@ -101,6 +118,18 @@ abstract class LedgerViewModelBase with Store {
           _connection = null;
           if (type == WalletType.monero) {
             monero!.resetLedgerConnection();
+
+            Navigator.of( navigatorKey.currentContext!).pushNamed(
+              Routes.connectDevices,
+              arguments: ConnectDevicePageParams(
+                walletType: WalletType.monero,
+                allowChangeWallet: true,
+                isReconnect: true,
+                onConnectDevice: (context, ledgerVM) async {
+                  Navigator.of(context).pop();
+                },
+              ),
+            );
           }
         }
       });

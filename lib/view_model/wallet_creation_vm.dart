@@ -8,7 +8,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -114,7 +113,7 @@ abstract class WalletCreationVMBase with Store {
       await _walletInfoSource.add(walletInfo);
       await _appStore.changeCurrentWallet(wallet);
       getIt.get<BackgroundTasks>().registerSyncTask();
-      _appStore.authenticationStore.allowed();
+      _appStore.authenticationStore.allowedCreate();
       state = ExecutedSuccessfullyState();
     } catch (e, s) {
       printV("error: $e");
