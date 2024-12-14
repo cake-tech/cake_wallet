@@ -30,7 +30,6 @@ abstract class WalletListViewModelBase with Store {
     updateList();
   }
 
-  @observable
   ObservableList<WalletListItem> wallets;
 
   // @observable

@@ -330,6 +330,7 @@
   "freeze": "Заморозити",
   "frequently_asked_questions": "Часті запитання",
   "frozen": "Заморожено",
+  "frozen_balance": "Заморожений баланс",
   "full_balance": "Весь баланс",
   "gas_exceeds_allowance": "Газ, необхідний транзакціям, перевищує надбавку.",
   "generate_name": "Згенерувати назву",

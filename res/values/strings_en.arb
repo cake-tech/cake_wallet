@@ -330,6 +330,7 @@
   "freeze": "Freeze",
   "frequently_asked_questions": "Frequently asked questions",
   "frozen": "Frozen",
+  "frozen_balance": "Frozen Balance",
   "full_balance": "Full Balance",
   "gas_exceeds_allowance": "Gas required by transaction exceeds allowance.",
   "generate_name": "Generate Name",

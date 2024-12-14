@@ -330,6 +330,7 @@
   "freeze": "Freeze",
   "frequently_asked_questions": "Pertanyaan yang sering diajukan",
   "frozen": "Dibekukan",
+  "frozen_balance": "Keseimbangan beku",
   "full_balance": "Saldo Penuh",
   "gas_exceeds_allowance": "Gas yang dibutuhkan oleh transaksi melebihi tunjangan.",
   "generate_name": "Hasilkan Nama",

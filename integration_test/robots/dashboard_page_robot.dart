@@ -1,6 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/balance/crypto_balance_widget.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 

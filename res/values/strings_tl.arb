@@ -330,6 +330,7 @@
   "freeze": "I-freeze",
   "frequently_asked_questions": "Mga madalas itanong",
   "frozen": "Frozen",
+  "frozen_balance": "Frozen na balanse",
   "full_balance": "Buong Balanse",
   "gas_exceeds_allowance": "Ang gas na kinakailangan ng transaksyon ay lumampas sa allowance.",
   "generate_name": "Bumuo ng pangalan",

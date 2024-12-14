@@ -330,6 +330,7 @@
   "freeze": "Dondur",
   "frequently_asked_questions": "Sıkça sorulan sorular",
   "frozen": "Dondurulmuş",
+  "frozen_balance": "Dondurulmuş denge",
   "full_balance": "Tüm bakiye",
   "gas_exceeds_allowance": "İşlemin gerektirdiği gaz ödeneği aşar.",
   "generate_name": "İsim Oluştur",

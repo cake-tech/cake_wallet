@@ -329,6 +329,7 @@
   "freeze": "Đóng băng",
   "frequently_asked_questions": "Các câu hỏi thường gặp",
   "frozen": "Đã đóng băng",
+  "frozen_balance": "Cân bằng đông lạnh",
   "full_balance": "Số dư đầy đủ",
   "gas_exceeds_allowance": "Gas theo yêu cầu của giao dịch vượt quá trợ cấp.",
   "generate_name": "Tạo tên",
