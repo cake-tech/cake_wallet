@@ -43,7 +43,7 @@ dependencies:
   #     ref: payjoin-21 # dangould payjoin-21 branch
   payjoin_flutter:
     git:
-      url: https://github.com/LtbLightning/payjoin-flutter
+      url: https://github.com/J0J0XMR/payjoin-flutter
 
 
 dev_dependencies:

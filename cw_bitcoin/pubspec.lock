@@ -669,8 +669,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "0124ef669eb3b8e130e4584a534e9eb51a06bdec"
-      url: "https://github.com/LtbLightning/payjoin-flutter"
+      resolved-ref: e75b410dc18fd75e1501fcd438dfe1e21e9c6c13
+      url: "https://github.com/J0J0XMR/payjoin-flutter"
     source: git
     version: "0.21.0"
   platform:
