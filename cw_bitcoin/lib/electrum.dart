@@ -238,8 +238,6 @@ class ElectrumClient {
   Future<List<Map<String, dynamic>>> getListUnspent(String scriptHash) async {
     final result = await call(method: 'blockchain.scripthash.listunspent', params: [scriptHash]);
 
-    if (result == null) throw Exception('Failed to get listunspent');
-
     if (result is List) {
       return result.map((dynamic val) {
         if (val is Map<String, dynamic>) {
