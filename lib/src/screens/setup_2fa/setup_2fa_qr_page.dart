@@ -6,7 +6,6 @@ import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
@@ -30,7 +29,7 @@ class Setup2FAQRPage extends BasePage {
         width: 16,
         color: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
     final cake2FAHowToUseUrl = Uri.parse(
-        'https://guides.cakewallet.com/docs/advanced-features/authentication/#enabling-cake-2fa');
+        'https://docs.cakewallet.com/features/advanced/authentication/#enabling-cake-2fa');
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(

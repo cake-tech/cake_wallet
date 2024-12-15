@@ -53,6 +53,7 @@ class Routes {
   static const restoreWalletType = '/restore_wallet_type';
   static const restoreWallet = '/restore_wallet';
   static const preSeedPage = '/pre_seed_page';
+  static const transactionSuccessPage = '/transaction_success_info_page';
   static const backup = '/backup';
   static const editBackupPassword = '/edit_backup_passowrd';
   static const restoreFromBackup = '/restore_from_backup';
@@ -115,4 +116,5 @@ class Routes {
   static const urqrAnimatedPage = '/urqr/animated_page';
   static const walletGroupsDisplayPage = '/wallet_groups_display_page';
   static const walletGroupDescription = '/wallet_group_description';
+  static const walletSeedVerificationPage = '/wallet_seed_verification_page';
 }

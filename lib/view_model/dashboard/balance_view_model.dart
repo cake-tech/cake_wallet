@@ -288,7 +288,7 @@ abstract class BalanceViewModelBase with Store {
             BalanceRecord(
                 availableBalance: '---',
                 additionalBalance: '---',
-                frozenBalance: '---',
+                frozenBalance: '',
                 secondAvailableBalance: '---',
                 secondAdditionalBalance: '---',
                 fiatAdditionalBalance: isFiatDisabled ? '' : '---',
@@ -487,6 +487,15 @@ abstract class BalanceViewModelBase with Store {
     wallet.walletInfo.showIntroCakePayCard = cardDisplayStatus;
     await wallet.walletInfo.save();
     isShowCard = cardDisplayStatus;
+  }
+
+  @action
+  void switchBalanceValue() {
+    if (settingsStore.balanceDisplayMode == BalanceDisplayMode.displayableBalance) {
+      settingsStore.balanceDisplayMode = BalanceDisplayMode.hiddenBalance;
+    } else {
+      settingsStore.balanceDisplayMode = BalanceDisplayMode.displayableBalance;
+    }
   }
 
   String _getFiatBalance({required double price, String? cryptoAmount}) {
