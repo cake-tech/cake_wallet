@@ -67,7 +67,7 @@ mixin ZanoWalletApi {
   }
 
   Future<GetWalletInfoResult> getWalletInfo() async {
-    final json = zano.PlainWallet_getWalletInfo(hWallet);
+    final json = await _getWalletInfo(hWallet);
     final result = GetWalletInfoResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
     _json('get_wallet_info', json);
     info('get_wallet_info got ${result.wi.balances.length} balances: ${result.wi.balances} seed: ${_shorten(result.wiExtended.seed)}');
@@ -75,7 +75,7 @@ mixin ZanoWalletApi {
   }
 
   Future<GetWalletStatusResult> getWalletStatus() async {
-    final json = zano.PlainWallet_getWalletStatus(hWallet);
+    final json = await _getWalletStatus(hWallet);
     if (json == Consts.errorWalletWrongId) {
       error('wrong wallet id');
       throw ZanoWalletException('Wrong wallet id');
@@ -217,7 +217,7 @@ mixin ZanoWalletApi {
       final json = await invokeMethod('store', '{}');
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
-      return StoreResult.fromJson(map!['result']['result'] as Map<String, dynamic>);
+      return StoreResult.fromJson(map!['result'] as Map<String, dynamic>);
     } catch (e) {
       error('store $e');
       return null;
@@ -431,4 +431,43 @@ Map<String, dynamic> jsonDecode(String json) {
 
 String jsonEncode(Object? object) {
   return convert.jsonEncode(object);
+}
+
+Future<String> _getWalletStatus(int hWallet) async {
+  final jsonPtr = await Isolate.run(() async {
+    final lib = zanoapi.ZanoC(DynamicLibrary.open(zano.libPath));
+    final status = lib.ZANO_PlainWallet_getWalletStatus(
+      hWallet, 
+    );
+    return status.address;
+  });
+  String json = "";
+  try {
+    final strPtr = Pointer.fromAddress(jsonPtr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    zano.ZANO_free(strPtr.cast());
+    json = str;
+  } catch (e) {
+    json = "";
+  }
+  return json;
+}
+Future<String> _getWalletInfo(int hWallet) async {
+  final jsonPtr = await Isolate.run(() async {
+    final lib = zanoapi.ZanoC(DynamicLibrary.open(zano.libPath));
+    final status = lib.ZANO_PlainWallet_getWalletInfo(
+      hWallet, 
+    );
+    return status.address;
+  });
+  String json = "";
+  try {
+    final strPtr = Pointer.fromAddress(jsonPtr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    zano.ZANO_free(strPtr.cast());
+    json = str;
+  } catch (e) {
+    json = "";
+  }
+  return json;
 }

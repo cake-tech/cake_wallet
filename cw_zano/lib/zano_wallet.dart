@@ -418,13 +418,14 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
 
   Future<void> updateTransactions() async {
     try {
-      print("isTransactionUpdating: $_isTransactionUpdating");
       if (_isTransactionUpdating) {
         return;
       }
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
-      print("transactions: $transactions");
+      if (transactions.length == transactionHistory.transactions.length) {
+        return;
+      }
       transactionHistory.clear();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
