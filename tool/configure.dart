@@ -104,6 +104,7 @@ import 'package:bip39/bip39.dart' as bip39;
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_bitcoin/bitcoin_payjoin.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
@@ -235,6 +236,18 @@ abstract class Bitcoin {
   bool getMwebEnabled(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
+
+  Future<Map<String, dynamic>> buildV2PjStr({int? amount, required String address, required bool isTestnet, required BigInt expireAfter});
+  Future<UncheckedProposal> handleReceiverSession(Receiver session);
+  Future<String> extractOriginalTransaction(UncheckedProposal proposal);
+  Future<PayjoinProposal> processProposal({required UncheckedProposal proposal, required Object receiverWallet});
+  Future<String> sendFinalProposal(PayjoinProposal finalProposal);
+  Future<String> getTxIdFromPsbt(String psbtBase64);
+  Future<Uri?> stringToPjUri(String pj);
+  Future<String> buildOriginalPsbt(Object wallet, dynamic pjUri, int fee, double amount, Object credentials);
+  Future<Sender> buildPayjoinRequest(String originalPsbt, dynamic pjUri, int fee);
+  Future<String> requestAndPollV2Proposal(Sender sender);
+  Future<PendingBitcoinTransaction> extractPjTx(Object wallet, String psbtString, Object credentials);
 }
   """;
 

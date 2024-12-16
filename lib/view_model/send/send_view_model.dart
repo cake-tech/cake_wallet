@@ -20,6 +20,7 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -802,5 +803,75 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     return false;
+  }
+
+  @observable
+  dynamic pjUri;
+
+  @action
+  Future<void> stringToPjUri() async {
+    debugPrint('[+] SENDVIEWMODEL => stringToPjUri()');
+    final address = outputs.first.address;
+    final uri = await bitcoin!.stringToPjUri(address);
+    pjUri = uri;
+  }
+
+  @action
+  Future<void> performPayjoinSend() async {
+    final credentials = _credentials() as BitcoinTransactionCredentials;
+    final amountToSend = credentials.outputs.first.sendAll
+        ? balance
+        : credentials.outputs.first.cryptoAmount;
+    final feeRate = bitcoin!
+        .getFeeRate(wallet, credentials.priority as TransactionPriority);
+
+    print(
+        '[+] SendVM || performPjSend => amountToSend: $amountToSend feeRate: $feeRate, pjUri: $pjUri');
+
+    // Build the original PSBT for the Payjoin transaction
+    final originalPsbt = await bitcoin!.buildOriginalPsbt(
+      wallet,
+      pjUri,
+      feeRate,
+      double.parse(amountToSend!),
+      credentials,
+    );
+
+    print('[+] SendVM || performPjSend => originalPsbt: $originalPsbt');
+
+    // Build the Payjoin request context from the original PSBT
+    final request = await bitcoin!.buildPayjoinRequest(
+      originalPsbt,
+      pjUri,
+      feeRate,
+    );
+
+    // Request and keep polling the payjoin directoy for the proposal
+    //  from the receiver
+    String psbt = originalPsbt;
+
+    try {
+      psbt = await bitcoin!.requestAndPollV2Proposal(
+        request,
+      );
+    } catch (e) {
+      rethrow;
+    }
+
+    // If a proposal is received, finalize the payjoin
+    final transaction = await bitcoin!.extractPjTx(
+      wallet,
+      psbt,
+      _credentials(),
+    );
+
+    // Broadcast the finalized transaction to the blockchain
+    // final txId = await blockchain.broadcast(transaction: transaction);
+    await transaction.commit();
+
+    final txId = transaction.id;
+
+    // TODO: Reset the Payjoin session state
+    print('[+] performPayjoinSend || txID: $txId');
   }
 }

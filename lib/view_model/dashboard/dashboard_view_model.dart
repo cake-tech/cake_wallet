@@ -462,6 +462,19 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @computed
+  bool get showPayjoinPaymentsCard => wallet.type == WalletType.bitcoin;
+
+  @observable
+  bool payjoinPaymentsScanningActive = false;
+
+  @action
+  void setPayjoinPaymentsScanning(bool active) {
+    payjoinPaymentsScanningActive = active;
+
+    /// TODO: Set Payjoin receive polling
+  }
+
+  @computed
   bool get hasMweb =>
       wallet.type == WalletType.litecoin &&
       (Platform.isIOS || Platform.isAndroid) &&

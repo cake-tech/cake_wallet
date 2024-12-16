@@ -5,6 +5,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
@@ -119,7 +120,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         break;
       case DerivationType.electrum:
       default:
-        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+        seedBytes =
+            await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
         break;
     }
     return BitcoinWallet(
@@ -201,7 +203,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     if (mnemonic != null) {
       switch (walletInfo.derivationInfo!.derivationType) {
         case DerivationType.electrum:
-          seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+          seedBytes =
+              await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
           break;
         case DerivationType.bip39:
         default:
@@ -242,6 +245,42 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     _ledgerConnection = connection;
     _bitcoinLedgerApp = BitcoinLedgerApp(_ledgerConnection!,
         derivationPath: walletInfo.derivationInfo!.derivationPath!);
+  }
+
+  @override
+  Future<PSBTTransactionBuild> buildPayjoinTransaction({
+    required List<BitcoinBaseOutput> outputs,
+    required BigInt fee,
+    required BasedUtxoNetwork network,
+    required List<UtxoWithAddress> utxos,
+    required Map<String, PublicKeyWithDerivationPath> publicKeys,
+    String? memo,
+    bool enableRBF = false,
+    BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
+    BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
+  }) async {
+    final psbtReadyInputs = <PSBTReadyUtxoWithAddress>[];
+    for (final UtxoWithAddress utxo in utxos) {
+      debugPrint('[+] BITCOINWALLET => UTXO.utxo - ${utxo.utxo.toString()}');
+      final rawTx =
+      await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+      final publicKeyAndDerivationPath =
+      publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
+
+      psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
+        utxo: utxo.utxo,
+        rawTx: rawTx,
+        ownerDetails: utxo.ownerDetails,
+        ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
+        ownerMasterFingerprint: Uint8List(0),
+        ownerPublicKey: publicKeyAndDerivationPath.publicKey,
+      ));
+    }
+
+    final psbt = PSBTTransactionBuild(
+        inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF);
+
+    return psbt;
   }
 
   @override

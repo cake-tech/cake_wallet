@@ -432,8 +432,17 @@ class SendPage extends BasePage {
                           context,
                           conditionToDetermineIfToUse2FA: check,
                           onAuthSuccess: (value) async {
+                            debugPrint(
+                                '[+] SENDPAGE => onAuthSuccess - value: $value');
                             if (value) {
-                              await sendViewModel.createTransaction();
+                              // await sendViewModel.stringToPjUri();
+                              if (sendViewModel.pjUri != null) {
+                                debugPrint(
+                                    '[+] SENDPAGE => onAuthSuccess - INITIATE PAYJOIN SEND');
+                                await sendViewModel.performPayjoinSend();
+                              } else {
+                                await sendViewModel.createTransaction();
+                              }
                             }
                           },
                         );

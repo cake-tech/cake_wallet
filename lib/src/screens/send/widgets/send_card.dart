@@ -160,11 +160,15 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         addressKey: ValueKey('send_page_address_textfield_key'),
                         focusNode: addressFocusNode,
                         controller: addressController,
-                        onURIScanned: (uri) {
+                        onURIScanned: (uri) async {
                           final paymentRequest = PaymentRequest.fromUri(uri);
-                          addressController.text = paymentRequest.address;
-                          cryptoAmountController.text = paymentRequest.amount;
-                          noteController.text = paymentRequest.note;
+                          if (paymentRequest.pjUri.trim().isNotEmpty) {
+                            addressController.text = paymentRequest.pjUri;
+                          } else {
+                            addressController.text = paymentRequest.address;
+                            cryptoAmountController.text = paymentRequest.amount;
+                            noteController.text = paymentRequest.note;
+                          }
                         },
                         options: [
                           AddressTextFieldOption.paste,
@@ -481,12 +485,13 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       }
     });
 
-    addressController.addListener(() {
+    addressController.addListener(() async {
       final address = addressController.text;
 
       if (output.address != address) {
         output.resetParsedAddress();
         output.address = address;
+        await sendViewModel.stringToPjUri();
       }
     });
 
@@ -504,6 +509,19 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
     reaction((_) => output.extractedAddress, (String extractedAddress) {
       extractedAddressController.text = extractedAddress;
+    });
+
+    reaction((_) => sendViewModel.pjUri, (dynamic pjUri) {
+      debugPrint(
+          '[+] SENDCARD => pjUri reaction - address: ${pjUri.address()}, amount: ${pjUri.amountSats()}');
+      if (pjUri != null) {
+        final amount = pjUri.amountSats();
+        if (amount != null) {
+          final amountSats = int.parse(amount.toString());
+          final amountBtc = (amountSats / 100000000.0).toStringAsFixed(8);
+          cryptoAmountController.text = amountBtc.toString();
+        }
+      }
     });
 
     if (initialPaymentRequest != null &&
