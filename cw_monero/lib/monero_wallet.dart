@@ -266,8 +266,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   bool needExportOutputs(int? amount) {
-    print("monero.Wallet_hasUnknownKeyImages(wptr!): ${monero.Wallet_hasUnknownKeyImages(wptr!)}");
-    print("monero.Wallet_viewOnlyBalance(wptr!, accountIndex: walletAddresses.account!.id): ${monero.Wallet_viewOnlyBalance(wptr!, accountIndex: walletAddresses.account!.id)}");
     return monero.Wallet_hasUnknownKeyImages(wptr!) ||
         (monero.Wallet_viewOnlyBalance(wptr!,
                 accountIndex: walletAddresses.account!.id) <
