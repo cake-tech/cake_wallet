@@ -265,6 +265,15 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return str;
   }
 
+  bool needExportOutputs(int? amount) {
+    print("monero.Wallet_hasUnknownKeyImages(wptr!): ${monero.Wallet_hasUnknownKeyImages(wptr!)}");
+    print("monero.Wallet_viewOnlyBalance(wptr!, accountIndex: walletAddresses.account!.id): ${monero.Wallet_viewOnlyBalance(wptr!, accountIndex: walletAddresses.account!.id)}");
+    return monero.Wallet_hasUnknownKeyImages(wptr!) ||
+        (monero.Wallet_viewOnlyBalance(wptr!,
+                accountIndex: walletAddresses.account!.id) <
+            (amount ?? monero.Wallet_balance(wptr!, accountIndex: walletAddresses.account!.id)));
+  }
+
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final _credentials = credentials as MoneroTransactionCreationCredentials;
