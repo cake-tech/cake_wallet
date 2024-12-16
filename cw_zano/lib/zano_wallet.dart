@@ -174,7 +174,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   }
 
   @override
-  Future<void> close({required bool shouldCleanup}) async {
+  Future<void> close({bool shouldCleanup = true}) async {
     closeWallet();
     _updateSyncInfoTimer?.cancel();
     _autoSaveTimer?.cancel();
