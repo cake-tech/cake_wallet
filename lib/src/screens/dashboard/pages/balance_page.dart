@@ -384,7 +384,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                               behavior: HitTestBehavior.opaque,
                               onTap: () => launchUrl(
                                 Uri.parse(
-                                    "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
+                                    "https://docs.cakewallet.com/cryptos/litecoin/#mweb"),
                                 mode: LaunchMode.externalApplication,
                               ),
                               child: Text(
