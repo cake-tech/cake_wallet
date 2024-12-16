@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'dart:io' show Directory, File, Platform;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/haven/haven.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/root_dir.dart';
@@ -42,7 +40,7 @@ const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'nano.nownodes.io';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
-const solanaDefaultNodeUri = 'rpc.ankr.com';
+const solanaDefaultNodeUri = 'solana-rpc.publicnode.com:443';
 const tronDefaultNodeUri = 'trx.nownodes.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
@@ -311,6 +309,15 @@ Future<void> defaultSettingsMigration(
             type: WalletType.ethereum,
             useSSL: true,
           );
+          _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.solana,
+            newDefaultUri: solanaDefaultNodeUri,
+            currentNodePreferenceKey: PreferencesKey.currentSolanaNodeIdKey,
+            useSSL: true,
+            oldUri: ['rpc.ankr.com'],
+          );
         default:
           break;
       }
@@ -332,6 +339,7 @@ Future<void> _backupHavenSeeds(Box<HavenSeedStore> havenSeedStore) async {
   }
   return;
 }
+
 /// generic function for changing any wallet default node
 /// instead of making a new function for each change
 Future<void> _changeDefaultNode({
