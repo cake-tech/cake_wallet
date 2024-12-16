@@ -90,17 +90,27 @@ class CakePayService {
   }
 
   /// Purchase Gift Card
-  Future<CakePayOrder> createOrder(
-      {required int cardId, required String price, required int quantity}) async {
+  Future<CakePayOrder> createOrder({
+    required int cardId,
+    required String price,
+    required int quantity,
+    required bool confirmsNoVpn,
+    required bool confirmsVoidedRefund,
+    required bool confirmsTermsAgreed,
+  }) async {
     final userEmail = (await secureStorage.read(key: cakePayEmailStorageKey))!;
     final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
     return await cakePayApi.createOrder(
-        apiKey: cakePayApiKey,
-        cardId: cardId,
-        price: price,
-        quantity: quantity,
-        token: token,
-        userEmail: userEmail);
+      apiKey: cakePayApiKey,
+      cardId: cardId,
+      price: price,
+      quantity: quantity,
+      token: token,
+      userEmail: userEmail,
+      confirmsNoVpn: confirmsNoVpn,
+      confirmsVoidedRefund: confirmsVoidedRefund,
+      confirmsTermsAgreed: confirmsTermsAgreed,
+    );
   }
 
   ///Simulate Purchase Gift Card

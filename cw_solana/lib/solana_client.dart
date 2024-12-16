@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
+import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:solana/dto.dart';
@@ -179,7 +181,7 @@ class SolanaWalletClient {
                         bool isOutgoingTx = transfer.source == publicKey.toBase58();
 
                         double amount = (double.tryParse(transfer.amount) ?? 0.0) /
-                            pow(10, splTokenDecimal ?? 9);
+                            math.pow(10, splTokenDecimal ?? 9);
 
                         transactions.add(
                           SolanaTransactionModel(
@@ -275,6 +277,7 @@ class SolanaWalletClient {
     required String destinationAddress,
     required Ed25519HDKeyPair ownerKeypair,
     required bool isSendAll,
+    required double solBalance,
     String? tokenMint,
     List<String> references = const [],
   }) async {
@@ -289,6 +292,7 @@ class SolanaWalletClient {
         ownerKeypair: ownerKeypair,
         commitment: commitment,
         isSendAll: isSendAll,
+        solBalance: solBalance,
       );
       return pendingNativeTokenTransaction;
     } else {
@@ -300,6 +304,7 @@ class SolanaWalletClient {
         destinationAddress: destinationAddress,
         ownerKeypair: ownerKeypair,
         commitment: commitment,
+        solBalance: solBalance,
       );
       return pendingSPLTokenTransaction;
     }
@@ -352,6 +357,23 @@ class SolanaWalletClient {
     return fee;
   }
 
+  Future<bool> hasSufficientFundsLeftForRent({
+    required double inputAmount,
+    required double solBalance,
+    required double fee,
+  }) async {
+    final rent =
+        await _client!.getMinimumBalanceForMintRentExemption(commitment: Commitment.confirmed);
+
+    final rentInSol = (rent / lamportsPerSol).toDouble();
+
+    final remnant = solBalance - (inputAmount + fee);
+
+    if (remnant > rentInSol) return true;
+
+    return false;
+  }
+
   Future<PendingSolanaTransaction> _signNativeTokenTransaction({
     required String tokenTitle,
     required int tokenDecimals,
@@ -360,6 +382,7 @@ class SolanaWalletClient {
     required Ed25519HDKeyPair ownerKeypair,
     required Commitment commitment,
     required bool isSendAll,
+    required double solBalance,
   }) async {
     // Convert SOL to lamport
     int lamports = (inputAmount * lamportsPerSol).toInt();
@@ -376,6 +399,16 @@ class SolanaWalletClient {
       recentBlockhash,
       commitment,
     );
+
+    bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(
+      inputAmount: inputAmount,
+      fee: fee,
+      solBalance: solBalance,
+    );
+
+    if (!hasSufficientFundsLeft) {
+      throw SolanaSignNativeTokenTransactionRentException();
+    }
 
     SignedTx signedTx;
     if (isSendAll) {
@@ -424,6 +457,7 @@ class SolanaWalletClient {
     required String destinationAddress,
     required Ed25519HDKeyPair ownerKeypair,
     required Commitment commitment,
+    required double solBalance,
   }) async {
     final destinationOwner = Ed25519HDPublicKey.fromBase58(destinationAddress);
     final mint = Ed25519HDPublicKey.fromBase58(tokenMint);
@@ -446,7 +480,7 @@ class SolanaWalletClient {
     // Throw an appropriate exception if the sender has no associated
     // token account
     if (associatedSenderAccount == null) {
-      throw NoAssociatedTokenAccountException(ownerKeypair.address, mint.toBase58());
+      throw SolanaNoAssociatedTokenAccountException(ownerKeypair.address, mint.toBase58());
     }
 
     try {
@@ -456,11 +490,11 @@ class SolanaWalletClient {
         funder: ownerKeypair,
       );
     } catch (e) {
-      throw Exception('Insufficient SOL balance to complete this transaction: ${e.toString()}');
+      throw SolanaCreateAssociatedTokenAccountException(e.toString());
     }
 
     // Input by the user
-    final amount = (inputAmount * pow(10, tokenDecimals)).toInt();
+    final amount = (inputAmount * math.pow(10, tokenDecimals)).toInt();
 
     final instruction = TokenInstruction.transfer(
       source: Ed25519HDPublicKey.fromBase58(associatedSenderAccount.pubkey),
@@ -481,6 +515,16 @@ class SolanaWalletClient {
       recentBlockhash,
       commitment,
     );
+
+    bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(
+      inputAmount: inputAmount,
+      fee: fee,
+      solBalance: solBalance,
+    );
+
+    if (!hasSufficientFundsLeft) {
+      throw SolanaSignSPLTokenTransactionRentException();
+    }
 
     final signedTx = await _signTransactionInternal(
       message: message,
@@ -529,7 +573,7 @@ class SolanaWalletClient {
 
       return signature;
     } catch (e) {
-      print('Error while sending transaction: ${e.toString()}');
+      printV('Error while sending transaction: ${e.toString()}');
       throw Exception(e);
     }
   }
@@ -546,7 +590,7 @@ class SolanaWalletClient {
         return null;
       }
     } catch (e) {
-      print('Error occurred while fetching token image: \n${e.toString()}');
+      printV('Error occurred while fetching token image: \n${e.toString()}');
       return null;
     }
   }

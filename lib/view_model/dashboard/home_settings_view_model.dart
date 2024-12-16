@@ -15,6 +15,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:http/http.dart' as http;
@@ -236,7 +237,7 @@ abstract class HomeSettingsViewModelBase with Store {
 
       return false;
     } catch (e) {
-      print('Error while checking scam via moralis: ${e.toString()}');
+      printV('Error while checking scam via moralis: ${e.toString()}');
       return true;
     }
   }
@@ -277,7 +278,7 @@ abstract class HomeSettingsViewModelBase with Store {
 
       return false;
     } catch (e) {
-      print('Error while checking scam via explorers: ${e.toString()}');
+      printV('Error while checking scam via explorers: ${e.toString()}');
       return true;
     }
   }
@@ -303,21 +304,21 @@ abstract class HomeSettingsViewModelBase with Store {
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (decodedResponse['status'] == '0') {
-        print('${response.body}\n');
-        print('${decodedResponse['result']}\n');
+        printV('${response.body}\n');
+        printV('${decodedResponse['result']}\n');
         return true;
       }
 
       if (decodedResponse['status'] == '1' &&
           decodedResponse['result'][0]['ABI'] == 'Contract source code not verified') {
-        print('Call is valid but contract is not verified');
+        printV('Call is valid but contract is not verified');
         return true; // Contract is not verified
       } else {
-        print('Call is valid and contract is verified');
+        printV('Call is valid and contract is verified');
         return false; // Contract is verified
       }
     } catch (e) {
-      print('Error while checking contract verification: ${e.toString()}');
+      printV('Error while checking contract verification: ${e.toString()}');
       return true;
     }
   }

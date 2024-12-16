@@ -5,6 +5,7 @@ import 'package:cake_wallet/nostr/nostr_user.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:nostr_tools/nostr_tools.dart';
 
@@ -83,7 +84,7 @@ class NostrProfileHandler {
       relay.close();
       return null;
     } catch (e) {
-      print('[!] Error with relay $relayUrl: $e');
+      printV('[!] Error with relay $relayUrl: $e');
       return null;
     }
   }
@@ -115,7 +116,7 @@ class NostrProfileHandler {
       var uri = Uri.parse(relayUrl);
       return uri.host;
     } catch (e) {
-      print('Error parsing URL: $e');
+      printV('Error parsing URL: $e');
       return '';
     }
   }

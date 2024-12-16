@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_user_credentials.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:http/http.dart' as http;
 
@@ -92,6 +93,9 @@ class CakePayApi {
     required int quantity,
     required String userEmail,
     required String token,
+    required bool confirmsNoVpn,
+    required bool confirmsVoidedRefund,
+    required bool confirmsTermsAgreed,
   }) async {
     final uri = Uri.https(baseCakePayUri, createOrderPath);
     final headers = {
@@ -105,7 +109,10 @@ class CakePayApi {
       'quantity': quantity,
       'user_email': userEmail,
       'token': token,
-      'send_email': true
+      'send_email': true,
+      'confirms_no_vpn': confirmsNoVpn,
+      'confirms_voided_refund': confirmsVoidedRefund,
+      'confirms_terms_agreed': confirmsTermsAgreed,
     };
 
     try {
@@ -140,7 +147,7 @@ class CakePayApi {
 
     final response = await http.get(uri, headers: headers);
 
-    print('Response: ${response.statusCode}');
+    printV('Response: ${response.statusCode}');
 
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
@@ -167,7 +174,7 @@ class CakePayApi {
         throw Exception('Unexpected http status: ${response.statusCode}');
       }
     } catch (e) {
-      print('Caught exception: $e');
+      printV('Caught exception: $e');
     }
   }
 

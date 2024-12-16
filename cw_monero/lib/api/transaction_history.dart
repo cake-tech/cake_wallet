@@ -171,8 +171,8 @@ PendingTransactionDescription createTransactionMultDestSync(
   final dstAddrs = outputs.map((e) => e.address).toList();
   final amounts = outputs.map((e) => monero.Wallet_amountFromString(e.amount)).toList();
 
-  // print("multDest: dstAddrs: $dstAddrs");
-  // print("multDest: amounts: $amounts");
+  // printV("multDest: dstAddrs: $dstAddrs");
+  // printV("multDest: amounts: $amounts");
 
   final txptr = monero.Wallet_createTransactionMultDest(
     wptr!,
@@ -200,9 +200,16 @@ String? commitTransactionFromPointerAddress({required int address, required bool
     commitTransaction(transactionPointer: monero.PendingTransaction.fromAddress(address), useUR: useUR);
 
 String? commitTransaction({required monero.PendingTransaction transactionPointer, required bool useUR}) {
+  final transactionPointerAddress = transactionPointer.address;
   final txCommit = useUR
-    ? monero.PendingTransaction_commitUR(transactionPointer, 120)
-    : monero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
+      ? monero.PendingTransaction_commitUR(transactionPointer, 120)
+      : Isolate.run(() {
+          monero.PendingTransaction_commit(
+            Pointer.fromAddress(transactionPointerAddress),
+            filename: '',
+            overwrite: false,
+          );
+        });
 
   String? error = (() {
     final status = monero.PendingTransaction_status(transactionPointer.cast());
@@ -221,7 +228,7 @@ String? commitTransaction({required monero.PendingTransaction transactionPointer
     })();
   
   }
-  if (error != null) {
+  if (error != null && error != "no tx keys found for this txid") {
     throw CreationTransactionException(message: error);
   }
   if (useUR) {

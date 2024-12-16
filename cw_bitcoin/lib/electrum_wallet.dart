@@ -4,6 +4,8 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -479,8 +481,8 @@ abstract class ElectrumWalletBase
         syncStatus = SyncedSyncStatus();
       }
     } catch (e, stacktrace) {
-      print(stacktrace);
-      print("startSync $e");
+      printV(stacktrace);
+      printV("startSync $e");
       syncStatus = FailedSyncStatus();
     }
   }
@@ -506,7 +508,7 @@ abstract class ElectrumWalletBase
         _feeRates = [slowFee, mediumFee, fastFee];
         return;
       } catch (e) {
-        print(e);
+        printV(e);
       }
     }
 
@@ -588,8 +590,8 @@ abstract class ElectrumWalletBase
 
       await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
     } catch (e, stacktrace) {
-      print(stacktrace);
-      print("connectToNode $e");
+      printV(stacktrace);
+      printV("connectToNode $e");
       syncStatus = FailedSyncStatus();
     }
   }
@@ -1344,7 +1346,7 @@ abstract class ElectrumWalletBase
   }
 
   @override
-  Future<void> close({required bool shouldCleanup}) async {
+  Future<void> close({bool shouldCleanup = false}) async {
     try {
       await _receiveStream?.cancel();
       await electrumClient.close();
@@ -1380,8 +1382,9 @@ abstract class ElectrumWalletBase
     }));
 
     unspentCoins = updatedUnspentCoins;
-    
-    final currentWalletUnspentCoins = unspentCoinsInfo.values.where((element) => element.walletId == id);
+
+    final currentWalletUnspentCoins =
+        unspentCoinsInfo.values.where((element) => element.walletId == id);
 
     if (currentWalletUnspentCoins.length != updatedUnspentCoins.length) {
       unspentCoins.forEach((coin) => addCoinInfo(coin));
@@ -1448,10 +1451,9 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> addCoinInfo(BitcoinUnspent coin) async {
-
     // Check if the coin is already in the unspentCoinsInfo for the wallet
-    final existingCoinInfo = unspentCoinsInfo.values.firstWhereOrNull(
-          (element) => element.walletId == walletInfo.id && element == coin);
+    final existingCoinInfo = unspentCoinsInfo.values
+        .firstWhereOrNull((element) => element.walletId == walletInfo.id && element == coin);
 
     if (existingCoinInfo == null) {
       final newInfo = UnspentCoinsInfo(
@@ -1473,31 +1475,31 @@ abstract class ElectrumWalletBase
 
   Future<void> _refreshUnspentCoinsInfo() async {
     try {
-      final List<dynamic> keys = <dynamic>[];
+      final List<dynamic> keys = [];
       final currentWalletUnspentCoins =
-          unspentCoinsInfo.values.where((element) => element.walletId.contains(id));
+          unspentCoinsInfo.values.where((record) => record.walletId == id);
 
-      if (currentWalletUnspentCoins.isNotEmpty) {
-        currentWalletUnspentCoins.forEach((element) {
-          final existUnspentCoins = unspentCoins
-              .where((coin) => element.hash.contains(coin.hash) && element.vout == coin.vout);
+      for (final element in currentWalletUnspentCoins) {
+        if (RegexUtils.addressTypeFromStr(element.address, network) is MwebAddress) continue;
 
-          if (existUnspentCoins.isEmpty) {
-            keys.add(element.key);
-          }
-        });
+        final existUnspentCoins = unspentCoins.where((coin) => element == coin);
+
+        if (existUnspentCoins.isEmpty) {
+          keys.add(element.key);
+        }
       }
 
       if (keys.isNotEmpty) {
         await unspentCoinsInfo.deleteAll(keys);
       }
     } catch (e) {
-      print("refreshUnspentCoinsInfo $e");
+      printV("refreshUnspentCoinsInfo $e");
     }
   }
 
   Future<void> cleanUpDuplicateUnspentCoins() async {
-    final currentWalletUnspentCoins = unspentCoinsInfo.values.where((element) => element.walletId == id);
+    final currentWalletUnspentCoins =
+        unspentCoinsInfo.values.where((element) => element.walletId == id);
     final Map<String, UnspentCoinsInfo> uniqueUnspentCoins = {};
     final List<dynamic> duplicateKeys = [];
 
@@ -1533,7 +1535,8 @@ abstract class ElectrumWalletBase
     final ownAddresses = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
 
     final receiverAmount = outputs
-        .where((output) => !ownAddresses.contains(addressFromOutputScript(output.scriptPubKey, network)))
+        .where((output) =>
+            !ownAddresses.contains(addressFromOutputScript(output.scriptPubKey, network)))
         .fold<int>(0, (sum, output) => sum + output.amount.toInt());
 
     if (receiverAmount == 0) {
@@ -1582,7 +1585,7 @@ abstract class ElectrumWalletBase
         allInputsAmount += outTransaction.amount.toInt();
 
         final addressRecord =
-        walletAddresses.allAddresses.firstWhere((element) => element.address == address);
+            walletAddresses.allAddresses.firstWhere((element) => element.address == address);
         final btcAddress = RegexUtils.addressTypeFromStr(addressRecord.address, network);
         final privkey = generateECPrivate(
             hd: addressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
@@ -1600,7 +1603,7 @@ abstract class ElectrumWalletBase
               scriptType: _getScriptType(btcAddress),
             ),
             ownerDetails:
-            UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: btcAddress),
+                UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: btcAddress),
           ),
         );
       }
@@ -1628,7 +1631,7 @@ abstract class ElectrumWalletBase
 
       // Calculate the total amount and fees
       int totalOutAmount =
-      outputs.fold<int>(0, (previousValue, output) => previousValue + output.value.toInt());
+          outputs.fold<int>(0, (previousValue, output) => previousValue + output.value.toInt());
       int currentFee = allInputsAmount - totalOutAmount;
       int remainingFee = newFee - currentFee;
 
@@ -1684,7 +1687,7 @@ abstract class ElectrumWalletBase
                 vout: utxo.vout,
                 scriptType: _getScriptType(address)),
             ownerDetails:
-            UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: address),
+                UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: address),
           ));
 
           allInputsAmount += utxo.value;
@@ -1741,11 +1744,11 @@ abstract class ElectrumWalletBase
       final changeAddresses = walletAddresses.allAddresses.where((element) => element.isHidden);
       final List<BitcoinOutput> changeOutputs = outputs
           .where((output) => changeAddresses
-          .any((element) => element.address == output.address.toAddress(network)))
+              .any((element) => element.address == output.address.toAddress(network)))
           .toList();
 
       int totalChangeAmount =
-      changeOutputs.fold<int>(0, (sum, output) => sum + output.value.toInt());
+          changeOutputs.fold<int>(0, (sum, output) => sum + output.value.toInt());
 
       // The final amount that the receiver will receive
       int sendingAmount = allInputsAmount - newFee - totalChangeAmount;
@@ -1762,7 +1765,7 @@ abstract class ElectrumWalletBase
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
         final key =
-        privateKeys.firstWhereOrNull((element) => element.getPublic().toHex() == publicKey);
+            privateKeys.firstWhereOrNull((element) => element.getPublic().toHex() == publicKey);
         if (key == null) {
           throw Exception("Cannot find private key");
         }
@@ -1772,7 +1775,6 @@ abstract class ElectrumWalletBase
         } else {
           return key.signInput(txDigest, sigHash: sighash);
         }
-
       });
 
       return PendingBitcoinTransaction(
@@ -1785,16 +1787,16 @@ abstract class ElectrumWalletBase
         hasChange: changeOutputs.isNotEmpty,
         feeRate: newFee.toString(),
       )..addListener((transaction) async {
-        transactionHistory.transactions.values.forEach((tx) {
-          if (tx.id == hash) {
-            tx.isReplaced = true;
-            tx.isPending = false;
-            transactionHistory.addOne(tx);
-          }
+          transactionHistory.transactions.values.forEach((tx) {
+            if (tx.id == hash) {
+              tx.isReplaced = true;
+              tx.isPending = false;
+              transactionHistory.addOne(tx);
+            }
+          });
+          transactionHistory.addOne(transaction);
+          await updateBalance();
         });
-        transactionHistory.addOne(transaction);
-        await updateBalance();
-      });
     } catch (e) {
       throw e;
     }
@@ -1935,7 +1937,7 @@ abstract class ElectrumWalletBase
 
       return historiesWithDetails;
     } catch (e) {
-      print("fetchTransactions $e");
+      printV("fetchTransactions $e");
       return {};
     }
   }
@@ -2059,7 +2061,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> updateTransactions() async {
-    print("updateTransactions() called!");
+    printV("updateTransactions() called!");
     try {
       if (_isTransactionUpdating) {
         return;
@@ -2091,8 +2093,8 @@ abstract class ElectrumWalletBase
       walletAddresses.updateReceiveAddresses();
       _isTransactionUpdating = false;
     } catch (e, stacktrace) {
-      print(stacktrace);
-      print(e);
+      printV(stacktrace);
+      printV(e);
       _isTransactionUpdating = false;
     }
   }
@@ -2110,13 +2112,13 @@ abstract class ElectrumWalletBase
         try {
           await _scripthashesUpdateSubject[sh]?.close();
         } catch (e) {
-          print("failed to close: $e");
+          printV("failed to close: $e");
         }
       }
       try {
         _scripthashesUpdateSubject[sh] = await electrumClient.scripthashUpdate(sh);
       } catch (e) {
-        print("failed scripthashUpdate: $e");
+        printV("failed scripthashUpdate: $e");
       }
       _scripthashesUpdateSubject[sh]?.listen((event) async {
         try {
@@ -2126,7 +2128,7 @@ abstract class ElectrumWalletBase
 
           await _fetchAddressHistory(address, await getCurrentChainTip());
         } catch (e, s) {
-          print("sub error: $e");
+          printV("sub error: $e");
           _onError?.call(FlutterErrorDetails(
             exception: e,
             stack: s,
@@ -2134,7 +2136,7 @@ abstract class ElectrumWalletBase
           ));
         }
       }, onError: (e, s) {
-        print("sub_listen error: $e $s");
+        printV("sub_listen error: $e $s");
       });
     }));
   }
@@ -2186,7 +2188,7 @@ abstract class ElectrumWalletBase
 
     if (balances.isNotEmpty && balances.first['confirmed'] == null) {
       // if we got null balance responses from the server, set our connection status to lost and return our last known balance:
-      print("got null balance responses from the server, setting connection status to lost");
+      printV("got null balance responses from the server, setting connection status to lost");
       syncStatus = LostConnectionSyncStatus();
       return balance[currency] ?? ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
     }
@@ -2213,7 +2215,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> updateBalance() async {
-    print("updateBalance() called!");
+    printV("updateBalance() called!");
     balance[currency] = await fetchBalances();
     await save();
   }
@@ -2353,7 +2355,7 @@ abstract class ElectrumWalletBase
   }
 
   void _syncStatusReaction(SyncStatus syncStatus) async {
-    print("SYNC_STATUS_CHANGE: ${syncStatus}");
+    printV("SYNC_STATUS_CHANGE: ${syncStatus}");
     if (syncStatus is SyncingSyncStatus) {
       return;
     }

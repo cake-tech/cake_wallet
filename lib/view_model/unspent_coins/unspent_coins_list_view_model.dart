@@ -6,6 +6,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
@@ -82,7 +83,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       await existingInfo.save();
       _updateUnspentCoinsInfo();
     } catch (e) {
-      print('Error saving coin info: $e');
+      printV('Error saving coin info: $e');
     }
   }
 
@@ -151,7 +152,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
               isSilentPayment: existingItem.isSilentPayment ?? false,
             );
           } catch (e, s) {
-            print('Error: $e\nStack: $s');
+            printV('Error: $e\nStack: $s');
             ExceptionHandler.onError(
               FlutterErrorDetails(exception: e, stack: s),
             );
