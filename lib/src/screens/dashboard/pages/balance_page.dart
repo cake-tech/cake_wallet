@@ -369,6 +369,76 @@ class CryptoBalanceWidget extends StatelessWidget {
                       ),
                     ),
                   ],
+                  if (dashboardViewModel.showPayjoinPaymentsCard) ...[
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: DashBoardRoundedCardWidget(
+                        customBorder: 30,
+                        title: 'Payjoin Payments', // ToDo: Localize
+                        subTitle: 'Enable payjoin payments', // ToDo: Localize
+                        hint: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => launchUrl(
+                                    Uri.parse(
+                                        "https://github.com/bitcoin/bips/blob/df3bd5239b20a9183d24d27c0d1d46da367a5262/bip-0077.mediawiki"),
+                                    mode: LaunchMode.externalApplication,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "What is payjoin payments?",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context)
+                                              .extension<BalancePageTheme>()!
+                                              .labelTextColor,
+                                          height: 1,
+                                        ),
+                                        softWrap: true,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4),
+                                        child: Icon(Icons.help_outline,
+                                            size: 16,
+                                            color: Theme.of(context)
+                                                .extension<BalancePageTheme>()!
+                                                .labelTextColor),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Observer(
+                                  builder: (_) => StandardSwitch(
+                                    value: dashboardViewModel
+                                        .payjoinPaymentsScanningActive,
+                                    onTaped: () =>
+                                        _togglePayjoinPaymentsScanning(),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                        onTap: () => _togglePayjoinPaymentsScanning(),
+                        icon: Icon(
+                          Icons.join_inner_outlined,
+                          color: Theme.of(context)
+                              .extension<DashboardPageTheme>()!
+                              .pageTitleTextColor,
+                          size: 50,
+                        ),
+                      ),
+                    ),
+                  ],
                   if (dashboardViewModel.showMwebCard) ...[
                     SizedBox(height: 10),
                     Padding(
@@ -486,6 +556,16 @@ class CryptoBalanceWidget extends StatelessWidget {
     }
 
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
+  }
+
+  Future<void> _togglePayjoinPaymentsScanning() async {
+    final isPayjoinPaymentsScanningActive =
+        dashboardViewModel.payjoinPaymentsScanningActive;
+    final newValue = !isPayjoinPaymentsScanningActive;
+
+    dashboardViewModel.payjoinPaymentsScanningActive = newValue;
+
+    return dashboardViewModel.setPayjoinPaymentsScanning(newValue);
   }
 
   Future<void> _enableMweb(BuildContext context) async {
