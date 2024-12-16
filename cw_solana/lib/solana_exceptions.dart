@@ -19,3 +19,20 @@ class SolanaTransactionWrongBalanceException implements Exception {
   @override
   String toString() => exceptionMessage;
 }
+
+class SolanaSignNativeTokenTransactionRentException implements Exception {}
+
+class SolanaCreateAssociatedTokenAccountException implements Exception {
+  final String exceptionMessage;
+
+  SolanaCreateAssociatedTokenAccountException(this.exceptionMessage);
+}
+
+class SolanaSignSPLTokenTransactionRentException implements Exception {}
+
+class SolanaNoAssociatedTokenAccountException implements Exception {
+  const SolanaNoAssociatedTokenAccountException(this.account, this.mint);
+
+  final String account;
+  final String mint;
+}

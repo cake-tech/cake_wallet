@@ -119,12 +119,7 @@ class CryptoBalanceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onLongPress: () => dashboardViewModel.balanceViewModel.isReversing =
-          !dashboardViewModel.balanceViewModel.isReversing,
-      onLongPressUp: () => dashboardViewModel.balanceViewModel.isReversing =
-          !dashboardViewModel.balanceViewModel.isReversing,
-      child: SingleChildScrollView(
+      return SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -326,7 +321,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () => launchUrl(
                                     Uri.parse(
-                                        "https://guides.cakewallet.com/docs/cryptos/bitcoin/#silent-payments"),
+                                        "https://docs.cakewallet.com/cryptos/bitcoin#silent-payments"),
                                     mode: LaunchMode.externalApplication,
                                   ),
                                   child: Row(
@@ -556,7 +551,6 @@ class CryptoBalanceWidget extends StatelessWidget {
             }),
           ],
         ),
-      ),
     );
   }
 
@@ -705,44 +699,47 @@ class BalanceRowWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              GestureDetector(
+                  onTap: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: hasAdditionalBalance
-                        ? () => _showBalanceDescription(
-                            context, S.of(context).available_balance_description)
-                        : null,
-                    child: Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Semantics(
-                              hint: 'Double tap to see more information',
-                              container: true,
-                              child: Text('${availableBalanceLabel}',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontFamily: 'Lato',
-                                      fontWeight: FontWeight.w400,
-                                      color: Theme.of(context)
-                                          .extension<BalancePageTheme>()!
-                                          .labelTextColor,
-                                      height: 1)),
+                        GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: hasAdditionalBalance
+                                ? () => _showBalanceDescription(
+                                context, S.of(context).available_balance_description)
+                                : null,
+                            child: Row(
+                              children: [
+                                Semantics(
+                                  hint: 'Double tap to see more information',
+                                  container: true,
+                                  child: Text('${availableBalanceLabel}',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.w400,
+                                          color: Theme.of(context)
+                                              .extension<BalancePageTheme>()!
+                                              .labelTextColor,
+                                          height: 1)),
+                                ),
+                                if (hasAdditionalBalance)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    child: Icon(Icons.help_outline,
+                                        size: 16,
+                                        color: Theme.of(context)
+                                            .extension<BalancePageTheme>()!
+                                            .labelTextColor),
+                                  ),
+                              ],
                             ),
-                            if (hasAdditionalBalance)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
-                                child: Icon(Icons.help_outline,
-                                    size: 16,
-                                    color: Theme.of(context)
-                                        .extension<BalancePageTheme>()!
-                                        .labelTextColor),
-                              ),
-                          ],
                         ),
                         SizedBox(height: 6),
                         AutoSizeText(availableBalance,
@@ -775,9 +772,10 @@ class BalanceRowWidget extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                                   height: 1)),
+
                       ],
                     ),
-                  ),
+
                   SizedBox(
                     width: min(MediaQuery.of(context).size.width * 0.2, 100),
                     child: Center(
@@ -819,6 +817,7 @@ class BalanceRowWidget extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
               ),
               if (frozenBalance.isNotEmpty)
                 GestureDetector(
@@ -886,7 +885,9 @@ class BalanceRowWidget extends StatelessWidget {
                   ),
                 ),
               if (hasAdditionalBalance)
-                Column(
+              GestureDetector(
+                onTap: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 24),
@@ -929,12 +930,13 @@ class BalanceRowWidget extends StatelessWidget {
                       ),
                   ],
                 ),
+              ),
             ],
           ),
         ),
       ),
       if (hasSecondAdditionalBalance || hasSecondAvailableBalance) ...[
-        SizedBox(height: 16),
+        SizedBox(height: 10),
         Container(
           margin: const EdgeInsets.only(left: 16, right: 16),
           decoration: BoxDecoration(
@@ -989,7 +991,9 @@ class BalanceRowWidget extends StatelessWidget {
                           ],
                         ),
                       if (hasSecondAvailableBalance)
-                        Row(
+                        GestureDetector(
+                          onTap: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
+                        child: Row(
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -998,7 +1002,7 @@ class BalanceRowWidget extends StatelessWidget {
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () => launchUrl(
                                     Uri.parse(
-                                        "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
+                                        "https://docs.cakewallet.com/cryptos/litecoin.html#mweb"),
                                     mode: LaunchMode.externalApplication,
                                   ),
                                   child: Row(
@@ -1060,6 +1064,7 @@ class BalanceRowWidget extends StatelessWidget {
                               ],
                             ),
                           ],
+                        ),
                         ),
                     ],
                   ),

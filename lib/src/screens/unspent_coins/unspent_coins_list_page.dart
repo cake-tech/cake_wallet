@@ -154,7 +154,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                   SizedBox(height: 15),
                   Expanded(
                     child: unspentCoinsListViewModel.items.isEmpty
-                        ? Center(child: Text('No unspent coins available\ntry to reconnect',textAlign: TextAlign.center))
+                        ? Center(child: Text('No unspent coins available',textAlign: TextAlign.center))
                         : ListView.separated(
                             itemCount: unspentCoinsListViewModel.items.length,
                             separatorBuilder: (_, __) => SizedBox(height: 15),

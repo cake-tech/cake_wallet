@@ -227,21 +227,21 @@ class ElectrumClient {
         return [];
       });
 
-  Future<List<Map<String, dynamic>>> getListUnspent(String scriptHash) =>
-      call(method: 'blockchain.scripthash.listunspent', params: [scriptHash])
-          .then((dynamic result) {
-        if (result is List) {
-          return result.map((dynamic val) {
-            if (val is Map<String, dynamic>) {
-              return val;
-            }
+  Future<List<Map<String, dynamic>>> getListUnspent(String scriptHash) async {
+    final result = await call(method: 'blockchain.scripthash.listunspent', params: [scriptHash]);
 
-            return <String, dynamic>{};
-          }).toList();
+    if (result is List) {
+      return result.map((dynamic val) {
+        if (val is Map<String, dynamic>) {
+          return val;
         }
 
-        return [];
-      });
+        return <String, dynamic>{};
+      }).toList();
+    }
+
+    return [];
+  }
 
   Future<List<Map<String, dynamic>>> getMempool(String scriptHash) =>
       call(method: 'blockchain.scripthash.get_mempool', params: [scriptHash])

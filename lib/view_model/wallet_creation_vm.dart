@@ -114,7 +114,7 @@ abstract class WalletCreationVMBase with Store {
       await _walletInfoSource.add(walletInfo);
       await _appStore.changeCurrentWallet(wallet);
       getIt.get<BackgroundTasks>().registerSyncTask();
-      _appStore.authenticationStore.allowed();
+      _appStore.authenticationStore.allowedCreate();
       state = ExecutedSuccessfullyState();
     } catch (e, s) {
       printV("error: $e");
