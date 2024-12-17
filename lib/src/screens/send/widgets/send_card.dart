@@ -196,7 +196,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         onSelectedContact: (contact) {
                           output.loadContact(contact);
                         },
-                        validator: validator,
+                        // validator: validator, // ToDo: Fix for Payjoin
                         selectedCurrency: sendViewModel.selectedCryptoCurrency,
                       );
                     }),

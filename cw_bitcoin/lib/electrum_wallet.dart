@@ -1078,7 +1078,40 @@ abstract class ElectrumWalletBase
 
       transaction.psbt.sign(estimatedTx.utxos,
               (txDigest, utxo, publicKey, sighash) {
-            return '';
+            String error = "Cannot find private key.";
+
+            ECPrivateInfo? key;
+
+            if (estimatedTx.inputPrivKeyInfos.isEmpty) {
+              error += "\nNo private keys generated.";
+            } else {
+              error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
+
+              key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
+                final elemPubkey = element.privkey.getPublic().toHex();
+                if (elemPubkey == publicKey) {
+                  return true;
+                } else {
+                  error += "\nExpected: $publicKey";
+                  error += "\nPubkey: $elemPubkey";
+                  return false;
+                }
+              });
+            }
+
+            if (key == null) {
+              throw Exception(error);
+            }
+
+            if (utxo.utxo.isP2tr()) {
+              return key.privkey.signTapRoot(
+                txDigest,
+                sighash: sighash,
+                tweak: utxo.utxo.isSilentPayment != true,
+              );
+            } else {
+              return key.privkey.signInput(txDigest, sigHash: sighash);
+            }
           });
 
       // return transaction.psbt.asPsbtV0();
