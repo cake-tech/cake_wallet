@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_nano/nano_block_info_response.dart';
 import 'package:cw_core/n2_node.dart';
 import 'package:cw_nano/nano_balance.dart';
@@ -106,7 +107,7 @@ class NanoClient {
       final data = await jsonDecode(response.body);
       return AccountInfoResponse.fromJson(data as Map<String, dynamic>);
     } catch (e) {
-      print("error while getting account info $e");
+      printV("error while getting account info $e");
       return null;
     }
   }
@@ -127,7 +128,7 @@ class NanoClient {
       final data = await jsonDecode(response.body);
       return BlockContentsResponse.fromJson(data["contents"] as Map<String, dynamic>);
     } catch (e) {
-      print("error while getting block info $e");
+      printV("error while getting block info $e");
       return null;
     }
   }
@@ -466,21 +467,25 @@ class NanoClient {
 
     blocks = blocks as Map<String, dynamic>;
 
-    // confirm all receivable blocks:
-    for (final blockHash in blocks.keys) {
-      final block = blocks[blockHash];
-      final String amountRaw = block["amount"] as String;
-      await receiveBlock(
-        blockHash: blockHash,
-        amountRaw: amountRaw,
-        privateKey: privateKey,
-        destinationAddress: destinationAddress,
-      );
-      // a bit of a hack:
-      await Future<void>.delayed(const Duration(seconds: 2));
+    try {
+      // confirm all receivable blocks:
+      for (final blockHash in blocks.keys) {
+        final block = blocks[blockHash];
+        final String amountRaw = block["amount"] as String;
+        await receiveBlock(
+          blockHash: blockHash,
+          amountRaw: amountRaw,
+          privateKey: privateKey,
+          destinationAddress: destinationAddress,
+        );
+        // a bit of a hack:
+        await Future<void>.delayed(const Duration(seconds: 2));
+      }
+      return blocks.keys.length;
+    } catch (_) {
+      // we failed to confirm all receivable blocks for w/e reason (PoW / node outage / etc)
+      return 0;
     }
-
-    return blocks.keys.length;
   }
 
   void stop() {}
@@ -504,7 +509,7 @@ class NanoClient {
           .map<NanoTransactionModel>((transaction) => NanoTransactionModel.fromJson(transaction))
           .toList();
     } catch (e) {
-      print(e);
+      printV(e);
       return [];
     }
   }

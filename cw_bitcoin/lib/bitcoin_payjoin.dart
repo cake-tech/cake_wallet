@@ -27,10 +27,6 @@ export 'package:payjoin_flutter/send.dart' show Sender;
 
 export 'package:payjoin_flutter/src/exceptions.dart' show PayjoinException;
 
-import 'package:ledger_bitcoin/src/psbt/psbt_extractor.dart';
-
-import 'psbt_converter.dart';
-
 class BitcoinPayjoin {
   // Private constructor
   BitcoinPayjoin._internal();

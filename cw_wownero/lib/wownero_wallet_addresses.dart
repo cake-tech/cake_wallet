@@ -1,8 +1,11 @@
 import 'package:cw_core/account.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/subaddress.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_wownero/api/transaction_history.dart';
+import 'package:cw_wownero/api/subaddress_list.dart' as subaddress_list;
 import 'package:cw_wownero/api/wallet.dart';
 import 'package:cw_wownero/wownero_account_list.dart';
 import 'package:cw_wownero/wownero_subaddress_list.dart';
@@ -27,6 +30,30 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   @observable
   String address;
 
+  @override
+  String get primaryAddress => getAddress(accountIndex: account?.id ?? 0, addressIndex: 0);
+
+  @override
+  String get latestAddress {
+    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
+    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+    while (hiddenAddresses.contains(address)) {
+      addressIndex++;
+      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+    }
+    return address;
+  }
+
+  @override
+  String get addressForExchange {
+    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
+    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+    while (hiddenAddresses.contains(address) || manualAddresses.contains(address)) {
+      addressIndex++;
+      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+    }
+    return address;
+  }
   @observable
   Account? account;
 
@@ -36,11 +63,14 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
   WowneroSubaddressList subaddressList;
 
   WowneroAccountList accountList;
+  
+  @override
+  Set<String> usedAddresses = Set();
 
   @override
   Future<void> init() async {
     accountList.update();
-    account = accountList.accounts.first;
+    account = accountList.accounts.isEmpty ? Account(id: 0, label: "Primary address") : accountList.accounts.first;
     updateSubaddressList(accountIndex: account?.id ?? 0);
     await updateAddressesInBox();
   }
@@ -65,7 +95,7 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
 
       await saveAddressesInBox();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -89,8 +119,9 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
 
   void updateSubaddressList({required int accountIndex}) {
     subaddressList.update(accountIndex: accountIndex);
-    subaddress = subaddressList.subaddresses.first;
-    address = subaddress!.address;
+    address = subaddressList.subaddresses.isNotEmpty
+        ? subaddressList.subaddresses.first.address
+        : getAddress();
   }
 
   Future<void> updateUsedSubaddress() async {
@@ -109,7 +140,7 @@ abstract class WowneroWalletAddressesBase extends WalletAddresses with Store {
         accountIndex: accountIndex,
         defaultLabel: defaultLabel,
         usedAddresses: usedAddresses.toList());
-    subaddress = (subaddressList.subaddresses.isEmpty) ? Subaddress(id: 0, address: address, label: defaultLabel) : subaddressList.subaddresses.last;
+    subaddress = (subaddressList.subaddresses.isEmpty) ? Subaddress(id: 0, address: address, label: defaultLabel, balance: '0', txCount: 0) : subaddressList.subaddresses.last;
     address = subaddress!.address;
   }
 

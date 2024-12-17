@@ -18,12 +18,12 @@ abstract class TransactionInfo extends Object with Keyable {
   String? to;
   String? from;
   String? evmSignatureName;
+  bool? isReplaced;
   List<String>? inputAddresses;
   List<String>? outputAddresses;
 
   @override
   dynamic get keyIndex => id;
 
-  late Map<String, dynamic> additionalInfo;
+  Map<String, dynamic> additionalInfo = {};
 }
-

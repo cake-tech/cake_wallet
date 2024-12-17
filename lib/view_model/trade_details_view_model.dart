@@ -4,9 +4,11 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/quantex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -20,6 +22,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -59,6 +62,11 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
       case ExchangeProviderDescription.quantex:
         _provider = QuantexExchangeProvider();
+      case ExchangeProviderDescription.letsExchange:
+        _provider = LetsExchangeExchangeProvider();
+        break;
+      case ExchangeProviderDescription.stealthEx:
+        _provider = StealthExExchangeProvider();
         break;
     }
 
@@ -86,6 +94,10 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://track.ninerealms.com/${trade.id}';
       case ExchangeProviderDescription.quantex:
         return 'https://myquantex.com/send/${trade.id}';
+      case ExchangeProviderDescription.letsExchange:
+        return 'https://letsexchange.io/?transactionId=${trade.id}';
+      case ExchangeProviderDescription.stealthEx:
+        return 'https://stealthex.io/exchange/?id=${trade.id}';
     }
     return null;
   }
@@ -123,7 +135,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
       _updateItems();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -141,6 +153,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
     items.add(TradeDetailsListCardItem.tradeDetails(
       id: trade.id,
+      extraId: trade.extraId,
       createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
       from: trade.from,
       to: trade.to,

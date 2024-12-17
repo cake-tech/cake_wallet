@@ -15,6 +15,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -42,6 +43,7 @@ abstract class NanoWalletBase
     required String password,
     NanoBalance? initialBalance,
     required EncryptionFileUtils encryptionFileUtils,
+    this.passphrase,
   })  : syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -148,7 +150,7 @@ abstract class NanoWalletBase
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  void close() {
+  Future<void> close({bool shouldCleanup = false}) async {
     _client.stop();
     _receiveTimer?.cancel();
   }
@@ -169,12 +171,12 @@ abstract class NanoWalletBase
         await _updateRep();
         await _receiveAll();
       } catch (e) {
-        print(e);
+        printV(e);
       }
 
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
-      print(e);
+      printV(e);
       syncStatus = FailedSyncStatus();
     }
   }
@@ -366,7 +368,7 @@ abstract class NanoWalletBase
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
-      print(e);
+      printV(e);
       syncStatus = FailedSyncStatus();
       rethrow;
     }
@@ -443,7 +445,7 @@ abstract class NanoWalletBase
     try {
       balance[currency] = await _client.getBalance(_publicAddress!);
     } catch (e) {
-      print("Failed to get balance $e");
+      printV("Failed to get balance $e");
       // if we don't have a balance, we should at least create one, since it's a late binding
       // otherwise, it's better to just leave it as whatever it was before:
       if (balance[currency] == null) {
@@ -548,4 +550,7 @@ abstract class NanoWalletBase
     }
     return await NanoSignatures.verifyMessage(message, signature, address);
   }
+
+  @override
+  final String? passphrase;
 }

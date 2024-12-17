@@ -251,7 +251,8 @@ const haDateSymbols = {
 };
 
 // #docregion Delegate
-class _HaMaterialLocalizationsDelegate extends LocalizationsDelegate<MaterialLocalizations> {
+class _HaMaterialLocalizationsDelegate
+    extends LocalizationsDelegate<MaterialLocalizations> {
   const _HaMaterialLocalizationsDelegate();
 
   @override
@@ -398,7 +399,8 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
   String get pageRowsInfoTitleRaw => r'$firstRow–$lastRow daga $rowCount';
 
   @override
-  String get pageRowsInfoTitleApproximateRaw => r'$firstRow–$lastRow daga takwas $rowCount';
+  String get pageRowsInfoTitleApproximateRaw =>
+      r'$firstRow–$lastRow daga takwas $rowCount';
 // #enddocregion Raw
 
   @override
@@ -432,7 +434,8 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
   String get remainingTextFieldCharacterCountOne => r'1 haruffa baki';
 
   @override
-  String get remainingTextFieldCharacterCountOther => r'$remainingCount haruffa baki';
+  String get remainingTextFieldCharacterCountOther =>
+      r'$remainingCount haruffa baki';
 
   @override
   String? get remainingTextFieldCharacterCountTwo => null;
@@ -513,7 +516,8 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
   String get viewLicensesButtonLabel => 'DUBA LAYINSU';
 
   @override
-  List<String> get narrowWeekdays => const <String>['L', 'L', 'M', 'K', 'J', 'A', 'A'];
+  List<String> get narrowWeekdays =>
+      const <String>['L', 'L', 'M', 'K', 'J', 'A', 'A'];
 
   @override
   int get firstDayOfWeekIndex => 0;
@@ -537,7 +541,8 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
   String get datePickerHelpText => 'ZAƘA TALATA';
 
   @override
-  String get dateRangeEndDateSemanticLabelRaw => r'Aikin da ya ƙarshe $fullDate';
+  String get dateRangeEndDateSemanticLabelRaw =>
+      r'Aikin da ya ƙarshe $fullDate';
 
   @override
   String get dateRangeEndLabel => 'Aikin da ya ƙarshe';
@@ -546,7 +551,8 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
   String get dateRangePickerHelpText => 'ZAƘA HALIN RANAR';
 
   @override
-  String get dateRangeStartDateSemanticLabelRaw => 'Aikin da ya gabata \$fullDate';
+  String get dateRangeStartDateSemanticLabelRaw =>
+      'Aikin da ya gabata \$fullDate';
 
   @override
   String get dateRangeStartLabel => 'Aikin da ya gabata';
@@ -786,16 +792,19 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
   String get shareButtonLabel => "shareButtonLabel";
 
   @override
+  // TODO: implement clearButtonTooltip
   String get clearButtonTooltip => "clearButtonTooltip";
 
   @override
+  // TODO: implement selectedDateLabel
   String get selectedDateLabel => "selectedDateLabel";
 }
 
 /// Cupertino Support
 /// Strings Copied from "https://github.com/flutter/flutter/blob/master/packages/flutter_localizations/lib/src/l10n/generated_cupertino_localizations.dart"
 
-class _HaCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+class _HaCupertinoLocalizationsDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
   const _HaCupertinoLocalizationsDelegate();
 
   @override

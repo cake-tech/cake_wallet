@@ -11,6 +11,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -33,7 +34,6 @@ import 'package:solana/base58.dart';
 import 'package:solana/metaplex.dart' as metaplex;
 import 'package:solana/solana.dart';
 import 'package:solana/src/crypto/ed25519_hd_keypair.dart';
-import 'package:cryptography/cryptography.dart';
 
 part 'solana_wallet.g.dart';
 
@@ -49,6 +49,7 @@ abstract class SolanaWalletBase
     required String password,
     SolanaBalance? initialBalance,
     required this.encryptionFileUtils,
+    this.passphrase,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -179,7 +180,7 @@ abstract class SolanaWalletBase
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  void close() {
+  Future<void> close({bool shouldCleanup = false}) async {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
   }
@@ -226,6 +227,8 @@ abstract class SolanaWalletBase
         balance.keys.firstWhere((element) => element.title == solCredentials.currency.title);
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
+
+    final solBalance = balance[CryptoCurrency.sol]!.balance;
 
     double totalAmount = 0.0;
 
@@ -278,6 +281,7 @@ abstract class SolanaWalletBase
           ? solCredentials.outputs.first.extractedAddress!
           : solCredentials.outputs.first.address,
       isSendAll: isSendAll,
+      solBalance: solBalance,
     );
 
     return pendingSolanaTransaction;
@@ -454,7 +458,7 @@ abstract class SolanaWalletBase
                   SolanaBalance(0.0);
           balance[token] = tokenBalance;
         } catch (e) {
-          print('Error fetching spl token (${token.symbol}) balance ${e.toString()}');
+          printV('Error fetching spl token (${token.symbol}) balance ${e.toString()}');
         }
       } else {
         balance.remove(token);
@@ -632,4 +636,7 @@ abstract class SolanaWalletBase
 
   @override
   String get password => _password;
+
+  @override
+  final String? passphrase;
 }

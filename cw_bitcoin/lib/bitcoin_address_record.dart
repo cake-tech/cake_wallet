@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/script_hash.dart' as sh;
 
 abstract class BaseBitcoinAddressRecord {
   BaseBitcoinAddressRecord(
@@ -20,7 +19,8 @@ abstract class BaseBitcoinAddressRecord {
         _isUsed = isUsed;
 
   @override
-  bool operator ==(Object o) => o is BaseBitcoinAddressRecord && address == o.address;
+  bool operator ==(Object o) =>
+      o is BaseBitcoinAddressRecord && address == o.address;
 
   final String address;
   bool isHidden;
@@ -65,10 +65,13 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     required super.type,
     String? scriptHash,
     required super.network,
-  }) : scriptHash =
-            scriptHash ?? (network != null ? sh.scriptHash(address, network: network) : null);
+  }) : scriptHash = scriptHash ??
+            (network != null
+                ? BitcoinAddressUtils.scriptHash(address, network: network)
+                : null);
 
-  factory BitcoinAddressRecord.fromJSON(String jsonSource, {BasedUtxoNetwork? network}) {
+  factory BitcoinAddressRecord.fromJSON(String jsonSource,
+      {BasedUtxoNetwork? network}) {
     final decoded = json.decode(jsonSource) as Map;
 
     return BitcoinAddressRecord(
@@ -80,8 +83,8 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
       type: decoded['type'] != null && decoded['type'] != ''
-          ? BitcoinAddressType.values
-              .firstWhere((type) => type.toString() == decoded['type'] as String)
+          ? BitcoinAddressType.values.firstWhere(
+              (type) => type.toString() == decoded['type'] as String)
           : SegwitAddresType.p2wpkh,
       scriptHash: decoded['scriptHash'] as String?,
       network: network,
@@ -92,7 +95,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 
   String getScriptHash(BasedUtxoNetwork network) {
     if (scriptHash != null) return scriptHash!;
-    scriptHash = sh.scriptHash(address, network: network);
+    scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
     return scriptHash!;
   }
 
@@ -141,8 +144,8 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
           : BasedUtxoNetwork.fromName(decoded['network'] as String),
       silentPaymentTweak: decoded['silent_payment_tweak'] as String?,
       type: decoded['type'] != null && decoded['type'] != ''
-          ? BitcoinAddressType.values
-              .firstWhere((type) => type.toString() == decoded['type'] as String)
+          ? BitcoinAddressType.values.firstWhere(
+              (type) => type.toString() == decoded['type'] as String)
           : SilentPaymentsAddresType.p2sp,
     );
   }

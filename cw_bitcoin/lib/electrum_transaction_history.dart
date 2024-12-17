@@ -5,6 +5,7 @@ import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/utils/file.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -30,7 +31,10 @@ abstract class ElectrumTransactionHistoryBase
   String _password;
   int _height;
 
-  Future<void> init() async => await _load();
+  Future<void> init() async {
+    clear();
+    await _load();
+  }
 
   @override
   void addOne(ElectrumTransactionInfo transaction) => transactions[transaction.id] = transaction;
@@ -51,7 +55,7 @@ abstract class ElectrumTransactionHistoryBase
       final data = json.encode({'height': _height, 'transactions': txjson});
       await encryptionFileUtils.write(path: path, password: _password, data: data);
     } catch (e) {
-      print('Error while save bitcoin transaction history: ${e.toString()}');
+      printV('Error while save bitcoin transaction history: ${e.toString()}');
     }
   }
 
@@ -76,14 +80,19 @@ abstract class ElectrumTransactionHistoryBase
         final val = entry.value;
 
         if (val is Map<String, dynamic>) {
-          final tx = ElectrumTransactionInfo.fromJson(val, walletInfo.type);
-          _update(tx);
+          // removing transactions with invalid date
+          if (val['date'] == 1168650000) {
+            transactions.remove(entry.key);
+          } else {
+            final tx = ElectrumTransactionInfo.fromJson(val, walletInfo.type);
+            _update(tx);
+          }
         }
       });
 
       _height = content['height'] as int;
     } catch (e) {
-      print(e);
+      printV(e);
     }
   }
 

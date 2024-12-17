@@ -14,6 +14,7 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -70,6 +71,7 @@ abstract class EVMChainWalletBase
     required String password,
     EVMChainERC20Balance? initialBalance,
     required this.encryptionFileUtils,
+    this.passphrase,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -178,6 +180,7 @@ abstract class EVMChainWalletBase
         mnemonic: _mnemonic,
         privateKey: _hexPrivateKey,
         password: _password,
+        passphrase: passphrase,
       );
       walletAddresses.address = _evmChainPrivateKey.address.hexEip55;
     }
@@ -198,7 +201,7 @@ abstract class EVMChainWalletBase
           } else {
             // MaxFeePerGas with gasPrice;
             maxFeePerGas = gasPrice;
-            debugPrint('MaxFeePerGas with gasPrice: $maxFeePerGas');
+            printV('MaxFeePerGas with gasPrice: $maxFeePerGas');
           }
 
           final totalGasFee = estimatedGasUnits * maxFeePerGas;
@@ -218,7 +221,7 @@ abstract class EVMChainWalletBase
   /// - The exact amount the user wants to send,
   /// - The addressHex for the receiving wallet,
   /// - A contract address which would be essential in determining if to calcualate the estimate for ERC20 or native ETH
-  Future<int> calculateActualEstimatedFeeForCreateTransaction({
+  Future<GasParamsHandler> calculateActualEstimatedFeeForCreateTransaction({
     required amount,
     required String? contractAddress,
     required String receivingAddressHex,
@@ -237,22 +240,27 @@ abstract class EVMChainWalletBase
           maxFeePerGas = gasPrice;
         }
 
-        final estimatedGas = await _client.getEstimatedGas(
+        final estimatedGas = await _client.getEstimatedGasUnitsForTransaction(
           contractAddress: contractAddress,
           senderAddress: _evmChainPrivateKey.address,
           value: EtherAmount.fromBigInt(EtherUnit.wei, amount!),
           gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasPrice),
           toAddress: EthereumAddress.fromHex(receivingAddressHex),
-          // maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
-          // maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
+          maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
         );
 
         final totalGasFee = estimatedGas * maxFeePerGas;
-        return totalGasFee;
+
+        return GasParamsHandler(
+          estimatedGasUnits: estimatedGas,
+          estimatedGasFee: totalGasFee,
+          maxFeePerGas: maxFeePerGas,
+          gasPrice: gasPrice,
+        );
       }
-      return 0;
+      return GasParamsHandler.zero();
     } catch (e) {
-      return 0;
+      return GasParamsHandler.zero();
     }
   }
 
@@ -262,7 +270,7 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  void close() {
+  Future<void> close({bool shouldCleanup = false}) async {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
     _updateFeesTimer?.cancel();
@@ -315,7 +323,7 @@ abstract class EVMChainWalletBase
 
     gasPrice = await _client.getGasUnitPrice();
 
-    estimatedGasUnits = await _client.getEstimatedGas(
+    estimatedGasUnits = await _client.getEstimatedGasUnitsForTransaction(
       senderAddress: _evmChainPrivateKey.address,
       toAddress: _evmChainPrivateKey.address,
       gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasPrice),
@@ -346,6 +354,8 @@ abstract class EVMChainWalletBase
     int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
     num amountToEVMChainMultiplier = pow(10, exponent);
     String? contractAddress;
+    int estimatedGasUnitsForTransaction = 0;
+    int maxFeePerGasForTransaction = 0;
     String toAddress = _credentials.outputs.first.isParsedAddress
         ? _credentials.outputs.first.extractedAddress!
         : _credentials.outputs.first.address;
@@ -364,14 +374,16 @@ abstract class EVMChainWalletBase
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
       totalAmount = BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
 
-      final estimateFees = await calculateActualEstimatedFeeForCreateTransaction(
+      final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
         receivingAddressHex: toAddress,
         priority: _credentials.priority!,
         contractAddress: contractAddress,
       );
 
-      estimatedFeesForTransaction = BigInt.from(estimateFees);
+      estimatedFeesForTransaction = BigInt.from(gasFeesModel.estimatedGasFee);
+      estimatedGasUnitsForTransaction = gasFeesModel.estimatedGasUnits;
+      maxFeePerGasForTransaction = gasFeesModel.maxFeePerGas;
 
       if (erc20Balance.balance < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
@@ -389,14 +401,16 @@ abstract class EVMChainWalletBase
         totalAmount = erc20Balance.balance;
       }
 
-      final estimateFees = await calculateActualEstimatedFeeForCreateTransaction(
+      final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
         receivingAddressHex: toAddress,
         priority: _credentials.priority!,
         contractAddress: contractAddress,
       );
 
-      estimatedFeesForTransaction = BigInt.from(estimateFees);
+      estimatedFeesForTransaction = BigInt.from(gasFeesModel.estimatedGasFee);
+      estimatedGasUnitsForTransaction = gasFeesModel.estimatedGasUnits;
+      maxFeePerGasForTransaction = gasFeesModel.maxFeePerGas;
 
       if (output.sendAll && transactionCurrency is! Erc20Token) {
         totalAmount = (erc20Balance.balance - estimatedFeesForTransaction);
@@ -417,12 +431,14 @@ abstract class EVMChainWalletBase
     }
 
     final pendingEVMChainTransaction = await _client.signTransaction(
+      estimatedGasUnits: estimatedGasUnitsForTransaction,
       privateKey: _evmChainPrivateKey,
       toAddress: toAddress,
       amount: totalAmount,
-      gas: estimatedFeesForTransaction,
+      gasFee: estimatedFeesForTransaction,
       priority: _credentials.priority!,
       currency: transactionCurrency,
+      maxFeePerGas: maxFeePerGasForTransaction,
       exponent: exponent,
       contractAddress:
           transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
@@ -545,6 +561,7 @@ abstract class EVMChainWalletBase
         'mnemonic': _mnemonic,
         'private_key': privateKey,
         'balance': balance[currency]!.toJSON(),
+        'passphrase': passphrase,
       });
 
   Future<void> _updateBalance() async {
@@ -574,15 +591,19 @@ abstract class EVMChainWalletBase
     }
   }
 
-  Future<EthPrivateKey> getPrivateKey(
-      {String? mnemonic, String? privateKey, required String password}) async {
+  Future<EthPrivateKey> getPrivateKey({
+    String? mnemonic,
+    String? privateKey,
+    required String password,
+    String? passphrase,
+  }) async {
     assert(mnemonic != null || privateKey != null);
 
     if (privateKey != null) {
       return EthPrivateKey.fromHex(privateKey);
     }
 
-    final seed = bip39.mnemonicToSeed(mnemonic!);
+    final seed = bip39.mnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
 
     final root = bip32.BIP32.fromSeed(seed);
 
@@ -716,4 +737,29 @@ abstract class EVMChainWalletBase
 
   @override
   String get password => _password;
+
+  @override
+  final String? passphrase;
+}
+
+class GasParamsHandler {
+  final int estimatedGasUnits;
+  final int estimatedGasFee;
+  final int maxFeePerGas;
+  final int gasPrice;
+
+  GasParamsHandler(
+      {required this.estimatedGasUnits,
+      required this.estimatedGasFee,
+      required this.maxFeePerGas,
+      required this.gasPrice});
+
+  static GasParamsHandler zero() {
+    return GasParamsHandler(
+      estimatedGasUnits: 0,
+      estimatedGasFee: 0,
+      maxFeePerGas: 0,
+      gasPrice: 0,
+    );
+  }
 }

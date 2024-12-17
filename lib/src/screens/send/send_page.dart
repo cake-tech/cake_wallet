@@ -28,6 +28,8 @@ import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -255,6 +257,8 @@ class SendPage extends BasePage {
                           return Row(
                             children: <Widget>[
                               AddTemplateButton(
+                                key: ValueKey(
+                                    'send_page_add_template_button_key'),
                                 onTap: () => Navigator.of(context)
                                     .pushNamed(Routes.sendTemplate),
                                 currentTemplatesLength: templates.length,
@@ -281,6 +285,7 @@ class SendPage extends BasePage {
                                         ? template.cryptoCurrency
                                         : template.fiatCurrency,
                                     onTap: () async {
+                                      sendViewModel.state = IsExecutingState();
                                       if (template.additionalRecipients
                                               ?.isNotEmpty ??
                                           false) {
@@ -314,6 +319,8 @@ class SendPage extends BasePage {
                                           template: template,
                                         );
                                       }
+                                      sendViewModel.state =
+                                          InitialExecutionState();
                                     },
                                     onRemove: () {
                                       showPopUp<void>(
@@ -361,21 +368,25 @@ class SendPage extends BasePage {
               children: [
                 if (sendViewModel.hasCurrecyChanger)
                   Observer(
-                      builder: (_) => Padding(
-                          padding: EdgeInsets.only(bottom: 12),
-                          child: PrimaryButton(
-                            onPressed: () => presentCurrencyPicker(context),
-                            text:
-                                'Change your asset (${sendViewModel.selectedCryptoCurrency})',
-                            color: Colors.transparent,
-                            textColor: Theme.of(context)
-                                .extension<SeedWidgetTheme>()!
-                                .hintTextColor,
-                          ))),
+                    builder: (_) => Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: PrimaryButton(
+                        key: ValueKey('send_page_change_asset_button_key'),
+                        onPressed: () => presentCurrencyPicker(context),
+                        text:
+                            'Change your asset (${sendViewModel.selectedCryptoCurrency})',
+                        color: Colors.transparent,
+                        textColor: Theme.of(context)
+                            .extension<SeedWidgetTheme>()!
+                            .hintTextColor,
+                      ),
+                    ),
+                  ),
                 if (sendViewModel.sendTemplateViewModel.hasMultiRecipient)
                   Padding(
                       padding: EdgeInsets.only(bottom: 12),
                       child: PrimaryButton(
+                        key: ValueKey('send_page_add_receiver_button_key'),
                         onPressed: () {
                           sendViewModel.addOutput();
                           Future.delayed(const Duration(milliseconds: 250), () {
@@ -396,7 +407,9 @@ class SendPage extends BasePage {
                 Observer(
                   builder: (_) {
                     return LoadingPrimaryButton(
+                      key: ValueKey('send_page_send_button_key'),
                       onPressed: () async {
+                        if (sendViewModel.state is IsExecutingState) return;
                         await sendViewModel.stringToPjUri();
 
                         if (_formKey.currentState != null &&
@@ -496,6 +509,9 @@ class SendPage extends BasePage {
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
+                    key: ValueKey('send_page_send_failure_dialog_key'),
+                    buttonKey:
+                        ValueKey('send_page_send_failure_dialog_button_key'),
                     alertTitle: S.of(context).error,
                     alertContent: state.error,
                     buttonText: S.of(context).ok,
@@ -511,6 +527,7 @@ class SendPage extends BasePage {
                 context: context,
                 builder: (BuildContext _dialogContext) {
                   return ConfirmSendingAlert(
+                      key: ValueKey('send_page_confirm_sending_dialog_key'),
                       alertTitle: S.of(_dialogContext).confirm_sending,
                       amount: S.of(_dialogContext).send_amount,
                       amountValue:
@@ -525,102 +542,16 @@ class SendPage extends BasePage {
                       feeFiatAmount: sendViewModel
                           .pendingTransactionFeeFiatAmountFormatted,
                       outputs: sendViewModel.outputs,
+                      change: sendViewModel.pendingTransaction!.change,
                       rightButtonText: S.of(_dialogContext).send,
                       leftButtonText: S.of(_dialogContext).cancel,
+                      alertRightActionButtonKey: ValueKey(
+                          'send_page_confirm_sending_dialog_send_button_key'),
+                      alertLeftActionButtonKey: ValueKey(
+                          'send_page_confirm_sending_dialog_cancel_button_key'),
                       actionRightButton: () async {
                         Navigator.of(_dialogContext).pop();
-                        sendViewModel.commitTransaction();
-                        await showPopUp<void>(
-                            context: context,
-                            builder: (BuildContext _dialogContext) {
-                              return Observer(builder: (_) {
-                                final state = sendViewModel.state;
-
-                                if (state is FailureState) {
-                                  Navigator.of(_dialogContext).pop();
-                                }
-
-                                if (state is TransactionCommitted) {
-                                  newContactAddress = newContactAddress ??
-                                      sendViewModel.newContactAddress();
-
-                                  final successMessage = S
-                                      .of(_dialogContext)
-                                      .send_success(sendViewModel
-                                          .selectedCryptoCurrency
-                                          .toString());
-
-                                  final waitMessage = sendViewModel
-                                              .walletType ==
-                                          WalletType.solana
-                                      ? '. ${S.of(_dialogContext).waitFewSecondForTxUpdate}'
-                                      : '';
-
-                                  final newContactMessage = newContactAddress !=
-                                          null
-                                      ? '\n${S.of(_dialogContext).add_contact_to_address_book}'
-                                      : '';
-
-                                  String alertContent =
-                                      "$successMessage$waitMessage$newContactMessage";
-
-                                  if (newContactAddress != null) {
-                                    return AlertWithTwoActions(
-                                        alertTitle: '',
-                                        alertContent: alertContent,
-                                        rightButtonText:
-                                            S.of(_dialogContext).add_contact,
-                                        leftButtonText:
-                                            S.of(_dialogContext).ignor,
-                                        actionRightButton: () {
-                                          Navigator.of(_dialogContext).pop();
-                                          RequestReviewHandler.requestReview();
-                                          Navigator.of(context).pushNamed(
-                                              Routes.addressBookAddContact,
-                                              arguments: newContactAddress);
-                                          newContactAddress = null;
-                                        },
-                                        actionLeftButton: () {
-                                          Navigator.of(_dialogContext).pop();
-                                          RequestReviewHandler.requestReview();
-                                          newContactAddress = null;
-                                        });
-                                  } else {
-                                    if (initialPaymentRequest
-                                            ?.callbackMessage?.isNotEmpty ??
-                                        false) {
-                                      alertContent = initialPaymentRequest!
-                                          .callbackMessage!;
-                                    }
-                                    return AlertWithOneAction(
-                                        alertTitle: '',
-                                        alertContent: alertContent,
-                                        buttonText: S.of(_dialogContext).ok,
-                                        buttonAction: () {
-                                          Navigator.of(_dialogContext).pop();
-                                          RequestReviewHandler.requestReview();
-                                        });
-                                  }
-                                }
-
-                                return Offstage();
-                              });
-                            });
-                        if (state is TransactionCommitted) {
-                          if (initialPaymentRequest?.callbackUrl?.isNotEmpty ??
-                              false) {
-                            // wait a second so it's not as jarring:
-                            await Future.delayed(Duration(seconds: 1));
-                            try {
-                              launchUrl(
-                                Uri.parse(initialPaymentRequest!.callbackUrl!),
-                                mode: LaunchMode.externalApplication,
-                              );
-                            } catch (e) {
-                              print(e);
-                            }
-                          }
-                        }
+                        sendViewModel.commitTransaction(context);
                       },
                       actionLeftButton: () =>
                           Navigator.of(_dialogContext).pop());
@@ -630,7 +561,67 @@ class SendPage extends BasePage {
       }
 
       if (state is TransactionCommitted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          final successMessage = S
+              .of(context)
+              .send_success(sendViewModel.selectedCryptoCurrency.toString());
+
+          final waitMessage = sendViewModel.walletType == WalletType.solana
+              ? '. ${S.of(context).waitFewSecondForTxUpdate}'
+              : '';
+
+          String alertContent = "$successMessage$waitMessage";
+
+          await Navigator.of(context).pushNamed(Routes.transactionSuccessPage,
+              arguments: alertContent);
+
+          newContactAddress =
+              newContactAddress ?? sendViewModel.newContactAddress();
+          if (sendViewModel.coinTypeToSpendFrom != UnspentCoinType.any)
+            newContactAddress = null;
+
+          if (newContactAddress != null && sendViewModel.showAddressBookPopup) {
+            await showPopUp<void>(
+                context: context,
+                builder: (BuildContext _dialogContext) => AlertWithTwoActions(
+                    alertDialogKey: ValueKey('send_page_sent_dialog_key'),
+                    alertTitle: '',
+                    alertContent:
+                        S.of(_dialogContext).add_contact_to_address_book,
+                    rightButtonText: S.of(_dialogContext).add_contact,
+                    leftButtonText: S.of(_dialogContext).ignor,
+                    alertLeftActionButtonKey:
+                        ValueKey('send_page_sent_dialog_ignore_button_key'),
+                    alertRightActionButtonKey: ValueKey(
+                        'send_page_sent_dialog_add_contact_button_key'),
+                    actionRightButton: () {
+                      Navigator.of(_dialogContext).pop();
+                      RequestReviewHandler.requestReview();
+                      Navigator.of(context).pushNamed(
+                          Routes.addressBookAddContact,
+                          arguments: newContactAddress);
+                      newContactAddress = null;
+                    },
+                    actionLeftButton: () {
+                      Navigator.of(_dialogContext).pop();
+                      RequestReviewHandler.requestReview();
+                      newContactAddress = null;
+                    }));
+          }
+
+          if (initialPaymentRequest?.callbackUrl?.isNotEmpty ?? false) {
+            // wait a second so it's not as jarring:
+            await Future.delayed(Duration(seconds: 1));
+            try {
+              launchUrl(
+                Uri.parse(initialPaymentRequest!.callbackUrl!),
+                mode: LaunchMode.externalApplication,
+              );
+            } catch (e) {
+              printV(e);
+            }
+          }
+
           sendViewModel.clearOutputs();
         });
       }
@@ -645,7 +636,10 @@ class SendPage extends BasePage {
                     alertTitle: S.of(context).proceed_on_device,
                     alertContent: S.of(context).proceed_on_device_description,
                     buttonText: S.of(context).cancel,
-                    buttonAction: () => Navigator.of(context).pop());
+                    buttonAction: () {
+                      sendViewModel.state = InitialExecutionState();
+                      Navigator.of(context).pop();
+                    });
               });
         });
       }

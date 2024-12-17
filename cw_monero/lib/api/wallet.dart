@@ -2,15 +2,17 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
+import 'package:flutter/foundation.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:mutex/mutex.dart';
 
 int getSyncingHeight() {
   // final height = monero.MONERO_cw_WalletListener_height(getWlptr());
   final h2 = monero.Wallet_blockChainHeight(wptr!);
-  // print("height: $height / $h2");
+  // printV("height: $height / $h2");
   return h2;
 }
 
@@ -66,9 +68,20 @@ String getSeedLegacy(String? language) {
   return legacy;
 }
 
-String getAddress({int accountIndex = 0, int addressIndex = 0}) =>
-    monero.Wallet_address(wptr!,
+Map<int, Map<int, Map<int, String>>> addressCache = {};
+
+String getAddress({int accountIndex = 0, int addressIndex = 0}) {
+  // printV("getaddress: ${accountIndex}/${addressIndex}: ${monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)}: ${monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}");
+  while (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)-1 < addressIndex) {
+    printV("adding subaddress");
+    monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
+  }
+  addressCache[wptr!.address] ??= {};
+  addressCache[wptr!.address]![accountIndex] ??= {};
+  addressCache[wptr!.address]![accountIndex]![addressIndex] ??= monero.Wallet_address(wptr!,
         accountIndex: accountIndex, addressIndex: addressIndex);
+  return addressCache[wptr!.address]![accountIndex]![addressIndex]!;
+}
 
 int getFullBalance({int accountIndex = 0}) =>
     monero.Wallet_balance(wptr!, accountIndex: accountIndex);
@@ -89,7 +102,7 @@ Future<bool> setupNodeSync(
     bool useSSL = false,
     bool isLightWallet = false,
     String? socksProxyAddress}) async {
-  print('''
+  printV('''
 {
   wptr!,
   daemonAddress: $address,
@@ -108,14 +121,22 @@ Future<bool> setupNodeSync(
         daemonUsername: login ?? '',
         daemonPassword: password ?? '');
   });
-  // monero.Wallet_init3(wptr!, argv0: '', defaultLogBaseName: 'moneroc', console: true);
 
   final status = monero.Wallet_status(wptr!);
 
   if (status != 0) {
     final error = monero.Wallet_errorString(wptr!);
-    print("error: $error");
+    printV("error: $error");
     throw SetupWalletException(message: error);
+  }
+
+  if (kDebugMode) {
+    monero.Wallet_init3(
+      wptr!, argv0: '',
+      defaultLogBaseName: 'moneroc',
+      console: true,
+      logPath: '',
+    );
   }
 
   return status == 0;
@@ -139,14 +160,15 @@ final storeMutex = Mutex();
 
 int lastStorePointer = 0;
 int lastStoreHeight = 0;
-void storeSync() async {
+void storeSync({bool force = false}) async {
   final addr = wptr!.address;
   final synchronized = await Isolate.run(() {
     return monero.Wallet_synchronized(Pointer.fromAddress(addr));
   });
   if (lastStorePointer == wptr!.address &&
       lastStoreHeight + 5000 > monero.Wallet_blockChainHeight(wptr!) &&
-      !synchronized) {
+      !synchronized && 
+      !force) {
     return;
   }
   lastStorePointer = wptr!.address;

@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -152,7 +153,7 @@ int getMoneroHeigthByDate({required DateTime date}) {
       height = startHeight + daysHeight - heightPerDay;
     }
   } catch (e) {
-    print(e.toString());
+    printV(e.toString());
   }
 
   return height;
@@ -267,6 +268,16 @@ const bitcoinDates = {
   "2023-01": 769810,
 };
 
+Future<int> getBitcoinHeightByDateAPI({required DateTime date}) async {
+  final response = await http.get(
+    Uri.parse(
+      "https://mempool.cakewallet.com/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}",
+    ),
+  );
+
+  return jsonDecode(response.body)['height'] as int;
+}
+
 int getBitcoinHeightByDate({required DateTime date}) {
   String dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
   final closestKey = bitcoinDates.keys
@@ -298,6 +309,11 @@ DateTime getDateByBitcoinHeight(int height) {
   }
 
   return estimatedDate;
+}
+
+int getLtcHeightByDate({required DateTime date}) {
+  // TODO: use the proxy layer to get the height with a binary search of blocked header heights
+  return 0;
 }
 
 // TODO: enhance all of this global const lists
@@ -377,4 +393,3 @@ int getWowneroHeightByDate({required DateTime date}) {
 
   return wowDates[closestKey] ?? 0;
 }
-

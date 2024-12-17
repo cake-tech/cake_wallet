@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -35,8 +36,21 @@ class BitcoinWalletService extends WalletService<
     final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
 
+    final String mnemonic;
+    switch ( credentials.walletInfo?.derivationInfo?.derivationType) {
+      case DerivationType.bip39:
+        final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+
+        mnemonic = credentials.mnemonic ?? await MnemonicBip39.generate(strength: strength);
+        break;
+      case DerivationType.electrum:
+      default:
+        mnemonic = await generateElectrumMnemonic();
+        break;
+    }
+
     final wallet = await BitcoinWalletBase.create(
-      mnemonic: await generateElectrumMnemonic(),
+      mnemonic: mnemonic,
       password: credentials.password!,
       passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
@@ -92,6 +106,15 @@ class BitcoinWalletService extends WalletService<
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
+
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
+          (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+
+    final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
+
+    if (keysToDelete.isNotEmpty) {
+      await unspentCoinsInfoSource.deleteAll(keysToDelete);
+    }
   }
 
   @override

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class BaseAlertDialog extends StatelessWidget {
   String? get headerText => '';
 
-  String get titleText => '';
+  String? get titleText => '';
 
   String get contentText => '';
 
@@ -16,6 +16,8 @@ class BaseAlertDialog extends StatelessWidget {
   String get rightActionButtonText => '';
 
   bool get isDividerExists => false;
+
+  bool get isBottomDividerExists => true;
 
   VoidCallback get actionLeft => () {};
 
@@ -33,9 +35,15 @@ class BaseAlertDialog extends StatelessWidget {
 
   String? get headerImageUrl => null;
 
+  Key? leftActionButtonKey;
+
+  Key? rightActionButtonKey;
+
+  Key? dialogKey;
+
   Widget title(BuildContext context) {
     return Text(
-      titleText,
+      titleText!,
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 20,
@@ -65,15 +73,22 @@ class BaseAlertDialog extends StatelessWidget {
   }
 
   Widget content(BuildContext context) {
-    return Text(
-      contentText,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.normal,
-        fontFamily: 'Lato',
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-        decoration: TextDecoration.none,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            contentText,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+              fontFamily: 'Lato',
+              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              decoration: TextDecoration.none,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -87,6 +102,7 @@ class BaseAlertDialog extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: TextButton(
+                  key: leftActionButtonKey,
                   onPressed: actionLeft,
                   style: TextButton.styleFrom(
                       backgroundColor:
@@ -109,6 +125,7 @@ class BaseAlertDialog extends StatelessWidget {
             const VerticalSectionDivider(),
             Expanded(
               child: TextButton(
+                  key: rightActionButtonKey,
                   onPressed: actionRight,
                   style: TextButton.styleFrom(
                       backgroundColor:
@@ -152,6 +169,7 @@ class BaseAlertDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      key: key,
       onTap: () => barrierDismissible ? Navigator.of(context).pop() : null,
       child: Container(
         color: Colors.transparent,
@@ -180,10 +198,11 @@ class BaseAlertDialog extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               if (headerText?.isNotEmpty ?? false) headerTitle(context),
+                              titleText != null ?
                               Padding(
                                 padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
                                 child: title(context),
-                              ),
+                              ) : SizedBox(height: 16),
                               isDividerExists
                                   ? Padding(
                                       padding: EdgeInsets.only(top: 16, bottom: 8),
@@ -196,7 +215,7 @@ class BaseAlertDialog extends StatelessWidget {
                               )
                             ],
                           ),
-                          const HorizontalSectionDivider(),
+                          if (isBottomDividerExists) const HorizontalSectionDivider(),
                           ClipRRect(
                               borderRadius: BorderRadius.all(Radius.circular(30)),
                               child: actionButtons(context))

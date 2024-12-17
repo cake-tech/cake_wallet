@@ -91,12 +91,19 @@ class CWNano extends Nano {
   @override
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
+    WalletInfo? walletInfo,
     String? password,
+    String? mnemonic,
+    String? parentAddress,
+    String? passphrase,
   }) =>
       NanoNewWalletCredentials(
         name: name,
         password: password,
-        derivationType: DerivationType.nano,
+        mnemonic: mnemonic,
+        parentAddress: parentAddress,
+        walletInfo: walletInfo,
+        passphrase: passphrase,
       );
 
   @override
@@ -105,6 +112,7 @@ class CWNano extends Nano {
     required String password,
     required String mnemonic,
     required DerivationType derivationType,
+    String? passphrase,
   }) {
     if (mnemonic.split(" ").length == 12 && derivationType != DerivationType.bip39) {
       throw Exception("Invalid mnemonic for derivation type!");
@@ -115,6 +123,7 @@ class CWNano extends Nano {
       password: password,
       mnemonic: mnemonic,
       derivationType: derivationType,
+      passphrase: passphrase,
     );
   }
 
@@ -240,7 +249,7 @@ class CWNanoUtil extends NanoUtil {
           try {
             mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey);
           } catch (e) {
-            print("not a valid 'nano' seed key");
+            printV("not a valid 'nano' seed key");
           }
         }
         if (derivationType == DerivationType.bip39) {
@@ -297,7 +306,7 @@ class CWNanoUtil extends NanoUtil {
       try {
         mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey!);
       } catch (e) {
-        print("not a valid 'nano' seed key");
+        printV("not a valid 'nano' seed key");
       }
     }
 

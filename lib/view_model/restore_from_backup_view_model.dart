@@ -46,7 +46,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
       final data = await file.readAsBytes();
 
       await backupService.importBackup(data, password);
-      await main();
+      await initializeAppAtRoot(reInitializing: true);
 
       final store = getIt.get<AppStore>();
       ReactionDisposer? reaction;
@@ -68,7 +68,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
       if (msg.toLowerCase().contains("message authentication code (mac)")) {
         msg = 'Incorrect backup password';
       } else {
-        ExceptionHandler.onError(FlutterErrorDetails(
+        await ExceptionHandler.onError(FlutterErrorDetails(
           exception: e,
           stack: s,
           library: this.toString(),

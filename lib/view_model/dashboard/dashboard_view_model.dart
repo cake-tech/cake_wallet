@@ -1,12 +1,16 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
-import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -44,12 +48,11 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'dashboard_view_model.g.dart';
 
@@ -68,8 +71,7 @@ abstract class DashboardViewModelBase with Store {
       required this.anonpayTransactionsStore,
       required this.sharedPreferences,
       required this.keyService})
-      : hasSellAction = false,
-        hasBuyAction = false,
+      : hasTradeAction = false,
         hasExchangeAction = false,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
@@ -88,6 +90,12 @@ abstract class DashboardViewModelBase with Store {
                 value: () => transactionFilterStore.displayOutgoing,
                 caption: S.current.outgoing,
                 onChanged: transactionFilterStore.toggleOutgoing),
+            if (appStore.wallet!.type == WalletType.bitcoin)
+              FilterItem(
+                value: () => transactionFilterStore.displaySilentPayments,
+                caption: S.current.silent_payments,
+                onChanged: transactionFilterStore.toggleSilentPayments,
+              ),
             // FilterItem(
             //     value: () => false,
             //     caption: S.current.transactions_by_date,
@@ -129,6 +137,16 @@ abstract class DashboardViewModelBase with Store {
                 caption: ExchangeProviderDescription.thorChain.title,
                 onChanged: () => tradeFilterStore.toggleDisplayExchange(
                     ExchangeProviderDescription.thorChain)),
+            FilterItem(
+                value: () => tradeFilterStore.displayLetsExchange,
+                caption: ExchangeProviderDescription.letsExchange.title,
+                onChanged: () => tradeFilterStore.toggleDisplayExchange(
+                    ExchangeProviderDescription.letsExchange)),
+            FilterItem(
+                value: () => tradeFilterStore.displayStealthEx,
+                caption: ExchangeProviderDescription.stealthEx.title,
+                onChanged: () => tradeFilterStore.toggleDisplayExchange(
+                    ExchangeProviderDescription.stealthEx)),
           ]
         },
         subname = '',
@@ -166,11 +184,17 @@ abstract class DashboardViewModelBase with Store {
       final sortedTransactions = [..._accountTransactions];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
-      transactions = ObservableList.of(sortedTransactions.map((transaction) =>
-          TransactionListItem(
-              transaction: transaction,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore)));
+      transactions = ObservableList.of(
+        sortedTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey(
+                'monero_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     } else if (_wallet.type == WalletType.wownero) {
       subname = wow.wownero!.getCurrentAccount(_wallet).label;
 
@@ -192,22 +216,34 @@ abstract class DashboardViewModelBase with Store {
       final sortedTransactions = [..._accountTransactions];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
-      transactions = ObservableList.of(sortedTransactions.map((transaction) =>
-          TransactionListItem(
-              transaction: transaction,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore)));
+      transactions = ObservableList.of(
+        sortedTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey(
+                'wownero_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     } else {
       final sortedTransactions = [
         ...wallet.transactionHistory.transactions.values
       ];
       sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
 
-      transactions = ObservableList.of(sortedTransactions.map((transaction) =>
-          TransactionListItem(
-              transaction: transaction,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore)));
+      transactions = ObservableList.of(
+        sortedTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey(
+                '${_wallet.type.name}_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     }
 
     // TODO: nano sub-account generation is disabled:
@@ -215,16 +251,22 @@ abstract class DashboardViewModelBase with Store {
     //   subname = nano!.getCurrentAccount(_wallet).label;
     // }
 
-    reaction((_) => appStore.wallet, _onWalletChange);
+    reaction((_) => appStore.wallet, (wallet) {
+      _onWalletChange(wallet);
+      _checkMweb();
+    });
 
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
         transactions,
         (TransactionInfo? transaction) => TransactionListItem(
-            transaction: transaction!,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore),
-        filter: (TransactionInfo? transaction) {
+              transaction: transaction!,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore,
+              key: ValueKey(
+                '${_wallet.type.name}_transaction_history_item_${transaction.id}_key',
+              ),
+            ), filter: (TransactionInfo? transaction) {
       if (transaction == null) {
         return false;
       }
@@ -248,6 +290,18 @@ abstract class DashboardViewModelBase with Store {
       reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
         silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
       });
+    }
+
+    _checkMweb();
+    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
+      _checkMweb();
+    });
+  }
+
+  void _checkMweb() {
+    if (hasMweb) {
+      mwebEnabled = bitcoin!.getMwebEnabled(wallet);
+      balanceViewModel.mwebEnabled = mwebEnabled;
     }
   }
 
@@ -349,8 +403,15 @@ abstract class DashboardViewModelBase with Store {
   bool get hasRescan =>
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.monero ||
+      wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.wownero ||
       wallet.type == WalletType.haven;
+
+  @computed
+  bool get isMoneroViewOnly {
+    if (wallet.type != WalletType.monero) return false;
+    return monero!.isViewOnly();
+  }
 
   @computed
   String? get getMoneroError {
@@ -382,7 +443,9 @@ abstract class DashboardViewModelBase with Store {
       // to not cause work duplication, this will do the job as well, it will be slightly less precise
       // about what happened - but still enough.
       // if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
-      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join(""))
+      if (keys['privateViewKey'] ==
+              List.generate(64, (index) => "0").join("") &&
+          !wallet.isHardwareWallet)
         "private view key is 0",
       // if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
       if (keys['publicViewKey'] == List.generate(64, (index) => "0").join(""))
@@ -422,14 +485,42 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
+  @computed
+  bool get hasMweb =>
+      wallet.type == WalletType.litecoin &&
+      (Platform.isIOS || Platform.isAndroid) &&
+      !wallet.isHardwareWallet;
+
+  @computed
+  bool get showMwebCard =>
+      hasMweb && settingsStore.mwebCardDisplay && !mwebEnabled;
+
   @observable
-  bool payjoinPaymentsScanningActive = false;
+  bool mwebEnabled = false;
+
+  @computed
+  bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
 
   @action
-  void setPayjoinPaymentsScanning(bool active) {
-    payjoinPaymentsScanningActive = active;
+  void setMwebEnabled() {
+    if (!hasMweb) {
+      return;
+    }
 
-    /// TODO: Set Payjoin receive polling
+    settingsStore.hasEnabledMwebBefore = true;
+    mwebEnabled = true;
+    bitcoin!.setMwebEnabled(wallet, true);
+    balanceViewModel.mwebEnabled = true;
+    settingsStore.mwebAlwaysScan = true;
+  }
+
+  @action
+  void dismissMweb() {
+    settingsStore.mwebCardDisplay = false;
+    balanceViewModel.mwebEnabled = false;
+    settingsStore.mwebAlwaysScan = false;
+    mwebEnabled = false;
+    bitcoin!.setMwebEnabled(wallet, false);
   }
 
   BalanceViewModel balanceViewModel;
@@ -452,41 +543,7 @@ abstract class DashboardViewModelBase with Store {
 
   Map<String, List<FilterItem>> filterItems;
 
-  BuyProvider? get defaultBuyProvider => ProvidersHelper.getProviderByType(
-      settingsStore.defaultBuyProviders[wallet.type] ??
-          ProviderType.askEachTime);
-
-  BuyProvider? get defaultSellProvider => ProvidersHelper.getProviderByType(
-      settingsStore.defaultSellProviders[wallet.type] ??
-          ProviderType.askEachTime);
-
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
-
-  List<BuyProvider> get availableBuyProviders {
-    final providerTypes =
-        ProvidersHelper.getAvailableBuyProviderTypes(wallet.type);
-    return providerTypes
-        .map((type) => ProvidersHelper.getProviderByType(type))
-        .where((provider) => provider != null)
-        .cast<BuyProvider>()
-        .toList();
-  }
-
-  bool get hasBuyProviders =>
-      ProvidersHelper.getAvailableBuyProviderTypes(wallet.type).isNotEmpty;
-
-  List<BuyProvider> get availableSellProviders {
-    final providerTypes =
-        ProvidersHelper.getAvailableSellProviderTypes(wallet.type);
-    return providerTypes
-        .map((type) => ProvidersHelper.getProviderByType(type))
-        .where((provider) => provider != null)
-        .cast<BuyProvider>()
-        .toList();
-  }
-
-  bool get hasSellProviders =>
-      ProvidersHelper.getAvailableSellProviderTypes(wallet.type).isNotEmpty;
 
   bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
 
@@ -502,17 +559,10 @@ abstract class DashboardViewModelBase with Store {
   bool hasExchangeAction;
 
   @computed
-  bool get isEnabledBuyAction => !settingsStore.disableBuy && hasBuyProviders;
+  bool get isEnabledTradeAction => !settingsStore.disableTradeOption;
 
   @observable
-  bool hasBuyAction;
-
-  @computed
-  bool get isEnabledSellAction =>
-      !settingsStore.disableSell && hasSellProviders;
-
-  @observable
-  bool hasSellAction;
+  bool hasTradeAction;
 
   @computed
   bool get isEnabledBulletinAction => !settingsStore.disableBulletin;
@@ -621,21 +671,30 @@ abstract class DashboardViewModelBase with Store {
 
       transactions.clear();
 
-      transactions.addAll(wallet.transactionHistory.transactions.values.map(
+      transactions.addAll(
+        wallet.transactionHistory.transactions.values.map(
           (transaction) => TransactionListItem(
-              transaction: transaction,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore)));
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey(
+                '${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     }
 
     connectMapToListWithTransform(
         appStore.wallet!.transactionHistory.transactions,
         transactions,
         (TransactionInfo? transaction) => TransactionListItem(
-            transaction: transaction!,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore),
-        filter: (TransactionInfo? tx) {
+              transaction: transaction!,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore,
+              key: ValueKey(
+                '${wallet.type.name}_transaction_history_item_${transaction.id}_key',
+              ),
+            ), filter: (TransactionInfo? tx) {
       if (tx == null) {
         return false;
       }
@@ -677,11 +736,17 @@ abstract class DashboardViewModelBase with Store {
               monero!.getCurrentAccount(wallet).id)
           .toList();
 
-      transactions.addAll(_accountTransactions.map((transaction) =>
-          TransactionListItem(
-              transaction: transaction,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore)));
+      transactions.addAll(
+        _accountTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey(
+                'monero_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     } else if (wallet.type == WalletType.wownero) {
       final _accountTransactions = wow.wownero!
           .getTransactionHistory(wallet)
@@ -692,18 +757,23 @@ abstract class DashboardViewModelBase with Store {
               wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
-      transactions.addAll(_accountTransactions.map((transaction) =>
-          TransactionListItem(
-              transaction: transaction,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore)));
+      transactions.addAll(
+        _accountTransactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey(
+                'wownero_transaction_history_item_${transaction.id}_key'),
+          ),
+        ),
+      );
     }
   }
 
   void updateActions() {
     hasExchangeAction = !isHaven;
-    hasBuyAction = !isHaven;
-    hasSellAction = !isHaven;
+    hasTradeAction = !isHaven;
   }
 
   @computed
@@ -802,6 +872,16 @@ abstract class DashboardViewModelBase with Store {
     } catch (e) {
       return ServicesResponse([], false, '');
     }
+  }
+
+  String getTransactionType(TransactionInfo tx) {
+    if (wallet.type == WalletType.bitcoin) {
+      if (tx.isReplaced == true) return ' (replaced)';
+    }
+
+    if (wallet.type == WalletType.ethereum && tx.evmSignatureName == 'approval')
+      return ' (${tx.evmSignatureName})';
+    return '';
   }
 
   Future<void> refreshDashboard() async {

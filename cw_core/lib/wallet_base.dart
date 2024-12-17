@@ -49,6 +49,8 @@ abstract class WalletBase<
 
   String? get hexSeed => null;
 
+  String? get passphrase => null;
+
   Object get keys;
 
   WalletAddresses get walletAddresses;
@@ -68,6 +70,8 @@ abstract class WalletBase<
 
   Future<void> startSync();
 
+  Future<void> stopSync() async {}
+
   Future<PendingTransaction> createTransaction(Object credentials);
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);
@@ -82,7 +86,7 @@ abstract class WalletBase<
 
   Future<void> rescan({required int height});
 
-  void close();
+  Future<void> close({bool shouldCleanup = false});
 
   Future<void> changePassword(String password);
 

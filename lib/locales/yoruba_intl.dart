@@ -251,7 +251,8 @@ const yoDateSymbols = {
 };
 
 // #docregion Delegate
-class _YoMaterialLocalizationsDelegate extends LocalizationsDelegate<MaterialLocalizations> {
+class _YoMaterialLocalizationsDelegate
+    extends LocalizationsDelegate<MaterialLocalizations> {
   const _YoMaterialLocalizationsDelegate();
 
   @override
@@ -397,7 +398,8 @@ class YoMaterialLocalizations extends GlobalMaterialLocalizations {
   String get pageRowsInfoTitleRaw => r'$firstRow–$lastRow lati $rowCount';
 
   @override
-  String get pageRowsInfoTitleApproximateRaw => r'$firstRow–$lastRow lati kiakia $rowCount';
+  String get pageRowsInfoTitleApproximateRaw =>
+      r'$firstRow–$lastRow lati kiakia $rowCount';
 // #enddocregion Raw
 
   @override
@@ -431,13 +433,15 @@ class YoMaterialLocalizations extends GlobalMaterialLocalizations {
   String get remainingTextFieldCharacterCountOne => r'1 àmì báálẹ̀';
 
   @override
-  String get remainingTextFieldCharacterCountOther => r'$remainingCount àmì báálẹ̀';
+  String get remainingTextFieldCharacterCountOther =>
+      r'$remainingCount àmì báálẹ̀';
 
   @override
   String? get remainingTextFieldCharacterCountTwo => null;
 
   @override
-  String get remainingTextFieldCharacterCountZero => r'Kò sí ìwọlé létà láti ń ṣe';
+  String get remainingTextFieldCharacterCountZero =>
+      r'Kò sí ìwọlé létà láti ń ṣe';
 
   @override
   String get reorderItemDown => r'Jù sí ilẹ';
@@ -512,7 +516,8 @@ class YoMaterialLocalizations extends GlobalMaterialLocalizations {
   String get viewLicensesButtonLabel => 'WO NIKI';
 
   @override
-  List<String> get narrowWeekdays => const <String>['L', 'L', 'A', 'O', 'Ọ', 'Ẹ', 'Ẹ'];
+  List<String> get narrowWeekdays =>
+      const <String>['L', 'L', 'A', 'O', 'Ọ', 'Ẹ', 'Ẹ'];
 
   @override
   int get firstDayOfWeekIndex => 0;
@@ -785,16 +790,19 @@ class YoMaterialLocalizations extends GlobalMaterialLocalizations {
   String get shareButtonLabel => "shareButtonLabel";
 
   @override
+  // TODO: implement clearButtonTooltip
   String get clearButtonTooltip => "clearButtonTooltip";
 
   @override
+  // TODO: implement selectedDateLabel
   String get selectedDateLabel => "selectedDateLabel";
 }
 
 /// Cupertino Support
 /// Strings Copied from "https://github.com/flutter/flutter/blob/master/packages/flutter_localizations/lib/src/l10n/generated_cupertino_localizations.dart"
 
-class _YoCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+class _YoCupertinoLocalizationsDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
   const _YoCupertinoLocalizationsDelegate();
 
   @override

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/exceptions/setup_wallet_exception.dart';
 import 'package:monero/wownero.dart' as wownero;
@@ -10,7 +11,7 @@ import 'package:mutex/mutex.dart';
 int getSyncingHeight() {
   // final height = wownero.WOWNERO_cw_WalletListener_height(getWlptr());
   final h2 = wownero.Wallet_blockChainHeight(wptr!);
-  // print("height: $height / $h2");
+  // printV("height: $height / $h2");
   return h2;
 }
 
@@ -67,10 +68,19 @@ String getSeedLegacy(String? language) {
   }
   return legacy;
 }
+Map<int, Map<int, Map<int, String>>> addressCache = {};
 
-String getAddress({int accountIndex = 0, int addressIndex = 1}) =>
-    wownero.Wallet_address(wptr!,
+String getAddress({int accountIndex = 0, int addressIndex = 1}) {
+  while (wownero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)-1 < addressIndex) {
+    printV("adding subaddress");
+    wownero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
+  }
+  addressCache[wptr!.address] ??= {};
+  addressCache[wptr!.address]![accountIndex] ??= {};
+  addressCache[wptr!.address]![accountIndex]![addressIndex] ??= wownero.Wallet_address(wptr!,
         accountIndex: accountIndex, addressIndex: addressIndex);
+  return addressCache[wptr!.address]![accountIndex]![addressIndex]!;
+}
 
 int getFullBalance({int accountIndex = 0}) =>
     wownero.Wallet_balance(wptr!, accountIndex: accountIndex);
@@ -91,7 +101,7 @@ Future<bool> setupNodeSync(
     bool useSSL = false,
     bool isLightWallet = false,
     String? socksProxyAddress}) async {
-  print('''
+  printV('''
 {
   wptr!,
   daemonAddress: $address,
@@ -116,7 +126,7 @@ Future<bool> setupNodeSync(
 
   if (status != 0) {
     final error = wownero.Wallet_errorString(wptr!);
-    print("error: $error");
+    printV("error: $error");
     throw SetupWalletException(message: error);
   }
 

@@ -158,20 +158,21 @@ class AddressPage extends BasePage {
               Expanded(
                   child: Observer(
                       builder: (_) => QRWidget(
-                          formKey: _formKey,
-                          addressListViewModel: addressListViewModel,
-                          amountTextFieldFocusNode: _cryptoAmountFocus,
-                          amountController: _amountController,
-                          isLight: dashboardViewModel
-                                  .settingsStore.currentTheme.type ==
-                              ThemeType.light))),
+                            formKey: _formKey,
+                            addressListViewModel: addressListViewModel,
+                            amountTextFieldFocusNode: _cryptoAmountFocus,
+                            amountController: _amountController,
+                            isLight: dashboardViewModel
+                                    .settingsStore.currentTheme.type ==
+                                ThemeType.light,
+                          ))),
               SizedBox(height: 16),
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList &&
                     !addressListViewModel.isPayjoinOption) {
                   return SelectButton(
                     text: addressListViewModel.buttonTitle,
-                    onTap: () async =>
+                    onTap: () =>
                         Navigator.of(context).pushNamed(Routes.receive),
                     textColor: Theme.of(context)
                         .extension<SyncIndicatorTheme>()!
@@ -261,7 +262,8 @@ class AddressPage extends BasePage {
           }
           break;
         default:
-          if (addressListViewModel.type == WalletType.bitcoin) {
+          if (addressListViewModel.type == WalletType.bitcoin ||
+              addressListViewModel.type == WalletType.litecoin) {
             addressListViewModel
                 .setAddressType(bitcoin!.getBitcoinAddressType(option));
           }

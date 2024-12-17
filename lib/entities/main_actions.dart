@@ -1,7 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -23,31 +21,18 @@ class MainActions {
   });
 
   static List<MainActions> all = [
-    buyAction,
+    showWalletsAction,
     receiveAction,
     exchangeAction,
     sendAction,
-    sellAction,
+    tradeAction,
   ];
 
-  static MainActions buyAction = MainActions._(
-    name: (context) => S.of(context).buy,
-    image: 'assets/images/buy.png',
-    isEnabled: (viewModel) => viewModel.isEnabledBuyAction,
-    canShow: (viewModel) => viewModel.hasBuyAction,
+  static MainActions showWalletsAction = MainActions._(
+    name: (context) => S.of(context).wallets,
+    image: 'assets/images/wallet_new.png',
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
-      if (!viewModel.isEnabledBuyAction) {
-        return;
-      }
-
-      final defaultBuyProvider = viewModel.defaultBuyProvider;
-      try {
-        defaultBuyProvider != null
-            ? await defaultBuyProvider.launchProvider(context, true)
-            : await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: true);
-      } catch (e) {
-        await _showErrorDialog(context, defaultBuyProvider.toString(), e.toString());
-      }
+      Navigator.pushNamed(context, Routes.walletList);
     },
   );
 
@@ -79,39 +64,15 @@ class MainActions {
     },
   );
 
-  static MainActions sellAction = MainActions._(
-    name: (context) => S.of(context).sell,
-    image: 'assets/images/sell.png',
-    isEnabled: (viewModel) => viewModel.isEnabledSellAction,
-    canShow: (viewModel) => viewModel.hasSellAction,
-    onTap: (BuildContext context, DashboardViewModel viewModel) async {
-      if (!viewModel.isEnabledSellAction) {
-        return;
-      }
 
-      final defaultSellProvider = viewModel.defaultSellProvider;
-      try {
-        defaultSellProvider != null
-            ? await defaultSellProvider.launchProvider(context, false)
-            : await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: false);
-      } catch (e) {
-        await _showErrorDialog(context, defaultSellProvider.toString(), e.toString());
-      }
+  static MainActions tradeAction = MainActions._(
+    name: (context) => '${S.of(context).buy}/${S.of(context).sell}',
+    image: 'assets/images/buy_sell.png',
+    isEnabled: (viewModel) => viewModel.isEnabledTradeAction,
+    canShow: (viewModel) => viewModel.hasTradeAction,
+    onTap: (BuildContext context, DashboardViewModel viewModel) async {
+      if (!viewModel.isEnabledTradeAction) return;
+      await Navigator.of(context).pushNamed(Routes.buySellPage, arguments: false);
     },
   );
-
-  static Future<void> _showErrorDialog(
-      BuildContext context, String title, String errorMessage) async {
-    await showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertWithOneAction(
-          alertTitle: title,
-          alertContent: errorMessage,
-          buttonText: S.of(context).ok,
-          buttonAction: () => Navigator.of(context).pop(),
-        );
-      },
-    );
-  }
 }

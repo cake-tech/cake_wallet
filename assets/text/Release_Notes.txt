@@ -1,3 +1,2 @@
-Scan and verify messages
-Synchronization enhancements
-Bug fixes
+UI/UX enhancements
+Bug fixes and app improvements

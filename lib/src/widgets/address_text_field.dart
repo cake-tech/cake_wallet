@@ -1,42 +1,42 @@
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cw_core/currency.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 enum AddressTextFieldOption { paste, qrCode, addressBook, walletAddresses }
 
-class AddressTextField extends StatelessWidget {
-  AddressTextField(
-      {required this.controller,
-      this.isActive = true,
-      this.placeholder,
-      this.options = const [
-        AddressTextFieldOption.qrCode,
-        AddressTextFieldOption.addressBook
-      ],
-      this.onURIScanned,
-      this.focusNode,
-      this.isBorderExist = true,
-      this.buttonColor,
-      this.borderColor,
-      this.iconColor,
-      this.textStyle,
-      this.hintStyle,
-      this.validator,
-      this.onPushPasteButton,
-      this.onPushAddressBookButton,
-      this.onPushAddressPickerButton,
-      this.onSelectedContact,
-      this.selectedCurrency});
+
+class AddressTextField<T extends Currency> extends StatelessWidget{
+  AddressTextField({
+    required this.controller,
+    this.isActive = true,
+    this.placeholder,
+    this.options = const [AddressTextFieldOption.qrCode, AddressTextFieldOption.addressBook],
+    this.onURIScanned,
+    this.focusNode,
+    this.isBorderExist = true,
+    this.buttonColor,
+    this.borderColor,
+    this.iconColor,
+    this.textStyle,
+    this.hintStyle,
+    this.validator,
+    this.onPushPasteButton,
+    this.onPushAddressBookButton,
+    this.onPushAddressPickerButton,
+    this.onSelectedContact,
+    this.selectedCurrency,
+    this.addressKey,
+  });
 
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;
@@ -59,13 +59,15 @@ class AddressTextField extends StatelessWidget {
   final Function(BuildContext context)? onPushAddressBookButton;
   final Function(BuildContext context)? onPushAddressPickerButton;
   final Function(ContactBase contact)? onSelectedContact;
-  final CryptoCurrency? selectedCurrency;
+  final T? selectedCurrency;
+  final Key? addressKey;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
         TextFormField(
+          key: addressKey,
           enableIMEPersonalizedLearning: false,
           keyboardType: TextInputType.visiblePassword,
           onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
@@ -230,7 +232,7 @@ class AddressTextField extends StatelessWidget {
     bool isCameraPermissionGranted =
         await PermissionHandler.checkPermission(Permission.camera, context);
     if (!isCameraPermissionGranted) return;
-    final code = await presentQRScanner();
+    final code = await presentQRScanner(context);
     if (code.isEmpty) {
       return;
     }

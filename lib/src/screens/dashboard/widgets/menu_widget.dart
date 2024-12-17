@@ -9,7 +9,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class MenuWidget extends StatefulWidget {
-  MenuWidget(this.dashboardViewModel);
+  MenuWidget(this.dashboardViewModel, Key? key);
 
   final DashboardViewModel dashboardViewModel;
 
@@ -97,7 +97,17 @@ class MenuWidgetState extends State<MenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final itemCount = SettingActions.all.length;
+    List<SettingActions> items = List.of(SettingActions.all);
+    if (!widget.dashboardViewModel.hasSilentPayments) {
+      items.removeWhere((element) => element.name(context) == S.of(context).silent_payments_settings);
+    }
+    if (!widget.dashboardViewModel.isMoneroViewOnly) {
+      items.removeWhere((element) => element.name(context) == S.of(context).export_outputs);
+    }
+    if (!widget.dashboardViewModel.hasMweb) {
+      items.removeWhere((element) => element.name(context) == S.of(context).litecoin_mweb_settings);
+    }
+    int itemCount = items.length;
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
         color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
@@ -181,16 +191,11 @@ class MenuWidgetState extends State<MenuWidget> {
 
                   index--;
 
-                  final item = SettingActions.all[index];
-
-                  if (!widget.dashboardViewModel.hasSilentPayments &&
-                      item.name(context) == S.of(context).silent_payments_settings) {
-                    return Container();
-                  }
-
+                  final item = items[index];
                   final isLastTile = index == itemCount - 1;
 
                   return SettingActionButton(
+                    key: item.key,
                     isLastTile: isLastTile,
                     tileHeight: tileHeight,
                     selectionActive: false,

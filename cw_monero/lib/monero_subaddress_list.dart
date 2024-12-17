@@ -1,6 +1,8 @@
 import 'package:cw_core/subaddress.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/coins_info.dart';
 import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
+import 'package:cw_monero/api/wallet.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 
@@ -54,18 +56,12 @@ abstract class MoneroSubaddressListBase with Store {
       final address = s.address;
       final label = s.label;
       final id = s.addressIndex;
-      final hasDefaultAddressName =
-          label.toLowerCase() == 'Primary account'.toLowerCase() ||
-              label.toLowerCase() == 'Untitled account'.toLowerCase();
-      final isPrimaryAddress = id == 0 && hasDefaultAddressName;
       return Subaddress(
           id: id,
           address: address,
-          label: isPrimaryAddress
-              ? 'Primary address'
-              : hasDefaultAddressName
-                  ? ''
-                  : label);
+          balance: (s.received/1e12).toStringAsFixed(6),
+          txCount: s.txCount,
+          label: label);
     }).toList();
   }
 
@@ -92,7 +88,7 @@ abstract class MoneroSubaddressListBase with Store {
       _isRefreshing = false;
     } on PlatformException catch (e) {
       _isRefreshing = false;
-      print(e);
+      printV(e);
       rethrow;
     }
   }
@@ -103,6 +99,9 @@ abstract class MoneroSubaddressListBase with Store {
     required List<String> usedAddresses,
   }) async {
     _usedAddresses.addAll(usedAddresses);
+    final _all = _usedAddresses.toSet().toList();
+    _usedAddresses.clear();
+    _usedAddresses.addAll(_all);
     if (_isUpdating) {
       return;
     }
@@ -124,7 +123,8 @@ abstract class MoneroSubaddressListBase with Store {
   Future<List<Subaddress>> _getAllUnusedAddresses(
       {required int accountIndex, required String label}) async {
     final allAddresses = subaddress_list.getAllSubaddresses();
-    if (allAddresses.isEmpty || _usedAddresses.contains(allAddresses.last)) {
+    // first because addresses come in reversed order.
+    if (allAddresses.isEmpty || _usedAddresses.contains(allAddresses.first.address)) {
       final isAddressUnused = await _newSubaddress(accountIndex: accountIndex, label: label);
       if (!isAddressUnused) {
         return await _getAllUnusedAddresses(accountIndex: accountIndex, label: label);
@@ -139,12 +139,13 @@ abstract class MoneroSubaddressListBase with Store {
           return Subaddress(
             id: id,
             address: address,
+            balance: (s.received/1e12).toStringAsFixed(6),
+            txCount: s.txCount,
             label: id == 0 &&
                     label.toLowerCase() == 'Primary account'.toLowerCase()
                 ? 'Primary address'
                 : label);
-      })
-        .toList();
+      }).toList().reversed.toList();
   }
 
   Future<bool> _newSubaddress({required int accountIndex, required String label}) async {

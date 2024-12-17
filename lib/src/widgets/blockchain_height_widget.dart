@@ -18,9 +18,12 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.onHeightOrDateEntered,
     this.hasDatePicker = true,
     this.isSilentPaymentsScan = false,
+    this.isMwebScan = false,
     this.toggleSingleScan,
     this.doSingleScan = false,
+    this.bitcoinMempoolAPIEnabled,
     required this.walletType,
+    this.blockHeightTextFieldKey,
   }) : super(key: key);
 
   final Function(int)? onHeightChange;
@@ -28,9 +31,12 @@ class BlockchainHeightWidget extends StatefulWidget {
   final FocusNode? focusNode;
   final bool hasDatePicker;
   final bool isSilentPaymentsScan;
+  final bool isMwebScan;
   final bool doSingleScan;
+  final Future<bool>? bitcoinMempoolAPIEnabled;
   final Function()? toggleSingleScan;
   final WalletType walletType;
+  final Key? blockHeightTextFieldKey;
 
   @override
   State<StatefulWidget> createState() => BlockchainHeightState();
@@ -77,9 +83,11 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                   child: Container(
                       padding: EdgeInsets.only(top: 20.0, bottom: 10.0),
                       child: BaseTextFormField(
+                        key: widget.blockHeightTextFieldKey,
                         focusNode: widget.focusNode,
                         controller: restoreHeightController,
-                        keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+                        keyboardType:
+                            TextInputType.numberWithOptions(signed: false, decimal: false),
                         hintText: widget.isSilentPaymentsScan
                             ? S.of(context).silent_payments_scan_from_height
                             : S.of(context).widgets_restore_from_blockheight,
@@ -146,7 +154,9 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                     : S.of(context).restore_from_date_or_blockheight,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.normal, color: Theme.of(context).hintColor),
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).hintColor),
               ),
             )
           ]
@@ -165,8 +175,13 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
 
     if (date != null) {
       int height;
-      if (widget.isSilentPaymentsScan) {
-        height = bitcoin!.getHeightByDate(date: date);
+      if (widget.isMwebScan) {
+        height = bitcoin!.getLitecoinHeightByDate(date: date);
+      } else if (widget.isSilentPaymentsScan) {
+        height = await bitcoin!.getHeightByDate(
+          date: date,
+          bitcoinMempoolAPIEnabled: await widget.bitcoinMempoolAPIEnabled,
+        );
       } else {
         if (widget.walletType == WalletType.monero) {
           height = monero!.getHeightByDate(date: date);
@@ -176,11 +191,13 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
           height = wownero!.getHeightByDate(date: date);
         }
       }
-      setState(() {
-        dateController.text = DateFormat('yyyy-MM-dd').format(date);
-        restoreHeightController.text = '$height';
-        _changeHeight(height);
-      });
+      if (mounted) {
+        setState(() {
+          dateController.text = DateFormat('yyyy-MM-dd').format(date);
+          restoreHeightController.text = '$height';
+          _changeHeight(height);
+        });
+      }
     }
   }
 

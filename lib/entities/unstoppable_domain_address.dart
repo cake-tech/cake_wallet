@@ -1,9 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/services.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart' as http;
-
-const channel = MethodChannel('com.cake_wallet/native_utils');
 
 Future<String> fetchUnstoppableDomainAddress(String domain, String ticker) async {
   var address = '';
@@ -23,7 +21,7 @@ Future<String> fetchUnstoppableDomainAddress(String domain, String ticker) async
 
     return records[key] as String? ?? '';
   } catch (e) {
-    print('Unstoppable domain error: ${e.toString()}');
+    printV('Unstoppable domain error: ${e.toString()}');
     address = '';
   }
 

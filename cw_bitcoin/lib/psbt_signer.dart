@@ -4,7 +4,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 import 'package:ledger_bitcoin/src/psbt/constants.dart';
-import 'psbt_converter.dart';
 
 extension PsbtSigner on PsbtV2 {
   void sign(List<UtxoWithAddress> utxos, BitcoinSignerCallBack signer) {
