@@ -126,8 +126,10 @@ Future<bool> setupNodeSync(
 
   if (status != 0) {
     final error = monero.Wallet_errorString(wptr!);
-    printV("error: $error");
-    throw SetupWalletException(message: error);
+    if (error != "no tx keys found for this txid") {
+      printV("error: $error");
+      throw SetupWalletException(message: error);
+    }
   }
 
   if (kDebugMode) {
