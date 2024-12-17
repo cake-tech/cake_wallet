@@ -57,7 +57,7 @@ dependencies:
   connectivity_plus: ^5.0.2
   keyboard_actions: ^4.0.1
   another_flushbar: ^1.12.29
-  archive: ^3.6.1
+  archive: ^3.3.0
   cryptography: ^2.0.5
   file_picker:
     git:
@@ -107,11 +107,6 @@ dependencies:
   polyseed: ^0.0.6
   nostr_tools: ^1.0.9
   solana: ^0.30.1
-  bitcoin_base: 
-    git:
-      url: https://github.com/J0J0XMR/bitcoin_base
-      ref: 9ef1155d082e6ef398f6ababbf8fe909caa3ae68
-  ledger_flutter: ^1.0.1
   ledger_flutter_plus: ^1.4.1
   hashlib: ^1.19.2
 
@@ -134,9 +129,9 @@ dev_dependencies:
     git:
       url: https://github.com/cake-tech/google-translator.git
       version: 1.0.0
+  archive: ^3.6.1
 
 dependency_overrides:
-  pinenacl: ^0.6.0
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
@@ -145,10 +140,12 @@ dependency_overrides:
       url: https://github.com/cake-tech/web3dart.git
       ref: cake
   flutter_secure_storage_platform_interface: 1.0.2
-  bitcoin_base: 
+  protobuf: ^3.1.0
+  bitcoin_base:
     git:
       url: https://github.com/J0J0XMR/bitcoin_base
-      ref: 9ef1155d082e6ef398f6ababbf8fe909caa3ae68
+      ref: cake-update-v9
+  ffi: 2.1.0
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

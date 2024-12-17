@@ -39,7 +39,8 @@ dependencies:
       ref: sp_v4.0.0
   payjoin_flutter:
     git:
-      url: https://github.com/LtbLightning/payjoin-flutter
+      url: https://github.com/konstantinullrich/payjoin-flutter
+      ref: cake-v1
 
   bech32:
     git:
@@ -68,7 +69,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/J0J0XMR/bitcoin_base
-      ref: 9ef1155d082e6ef398f6ababbf8fe909caa3ae68
+      ref: cake-update-v9
   pointycastle: 3.7.4
   ffi: 2.1.0
 
