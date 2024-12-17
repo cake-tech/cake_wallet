@@ -1,6 +1,8 @@
 part of 'bitcoin.dart';
 
 class CWBitcoin extends Bitcoin {
+  final payjoin = BitcoinPayjoin();
+
   WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
     required String name,
     required String mnemonic,
