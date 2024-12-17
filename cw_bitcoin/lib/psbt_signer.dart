@@ -4,11 +4,42 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 import 'package:ledger_bitcoin/src/psbt/constants.dart';
+import 'package:ledger_bitcoin/src/utils/buffer_writer.dart';
 
 extension PsbtSigner on PsbtV2 {
+
+  Uint8List extractUnsignedTX({bool getSegwit = true}) {
+    final tx = BufferWriter()..writeUInt32(getGlobalTxVersion());
+
+    final isSegwit = getInputWitnessUtxo(0) != null;
+    if (isSegwit && getSegwit) {
+      tx.writeSlice(Uint8List.fromList([0, 1]));
+    }
+
+    final inputCount = getGlobalInputCount();
+    tx.writeVarInt(inputCount);
+
+    for (var i = 0; i < inputCount; i++) {
+      tx
+        ..writeSlice(getInputPreviousTxid(i))
+        ..writeUInt32(getInputOutputIndex(i))
+        ..writeVarSlice(Uint8List(0))
+        ..writeUInt32(getInputSequence(i));
+    }
+
+    final outputCount = getGlobalOutputCount();
+    tx.writeVarInt(outputCount);
+    for (var i = 0; i < outputCount; i++) {
+      tx.writeUInt64(getOutputAmount(i));
+      tx.writeVarSlice(getOutputScript(i));
+    }
+    tx.writeUInt32(getGlobalFallbackLocktime() ?? 0);
+    return tx.buffer();
+  }
+
   void sign(List<UtxoWithAddress> utxos, BitcoinSignerCallBack signer) {
     final int inputsSize = getGlobalInputCount();
-    final raw = hex.encode(extractUnsignedTX());
+    final raw = hex.encode(extractUnsignedTX(getSegwit: false));
     print('[+] PsbtSigner | sign => raw: $raw');
     final tx = BtcTransaction.fromRaw(raw);
 
@@ -43,6 +74,7 @@ extension PsbtSigner on PsbtV2 {
         setInputPartialSig(i, pubkeys[0], Uint8List.fromList(hex.decode(sig)));
       }
     }
+
   }
 
   List<int> _generateTransactionDigest(
