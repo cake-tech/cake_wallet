@@ -100,6 +100,7 @@ abstract class LedgerViewModelBase with Store {
 
   Future<void> connectLedger(sdk.LedgerDevice device, WalletType type) async {
     _isConnecting = true;
+    _connectingWalletType = type;
     if (isConnected) {
       try {
         await _connection!.disconnect().catchError((_) {});
@@ -110,25 +111,26 @@ abstract class LedgerViewModelBase with Store {
         ? ledgerPlusBLE
         : ledgerPlusUSB;
 
-    await _connectionChangeSubscription?.cancel();
-    _connectionChangeSubscription = ledger.deviceStateChanges
-        .asBroadcastStream()
-        .listen((e) => _connectionChangeListener(e, type));
+    if (_connectionChangeSubscription == null) {
+      _connectionChangeSubscription = ledger.deviceStateChanges
+          .listen(_connectionChangeListener);
+    }
 
-    _isConnecting = false;
     _connection = await ledger.connect(device);
+    _isConnecting = false;
   }
 
   StreamSubscription<sdk.BleConnectionState>? _connectionChangeSubscription;
   sdk.LedgerConnection? _connection;
   bool _isConnecting = true;
+  WalletType? _connectingWalletType;
 
   void _connectionChangeListener(
-      sdk.BleConnectionState event, WalletType type) {
+      sdk.BleConnectionState event, ) {
     printV('Ledger Device State Changed: $event');
     if (event == sdk.BleConnectionState.disconnected && !_isConnecting) {
       _connection = null;
-      if (type == WalletType.monero) {
+      if (_connectingWalletType == WalletType.monero) {
         monero!.resetLedgerConnection();
 
         Navigator.of(navigatorKey.currentContext!).pushNamed(
