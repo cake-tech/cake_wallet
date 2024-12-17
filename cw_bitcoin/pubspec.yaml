@@ -42,7 +42,8 @@ dependencies:
       url: https://github.com/cake-tech/bech32.git
   payjoin_flutter:
     git:
-      url: https://github.com/LtbLightning/payjoin-flutter
+      url: https://github.com/konstantinullrich/payjoin-flutter
+      ref: cake-v1
   ledger_flutter_plus: ^1.4.1
   ledger_bitcoin:
     git:

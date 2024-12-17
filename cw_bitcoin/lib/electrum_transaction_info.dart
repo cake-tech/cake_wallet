@@ -110,6 +110,15 @@ class ElectrumTransactionInfo extends TransactionInfo {
         confirmations: confirmations);
   }
 
+  static bool isMine(
+      Script script,
+      BasedUtxoNetwork network, {
+        required Set<String> addresses,
+      }) {
+    final derivedAddress = addressFromOutputScript(script, network);
+    return addresses.contains(derivedAddress);
+  }
+
   factory ElectrumTransactionInfo.fromElectrumBundle(
       ElectrumTransactionBundle bundle, WalletType type, BasedUtxoNetwork network,
       {required Set<String> addresses, int? height}) {

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/psbt_signer.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
@@ -1026,7 +1027,7 @@ abstract class ElectrumWalletBase
 
         print('[+] ElectrumWallet || createTx => addressStr: $addressStr');
 
-        final address = addressTypeFromStr(addressStr, network);
+        final address = RegexUtils.addressTypeFromStr(addressStr, network);
 
         if (address is SilentPaymentAddress) {
           hasSilentPayment = true;
@@ -1333,7 +1334,7 @@ abstract class ElectrumWalletBase
 
       credentialsAmount += outputAmount;
 
-      final address = addressTypeFromStr(
+      final address = RegexUtils.addressTypeFromStr(
           out.isParsedAddress ? out.extractedAddress! : out.address, network);
 
       if (address is SilentPaymentAddress) {
@@ -2169,6 +2170,15 @@ abstract class ElectrumWalletBase
       }
       return null;
     }
+  }
+
+  bool isMine(Script script) {
+    final res = ElectrumTransactionInfo.isMine(
+      script,
+      network,
+      addresses: addressesSet,
+    );
+    return res;
   }
 
   @override
