@@ -92,6 +92,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   late StreamSubscription<LedgerDevice>? _bleRefresh = null;
 
   bool longWait = false;
+  Timer? _longWaitTimer;
 
   @override
   void initState() {
@@ -108,7 +109,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
             Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
       }
 
-      Future.delayed(Duration(seconds: 10), () {
+      _longWaitTimer = Timer(Duration(seconds: 10), () {
         if (widget.ledgerVM.bleIsEnabled && bleDevices.isEmpty)
           setState(() => longWait = true);
       });
@@ -121,6 +122,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     _bleStateTimer?.cancel();
     _usbRefreshTimer?.cancel();
     _bleRefresh?.cancel();
+    _longWaitTimer?.cancel();
 
     widget.ledgerVM.stopScanning();
     super.dispose();
@@ -206,7 +208,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                 offstage: !longWait,
                 child: Padding(
                   padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                  child: Text(S.of(context).if_you_dont_see_your_device,
+                  child: Text(
+                    S.of(context).if_you_dont_see_your_device,
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -235,7 +238,6 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   ),
                 ),
               ),
-
               if (bleDevices.length > 0) ...[
                 Padding(
                   padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
@@ -277,7 +279,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        color: Theme.of(context)
+                            .extension<CakeTextTheme>()!
+                            .titleColor,
                       ),
                     ),
                   ),
@@ -299,8 +303,12 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
               if (widget.allowChangeWallet) ...[
                 PrimaryButton(
                   text: S.of(context).wallets,
-                  color: Theme.of(context).extension<WalletListTheme>()!.createNewWalletButtonBackgroundColor,
-                  textColor: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
+                  color: Theme.of(context)
+                      .extension<WalletListTheme>()!
+                      .createNewWalletButtonBackgroundColor,
+                  textColor: Theme.of(context)
+                      .extension<WalletListTheme>()!
+                      .restoreWalletButtonTextColor,
                   onPressed: _onChangeWallet,
                 )
               ],
