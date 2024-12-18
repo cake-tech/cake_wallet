@@ -33,6 +33,7 @@ import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/mayachain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/quantex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
@@ -171,6 +172,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     SideShiftExchangeProvider(),
     SimpleSwapExchangeProvider(),
     ThorChainExchangeProvider(tradesStore: trades),
+    MayaChainExchangeProvider(tradesStore: trades),
     if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
     QuantexExchangeProvider(),
     LetsExchangeExchangeProvider(),
@@ -581,7 +583,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
               }
 
               tradesStore.setTrade(trade);
-              if (trade.provider != ExchangeProviderDescription.thorChain) await trades.add(trade);
+              if (trade.provider != ExchangeProviderDescription.thorChain && trade.provider != ExchangeProviderDescription.mayaChain) await trades.add(trade);
               tradeState = TradeIsCreatedSuccessfully(trade: trade);
 
               /// return after the first successful trade
@@ -847,7 +849,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   int get receiveMaxDigits => receiveCurrency.decimals;
 
   Future<CreateTradeResult> isCanCreateTrade(Trade trade) async {
-    if (trade.provider == ExchangeProviderDescription.thorChain) {
+    if (trade.provider == ExchangeProviderDescription.thorChain || trade.provider == ExchangeProviderDescription.mayaChain) {
       final payoutAddress = trade.payoutAddress ?? '';
       final fromWalletAddress = trade.fromWalletAddress ?? '';
       final tapRootPattern = RegExp(P2trAddress.regex.pattern);

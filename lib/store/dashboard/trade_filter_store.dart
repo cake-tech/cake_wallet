@@ -17,6 +17,7 @@ abstract class TradeFilterStoreBase with Store {
         displayTrocador = true,
         displayExolix = true,
         displayThorChain = true,
+        displayMayaChain = true,
         displayLetsExchange = true,
         displayStealthEx = true;
 
@@ -45,6 +46,9 @@ abstract class TradeFilterStoreBase with Store {
   bool displayThorChain;
 
   @observable
+  bool displayMayaChain;
+
+  @observable
   bool displayLetsExchange;
 
   @observable
@@ -58,6 +62,7 @@ abstract class TradeFilterStoreBase with Store {
       displayTrocador &&
       displayExolix &&
       displayThorChain &&
+      displayMayaChain &&
       displayLetsExchange &&
       displayStealthEx;
 
@@ -88,6 +93,9 @@ abstract class TradeFilterStoreBase with Store {
       case ExchangeProviderDescription.thorChain:
         displayThorChain = !displayThorChain;
         break;
+      case ExchangeProviderDescription.mayaChain:
+        displayMayaChain = !displayMayaChain;
+        break;
       case ExchangeProviderDescription.letsExchange:
         displayLetsExchange = !displayLetsExchange;
       case ExchangeProviderDescription.stealthEx:
@@ -103,6 +111,7 @@ abstract class TradeFilterStoreBase with Store {
           displayTrocador = false;
           displayExolix = false;
           displayThorChain = false;
+          displayMayaChain = false;
           displayLetsExchange = false;
           displayStealthEx = false;
         } else {
@@ -114,6 +123,7 @@ abstract class TradeFilterStoreBase with Store {
           displayTrocador = true;
           displayExolix = true;
           displayThorChain = true;
+          displayMayaChain = true;
           displayLetsExchange = true;
           displayStealthEx = true;
         }
@@ -143,6 +153,8 @@ abstract class TradeFilterStoreBase with Store {
                 (displayExolix && item.trade.provider == ExchangeProviderDescription.exolix) ||
                 (displayThorChain &&
                     item.trade.provider == ExchangeProviderDescription.thorChain) ||
+                 (displayMayaChain &&
+                    item.trade.provider == ExchangeProviderDescription.mayaChain) ||
                 (displayLetsExchange &&
                     item.trade.provider == ExchangeProviderDescription.letsExchange) ||
                 (displayStealthEx && item.trade.provider == ExchangeProviderDescription.stealthEx))
