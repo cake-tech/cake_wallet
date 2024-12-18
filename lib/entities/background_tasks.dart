@@ -253,7 +253,7 @@ Future<void> onStart(ServiceInstance service) async {
 
         if (progress > 0.999 && shouldSync) {
           syncedTicks++;
-          if (syncedTicks > 10) {
+          if (syncedTicks > 5) {
             syncedTicks = 0;
             printV("WALLET $i SYNCED");
             wallet.stopSync();
@@ -374,25 +374,27 @@ Future<void> onStart(ServiceInstance service) async {
       }
     });
 
-    // setup a watch dog to restart the sync process if it gets stuck:
+    // setup a watch dog to restart the wallet sync process if it appears to get stuck:
     List<double> lastFewProgresses = [];
     _stuckSyncTimer?.cancel();
     _stuckSyncTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      // TODO: finish this
-      // if (syncStatus is! SyncingSyncStatus) return;
-      // if (syncStatus.progress() > 0.98) return; // don't check if we're close to synced
-      // lastFewProgresses.add(syncStatus.progress());
-      // if (lastFewProgresses.length < 10) return;
-      // // limit list size to 10:
-      // while (lastFewProgresses.length > 10) {
-      //   lastFewProgresses.removeAt(0);
-      // }
-      // // if the progress is the same over the last 100 seconds, restart the sync:
-      // if (lastFewProgresses.every((p) => p == lastFewProgresses.first)) {
-      //   printV("mweb syncing is stuck, restarting...");
-      //   syncStatus = LostConnectionSyncStatus();
-      //   await stopSync();
-      // }
+      if (syncingWallets.isEmpty) return;
+      final wallet = syncingWallets.first;
+      final syncStatus = wallet.syncStatus;
+      if (syncStatus is! SyncingSyncStatus) return;
+      if (syncStatus.progress() > SYNC_THRESHOLD) return; // don't bother checking if we're close to synced
+      lastFewProgresses.add(syncStatus.progress());
+      if (lastFewProgresses.length < 10) return;
+      // limit list size to 10:
+      while (lastFewProgresses.length > 10) {
+        lastFewProgresses.removeAt(0);
+      }
+      // if the progress is the same over the last 100 seconds, restart the sync:
+      if (lastFewProgresses.every((p) => p == lastFewProgresses.first)) {
+        printV("syncing appears to be stuck, restarting...");
+        await wallet.stopSync();
+        await wallet.startSync();
+      }
     });
   });
 }
