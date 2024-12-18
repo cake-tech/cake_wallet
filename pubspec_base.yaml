@@ -71,6 +71,7 @@ dependencies:
   workmanager: ^0.5.2
   flutter_background_service: ^5.0.9
   flutter_local_notifications: ^17.2.2
+  battery_plus: ^6.2.1
   wakelock_plus: ^1.2.5
   flutter_mailer:       
     git:

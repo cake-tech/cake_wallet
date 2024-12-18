@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:battery_plus/battery_plus.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -10,6 +11,7 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -39,6 +41,8 @@ const spNodeNotificationMessage =
     "Currently configured Bitcoin node does not support Silent Payments. skipping wallet";
 const SYNC_THRESHOLD = 0.98;
 Duration REFRESH_QUEUE_DURATION = Duration(hours: 1);
+bool syncOnBattery = false;
+bool syncOnData = false;
 
 void setMainNotification(
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, {
@@ -247,8 +251,6 @@ Future<void> onStart(ServiceInstance service) async {
         final progressPercent = (progress * 100).toStringAsPrecision(5) + "%";
         bool shouldSync = i == 0;
 
-        
-
         if (progress > 0.999 && shouldSync) {
           syncedTicks++;
           if (syncedTicks > 10) {
@@ -338,6 +340,21 @@ Future<void> onStart(ServiceInstance service) async {
     _queueTimer?.cancel();
     // add a timer that checks all wallets and adds them to the queue if they are less than SYNC_THRESHOLD synced:
     _queueTimer = Timer.periodic(REFRESH_QUEUE_DURATION, (timer) async {
+      final batteryState = await Battery().batteryState;
+      bool onBattery = batteryState == BatteryState.connectedNotCharging ||
+          batteryState == BatteryState.discharging;
+
+      ConnectivityResult connectivityResult = await Connectivity().checkConnectivity();
+      bool onData = connectivityResult == ConnectivityResult.mobile;
+
+      if (onBattery && !syncOnBattery) {
+        return;
+      }
+
+      if (onData && !syncOnData) {
+        return;
+      }
+
       for (int i = 0; i < standbyWallets.length; i++) {
         final wallet = standbyWallets[i];
         final syncStatus = wallet.syncStatus;
@@ -348,7 +365,7 @@ Future<void> onStart(ServiceInstance service) async {
           await wallet.startSync();
         }
 
-        // wait a few seconds before checking progress:
+        // wait a while before checking progress:
         await Future.delayed(const Duration(seconds: 20));
 
         if (syncStatus.progress() < SYNC_THRESHOLD) {
@@ -500,8 +517,8 @@ class BackgroundTasks {
       final SyncMode syncMode = settingsStore.currentSyncMode;
       final bool useNotifications = settingsStore.showSyncNotification;
       final bool syncEnabled = settingsStore.backgroundSyncEnabled;
-      final bool syncOnBattery = settingsStore.backgroundSyncOnBattery;
-      final bool syncOnData = settingsStore.backgroundSyncOnData;
+      syncOnBattery = settingsStore.backgroundSyncOnBattery;
+      syncOnData = settingsStore.backgroundSyncOnData;
 
       if (useNotifications) {
         flutterLocalNotificationsPlugin
