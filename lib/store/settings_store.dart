@@ -36,6 +36,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/set_app_secure_native.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +54,7 @@ abstract class SettingsStoreBase with Store {
       required BackgroundTasks backgroundTasks,
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
+      required bool initialShowAddressBookPopupEnabled,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
@@ -157,6 +159,7 @@ abstract class SettingsStoreBase with Store {
         walletListAscending = initialWalletListAscending,
         contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
+        showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
         pinCodeLength = initialPinLength,
@@ -354,6 +357,11 @@ abstract class SettingsStoreBase with Store {
         (_) => shouldShowMarketPlaceInDashboard,
         (bool value) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
+
+    reaction(
+            (_) => showAddressBookPopupEnabled,
+            (bool value) =>
+            sharedPreferences.setBool(PreferencesKey.showAddressBookPopupEnabled, value));
 
     reaction((_) => pinCodeLength,
         (int pinLength) => sharedPreferences.setInt(PreferencesKey.currentPinLength, pinLength));
@@ -610,6 +618,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldShowMarketPlaceInDashboard;
+
+  @observable
+  bool showAddressBookPopupEnabled;
 
   @observable
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
@@ -925,6 +936,8 @@ abstract class SettingsStoreBase with Store {
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
+    final showAddressBookPopupEnabled =
+        sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -1194,6 +1207,7 @@ abstract class SettingsStoreBase with Store {
       secureStorage: secureStorage,
       sharedPreferences: sharedPreferences,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
+      initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
       nodes: nodes,
       powNodes: powNodes,
       appVersion: packageInfo.version,
@@ -1371,6 +1385,9 @@ abstract class SettingsStoreBase with Store {
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
+    showAddressBookPopupEnabled =
+        sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
+            showAddressBookPopupEnabled;
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -1674,8 +1691,8 @@ abstract class SettingsStoreBase with Store {
         final windowsInfo = await deviceInfoPlugin.windowsInfo;
         deviceName = windowsInfo.productName;
       } catch (e) {
-        print(e);
-        print(
+        printV(e);
+        printV(
             'likely digitalProductId is null wait till https://github.com/fluttercommunity/plus_plugins/pull/3188 is merged');
         deviceName = "Windows Device";
       }

@@ -1,7 +1,4 @@
 -
-  uri: electrum.cakewallet.com:50002
-  useSSL: true
--
   uri: btc-electrum.cakewallet.com:50002
   useSSL: true
   isDefault: true

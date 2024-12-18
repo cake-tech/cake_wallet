@@ -43,14 +43,17 @@ void startAuthenticationStateChange(
         if (!requireHardwareWalletConnection()) await loadCurrentWallet();
       } catch (error, stack) {
         loginError = error;
-        ExceptionHandler.onError(
+        await ExceptionHandler.resetLastPopupDate();
+        await ExceptionHandler.onError(
             FlutterErrorDetails(exception: error, stack: stack));
       }
       return;
     }
 
-    if (state == AuthenticationState.allowed) {
-      if (requireHardwareWalletConnection()) {
+    if ([AuthenticationState.allowed, AuthenticationState.allowedCreate]
+        .contains(state)) {
+      if (state == AuthenticationState.allowed &&
+          requireHardwareWalletConnection()) {
         await navigatorKey.currentState!.pushNamedAndRemoveUntil(
           Routes.connectDevices,
           (route) => false,
@@ -58,14 +61,14 @@ void startAuthenticationStateChange(
             walletType: WalletType.monero,
             onConnectDevice: (context, ledgerVM) async {
               monero!.setGlobalLedgerConnection(ledgerVM.connection);
-                showPopUp<void>(
-                  context: context,
-                  builder: (BuildContext context) => AlertWithOneAction(
-                      alertTitle: S.of(context).proceed_on_device,
-                      alertContent: S.of(context).proceed_on_device_description,
-                      buttonText: S.of(context).cancel,
-                      buttonAction: () => Navigator.of(context).pop()),
-                );
+              showPopUp<void>(
+                context: context,
+                builder: (BuildContext context) => AlertWithOneAction(
+                    alertTitle: S.of(context).proceed_on_device,
+                    alertContent: S.of(context).proceed_on_device_description,
+                    buttonText: S.of(context).cancel,
+                    buttonAction: () => Navigator.of(context).pop()),
+              );
               await loadCurrentWallet();
               getIt.get<BottomSheetService>().resetCurrentSheet();
               await navigatorKey.currentState!
@@ -81,7 +84,7 @@ void startAuthenticationStateChange(
             .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
       }
       if (!(await authenticatedErrorStreamController.stream.isEmpty)) {
-        ExceptionHandler.showError(
+        await ExceptionHandler.showError(
             (await authenticatedErrorStreamController.stream.first).toString());
         authenticatedErrorStreamController.stream.drain();
       }

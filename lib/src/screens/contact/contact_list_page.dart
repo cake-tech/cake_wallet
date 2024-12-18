@@ -322,6 +322,7 @@ class _ContactListBodyState extends State<ContactListBody> {
         ? widget.contactListViewModel.contacts
         : widget.contactListViewModel.contactsToShow;
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: Container(
         child: FilteredList(
           list: contacts,

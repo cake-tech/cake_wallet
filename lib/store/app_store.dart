@@ -50,8 +50,8 @@ abstract class AppStoreBase with Store {
       getIt.get<Web3WalletService>().create();
       await getIt.get<Web3WalletService>().init();
     }
-    await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
-    await getIt
+    getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
+    getIt
         .get<SharedPreferences>()
         .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
   }

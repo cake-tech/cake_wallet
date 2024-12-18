@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -16,7 +17,6 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/locales/locale.dart';
-import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/bootstrap.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:cake_wallet/routes.dart';
@@ -90,7 +90,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       );
     }
 
-    ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
+    await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
 
@@ -165,6 +165,10 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(HavenSeedStore.typeId)) {
+    CakeHive.registerAdapter(HavenSeedStoreAdapter());
+  }
+
   if (!CakeHive.isAdapterRegistered(MwebUtxo.typeId)) {
     CakeHive.registerAdapter(MwebUtxoAdapter());
   }
@@ -189,6 +193,12 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
   final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
 
+  final havenSeedStoreBoxKey =
+      await getEncryptionKey(secureStorage: secureStorage, forKey: HavenSeedStore.boxKey);
+  final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(
+      HavenSeedStore.boxName,
+      encryptionKey: havenSeedStoreBoxKey);
+
   await initialSetup(
     loadWallet: loadWallet,
     sharedPreferences: await SharedPreferences.getInstance(),
@@ -205,7 +215,8 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 43,
+    havenSeedStore: havenSeedStore,
+    initialMigrationVersion: 45,
   );
 }
 
@@ -224,8 +235,9 @@ Future<void> initialSetup(
     required SecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
+    required Box<HavenSeedStore> havenSeedStore,
     required bool loadWallet,
-    int initialMigrationVersion = 15}) async {
+    int initialMigrationVersion = 15, }) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,
@@ -235,7 +247,8 @@ Future<void> initialSetup(
       contactSource: contactSource,
       tradeSource: tradesSource,
       nodes: nodes,
-      powNodes: powNodes);
+      powNodes: powNodes,
+      havenSeedStore: havenSeedStore);
   await setup(
     walletInfoSource: walletInfoSource,
     nodeSource: nodes,

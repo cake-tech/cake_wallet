@@ -95,6 +95,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
@@ -656,7 +657,14 @@ import 'package:cw_core/output_info.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
-import 'package:cw_core/crypto_currency.dart';""";
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/haven_seed_store.dart';
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
+""";
   const havenCWHeaders = """
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
@@ -679,6 +687,7 @@ import 'package:cw_haven/mnemonics/french.dart';
 import 'package:cw_haven/mnemonics/italian.dart';
 import 'package:cw_haven/haven_transaction_creation_credentials.dart';
 import 'package:cw_haven/api/balance_list.dart';
+import 'package:cw_haven/haven_wallet_service.dart';
 """;
   const havenCwPart = "part 'cw_haven.dart';";
   const havenContent = """
@@ -779,6 +788,7 @@ abstract class Haven {
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createHavenWalletService(Box<WalletInfo> walletInfoSource);
+  Future<void> backupHavenSeeds(Box<HavenSeedStore> havenSeedStore);
   CryptoCurrency assetOfTransaction(TransactionInfo tx);
   List<AssetRate> getAssetRate();
 }
@@ -835,6 +845,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:web3dart/web3dart.dart';
@@ -939,6 +950,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:web3dart/web3dart.dart';
@@ -1101,6 +1113,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cw_core/n2_node.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -1425,8 +1438,7 @@ Future<void> generatePubspec({
     git:
       url: https://github.com/cake-tech/flutter_secure_storage.git
       path: flutter_secure_storage
-      ref: cake-8.1.0
-      version: 8.1.0
+      ref: ca897a08677edb443b366352dd7412735e098e7b
   """;
   const cwEthereum = """
   cw_ethereum:

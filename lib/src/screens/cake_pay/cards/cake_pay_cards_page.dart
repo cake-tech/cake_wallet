@@ -94,6 +94,10 @@ class CakePayCardsPage extends BasePage {
             _cardsListViewModel.resetLoadingNextPageState();
             _cardsListViewModel.getVendors();
           }
+
+          _cardsListViewModel.settingsStore.selectedCakePayCountry =
+              _cardsListViewModel.selectedCountry;
+
         }
       });
     });
@@ -112,7 +116,7 @@ class CakePayCardsPage extends BasePage {
           },
           child: Container(
               width: 32,
-              padding: EdgeInsets.all(8),
+              padding: EdgeInsets.only(top: 7, bottom: 7),
               decoration: BoxDecoration(
                 color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                 border: Border.all(
@@ -121,7 +125,7 @@ class CakePayCardsPage extends BasePage {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Image.asset(
-                'assets/images/filter.png',
+                'assets/images/filter_icon.png',
                 color: Theme.of(context).extension<FilterTheme>()!.iconColor,
               ))),
     );
@@ -137,14 +141,14 @@ class CakePayCardsPage extends BasePage {
           }
         },
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 6),
+          padding: EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
             border: Border.all(color: Colors.transparent),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Container(
-            margin: EdgeInsets.symmetric(vertical: 2),
+            margin: EdgeInsets.symmetric(vertical: 4),
             child: Row(
               children: [
                 Image.asset(
@@ -359,13 +363,10 @@ class _SearchWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final searchIcon = ExcludeSemantics(
-      child: Padding(
-        padding: EdgeInsets.all(8),
-        child: Image.asset(
-          'assets/images/mini_search_icon.png',
+        child: Icon( Icons.search,
           color: Theme.of(context).extension<FilterTheme>()!.iconColor,
+          //size: 24
         ),
-      ),
     );
 
     return TextField(
@@ -375,8 +376,8 @@ class _SearchWidget extends StatelessWidget {
       decoration: InputDecoration(
           filled: true,
           contentPadding: EdgeInsets.only(
-            top: 10,
-            left: 10,
+            top: 8,
+            left: 8,
           ),
           fillColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
           hintText: S.of(context).search,

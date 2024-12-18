@@ -1,4 +1,6 @@
-class Unspent {
+import 'package:cw_core/unspent_comparable_mixin.dart';
+
+class Unspent with UnspentComparable {
   Unspent(this.address, this.hash, this.value, this.vout, this.keyImage)
       : isSending = true,
         isFrozen = false,

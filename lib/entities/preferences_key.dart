@@ -92,6 +92,7 @@ class PreferencesKey {
   static const donationLinkWalletName = 'donation_link_wallet_name';
   static const lastSeenAppVersion = 'last_seen_app_version';
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
+  static const showAddressBookPopupEnabled = 'show_address_book_popup_enabled';
   static const isNewInstall = 'is_new_install';
   static const serviceStatusShaKey = 'service_status_sha_key';
   static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';

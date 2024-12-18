@@ -25,7 +25,7 @@ class CakePayService {
 
   /// Get Available Countries
   Future<List<Country>> getCountries() async =>
-      await cakePayApi.getCountries(CSRFToken: CSRFToken, authorization: authorization);
+      await cakePayApi.getCountries(apiKey: cakePayApiKey);
 
   /// Get Vendors
   Future<List<CakePayVendor>> getVendors({
@@ -40,8 +40,7 @@ class CakePayService {
     bool? custom,
   }) async {
     final result = await cakePayApi.getVendors(
-        CSRFToken: CSRFToken,
-        authorization: authorization,
+        apiKey: cakePayApiKey,
         page: page,
         country: country,
         countryCode: countryCode,
@@ -91,17 +90,27 @@ class CakePayService {
   }
 
   /// Purchase Gift Card
-  Future<CakePayOrder> createOrder(
-      {required int cardId, required String price, required int quantity}) async {
+  Future<CakePayOrder> createOrder({
+    required int cardId,
+    required String price,
+    required int quantity,
+    required bool confirmsNoVpn,
+    required bool confirmsVoidedRefund,
+    required bool confirmsTermsAgreed,
+  }) async {
     final userEmail = (await secureStorage.read(key: cakePayEmailStorageKey))!;
     final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
     return await cakePayApi.createOrder(
-        apiKey: cakePayApiKey,
-        cardId: cardId,
-        price: price,
-        quantity: quantity,
-        token: token,
-        userEmail: userEmail);
+      apiKey: cakePayApiKey,
+      cardId: cardId,
+      price: price,
+      quantity: quantity,
+      token: token,
+      userEmail: userEmail,
+      confirmsNoVpn: confirmsNoVpn,
+      confirmsVoidedRefund: confirmsVoidedRefund,
+      confirmsTermsAgreed: confirmsTermsAgreed,
+    );
   }
 
   ///Simulate Purchase Gift Card

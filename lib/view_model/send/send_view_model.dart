@@ -1,5 +1,5 @@
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -13,12 +13,12 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -26,6 +26,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:cw_solana/solana_exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -64,6 +65,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.type == WalletType.tron;
   }
 
+  UnspentCoinsListViewModel unspentCoinsListViewModel;
+
   SendViewModelBase(
     AppStore appStore,
     this.sendTemplateViewModel,
@@ -71,7 +74,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.balanceViewModel,
     this.contactListViewModel,
     this.transactionDescriptionBox,
-    this.ledgerViewModel, {
+    this.ledgerViewModel,
+    this.unspentCoinsListViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.any,
   })  : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
@@ -95,6 +99,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     outputs
         .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+
+    unspentCoinsListViewModel.initialSetup();
   }
 
   @observable
@@ -103,6 +109,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   ObservableList<Output> outputs;
 
   final UnspentCoinType coinTypeToSpendFrom;
+
+  bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
   @action
   void addOutput() {
@@ -129,11 +137,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get shouldDisplaySendALL {
     if (walletType == WalletType.solana) return false;
 
-    if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
-      return false;
+    // if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
+    // return false;
 
-      if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.matic)
-      return false;
+    // if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.maticpoly)
+    // return false;
 
     return true;
   }
@@ -419,7 +427,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       //
       //   state = FailureState(errorMsg);
       // } else {
-        state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
+      state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
       // }
     }
     return null;
@@ -479,10 +487,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     try {
       state = TransactionCommitting();
-      
+
       if (pendingTransaction!.shouldCommitUR()) {
         final urstr = await pendingTransaction!.commitUR();
-        final result = await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: urstr);
+        final result =
+            await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: urstr);
         if (result == null) {
           state = FailureState("Canceled by user");
           return;
@@ -495,18 +504,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         nano!.updateTransactions(wallet);
       }
 
-
       if (pendingTransaction!.id.isNotEmpty) {
-
         final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-            id: descriptionKey,
-            recipientAddress: address,
-            transactionNote: note))
-            : await transactionDescriptionBox.add(TransactionDescription(
-            id: descriptionKey,
-            transactionNote: note));
+                id: descriptionKey, recipientAddress: address, transactionNote: note))
+            : await transactionDescriptionBox
+                .add(TransactionDescription(id: descriptionKey, transactionNote: note));
       }
 
       state = TransactionCommitted();
@@ -668,10 +672,26 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               lamportsNeeded != null ? ((lamportsNeeded + 5000) / lamportsPerSol) : 0.0;
           return S.current.insufficient_lamports(solValueNeeded.toString());
         } else {
-          print("No match found.");
           return S.current.insufficient_lamport_for_tx;
         }
       }
+
+      if (error is SolanaSignNativeTokenTransactionRentException) {
+        return S.current.solana_sign_native_transaction_rent_exception;
+      }
+
+      if (error is SolanaCreateAssociatedTokenAccountException) {
+        return S.current.solana_create_associated_token_account_exception;
+      }
+
+      if (error is SolanaSignSPLTokenTransactionRentException) {
+        return S.current.solana_sign_spl_token_transaction_rent_exception;
+      }
+
+      if (error is SolanaNoAssociatedTokenAccountException) {
+        return S.current.solana_no_associated_token_account_exception;
+      }
+
       if (errorMessage.contains('insufficient funds for rent')) {
         return S.current.insufficientFundsForRentError;
       }
@@ -681,9 +701,26 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
         walletType == WalletType.haven) {
-      if (errorMessage.contains('gas required exceeds allowance') ||
-          errorMessage.contains('insufficient funds')) {
-        return S.current.do_not_have_enough_gas_asset(currency.toString());
+      if (errorMessage.contains('gas required exceeds allowance')) {
+        return S.current.gas_exceeds_allowance;
+      }
+
+      if (errorMessage.contains('insufficient funds')) {
+        final parsedErrorMessageResult =
+            EVMTransactionErrorFeesHandler.parseEthereumFeesErrorMessage(
+          errorMessage,
+          _fiatConversationStore.prices[currency]!,
+        );
+
+        if (parsedErrorMessageResult.error != null) {
+          return S.current.insufficient_funds_for_tx;
+        }
+
+        return 
+        '''${S.current.insufficient_funds_for_tx} \n\n'''
+        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
+        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
+        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.overshotUsd} ${fiatFromSettings.name})''';
       }
 
       return errorMessage;

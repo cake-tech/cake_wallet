@@ -8,6 +8,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -99,7 +100,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
       handleDeepLinking(await getInitialUri());
     } catch (e) {
-      print(e);
+      printV(e);
     }
   }
 

@@ -4,9 +4,8 @@
   useSSL: true
 -
   uri: api.trongrid.io
-  is_default: false
+  is_default: true
   useSSL: true
 - 
   uri: trx.nownodes.io
-  is_default: true
   useSSL: true

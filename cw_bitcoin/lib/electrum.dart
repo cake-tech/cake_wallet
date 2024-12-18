@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -117,17 +118,17 @@ class ElectrumClient {
             _parseResponse(message);
           }
         } catch (e) {
-          print("socket.listen: $e");
+          printV("socket.listen: $e");
         }
       },
       onError: (Object error) {
         final errorMsg = error.toString();
-        print(errorMsg);
+        printV(errorMsg);
         unterminatedString = '';
         socket = null;
       },
       onDone: () {
-        print("SOCKET CLOSED!!!!!");
+        printV("SOCKET CLOSED!!!!!");
         unterminatedString = '';
         try {
           if (host == socket?.address.host || socket == null) {
@@ -136,7 +137,7 @@ class ElectrumClient {
             socket = null;
           }
         } catch (e) {
-          print("onDone: $e");
+          printV("onDone: $e");
         }
       },
       cancelOnError: true,
@@ -181,7 +182,7 @@ class ElectrumClient {
         unterminatedString = '';
       }
     } catch (e) {
-      print("parse $e");
+      printV("parse $e");
     }
   }
 
@@ -234,21 +235,21 @@ class ElectrumClient {
         return [];
       });
 
-  Future<List<Map<String, dynamic>>> getListUnspent(String scriptHash) =>
-      call(method: 'blockchain.scripthash.listunspent', params: [scriptHash])
-          .then((dynamic result) {
-        if (result is List) {
-          return result.map((dynamic val) {
-            if (val is Map<String, dynamic>) {
-              return val;
-            }
+  Future<List<Map<String, dynamic>>> getListUnspent(String scriptHash) async {
+    final result = await call(method: 'blockchain.scripthash.listunspent', params: [scriptHash]);
 
-            return <String, dynamic>{};
-          }).toList();
+    if (result is List) {
+      return result.map((dynamic val) {
+        if (val is Map<String, dynamic>) {
+          return val;
         }
 
-        return [];
-      });
+        return <String, dynamic>{};
+      }).toList();
+    }
+
+    return [];
+  }
 
   Future<List<Map<String, dynamic>>> getMempool(String scriptHash) =>
       call(method: 'blockchain.scripthash.get_mempool', params: [scriptHash])
@@ -403,7 +404,7 @@ class ElectrumClient {
     } on RequestFailedTimeoutException catch (_) {
       return null;
     } catch (e) {
-      print("getCurrentBlockChainTip: ${e.toString()}");
+      printV("getCurrentBlockChainTip: ${e.toString()}");
       return null;
     }
   }
@@ -434,7 +435,7 @@ class ElectrumClient {
 
       return subscription;
     } catch (e) {
-      print("subscribe $e");
+      printV("subscribe $e");
       return null;
     }
   }
@@ -473,7 +474,7 @@ class ElectrumClient {
 
       return completer.future;
     } catch (e) {
-      print("callWithTimeout $e");
+      printV("callWithTimeout $e");
       rethrow;
     }
   }

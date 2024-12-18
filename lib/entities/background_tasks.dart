@@ -3,9 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/sync_status_title.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -14,6 +12,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/widgets.dart';
@@ -110,7 +109,7 @@ void setWalletNotification(FlutterLocalNotificationsPlugin flutterLocalNotificat
 
 @pragma('vm:entry-point')
 Future<void> onStart(ServiceInstance service) async {
-  print("BACKGROUND SERVICE STARTED");
+  printV("BACKGROUND SERVICE STARTED");
   bool bgSyncStarted = false;
   Timer? _syncTimer;
   Timer? _stuckSyncTimer;
@@ -123,13 +122,13 @@ Future<void> onStart(ServiceInstance service) async {
       FlutterLocalNotificationsPlugin();
 
   service.on('stopService').listen((event) async {
-    print("STOPPING BACKGROUND SERVICE");
+    printV("STOPPING BACKGROUND SERVICE");
     _syncTimer?.cancel();
     await service.stopSelf();
   });
 
   service.on('status').listen((event) async {
-    print(event);
+    printV(event);
   });
 
   service.on('setForeground').listen((event) async {
@@ -150,7 +149,7 @@ Future<void> onStart(ServiceInstance service) async {
     bgSyncStarted = true;
 
     await Future.delayed(const Duration(seconds: DELAY_SECONDS_BEFORE_SYNC_START));
-    print("STARTING SYNC FROM BG");
+    printV("STARTING SYNC FROM BG");
     setNotificationStarting(flutterLocalNotificationsPlugin);
 
     try {
@@ -159,7 +158,7 @@ Future<void> onStart(ServiceInstance service) async {
       // these errors still show up in logs which doesn't really make sense to me
     }
 
-    print("INITIALIZED APP CONFIGS");
+    printV("INITIALIZED APP CONFIGS");
 
     // final currentWallet = getIt.get<AppStore>().wallet;
     // // don't start syncing immediately:
@@ -200,7 +199,7 @@ Future<void> onStart(ServiceInstance service) async {
         }
       } catch (e) {
         // couldn't connect to mwebd (most likely)
-        print("error syncing litecoin wallet: $e");
+        printV("error syncing litecoin wallet: $e");
       }
     }
 
@@ -218,7 +217,7 @@ Future<void> onStart(ServiceInstance service) async {
 
         bool nodeSupportsSP = await (wallet as ElectrumWallet).getNodeSupportsSilentPayments();
         if (!nodeSupportsSP) {
-          print("Configured node does not support silent payments, skipping wallet");
+          printV("Configured node does not support silent payments, skipping wallet");
           setWalletNotification(
             flutterLocalNotificationsPlugin,
             title: initialNotificationTitle,
@@ -233,11 +232,11 @@ Future<void> onStart(ServiceInstance service) async {
 
         syncingWallets.add(wallet);
       } catch (e) {
-        print("error syncing bitcoin wallet_$i: $e");
+        printV("error syncing bitcoin wallet_$i: $e");
       }
     }
 
-    print("STARTING SYNC TIMER");
+    printV("STARTING SYNC TIMER");
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) async {
       for (int i = 0; i < syncingWallets.length; i++) {
@@ -247,7 +246,7 @@ Future<void> onStart(ServiceInstance service) async {
         final progressPercent = (progress * 100).toStringAsPrecision(5) + "%";
 
         if (progress > 0.999) {
-          print("WALLET $i SYNCED");
+          printV("WALLET $i SYNCED");
           wallet.stopSync();
           // pop the first wallet from the list
           standbyWallets.add(syncingWallets.removeAt(i));
@@ -261,11 +260,11 @@ Future<void> onStart(ServiceInstance service) async {
 
         if (shouldSync) {
           if (syncStatus is NotConnectedSyncStatus) {
-            print("${wallet.name} NOT CONNECTED");
+            printV("${wallet.name} NOT CONNECTED");
             final node = settingsStore.getCurrentNode(wallet.type);
             await wallet.connectToNode(node: node);
             wallet.startSync();
-            print("STARTED SYNC");
+            printV("STARTED SYNC");
             // wait a few seconds before checking progress
             // await Future.delayed(const Duration(seconds: 10));
           }
@@ -366,7 +365,7 @@ Future<void> onStart(ServiceInstance service) async {
       // }
       // // if the progress is the same over the last 100 seconds, restart the sync:
       // if (lastFewProgresses.every((p) => p == lastFewProgresses.first)) {
-      //   print("mweb syncing is stuck, restarting...");
+      //   printV("mweb syncing is stuck, restarting...");
       //   syncStatus = LostConnectionSyncStatus();
       //   await stopSync();
       // }
@@ -417,12 +416,12 @@ Future<void> initializeService(FlutterBackgroundService bgService, bool useNotif
   try {
     bool isServiceRunning = await bgService.isRunning();
     if (isServiceRunning) {
-      print("Service is ALREADY running!");
+      printV("Service is ALREADY running!");
       return;
     }
   } catch (_) {}
 
-  print("INITIALIZING SERVICE");
+  printV("INITIALIZING SERVICE");
 
   await bgService.configure(
     androidConfiguration: AndroidConfiguration(
@@ -469,7 +468,7 @@ class BackgroundTasks {
   }
 
   void registerBackgroundService() async {
-    print("REGISTER BACKGROUND SERVICE");
+    printV("REGISTER BACKGROUND SERVICE");
     try {
       final settingsStore = getIt.get<SettingsStore>();
       final walletListViewModel = getIt.get<WalletListViewModel>();
@@ -514,8 +513,8 @@ class BackgroundTasks {
 
       await initializeService(bgService, useNotifications);
     } catch (error, stackTrace) {
-      print(error);
-      print(stackTrace);
+      printV(error);
+      printV(stackTrace);
     }
   }
 }

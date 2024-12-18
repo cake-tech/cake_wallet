@@ -191,11 +191,13 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
           height = wownero!.getHeightByDate(date: date);
         }
       }
-      setState(() {
-        dateController.text = DateFormat('yyyy-MM-dd').format(date);
-        restoreHeightController.text = '$height';
-        _changeHeight(height);
-      });
+      if (mounted) {
+        setState(() {
+          dateController.text = DateFormat('yyyy-MM-dd').format(date);
+          restoreHeightController.text = '$height';
+          _changeHeight(height);
+        });
+      }
     }
   }
 

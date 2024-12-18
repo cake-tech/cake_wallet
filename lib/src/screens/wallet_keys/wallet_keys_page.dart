@@ -84,6 +84,7 @@ class WalletKeysPage extends BasePage {
             child: Observer(
               builder: (_) {
                 return ListView.separated(
+                  key: ValueKey('wallet_keys_page_credentials_list_view_key'),
                   separatorBuilder: (context, index) => Container(
                     height: 1,
                     padding: EdgeInsets.only(left: 24),

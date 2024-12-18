@@ -170,8 +170,9 @@ class BuySellPage extends BasePage {
                           },
                           color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
-                          isDisabled: false,
-                          isLoading: !buySellViewModel.isReadyToTrade)),
+                          isDisabled: buySellViewModel.isBuySellQuotFailed,
+                          isLoading: !buySellViewModel.isReadyToTrade &&
+                              !buySellViewModel.isBuySellQuotFailed)),
                 ]),
               )),
         ));
