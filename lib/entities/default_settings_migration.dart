@@ -41,7 +41,7 @@ const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'nano.nownodes.io';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'solana-rpc.publicnode.com:443';
-const tronDefaultNodeUri = 'trx.nownodes.io';
+const tronDefaultNodeUri = 'api.trongrid.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
 const moneroWorldNodeUri = '.moneroworld.com';
@@ -308,6 +308,18 @@ Future<void> defaultSettingsMigration(
             nodes: nodes,
             type: WalletType.ethereum,
             useSSL: true,
+          );
+          _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.tron,
+            newDefaultUri: tronDefaultNodeUri,
+            currentNodePreferenceKey: PreferencesKey.currentTronNodeIdKey,
+            useSSL: true,
+            oldUri: [
+              'tron-rpc.publicnode.com:443',
+              'trx.nownodes.io',
+            ],
           );
           _changeDefaultNode(
             nodes: nodes,
