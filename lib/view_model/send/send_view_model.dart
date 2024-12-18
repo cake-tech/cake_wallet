@@ -718,9 +718,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
         return 
         '''${S.current.insufficient_funds_for_tx} \n\n'''
-        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ETH (${parsedErrorMessageResult.balanceUsd} USD)\n\n'''
-        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ETH (${parsedErrorMessageResult.txCostUsd} USD)\n\n'''
-        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ETH (${parsedErrorMessageResult.overshotUsd} USD)''';
+        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
+        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
+        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.overshotUsd} ${fiatFromSettings.name})''';
       }
 
       return errorMessage;
