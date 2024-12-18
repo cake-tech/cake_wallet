@@ -478,6 +478,7 @@ abstract class ElectrumWalletBase
       if (alwaysScan == true) {
         _setListeners(walletInfo.restoreHeight);
       } else {
+        if (syncStatus is LostConnectionSyncStatus) return;
         syncStatus = SyncedSyncStatus();
       }
     } catch (e, stacktrace) {
