@@ -28,7 +28,6 @@ import 'package:monero/zano.dart' as zano;
 import 'package:monero/src/generated_bindings_zano.g.dart' as zanoapi;
 
 mixin ZanoWalletApi {
-  static const _defaultNodeUri = '195.201.107.230:33340';
   static const _statusDelivered = 'delivered';
   static const _maxInvokeAttempts = 10;
   static const _maxReopenAttempts = 5;
@@ -47,21 +46,18 @@ mixin ZanoWalletApi {
 
   int getCurrentTxFee(TransactionPriority priority) => zano.PlainWallet_getCurrentTxFee(priority.raw);
 
-  String getOpenedWallets() => zano.PlainWallet_getOpenWallets();
-  String getConnectivityStatus() => zano.PlainWallet_getConnectivityStatus();
-
   void setPassword(String password) => zano.PlainWallet_resetWalletPassword(hWallet, password);
 
-  void closeWallet([int? walletToClose]) {
+  void closeWallet([int? walletToClose]) async {
     info('close_wallet ${walletToClose ?? hWallet}');
-    final result = zano.PlainWallet_closeWallet(walletToClose ?? hWallet);
+    final result = await _closeWallet(walletToClose ?? hWallet);
     info('close_wallet result $result');
   }
 
-  Future<bool> setupNode() async {
-    info('init $_defaultNodeUri');
+  Future<bool> setupNode(String nodeUri) async {
+    info('init $nodeUri');
     // pathForWallet(name: , type: type)
-    final result = zano.PlainWallet_init(_defaultNodeUri, "", 0);
+    final result = zano.PlainWallet_init(nodeUri, "", 0);
     info('init result $result');
     return result == "OK";
   }
@@ -89,31 +85,14 @@ mixin ZanoWalletApi {
   }
 
   Future<String> invokeMethod(String methodName, Object params) async {
-
-    // var invokeResult = zano.PlainWallet_syncCall(
-    //   'invoke', 
-    //   hWallet, 
-    //   jsonEncode(
-    //     {
-    //       "method": "$methodName",
-    //       "params": params,
-    //     },
-    //   ),
-    // );
     final request = jsonEncode({
       "method": methodName,
       "params": params,
     });
     final invokeResult = await callSyncMethod('invoke', hWallet, request);
-    // final invokeResult = zano.PlainWallet_syncCall(
-    //   'invoke',
-    //   hWallet,
-    //   request,
-    // );
-    // print("zano: <<< ${invokeResult}");
     Map<String, dynamic> map;
     try {
-      map = jsonDecode(invokeResult) as Map<String, dynamic>;
+      map = jsonDecode(invokeResult);
     } catch (e) {
       if (invokeResult.contains(Consts.errorWalletWrongId)) throw ZanoWalletException('Wrong wallet id');
       error('exception in parsing json in invokeMethod: $invokeResult');
@@ -325,7 +304,6 @@ mixin ZanoWalletApi {
     }
     final result = CreateWalletResult.fromJson(map!['result'] as Map<String, dynamic>);
     info('load_wallet3 ${result.name} ${result.wi.address}');
-    zano.PlainWallet_init(_defaultNodeUri, path, 0);
     return result;
   }
 
@@ -470,4 +448,11 @@ Future<String> _getWalletInfo(int hWallet) async {
     json = "";
   }
   return json;
+}
+
+Future<String> _closeWallet(int hWallet) async {
+  final str = await Isolate.run(() async {
+    return zano.PlainWallet_closeWallet(hWallet);
+  });
+  return str;
 }

@@ -46,7 +46,7 @@ const solanaDefaultNodeUri = 'rpc.ankr.com';
 const tronDefaultNodeUri = 'trx.nownodes.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
-const zanoDefaultNodeUri = 'zano.org';
+const zanoDefaultNodeUri = '195.201.107.230:33340';
 const moneroWorldNodeUri = '.moneroworld.com';
 
 Future<void> defaultSettingsMigration(

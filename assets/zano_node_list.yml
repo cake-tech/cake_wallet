@@ -1,4 +1,4 @@
 -
-  uri: zano.org
+  uri: 195.201.107.230:33340
   is_default: true
-  useSSL: true
+  useSSL: false
