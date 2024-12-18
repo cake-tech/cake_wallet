@@ -2187,7 +2187,7 @@ abstract class ElectrumWalletBase
       });
     }
 
-    final balances = await Future.wait(balanceFutures);
+    final balances = await Future.wait(balanceFutures); // ToDo: add onError ignore failed balances
 
     if (balances.isNotEmpty && balances.first['confirmed'] == null) {
       // if we got null balance responses from the server, set our connection status to lost and return our last known balance:
@@ -2394,10 +2394,8 @@ abstract class ElectrumWalletBase
   void _updateInputsAndOutputs(ElectrumTransactionInfo tx, ElectrumTransactionBundle bundle) {
     tx.inputAddresses = tx.inputAddresses?.where((address) => address.isNotEmpty).toList();
 
-    if (tx.inputAddresses == null ||
-        tx.inputAddresses!.isEmpty ||
-        tx.outputAddresses == null ||
-        tx.outputAddresses!.isEmpty) {
+    if (tx.inputAddresses?.isNotEmpty != true ||
+        tx.outputAddresses?.isNotEmpty != true) {
       List<String> inputAddresses = [];
       List<String> outputAddresses = [];
 
