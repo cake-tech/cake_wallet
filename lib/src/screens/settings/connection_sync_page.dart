@@ -44,36 +44,6 @@ class ConnectionSyncPage extends BasePage {
                   : S.current.rescan,
               handler: (context) => Navigator.of(context).pushNamed(Routes.rescan),
             ),
-            if (Platform.isAndroid && FeatureFlag.isBackgroundSyncEnabled) ...[
-              Observer(builder: (context) {
-                return SettingsPickerCell<SyncMode>(
-                    title: S.current.background_sync_mode,
-                    items: SyncMode.all,
-                    displayItem: (SyncMode syncMode) => syncMode.name,
-                    selectedItem: dashboardViewModel.syncMode,
-                    onItemSelected: (syncMode) async {
-                      dashboardViewModel.setSyncMode(syncMode);
-
-                      if (Platform.isIOS) return;
-                    });
-              }),
-              Observer(builder: (context) {
-                return SettingsSwitcherCell(
-                  title: S.current.show_sync_notifications,
-                  value: dashboardViewModel.showSyncNotification,
-                  onValueChange: (BuildContext _, bool isEnabled) async {
-                    dashboardViewModel.setShowSyncNotification(isEnabled);
-                  },
-                );
-              }),
-              Observer(builder: (context) {
-                return SettingsSwitcherCell(
-                  title: S.current.sync_all_wallets,
-                  value: dashboardViewModel.syncAll,
-                  onValueChange: (_, bool value) => dashboardViewModel.setSyncAll(value),
-                );
-              }),
-            ],
           ],
           SettingsCellWithArrow(
             title: S.current.manage_nodes,
@@ -98,6 +68,12 @@ class ConnectionSyncPage extends BasePage {
             // ToDo: Remove this line once WalletConnect is implemented
             WalletConnectTile(
               onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
+            ),
+          ],
+          if (dashboardViewModel.hasRescan && Platform.isAndroid && FeatureFlag.isBackgroundSyncEnabled) ...[
+            SettingsCellWithArrow(
+              title: S.current.background_sync,
+              handler: (context) => Navigator.of(context).pushNamed(Routes.backgroundSync),
             ),
           ],
           if (FeatureFlag.isInAppTorEnabled)

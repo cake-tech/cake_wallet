@@ -61,6 +61,9 @@ class PreferencesKey {
   static const syncModeKey = 'sync_mode';
   static const syncAllKey = 'sync_all';
   static const showSyncNotificationKey = 'show_sync_notification';
+  static const backgroundSyncEnabled = 'background_sync_enabled';
+  static const backgroundSyncOnBattery = 'background_sync_on_battery';
+  static const backgroundSyncOnData = 'background_sync_on_data';
   static const lastPopupDate = 'last_popup_date';
   static const lastAppReviewDate = 'last_app_review_date';
   static const sortBalanceBy = 'sort_balance_by';

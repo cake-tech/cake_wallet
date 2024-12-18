@@ -38,7 +38,7 @@ const DELAY_SECONDS_BEFORE_SYNC_START = 15;
 const spNodeNotificationMessage =
     "Currently configured Bitcoin node does not support Silent Payments. skipping wallet";
 const SYNC_THRESHOLD = 0.98;
-int REFRESH_QUEUE_HOURS = 1;
+Duration REFRESH_QUEUE_DURATION = Duration(hours: 1);
 
 void setMainNotification(
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, {
@@ -239,22 +239,29 @@ Future<void> onStart(ServiceInstance service) async {
     printV("STARTING SYNC TIMER");
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) async {
+      int syncedTicks = 0;
       for (int i = 0; i < syncingWallets.length; i++) {
         final wallet = syncingWallets[i];
         final syncStatus = wallet.syncStatus;
         final progress = wallet.syncStatus.progress();
         final progressPercent = (progress * 100).toStringAsPrecision(5) + "%";
+        bool shouldSync = i == 0;
 
-        if (progress > 0.999) {
-          printV("WALLET $i SYNCED");
-          wallet.stopSync();
-          // pop the first wallet from the list
-          standbyWallets.add(syncingWallets.removeAt(i));
-          flutterLocalNotificationsPlugin.cancelAll();
-          continue;
+        
+
+        if (progress > 0.999 && shouldSync) {
+          syncedTicks++;
+          if (syncedTicks > 10) {
+            syncedTicks = 0;
+            printV("WALLET $i SYNCED");
+            wallet.stopSync();
+            // pop the first wallet from the list
+            standbyWallets.add(syncingWallets.removeAt(i));
+            flutterLocalNotificationsPlugin.cancelAll();
+            continue;
+          }
         }
 
-        bool shouldSync = i == 0;
         String title = "${walletTypeToCryptoCurrency(wallet.type).title} - ${wallet.name}";
         late String content;
 
@@ -330,7 +337,7 @@ Future<void> onStart(ServiceInstance service) async {
 
     _queueTimer?.cancel();
     // add a timer that checks all wallets and adds them to the queue if they are less than SYNC_THRESHOLD synced:
-    _queueTimer = Timer.periodic(Duration(hours: REFRESH_QUEUE_HOURS), (timer) async {
+    _queueTimer = Timer.periodic(REFRESH_QUEUE_DURATION, (timer) async {
       for (int i = 0; i < standbyWallets.length; i++) {
         final wallet = standbyWallets[i];
         final syncStatus = wallet.syncStatus;
@@ -339,17 +346,17 @@ Future<void> onStart(ServiceInstance service) async {
           final node = settingsStore.getCurrentNode(wallet.type);
           await wallet.connectToNode(node: node);
           await wallet.startSync();
-          await Future.delayed(
-              const Duration(seconds: 10)); // wait a few seconds before checking progress
         }
+
+        // wait a few seconds before checking progress:
+        await Future.delayed(const Duration(seconds: 20));
 
         if (syncStatus.progress() < SYNC_THRESHOLD) {
           syncingWallets.add(standbyWallets.removeAt(i));
         }
       }
     });
-  
-  
+
     // setup a watch dog to restart the sync process if it gets stuck:
     List<double> lastFewProgresses = [];
     _stuckSyncTimer?.cancel();
@@ -492,6 +499,9 @@ class BackgroundTasks {
 
       final SyncMode syncMode = settingsStore.currentSyncMode;
       final bool useNotifications = settingsStore.showSyncNotification;
+      final bool syncEnabled = settingsStore.backgroundSyncEnabled;
+      final bool syncOnBattery = settingsStore.backgroundSyncOnBattery;
+      final bool syncOnData = settingsStore.backgroundSyncOnData;
 
       if (useNotifications) {
         flutterLocalNotificationsPlugin
@@ -501,15 +511,11 @@ class BackgroundTasks {
 
       bgService.invoke("stopService");
 
-      if (syncMode.type == SyncType.disabled || !FeatureFlag.isBackgroundSyncEnabled) {
+      if (!syncEnabled || !FeatureFlag.isBackgroundSyncEnabled) {
         return;
       }
 
-      if (syncMode.type == SyncType.aggressive) {
-        REFRESH_QUEUE_HOURS = 3;
-      } else {
-        REFRESH_QUEUE_HOURS = 24;
-      }
+      REFRESH_QUEUE_DURATION = syncMode.frequency;
 
       await initializeService(bgService, useNotifications);
     } catch (error, stackTrace) {
