@@ -247,6 +247,47 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
+  Future<PSBTTransactionBuild> buildPayjoinTransaction({
+    required List<BitcoinBaseOutput> outputs,
+    required BigInt fee,
+    required BasedUtxoNetwork network,
+    required List<UtxoWithAddress> utxos,
+    required Map<String, PublicKeyWithDerivationPath> publicKeys,
+    String? memo,
+    bool enableRBF = false,
+    BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
+    BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
+  }) async {
+    final psbtReadyInputs = <PSBTReadyUtxoWithAddress>[];
+    for (final UtxoWithAddress utxo in utxos) {
+      debugPrint(
+          '[+] BITCOINWALLET => buildPayjoinTransaction - utxo: ${utxo.utxo.toString()}');
+
+      final rawTx =
+          await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+      final publicKeyAndDerivationPath =
+          publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
+
+      psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
+        utxo: utxo.utxo,
+        rawTx: rawTx,
+        ownerDetails: utxo.ownerDetails,
+        ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
+        ownerMasterFingerprint: Uint8List(0),
+        ownerPublicKey: publicKeyAndDerivationPath.publicKey,
+      ));
+    }
+
+    final psbt = PSBTTransactionBuild(
+      inputs: psbtReadyInputs,
+      outputs: outputs,
+      enableRBF: enableRBF,
+    );
+
+    return psbt;
+  }
+
+  @override
   Future<BtcTransaction> buildHardwareWalletTransaction({
     required List<BitcoinBaseOutput> outputs,
     required BigInt fee,

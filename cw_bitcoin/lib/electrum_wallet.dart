@@ -1137,7 +1137,8 @@ abstract class ElectrumWalletBase extends WalletBase<
       // return transaction.psbt.asPsbtV0();
       return transaction.psbt;
     } catch (e, st) {
-      print('[!] ElectrumWallet || e: $e and st: $st');
+      debugPrint(
+          '[!] ElectrumWallet => createPayjoinTransaction - e: $e and st: $st');
       throw e;
     }
   }
