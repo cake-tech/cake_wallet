@@ -251,19 +251,6 @@ Future<void> onStart(ServiceInstance service) async {
         final progressPercent = (progress * 100).toStringAsPrecision(5) + "%";
         bool shouldSync = i == 0;
 
-        if (progress > 0.999 && shouldSync) {
-          syncedTicks++;
-          if (syncedTicks > 5) {
-            syncedTicks = 0;
-            printV("WALLET $i SYNCED");
-            wallet.stopSync();
-            // pop the first wallet from the list
-            standbyWallets.add(syncingWallets.removeAt(i));
-            flutterLocalNotificationsPlugin.cancelAll();
-            continue;
-          }
-        }
-
         String title = "${walletTypeToCryptoCurrency(wallet.type).title} - ${wallet.name}";
         late String content;
 
@@ -276,6 +263,19 @@ Future<void> onStart(ServiceInstance service) async {
             printV("STARTED SYNC");
             // wait a few seconds before checking progress
             // await Future.delayed(const Duration(seconds: 10));
+          }
+
+          if (progress > 0.999 || syncStatus is SyncedSyncStatus) {
+            syncedTicks++;
+            if (syncedTicks > 5) {
+              syncedTicks = 0;
+              printV("WALLET $i SYNCED");
+              wallet.stopSync();
+              // pop the first wallet from the list
+              standbyWallets.add(syncingWallets.removeAt(i));
+              flutterLocalNotificationsPlugin.cancelAll();
+              continue;
+            }
           }
 
           if (syncStatus is SyncingSyncStatus) {
@@ -382,7 +382,8 @@ Future<void> onStart(ServiceInstance service) async {
       final wallet = syncingWallets.first;
       final syncStatus = wallet.syncStatus;
       if (syncStatus is! SyncingSyncStatus) return;
-      if (syncStatus.progress() > SYNC_THRESHOLD) return; // don't bother checking if we're close to synced
+      if (syncStatus.progress() > SYNC_THRESHOLD)
+        return; // don't bother checking if we're close to synced
       lastFewProgresses.add(syncStatus.progress());
       if (lastFewProgresses.length < 10) return;
       // limit list size to 10:
