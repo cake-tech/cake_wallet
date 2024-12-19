@@ -31,7 +31,7 @@ const initialNotificationTitle = 'Cake Background Sync';
 const standbyMessage = 'On standby - app is in the foreground';
 const readyMessage = 'Ready to sync - waiting until the app has been in the background for a while';
 const startMessage = 'Starting sync - app is in the background';
-
+const allWalletsSyncedMessage = 'All wallets synced - waiting for next queue refresh';
 const notificationId = 888;
 const notificationChannelId = 'cake_service';
 const notificationChannelName = 'CAKE BACKGROUND SERVICE';
@@ -90,6 +90,15 @@ void setNotificationStarting(
     flutterLocalNotificationsPlugin,
     title: initialNotificationTitle,
     content: startMessage,
+  );
+}
+
+void setNotificationWalletsSynced(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+  flutterLocalNotificationsPlugin.cancelAll();
+  setMainNotification(
+    flutterLocalNotificationsPlugin,
+    title: initialNotificationTitle,
+    content: allWalletsSyncedMessage,
   );
 }
 
@@ -274,6 +283,11 @@ Future<void> onStart(ServiceInstance service) async {
               // pop the first wallet from the list
               standbyWallets.add(syncingWallets.removeAt(i));
               flutterLocalNotificationsPlugin.cancelAll();
+
+              // if all wallets are synced, show a one time notification saying so:
+              if (syncingWallets.isEmpty) {
+                setNotificationWalletsSynced(flutterLocalNotificationsPlugin);
+              }
               continue;
             }
           }
@@ -312,29 +326,31 @@ Future<void> onStart(ServiceInstance service) async {
           }
         }
 
-        content += " - ${DateFormat("hh:mm:ss").format(DateTime.now())}";
+        // content += " - ${DateFormat("hh:mm:ss").format(DateTime.now())}";
 
-        setWalletNotification(
-          flutterLocalNotificationsPlugin,
-          title: title,
-          content: content,
-          walletNum: i,
-        );
+        if (i == 0) {
+          setWalletNotification(
+            flutterLocalNotificationsPlugin,
+            title: title,
+            content: content,
+            walletNum: i,
+          );
+        }
       }
 
-      for (int i = 0; i < standbyWallets.length; i++) {
-        int notificationIndex = syncingWallets.length + i + 1;
-        final wallet = standbyWallets[i];
-        final title = "${walletTypeToCryptoCurrency(wallet.type).title} - ${wallet.name}";
-        String content = "Synced - on standby until next queue refresh";
+      // for (int i = 0; i < standbyWallets.length; i++) {
+      //   int notificationIndex = syncingWallets.length + i + 1;
+      //   final wallet = standbyWallets[i];
+      //   final title = "${walletTypeToCryptoCurrency(wallet.type).title} - ${wallet.name}";
+      //   String content = "Synced - on standby until next queue refresh";
 
-        setWalletNotification(
-          flutterLocalNotificationsPlugin,
-          title: title,
-          content: content,
-          walletNum: notificationIndex,
-        );
-      }
+      //   setWalletNotification(
+      //     flutterLocalNotificationsPlugin,
+      //     title: title,
+      //     content: content,
+      //     walletNum: notificationIndex,
+      //   );
+      // }
     });
 
     _queueTimer?.cancel();
