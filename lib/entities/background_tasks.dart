@@ -355,6 +355,11 @@ Future<void> onStart(ServiceInstance service) async {
         return;
       }
 
+      // don't refresh the queue until we've finished syncing all wallets:
+      if (syncingWallets.isNotEmpty) {
+        return;
+      }
+
       for (int i = 0; i < standbyWallets.length; i++) {
         final wallet = standbyWallets[i];
         final syncStatus = wallet.syncStatus;
@@ -376,14 +381,13 @@ Future<void> onStart(ServiceInstance service) async {
 
     // setup a watch dog to restart the wallet sync process if it appears to get stuck:
     List<double> lastFewProgresses = [];
+    List<String> stuckWallets = [];
     _stuckSyncTimer?.cancel();
     _stuckSyncTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
       if (syncingWallets.isEmpty) return;
       final wallet = syncingWallets.first;
       final syncStatus = wallet.syncStatus;
       if (syncStatus is! SyncingSyncStatus) return;
-      if (syncStatus.progress() > SYNC_THRESHOLD)
-        return; // don't bother checking if we're close to synced
       lastFewProgresses.add(syncStatus.progress());
       if (lastFewProgresses.length < 10) return;
       // limit list size to 10:
@@ -393,8 +397,21 @@ Future<void> onStart(ServiceInstance service) async {
       // if the progress is the same over the last 100 seconds, restart the sync:
       if (lastFewProgresses.every((p) => p == lastFewProgresses.first)) {
         printV("syncing appears to be stuck, restarting...");
-        await wallet.stopSync();
-        await wallet.startSync();
+        try {
+          stuckWallets.add(wallet.name);
+          await wallet.stopSync();
+        } catch (e) {
+          printV("error restarting sync: $e");
+        }
+        // if this wallet has been stuck more than twice, don't restart it, instead, add it to the standby list and try again on next queue refresh:
+        // check if stuckWallets contains wallet.name more than 2 times:
+        if (stuckWallets.where((name) => name == wallet.name).length > 2) {
+          printV("wallet ${wallet.name} has been stuck more than 2 times, adding to standby list");
+          standbyWallets.add(syncingWallets.removeAt(0));
+          stuckWallets = [];
+          return;
+        }
+        wallet.startSync();
       }
     });
   });
