@@ -93,7 +93,8 @@ void setNotificationStarting(
   );
 }
 
-void setNotificationWalletsSynced(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+void setNotificationWalletsSynced(
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
   flutterLocalNotificationsPlugin.cancelAll();
   setMainNotification(
     flutterLocalNotificationsPlugin,
@@ -250,9 +251,9 @@ Future<void> onStart(ServiceInstance service) async {
     }
 
     printV("STARTING SYNC TIMER");
+    int syncedTicks = 0;
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(const Duration(milliseconds: 2000), (timer) async {
-      int syncedTicks = 0;
       for (int i = 0; i < syncingWallets.length; i++) {
         final wallet = syncingWallets[i];
         final syncStatus = wallet.syncStatus;
@@ -280,7 +281,7 @@ Future<void> onStart(ServiceInstance service) async {
               syncedTicks = 0;
               printV("WALLET $i SYNCED");
               try {
-                wallet.stopSync();
+                await wallet.stopSync();
               } catch (e) {
                 printV("error stopping sync: $e");
               }
@@ -318,6 +319,10 @@ Future<void> onStart(ServiceInstance service) async {
             content = "Connecting";
           } else {
             throw Exception("sync type not covered");
+          }
+
+          if (syncedTicks > 0) {
+            content += " - Finishing up...";
           }
         } else {
           if (syncStatus is! NotConnectedSyncStatus) {
