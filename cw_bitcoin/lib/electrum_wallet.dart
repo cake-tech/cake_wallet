@@ -1361,7 +1361,10 @@ abstract class ElectrumWalletBase
   @action
   Future<void> updateAllUnspents() async {
     List<BitcoinUnspent> updatedUnspentCoins = [];
-    final previousUnspentCoins = List<BitcoinUnspent>.from(unspentCoins);
+
+    final previousUnspentCoins = List<BitcoinUnspent>.from(unspentCoins.where((utxo) =>
+    utxo.bitcoinAddressRecord.type != SegwitAddresType.mweb &&
+        utxo.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord));
 
     if (hasSilentPaymentsScanning) {
       // Update unspents stored from scanned silent payment transactions
