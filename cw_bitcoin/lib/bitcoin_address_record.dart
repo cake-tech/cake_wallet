@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 
 abstract class BaseBitcoinAddressRecord {
@@ -84,11 +85,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       throw ArgumentError('either scriptHash or network must be provided');
     }
 
-    try {
-      this.scriptHash = scriptHash ?? BitcoinAddressUtils.scriptHash(address, network: network!);
-    } catch (_) {
-      this.scriptHash = '';
-    }
+    this.scriptHash = scriptHash ?? BitcoinAddressUtils.scriptHash(address, network: network!);
   }
 
   factory BitcoinAddressRecord.fromJSON(String jsonSource) {
@@ -211,7 +208,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
 }
 
 class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
-  final ECPrivate spendKey;
+  final String tweak;
 
   BitcoinReceivedSPAddressRecord(
     super.address, {
@@ -220,10 +217,31 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
     super.balance = 0,
     super.name = '',
     super.isUsed = false,
-    required this.spendKey,
+    required this.tweak,
     super.addressType = SegwitAddresType.p2tr,
     super.labelHex,
   }) : super(isHidden: true);
+
+  SilentPaymentOwner getSPWallet(
+    List<SilentPaymentOwner> silentPaymentsWallets, [
+    BasedUtxoNetwork network = BitcoinNetwork.mainnet,
+  ]) {
+    final spAddress = silentPaymentsWallets.firstWhere(
+      (wallet) => wallet.toAddress(network) == this.address,
+      orElse: () => throw ArgumentError('SP wallet not found'),
+    );
+
+    return spAddress;
+  }
+
+  ECPrivate getSpendKey(
+    List<SilentPaymentOwner> silentPaymentsWallets, [
+    BasedUtxoNetwork network = BitcoinNetwork.mainnet,
+  ]) {
+    return getSPWallet(silentPaymentsWallets, network)
+        .b_spend
+        .tweakAdd(BigintUtils.fromBytes(BytesUtils.fromHexString(tweak)));
+  }
 
   factory BitcoinReceivedSPAddressRecord.fromJSON(String jsonSource, {BasedUtxoNetwork? network}) {
     final decoded = json.decode(jsonSource) as Map;
@@ -236,9 +254,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
       labelHex: decoded['label'] as String?,
-      spendKey: (decoded['spendKey'] as String?) == null
-          ? ECPrivate.random()
-          : ECPrivate.fromHex(decoded['spendKey'] as String),
+      tweak: decoded['tweak'] as String? ?? '',
     );
   }
 
@@ -252,6 +268,6 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
         'balance': balance,
         'type': addressType.toString(),
         'labelHex': labelHex,
-        'spend_key': spendKey.toString(),
+        'tweak': tweak,
       });
 }

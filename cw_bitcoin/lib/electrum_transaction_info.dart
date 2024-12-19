@@ -62,7 +62,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     required bool isPending,
     bool isReplaced = false,
     required DateTime date,
-    required int? time,
+    int? time,
     bool? isDateValidated,
     required int confirmations,
     String? to,

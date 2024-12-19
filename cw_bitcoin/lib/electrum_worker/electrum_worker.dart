@@ -382,11 +382,20 @@ class ElectrumWorker {
   }
 
   Future<void> _handleBroadcast(ElectrumWorkerBroadcastRequest request) async {
+    final rpcId = _electrumClient!.id + 1;
     final txHash = await _electrumClient!.request(
       ElectrumBroadCastTransaction(transactionRaw: request.transactionRaw),
     );
 
-    _sendResponse(ElectrumWorkerBroadcastResponse(txHash: txHash, id: request.id));
+    if (txHash == null) {
+      final error = (_electrumClient!.rpc as ElectrumSSLService).getError(rpcId);
+
+      if (error?.message != null) {
+        return _sendError(ElectrumWorkerBroadcastError(error: error!.message, id: request.id));
+      }
+    } else {
+      _sendResponse(ElectrumWorkerBroadcastResponse(txHash: txHash, id: request.id));
+    }
   }
 
   Future<void> _handleGetTxExpanded(ElectrumWorkerTxExpandedRequest request) async {
@@ -586,6 +595,7 @@ class ElectrumWorker {
     if (scanData.shouldSwitchNodes) {
       scanningClient = await ElectrumApiProvider.connect(
         ElectrumTCPService.connect(
+          // TODO: ssl
           Uri.parse("tcp://electrs.cakewallet.com:50001"),
         ),
       );
@@ -714,7 +724,6 @@ class ElectrumWorker {
               date: scanData.network == BitcoinNetwork.mainnet
                   ? getDateByBitcoinHeight(tweakHeight)
                   : DateTime.now(),
-              time: null,
               confirmations: scanData.chainTip - tweakHeight + 1,
               unspents: [],
               isReceivedSilentPayment: true,
@@ -736,10 +745,7 @@ class ElectrumWorker {
                   receivingOutputAddress,
                   labelIndex: 1, // TODO: get actual index/label
                   isUsed: true,
-                  // TODO: use right wallet
-                  spendKey: scanData.silentPaymentsWallets.first.b_spend.tweakAdd(
-                    BigintUtils.fromBytes(BytesUtils.fromHexString(t_k)),
-                  ),
+                  tweak: t_k,
                   txCount: 1,
                   balance: amount,
                 );

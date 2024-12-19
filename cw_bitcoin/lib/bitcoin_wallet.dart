@@ -4,9 +4,11 @@ import 'dart:convert';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
+import 'package:cw_bitcoin/exceptions.dart';
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
-// import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -17,15 +19,14 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
-// import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
-// import 'package:cw_core/wallet_type.dart';
-// import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
@@ -251,7 +252,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final passphrase = keysData.passphrase;
 
     if (mnemonic != null) {
-      for (final derivation in walletInfo.derivations ?? <DerivationInfo>[]) {
+      final derivations = walletInfo.derivations ?? <DerivationInfo>[];
+
+      for (final derivation in derivations) {
         if (derivation.description?.contains("SP") ?? false) {
           continue;
         }
@@ -289,16 +292,18 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             hdWallets[CWBitcoinDerivationType.electrum]!;
       }
 
-      switch (walletInfo.derivationInfo?.derivationType) {
-        case DerivationType.bip39:
-          seedBytes = await Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
-          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-          break;
-        case DerivationType.electrum:
-        default:
-          seedBytes = await ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
-          hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-          break;
+      if (derivations.isEmpty) {
+        switch (walletInfo.derivationInfo?.derivationType) {
+          case DerivationType.bip39:
+            seedBytes = await Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+            hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+            break;
+          case DerivationType.electrum:
+          default:
+            seedBytes = await ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+            hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+            break;
+        }
       }
     }
 
@@ -912,6 +917,568 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         break;
       default:
         super.syncStatusReaction(syncStatus);
+    }
+  }
+
+  @override
+  Future<int> calcFee({
+    required List<UtxoWithAddress> utxos,
+    required List<BitcoinBaseOutput> outputs,
+    String? memo,
+    required int feeRate,
+    List<ECPrivateInfo>? inputPrivKeyInfos,
+    List<Outpoint>? vinOutpoints,
+  }) async =>
+      feeRate *
+      BitcoinTransactionBuilder.estimateTransactionSize(
+        utxos: utxos,
+        outputs: outputs,
+        network: network,
+        memo: memo,
+        inputPrivKeyInfos: inputPrivKeyInfos,
+        vinOutpoints: vinOutpoints,
+      );
+
+  @override
+  TxCreateUtxoDetails createUTXOS({
+    required bool sendAll,
+    bool paysToSilentPayment = false,
+    int credentialsAmount = 0,
+    int? inputsCount,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+  }) {
+    List<UtxoWithAddress> utxos = [];
+    List<Outpoint> vinOutpoints = [];
+    List<ECPrivateInfo> inputPrivKeyInfos = [];
+    final publicKeys = <String, PublicKeyWithDerivationPath>{};
+    int allInputsAmount = 0;
+    bool spendsSilentPayment = false;
+    bool spendsUnconfirmedTX = false;
+
+    int leftAmount = credentialsAmount;
+    var availableInputs = unspentCoins.where((utx) {
+      if (!utx.isSending || utx.isFrozen) {
+        return false;
+      }
+      return true;
+    }).toList();
+    final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
+
+    for (int i = 0; i < availableInputs.length; i++) {
+      final utx = availableInputs[i];
+      if (!spendsUnconfirmedTX) spendsUnconfirmedTX = utx.confirmations == 0;
+
+      if (paysToSilentPayment) {
+        // Check inputs for shared secret derivation
+        if (utx.bitcoinAddressRecord.addressType == SegwitAddresType.p2wsh) {
+          throw BitcoinTransactionSilentPaymentsNotSupported();
+        }
+      }
+
+      allInputsAmount += utx.value;
+      leftAmount = leftAmount - utx.value;
+
+      final address = RegexUtils.addressTypeFromStr(utx.address, network);
+      ECPrivate? privkey;
+      bool? isSilentPayment = false;
+
+      if (utx.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
+        privkey = (utx.bitcoinAddressRecord as BitcoinReceivedSPAddressRecord).getSpendKey(
+          (walletAddresses as BitcoinWalletAddresses).silentPaymentWallets,
+          network,
+        );
+        spendsSilentPayment = true;
+        isSilentPayment = true;
+      } else if (!isHardwareWallet) {
+        final addressRecord = (utx.bitcoinAddressRecord as BitcoinAddressRecord);
+        final path = addressRecord.derivationInfo.derivationPath
+            .addElem(Bip32KeyIndex(
+              BitcoinAddressUtils.getAccountFromChange(addressRecord.isChange),
+            ))
+            .addElem(Bip32KeyIndex(addressRecord.index));
+
+        privkey = ECPrivate.fromBip32(bip32: bip32.derive(path));
+      }
+
+      vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
+      String pubKeyHex;
+
+      if (privkey != null) {
+        inputPrivKeyInfos.add(ECPrivateInfo(
+          privkey,
+          address.type == SegwitAddresType.p2tr,
+          tweak: !isSilentPayment,
+        ));
+
+        pubKeyHex = privkey.getPublic().toHex();
+      } else {
+        pubKeyHex = walletAddresses.hdWallet
+            .childKey(Bip32KeyIndex(utx.bitcoinAddressRecord.index))
+            .publicKey
+            .toHex();
+      }
+
+      if (utx.bitcoinAddressRecord is BitcoinAddressRecord) {
+        final derivationPath = (utx.bitcoinAddressRecord as BitcoinAddressRecord)
+            .derivationInfo
+            .derivationPath
+            .toString();
+        publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
+      }
+
+      utxos.add(
+        UtxoWithAddress(
+          utxo: BitcoinUtxo(
+            txHash: utx.hash,
+            value: BigInt.from(utx.value),
+            vout: utx.vout,
+            scriptType: BitcoinAddressUtils.getScriptType(address),
+            isSilentPayment: isSilentPayment,
+          ),
+          ownerDetails: UtxoAddressDetails(
+            publicKey: pubKeyHex,
+            address: address,
+          ),
+        ),
+      );
+
+      // sendAll continues for all inputs
+      if (!sendAll) {
+        bool amountIsAcquired = leftAmount <= 0;
+        if ((inputsCount == null && amountIsAcquired) || inputsCount == i + 1) {
+          break;
+        }
+      }
+    }
+
+    if (utxos.isEmpty) {
+      throw BitcoinTransactionNoInputsException();
+    }
+
+    return TxCreateUtxoDetails(
+      availableInputs: availableInputs,
+      unconfirmedCoins: unconfirmedCoins,
+      utxos: utxos,
+      vinOutpoints: vinOutpoints,
+      inputPrivKeyInfos: inputPrivKeyInfos,
+      publicKeys: publicKeys,
+      allInputsAmount: allInputsAmount,
+      spendsSilentPayment: spendsSilentPayment,
+      spendsUnconfirmedTX: spendsUnconfirmedTX,
+    );
+  }
+
+  @override
+  Future<EstimatedTxResult> estimateSendAllTx(
+    List<BitcoinOutput> outputs,
+    int feeRate, {
+    String? memo,
+    bool hasSilentPayment = false,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+  }) async {
+    final utxoDetails = createUTXOS(sendAll: true, paysToSilentPayment: hasSilentPayment);
+
+    int fee = await calcFee(
+      utxos: utxoDetails.utxos,
+      outputs: outputs,
+      memo: memo,
+      feeRate: feeRate,
+      inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+      vinOutpoints: utxoDetails.vinOutpoints,
+    );
+
+    if (fee == 0) {
+      throw BitcoinTransactionNoFeeException();
+    }
+
+    // Here, when sending all, the output amount equals to the input value - fee to fully spend every input on the transaction and have no amount left for change
+    int amount = utxoDetails.allInputsAmount - fee;
+
+    if (amount <= 0) {
+      throw BitcoinTransactionWrongBalanceException(amount: utxoDetails.allInputsAmount + fee);
+    }
+
+    // Attempting to send less than the dust limit
+    if (isBelowDust(amount)) {
+      throw BitcoinTransactionNoDustException();
+    }
+
+    if (outputs.length == 1) {
+      outputs[0] = BitcoinOutput(address: outputs.last.address, value: BigInt.from(amount));
+    }
+
+    return EstimatedTxResult(
+      utxos: utxoDetails.utxos,
+      inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+      publicKeys: utxoDetails.publicKeys,
+      fee: fee,
+      amount: amount,
+      isSendAll: true,
+      hasChange: false,
+      memo: memo,
+      spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+      spendsSilentPayment: utxoDetails.spendsSilentPayment,
+    );
+  }
+
+  @override
+  Future<EstimatedTxResult> estimateTxForAmount(
+    int credentialsAmount,
+    List<BitcoinOutput> outputs,
+    int feeRate, {
+    List<BitcoinOutput> updatedOutputs = const [],
+    int? inputsCount,
+    String? memo,
+    bool? useUnconfirmed,
+    bool hasSilentPayment = false,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+  }) async {
+    // Attempting to send less than the dust limit
+    if (isBelowDust(credentialsAmount)) {
+      throw BitcoinTransactionNoDustException();
+    }
+
+    final utxoDetails = createUTXOS(
+      sendAll: false,
+      credentialsAmount: credentialsAmount,
+      inputsCount: inputsCount,
+      paysToSilentPayment: hasSilentPayment,
+    );
+
+    final spendingAllCoins = utxoDetails.availableInputs.length == utxoDetails.utxos.length;
+    final spendingAllConfirmedCoins = !utxoDetails.spendsUnconfirmedTX &&
+        utxoDetails.utxos.length ==
+            utxoDetails.availableInputs.length - utxoDetails.unconfirmedCoins.length;
+
+    // How much is being spent - how much is being sent
+    int amountLeftForChangeAndFee = utxoDetails.allInputsAmount - credentialsAmount;
+
+    if (amountLeftForChangeAndFee <= 0) {
+      if (!spendingAllCoins) {
+        return estimateTxForAmount(
+          credentialsAmount,
+          outputs,
+          feeRate,
+          updatedOutputs: updatedOutputs,
+          inputsCount: utxoDetails.utxos.length + 1,
+          memo: memo,
+          hasSilentPayment: hasSilentPayment,
+        );
+      }
+
+      throw BitcoinTransactionWrongBalanceException();
+    }
+
+    final changeAddress = await walletAddresses.getChangeAddress(
+      inputs: utxoDetails.availableInputs,
+      outputs: updatedOutputs,
+    );
+    final address = RegexUtils.addressTypeFromStr(changeAddress.address, network);
+    updatedOutputs.add(BitcoinOutput(
+      address: address,
+      value: BigInt.from(amountLeftForChangeAndFee),
+      isChange: true,
+    ));
+    outputs.add(BitcoinOutput(
+      address: address,
+      value: BigInt.from(amountLeftForChangeAndFee),
+      isChange: true,
+    ));
+
+    // Get Derivation path for change Address since it is needed in Litecoin and BitcoinCash hardware Wallets
+    final changeDerivationPath = changeAddress.derivationInfo.derivationPath.toString();
+    utxoDetails.publicKeys[address.pubKeyHash()] =
+        PublicKeyWithDerivationPath('', changeDerivationPath);
+
+    // calcFee updates the silent payment outputs to calculate the tx size accounting
+    // for taproot addresses, but if more inputs are needed to make up for fees,
+    // the silent payment outputs need to be recalculated for the new inputs
+    var temp = outputs.map((output) => output).toList();
+    int fee = await calcFee(
+      utxos: utxoDetails.utxos,
+      // Always take only not updated bitcoin outputs here so for every estimation
+      // the SP outputs are re-generated to the proper taproot addresses
+      outputs: temp,
+      memo: memo,
+      feeRate: feeRate,
+      inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+      vinOutpoints: utxoDetails.vinOutpoints,
+    );
+
+    updatedOutputs.clear();
+    updatedOutputs.addAll(temp);
+
+    if (fee == 0) {
+      throw BitcoinTransactionNoFeeException();
+    }
+
+    int amount = credentialsAmount;
+    final lastOutput = updatedOutputs.last;
+    final amountLeftForChange = amountLeftForChangeAndFee - fee;
+
+    if (isBelowDust(amountLeftForChange)) {
+      // If has change that is lower than dust, will end up with tx rejected by network rules
+      // so remove the change amount
+      updatedOutputs.removeLast();
+      outputs.removeLast();
+
+      if (amountLeftForChange < 0) {
+        if (!spendingAllCoins) {
+          return estimateTxForAmount(
+            credentialsAmount,
+            outputs,
+            feeRate,
+            updatedOutputs: updatedOutputs,
+            inputsCount: utxoDetails.utxos.length + 1,
+            memo: memo,
+            useUnconfirmed: useUnconfirmed ?? spendingAllConfirmedCoins,
+            hasSilentPayment: hasSilentPayment,
+          );
+        } else {
+          throw BitcoinTransactionWrongBalanceException();
+        }
+      }
+
+      return EstimatedTxResult(
+        utxos: utxoDetails.utxos,
+        inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+        publicKeys: utxoDetails.publicKeys,
+        fee: fee,
+        amount: amount,
+        hasChange: false,
+        isSendAll: spendingAllCoins,
+        memo: memo,
+        spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+        spendsSilentPayment: utxoDetails.spendsSilentPayment,
+      );
+    } else {
+      // Here, lastOutput already is change, return the amount left without the fee to the user's address.
+      updatedOutputs[updatedOutputs.length - 1] = BitcoinOutput(
+        address: lastOutput.address,
+        value: BigInt.from(amountLeftForChange),
+        isSilentPayment: lastOutput.isSilentPayment,
+        isChange: true,
+      );
+      outputs[outputs.length - 1] = BitcoinOutput(
+        address: lastOutput.address,
+        value: BigInt.from(amountLeftForChange),
+        isSilentPayment: lastOutput.isSilentPayment,
+        isChange: true,
+      );
+
+      return EstimatedTxResult(
+        utxos: utxoDetails.utxos,
+        inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+        publicKeys: utxoDetails.publicKeys,
+        fee: fee,
+        amount: amount,
+        hasChange: true,
+        isSendAll: spendingAllCoins,
+        memo: memo,
+        spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+        spendsSilentPayment: utxoDetails.spendsSilentPayment,
+      );
+    }
+  }
+
+  @override
+  Future<PendingTransaction> createTransaction(Object credentials) async {
+    try {
+      final outputs = <BitcoinOutput>[];
+      final transactionCredentials = credentials as BitcoinTransactionCredentials;
+      final hasMultiDestination = transactionCredentials.outputs.length > 1;
+      final sendAll = !hasMultiDestination && transactionCredentials.outputs.first.sendAll;
+      final memo = transactionCredentials.outputs.first.memo;
+      final coinTypeToSpendFrom = transactionCredentials.coinTypeToSpendFrom;
+
+      int credentialsAmount = 0;
+      bool hasSilentPayment = false;
+
+      for (final out in transactionCredentials.outputs) {
+        final outputAmount = out.formattedCryptoAmount!;
+
+        if (!sendAll && isBelowDust(outputAmount)) {
+          throw BitcoinTransactionNoDustException();
+        }
+
+        if (hasMultiDestination) {
+          if (out.sendAll) {
+            throw BitcoinTransactionWrongBalanceException();
+          }
+        }
+
+        credentialsAmount += outputAmount;
+
+        final address = RegexUtils.addressTypeFromStr(
+            out.isParsedAddress ? out.extractedAddress! : out.address, network);
+        final isSilentPayment = address is SilentPaymentAddress;
+
+        if (isSilentPayment) {
+          hasSilentPayment = true;
+        }
+
+        if (sendAll) {
+          // The value will be changed after estimating the Tx size and deducting the fee from the total to be sent
+          outputs.add(BitcoinOutput(
+            address: address,
+            value: BigInt.from(0),
+            isSilentPayment: isSilentPayment,
+          ));
+        } else {
+          outputs.add(BitcoinOutput(
+            address: address,
+            value: BigInt.from(outputAmount),
+            isSilentPayment: isSilentPayment,
+          ));
+        }
+      }
+
+      final feeRateInt = transactionCredentials.feeRate != null
+          ? transactionCredentials.feeRate!
+          : feeRate(transactionCredentials.priority!);
+
+      EstimatedTxResult estimatedTx;
+      final updatedOutputs = outputs
+          .map((e) => BitcoinOutput(
+                address: e.address,
+                value: e.value,
+                isSilentPayment: e.isSilentPayment,
+                isChange: e.isChange,
+              ))
+          .toList();
+
+      if (sendAll) {
+        estimatedTx = await estimateSendAllTx(
+          updatedOutputs,
+          feeRateInt,
+          memo: memo,
+          hasSilentPayment: hasSilentPayment,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
+      } else {
+        estimatedTx = await estimateTxForAmount(
+          credentialsAmount,
+          outputs,
+          feeRateInt,
+          updatedOutputs: updatedOutputs,
+          memo: memo,
+          hasSilentPayment: hasSilentPayment,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
+      }
+
+      if (walletInfo.isHardwareWallet) {
+        final transaction = await buildHardwareWalletTransaction(
+          utxos: estimatedTx.utxos,
+          outputs: updatedOutputs,
+          publicKeys: estimatedTx.publicKeys,
+          fee: BigInt.from(estimatedTx.fee),
+          network: network,
+          memo: estimatedTx.memo,
+          outputOrdering: BitcoinOrdering.none,
+          enableRBF: true,
+        );
+
+        return PendingBitcoinTransaction(
+          transaction,
+          type,
+          sendWorker: sendWorker,
+          amount: estimatedTx.amount,
+          fee: estimatedTx.fee,
+          feeRate: feeRateInt.toString(),
+          hasChange: estimatedTx.hasChange,
+          isSendAll: estimatedTx.isSendAll,
+          hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot
+        )..addListener((transaction) async {
+            transactionHistory.addOne(transaction);
+            await updateBalance();
+          });
+      }
+
+      final txb = BitcoinTransactionBuilder(
+        utxos: estimatedTx.utxos,
+        outputs: updatedOutputs,
+        fee: BigInt.from(estimatedTx.fee),
+        network: network,
+        memo: estimatedTx.memo,
+        outputOrdering: BitcoinOrdering.none,
+        enableRBF: !estimatedTx.spendsUnconfirmedTX,
+      );
+
+      bool hasTaprootInputs = false;
+
+      final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
+        String error = "Cannot find private key.";
+
+        ECPrivateInfo? key;
+
+        if (estimatedTx.inputPrivKeyInfos.isEmpty) {
+          error += "\nNo private keys generated.";
+        } else {
+          error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
+
+          try {
+            key = estimatedTx.inputPrivKeyInfos.firstWhere((element) {
+              final elemPubkey = element.privkey.getPublic().toHex();
+              if (elemPubkey == publicKey) {
+                return true;
+              } else {
+                error += "\nExpected: $publicKey";
+                error += "\nPubkey: $elemPubkey";
+                return false;
+              }
+            });
+          } catch (_) {
+            throw Exception(error);
+          }
+        }
+
+        if (key == null) {
+          throw Exception(error);
+        }
+
+        if (utxo.utxo.isP2tr()) {
+          hasTaprootInputs = true;
+          return key.privkey.signTapRoot(
+            txDigest,
+            sighash: sighash,
+            tweak: utxo.utxo.isSilentPayment != true,
+          );
+        } else {
+          return key.privkey.signInput(txDigest, sigHash: sighash);
+        }
+      });
+
+      return PendingBitcoinTransaction(
+        transaction,
+        type,
+        sendWorker: sendWorker,
+        amount: estimatedTx.amount,
+        fee: estimatedTx.fee,
+        feeRate: feeRateInt.toString(),
+        hasChange: estimatedTx.hasChange,
+        isSendAll: estimatedTx.isSendAll,
+        hasTaprootInputs: hasTaprootInputs,
+        utxos: estimatedTx.utxos,
+        hasSilentPayment: hasSilentPayment,
+      )..addListener((transaction) async {
+          transactionHistory.addOne(transaction);
+          if (estimatedTx.spendsSilentPayment) {
+            transactionHistory.transactions.values.forEach((tx) {
+              tx.unspents?.removeWhere(
+                  (unspent) => estimatedTx.utxos.any((e) => e.utxo.txHash == unspent.hash));
+              transactionHistory.addOne(tx);
+            });
+          }
+
+          unspentCoins
+              .removeWhere((utxo) => estimatedTx.utxos.any((e) => e.utxo.txHash == utxo.hash));
+
+          await updateBalance();
+        });
+    } catch (e, s) {
+      print([e, s]);
+      throw e;
     }
   }
 }
