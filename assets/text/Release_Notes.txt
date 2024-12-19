@@ -1,2 +1,5 @@
-UI/UX enhancements
-Bug fixes and app improvements
+Support Monero Ledger
+Prepare for Haven removal
+Improve Ethereum and Polygon sending process
+Bug fixes
+New designs and better user experience

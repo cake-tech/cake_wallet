@@ -26,7 +26,6 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/solana_exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -100,6 +99,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     outputs
         .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+
+    unspentCoinsListViewModel.initialSetup();
   }
 
   @observable
@@ -717,9 +718,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
         return 
         '''${S.current.insufficient_funds_for_tx} \n\n'''
-        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ETH (${parsedErrorMessageResult.balanceUsd} USD)\n\n'''
-        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ETH (${parsedErrorMessageResult.txCostUsd} USD)\n\n'''
-        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ETH (${parsedErrorMessageResult.overshotUsd} USD)''';
+        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
+        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
+        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.overshotUsd} ${fiatFromSettings.name})''';
       }
 
       return errorMessage;
