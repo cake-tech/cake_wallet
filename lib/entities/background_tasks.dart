@@ -279,7 +279,11 @@ Future<void> onStart(ServiceInstance service) async {
             if (syncedTicks > 5) {
               syncedTicks = 0;
               printV("WALLET $i SYNCED");
-              wallet.stopSync();
+              try {
+                wallet.stopSync();
+              } catch (e) {
+                printV("error stopping sync: $e");
+              }
               // pop the first wallet from the list
               standbyWallets.add(syncingWallets.removeAt(i));
               flutterLocalNotificationsPlugin.cancelAll();
