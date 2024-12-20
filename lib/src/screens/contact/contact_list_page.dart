@@ -203,14 +203,14 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
                 ),
               ),
               leading: _buildCurrencyIcon(activeContact),
-              tilePadding: const EdgeInsets.only(left: 12, right: 12),
+              tilePadding: const EdgeInsets.only(left: 16, right: 16),
               childrenPadding: const EdgeInsets.only(left: 16),
               expandedCrossAxisAlignment: CrossAxisAlignment.start,
               expandedAlignment: Alignment.topLeft,
               backgroundColor: Theme.of(context).cardColor,
               collapsedBackgroundColor: Theme.of(context).cardColor,
-              collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               children: groupContacts.map((contact) => generateRaw(context, contact)).toList(),
             ),
             );
@@ -245,11 +245,11 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
       behavior: HitTestBehavior.opaque,
       child: Container(
     decoration: BoxDecoration(
-    borderRadius: BorderRadius.all(Radius.circular(8)),
+    borderRadius: BorderRadius.all(Radius.circular(10)),
     color: Theme.of(context).cardColor,
     ),
         margin: const EdgeInsets.only(top: 4, bottom: 4, left: 16, right: 16),
-        padding: const EdgeInsets.only(top: 16, bottom: 16, right: 12, left: 12),
+        padding: const EdgeInsets.only(top: 16, bottom: 16, right: 16, left: 16),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -395,7 +395,7 @@ class _ContactListBodyState extends State<ContactListBody> {
             color: Theme.of(context).cardColor,
           ),
           margin: const EdgeInsets.only(top: 4, bottom: 4, left: 16, right: 16),
-          padding: const EdgeInsets.only(top: 16, bottom: 16, right: 12, left: 12),
+          padding: const EdgeInsets.only(top: 16, bottom: 16, right: 16, left: 16),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
