@@ -36,7 +36,7 @@ dependencies:
   sp_scanner:
     git:
       url: https://github.com/cake-tech/sp_scanner.git
-      ref: cake-update-v3
+      ref: cake-update-v4
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git

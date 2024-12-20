@@ -3,11 +3,9 @@ import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_worker/electrum_worker_methods.dart';
@@ -17,7 +15,6 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 
@@ -108,7 +105,6 @@ class ElectrumWorker {
           );
           break;
         case ElectrumWorkerMethods.stopScanningMethod:
-          printV("Worker: received message: $message");
           await _handleStopScanning(
             ElectrumWorkerStopScanningRequest.fromJson(messageJson),
           );
@@ -437,49 +433,10 @@ class ElectrumWorker {
       if (getTime && _walletType == WalletType.bitcoin) {
         if (mempoolAPIEnabled) {
           try {
-            // TODO: mempool api class
-            final txVerbose = await http
-                .get(
-                  Uri.parse(
-                    "https://mempool.cakewallet.com/api/v1/tx/$hash/status",
-                  ),
-                )
-                .timeout(const Duration(seconds: 5));
-
-            if (txVerbose.statusCode == 200 &&
-                txVerbose.body.isNotEmpty &&
-                jsonDecode(txVerbose.body) != null) {
-              height = jsonDecode(txVerbose.body)['block_height'] as int;
-
-              final blockHash = await http
-                  .get(
-                    Uri.parse(
-                      "https://mempool.cakewallet.com/api/v1/block-height/$height",
-                    ),
-                  )
-                  .timeout(const Duration(seconds: 5));
-
-              if (blockHash.statusCode == 200 && blockHash.body.isNotEmpty) {
-                final blockResponse = await http
-                    .get(
-                      Uri.parse(
-                        "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
-                      ),
-                    )
-                    .timeout(const Duration(seconds: 5));
-
-                if (blockResponse.statusCode == 200 &&
-                    blockResponse.body.isNotEmpty &&
-                    jsonDecode(blockResponse.body)['timestamp'] != null) {
-                  time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
-
-                  if (date != null) {
-                    final newDate = DateTime.fromMillisecondsSinceEpoch(time * 1000);
-                    isDateValidated = newDate == date;
-                  }
-                }
-              }
-            }
+            final dates = await getTxDate(hash, _network!, date: date);
+            time = dates.time;
+            height = dates.height;
+            isDateValidated = dates.isDateValidated;
           } catch (_) {}
         }
       }
@@ -604,15 +561,12 @@ class ElectrumWorker {
     int initialSyncHeight = syncHeight;
 
     final receivers = scanData.silentPaymentsWallets.map(
-      (wallet) {
-        return Receiver(
-          wallet.b_scan.toHex(),
-          wallet.B_spend.toHex(),
-          scanData.network == BitcoinNetwork.testnet,
-          scanData.labelIndexes,
-          scanData.labelIndexes.length,
-        );
-      },
+      (wallet) => Receiver(
+        wallet.b_scan.toHex(),
+        wallet.B_spend.toHex(),
+        scanData.network == BitcoinNetwork.testnet,
+        scanData.labelIndexes,
+      ),
     );
 
     int getCountPerRequest(int syncHeight) {
@@ -640,7 +594,7 @@ class ElectrumWorker {
 
     _scanningStream = await scanningClient!.subscribe(req);
 
-    void listenFn(Map<String, dynamic> event, ElectrumTweaksSubscribe req) {
+    void listenFn(Map<String, dynamic> event, ElectrumTweaksSubscribe req) async {
       final response = req.onResponse(event);
 
       if (response == null || _scanningStream == null) {
@@ -691,24 +645,29 @@ class ElectrumWorker {
           final tweak = tweakData.tweak;
 
           try {
-            // scanOutputs called from rust here
             final addToWallet = {};
 
             receivers.forEach((receiver) {
+              // scanOutputs called from rust here
               final scanResult = scanOutputs(outputPubkeys.keys.toList(), tweak, receiver);
 
-              addToWallet.addAll(scanResult);
-            });
-            // final addToWallet = scanOutputs(
-            //   outputPubkeys.keys.toList(),
-            //   tweak,
-            //   receivers.last,
-            // );
+              if (scanResult.isEmpty) {
+                return;
+              }
 
+              if (addToWallet[receiver.BSpend] == null) {
+                addToWallet[receiver.BSpend] = scanResult;
+              } else {
+                addToWallet[receiver.BSpend].addAll(scanResult);
+              }
+            });
+
+            print("ADDTO WALLET: $addToWallet");
             if (addToWallet.isEmpty) {
               // no results tx, continue to next tx
               continue;
             }
+            print(scanData.labels);
 
             // placeholder ElectrumTransactionInfo object to update values based on new scanned unspent(s)
             final txInfo = ElectrumTransactionInfo(
@@ -720,40 +679,41 @@ class ElectrumWorker {
               direction: TransactionDirection.incoming,
               isPending: false,
               isReplaced: false,
-              // TODO: tx time mempool api
-              date: scanData.network == BitcoinNetwork.mainnet
-                  ? getDateByBitcoinHeight(tweakHeight)
-                  : DateTime.now(),
+              date: DateTime.fromMillisecondsSinceEpoch(
+                (await getTxDate(txid, scanData.network)).time! * 1000,
+              ),
               confirmations: scanData.chainTip - tweakHeight + 1,
               unspents: [],
               isReceivedSilentPayment: true,
             );
 
-            addToWallet.forEach((label, value) {
-              (value as Map<String, dynamic>).forEach((output, tweak) {
-                final t_k = tweak.toString();
+            addToWallet.forEach((BSpend, result) {
+              result.forEach((label, value) {
+                (value as Map<String, dynamic>).forEach((output, tweak) {
+                  final t_k = tweak.toString();
 
-                final receivingOutputAddress = ECPublic.fromHex(output)
-                    .toTaprootAddress(tweak: false)
-                    .toAddress(scanData.network);
+                  final receivingOutputAddress = ECPublic.fromHex(output)
+                      .toTaprootAddress(tweak: false)
+                      .toAddress(scanData.network);
 
-                final matchingOutput = outputPubkeys[output]!;
-                final amount = matchingOutput.amount;
-                final pos = matchingOutput.vout;
+                  final matchingOutput = outputPubkeys[output]!;
+                  final amount = matchingOutput.amount;
+                  final pos = matchingOutput.vout;
 
-                final receivedAddressRecord = BitcoinReceivedSPAddressRecord(
-                  receivingOutputAddress,
-                  labelIndex: 1, // TODO: get actual index/label
-                  isUsed: true,
-                  tweak: t_k,
-                  txCount: 1,
-                  balance: amount,
-                );
+                  final receivedAddressRecord = BitcoinReceivedSPAddressRecord(
+                    receivingOutputAddress,
+                    labelIndex: 1, // TODO: get actual index/label
+                    isUsed: true,
+                    tweak: t_k,
+                    txCount: 1,
+                    balance: amount,
+                  );
 
-                final unspent = BitcoinUnspent(receivedAddressRecord, txid, amount, pos);
+                  final unspent = BitcoinUnspent(receivedAddressRecord, txid, amount, pos);
 
-                txInfo.unspents!.add(unspent);
-                txInfo.amount += unspent.value;
+                  txInfo.unspents!.add(unspent);
+                  txInfo.amount += unspent.value;
+                });
               });
             });
 
@@ -946,4 +906,48 @@ class ScanNode {
   final bool? useSSL;
 
   ScanNode(this.uri, this.useSSL);
+}
+
+class DateResult {
+  final int? time;
+  final int? height;
+  final bool? isDateValidated;
+
+  DateResult({this.time, this.height, this.isDateValidated});
+}
+
+Future<DateResult> getTxDate(
+  String txid,
+  BasedUtxoNetwork network, {
+  DateTime? date,
+}) async {
+  int? time;
+  int? height;
+  bool? isDateValidated;
+
+  final mempoolApi = ApiProvider.fromMempool(
+    network,
+    baseUrl: "http://mempool.cakewallet.com:8999/api/v1",
+  );
+
+  try {
+    final txVerbose = await mempoolApi.getTransaction<MempoolTransaction>(txid);
+
+    final status = txVerbose.status;
+    height = status.blockHeight;
+
+    if (height != null) {
+      final blockHash = await mempoolApi.getBlockHeight(height);
+      final block = await mempoolApi.getBlock(blockHash);
+
+      time = int.parse(block['timestamp'].toString());
+
+      if (date != null) {
+        final newDate = DateTime.fromMillisecondsSinceEpoch(time * 1000);
+        isDateValidated = newDate == date;
+      }
+    }
+  } catch (_) {}
+
+  return DateResult(time: time, height: height, isDateValidated: isDateValidated);
 }
