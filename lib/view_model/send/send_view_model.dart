@@ -26,7 +26,6 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
-import 'package:cw_solana/solana_exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -676,19 +675,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
-      if (error is SolanaSignNativeTokenTransactionRentException) {
+      if (error is SignNativeTokenTransactionRentException) {
         return S.current.solana_sign_native_transaction_rent_exception;
       }
 
-      if (error is SolanaCreateAssociatedTokenAccountException) {
+      if (error is CreateAssociatedTokenAccountException) {
         return S.current.solana_create_associated_token_account_exception;
       }
 
-      if (error is SolanaSignSPLTokenTransactionRentException) {
+      if (error is SignSPLTokenTransactionRentException) {
         return S.current.solana_sign_spl_token_transaction_rent_exception;
       }
 
-      if (error is SolanaNoAssociatedTokenAccountException) {
+      if (error is NoAssociatedTokenAccountException) {
         return S.current.solana_no_associated_token_account_exception;
       }
 

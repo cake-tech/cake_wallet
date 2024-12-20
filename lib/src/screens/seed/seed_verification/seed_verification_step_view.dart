@@ -71,7 +71,7 @@ class SeedVerificationStepView extends StatelessWidget {
                       return GestureDetector(
                         onTap: () async {
                           final isCorrectWord = walletSeedViewModel.isChosenWordCorrect(option);
-                          final isSecondWrongEntry = walletSeedViewModel.wrongEntries == 2;
+                          final isSecondWrongEntry = walletSeedViewModel.wrongEntries >= 2;
                           if (!isCorrectWord) {
                             await showBar<void>(
                               context,

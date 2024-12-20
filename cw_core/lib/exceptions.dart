@@ -27,7 +27,7 @@ class TransactionCommitFailed implements Exception {
 
   @override
   String toString() {
-    return errorMessage??"unknown error";
+    return errorMessage ?? "unknown error";
   }
 }
 
@@ -44,3 +44,11 @@ class TransactionCommitFailedBIP68Final implements Exception {}
 class TransactionCommitFailedLessThanMin implements Exception {}
 
 class TransactionInputNotSupported implements Exception {}
+
+class SignNativeTokenTransactionRentException implements Exception {}
+
+class CreateAssociatedTokenAccountException implements Exception {}
+
+class SignSPLTokenTransactionRentException implements Exception {}
+
+class NoAssociatedTokenAccountException implements Exception {}
