@@ -926,8 +926,7 @@ abstract class ElectrumWalletBase
           await updateBalance();
           await updateAllUnspents();
         });
-    } catch (e, s) {
-      print([e, s]);
+    } catch (e) {
       throw e;
     }
   }

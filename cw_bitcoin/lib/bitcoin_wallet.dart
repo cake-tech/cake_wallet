@@ -1476,8 +1476,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
           await updateBalance();
         });
-    } catch (e, s) {
-      print([e, s]);
+    } catch (e) {
       throw e;
     }
   }

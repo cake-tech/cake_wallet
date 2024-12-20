@@ -662,12 +662,10 @@ class ElectrumWorker {
               }
             });
 
-            print("ADDTO WALLET: $addToWallet");
             if (addToWallet.isEmpty) {
               // no results tx, continue to next tx
               continue;
             }
-            print(scanData.labels);
 
             // placeholder ElectrumTransactionInfo object to update values based on new scanned unspent(s)
             final txInfo = ElectrumTransactionInfo(
