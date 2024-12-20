@@ -22,11 +22,11 @@ class PolygonClient extends EVMChainClient {
       from: from,
       to: to,
       value: amount,
-      data: data,
+      // data: data,
       maxGas: maxGas,
-      gasPrice: gasPrice,
-      maxFeePerGas: maxFeePerGas,
-      maxPriorityFeePerGas: maxPriorityFeePerGas,
+      // gasPrice: gasPrice,
+      // maxFeePerGas: maxFeePerGas,
+      // maxPriorityFeePerGas: maxPriorityFeePerGas,
     );
   }
 
