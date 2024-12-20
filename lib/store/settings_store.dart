@@ -80,6 +80,10 @@ abstract class SettingsStoreBase with Store {
       required String initialLanguageCode,
       required SyncMode initialSyncMode,
       required bool initialSyncAll,
+      required bool initialShowSyncNotification,
+      required bool initialBackgroundSyncEnabled,
+      required bool initialBackgroundSyncOnBattery,
+      required bool initialBackgroundSyncOnData,
       // required String initialCurrentLocale,
       required this.appVersion,
       required this.deviceName,
@@ -179,6 +183,10 @@ abstract class SettingsStoreBase with Store {
             initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
+        showSyncNotification = initialShowSyncNotification,
+        backgroundSyncEnabled = initialBackgroundSyncEnabled,
+        backgroundSyncOnBattery = initialBackgroundSyncOnBattery,
+        backgroundSyncOnData = initialBackgroundSyncOnData,
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -381,14 +389,32 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => currentSyncMode, (SyncMode syncMode) {
       sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
-
-      _backgroundTasks.registerSyncTask(changeExisting: true);
+      _backgroundTasks.registerBackgroundService();
     });
 
     reaction((_) => currentSyncAll, (bool syncAll) {
       sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+      _backgroundTasks.registerBackgroundService();
+    });
 
-      _backgroundTasks.registerSyncTask(changeExisting: true);
+    reaction((_) => showSyncNotification, (bool value) {
+      sharedPreferences.setBool(PreferencesKey.showSyncNotificationKey, value);
+      _backgroundTasks.registerBackgroundService();
+    });
+
+    reaction((_) => backgroundSyncEnabled, (bool value) {
+      sharedPreferences.setBool(PreferencesKey.backgroundSyncEnabled, value);
+      _backgroundTasks.registerBackgroundService();
+    });
+
+    reaction((_) => backgroundSyncOnBattery, (bool value) {
+      sharedPreferences.setBool(PreferencesKey.backgroundSyncOnBattery, value);
+      _backgroundTasks.registerBackgroundService();
+    });
+
+    reaction((_) => backgroundSyncOnData, (bool value) {
+      sharedPreferences.setBool(PreferencesKey.backgroundSyncOnData, value);
+      _backgroundTasks.registerBackgroundService();
     });
 
     reaction(
@@ -778,6 +804,18 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool currentSyncAll;
 
+  @observable
+  bool showSyncNotification;
+
+  @observable
+  bool backgroundSyncEnabled;
+
+  @observable
+  bool backgroundSyncOnBattery;
+
+  @observable
+  bool backgroundSyncOnData;
+
   String appVersion;
 
   String deviceName;
@@ -1096,9 +1134,13 @@ abstract class SettingsStoreBase with Store {
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
-      return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 0);
+      return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? SyncType.sixHours.index);
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
+    final savedShowSyncNotification = sharedPreferences.getBool(PreferencesKey.showSyncNotificationKey) ?? false;
+    final savedBackgroundSyncEnabled = sharedPreferences.getBool(PreferencesKey.backgroundSyncEnabled) ?? false;
+    final savedBackgroundSyncOnBattery = sharedPreferences.getBool(PreferencesKey.backgroundSyncOnBattery) ?? true;
+    final savedBackgroundSyncOnData = sharedPreferences.getBool(PreferencesKey.backgroundSyncOnData) ?? false;
 
     // migrated to secure:
     final timeOutDuration = await SecureKey.getInt(
@@ -1277,6 +1319,10 @@ abstract class SettingsStoreBase with Store {
       backgroundTasks: backgroundTasks,
       initialSyncMode: savedSyncMode,
       initialSyncAll: savedSyncAll,
+      initialShowSyncNotification: savedShowSyncNotification,
+      initialBackgroundSyncEnabled: savedBackgroundSyncEnabled,
+      initialBackgroundSyncOnBattery: savedBackgroundSyncOnBattery,
+      initialBackgroundSyncOnData: savedBackgroundSyncOnData,
       shouldShowYatPopup: shouldShowYatPopup,
       shouldShowRepWarning: shouldShowRepWarning,
     );
