@@ -24,6 +24,7 @@ dependencies:
       url: https://github.com/cake-tech/cake_backup.git
       ref: main
       version: 1.0.0
+  decimal: ^2.3.3
   socks5_proxy: ^1.0.4
   unorm_dart: ^0.3.0
 #  tor:

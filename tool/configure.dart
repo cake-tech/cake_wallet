@@ -10,6 +10,7 @@ const polygonOutputPath = 'lib/polygon/polygon.dart';
 const solanaOutputPath = 'lib/solana/solana.dart';
 const tronOutputPath = 'lib/tron/tron.dart';
 const wowneroOutputPath = 'lib/wownero/wownero.dart';
+const zanoOutputPath = 'lib/zano/zano.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -28,6 +29,7 @@ Future<void> main(List<String> args) async {
   final hasSolana = args.contains('${prefix}solana');
   final hasTron = args.contains('${prefix}tron');
   final hasWownero = args.contains('${prefix}wownero');
+  final hasZano = args.contains('${prefix}zano');
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -40,6 +42,7 @@ Future<void> main(List<String> args) async {
   await generateSolana(hasSolana);
   await generateTron(hasTron);
   await generateWownero(hasWownero);
+  await generateZano(hasZano);
   // await generateBanano(hasEthereum);
 
   await generatePubspec(
@@ -55,6 +58,7 @@ Future<void> main(List<String> args) async {
     hasSolana: hasSolana,
     hasTron: hasTron,
     hasWownero: hasWownero,
+    hasZano: hasZano,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -68,6 +72,7 @@ Future<void> main(List<String> args) async {
     hasSolana: hasSolana,
     hasTron: hasTron,
     hasWownero: hasWownero,
+    hasZano: hasZano,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
 }
@@ -1398,6 +1403,82 @@ abstract class Tron {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateZano(bool hasImplementation) async {
+  final outputFile = File(zanoOutputPath);
+  const zanoCommonHeaders = """
+import 'package:cake_wallet/utils/language_list.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:collection/collection.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/monero_transaction_priority.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+""";
+  const zanoCWHeaders = """
+import 'package:cw_zano/mnemonics/english.dart';
+import 'package:cw_zano/model/zano_asset.dart';
+import 'package:cw_zano/model/zano_transaction_credentials.dart';
+import 'package:cw_zano/model/zano_transaction_info.dart';
+import 'package:cw_zano/zano_formatter.dart';
+import 'package:cw_zano/zano_wallet.dart';
+import 'package:cw_zano/zano_wallet_service.dart';
+""";
+  const zanoCwPart = "part 'cw_zano.dart';";
+  const zanoContent = """
+abstract class Zano {
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority deserializeMoneroTransactionPriority({required int raw});
+  List<TransactionPriority> getTransactionPriorities();
+  List<String> getWordList(String language);
+
+  WalletCredentials createZanoRestoreWalletFromKeysCredentials({
+      required String name,
+      required String spendKey,
+      required String viewKey,
+      required String address,
+      required String password,
+      required String language,
+      required int height});
+  WalletCredentials createZanoRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
+  WalletCredentials createZanoNewWalletCredentials({required String name, String password});
+  Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency});
+  double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency, required bool forFee});
+  int formatterParseAmount({required String amount, required CryptoCurrency currency});
+  WalletService createZanoWalletService(Box<WalletInfo> walletInfoSource);
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo tx);
+  List<ZanoAsset> getZanoAssets(WalletBase wallet);
+  String getZanoAssetAddress(CryptoCurrency asset);
+  Future<void> changeZanoAssetAvailability(WalletBase wallet, CryptoCurrency token);
+  Future<CryptoCurrency> addZanoAssetById(WalletBase wallet, String assetId);
+  Future<void> deleteZanoAsset(WalletBase wallet, CryptoCurrency token);
+  Future<CryptoCurrency?> getZanoAsset(WalletBase wallet, String contractAddress);
+  String getAddress(WalletBase wallet);
+}
+""";
+  const zanoEmptyDefinition = 'Zano? zano;\n';
+  const zanoCWDefinition = 'Zano? zano = CWZano();\n';
+
+  final output = '$zanoCommonHeaders\n' +
+    (hasImplementation ? '$zanoCWHeaders\n' : '\n') +
+    (hasImplementation ? '$zanoCwPart\n\n' : '\n') +
+    (hasImplementation ? zanoCWDefinition : zanoEmptyDefinition) +
+    '\n' +
+    zanoContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generatePubspec({
   required bool hasMonero,
   required bool hasBitcoin,
@@ -1411,6 +1492,7 @@ Future<void> generatePubspec({
   required bool hasSolana,
   required bool hasTron,
   required bool hasWownero,
+  required bool hasZano,
 }) async {
   const cwCore = """
   cw_core:
@@ -1475,6 +1557,10 @@ Future<void> generatePubspec({
   cw_wownero:
     path: ./cw_wownero
     """;
+  const cwZano = """
+  cw_zano:
+    path: ./cw_zano
+    """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -1536,6 +1622,10 @@ Future<void> generatePubspec({
     output += '\n$cwWownero';
   }
 
+  if (hasZano) {
+    output += '\n$cwZano';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -1560,6 +1650,7 @@ Future<void> generateWalletTypes({
   required bool hasSolana,
   required bool hasTron,
   required bool hasWownero,
+  required bool hasZano,
 }) async {
   final walletTypesFile = File(walletTypesPath);
 
@@ -1617,6 +1708,10 @@ Future<void> generateWalletTypes({
 
   if (hasHaven) {
     outputContent += '\tWalletType.haven,\n';
+  }
+
+  if (hasZano) {
+    outputContent += '\tWalletType.zano,\n';
   }
 
   outputContent += '];\n';

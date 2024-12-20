@@ -1,10 +1,17 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zano/zano.dart';
+import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -156,6 +163,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           language: options!.first as String,
           isPolyseed: options.last as bool,
         );
+      case WalletType.zano:
+        return zano!.createZanoNewWalletCredentials(name: name);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }

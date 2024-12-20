@@ -5,6 +5,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -289,6 +290,12 @@ abstract class WalletKeysViewModelBase with Store {
           ),
       ]);
     }
+
+    if (_appStore.wallet!.type == WalletType.zano) {
+      items.addAll([
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+      ]);
+    }
   }
 
   Future<int?> _currentHeight() async {
@@ -330,6 +337,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'tron-wallet';
       case WalletType.wownero:
         return 'wownero-wallet';
+      case WalletType.zano:
+        return 'zano-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type.toString()}');
     }

@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_zano/zano_utils.dart';
 
 const BEFORE_REGEX = '(^|\\s)';
 const AFTER_REGEX = '(\$|\\s)';
@@ -19,7 +20,9 @@ class AddressValidator extends TextValidator {
                           ? BitcoinNetwork.mainnet
                           : LitecoinNetwork.mainnet,
                     )
-                : null,
+                : type == CryptoCurrency.zano
+                    ? ZanoUtils.validateAddress
+                    : null,
             pattern: getPattern(type),
             length: getLength(type));
 
@@ -132,6 +135,8 @@ class AddressValidator extends TextValidator {
         pattern = 'D([1-9a-km-zA-HJ-NP-Z]){33}';
       case CryptoCurrency.btcln:
         pattern = '(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+)';
+      case CryptoCurrency.zano:
+        pattern = '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d-.]+)';
       default:
         return '';
     }
@@ -271,6 +276,7 @@ class AddressValidator extends TextValidator {
         return [64];
       case CryptoCurrency.btcln:
       case CryptoCurrency.kaspa:
+      case CryptoCurrency.zano:
       default:
         return null;
     }
@@ -310,6 +316,8 @@ class AddressValidator extends TextValidator {
         pattern = '[1-9A-HJ-NP-Za-km-z]+';
       case CryptoCurrency.trx:
         pattern = '(T|t)[1-9A-HJ-NP-Za-km-z]{33}';
+      case CryptoCurrency.zano:
+        pattern = '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d-.]+)';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
           pattern = '0x[0-9a-zA-Z]{42}';
