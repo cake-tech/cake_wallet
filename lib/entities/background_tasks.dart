@@ -295,6 +295,8 @@ Future<void> onStart(ServiceInstance service) async {
               }
               continue;
             }
+          } else {
+            syncedTicks = 0;
           }
 
           if (syncStatus is SyncingSyncStatus) {
