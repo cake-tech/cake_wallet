@@ -843,6 +843,7 @@ abstract class ElectrumWalletBase
         )..addListener((transaction) async {
             transactionHistory.addOne(transaction);
             await updateBalance();
+            await updateAllUnspents();
           });
       }
 
@@ -923,6 +924,7 @@ abstract class ElectrumWalletBase
               .removeWhere((utxo) => estimatedTx.utxos.any((e) => e.utxo.txHash == utxo.hash));
 
           await updateBalance();
+          await updateAllUnspents();
         });
     } catch (e, s) {
       print([e, s]);
@@ -1591,6 +1593,7 @@ abstract class ElectrumWalletBase
           });
           transactionHistory.addOne(transaction);
           await updateBalance();
+          await updateAllUnspents();
         });
     } catch (e) {
       throw e;
