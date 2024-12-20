@@ -23,7 +23,7 @@ class MobileExchangeCardsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(bottom: isBuySellOption ? 8 : 32),
+      padding: EdgeInsets.only(bottom: isBuySellOption ? 8 : 32, top: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(24),
