@@ -110,10 +110,12 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 24, right: 24),
+      padding: const EdgeInsets.only(),
       child: Column(
         children: [
-          Align(
+          Padding(
+            padding: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
+          child: Align(
             alignment: Alignment.centerLeft,
             child: TabBar(
               controller: _tabController,
@@ -144,6 +146,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
               ],
             ),
           ),
+          ),
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -173,7 +176,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
       itemCount: groupedContacts.length * 2,
       itemBuilder: (context, index) {
         if (index.isOdd) {
-          return StandardListSeparator();
+          return StandardListSeparator(height: 0);
         } else {
           final groupIndex = index ~/ 2;
           final groupName = groupedContacts.keys.elementAt(groupIndex);
@@ -188,7 +191,9 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
               orElse: () => groupContacts[0],
             );
 
-            return ExpansionTile(
+            return Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
+                child: ExpansionTile(
               title: Text(
                 groupName,
                 style: TextStyle(
@@ -198,11 +203,16 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
                 ),
               ),
               leading: _buildCurrencyIcon(activeContact),
-              tilePadding: EdgeInsets.zero,
+              tilePadding: const EdgeInsets.only(left: 12, right: 12),
               childrenPadding: const EdgeInsets.only(left: 16),
               expandedCrossAxisAlignment: CrossAxisAlignment.start,
               expandedAlignment: Alignment.topLeft,
+              backgroundColor: Theme.of(context).cardColor,
+              collapsedBackgroundColor: Theme.of(context).cardColor,
+              collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               children: groupContacts.map((contact) => generateRaw(context, contact)).toList(),
+            ),
             );
           }
         }
@@ -234,7 +244,12 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
       },
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: const EdgeInsets.only(top: 16, bottom: 16, right: 24),
+    decoration: BoxDecoration(
+    borderRadius: BorderRadius.all(Radius.circular(8)),
+    color: Theme.of(context).cardColor,
+    ),
+        margin: const EdgeInsets.only(top: 4, bottom: 4, left: 16, right: 16),
+        padding: const EdgeInsets.only(top: 16, bottom: 16, right: 12, left: 12),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -375,7 +390,12 @@ class _ContactListBodyState extends State<ContactListBody> {
       children: [
         Container(
           key: Key('${contact.name}'),
-          padding: const EdgeInsets.only(top: 16, bottom: 16, right: 24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+            color: Theme.of(context).cardColor,
+          ),
+          margin: const EdgeInsets.only(top: 4, bottom: 4, left: 16, right: 16),
+          padding: const EdgeInsets.only(top: 16, bottom: 16, right: 12, left: 12),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -396,7 +416,6 @@ class _ContactListBodyState extends State<ContactListBody> {
             ],
           ),
         ),
-        StandardListSeparator()
       ],
     );
   }
