@@ -110,7 +110,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 24),
+      padding: const EdgeInsets.only(left: 24, right: 24),
       child: Column(
         children: [
           Align(
@@ -135,7 +135,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
               indicatorColor: Theme.of(context).appBarTheme.titleTextStyle!.color,
               indicatorPadding: EdgeInsets.zero,
               labelPadding: EdgeInsets.only(right: 24),
-              tabAlignment: TabAlignment.center,
+              tabAlignment: TabAlignment.start,
               dividerColor: Colors.transparent,
               padding: EdgeInsets.zero,
               tabs: [
