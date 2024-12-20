@@ -34,7 +34,6 @@ class ManageNodesPage extends BasePage {
               onTap: (_) async => await Navigator.of(context).pushNamed(Routes.newNode),
             ),
           ),
-          const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
           SizedBox(height: 20),
           Observer(
             builder: (BuildContext context) {

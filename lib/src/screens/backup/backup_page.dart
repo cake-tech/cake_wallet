@@ -27,12 +27,6 @@ class BackupPage extends BasePage {
   String get title => S.current.backup;
 
   @override
-  Widget trailing(BuildContext context) => TrailButton(
-      caption: S.of(context).change_password,
-      onPressed: () => Navigator.of(context).pushNamed(Routes.editBackupPassword),
-      textColor: Palette.blueCraiola);
-
-  @override
   Widget body(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
@@ -53,7 +47,9 @@ class BackupPage extends BasePage {
                           builder: (_) => GestureDetector(
                                 onTap: () {
                                   ClipboardUtil.setSensitiveDataToClipboard(
-                                      ClipboardData(text: backupViewModelBase.backupPassword));
+                                      ClipboardData(
+                                          text: backupViewModelBase
+                                              .backupPassword));
                                   showBar<void>(
                                       context,
                                       S.of(context).transaction_details_copied(
@@ -74,15 +70,25 @@ class BackupPage extends BasePage {
                       ))
                 ]))),
         Positioned(
-          child: Observer(
-            builder: (_) => LoadingPrimaryButton(
-              isLoading: backupViewModelBase.state is IsExecutingState,
-              onPressed: () => onExportBackup(context),
-              text: S.of(context).export_backup,
-              color: Theme.of(context).primaryColor,
+          child: Column(children: [
+            PrimaryButton(
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(Routes.editBackupPassword),
+              text: S.of(context).change_password,
+              color: Theme.of(context).cardColor,
               textColor: Colors.white,
             ),
-          ),
+            SizedBox(height: 10),
+            Observer(
+              builder: (_) => LoadingPrimaryButton(
+                isLoading: backupViewModelBase.state is IsExecutingState,
+                onPressed: () => onExportBackup(context),
+                text: S.of(context).export_backup,
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+              ),
+            ),
+          ]),
           bottom: 24,
           left: 24,
           right: 24,
@@ -130,7 +136,8 @@ class BackupPage extends BasePage {
               rightButtonText: S.of(context).save_to_downloads,
               leftButtonText: S.of(context).share,
               actionRightButton: () async {
-                await backupViewModelBase.saveToDownload(backup.name, backup.content);
+                await backupViewModelBase.saveToDownload(
+                    backup.name, backup.content);
                 Navigator.of(dialogContext).pop();
               },
               actionLeftButton: () async {
@@ -142,13 +149,15 @@ class BackupPage extends BasePage {
 
   Future<void> share(BackupExportFile backup, BuildContext context) async {
     final path = await backupViewModelBase.saveBackupFileLocally(backup);
-    await ShareUtil.shareFile(filePath: path, fileName: backup.name, context: context);
+    await ShareUtil.shareFile(
+        filePath: path, fileName: backup.name, context: context);
     await backupViewModelBase.removeBackupFileLocally(backup);
   }
 
   Future<void> _saveFile(BackupExportFile backup) async {
-    String? outputFile = await FilePicker.platform
-        .saveFile(dialogTitle: 'Save Your File to desired location', fileName: backup.name);
+    String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Your File to desired location',
+        fileName: backup.name);
 
     try {
       File returnedFile = File(outputFile!);
