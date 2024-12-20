@@ -101,6 +101,7 @@ abstract class WalletCreationVMBase with Store {
         address: '',
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
+        derivations: credentials.derivations,
         hardwareWalletType: credentials.hardwareWalletType,
         parentAddress: credentials.parentAddress,
       );
@@ -192,7 +193,7 @@ abstract class WalletCreationVMBase with Store {
 
   Future<List<DerivationInfo>> getDerivationInfoFromQRCredentials(
       RestoredWallet restoreWallet) async {
-    var list = <DerivationInfo>[];
+    final list = <DerivationInfo>[];
     final walletType = restoreWallet.type;
     var appStore = getIt.get<AppStore>();
     var node = appStore.settingsStore.getCurrentNode(walletType);
@@ -200,16 +201,11 @@ abstract class WalletCreationVMBase with Store {
     switch (walletType) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        final derivationList = await bitcoin!.getDerivationsFromMnemonic(
+        return await bitcoin!.getDerivationInfosFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,
           node: node,
           passphrase: restoreWallet.passphrase,
         );
-
-        if (derivationList.firstOrNull?.transactionsCount == 0 && derivationList.length > 1)
-          return [];
-        return derivationList;
-
       case WalletType.nano:
         return nanoUtil!.getDerivationsFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,

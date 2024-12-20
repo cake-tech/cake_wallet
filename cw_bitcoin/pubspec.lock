@@ -87,8 +87,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: cake-update-v9
-      resolved-ref: "86969a14e337383e14965f5fb45a72a63e5009bc"
+      ref: cake-update-v15
+      resolved-ref: "82306ae21ea247ba400b9dc3823631d69ae45699"
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "4.7.0"
@@ -96,8 +96,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "59fdf29d72068e0522a96a8953ed7272833a9f57"
+      ref: cake-update-v3
+      resolved-ref: "9b64c43bcfe129e7f01300a63607fde083dd0357"
       url: "https://github.com/cake-tech/blockchain_utils"
     source: git
     version: "3.3.0"
@@ -415,10 +415,10 @@ packages:
     dependency: transitive
     description:
       name: google_identity_services_web
-      sha256: "5be191523702ba8d7a01ca97c17fca096822ccf246b0a9f11923a6ded06199b6"
+      sha256: "55580f436822d64c8ff9a77e37d61f5fb1e6c7ec9d632a43ee324e2a05c3c6c9"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.1+4"
+    version: "0.3.3"
   googleapis_auth:
     dependency: transitive
     description:
@@ -918,9 +918,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "sp_v4.0.0"
-      resolved-ref: ca1add293bd1e06920aa049b655832da50d0dab2
-      url: "https://github.com/cake-tech/sp_scanner"
+      ref: cake-update-v3
+      resolved-ref: "2c21e53fd652e0aee1ee5fcd891376c10334237b"
+      url: "https://github.com/cake-tech/sp_scanner.git"
     source: git
     version: "0.0.1"
   stack_trace:
@@ -1031,10 +1031,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: f652077d0bdf60abe4c1f6377448e8655008eef28f128bc023f7b5e8dfeb48fc
+      sha256: "5c5f338a667b4c644744b661f309fb8080bb94b18a7e91ef1dbd343bed00ed6d"
       url: "https://pub.dev"
     source: hosted
-    version: "14.2.4"
+    version: "14.2.5"
   watcher:
     dependency: "direct overridden"
     description:
