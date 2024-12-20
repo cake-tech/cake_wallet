@@ -178,7 +178,7 @@ class ExchangePage extends BasePage {
                     children: <Widget>[
                       _exchangeCardsSection(context),
                       Padding(
-                          padding: EdgeInsets.only(top: 24, left: 24),
+                          padding: EdgeInsets.only(top: 12, left: 24),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [

@@ -196,6 +196,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            SizedBox(height: 40),
             Text(
               key: ValueKey('${_cardInstanceName}_title_key'),
               _title,
@@ -273,7 +274,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
             ? FocusTraversalOrder(
                 order: NumericFocusOrder(2),
                 child: Padding(
-                  padding: widget.addressRowPadding ?? EdgeInsets.only(top: 20),
+                  padding: widget.addressRowPadding ?? EdgeInsets.only(top: 0),
                   child: AddressTextField(
                       addressKey: ValueKey('${_cardInstanceName}_editable_address_textfield_key'),
                       focusNode: widget.addressFocusNode,
@@ -313,7 +314,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
         )
             : Offstage()
             : Padding(
-                padding: EdgeInsets.only(top: 10),
+                padding: EdgeInsets.only(top: 0),
                 child: Builder(
                     builder: (context) => Stack(children: <Widget>[
                           FocusTraversalOrder(
