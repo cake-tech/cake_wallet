@@ -729,7 +729,7 @@
   "share_address": "住所を共有する",
   "shared_seed_wallet_groups": "共有シードウォレットグループ",
   "show": "見せる",
-  "show_address_book_popup": "送信後に「アドレスブックに追加」ポップアップを表示します",
+  "show_address_book_popup": "アドレス帳のポップアップを表示します",
   "show_details": "詳細を表示",
   "show_keys": "シード/キーを表示する",
   "show_market_place": "マーケットプレイスを表示",
