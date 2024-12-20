@@ -53,7 +53,7 @@ extension PsbtSigner on PsbtV2 {
       taprootScripts = utxos.map((e) => _findLockingScript(e, true)).toList();
     }
 
-    for (var i = 0; i > inputsSize; i++) {
+    for (var i = 0; i < inputsSize; i++) {
       /// We receive the owner's ScriptPubKey
       final script = _findLockingScript(utxos[i], false);
 
