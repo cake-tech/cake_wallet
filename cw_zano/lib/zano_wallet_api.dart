@@ -4,6 +4,7 @@ import 'dart:isolate';
 
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_zano/api/consts.dart';
 import 'package:cw_zano/api/model/asset_id_params.dart';
 import 'package:cw_zano/api/model/create_wallet_result.dart';
@@ -54,12 +55,16 @@ mixin ZanoWalletApi {
     info('close_wallet result $result');
   }
 
-  Future<bool> setupNode(String nodeUri) async {
-    info('init $nodeUri');
+  Future<bool> initWallet() async {
     // pathForWallet(name: , type: type)
-    final result = zano.PlainWallet_init(nodeUri, "", 0);
-    info('init result $result');
+    final result = zano.PlainWallet_init("", "", 0);
+    printV(result);
     return result == "OK";
+  }
+
+  Future<bool> setupNode(String nodeUrl) async {
+    await _setupNode(hWallet, nodeUrl);
+    return true;
   }
 
   Future<GetWalletInfoResult> getWalletInfo() async {
@@ -276,7 +281,7 @@ mixin ZanoWalletApi {
     return result;
   }
 
-  Future<CreateWalletResult> loadWallet(String path, String password, [int attempt = 0]) async {
+  Future<CreateWalletResult>loadWallet(String path, String password, [int attempt = 0]) async {
     info('load_wallet1 path $path password ${_shorten(password)}');
     final String json;
     try {
@@ -450,9 +455,18 @@ Future<String> _getWalletInfo(int hWallet) async {
   return json;
 }
 
+Future<String> _setupNode(int hWallet, String nodeUrl) async {
+  final resp = await callSyncMethod("reset_connection_url", hWallet, nodeUrl);
+  printV(resp);
+  final resp2 = await callSyncMethod("configure", hWallet, r'{"postponed_run_wallet": false}'); 
+  printV(resp2);
+  return "OK";
+}
+
 Future<String> _closeWallet(int hWallet) async {
   final str = await Isolate.run(() async {
     return zano.PlainWallet_closeWallet(hWallet);
   });
+  printV("Closing wallet: $str");
   return str;
 }

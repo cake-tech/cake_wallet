@@ -44,7 +44,6 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   static const int _autoSaveIntervalSeconds = 30;
   static const int _pollIntervalMilliseconds = 2000;
   static const int _maxLoadAssetsRetries = 5;
-  static const DO_NOT_MERGE_hardcodedNodeUri = '195.201.107.230:33340';
 
   @override
   void setPassword(String password) {
@@ -124,19 +123,21 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
 
   static Future<ZanoWallet> create({required WalletCredentials credentials}) async {
     final wallet = ZanoWallet(credentials.walletInfo!, credentials.password!);
-    await wallet.connectToNode(node: Node()..uriRaw = DO_NOT_MERGE_hardcodedNodeUri);
+    await wallet.initWallet();
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
     final createWalletResult = await wallet.createWallet(path, credentials.password!);
+    await wallet.initWallet();
     await wallet.parseCreateWalletResult(createWalletResult);
     await wallet.init(createWalletResult.wi.address);
     return wallet;
   }
 
   static Future<ZanoWallet> restore({required ZanoRestoreWalletFromSeedCredentials credentials}) async {
-    final wallet = ZanoWallet(credentials.walletInfo!, credentials.password!);
-    await wallet.connectToNode(node: Node()..uriRaw = DO_NOT_MERGE_hardcodedNodeUri);
+    final wallet = ZanoWallet(credentials.walletInfo!, credentials.password!);    await wallet.initWallet();
+    await wallet.initWallet();
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
     final createWalletResult = await wallet.restoreWalletFromSeed(path, credentials.password!, credentials.mnemonic);
+    await wallet.initWallet();
     await wallet.parseCreateWalletResult(createWalletResult);
     await wallet.init(createWalletResult.wi.address);
     return wallet;
@@ -145,8 +146,9 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   static Future<ZanoWallet> open({required String name, required String password, required WalletInfo walletInfo}) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
     final wallet = ZanoWallet(walletInfo, password);
-    await wallet.connectToNode(node: Node()..uriRaw = DO_NOT_MERGE_hardcodedNodeUri);
+    await wallet.initWallet();
     final createWalletResult = await wallet.loadWallet(path, password);
+    await wallet.initWallet();
     await wallet.parseCreateWalletResult(createWalletResult);
     await wallet.init(createWalletResult.wi.address);
     return wallet;
