@@ -826,7 +826,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       feeRate,
     );
 
-    // Request and keep polling the payjoin directoy for the proposal
+    // Request and keep polling the payjoin directory for the proposal
     //  from the receiver
     String psbt = originalPsbt;
 

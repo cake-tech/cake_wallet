@@ -1076,43 +1076,47 @@ abstract class ElectrumWalletBase
         publicKeys: estimatedTx.publicKeys,
       );
 
-      transaction.psbt.sign(estimatedTx.utxos,
-              (txDigest, utxo, publicKey, sighash) {
-            String error = "Cannot find private key.";
+      transaction.psbt.sign(estimatedTx.utxos,(txDigest, utxo, publicKey, sighash) {
+        String error = "Cannot find private key.";
 
-            ECPrivateInfo? key;
+        ECPrivateInfo? key;
+        printV("here 1");
 
-            if (estimatedTx.inputPrivKeyInfos.isEmpty) {
-              error += "\nNo private keys generated.";
+        if (estimatedTx.inputPrivKeyInfos.isEmpty) {
+          error += "\nNo private keys generated.";
+        } else {
+          error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
+
+          key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
+            final elemPubkey = element.privkey.getPublic().toHex();
+            if (elemPubkey == publicKey) {
+              return true;
             } else {
-              error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
-
-              key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
-                final elemPubkey = element.privkey.getPublic().toHex();
-                if (elemPubkey == publicKey) {
-                  return true;
-                } else {
-                  error += "\nExpected: $publicKey";
-                  error += "\nPubkey: $elemPubkey";
-                  return false;
-                }
-              });
-            }
-
-            if (key == null) {
-              throw Exception(error);
-            }
-
-            if (utxo.utxo.isP2tr()) {
-              return key.privkey.signTapRoot(
-                txDigest,
-                sighash: sighash,
-                tweak: utxo.utxo.isSilentPayment != true,
-              );
-            } else {
-              return key.privkey.signInput(txDigest, sigHash: sighash);
+              error += "\nExpected: $publicKey";
+              error += "\nPubkey: $elemPubkey";
+              return false;
             }
           });
+        }
+
+        printV("here 2");
+        if (key == null) {
+          throw Exception(error);
+        }
+
+        printV("here 3");
+
+        if (utxo.utxo.isP2tr()) {
+          return key.privkey.signTapRoot(
+            txDigest,
+            sighash: sighash,
+            tweak: utxo.utxo.isSilentPayment != true,
+          );
+        } else {
+          return key.privkey.signInput(txDigest, sigHash: sighash);
+        }
+      });
+
 
       // return transaction.psbt.asPsbtV0();
       return transaction.psbt;
@@ -2147,12 +2151,8 @@ abstract class ElectrumWalletBase
   }
 
   bool isMine(Script script) {
-    final res = ElectrumTransactionInfo.isMine(
-      script,
-      network,
-      addresses: addressesSet,
-    );
-    return res;
+    final derivedAddress = addressFromOutputScript(script, network);
+    return addressesSet.contains(derivedAddress);
   }
 
   @override
