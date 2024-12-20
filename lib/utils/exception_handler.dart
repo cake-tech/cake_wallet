@@ -221,7 +221,7 @@ class ExceptionHandler {
     // just ignoring until we find a solution to this issue or migrate from flutter secure storage
     "core/auth_service.dart:63",
     "core/key_service.dart:14",
-    "core/wallet_loading_service.dart:132",
+    "core/wallet_loading_service.dart:133",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
