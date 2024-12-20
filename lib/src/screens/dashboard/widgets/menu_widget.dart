@@ -141,6 +141,7 @@ class MenuWidgetState extends State<MenuWidget> {
                     return Container(
                       height: headerHeight,
                       decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24)),
                         gradient: LinearGradient(colors: [
                           Theme.of(context).extension<CakeMenuTheme>()!.headerFirstGradientColor,
                           Theme.of(context).extension<CakeMenuTheme>()!.headerSecondGradientColor,
@@ -207,7 +208,7 @@ class MenuWidgetState extends State<MenuWidget> {
                   );
                 },
                 separatorBuilder: (_, index) => Container(
-                  height: 1,
+                  height: 0,
                   color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor,
                 ),
                 itemCount: itemCount + 1,
