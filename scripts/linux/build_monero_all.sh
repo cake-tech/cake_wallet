@@ -12,7 +12,7 @@ NPROC="-j$(nproc)"
 
 ../prepare_moneroc.sh
 
-for COIN in monero wownero;
+for COIN in monero wownero zano;
 do
     pushd ../monero_c
         ./build_single.sh ${COIN} $(gcc -dumpmachine) $NPROC

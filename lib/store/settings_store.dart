@@ -23,6 +23,10 @@ import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zano/zano.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
@@ -131,6 +135,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialEthereumTransactionPriority,
       TransactionPriority? initialPolygonTransactionPriority,
       TransactionPriority? initialBitcoinCashTransactionPriority,
+      TransactionPriority? initialZanoTransactionPriority,
       Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
@@ -214,6 +219,9 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
 
+    if (initialZanoTransactionPriority != null) {
+      priority[WalletType.zano] = initialZanoTransactionPriority;
+    }
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
     }
@@ -266,6 +274,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.polygon:
           key = PreferencesKey.polygonTransactionPriority;
+          break;
+        case WalletType.zano:
+          key = PreferencesKey.zanoTransactionPriority;
           break;
         default:
           key = null;
@@ -870,6 +881,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? polygonTransactionPriority;
     TransactionPriority? bitcoinCashTransactionPriority;
     TransactionPriority? wowneroTransactionPriority;
+    TransactionPriority? zanoTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -895,6 +907,10 @@ abstract class SettingsStoreBase with Store {
       wowneroTransactionPriority = wownero?.deserializeWowneroTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority) != null) {
+      zanoTransactionPriority = monero?.deserializeMoneroTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -904,6 +920,7 @@ abstract class SettingsStoreBase with Store {
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
     wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
     polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
+    zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey)!);
@@ -1002,6 +1019,8 @@ abstract class SettingsStoreBase with Store {
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
+    final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
+
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1014,6 +1033,7 @@ abstract class SettingsStoreBase with Store {
     final solanaNode = nodeSource.get(solanaNodeId);
     final tronNode = nodeSource.get(tronNodeId);
     final wowneroNode = nodeSource.get(wowneroNodeId);
+    final zanoNode = nodeSource.get(zanoNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -1093,6 +1113,10 @@ abstract class SettingsStoreBase with Store {
 
     if (wowneroNode != null) {
       nodes[WalletType.wownero] = wowneroNode;
+    }
+
+    if (zanoNode != null) {
+      nodes[WalletType.zano] = zanoNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1255,6 +1279,7 @@ abstract class SettingsStoreBase with Store {
       hasEnabledMwebBefore: hasEnabledMwebBefore,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialWowneroTransactionPriority: wowneroTransactionPriority,
+      initialZanoTransactionPriority: zanoTransactionPriority,
       initialBitcoinTransactionPriority: bitcoinTransactionPriority,
       initialHavenTransactionPriority: havenTransactionPriority,
       initialLitecoinTransactionPriority: litecoinTransactionPriority,
@@ -1328,6 +1353,10 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
       priority[WalletType.bitcoinCash] = bitcoinCash!.deserializeBitcoinCashTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!);
+    }
+    if (zano != null && sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority) != null) {
+      priority[WalletType.zano] = zano!.deserializeMoneroTransactionPriority(
+              raw: sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority)!);
     }
 
     final generateSubaddresses =
@@ -1437,6 +1466,7 @@ abstract class SettingsStoreBase with Store {
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
+    final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1444,10 +1474,12 @@ abstract class SettingsStoreBase with Store {
     final ethereumNode = nodeSource.get(ethereumNodeId);
     final polygonNode = nodeSource.get(polygonNodeId);
     final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
-    final nanoNode = nodeSource.get(nanoNodeId);
+    final nanoNode = nodeSource.get(nanoNodeId);   
     final solanaNode = nodeSource.get(solanaNodeId);
     final tronNode = nodeSource.get(tronNodeId);
     final wowneroNode = nodeSource.get(wowneroNodeId);
+    final zanoNode = nodeSource.get(zanoNodeId);
+
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
     }
@@ -1490,6 +1522,11 @@ abstract class SettingsStoreBase with Store {
 
     if (wowneroNode != null) {
       nodes[WalletType.wownero] = wowneroNode;
+
+    }
+
+    if (zanoNode != null) {
+      nodes[WalletType.zano] = zanoNode;
     }
 
     // MIGRATED:
@@ -1628,6 +1665,8 @@ abstract class SettingsStoreBase with Store {
       case WalletType.wownero:
         await _sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.key as int);
         break;
+      case WalletType.zano:
+        await _sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.key as int);
       default:
         break;
     }
