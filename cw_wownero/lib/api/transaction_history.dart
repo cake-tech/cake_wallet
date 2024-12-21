@@ -10,6 +10,7 @@ import 'package:cw_wownero/exceptions/wownero_transaction_creation_exception.dar
 import 'package:ffi/ffi.dart';
 import 'package:monero/wownero.dart' as wownero;
 import 'package:monero/src/generated_bindings_wownero.g.dart' as wownero_gen;
+import 'package:mutex/mutex.dart';
 
 
 String getTxKey(String txId) {
@@ -18,29 +19,32 @@ String getTxKey(String txId) {
   return ret;
 }
 
+final txHistoryMutex = Mutex();
 wownero.TransactionHistory? txhistory;
-
 bool isRefreshingTx = false;
 Future<void> refreshTransactions() async {
   if (isRefreshingTx == true) return;
   isRefreshingTx = true;
   txhistory ??= wownero.Wallet_history(wptr!);
   final ptr = txhistory!.address;
+  await txHistoryMutex.acquire();
   await Isolate.run(() {
     wownero.TransactionHistory_refresh(Pointer.fromAddress(ptr));
   });
+  txHistoryMutex.release();
   isRefreshingTx = false;
 }
 
 int countOfTransactions() => wownero.TransactionHistory_count(txhistory!);
 
-List<Transaction> getAllTransactions() {
+Future<List<Transaction>> getAllTransactions() async {
   List<Transaction> dummyTxs = [];
 
+  await txHistoryMutex.acquire();
   txhistory ??= wownero.Wallet_history(wptr!);
-  wownero.TransactionHistory_refresh(txhistory!);
   int size = countOfTransactions();
   final list = List.generate(size, (index) => Transaction(txInfo: wownero.TransactionHistory_transaction(txhistory!, index: index)));
+  txHistoryMutex.release();
 
   final accts = wownero.Wallet_numSubaddressAccounts(wptr!);
   for (var i = 0; i < accts; i++) {  
