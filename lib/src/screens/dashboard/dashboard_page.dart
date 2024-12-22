@@ -232,7 +232,7 @@ class _DashboardPageView extends BasePage {
         bottomSheetService: bottomSheetService,
         child: Container(
           child: Stack(
-            fit: StackFit.expand,
+            //fit: StackFit.expand,
             alignment: Alignment.bottomCenter,
             //mainAxisSize: MainAxisSize.max,
             //alignment: Alignment.bottomCenter,
@@ -250,10 +250,23 @@ class _DashboardPageView extends BasePage {
               ),
               //),
               Positioned(
-                top: 540,
+                top: 590,
                 child: Container(
+                  // decoration: BoxDecoration(
+                  //   boxShadow: [
+                  //     BoxShadow(
+                  //   color: Theme.of(context)
+                  //       .extension<DashboardPageTheme>()!
+                  //       .thirdGradientBackgroundColor
+                  //       .withAlpha(50),
+                  // spreadRadius: 5,
+                  // blurRadius: 7,
+                  // offset: Offset(0, 3),
+                  //     )
+                  // ]
+                  // ),
                   alignment: Alignment.bottomCenter,
-                  padding: EdgeInsets.only(top: 50),
+                  //padding: EdgeInsets.only(top: 50),
                   child: Observer(
                     builder: (context) {
                       return Semantics(
@@ -312,12 +325,10 @@ class _DashboardPageView extends BasePage {
                                   .withAlpha(150),
                               Theme.of(context)
                                   .extension<DashboardPageTheme>()!
-                                  .thirdGradientBackgroundColor
-                                  .withAlpha(200),
+                                  .thirdGradientBackgroundColor,
                               Theme.of(context)
                                   .extension<DashboardPageTheme>()!
                                   .thirdGradientBackgroundColor
-                                  .withAlpha(250),
                               // Color.fromARGB(10, 245, 8, 82),
                               // Color.fromARGB(75, 245, 8, 82),
                               // Color.fromARGB(150, 245, 8, 82),
@@ -327,7 +338,7 @@ class _DashboardPageView extends BasePage {
                           ),
                         ),
                         child: Container(
-                          //alignment: Alignment.bottomCenter,
+                          alignment: Alignment.bottomCenter,
                           padding: const EdgeInsets.only(
                               left: 16, right: 16, bottom: 24, top: 48),
                           child: ClipRRect(

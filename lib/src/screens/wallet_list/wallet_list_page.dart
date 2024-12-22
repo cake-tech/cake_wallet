@@ -32,6 +32,8 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import '../../../themes/extensions/dashboard_page_theme.dart';
+
 class WalletListPage extends BasePage {
   WalletListPage({
     required this.walletListViewModel,
@@ -146,10 +148,11 @@ class WalletListBodyState extends State<WalletListBody> {
 
     return Container(
       padding: EdgeInsets.only(top: 16),
-      child: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
+      child: Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.bottomCenter,
+        children: <Widget> [
+            SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -326,12 +329,39 @@ class WalletListBodyState extends State<WalletListBody> {
                       ),
                     ),
                   },
+                  SizedBox(height: 150)
                 ],
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(24),
+          Positioned(
+            top: 505,
+            bottom: 0,
+            left: 0,
+            right: 0,
+    child: Container(
+      padding: EdgeInsets.only(top: 50),
+    decoration: BoxDecoration(
+    gradient: LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: <Color>[
+      Theme.of(context).colorScheme.background
+        .withAlpha(10),
+      Theme.of(context).colorScheme.background,
+      Theme.of(context).colorScheme.background,
+      Theme.of(context).colorScheme.background
+    // Color.fromARGB(10, 245, 8, 82),
+    // Color.fromARGB(75, 245, 8, 82),
+    // Color.fromARGB(150, 245, 8, 82),
+    // Color.fromARGB(200, 245, 8, 82),
+    // Color.fromARGB(255, 245, 8, 82),
+    ],
+    ),
+    ),
+          child: Container(
+            alignment: Alignment.bottomCenter,
+            //margin: EdgeInsets.only(top: 24),
+            padding: EdgeInsets.only(left: 24, right: 24),
             child: Column(
               children: <Widget>[
                 PrimaryImageButton(
@@ -395,6 +425,8 @@ class WalletListBodyState extends State<WalletListBody> {
                 ),
               ],
             ),
+          ),
+    ),
           ),
         ],
       ),
