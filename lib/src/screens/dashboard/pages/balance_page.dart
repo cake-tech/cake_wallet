@@ -304,7 +304,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                         ))
                   ],
                   if (dashboardViewModel.showSilentPaymentsCard) ...[
-                    SizedBox(height: 10),
+                    SizedBox(height: 15),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: DashBoardRoundedCardWidget(
@@ -579,6 +579,14 @@ class BalanceRowWidget extends StatelessWidget {
       Container(
         margin: const EdgeInsets.only(left: 16, right: 16),
         decoration: BoxDecoration(
+        boxShadow: [
+        BoxShadow(
+        color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
+            .withAlpha(50),
+        spreadRadius: 3,
+        blurRadius: 7
+        )
+        ],
           borderRadius: BorderRadius.circular(30.0),
           border: Border.all(
             color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,

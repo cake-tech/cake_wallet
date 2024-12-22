@@ -38,6 +38,8 @@ import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart'
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
+import '../../../themes/theme_base.dart';
+
 class DashboardPage extends StatefulWidget {
   DashboardPage({
     required this.bottomSheetService,
@@ -297,7 +299,8 @@ class _DashboardPageView extends BasePage {
                   ),
                 ),
               ),
-              Positioned(
+              currentTheme.type == ThemeType.bright
+              ? Positioned(
                 top: 560,
                 bottom: 0,
                 left: 0,
@@ -346,7 +349,7 @@ class _DashboardPageView extends BasePage {
                             child: BackdropFilter(
                               filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
                               child: Container(
-                                clipBehavior: Clip.hardEdge,
+                                //clipBehavior: Clip.hardEdge,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(50.0),
                                   border: Border.all(
@@ -358,6 +361,14 @@ class _DashboardPageView extends BasePage {
                                   color: Theme.of(context)
                                       .extension<SyncIndicatorTheme>()!
                                       .syncedBackgroundColor,
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
+                                            .withAlpha(50),
+                                        spreadRadius: 5,
+                                        blurRadius: 7
+                                    )
+                                  ],
                                 ),
                                 child: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 10),
@@ -416,8 +427,137 @@ class _DashboardPageView extends BasePage {
                                 ),
                               ),
                             ),
-                            //],
+                           // ],
                           ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              )
+              :
+              Positioned(
+                top: 560,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Observer(
+                  builder: (_) {
+                    return ClipRect(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: <Color>[
+                              Theme.of(context)
+                                  .extension<DashboardPageTheme>()!
+                                  .thirdGradientBackgroundColor
+                                  .withAlpha(10),
+                              Theme.of(context)
+                                  .extension<DashboardPageTheme>()!
+                                  .thirdGradientBackgroundColor
+                                  .withAlpha(75),
+                              Theme.of(context)
+                                  .extension<DashboardPageTheme>()!
+                                  .thirdGradientBackgroundColor
+                                  .withAlpha(150),
+                              Theme.of(context)
+                                  .extension<DashboardPageTheme>()!
+                                  .thirdGradientBackgroundColor,
+                              Theme.of(context)
+                                  .extension<DashboardPageTheme>()!
+                                  .thirdGradientBackgroundColor
+                              // Color.fromARGB(10, 245, 8, 82),
+                              // Color.fromARGB(75, 245, 8, 82),
+                              // Color.fromARGB(150, 245, 8, 82),
+                              // Color.fromARGB(200, 245, 8, 82),
+                              // Color.fromARGB(255, 245, 8, 82),
+                            ],
+                          ),
+                        ),
+                        child: Container(
+                          alignment: Alignment.bottomCenter,
+                          padding: const EdgeInsets.only(
+                              left: 16, right: 16, bottom: 24, top: 48),
+                              child: Container(
+                                //clipBehavior: Clip.hardEdge,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(50.0),
+                                  border: Border.all(
+                                    color: Theme.of(context)
+                                        .extension<BalancePageTheme>()!
+                                        .cardBorderColor,
+                                    width: 1,
+                                  ),
+                                  color: Theme.of(context)
+                                      .extension<SyncIndicatorTheme>()!
+                                      .syncedBackgroundColor,
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
+                                            .withAlpha(50),
+                                        spreadRadius: 5,
+                                        blurRadius: 7
+                                    )
+                                  ],
+                                ),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: MainActions.all
+                                        .where((element) =>
+                                    element.canShow
+                                        ?.call(dashboardViewModel) ??
+                                        true)
+                                        .map(
+                                          (action) => Expanded(
+                                        child: Semantics(
+                                          button: true,
+                                          enabled: (action.isEnabled?.call(
+                                              dashboardViewModel) ??
+                                              true),
+                                          child: ActionButton(
+                                            key: ValueKey(
+                                                'dashboard_page_${action.name(context)}_action_button_key'),
+                                            image: Image.asset(
+                                              action.image,
+                                              height: 24,
+                                              width: 24,
+                                              color: action.isEnabled?.call(
+                                                  dashboardViewModel) ??
+                                                  true
+                                                  ? Theme.of(context)
+                                                  .extension<
+                                                  DashboardPageTheme>()!
+                                                  .mainActionsIconColor
+                                                  : Theme.of(context)
+                                                  .extension<
+                                                  BalancePageTheme>()!
+                                                  .labelTextColor,
+                                            ),
+                                            title: action.name(context),
+                                            onClick: () async =>
+                                            await action.onTap(context,
+                                                dashboardViewModel),
+                                            textColor: action.isEnabled?.call(
+                                                dashboardViewModel) ??
+                                                true
+                                                ? null
+                                                : Theme.of(context)
+                                                .extension<
+                                                BalancePageTheme>()!
+                                                .labelTextColor,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                        .toList(),
+                                  ),
+                                ),
+                              ),
                         ),
                       ),
                     );

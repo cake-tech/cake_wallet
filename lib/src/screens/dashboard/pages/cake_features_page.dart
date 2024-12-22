@@ -22,14 +22,12 @@ class CakeFeaturesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 50),
+            SizedBox(height: 10),
             Text(
               'Cake ${S.of(context).features}',
               style: TextStyle(
@@ -42,6 +40,96 @@ class CakeFeaturesPage extends StatelessWidget {
               child: ListView(
                 children: <Widget>[
                   SizedBox(height: 20),
+                  DashBoardRoundedCardWidget(
+                    onTap: () {
+                      if (Platform.isMacOS) {
+                        _launchUrl("buy.cakepay.com");
+                      } else {
+                        _navigatorToGiftCardsPage(context);
+                      }
+                    },
+                    title: 'Cake Pay',
+                    subTitle: S.of(context).cake_pay_subtitle,
+                    image: Image.asset(
+                      'assets/images/cards.png',
+                      height: 100,
+                      width: 115,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  DashBoardRoundedCardWidget(
+                    onTap: () {
+                      if (Platform.isMacOS) {
+                        _launchUrl("buy.cakepay.com");
+                      } else {
+                        _navigatorToGiftCardsPage(context);
+                      }
+                    },
+                    title: 'Cake Pay',
+                    subTitle: S.of(context).cake_pay_subtitle,
+                    image: Image.asset(
+                      'assets/images/cards.png',
+                      height: 100,
+                      width: 115,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  DashBoardRoundedCardWidget(
+                    onTap: () {
+                      if (Platform.isMacOS) {
+                        _launchUrl("buy.cakepay.com");
+                      } else {
+                        _navigatorToGiftCardsPage(context);
+                      }
+                    },
+                    title: 'Cake Pay',
+                    subTitle: S.of(context).cake_pay_subtitle,
+                    image: Image.asset(
+                      'assets/images/cards.png',
+                      height: 100,
+                      width: 115,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  DashBoardRoundedCardWidget(
+                    onTap: () {
+                      if (Platform.isMacOS) {
+                        _launchUrl("buy.cakepay.com");
+                      } else {
+                        _navigatorToGiftCardsPage(context);
+                      }
+                    },
+                    title: 'Cake Pay',
+                    subTitle: S.of(context).cake_pay_subtitle,
+                    image: Image.asset(
+                      'assets/images/cards.png',
+                      height: 100,
+                      width: 115,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  DashBoardRoundedCardWidget(
+                    onTap: () {
+                      if (Platform.isMacOS) {
+                        _launchUrl("buy.cakepay.com");
+                      } else {
+                        _navigatorToGiftCardsPage(context);
+                      }
+                    },
+                    title: 'Cake Pay',
+                    subTitle: S.of(context).cake_pay_subtitle,
+                    image: Image.asset(
+                      'assets/images/cards.png',
+                      height: 100,
+                      width: 115,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SizedBox(height: 10),
                   DashBoardRoundedCardWidget(
                     onTap: () {
                       if (Platform.isMacOS) {
@@ -90,13 +178,13 @@ class CakeFeaturesPage extends StatelessWidget {
                       );
                     },
                   ),
+                  SizedBox(height: 125),
                 ],
               ),
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   void _launchUrl(String url) {
