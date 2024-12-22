@@ -16,6 +16,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
     this.onClose,
     this.customBorder,
     super.key,
+    this.marginV,
+    this.marginH
   });
 
   final VoidCallback onTap;
@@ -27,29 +29,46 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
   final Widget? icon;
   final Image? image;
   final double? customBorder;
+  final double? marginV;
+  final double? marginH;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      hoverColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
+      //onTap: onTap,
+      //hoverColor: Colors.transparent,
+      //splashColor: Colors.transparent,
+      //highlightColor: Colors.transparent,
       child: Stack(
         children: [
-            TextButton(
-              onPressed: onTap,
-              style: TextButton.styleFrom(
-                backgroundColor: Theme.of(context)
-                    .extension<SyncIndicatorTheme>()!
-                    .syncedBackgroundColor,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(customBorder ?? 20)),
-                side: BorderSide(
-                    color: Theme.of(context)
-                        .extension<BalancePageTheme>()!
-                        .cardBorderColor),
-                  padding: EdgeInsets.all(24)
-              ),
+      Container(
+        margin: EdgeInsets.symmetric(horizontal: marginH ?? 20, vertical: marginV ?? 8),
+      //padding: EdgeInsets.all(20),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(customBorder ?? 20),
+        border: Border.all(
+          color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+        ),
+        boxShadow: [
+          BoxShadow(
+              color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
+                  .withAlpha(50),
+              spreadRadius: 3,
+              blurRadius: 7
+          )
+        ],
+      ),
+        child: TextButton(
+          onPressed: onTap,
+          style: TextButton.styleFrom(
+              backgroundColor: Theme.of(context)
+                  .extension<SyncIndicatorTheme>()!
+                  .syncedBackgroundColor,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(customBorder ?? 20)),
+              padding: EdgeInsets.all(24)
+          ),
               child: Column(
                 children: [
                   Row(
@@ -97,6 +116,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
                   ]
                 ],
               ),
+            ),
             ),
           if (onClose != null)
             Positioned(

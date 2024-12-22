@@ -365,7 +365,7 @@ class _DashboardPageView extends BasePage {
                                     BoxShadow(
                                         color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
                                             .withAlpha(50),
-                                        spreadRadius: 5,
+                                        spreadRadius: 3,
                                         blurRadius: 7
                                     )
                                   ],
@@ -497,7 +497,7 @@ class _DashboardPageView extends BasePage {
                                     BoxShadow(
                                         color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
                                             .withAlpha(50),
-                                        spreadRadius: 5,
+                                        spreadRadius: 3,
                                         blurRadius: 7
                                     )
                                   ],

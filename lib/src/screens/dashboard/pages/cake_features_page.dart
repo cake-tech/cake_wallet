@@ -22,13 +22,13 @@ class CakeFeaturesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+      return Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 10),
-            Text(
+            Padding(
+              padding: EdgeInsets.only(left: 24, top: 16),
+            child: Text(
               'Cake ${S.of(context).features}',
               style: TextStyle(
                 fontSize: 24,
@@ -36,10 +36,11 @@ class CakeFeaturesPage extends StatelessWidget {
                 color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
               ),
             ),
+            ),
             Expanded(
               child: ListView(
                 children: <Widget>[
-                  SizedBox(height: 20),
+                  SizedBox(height: 2),
                   DashBoardRoundedCardWidget(
                     onTap: () {
                       if (Platform.isMacOS) {
@@ -57,7 +58,6 @@ class CakeFeaturesPage extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 10),
                   DashBoardRoundedCardWidget(
                     onTap: () {
                       if (Platform.isMacOS) {
@@ -75,7 +75,6 @@ class CakeFeaturesPage extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 10),
                   DashBoardRoundedCardWidget(
                     onTap: () {
                       if (Platform.isMacOS) {
@@ -93,7 +92,6 @@ class CakeFeaturesPage extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 10),
                   DashBoardRoundedCardWidget(
                     onTap: () {
                       if (Platform.isMacOS) {
@@ -111,7 +109,6 @@ class CakeFeaturesPage extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 10),
                   DashBoardRoundedCardWidget(
                     onTap: () {
                       if (Platform.isMacOS) {
@@ -129,7 +126,6 @@ class CakeFeaturesPage extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 10),
                   DashBoardRoundedCardWidget(
                     onTap: () {
                       if (Platform.isMacOS) {
@@ -147,7 +143,6 @@ class CakeFeaturesPage extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 10),
                   DashBoardRoundedCardWidget(
                     onTap: () => _launchUrl("cake.nano-gpt.com"),
                     title: "NanoGPT",
@@ -159,7 +154,6 @@ class CakeFeaturesPage extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 10),
                   Observer(
                     builder: (context) {
                       if (!dashboardViewModel.hasSignMessages) {

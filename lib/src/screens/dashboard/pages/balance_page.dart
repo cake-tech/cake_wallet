@@ -308,6 +308,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: DashBoardRoundedCardWidget(
+                        marginV: 0,
+                        marginH: 0,
                         customBorder: 30,
                         title: S.of(context).silent_payments,
                         subTitle: S.of(context).enable_silent_payments_scanning,
@@ -370,7 +372,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                     ),
                   ],
                   if (dashboardViewModel.showMwebCard) ...[
-                    SizedBox(height: 10),
+                    SizedBox(height: 15),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: DashBoardRoundedCardWidget(
@@ -836,7 +838,7 @@ class BalanceRowWidget extends StatelessWidget {
         ),
       ),
       if (hasSecondAdditionalBalance || hasSecondAvailableBalance) ...[
-        SizedBox(height: 10),
+        SizedBox(height: 15),
         Container(
           margin: const EdgeInsets.only(left: 16, right: 16),
           decoration: BoxDecoration(
@@ -846,6 +848,14 @@ class BalanceRowWidget extends StatelessWidget {
               width: 1,
             ),
             color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+            boxShadow: [
+              BoxShadow(
+                  color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
+                      .withAlpha(50),
+                  spreadRadius: 3,
+                  blurRadius: 7
+              )
+            ],
           ),
           child: Container(
             child: Column(
