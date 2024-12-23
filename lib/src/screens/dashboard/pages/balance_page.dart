@@ -247,7 +247,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 return ListView.separated(
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  separatorBuilder: (_, __) => Container(padding: EdgeInsets.only(bottom: 8)),
+                  separatorBuilder: (_, __) => Container(padding: EdgeInsets.only(bottom: 16)),
                   itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length,
                   itemBuilder: (__, index) {
                     final balance =

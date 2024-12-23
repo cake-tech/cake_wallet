@@ -234,7 +234,6 @@ class _DashboardPageView extends BasePage {
         bottomSheetService: bottomSheetService,
         child: Container(
           child: Stack(
-            //fit: StackFit.expand,
             alignment: Alignment.bottomCenter,
             //mainAxisSize: MainAxisSize.max,
             //alignment: Alignment.bottomCenter,
@@ -252,8 +251,8 @@ class _DashboardPageView extends BasePage {
               ),
               //),
               Positioned(
-                top: 590,
                 child: Container(
+                    alignment: Alignment.bottomCenter,
                   // decoration: BoxDecoration(
                   //   boxShadow: [
                   //     BoxShadow(
@@ -267,7 +266,7 @@ class _DashboardPageView extends BasePage {
                   //     )
                   // ]
                   // ),
-                  alignment: Alignment.bottomCenter,
+                  margin: EdgeInsets.only(bottom: 110),
                   //padding: EdgeInsets.only(top: 50),
                   child: Observer(
                     builder: (context) {
@@ -301,14 +300,12 @@ class _DashboardPageView extends BasePage {
               ),
               currentTheme.type == ThemeType.bright
               ? Positioned(
-                top: 560,
-                bottom: 0,
-                left: 0,
-                right: 0,
                 child: Observer(
                   builder: (_) {
-                    return ClipRect(
-                      child: Container(
+                    //return ClipRect(
+                      return Container(
+                        alignment: Alignment.bottomCenter,
+                        height: 130,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
@@ -341,14 +338,15 @@ class _DashboardPageView extends BasePage {
                           ),
                         ),
                         child: Container(
-                          alignment: Alignment.bottomCenter,
-                          padding: const EdgeInsets.only(
-                              left: 16, right: 16, bottom: 24, top: 48),
+                          // padding: const EdgeInsets.only(
+                          //     left: 0, right: 0, bottom: 16, top: 600),
+                          margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(50),
                             child: BackdropFilter(
                               filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
                               child: Container(
+                                height: 75,
                                 //clipBehavior: Clip.hardEdge,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(50.0),
@@ -361,14 +359,14 @@ class _DashboardPageView extends BasePage {
                                   color: Theme.of(context)
                                       .extension<SyncIndicatorTheme>()!
                                       .syncedBackgroundColor,
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
-                                            .withAlpha(50),
-                                        spreadRadius: 3,
-                                        blurRadius: 7
-                                    )
-                                  ],
+                                  // boxShadow: [
+                                  //   BoxShadow(
+                                  //       color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
+                                  //           .withAlpha(50),
+                                  //       spreadRadius: 3,
+                                  //       blurRadius: 7
+                                  //   )
+                                  // ],
                                 ),
                                 child: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 10),
@@ -430,13 +428,12 @@ class _DashboardPageView extends BasePage {
                            // ],
                           ),
                         ),
-                      ),
-                    );
+                      );
+                    //);
                   },
                 ),
               )
-              :
-              Positioned(
+              : Positioned(
                 top: 560,
                 bottom: 0,
                 left: 0,
