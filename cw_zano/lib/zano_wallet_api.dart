@@ -459,7 +459,7 @@ Future<String> _getWalletInfo(int hWallet) async {
 Future<String> _setupNode(int hWallet, String nodeUrl) async {
   final resp = await callSyncMethod("reset_connection_url", hWallet, nodeUrl);
   printV(resp);
-  final resp2 = await callSyncMethod("configure", hWallet, r'{"postponed_run_wallet": false}'); 
+  final resp2 = await callSyncMethod("run_wallet", hWallet, "");
   printV(resp2);
   return "OK";
 }
