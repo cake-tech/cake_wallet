@@ -1,3 +1,4 @@
+import 'package:cw_core/zano_asset.dart';
 import 'package:cw_zano/api/model/employed_entries.dart';
 import 'package:cw_zano/api/model/subtransfer.dart';
 import 'package:collection/collection.dart';

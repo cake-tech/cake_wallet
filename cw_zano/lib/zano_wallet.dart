@@ -12,6 +12,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/zano_asset.dart';
 import 'package:cw_zano/api/model/create_wallet_result.dart';
 import 'package:cw_zano/api/model/destination.dart';
 import 'package:cw_zano/api/model/get_recent_txs_and_info_result.dart';

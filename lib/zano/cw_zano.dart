@@ -133,7 +133,7 @@ class CWZano extends Zano {
       return CryptoCurrency.zano;
     }
     wallet as ZanoWallet;
-    final asset = wallet.zanoAssets.values.firstWhereOrNull((element) => element.ticker == transaction.tokenSymbol);
+    final asset = wallet.zanoAssets.values.firstWhereOrNull((element) => element?.ticker == transaction.tokenSymbol);
     return asset ?? CryptoCurrency.zano;
   }
 

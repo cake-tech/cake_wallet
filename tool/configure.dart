@@ -1419,11 +1419,11 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/zano_asset.dart';
 import 'package:hive/hive.dart';
 """;
   const zanoCWHeaders = """
 import 'package:cw_zano/mnemonics/english.dart';
-import 'package:cw_zano/model/zano_asset.dart';
 import 'package:cw_zano/model/zano_transaction_credentials.dart';
 import 'package:cw_zano/model/zano_transaction_info.dart';
 import 'package:cw_zano/zano_formatter.dart';

@@ -1,3 +1,4 @@
+import 'package:cw_core/zano_asset.dart';
 import 'package:cw_zano/model/zano_asset.dart';
 import 'package:cw_zano/zano_formatter.dart';
 

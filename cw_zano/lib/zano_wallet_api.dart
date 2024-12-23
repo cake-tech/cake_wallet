@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/zano_asset.dart';
 import 'package:cw_zano/api/consts.dart';
 import 'package:cw_zano/api/model/asset_id_params.dart';
 import 'package:cw_zano/api/model/create_wallet_result.dart';
