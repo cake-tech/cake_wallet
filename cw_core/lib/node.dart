@@ -22,8 +22,8 @@ class Node extends HiveObject with Keyable {
     this.useSSL,
     this.trusted = false,
     this.socksProxyAddress,
+    this.path = '',
     String? uri,
-    String? path,
     WalletType? type,
   }) {
     if (uri != null) {
@@ -31,9 +31,6 @@ class Node extends HiveObject with Keyable {
     }
     if (type != null) {
       this.type = type;
-    }
-    if (path != null) {
-      this.path = path;
     }
   }
 
@@ -95,19 +92,15 @@ class Node extends HiveObject with Keyable {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return createUriFromElectrumAddress(uriRaw, path ?? '');
+        return createUriFromElectrumAddress(uriRaw, path!);
       case WalletType.nano:
       case WalletType.banano:
-        if (isSSL) {
-          return Uri.https(uriRaw, path ?? '');
-        } else {
-          return Uri.http(uriRaw, path ?? '');
-        }
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
-        return Uri.https(uriRaw, path ?? '');
+      return Uri.parse(
+          "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") ? path : "/$path"}");
       case WalletType.none:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -247,7 +240,7 @@ class Node extends HiveObject with Keyable {
     if (proxy == null) {
       return false;
     }
-    final proxyAddress = proxy!.split(':')[0];
+    final proxyAddress = proxy.split(':')[0];
     final proxyPort = int.parse(proxy.split(':')[1]);
     try {
       final socket = await Socket.connect(proxyAddress, proxyPort, timeout: Duration(seconds: 5));
