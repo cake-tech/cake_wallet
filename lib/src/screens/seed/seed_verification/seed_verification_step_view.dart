@@ -81,7 +81,9 @@ class SeedVerificationStepView extends StatelessWidget {
                             );
 
                             if (isSecondWrongEntry) {
-                              Navigator.pop(context);
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                              }
                             }
                           }
                         },
