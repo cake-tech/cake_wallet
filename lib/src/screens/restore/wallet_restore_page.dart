@@ -34,6 +34,7 @@ class WalletRestorePage extends BasePage {
         case WalletRestoreMode.seed:
           _pages.add(WalletRestoreFromSeedForm(
               seedSettingsViewModel: seedSettingsViewModel,
+              restoredWallet: walletRestoreViewModel.restoredWallet,
               displayBlockHeightSelector:
                   walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
               displayLanguageSelector: walletRestoreViewModel.hasSeedLanguageSelector,

@@ -13,6 +13,7 @@ import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
+import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
@@ -163,13 +164,24 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
         });
         final restoreWallet = await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
 
-        final restoreFromQRViewModel =
-            getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
+        final params = {
+          'walletType': restoreWallet.type,
+          'restoreWallet': restoreWallet
+        };
 
-        await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
-        if (restoreFromQRViewModel.state is FailureState) {
-          _onWalletCreateFailure(context,
-              'Create wallet state: ${(restoreFromQRViewModel.state as FailureState).error}');
+        if (restoreWallet.restoreMode == WalletRestoreMode.seed) {
+          Navigator.pushNamed(context, Routes.restoreWallet,
+              arguments: params);
+        } else {
+          ///TODO: Implement restore from QR through standard wallet restoration flow
+          final restoreFromQRViewModel =
+          getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
+
+          await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
+          if (restoreFromQRViewModel.state is FailureState) {
+            _onWalletCreateFailure(context,
+                'Create wallet state: ${(restoreFromQRViewModel.state as FailureState).error}');
+          }
         }
       } catch (e) {
         _onWalletCreateFailure(context, e.toString());
