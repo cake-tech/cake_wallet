@@ -453,7 +453,7 @@ abstract class ElectrumWalletBase
 
   @action
   @override
-  Future<void> startSync() async {
+  Future<void> startSync({bool isBackgroundSync = false}) async {
     try {
       if (syncStatus is SyncronizingSyncStatus) {
         return;

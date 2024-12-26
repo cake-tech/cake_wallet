@@ -128,6 +128,8 @@ Future<void> onStart(ServiceInstance service) async {
   Timer? _syncTimer;
   Timer? _stuckSyncTimer;
   Timer? _queueTimer;
+  List<WalletBase> syncingWallets = [];
+  List<WalletBase> standbyWallets = [];
 
   // commented because the behavior appears to be bugged:
   // DartPluginRegistrant.ensureInitialized();
@@ -135,19 +137,34 @@ Future<void> onStart(ServiceInstance service) async {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  service.on('stopService').listen((event) async {
+  service.on("stopService").listen((event) async {
     printV("STOPPING BACKGROUND SERVICE");
     _syncTimer?.cancel();
     _stuckSyncTimer?.cancel();
     _queueTimer?.cancel();
+    try {
+      // stop all syncing wallets:
+      for (int i = 0; i < syncingWallets.length; i++) {
+        final wallet = syncingWallets[i];
+        await wallet.stopSync(isBackgroundSync: true);
+      }
+      // stop all standby wallets (just in case):
+      for (int i = 0; i < standbyWallets.length; i++) {
+        final wallet = standbyWallets[i];
+        await wallet.stopSync(isBackgroundSync: true);
+      }
+    } catch (e) {
+      printV("error stopping sync: $e");
+    }
+    // stop the service itself:
     await service.stopSelf();
   });
 
-  service.on('status').listen((event) async {
+  service.on("status").listen((event) async {
     printV(event);
   });
 
-  service.on('setForeground').listen((event) async {
+  service.on("setForeground").listen((event) async {
     bgSyncStarted = false;
     _syncTimer?.cancel();
     setNotificationStandby(flutterLocalNotificationsPlugin);
@@ -158,7 +175,7 @@ Future<void> onStart(ServiceInstance service) async {
   });
 
   // we have entered the background, start the sync:
-  service.on('setBackground').listen((event) async {
+  service.on("setBackground").listen((event) async {
     if (bgSyncStarted) {
       return;
     }
@@ -184,9 +201,6 @@ Future<void> onStart(ServiceInstance service) async {
     final settingsStore = getIt.get<SettingsStore>();
     final walletListViewModel = getIt.get<WalletListViewModel>();
 
-    List<WalletBase> syncingWallets = [];
-    List<WalletBase> standbyWallets = [];
-
     // get all Monero / Wownero wallets and add them
     final List<WalletListItem> moneroWallets = walletListViewModel.wallets
         .where((element) => [WalletType.monero, WalletType.wownero].contains(element.type))
@@ -195,7 +209,7 @@ Future<void> onStart(ServiceInstance service) async {
     for (int i = 0; i < moneroWallets.length; i++) {
       final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
       final node = settingsStore.getCurrentNode(moneroWallets[i].type);
-      await wallet.stopSync();
+      await wallet.stopSync(isBackgroundSync: true);
       syncingWallets.add(wallet);
     }
 
@@ -271,7 +285,7 @@ Future<void> onStart(ServiceInstance service) async {
             printV("${wallet.name} NOT CONNECTED");
             final node = settingsStore.getCurrentNode(wallet.type);
             await wallet.connectToNode(node: node);
-            wallet.startSync();
+            wallet.startSync(isBackgroundSync: true);
             printV("STARTED SYNC");
           }
 
@@ -281,7 +295,7 @@ Future<void> onStart(ServiceInstance service) async {
               syncedTicks = 0;
               printV("WALLET $i SYNCED");
               try {
-                await wallet.stopSync();
+                await wallet.stopSync(isBackgroundSync: true);
               } catch (e) {
                 printV("error stopping sync: $e");
               }
@@ -329,7 +343,7 @@ Future<void> onStart(ServiceInstance service) async {
           }
         } else {
           if (syncStatus is! NotConnectedSyncStatus) {
-            wallet.stopSync();
+            wallet.stopSync(isBackgroundSync: true);
           }
           if (progress < SYNC_THRESHOLD) {
             content = "$progressPercent - Waiting in sync queue";
@@ -395,7 +409,7 @@ Future<void> onStart(ServiceInstance service) async {
         if (syncStatus is NotConnectedSyncStatus) {
           final node = settingsStore.getCurrentNode(wallet.type);
           await wallet.connectToNode(node: node);
-          await wallet.startSync();
+          await wallet.startSync(isBackgroundSync: true);
         }
 
         // wait a while before checking progress:
@@ -427,7 +441,7 @@ Future<void> onStart(ServiceInstance service) async {
         printV("syncing appears to be stuck, restarting...");
         try {
           stuckWallets.add(wallet.name);
-          await wallet.stopSync();
+          await wallet.stopSync(isBackgroundSync: true);
         } catch (e) {
           printV("error restarting sync: $e");
         }
@@ -439,7 +453,7 @@ Future<void> onStart(ServiceInstance service) async {
           stuckWallets = [];
           return;
         }
-        wallet.startSync();
+        wallet.startSync(isBackgroundSync: true);
       }
     });
   });
