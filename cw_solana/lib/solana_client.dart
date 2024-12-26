@@ -21,22 +21,23 @@ class SolanaWalletClient {
 
   bool connect(Node node) {
     try {
-      Uri? rpcUri;
-      String webSocketUrl;
-      bool isModifiedNodeUri = false;
+      Uri rpcUri = node.uri;
+      String webSocketUrl = 'wss://${node.uriRaw}';
 
       if (node.uriRaw == 'rpc.ankr.com') {
-        isModifiedNodeUri = true;
         String ankrApiKey = secrets.ankrApiKey;
 
         rpcUri = Uri.https(node.uriRaw, '/solana/$ankrApiKey');
         webSocketUrl = 'wss://${node.uriRaw}/solana/ws/$ankrApiKey';
-      } else {
-        webSocketUrl = 'wss://${node.uriRaw}';
+      } else if (node.uriRaw == 'solana-mainnet.core.chainstack.com') {
+        String chainStackApiKey = secrets.chainStackApiKey;
+
+        rpcUri = Uri.https(node.uriRaw, '/$chainStackApiKey');
+        webSocketUrl = 'wss://${node.uriRaw}/$chainStackApiKey';
       }
 
       _client = SolanaClient(
-        rpcUrl: isModifiedNodeUri ? rpcUri! : node.uri,
+        rpcUrl: rpcUri,
         websocketUrl: Uri.parse(webSocketUrl),
         timeout: const Duration(minutes: 2),
       );
