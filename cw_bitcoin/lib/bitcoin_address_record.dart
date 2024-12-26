@@ -81,11 +81,13 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     String? scriptHash,
     BasedUtxoNetwork? network,
   }) {
-    if (scriptHash == null && network == null) {
+    if (scriptHash != null) {
+      this.scriptHash = scriptHash;
+    } else if (network != null) {
+      this.scriptHash = BitcoinAddressUtils.scriptHash(address, network: network);
+    } else {
       throw ArgumentError('either scriptHash or network must be provided');
     }
-
-    this.scriptHash = scriptHash ?? BitcoinAddressUtils.scriptHash(address, network: network!);
   }
 
   factory BitcoinAddressRecord.fromJSON(String jsonSource) {

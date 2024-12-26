@@ -29,7 +29,6 @@ import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet_addresses.dart';
 import 'package:cw_evm/evm_ledger_credentials.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -188,7 +187,7 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  int estimatedFeeForOutputsWithPriority({required TransactionPriority priority}) {
     {
       try {
         if (priority is EVMChainTransactionPriority) {

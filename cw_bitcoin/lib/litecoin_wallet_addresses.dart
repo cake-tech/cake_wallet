@@ -163,11 +163,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @action
   @override
-  Future<BitcoinAddressRecord> getChangeAddress({
+  BitcoinAddressRecord getChangeAddress({
     List<BitcoinUnspent>? inputs,
     List<BitcoinOutput>? outputs,
     bool isPegIn = false,
-  }) async {
+  }) {
     // use regular change address on peg in, otherwise use mweb for change address:
 
     if (!mwebEnabled || isPegIn) {
@@ -209,7 +209,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
 
     if (mwebEnabled) {
-      await ensureMwebAddressUpToIndexExists(1);
+      // TODO:
+      // await ensureMwebAddressUpToIndexExists(1);
       return BitcoinAddressRecord(
         mwebAddrs[0],
         index: 0,

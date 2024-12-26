@@ -219,7 +219,7 @@ abstract class HavenWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  int estimatedFeeForOutputsWithPriority({required TransactionPriority priority}) {
     // FIXME: hardcoded value;
 
     if (priority is MoneroTransactionPriority) {

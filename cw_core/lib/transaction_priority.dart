@@ -4,6 +4,10 @@ abstract class TransactionPriority extends EnumerableItem<int> with Serializable
   const TransactionPriority({required super.title, required super.raw});
 
   String get units => '';
+  String getUnits(int rate) {
+    return rate == 1 ? units : '${units}s';
+  }
+
   String toString() {
     return title;
   }

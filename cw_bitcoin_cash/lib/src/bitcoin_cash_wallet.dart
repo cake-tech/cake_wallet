@@ -184,27 +184,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         Uint8List.fromList(hd.childKey(Bip32KeyIndex(index)).privateKey.raw),
       );
 
-  int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) {
-    int inputsCount = 0;
-    int totalValue = 0;
-
-    for (final input in unspentCoins) {
-      if (input.isSending) {
-        inputsCount++;
-        totalValue += input.value;
-      }
-      if (amount != null && totalValue >= amount) {
-        break;
-      }
-    }
-
-    if (amount != null && totalValue < amount) return 0;
-
-    final _outputsCount = outputsCount ?? (amount != null ? 2 : 1);
-
-    return feeAmountWithFeeRate(feeRate, inputsCount, _outputsCount);
-  }
-
   @override
   int feeRate(TransactionPriority priority) {
     if (priority is ElectrumTransactionPriority) {
@@ -242,12 +221,12 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<int> calcFee({
+  int calcFee({
     required List<UtxoWithAddress> utxos,
     required List<BitcoinBaseOutput> outputs,
     String? memo,
     required int feeRate,
-  }) async =>
+  }) =>
       feeRate *
       ForkedTransactionBuilder.estimateTransactionSize(
         utxos: utxos,

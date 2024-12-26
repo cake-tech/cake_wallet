@@ -476,7 +476,7 @@ class ElectrumWorker {
       try {
         final recommendedFees = await ApiProvider.fromMempool(
           _network!,
-          baseUrl: "http://mempool.cakewallet.com:8999/api",
+          baseUrl: "http://mempool.cakewallet.com:8999/api/v1",
         ).getRecommendedFeeRate();
 
         final unimportantFee = recommendedFees.economyFee!.satoshis;
@@ -498,7 +498,7 @@ class ElectrumWorker {
 
         _sendResponse(
           ElectrumWorkerGetFeesResponse(
-            result: BitcoinTransactionPriorities(
+            result: BitcoinAPITransactionPriorities(
               unimportant: unimportantFee,
               normal: normalFee,
               elevated: elevatedFee,

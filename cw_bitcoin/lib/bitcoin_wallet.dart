@@ -22,7 +22,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -412,7 +411,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<BtcTransaction> buildHardwareWalletTransaction({
     required List<BitcoinBaseOutput> outputs,
     required BigInt fee,
-    required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
     required Map<String, PublicKeyWithDerivationPath> publicKeys,
     String? memo,
@@ -921,14 +919,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<int> calcFee({
+  int calcFee({
     required List<UtxoWithAddress> utxos,
     required List<BitcoinBaseOutput> outputs,
     String? memo,
     required int feeRate,
     List<ECPrivateInfo>? inputPrivKeyInfos,
     List<Outpoint>? vinOutpoints,
-  }) async =>
+  }) =>
       feeRate *
       BitcoinTransactionBuilder.estimateTransactionSize(
         utxos: utxos,
@@ -945,7 +943,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     bool paysToSilentPayment = false,
     int credentialsAmount = 0,
     int? inputsCount,
-    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) {
     List<UtxoWithAddress> utxos = [];
     List<Outpoint> vinOutpoints = [];
@@ -957,6 +954,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     int leftAmount = credentialsAmount;
     var availableInputs = unspentCoins.where((utx) {
+      // TODO: unspent coin isSending not toggled
       if (!utx.isSending || utx.isFrozen) {
         return false;
       }
@@ -1074,7 +1072,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     int feeRate, {
     String? memo,
     bool hasSilentPayment = false,
-    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) async {
     final utxoDetails = createUTXOS(sendAll: true, paysToSilentPayment: hasSilentPayment);
 
@@ -1122,19 +1119,23 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<EstimatedTxResult> estimateTxForAmount(
+  EstimatedTxResult estimateTxForAmount(
     int credentialsAmount,
     List<BitcoinOutput> outputs,
     int feeRate, {
-    List<BitcoinOutput> updatedOutputs = const [],
+    List<BitcoinOutput>? updatedOutputs,
     int? inputsCount,
     String? memo,
     bool? useUnconfirmed,
     bool hasSilentPayment = false,
-    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
-  }) async {
+    bool isFakeTx = false,
+  }) {
+    if (updatedOutputs == null) {
+      updatedOutputs = outputs.map((output) => output).toList();
+    }
+
     // Attempting to send less than the dust limit
-    if (isBelowDust(credentialsAmount)) {
+    if (!isFakeTx && isBelowDust(credentialsAmount)) {
       throw BitcoinTransactionNoDustException();
     }
 
@@ -1163,13 +1164,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           inputsCount: utxoDetails.utxos.length + 1,
           memo: memo,
           hasSilentPayment: hasSilentPayment,
+          isFakeTx: isFakeTx,
         );
       }
 
       throw BitcoinTransactionWrongBalanceException();
     }
 
-    final changeAddress = await walletAddresses.getChangeAddress(
+    final changeAddress = walletAddresses.getChangeAddress(
       inputs: utxoDetails.availableInputs,
       outputs: updatedOutputs,
     );
@@ -1194,7 +1196,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     // for taproot addresses, but if more inputs are needed to make up for fees,
     // the silent payment outputs need to be recalculated for the new inputs
     var temp = outputs.map((output) => output).toList();
-    int fee = await calcFee(
+    int fee = calcFee(
       utxos: utxoDetails.utxos,
       // Always take only not updated bitcoin outputs here so for every estimation
       // the SP outputs are re-generated to the proper taproot addresses
@@ -1216,7 +1218,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final lastOutput = updatedOutputs.last;
     final amountLeftForChange = amountLeftForChangeAndFee - fee;
 
-    if (isBelowDust(amountLeftForChange)) {
+    if (!isFakeTx && isBelowDust(amountLeftForChange)) {
       // If has change that is lower than dust, will end up with tx rejected by network rules
       // so remove the change amount
       updatedOutputs.removeLast();
@@ -1233,6 +1235,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             memo: memo,
             useUnconfirmed: useUnconfirmed ?? spendingAllConfirmedCoins,
             hasSilentPayment: hasSilentPayment,
+            isFakeTx: isFakeTx,
           );
         } else {
           throw BitcoinTransactionWrongBalanceException();
@@ -1289,7 +1292,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       final hasMultiDestination = transactionCredentials.outputs.length > 1;
       final sendAll = !hasMultiDestination && transactionCredentials.outputs.first.sendAll;
       final memo = transactionCredentials.outputs.first.memo;
-      final coinTypeToSpendFrom = transactionCredentials.coinTypeToSpendFrom;
 
       int credentialsAmount = 0;
       bool hasSilentPayment = false;
@@ -1353,7 +1355,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           feeRateInt,
           memo: memo,
           hasSilentPayment: hasSilentPayment,
-          coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
       } else {
         estimatedTx = await estimateTxForAmount(
@@ -1363,7 +1364,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           updatedOutputs: updatedOutputs,
           memo: memo,
           hasSilentPayment: hasSilentPayment,
-          coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
       }
 
@@ -1373,7 +1373,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           outputs: updatedOutputs,
           publicKeys: estimatedTx.publicKeys,
           fee: BigInt.from(estimatedTx.fee),
-          network: network,
           memo: estimatedTx.memo,
           outputOrdering: BitcoinOrdering.none,
           enableRBF: true,

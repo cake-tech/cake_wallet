@@ -472,31 +472,83 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  int getFeeAmountForPriority(
-      Object wallet, TransactionPriority priority, int inputsCount, int outputsCount,
-      {int? size}) {
+  int getFeeAmountForOutputsWithFeeRate(
+    Object wallet, {
+    required int feeRate,
+    required List<String> inputAddresses,
+    required List<String> outputAddresses,
+    String? memo,
+    bool enableRBF = true,
+  }) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.feeAmountForPriority(
-        priority as ElectrumTransactionPriority, inputsCount, outputsCount);
-  }
-
-  @override
-  int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
-      {int? outputsCount, int? size}) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.calculateEstimatedFeeWithFeeRate(
+    return bitcoinWallet.feeAmountWithFeeRate(
       feeRate,
-      amount,
-      outputsCount: outputsCount,
-      size: size,
+      inputTypes: inputAddresses
+          .map((addr) => BitcoinAddressUtils.addressTypeFromStr(addr, bitcoinWallet.network))
+          .toList(),
+      outputTypes: outputAddresses
+          .map((addr) => BitcoinAddressUtils.addressTypeFromStr(addr, bitcoinWallet.network))
+          .toList(),
+      memo: memo,
+      enableRBF: enableRBF,
     );
   }
 
   @override
-  int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount,
-      {int? size}) {
+  int getFeeAmountForOutputsWithPriority(
+    Object wallet, {
+    required TransactionPriority priority,
+    required List<String> inputAddresses,
+    required List<String> outputAddresses,
+    String? memo,
+    bool enableRBF = true,
+  }) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.feeAmountWithFeeRate(feeRate, inputsCount, outputsCount, size: size);
+    return bitcoinWallet.feeAmountForPriority(
+      priority,
+      inputTypes: inputAddresses
+          .map((addr) => BitcoinAddressUtils.addressTypeFromStr(addr, bitcoinWallet.network))
+          .toList(),
+      outputTypes: outputAddresses
+          .map((addr) => BitcoinAddressUtils.addressTypeFromStr(addr, bitcoinWallet.network))
+          .toList(),
+      memo: memo,
+      enableRBF: enableRBF,
+    );
+  }
+
+  @override
+  int estimatedFeeForOutputsWithPriority(
+    Object wallet, {
+    required TransactionPriority priority,
+    required String outputAddress,
+    String? memo,
+    bool enableRBF = true,
+  }) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.estimatedFeeForOutputsWithPriority(
+      priority: priority,
+      outputAddresses: [outputAddress],
+      memo: memo,
+      enableRBF: enableRBF,
+    );
+  }
+
+  @override
+  int estimatedFeeForOutputWithFeeRate(
+    Object wallet, {
+    required int feeRate,
+    required String outputAddress,
+    String? memo,
+    bool enableRBF = true,
+  }) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.estimatedFeeForOutputsWithFeeRate(
+      feeRate: feeRate,
+      outputAddresses: [outputAddress],
+      memo: memo,
+      enableRBF: enableRBF,
+    );
   }
 
   @override
@@ -505,7 +557,7 @@ class CWBitcoin extends Bitcoin {
     final feeRates = electrumWallet.feeRates;
     final maxFee = electrumWallet.feeRates is ElectrumTransactionPriorities
         ? ElectrumTransactionPriority.fast
-        : BitcoinTransactionPriority.priority;
+        : BitcoinAPITransactionPriority.priority;
 
     return (electrumWallet.feeRate(maxFee) * 10).round();
   }
@@ -640,7 +692,12 @@ class CWBitcoin extends Bitcoin {
   Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled}) async {
     if (bitcoinMempoolAPIEnabled ?? false) {
       try {
-        return await getBitcoinHeightByDateAPI(date: date);
+        final mempoolApi = ApiProvider.fromMempool(
+          BitcoinNetwork.mainnet,
+          baseUrl: "http://mempool.cakewallet.com:8999/api/v1",
+        );
+
+        return (await mempoolApi.getBlockTimestamp(date))["height"] as int;
       } catch (_) {}
     }
     return await getBitcoinHeightByDate(date: date);

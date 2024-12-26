@@ -51,7 +51,9 @@ abstract class WowneroWalletBase
     extends WalletBase<WowneroBalance, WowneroTransactionHistory, WowneroTransactionInfo>
     with Store {
   WowneroWalletBase(
-      {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo, required String password})
+      {required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required String password})
       : balance = ObservableMap<CryptoCurrency, WowneroBalance>.of({
           CryptoCurrency.wow: WowneroBalance(
               fullBalance: wownero_wallet.getFullBalance(accountIndex: 0),
@@ -259,7 +261,7 @@ abstract class WowneroWalletBase
       final int totalAmount =
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
-      final estimatedFee = calculateEstimatedFee(_credentials.priority, totalAmount);
+      final estimatedFee = estimatedFeeForOutputsWithPriority(priority: _credentials.priority);
       if (unlockedBalance < totalAmount) {
         throw WowneroTransactionCreationException(
             'You do not have enough WOW to send this amount.');
@@ -295,7 +297,7 @@ abstract class WowneroWalletBase
             'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       }
 
-      final estimatedFee = calculateEstimatedFee(_credentials.priority, formattedAmount);
+      final estimatedFee = estimatedFeeForOutputsWithPriority(priority: _credentials.priority);
       if (!spendAllCoins &&
           ((formattedAmount != null && allInputsAmount < (formattedAmount + estimatedFee)) ||
               formattedAmount == null)) {
@@ -314,7 +316,7 @@ abstract class WowneroWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  int estimatedFeeForOutputsWithPriority({required TransactionPriority priority}) {
     // FIXME: hardcoded value;
 
     if (priority is MoneroTransactionPriority) {

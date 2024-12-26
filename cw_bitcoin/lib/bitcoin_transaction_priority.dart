@@ -1,25 +1,25 @@
 import 'package:cw_core/transaction_priority.dart';
 
-class BitcoinTransactionPriority extends TransactionPriority {
-  const BitcoinTransactionPriority({required super.title, required super.raw});
+class BitcoinAPITransactionPriority extends TransactionPriority {
+  const BitcoinAPITransactionPriority({required super.title, required super.raw});
 
 // Unimportant: the lowest possible, confirms when it confirms no matter how long it takes
-  static const BitcoinTransactionPriority unimportant =
-      BitcoinTransactionPriority(title: 'Unimportant', raw: 0);
+  static const BitcoinAPITransactionPriority unimportant =
+      BitcoinAPITransactionPriority(title: 'Unimportant', raw: 0);
 // Normal: low fee, confirms in a reasonable time, normal because in most cases more than this is not needed, gets you in the next 2-3 blocks (about 1 hour)
-  static const BitcoinTransactionPriority normal =
-      BitcoinTransactionPriority(title: 'Normal', raw: 1);
+  static const BitcoinAPITransactionPriority normal =
+      BitcoinAPITransactionPriority(title: 'Normal', raw: 1);
 // Elevated: medium fee, confirms soon, elevated because it's higher than normal, gets you in the next 1-2 blocks (about 30 mins)
-  static const BitcoinTransactionPriority elevated =
-      BitcoinTransactionPriority(title: 'Elevated', raw: 2);
+  static const BitcoinAPITransactionPriority elevated =
+      BitcoinAPITransactionPriority(title: 'Elevated', raw: 2);
 // Priority: high fee, expected in the next block (about 10 mins).
-  static const BitcoinTransactionPriority priority =
-      BitcoinTransactionPriority(title: 'Priority', raw: 3);
+  static const BitcoinAPITransactionPriority priority =
+      BitcoinAPITransactionPriority(title: 'Priority', raw: 3);
 // Custom: any fee, user defined
-  static const BitcoinTransactionPriority custom =
-      BitcoinTransactionPriority(title: 'Custom', raw: 4);
+  static const BitcoinAPITransactionPriority custom =
+      BitcoinAPITransactionPriority(title: 'Custom', raw: 4);
 
-  static BitcoinTransactionPriority deserialize({required int raw}) {
+  static BitcoinAPITransactionPriority deserialize({required int raw}) {
     switch (raw) {
       case 0:
         return unimportant;
@@ -32,7 +32,7 @@ class BitcoinTransactionPriority extends TransactionPriority {
       case 4:
         return custom;
       default:
-        throw Exception('Unexpected token: $raw for TransactionPriority deserialize');
+        throw Exception('Unexpected token: $raw for BitcoinTransactionPriority deserialize');
     }
   }
 
@@ -41,19 +41,19 @@ class BitcoinTransactionPriority extends TransactionPriority {
     var label = '';
 
     switch (this) {
-      case BitcoinTransactionPriority.unimportant:
+      case BitcoinAPITransactionPriority.unimportant:
         label = 'Unimportant ~24hrs+'; // '${S.current.transaction_priority_slow} ~24hrs';
         break;
-      case BitcoinTransactionPriority.normal:
+      case BitcoinAPITransactionPriority.normal:
         label = 'Normal ~1hr+'; // S.current.transaction_priority_medium;
         break;
-      case BitcoinTransactionPriority.elevated:
+      case BitcoinAPITransactionPriority.elevated:
         label = 'Elevated';
         break; // S.current.transaction_priority_fast;
-      case BitcoinTransactionPriority.priority:
+      case BitcoinAPITransactionPriority.priority:
         label = 'Priority';
         break; // S.current.transaction_priority_fast;
-      case BitcoinTransactionPriority.custom:
+      case BitcoinAPITransactionPriority.custom:
         label = 'Custom';
         break;
       default:
@@ -65,7 +65,7 @@ class BitcoinTransactionPriority extends TransactionPriority {
 
   String labelWithRate(int rate, int? customRate) {
     final rateValue = this == custom ? customRate ??= 0 : rate;
-    return '${toString()} ($rateValue ${units}/byte)';
+    return '${toString()} ($rateValue ${getUnits(rateValue)}/byte)';
   }
 }
 
@@ -127,7 +127,7 @@ class ElectrumTransactionPriority extends TransactionPriority {
 
   String labelWithRate(int rate, int? customRate) {
     final rateValue = this == custom ? customRate ??= 0 : rate;
-    return '${toString()} ($rateValue ${units}/byte)';
+    return '${toString()} ($rateValue ${getUnits(rateValue)}/byte)';
   }
 }
 
@@ -145,8 +145,8 @@ class BitcoinCashTransactionPriority extends ElectrumTransactionPriority {
   String get units => 'satoshi';
 }
 
-class BitcoinTransactionPriorities implements TransactionPriorities {
-  const BitcoinTransactionPriorities({
+class BitcoinAPITransactionPriorities implements TransactionPriorities {
+  const BitcoinAPITransactionPriorities({
     required this.unimportant,
     required this.normal,
     required this.elevated,
@@ -163,15 +163,15 @@ class BitcoinTransactionPriorities implements TransactionPriorities {
   @override
   int operator [](TransactionPriority type) {
     switch (type) {
-      case BitcoinTransactionPriority.unimportant:
+      case BitcoinAPITransactionPriority.unimportant:
         return unimportant;
-      case BitcoinTransactionPriority.normal:
+      case BitcoinAPITransactionPriority.normal:
         return normal;
-      case BitcoinTransactionPriority.elevated:
+      case BitcoinAPITransactionPriority.elevated:
         return elevated;
-      case BitcoinTransactionPriority.priority:
+      case BitcoinAPITransactionPriority.priority:
         return priority;
-      case BitcoinTransactionPriority.custom:
+      case BitcoinAPITransactionPriority.custom:
         return custom;
       default:
         throw Exception('Unexpected token: $type for TransactionPriorities operator[]');
@@ -182,7 +182,7 @@ class BitcoinTransactionPriorities implements TransactionPriorities {
   String labelWithRate(TransactionPriority priorityType, [int? rate]) {
     late int rateValue;
 
-    if (priorityType == BitcoinTransactionPriority.custom) {
+    if (priorityType == BitcoinAPITransactionPriority.custom) {
       if (rate == null) {
         throw Exception('Rate must be provided for custom transaction priority');
       }
@@ -191,7 +191,7 @@ class BitcoinTransactionPriorities implements TransactionPriorities {
       rateValue = this[priorityType];
     }
 
-    return '${priorityType.toString()} (${rateValue} ${priorityType.units}/byte)';
+    return '${priorityType.toString()} (${rateValue} ${priorityType.getUnits(rateValue)}/byte)';
   }
 
   @override
@@ -205,8 +205,8 @@ class BitcoinTransactionPriorities implements TransactionPriorities {
     };
   }
 
-  static BitcoinTransactionPriorities fromJson(Map<String, dynamic> json) {
-    return BitcoinTransactionPriorities(
+  static BitcoinAPITransactionPriorities fromJson(Map<String, dynamic> json) {
+    return BitcoinAPITransactionPriorities(
       unimportant: json['unimportant'] as int,
       normal: json['normal'] as int,
       elevated: json['elevated'] as int,
@@ -247,7 +247,8 @@ class ElectrumTransactionPriorities implements TransactionPriorities {
 
   @override
   String labelWithRate(TransactionPriority priorityType, [int? rate]) {
-    return '${priorityType.toString()} (${this[priorityType]} ${priorityType.units}/byte)';
+    final rateValue = this[priorityType];
+    return '${priorityType.toString()} ($rateValue ${priorityType.getUnits(rateValue)}/byte)';
   }
 
   factory ElectrumTransactionPriorities.fromList(List<int> list) {
@@ -286,7 +287,7 @@ class ElectrumTransactionPriorities implements TransactionPriorities {
 
 TransactionPriorities deserializeTransactionPriorities(Map<String, dynamic> json) {
   if (json.containsKey('unimportant')) {
-    return BitcoinTransactionPriorities.fromJson(json);
+    return BitcoinAPITransactionPriorities.fromJson(json);
   } else if (json.containsKey('slow')) {
     return ElectrumTransactionPriorities.fromJson(json);
   } else {

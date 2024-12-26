@@ -211,7 +211,7 @@ abstract class TronWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
+  int estimatedFeeForOutputsWithPriority({required TransactionPriority priority}) => 0;
 
   @override
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
