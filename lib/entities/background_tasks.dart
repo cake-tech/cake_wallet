@@ -138,6 +138,8 @@ Future<void> onStart(ServiceInstance service) async {
   service.on('stopService').listen((event) async {
     printV("STOPPING BACKGROUND SERVICE");
     _syncTimer?.cancel();
+    _stuckSyncTimer?.cancel();
+    _queueTimer?.cancel();
     await service.stopSelf();
   });
 
