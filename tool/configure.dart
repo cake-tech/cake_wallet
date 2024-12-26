@@ -242,10 +242,36 @@ abstract class Bitcoin {
   Future<String?> canReplaceByFee(Object wallet, Object tx);
   int getTransactionVSize(Object wallet, String txHex);
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
-  int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
-  int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
-      {int? outputsCount, int? size});
-  int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
+  int getFeeAmountForOutputsWithFeeRate(
+    Object wallet, {
+    required int feeRate,
+    required List<String> inputAddresses,
+    required List<String> outputAddresses,
+    String? memo,
+    bool enableRBF = true,
+  });
+  int getFeeAmountForOutputsWithPriority(
+    Object wallet, {
+    required TransactionPriority priority,
+    required List<String> inputAddresses,
+    required List<String> outputAddresses,
+    String? memo,
+    bool enableRBF = true,
+  });
+  int estimatedFeeForOutputsWithPriority(
+    Object wallet, {
+    required TransactionPriority priority,
+    required String outputAddress,
+    String? memo,
+    bool enableRBF = true,
+  });
+  int estimatedFeeForOutputWithFeeRate(
+    Object wallet, {
+    required int feeRate,
+    required String outputAddress,
+    String? memo,
+    bool enableRBF = true,
+  });
   Future<void> registerSilentPaymentsKey(Object wallet, bool active);
   Future<bool> checkIfMempoolAPIIsEnabled(Object wallet);
   Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled});

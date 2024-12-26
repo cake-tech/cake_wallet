@@ -918,8 +918,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v3
-      resolved-ref: "2c21e53fd652e0aee1ee5fcd891376c10334237b"
+      ref: cake-update-v4
+      resolved-ref: bae6ecb9cd10b80e6c496dc963c26de2aee9751c
       url: "https://github.com/cake-tech/sp_scanner.git"
     source: git
     version: "0.0.1"
