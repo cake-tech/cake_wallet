@@ -302,7 +302,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @action
   @override
-  Future<void> startSync() async {
+  Future<void> startSync({bool isBackgroundSync = false}) async {
     printV("startSync() called!");
     printV("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
     if (!mwebEnabled) {

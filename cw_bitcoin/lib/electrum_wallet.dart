@@ -491,7 +491,7 @@ abstract class ElectrumWalletBase
 
   @action
   @override
-  Future<void> stopSync() async {
+  Future<void> stopSync({bool isBackgroundSync = false}) async {
     syncStatus = NotConnectedSyncStatus();
     try {
       await _receiveStream?.cancel();
