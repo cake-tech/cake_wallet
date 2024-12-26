@@ -216,7 +216,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 45,
+    initialMigrationVersion: 46,
   );
 }
 
