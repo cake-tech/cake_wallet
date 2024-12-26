@@ -10,12 +10,10 @@ class DecredTransactionHistory extends TransactionHistoryBase<TransactionInfo> {
   Future<void> init() async {}
 
   @override
-  void addOne(TransactionInfo transaction) =>
-      transactions[transaction.id] = transaction;
+  void addOne(TransactionInfo transaction) => transactions[transaction.id] = transaction;
 
   @override
-  void addMany(Map<String, TransactionInfo> transactions) =>
-      this.transactions.addAll(transactions);
+  void addMany(Map<String, TransactionInfo> transactions) => this.transactions.addAll(transactions);
 
   @override
   Future<void> save() async {}
@@ -26,8 +24,7 @@ class DecredTransactionHistory extends TransactionHistoryBase<TransactionInfo> {
   bool update(Map<String, TransactionInfo> txs) {
     var foundOldTx = false;
     txs.forEach((_, tx) {
-      if (!this.transactions.containsKey(tx.id) ||
-          this.transactions[tx.id]!.isPending) {
+      if (!this.transactions.containsKey(tx.id) || this.transactions[tx.id]!.isPending) {
         this.transactions[tx.id] = tx;
       } else {
         foundOldTx = true;
