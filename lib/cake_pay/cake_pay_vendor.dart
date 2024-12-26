@@ -45,7 +45,10 @@ class CakePayVendor {
   }
 
   static String fixEncoding(String text) {
-    final bytes = latin1.encode(text);
-    return utf8.decode(bytes, allowMalformed: true);
+    try {
+      return utf8.decode(utf8.encode(text));
+    } catch (e) {
+      return text;
+    }
   }
 }
