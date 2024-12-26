@@ -16,7 +16,6 @@ import 'package:cw_core/wallet_type.dart';
 class BlockchainHeightWidget extends StatefulWidget {
   BlockchainHeightWidget({
     GlobalKey? key,
-    this.type,
     this.onHeightChange,
     this.focusNode,
     this.onHeightOrDateEntered,
@@ -30,7 +29,6 @@ class BlockchainHeightWidget extends StatefulWidget {
     this.blockHeightTextFieldKey,
   }) : super(key: key);
 
-  final WalletType? type;
   final Function(int)? onHeightChange;
   final Function(bool)? onHeightOrDateEntered;
   final FocusNode? focusNode;
@@ -188,7 +186,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
           bitcoinMempoolAPIEnabled: await widget.bitcoinMempoolAPIEnabled,
         );
       } else {
-        if (widget.type == WalletType.decred) {
+        if (widget.walletType == WalletType.decred) {
           height = decred!.heightByDate(date);
         } else if (widget.walletType == WalletType.monero) {
           height = monero!.getHeightByDate(date: date);

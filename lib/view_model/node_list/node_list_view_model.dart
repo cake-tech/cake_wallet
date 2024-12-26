@@ -49,9 +49,6 @@ abstract class NodeListViewModelBase with Store {
 
   Future<void> reset() async {
     await resetToDefault(_nodeSource);
-    final decredNode = getDecredDefaultNode(nodes: _nodeSource)!;
-    final sharedPrefs = getIt.get<SharedPreferences>();
-    await setDefaultDecredNodeKey(sharedPrefs, _nodeSource);
 
     Node node;
 
@@ -94,7 +91,7 @@ abstract class NodeListViewModelBase with Store {
         node = getWowneroDefaultNode(nodes: _nodeSource);
         break;
       case WalletType.decred:
-        node = decredNode;
+        node = getDecredDefaultNode(nodes: _nodeSource)!;
         break;
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');

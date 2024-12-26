@@ -39,8 +39,7 @@ class DecredWalletAddresses extends WalletAddresses {
   Future<void> init() async {}
 
   @override
-  Future<void> updateAddressesInBox() async {}
-
-  @override
-  Future<void> saveAddressesInBox() async {}
+  Future<void> updateAddressesInBox() async {
+    await saveAddressesInBox();
+  }
 }

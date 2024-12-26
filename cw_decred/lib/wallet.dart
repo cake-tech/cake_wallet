@@ -52,13 +52,12 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   // NOTE: Hitting this max fee would be unexpected with current on chain use
   // but this may need to be updated in the future.
   final maxFeeRate = 100000;
+  final syncInterval = 30; // seconds
   static final defaultFeeRate = 10000;
   final String _password;
   final idPrefix = "decred_";
   bool watchingOnly;
   bool connecting = false;
-  int bestHeight = 0;
-  String bestHash = "";
   String persistantPeer = "";
   FeeCache feeRateFast = FeeCache(defaultFeeRate);
   FeeCache feeRateMedium = FeeCache(defaultFeeRate);
@@ -103,10 +102,6 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
     final res = libdcrwallet.bestBlock(walletInfo.name);
     final decoded = json.decode(res);
     final hash = decoded["hash"] ?? "";
-    if (this.bestHash != hash) {
-      this.bestHash = hash;
-      this.bestHeight = decoded["height"] ?? "";
-    }
     updateBalance();
     var from = 0;
     while (true) {
@@ -198,7 +193,7 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   @override
   Future<void> connectToNode({required Node node}) async {
     if (connecting) {
-      throw "decred already connecting";
+      return;
     }
     connecting = true;
     String addr = "";
@@ -235,7 +230,7 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   @override
   Future<void> startSync() async {
     if (connecting) {
-      throw "decred already connecting";
+      return;
     }
     connecting = true;
     await this._startSync();
@@ -252,8 +247,8 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
         name: walletInfo.name,
         peers: persistantPeer,
       );
-      syncTimer = Timer.periodic(
-          Duration(seconds: 5), (Timer t) => performBackgroundTasks());
+      syncTimer = Timer.periodic(Duration(seconds: syncInterval),
+          (Timer t) => performBackgroundTasks());
     } catch (e) {
       print(e.toString());
       syncStatus = FailedSyncStatus();
@@ -272,16 +267,9 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
             throw "unable to send with watching only wallet";
           });
     }
-    final inputs = [];
-    this.unspentCoinsInfo.values.forEach((unspent) {
-      if (unspent.isSending) {
-        final input = {"txid": unspent.hash, "vout": unspent.vout};
-        inputs.add(input);
-      }
-    });
     final ignoreInputs = [];
     this.unspentCoinsInfo.values.forEach((unspent) {
-      if (unspent.isFrozen) {
+      if (unspent.isFrozen || !unspent.isSending) {
         final input = {"txid": unspent.hash, "vout": unspent.vout};
         ignoreInputs.add(input);
       }
@@ -300,8 +288,10 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
       outputs.add(o);
     }
     ;
+    // The inputs are always used. Currently we don't have use for this
+    // argument.
     final signReq = {
-      "inputs": inputs,
+      // "inputs": inputs,
       "ignoreInputs": ignoreInputs,
       "outputs": outputs,
       "feerate": creds.feeRate ?? defaultFeeRate,
@@ -445,8 +435,9 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
     var rescanHeight = 0;
     if (!watchingOnly) {
       rescanHeight = walletBirthdayBlockHeight();
+      // Sync has not yet reached the birthday block.
       if (rescanHeight == -1) {
-        throw "cannot rescan before the birthday block has been set";
+        return;
       }
     }
     libdcrwallet.rescanFromHeight(walletInfo.name, rescanHeight.toString());
@@ -557,6 +548,12 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
 
         if (coinInfoList.isEmpty) {
           this.addCoinInfo(coin);
+        } else {
+          final coinInfo = coinInfoList.first;
+
+          coin.isFrozen = coinInfo.isFrozen;
+          coin.isSending = coinInfo.isSending;
+          coin.note = coinInfo.note;
         }
       });
     }
@@ -581,7 +578,7 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
       walletId: idPrefix + walletInfo.name,
       hash: coin.hash,
       isFrozen: false,
-      isSending: false,
+      isSending: coin.isSending,
       noteRaw: "",
       address: coin.address,
       value: coin.value,
@@ -598,6 +595,8 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance,
   int walletBirthdayBlockHeight() {
     final res = libdcrwallet.birthState(walletInfo.name);
     final decoded = json.decode(res);
+    // Having these values set indicates that sync has not reached the birthday
+    // yet, so no birthday is set.
     if (decoded["setfromheight"] == true || decoded["setfromtime"] == true) {
       return -1;
     }

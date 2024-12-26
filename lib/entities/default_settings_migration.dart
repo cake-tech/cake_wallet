@@ -96,7 +96,6 @@ Future<void> defaultSettingsMigration(
               PreferencesKey.currentBalanceDisplayModeKey, BalanceDisplayMode.availableBalance.raw);
           await sharedPreferences.setBool('save_recipient_address', true);
           await resetToDefault(nodes);
-          await setDefaultDecredNodeKey(sharedPreferences, nodes);
           await changeMoneroCurrentNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
           await changeBitcoinCurrentElectrumServerToDefault(
@@ -349,6 +348,9 @@ Future<void> defaultSettingsMigration(
             type: WalletType.litecoin,
             useSSL: true,
           );
+        case 47:
+          await addDecredNode(nodes: nodes);
+          await setDefaultDecredNodeKey(sharedPreferences, nodes);
           break;
         default:
           break;
@@ -819,6 +821,11 @@ Future<void> rewriteSecureStoragePin({required SecureStorage secureStorage}) asy
   );
 }
 
+Future<void> addDecredNode({required Box<Node> nodes}) async {
+  final node = Node(uri: decredDefaultUri, type: WalletType.decred);
+  await nodes.add(node);
+}
+
 // If "node_list.resetToDefault" is called the old node.key will still be set in
 // preferences. Set it to whatever it is now.
 //
@@ -1285,7 +1292,6 @@ Future<void> checkCurrentNodes(
   }
 
   if (currentDecredNodeServer == null) {
-    final decredMainnetPort = ":9108";
     final node = Node(uri: decredDefaultUri, type: WalletType.decred);
     await nodeSource.add(node);
     await sharedPreferences.setInt(
