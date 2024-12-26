@@ -273,8 +273,6 @@ Future<void> onStart(ServiceInstance service) async {
             await wallet.connectToNode(node: node);
             wallet.startSync();
             printV("STARTED SYNC");
-            // wait a few seconds before checking progress
-            // await Future.delayed(const Duration(seconds: 10));
           }
 
           if (progress > 0.999 || syncStatus is SyncedSyncStatus) {
@@ -322,7 +320,8 @@ Future<void> onStart(ServiceInstance service) async {
           } else if (syncStatus is ConnectingSyncStatus) {
             content = "Connecting";
           } else {
-            throw Exception("sync type not covered");
+            // throw Exception("sync type not covered");
+            content = "Unknown Sync Status ${syncStatus.runtimeType}";
           }
 
           if (syncedTicks > 0) {
