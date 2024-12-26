@@ -42,8 +42,7 @@ class DecredWalletService extends WalletService<
       File(await pathForWallet(name: name, type: getType())).existsSync();
 
   @override
-  Future<DecredWallet> create(DecredNewWalletCredentials credentials,
-      {bool? isTestnet}) async {
+  Future<DecredWallet> create(DecredNewWalletCredentials credentials, {bool? isTestnet}) async {
     await createWalletAsync(
       name: credentials.walletInfo!.name,
       dataDir: credentials.walletInfo!.dirPath,
@@ -52,16 +51,16 @@ class DecredWalletService extends WalletService<
     );
     credentials.walletInfo!.derivationPath =
         isTestnet == true ? seedRestorePathTestnet : seedRestorePath;
-    final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
-        this.unspentCoinsInfoSource);
+    final wallet =
+        DecredWallet(credentials.walletInfo!, credentials.password!, this.unspentCoinsInfoSource);
     await wallet.init();
     return wallet;
   }
 
   @override
   Future<DecredWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values.firstWhereOrNull(
-        (info) => info.id == WalletBase.idFor(name, getType()))!;
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
     final network = walletInfo.derivationPath == seedRestorePathTestnet ||
             walletInfo.derivationPath == pubkeyRestorePathTestnet
         ? testnet
@@ -77,33 +76,28 @@ class DecredWalletService extends WalletService<
       dataDir: walletInfo.dirPath,
       net: network,
     );
-    final wallet =
-        DecredWallet(walletInfo, password, this.unspentCoinsInfoSource);
+    final wallet = DecredWallet(walletInfo, password, this.unspentCoinsInfoSource);
     await wallet.init();
     return wallet;
   }
 
   @override
   Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType()))
-        .delete(recursive: true);
-    final walletInfo = walletInfoSource.values.firstWhereOrNull(
-        (info) => info.id == WalletBase.idFor(wallet, getType()))!;
+    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
   }
 
   @override
-  Future<void> rename(
-      String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values.firstWhereOrNull(
-        (info) => info.id == WalletBase.idFor(currentName, getType()))!;
-    final network =
-        currentWalletInfo.derivationPath == seedRestorePathTestnet ||
-                currentWalletInfo.derivationPath == pubkeyRestorePathTestnet
-            ? testnet
-            : mainnet;
-    final currentWallet =
-        DecredWallet(currentWalletInfo, password, this.unspentCoinsInfoSource);
+  Future<void> rename(String currentName, String password, String newName) async {
+    final currentWalletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
+    final network = currentWalletInfo.derivationPath == seedRestorePathTestnet ||
+            currentWalletInfo.derivationPath == pubkeyRestorePathTestnet
+        ? testnet
+        : mainnet;
+    final currentWallet = DecredWallet(currentWalletInfo, password, this.unspentCoinsInfoSource);
 
     await currentWallet.renameWalletFiles(newName);
 
@@ -118,8 +112,7 @@ class DecredWalletService extends WalletService<
   }
 
   @override
-  Future<DecredWallet> restoreFromSeed(
-      DecredRestoreWalletFromSeedCredentials credentials,
+  Future<DecredWallet> restoreFromSeed(DecredRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
     await createWalletAsync(
         name: credentials.walletInfo!.name,
@@ -129,8 +122,8 @@ class DecredWalletService extends WalletService<
         network: isTestnet == true ? testnet : mainnet);
     credentials.walletInfo!.derivationPath =
         isTestnet == true ? seedRestorePathTestnet : seedRestorePath;
-    final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
-        this.unspentCoinsInfoSource);
+    final wallet =
+        DecredWallet(credentials.walletInfo!, credentials.password!, this.unspentCoinsInfoSource);
     await wallet.init();
     return wallet;
   }
@@ -138,8 +131,7 @@ class DecredWalletService extends WalletService<
   // restoreFromKeys only supports restoring a watch only wallet from an account
   // pubkey.
   @override
-  Future<DecredWallet> restoreFromKeys(
-      DecredRestoreWalletFromPubkeyCredentials credentials,
+  Future<DecredWallet> restoreFromKeys(DecredRestoreWalletFromPubkeyCredentials credentials,
       {bool? isTestnet}) async {
     createWatchOnlyWallet(
       credentials.walletInfo!.name,
@@ -149,8 +141,8 @@ class DecredWalletService extends WalletService<
     );
     credentials.walletInfo!.derivationPath =
         isTestnet == true ? pubkeyRestorePathTestnet : pubkeyRestorePath;
-    final wallet = DecredWallet(credentials.walletInfo!, credentials.password!,
-        this.unspentCoinsInfoSource);
+    final wallet =
+        DecredWallet(credentials.walletInfo!, credentials.password!, this.unspentCoinsInfoSource);
     await wallet.init();
     return wallet;
   }

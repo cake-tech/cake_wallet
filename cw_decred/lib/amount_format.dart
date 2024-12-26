@@ -7,8 +7,8 @@ final decredAmountFormat = NumberFormat()
   ..maximumFractionDigits = decredAmountLength
   ..minimumFractionDigits = 1;
 
-String decredAmountToString({required int amount}) => decredAmountFormat
-    .format(cryptoAmountToDouble(amount: amount, divider: decredAmountDivider));
+String decredAmountToString({required int amount}) =>
+    decredAmountFormat.format(cryptoAmountToDouble(amount: amount, divider: decredAmountDivider));
 
 double decredAmountToDouble({required int amount}) =>
     cryptoAmountToDouble(amount: amount, divider: decredAmountDivider);

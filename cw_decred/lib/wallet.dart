@@ -40,10 +40,8 @@ abstract class DecredWalletBase
         this.watchingOnly = walletInfo.derivationPath == DecredWalletService.pubkeyRestorePath ||
             walletInfo.derivationPath == DecredWalletService.pubkeyRestorePathTestnet,
         this.balance = ObservableMap.of({CryptoCurrency.dcr: DecredBalance.zero()}),
-        this.isTestnet = walletInfo.derivationPath ==
-                DecredWalletService.seedRestorePathTestnet ||
-            walletInfo.derivationPath ==
-                DecredWalletService.pubkeyRestorePathTestnet,
+        this.isTestnet = walletInfo.derivationPath == DecredWalletService.seedRestorePathTestnet ||
+            walletInfo.derivationPath == DecredWalletService.pubkeyRestorePathTestnet,
         super(walletInfo) {
     walletAddresses = DecredWalletAddresses(walletInfo);
     transactionHistory = DecredTransactionHistory();
@@ -52,10 +50,15 @@ abstract class DecredWalletBase
   // NOTE: Hitting this max fee would be unexpected with current on chain use
   // but this may need to be updated in the future.
   final maxFeeRate = 100000;
-  final syncInterval = 5; // seconds
+  // syncIntervalSyncing is used up until synced, then transactions are checked
+  // every syncIntervalSynced.
+  final syncIntervalSyncing = 5; // seconds
+  final syncIntervalSynced = 30; // seconds
   static final defaultFeeRate = 10000;
   final String _password;
   final idPrefix = "decred_";
+  // synced is used to set the syncTimer interval.
+  bool synced = false;
   bool watchingOnly;
   bool connecting = false;
   String persistantPeer = "";
@@ -104,12 +107,29 @@ abstract class DecredWalletBase
 
   void performBackgroundTasks() async {
     if (!checkSync()) {
+      if (synced == true) {
+        synced = false;
+        if (syncTimer != null) {
+          syncTimer!.cancel();
+        }
+        syncTimer = Timer.periodic(
+            Duration(seconds: syncIntervalSyncing), (Timer t) => performBackgroundTasks());
+      }
       return;
     }
-    // final res = libdcrwallet.bestBlock(walletInfo.name);
-    // final decoded = json.decode(res);
-    // final hash = decoded["hash"] ?? "";
     updateBalance();
+    walletAddresses.updateAddressesInBox();
+    // Set sync check interval lower since we are synced.
+    if (synced == false) {
+      synced = true;
+      if (syncTimer != null) {
+        syncTimer!.cancel();
+      }
+      syncTimer = Timer.periodic(
+          Duration(seconds: syncIntervalSynced), (Timer t) => performBackgroundTasks());
+    }
+    // from is the number of transactions skipped from most recent, not block
+    // height.
     var from = 0;
     while (true) {
       // Transactions are returned from newest to oldest. Loop fetching 5 txn
@@ -248,8 +268,8 @@ abstract class DecredWalletBase
         name: walletInfo.name,
         peers: persistantPeer,
       );
-      syncTimer =
-          Timer.periodic(Duration(seconds: syncInterval), (Timer t) => performBackgroundTasks());
+      syncTimer = Timer.periodic(
+          Duration(seconds: syncIntervalSyncing), (Timer t) => performBackgroundTasks());
     } catch (e) {
       printV(e.toString());
       syncStatus = FailedSyncStatus();
@@ -298,7 +318,7 @@ abstract class DecredWalletBase
       totalAmt += amt;
       final o = {
         "address": out.isParsedAddress ? out.extractedAddress! : out.address,
-        "amount": amt,
+        "amount": amt
       };
       outputs.add(o);
     }
@@ -507,9 +527,9 @@ abstract class DecredWalletBase
     }
     var addr = address;
     if (addr == null) {
-      addr = libdcrwallet.currentReceiveAddress(walletInfo.name);
+      addr = walletAddresses.address;
     }
-    if (addr == null) {
+    if (addr == "") {
       throw "unable to get an address from unsynced wallet";
     }
     return libdcrwallet.signMessageAsync(walletInfo.name, message, addr, _password);

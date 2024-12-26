@@ -82,6 +82,11 @@ class CWDecred extends Decred {
     return decredWallet.walletAddresses.addresses();
   }
 
+  List<AddressInfo> getAddressInfos(Object wallet) {
+    final decredWallet = wallet as DecredWallet;
+    return decredWallet.walletAddresses.getAddressInfos();
+  }
+
   @override
   String getAddress(Object wallet) {
     final decredWallet = wallet as DecredWallet;
@@ -92,6 +97,13 @@ class CWDecred extends Decred {
   Future<void> generateNewAddress(Object wallet) async {
     final decredWallet = wallet as DecredWallet;
     await decredWallet.walletAddresses.generateNewAddress();
+  }
+
+  @override
+  Future<void> updateAddress(
+      Object wallet, String address, String label) async {
+    final decredWallet = wallet as DecredWallet;
+    await decredWallet.walletAddresses.updateAddress(address, label);
   }
 
   @override
