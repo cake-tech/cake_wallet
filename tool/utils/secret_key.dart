@@ -30,7 +30,6 @@ class SecretKey {
     SecretKey('twitterBearerToken', () => ''),
     SecretKey('anonPayReferralCode', () => ''),
     SecretKey('fiatApiKey', () => ''),
-    SecretKey('payfuraApiKey', () => ''),
     SecretKey('chatwootWebsiteToken', () => ''),
     SecretKey('exolixApiKey', () => ''),
     SecretKey('robinhoodApplicationId', () => ''),
