@@ -474,6 +474,10 @@ Future<void> initializeService(FlutterBackgroundService bgService, bool useNotif
         "${notificationChannelName}_$i",
         description: notificationChannelDescription,
         importance: Importance.min,
+        playSound: false,
+        showBadge: false,
+        enableVibration: false,
+        enableLights: false,
       );
       await flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
