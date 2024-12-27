@@ -47,7 +47,11 @@ class TransactionInputNotSupported implements Exception {}
 
 class SignNativeTokenTransactionRentException implements Exception {}
 
-class CreateAssociatedTokenAccountException implements Exception {}
+class CreateAssociatedTokenAccountException implements Exception {
+  final String errorMessage;
+
+  CreateAssociatedTokenAccountException(this.errorMessage);
+}
 
 class SignSPLTokenTransactionRentException implements Exception {}
 

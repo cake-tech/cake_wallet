@@ -1,3 +1,5 @@
+import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
+
 class EVMTransactionErrorFeesHandler {
   EVMTransactionErrorFeesHandler({
     this.balanceWei,
@@ -64,14 +66,14 @@ class EVMTransactionErrorFeesHandler {
 
       return EVMTransactionErrorFeesHandler(
         balanceWei: balanceWei.toString(),
-        balanceEth: balanceEth.toString().substring(0, 12),
-        balanceUsd: balanceUsd.toString().substring(0, 4),
+        balanceEth: balanceEth.toString().safeSubString(0, 12),
+        balanceUsd: balanceUsd.toString().safeSubString(0, 4),
         txCostWei: txCostWei.toString(),
-        txCostEth: txCostEth.toString().substring(0, 12),
-        txCostUsd: txCostUsd.toString().substring(0, 4),
+        txCostEth: txCostEth.toString().safeSubString(0, 12),
+        txCostUsd: txCostUsd.toString().safeSubString(0, 4),
         overshotWei: overshotWei.toString(),
-        overshotEth: overshotEth.toString().substring(0, 12),
-        overshotUsd: overshotUsd.toString().substring(0, 4),
+        overshotEth: overshotEth.toString().safeSubString(0, 12),
+        overshotUsd: overshotUsd.toString().safeSubString(0, 4),
       );
     } else {
       // If any value is missing, return an error message
