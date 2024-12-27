@@ -171,8 +171,8 @@ jobs:
          echo "const trocadorExchangeMarkup = '${{ secrets.TROCADOR_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
          echo "const anonPayReferralCode = '${{ secrets.ANON_PAY_REFERRAL_CODE }}';" >> lib/.secrets.g.dart
          echo "const fiatApiKey = '${{ secrets.FIAT_API_KEY }}';" >> lib/.secrets.g.dart
-         echo "const payfuraApiKey = '${{ secrets.PAYFURA_API_KEY }}';" >> lib/.secrets.g.dart
          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> lib/.secrets.g.dart
+         echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> lib/.secrets.g.dart
          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> lib/.secrets.g.dart
          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> lib/.secrets.g.dart
          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
@@ -185,6 +185,7 @@ jobs:
          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+         echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
          echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
          echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
          echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart

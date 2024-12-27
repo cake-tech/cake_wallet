@@ -204,8 +204,8 @@ class CakePayApi {
   /// Get Vendors
   Future<List<CakePayVendor>> getVendors({
     required String apiKey,
+    required String country,
     int? page,
-    String? country,
     String? countryCode,
     String? search,
     List<String>? vendorIds,
@@ -247,7 +247,7 @@ class CakePayApi {
     }
 
     return (bodyJson['results'] as List)
-        .map((e) => CakePayVendor.fromJson(e as Map<String, dynamic>))
+        .map((e) => CakePayVendor.fromJson(e as Map<String, dynamic>, country))
         .toList();
   }
 }

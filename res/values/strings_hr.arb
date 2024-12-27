@@ -330,6 +330,7 @@
   "freeze": "Zamrznuti",
   "frequently_asked_questions": "Često postavljana pitanja",
   "frozen": "Smrznuto",
+  "frozen_balance": "Smrznuta ravnoteža",
   "full_balance": "Pun iznos",
   "gas_exceeds_allowance": "Plin potreban transakcijom premašuje dodatak.",
   "generate_name": "Generiraj ime",

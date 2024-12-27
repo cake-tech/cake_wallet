@@ -330,6 +330,7 @@
   "freeze": "تجميد",
   "frequently_asked_questions": "الأسئلة الشائعة",
   "frozen": "مجمدة",
+  "frozen_balance": "التوازن المجمد",
   "full_balance": "الرصيد الكامل",
   "gas_exceeds_allowance": "الغاز المطلوب بالمعاملة يتجاوز البدل.",
   "generate_name": "توليد الاسم",
