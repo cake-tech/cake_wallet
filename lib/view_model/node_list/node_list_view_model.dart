@@ -8,6 +8,8 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cw_core/wallet_type.dart';
 
 part 'node_list_view_model.g.dart';
@@ -87,6 +89,9 @@ abstract class NodeListViewModelBase with Store {
         break;
       case WalletType.wownero:
         node = getWowneroDefaultNode(nodes: _nodeSource);
+        break;
+      case WalletType.decred:
+        node = getDecredDefaultNode(nodes: _nodeSource)!;
         break;
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');
