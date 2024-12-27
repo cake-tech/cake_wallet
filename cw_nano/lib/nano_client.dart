@@ -116,7 +116,7 @@ class NanoClient {
     try {
       final response = await http.post(
         _node!.uri,
-        headers: CAKE_HEADERS,
+        headers: getHeaders(),
         body: jsonEncode(
           {
             "action": "block_info",
@@ -517,7 +517,7 @@ class NanoClient {
   Future<List<N2Node>> getN2Reps() async {
     final response = await http.post(
       Uri.parse(N2_REPS_ENDPOINT),
-      headers: CAKE_HEADERS,
+      headers: getHeaders(),
       body: jsonEncode({"action": "reps"}),
     );
     try {
@@ -533,7 +533,7 @@ class NanoClient {
   Future<int> getRepScore(String rep) async {
     final response = await http.post(
       Uri.parse(N2_REPS_ENDPOINT),
-      headers: CAKE_HEADERS,
+      headers: getHeaders(),
       body: jsonEncode({
         "action": "rep_info",
         "account": rep,
