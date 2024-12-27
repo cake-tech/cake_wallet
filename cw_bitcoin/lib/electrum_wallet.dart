@@ -508,6 +508,10 @@ abstract class ElectrumWalletBase
         }
         _feeRates = [slowFee, mediumFee, fastFee];
         return;
+      } on TimeoutException catch (e) {
+        syncStatus = LostConnectionSyncStatus();
+        printV('TimeoutException in updateFeeRates: $e');
+        return;
       } catch (e) {
         printV(e);
       }
