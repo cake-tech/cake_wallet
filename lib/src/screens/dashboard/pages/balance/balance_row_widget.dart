@@ -77,11 +77,12 @@ class BalanceRowWidget extends StatelessWidget {
             color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
             boxShadow: [
               BoxShadow(
-                  color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
+                  color: Theme.of(context)
+                      .extension<BalancePageTheme>()!
+                      .cardBorderColor
                       .withAlpha(50),
                   spreadRadius: 3,
-                  blurRadius: 7
-              )
+                  blurRadius: 7)
             ],
           ),
           child: Container(
@@ -102,7 +103,7 @@ class BalanceRowWidget extends StatelessWidget {
                             behavior: HitTestBehavior.opaque,
                             onTap: hasAdditionalBalance
                                 ? () => _showBalanceDescription(
-                                context, S.of(context).available_balance_description)
+                                    context, S.of(context).available_balance_description)
                                 : null,
                             child: Row(
                               children: [
@@ -152,7 +153,7 @@ class BalanceRowWidget extends StatelessWidget {
                                     fontFamily: 'Lato',
                                     fontWeight: FontWeight.w400,
                                     color:
-                                    Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                        Theme.of(context).extension<BalancePageTheme>()!.textColor,
                                     height: 1)),
                           if (!isTestnet)
                             Text('${availableFiatBalance}',
@@ -162,7 +163,7 @@ class BalanceRowWidget extends StatelessWidget {
                                     fontFamily: 'Lato',
                                     fontWeight: FontWeight.w500,
                                     color:
-                                    Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                        Theme.of(context).extension<BalancePageTheme>()!.textColor,
                                     height: 1)),
                         ],
                       ),
@@ -215,7 +216,7 @@ class BalanceRowWidget extends StatelessWidget {
                     behavior: HitTestBehavior.opaque,
                     onTap: hasAdditionalBalance
                         ? () => _showBalanceDescription(
-                        context, S.of(context).unavailable_balance_description)
+                            context, S.of(context).unavailable_balance_description)
                         : null,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,7 +232,7 @@ class BalanceRowWidget extends StatelessWidget {
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w400,
                                 color:
-                                Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                                    Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                                 height: 1,
                               ),
                             ),
@@ -253,7 +254,7 @@ class BalanceRowWidget extends StatelessWidget {
                             fontFamily: 'Lato',
                             fontWeight: FontWeight.w400,
                             color:
-                            Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
+                                Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
                             height: 1,
                           ),
                           maxLines: 1,
@@ -339,11 +340,12 @@ class BalanceRowWidget extends StatelessWidget {
               color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
               boxShadow: [
                 BoxShadow(
-                    color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
+                    color: Theme.of(context)
+                        .extension<BalancePageTheme>()!
+                        .cardBorderColor
                         .withAlpha(50),
                     spreadRadius: 3,
-                    blurRadius: 7
-                )
+                    blurRadius: 7)
               ],
             ),
             child: Container(
@@ -541,7 +543,7 @@ class BalanceRowWidget extends StatelessWidget {
                               child: OutlinedButton(
                                 onPressed: () {
                                   final mwebAddress =
-                                  bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
+                                      bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
                                   PaymentRequest? paymentRequest = null;
                                   if ((mwebAddress?.isNotEmpty ?? false)) {
                                     paymentRequest = PaymentRequest.fromUri(
@@ -599,7 +601,7 @@ class BalanceRowWidget extends StatelessWidget {
                               child: OutlinedButton(
                                 onPressed: () {
                                   final litecoinAddress =
-                                  bitcoin!.getUnusedSegwitAddress(dashboardViewModel.wallet);
+                                      bitcoin!.getUnusedSegwitAddress(dashboardViewModel.wallet);
                                   PaymentRequest? paymentRequest = null;
                                   if ((litecoinAddress?.isNotEmpty ?? false)) {
                                     paymentRequest = PaymentRequest.fromUri(

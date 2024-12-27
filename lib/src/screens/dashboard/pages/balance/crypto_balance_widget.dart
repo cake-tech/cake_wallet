@@ -63,63 +63,63 @@ class CryptoBalanceWidget extends StatelessWidget {
           Observer(
               builder: (_) => dashboardViewModel.balanceViewModel.hasAccounts
                   ? HomeScreenAccountWidget(
-                  walletName: dashboardViewModel.name, accountName: dashboardViewModel.subname)
+                      walletName: dashboardViewModel.name, accountName: dashboardViewModel.subname)
                   : Column(
-                children: [
-                  SizedBox(height: 16),
-                  Container(
-                    margin: const EdgeInsets.only(left: 24, bottom: 16),
-                    child: Observer(
-                      builder: (_) {
-                        return Row(
-                          children: [
-                            Text(
-                              dashboardViewModel.balanceViewModel.asset,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontFamily: 'Lato',
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context)
-                                    .extension<DashboardPageTheme>()!
-                                    .pageTitleTextColor,
-                                height: 1,
-                              ),
-                              maxLines: 1,
-                              textAlign: TextAlign.center,
-                            ),
-                            if (dashboardViewModel.wallet.isHardwareWallet)
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Image.asset(
-                                  'assets/images/hardware_wallet/ledger_nano_x.png',
-                                  width: 24,
-                                  color: Theme.of(context)
-                                      .extension<DashboardPageTheme>()!
-                                      .pageTitleTextColor,
-                                ),
-                              ),
-                            if (dashboardViewModel
-                                .balanceViewModel.isHomeScreenSettingsEnabled)
-                              InkWell(
-                                onTap: () => Navigator.pushNamed(context, Routes.homeSettings,
-                                    arguments: dashboardViewModel.balanceViewModel),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Image.asset(
-                                    'assets/images/home_screen_settings_icon.png',
-                                    color: Theme.of(context)
-                                        .extension<DashboardPageTheme>()!
-                                        .pageTitleTextColor,
+                      children: [
+                        SizedBox(height: 16),
+                        Container(
+                          margin: const EdgeInsets.only(left: 24, bottom: 16),
+                          child: Observer(
+                            builder: (_) {
+                              return Row(
+                                children: [
+                                  Text(
+                                    dashboardViewModel.balanceViewModel.asset,
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontFamily: 'Lato',
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context)
+                                          .extension<DashboardPageTheme>()!
+                                          .pageTitleTextColor,
+                                      height: 1,
+                                    ),
+                                    maxLines: 1,
+                                    textAlign: TextAlign.center,
                                   ),
-                                ),
-                              ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              )),
+                                  if (dashboardViewModel.wallet.isHardwareWallet)
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Image.asset(
+                                        'assets/images/hardware_wallet/ledger_nano_x.png',
+                                        width: 24,
+                                        color: Theme.of(context)
+                                            .extension<DashboardPageTheme>()!
+                                            .pageTitleTextColor,
+                                      ),
+                                    ),
+                                  if (dashboardViewModel
+                                      .balanceViewModel.isHomeScreenSettingsEnabled)
+                                    InkWell(
+                                      onTap: () => Navigator.pushNamed(context, Routes.homeSettings,
+                                          arguments: dashboardViewModel.balanceViewModel),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Image.asset(
+                                          'assets/images/home_screen_settings_icon.png',
+                                          color: Theme.of(context)
+                                              .extension<DashboardPageTheme>()!
+                                              .pageTitleTextColor,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    )),
           Observer(
             builder: (_) {
               if (dashboardViewModel.balanceViewModel.isShowCard && FeatureFlag.isCakePayEnabled) {
@@ -157,35 +157,35 @@ class CryptoBalanceWidget extends StatelessWidget {
                 itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length,
                 itemBuilder: (__, index) {
                   final balance =
-                  dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index);
+                      dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index);
                   return Observer(builder: (_) {
                     return BalanceRowWidget(
                       dashboardViewModel: dashboardViewModel,
                       availableBalanceLabel:
-                      '${dashboardViewModel.balanceViewModel.availableBalanceLabel}',
+                          '${dashboardViewModel.balanceViewModel.availableBalanceLabel}',
                       availableBalance: balance.availableBalance,
                       availableFiatBalance: balance.fiatAvailableBalance,
                       additionalBalanceLabel:
-                      '${dashboardViewModel.balanceViewModel.additionalBalanceLabel}',
+                          '${dashboardViewModel.balanceViewModel.additionalBalanceLabel}',
                       additionalBalance: balance.additionalBalance,
                       additionalFiatBalance: balance.fiatAdditionalBalance,
                       frozenBalance: balance.frozenBalance,
                       frozenFiatBalance: balance.fiatFrozenBalance,
                       currency: balance.asset,
                       hasAdditionalBalance:
-                      dashboardViewModel.balanceViewModel.hasAdditionalBalance,
+                          dashboardViewModel.balanceViewModel.hasAdditionalBalance,
                       hasSecondAdditionalBalance:
-                      dashboardViewModel.balanceViewModel.hasSecondAdditionalBalance,
+                          dashboardViewModel.balanceViewModel.hasSecondAdditionalBalance,
                       hasSecondAvailableBalance:
-                      dashboardViewModel.balanceViewModel.hasSecondAvailableBalance,
+                          dashboardViewModel.balanceViewModel.hasSecondAvailableBalance,
                       secondAdditionalBalance: balance.secondAdditionalBalance,
                       secondAdditionalFiatBalance: balance.fiatSecondAdditionalBalance,
                       secondAvailableBalance: balance.secondAvailableBalance,
                       secondAvailableFiatBalance: balance.fiatSecondAvailableBalance,
                       secondAdditionalBalanceLabel:
-                      '${dashboardViewModel.balanceViewModel.secondAdditionalBalanceLabel}',
+                          '${dashboardViewModel.balanceViewModel.secondAdditionalBalanceLabel}',
                       secondAvailableBalanceLabel:
-                      '${dashboardViewModel.balanceViewModel.secondAvailableBalanceLabel}',
+                          '${dashboardViewModel.balanceViewModel.secondAvailableBalanceLabel}',
                       isTestnet: dashboardViewModel.isTestnet,
                     );
                   });
@@ -272,7 +272,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                       icon: Icon(
                         Icons.lock,
                         color:
-                        Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                            Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                         size: 50,
                       ),
                     ),
@@ -304,7 +304,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w400,
                                 color:
-                                Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                                    Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                                 height: 1,
                               ),
                               softWrap: true,
@@ -379,19 +379,19 @@ class CryptoBalanceWidget extends StatelessWidget {
       return showPopUp<void>(
           context: context,
           builder: (BuildContext context) => AlertWithTwoActions(
-            alertTitle: S.of(context).change_current_node_title,
-            alertContent: S.of(context).confirm_silent_payments_switch_node,
-            rightButtonText: S.of(context).confirm,
-            leftButtonText: S.of(context).cancel,
-            actionRightButton: () {
-              dashboardViewModel.setSilentPaymentsScanning(newValue);
-              Navigator.of(context).pop();
-            },
-            actionLeftButton: () {
-              dashboardViewModel.silentPaymentsScanningActive = isSilentPaymentsScanningActive;
-              Navigator.of(context).pop();
-            },
-          ));
+                alertTitle: S.of(context).change_current_node_title,
+                alertContent: S.of(context).confirm_silent_payments_switch_node,
+                rightButtonText: S.of(context).confirm,
+                leftButtonText: S.of(context).cancel,
+                actionRightButton: () {
+                  dashboardViewModel.setSilentPaymentsScanning(newValue);
+                  Navigator.of(context).pop();
+                },
+                actionLeftButton: () {
+                  dashboardViewModel.silentPaymentsScanningActive = isSilentPaymentsScanningActive;
+                  Navigator.of(context).pop();
+                },
+              ));
     }
 
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
@@ -402,13 +402,13 @@ class CryptoBalanceWidget extends StatelessWidget {
       await showPopUp<void>(
           context: context,
           builder: (BuildContext context) => AlertWithOneAction(
-            alertTitle: S.of(context).alert_notice,
-            alertContent: S.of(context).litecoin_mweb_warning,
-            buttonText: S.of(context).understand,
-            buttonAction: () {
-              Navigator.of(context).pop();
-            },
-          ));
+                alertTitle: S.of(context).alert_notice,
+                alertContent: S.of(context).litecoin_mweb_warning,
+                buttonText: S.of(context).understand,
+                buttonAction: () {
+                  Navigator.of(context).pop();
+                },
+              ));
     }
     dashboardViewModel.setMwebEnabled();
   }
@@ -417,13 +417,13 @@ class CryptoBalanceWidget extends StatelessWidget {
     await showPopUp<void>(
         context: context,
         builder: (BuildContext context) => AlertWithOneAction(
-          alertTitle: S.of(context).alert_notice,
-          alertContent: S.of(context).litecoin_mweb_enable_later,
-          buttonText: S.of(context).understand,
-          buttonAction: () {
-            Navigator.of(context).pop();
-          },
-        ));
+              alertTitle: S.of(context).alert_notice,
+              alertContent: S.of(context).litecoin_mweb_enable_later,
+              buttonText: S.of(context).understand,
+              buttonAction: () {
+                Navigator.of(context).pop();
+              },
+            ));
     dashboardViewModel.dismissMweb();
   }
 }

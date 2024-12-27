@@ -42,7 +42,7 @@ class BalancePage extends StatelessWidget {
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
                         color:
-                        Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                            Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                         height: 1,
                       ),
                       unselectedLabelStyle: TextStyle(
@@ -50,14 +50,14 @@ class BalancePage extends StatelessWidget {
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
                         color:
-                        Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                            Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                         height: 1,
                       ),
                       labelColor:
-                      Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                       dividerColor: Colors.transparent,
                       indicatorColor:
-                      Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
                       unselectedLabelColor: Theme.of(context)
                           .extension<DashboardPageTheme>()!
                           .pageTitleTextColor
