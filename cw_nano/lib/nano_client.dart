@@ -509,8 +509,8 @@ class NanoClient {
           .map<NanoTransactionModel>((transaction) => NanoTransactionModel.fromJson(transaction))
           .toList();
     } catch (e) {
-      printV(e);
-      return [];
+      printV("error fetching transactions: $e");
+      rethrow;
     }
   }
 
