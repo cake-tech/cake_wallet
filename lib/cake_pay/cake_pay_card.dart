@@ -81,7 +81,11 @@ class CakePayCard {
   }
 
   static String fixEncoding(String text) {
-    final bytes = latin1.encode(text);
-    return utf8.decode(bytes, allowMalformed: true);
+    try {
+      final bytes = latin1.encode(text);
+      return utf8.decode(bytes, allowMalformed: true);
+    } catch (_) {
+      return text;
+    }
   }
 }

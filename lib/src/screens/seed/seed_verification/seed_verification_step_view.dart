@@ -70,8 +70,10 @@ class SeedVerificationStepView extends StatelessWidget {
                     (option) {
                       return GestureDetector(
                         onTap: () async {
+                          if (walletSeedViewModel.wrongEntries > 2) return;
+
                           final isCorrectWord = walletSeedViewModel.isChosenWordCorrect(option);
-                          final isSecondWrongEntry = walletSeedViewModel.wrongEntries == 2;
+                          final isSecondWrongEntry = walletSeedViewModel.wrongEntries >= 2;
                           if (!isCorrectWord) {
                             await showBar<void>(
                               context,
@@ -81,7 +83,9 @@ class SeedVerificationStepView extends StatelessWidget {
                             );
 
                             if (isSecondWrongEntry) {
-                              Navigator.pop(context);
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                              }
                             }
                           }
                         },
