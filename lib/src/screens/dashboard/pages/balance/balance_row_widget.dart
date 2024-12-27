@@ -62,14 +62,6 @@ class BalanceRowWidget extends StatelessWidget {
   final bool isTestnet;
   final DashboardViewModel dashboardViewModel;
 
-  // void _showBalanceDescription(BuildContext context) {
-  //   showPopUp<void>(
-  //     context: context,
-  //     builder: (_) =>
-  //         InformationPage(information: S.of(context).available_balance_description),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -104,73 +96,66 @@ class BalanceRowWidget extends StatelessWidget {
                                 ? () => _showBalanceDescription(
                                     context, S.of(context).available_balance_description)
                                 : null,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            child: Row(
                               children: [
-                                Row(
-                                  children: [
-                                    Semantics(
-                                      hint: 'Double tap to see more information',
-                                      container: true,
-                                      child: Text('${availableBalanceLabel}',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              fontFamily: 'Lato',
-                                              fontWeight: FontWeight.w400,
-                                              color: Theme.of(context)
-                                                  .extension<BalancePageTheme>()!
-                                                  .labelTextColor,
-                                              height: 1)),
-                                    ),
-                                    if (hasAdditionalBalance)
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                                        child: Icon(Icons.help_outline,
-                                            size: 16,
-                                            color: Theme.of(context)
-                                                .extension<BalancePageTheme>()!
-                                                .labelTextColor),
-                                      ),
-                                  ],
-                                ),
-                                SizedBox(height: 6),
-                                AutoSizeText(availableBalance,
-                                    style: TextStyle(
-                                        fontSize: 24,
-                                        fontFamily: 'Lato',
-                                        fontWeight: FontWeight.w900,
-                                        color: Theme.of(context)
-                                            .extension<BalancePageTheme>()!
-                                            .balanceAmountColor,
-                                        height: 1),
-                                    maxLines: 1,
-                                    textAlign: TextAlign.start),
-                                SizedBox(height: 6),
-                                if (isTestnet)
-                                  Text(S.current.testnet_coins_no_value,
-                                      textAlign: TextAlign.center,
+                                Semantics(
+                                  hint: 'Double tap to see more information',
+                                  container: true,
+                                  child: Text('${availableBalanceLabel}',
                                       style: TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 12,
                                           fontFamily: 'Lato',
                                           fontWeight: FontWeight.w400,
                                           color: Theme.of(context)
                                               .extension<BalancePageTheme>()!
-                                              .textColor,
+                                              .labelTextColor,
                                           height: 1)),
-                                if (!isTestnet)
-                                  Text('${availableFiatBalance}',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontFamily: 'Lato',
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(context)
-                                              .extension<BalancePageTheme>()!
-                                              .textColor,
-                                          height: 1)),
+                                ),
+                                if (hasAdditionalBalance)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    child: Icon(Icons.help_outline,
+                                        size: 16,
+                                        color: Theme.of(context)
+                                            .extension<BalancePageTheme>()!
+                                            .labelTextColor),
+                                  ),
                               ],
                             ),
                           ),
+                          SizedBox(height: 6),
+                          AutoSizeText(availableBalance,
+                              style: TextStyle(
+                                  fontSize: 24,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w900,
+                                  color: Theme.of(context)
+                                      .extension<BalancePageTheme>()!
+                                      .balanceAmountColor,
+                                  height: 1),
+                              maxLines: 1,
+                              textAlign: TextAlign.start),
+                          SizedBox(height: 6),
+                          if (isTestnet)
+                            Text(S.of(context).testnet_coins_no_value,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w400,
+                                    color:
+                                        Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                    height: 1)),
+                          if (!isTestnet)
+                            Text('${availableFiatBalance}',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.w500,
+                                    color:
+                                        Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                    height: 1)),
                         ],
                       ),
                       SizedBox(
@@ -231,7 +216,7 @@ class BalanceRowWidget extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              S.of(context).frozen_balance,
+                              S.of(context).unavailable_balance,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 12,
@@ -358,14 +343,10 @@ class BalanceRowWidget extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               Container(
-                                padding: EdgeInsets.only(right: 16, top: 16),
+                                padding: EdgeInsets.only(right: 16, top: 0),
                                 child: Column(
                                   children: [
                                     Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
                                       child: ImageIcon(
                                         AssetImage('assets/images/mweb_logo.png'),
                                         color: Theme.of(context)
@@ -403,8 +384,8 @@ class BalanceRowWidget extends StatelessWidget {
                                     GestureDetector(
                                       behavior: HitTestBehavior.opaque,
                                       onTap: () => launchUrl(
-                                         Uri.parse(
-                                        "https://docs.cakewallet.com/cryptos/litecoin.html#mweb"),
+                                        Uri.parse(
+                                            "https://docs.cakewallet.com/cryptos/litecoin.html#mweb"),
                                         mode: LaunchMode.externalApplication,
                                       ),
                                       child: Row(
@@ -437,9 +418,9 @@ class BalanceRowWidget extends StatelessWidget {
                                     AutoSizeText(
                                       secondAvailableBalance,
                                       style: TextStyle(
-                                        fontSize: 20,
+                                        fontSize: 24,
                                         fontFamily: 'Lato',
-                                        fontWeight: FontWeight.w400,
+                                        fontWeight: FontWeight.w900,
                                         color: Theme.of(context)
                                             .extension<BalancePageTheme>()!
                                             .assetTitleColor,
@@ -454,9 +435,9 @@ class BalanceRowWidget extends StatelessWidget {
                                         '${secondAvailableFiatBalance}',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
-                                          fontSize: 12,
+                                          fontSize: 16,
                                           fontFamily: 'Lato',
-                                          fontWeight: FontWeight.w400,
+                                          fontWeight: FontWeight.w500,
                                           color: Theme.of(context)
                                               .extension<BalancePageTheme>()!
                                               .textColor,
@@ -529,135 +510,135 @@ class BalanceRowWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-                        IntrinsicHeight(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 24),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Semantics(
-                                    label: S.of(context).litecoin_mweb_pegin,
-                                    child: OutlinedButton(
-                                      onPressed: () {
-                                        final mwebAddress = bitcoin!
-                                            .getUnusedMwebAddress(dashboardViewModel.wallet);
-                                        PaymentRequest? paymentRequest = null;
-                                        if ((mwebAddress?.isNotEmpty ?? false)) {
-                                          paymentRequest = PaymentRequest.fromUri(
-                                              Uri.parse("litecoin:${mwebAddress}"));
-                                        }
-                                        Navigator.pushNamed(
-                                          context,
-                                          Routes.send,
-                                          arguments: {
-                                            'paymentRequest': paymentRequest,
-                                            'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
-                                          },
-                                        );
-                                      },
-                                      style: OutlinedButton.styleFrom(
-                                        backgroundColor: Colors.grey.shade400.withAlpha(50),
-                                        side: BorderSide(
-                                            color: Colors.grey.shade400.withAlpha(50), width: 0),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                      ),
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(vertical: 12),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset(
-                                              height: 30,
-                                              width: 30,
-                                              'assets/images/received.png',
-                                              color: Theme.of(context)
-                                                  .extension<BalancePageTheme>()!
-                                                  .balanceAmountColor,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              S.of(context).litecoin_mweb_pegin,
-                                              style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .extension<BalancePageTheme>()!
-                                                    .textColor,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 24),
-                                Expanded(
-                                  child: Semantics(
-                                    label: S.of(context).litecoin_mweb_pegout,
-                                    child: OutlinedButton(
-                                      onPressed: () {
-                                        final litecoinAddress = bitcoin!
-                                            .getUnusedSegwitAddress(dashboardViewModel.wallet);
-                                        PaymentRequest? paymentRequest = null;
-                                        if ((litecoinAddress?.isNotEmpty ?? false)) {
-                                          paymentRequest = PaymentRequest.fromUri(
-                                              Uri.parse("litecoin:${litecoinAddress}"));
-                                        }
-                                        Navigator.pushNamed(
-                                          context,
-                                          Routes.send,
-                                          arguments: {
-                                            'paymentRequest': paymentRequest,
-                                            'coinTypeToSpendFrom': UnspentCoinType.mweb,
-                                          },
-                                        );
-                                      },
-                                      style: OutlinedButton.styleFrom(
-                                        backgroundColor: Colors.grey.shade400.withAlpha(50),
-                                        side: BorderSide(
-                                            color: Colors.grey.shade400.withAlpha(50), width: 0),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                      ),
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(vertical: 12),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset(
-                                              height: 30,
-                                              width: 30,
-                                              'assets/images/upload.png',
-                                              color: Theme.of(context)
-                                                  .extension<BalancePageTheme>()!
-                                                  .balanceAmountColor,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              S.of(context).litecoin_mweb_pegout,
-                                              style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .extension<BalancePageTheme>()!
-                                                    .textColor,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 16),
                       ],
                     ),
                   ),
+                  IntrinsicHeight(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Semantics(
+                              label: S.of(context).litecoin_mweb_pegin,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  final mwebAddress =
+                                      bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
+                                  PaymentRequest? paymentRequest = null;
+                                  if ((mwebAddress?.isNotEmpty ?? false)) {
+                                    paymentRequest = PaymentRequest.fromUri(
+                                        Uri.parse("litecoin:${mwebAddress}"));
+                                  }
+                                  Navigator.pushNamed(
+                                    context,
+                                    Routes.send,
+                                    arguments: {
+                                      'paymentRequest': paymentRequest,
+                                      'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
+                                    },
+                                  );
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: Colors.grey.shade400.withAlpha(50),
+                                  side: BorderSide(
+                                      color: Colors.grey.shade400.withAlpha(50), width: 0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 12),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        height: 30,
+                                        width: 30,
+                                        'assets/images/received.png',
+                                        color: Theme.of(context)
+                                            .extension<BalancePageTheme>()!
+                                            .balanceAmountColor,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        S.of(context).litecoin_mweb_pegin,
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .extension<BalancePageTheme>()!
+                                              .textColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 24),
+                          Expanded(
+                            child: Semantics(
+                              label: S.of(context).litecoin_mweb_pegout,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  final litecoinAddress =
+                                      bitcoin!.getUnusedSegwitAddress(dashboardViewModel.wallet);
+                                  PaymentRequest? paymentRequest = null;
+                                  if ((litecoinAddress?.isNotEmpty ?? false)) {
+                                    paymentRequest = PaymentRequest.fromUri(
+                                        Uri.parse("litecoin:${litecoinAddress}"));
+                                  }
+                                  Navigator.pushNamed(
+                                    context,
+                                    Routes.send,
+                                    arguments: {
+                                      'paymentRequest': paymentRequest,
+                                      'coinTypeToSpendFrom': UnspentCoinType.mweb,
+                                    },
+                                  );
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: Colors.grey.shade400.withAlpha(50),
+                                  side: BorderSide(
+                                      color: Colors.grey.shade400.withAlpha(50), width: 0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 12),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        height: 30,
+                                        width: 30,
+                                        'assets/images/upload.png',
+                                        color: Theme.of(context)
+                                            .extension<BalancePageTheme>()!
+                                            .balanceAmountColor,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        S.of(context).litecoin_mweb_pegout,
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .extension<BalancePageTheme>()!
+                                              .textColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
                 ],
               ),
             ),

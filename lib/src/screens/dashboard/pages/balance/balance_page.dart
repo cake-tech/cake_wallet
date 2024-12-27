@@ -1,4 +1,3 @@
-
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/crypto_balance_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';

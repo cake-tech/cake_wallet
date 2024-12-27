@@ -18,7 +18,10 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CryptoBalanceWidget extends StatelessWidget {
-  const CryptoBalanceWidget({required this.dashboardViewModel, super.key});
+  const CryptoBalanceWidget({
+    super.key,
+    required this.dashboardViewModel,
+  });
 
   final DashboardViewModel dashboardViewModel;
 
@@ -171,7 +174,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                       currency: balance.asset,
                       hasAdditionalBalance:
                           dashboardViewModel.balanceViewModel.hasAdditionalBalance,
-                      isTestnet: dashboardViewModel.isTestnet,
                       hasSecondAdditionalBalance:
                           dashboardViewModel.balanceViewModel.hasSecondAdditionalBalance,
                       hasSecondAvailableBalance:
@@ -184,6 +186,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                           '${dashboardViewModel.balanceViewModel.secondAdditionalBalanceLabel}',
                       secondAvailableBalanceLabel:
                           '${dashboardViewModel.balanceViewModel.secondAvailableBalanceLabel}',
+                      isTestnet: dashboardViewModel.isTestnet,
                     );
                   });
                 },
@@ -286,8 +289,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                           GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () => launchUrl(
-                              Uri.parse(
-                                  "https://guides.cakewallet.com/docs/cryptos/litecoin/#mweb"),
+                              Uri.parse("https://docs.cakewallet.com/cryptos/litecoin/#mweb"),
                               mode: LaunchMode.externalApplication,
                             ),
                             child: Text(
