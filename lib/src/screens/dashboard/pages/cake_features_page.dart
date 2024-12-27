@@ -69,24 +69,6 @@ class CakeFeaturesPage extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  Observer(
-                    builder: (context) {
-                      if (!dashboardViewModel.hasSignMessages) {
-                        return const SizedBox();
-                      }
-                      return DashBoardRoundedCardWidget(
-                        onTap: () => Navigator.of(context).pushNamed(Routes.signPage),
-                        title: S.current.sign_verify_message,
-                        subTitle: S.current.sign_verify_message_sub,
-                        icon: Icon(
-                          Icons.speaker_notes_rounded,
-                          color:
-                              Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                          size: 75,
-                        ),
-                      );
-                    },
-                  ),
                   SizedBox(height: 125),
                 ],
               ),
