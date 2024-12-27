@@ -8,16 +8,6 @@ class MoneroBalance extends Balance {
         formattedFrozenBalance = moneroAmountToString(amount: frozenBalance),
         super(unlockedBalance, fullBalance);
 
-  MoneroBalance.fromString(
-      {required this.formattedUnconfirmedBalance,
-      required this.formattedUnlockedBalance,
-      this.formattedFrozenBalance = '0.0'})
-      : fullBalance = moneroParseAmount(amount: formattedUnconfirmedBalance),
-        unlockedBalance = moneroParseAmount(amount: formattedUnlockedBalance),
-        frozenBalance = moneroParseAmount(amount: formattedFrozenBalance),
-        super(moneroParseAmount(amount: formattedUnlockedBalance),
-            moneroParseAmount(amount: formattedUnconfirmedBalance));
-
   final int fullBalance;
   final int unlockedBalance;
   final int frozenBalance;

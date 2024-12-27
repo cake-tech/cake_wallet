@@ -9,16 +9,6 @@ class WowneroBalance extends Balance {
         wowneroAmountToString(amount: frozenBalance),
         super(unlockedBalance, fullBalance);
 
-  WowneroBalance.fromString(
-      {required this.formattedUnconfirmedBalance,
-      required this.formattedUnlockedBalance,
-      this.formattedFrozenBalance = '0.0'})
-      : fullBalance = wowneroParseAmount(amount: formattedUnconfirmedBalance),
-        unlockedBalance = wowneroParseAmount(amount: formattedUnlockedBalance),
-        frozenBalance = wowneroParseAmount(amount: formattedFrozenBalance),
-        super(wowneroParseAmount(amount: formattedUnlockedBalance),
-          wowneroParseAmount(amount: formattedUnconfirmedBalance));
-
   final int fullBalance;
   final int unlockedBalance;
   final int frozenBalance;
