@@ -379,16 +379,18 @@ class SolanaWalletClient {
     required double solBalance,
     required double fee,
   }) async {
-    final rent =
-        await _client!.getMinimumBalanceForMintRentExemption(commitment: Commitment.confirmed);
-
-    final rentInSol = (rent / lamportsPerSol).toDouble();
-
-    final remnant = solBalance - (inputAmount + fee);
-
-    if (remnant > rentInSol) return true;
-
-    return false;
+    return true;
+    // TODO: this is not doing what the name inclines
+    // final rent =
+    //     await _client!.getMinimumBalanceForMintRentExemption(commitment: Commitment.confirmed);
+    //
+    // final rentInSol = (rent / lamportsPerSol).toDouble();
+    //
+    // final remnant = solBalance - (inputAmount + fee);
+    //
+    // if (remnant > rentInSol) return true;
+    //
+    // return false;
   }
 
   Future<PendingSolanaTransaction> _signNativeTokenTransaction({
