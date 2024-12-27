@@ -25,9 +25,7 @@ class SolanaSignNativeTokenTransactionRentException
     extends SignNativeTokenTransactionRentException {}
 
 class SolanaCreateAssociatedTokenAccountException extends CreateAssociatedTokenAccountException {
-  SolanaCreateAssociatedTokenAccountException(this.exceptionMessage);
-  
-  final String exceptionMessage;
+  SolanaCreateAssociatedTokenAccountException(super.errorMessage);
 }
 
 class SolanaSignSPLTokenTransactionRentException extends SignSPLTokenTransactionRentException {}
