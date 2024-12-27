@@ -72,7 +72,7 @@ abstract class DashboardViewModelBase with Store {
       required this.sharedPreferences,
       required this.keyService})
       : hasTradeAction = false,
-        hasExchangeAction = false,
+        hasSwapAction = false,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
@@ -528,10 +528,10 @@ abstract class DashboardViewModelBase with Store {
   void furtherShowYatPopup(bool shouldShow) => settingsStore.shouldShowYatPopup = shouldShow;
 
   @computed
-  bool get isEnabledExchangeAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
+  bool get isEnabledSwapAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
 
   @observable
-  bool hasExchangeAction;
+  bool hasSwapAction;
 
   @computed
   bool get isEnabledTradeAction => !settingsStore.disableTradeOption;
@@ -739,7 +739,7 @@ abstract class DashboardViewModelBase with Store {
   }
 
   void updateActions() {
-    hasExchangeAction = !isHaven;
+    hasSwapAction = !isHaven;
     hasTradeAction = !isHaven;
   }
 

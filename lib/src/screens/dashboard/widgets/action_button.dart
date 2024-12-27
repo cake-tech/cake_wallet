@@ -36,6 +36,7 @@ class ActionButton extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
+          //mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
               alignment: Alignment.center,
@@ -47,7 +48,7 @@ class ActionButton extends StatelessWidget {
             Text(
               title,
               style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 9,
                   color: textColor ??
                       Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor),
               textAlign: TextAlign.center,

@@ -287,6 +287,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 );
               },
             ),
+            SizedBox(height: 150),
             Observer(builder: (context) {
               return Column(
                 children: [

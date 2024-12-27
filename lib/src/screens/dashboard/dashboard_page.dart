@@ -185,10 +185,6 @@ class _DashboardPageView extends BasePage {
       width: 40,
       child: TextButton(
         key: ValueKey('dashboard_page_wallet_menu_button_key'),
-        // FIX-ME: Style
-        //highlightColor: Colors.transparent,
-        //splashColor: Colors.transparent,
-        //padding: EdgeInsets.all(0),
         onPressed: () => onOpenEndDrawer(),
         child: Semantics(label: S.of(context).wallet_menu, child: menuButton),
       ),
@@ -235,8 +231,6 @@ class _DashboardPageView extends BasePage {
         child: Container(
           child: Stack(
             alignment: Alignment.bottomCenter,
-            //mainAxisSize: MainAxisSize.max,
-            //alignment: Alignment.bottomCenter,
             children: <Widget>[
               //new Expanded(
               Observer(
@@ -253,21 +247,7 @@ class _DashboardPageView extends BasePage {
               Positioned(
                 child: Container(
                     alignment: Alignment.bottomCenter,
-                  // decoration: BoxDecoration(
-                  //   boxShadow: [
-                  //     BoxShadow(
-                  //   color: Theme.of(context)
-                  //       .extension<DashboardPageTheme>()!
-                  //       .thirdGradientBackgroundColor
-                  //       .withAlpha(50),
-                  // spreadRadius: 5,
-                  // blurRadius: 7,
-                  // offset: Offset(0, 3),
-                  //     )
-                  // ]
-                  // ),
                   margin: EdgeInsets.only(bottom: 110),
-                  //padding: EdgeInsets.only(top: 50),
                   child: Observer(
                     builder: (context) {
                       return Semantics(
@@ -302,7 +282,6 @@ class _DashboardPageView extends BasePage {
               ? Positioned(
                 child: Observer(
                   builder: (_) {
-                    //return ClipRect(
                       return Container(
                         alignment: Alignment.bottomCenter,
                         height: 130,
@@ -329,11 +308,6 @@ class _DashboardPageView extends BasePage {
                               Theme.of(context)
                                   .extension<DashboardPageTheme>()!
                                   .thirdGradientBackgroundColor
-                              // Color.fromARGB(10, 245, 8, 82),
-                              // Color.fromARGB(75, 245, 8, 82),
-                              // Color.fromARGB(150, 245, 8, 82),
-                              // Color.fromARGB(200, 245, 8, 82),
-                              // Color.fromARGB(255, 245, 8, 82),
                             ],
                           ),
                         ),
@@ -359,14 +333,6 @@ class _DashboardPageView extends BasePage {
                                   color: Theme.of(context)
                                       .extension<SyncIndicatorTheme>()!
                                       .syncedBackgroundColor,
-                                  // boxShadow: [
-                                  //   BoxShadow(
-                                  //       color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
-                                  //           .withAlpha(50),
-                                  //       spreadRadius: 3,
-                                  //       blurRadius: 7
-                                  //   )
-                                  // ],
                                 ),
                                 child: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 10),
@@ -434,14 +400,12 @@ class _DashboardPageView extends BasePage {
                 ),
               )
               : Positioned(
-                top: 560,
-                bottom: 0,
-                left: 0,
-                right: 0,
                 child: Observer(
                   builder: (_) {
-                    return ClipRect(
-                      child: Container(
+                    //return ClipRect(
+                      return Container(
+                        alignment: Alignment.bottomCenter,
+                        height: 130,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
@@ -465,20 +429,15 @@ class _DashboardPageView extends BasePage {
                               Theme.of(context)
                                   .extension<DashboardPageTheme>()!
                                   .thirdGradientBackgroundColor
-                              // Color.fromARGB(10, 245, 8, 82),
-                              // Color.fromARGB(75, 245, 8, 82),
-                              // Color.fromARGB(150, 245, 8, 82),
-                              // Color.fromARGB(200, 245, 8, 82),
-                              // Color.fromARGB(255, 245, 8, 82),
                             ],
                           ),
                         ),
                         child: Container(
-                          alignment: Alignment.bottomCenter,
-                          padding: const EdgeInsets.only(
-                              left: 16, right: 16, bottom: 24, top: 48),
+                          margin: const EdgeInsets.only(
+                              left: 16, right: 16, bottom: 16),
                               child: Container(
                                 //clipBehavior: Clip.hardEdge,
+                                  height: 75,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(50.0),
                                   border: Border.all(
@@ -556,7 +515,7 @@ class _DashboardPageView extends BasePage {
                                 ),
                               ),
                         ),
-                      ),
+
                     );
                   },
                 ),
