@@ -25,7 +25,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
@@ -62,14 +62,13 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
 
-    bool isMobileLayout = responsiveLayoutUtil.screenWidth <
-        ResponsiveLayoutUtilBase.kMobileThreshold;
+    bool isMobileLayout =
+        responsiveLayoutUtil.screenWidth < ResponsiveLayoutUtilBase.kMobileThreshold;
 
     reaction((_) => responsiveLayoutUtil.screenWidth, (screenWidth) {
       // Check if it was previously in mobile layout, and now changing to desktop
       if (isMobileLayout &&
-          screenWidth >
-              ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
+          screenWidth > ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
         setState(() {
           isMobileLayout = false;
         });
@@ -77,8 +76,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
       // Check if it was previously in desktop layout, and now changing to mobile
       if (!isMobileLayout &&
-          screenWidth <=
-              ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
+          screenWidth <= ResponsiveLayoutUtilBase.kDesktopMaxDashBoardWidthConstraint) {
         setState(() {
           isMobileLayout = true;
         });
@@ -139,15 +137,14 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) =>
-          GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   bool get resizeToAvoidBottomInset => false;
 
   @override
-  Widget get endDrawer => MenuWidget(
-      dashboardViewModel, ValueKey('dashboard_page_drawer_menu_widget_key'));
+  Widget get endDrawer =>
+      MenuWidget(dashboardViewModel, ValueKey('dashboard_page_drawer_menu_widget_key'));
 
   @override
   Widget leading(BuildContext context) {
@@ -167,8 +164,7 @@ class _DashboardPageView extends BasePage {
     return SyncIndicator(
       key: ValueKey('dashboard_page_sync_indicator_button_key'),
       dashboardViewModel: dashboardViewModel,
-      onTap: () => Navigator.of(context, rootNavigator: true)
-          .pushNamed(Routes.connectionSync),
+      onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(Routes.connectionSync),
     );
   }
 
@@ -176,8 +172,7 @@ class _DashboardPageView extends BasePage {
   Widget trailing(BuildContext context) {
     final menuButton = Image.asset(
       'assets/images/menu.png',
-      color:
-          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
     );
 
     return Container(
@@ -195,8 +190,7 @@ class _DashboardPageView extends BasePage {
   final BottomSheetService bottomSheetService;
   final WalletAddressListViewModel addressListViewModel;
 
-  int get initialPage =>
-      dashboardViewModel.shouldShowMarketPlaceInDashboard ? 1 : 0;
+  int get initialPage => dashboardViewModel.shouldShowMarketPlaceInDashboard ? 1 : 0;
   ObservableList<Widget> pages = ObservableList<Widget>();
   bool _isEffectsInstalled = false;
   StreamSubscription<bool>? _onInactiveSub;
@@ -246,7 +240,7 @@ class _DashboardPageView extends BasePage {
               //),
               Positioned(
                 child: Container(
-                    alignment: Alignment.bottomCenter,
+                  alignment: Alignment.bottomCenter,
                   margin: EdgeInsets.only(bottom: 110),
                   child: Observer(
                     builder: (context) {
@@ -279,165 +273,157 @@ class _DashboardPageView extends BasePage {
                 ),
               ),
               currentTheme.type == ThemeType.bright
-              ? Positioned(
-                child: Observer(
-                  builder: (_) {
-                      return Container(
-                        alignment: Alignment.bottomCenter,
-                        height: 130,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: <Color>[
-                              Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .thirdGradientBackgroundColor
-                                  .withAlpha(10),
-                              Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .thirdGradientBackgroundColor
-                                  .withAlpha(75),
-                              Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .thirdGradientBackgroundColor
-                                  .withAlpha(150),
-                              Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .thirdGradientBackgroundColor,
-                              Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .thirdGradientBackgroundColor
-                            ],
-                          ),
-                        ),
-                        child: Container(
-                          // padding: const EdgeInsets.only(
-                          //     left: 0, right: 0, bottom: 16, top: 600),
-                          margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(50),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-                              child: Container(
-                                height: 75,
-                                //clipBehavior: Clip.hardEdge,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(50.0),
-                                  border: Border.all(
-                                    color: Theme.of(context)
-                                        .extension<BalancePageTheme>()!
-                                        .cardBorderColor,
-                                    width: 1,
-                                  ),
-                                  color: Theme.of(context)
-                                      .extension<SyncIndicatorTheme>()!
-                                      .syncedBackgroundColor,
-                                ),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: MainActions.all
-                                        .where((element) =>
-                                            element.canShow
-                                                ?.call(dashboardViewModel) ??
-                                            true)
-                                        .map(
-                                          (action) => Expanded(
-                                            child: Semantics(
-                                              button: true,
-                                              enabled: (action.isEnabled?.call(
-                                                      dashboardViewModel) ??
-                                                  true),
-                                              child: ActionButton(
-                                                key: ValueKey(
-                                                    'dashboard_page_${action.name(context)}_action_button_key'),
-                                                image: Image.asset(
-                                                  action.image,
-                                                  height: 24,
-                                                  width: 24,
-                                                  color: action.isEnabled?.call(
-                                                              dashboardViewModel) ??
-                                                          true
-                                                      ? Theme.of(context)
-                                                          .extension<
-                                                              DashboardPageTheme>()!
-                                                          .mainActionsIconColor
-                                                      : Theme.of(context)
-                                                          .extension<
-                                                              BalancePageTheme>()!
-                                                          .labelTextColor,
-                                                ),
-                                                title: action.name(context),
-                                                onClick: () async =>
-                                                    await action.onTap(context,
-                                                        dashboardViewModel),
-                                                textColor: action.isEnabled?.call(
-                                                            dashboardViewModel) ??
-                                                        true
-                                                    ? null
-                                                    : Theme.of(context)
-                                                        .extension<
-                                                            BalancePageTheme>()!
-                                                        .labelTextColor,
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
-                                ),
+                  ? Positioned(
+                      child: Observer(
+                        builder: (_) {
+                          return Container(
+                            alignment: Alignment.bottomCenter,
+                            height: 130,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: <Color>[
+                                  Theme.of(context)
+                                      .extension<DashboardPageTheme>()!
+                                      .thirdGradientBackgroundColor
+                                      .withAlpha(10),
+                                  Theme.of(context)
+                                      .extension<DashboardPageTheme>()!
+                                      .thirdGradientBackgroundColor
+                                      .withAlpha(75),
+                                  Theme.of(context)
+                                      .extension<DashboardPageTheme>()!
+                                      .thirdGradientBackgroundColor
+                                      .withAlpha(150),
+                                  Theme.of(context)
+                                      .extension<DashboardPageTheme>()!
+                                      .thirdGradientBackgroundColor,
+                                  Theme.of(context)
+                                      .extension<DashboardPageTheme>()!
+                                      .thirdGradientBackgroundColor
+                                ],
                               ),
                             ),
-                           // ],
-                          ),
-                        ),
-                      );
-                    //);
-                  },
-                ),
-              )
-              : Positioned(
-                child: Observer(
-                  builder: (_) {
-                    //return ClipRect(
-                      return Container(
-                        alignment: Alignment.bottomCenter,
-                        height: 130,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: <Color>[
-                              Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .thirdGradientBackgroundColor
-                                  .withAlpha(10),
-                              Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .thirdGradientBackgroundColor
-                                  .withAlpha(75),
-                              Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .thirdGradientBackgroundColor
-                                  .withAlpha(150),
-                              Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .thirdGradientBackgroundColor,
-                              Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .thirdGradientBackgroundColor
-                            ],
-                          ),
-                        ),
-                        child: Container(
-                          margin: const EdgeInsets.only(
-                              left: 16, right: 16, bottom: 16),
+                            child: Container(
+                              // padding: const EdgeInsets.only(
+                              //     left: 0, right: 0, bottom: 16, top: 600),
+                              margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+                                  child: Container(
+                                    height: 75,
+                                    //clipBehavior: Clip.hardEdge,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(50.0),
+                                      border: Border.all(
+                                        color: Theme.of(context)
+                                            .extension<BalancePageTheme>()!
+                                            .cardBorderColor,
+                                        width: 1,
+                                      ),
+                                      color: Theme.of(context)
+                                          .extension<SyncIndicatorTheme>()!
+                                          .syncedBackgroundColor,
+                                    ),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: MainActions.all
+                                            .where((element) =>
+                                                element.canShow?.call(dashboardViewModel) ?? true)
+                                            .map(
+                                              (action) => Expanded(
+                                                child: Semantics(
+                                                  button: true,
+                                                  enabled:
+                                                      (action.isEnabled?.call(dashboardViewModel) ??
+                                                          true),
+                                                  child: ActionButton(
+                                                    key: ValueKey(
+                                                        'dashboard_page_${action.name(context)}_action_button_key'),
+                                                    image: Image.asset(
+                                                      action.image,
+                                                      height: 24,
+                                                      width: 24,
+                                                      color: action.isEnabled
+                                                                  ?.call(dashboardViewModel) ??
+                                                              true
+                                                          ? Theme.of(context)
+                                                              .extension<DashboardPageTheme>()!
+                                                              .mainActionsIconColor
+                                                          : Theme.of(context)
+                                                              .extension<BalancePageTheme>()!
+                                                              .labelTextColor,
+                                                    ),
+                                                    title: action.name(context),
+                                                    onClick: () async => await action.onTap(
+                                                        context, dashboardViewModel),
+                                                    textColor: action.isEnabled
+                                                                ?.call(dashboardViewModel) ??
+                                                            true
+                                                        ? null
+                                                        : Theme.of(context)
+                                                            .extension<BalancePageTheme>()!
+                                                            .labelTextColor,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // ],
+                              ),
+                            ),
+                          );
+                          //);
+                        },
+                      ),
+                    )
+                  : Positioned(
+                      child: Observer(
+                        builder: (_) {
+                          //return ClipRect(
+                          return Container(
+                            alignment: Alignment.bottomCenter,
+                            height: 130,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: <Color>[
+                                  Theme.of(context)
+                                      .extension<DashboardPageTheme>()!
+                                      .thirdGradientBackgroundColor
+                                      .withAlpha(10),
+                                  Theme.of(context)
+                                      .extension<DashboardPageTheme>()!
+                                      .thirdGradientBackgroundColor
+                                      .withAlpha(75),
+                                  Theme.of(context)
+                                      .extension<DashboardPageTheme>()!
+                                      .thirdGradientBackgroundColor
+                                      .withAlpha(150),
+                                  Theme.of(context)
+                                      .extension<DashboardPageTheme>()!
+                                      .thirdGradientBackgroundColor,
+                                  Theme.of(context)
+                                      .extension<DashboardPageTheme>()!
+                                      .thirdGradientBackgroundColor
+                                ],
+                              ),
+                            ),
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                               child: Container(
                                 //clipBehavior: Clip.hardEdge,
-                                  height: 75,
+                                height: 75,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(50.0),
                                   border: Border.all(
@@ -451,75 +437,68 @@ class _DashboardPageView extends BasePage {
                                       .syncedBackgroundColor,
                                   boxShadow: [
                                     BoxShadow(
-                                        color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
+                                        color: Theme.of(context)
+                                            .extension<BalancePageTheme>()!
+                                            .cardBorderColor
                                             .withAlpha(50),
                                         spreadRadius: 3,
-                                        blurRadius: 7
-                                    )
+                                        blurRadius: 7)
                                   ],
                                 ),
                                 child: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 10),
                                   child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: MainActions.all
                                         .where((element) =>
-                                    element.canShow
-                                        ?.call(dashboardViewModel) ??
-                                        true)
+                                            element.canShow?.call(dashboardViewModel) ?? true)
                                         .map(
                                           (action) => Expanded(
-                                        child: Semantics(
-                                          button: true,
-                                          enabled: (action.isEnabled?.call(
-                                              dashboardViewModel) ??
-                                              true),
-                                          child: ActionButton(
-                                            key: ValueKey(
-                                                'dashboard_page_${action.name(context)}_action_button_key'),
-                                            image: Image.asset(
-                                              action.image,
-                                              height: 24,
-                                              width: 24,
-                                              color: action.isEnabled?.call(
-                                                  dashboardViewModel) ??
-                                                  true
-                                                  ? Theme.of(context)
-                                                  .extension<
-                                                  DashboardPageTheme>()!
-                                                  .mainActionsIconColor
-                                                  : Theme.of(context)
-                                                  .extension<
-                                                  BalancePageTheme>()!
-                                                  .labelTextColor,
+                                            child: Semantics(
+                                              button: true,
+                                              enabled:
+                                                  (action.isEnabled?.call(dashboardViewModel) ??
+                                                      true),
+                                              child: ActionButton(
+                                                key: ValueKey(
+                                                    'dashboard_page_${action.name(context)}_action_button_key'),
+                                                image: Image.asset(
+                                                  action.image,
+                                                  height: 24,
+                                                  width: 24,
+                                                  color:
+                                                      action.isEnabled?.call(dashboardViewModel) ??
+                                                              true
+                                                          ? Theme.of(context)
+                                                              .extension<DashboardPageTheme>()!
+                                                              .mainActionsIconColor
+                                                          : Theme.of(context)
+                                                              .extension<BalancePageTheme>()!
+                                                              .labelTextColor,
+                                                ),
+                                                title: action.name(context),
+                                                onClick: () async =>
+                                                    await action.onTap(context, dashboardViewModel),
+                                                textColor:
+                                                    action.isEnabled?.call(dashboardViewModel) ??
+                                                            true
+                                                        ? null
+                                                        : Theme.of(context)
+                                                            .extension<BalancePageTheme>()!
+                                                            .labelTextColor,
+                                              ),
                                             ),
-                                            title: action.name(context),
-                                            onClick: () async =>
-                                            await action.onTap(context,
-                                                dashboardViewModel),
-                                            textColor: action.isEnabled?.call(
-                                                dashboardViewModel) ??
-                                                true
-                                                ? null
-                                                : Theme.of(context)
-                                                .extension<
-                                                BalancePageTheme>()!
-                                                .labelTextColor,
                                           ),
-                                        ),
-                                      ),
-                                    )
+                                        )
                                         .toList(),
                                   ),
                                 ),
                               ),
-                        ),
-
-                    );
-                  },
-                ),
-              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
             ],
           ),
         ),
@@ -591,10 +570,9 @@ class _DashboardPageView extends BasePage {
 
   void _showReleaseNotesPopup(BuildContext context) async {
     final sharedPrefs = await SharedPreferences.getInstance();
-    final currentAppVersion = VersionComparator.getExtendedVersionNumber(
-        dashboardViewModel.settingsStore.appVersion);
-    final lastSeenAppVersion =
-        sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
+    final currentAppVersion =
+        VersionComparator.getExtendedVersionNumber(dashboardViewModel.settingsStore.appVersion);
+    final lastSeenAppVersion = sharedPrefs.getInt(PreferencesKey.lastSeenAppVersion);
     final isNewInstall = sharedPrefs.getBool(PreferencesKey.isNewInstall);
 
     if (currentAppVersion != lastSeenAppVersion && !isNewInstall!) {
@@ -619,8 +597,7 @@ class _DashboardPageView extends BasePage {
   }
 
   void _showVulnerableSeedsPopup(BuildContext context) async {
-    final List<String> affectedWalletNames =
-        await dashboardViewModel.checkAffectedWallets();
+    final List<String> affectedWalletNames = await dashboardViewModel.checkAffectedWallets();
 
     if (affectedWalletNames.isNotEmpty) {
       Future<void>.delayed(
@@ -638,8 +615,7 @@ class _DashboardPageView extends BasePage {
   }
 
   void _showHavenPopup(BuildContext context) async {
-    final List<String> havenWalletList =
-        await dashboardViewModel.checkForHavenWallets();
+    final List<String> havenWalletList = await dashboardViewModel.checkForHavenWallets();
 
     if (havenWalletList.isNotEmpty) {
       Future<void>.delayed(
