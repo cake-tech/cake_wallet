@@ -134,6 +134,7 @@ class AddressResolver {
   Future<ParsedAddress> resolve(BuildContext context, String text, CryptoCurrency currency) async {
     final ticker = currency.title;
     try {
+      // twitter handle example: @username
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
         if (settingsStore.lookupsTwitter) {
           final formattedName = text.substring(1);
@@ -165,6 +166,7 @@ class AddressResolver {
         }
       }
 
+      // Mastodon example: @username@hostname.xxx
       if (text.startsWith('@') && text.contains('@', 1) && text.contains('.', 1)) {
         if (settingsStore.lookupsMastodon) {
           final subText = text.substring(1);

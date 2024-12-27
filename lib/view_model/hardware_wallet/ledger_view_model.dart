@@ -99,47 +99,54 @@ abstract class LedgerViewModelBase with Store {
   }
 
   Future<void> connectLedger(sdk.LedgerDevice device, WalletType type) async {
+    _isConnecting = true;
+    _connectingWalletType = type;
     if (isConnected) {
       try {
-        await _connectionChangeListener?.cancel();
-        _connectionChangeListener = null;
         await _connection!.disconnect().catchError((_) {});
       } catch (_) {}
     }
+
     final ledger = device.connectionType == sdk.ConnectionType.ble
         ? ledgerPlusBLE
         : ledgerPlusUSB;
 
-
-    if (_connectionChangeListener == null) {
-      _connectionChangeListener = ledger.deviceStateChanges.listen((event) {
-        printV('Ledger Device State Changed: $event');
-        if (event == sdk.BleConnectionState.disconnected) {
-          _connection = null;
-          if (type == WalletType.monero) {
-            monero!.resetLedgerConnection();
-
-            Navigator.of( navigatorKey.currentContext!).pushNamed(
-              Routes.connectDevices,
-              arguments: ConnectDevicePageParams(
-                walletType: WalletType.monero,
-                allowChangeWallet: true,
-                isReconnect: true,
-                onConnectDevice: (context, ledgerVM) async {
-                  Navigator.of(context).pop();
-                },
-              ),
-            );
-          }
-        }
-      });
+    if (_connectionChangeSubscription == null) {
+      _connectionChangeSubscription = ledger.deviceStateChanges
+          .listen(_connectionChangeListener);
     }
 
     _connection = await ledger.connect(device);
+    _isConnecting = false;
   }
 
-  StreamSubscription<sdk.BleConnectionState>? _connectionChangeListener;
+  StreamSubscription<sdk.BleConnectionState>? _connectionChangeSubscription;
   sdk.LedgerConnection? _connection;
+  bool _isConnecting = true;
+  WalletType? _connectingWalletType;
+
+  void _connectionChangeListener(
+      sdk.BleConnectionState event, ) {
+    printV('Ledger Device State Changed: $event');
+    if (event == sdk.BleConnectionState.disconnected && !_isConnecting) {
+      _connection = null;
+      if (_connectingWalletType == WalletType.monero) {
+        monero!.resetLedgerConnection();
+
+        Navigator.of(navigatorKey.currentContext!).pushNamed(
+          Routes.connectDevices,
+          arguments: ConnectDevicePageParams(
+            walletType: WalletType.monero,
+            allowChangeWallet: true,
+            isReconnect: true,
+            onConnectDevice: (context, ledgerVM) async {
+              Navigator.of(context).pop();
+            },
+          ),
+        );
+      }
+    }
+  }
 
   bool get isConnected => _connection != null && !(_connection!.isDisconnected);
 

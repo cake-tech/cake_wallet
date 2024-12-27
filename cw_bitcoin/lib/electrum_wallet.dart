@@ -478,6 +478,7 @@ abstract class ElectrumWalletBase
       if (alwaysScan == true) {
         _setListeners(walletInfo.restoreHeight);
       } else {
+        if (syncStatus is LostConnectionSyncStatus) return;
         syncStatus = SyncedSyncStatus();
       }
     } catch (e, stacktrace) {
@@ -1099,6 +1100,7 @@ abstract class ElectrumWalletBase
         )..addListener((transaction) async {
             transactionHistory.addOne(transaction);
             await updateBalance();
+            await updateAllUnspents();
           });
       }
 
@@ -1191,6 +1193,7 @@ abstract class ElectrumWalletBase
               .removeWhere((utxo) => estimatedTx.utxos.any((e) => e.utxo.txHash == utxo.hash));
 
           await updateBalance();
+          await updateAllUnspents();
         });
     } catch (e) {
       throw e;
@@ -1359,6 +1362,10 @@ abstract class ElectrumWalletBase
   Future<void> updateAllUnspents() async {
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
+    final previousUnspentCoins = List<BitcoinUnspent>.from(unspentCoins.where((utxo) =>
+    utxo.bitcoinAddressRecord.type != SegwitAddresType.mweb &&
+        utxo.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord));
+
     if (hasSilentPaymentsScanning) {
       // Update unspents stored from scanned silent payment transactions
       transactionHistory.transactions.values.forEach((tx) {
@@ -1375,13 +1382,27 @@ abstract class ElectrumWalletBase
       if (addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
     });
 
-    await Future.wait(walletAddresses.allAddresses
+    final addressFutures = walletAddresses.allAddresses
         .where((element) => element.type != SegwitAddresType.mweb)
-        .map((address) async {
-      updatedUnspentCoins.addAll(await fetchUnspent(address));
-    }));
+        .map((address) => fetchUnspent(address))
+        .toList();
 
-    unspentCoins = updatedUnspentCoins;
+    final results = await Future.wait(addressFutures);
+    final failedCount = results.where((result) => result == null).length;
+
+    if (failedCount == 0) {
+      for (final result in results) {
+        updatedUnspentCoins.addAll(result!);
+      }
+      unspentCoins = updatedUnspentCoins;
+    } else {
+      unspentCoins = handleFailedUtxoFetch(
+        failedCount: failedCount,
+        previousUnspentCoins: previousUnspentCoins,
+        updatedUnspentCoins: updatedUnspentCoins,
+        results: results,
+      );
+    }
 
     final currentWalletUnspentCoins =
         unspentCoinsInfo.values.where((element) => element.walletId == id);
@@ -1392,6 +1413,38 @@ abstract class ElectrumWalletBase
 
     await updateCoins(unspentCoins);
     await _refreshUnspentCoinsInfo();
+  }
+
+  List<BitcoinUnspent> handleFailedUtxoFetch({
+    required int failedCount,
+    required List<BitcoinUnspent> previousUnspentCoins,
+    required List<BitcoinUnspent> updatedUnspentCoins,
+    required List<List<BitcoinUnspent>?> results,
+  }) {
+
+    if (failedCount == results.length) {
+      printV("All UTXOs failed to fetch, falling back to previous UTXOs");
+      return previousUnspentCoins;
+    }
+
+    final successfulUtxos = <BitcoinUnspent>[];
+    for (final result in results) {
+      if (result != null) {
+        successfulUtxos.addAll(result);
+      }
+    }
+
+    if (failedCount > 0 && successfulUtxos.isEmpty) {
+      printV("Some UTXOs failed, but no successful UTXOs, falling back to previous UTXOs");
+      return previousUnspentCoins;
+    }
+
+    if (failedCount > 0) {
+      printV("Some UTXOs failed, updating with successful UTXOs");
+      updatedUnspentCoins.addAll(successfulUtxos);
+    }
+
+    return updatedUnspentCoins;
   }
 
   Future<void> updateCoins(List<BitcoinUnspent> newUnspentCoins) async {
@@ -1425,15 +1478,17 @@ abstract class ElectrumWalletBase
   @action
   Future<void> updateUnspentsForAddress(BitcoinAddressRecord address) async {
     final newUnspentCoins = await fetchUnspent(address);
-    await updateCoins(newUnspentCoins);
+    await updateCoins(newUnspentCoins ?? []);
   }
 
   @action
-  Future<List<BitcoinUnspent>> fetchUnspent(BitcoinAddressRecord address) async {
-    List<Map<String, dynamic>> unspents = [];
+  Future<List<BitcoinUnspent>?> fetchUnspent(BitcoinAddressRecord address) async {
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
-    unspents = await electrumClient.getListUnspent(address.getScriptHash(network));
+    final unspents = await electrumClient.getListUnspent(address.getScriptHash(network));
+
+    // Failed to fetch unspents
+    if (unspents == null) return null;
 
     await Future.wait(unspents.map((unspent) async {
       try {
@@ -1796,6 +1851,7 @@ abstract class ElectrumWalletBase
           });
           transactionHistory.addOne(transaction);
           await updateBalance();
+          await updateAllUnspents();
         });
     } catch (e) {
       throw e;
