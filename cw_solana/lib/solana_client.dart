@@ -379,16 +379,18 @@ class SolanaWalletClient {
     required double solBalance,
     required double fee,
   }) async {
-    final rent =
-        await _client!.getMinimumBalanceForMintRentExemption(commitment: Commitment.confirmed);
-
-    final rentInSol = (rent / lamportsPerSol).toDouble();
-
-    final remnant = solBalance - (inputAmount + fee);
-
-    if (remnant > rentInSol) return true;
-
-    return false;
+    return true;
+    // TODO: this is not doing what the name inclines
+    // final rent =
+    //     await _client!.getMinimumBalanceForMintRentExemption(commitment: Commitment.confirmed);
+    //
+    // final rentInSol = (rent / lamportsPerSol).toDouble();
+    //
+    // final remnant = solBalance - (inputAmount + fee);
+    //
+    // if (remnant > rentInSol) return true;
+    //
+    // return false;
   }
 
   Future<PendingSolanaTransaction> _signNativeTokenTransaction({
@@ -500,22 +502,22 @@ class SolanaWalletClient {
       throw SolanaNoAssociatedTokenAccountException(ownerKeypair.address, mint.toBase58());
     }
 
-    try {
-      associatedRecipientAccount ??= await _client!.createAssociatedTokenAccount(
-        mint: mint,
-        owner: destinationOwner,
-        funder: ownerKeypair,
-      );
-    } catch (e) {
-      throw SolanaCreateAssociatedTokenAccountException(e.toString());
-    }
+    // try {
+    //   associatedRecipientAccount ??= await _client!.createAssociatedTokenAccount(
+    //     mint: mint,
+    //     owner: destinationOwner,
+    //     funder: ownerKeypair,
+    //   );
+    // } catch (e) {
+    //   throw SolanaCreateAssociatedTokenAccountException(e.toString());
+    // }
 
     // Input by the user
     final amount = (inputAmount * math.pow(10, tokenDecimals)).toInt();
 
     final instruction = TokenInstruction.transfer(
       source: Ed25519HDPublicKey.fromBase58(associatedSenderAccount.pubkey),
-      destination: Ed25519HDPublicKey.fromBase58(associatedRecipientAccount.pubkey),
+      destination: destinationOwner,
       owner: ownerKeypair.publicKey,
       amount: amount,
     );
