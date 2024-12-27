@@ -6,8 +6,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -22,16 +20,13 @@ class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalle
 abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHd,
-    required super.sideHd,
     required super.network,
     required super.isHardwareWallet,
     required this.mwebHd,
     required this.mwebEnabled,
+    required super.hdWallets,
     super.initialAddresses,
     super.initialMwebAddresses,
-    super.initialRegularAddressIndex,
-    super.initialChangeAddressIndex,
   }) : super(walletInfo) {
     for (int i = 0; i < mwebAddresses.length; i++) {
       mwebAddrs.add(mwebAddresses[i].address);
@@ -51,7 +46,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @override
   Future<void> init() async {
-    if (!isHardwareWallet) await initMwebAddresses();
+    if (!super.isHardwareWallet) await initMwebAddresses();
     await super.init();
   }
 
@@ -102,12 +97,16 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       List<BitcoinAddressRecord> addressRecords = mwebAddrs
           .asMap()
           .entries
-          .map((e) => BitcoinAddressRecord(
-                e.value,
-                index: e.key,
-                type: SegwitAddresType.mweb,
-                network: network,
-              ))
+          .map(
+            (e) => BitcoinAddressRecord(
+              e.value,
+              index: e.key,
+              addressType: SegwitAddresType.mweb,
+              network: network,
+              derivationInfo: BitcoinAddressUtils.getDerivationFromType(SegwitAddresType.p2wpkh),
+              derivationType: CWBitcoinDerivationType.bip39,
+            ),
+          )
           .toList();
       addMwebAddresses(addressRecords);
       printV("set ${addressRecords.length} mweb addresses");
@@ -122,33 +121,53 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   @override
-  String getAddress({
+  BitcoinBaseAddress generateAddress({
+    required CWBitcoinDerivationType derivationType,
+    required bool isChange,
     required int index,
-    required Bip32Slip10Secp256k1 hd,
-    BitcoinAddressType? addressType,
+    required BitcoinAddressType addressType,
+    required BitcoinDerivationInfo derivationInfo,
   }) {
     if (addressType == SegwitAddresType.mweb) {
-      return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
+      return MwebAddress.fromAddress(address: mwebAddrs[0], network: network);
     }
-    return generateP2WPKHAddress(hd: hd, index: index, network: network);
+
+    return P2wpkhAddress.fromDerivation(
+      bip32: hdWallets[derivationType]!,
+      derivationInfo: derivationInfo,
+      isChange: isChange,
+      index: index,
+    );
   }
 
   @override
   Future<String> getAddressAsync({
+    required CWBitcoinDerivationType derivationType,
+    required bool isChange,
     required int index,
-    required Bip32Slip10Secp256k1 hd,
-    BitcoinAddressType? addressType,
+    required BitcoinAddressType addressType,
+    required BitcoinDerivationInfo derivationInfo,
   }) async {
     if (addressType == SegwitAddresType.mweb) {
       await ensureMwebAddressUpToIndexExists(index);
     }
-    return getAddress(index: index, hd: hd, addressType: addressType);
+
+    return getAddress(
+      derivationType: derivationType,
+      isChange: isChange,
+      index: index,
+      addressType: addressType,
+      derivationInfo: derivationInfo,
+    );
   }
 
   @action
   @override
-  Future<BitcoinAddressRecord> getChangeAddress(
-      {List<BitcoinUnspent>? inputs, List<BitcoinOutput>? outputs, bool isPegIn = false}) async {
+  BitcoinAddressRecord getChangeAddress({
+    List<BitcoinUnspent>? inputs,
+    List<BitcoinOutput>? outputs,
+    bool isPegIn = false,
+  }) {
     // use regular change address on peg in, otherwise use mweb for change address:
 
     if (!mwebEnabled || isPegIn) {
@@ -190,12 +209,15 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
 
     if (mwebEnabled) {
-      await ensureMwebAddressUpToIndexExists(1);
+      // TODO:
+      // await ensureMwebAddressUpToIndexExists(1);
       return BitcoinAddressRecord(
         mwebAddrs[0],
         index: 0,
-        type: SegwitAddresType.mweb,
+        addressType: SegwitAddresType.mweb,
         network: network,
+        derivationInfo: BitcoinAddressUtils.getDerivationFromType(SegwitAddresType.p2wpkh),
+        derivationType: CWBitcoinDerivationType.bip39,
       );
     }
 
@@ -206,7 +228,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   String get addressForExchange {
     // don't use mweb addresses for exchange refund address:
     final addresses = receiveAddresses
-        .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
+        .where((element) => element.addressType == SegwitAddresType.p2wpkh && !element.isUsed);
     return addresses.first.address;
   }
 }

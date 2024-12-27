@@ -139,8 +139,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
     // return false;
 
-    // if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.maticpoly)
-    // return false;
+    // if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.matic)
+    //   return false;
 
     return true;
   }
@@ -506,10 +506,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (pendingTransaction!.id.isNotEmpty) {
         final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
-            ? await transactionDescriptionBox.add(TransactionDescription(
-                id: descriptionKey, recipientAddress: address, transactionNote: note))
-            : await transactionDescriptionBox
-                .add(TransactionDescription(id: descriptionKey, transactionNote: note));
+            ? await transactionDescriptionBox.add(
+                TransactionDescription(
+                  id: descriptionKey,
+                  recipientAddress: address,
+                  transactionNote: note,
+                ),
+              )
+            : await transactionDescriptionBox.add(
+                TransactionDescription(
+                  id: descriptionKey,
+                  transactionNote: note,
+                ),
+              );
       }
 
       state = TransactionCommitted();
@@ -716,10 +725,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
 
         return 
-        '''${S.current.insufficient_funds_for_tx} \n\n'''
-        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
-        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
-        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.overshotUsd} ${fiatFromSettings.name})''';
+            '''${S.current.insufficient_funds_for_tx} \n\n'''
+            '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
+            '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
+            '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.overshotUsd} ${fiatFromSettings.name})''';
       }
 
       return errorMessage;
@@ -797,3 +806,4 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return false;
   }
 }
+

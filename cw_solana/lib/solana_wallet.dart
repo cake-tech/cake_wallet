@@ -33,7 +33,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solana/base58.dart';
 import 'package:solana/metaplex.dart' as metaplex;
 import 'package:solana/solana.dart';
-import 'package:solana/src/crypto/ed25519_hd_keypair.dart';
 
 part 'solana_wallet.g.dart';
 
@@ -174,7 +173,7 @@ abstract class SolanaWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
+  int estimatedFeeForOutputsWithPriority({required TransactionPriority priority}) => 0;
 
   @override
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");

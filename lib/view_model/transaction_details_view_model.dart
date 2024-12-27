@@ -542,15 +542,13 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   void addBumpFeesListItems(TransactionInfo tx, String rawTransaction) {
     transactionPriority = bitcoin!.getBitcoinTransactionPriorityMedium();
-    final inputsCount = (transactionInfo.inputAddresses?.isEmpty ?? true)
-        ? 1
-        : transactionInfo.inputAddresses!.length;
-    final outputsCount = (transactionInfo.outputAddresses?.isEmpty ?? true)
-        ? 1
-        : transactionInfo.outputAddresses!.length;
 
-    newFee = bitcoin!.getFeeAmountForPriority(
-        wallet, bitcoin!.getBitcoinTransactionPriorityMedium(), inputsCount, outputsCount);
+    newFee = bitcoin!.getFeeAmountForOutputsWithPriority(
+      wallet,
+      priority: bitcoin!.getBitcoinTransactionPriorityMedium(),
+      inputAddresses: transactionInfo.inputAddresses!,
+      outputAddresses: transactionInfo.outputAddresses!,
+    );
 
     RBFListItems.add(
       StandartListItem(
@@ -677,17 +675,21 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   String setNewFee({double? value, required TransactionPriority priority}) {
-    newFee = priority == bitcoin!.getBitcoinTransactionPriorityCustom() && value != null
-        ? bitcoin!.feeAmountWithFeeRate(
-            wallet,
-            value.round(),
-            transactionInfo.inputAddresses?.length ?? 1,
-            transactionInfo.outputAddresses?.length ?? 1)
-        : bitcoin!.getFeeAmountForPriority(
-            wallet,
-            priority,
-            transactionInfo.inputAddresses?.length ?? 1,
-            transactionInfo.outputAddresses?.length ?? 1);
+    if (priority == bitcoin!.getBitcoinTransactionPriorityCustom() && value != null) {
+      newFee = bitcoin!.getFeeAmountForOutputsWithFeeRate(
+        wallet,
+        feeRate: value.round(),
+        inputAddresses: transactionInfo.inputAddresses!,
+        outputAddresses: transactionInfo.outputAddresses!,
+      );
+    } else {
+      newFee = bitcoin!.getFeeAmountForOutputsWithPriority(
+        wallet,
+        priority: priority,
+        inputAddresses: transactionInfo.inputAddresses!,
+        outputAddresses: transactionInfo.outputAddresses!,
+      );
+    }
 
     return bitcoin!.formatterBitcoinAmountToString(amount: newFee);
   }

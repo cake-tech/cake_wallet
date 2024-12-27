@@ -176,6 +176,7 @@ integration_test/playground.dart
 
 # Monero.dart (Monero_C)
 scripts/monero_c
+scripts/android/app_env.fish
 # iOS generated framework bin
 ios/MoneroWallet.framework/MoneroWallet
 ios/WowneroWallet.framework/WowneroWallet

@@ -118,6 +118,7 @@ abstract class SettingsStoreBase with Store {
       required this.customBitcoinFeeRate,
       required this.silentPaymentsCardDisplay,
       required this.silentPaymentsAlwaysScan,
+      required this.silentPaymentsKeyRegistered,
       required this.mwebAlwaysScan,
       required this.mwebCardDisplay,
       required this.mwebEnabled,
@@ -553,6 +554,11 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.silentPaymentsAlwaysScan, silentPaymentsAlwaysScan));
 
     reaction(
+        (_) => silentPaymentsKeyRegistered,
+        (bool silentPaymentsKeyRegistered) => _sharedPreferences.setBool(
+            PreferencesKey.silentPaymentsKeyRegistered, silentPaymentsKeyRegistered));
+
+    reaction(
         (_) => mwebAlwaysScan,
         (bool mwebAlwaysScan) =>
             _sharedPreferences.setBool(PreferencesKey.mwebAlwaysScan, mwebAlwaysScan));
@@ -792,6 +798,9 @@ abstract class SettingsStoreBase with Store {
   bool silentPaymentsAlwaysScan;
 
   @observable
+  bool silentPaymentsKeyRegistered;
+
+  @observable
   bool mwebAlwaysScan;
 
   @observable
@@ -972,6 +981,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     final silentPaymentsAlwaysScan =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
+    final silentPaymentsKeyRegistered =
+        sharedPreferences.getBool(PreferencesKey.silentPaymentsKeyRegistered) ?? false;
     final mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     final mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     final mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
@@ -1248,6 +1259,7 @@ abstract class SettingsStoreBase with Store {
       customBitcoinFeeRate: customBitcoinFeeRate,
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
       silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,
+      silentPaymentsKeyRegistered: silentPaymentsKeyRegistered,
       mwebAlwaysScan: mwebAlwaysScan,
       mwebCardDisplay: mwebCardDisplay,
       mwebEnabled: mwebEnabled,
@@ -1419,6 +1431,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
     silentPaymentsAlwaysScan =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
+    silentPaymentsKeyRegistered =
+        sharedPreferences.getBool(PreferencesKey.silentPaymentsKeyRegistered) ?? false;
     mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;

@@ -24,6 +24,9 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   WalletType get type => walletInfo.type;
 
+  bool get isElectrum =>
+      type == WalletType.bitcoin || type == WalletType.litecoin || type == WalletType.bitcoinCash;
+
   CryptoCurrency get currency => currencyForWalletType(type, isTestnet: isTestnet);
 
   String get id => walletInfo.id;
@@ -71,7 +74,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<PendingTransaction> createTransaction(Object credentials);
 
-  int calculateEstimatedFee(TransactionPriority priority, int? amount);
+  int estimatedFeeForOutputsWithPriority({required TransactionPriority priority});
 
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,
