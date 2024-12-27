@@ -158,17 +158,17 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.banano:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+      case WalletType.none:
         return S.current.xmr_available_balance;
-      default:
-        return S.current.confirmed;
     }
   }
 
   @computed
   String get additionalBalanceLabel {
     switch (wallet.type) {
-      case WalletType.monero:
-      case WalletType.wownero:
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -357,7 +357,12 @@ abstract class BalanceViewModelBase with Store {
   bool mwebEnabled = false;
 
   @computed
-  bool get hasAdditionalBalance => _hasAdditionalBalanceForWalletType(wallet.type);
+  bool get hasAdditionalBalance {
+    bool isWalletTypeActivated = _hasAdditionalBalanceForWalletType(wallet.type);
+    bool isNotZeroAmount = additionalBalance != "0.0";
+
+    return isWalletTypeActivated && isNotZeroAmount;
+  }
 
   @computed
   bool get hasSecondAdditionalBalance =>
@@ -373,6 +378,9 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.bitcoin:
+      case WalletType.bitcoinCash:
+      case WalletType.litecoin:
         return false;
       default:
         return true;
