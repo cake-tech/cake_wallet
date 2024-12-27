@@ -139,7 +139,7 @@ class CurrencyAmountTextField extends StatelessWidget {
       ],
     );
     return Padding(
-      padding: padding ?? const EdgeInsets.only(top: 0),
+      padding: padding ?? const EdgeInsets.only(top: 20),
       child: Row(
         children: [
           isSelected
