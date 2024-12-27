@@ -7,7 +7,7 @@ class CakePayVendor {
   final String name;
   final bool unavailable;
   final String? cakeWarnings;
-  final List<String> countries;
+  final String country;
   final CakePayCard? card;
 
   CakePayVendor({
@@ -15,19 +15,23 @@ class CakePayVendor {
     required this.name,
     required this.unavailable,
     this.cakeWarnings,
-    required this.countries,
+    required this.country,
     this.card,
   });
 
-  factory CakePayVendor.fromJson(Map<String, dynamic> json) {
+  factory CakePayVendor.fromJson(Map<String, dynamic> json, String country) {
     final name = stripHtmlIfNeeded(json['name'] as String);
     final decodedName = fixEncoding(name);
 
     var cardsJson = json['cards'] as List?;
-    CakePayCard? firstCard;
+    CakePayCard? cardForVendor;
 
     if (cardsJson != null && cardsJson.isNotEmpty) {
-      firstCard = CakePayCard.fromJson(cardsJson.first as Map<String, dynamic>);
+      try {
+          cardForVendor = CakePayCard.fromJson(cardsJson
+            .where((element) => element['country'] == country)
+            .first as Map<String, dynamic>);
+        } catch (_) {}
     }
 
     return CakePayVendor(
@@ -35,8 +39,8 @@ class CakePayVendor {
       name: decodedName,
       unavailable: json['unavailable'] as bool? ?? false,
       cakeWarnings: json['cake_warnings'] as String?,
-      countries: List<String>.from(json['countries'] as List? ?? []),
-      card: firstCard,
+      country: country,
+      card: cardForVendor,
     );
   }
 
