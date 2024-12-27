@@ -330,6 +330,7 @@
   "freeze": "Կասեցնել",
   "frequently_asked_questions": "Հաճախ տրվող հարցեր",
   "frozen": "Կասեցված",
+  "frozen_balance": "Սառեցված հավասարակշռություն",
   "full_balance": "Լրիվ մնացորդ",
   "gas_exceeds_allowance": "Գործարքով պահանջվող գազը գերազանցում է նպաստը:",
   "generate_name": "Գեներացնել անուն",

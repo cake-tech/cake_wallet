@@ -106,7 +106,7 @@ dependencies:
   flutter_svg: ^2.0.9
   polyseed: ^0.0.6
   nostr_tools: ^1.0.9
-  solana: ^0.30.1
+  solana: ^0.31.0+1
   ledger_flutter_plus: ^1.4.1
   hashlib: ^1.19.2
 
