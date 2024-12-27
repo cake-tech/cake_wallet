@@ -188,11 +188,11 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
         height: 16,
         width: 16,
         color: Theme.of(context).extension<SendPageTheme>()!.estimatedFeeColor);
-
     return Container(
       width: double.infinity,
       color: Colors.transparent,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+        SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
@@ -208,6 +208,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
           ],
         ),
         CurrencyAmountTextField(
+          padding: EdgeInsets.zero,
           currencyPickerButtonKey: ValueKey('${_cardInstanceName}_currency_picker_button_key'),
           selectedCurrencyTextKey: ValueKey('${_cardInstanceName}_selected_currency_text_key'),
           selectedCurrencyTagTextKey:
@@ -274,7 +275,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
             ? FocusTraversalOrder(
                 order: NumericFocusOrder(2),
                 child: Padding(
-                  padding: widget.addressRowPadding ?? EdgeInsets.only(top: 0),
+                  padding: widget.addressRowPadding ?? EdgeInsets.only(top: 12),
                   child: AddressTextField(
                       addressKey: ValueKey('${_cardInstanceName}_editable_address_textfield_key'),
                       focusNode: widget.addressFocusNode,

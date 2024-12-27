@@ -68,7 +68,7 @@ class MobileExchangeCardsSection extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: 29, left: 24, right: 24),
+            padding: EdgeInsets.only(top: 20, left: 24, right: 24),
             child: secondExchangeCard,
           )
         ],
