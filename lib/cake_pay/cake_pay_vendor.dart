@@ -27,9 +27,11 @@ class CakePayVendor {
     CakePayCard? cardForVendor;
 
     if (cardsJson != null && cardsJson.isNotEmpty) {
-      cardForVendor = CakePayCard.fromJson(cardsJson
-          .where((element) => element['country'] == country)
-          .first as Map<String, dynamic>);
+      try {
+          cardForVendor = CakePayCard.fromJson(cardsJson
+            .where((element) => element['country'] == country)
+            .first as Map<String, dynamic>);
+        } catch (_) {}
     }
 
     return CakePayVendor(
