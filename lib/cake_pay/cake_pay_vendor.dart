@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'cake_pay_card.dart';
 
 class CakePayVendor {
@@ -21,7 +19,6 @@ class CakePayVendor {
 
   factory CakePayVendor.fromJson(Map<String, dynamic> json) {
     final name = stripHtmlIfNeeded(json['name'] as String);
-    final decodedName = fixEncoding(name);
 
     var cardsJson = json['cards'] as List?;
     CakePayCard? firstCard;
@@ -32,7 +29,7 @@ class CakePayVendor {
 
     return CakePayVendor(
       id: json['id'] as int,
-      name: decodedName,
+      name: name,
       unavailable: json['unavailable'] as bool? ?? false,
       cakeWarnings: json['cake_warnings'] as String?,
       countries: List<String>.from(json['countries'] as List? ?? []),
@@ -42,13 +39,5 @@ class CakePayVendor {
 
   static String stripHtmlIfNeeded(String text) {
     return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
-  }
-
-  static String fixEncoding(String text) {
-    try {
-      return utf8.decode(utf8.encode(text));
-    } catch (e) {
-      return text;
-    }
   }
 }

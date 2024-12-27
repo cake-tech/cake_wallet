@@ -230,6 +230,7 @@ class CakePayApi {
 
     var headers = {
       'accept': 'application/json; charset=UTF-8',
+      'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Api-Key $apiKey',
     };
 
@@ -240,7 +241,7 @@ class CakePayApi {
           'Failed to fetch vendors: statusCode - ${response.statusCode}, queryParams -$queryParams, response - ${response.body}');
     }
 
-    final bodyJson = json.decode(response.body);
+    final bodyJson = json.decode(utf8.decode(response.bodyBytes));
 
     if (bodyJson is List<dynamic> && bodyJson.isEmpty) {
       return [];
