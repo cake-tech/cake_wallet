@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
@@ -991,6 +990,9 @@ abstract class ElectrumWalletBase
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
+      // start by updating unspent coins
+      await updateAllUnspents();
+
       final outputs = <BitcoinOutput>[];
       final transactionCredentials = credentials as BitcoinTransactionCredentials;
       final hasMultiDestination = transactionCredentials.outputs.length > 1;
