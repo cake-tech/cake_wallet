@@ -244,7 +244,9 @@ class AddressResolver {
       if (unstoppableDomains.any((domain) => name.trim() == domain)) {
         if (settingsStore.lookupsUnstoppableDomains) {
           final address = await fetchUnstoppableDomainAddress(text, ticker);
-          return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
+          if (address.isNotEmpty) {
+            return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
+          }
         }
       }
 
@@ -257,12 +259,25 @@ class AddressResolver {
         }
       }
 
+      print("@@@@@@@@");
+      print(formattedName);
+      print(domainParts);
+      print(name);
+
       if (formattedName.contains(".")) {
         if (settingsStore.lookupsOpenAlias) {
           final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
+
+          print("@@@@@@@@");
+          print(txtRecord);
           if (txtRecord != null) {
             final record = await OpenaliasRecord.fetchAddressAndName(
                 formattedName: formattedName, ticker: ticker.toLowerCase(), txtRecord: txtRecord);
+            print("@@@@@@@@");
+            print(record);
+            print(record.name);
+            print(record.address);
+            print(record.description);
             return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
           }
         }
