@@ -511,8 +511,8 @@ packages:
     dependency: "direct main"
     description:
       path: "impls/monero.dart"
-      ref: "35ded9142e3915c7cdf6d64c7a0f0d797fcac8c7"
-      resolved-ref: "35ded9142e3915c7cdf6d64c7a0f0d797fcac8c7"
+      ref: "8d3a64e05d60924272275d5674db5345f701ba2d"
+      resolved-ref: "8d3a64e05d60924272275d5674db5345f701ba2d"
       url: "https://github.com/mrcyjanek/monero_c"
     source: git
     version: "0.0.0"
@@ -845,10 +845,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: "5c5f338a667b4c644744b661f309fb8080bb94b18a7e91ef1dbd343bed00ed6d"
+      sha256: f652077d0bdf60abe4c1f6377448e8655008eef28f128bc023f7b5e8dfeb48fc
       url: "https://pub.dev"
     source: hosted
-    version: "14.2.5"
+    version: "14.2.4"
   watcher:
     dependency: "direct overridden"
     description:
