@@ -333,6 +333,7 @@
   "freeze": "Заморозить",
   "frequently_asked_questions": "Часто задаваемые вопросы",
   "frozen": "Заморожено",
+  "frozen_balance": "Замороженный баланс",
   "full_balance": "Весь баланс",
   "gas_exceeds_allowance": "Газ, требуемый в результате транзакции, превышает пособие.",
   "generate_name": "Создать имя",

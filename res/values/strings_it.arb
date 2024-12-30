@@ -334,6 +334,7 @@
   "freeze": "Congelare",
   "frequently_asked_questions": "Domande frequenti",
   "frozen": "Congelato",
+  "frozen_balance": "Equilibrio congelato",
   "full_balance": "Saldo Completo",
   "gas_exceeds_allowance": "Il gas richiesto dalla transazione supera l'indennità.",
   "generate_name": "Genera nome",

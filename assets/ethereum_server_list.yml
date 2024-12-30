@@ -1,5 +1,7 @@
 -
-  uri: ethereum.publicnode.com
+  uri: ethereum-rpc.publicnode.com
+  useSSL: true
+  isDefault: true
 -
   uri: eth.llamarpc.com
 -

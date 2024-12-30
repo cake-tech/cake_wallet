@@ -333,6 +333,7 @@
   "freeze": "Geler",
   "frequently_asked_questions": "Foire aux questions",
   "frozen": "Gelées",
+  "frozen_balance": "Équilibre gelé",
   "full_balance": "Solde Complet",
   "gas_exceeds_allowance": "Le gaz requis par la transaction dépasse l'allocation.",
   "generate_name": "Générer un nom",
