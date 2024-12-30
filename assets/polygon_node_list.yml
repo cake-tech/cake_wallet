@@ -1,7 +1,9 @@
 -
   uri: polygon-rpc.com
 -
-  uri: polygon-bor.publicnode.com
+  uri: polygon-bor-rpc.publicnode.com
+  useSSL: true
+  isDefault: true
 -
   uri: polygon.llamarpc.com
 -

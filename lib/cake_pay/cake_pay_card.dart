@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cake_wallet/entities/fiat_currency.dart';
 
 class CakePayCard {
@@ -38,17 +36,11 @@ class CakePayCard {
   });
 
   factory CakePayCard.fromJson(Map<String, dynamic> json) {
+
     final name = stripHtmlIfNeeded(json['name'] as String? ?? '');
-    final decodedName = fixEncoding(name);
-
     final description = stripHtmlIfNeeded(json['description'] as String? ?? '');
-    final decodedDescription = fixEncoding(description);
-
     final termsAndConditions = stripHtmlIfNeeded(json['terms_and_conditions'] as String? ?? '');
-    final decodedTermsAndConditions = fixEncoding(termsAndConditions);
-
     final howToUse = stripHtmlIfNeeded(json['how_to_use'] as String? ?? '');
-    final decodedHowToUse = fixEncoding(howToUse);
 
     final fiatCurrency = FiatCurrency.deserialize(raw: json['currency_code'] as String? ?? '');
 
@@ -59,10 +51,10 @@ class CakePayCard {
 
     return CakePayCard(
       id: json['id'] as int? ?? 0,
-      name: decodedName,
-      description: decodedDescription,
-      termsAndConditions: decodedTermsAndConditions,
-      howToUse: decodedHowToUse,
+      name: name,
+      description: description,
+      termsAndConditions: termsAndConditions,
+      howToUse: howToUse,
       expiryAndValidity: json['expiry_and_validity'] as String?,
       cardImageUrl: json['card_image_url'] as String?,
       country: json['country'] as String?,
@@ -78,10 +70,5 @@ class CakePayCard {
 
   static String stripHtmlIfNeeded(String text) {
     return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
-  }
-
-  static String fixEncoding(String text) {
-    final bytes = latin1.encode(text);
-    return utf8.decode(bytes, allowMalformed: true);
   }
 }

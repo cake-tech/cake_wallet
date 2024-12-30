@@ -25,5 +25,5 @@ class PreSeedPage extends InfoPage {
 
   @override
   void Function(BuildContext) get onPressed =>
-      (BuildContext context) => Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true);
+      (BuildContext context) => Navigator.of(context).pushNamed(Routes.seed, arguments: true);
 }

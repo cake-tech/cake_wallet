@@ -1,4 +1,3 @@
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
@@ -14,7 +13,6 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
@@ -29,7 +27,6 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -102,6 +99,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     outputs
         .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
+
+    unspentCoinsListViewModel.initialSetup();
   }
 
   @observable
@@ -428,7 +427,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       //
       //   state = FailureState(errorMsg);
       // } else {
-        state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
+      state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
       // }
     }
     return null;
@@ -488,10 +487,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     try {
       state = TransactionCommitting();
-      
+
       if (pendingTransaction!.shouldCommitUR()) {
         final urstr = await pendingTransaction!.commitUR();
-        final result = await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: urstr);
+        final result =
+            await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: urstr);
         if (result == null) {
           state = FailureState("Canceled by user");
           return;
@@ -508,12 +508,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-            id: descriptionKey,
-            recipientAddress: address,
-            transactionNote: note))
-            : await transactionDescriptionBox.add(TransactionDescription(
-            id: descriptionKey,
-            transactionNote: note));
+                id: descriptionKey, recipientAddress: address, transactionNote: note))
+            : await transactionDescriptionBox
+                .add(TransactionDescription(id: descriptionKey, transactionNote: note));
       }
 
       state = TransactionCommitted();
@@ -675,10 +672,26 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               lamportsNeeded != null ? ((lamportsNeeded + 5000) / lamportsPerSol) : 0.0;
           return S.current.insufficient_lamports(solValueNeeded.toString());
         } else {
-          printV("No match found.");
           return S.current.insufficient_lamport_for_tx;
         }
       }
+
+      if (error is SignNativeTokenTransactionRentException) {
+        return S.current.solana_sign_native_transaction_rent_exception;
+      }
+
+      if (error is CreateAssociatedTokenAccountException) {
+        return "${S.current.solana_create_associated_token_account_exception}\n\n${error.errorMessage}";
+      }
+
+      if (error is SignSPLTokenTransactionRentException) {
+        return S.current.solana_sign_spl_token_transaction_rent_exception;
+      }
+
+      if (error is NoAssociatedTokenAccountException) {
+        return S.current.solana_no_associated_token_account_exception;
+      }
+
       if (errorMessage.contains('insufficient funds for rent')) {
         return S.current.insufficientFundsForRentError;
       }
@@ -705,9 +718,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
         return 
         '''${S.current.insufficient_funds_for_tx} \n\n'''
-        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ETH (${parsedErrorMessageResult.balanceUsd} USD)\n\n'''
-        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ETH (${parsedErrorMessageResult.txCostUsd} USD)\n\n'''
-        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ETH (${parsedErrorMessageResult.overshotUsd} USD)''';
+        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
+        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
+        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.overshotUsd} ${fiatFromSettings.name})''';
       }
 
       return errorMessage;

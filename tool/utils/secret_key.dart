@@ -30,7 +30,6 @@ class SecretKey {
     SecretKey('twitterBearerToken', () => ''),
     SecretKey('anonPayReferralCode', () => ''),
     SecretKey('fiatApiKey', () => ''),
-    SecretKey('payfuraApiKey', () => ''),
     SecretKey('chatwootWebsiteToken', () => ''),
     SecretKey('exolixApiKey', () => ''),
     SecretKey('robinhoodApplicationId', () => ''),
@@ -38,6 +37,7 @@ class SecretKey {
     SecretKey('walletConnectProjectId', () => ''),
     SecretKey('moralisApiKey', () => ''),
     SecretKey('ankrApiKey', () => ''),
+    SecretKey('chainStackApiKey', () => ''),
     SecretKey('quantexExchangeMarkup', () => ''),
     SecretKey('seeds', () => ''),
     SecretKey('testCakePayApiKey', () => ''),
@@ -86,6 +86,7 @@ class SecretKey {
 
   static final solanaSecrets = [
     SecretKey('ankrApiKey', () => ''),
+    SecretKey('chainStackApiKey', () => ''),
   ];
 
   static final nanoSecrets = [

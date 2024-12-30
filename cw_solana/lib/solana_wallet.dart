@@ -180,7 +180,7 @@ abstract class SolanaWalletBase
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  Future<void> close({required bool shouldCleanup}) async {
+  Future<void> close({bool shouldCleanup = false}) async {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
   }
@@ -227,6 +227,8 @@ abstract class SolanaWalletBase
         balance.keys.firstWhere((element) => element.title == solCredentials.currency.title);
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
+
+    final solBalance = balance[CryptoCurrency.sol]!.balance;
 
     double totalAmount = 0.0;
 
@@ -279,6 +281,7 @@ abstract class SolanaWalletBase
           ? solCredentials.outputs.first.extractedAddress!
           : solCredentials.outputs.first.address,
       isSendAll: isSendAll,
+      solBalance: solBalance,
     );
 
     return pendingSolanaTransaction;

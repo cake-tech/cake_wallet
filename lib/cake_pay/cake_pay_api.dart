@@ -93,6 +93,9 @@ class CakePayApi {
     required int quantity,
     required String userEmail,
     required String token,
+    required bool confirmsNoVpn,
+    required bool confirmsVoidedRefund,
+    required bool confirmsTermsAgreed,
   }) async {
     final uri = Uri.https(baseCakePayUri, createOrderPath);
     final headers = {
@@ -106,7 +109,10 @@ class CakePayApi {
       'quantity': quantity,
       'user_email': userEmail,
       'token': token,
-      'send_email': true
+      'send_email': true,
+      'confirms_no_vpn': confirmsNoVpn,
+      'confirms_voided_refund': confirmsVoidedRefund,
+      'confirms_terms_agreed': confirmsTermsAgreed,
     };
 
     try {
@@ -198,8 +204,8 @@ class CakePayApi {
   /// Get Vendors
   Future<List<CakePayVendor>> getVendors({
     required String apiKey,
+    required String country,
     int? page,
-    String? country,
     String? countryCode,
     String? search,
     List<String>? vendorIds,
@@ -224,6 +230,7 @@ class CakePayApi {
 
     var headers = {
       'accept': 'application/json; charset=UTF-8',
+      'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Api-Key $apiKey',
     };
 
@@ -234,14 +241,14 @@ class CakePayApi {
           'Failed to fetch vendors: statusCode - ${response.statusCode}, queryParams -$queryParams, response - ${response.body}');
     }
 
-    final bodyJson = json.decode(response.body);
+    final bodyJson = json.decode(utf8.decode(response.bodyBytes));
 
     if (bodyJson is List<dynamic> && bodyJson.isEmpty) {
       return [];
     }
 
     return (bodyJson['results'] as List)
-        .map((e) => CakePayVendor.fromJson(e as Map<String, dynamic>))
+        .map((e) => CakePayVendor.fromJson(e as Map<String, dynamic>, country))
         .toList();
   }
 }

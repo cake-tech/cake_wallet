@@ -66,9 +66,11 @@ import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
+import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
+import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -585,6 +587,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<PreSeedPage>(param1: settings.arguments as int));
 
+    case Routes.transactionSuccessPage:
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<TransactionSuccessPage>(param1: settings.arguments as String));
+
     case Routes.backup:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<BackupPage>());
@@ -792,6 +798,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
         builder: (_) => WalletGroupDescriptionPage(
           selectedWalletType: walletType,
         ),
+      );
+
+    case Routes.walletSeedVerificationPage:
+      return MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => getIt.get<SeedVerificationPage>(),
       );
 
     default:

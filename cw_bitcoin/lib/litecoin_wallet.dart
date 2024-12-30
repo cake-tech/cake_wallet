@@ -758,6 +758,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (!mwebEnabled) return false;
     if (!tx.isPending) return false;
 
+    final isMwebTx = (tx.inputAddresses?.any((addr) => addr.contains("mweb")) ?? false) ||
+        (tx.outputAddresses?.any((addr) => addr.contains("mweb")) ?? false);
+
+    if (!isMwebTx) {
+      return false;
+    }
+
     final outputId = <String>[], target = <String>{};
     final isHash = RegExp(r'^[a-f0-9]{64}$').hasMatch;
     final spendingOutputIds = tx.inputAddresses?.where(isHash) ?? [];
@@ -1191,7 +1198,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<void> close({required bool shouldCleanup}) async {
+  Future<void> close({bool shouldCleanup = false}) async {
     _utxoStream?.cancel();
     _feeRatesTimer?.cancel();
     _syncTimer?.cancel();
