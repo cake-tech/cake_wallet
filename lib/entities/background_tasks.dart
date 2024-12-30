@@ -13,6 +13,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -236,26 +237,26 @@ Future<void> onStart(ServiceInstance service) async {
     // get all bitcoin wallets and add them:
     final List<WalletListItem> bitcoinWallets =
         walletListViewModel.wallets.where((element) => element.type == WalletType.bitcoin).toList();
-    bool spSupported = true;
     for (int i = 0; i < bitcoinWallets.length; i++) {
       try {
-        if (!spSupported) continue;
         final wallet =
             await walletLoadingService.load(bitcoinWallets[i].type, bitcoinWallets[i].name);
-        final node = settingsStore.getCurrentNode(WalletType.bitcoin);
+        var node = settingsStore.getCurrentNode(WalletType.bitcoin);
         await wallet.connectToNode(node: node);
 
         bool nodeSupportsSP = await (wallet as ElectrumWallet).getNodeSupportsSilentPayments();
         if (!nodeSupportsSP) {
-          printV("Configured node does not support silent payments, skipping wallet");
-          setWalletNotification(
-            flutterLocalNotificationsPlugin,
-            title: initialNotificationTitle,
-            content: spNodeNotificationMessage,
-            walletNum: syncingWallets.length + 1,
-          );
-          spSupported = false;
-          continue;
+          // printV("Configured node does not support silent payments, skipping wallet");
+          // setWalletNotification(
+          //   flutterLocalNotificationsPlugin,
+          //   title: initialNotificationTitle,
+          //   content: spNodeNotificationMessage,
+          //   walletNum: syncingWallets.length + 1,
+          // );
+          // spSupported = false;
+          // continue;
+          node = Node(uri: "electrs.cakewallet.com:50001");
+          await wallet.connectToNode(node: node);
         }
 
         await wallet.stopSync();

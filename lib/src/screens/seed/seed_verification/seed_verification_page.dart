@@ -20,7 +20,8 @@ class SeedVerificationPage extends BasePage {
       builder: (context) {
         return Padding(
           padding: const EdgeInsets.all(16.0),
-          child: walletSeedViewModel.isVerificationComplete
+          child: walletSeedViewModel.isVerificationComplete ||
+                  walletSeedViewModel.verificationIndices.isEmpty
               ? SeedVerificationSuccessView(
                   imageColor: titleColor(context),
                 )

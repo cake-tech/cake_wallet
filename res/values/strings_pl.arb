@@ -333,6 +333,7 @@
   "freeze": "Zamróź",
   "frequently_asked_questions": "Często zadawane pytania",
   "frozen": "Zamrożone",
+  "frozen_balance": "Mrożona równowaga",
   "full_balance": "Pełne saldo",
   "gas_exceeds_allowance": "Gaz wymagany przez transakcję przekracza dodatek.",
   "generate_name": "Wygeneruj nazwę",

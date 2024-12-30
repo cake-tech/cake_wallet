@@ -333,6 +333,7 @@
   "freeze": "Einfrieren",
   "frequently_asked_questions": "Häufig gestellte Fragen",
   "frozen": "Gefroren",
+  "frozen_balance": "Gefrorenes Gleichgewicht",
   "full_balance": "Gesamtguthaben",
   "gas_exceeds_allowance": "Die durch Transaktion erforderliche Gas übertrifft die Zulage.",
   "generate_name": "Namen generieren",

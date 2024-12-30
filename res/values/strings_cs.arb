@@ -333,6 +333,7 @@
   "freeze": "Zmrazit",
   "frequently_asked_questions": "Často kladené otázky",
   "frozen": "Zmraženo",
+  "frozen_balance": "Zmrazená rovnováha",
   "full_balance": "Celkový zůstatek",
   "gas_exceeds_allowance": "Plyn vyžadovaný transakcí přesahuje příspěvek.",
   "generate_name": "Generovat jméno",

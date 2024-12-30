@@ -333,6 +333,7 @@
   "freeze": "ดักจับ",
   "frequently_asked_questions": "คำถามที่พบบ่อย",
   "frozen": "ถูกดักจับ",
+  "frozen_balance": "สมดุลแช่แข็ง",
   "full_balance": "ยอดคงเหลือทั้งหมด",
   "gas_exceeds_allowance": "ก๊าซที่ต้องการโดยการทำธุรกรรมเกินค่าเผื่อ",
   "generate_name": "สร้างชื่อ",
