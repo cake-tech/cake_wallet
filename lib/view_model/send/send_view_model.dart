@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/mayachain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
@@ -396,7 +397,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       pendingTransaction = await wallet.createTransaction(_credentials());
 
-      if (provider is ThorChainExchangeProvider) {
+      if (provider is ThorChainExchangeProvider || provider is MayaChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;
         if (outputCount > 10) {
           throw Exception("THORChain does not support more than 10 outputs");
