@@ -131,10 +131,7 @@ class ElectrumWalletSnapshot {
       mwebAddresses: mwebAddresses,
       alwaysScan: alwaysScan,
       unspentCoins: (data['unspent_coins'] as List)
-          .map((e) => BitcoinUnspent.fromJSON(
-                null,
-                e as Map<String, dynamic>,
-              ))
+          .map((e) => BitcoinUnspent.fromJSON(null, e as Map<String, dynamic>))
           .toList(),
     );
   }

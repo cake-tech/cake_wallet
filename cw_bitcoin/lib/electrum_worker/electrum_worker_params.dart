@@ -1,5 +1,3 @@
-// import 'dart:convert';
-
 import 'package:cw_bitcoin/electrum_worker/electrum_worker_methods.dart';
 
 abstract class ElectrumWorkerRequest {

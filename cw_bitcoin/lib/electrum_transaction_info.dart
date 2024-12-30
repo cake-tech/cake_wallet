@@ -160,25 +160,18 @@ class ElectrumTransactionInfo extends TransactionInfo {
     List<String> inputAddresses = [];
     List<String> outputAddresses = [];
 
-    try {
-      for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
-        final input = bundle.originalTransaction.inputs[i];
-        final inputTransaction = bundle.ins[i];
-        final outTransaction = inputTransaction.outputs[input.txIndex];
-        inputAmount += outTransaction.amount.toInt();
-        if (addresses.contains(
-            BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network))) {
-          direction = TransactionDirection.outgoing;
-          inputAddresses.add(
-              BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network));
-        }
+    for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
+      final input = bundle.originalTransaction.inputs[i];
+      final inputTransaction = bundle.ins[i];
+      final outTransaction = inputTransaction.outputs[input.txIndex];
+      inputAmount += outTransaction.amount.toInt();
+      if (addresses.contains(
+          BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network))) {
+        direction = TransactionDirection.outgoing;
+        inputAddresses.add(
+          BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network),
+        );
       }
-    } catch (e) {
-      printV(bundle.originalTransaction.txId());
-      printV("original: ${bundle.originalTransaction}");
-      printV("bundle.inputs: ${bundle.originalTransaction.inputs}");
-      printV("ins: ${bundle.ins}");
-      rethrow;
     }
 
     final receivedAmounts = <int>[];

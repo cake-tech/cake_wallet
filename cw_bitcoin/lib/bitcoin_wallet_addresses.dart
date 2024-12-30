@@ -34,6 +34,12 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   final ObservableList<BitcoinSilentPaymentAddressRecord> silentPaymentAddresses;
   final ObservableList<BitcoinReceivedSPAddressRecord> receivedSPAddresses;
 
+  List<BitcoinSilentPaymentAddressRecord> get usableSilentPaymentAddresses => silentPaymentAddresses
+      .where((addressRecord) =>
+          addressRecord.addressType != SegwitAddresType.p2tr &&
+          addressRecord.derivationPath == BitcoinDerivationPaths.SILENT_PAYMENTS_SPEND)
+      .toList();
+
   @observable
   List<SilentPaymentOwner> silentPaymentWallets = [];
 
@@ -240,10 +246,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @action
   BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
     if (addressPageType == SilentPaymentsAddresType.p2sp) {
-      final currentSPLabelIndex = silentPaymentAddresses
-              .where((addressRecord) => addressRecord.addressType != SegwitAddresType.p2tr)
-              .length -
-          1;
+      final currentSPLabelIndex = usableSilentPaymentAddresses.length - 1;
 
       final address = BitcoinSilentPaymentAddressRecord(
         silentPaymentWallet!.toLabeledSilentPaymentAddress(currentSPLabelIndex).toString(),
