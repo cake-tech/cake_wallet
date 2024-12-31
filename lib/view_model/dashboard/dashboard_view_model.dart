@@ -747,6 +747,13 @@ abstract class DashboardViewModelBase with Store {
   @action
   void setSyncMode(SyncMode syncMode) => settingsStore.currentSyncMode = syncMode;
 
+
+  @computed
+  bool get hasShownBalanceDisplayPopup => settingsStore.hasShownBalanceDisplayPopup;
+
+  @action
+  void setHasShownBalanceDisplayPopup() => settingsStore.hasShownBalanceDisplayPopup = true;
+
   @computed
   bool get syncAll => settingsStore.currentSyncAll;
 

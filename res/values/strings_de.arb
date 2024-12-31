@@ -74,6 +74,7 @@
   "backup_file": "Sicherungsdatei",
   "backup_password": "Passwort sichern",
   "balance": "Gleichgewicht",
+  "balance_display_popup": "Sie haben das Gleichgewicht versteckt. Wenn Sie die Balance -Anzeige erneut aktivieren möchten, tippen Sie einfach auf die drei Striche oder das Krypto -Symbol.",
   "balance_page": "Balance-Seite",
   "bill_amount": "Rechnungsbetrag",
   "billing_address_info": "Wenn Sie nach einer Rechnungsadresse gefragt werden, geben Sie bitte Ihre Lieferadresse an",

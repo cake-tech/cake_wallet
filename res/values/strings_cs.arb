@@ -74,6 +74,7 @@
   "backup_file": "Soubor se zálohou",
   "backup_password": "Heslo pro zálohy",
   "balance": "Zůstatek",
+  "balance_display_popup": "Skryl jsi rovnováhu. Pokud byste chtěli znovu povolit displej vyvážení, stačí klepnout na tři pomlčky nebo ikonu krypto.",
   "balance_page": "Stránka zůstatku",
   "bill_amount": "Účtovaná částka",
   "billing_address_info": "Při dotazu na fakturační adresu, zadejte svou doručovací adresu",

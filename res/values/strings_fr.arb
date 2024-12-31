@@ -74,6 +74,7 @@
   "backup_file": "Fichier de sauvegarde",
   "backup_password": "Mot de passe de sauvegarde",
   "balance": "Équilibre",
+  "balance_display_popup": "Vous avez caché l'équilibre. Si vous souhaitez activer à nouveau l'affichage d'équilibre, appuyez simplement sur les trois tirets ou l'icône cryptographique.",
   "balance_page": "Page Solde",
   "bill_amount": "Montant de la facture",
   "billing_address_info": "Si une adresse de facturation vous est demandée, indiquez votre adresse de livraison",

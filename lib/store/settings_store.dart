@@ -55,6 +55,7 @@ abstract class SettingsStoreBase with Store {
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
       required bool initialShowAddressBookPopupEnabled,
+      required bool initialHasShownBalanceDisplayPopup,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
@@ -159,6 +160,7 @@ abstract class SettingsStoreBase with Store {
         contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
+        hasShownBalanceDisplayPopup = initialHasShownBalanceDisplayPopup,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
         pinCodeLength = initialPinLength,
@@ -360,6 +362,11 @@ abstract class SettingsStoreBase with Store {
             (_) => showAddressBookPopupEnabled,
             (bool value) =>
             sharedPreferences.setBool(PreferencesKey.showAddressBookPopupEnabled, value));
+
+    reaction(
+            (_) => hasShownBalanceDisplayPopup,
+            (bool value) =>
+            sharedPreferences.setBool(PreferencesKey.hasShownBalanceDisplayPopup, value));
 
     reaction((_) => pinCodeLength,
         (int pinLength) => sharedPreferences.setInt(PreferencesKey.currentPinLength, pinLength));
@@ -615,6 +622,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool showAddressBookPopupEnabled;
+
+  @observable
+  bool hasShownBalanceDisplayPopup;
 
   @observable
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
@@ -929,6 +939,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
+    final hasShownBalanceDisplayPopup =
+        sharedPreferences.getBool(PreferencesKey.hasShownBalanceDisplayPopup) ?? false;
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -1198,6 +1210,7 @@ abstract class SettingsStoreBase with Store {
       sharedPreferences: sharedPreferences,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
       initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
+      initialHasShownBalanceDisplayPopup: hasShownBalanceDisplayPopup,
       nodes: nodes,
       powNodes: powNodes,
       appVersion: packageInfo.version,

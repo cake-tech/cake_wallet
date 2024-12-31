@@ -74,6 +74,7 @@
   "backup_file": "Arquivo de backup",
   "backup_password": "Senha de backup",
   "balance": "Equilíbrio",
+  "balance_display_popup": "Você escondeu o equilíbrio. Se você deseja ativar a exibição do Balance novamente, basta tocar nos três traços ou ícone de criptografia.",
   "balance_page": "Página de saldo",
   "bill_amount": "Valor da conta",
   "billing_address_info": "Se for solicitado um endereço de cobrança, forneça seu endereço de entrega",

@@ -91,7 +91,7 @@ class BalanceRowWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 GestureDetector(
-                  onTap: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
+                  onTap: () => _switchBalanceValue(context, S.of(context).balance_display_popup),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -668,5 +668,14 @@ class BalanceRowWidget extends StatelessWidget {
 
   void _showBalanceDescription(BuildContext context, String content) {
     showPopUp<void>(context: context, builder: (_) => InformationPage(information: content));
+  }
+
+  void _switchBalanceValue(BuildContext context, String content) {
+    dashboardViewModel.balanceViewModel.switchBalanceValue();
+
+    if(dashboardViewModel.hasShownBalanceDisplayPopup == false) {
+      showPopUp<void>(context: context, builder: (_) => InformationPage(information: content));
+      dashboardViewModel.setHasShownBalanceDisplayPopup();
+    }
   }
 }

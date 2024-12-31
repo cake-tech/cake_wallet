@@ -74,6 +74,7 @@
   "backup_file": "Backup na file",
   "backup_password": "Backup na password",
   "balance": "Balanse",
+  "balance_display_popup": "Itinago mo ang balanse. Kung nais mong paganahin muli ang balanse ng balanse, i -tap lamang ang tatlong mga dash o icon ng crypto.",
   "balance_page": "Pahina ng Balanse",
   "bill_amount": "Halaga ng Bill",
   "billing_address_info": "Kung humihingi ng billing address, ibigay ang iyong shipping address",

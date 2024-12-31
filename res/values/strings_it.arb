@@ -74,6 +74,7 @@
   "backup_file": "Backup file",
   "backup_password": "Backup password",
   "balance": "Bilancia",
+  "balance_display_popup": "Hai nascosto l'equilibrio. Se desideri abilitare di nuovo il display di bilanciamento, basta toccare le tre icona Crypto.",
   "balance_page": "Pagina di equilibrio",
   "bill_amount": "Importo della fattura",
   "billing_address_info": "Se ti viene richiesto un indirizzo di fatturazione, fornisci il tuo indirizzo di spedizione",

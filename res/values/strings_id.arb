@@ -74,6 +74,7 @@
   "backup_file": "File cadangan",
   "backup_password": "Kata sandi cadangan",
   "balance": "Keseimbangan",
+  "balance_display_popup": "Anda telah menyembunyikan keseimbangan. Jika Anda ingin mengaktifkan tampilan saldo lagi, cukup ketuk ikon tiga tanda hubung atau crypto.",
   "balance_page": "Halaman Saldo",
   "bill_amount": "Jumlah Tagihan",
   "billing_address_info": "Jika diminta alamat billing, berikan alamat pengiriman Anda",

@@ -74,6 +74,7 @@
   "backup_file": "Tập tin sao lưu",
   "backup_password": "Mật khẩu sao lưu",
   "balance": "Số dư",
+  "balance_display_popup": "Bạn đã che giấu sự cân bằng. Nếu bạn muốn bật lại màn hình cân bằng, chỉ cần nhấn vào biểu tượng ba dấu gạch ngang hoặc tiền điện tử.",
   "balance_page": "Trang số dư",
   "bill_amount": "Số tiền hóa đơn",
   "billing_address_info": "Nếu được yêu cầu địa chỉ thanh toán, hãy cung cấp địa chỉ giao hàng của bạn",

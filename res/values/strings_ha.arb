@@ -74,6 +74,7 @@
   "backup_file": "Ajiyayyen fayil",
   "backup_password": "Ajiyayyen kalmar sirri",
   "balance": "Ma'auni",
+  "balance_display_popup": "Kun ɓoye ma'auni. Idan kana son kunna ma'aunin ma'auni, kawai matsa dashes uku ko crypto alamar.",
   "balance_page": "Ma'auni Page",
   "bill_amount": "Adadin Bill",
   "billing_address_info": "Idan an nemi adireshin biyan kuɗi, samar da adireshin jigilar kaya",

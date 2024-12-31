@@ -74,6 +74,7 @@
   "backup_file": "Backup file",
   "backup_password": "Backup password",
   "balance": "Balance",
+  "balance_display_popup": "You've hidden the balance. If you'd like to enable the balance display again, just tap the three dashes or crypto icon.",
   "balance_page": "Balance Page",
   "bill_amount": "Bill Amount",
   "billing_address_info": "If asked for a billing address, provide your shipping address",

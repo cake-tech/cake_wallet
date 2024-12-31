@@ -74,6 +74,7 @@
   "backup_file": "Yedek dosyası",
   "backup_password": "Yedek parolası",
   "balance": "Denge",
+  "balance_display_popup": "Dengeyi sakladınız. Denge ekranını tekrar etkinleştirmek isterseniz, üç çizgi veya kripto simgesine dokunun.",
   "balance_page": "Bakiye Sayfası",
   "bill_amount": "Fatura Tutarı",
   "billing_address_info": "Eğer fatura adresi istenirse, kargo adresinizi girin",

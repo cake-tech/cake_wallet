@@ -74,6 +74,7 @@
   "backup_file": "备份文件",
   "backup_password": "备份密码",
   "balance": "平衡",
+  "balance_display_popup": "您已经隐藏了平衡。如果您想再次启用余额显示屏，只需点击三个破折号或加密图标即可。",
   "balance_page": "余额页",
   "bill_amount": "账单金额",
   "billing_address_info": "如果要求提供帐单地址，请提供您的送货地址",

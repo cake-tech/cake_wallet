@@ -74,6 +74,7 @@
   "backup_file": "Plik kopii zapasowej",
   "backup_password": "Hasło kpoii zapasowej",
   "balance": "Balansować",
+  "balance_display_popup": "Ukryłeś równowagę. Jeśli chcesz ponownie włączyć wyświetlacz równowagi, po prostu dotknij trzech dystansów lub ikonów kryptograficznych.",
   "balance_page": "Strona salda",
   "bill_amount": "Kwota rachunku",
   "billing_address_info": "Jeśli zostaniesz poproszony o podanie adresu rozliczeniowego, podaj swój adres wysyłki",

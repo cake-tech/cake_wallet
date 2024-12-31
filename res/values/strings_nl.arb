@@ -74,6 +74,7 @@
   "backup_file": "Backup bestand",
   "backup_password": "Reservewachtwoord",
   "balance": "Evenwicht",
+  "balance_display_popup": "Je hebt de balans verborgen. Als u het balansdisplay opnieuw wilt inschakelen, tikt u op het drie streepje of crypto -pictogram.",
   "balance_page": "Saldo pagina",
   "bill_amount": "Bill bedrag",
   "billing_address_info": "Als u om een ​​factuuradres wordt gevraagd, geef dan uw verzendadres op",

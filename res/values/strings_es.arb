@@ -74,6 +74,7 @@
   "backup_file": "Archivo de respaldo",
   "backup_password": "Contraseña de respaldo",
   "balance": "Balance",
+  "balance_display_popup": "Has escondido el equilibrio. Si desea habilitar la pantalla de equilibrio nuevamente, simplemente toque los tres guiones o el icono de cripto.",
   "balance_page": "Página de saldo",
   "bill_amount": "Importe de la factura",
   "billing_address_info": "Si se le solicita una dirección de facturación, proporcione su dirección de envío",
