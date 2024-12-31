@@ -618,8 +618,6 @@ class SolanaWalletClient {
         signedTransaction.encode(),
         preflightCommitment: commitment,
       );
-      print("#########");
-      print(signature);
 
       _client!.waitForSignatureStatus(signature, status: commitment);
 
