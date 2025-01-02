@@ -75,6 +75,15 @@ class BalanceRowWidget extends StatelessWidget {
               width: 1,
             ),
             color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+            boxShadow: [
+              BoxShadow(
+                  color: Theme.of(context)
+                      .extension<BalancePageTheme>()!
+                      .cardBorderColor
+                      .withAlpha(50),
+                  spreadRadius: 3,
+                  blurRadius: 7)
+            ],
           ),
           child: Container(
             margin: const EdgeInsets.only(top: 16, left: 24, right: 8, bottom: 16),
@@ -319,7 +328,7 @@ class BalanceRowWidget extends StatelessWidget {
           ),
         ),
         if (hasSecondAdditionalBalance || hasSecondAvailableBalance) ...[
-          SizedBox(height: 10),
+          SizedBox(height: 16),
           Container(
             margin: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
@@ -329,6 +338,15 @@ class BalanceRowWidget extends StatelessWidget {
                 width: 1,
               ),
               color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+              boxShadow: [
+                BoxShadow(
+                    color: Theme.of(context)
+                        .extension<BalancePageTheme>()!
+                        .cardBorderColor
+                        .withAlpha(50),
+                    spreadRadius: 3,
+                    blurRadius: 7)
+              ],
             ),
             child: Container(
               child: Column(
