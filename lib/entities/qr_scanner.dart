@@ -23,7 +23,7 @@ Future<String> presentQRScanner(BuildContext context) async {
       ),
     );
     isQrScannerShown = false;
-    return result??'';
+    return result!;
   } catch (e) {
     isQrScannerShown = false;
     rethrow;
