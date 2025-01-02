@@ -95,9 +95,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
         setState(() {
           popped = true;
         });
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pop(_barcode?.rawValue ?? "");
-        });
+        Navigator.of(context).pop(_barcode!.rawValue ?? _barcode!.rawBytes);
       }
     }
   }
