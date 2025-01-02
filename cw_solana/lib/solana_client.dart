@@ -515,7 +515,7 @@ class SolanaWalletClient {
         final instruction = AssociatedTokenAccountInstruction.createAccount(
           mint: mint,
           address: derivedAddress,
-          owner: ownerKeypair.publicKey,
+          owner: destinationOwner,
           funder: ownerKeypair.publicKey,
         );
 
@@ -541,6 +541,8 @@ class SolanaWalletClient {
             data: null,
           ),
         );
+
+        await Future.delayed(Duration(seconds: 5));
       }
     } catch (e) {
       throw SolanaCreateAssociatedTokenAccountException(e.toString());
