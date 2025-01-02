@@ -437,7 +437,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @action
   @override
-  Future<void> stopSync() async {
+  Future<void> stopSync({bool isBackgroundSync = false}) async {
     printV("stopSync() called!");
     _syncTimer?.cancel();
     _utxoStream?.cancel();
