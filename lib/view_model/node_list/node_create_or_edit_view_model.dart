@@ -69,8 +69,6 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool get hasAuthCredentials =>
       _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
 
-  bool get hasTestnetSupport => _walletType == WalletType.bitcoin;
-
   bool get hasPathSupport {
     switch (_walletType) {
       case WalletType.ethereum:
