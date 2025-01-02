@@ -422,7 +422,7 @@ class SendPage extends BasePage {
                             await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: 'export-outputs');
                           }
                           if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
-                            throw Exception("You need to export outputs first");
+                            return;
                           }
                         }
 

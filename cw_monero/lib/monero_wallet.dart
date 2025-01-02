@@ -267,11 +267,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   bool needExportOutputs(int amount) {
-    // printV("viewOnlyBalance: ${monero.Wallet_viewOnlyBalance(wptr!, accountIndex: walletAddresses.account!.id)}");
-    // printV("        balance: ${monero.Wallet_balance(wptr!, accountIndex: walletAddresses.account!.id)}");
-    return monero.Wallet_hasUnknownKeyImages(wptr!) ||
-        (monero.Wallet_viewOnlyBalance(wptr!,
-                accountIndex: walletAddresses.account!.id) < amount);
+    // viewOnlyBalance - balance that we can spend
+    // TODO(mrcyjanek): remove hasUnknownKeyImages when we cleanup coin control
+    return (monero.Wallet_viewOnlyBalance(wptr!,
+                accountIndex: walletAddresses.account!.id) < amount) ||
+              monero.Wallet_hasUnknownKeyImages(wptr!);
   }
 
   @override
