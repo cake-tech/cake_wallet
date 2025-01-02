@@ -1,4 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/exceptions.dart';
 
 class SolanaTransactionCreationException implements Exception {
   final String exceptionMessage;
@@ -20,18 +21,17 @@ class SolanaTransactionWrongBalanceException implements Exception {
   String toString() => exceptionMessage;
 }
 
-class SolanaSignNativeTokenTransactionRentException implements Exception {}
+class SolanaSignNativeTokenTransactionRentException
+    extends SignNativeTokenTransactionRentException {}
 
-class SolanaCreateAssociatedTokenAccountException implements Exception {
-  final String exceptionMessage;
-
-  SolanaCreateAssociatedTokenAccountException(this.exceptionMessage);
+class SolanaCreateAssociatedTokenAccountException extends CreateAssociatedTokenAccountException {
+  SolanaCreateAssociatedTokenAccountException(super.errorMessage);
 }
 
-class SolanaSignSPLTokenTransactionRentException implements Exception {}
+class SolanaSignSPLTokenTransactionRentException extends SignSPLTokenTransactionRentException {}
 
-class SolanaNoAssociatedTokenAccountException implements Exception {
-  const SolanaNoAssociatedTokenAccountException(this.account, this.mint);
+class SolanaNoAssociatedTokenAccountException extends NoAssociatedTokenAccountException {
+  SolanaNoAssociatedTokenAccountException(this.account, this.mint);
 
   final String account;
   final String mint;

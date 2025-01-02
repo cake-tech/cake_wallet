@@ -330,6 +330,7 @@
   "freeze": "फ्रीज",
   "frequently_asked_questions": "अक्सर पूछे जाने वाले प्रश्न",
   "frozen": "जमा हुआ",
+  "frozen_balance": "जमे हुए संतुलन",
   "full_balance": "पूर्ण संतुलन",
   "gas_exceeds_allowance": "लेनदेन द्वारा आवश्यक गैस भत्ता से अधिक है।",
   "generate_name": "नाम जनरेट करें",

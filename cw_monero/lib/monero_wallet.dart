@@ -510,6 +510,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   Future<void> updateUnspent() async {
+    await transaction_history.txHistoryMutex.acquire();
     try {
       refreshCoins(walletAddresses.account!.id);
 
@@ -538,6 +539,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
       if (unspentCoinsInfo.isEmpty) {
         unspentCoins.forEach((coin) => _addCoinInfo(coin));
+        transaction_history.txHistoryMutex.release();
         return;
       }
 
@@ -562,7 +564,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
       await _refreshUnspentCoinsInfo();
       _askForUpdateBalance();
+      transaction_history.txHistoryMutex.release();
     } catch (e, s) {
+      transaction_history.txHistoryMutex.release();
       printV(e.toString());
       onError?.call(FlutterErrorDetails(
         exception: e,
@@ -758,11 +762,18 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   int _getFrozenBalance() {
     var frozenBalance = 0;
 
-    for (var coin in unspentCoinsInfo.values.where((element) =>
-        element.walletId == id &&
-        element.accountIndex == walletAddresses.account!.id)) {
-      if (coin.isFrozen && !coin.isSending) frozenBalance += coin.value;
-    }
+    unspentCoinsInfo.values.forEach((info) {
+      unspentCoins.forEach((element) {
+        if (element.hash == info.hash &&
+            element.vout == info.vout &&
+            info.isFrozen &&
+            element.value == info.value && info.walletId == id &&
+        info.accountIndex == walletAddresses.account!.id) {
+          if (element.isFrozen && !element.isSending)  frozenBalance+= element.value;
+        }
+      });
+    });
+
     return frozenBalance;
   }
 

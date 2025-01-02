@@ -25,7 +25,7 @@ class WelcomePage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    final Uri _url = Uri.parse('https://guides.cakewallet.com/docs/basic-features/basic-features/');
+    final Uri _url = Uri.parse('https://docs.cakewallet.com/get-started/setup/create-first-wallet/');
     return IconButton(
       icon: Icon(Icons.info_outline),
       onPressed: () async {
