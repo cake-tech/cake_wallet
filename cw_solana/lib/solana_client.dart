@@ -481,6 +481,9 @@ class SolanaWalletClient {
     final destinationOwner = Ed25519HDPublicKey.fromBase58(destinationAddress);
     final mint = Ed25519HDPublicKey.fromBase58(tokenMint);
 
+    // Input by the user
+    final amount = (inputAmount * math.pow(10, tokenDecimals)).toInt();
+
     ProgramAccount? associatedRecipientAccount;
     ProgramAccount? associatedSenderAccount;
 
@@ -503,17 +506,45 @@ class SolanaWalletClient {
     }
 
     try {
-      associatedRecipientAccount ??= await _client!.createAssociatedTokenAccount(
-        mint: mint,
-        owner: destinationOwner,
-        funder: ownerKeypair,
-      );
+      if (associatedRecipientAccount == null) {
+        final derivedAddress = await findAssociatedTokenAddress(
+          owner: destinationOwner,
+          mint: mint,
+        );
+
+        final instruction = AssociatedTokenAccountInstruction.createAccount(
+          mint: mint,
+          address: derivedAddress,
+          owner: ownerKeypair.publicKey,
+          funder: ownerKeypair.publicKey,
+        );
+
+        final _signedTx = await _signTransactionInternal(
+          message: Message.only(instruction),
+          signers: [ownerKeypair],
+          commitment: commitment,
+          latestBlockhash: await _getLatestBlockhash(commitment),
+        );
+
+        await sendTransaction(
+          signedTransaction: _signedTx,
+          commitment: commitment,
+        );
+
+        associatedRecipientAccount = ProgramAccount(
+          pubkey: derivedAddress.toBase58(),
+          account: Account(
+            owner: destinationOwner.toBase58(),
+            lamports: 0,
+            executable: false,
+            rentEpoch: BigInt.zero,
+            data: null,
+          ),
+        );
+      }
     } catch (e) {
       throw SolanaCreateAssociatedTokenAccountException(e.toString());
     }
-
-    // Input by the user
-    final amount = (inputAmount * math.pow(10, tokenDecimals)).toInt();
 
     final instruction = TokenInstruction.transfer(
       source: Ed25519HDPublicKey.fromBase58(associatedSenderAccount.pubkey),
