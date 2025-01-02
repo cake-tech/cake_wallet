@@ -81,8 +81,8 @@ class BalanceRowWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                GestureDetector(
-                  onTap: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
+                InkWell(
+                  onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,

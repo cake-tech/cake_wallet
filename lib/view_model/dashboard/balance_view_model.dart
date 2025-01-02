@@ -21,7 +21,6 @@ part 'balance_view_model.g.dart';
 class BalanceRecord {
   const BalanceRecord(
       {
-        required this.availableBalanceLabel,
         required this.availableBalance,
       required this.additionalBalance,
       required this.secondAvailableBalance,
@@ -39,7 +38,6 @@ class BalanceRecord {
   final String fiatAvailableBalance;
   final String fiatFrozenBalance;
   final String additionalBalance;
-  final String availableBalanceLabel;
   final String availableBalance;
   final String frozenBalance;
   final String secondAvailableBalance;
@@ -153,7 +151,7 @@ abstract class BalanceViewModelBase with Store {
   String get availableBalanceLabel {
 
     if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return 'Tap to Show Balance';
+      return S.current.show_balance;
     }
     else {
       switch (wallet.type) {
@@ -177,8 +175,6 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get additionalBalanceLabel {
-
-    if(displayMode == BalanceDisplayMode.hiddenBalance) return '';
 
     switch (wallet.type) {
       case WalletType.haven:
@@ -216,78 +212,14 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  bool get hasMultiBalance => appStore.wallet!.type == WalletType.haven;
-
-  @computed
-  String get availableBalance {
-    final walletBalance = _walletBalance;
-
-    if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '●●●●●●';
-    }
-
-    return walletBalance.formattedAvailableBalance;
-  }
-
-  @computed
-  String get frozenBalance {
-    final walletBalance = _walletBalance;
-
-    if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '';
-    }
-
-    return getFormattedFrozenBalance(walletBalance);
-  }
-
-  @computed
-  String get frozenFiatBalance {
-    final walletBalance = _walletBalance;
-    final fiatCurrency = settingsStore.fiatCurrency;
-
-    if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '';
-    }
-
-    return _getFiatBalance(price: price, cryptoAmount: getFormattedFrozenBalance(walletBalance)) +
-        ' ${fiatCurrency.toString()}';
-  }
-
-  @computed
   String get additionalBalance {
     final walletBalance = _walletBalance;
 
     if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '';
+      return '0.0';
     }
 
     return walletBalance.formattedAdditionalBalance;
-  }
-
-  @computed
-  String get availableFiatBalance {
-    final walletBalance = _walletBalance;
-    final fiatCurrency = settingsStore.fiatCurrency;
-
-    if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '${fiatCurrency.toString()} ●●●●●';
-    }
-
-    return _getFiatBalance(price: price, cryptoAmount: walletBalance.formattedAvailableBalance) +
-        ' ${fiatCurrency.toString()}';
-  }
-
-  @computed
-  String get additionalFiatBalance {
-    final walletBalance = _walletBalance;
-    final fiatCurrency = settingsStore.fiatCurrency;
-
-    if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '${fiatCurrency.toString()}';
-    }
-
-    return _getFiatBalance(price: price, cryptoAmount: walletBalance.formattedAdditionalBalance) +
-        ' ${fiatCurrency.toString()}';
   }
 
   @computed
@@ -298,9 +230,8 @@ abstract class BalanceViewModelBase with Store {
         return MapEntry(
             key,
             BalanceRecord(
-                availableBalanceLabel: 'Tap to Show Balance',
                 availableBalance: '●●●●●●',
-                additionalBalance: '',
+                additionalBalance: additionalBalance,
                 frozenBalance: '',
                 secondAvailableBalance: '',
                 secondAdditionalBalance: '',
@@ -352,7 +283,6 @@ abstract class BalanceViewModelBase with Store {
       return MapEntry(
           key,
           BalanceRecord(
-              availableBalanceLabel: "Tap to Show Balance",
               availableBalance: value.formattedAvailableBalance,
               additionalBalance: value.formattedAdditionalBalance,
               frozenBalance: getFormattedFrozenBalance(value),
@@ -389,16 +319,11 @@ abstract class BalanceViewModelBase with Store {
 
   bool _hasAdditionalBalanceForWalletType(WalletType type) {
     switch (type) {
-      case WalletType.ethereum:
-      case WalletType.polygon:
-      case WalletType.solana:
-      case WalletType.tron:
-      case WalletType.bitcoin:
-      case WalletType.bitcoinCash:
-      case WalletType.litecoin:
-        return false;
-      default:
+      case WalletType.monero:
+      case WalletType.wownero:
         return true;
+      default:
+        return false;
     }
   }
 
@@ -483,8 +408,6 @@ abstract class BalanceViewModelBase with Store {
     return balance;
   }
 
-  @computed
-  CryptoCurrency get currency => appStore.wallet!.currency;
 
   @observable
   bool isShowCard;

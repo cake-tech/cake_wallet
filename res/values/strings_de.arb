@@ -731,6 +731,7 @@
   "shared_seed_wallet_groups": "Gemeinsame Walletsseed Gruppen",
   "show": "Zeigen",
   "show_address_book_popup": "Popup \"zum Adressbuch hinzufügen\" nach dem Senden anzeigen",
+  "show_balance": "Lange Presse, um das Gleichgewicht zu zeigen",
   "show_details": "Details anzeigen",
   "show_keys": "Seed/Schlüssel anzeigen",
   "show_market_place": "Marktplatz anzeigen",
