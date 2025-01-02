@@ -66,6 +66,7 @@ class RescanPage extends BasePage {
     );
   }
 
+  // TODO: common with crypto balance widget.dart
   Future<void> _toggleSilentPaymentsScanning(BuildContext context) async {
     final height = _blockchainHeightWidgetKey.currentState!.height;
 

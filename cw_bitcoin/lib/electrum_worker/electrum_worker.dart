@@ -579,6 +579,7 @@ class ElectrumWorker {
     }
 
     // Initial status UI update, send how many blocks in total to scan
+    // TODO: isSingleScan : dont update restoreHeight
     _sendResponse(ElectrumWorkerTweaksSubscribeResponse(
       result: TweaksSyncResponse(
         height: syncHeight,
