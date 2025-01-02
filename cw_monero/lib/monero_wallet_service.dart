@@ -12,7 +12,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/api/account_list.dart';
-import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/ledger.dart';
@@ -160,7 +159,7 @@ class MoneroWalletService extends WalletService<
       }
 
       await wallet.init();
-      await wallet.updateUnspent();
+
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
