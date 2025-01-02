@@ -61,8 +61,9 @@ class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
     required this.address,
     required this.viewKey,
     required this.spendKey,
-    int height = 0})
-      : super(name: name, password: password, height: height);
+    int height = 0,
+    HardwareWalletType? hardwareWalletType})
+      : super(name: name, password: password, height: height, hardwareWalletType: hardwareWalletType);
 
   final String language;
   final String address;
@@ -148,7 +149,7 @@ class MoneroWalletService extends WalletService<
           password: password);
       final isValid = wallet.walletAddresses.validate();
 
-      if (wallet.isHardwareWallet) {
+      if (wallet.isLedger) {
         wallet.setLedgerConnection(gLedger!);
         gLedger = null;
       }
@@ -410,7 +411,7 @@ class MoneroWalletService extends WalletService<
     return walletInfoSource.values
             .firstWhereOrNull(
                 (info) => info.id == WalletBase.idFor(name, getType()))
-            ?.isHardwareWallet ??
+            ?.isConnectableHardwareWallet ??
         false;
   }
 }
