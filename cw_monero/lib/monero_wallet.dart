@@ -477,6 +477,7 @@ abstract class MoneroWalletBase
   }
 
   Future<void> updateUnspent() async {
+    await transaction_history.txHistoryMutex.acquire();
     try {
       refreshCoins(walletAddresses.account!.id);
 
@@ -506,6 +507,7 @@ abstract class MoneroWalletBase
 
       if (unspentCoinsInfo.isEmpty) {
         unspentCoins.forEach((coin) => _addCoinInfo(coin));
+        transaction_history.txHistoryMutex.release();
         return;
       }
 
@@ -530,7 +532,9 @@ abstract class MoneroWalletBase
 
       await _refreshUnspentCoinsInfo();
       _askForUpdateBalance();
+      transaction_history.txHistoryMutex.release();
     } catch (e, s) {
+      transaction_history.txHistoryMutex.release();
       printV(e.toString());
       onError?.call(FlutterErrorDetails(
         exception: e,

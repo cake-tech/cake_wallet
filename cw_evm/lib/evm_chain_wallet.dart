@@ -347,7 +347,7 @@ abstract class EVMChainWalletBase
     final CryptoCurrency transactionCurrency =
         balance.keys.firstWhere((element) => element.title == _credentials.currency.title);
 
-    final erc20Balance = balance[transactionCurrency]!;
+    final currencyBalance = balance[transactionCurrency]!;
     BigInt totalAmount = BigInt.zero;
     BigInt estimatedFeesForTransaction = BigInt.zero;
     int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
@@ -384,7 +384,7 @@ abstract class EVMChainWalletBase
       estimatedGasUnitsForTransaction = gasFeesModel.estimatedGasUnits;
       maxFeePerGasForTransaction = gasFeesModel.maxFeePerGas;
 
-      if (erc20Balance.balance < totalAmount) {
+      if (currencyBalance.balance < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
     } else {
@@ -397,7 +397,7 @@ abstract class EVMChainWalletBase
       }
 
       if (output.sendAll && transactionCurrency is Erc20Token) {
-        totalAmount = erc20Balance.balance;
+        totalAmount = currencyBalance.balance;
       }
 
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
@@ -412,14 +412,15 @@ abstract class EVMChainWalletBase
       maxFeePerGasForTransaction = gasFeesModel.maxFeePerGas;
 
       if (output.sendAll && transactionCurrency is! Erc20Token) {
-        totalAmount = (erc20Balance.balance - estimatedFeesForTransaction);
-
-        if (estimatedFeesForTransaction > erc20Balance.balance) {
-          throw EVMChainTransactionFeesException();
-        }
+        totalAmount = (currencyBalance.balance - estimatedFeesForTransaction);
       }
 
-      if (erc20Balance.balance < totalAmount) {
+      // check the fees on the base currency (Eth/Polygon)
+      if (estimatedFeesForTransaction > balance[currency]!.balance) {
+        throw EVMChainTransactionFeesException();
+      }
+
+      if (currencyBalance.balance < totalAmount) {
         throw EVMChainTransactionCreationException(transactionCurrency);
       }
     }

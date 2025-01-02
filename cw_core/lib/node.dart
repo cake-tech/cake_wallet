@@ -99,8 +99,8 @@ class Node extends HiveObject with Keyable {
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
-      return Uri.parse(
-          "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") ? path : "/$path"}");
+        return Uri.parse(
+            "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") ? path : "/$path"}");
       case WalletType.none:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -152,6 +152,7 @@ class Node extends HiveObject with Keyable {
           return requestMoneroNode();
         case WalletType.nano:
         case WalletType.banano:
+          return requestNanoNode();
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.bitcoinCash:
@@ -198,14 +199,16 @@ class Node extends HiveObject with Keyable {
       );
       client.close();
 
-      if ((
-        response.body.contains("400 Bad Request") // Some other generic error
-        || response.body.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
-        || response.headers["location"] != null // Generic reverse proxy
-        || response.body.contains("301 Moved Permanently") // Poorly configured generic reverse proxy
-      ) && !(useSSL??false)
-      ) {
-
+      if ((response.body.contains("400 Bad Request") // Some other generic error
+              ||
+              response.body.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+              ||
+              response.headers["location"] != null // Generic reverse proxy
+              ||
+              response.body
+                  .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
+          ) &&
+          !(useSSL ?? false)) {
         final oldUseSSL = useSSL;
         useSSL = true;
         try {
@@ -265,6 +268,35 @@ class Node extends HiveObject with Keyable {
       }
 
       socket.destroy();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> requestNanoNode() async {
+    try {
+      final response = await http.post(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "nano-app": "cake-wallet"
+        },
+        body: jsonEncode(
+          {
+            "action": "account_balance",
+            "account": "nano_38713x95zyjsqzx6nm1dsom1jmm668owkeb9913ax6nfgj15az3nu8xkx579",
+          },
+        ),
+      );
+      final data = await jsonDecode(response.body);
+      if (response.statusCode != 200 ||
+          data["error"] != null ||
+          data["balance"] == null ||
+          data["receivable"] == null) {
+        throw Exception(
+            "Error while trying to get balance! ${data["error"] != null ? data["error"] : ""}");
+      }
       return true;
     } catch (_) {
       return false;
