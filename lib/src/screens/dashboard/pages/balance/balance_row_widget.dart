@@ -76,14 +76,22 @@ class BalanceRowWidget extends StatelessWidget {
             ),
             color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
           ),
+            child: TextButton(
+              onPressed: () => AsyncSnapshot.nothing,
+              onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
+              style: TextButton.styleFrom(
+                  backgroundColor: Theme.of(context)
+                      .extension<SyncIndicatorTheme>()!
+                      .syncedBackgroundColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30)),
+              ),
           child: Container(
-            margin: const EdgeInsets.only(top: 16, left: 24, right: 8, bottom: 16),
+            margin: const EdgeInsets.only(top: 10, left: 12, right: 12, bottom: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                InkWell(
-                  onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
-                  child: Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -159,7 +167,7 @@ class BalanceRowWidget extends StatelessWidget {
                         ],
                       ),
                       SizedBox(
-                        width: min(MediaQuery.of(context).size.width * 0.2, 100),
+                        //width: min(MediaQuery.of(context).size.width * 0.2, 100),
                         child: Center(
                           child: Column(
                             children: [
@@ -201,7 +209,7 @@ class BalanceRowWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
+                //),
                 if (frozenBalance.isNotEmpty)
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
@@ -317,6 +325,7 @@ class BalanceRowWidget extends StatelessWidget {
               ],
             ),
           ),
+            ),
         ),
         if (hasSecondAdditionalBalance || hasSecondAvailableBalance) ...[
           SizedBox(height: 10),
