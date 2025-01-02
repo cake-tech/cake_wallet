@@ -40,6 +40,10 @@ abstract class DecredWalletBase
         this.watchingOnly = walletInfo.derivationPath == DecredWalletService.pubkeyRestorePath ||
             walletInfo.derivationPath == DecredWalletService.pubkeyRestorePathTestnet,
         this.balance = ObservableMap.of({CryptoCurrency.dcr: DecredBalance.zero()}),
+        this.isTestnet = walletInfo.derivationPath ==
+                DecredWalletService.seedRestorePathTestnet ||
+            walletInfo.derivationPath ==
+                DecredWalletService.pubkeyRestorePathTestnet,
         super(walletInfo) {
     walletAddresses = DecredWalletAddresses(walletInfo);
     transactionHistory = DecredTransactionHistory();
@@ -82,6 +86,9 @@ abstract class DecredWalletBase
 
   @override
   Object get keys => {};
+
+  @override
+  bool isTestnet;
 
   String get pubkey {
     return libdcrwallet.defaultPubkey(walletInfo.name);
@@ -209,10 +216,7 @@ abstract class DecredWalletBase
       }
       persistantPeer = addr;
       libdcrwallet.closeWallet(walletInfo.name);
-      final network = walletInfo.derivationPath == DecredWalletService.seedRestorePathTestnet ||
-              walletInfo.derivationPath == DecredWalletService.pubkeyRestorePathTestnet
-          ? "testnet"
-          : "mainnet";
+      final network = isTestnet ? "testnet" : "mainnet";
       libdcrwallet.loadWalletSync({
         "name": walletInfo.name,
         "dataDir": walletInfo.dirPath,
