@@ -252,6 +252,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final err = monero.Wallet_errorString(wptr!);
       throw Exception("unable to import key images: $err");
     }
+    monero.Wallet_store(wptr!);
     return retStatus;
   }
 
@@ -265,11 +266,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return str;
   }
 
-  bool needExportOutputs(int? amount) {
+  bool needExportOutputs(int amount) {
+    // printV("viewOnlyBalance: ${monero.Wallet_viewOnlyBalance(wptr!, accountIndex: walletAddresses.account!.id)}");
+    // printV("        balance: ${monero.Wallet_balance(wptr!, accountIndex: walletAddresses.account!.id)}");
     return monero.Wallet_hasUnknownKeyImages(wptr!) ||
         (monero.Wallet_viewOnlyBalance(wptr!,
-                accountIndex: walletAddresses.account!.id) <
-            (amount ?? monero.Wallet_balance(wptr!, accountIndex: walletAddresses.account!.id)));
+                accountIndex: walletAddresses.account!.id) < amount);
   }
 
   @override

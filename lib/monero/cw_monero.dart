@@ -392,7 +392,7 @@ class CWMonero extends Monero {
   }
 
   @override
-  bool needExportOutputs(Object wallet, int? amount) {
+  bool needExportOutputs(Object wallet, int amount) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.needExportOutputs(amount);
   }

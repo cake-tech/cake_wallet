@@ -414,10 +414,14 @@ class SendPage extends BasePage {
                         }
 
                         if (sendViewModel.wallet.type == WalletType.monero) {
-                          if (monero!.needExportOutputs(sendViewModel.wallet, null)) {
+                          int amount = 0;
+                          for (var item in sendViewModel.outputs) {
+                            amount += item.formattedCryptoAmount;
+                          }
+                          if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
                             await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: 'export-outputs');
                           }
-                          if (monero!.needExportOutputs(sendViewModel.wallet, null)) {
+                          if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
                             throw Exception("You need to export outputs first");
                           }
                         }
