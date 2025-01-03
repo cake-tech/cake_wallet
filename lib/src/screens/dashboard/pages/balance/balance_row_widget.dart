@@ -80,9 +80,6 @@ class BalanceRowWidget extends StatelessWidget {
               onPressed: () => AsyncSnapshot.nothing,
               onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
               style: TextButton.styleFrom(
-                  backgroundColor: Theme.of(context)
-                      .extension<SyncIndicatorTheme>()!
-                      .syncedBackgroundColor,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30)),
               ),
