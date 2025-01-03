@@ -349,8 +349,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       type: addressPageType,
       network: network,
     );
-    _addresses.add(address);
-    Future.delayed(Duration.zero, () => updateAddressesByMatch());
+    Future.delayed(Duration.zero, () {
+      _addresses.add(address);
+      updateAddressesByMatch();
+    });
     return address;
   }
 

@@ -109,7 +109,6 @@ import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
@@ -173,7 +172,8 @@ abstract class Bitcoin {
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet);
   List<ElectrumSubAddress> getSilentPaymentReceivedAddresses(Object wallet);
 
-  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority);
+  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority,
+      {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
 
   String formatterBitcoinAmountToString({required int amount});
