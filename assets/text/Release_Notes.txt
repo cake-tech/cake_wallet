@@ -1,5 +1,4 @@
-Support Monero Ledger
-Prepare for Haven removal
-Improve Ethereum and Polygon sending process
+Bitcoin and Litecoin enhancements
+Solana and Nano fixes/improvements
+UI enhancements
 Bug fixes
-New designs and better user experience
