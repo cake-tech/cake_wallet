@@ -142,6 +142,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   Future<void> init() async {
     await walletAddresses.init();
+    transaction_history.txhistory = monero.Wallet_history(wptr!);
+    monero.TransactionHistory_refresh(transaction_history.txhistory!);
+    await updateUnspent();
+    balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
+        MoneroBalance>{
+      currency: getMoneroBalance(),
+    });
     _setListeners();
     await updateTransactions();
     if (walletInfo.isRecovery) {
@@ -160,15 +167,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
         MoneroBalance>{
       currency: getMoneroBalance(),
-    });
-    Future.delayed(Duration.zero).then((_) async {
-      transaction_history.txhistory = monero.Wallet_history(wptr!);
-      monero.TransactionHistory_refresh(transaction_history.txhistory!);
-      await updateUnspent();
-      balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
-          MoneroBalance>{
-        currency: getMoneroBalance(),
-      });
     });
   }
 
