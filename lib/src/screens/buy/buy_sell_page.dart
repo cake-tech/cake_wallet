@@ -317,7 +317,7 @@ class BuySellPage extends BasePage {
           return;
         }
         if (cryptoAmountController.text.isNotEmpty &&
-            cryptoAmountController.text != S.current.fetching && !buySellViewModel.isBuyAction) {
+            cryptoAmountController.text != S.current.fetching) {
           buySellViewModel.changeCryptoAmount(amount: cryptoAmountController.text);
         } else if (fiatAmountController.text.isNotEmpty &&
             fiatAmountController.text != S.current.fetching) {
