@@ -138,6 +138,7 @@ abstract class MoneroWalletBase
   Timer? _autoSaveTimer;
   List<MoneroUnspent> unspentCoins;
   String _password;
+  bool isBackgroundSyncing = false;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -202,8 +203,10 @@ abstract class MoneroWalletBase
       try {
         syncStatus = AttemptingSyncStatus();
         monero_wallet.startBackgroundSync();
+        isBackgroundSyncing = true;
         return;
       } catch (e) {
+        isBackgroundSyncing = false;
         syncStatus = FailedSyncStatus();
         printV(e);
         rethrow;
@@ -280,11 +283,11 @@ abstract class MoneroWalletBase
     syncStatus = NotConnectedSyncStatus();
     _listener?.stop();
     if (isBackgroundSync) {
+      isBackgroundSyncing = false;
       monero_wallet.stopBackgroundSync(password);
       return;
     }
-    // TODO: find a better way to stop syncing than setting an invalid address:
-    monero_wallet.setupNode(address: "");
+    monero_wallet.stopSync();
   }
 
   @override
@@ -397,7 +400,7 @@ abstract class MoneroWalletBase
   Future<void> save() async {
     await walletAddresses.updateUsedSubaddress();
 
-    if (isEnabledAutoGenerateSubaddress) {
+    if (isEnabledAutoGenerateSubaddress && !isBackgroundSyncing) {
       walletAddresses.updateUnusedSubaddress(
           accountIndex: walletAddresses.account?.id ?? 0,
           defaultLabel: walletAddresses.account?.label ?? '');

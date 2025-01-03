@@ -80,11 +80,18 @@ String getSeedLegacy(String? language) {
 Map<int, Map<int, Map<int, String>>> addressCache = {};
 
 String getAddress({int accountIndex = 0, int addressIndex = 0}) {
-  // printV("getaddress: ${accountIndex}/${addressIndex}: ${monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)}: ${monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}");
+
+  int count = 0;
+
   while (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex) - 1 < addressIndex) {
     printV("adding subaddress");
     monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
+    if (count > 10) {
+      throw Exception("Failed to add subaddress");
+    }
+    count++;
   }
+
   addressCache[wptr!.address] ??= {};
   addressCache[wptr!.address]![accountIndex] ??= {};
   addressCache[wptr!.address]![accountIndex]![addressIndex] ??=
@@ -167,12 +174,18 @@ void setupBackgroundSync(
       backgroundCachePassword: backgroundCachePassword);
 }
 
+bool isBackgroundSyncing() => monero.Wallet_isBackgroundSyncing(wptr!);
+
 void startBackgroundSync() {
   monero.Wallet_startBackgroundSync(wptr!);
 }
 
 void stopBackgroundSync(String walletPassword) {
   monero.Wallet_stopBackgroundSync(wptr!, walletPassword);
+}
+
+void stopSync() {
+  monero.Wallet_init(wptr!, daemonAddress: "");
 }
 
 void setRefreshFromBlockHeight({required int height}) =>
