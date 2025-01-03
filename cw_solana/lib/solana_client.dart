@@ -515,7 +515,7 @@ class SolanaWalletClient {
         final instruction = AssociatedTokenAccountInstruction.createAccount(
           mint: mint,
           address: derivedAddress,
-          owner: ownerKeypair.publicKey,
+          owner: destinationOwner,
           funder: ownerKeypair.publicKey,
         );
 
@@ -541,6 +541,8 @@ class SolanaWalletClient {
             data: null,
           ),
         );
+
+        await Future.delayed(Duration(seconds: 5));
       }
     } catch (e) {
       throw SolanaCreateAssociatedTokenAccountException(e.toString());
@@ -583,10 +585,14 @@ class SolanaWalletClient {
       latestBlockhash: latestBlockhash,
     );
 
-    sendTx() async => await sendTransaction(
+    sendTx() async {
+      await Future.delayed(Duration(seconds: 3));
+
+      return await sendTransaction(
           signedTransaction: signedTx,
           commitment: commitment,
         );
+    }
 
     final pendingTransaction = PendingSolanaTransaction(
       amount: inputAmount,

@@ -149,6 +149,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @observable
   BuySellQuotLoadingState buySellQuotState;
 
+  @observable
+  bool skipIsReadyToTradeReaction = false;
+
   @computed
   bool get isReadyToTrade {
     final hasSelectedQuote = selectedQuote != null;
@@ -266,6 +269,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   }
 
   void onTapChoseProvider(BuildContext context) async {
+    skipIsReadyToTradeReaction = true;
     final initialQuotes = List<Quote>.from(sortedRecommendedQuotes + sortedQuotes);
     await calculateBestRate();
     final newQuotes = (sortedRecommendedQuotes + sortedQuotes);

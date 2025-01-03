@@ -730,6 +730,8 @@
   "shared_seed_wallet_groups": "Skupiny sdílených semen",
   "show": "Show",
   "show_address_book_popup": "Po odeslání zobrazíte vyskakovací okno „Přidat do adresáře“",
+  "show_balance": "Dlouhý stisknutí zobrazí rovnováhu",
+  "show_balance_toast": "Dlouhý stiskněte pro skrytí nebo zobrazení rovnováhy",
   "show_details": "Zobrazit detaily",
   "show_keys": "Zobrazit seed/klíče",
   "show_market_place": "Zobrazit trh",
