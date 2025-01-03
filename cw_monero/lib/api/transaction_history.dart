@@ -79,13 +79,8 @@ Future<List<Transaction>> getAllTransactions() async {
   return list;
 }
 
-Map<String, bool> transactionSpentCache = {};
-Future<bool> isTransactionSpent(String txId) async {
-  if (transactionSpentCache[txId] != null) return transactionSpentCache[txId]!;
-  final isSpent = monero.TransactionInfo_direction(monero.TransactionHistory_transactionById(txhistory!, txid: txId)) ==
-            monero.TransactionInfo_Direction.Out;
-  transactionSpentCache[txId] = isSpent;
-  return isSpent;
+Transaction getTransaction(String txId) {
+  return Transaction(txInfo: monero.TransactionHistory_transactionById(txhistory!, txid: txId));
 }
 
 Future<PendingTransactionDescription> createTransactionSync(

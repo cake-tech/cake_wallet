@@ -78,10 +78,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
       balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
           MoneroBalance>{
-        currency: MoneroBalance(
-            fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
-            unlockedBalance:
-                monero_wallet.getUnlockedBalance(accountIndex: account.id))
+        currency: getMoneroBalance(),
       });
       _updateSubAddress(isEnabledAutoGenerateSubaddress, account: account);
       _askForUpdateTransactionHistory();
@@ -144,18 +141,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   String _password;
 
   Future<void> init() async {
-    await updateTransactions();
-    await transaction_history.refreshTransactions();
     await walletAddresses.init();
     balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
         MoneroBalance>{
-      currency: MoneroBalance(
-          fullBalance: monero_wallet.getFullBalance(
-              accountIndex: walletAddresses.account!.id),
-          unlockedBalance: monero_wallet.getUnlockedBalance(
-              accountIndex: walletAddresses.account!.id))
+      currency: getMoneroBalance(),
     });
-    await updateUnspent();
+    _setListeners();
+    await updateTransactions();
     if (walletInfo.isRecovery) {
       monero_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
 
@@ -163,7 +155,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         monero_wallet.setRefreshFromBlockHeight(
             height: walletInfo.restoreHeight);
       }
-    _setListeners();
     }
 
     _autoSaveTimer = Timer.periodic(
@@ -524,7 +515,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           );
           // TODO: double-check the logic here
           if (unspent.hash.isNotEmpty) {
-            unspent.isChange = (await transaction_history.isTransactionSpent(unspent.hash));
+            unspent.isChange = transaction_history.getTransaction(unspent.hash).isSpend == true;
           }
           unspentCoins.add(unspent);
         }
@@ -733,11 +724,19 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     if (balance[currency]!.fullBalance != fullBalance ||
         balance[currency]!.unlockedBalance != unlockedBalance ||
         balance[currency]!.frozenBalance != frozenBalance) {
-      balance[currency] = MoneroBalance(
+      balance[currency] = getMoneroBalance();
+    }
+  }
+  
+  MoneroBalance getMoneroBalance() {
+    final unlockedBalance = _getUnlockedBalance();
+    final fullBalance = monero_wallet.getFullBalance(
+      accountIndex: walletAddresses.account!.id);
+    final frozenBalance = _getFrozenBalance();
+    return MoneroBalance(
           fullBalance: fullBalance,
           unlockedBalance: unlockedBalance,
           frozenBalance: frozenBalance);
-    }
   }
 
   Future<void> _askForUpdateTransactionHistory() async =>
