@@ -142,10 +142,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   Future<void> init() async {
     await walletAddresses.init();
-    balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
-        MoneroBalance>{
-      currency: getMoneroBalance(),
-    });
     _setListeners();
     await updateTransactions();
     if (walletInfo.isRecovery) {
@@ -161,6 +157,19 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         Duration(seconds: _autoSaveInterval), (_) async => await save());
     // update transaction details after restore
     walletAddresses.subaddressList.update(accountIndex: walletAddresses.account?.id??0);
+    balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
+        MoneroBalance>{
+      currency: getMoneroBalance(),
+    });
+    Future.delayed(Duration.zero).then((_) async {
+      transaction_history.txhistory = monero.Wallet_history(wptr!);
+      monero.TransactionHistory_refresh(transaction_history.txhistory!);
+      await updateUnspent();
+      balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
+          MoneroBalance>{
+        currency: getMoneroBalance(),
+      });
+    });
   }
 
   @override
@@ -717,14 +726,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   void _askForUpdateBalance() {
-    final unlockedBalance = _getUnlockedBalance();
-    final fullBalance = monero_wallet.getFullBalance(
-      accountIndex: walletAddresses.account!.id);
-    final frozenBalance = _getFrozenBalance();
-    if (balance[currency]!.fullBalance != fullBalance ||
-        balance[currency]!.unlockedBalance != unlockedBalance ||
-        balance[currency]!.frozenBalance != frozenBalance) {
-      balance[currency] = getMoneroBalance();
+    final bal = getMoneroBalance();
+    if (balance[currency]!.fullBalance != bal.fullBalance ||
+        balance[currency]!.unlockedBalance != bal.unlockedBalance ||
+        balance[currency]!.frozenBalance != bal.frozenBalance) {
+      balance[currency] = bal;
     }
   }
   
@@ -750,7 +756,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   int _getFrozenBalance() {
     var frozenBalance = 0;
-
     unspentCoinsInfo.values.forEach((info) {
       unspentCoins.forEach((element) {
         if (element.hash == info.hash &&
