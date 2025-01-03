@@ -585,10 +585,14 @@ class SolanaWalletClient {
       latestBlockhash: latestBlockhash,
     );
 
-    sendTx() async => await sendTransaction(
+    sendTx() async {
+      await Future.delayed(Duration(seconds: 3));
+
+      return await sendTransaction(
           signedTransaction: signedTx,
           commitment: commitment,
         );
+    }
 
     final pendingTransaction = PendingSolanaTransaction(
       amount: inputAmount,
