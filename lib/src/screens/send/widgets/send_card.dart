@@ -142,7 +142,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               24,
-              responsiveLayoutUtil.shouldRenderMobileUI ? 100 : 55,
+              responsiveLayoutUtil.shouldRenderMobileUI ? 110 : 55,
               24,
               responsiveLayoutUtil.shouldRenderMobileUI ? 32 : 0,
             ),

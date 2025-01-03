@@ -35,41 +35,6 @@ class SecurityBackupPage extends BasePage {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (!_isHardwareWallet)
-            SettingsCellWithArrow(
-              key: ValueKey('security_backup_page_show_keys_button_key'),
-              title: S.current.show_keys,
-              handler: (_) => _authService.authenticateAction(
-                context,
-                route: Routes.showKeys,
-                conditionToDetermineIfToUse2FA:
-                    _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-              ),
-            ),
-          if (!SettingsStoreBase.walletPasswordDirectInput)
-            SettingsCellWithArrow(
-              key: ValueKey('security_backup_page_create_backup_button_key'),
-              title: S.current.create_backup,
-              handler: (_) => _authService.authenticateAction(
-                context,
-                route: Routes.backup,
-                conditionToDetermineIfToUse2FA:
-                    _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-              ),
-            ),
-          SettingsCellWithArrow(
-            key: ValueKey('security_backup_page_change_pin_button_key'),
-            title: S.current.settings_change_pin,
-            handler: (_) => _authService.authenticateAction(
-              context,
-              route: Routes.setupPin,
-              arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
-                setupPinContext.close();
-              },
-              conditionToDetermineIfToUse2FA:
-                  _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-            ),
-          ),
           if (DeviceInfo.instance.isMobile || Platform.isMacOS || Platform.isLinux)
             Observer(builder: (_) {
               return SettingsSwitcherCell(
@@ -110,6 +75,47 @@ class SecurityBackupPage extends BasePage {
               },
             );
           }),
+          if (!_isHardwareWallet)
+            SettingsCellWithArrow(
+              key: ValueKey('security_backup_page_show_keys_button_key'),
+              title: S.current.show_keys,
+              handler: (_) => _authService.authenticateAction(
+                context,
+                route: Routes.showKeys,
+                conditionToDetermineIfToUse2FA:
+                    _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              ),
+            ),
+          if (!SettingsStoreBase.walletPasswordDirectInput)
+            SettingsCellWithArrow(
+              key: ValueKey('security_backup_page_create_backup_button_key'),
+              title: S.current.create_backup,
+              handler: (_) => _authService.authenticateAction(
+                context,
+                route: Routes.backup,
+                conditionToDetermineIfToUse2FA:
+                    _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+              ),
+            ),
+          SettingsCellWithArrow(
+            key: ValueKey('security_backup_page_change_pin_button_key'),
+            title: S.current.settings_change_pin,
+            handler: (_) => _authService.authenticateAction(
+              context,
+              route: Routes.setupPin,
+              arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
+                setupPinContext.close();
+              },
+              conditionToDetermineIfToUse2FA:
+                  _securitySettingsViewModel.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+            ),
+          ),
+          SettingsCellWithArrow(
+              key: ValueKey('security_backup_page_sign_and_verify'),
+              title: S.current.sign_verify_title,
+              handler: (_) => Navigator.of(context).pushNamed(Routes.signPage)
+            //_securitySettingsViewModel.pinCodeRequiredDuration,
+          ),
           Observer(
             builder: (context) {
               return SettingsCellWithArrow(
