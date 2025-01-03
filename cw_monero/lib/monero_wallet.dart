@@ -155,6 +155,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     });
     _setListeners();
     await updateTransactions();
+    await transaction_history.refreshTransactions();
+    await transaction_history.txHistoryMutex.acquire();
+    await updateUnspent();
+    transaction_history.txHistoryMutex.release();
 
     if (walletInfo.isRecovery) {
       monero_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
@@ -523,7 +527,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           );
           // TODO: double-check the logic here
           if (unspent.hash.isNotEmpty) {
-            unspent.isChange = transaction_history.getTransaction(unspent.hash).isSpend == true;
+            unspent.isChange = (await transaction_history.isTransactionSpent(unspent.hash));
           }
           unspentCoins.add(unspent);
         }
@@ -615,7 +619,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
-    transaction_history.refreshTransactions();
+    await transaction_history.refreshTransactions();
     return (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
         .fold<Map<String, MoneroTransactionInfo>>(
             <String, MoneroTransactionInfo>{},
