@@ -154,22 +154,7 @@ abstract class BalanceViewModelBase with Store {
       return S.current.show_balance;
     }
     else {
-      switch (wallet.type) {
-        case WalletType.monero:
-        case WalletType.wownero:
-        case WalletType.haven:
-        case WalletType.ethereum:
-        case WalletType.polygon:
-        case WalletType.nano:
-        case WalletType.banano:
-        case WalletType.solana:
-        case WalletType.tron:
-        case WalletType.bitcoin:
-        case WalletType.litecoin:
-        case WalletType.bitcoinCash:
-        case WalletType.none:
-          return S.current.xmr_available_balance;
-      }
+      return S.current.xmr_available_balance;
     }
   }
 
