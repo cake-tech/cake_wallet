@@ -420,6 +420,7 @@ class SendPage extends BasePage {
                           }
                           if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
                             await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: 'export-outputs');
+                            await Future.delayed(Duration(seconds: 1)); // wait for monero to refresh the state
                           }
                           if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
                             return;

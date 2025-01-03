@@ -252,7 +252,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final err = monero.Wallet_errorString(wptr!);
       throw Exception("unable to import key images: $err");
     }
-    monero.Wallet_store(wptr!);
     return retStatus;
   }
 
