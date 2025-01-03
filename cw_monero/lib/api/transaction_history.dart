@@ -79,14 +79,12 @@ Future<List<Transaction>> getAllTransactions() async {
   return list;
 }
 
-// Map<String, bool> transactionSpentCache = {};
+Map<String, bool> transactionSpentCache = {};
 Future<bool> isTransactionSpent(String txId) async {
-  // if (transactionSpentCache[txId] != null) return transactionSpentCache[txId]!;
-  // await txHistoryMutex.acquire();
+  if (transactionSpentCache[txId] != null) return transactionSpentCache[txId]!;
   final isSpent = monero.TransactionInfo_direction(monero.TransactionHistory_transactionById(txhistory!, txid: txId)) ==
             monero.TransactionInfo_Direction.Out;
-  // txHistoryMutex.release();
-  // transactionSpentCache[txId] = isSpent;
+  transactionSpentCache[txId] = isSpent;
   return isSpent;
 }
 

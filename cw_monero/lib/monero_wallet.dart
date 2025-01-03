@@ -144,6 +144,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   String _password;
 
   Future<void> init() async {
+    await updateTransactions();
+    await transaction_history.refreshTransactions();
     await walletAddresses.init();
     balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
         MoneroBalance>{
@@ -153,13 +155,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           unlockedBalance: monero_wallet.getUnlockedBalance(
               accountIndex: walletAddresses.account!.id))
     });
-    _setListeners();
-    await updateTransactions();
-    await transaction_history.refreshTransactions();
-    await transaction_history.txHistoryMutex.acquire();
     await updateUnspent();
-    transaction_history.txHistoryMutex.release();
-
     if (walletInfo.isRecovery) {
       monero_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
 
@@ -167,6 +163,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         monero_wallet.setRefreshFromBlockHeight(
             height: walletInfo.restoreHeight);
       }
+    _setListeners();
     }
 
     _autoSaveTimer = Timer.periodic(
