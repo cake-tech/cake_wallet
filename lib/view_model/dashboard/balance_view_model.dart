@@ -218,13 +218,13 @@ abstract class BalanceViewModelBase with Store {
                 availableBalance: '●●●●●●',
                 additionalBalance: additionalBalance,
                 frozenBalance: '',
-                secondAvailableBalance: '',
-                secondAdditionalBalance: '',
-                fiatAdditionalBalance: isFiatDisabled ? '' : '',
+                secondAvailableBalance: '●●●●●●',
+                secondAdditionalBalance: '●●●●●●',
+                fiatAdditionalBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 fiatAvailableBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 fiatFrozenBalance: isFiatDisabled ? '' : '',
-                fiatSecondAvailableBalance: isFiatDisabled ? '' : '',
-                fiatSecondAdditionalBalance: isFiatDisabled ? '' : '',
+                fiatSecondAvailableBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
+                fiatSecondAdditionalBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 asset: key,
                 formattedAssetTitle: _formatterAsset(key)));
       }
