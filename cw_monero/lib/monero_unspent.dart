@@ -11,7 +11,6 @@ class MoneroUnspent extends Unspent {
 
   @override
   set isFrozen(bool freeze) {
-    printV("set isFrozen: $freeze ($keyImage): $freeze");
     final coinId = getCoinByKeyImage(keyImage!);
     if (coinId == null) throw Exception("Unable to find a coin for address $address");
     if (freeze) {
@@ -23,7 +22,6 @@ class MoneroUnspent extends Unspent {
 
   @override
   bool get isFrozen {
-    printV("get isFrozen");
     final coinId = getCoinByKeyImage(keyImage!);
     if (coinId == null) throw Exception("Unable to find a coin for address $address");
     final coin = getCoin(coinId);

@@ -78,10 +78,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
       balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
           MoneroBalance>{
-        currency: MoneroBalance(
-            fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
-            unlockedBalance:
-                monero_wallet.getUnlockedBalance(accountIndex: account.id))
+        currency: getMoneroBalance(),
       });
       _updateSubAddress(isEnabledAutoGenerateSubaddress, account: account);
       _askForUpdateTransactionHistory();
@@ -145,17 +142,15 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   Future<void> init() async {
     await walletAddresses.init();
+    transaction_history.txhistory = monero.Wallet_history(wptr!);
+    monero.TransactionHistory_refresh(transaction_history.txhistory!);
+    await updateUnspent();
     balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
         MoneroBalance>{
-      currency: MoneroBalance(
-          fullBalance: monero_wallet.getFullBalance(
-              accountIndex: walletAddresses.account!.id),
-          unlockedBalance: monero_wallet.getUnlockedBalance(
-              accountIndex: walletAddresses.account!.id))
+      currency: getMoneroBalance(),
     });
     _setListeners();
     await updateTransactions();
-
     if (walletInfo.isRecovery) {
       monero_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
 
@@ -169,6 +164,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         Duration(seconds: _autoSaveInterval), (_) async => await save());
     // update transaction details after restore
     walletAddresses.subaddressList.update(accountIndex: walletAddresses.account?.id??0);
+    balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(<CryptoCurrency,
+        MoneroBalance>{
+      currency: getMoneroBalance(),
+    });
   }
 
   @override
@@ -623,7 +622,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
-    transaction_history.refreshTransactions();
+    await transaction_history.refreshTransactions();
     return (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
         .fold<Map<String, MoneroTransactionInfo>>(
             <String, MoneroTransactionInfo>{},
@@ -733,18 +732,23 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   void _askForUpdateBalance() {
+    final bal = getMoneroBalance();
+    if (balance[currency]!.fullBalance != bal.fullBalance ||
+        balance[currency]!.unlockedBalance != bal.unlockedBalance ||
+        balance[currency]!.frozenBalance != bal.frozenBalance) {
+      balance[currency] = bal;
+    }
+  }
+  
+  MoneroBalance getMoneroBalance() {
     final unlockedBalance = _getUnlockedBalance();
     final fullBalance = monero_wallet.getFullBalance(
       accountIndex: walletAddresses.account!.id);
     final frozenBalance = _getFrozenBalance();
-    if (balance[currency]!.fullBalance != fullBalance ||
-        balance[currency]!.unlockedBalance != unlockedBalance ||
-        balance[currency]!.frozenBalance != frozenBalance) {
-      balance[currency] = MoneroBalance(
+    return MoneroBalance(
           fullBalance: fullBalance,
           unlockedBalance: unlockedBalance,
           frozenBalance: frozenBalance);
-    }
   }
 
   Future<void> _askForUpdateTransactionHistory() async =>
@@ -758,7 +762,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   int _getFrozenBalance() {
     var frozenBalance = 0;
-
     unspentCoinsInfo.values.forEach((info) {
       unspentCoins.forEach((element) {
         if (element.hash == info.hash &&
