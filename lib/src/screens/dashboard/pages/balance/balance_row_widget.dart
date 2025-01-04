@@ -78,15 +78,13 @@ class BalanceRowWidget extends StatelessWidget {
             color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
           ),
           child: TextButton(
-            onPressed: () =>
-                Fluttertoast.showToast(
-                  msg: S.current.show_balance_toast,
-                  backgroundColor: Color.fromRGBO(0, 0, 0, 0.85),
-                ),
+            onPressed: () => Fluttertoast.showToast(
+              msg: S.current.show_balance_toast,
+              backgroundColor: Color.fromRGBO(0, 0, 0, 0.85),
+            ),
             onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
             style: TextButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             ),
             child: Container(
               margin: const EdgeInsets.only(top: 10, left: 12, right: 12, bottom: 10),
@@ -103,11 +101,8 @@ class BalanceRowWidget extends StatelessWidget {
                           GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: hasAdditionalBalance
-                                ? () =>
-                                _showBalanceDescription(
-                                    context, S
-                                    .of(context)
-                                    .available_balance_description)
+                                ? () => _showBalanceDescription(
+                                    context, S.of(context).available_balance_description)
                                 : null,
                             child: Row(
                               children: [
@@ -150,16 +145,14 @@ class BalanceRowWidget extends StatelessWidget {
                               textAlign: TextAlign.start),
                           SizedBox(height: 6),
                           if (isTestnet)
-                            Text(S
-                                .of(context)
-                                .testnet_coins_no_value,
+                            Text(S.of(context).testnet_coins_no_value,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontFamily: 'Lato',
                                     fontWeight: FontWeight.w400,
                                     color:
-                                    Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                        Theme.of(context).extension<BalancePageTheme>()!.textColor,
                                     height: 1)),
                           if (!isTestnet)
                             Text('${availableFiatBalance}',
@@ -169,7 +162,7 @@ class BalanceRowWidget extends StatelessWidget {
                                     fontFamily: 'Lato',
                                     fontWeight: FontWeight.w500,
                                     color:
-                                    Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                        Theme.of(context).extension<BalancePageTheme>()!.textColor,
                                     height: 1)),
                         ],
                       ),
@@ -218,123 +211,98 @@ class BalanceRowWidget extends StatelessWidget {
                   ),
                   //),
                   if (frozenBalance.isNotEmpty)
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: hasAdditionalBalance
-                          ? () =>
-                          _showBalanceDescription(
-                              context, S
-                              .of(context)
-                              .unavailable_balance_description)
-                          : null,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 26),
-                          Row(
-                            children: [
-                              Text(
-                                S
-                                    .of(context)
-                                    .unavailable_balance,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w400,
-                                  color:
-                                  Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                                  height: 1,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
-                                child: Icon(Icons.help_outline,
-                                    size: 16,
-                                    color: Theme.of(context)
-                                        .extension<BalancePageTheme>()!
-                                        .labelTextColor),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8),
-                          AutoSizeText(
-                            frozenBalance,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w400,
-                              color:
-                              Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
-                              height: 1,
-                            ),
-                            maxLines: 1,
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 4),
-                          if (!isTestnet)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 26),
+                        Row(
+                          children: [
                             Text(
-                              frozenFiatBalance,
+                              S.of(context).frozen_balance,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 12,
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w400,
-                                color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                color:
+                                    Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                                 height: 1,
                               ),
                             ),
-                        ],
-                      ),
-                    ),
-                  if (hasAdditionalBalance)
-                    GestureDetector(
-                      onTap: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 24),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        AutoSizeText(
+                          frozenBalance,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w400,
+                            color:
+                                Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
+                            height: 1,
+                          ),
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 4),
+                        if (!isTestnet)
                           Text(
-                            '${additionalBalanceLabel}',
+                            frozenFiatBalance,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 12,
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w400,
-                              color: Theme.of(context).extension<BalancePageTheme>()!
-                                  .labelTextColor,
+                              color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                               height: 1,
                             ),
                           ),
-                          SizedBox(height: 8),
-                          AutoSizeText(
-                            additionalBalance,
+                      ],
+                    ),
+                  if (hasAdditionalBalance)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 24),
+                        Text(
+                          '${additionalBalanceLabel}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                            height: 1,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        AutoSizeText(
+                          additionalBalance,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                            height: 1,
+                          ),
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 4),
+                        if (!isTestnet)
+                          Text(
+                            '${additionalFiatBalance}',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 12,
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w400,
-                              color: Theme.of(context).extension<BalancePageTheme>()!
-                                  .assetTitleColor,
+                              color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
                               height: 1,
                             ),
-                            maxLines: 1,
-                            textAlign: TextAlign.center,
                           ),
-                          SizedBox(height: 4),
-                          if (!isTestnet)
-                            Text(
-                              '${additionalFiatBalance}',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Lato',
-                                fontWeight: FontWeight.w400,
-                                color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
-                                height: 1,
-                              ),
-                            ),
-                        ],
-                      ),
+                      ],
                     ),
                 ],
               ),
@@ -353,12 +321,20 @@ class BalanceRowWidget extends StatelessWidget {
               ),
               color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
             ),
-            child: Container(
+            child: TextButton(
+              onPressed: () => Fluttertoast.showToast(
+                msg: S.current.show_balance_toast,
+                backgroundColor: Color.fromRGBO(0, 0, 0, 0.85),
+              ),
+              onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
+              style: TextButton.styleFrom(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    margin: const EdgeInsets.only(top: 16, left: 24, right: 8, bottom: 16),
+                    margin: const EdgeInsets.only(top: 10, left: 12, right: 12, bottom: 10),
                     child: Stack(
                       children: [
                         if (currency == CryptoCurrency.ltc)
@@ -366,7 +342,6 @@ class BalanceRowWidget extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               Container(
-                                padding: EdgeInsets.only(right: 16, top: 0),
                                 child: Column(
                                   children: [
                                     Container(
@@ -397,81 +372,77 @@ class BalanceRowWidget extends StatelessWidget {
                             ],
                           ),
                         if (hasSecondAvailableBalance)
-                          GestureDetector(
-                            onTap: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
-                            child: Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: () =>
-                                          launchUrl(
-                                            Uri.parse(
-                                                "https://docs.cakewallet.com/cryptos/litecoin.html#mweb"),
-                                            mode: LaunchMode.externalApplication,
+                          Row(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => launchUrl(
+                                      Uri.parse(
+                                          "https://docs.cakewallet.com/cryptos/litecoin#mweb"),
+                                      mode: LaunchMode.externalApplication,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          '${secondAvailableBalanceLabel}',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontFamily: 'Lato',
+                                            fontWeight: FontWeight.w400,
+                                            color: Theme.of(context)
+                                                .extension<BalancePageTheme>()!
+                                                .labelTextColor,
+                                            height: 1,
                                           ),
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            '${secondAvailableBalanceLabel}',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontFamily: 'Lato',
-                                              fontWeight: FontWeight.w400,
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                                          child: Icon(Icons.help_outline,
+                                              size: 16,
                                               color: Theme.of(context)
                                                   .extension<BalancePageTheme>()!
-                                                  .labelTextColor,
-                                              height: 1,
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                                            child: Icon(Icons.help_outline,
-                                                size: 16,
-                                                color: Theme.of(context)
-                                                    .extension<BalancePageTheme>()!
-                                                    .labelTextColor),
-                                          )
-                                        ],
-                                      ),
+                                                  .labelTextColor),
+                                        )
+                                      ],
                                     ),
-                                    SizedBox(height: 8),
-                                    AutoSizeText(
-                                      secondAvailableBalance,
+                                  ),
+                                  SizedBox(height: 8),
+                                  AutoSizeText(
+                                    secondAvailableBalance,
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontFamily: 'Lato',
+                                      fontWeight: FontWeight.w900,
+                                      color: Theme.of(context)
+                                          .extension<BalancePageTheme>()!
+                                          .assetTitleColor,
+                                      height: 1,
+                                    ),
+                                    maxLines: 1,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  SizedBox(height: 6),
+                                  if (!isTestnet)
+                                    Text(
+                                      '${secondAvailableFiatBalance}',
+                                      textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        fontSize: 24,
+                                        fontSize: 16,
                                         fontFamily: 'Lato',
-                                        fontWeight: FontWeight.w900,
+                                        fontWeight: FontWeight.w500,
                                         color: Theme.of(context)
                                             .extension<BalancePageTheme>()!
-                                            .assetTitleColor,
+                                            .textColor,
                                         height: 1,
                                       ),
-                                      maxLines: 1,
-                                      textAlign: TextAlign.center,
                                     ),
-                                    SizedBox(height: 6),
-                                    if (!isTestnet)
-                                      Text(
-                                        '${secondAvailableFiatBalance}',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontFamily: 'Lato',
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(context)
-                                              .extension<BalancePageTheme>()!
-                                              .textColor,
-                                          height: 1,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
+                            ],
                           ),
                       ],
                     ),
@@ -539,19 +510,17 @@ class BalanceRowWidget extends StatelessWidget {
                   ),
                   IntrinsicHeight(
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 24),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: Semantics(
-                              label: S
-                                  .of(context)
-                                  .litecoin_mweb_pegin,
+                              label: S.of(context).litecoin_mweb_pegin,
                               child: OutlinedButton(
                                 onPressed: () {
                                   final mwebAddress =
-                                  bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
+                                      bitcoin!.getUnusedMwebAddress(dashboardViewModel.wallet);
                                   PaymentRequest? paymentRequest = null;
                                   if ((mwebAddress?.isNotEmpty ?? false)) {
                                     paymentRequest = PaymentRequest.fromUri(
@@ -589,9 +558,7 @@ class BalanceRowWidget extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        S
-                                            .of(context)
-                                            .litecoin_mweb_pegin,
+                                        S.of(context).litecoin_mweb_pegin,
                                         style: TextStyle(
                                           color: Theme.of(context)
                                               .extension<BalancePageTheme>()!
@@ -607,13 +574,11 @@ class BalanceRowWidget extends StatelessWidget {
                           SizedBox(width: 24),
                           Expanded(
                             child: Semantics(
-                              label: S
-                                  .of(context)
-                                  .litecoin_mweb_pegout,
+                              label: S.of(context).litecoin_mweb_pegout,
                               child: OutlinedButton(
                                 onPressed: () {
                                   final litecoinAddress =
-                                  bitcoin!.getUnusedSegwitAddress(dashboardViewModel.wallet);
+                                      bitcoin!.getUnusedSegwitAddress(dashboardViewModel.wallet);
                                   PaymentRequest? paymentRequest = null;
                                   if ((litecoinAddress?.isNotEmpty ?? false)) {
                                     paymentRequest = PaymentRequest.fromUri(
@@ -651,9 +616,7 @@ class BalanceRowWidget extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        S
-                                            .of(context)
-                                            .litecoin_mweb_pegout,
+                                        S.of(context).litecoin_mweb_pegout,
                                         style: TextStyle(
                                           color: Theme.of(context)
                                               .extension<BalancePageTheme>()!
