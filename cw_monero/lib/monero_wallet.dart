@@ -265,6 +265,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return str;
   }
 
+  bool needExportOutputs(int amount) {
+    // viewOnlyBalance - balance that we can spend
+    // TODO(mrcyjanek): remove hasUnknownKeyImages when we cleanup coin control
+    return (monero.Wallet_viewOnlyBalance(wptr!,
+                accountIndex: walletAddresses.account!.id) < amount) ||
+              monero.Wallet_hasUnknownKeyImages(wptr!);
+  }
+
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final _credentials = credentials as MoneroTransactionCreationCredentials;
