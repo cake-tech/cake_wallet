@@ -387,6 +387,8 @@ abstract class Monero {
 
   String exportOutputsUR(Object wallet, bool all);
 
+  bool needExportOutputs(Object wallet, int amount);
+
   bool importKeyImagesUR(Object wallet, String ur);
 
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials({
