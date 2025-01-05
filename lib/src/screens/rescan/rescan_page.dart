@@ -24,7 +24,7 @@ class RescanPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    var child;
+    Widget child;
     if (_rescanViewModel.wallet.type != WalletType.decred) {
       child = Padding(
         padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),

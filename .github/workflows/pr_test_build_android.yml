@@ -93,6 +93,16 @@ jobs:
           chmod +x pubspec_gen.sh
           ./app_config.sh
 
+      - name: Install go and gomobile
+        run: |
+          # install go > 1.23:
+          wget https://go.dev/dl/go1.23.1.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.23.1.linux-amd64.tar.gz
+          export PATH=$PATH:/usr/local/go/bin
+          export PATH=$PATH:~/go/bin
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          gomobile init
+
       - name: Cache Externals
         id: cache-externals
         uses: actions/cache@v3
@@ -115,17 +125,6 @@ jobs:
         run: |
           cd /opt/android/cake_wallet
           flutter pub get
-
-
-      - name: Install go and gomobile
-        run: |
-          # install go > 1.23:
-          wget https://go.dev/dl/go1.23.1.linux-amd64.tar.gz
-          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.23.1.linux-amd64.tar.gz
-          export PATH=$PATH:/usr/local/go/bin
-          export PATH=$PATH:~/go/bin
-          go install golang.org/x/mobile/cmd/gomobile@latest
-          gomobile init
 
       - name: Build mwebd
         run: |
