@@ -1,3 +1,2 @@
-Support Monero Ledger
+UI enhancements
 Bug fixes
-New designs and better user experience
