@@ -505,7 +505,7 @@ Future<void> updateNanoNodeList({required Box<Node> nodes}) async {
   ];
   // add new nodes:
   for (final node in nodeList) {
-    if (listOfNewEndpoints.contains(node.uriRaw)) {
+    if (listOfNewEndpoints.contains(node.uriRaw) && !nodes.values.contains(node)) {
       await nodes.add(node);
     }
   }
