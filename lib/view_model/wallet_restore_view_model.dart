@@ -68,6 +68,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     }
     isButtonEnabled = !hasSeedLanguageSelector && !hasBlockchainHeightLanguageSelector;
     walletCreationService.changeWalletType(type: type);
+    if (restoredWallet != null) {
+      if(restoredWallet!.restoreMode == WalletRestoreMode.seed) {
+        seedSettingsViewModel.setPassphrase(restoredWallet!.passphrase);
+      }
+    }
   }
 
   static const moneroSeedMnemonicLength = 25;

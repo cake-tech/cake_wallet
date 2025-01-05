@@ -102,88 +102,88 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
           default:
             throw Exception('Unexpected type: ${restoreWallet.type.toString()}');
         }
-      case WalletRestoreMode.seed:
-        switch (restoreWallet.type) {
-          case WalletType.monero:
-            return monero!.createMoneroRestoreWalletFromSeedCredentials(
-              name: name,
-              height: restoreWallet.height ?? 0,
-              mnemonic: restoreWallet.mnemonicSeed ?? '',
-              password: password,
-            );
-          case WalletType.bitcoin:
-          case WalletType.litecoin:
-
-          final derivationInfoList = await getDerivationInfoFromQRCredentials(restoreWallet);
-          DerivationInfo derivationInfo;
-          if (derivationInfoList.isEmpty) {
-            derivationInfo = getDefaultCreateDerivation()!;
-          } else {
-            derivationInfo = derivationInfoList.first;
-          }
-            return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
-              name: name,
-              mnemonic: restoreWallet.mnemonicSeed ?? '',
-              password: password,
-              passphrase: restoreWallet.passphrase,
-              derivationType: derivationInfo.derivationType!,
-              derivationPath: derivationInfo.derivationPath!,
-            );
-          case WalletType.bitcoinCash:
-            return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
-              name: name,
-              mnemonic: restoreWallet.mnemonicSeed ?? '',
-              password: password,
-              passphrase: restoreWallet.passphrase,
-            );
-          case WalletType.ethereum:
-            return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
-              name: name,
-              mnemonic: restoreWallet.mnemonicSeed ?? '',
-              password: password,
-              passphrase: restoreWallet.passphrase,
-            );
-          case WalletType.nano:
-            final derivationInfo =
-                (await getDerivationInfoFromQRCredentials(restoreWallet)).first;
-            return nano!.createNanoRestoreWalletFromSeedCredentials(
-              name: name,
-              mnemonic: restoreWallet.mnemonicSeed ?? '',
-              password: password,
-              derivationType: derivationInfo.derivationType!,
-              passphrase: restoreWallet.passphrase,
-            );
-          case WalletType.polygon:
-            return polygon!.createPolygonRestoreWalletFromSeedCredentials(
-              name: name,
-              mnemonic: restoreWallet.mnemonicSeed ?? '',
-              password: password,
-              passphrase: restoreWallet.passphrase,
-            );
-          case WalletType.solana:
-            return solana!.createSolanaRestoreWalletFromSeedCredentials(
-              name: name,
-              mnemonic: restoreWallet.mnemonicSeed ?? '',
-              password: password,
-              passphrase: restoreWallet.passphrase,
-            );
-          case WalletType.tron:
-            return tron!.createTronRestoreWalletFromSeedCredentials(
-              name: name,
-              mnemonic: restoreWallet.mnemonicSeed ?? '',
-              password: password,
-              passphrase: restoreWallet.passphrase,
-            );
-          case WalletType.wownero:
-            return wownero!.createWowneroRestoreWalletFromSeedCredentials(
-              name: name,
-              height: restoreWallet.height ?? 0,
-              mnemonic: restoreWallet.mnemonicSeed ?? '',
-              password: password,
-            );
-          default:
-            throw Exception('Unexpected type: ${type.toString()}');
-        }
+      // case WalletRestoreMode.seed:
+      //   switch (restoreWallet.type) {
+      //     case WalletType.monero:
+      //       return monero!.createMoneroRestoreWalletFromSeedCredentials(
+      //         name: name,
+      //         height: restoreWallet.height ?? 0,
+      //         mnemonic: restoreWallet.mnemonicSeed ?? '',
+      //         password: password,
+      //       );
+      //     case WalletType.bitcoin:
+      //     case WalletType.litecoin:
+      //
+      //     final derivationInfoList = await getDerivationInfoFromQRCredentials(restoreWallet);
+      //     DerivationInfo derivationInfo;
+      //     if (derivationInfoList.isEmpty) {
+      //       derivationInfo = getDefaultCreateDerivation()!;
+      //     } else {
+      //       derivationInfo = derivationInfoList.first;
+      //     }
+      //       return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
+      //         name: name,
+      //         mnemonic: restoreWallet.mnemonicSeed ?? '',
+      //         password: password,
+      //         passphrase: restoreWallet.passphrase,
+      //         derivationType: derivationInfo.derivationType!,
+      //         derivationPath: derivationInfo.derivationPath!,
+      //       );
+      //     case WalletType.bitcoinCash:
+      //       return bitcoinCash!.createBitcoinCashRestoreWalletFromSeedCredentials(
+      //         name: name,
+      //         mnemonic: restoreWallet.mnemonicSeed ?? '',
+      //         password: password,
+      //         passphrase: restoreWallet.passphrase,
+      //       );
+      //     case WalletType.ethereum:
+      //       return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
+      //         name: name,
+      //         mnemonic: restoreWallet.mnemonicSeed ?? '',
+      //         password: password,
+      //         passphrase: restoreWallet.passphrase,
+      //       );
+      //     case WalletType.nano:
+      //       final derivationInfo =
+      //           (await getDerivationInfoFromQRCredentials(restoreWallet)).first;
+      //       return nano!.createNanoRestoreWalletFromSeedCredentials(
+      //         name: name,
+      //         mnemonic: restoreWallet.mnemonicSeed ?? '',
+      //         password: password,
+      //         derivationType: derivationInfo.derivationType!,
+      //         passphrase: restoreWallet.passphrase,
+      //       );
+      //     case WalletType.polygon:
+      //       return polygon!.createPolygonRestoreWalletFromSeedCredentials(
+      //         name: name,
+      //         mnemonic: restoreWallet.mnemonicSeed ?? '',
+      //         password: password,
+      //         passphrase: restoreWallet.passphrase,
+      //       );
+      //     case WalletType.solana:
+      //       return solana!.createSolanaRestoreWalletFromSeedCredentials(
+      //         name: name,
+      //         mnemonic: restoreWallet.mnemonicSeed ?? '',
+      //         password: password,
+      //         passphrase: restoreWallet.passphrase,
+      //       );
+      //     case WalletType.tron:
+      //       return tron!.createTronRestoreWalletFromSeedCredentials(
+      //         name: name,
+      //         mnemonic: restoreWallet.mnemonicSeed ?? '',
+      //         password: password,
+      //         passphrase: restoreWallet.passphrase,
+      //       );
+      //     case WalletType.wownero:
+      //       return wownero!.createWowneroRestoreWalletFromSeedCredentials(
+      //         name: name,
+      //         height: restoreWallet.height ?? 0,
+      //         mnemonic: restoreWallet.mnemonicSeed ?? '',
+      //         password: password,
+      //       );
+      //     default:
+      //       throw Exception('Unexpected type: ${type.toString()}');
+      //   }
       default:
         throw Exception('Unexpected type: ${type.toString()}');
     }
@@ -196,8 +196,8 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
       switch (restoreWallet.restoreMode) {
         case WalletRestoreMode.keys:
           return walletCreationService.restoreFromKeys(credentials);
-        case WalletRestoreMode.seed:
-          return walletCreationService.restoreFromSeed(credentials);
+        // case WalletRestoreMode.seed:
+        //   return walletCreationService.restoreFromSeed(credentials);
         default:
           throw Exception('Unexpected restore mode: ${restoreWallet.restoreMode.toString()}');
       }

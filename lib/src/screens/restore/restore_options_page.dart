@@ -162,22 +162,22 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
         setState(() {
           isRestoring = true;
         });
-        final restoreWallet = await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
+        final restoredWallet = await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
 
         final params = {
-          'walletType': restoreWallet.type,
-          'restoreWallet': restoreWallet
+          'walletType': restoredWallet.type,
+          'restoredWallet': restoredWallet
         };
 
-        if (restoreWallet.restoreMode == WalletRestoreMode.seed) {
+        if (restoredWallet.restoreMode == WalletRestoreMode.seed) {
           Navigator.pushNamed(context, Routes.restoreWallet,
               arguments: params);
         } else {
           ///TODO: Implement restore from QR through standard wallet restoration flow
           final restoreFromQRViewModel =
-          getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
+          getIt.get<WalletRestorationFromQRVM>(param1: restoredWallet.type);
 
-          await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
+          await restoreFromQRViewModel.create(restoreWallet: restoredWallet);
           if (restoreFromQRViewModel.state is FailureState) {
             _onWalletCreateFailure(context,
                 'Create wallet state: ${(restoreFromQRViewModel.state as FailureState).error}');

@@ -320,9 +320,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWallet:
       final args = settings.arguments as Map<String, dynamic>?;
       final walletType = args?['walletType'] as WalletType;
-      final restoreWallet = args?['restoreWallet'] as RestoredWallet?;
+      final restoredWallet = args?['restoredWallet'] as RestoredWallet?;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<WalletRestorePage>(param1: walletType, param2: restoreWallet));
+          builder: (_) => getIt.get<WalletRestorePage>(param1: walletType, param2: restoredWallet));
 
     case Routes.restoreWalletChooseDerivation:
       return MaterialPageRoute<void>(
@@ -675,6 +675,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final isChildWallet = args['isChildWallet'] as bool? ?? false;
       final useTestnet = args['useTestnet'] as bool;
       final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
+      final restoredWallet = args['restoredWallet'] as RestoredWallet?;
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(

@@ -116,6 +116,9 @@ class WalletRestorePage extends BasePage {
       };
 
   @override
+  Function(BuildContext)? get popWidget => (context) => seedSettingsViewModel.setPassphrase(null);
+
+  @override
   Widget body(BuildContext context) {
     reaction((_) => walletRestoreViewModel.state, (ExecutionState state) {
       if (state is FailureState) {
