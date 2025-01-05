@@ -99,6 +99,7 @@ jobs:
         with:
           path: |
             /opt/android/cake_wallet/cw_haven/android/.cxx
+            /opt/android/cake_wallet/cw_decred/android/.cxx
             /opt/android/cake_wallet/scripts/monero_c/release
           key: ${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
 
@@ -108,6 +109,7 @@ jobs:
           cd /opt/android/cake_wallet/scripts/android/
           source ./app_env.sh cakewallet
           ./build_monero_all.sh
+          ./build_decred.sh
 
       - name: Install Flutter dependencies
         run: |
