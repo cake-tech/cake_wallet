@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -96,9 +95,9 @@ abstract class DecredWalletBase
     if (!checkSync()) {
       return;
     }
-    final res = libdcrwallet.bestBlock(walletInfo.name);
-    final decoded = json.decode(res);
-    final hash = decoded["hash"] ?? "";
+    // final res = libdcrwallet.bestBlock(walletInfo.name);
+    // final decoded = json.decode(res);
+    // final hash = decoded["hash"] ?? "";
     updateBalance();
     var from = 0;
     while (true) {
@@ -121,7 +120,7 @@ abstract class DecredWalletBase
     final decoded = json.decode(syncStatusJSON);
 
     final syncStatusCode = decoded["syncstatuscode"] ?? 0;
-    final syncStatusStr = decoded["syncstatus"] ?? "";
+    // final syncStatusStr = decoded["syncstatus"] ?? "";
     final targetHeight = decoded["targetheight"] ?? 1;
     final numPeers = decoded["numpeers"] ?? 0;
     // final cFiltersHeight = decoded["cfiltersheight"] ?? 0;
