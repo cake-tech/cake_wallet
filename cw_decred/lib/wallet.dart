@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_decred/pending_transaction.dart';
 import 'package:cw_decred/transaction_credentials.dart';
 import 'package:flutter/foundation.dart';
@@ -242,7 +243,7 @@ abstract class DecredWalletBase
       syncTimer =
           Timer.periodic(Duration(seconds: syncInterval), (Timer t) => performBackgroundTasks());
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       syncStatus = FailedSyncStatus();
     }
   }
@@ -321,7 +322,7 @@ abstract class DecredWalletBase
         }
         return fee;
       } catch (e) {
-        print(e);
+        printV(e);
         return defaultFeeRate;
       }
     };
