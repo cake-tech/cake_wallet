@@ -21,17 +21,17 @@ part 'balance_view_model.g.dart';
 class BalanceRecord {
   const BalanceRecord(
       {required this.availableBalance,
-        required this.additionalBalance,
-        required this.secondAvailableBalance,
-        required this.secondAdditionalBalance,
-        required this.frozenBalance,
-        required this.fiatAvailableBalance,
-        required this.fiatAdditionalBalance,
-        required this.fiatFrozenBalance,
-        required this.fiatSecondAvailableBalance,
-        required this.fiatSecondAdditionalBalance,
-        required this.asset,
-        required this.formattedAssetTitle});
+      required this.additionalBalance,
+      required this.secondAvailableBalance,
+      required this.secondAdditionalBalance,
+      required this.frozenBalance,
+      required this.fiatAvailableBalance,
+      required this.fiatAdditionalBalance,
+      required this.fiatFrozenBalance,
+      required this.fiatSecondAvailableBalance,
+      required this.fiatSecondAdditionalBalance,
+      required this.asset,
+      required this.formattedAssetTitle});
 
   final String fiatAdditionalBalance;
   final String fiatAvailableBalance;
@@ -109,8 +109,8 @@ abstract class BalanceViewModelBase with Store {
   @computed
   bool get isHomeScreenSettingsEnabled =>
       isEVMCompatibleChain(wallet.type) ||
-          wallet.type == WalletType.solana ||
-          wallet.type == WalletType.tron;
+      wallet.type == WalletType.solana ||
+      wallet.type == WalletType.tron;
 
   @computed
   bool get hasAccounts => wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
@@ -308,32 +308,32 @@ abstract class BalanceViewModelBase with Store {
       final additionalFiatBalance = isFiatDisabled
           ? ''
           : (fiatCurrency.toString() +
-          ' ' +
-          _getFiatBalance(price: price, cryptoAmount: value.formattedAdditionalBalance));
+              ' ' +
+              _getFiatBalance(price: price, cryptoAmount: value.formattedAdditionalBalance));
 
       final availableFiatBalance = isFiatDisabled
           ? ''
           : (fiatCurrency.toString() +
-          ' ' +
-          _getFiatBalance(price: price, cryptoAmount: value.formattedAvailableBalance));
+              ' ' +
+              _getFiatBalance(price: price, cryptoAmount: value.formattedAvailableBalance));
 
       final frozenFiatBalance = isFiatDisabled
           ? ''
           : (fiatCurrency.toString() +
-          ' ' +
-          _getFiatBalance(price: price, cryptoAmount: getFormattedFrozenBalance(value)));
+              ' ' +
+              _getFiatBalance(price: price, cryptoAmount: getFormattedFrozenBalance(value)));
 
       final secondAdditionalFiatBalance = isFiatDisabled
           ? ''
           : (fiatCurrency.toString() +
-          ' ' +
-          _getFiatBalance(price: price, cryptoAmount: value.formattedSecondAdditionalBalance));
+              ' ' +
+              _getFiatBalance(price: price, cryptoAmount: value.formattedSecondAdditionalBalance));
 
       final secondAvailableFiatBalance = isFiatDisabled
           ? ''
           : (fiatCurrency.toString() +
-          ' ' +
-          _getFiatBalance(price: price, cryptoAmount: value.formattedSecondAvailableBalance));
+              ' ' +
+              _getFiatBalance(price: price, cryptoAmount: value.formattedSecondAvailableBalance));
 
       return MapEntry(
           key,
