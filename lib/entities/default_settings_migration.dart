@@ -35,12 +35,12 @@ const publicBitcoinTestnetElectrumUri =
     '$publicBitcoinTestnetElectrumAddress:$publicBitcoinTestnetElectrumPort';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
-const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
-const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
+const ethereumDefaultNodeUri = 'ethereum-rpc.publicnode.com';
+const polygonDefaultNodeUri = 'polygon-bor-rpc.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'nano.nownodes.io';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
-const solanaDefaultNodeUri = 'solana-rpc.publicnode.com:443';
+const solanaDefaultNodeUri = 'solana-mainnet.core.chainstack.com';
 const tronDefaultNodeUri = 'api.trongrid.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
@@ -348,6 +348,31 @@ Future<void> defaultSettingsMigration(
             type: WalletType.litecoin,
             useSSL: true,
           );
+          _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.solana,
+            newDefaultUri: solanaDefaultNodeUri,
+            currentNodePreferenceKey: PreferencesKey.currentSolanaNodeIdKey,
+            useSSL: true,
+            oldUri: [
+              'rpc.ankr.com',
+              'api.mainnet-beta.solana.com:443',
+              'solana-rpc.publicnode.com:443',
+            ],
+          );
+          _updateNode(
+            nodes: nodes,
+            currentUri: "ethereum.publicnode.com",
+            newUri: "ethereum-rpc.publicnode.com",
+            useSSL: true,
+          );
+          _updateNode(
+            nodes: nodes,
+            currentUri: "polygon-bor.publicnode.com",
+            newUri: "polygon-bor-rpc.publicnode.com",
+            useSSL: true,
+          );
         case 47:
           await addDecredNode(nodes: nodes);
           await setDefaultDecredNodeKey(sharedPreferences, nodes);
@@ -364,6 +389,24 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+void _updateNode({
+  required Box<Node> nodes,
+  required String currentUri,
+  String? newUri,
+  bool? useSSL,
+}) {
+  for (Node node in nodes.values) {
+    if (node.uriRaw == currentUri) {
+      if (newUri != null) {
+        node.uriRaw = newUri;
+      }
+      if (useSSL != null) {
+        node.useSSL = useSSL;
+      }
+    }
+  }
 }
 
 Future<void> _backupHavenSeeds(Box<HavenSeedStore> havenSeedStore) async {
@@ -466,7 +509,7 @@ Future<void> updateNanoNodeList({required Box<Node> nodes}) async {
   ];
   // add new nodes:
   for (final node in nodeList) {
-    if (listOfNewEndpoints.contains(node.uriRaw)) {
+    if (listOfNewEndpoints.contains(node.uriRaw) && !nodes.values.contains(node)) {
       await nodes.add(node);
     }
   }

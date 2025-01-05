@@ -11,7 +11,6 @@ import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -81,7 +80,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
@@ -1023,11 +1022,6 @@ Future<void> setup({
   ));
 
   getIt.registerFactoryParam<WebViewPage, String, Uri>((title, uri) => WebViewPage(title, uri));
-
-  getIt.registerFactory<PayfuraBuyProvider>(() => PayfuraBuyProvider(
-        settingsStore: getIt.get<AppStore>().settingsStore,
-        wallet: getIt.get<AppStore>().wallet!,
-      ));
 
   getIt.registerFactory(() => ExchangeViewModel(
       getIt.get<AppStore>(),
