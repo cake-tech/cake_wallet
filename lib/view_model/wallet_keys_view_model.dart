@@ -12,6 +12,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:polyseed/polyseed.dart';
 
 part 'wallet_keys_view_model.g.dart';
@@ -22,7 +23,8 @@ abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(this._appStore)
       : title = _appStore.wallet!.type == WalletType.bitcoin ||
                 _appStore.wallet!.type == WalletType.litecoin ||
-                _appStore.wallet!.type == WalletType.bitcoinCash
+                _appStore.wallet!.type == WalletType.bitcoinCash ||
+                _appStore.wallet!.type == WalletType.decred
             ? S.current.wallet_seed
             : S.current.wallet_keys,
         _walletName = _appStore.wallet!.type.name,
@@ -129,6 +131,16 @@ abstract class WalletKeysViewModelBase with Store {
           ),
         );
       }
+    }
+
+    if (_appStore.wallet!.type == WalletType.decred) {
+      final seed = _appStore.wallet!.seed;
+      final pubkey = decred!.pubkey(_appStore.wallet!);
+      items.addAll([
+        if (seed != null)
+          StandartListItem(title: S.current.wallet_seed, value: seed),
+        StandartListItem(title: S.current.view_key_public, value: pubkey),
+      ]);
     }
 
     if (_appStore.wallet!.type == WalletType.haven) {
@@ -330,6 +342,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'tron-wallet';
       case WalletType.wownero:
         return 'wownero-wallet';
+      case WalletType.decred:
+        return 'decred-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_appStore.wallet!.type.toString()}');
     }
