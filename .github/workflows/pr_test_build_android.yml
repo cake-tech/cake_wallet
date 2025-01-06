@@ -122,9 +122,13 @@ jobs:
       - name: Build Decred
         run: |
           cd /opt/android/cake_wallet/scripts/android/
+          wget https://go.dev/dl/go1.23.1.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.23.1.linux-amd64.tar.gz
+          export PATH=$PATH:/usr/local/go/bin
+          export PATH=$PATH:~/go/bin
+          echo $PATH
           go version
           which go
-          echo $PATH
           ./build_decred.sh
 
       - name: Install Flutter dependencies

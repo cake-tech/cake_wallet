@@ -7,7 +7,6 @@
 # ./build_sodium.sh
 # ./build_zmq.sh
 # ./build_unbound.sh
-# ./build_decred.sh
 
 set -x -e
 
