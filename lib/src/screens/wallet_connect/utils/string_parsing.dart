@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:convert/convert.dart';
 
@@ -12,5 +13,9 @@ extension StringParsing on String {
     }
 
     return this;
+  }
+
+  String safeSubString(int start, int end) {
+    return this.substring(0, min(this.toString().length, 12));
   }
 }

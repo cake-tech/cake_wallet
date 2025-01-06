@@ -2,12 +2,10 @@ import 'dart:async';
 
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/key_service.dart';
-import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';

@@ -29,8 +29,8 @@ class CakePayService {
 
   /// Get Vendors
   Future<List<CakePayVendor>> getVendors({
+    required String country,
     int? page,
-    String? country,
     String? countryCode,
     String? search,
     List<String>? vendorIds,
