@@ -1,4 +1,5 @@
 import 'package:cw_core/address_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -71,7 +72,7 @@ abstract class WalletAddresses {
         await walletInfo.save();
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 

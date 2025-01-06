@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  solana: ^0.30.4
+  solana: ^0.31.0+1
   cw_core:
     path: ../cw_core
   http: ^1.1.0

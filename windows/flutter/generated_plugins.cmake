@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
+  flutter_inappwebview_windows
   flutter_local_authentication
   flutter_secure_storage_windows
   permission_handler_windows

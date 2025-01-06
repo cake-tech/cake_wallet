@@ -97,6 +97,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
       final amountToGet = double.tryParse(responseJSON['amount'] as String) ?? 0.0;
 
+      if (amountToGet == 0.0) return 0.0;
+
       return isFixedRateMode ? amount / amountToGet : amountToGet / amount;
     } catch (e) {
       log(e.toString());
@@ -166,6 +168,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       final status = responseJSON['status'] as String;
       final createdAtString = responseJSON['created_at'] as String;
       final expiredAtTimestamp = responseJSON['expired_at'] as int;
+      final extraId = responseJSON['deposit_extra_id'] as String?;
 
       final createdAt = DateTime.parse(createdAtString);
       final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000);
@@ -197,6 +200,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         state: TradeState.deserialize(raw: status),
         createdAt: createdAt,
         expiredAt: expiredAt,
+        extraId: extraId,
       );
     } catch (e) {
       log(e.toString());
@@ -229,6 +233,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final status = responseJSON['status'] as String;
     final createdAtString = responseJSON['created_at'] as String;
     final expiredAtTimestamp = responseJSON['expired_at'] as int;
+    final extraId = responseJSON['deposit_extra_id'] as String?;
 
     final createdAt = DateTime.parse(createdAtString);
     final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000);
@@ -247,6 +252,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       createdAt: createdAt,
       expiredAt: expiredAt,
       isRefund: status == 'refund',
+      extraId: extraId,
     );
   }
 

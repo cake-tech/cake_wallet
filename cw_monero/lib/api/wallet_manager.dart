@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/wallet_creation_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
@@ -50,9 +51,9 @@ final monero.WalletManager wmPtr = Pointer.fromAddress((() {
     // than plugging gdb in. Especially on windows/android.
     monero.printStarts = false;
     _wmPtr ??= monero.WalletManagerFactory_getWalletManager();
-    print("ptr: $_wmPtr");
+    printV("ptr: $_wmPtr");
   } catch (e) {
-    print(e);
+    printV(e);
     rethrow;
   }
   return _wmPtr!.address;
@@ -81,6 +82,7 @@ void createWalletSync(
   wptr = newWptr;
   monero.Wallet_store(wptr!, path: path);
   openedWalletsByPath[path] = wptr!;
+  _lastOpenedWallet = path;
 
   // is the line below needed?
   // setupNodeSync(address: "node.moneroworld.com:18089");
@@ -122,7 +124,8 @@ void restoreWalletFromSeedSync(
 
   openedWalletsByPath[path] = wptr!;
 
-  store();
+  monero.Wallet_store(wptr!);
+  _lastOpenedWallet = path;
 }
 
 void restoreWalletFromKeysSync(
@@ -190,6 +193,7 @@ void restoreWalletFromKeysSync(
   wptr = newWptr;
 
   openedWalletsByPath[path] = wptr!;
+  _lastOpenedWallet = path;
 }
 
 
@@ -269,7 +273,7 @@ void restoreWalletFromSpendKeySync(
 
   if (status != 0) {
     final err = monero.Wallet_errorString(newWptr);
-    print("err: $err");
+    printV("err: $err");
     throw WalletRestoreFromKeysException(message: err);
   }
 
@@ -280,6 +284,7 @@ void restoreWalletFromSpendKeySync(
   storeSync();
 
   openedWalletsByPath[path] = wptr!;
+  _lastOpenedWallet = path;
 }
 
 String _lastOpenedWallet = "";
@@ -309,7 +314,7 @@ Future<void> restoreWalletFromHardwareWallet(
     throw WalletRestoreFromSeedException(message: error);
   }
   wptr = newWptr;
-
+  _lastOpenedWallet = path;
   openedWalletsByPath[path] = wptr!;
 }
 
@@ -335,8 +340,23 @@ Future<void> loadWallet(
     /// 0: Software Wallet
     /// 1: Ledger
     /// 2: Trezor
-    final deviceType = monero.WalletManager_queryWalletDevice(wmPtr,
-        keysFileName: "$path.keys", password: password, kdfRounds: 1);
+    late final deviceType;
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      deviceType = monero.WalletManager_queryWalletDevice(
+        wmPtr,
+        keysFileName: "$path.keys",
+        password: password,
+        kdfRounds: 1,
+      );
+      final status = monero.WalletManager_errorString(wmPtr);
+      if (status != "") {
+        printV("loadWallet:"+status);
+        throw WalletOpeningException(message: status);
+      }
+    } else {
+      deviceType = 0;
+    }
 
     if (deviceType == 1) {
       final dummyWPtr = wptr ??
@@ -353,15 +373,15 @@ Future<void> loadWallet(
 
     final newWptr = Pointer<Void>.fromAddress(newWptrAddr);
 
-    _lastOpenedWallet = path;
     final status = monero.Wallet_status(newWptr);
     if (status != 0) {
       final err = monero.Wallet_errorString(newWptr);
-      print(err);
+      printV("loadWallet:"+err);
       throw WalletOpeningException(message: err);
     }
 
     wptr = newWptr;
+    _lastOpenedWallet = path;
     openedWalletsByPath[path] = wptr!;
   }
 }

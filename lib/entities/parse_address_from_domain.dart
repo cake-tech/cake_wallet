@@ -11,6 +11,7 @@ import 'package:cake_wallet/nostr/nostr_api.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
@@ -26,23 +27,80 @@ class AddressResolver {
   final SettingsStore settingsStore;
 
   static const unstoppableDomains = [
-    'crypto',
-    'zil',
-    'x',
-    'wallet',
-    'bitcoin',
-    '888',
-    'nft',
-    'dao',
-    'blockchain',
-    'polygon',
-    'klever',
-    'hi',
-    'kresus',
-    'anime',
-    'manga',
-    'binanceus',
-    'xmr',
+    "888",
+    "altimist",
+    "anime",
+    "austin",
+    "bald",
+    "benji",
+    "bet",
+    "binanceus",
+    "bitcoin",
+    "bitget",
+    "blockchain",
+    "ca",
+    "chomp",
+    "clay",
+    "co",
+    "com",
+    "crypto",
+    "dao",
+    "dfz",
+    "digital",
+    "dream",
+    "eth",
+    "ethermail",
+    "farms",
+    "fun",
+    "go",
+    "group",
+    "hi",
+    "host",
+    "info",
+    "io",
+    "klever",
+    "kresus",
+    "kryptic",
+    "lfg",
+    "life",
+    "live",
+    "ltd",
+    "manga",
+    "metropolis",
+    "moon",
+    "mumu",
+    "net",
+    "nft",
+    "online",
+    "org",
+    "pog",
+    "polygon",
+    "press",
+    "pro",
+    "propykeys",
+    "pudgy",
+    "pw",
+    "raiin",
+    "secret",
+    "site",
+    "smobler",
+    "space",
+    "stepn",
+    "store",
+    "tball",
+    "tech",
+    "ubu",
+    "uno",
+    "unstoppable",
+    "wallet",
+    "website",
+    "wifi",
+    "witg",
+    "wrkx",
+    "x",
+    "xmr",
+    "xyz",
+    "zil",
   ];
 
   static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
@@ -76,6 +134,7 @@ class AddressResolver {
   Future<ParsedAddress> resolve(BuildContext context, String text, CryptoCurrency currency) async {
     final ticker = currency.title;
     try {
+      // twitter handle example: @username
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
         if (settingsStore.lookupsTwitter) {
           final formattedName = text.substring(1);
@@ -107,6 +166,7 @@ class AddressResolver {
         }
       }
 
+      // Mastodon example: @username@hostname.xxx
       if (text.startsWith('@') && text.contains('@', 1) && text.contains('.', 1)) {
         if (settingsStore.lookupsMastodon) {
           final subText = text.substring(1);
@@ -184,7 +244,9 @@ class AddressResolver {
       if (unstoppableDomains.any((domain) => name.trim() == domain)) {
         if (settingsStore.lookupsUnstoppableDomains) {
           final address = await fetchUnstoppableDomainAddress(text, ticker);
-          return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
+          if (address.isNotEmpty) {
+            return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
+          }
         }
       }
 
@@ -200,6 +262,7 @@ class AddressResolver {
       if (formattedName.contains(".")) {
         if (settingsStore.lookupsOpenAlias) {
           final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
+
           if (txtRecord != null) {
             final record = await OpenaliasRecord.fetchAddressAndName(
                 formattedName: formattedName, ticker: ticker.toLowerCase(), txtRecord: txtRecord);
@@ -226,7 +289,7 @@ class AddressResolver {
         }
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
 
     return ParsedAddress(addresses: [text]);

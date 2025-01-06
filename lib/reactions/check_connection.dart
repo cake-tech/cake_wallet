@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -36,7 +37,7 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
         }
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 }
