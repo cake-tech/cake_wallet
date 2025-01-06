@@ -23,20 +23,16 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:intl/intl.dart';
 
-const moneroSyncTaskKey = "com.fotolockr.cakewallet.monero_sync_task";
-const mwebSyncTaskKey = "com.fotolockr.cakewallet.mweb_sync_task";
-
-const initialNotificationTitle = 'Cake Background Sync';
-const standbyMessage = 'On standby - app is in the foreground';
-const readyMessage = 'Ready to sync - waiting until the app has been in the background for a while';
-const startMessage = 'Starting sync - app is in the background';
-const allWalletsSyncedMessage = 'All wallets synced - waiting for next queue refresh';
+const initialNotificationTitle = "Cake Background Sync";
+const standbyMessage = "On standby - app is in the foreground";
+const readyMessage = "Ready to sync - waiting until the app has been in the background for a while";
+const startMessage = "Starting sync - app is in the background";
+const allWalletsSyncedMessage = "All wallets synced - waiting for next queue refresh";
 const notificationId = 888;
-const notificationChannelId = 'cake_service';
-const notificationChannelName = 'CAKE BACKGROUND SERVICE';
-const notificationChannelDescription = 'Cake Wallet Background Service';
+const notificationChannelId = "cake_service";
+const notificationChannelName = "CAKE BACKGROUND SERVICE";
+const notificationChannelDescription = "Cake Wallet Background Service";
 const DELAY_SECONDS_BEFORE_SYNC_START = 15;
 const spNodeNotificationMessage =
     "Currently configured Bitcoin node does not support Silent Payments. skipping wallet";
@@ -58,7 +54,7 @@ void setMainNotification(
       android: AndroidNotificationDetails(
         notificationChannelId,
         notificationChannelName,
-        icon: 'ic_bg_service_small',
+        icon: "ic_bg_service_small",
         ongoing: true,
         silent: true,
       ),
@@ -114,7 +110,7 @@ void setWalletNotification(FlutterLocalNotificationsPlugin flutterLocalNotificat
       android: AndroidNotificationDetails(
         "${notificationChannelId}_$walletNum",
         "${notificationChannelName}_$walletNum",
-        icon: 'ic_bg_service_small',
+        icon: "ic_bg_service_small",
         ongoing: true,
         silent: true,
       ),
@@ -122,7 +118,7 @@ void setWalletNotification(FlutterLocalNotificationsPlugin flutterLocalNotificat
   );
 }
 
-@pragma('vm:entry-point')
+@pragma("vm:entry-point")
 Future<void> onStart(ServiceInstance service) async {
   printV("BACKGROUND SERVICE STARTED");
   bool bgSyncStarted = false;
@@ -131,6 +127,8 @@ Future<void> onStart(ServiceInstance service) async {
   Timer? _queueTimer;
   List<WalletBase> syncingWallets = [];
   List<WalletBase> standbyWallets = [];
+  Timer? _bgTimer;
+  int fgCount = 0;
 
   // commented because the behavior appears to be bugged:
   // DartPluginRegistrant.ensureInitialized();
@@ -171,12 +169,20 @@ Future<void> onStart(ServiceInstance service) async {
     setNotificationStandby(flutterLocalNotificationsPlugin);
   });
 
-  service.on('setReady').listen((event) async {
+  void setReady() {
     setNotificationReady(flutterLocalNotificationsPlugin);
+  }
+
+  service.on("setReady").listen((event) async {
+    setReady();
+  });
+
+  service.on("foregroundPing").listen((event) async {
+    fgCount = 0;
   });
 
   // we have entered the background, start the sync:
-  service.on("setBackground").listen((event) async {
+  void setBackground() async {
     if (bgSyncStarted) {
       return;
     }
@@ -209,7 +215,8 @@ Future<void> onStart(ServiceInstance service) async {
 
     for (int i = 0; i < moneroWallets.length; i++) {
       final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
-      await wallet.stopSync(isBackgroundSync: false);// stop regular sync process if it's been started
+      // stop regular sync process if it's been started
+      await wallet.stopSync(isBackgroundSync: false);
       syncingWallets.add(wallet);
     }
 
@@ -456,6 +463,30 @@ Future<void> onStart(ServiceInstance service) async {
         wallet.startSync(isBackgroundSync: true);
       }
     });
+  }
+
+  service.on("setBackground").listen((event) async {
+    setBackground();
+  });
+
+  // this is a backup timer to trigger in case the user fully closes the app, so that we still
+  // start the background sync process:
+  // annoyingly foreground code still runs in the background on android for some time, so we still use the original method
+  // to detect if we are in the background since it's much faster
+  _bgTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+    fgCount++;
+    printV("fgCount: $fgCount");
+    // we haven't been pinged in a while, so we are likely in the background:
+    if (fgCount == 4) {
+      setReady();
+      return;
+    }
+
+    if (fgCount > 10) {
+      fgCount = 0;
+      setBackground();
+      _bgTimer?.cancel();
+    }
   });
 }
 
@@ -536,15 +567,21 @@ class BackgroundTasks {
   FlutterBackgroundService bgService = FlutterBackgroundService();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  Timer? _pingTimer;
 
   void serviceBackground() {
     bgService.invoke("setBackground");
+    _pingTimer?.cancel();
+  }
+
+  void foregroundPing() {
+    bgService.invoke("foregroundPing");
   }
 
   Future<void> serviceForeground() async {
     final settingsStore = getIt.get<SettingsStore>();
     bool showNotifications = settingsStore.showSyncNotification;
-    bgService.invoke('stopService');
+    bgService.invoke("stopService");
     await Future.delayed(const Duration(seconds: 2));
     initializeService(bgService, showNotifications);
   }
@@ -553,7 +590,7 @@ class BackgroundTasks {
     final settingsStore = getIt.get<SettingsStore>();
     bool showNotifications = settingsStore.showSyncNotification;
     if (showNotifications) {
-      bgService.invoke('setReady');
+      bgService.invoke("setReady");
     }
   }
 
@@ -599,6 +636,11 @@ class BackgroundTasks {
       }
 
       REFRESH_QUEUE_DURATION = syncMode.frequency;
+
+      _pingTimer?.cancel();
+      _pingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+        getIt.get<BackgroundTasks>().foregroundPing();
+      });
 
       await initializeService(bgService, useNotifications);
     } catch (error, stackTrace) {

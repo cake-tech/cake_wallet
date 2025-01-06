@@ -181,8 +181,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         }
         break;
       case AppLifecycleState.paused:
-        // TODO: experimental: maybe should uncomment this:
-        // getIt.get<BackgroundTasks>().serviceBackground(false, showNotifications);
         getIt.get<BackgroundTasks>().serviceReady();
       case AppLifecycleState.inactive:
       case AppLifecycleState.detached:
