@@ -1365,7 +1365,7 @@ abstract class ElectrumWalletBase
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
     final previousUnspentCoins = List<BitcoinUnspent>.from(unspentCoins.where((utxo) =>
-    utxo.bitcoinAddressRecord.type != SegwitAddresType.mweb &&
+        utxo.bitcoinAddressRecord.type != SegwitAddresType.mweb &&
         utxo.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord));
 
     if (hasSilentPaymentsScanning) {
@@ -1423,7 +1423,6 @@ abstract class ElectrumWalletBase
     required List<BitcoinUnspent> updatedUnspentCoins,
     required List<List<BitcoinUnspent>?> results,
   }) {
-
     if (failedCount == results.length) {
       printV("All UTXOs failed to fetch, falling back to previous UTXOs");
       return previousUnspentCoins;
@@ -1918,19 +1917,15 @@ abstract class ElectrumWalletBase
     final original = BtcTransaction.fromRaw(transactionHex);
     final ins = <BtcTransaction>[];
 
-    for (final vin in original.inputs) {
-      final verboseTransaction = await electrumClient.getTransactionVerbose(hash: vin.txId);
+    try {
+      await Future.forEach(original.inputs, (vin) async {
+        String inputTransactionHex = await electrumClient.getTransactionHex(
+          hash: (vin as TxInput).txId,
+        );
 
-      final String inputTransactionHex;
-
-      if (verboseTransaction.isEmpty) {
-        inputTransactionHex = await electrumClient.getTransactionHex(hash: hash);
-      } else {
-        inputTransactionHex = verboseTransaction['hex'] as String;
-      }
-
-      ins.add(BtcTransaction.fromRaw(inputTransactionHex));
-    }
+        ins.add(BtcTransaction.fromRaw(inputTransactionHex));
+      });
+    } catch (_) {}
 
     return ElectrumTransactionBundle(
       original,

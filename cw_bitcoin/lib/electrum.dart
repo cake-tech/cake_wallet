@@ -270,7 +270,9 @@ class ElectrumClient {
   Future<dynamic> getTransaction({required String hash, required bool verbose}) async {
     try {
       final result = await callWithTimeout(
-          method: 'blockchain.transaction.get', params: [hash, verbose], timeout: 10000);
+        method: 'blockchain.transaction.get',
+        params: [hash, verbose],
+      );
       return result;
     } on RequestFailedTimeoutException catch (_) {
       return <String, dynamic>{};
