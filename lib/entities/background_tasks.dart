@@ -156,6 +156,7 @@ Future<void> onStart(ServiceInstance service) async {
       printV("error stopping sync: $e");
     }
     // stop the service itself:
+    service.invoke("serviceState", {"state": "NOT_RUNNING"});
     await service.stopSelf();
   });
 
@@ -163,10 +164,15 @@ Future<void> onStart(ServiceInstance service) async {
     printV(event);
   });
 
-  service.on("setForeground").listen((event) async {
+  void setForeground() {
     bgSyncStarted = false;
     _syncTimer?.cancel();
     setNotificationStandby(flutterLocalNotificationsPlugin);
+  }
+
+  service.on("setForeground").listen((event) async {
+    setForeground();
+    service.invoke("serviceState", {"state": "FOREGROUND"});
   });
 
   void setReady() {
@@ -175,6 +181,7 @@ Future<void> onStart(ServiceInstance service) async {
 
   service.on("setReady").listen((event) async {
     setReady();
+    service.invoke("serviceState", {"state": "READY"});
   });
 
   service.on("foregroundPing").listen((event) async {
@@ -488,6 +495,7 @@ Future<void> onStart(ServiceInstance service) async {
     if (fgCount > 10) {
       fgCount = 0;
       setBackground();
+      service.invoke("serviceState", {"state": "BACKGROUND"});
       _bgTimer?.cancel();
     }
   });
@@ -571,6 +579,7 @@ class BackgroundTasks {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   Timer? _pingTimer;
+  String serviceState = "NOT_RUNNING";
 
   void serviceBackground() {
     bgService.invoke("setBackground");
@@ -582,6 +591,10 @@ class BackgroundTasks {
   }
 
   Future<void> serviceForeground() async {
+    if (serviceState == "FOREGROUND") {
+      return;
+    }
+
     final settingsStore = getIt.get<SettingsStore>();
     bool showNotifications = settingsStore.showSyncNotification;
     bgService.invoke("stopService");
@@ -643,6 +656,10 @@ class BackgroundTasks {
       _pingTimer?.cancel();
       _pingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
         getIt.get<BackgroundTasks>().foregroundPing();
+      });
+
+      bgService.on("serviceState").listen((event) {
+        serviceState = event?["state"] as String;
       });
 
       await initializeService(bgService, useNotifications);
