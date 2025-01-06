@@ -394,9 +394,9 @@ Future<void> _updateNode({
   bool? useSSL,
 }) async {
   for (Node node in nodes.values) {
-    print("@@@@@@@@@@@@@");
-    print(node.uriRaw);
-    print(node.uri);
+    printV("@@@@@@@@@@@@@");
+    printV(node.uriRaw);
+    printV(node.uri);
     if (node.uriRaw == currentUri) {
       if (newUri != null) {
         node.uriRaw = newUri;
