@@ -42,7 +42,7 @@ PATH="${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
 if [ -e ./build ]; then
        rm -fr ./build
 fi
-CGO_ENABLED=1 GOOS=android GOARCH=${TARGET} CC=clang CXX=clang++
+CGO_ENABLED=1 GOOS=android GOARCH=${TARGET} CC=clang CXX=clang++ \
 go build -buildmode=c-shared -o ./build/libdcrwallet.so ./cgo
 
 DEST_LIB_DIR=${CW_DECRED_DIR}/android/libs/${ARCH_ABI}
