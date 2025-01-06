@@ -312,6 +312,10 @@ class BuySellPage extends BasePage {
 
     reaction((_) => buySellViewModel.isReadyToTrade, (bool isReady) {
       if (isReady) {
+        if (buySellViewModel.skipIsReadyToTradeReaction) {
+          buySellViewModel.skipIsReadyToTradeReaction = false;
+          return;
+        }
         if (cryptoAmountController.text.isNotEmpty &&
             cryptoAmountController.text != S.current.fetching) {
           buySellViewModel.changeCryptoAmount(amount: cryptoAmountController.text);

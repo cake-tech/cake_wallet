@@ -734,6 +734,8 @@
   "shared_seed_wallet_groups": "Grupos de billetera de semillas compartidas",
   "show": "Espectáculo",
   "show_address_book_popup": "Mostrar ventana emergente 'Agregar a la libreta de direcciones' después de enviar",
+  "show_balance": "Prensa larga para mostrar equilibrio",
+  "show_balance_toast": "Prensa larga para esconder o mostrar equilibrio",
   "show_details": "Mostrar detalles",
   "show_keys": "Mostrar semilla/claves",
   "show_market_place": "Mostrar mercado",
