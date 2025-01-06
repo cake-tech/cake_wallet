@@ -223,7 +223,7 @@ void restoreWalletFromPolyseedWithOffset(
 
   if (status != 0) {
     final err = monero.Wallet_errorString(newWptr);
-    print("err: $err");
+    printV("err: $err");
     throw WalletRestoreFromKeysException(message: err);
   }
 
