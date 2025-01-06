@@ -37,8 +37,10 @@ abstract class MoneroSubaddressListBase with Store {
       subaddresses.clear();
       subaddresses.addAll(getAll());
       _isUpdating = false;
-    } catch (e) {
+    } catch (e, s) {
       _isUpdating = false;
+      printV("here");
+      printV(s.toString());
       rethrow;
     }
   }
@@ -59,7 +61,7 @@ abstract class MoneroSubaddressListBase with Store {
       return Subaddress(
           id: id,
           address: address,
-          balance: (s.received/1e12).toStringAsFixed(6),
+          balance: (s.received / 1e12).toStringAsFixed(6),
           txCount: s.txCount,
           label: label);
     }).toList();
@@ -137,26 +139,25 @@ abstract class MoneroSubaddressListBase with Store {
           final address = s.address;
           final label = s.label;
           return Subaddress(
-            id: id,
-            address: address,
-            balance: (s.received/1e12).toStringAsFixed(6),
-            txCount: s.txCount,
-            label: id == 0 &&
-                    label.toLowerCase() == 'Primary account'.toLowerCase()
-                ? 'Primary address'
-                : label);
-      }).toList().reversed.toList();
+              id: id,
+              address: address,
+              balance: (s.received / 1e12).toStringAsFixed(6),
+              txCount: s.txCount,
+              label: id == 0 && label.toLowerCase() == 'Primary account'.toLowerCase()
+                  ? 'Primary address'
+                  : label);
+        })
+        .toList()
+        .reversed
+        .toList();
   }
 
   Future<bool> _newSubaddress({required int accountIndex, required String label}) async {
     await subaddress_list.addSubaddress(accountIndex: accountIndex, label: label);
 
-    return subaddress_list
-        .getAllSubaddresses()
-        .where((s) {
-          final address = s.address;
-          return !_usedAddresses.contains(address);
-        })
-        .isNotEmpty;
+    return subaddress_list.getAllSubaddresses().where((s) {
+      final address = s.address;
+      return !_usedAddresses.contains(address);
+    }).isNotEmpty;
   }
 }

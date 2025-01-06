@@ -158,10 +158,15 @@ abstract class MoneroWalletBase
       }
     }
 
-    _autoSaveTimer =
-        Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
-    // update transaction details after restore
-    walletAddresses.subaddressList.update(accountIndex: walletAddresses.account?.id ?? 0);
+    bool isMainThread = Isolate.current.debugName == "main";
+    printV("isMainThread: $isMainThread");
+
+    if (isMainThread) {
+      _autoSaveTimer =
+          Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
+      // update transaction details after restore
+      walletAddresses.subaddressList.update(accountIndex: walletAddresses.account?.id ?? 0);
+    }
   }
 
   @override
@@ -198,35 +203,23 @@ abstract class MoneroWalletBase
 
   @override
   Future<void> startSync({bool isBackgroundSync = false}) async {
-    if (isBackgroundSync) {
+    bool isMainThread = Isolate.current.debugName == "main";
+    printV("isMainThread: $isMainThread");
+    printV(Isolate.current.debugName);
+
+    if (!isMainThread) {
       try {
         syncStatus = AttemptingSyncStatus();
         monero_wallet.startBackgroundSync();
         isBackgroundSyncing = true;
+        _setListeners();
+        _listener?.start();
         return;
       } catch (e) {
         isBackgroundSyncing = false;
         syncStatus = FailedSyncStatus();
         printV(e);
         rethrow;
-      }
-    }
-
-    try {
-      _assertInitialHeight();
-    } catch (_) {
-      // our restore height wasn't correct, so lets see if using the backup works:
-      try {
-        await resetCache(name); // Resetting the cache removes the TX Keys and Polyseed
-        _assertInitialHeight();
-      } catch (e) {
-        // we still couldn't get a valid height from the backup?!:
-        // try to use the date instead:
-        try {
-          _setHeightFromDate();
-        } catch (_) {
-          // we still couldn't get a valid sync height :/
-        }
       }
     }
 
@@ -280,9 +273,9 @@ abstract class MoneroWalletBase
   bool needExportOutputs(int amount) {
     // viewOnlyBalance - balance that we can spend
     // TODO(mrcyjanek): remove hasUnknownKeyImages when we cleanup coin control
-    return (monero.Wallet_viewOnlyBalance(wptr!,
-                accountIndex: walletAddresses.account!.id) < amount) ||
-              monero.Wallet_hasUnknownKeyImages(wptr!);
+    return (monero.Wallet_viewOnlyBalance(wptr!, accountIndex: walletAddresses.account!.id) <
+            amount) ||
+        monero.Wallet_hasUnknownKeyImages(wptr!);
   }
 
   @override
@@ -303,8 +296,8 @@ abstract class MoneroWalletBase
     final inputs = <String>[];
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final unlockedBalance = monero_wallet.getUnlockedBalance(
-        accountIndex: walletAddresses.account!.id);
+    final unlockedBalance =
+        monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
 
     PendingTransactionDescription pendingTransactionDescription;
 
@@ -350,10 +343,8 @@ abstract class MoneroWalletBase
           preferredInputs: inputs);
     } else {
       final output = outputs.first;
-      final address =
-          output.isParsedAddress ? output.extractedAddress : output.address;
-      final amount =
-          output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
+      final address = output.isParsedAddress ? output.extractedAddress : output.address;
+      final amount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
 
       // if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
       //     (formattedAmount == null && unlockedBalance <= 0)) {
@@ -363,15 +354,13 @@ abstract class MoneroWalletBase
       //       'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       // }
 
-      if (inputs.isEmpty) MoneroTransactionCreationException(
-        'No inputs selected');
-      pendingTransactionDescription =
-          await transaction_history.createTransaction(
-              address: address!,
-              amount: amount,
-              priorityRaw: _credentials.priority.serialize(),
-              accountIndex: walletAddresses.account!.id,
-              preferredInputs: inputs);
+      if (inputs.isEmpty) MoneroTransactionCreationException('No inputs selected');
+      pendingTransactionDescription = await transaction_history.createTransaction(
+          address: address!,
+          amount: amount,
+          priorityRaw: _credentials.priority.serialize(),
+          accountIndex: walletAddresses.account!.id,
+          preferredInputs: inputs);
     }
 
     // final status = monero.PendingTransaction_status(pendingTransactionDescription);
@@ -742,8 +731,8 @@ abstract class MoneroWalletBase
 
   Future<void> _askForUpdateTransactionHistory() async => await updateTransactions();
 
-  int _getUnlockedBalance() => monero_wallet.getUnlockedBalance(
-      accountIndex: walletAddresses.account!.id);
+  int _getUnlockedBalance() =>
+      monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
 
   int _getFrozenBalance() {
     var frozenBalance = 0;
