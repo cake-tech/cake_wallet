@@ -85,15 +85,15 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
       addressesMap.clear();
       addressInfos.clear();
 
-      // accountList.accounts.forEach((account) {
-      //   _subaddressList.update(accountIndex: account.id);
-      //   _subaddressList.subaddresses.forEach((subaddress) {
-      //     addressesMap[subaddress.address] = subaddress.label;
-      //     addressInfos[account.id] ??= [];
-      //     addressInfos[account.id]?.add(AddressInfo(
-      //         address: subaddress.address, label: subaddress.label, accountIndex: account.id));
-      //   });
-      // });
+      accountList.accounts.forEach((account) {
+        _subaddressList.update(accountIndex: account.id);
+        _subaddressList.subaddresses.forEach((subaddress) {
+          addressesMap[subaddress.address] = subaddress.label;
+          addressInfos[account.id] ??= [];
+          addressInfos[account.id]?.add(AddressInfo(
+              address: subaddress.address, label: subaddress.label, accountIndex: account.id));
+        });
+      });
 
       await saveAddressesInBox();
     } catch (e, s) {

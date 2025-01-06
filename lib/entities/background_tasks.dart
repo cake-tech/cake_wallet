@@ -213,12 +213,17 @@ Future<void> onStart(ServiceInstance service) async {
         .where((element) => [WalletType.monero, WalletType.wownero].contains(element.type))
         .toList();
 
+    printV("LOADING MONERO WALLETS");
+
     for (int i = 0; i < moneroWallets.length; i++) {
       final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
       // stop regular sync process if it's been started
-      await wallet.stopSync(isBackgroundSync: false);
+      // await wallet.stopSync(isBackgroundSync: false);
+      await Future.delayed(const Duration(seconds: 10));
       syncingWallets.add(wallet);
     }
+
+    printV("MONERO WALLETS LOADED");
 
     // get all litecoin wallets and add them:
     final List<WalletListItem> litecoinWallets = walletListViewModel.wallets
@@ -475,7 +480,6 @@ Future<void> onStart(ServiceInstance service) async {
   // to detect if we are in the background since it's much faster
   _bgTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
     fgCount++;
-    printV("fgCount: $fgCount");
     // we haven't been pinged in a while, so we are likely in the background:
     if (fgCount == 4) {
       setReady();
