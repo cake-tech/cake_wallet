@@ -730,6 +730,8 @@
   "shared_seed_wallet_groups": "Gedeelde zaadportelgroepen",
   "show": "Show",
   "show_address_book_popup": "Toon 'Toevoegen aan adresboek' pop -up na verzenden",
+  "show_balance": "Lange pers om evenwicht te tonen",
+  "show_balance_toast": "Lange pers om evenwicht te verbergen of te tonen",
   "show_details": "Toon details",
   "show_keys": "Toon zaad/sleutels",
   "show_market_place": "Toon Marktplaats",

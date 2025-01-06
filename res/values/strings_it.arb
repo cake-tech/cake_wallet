@@ -732,6 +732,8 @@
   "shared_seed_wallet_groups": "Gruppi di portafoglio di semi condivisi",
   "show": "Spettacolo",
   "show_address_book_popup": "Mostra il popup \"Aggiungi alla rubrica\" ​​dopo l'invio",
+  "show_balance": "Lunga stampa per mostrare l'equilibrio",
+  "show_balance_toast": "A lungo pressa per nascondere o mostrare l'equilibrio",
   "show_details": "Mostra dettagli",
   "show_keys": "Mostra seme/chiavi",
   "show_market_place": "Mostra mercato",
