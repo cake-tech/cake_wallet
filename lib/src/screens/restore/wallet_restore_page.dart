@@ -28,7 +28,7 @@ class WalletRestorePage extends BasePage {
         walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFormState>(),
         _pages = [],
         _blockHeightFocusNode = FocusNode(),
-        _controller = PageController(initialPage: 0) {
+        _controller = PageController(initialPage: walletRestoreViewModel.restoredWallet?.restoreMode == WalletRestoreMode.keys ? 1 : 0) {
     walletRestoreViewModel.availableModes.forEach((mode) {
       switch (mode) {
         case WalletRestoreMode.seed:
