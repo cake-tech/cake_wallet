@@ -12,8 +12,6 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
-import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';

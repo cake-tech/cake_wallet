@@ -168,7 +168,6 @@ import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
-import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/mweb_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
@@ -468,14 +467,6 @@ Future<void> setup({
       walletName: args.walletName ?? currentWalletName,
       walletType: args.walletType ?? currentWalletType);
   });
-
-  getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) =>
-      WalletRestorationFromQRVM(
-          getIt.get<AppStore>(),
-          getIt.get<WalletCreationService>(param1: type),
-          _walletInfoSource,
-          type,
-          getIt.get<SeedSettingsViewModel>()));
 
   getIt.registerFactoryParam<WalletHardwareRestoreViewModel, WalletType, void>((type, _) =>
       WalletHardwareRestoreViewModel(
