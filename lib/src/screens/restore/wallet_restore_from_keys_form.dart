@@ -91,6 +91,12 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
       }
       widget.onPrivateKeyChange?.call(privateKeyController.text);
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.restoredWallet?.height != null) {
+        blockchainHeightKey.currentState?.restoreHeightController.text = widget.restoredWallet!.height.toString();
+      }
+    });
   }
 
   @override

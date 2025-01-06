@@ -128,6 +128,8 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
   }
 
   void _showQRScanError(BuildContext context, String error) {
+    setState(() => isRestoring = false);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showPopUp<void>(
           context: context,
@@ -146,8 +148,11 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     await PermissionHandler.checkPermission(Permission.camera, context);
 
     if (!isCameraPermissionGranted) return;
-
     try {
+      if (isRestoring) return;
+
+      setState(() => isRestoring = true);
+
       final restoredWallet = await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
 
       final params = {'walletType': restoredWallet.type, 'restoredWallet': restoredWallet};

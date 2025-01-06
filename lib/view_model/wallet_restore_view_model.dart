@@ -42,7 +42,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             type == WalletType.solana ||
             type == WalletType.tron,
         isButtonEnabled = false,
-        mode = WalletRestoreMode.seed,
+        mode = restoredWallet?.restoreMode ?? WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
             type: type, isRecovery: true) {
     switch (type) {
