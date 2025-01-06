@@ -734,6 +734,8 @@
   "shared_seed_wallet_groups": "Awọn ẹgbẹ ti a pin irugbin",
   "show": "Fihan",
   "show_address_book_popup": "Fihan 'ṣafikun si Agbejade Iwe' Lẹhin fifiranṣẹ",
+  "show_balance": "Tẹ Tẹ lati ṣafihan iwọntunwọnsi",
+  "show_balance_toast": "Tẹ Tẹ lati tọju tabi ṣafihan iwọntunwọnsi",
   "show_details": "Fi ìsọfúnni kékeré hàn",
   "show_keys": "Wo hóró / àwọn kọ́kọ́rọ́",
   "show_market_place": "Wa Sopọ Pataki",

@@ -51,6 +51,8 @@ class RobinhoodBuyProvider extends BuyProvider {
     switch (wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.tron:
         return await wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:
@@ -78,8 +80,7 @@ class RobinhoodBuyProvider extends BuyProvider {
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['connectId'] as String;
     } else {
-      throw Exception(
-          'Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
+      throw Exception('Provider currently unavailable. Status: ${response.statusCode}');
     }
   }
 
@@ -120,13 +121,13 @@ class RobinhoodBuyProvider extends BuyProvider {
     try {
       final uri = await requestProviderUrl();
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {
+    } catch (e) {
       await showPopUp<void>(
           context: context,
           builder: (BuildContext context) {
             return AlertWithOneAction(
                 alertTitle: "Robinhood Connect",
-                alertContent: S.of(context).buy_provider_unavailable,
+                alertContent: e.toString(),
                 buttonText: S.of(context).ok,
                 buttonAction: () => Navigator.of(context).pop());
           });
