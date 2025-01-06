@@ -219,7 +219,6 @@ Future<void> onStart(ServiceInstance service) async {
       final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
       // stop regular sync process if it's been started
       // await wallet.stopSync(isBackgroundSync: false);
-      await Future.delayed(const Duration(seconds: 10));
       syncingWallets.add(wallet);
     }
 
