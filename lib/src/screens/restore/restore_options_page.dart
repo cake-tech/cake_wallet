@@ -155,7 +155,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
         await PermissionHandler.checkPermission(Permission.camera, context);
 
     if (!isCameraPermissionGranted) return;
-      try {
+
         if (isRestoring) {
           return;
         }
@@ -169,22 +169,8 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
           'restoredWallet': restoredWallet
         };
 
-        if (restoredWallet.restoreMode == WalletRestoreMode.seed) {
           Navigator.pushNamed(context, Routes.restoreWallet,
               arguments: params);
-        } else {
-          ///TODO: Implement restore from QR through standard wallet restoration flow
-          final restoreFromQRViewModel =
-          getIt.get<WalletRestorationFromQRVM>(param1: restoredWallet.type);
-
-          await restoreFromQRViewModel.create(restoreWallet: restoredWallet);
-          if (restoreFromQRViewModel.state is FailureState) {
-            _onWalletCreateFailure(context,
-                'Create wallet state: ${(restoreFromQRViewModel.state as FailureState).error}');
-          }
         }
-      } catch (e) {
-        _onWalletCreateFailure(context, e.toString());
-      }
-    }
+
 }

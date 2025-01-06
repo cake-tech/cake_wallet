@@ -25,7 +25,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel, this.seedSettingsViewModel)
       : walletRestoreFromSeedFormKey = GlobalKey<WalletRestoreFromSeedFormState>(),
-        walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFromState>(),
+        walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFormState>(),
         _pages = [],
         _blockHeightFocusNode = FocusNode(),
         _controller = PageController(initialPage: 0) {
@@ -59,8 +59,9 @@ class WalletRestorePage extends BasePage {
               onRepeatedPasswordChange: (String repeatedPassword) => walletRestoreViewModel.repeatedWalletPassword = repeatedPassword));
           break;
         case WalletRestoreMode.keys:
-          _pages.add(WalletRestoreFromKeysFrom(
+          _pages.add(WalletRestoreFromKeysForm(
               key: walletRestoreFromKeysFormKey,
+              restoredWallet: walletRestoreViewModel.restoredWallet,
               walletRestoreViewModel: walletRestoreViewModel,
               onPrivateKeyChange: (String seed) {
                 if (walletRestoreViewModel.type == WalletType.nano ||
@@ -100,7 +101,7 @@ class WalletRestorePage extends BasePage {
   final PageController _controller;
   final List<Widget> _pages;
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
-  final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
+  final GlobalKey<WalletRestoreFromKeysFormState> walletRestoreFromKeysFormKey;
   final FocusNode _blockHeightFocusNode;
 
   // DerivationType derivationType = DerivationType.unknown;
