@@ -48,7 +48,7 @@ abstract class DecredWalletBase
   // NOTE: Hitting this max fee would be unexpected with current on chain use
   // but this may need to be updated in the future.
   final maxFeeRate = 100000;
-  final syncInterval = 30; // seconds
+  final syncInterval = 5; // seconds
   static final defaultFeeRate = 10000;
   final String _password;
   final idPrefix = "decred_";
