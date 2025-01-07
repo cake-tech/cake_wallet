@@ -234,6 +234,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       final rpcUser = userInfo.split(':').first;
       final rpcPassword = userInfo.split(':').length > 1 ? userInfo.split(':')[1] : '';
 
+      await Future.delayed(Duration(milliseconds: 345));
+
       setAddress(ipAddress);
       setPath(path);
       setPassword(rpcPassword);
