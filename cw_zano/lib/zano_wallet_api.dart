@@ -382,7 +382,6 @@ mixin ZanoWalletApi {
 
 Future<String> callSyncMethod(String methodName, int hWallet, String params) async {
   final params_ = params.toNativeUtf8().address;
-  // print("zano: >>> $request");
   final method_name_ = methodName.toNativeUtf8().address;
   final invokeResult = await Isolate.run(() async {
     final lib = zanoapi.ZanoC(DynamicLibrary.open(zano.libPath));
