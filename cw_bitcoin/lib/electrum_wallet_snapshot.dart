@@ -47,7 +47,7 @@ class ElectrumWalletSnapshot {
 
   List<BitcoinAddressRecord> addresses;
   List<BitcoinSilentPaymentAddressRecord> silentAddresses;
-  List<BitcoinAddressRecord> mwebAddresses;
+  List<LitecoinMWEBAddressRecord> mwebAddresses;
   bool alwaysScan;
 
   ElectrumBalance balance;
@@ -81,7 +81,7 @@ class ElectrumWalletSnapshot {
     final mwebAddressTmp = data['mweb_addresses'] as List? ?? <Object>[];
     final mwebAddresses = mwebAddressTmp
         .whereType<String>()
-        .map((addr) => BitcoinAddressRecord.fromJSON(addr))
+        .map((addr) => LitecoinMWEBAddressRecord.fromJSON(addr))
         .toList();
 
     final alwaysScan = data['alwaysScan'] as bool? ?? false;

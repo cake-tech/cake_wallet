@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -7,7 +5,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
 part 'electrum_wallet_addresses.g.dart';
@@ -28,24 +25,20 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required this.network,
     required this.isHardwareWallet,
     List<BitcoinAddressRecord>? initialAddresses,
-    List<BitcoinAddressRecord>? initialMwebAddresses,
     BitcoinAddressType? initialAddressPageType,
   })  : _allAddresses = ObservableList.of(initialAddresses ?? []),
-        addressesByReceiveType =
+        addressesOnReceiveScreen =
             ObservableList<BaseBitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
         receiveAddresses = ObservableList<BitcoinAddressRecord>.of(
             (initialAddresses ?? []).where((addressRecord) => !addressRecord.isChange).toSet()),
-        // TODO: feature to change change address type. For now fixed to p2wpkh, the cheapest type
         changeAddresses = ObservableList<BitcoinAddressRecord>.of(
             (initialAddresses ?? []).where((addressRecord) => addressRecord.isChange).toSet()),
         _addressPageType = initialAddressPageType ??
             (walletInfo.addressPageType != null
                 ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
                 : SegwitAddresType.p2wpkh),
-        mwebAddresses =
-            ObservableList<BitcoinAddressRecord>.of((initialMwebAddresses ?? []).toSet()),
         super(walletInfo) {
-    updateAddressesByMatch();
+    updateAddressesOnReceiveScreen();
   }
 
   static const defaultReceiveAddressesCount = 22;
@@ -53,11 +46,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const gap = 20;
 
   final ObservableList<BitcoinAddressRecord> _allAddresses;
-  final ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
+  final ObservableList<BaseBitcoinAddressRecord> addressesOnReceiveScreen;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
-  // TODO: add this variable in `litecoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
-  final ObservableList<BitcoinAddressRecord> mwebAddresses;
   final BasedUtxoNetwork network;
 
   final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets;
@@ -83,6 +74,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return _allAddresses.firstWhere((element) => element.address == address);
   }
 
+  @observable
+  BitcoinAddressType changeAddressType = SegwitAddresType.p2wpkh;
+
   @override
   @computed
   String get address {
@@ -96,10 +90,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       receiveAddress = generateNewAddress().address;
     } else {
       final previousAddressMatchesType =
-          previousAddressRecord != null && previousAddressRecord!.addressType == addressPageType;
+          previousAddressRecord != null && previousAddressRecord!.type == addressPageType;
 
       if (previousAddressMatchesType &&
-          typeMatchingReceiveAddresses.first.address != addressesByReceiveType.first.address) {
+          typeMatchingReceiveAddresses.first.address != addressesOnReceiveScreen.first.address) {
         receiveAddress = previousAddressRecord!.address;
       } else {
         receiveAddress = typeMatchingReceiveAddresses.first.address;
@@ -132,7 +126,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   BitcoinAddressRecord? previousAddressRecord;
 
   @computed
-  int get totalCountOfReceiveAddresses => addressesByReceiveType.fold(0, (acc, addressRecord) {
+  int get totalCountOfReceiveAddresses => addressesOnReceiveScreen.fold(0, (acc, addressRecord) {
         if (!addressRecord.isChange) {
           return acc + 1;
         }
@@ -140,7 +134,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       });
 
   @computed
-  int get totalCountOfChangeAddresses => addressesByReceiveType.fold(0, (acc, addressRecord) {
+  int get totalCountOfChangeAddresses => addressesOnReceiveScreen.fold(0, (acc, addressRecord) {
         if (addressRecord.isChange) {
           return acc + 1;
         }
@@ -149,31 +143,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   Future<void> init() async {
-    if (walletInfo.type == WalletType.bitcoinCash) {
-      await generateInitialAddresses(addressType: P2pkhAddressType.p2pkh);
-    } else if (walletInfo.type == WalletType.litecoin) {
-      await generateInitialAddresses(addressType: SegwitAddresType.p2wpkh);
-      if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
-        await generateInitialAddresses(addressType: SegwitAddresType.mweb);
-      }
-    } else if (walletInfo.type == WalletType.bitcoin) {
-      await generateInitialAddresses(addressType: SegwitAddresType.p2wpkh);
-      if (!isHardwareWallet) {
-        await generateInitialAddresses(addressType: P2pkhAddressType.p2pkh);
-        await generateInitialAddresses(addressType: P2shAddressType.p2wpkhInP2sh);
-        await generateInitialAddresses(addressType: SegwitAddresType.p2tr);
-        await generateInitialAddresses(addressType: SegwitAddresType.p2wsh);
-      }
-    }
-
-    updateAddressesByMatch();
+    updateAddressesOnReceiveScreen();
     updateReceiveAddresses();
     updateChangeAddresses();
     await updateAddressesInBox();
   }
 
   @action
-  BitcoinAddressRecord getChangeAddress({
+  BaseBitcoinAddressRecord getChangeAddress({
     List<BitcoinUnspent>? inputs,
     List<BitcoinOutput>? outputs,
     bool isPegIn = false,
@@ -181,15 +158,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateChangeAddresses();
 
     final address = changeAddresses.firstWhere(
-      // TODO: feature to choose change type
-      (addressRecord) => _isUnusedChangeAddressByType(addressRecord, SegwitAddresType.p2wpkh),
+      (addressRecord) => _isUnusedChangeAddressByType(addressRecord, changeAddressType),
     );
     return address;
   }
 
   @action
   BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
-    final newAddressIndex = addressesByReceiveType.fold(
+    final newAddressIndex = addressesOnReceiveScreen.fold(
         0, (int acc, addressRecord) => addressRecord.isChange == false ? acc + 1 : acc);
 
     final derivationInfo = BitcoinAddressUtils.getDerivationFromType(addressPageType);
@@ -204,13 +180,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       index: newAddressIndex,
       isChange: false,
       name: label,
-      addressType: addressPageType,
+      type: addressPageType,
       network: network,
       derivationInfo: BitcoinAddressUtils.getDerivationFromType(addressPageType),
-      derivationType: CWBitcoinDerivationType.bip39,
+      cwDerivationType: CWBitcoinDerivationType.bip39,
     );
     _allAddresses.add(address);
-    Future.delayed(Duration.zero, () => updateAddressesByMatch());
+    Future.delayed(Duration.zero, () => updateAddressesOnReceiveScreen());
     return address;
   }
 
@@ -255,126 +231,22 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         derivationInfo: derivationInfo,
       );
 
-  @action
-  void addBitcoinAddressTypes() {
-    final lastP2wpkh = _allAddresses
-        .where((addressRecord) =>
-            _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
-        .toList()
-        .last;
-    if (lastP2wpkh.address != address) {
-      addressesMap[lastP2wpkh.address] = 'P2WPKH' + ': ${lastP2wpkh.address}';
-    } else {
-      addressesMap[address] = 'Active - P2WPKH' + ': $address';
-    }
-
-    final lastP2pkh = _allAddresses.firstWhere(
-        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
-    if (lastP2pkh.address != address) {
-      addressesMap[lastP2pkh.address] = 'P2PKH' + ': ${lastP2pkh.address}';
-    } else {
-      addressesMap[address] = 'Active - P2PKH' + ': $address';
-    }
-
-    final lastP2sh = _allAddresses.firstWhere((addressRecord) =>
-        _isUnusedReceiveAddressByType(addressRecord, P2shAddressType.p2wpkhInP2sh));
-    if (lastP2sh.address != address) {
-      addressesMap[lastP2sh.address] = 'P2SH' + ': ${lastP2sh.address}';
-    } else {
-      addressesMap[address] = 'Active - P2SH' + ': $address';
-    }
-
-    final lastP2tr = _allAddresses.firstWhere(
-        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2tr));
-    if (lastP2tr.address != address) {
-      addressesMap[lastP2tr.address] = 'P2TR' + ': ${lastP2tr.address}';
-    } else {
-      addressesMap[address] = 'Active - P2TR' + ': $address';
-    }
-
-    final lastP2wsh = _allAddresses.firstWhere(
-        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wsh));
-    if (lastP2wsh.address != address) {
-      addressesMap[lastP2wsh.address] = 'P2WSH' + ': ${lastP2wsh.address}';
-    } else {
-      addressesMap[address] = 'Active - P2WSH' + ': $address';
-    }
-  }
-
-  @action
-  void addLitecoinAddressTypes() {
-    final lastP2wpkh = _allAddresses
-        .where((addressRecord) =>
-            _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
-        .toList()
-        .last;
-    if (lastP2wpkh.address != address) {
-      addressesMap[lastP2wpkh.address] = 'P2WPKH' + ': ${lastP2wpkh.address}';
-    } else {
-      addressesMap[address] = 'Active - P2WPKH' + ': $address';
-    }
-
-    final lastMweb = _allAddresses.firstWhere(
-        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
-    if (lastMweb.address != address) {
-      addressesMap[lastMweb.address] = 'MWEB' + ': ${lastMweb.address}';
-    } else {
-      addressesMap[address] = 'Active - MWEB' + ': $address';
-    }
-  }
-
-  @action
-  void addBitcoinCashAddressTypes() {
-    final lastP2pkh = _allAddresses.firstWhere(
-        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
-    if (lastP2pkh.address != address) {
-      addressesMap[lastP2pkh.address] = 'P2PKH' + ': $address';
-    } else {
-      addressesMap[address] = 'Active - P2PKH' + ': $address';
-    }
-  }
-
   @override
   @action
   Future<void> updateAddressesInBox() async {
-    try {
-      addressesMap.clear();
-      addressesMap[address] = 'Active - ' + addressPageType.toString() + ': $address';
+    addressesMap.clear();
+    addressesMap[address] = 'Active - ' + addressPageType.toString() + ': $address';
 
-      allAddressesMap.clear();
-      _allAddresses.forEach((addressRecord) {
-        allAddressesMap[addressRecord.address] = addressRecord.name;
-      });
-
-      switch (walletInfo.type) {
-        case WalletType.bitcoin:
-          addBitcoinAddressTypes();
-          break;
-        case WalletType.litecoin:
-          addLitecoinAddressTypes();
-          break;
-        case WalletType.bitcoinCash:
-          addBitcoinCashAddressTypes();
-          break;
-        default:
-          break;
-      }
-
-      await saveAddressesInBox();
-    } catch (e) {
-      printV("updateAddresses $e");
-    }
+    allAddressesMap.clear();
+    _allAddresses.forEach((addressRecord) {
+      allAddressesMap[addressRecord.address] = addressRecord.name;
+    });
   }
 
   @action
   void updateAddress(String address, String label) {
     BaseBitcoinAddressRecord? foundAddress;
     _allAddresses.forEach((addressRecord) {
-      if (addressRecord.address == address) {
-        foundAddress = addressRecord;
-      }
-    });
-    mwebAddresses.forEach((addressRecord) {
       if (addressRecord.address == address) {
         foundAddress = addressRecord;
       }
@@ -386,26 +258,21 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  void updateAddressesByMatch() {
-    addressesByReceiveType.clear();
-    addressesByReceiveType.addAll(_allAddresses.where(_isAddressPageTypeMatch).toList());
+  void updateAddressesOnReceiveScreen() {
+    addressesOnReceiveScreen.clear();
+    addressesOnReceiveScreen.addAll(_allAddresses.where(_isAddressPageTypeMatch).toList());
   }
 
   @action
   void updateReceiveAddresses() {
-    receiveAddresses.removeRange(0, receiveAddresses.length);
-    final newAddresses = _allAddresses.where((addressRecord) => !addressRecord.isChange);
-    receiveAddresses.addAll(newAddresses);
+    receiveAddresses.clear();
+    receiveAddresses.addAll(_allAddresses.where((addressRecord) => !addressRecord.isChange));
   }
 
   @action
   void updateChangeAddresses() {
-    changeAddresses.removeRange(0, changeAddresses.length);
-    final newAddresses = _allAddresses.where((addressRecord) =>
-        addressRecord.isChange &&
-        (walletInfo.type != WalletType.bitcoin ||
-            addressRecord.addressType == SegwitAddresType.p2wpkh));
-    changeAddresses.addAll(newAddresses);
+    changeAddresses.clear();
+    changeAddresses.addAll(_allAddresses.where((addressRecord) => addressRecord.isChange));
   }
 
   @action
@@ -420,7 +287,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
 
     final startIndex = (isChange ? changeAddresses : receiveAddresses)
-        .where((addr) => addr.derivationType == derivationType && addr.addressType == addressType)
+        .where((addr) => addr.cwDerivationType == derivationType && addr.type == addressType)
         .length;
 
     final newAddresses = <BitcoinAddressRecord>[];
@@ -437,10 +304,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         index: i,
         isChange: isChange,
         isHidden: OLD_DERIVATION_TYPES.contains(derivationType),
-        addressType: addressType,
+        type: addressType,
         network: network,
         derivationInfo: derivationInfo,
-        derivationType: derivationType,
+        cwDerivationType: derivationType,
       );
       newAddresses.add(address);
     }
@@ -450,14 +317,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<void> generateInitialAddresses({required BitcoinAddressType addressType}) async {
-    if (_allAddresses.where((addr) => addr.addressType == addressType).isNotEmpty) {
+  Future<void> generateInitialAddresses({required BitcoinAddressType type}) async {
+    if (_allAddresses.where((addr) => addr.type == type).isNotEmpty) {
       return;
     }
 
     for (final derivationType in hdWallets.keys) {
       // p2wpkh has always had the right derivations, skip if creating old derivations
-      if (OLD_DERIVATION_TYPES.contains(derivationType) && addressType == SegwitAddresType.p2wpkh) {
+      if (OLD_DERIVATION_TYPES.contains(derivationType) && type == SegwitAddresType.p2wpkh) {
         continue;
       }
 
@@ -465,26 +332,26 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           derivationType == CWBitcoinDerivationType.old_electrum;
 
       final derivationInfos = walletInfo.derivations?.where(
-        (element) => element.scriptType == addressType.toString(),
+        (element) => element.scriptType == type.toString(),
       );
 
       if (derivationInfos == null || derivationInfos.isEmpty) {
         final bitcoinDerivationInfo = BitcoinDerivationInfo(
           derivationType: isElectrum ? BitcoinDerivationType.electrum : BitcoinDerivationType.bip39,
           derivationPath: walletInfo.derivationInfo!.derivationPath!,
-          scriptType: addressType,
+          scriptType: type,
         );
 
         await discoverNewAddresses(
           derivationType: derivationType,
           isChange: false,
-          addressType: addressType,
+          addressType: type,
           derivationInfo: bitcoinDerivationInfo,
         );
         await discoverNewAddresses(
           derivationType: derivationType,
           isChange: true,
-          addressType: addressType,
+          addressType: type,
           derivationInfo: bitcoinDerivationInfo,
         );
         continue;
@@ -494,19 +361,19 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         final bitcoinDerivationInfo = BitcoinDerivationInfo(
           derivationType: isElectrum ? BitcoinDerivationType.electrum : BitcoinDerivationType.bip39,
           derivationPath: derivationInfo.derivationPath!,
-          scriptType: addressType,
+          scriptType: type,
         );
 
         await discoverNewAddresses(
           derivationType: derivationType,
           isChange: false,
-          addressType: addressType,
+          addressType: type,
           derivationInfo: bitcoinDerivationInfo,
         );
         await discoverNewAddresses(
           derivationType: derivationType,
           isChange: true,
-          addressType: addressType,
+          addressType: type,
           derivationInfo: bitcoinDerivationInfo,
         );
       }
@@ -519,7 +386,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       final index = _allAddresses.indexWhere((element) => element.address == address.address);
       _allAddresses.replaceRange(index, index + 1, [address]);
 
-      updateAddressesByMatch();
+      updateAddressesOnReceiveScreen();
       updateReceiveAddresses();
       updateChangeAddresses();
     }
@@ -528,7 +395,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   void addAddresses(Iterable<BitcoinAddressRecord> addresses) {
     this._allAddresses.addAll(addresses);
-    updateAddressesByMatch();
+    updateAddressesOnReceiveScreen();
     updateReceiveAddresses();
     updateChangeAddresses();
 
@@ -546,18 +413,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  void addMwebAddresses(Iterable<BitcoinAddressRecord> addresses) {
-    final addressesSet = this.mwebAddresses.toSet();
-    addressesSet.addAll(addresses);
-    this.mwebAddresses.clear();
-    this.mwebAddresses.addAll(addressesSet);
-    updateAddressesByMatch();
-  }
-
-  @action
   Future<void> setAddressType(BitcoinAddressType type) async {
     _addressPageType = type;
-    updateAddressesByMatch();
+    updateAddressesOnReceiveScreen();
     walletInfo.addressPageType = addressPageType.toString();
     await walletInfo.save();
   }
@@ -566,15 +424,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return _isAddressByType(addressRecord, addressPageType);
   }
 
-  bool _isAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) =>
-      addr.addressType == type;
+  bool _isAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) => addr.type == type;
 
   bool _isUnusedChangeAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) {
-    return addr.isChange && !addr.isUsed && addr.addressType == type;
+    return addr.isChange && !addr.isUsed && addr.type == type;
   }
 
-  bool _isUnusedReceiveAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) {
-    return !addr.isChange && !addr.isUsed && addr.addressType == type;
+  bool isUnusedReceiveAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) {
+    return !addr.isChange && !addr.isUsed && addr.type == type;
   }
 
   Map<String, dynamic> toJson() {

@@ -788,8 +788,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           transactionHistoryIds: transactionHistory.transactions.keys.toList(),
           labels: walletAddresses.labels,
           labelIndexes: walletAddresses.silentPaymentAddresses
-              .where((addr) =>
-                  addr.addressType == SilentPaymentsAddresType.p2sp && addr.labelIndex >= 1)
+              .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.labelIndex >= 1)
               .map((addr) => addr.labelIndex)
               .toList(),
           isSingleScan: doSingleScan ?? false,
@@ -835,6 +834,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     //   return {};
     // }
   }
+
+  @override
+  int get dustAmount => network == BitcoinNetwork.testnet ? 0 : 546;
 
   @override
   @action
@@ -968,7 +970,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
       if (paysToSilentPayment) {
         // Check inputs for shared secret derivation
-        if (utx.bitcoinAddressRecord.addressType == SegwitAddresType.p2wsh) {
+        if (utx.bitcoinAddressRecord.type == SegwitAddresType.p2wsh) {
           throw BitcoinTransactionSilentPaymentsNotSupported();
         }
       }
@@ -1188,7 +1190,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     ));
 
     // Get Derivation path for change Address since it is needed in Litecoin and BitcoinCash hardware Wallets
-    final changeDerivationPath = changeAddress.derivationInfo.derivationPath.toString();
+    final changeDerivationPath =
+        (changeAddress as BitcoinAddressRecord).derivationInfo.derivationPath.toString();
     utxoDetails.publicKeys[address.pubKeyHash()] =
         PublicKeyWithDerivationPath('', changeDerivationPath);
 

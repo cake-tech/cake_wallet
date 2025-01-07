@@ -26,13 +26,17 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required this.mwebEnabled,
     required super.hdWallets,
     super.initialAddresses,
-    super.initialMwebAddresses,
-  }) : super(walletInfo) {
+    List<LitecoinMWEBAddressRecord>? initialMwebAddresses,
+  })  : mwebAddresses =
+            ObservableList<LitecoinMWEBAddressRecord>.of((initialMwebAddresses ?? []).toSet()),
+        super(walletInfo) {
     for (int i = 0; i < mwebAddresses.length; i++) {
       mwebAddrs.add(mwebAddresses[i].address);
     }
     printV("initialized with ${mwebAddrs.length} mweb addresses");
   }
+
+  final ObservableList<LitecoinMWEBAddressRecord> mwebAddresses;
 
   final Bip32Slip10Secp256k1? mwebHd;
   bool mwebEnabled;
@@ -47,13 +51,13 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   @override
   Future<void> init() async {
     if (!super.isHardwareWallet) await initMwebAddresses();
-    await super.init();
-  }
 
-  @computed
-  @override
-  List<BitcoinAddressRecord> get allAddresses {
-    return List.from(super.allAddresses)..addAll(mwebAddresses);
+    await generateInitialAddresses(type: SegwitAddresType.p2wpkh);
+    if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
+      await generateInitialAddresses(type: SegwitAddresType.mweb);
+    }
+
+    await super.init();
   }
 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
@@ -94,18 +98,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     if (mwebHd == null) return;
 
     if (mwebAddresses.length < mwebAddrs.length) {
-      List<BitcoinAddressRecord> addressRecords = mwebAddrs
+      List<LitecoinMWEBAddressRecord> addressRecords = mwebAddrs
           .asMap()
           .entries
           .map(
-            (e) => BitcoinAddressRecord(
-              e.value,
-              index: e.key,
-              addressType: SegwitAddresType.mweb,
-              network: network,
-              derivationInfo: BitcoinAddressUtils.getDerivationFromType(SegwitAddresType.p2wpkh),
-              derivationType: CWBitcoinDerivationType.bip39,
-            ),
+            (e) => LitecoinMWEBAddressRecord(e.value, index: e.key),
           )
           .toList();
       addMwebAddresses(addressRecords);
@@ -163,7 +160,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @action
   @override
-  BitcoinAddressRecord getChangeAddress({
+  BaseBitcoinAddressRecord getChangeAddress({
     List<BitcoinUnspent>? inputs,
     List<BitcoinOutput>? outputs,
     bool isPegIn = false,
@@ -211,14 +208,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     if (mwebEnabled) {
       // TODO:
       // await ensureMwebAddressUpToIndexExists(1);
-      return BitcoinAddressRecord(
-        mwebAddrs[0],
-        index: 0,
-        addressType: SegwitAddresType.mweb,
-        network: network,
-        derivationInfo: BitcoinAddressUtils.getDerivationFromType(SegwitAddresType.p2wpkh),
-        derivationType: CWBitcoinDerivationType.bip39,
-      );
+      return LitecoinMWEBAddressRecord(mwebAddrs[0], index: 0);
     }
 
     return super.getChangeAddress();
@@ -228,7 +218,68 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   String get addressForExchange {
     // don't use mweb addresses for exchange refund address:
     final addresses = receiveAddresses
-        .where((element) => element.addressType == SegwitAddresType.p2wpkh && !element.isUsed);
+        .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
     return addresses.first.address;
+  }
+
+  @override
+  Future<void> updateAddressesInBox() async {
+    super.updateAddressesInBox();
+
+    final lastP2wpkh = allAddresses
+        .where(
+            (addressRecord) => isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
+        .toList()
+        .last;
+    if (lastP2wpkh.address != address) {
+      addressesMap[lastP2wpkh.address] = 'P2WPKH';
+    } else {
+      addressesMap[address] = 'Active - P2WPKH';
+    }
+
+    final lastMweb = allAddresses.firstWhere(
+        (addressRecord) => isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
+    if (lastMweb.address != address) {
+      addressesMap[lastMweb.address] = 'MWEB';
+    } else {
+      addressesMap[address] = 'Active - MWEB';
+    }
+
+    await saveAddressesInBox();
+  }
+
+  @override
+  @action
+  void updateAddress(String address, String label) {
+    BaseBitcoinAddressRecord? foundAddress;
+    allAddresses.forEach((addressRecord) {
+      if (addressRecord.address == address) {
+        foundAddress = addressRecord;
+      }
+    });
+    mwebAddresses.forEach((addressRecord) {
+      if (addressRecord.address == address) {
+        foundAddress = addressRecord;
+      }
+    });
+
+    if (foundAddress != null) {
+      foundAddress!.setNewName(label);
+
+      if (foundAddress is BitcoinAddressRecord) {
+        final index = allAddresses.indexOf(foundAddress! as BitcoinAddressRecord);
+        allAddresses.remove(foundAddress);
+        allAddresses.insert(index, foundAddress as BitcoinAddressRecord);
+      }
+    }
+  }
+
+  @action
+  void addMwebAddresses(Iterable<LitecoinMWEBAddressRecord> addresses) {
+    final addressesSet = this.mwebAddresses.toSet();
+    addressesSet.addAll(addresses);
+    this.mwebAddresses.clear();
+    this.mwebAddresses.addAll(addressesSet);
+    updateAddressesOnReceiveScreen();
   }
 }

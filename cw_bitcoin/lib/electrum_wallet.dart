@@ -243,7 +243,7 @@ abstract class ElectrumWalletBase
   List<String> get addressesSet =>
       walletAddresses.allAddresses.map((addr) => addr.address).toList();
 
-  List<String> get scriptHashes => walletAddresses.addressesByReceiveType
+  List<String> get scriptHashes => walletAddresses.addressesOnReceiveScreen
       .map((addr) => (addr as BitcoinAddressRecord).scriptHash)
       .toList();
 
@@ -430,9 +430,9 @@ abstract class ElectrumWalletBase
     }
   }
 
-  int get _dustAmount => 0;
+  int get dustAmount => 546;
 
-  bool isBelowDust(int amount) => amount <= _dustAmount && network != BitcoinNetwork.testnet;
+  bool isBelowDust(int amount) => amount <= dustAmount;
 
   TxCreateUtxoDetails createUTXOS({
     required bool sendAll,
@@ -640,7 +640,8 @@ abstract class ElectrumWalletBase
       isChange: true,
     ));
 
-    final changeDerivationPath = changeAddress.derivationInfo.derivationPath.toString();
+    final changeDerivationPath =
+        (changeAddress as BitcoinAddressRecord).derivationInfo.derivationPath.toString();
     utxoDetails.publicKeys[address.pubKeyHash()] =
         PublicKeyWithDerivationPath('', changeDerivationPath);
 
@@ -930,7 +931,7 @@ abstract class ElectrumWalletBase
     required List<UtxoWithAddress> utxos,
     required Map<String, PublicKeyWithDerivationPath> publicKeys,
     String? memo,
-    bool enableRBF = true,
+    bool enableRBF = false,
     BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
     BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
   }) async =>
@@ -1295,8 +1296,8 @@ abstract class ElectrumWalletBase
         final addressList =
             (isChange ? walletAddresses.changeAddresses : walletAddresses.receiveAddresses).where(
                 (element) =>
-                    element.addressType == addressRecord.addressType &&
-                    element.derivationType == addressRecord.derivationType);
+                    element.type == addressRecord.type &&
+                    element.cwDerivationType == addressRecord.cwDerivationType);
         final totalAddresses = addressList.length;
 
         final gapLimit = (isChange
@@ -1311,28 +1312,28 @@ abstract class ElectrumWalletBase
 
         final hasUsedAddressesUnderGap = addressRecord.index >= totalAddresses - gapLimit;
 
-        if (hasUsedAddressesUnderGap && lastDiscoveredType != addressRecord.addressType) {
-          lastDiscoveredType = addressRecord.addressType;
+        if (hasUsedAddressesUnderGap && lastDiscoveredType != addressRecord.type) {
+          lastDiscoveredType = addressRecord.type;
 
           // Discover new addresses for the same address type until the gap limit is respected
           final newAddresses = await walletAddresses.discoverNewAddresses(
             isChange: isChange,
-            derivationType: addressRecord.derivationType,
-            addressType: addressRecord.addressType,
+            derivationType: addressRecord.cwDerivationType,
+            addressType: addressRecord.type,
             derivationInfo: BitcoinAddressUtils.getDerivationFromType(
-              addressRecord.addressType,
+              addressRecord.type,
               isElectrum: [
                 CWBitcoinDerivationType.electrum,
                 CWBitcoinDerivationType.old_electrum,
-              ].contains(addressRecord.derivationType),
+              ].contains(addressRecord.cwDerivationType),
             ),
           );
 
           final newAddressList =
               (isChange ? walletAddresses.changeAddresses : walletAddresses.receiveAddresses).where(
                   (element) =>
-                      element.addressType == addressRecord.addressType &&
-                      element.derivationType == addressRecord.derivationType);
+                      element.type == addressRecord.type &&
+                      element.cwDerivationType == addressRecord.cwDerivationType);
           printV(
               "discovered ${newAddresses.length} new addresses, new total: ${newAddressList.length}");
 
@@ -1404,7 +1405,7 @@ abstract class ElectrumWalletBase
     var currentFee = allInputsAmount - totalOutAmount;
 
     int remainingFee = (newFee - currentFee > 0) ? newFee - currentFee : newFee;
-    return totalBalance - receiverAmount - remainingFee >= _dustAmount;
+    return totalBalance - receiverAmount - remainingFee >= dustAmount;
   }
 
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
@@ -1496,10 +1497,10 @@ abstract class ElectrumWalletBase
 
           if (isChange) {
             int outputAmount = output.value.toInt();
-            if (outputAmount > _dustAmount) {
-              int deduction = (outputAmount - _dustAmount >= remainingFee)
+            if (outputAmount > dustAmount) {
+              int deduction = (outputAmount - dustAmount >= remainingFee)
                   ? remainingFee
-                  : outputAmount - _dustAmount;
+                  : outputAmount - dustAmount;
               outputs[i] = BitcoinOutput(
                   address: output.address, value: BigInt.from(outputAmount - deduction));
               remainingFee -= deduction;
@@ -1564,10 +1565,10 @@ abstract class ElectrumWalletBase
           final output = outputs[i];
           int outputAmount = output.value.toInt();
 
-          if (outputAmount > _dustAmount) {
-            int deduction = (outputAmount - _dustAmount >= remainingFee)
+          if (outputAmount > dustAmount) {
+            int deduction = (outputAmount - dustAmount >= remainingFee)
                 ? remainingFee
-                : outputAmount - _dustAmount;
+                : outputAmount - dustAmount;
 
             outputs[i] = BitcoinOutput(
                 address: output.address, value: BigInt.from(outputAmount - deduction));

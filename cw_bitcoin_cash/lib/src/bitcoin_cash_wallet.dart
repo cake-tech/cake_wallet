@@ -151,20 +151,20 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
             addr.address,
             index: addr.index,
             isChange: addr.isChange,
-            addressType: P2pkhAddressType.p2pkh,
+            type: P2pkhAddressType.p2pkh,
             network: BitcoinCashNetwork.mainnet,
             derivationInfo: BitcoinAddressUtils.getDerivationFromType(P2pkhAddressType.p2pkh),
-            derivationType: CWBitcoinDerivationType.bip39,
+            cwDerivationType: CWBitcoinDerivationType.bip39,
           );
         } catch (_) {
           return BitcoinAddressRecord(
             AddressUtils.getCashAddrFormat(addr.address),
             index: addr.index,
             isChange: addr.isChange,
-            addressType: P2pkhAddressType.p2pkh,
+            type: P2pkhAddressType.p2pkh,
             network: BitcoinCashNetwork.mainnet,
             derivationInfo: BitcoinAddressUtils.getDerivationFromType(P2pkhAddressType.p2pkh),
-            derivationType: CWBitcoinDerivationType.bip39,
+            cwDerivationType: CWBitcoinDerivationType.bip39,
           );
         }
       }).toList(),

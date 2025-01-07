@@ -13,7 +13,7 @@ abstract class BaseBitcoinAddressRecord {
     int balance = 0,
     String name = '',
     bool isUsed = false,
-    required this.addressType,
+    required this.type,
     bool? isHidden,
   })  : _txCount = txCount,
         _balance = balance,
@@ -57,27 +57,27 @@ abstract class BaseBitcoinAddressRecord {
 
   int get hashCode => address.hashCode;
 
-  BitcoinAddressType addressType;
+  BitcoinAddressType type;
 
   String toJSON();
 }
 
 class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   final BitcoinDerivationInfo derivationInfo;
-  final CWBitcoinDerivationType derivationType;
+  final CWBitcoinDerivationType cwDerivationType;
 
   BitcoinAddressRecord(
     super.address, {
     required super.index,
     required this.derivationInfo,
-    required this.derivationType,
+    required this.cwDerivationType,
     super.isHidden,
     super.isChange = false,
     super.txCount = 0,
     super.balance = 0,
     super.name = '',
     super.isUsed = false,
-    required super.addressType,
+    required super.type,
     String? scriptHash,
     BasedUtxoNetwork? network,
   }) {
@@ -99,14 +99,14 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       derivationInfo: BitcoinDerivationInfo.fromJSON(
         decoded['derivationInfo'] as Map<String, dynamic>,
       ),
-      derivationType: CWBitcoinDerivationType.values[decoded['derivationType'] as int],
+      cwDerivationType: CWBitcoinDerivationType.values[decoded['derivationType'] as int],
       isHidden: decoded['isHidden'] as bool? ?? false,
       isChange: decoded['isChange'] as bool? ?? false,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
-      addressType: decoded['type'] != null && decoded['type'] != ''
+      type: decoded['type'] != null && decoded['type'] != ''
           ? BitcoinAddressType.values
               .firstWhere((type) => type.toString() == decoded['type'] as String)
           : SegwitAddresType.p2wpkh,
@@ -121,19 +121,19 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         'address': address,
         'index': index,
         'derivationInfo': derivationInfo.toJSON(),
-        'derivationType': derivationType.index,
+        'derivationType': cwDerivationType.index,
         'isHidden': isHidden,
         'isChange': isChange,
         'isUsed': isUsed,
         'txCount': txCount,
         'name': name,
         'balance': balance,
-        'type': addressType.toString(),
+        'type': type.toString(),
         'scriptHash': scriptHash,
       });
 
   @override
-  operator ==(Object other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
     return other is BitcoinAddressRecord &&
@@ -141,8 +141,8 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         other.index == index &&
         other.derivationInfo == derivationInfo &&
         other.scriptHash == scriptHash &&
-        other.addressType == addressType &&
-        other.derivationType == derivationType;
+        other.type == type &&
+        other.cwDerivationType == cwDerivationType;
   }
 
   @override
@@ -151,8 +151,8 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       index.hashCode ^
       derivationInfo.hashCode ^
       scriptHash.hashCode ^
-      addressType.hashCode ^
-      derivationType.hashCode;
+      type.hashCode ^
+      cwDerivationType.hashCode;
 }
 
 class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
@@ -170,7 +170,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     super.balance = 0,
     super.name = '',
     super.isUsed = false,
-    super.addressType = SilentPaymentsAddresType.p2sp,
+    super.type = SilentPaymentsAddresType.p2sp,
     super.isHidden,
     this.labelHex,
   }) : super(index: labelIndex, isChange: isChangeAddress(labelIndex)) {
@@ -204,7 +204,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
         'txCount': txCount,
         'name': name,
         'balance': balance,
-        'type': addressType.toString(),
+        'type': type.toString(),
         'labelHex': labelHex,
       });
 }
@@ -220,7 +220,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
     super.name = '',
     super.isUsed = false,
     required this.tweak,
-    super.addressType = SegwitAddresType.p2tr,
+    super.type = SegwitAddresType.p2tr,
     super.labelHex,
   }) : super(isHidden: true);
 
@@ -268,8 +268,64 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
         'txCount': txCount,
         'name': name,
         'balance': balance,
-        'type': addressType.toString(),
+        'type': type.toString(),
         'labelHex': labelHex,
         'tweak': tweak,
       });
+}
+
+class LitecoinMWEBAddressRecord extends BaseBitcoinAddressRecord {
+  LitecoinMWEBAddressRecord(
+    super.address, {
+    required super.index,
+    super.isHidden,
+    super.isChange = false,
+    super.txCount = 0,
+    super.balance = 0,
+    super.name = '',
+    super.isUsed = false,
+    BasedUtxoNetwork? network,
+    super.type = SegwitAddresType.mweb,
+  });
+
+  factory LitecoinMWEBAddressRecord.fromJSON(String jsonSource) {
+    final decoded = json.decode(jsonSource) as Map;
+
+    return LitecoinMWEBAddressRecord(
+      decoded['address'] as String,
+      index: decoded['index'] as int,
+      isHidden: decoded['isHidden'] as bool? ?? false,
+      isChange: decoded['isChange'] as bool? ?? false,
+      isUsed: decoded['isUsed'] as bool? ?? false,
+      txCount: decoded['txCount'] as int? ?? 0,
+      name: decoded['name'] as String? ?? '',
+      balance: decoded['balance'] as int? ?? 0,
+    );
+  }
+
+  @override
+  String toJSON() => json.encode({
+        'address': address,
+        'index': index,
+        'isHidden': isHidden,
+        'isChange': isChange,
+        'isUsed': isUsed,
+        'txCount': txCount,
+        'name': name,
+        'balance': balance,
+        'type': type.toString(),
+      });
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is BitcoinAddressRecord &&
+        other.address == address &&
+        other.index == index &&
+        other.type == type;
+  }
+
+  @override
+  int get hashCode => address.hashCode ^ index.hashCode ^ type.hashCode;
 }

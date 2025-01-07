@@ -135,7 +135,7 @@ class CWBitcoin extends Bitcoin {
   @computed
   List<ElectrumSubAddress> getSubAddresses(Object wallet) {
     final electrumWallet = wallet as ElectrumWallet;
-    return electrumWallet.walletAddresses.addressesByReceiveType
+    return electrumWallet.walletAddresses.addressesOnReceiveScreen
         .map(
           (addr) => ElectrumSubAddress(
             id: addr.index,
@@ -216,9 +216,9 @@ class CWBitcoin extends Bitcoin {
     return bitcoinWallet.unspentCoins.where((element) {
       switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
-          return element.bitcoinAddressRecord.addressType == SegwitAddresType.mweb;
+          return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
         case UnspentCoinType.nonMweb:
-          return element.bitcoinAddressRecord.addressType != SegwitAddresType.mweb;
+          return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
         case UnspentCoinType.any:
           return true;
       }
@@ -802,8 +802,9 @@ class CWBitcoin extends Bitcoin {
   String? getUnusedMwebAddress(Object wallet) {
     try {
       final electrumWallet = wallet as ElectrumWallet;
-      final mwebAddress =
-          electrumWallet.walletAddresses.mwebAddresses.firstWhere((element) => !element.isUsed);
+      final mwebAddress = (electrumWallet.walletAddresses as LitecoinWalletAddresses)
+          .mwebAddresses
+          .firstWhere((element) => !element.isUsed);
       return mwebAddress.address;
     } catch (_) {
       return null;
@@ -813,8 +814,8 @@ class CWBitcoin extends Bitcoin {
   String? getUnusedSegwitAddress(Object wallet) {
     try {
       final electrumWallet = wallet as ElectrumWallet;
-      final segwitAddress = electrumWallet.walletAddresses.allAddresses.firstWhere(
-          (element) => !element.isUsed && element.addressType == SegwitAddresType.p2wpkh);
+      final segwitAddress = electrumWallet.walletAddresses.allAddresses
+          .firstWhere((element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh);
       return segwitAddress.address;
     } catch (_) {
       return null;
