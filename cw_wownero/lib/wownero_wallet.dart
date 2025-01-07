@@ -557,7 +557,7 @@ abstract class WowneroWalletBase
   @override
   Future<Map<String, WowneroTransactionInfo>> fetchTransactions() async {
     transaction_history.refreshTransactions();
-    return _getAllTransactionsOfAccount(walletAddresses.account?.id)
+    return (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
         .fold<Map<String, WowneroTransactionInfo>>(<String, WowneroTransactionInfo>{},
             (Map<String, WowneroTransactionInfo> acc, WowneroTransactionInfo tx) {
       acc[tx.id] = tx;
@@ -587,8 +587,8 @@ abstract class WowneroWalletBase
       wownero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
   List<WowneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) =>
-      transaction_history
-          .getAllTransactions()
+      (await transaction_history
+          .getAllTransactions())
           .map(
             (row) => WowneroTransactionInfo(
               row.hash,
