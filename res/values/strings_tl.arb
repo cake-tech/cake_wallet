@@ -731,6 +731,8 @@
   "shared_seed_wallet_groups": "Ibinahaging mga pangkat ng pitaka ng binhi",
   "show": "Ipakita",
   "show_address_book_popup": "Ipakita ang popup na 'Idagdag sa Address Book' pagkatapos magpadala",
+  "show_balance": "Mahabang pindutin upang ipakita ang balanse",
+  "show_balance_toast": "Mahabang pindutin upang itago o ipakita ang balanse",
   "show_details": "Ipakita ang mga detalye",
   "show_keys": "Ipakita ang mga seed/key",
   "show_market_place": "Ipakita ang Marketplace",

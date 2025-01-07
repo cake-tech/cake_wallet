@@ -731,6 +731,8 @@
   "shared_seed_wallet_groups": "共享种子钱包组",
   "show": "展示",
   "show_address_book_popup": "发送后显示“添加到通讯簿”弹出窗口",
+  "show_balance": "长印刷以显示平衡",
+  "show_balance_toast": "长按以隐藏或显示平衡",
   "show_details": "显示详细信息",
   "show_keys": "显示种子/密钥",
   "show_market_place": "显示市场",

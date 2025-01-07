@@ -731,6 +731,8 @@
   "shared_seed_wallet_groups": "Paylaşılan tohum cüzdan grupları",
   "show": "Göstermek",
   "show_address_book_popup": "Gönderdikten sonra 'adres defterine ekle' açılır",
+  "show_balance": "Dengeyi Göstermek İçin Uzun Basın",
+  "show_balance_toast": "Dengeyi gizlemek veya göstermek için uzun basın",
   "show_details": "Detayları Göster",
   "show_keys": "Tohumları/anahtarları göster",
   "show_market_place": "Pazar Yerini Göster",

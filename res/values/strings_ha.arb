@@ -733,6 +733,8 @@
   "shared_seed_wallet_groups": "Raba ƙungiya walat",
   "show": "Nuna",
   "show_address_book_popup": "Nuna 'ƙara don magance littafin' Popup bayan aikawa",
+  "show_balance": "Dogon latsawa don nuna ma'auni",
+  "show_balance_toast": "Latsa latsawa don ɓoye ko nuna ma'auni",
   "show_details": "Nuna Cikakkun bayanai",
   "show_keys": "Nuna iri/maɓallai",
   "show_market_place": "Nuna dan kasuwa",

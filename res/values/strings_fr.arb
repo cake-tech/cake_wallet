@@ -731,6 +731,8 @@
   "shared_seed_wallet_groups": "Groupes de portefeuilles partagés",
   "show": "Montrer",
   "show_address_book_popup": "Afficher la popup `` Ajouter au carnet d'adresses '' après avoir envoyé",
+  "show_balance": "Longue presse pour montrer l'équilibre",
+  "show_balance_toast": "Longue appuyez sur pour masquer ou afficher l'équilibre",
   "show_details": "Afficher les détails",
   "show_keys": "Visualiser la phrase secrète (seed) et les clefs",
   "show_market_place": "Afficher la place de marché",

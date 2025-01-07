@@ -733,6 +733,8 @@
   "shared_seed_wallet_groups": "साझा बीज बटुए समूह",
   "show": "दिखाओ",
   "show_address_book_popup": "भेजने के बाद 'एड एड्रेस बुक' पॉपअप दिखाएं",
+  "show_balance": "बैलेंस दिखाने के लिए लॉन्ग प्रेस",
+  "show_balance_toast": "बैलेंस को छिपाने या दिखाने के लिए लॉन्ग प्रेस",
   "show_details": "विवरण दिखाएं",
   "show_keys": "बीज / कुंजियाँ दिखाएँ",
   "show_market_place": "बाज़ार दिखाएँ",

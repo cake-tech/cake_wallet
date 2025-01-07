@@ -158,7 +158,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority) async {
+  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority,
+      {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) async {
     try {
       final sk = ECPrivate.random();
       final electrumWallet = wallet as ElectrumWallet;

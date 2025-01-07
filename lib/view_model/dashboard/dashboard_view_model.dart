@@ -649,7 +649,7 @@ abstract class DashboardViewModelBase with Store {
 
       transactions.clear();
 
-      transactions = ObservableList.of(
+      transactions.addAll(
         wallet.transactionHistory.transactions.values.map(
           (transaction) => TransactionListItem(
             transaction: transaction,
@@ -711,7 +711,7 @@ abstract class DashboardViewModelBase with Store {
               monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
           .toList();
 
-      transactions = ObservableList.of(
+      transactions.addAll(
         _accountTransactions.map(
           (transaction) => TransactionListItem(
             transaction: transaction,
@@ -731,7 +731,7 @@ abstract class DashboardViewModelBase with Store {
               wow.wownero!.getCurrentAccount(wallet).id)
           .toList();
 
-      transactions = ObservableList.of(
+      transactions.addAll(
         _accountTransactions.map(
           (transaction) => TransactionListItem(
             transaction: transaction,

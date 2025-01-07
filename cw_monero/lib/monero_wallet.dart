@@ -7,7 +7,6 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_core/crypto_currency.dart';
-// import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_balance.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/monero_wallet_keys.dart';
@@ -28,7 +27,6 @@ import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
 import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:cw_monero/exceptions/monero_transaction_creation_exception.dart';
-// import 'package:cw_monero/exceptions/monero_transaction_no_inputs_exception.dart';
 import 'package:cw_monero/ledger.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
@@ -58,8 +56,9 @@ abstract class MoneroWalletBase
       required String password})
       : balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
           CryptoCurrency.xmr: MoneroBalance(
-              fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
-              unlockedBalance: monero_wallet.getFullBalance(accountIndex: 0))
+            fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
+            unlockedBalance: monero_wallet.getUnlockedBalance(accountIndex: 0),
+          )
         }),
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
@@ -258,6 +257,14 @@ abstract class MoneroWalletBase
     return str;
   }
 
+  bool needExportOutputs(int amount) {
+    // viewOnlyBalance - balance that we can spend
+    // TODO(mrcyjanek): remove hasUnknownKeyImages when we cleanup coin control
+    return (monero.Wallet_viewOnlyBalance(wptr!, accountIndex: walletAddresses.account!.id) <
+            amount) ||
+        monero.Wallet_hasUnknownKeyImages(wptr!);
+  }
+
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final _credentials = credentials as MoneroTransactionCreationCredentials;
@@ -266,7 +273,6 @@ abstract class MoneroWalletBase
     final hasMultiDestination = outputs.length > 1;
     final unlockedBalance =
         monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
-    // var allInputsAmount = 0;
 
     PendingTransactionDescription pendingTransactionDescription;
 
@@ -280,11 +286,9 @@ abstract class MoneroWalletBase
 
     for (final utx in unspentCoins) {
       if (utx.isSending) {
-        // allInputsAmount += utx.value;
         inputs.add(utx.keyImage!);
       }
     }
-    // final spendAllCoins = inputs.length == unspentCoins.length;
 
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
@@ -294,7 +298,6 @@ abstract class MoneroWalletBase
       final int totalAmount =
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
-      // final estimatedFee = estimatedFeeForOutputsWithPriority(priority: _credentials.priority);
       if (unlockedBalance < totalAmount) {
         throw MoneroTransactionCreationException('You do not have enough XMR to send this amount.');
       }
@@ -317,7 +320,6 @@ abstract class MoneroWalletBase
       final output = outputs.first;
       final address = output.isParsedAddress ? output.extractedAddress : output.address;
       final amount = output.sendAll ? null : output.cryptoAmount!.replaceAll(',', '.');
-      // final formattedAmount = output.sendAll ? null : output.formattedCryptoAmount;
 
       // if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
       //     (formattedAmount == null && unlockedBalance <= 0)) {
@@ -327,7 +329,6 @@ abstract class MoneroWalletBase
       //       'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       // }
 
-      // final estimatedFee = estimatedFeeForOutputsWithPriority(priority: _credentials.priority);
       if (inputs.isEmpty) MoneroTransactionCreationException('No inputs selected');
       pendingTransactionDescription = await transaction_history.createTransaction(
           address: address!,
@@ -477,7 +478,6 @@ abstract class MoneroWalletBase
   }
 
   Future<void> updateUnspent() async {
-    await transaction_history.txHistoryMutex.acquire();
     try {
       refreshCoins(walletAddresses.account!.id);
 
@@ -507,7 +507,6 @@ abstract class MoneroWalletBase
 
       if (unspentCoinsInfo.isEmpty) {
         unspentCoins.forEach((coin) => _addCoinInfo(coin));
-        transaction_history.txHistoryMutex.release();
         return;
       }
 
@@ -532,9 +531,7 @@ abstract class MoneroWalletBase
 
       await _refreshUnspentCoinsInfo();
       _askForUpdateBalance();
-      transaction_history.txHistoryMutex.release();
     } catch (e, s) {
-      transaction_history.txHistoryMutex.release();
       printV(e.toString());
       onError?.call(FlutterErrorDetails(
         exception: e,
@@ -709,26 +706,16 @@ abstract class MoneroWalletBase
 
   Future<void> _askForUpdateTransactionHistory() async => await updateTransactions();
 
-  // int _getFullBalance() => monero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id);
-
   int _getUnlockedBalance() =>
       monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
 
   int _getFrozenBalance() {
     var frozenBalance = 0;
 
-    unspentCoinsInfo.values.forEach((info) {
-      unspentCoins.forEach((element) {
-        if (element.hash == info.hash &&
-            element.vout == info.vout &&
-            info.isFrozen &&
-            element.value == info.value &&
-            info.walletId == id &&
-            info.accountIndex == walletAddresses.account!.id) {
-          if (element.isFrozen && !element.isSending) frozenBalance += element.value;
-        }
-      });
-    });
+    for (var coin in unspentCoinsInfo.values.where((element) =>
+        element.walletId == id && element.accountIndex == walletAddresses.account!.id)) {
+      if (coin.isFrozen && !coin.isSending) frozenBalance += coin.value;
+    }
 
     return frozenBalance;
   }

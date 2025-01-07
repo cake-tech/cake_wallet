@@ -394,7 +394,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
 
-      pendingTransaction = await wallet.createTransaction(_credentials());
+      pendingTransaction = await wallet.createTransaction(_credentials(provider));
 
       if (provider is ThorChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;
@@ -531,7 +531,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void setTransactionPriority(TransactionPriority priority) =>
       _settingsStore.priority[wallet.type] = priority;
 
-  Object _credentials() {
+  Object _credentials([ExchangeProvider? provider]) {
     final priority = _settingsStore.priority[wallet.type];
 
     if (priority == null &&
@@ -544,13 +544,20 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     switch (wallet.type) {
       case WalletType.bitcoin:
-      case WalletType.litecoin:
       case WalletType.bitcoinCash:
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
           feeRate: customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
+      case WalletType.litecoin:
+        return bitcoin!.createBitcoinTransactionCredentials(
+          outputs,
+          priority: priority!,
+          feeRate: customBitcoinFeeRate,
+          // if it's an exchange flow then disable sending from mweb coins
+          coinTypeToSpendFrom: provider != null ? UnspentCoinType.nonMweb : coinTypeToSpendFrom,
         );
 
       case WalletType.monero:
