@@ -99,7 +99,7 @@ abstract class DecredWalletBase
 
   Future<void> init() async {
     updateBalance();
-
+    updateTransactionHistory();
     await walletAddresses.init();
 
     fetchTransactions();
@@ -128,6 +128,10 @@ abstract class DecredWalletBase
       syncTimer = Timer.periodic(
           Duration(seconds: syncIntervalSynced), (Timer t) => performBackgroundTasks());
     }
+    updateTransactionHistory();
+  }
+
+  void updateTransactionHistory() async {
     // from is the number of transactions skipped from most recent, not block
     // height.
     var from = 0;
