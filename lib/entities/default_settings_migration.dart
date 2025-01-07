@@ -123,7 +123,7 @@ Future<void> defaultSettingsMigration(
             nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.haven,
-            currentNodePreferenceKey: PreferencesKey.currentLitecoinElectrumSererIdKey,
+            currentNodePreferenceKey: PreferencesKey.currentHavenNodeIdKey,
           );
           break;
         case 2:
@@ -254,8 +254,13 @@ Future<void> defaultSettingsMigration(
             type: WalletType.nano,
             currentNodePreferenceKey: PreferencesKey.currentNanoNodeIdKey,
           );
-          await changeNanoCurrentPowNodeToDefault(
-              sharedPreferences: sharedPreferences, nodes: powNodes);
+          await _changeDefaultNode(
+            nodes: powNodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.nano,
+            currentNodePreferenceKey: PreferencesKey.currentNanoPowNodeIdKey,
+            newDefaultUri: nanoDefaultPowNodeUri,
+          );
           break;
         case 23:
           await addWalletNodeList(nodes: nodes, type: WalletType.bitcoinCash);
@@ -1152,15 +1157,6 @@ Future<void> resetBitcoinElectrumServer(
   await oldElectrumServer?.delete();
 }
 
-Future<void> changeDefaultHavenNode(Box<Node> nodeSource) async {
-  const previousHavenDefaultNodeUri = 'vault.havenprotocol.org:443';
-  final havenNodes = nodeSource.values.where((node) => node.uriRaw == previousHavenDefaultNodeUri);
-  havenNodes.forEach((node) async {
-    node.uriRaw = havenDefaultNodeUri;
-    await node.save();
-  });
-}
-
 Future<void> migrateExchangeStatus(SharedPreferences sharedPreferences) async {
   final isExchangeDisabled = sharedPreferences.getBool(PreferencesKey.disableExchangeKey);
   if (isExchangeDisabled == null) {
@@ -1188,13 +1184,6 @@ Future<void> addNanoPowNodeList({required Box<Node> nodes}) async {
       await nodes.add(node);
     }
   }
-}
-
-Future<void> changeNanoCurrentPowNodeToDefault(
-    {required SharedPreferences sharedPreferences, required Box<Node> nodes}) async {
-  final node = getNanoDefaultPowNode(nodes: nodes);
-  final nodeId = node?.key as int? ?? 0;
-  await sharedPreferences.setInt(PreferencesKey.currentNanoPowNodeIdKey, nodeId);
 }
 
 Node? getNanoDefaultPowNode({required Box<Node> nodes}) {

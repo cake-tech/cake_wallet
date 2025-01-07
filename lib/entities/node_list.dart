@@ -80,12 +80,6 @@ Future<List<Node>> loadDefaultNanoPowNodes() async {
   return nodes;
 }
 
-Future<List<Node>> loadDefaultDecredNodes() async {
-  final decredMainnetPort = ":9108";
-  final node = Node(uri: decredMainnetPort, type: WalletType.decred);
-  return <Node>[node];
-}
-
 Future<void> resetToDefault(Box<Node> nodeSource) async {
   final moneroNodes = await loadDefaultNodes(WalletType.monero);
   final bitcoinElectrumServerList = await loadDefaultNodes(WalletType.bitcoin);

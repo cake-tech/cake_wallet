@@ -89,6 +89,8 @@ abstract class DecredWalletBase
 
   Future<void> init() async {
     updateBalance();
+
+    await walletAddresses.init();
   }
 
   void performBackgroundTasks() async {
@@ -145,6 +147,7 @@ abstract class DecredWalletBase
       // Initiate a receive address in case we lose peers later.
       if (walletAddresses.currentAddr == '') {
         walletAddresses.address;
+        walletAddresses.updateAddressesInBox();
       }
       return true;
     }
@@ -271,6 +274,17 @@ abstract class DecredWalletBase
     final outputs = [];
     for (final out in creds.outputs) {
       var amt = 0;
+      if (out.sendAll) {
+        // get all spendable inputs amount
+        totalAmt = unspentCoinsInfo.values.fold<int>(0, (sum, unspent) {
+          if (unspent.isFrozen || !unspent.isSending) {
+            return sum;
+          }
+
+          return sum + unspent.value;
+        });
+        break;
+      }
       if (out.cryptoAmount != null) {
         final coins = double.parse(out.cryptoAmount!);
         amt = (coins * 1e8).toInt();
@@ -282,7 +296,7 @@ abstract class DecredWalletBase
       };
       outputs.add(o);
     }
-    ;
+
     // The inputs are always used. Currently we don't have use for this
     // argument.
     final signReq = {

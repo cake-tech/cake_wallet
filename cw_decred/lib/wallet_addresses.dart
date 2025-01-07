@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -36,10 +37,19 @@ class DecredWalletAddresses extends WalletAddresses {
   set address(String addr) {}
 
   @override
-  Future<void> init() async {}
+  Future<void> init() async {
+    address = walletInfo.address;
+    await updateAddressesInBox();
+  }
 
   @override
   Future<void> updateAddressesInBox() async {
-    await saveAddressesInBox();
+    try {
+      addressesMap.clear();
+      addressesMap[address] = '';
+      await saveAddressesInBox();
+    } catch (e) {
+      log(e.toString());
+    }
   }
 }
