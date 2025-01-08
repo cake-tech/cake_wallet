@@ -353,30 +353,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<DerivationInfo> getOldDerivationInfos(List<DerivationInfo> list) {
-    final oldList = <DerivationInfo>[];
-    oldList.addAll(list);
-
-    for (var derivationInfo in list) {
-      final isElectrum = derivationInfo.derivationType == DerivationType.electrum;
-
-      oldList.add(
-        DerivationInfo(
-          derivationType: DerivationType.old,
-          derivationPath: isElectrum
-              ? derivationInfo.derivationPath
-              : BitcoinAddressUtils.getDerivationFromType(
-                  SegwitAddresType.p2wpkh,
-                ).derivationPath.toString(),
-          scriptType: derivationInfo.scriptType,
-        ),
-      );
-    }
-
-    return oldList;
-  }
-
-  @override
   Future<List<DerivationInfo>> getDerivationInfosFromMnemonic({
     required String mnemonic,
     required Node node,
@@ -590,22 +566,6 @@ class CWBitcoin extends Bitcoin {
       printV(err);
       throw err;
     }
-  }
-
-  @override
-  List<DerivationInfo> getOldSPDerivationInfos() {
-    return [
-      DerivationInfo(
-        derivationType: DerivationType.bip39,
-        derivationPath: "m/352'/1'/0'/1'/0",
-        description: "Old SP Scan",
-      ),
-      DerivationInfo(
-        derivationType: DerivationType.bip39,
-        derivationPath: "m/352'/1'/0'/0'/0",
-        description: "Old SP Spend",
-      ),
-    ];
   }
 
   @override

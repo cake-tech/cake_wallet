@@ -105,10 +105,36 @@ class ElectrumWorkerTweaksSubscribeError extends ElectrumWorkerErrorResponse {
   final String method = ElectrumRequestMethods.tweaksSubscribe.method;
 }
 
+class TweakResponseData {
+  final ElectrumTransactionInfo txInfo;
+  final List<BitcoinUnspent> unspents;
+
+  TweakResponseData({required this.txInfo, required this.unspents});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'txInfo': txInfo.toJson(),
+      'unspent': unspents.map((e) => e.toJson()).toList(),
+    };
+  }
+
+  static TweakResponseData fromJson(Map<String, dynamic> json) {
+    return TweakResponseData(
+      txInfo: ElectrumTransactionInfo.fromJson(
+        json['txInfo'] as Map<String, dynamic>,
+        WalletType.bitcoin,
+      ),
+      unspents: (json['unspent'] as List)
+          .map((e) => BitcoinUnspent.fromJSON(null, e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
 class TweaksSyncResponse {
   int? height;
   SyncStatus? syncStatus;
-  Map<String, ElectrumTransactionInfo>? transactions = {};
+  Map<String, TweakResponseData>? transactions = {};
 
   TweaksSyncResponse({this.height, this.syncStatus, this.transactions});
 
@@ -131,7 +157,7 @@ class TweaksSyncResponse {
           : (json['transactions'] as Map<String, dynamic>).map(
               (key, value) => MapEntry(
                 key,
-                ElectrumTransactionInfo.fromJson(value as Map<String, dynamic>, WalletType.bitcoin),
+                TweakResponseData.fromJson(value as Map<String, dynamic>),
               ),
             ),
     );

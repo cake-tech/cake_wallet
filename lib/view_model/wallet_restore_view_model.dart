@@ -257,22 +257,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     switch (walletType) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        String? mnemonic = credentials['seed'] as String?;
-        String? passphrase = credentials['passphrase'] as String?;
-        final list = await bitcoin!.getDerivationInfosFromMnemonic(
-          mnemonic: mnemonic!,
+        return await bitcoin!.getDerivationInfosFromMnemonic(
+          mnemonic: credentials['seed'] as String,
           node: node,
-          passphrase: passphrase,
+          passphrase: credentials['passphrase'] as String?,
         );
-
-        // is restoring? = add old used derivations
-        final oldList = bitcoin!.getOldDerivationInfos(list);
-
-        if (walletType == WalletType.bitcoin) {
-          oldList.addAll(bitcoin!.getOldSPDerivationInfos());
-        }
-
-        return oldList;
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;

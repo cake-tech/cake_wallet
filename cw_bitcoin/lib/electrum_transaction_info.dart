@@ -2,11 +2,9 @@ import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/format_amount.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hex/hex.dart';
 
@@ -46,7 +44,6 @@ class ElectrumTransactionBundle {
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {
-  List<BitcoinUnspent>? unspents;
   bool isReceivedSilentPayment;
   int? time;
 
@@ -66,7 +63,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
     bool? isDateValidated,
     required int confirmations,
     String? to,
-    this.unspents,
     this.isReceivedSilentPayment = false,
     Map<String, dynamic>? additionalInfo,
   }) {
@@ -236,7 +232,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
   factory ElectrumTransactionInfo.fromJson(Map<String, dynamic> data, WalletType type) {
     final inputAddresses = data['inputAddresses'] as List<dynamic>? ?? [];
     final outputAddresses = data['outputAddresses'] as List<dynamic>? ?? [];
-    final unspents = data['unspents'] as List<dynamic>? ?? [];
 
     return ElectrumTransactionInfo(
       type,
@@ -254,9 +249,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
       outputAddresses:
           outputAddresses.isEmpty ? [] : outputAddresses.map((e) => e.toString()).toList(),
       to: data['to'] as String?,
-      unspents: unspents
-          .map((unspent) => BitcoinUnspent.fromJSON(null, unspent as Map<String, dynamic>))
-          .toList(),
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
       time: data['time'] as int?,
       isDateValidated: data['isDateValidated'] as bool?,
@@ -315,7 +307,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['confirmations'] = confirmations;
     m['fee'] = fee;
     m['to'] = to;
-    m['unspents'] = unspents?.map((e) => e.toJson()).toList() ?? [];
     m['inputAddresses'] = inputAddresses;
     m['outputAddresses'] = outputAddresses;
     m['isReceivedSilentPayment'] = isReceivedSilentPayment;
@@ -325,6 +316,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
   }
 
   String toString() {
-    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, isReplaced: $isReplaced, confirmations: $confirmations, to: $to, unspent: $unspents, inputAddresses: $inputAddresses, outputAddresses: $outputAddresses, additionalInfo: $additionalInfo)';
+    return 'ElectrumTransactionInfo(id: $id, height: $height, amount: $amount, fee: $fee, direction: $direction, date: $date, isPending: $isPending, isReplaced: $isReplaced, confirmations: $confirmations, to: $to, inputAddresses: $inputAddresses, outputAddresses: $outputAddresses, additionalInfo: $additionalInfo)';
   }
 }

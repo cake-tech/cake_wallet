@@ -682,9 +682,10 @@ class ElectrumWorker {
                 (await getTxDate(txid, scanData.network)).time! * 1000,
               ),
               confirmations: scanData.chainTip - tweakHeight + 1,
-              unspents: [],
               isReceivedSilentPayment: true,
             );
+
+            List<BitcoinUnspent> unspents = [];
 
             addToWallet.forEach((BSpend, result) {
               result.forEach((label, value) {
@@ -710,14 +711,16 @@ class ElectrumWorker {
 
                   final unspent = BitcoinUnspent(receivedAddressRecord, txid, amount, pos);
 
-                  txInfo.unspents!.add(unspent);
+                  unspents.add(unspent);
                   txInfo.amount += unspent.value;
                 });
               });
             });
 
             _sendResponse(ElectrumWorkerTweaksSubscribeResponse(
-              result: TweaksSyncResponse(transactions: {txInfo.id: txInfo}),
+              result: TweaksSyncResponse(
+                transactions: {txInfo.id: TweakResponseData(txInfo: txInfo, unspents: unspents)},
+              ),
             ));
 
             return;

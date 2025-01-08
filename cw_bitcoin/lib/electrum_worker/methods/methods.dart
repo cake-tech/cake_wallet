@@ -8,6 +8,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
 
 part 'connection.dart';
 part 'headers_subscribe.dart';

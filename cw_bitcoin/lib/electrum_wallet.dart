@@ -71,7 +71,7 @@ abstract class ElectrumWalletBase
     CryptoCurrency? currency,
     this.alwaysScan,
     required this.mempoolAPIEnabled,
-    List<BitcoinUnspent> initialUnspentCoins = const [],
+    List<BitcoinUnspent>? initialUnspentCoins,
   })  : hdWallets = hdWallets ??
             {
               CWBitcoinDerivationType.bip39: getAccountHDWallet(
@@ -85,7 +85,7 @@ abstract class ElectrumWalletBase
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         isEnabledAutoGenerateSubaddress = true,
-        unspentCoins = BitcoinUnspentCoins.of(initialUnspentCoins),
+        unspentCoins = BitcoinUnspentCoins.of(initialUnspentCoins ?? []),
         scripthashesListening = [],
         balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(currency != null
             ? {

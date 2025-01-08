@@ -8,7 +8,6 @@ import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/exceptions.dart';
-// import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -16,12 +15,10 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:blockchain_utils/signer/ecdsa_signing_key.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
@@ -167,60 +164,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialChangeAddressIndex,
     required bool mempoolAPIEnabled,
   }) async {
-    List<int>? seedBytes = null;
-    final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
-
-    if (walletInfo.isRecovery) {
-      for (final derivation in walletInfo.derivations ?? <DerivationInfo>[]) {
-        if (derivation.description?.contains("SP") ?? false) {
-          continue;
-        }
-
-        if (derivation.derivationType == DerivationType.bip39) {
-          seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
-          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-
-          break;
-        } else {
-          try {
-            seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
-            hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-          } catch (e) {
-            printV("electrum_v2 seed error: $e");
-
-            try {
-              seedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
-              hdWallets[CWBitcoinDerivationType.electrum] =
-                  Bip32Slip10Secp256k1.fromSeed(seedBytes);
-            } catch (e) {
-              printV("electrum_v1 seed error: $e");
-            }
-          }
-
-          break;
-        }
-      }
-
-      if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
-        hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
-      }
-      if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
-        hdWallets[CWBitcoinDerivationType.old_electrum] =
-            hdWallets[CWBitcoinDerivationType.electrum]!;
-      }
-    } else {
-      switch (walletInfo.derivationInfo?.derivationType) {
-        case DerivationType.bip39:
-          seedBytes = await Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
-          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-          break;
-        case DerivationType.electrum:
-        default:
-          seedBytes = await ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
-          hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-          break;
-      }
-    }
+    final walletSeedBytes = await WalletSeedBytes.getSeedBytes(walletInfo, mnemonic, passphrase);
 
     return LitecoinWallet(
       mnemonic: mnemonic,
@@ -232,7 +176,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialBalance: initialBalance,
       encryptionFileUtils: encryptionFileUtils,
       passphrase: passphrase,
-      seedBytes: seedBytes,
+      seedBytes: walletSeedBytes.seedBytes,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
@@ -290,18 +234,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final passphrase = keysData.passphrase;
 
     if (mnemonic != null) {
-      switch (walletInfo.derivationInfo?.derivationType) {
-        case DerivationType.bip39:
-          seedBytes = await bip39.mnemonicToSeed(
-            mnemonic,
-            passphrase: passphrase ?? "",
-          );
-          break;
-        case DerivationType.electrum:
-        default:
-          seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
-          break;
-      }
+      final walletSeedBytes = await WalletSeedBytes.getSeedBytes(walletInfo, mnemonic, passphrase);
+      seedBytes = walletSeedBytes.seedBytes;
+      // hdWallets.addAll(walletSeedBytes.hdWallets);
     }
 
     return LitecoinWallet(
@@ -433,19 +368,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
               // if the confirmations haven't changed, skip updating:
               if (tx.confirmations == confirmations) continue;
-
-              // if an outgoing tx is now confirmed, delete the utxo from the box (delete the unspent coin):
-              if (confirmations >= 2 &&
-                  tx.direction == TransactionDirection.outgoing &&
-                  tx.unspents != null) {
-                for (var coin in tx.unspents!) {
-                  final utxo = mwebUtxosBox.get(coin.address);
-                  if (utxo != null) {
-                    printV("deleting utxo ${coin.address} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-                    await mwebUtxosBox.delete(coin.address);
-                  }
-                }
-              }
 
               tx.confirmations = confirmations;
               tx.isPending = false;
@@ -1848,5 +1770,67 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         useTrustedInputForSegwit: true);
 
     return BtcTransaction.fromRaw(rawHex);
+  }
+}
+
+class WalletSeedBytes {
+  final List<int> seedBytes;
+  final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets;
+
+  WalletSeedBytes({required this.seedBytes, required this.hdWallets});
+
+  static Future<WalletSeedBytes> getSeedBytes(
+    WalletInfo walletInfo,
+    String mnemonic, [
+    String? passphrase,
+  ]) async {
+    List<int>? seedBytes = null;
+    final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
+
+    if (walletInfo.isRecovery) {
+      for (final derivation in walletInfo.derivations ?? <DerivationInfo>[]) {
+        if (derivation.derivationType == DerivationType.bip39) {
+          try {
+            seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+            hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+          } catch (e) {
+            printV("bip39 seed error: $e");
+          }
+
+          continue;
+        }
+
+        if (derivation.derivationType == DerivationType.electrum) {
+          try {
+            seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+            hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+          } catch (e) {
+            printV("electrum_v2 seed error: $e");
+
+            try {
+              seedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
+              hdWallets[CWBitcoinDerivationType.electrum] =
+                  Bip32Slip10Secp256k1.fromSeed(seedBytes);
+            } catch (e) {
+              printV("electrum_v1 seed error: $e");
+            }
+          }
+        }
+      }
+    }
+
+    switch (walletInfo.derivationInfo?.derivationType) {
+      case DerivationType.bip39:
+        seedBytes = await Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+        hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+        break;
+      case DerivationType.electrum:
+      default:
+        seedBytes = await ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+        hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+        break;
+    }
+
+    return WalletSeedBytes(seedBytes: seedBytes, hdWallets: hdWallets);
   }
 }
