@@ -3,9 +3,16 @@ import 'dart:io';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
+import 'package:cw_bitcoin/psbt_extractor_v0.dart';
+import 'package:cw_bitcoin/psbt_signer.dart';
+import 'package:cw_bitcoin/psbt_v0_deserialize.dart';
+import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:ledger_bitcoin/psbt.dart';
@@ -152,23 +159,23 @@ class BitcoinPayjoin {
 
     final wantsOutputs = await outputsUnknown.identifyReceiverOutputs(
         isReceiverOutput: (script) async {
-      return receiverWallet.isMine(Script(script: script));
+          return receiverWallet.isMine(Script.fromRaw(byteData: script));
     });
 
     var wantsInputs = await wantsOutputs.commitOutputs();
 
     // final unspent = receiverWallet.listUnspent();
-    final List<BitcoinUnspent> unspent = bitcoinWallet.unspentCoins;
+    final unspent = bitcoinWallet.unspentCoins.where((e) => (e.isSending || !e.isFrozen));
 
     List<InputPair> candidateInputs = [];
+    List<UtxoWithPrivateKey> utxos = [];
 
     for (BitcoinUnspent input in unspent) {
-      final scriptBytes = BitcoinBaseAddress.fromString(input.address)
-          .toScriptPubKey()
-          .toBytes();
+      final address = RegexUtils.addressTypeFromStr(input.address, BitcoinNetwork.mainnet);
+
       final txout = TxOut(
         value: BigInt.from(input.value),
-        scriptPubkey: Uint8List.fromList(scriptBytes),
+        scriptPubkey: Uint8List.fromList(address.toScriptPubKey().toBytes()),
       );
 
       final psbtin = PsbtInput(
@@ -185,6 +192,39 @@ class BitcoinPayjoin {
 
       final ip = await InputPair.newInstance(txin, psbtin);
 
+      final hd = input.bitcoinAddressRecord.isHidden
+          ? bitcoinWallet.sideHd
+          : bitcoinWallet.hd;
+
+      ECPrivate privkey;
+      if (input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
+        final unspentAddress = input.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
+        privkey = bitcoinWallet.walletAddresses.silentAddress!.b_spend.tweakAdd(
+          BigintUtils.fromBytes(
+            BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!),
+          ),
+        );
+      } else {
+        privkey =
+            generateECPrivate(hd: hd, index: input.bitcoinAddressRecord.index, network: BitcoinNetwork.mainnet);
+      }
+
+      utxos.add(
+        UtxoWithPrivateKey(
+          utxo: BitcoinUtxo(
+            txHash: input.hash,
+            value: BigInt.from(input.value),
+            vout: input.vout,
+            scriptType: input.bitcoinAddressRecord.type,
+            isSilentPayment: input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord,
+          ),
+          ownerDetails: UtxoAddressDetails(
+            publicKey: hd.publicKey.toHex(),
+            address: address,
+          ),
+          privateKey: privkey
+        ),
+      );
       candidateInputs.add(ip);
     }
 
@@ -197,7 +237,7 @@ class BitcoinPayjoin {
     final provisionalProposal = await wantsInputs.commitInputs();
 
     final finalProposal = await provisionalProposal.finalizeProposal(
-        processPsbt: (i) => _processPsbt(i, receiverWallet),
+        processPsbt: (i) => _processPsbt(i, receiverWallet, utxos),
         maxFeeRateSatPerVb: BigInt.from(25));
 
     return finalProposal;
@@ -223,30 +263,28 @@ class BitcoinPayjoin {
     await finalProposal.processRes(
         res: responseBody, ohttpContext: proposalCtx);
 
-    final proposalPsbt = await finalProposal.psbt();
+    final ps = await finalProposal.psbt();
+    printV(ps);
 
-    return await getTxIdFromPsbt(proposalPsbt);
+    return "";
   }
 
   String getTxIdFromTxBytes(Uint8List txBytes) {
-    final originalTx = BtcTransaction.fromRaw(BytesUtils.toHexString(txBytes));
-    return originalTx.txId();
+    return BtcTransaction.fromRaw(BytesUtils.toHexString(txBytes)).txId();
   }
 
-  Future<String> _processPsbt(
-    String preProcessed,
-    ElectrumWallet wallet,
-  ) async {
-    final signedPsbt = wallet.signPsbt(preProcessed);
+  Future<String> _processPsbt(String preProcessed, ElectrumWallet wallet,
+      List<UtxoWithPrivateKey> utxos) async {
+    final signedPsbt = await (wallet as BitcoinWallet).signPsbt(preProcessed, utxos);
+    printV(signedPsbt);
     return signedPsbt;
   }
 
   Future<String> getTxIdFromPsbt(String psbtBase64) async {
-    final psbt = PsbtV2()..deserialize(base64.decode(psbtBase64));
-    final doubleSha256 = QuickCrypto.sha256DoubleHash(psbt.extract());
+    final psbt = PsbtV2()..deserializeV0(base64.decode(psbtBase64))..finalize();
+    final doubleSha256 = QuickCrypto.sha256DoubleHash(psbt.extractFromV0());
     final revert = Uint8List.fromList(doubleSha256);
-    final txId = hex.encode(revert.reversed.toList());
-    return txId;
+    return hex.encode(revert.reversed.toList());;
   }
 
 /*
@@ -383,11 +421,12 @@ class BitcoinPayjoin {
     Object wallet,
     String psbtString,
     Object credentials,
+      dynamic pjUri
   ) async {
     final bitcoinWallet = wallet as ElectrumWallet;
 
     final pendingTx =
-        await bitcoinWallet.psbtToPendingTx(psbtString, credentials);
+        await bitcoinWallet.psbtToPendingTx(psbtString, credentials, pjUri);
 
     return pendingTx;
   }

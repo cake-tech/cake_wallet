@@ -863,6 +863,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet,
       psbt,
       _credentials(),
+      pjUri
     );
 
     // Broadcast the finalized transaction to the blockchain

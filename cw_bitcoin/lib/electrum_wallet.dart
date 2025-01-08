@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/psbt_finalizer_v0.dart';
 import 'package:cw_bitcoin/psbt_signer.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
+import 'package:cw_bitcoin/psbt_v0_deserialize.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
@@ -1048,6 +1051,14 @@ abstract class ElectrumWalletBase
           : feeRate(transactionCredentials.priority!);
 
       EstimatedTxResult estimatedTx;
+      final updatedOutputs = outputs
+          .map((e) => BitcoinOutput(
+        address: e.address,
+        value: e.value,
+        isSilentPayment: e.isSilentPayment,
+        isChange: e.isChange,
+      ))
+          .toList();
       if (sendAll) {
         estimatedTx = await estimateSendAllTx(
           outputs,
@@ -1059,7 +1070,7 @@ abstract class ElectrumWalletBase
         estimatedTx = await estimateTxForAmount(
           credentialsAmount,
           outputs,
-          outputs,
+          updatedOutputs,
           feeRateInt,
           memo: memo,
           hasSilentPayment: hasSilentPayment,
@@ -1077,46 +1088,48 @@ abstract class ElectrumWalletBase
         publicKeys: estimatedTx.publicKeys,
       );
 
-      transaction.psbt.sign(estimatedTx.utxos,(txDigest, utxo, publicKey, sighash) {
-        String error = "Cannot find private key.";
+      // transaction.psbt.sign(estimatedTx.utxos, (txDigest, utxo, publicKey, sighash) {
+      //   String error = "Cannot find private key.";
+      //
+      //   ECPrivateInfo? key;
+      //   printV("here 1");
+      //
+      //   if (estimatedTx.inputPrivKeyInfos.isEmpty) {
+      //     error += "\nNo private keys generated.";
+      //   } else {
+      //     error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
+      //
+      //     key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
+      //       final elemPubkey = element.privkey.getPublic().toHex();
+      //       if (elemPubkey == publicKey) {
+      //         return true;
+      //       } else {
+      //         error += "\nExpected: $publicKey";
+      //         error += "\nPubkey: $elemPubkey";
+      //         return false;
+      //       }
+      //     });
+      //   }
+      //
+      //   printV("here 2");
+      //   if (key == null) {
+      //     throw Exception(error);
+      //   }
+      //
+      //   printV("here 3");
+      //
+      //   if (utxo.utxo.isP2tr()) {
+      //     return key.privkey.signTapRoot(
+      //       txDigest,
+      //       sighash: sighash,
+      //       tweak: utxo.utxo.isSilentPayment != true,
+      //     );
+      //   } else {
+      //     return key.privkey.signInput(txDigest, sigHash: sighash);
+      //   }
+      // });
 
-        ECPrivateInfo? key;
-        printV("here 1");
-
-        if (estimatedTx.inputPrivKeyInfos.isEmpty) {
-          error += "\nNo private keys generated.";
-        } else {
-          error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
-
-          key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
-            final elemPubkey = element.privkey.getPublic().toHex();
-            if (elemPubkey == publicKey) {
-              return true;
-            } else {
-              error += "\nExpected: $publicKey";
-              error += "\nPubkey: $elemPubkey";
-              return false;
-            }
-          });
-        }
-
-        printV("here 2");
-        if (key == null) {
-          throw Exception(error);
-        }
-
-        printV("here 3");
-
-        if (utxo.utxo.isP2tr()) {
-          return key.privkey.signTapRoot(
-            txDigest,
-            sighash: sighash,
-            tweak: utxo.utxo.isSilentPayment != true,
-          );
-        } else {
-          return key.privkey.signInput(txDigest, sigHash: sighash);
-        }
-      });
+      // transaction.psbt.finalize();
 
 
       // return transaction.psbt.asPsbtV0();
@@ -1345,84 +1358,93 @@ abstract class ElectrumWalletBase
   Future<PendingBitcoinTransaction> psbtToPendingTx(
       String preProcessedPsbt,
       Object credentials,
+      dynamic pjUri,
       ) async {
-    final outputs = <BitcoinOutput>[];
-    final transactionCredentials = credentials as BitcoinTransactionCredentials;
-    final hasMultiDestination = transactionCredentials.outputs.length > 1;
-    final sendAll =
-        !hasMultiDestination && transactionCredentials.outputs.first.sendAll;
-    final memo = transactionCredentials.outputs.first.memo;
 
-    int credentialsAmount = 0;
-    bool hasSilentPayment = false;
+    final unspent = unspentCoins.where((e) => (e.isSending || !e.isFrozen));
 
-    for (final out in transactionCredentials.outputs) {
-      final outputAmount = out.formattedCryptoAmount!;
+    List<UtxoWithPrivateKey> utxos = [];
 
-      if (!sendAll && _isBelowDust(outputAmount)) {
-        throw BitcoinTransactionNoDustException();
+    for (BitcoinUnspent input in unspent) {
+      final address = RegexUtils.addressTypeFromStr(input.address, BitcoinNetwork.mainnet);
+
+      final newHd = input.bitcoinAddressRecord.isHidden
+          ? sideHd
+          : hd;
+
+      ECPrivate privkey;
+      if (input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
+        final unspentAddress = input.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
+        privkey = walletAddresses.silentAddress!.b_spend.tweakAdd(
+          BigintUtils.fromBytes(
+            BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!),
+          ),
+        );
+      } else {
+        privkey =
+            generateECPrivate(hd: newHd, index: input.bitcoinAddressRecord.index, network: BitcoinNetwork.mainnet);
       }
 
-      if (hasMultiDestination) {
-        if (out.sendAll) {
-          throw BitcoinTransactionWrongBalanceException();
+      utxos.add(
+        UtxoWithPrivateKey(
+            utxo: BitcoinUtxo(
+              txHash: input.hash,
+              value: BigInt.from(input.value),
+              vout: input.vout,
+              scriptType: input.bitcoinAddressRecord.type,
+              isSilentPayment: input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord,
+            ),
+            ownerDetails: UtxoAddressDetails(
+              publicKey: newHd.publicKey.toHex(),
+              address: address,
+            ),
+            privateKey: privkey
+        ),
+      );
+    }
+
+    log(preProcessedPsbt);
+    final psbt = PsbtV2()..deserializeV0(base64.decode(preProcessedPsbt));
+
+    final inputCount = psbt.getGlobalInputCount();
+
+    final unsignedTx = [];
+    for (var i = 0; i < inputCount; i++) {
+      if (psbt.getInputFinalScriptsig(i) == null) {
+        try {
+          psbt.getInputFinalScriptwitness(i);
+        } catch (_) {
+          unsignedTx.add(BytesUtils.toHexString(psbt.getInputPreviousTxid(i).reversed.toList()));
         }
       }
+    }
 
-      credentialsAmount += outputAmount;
-
-      final address = RegexUtils.addressTypeFromStr(
-          out.isParsedAddress ? out.extractedAddress! : out.address, network);
-
-      if (address is SilentPaymentAddress) {
-        hasSilentPayment = true;
-      }
-      print('[+] ElectrumWallet => psbtToPendingTx() Running here');
-
-      if (sendAll) {
-        // The value will be changed after estimating the Tx size and deducting the fee from the total to be sent
-        outputs.add(BitcoinOutput(address: address, value: BigInt.from(0)));
+    psbt.signWithUTXO(utxos.where((e) => unsignedTx.contains(e.utxo.txHash)).toList(), (txDigest, utxo, key, sighash) {
+      if (utxo.utxo.isP2tr()) {
+        return key.signTapRoot(
+          txDigest,
+          sighash: sighash,
+          tweak: utxo.utxo.isSilentPayment != true,
+        );
       } else {
-        outputs.add(
-            BitcoinOutput(address: address, value: BigInt.from(outputAmount)));
+        return key.signInput(txDigest, sigHash: sighash);
       }
-    }
+    });
 
-    final feeRateInt = transactionCredentials.feeRate != null
-        ? transactionCredentials.feeRate!
-        : feeRate(transactionCredentials.priority!);
+    psbt.finalizeV0();
 
-    EstimatedTxResult estimatedTx;
-    if (sendAll) {
-      estimatedTx = await estimateSendAllTx(
-        outputs,
-        feeRateInt,
-        memo: memo,
-        hasSilentPayment: hasSilentPayment,
-      );
-    } else {
-      estimatedTx = await estimateTxForAmount(
-        credentialsAmount,
-        outputs,
-        outputs,
-        feeRateInt,
-        memo: memo,
-        hasSilentPayment: hasSilentPayment,
-      );
-    }
-
-    final btcTx = await getBtcTransactionFromPsbt(preProcessedPsbt);
+    final btcTx = BtcTransaction.fromRaw(hex.encode(psbt.extract()));
 
     return PendingBitcoinTransaction(
       btcTx,
       type,
       electrumClient: electrumClient,
-      amount: estimatedTx.amount,
-      fee: estimatedTx.fee,
-      feeRate: feeRateInt.toString(),
+      amount: psbt.getOutputAmount(0), // ToDo
+      fee: 0,// ToDo
+      feeRate: "Payjoin", // ToDo
       network: network,
-      hasChange: estimatedTx.hasChange,
-      isSendAll: estimatedTx.isSendAll,
+      hasChange: true,
+      isSendAll: true,
       hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot
     )..addListener(
           (transaction) async {
@@ -1431,9 +1453,6 @@ abstract class ElectrumWalletBase
       },
     );
   }
-
-  Future<String> signPsbt(String preProcessedPsbt) async =>
-      throw UnimplementedError();
 
   Future<BtcTransaction> getBtcTransactionFromPsbt(
       String preProcessedPsbt) async =>
