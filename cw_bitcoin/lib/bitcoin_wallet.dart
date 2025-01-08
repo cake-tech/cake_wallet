@@ -5,10 +5,13 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/psbt_finalizer_v0.dart';
 import 'package:cw_bitcoin/psbt_signer.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_bitcoin/psbt_v0_deserialize.dart';
+import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
@@ -252,7 +255,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         derivationPath: walletInfo.derivationInfo!.derivationPath!);
   }
 
-  @override
   Future<PSBTTransactionBuild> buildPayjoinTransaction({
     required List<BitcoinBaseOutput> outputs,
     required BigInt fee,
@@ -419,6 +421,104 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       print('[!] ElectrumWallet || e: $e and st: $st');
       throw e;
     }
+  }
+
+  Future<PendingBitcoinTransaction> psbtToPendingTx(
+      String preProcessedPsbt,
+      Object credentials,
+      dynamic pjUri,
+      ) async {
+
+    final unspent = unspentCoins.where((e) => (e.isSending || !e.isFrozen));
+
+    List<UtxoWithPrivateKey> utxos = [];
+
+    for (BitcoinUnspent input in unspent) {
+      final address = RegexUtils.addressTypeFromStr(input.address, BitcoinNetwork.mainnet);
+
+      final newHd = input.bitcoinAddressRecord.isHidden
+          ? sideHd
+          : hd;
+
+      ECPrivate privkey;
+      if (input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
+        final unspentAddress = input.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
+        privkey = walletAddresses.silentAddress!.b_spend.tweakAdd(
+          BigintUtils.fromBytes(
+            BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!),
+          ),
+        );
+      } else {
+        privkey =
+            generateECPrivate(hd: newHd, index: input.bitcoinAddressRecord.index, network: BitcoinNetwork.mainnet);
+      }
+
+      utxos.add(
+        UtxoWithPrivateKey(
+            utxo: BitcoinUtxo(
+              txHash: input.hash,
+              value: BigInt.from(input.value),
+              vout: input.vout,
+              scriptType: input.bitcoinAddressRecord.type,
+              isSilentPayment: input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord,
+            ),
+            ownerDetails: UtxoAddressDetails(
+              publicKey: newHd.publicKey.toHex(),
+              address: address,
+            ),
+            privateKey: privkey
+        ),
+      );
+    }
+
+    final psbt = PsbtV2()..deserializeV0(base64.decode(preProcessedPsbt));
+
+    final inputCount = psbt.getGlobalInputCount();
+
+    final unsignedTx = [];
+    for (var i = 0; i < inputCount; i++) {
+      if (psbt.getInputFinalScriptsig(i) == null) {
+        try {
+          psbt.getInputFinalScriptwitness(i);
+        } catch (_) {
+          unsignedTx.add(BytesUtils.toHexString(psbt.getInputPreviousTxid(i).reversed.toList()));
+        }
+      }
+    }
+
+    psbt.signWithUTXO(utxos.where((e) => unsignedTx.contains(e.utxo.txHash)).toList(), (txDigest, utxo, key, sighash) {
+      if (utxo.utxo.isP2tr()) {
+        return key.signTapRoot(
+          txDigest,
+          sighash: sighash,
+          tweak: utxo.utxo.isSilentPayment != true,
+        );
+      } else {
+        return key.signInput(txDigest, sigHash: sighash);
+      }
+    });
+
+    psbt.finalizeV0();
+
+    final btcTx = BtcTransaction.fromRaw(hex.encode(psbt.extract()));
+
+    return PendingBitcoinTransaction(
+      btcTx,
+      type,
+      electrumClient: electrumClient,
+      amount: psbt.getOutputAmount(0), // ToDo
+      fee: 0,// ToDo
+      feeRate: "Payjoin", // ToDo
+      network: network,
+      hasChange: true,
+      isSendAll: true,
+      hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot
+    )..addListener(
+          (transaction) async {
+        transactionHistory.addOne(transaction);
+        await updateBalance();
+      },
+    );
   }
 
   Future<String> signPsbt(String preProcessedPsbt, List<UtxoWithPrivateKey> utxos) async {

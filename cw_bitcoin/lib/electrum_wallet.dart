@@ -1,18 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/psbt_finalizer_v0.dart';
-import 'package:cw_bitcoin/psbt_signer.dart';
-import 'package:cw_bitcoin/psbt_transaction_builder.dart';
-import 'package:cw_bitcoin/psbt_v0_deserialize.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
-import 'package:ledger_bitcoin/psbt.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
@@ -1207,122 +1201,6 @@ abstract class ElectrumWalletBase
       throw e;
     }
   }
-
-  Future<PendingBitcoinTransaction> psbtToPendingTx(
-      String preProcessedPsbt,
-      Object credentials,
-      dynamic pjUri,
-      ) async {
-
-    final unspent = unspentCoins.where((e) => (e.isSending || !e.isFrozen));
-
-    List<UtxoWithPrivateKey> utxos = [];
-
-    for (BitcoinUnspent input in unspent) {
-      final address = RegexUtils.addressTypeFromStr(input.address, BitcoinNetwork.mainnet);
-
-      final newHd = input.bitcoinAddressRecord.isHidden
-          ? sideHd
-          : hd;
-
-      ECPrivate privkey;
-      if (input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
-        final unspentAddress = input.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
-        privkey = walletAddresses.silentAddress!.b_spend.tweakAdd(
-          BigintUtils.fromBytes(
-            BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!),
-          ),
-        );
-      } else {
-        privkey =
-            generateECPrivate(hd: newHd, index: input.bitcoinAddressRecord.index, network: BitcoinNetwork.mainnet);
-      }
-
-      utxos.add(
-        UtxoWithPrivateKey(
-            utxo: BitcoinUtxo(
-              txHash: input.hash,
-              value: BigInt.from(input.value),
-              vout: input.vout,
-              scriptType: input.bitcoinAddressRecord.type,
-              isSilentPayment: input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord,
-            ),
-            ownerDetails: UtxoAddressDetails(
-              publicKey: newHd.publicKey.toHex(),
-              address: address,
-            ),
-            privateKey: privkey
-        ),
-      );
-    }
-
-    log(preProcessedPsbt);
-    final psbt = PsbtV2()..deserializeV0(base64.decode(preProcessedPsbt));
-
-    final inputCount = psbt.getGlobalInputCount();
-
-    final unsignedTx = [];
-    for (var i = 0; i < inputCount; i++) {
-      if (psbt.getInputFinalScriptsig(i) == null) {
-        try {
-          psbt.getInputFinalScriptwitness(i);
-        } catch (_) {
-          unsignedTx.add(BytesUtils.toHexString(psbt.getInputPreviousTxid(i).reversed.toList()));
-        }
-      }
-    }
-
-    psbt.signWithUTXO(utxos.where((e) => unsignedTx.contains(e.utxo.txHash)).toList(), (txDigest, utxo, key, sighash) {
-      if (utxo.utxo.isP2tr()) {
-        return key.signTapRoot(
-          txDigest,
-          sighash: sighash,
-          tweak: utxo.utxo.isSilentPayment != true,
-        );
-      } else {
-        return key.signInput(txDigest, sigHash: sighash);
-      }
-    });
-
-    psbt.finalizeV0();
-
-    final btcTx = BtcTransaction.fromRaw(hex.encode(psbt.extract()));
-
-    return PendingBitcoinTransaction(
-      btcTx,
-      type,
-      electrumClient: electrumClient,
-      amount: psbt.getOutputAmount(0), // ToDo
-      fee: 0,// ToDo
-      feeRate: "Payjoin", // ToDo
-      network: network,
-      hasChange: true,
-      isSendAll: true,
-      hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot
-    )..addListener(
-          (transaction) async {
-        transactionHistory.addOne(transaction);
-        await updateBalance();
-      },
-    );
-  }
-
-  Future<BtcTransaction> getBtcTransactionFromPsbt(
-      String preProcessedPsbt) async =>
-      throw UnimplementedError();
-
-  Future<PSBTTransactionBuild> buildPayjoinTransaction({
-    required List<BitcoinBaseOutput> outputs,
-    required BigInt fee,
-    required BasedUtxoNetwork network,
-    required List<UtxoWithAddress> utxos,
-    required Map<String, PublicKeyWithDerivationPath> publicKeys,
-    String? memo,
-    bool enableRBF = false,
-    BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
-    BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
-  }) async =>
-      throw UnimplementedError();
 
   void setLedgerConnection(ledger.LedgerConnection connection) => throw UnimplementedError();
 
