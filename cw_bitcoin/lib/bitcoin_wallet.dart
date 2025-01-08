@@ -5,8 +5,12 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import 'package:cw_bitcoin/bitcoin_payjoin.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
+import 'package:cw_bitcoin/psbt_finalizer_v0.dart';
+import 'package:cw_bitcoin/psbt_signer.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
+import 'package:cw_bitcoin/psbt_v0_deserialize.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
@@ -15,11 +19,13 @@ import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_bitcoin/ledger_bitcoin.dart';
+import 'package:ledger_bitcoin/psbt.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
 
@@ -319,6 +325,27 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     final rawHex = await _bitcoinLedgerApp!.signPsbt(psbt: psbt.psbt);
     return BtcTransaction.fromRaw(BytesUtils.toHexString(rawHex));
+  }
+
+  Future<String> signPsbt(String preProcessedPsbt, List<UtxoWithPrivateKey> utxos) async {
+    final psbt = PsbtV2()..deserializeV0(base64Decode(preProcessedPsbt));
+
+    printV("Here 1");
+
+    psbt.signWithUTXO(utxos,(txDigest, utxo, key, sighash) {
+      if (utxo.utxo.isP2tr()) {
+        return key.signTapRoot(
+          txDigest,
+          sighash: sighash,
+          tweak: utxo.utxo.isSilentPayment != true,
+        );
+      } else {
+        return key.signInput(txDigest, sigHash: sighash);
+      }
+    });
+
+    psbt.finalizeV0();
+    return base64Encode(psbt.asPsbtV0());
   }
 
   @override

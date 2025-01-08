@@ -2,8 +2,8 @@ import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:collection/collection.dart';
 import 'package:ledger_bitcoin/psbt.dart';
-import 'package:ledger_bitcoin/src/psbt/constants.dart';
 import 'package:ledger_bitcoin/src/utils/buffer_writer.dart';
 
 extension PsbtSigner on PsbtV2 {
@@ -37,14 +37,13 @@ extension PsbtSigner on PsbtV2 {
     return tx.buffer();
   }
 
-  void sign(List<UtxoWithAddress> utxos, BitcoinSignerCallBack signer) {
-    final int inputsSize = getGlobalInputCount();
+  void signWithUTXO(List<UtxoWithPrivateKey> utxos, UTXOSignerCallBack signer) {
     final raw = hex.encode(extractUnsignedTX(getSegwit: false));
     print('[+] PsbtSigner | sign => raw: $raw');
     final tx = BtcTransaction.fromRaw(raw);
 
-    /// when the transaction is taproot and we must use getTaproot tansaction digest
-    /// we need all of inputs amounts and owner script pub keys
+    /// when the transaction is taproot and we must use getTaproot transaction
+    /// digest we need all of inputs amounts and owner script pub keys
     List<BigInt> taprootAmounts = [];
     List<Script> taprootScripts = [];
 
@@ -53,39 +52,40 @@ extension PsbtSigner on PsbtV2 {
       taprootScripts = utxos.map((e) => _findLockingScript(e, true)).toList();
     }
 
-    for (var i = 0; i < inputsSize; i++) {
+    for (var i = 0; i < tx.inputs.length; i++) {
+      final utxo = utxos.firstWhereOrNull((e) => e.utxo.txHash == tx.inputs[i].txId && e.utxo.vout == tx.inputs[i].txIndex); // ToDo: More robust verify
+      if (utxo == null) continue;
       /// We receive the owner's ScriptPubKey
-      final script = _findLockingScript(utxos[i], false);
+      final script = _findLockingScript(utxo, false);
 
-      /// We generate transaction digest for current input
-      final digest = _generateTransactionDigest(
-          script, i, utxos[i], tx, taprootAmounts, taprootScripts);
-      final int sighash = utxos[i].utxo.isP2tr()
+      final int sighash = utxo.utxo.isP2tr()
           ? BitcoinOpCodeConst.TAPROOT_SIGHASH_ALL
           : BitcoinOpCodeConst.SIGHASH_ALL;
 
-      /// now we need sign the transaction digest
-      final sig = signer(digest, utxos[i], utxos[i].public().toHex(), sighash);
+      /// We generate transaction digest for current input
+      final digest = _generateTransactionDigest(
+          script, i, utxo.utxo, tx, taprootAmounts, taprootScripts);
 
-      if (utxos[i].utxo.isP2tr()) {
+      /// now we need sign the transaction digest
+      final sig = signer(digest, utxo, utxo.privateKey, sighash);
+
+      if (utxo.utxo.isP2tr()) {
         setInputTapKeySig(i, Uint8List.fromList(hex.decode(sig)));
       } else {
-        final pubkeys = getInputKeyDatas(i, PSBTIn.bip32Derivation);
-        setInputPartialSig(i, pubkeys[0], Uint8List.fromList(hex.decode(sig)));
+        setInputPartialSig(i, Uint8List.fromList(hex.decode(utxo.public().toHex())), Uint8List.fromList(hex.decode(sig)));
       }
     }
-
   }
 
   List<int> _generateTransactionDigest(
       Script scriptPubKeys,
       int input,
-      UtxoWithAddress utox,
+      BitcoinUtxo utxo,
       BtcTransaction transaction,
       List<BigInt> taprootAmounts,
       List<Script> tapRootPubKeys) {
-    if (utox.utxo.isSegwit()) {
-      if (utox.utxo.isP2tr()) {
+    if (utxo.isSegwit()) {
+      if (utxo.isP2tr()) {
         return transaction.getTransactionTaprootDigset(
           txIndex: input,
           scriptPubKeys: tapRootPubKeys,
@@ -93,7 +93,7 @@ extension PsbtSigner on PsbtV2 {
         );
       }
       return transaction.getTransactionSegwitDigit(
-          txInIndex: input, script: scriptPubKeys, amount: utox.utxo.value);
+          txInIndex: input, script: scriptPubKeys, amount: utxo.value);
     }
     return transaction.getTransactionDigest(
         txInIndex: input, script: scriptPubKeys);
@@ -149,4 +149,17 @@ extension PsbtSigner on PsbtV2 {
     }
     throw Exception("invalid bitcoin address type");
   }
+}
+
+typedef UTXOSignerCallBack = String Function(
+    List<int> trDigest, UtxoWithAddress utxo, ECPrivate privateKey, int sighash);
+
+class UtxoWithPrivateKey extends UtxoWithAddress {
+  final ECPrivate privateKey;
+
+  UtxoWithPrivateKey({
+    required super.utxo,
+    required super.ownerDetails,
+    required this.privateKey,
+  });
 }

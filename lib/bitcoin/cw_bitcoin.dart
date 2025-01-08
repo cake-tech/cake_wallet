@@ -788,11 +788,12 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<PendingBitcoinTransaction> extractPjTx(
-      Object wallet, String psbtString, Object credentials) {
+      Object wallet, String psbtString, Object credentials, dynamic pjUri) {
     return payjoin.extractPjTx(
       wallet,
       psbtString,
       credentials,
+      pjUri
     );
   }
 }
