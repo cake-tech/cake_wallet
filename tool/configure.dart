@@ -168,7 +168,7 @@ abstract class Bitcoin {
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet, String label);
   Future<void> updateAddress(Object wallet,String address, String label);
-  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
+  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, String? payjoinUri});
 
   String getAddress(Object wallet);
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet);
@@ -243,9 +243,7 @@ abstract class Bitcoin {
   Future<PayjoinProposal> processProposal({required UncheckedProposal proposal, required Object receiverWallet});
   Future<String> sendFinalProposal(PayjoinProposal finalProposal);
   Future<String> getTxIdFromPsbt(String psbtBase64);
-  Future<Uri?> stringToPjUri(String pj);
-  Future<String> buildOriginalPsbt(Object wallet, dynamic pjUri, int fee, double amount, Object credentials);
-  Future<Sender> buildPayjoinRequest(String originalPsbt, dynamic pjUri, int fee);
+  Future<Sender> buildPayjoinRequest(Object wallet, dynamic pjUri, int fee, double amount, Object credentials);
   Future<String> requestAndPollV2Proposal(Sender sender);
   Future<PendingBitcoinTransaction> extractPjTx(Object wallet, String psbtString, Object credentials);
 }

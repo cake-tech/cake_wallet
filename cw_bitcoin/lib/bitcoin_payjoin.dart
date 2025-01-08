@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
@@ -284,7 +285,7 @@ class BitcoinPayjoin {
     final psbt = PsbtV2()..deserializeV0(base64.decode(psbtBase64))..finalize();
     final doubleSha256 = QuickCrypto.sha256DoubleHash(psbt.extractFromV0());
     final revert = Uint8List.fromList(doubleSha256);
-    return hex.encode(revert.reversed.toList());;
+    return hex.encode(revert.reversed.toList());
   }
 
 /*
@@ -303,39 +304,25 @@ class BitcoinPayjoin {
     }
   }
 
-  Future<String> buildOriginalPsbt(
+  Future<send.Sender> buildPayjoinRequest(
     Object wallet,
-    dynamic pjUri,
     int fee,
     double amount,
-    bool isTestnet,
     Object credentials,
   ) async {
-    final uri = pjUri as pj_uri.Uri;
-    final bitcoinWallet = wallet as ElectrumWallet;
+    final _credentials = credentials as BitcoinTransactionCredentials;
+    final bitcoinWallet = wallet as BitcoinWallet;
 
-    final psbtv2 = await bitcoinWallet.createPayjoinTransaction(
-      credentials,
-      pjBtcAddress: uri.address(),
-    );
+    final psbtv2 = await bitcoinWallet.createPayjoinTransaction(_credentials);
     debugPrint(
         '[+] BITCOINPAYJOIN => buildOriginalPsbt - psbtv2: ${base64Encode(psbtv2.serialize())}');
 
     final psbtv0 = base64Encode(psbtv2.asPsbtV0());
     debugPrint('[+] BITCOINPAYJOIN => buildOriginalPsbt - psbtv0: $psbtv0');
 
-    return psbtv0;
-  }
-
-  Future<send.Sender> buildPayjoinRequest(
-    String originalPsbt,
-    dynamic pjUri,
-    int fee,
-  ) async {
-    final uri = pjUri as pj_uri.Uri;
-
+    final uri = await pjuri.Uri.fromStr(_credentials.payjoinUri!);
     final senderBuilder = await send.SenderBuilder.fromPsbtAndUri(
-      psbtBase64: originalPsbt,
+      psbtBase64: psbtv0,
       pjUri: uri.checkPjSupported(),
     );
 

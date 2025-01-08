@@ -1,7 +1,6 @@
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/cake_pay_alert_modal.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
@@ -14,12 +13,10 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
-import 'package:cw_bitcoin/bitcoin_payjoin.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 
 class QRWidget extends StatelessWidget {
   QRWidget({
@@ -46,17 +43,11 @@ class QRWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _listenPjException(context);
-
     final copyImage = Image.asset('assets/images/copy_address.png',
-        color: Theme.of(context)
-            .extension<QRCodeTheme>()!
-            .qrWidgetCopyButtonColor);
+        color: Theme.of(context).extension<QRCodeTheme>()!.qrWidgetCopyButtonColor);
 
     // This magic number for wider screen sets the text input focus at center of the inputfield
-    final _width = responsiveLayoutUtil.shouldRenderMobileUI
-        ? MediaQuery.of(context).size.width
-        : 500;
+    final _width = responsiveLayoutUtil.shouldRenderMobileUI ? MediaQuery.of(context).size.width : 500;
 
     return Center(
       child: SingleChildScrollView(
@@ -74,9 +65,7 @@ class QRWidget extends StatelessWidget {
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context)
-                            .extension<DashboardPageTheme>()!
-                            .textColor),
+                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
                   ),
                 ),
                 Row(
@@ -89,8 +78,7 @@ class QRWidget extends StatelessWidget {
                           onTap: () {
                             BrightnessUtil.changeBrightnessForFunction(
                               () async {
-                                await Navigator.pushNamed(
-                                    context, Routes.fullscreenQR,
+                                await Navigator.pushNamed(context, Routes.fullscreenQR,
                                     arguments: QrViewData(
                                       data: addressUri.toString(),
                                       heroTag: heroTag,
@@ -120,8 +108,7 @@ class QRWidget extends StatelessWidget {
                                           color: Colors.white,
                                         ),
                                       ),
-                                      child:
-                                          QrImage(data: addressUri.toString())),
+                                      child: QrImage(data: addressUri.toString())),
                                 ),
                               ),
                             ),
@@ -146,10 +133,8 @@ class QRWidget extends StatelessWidget {
                               selectedCurrency: _currencyName,
                               amountFocusNode: amountTextFieldFocusNode,
                               amountController: amountController,
-                              padding:
-                                  EdgeInsets.only(top: 20, left: _width / 4),
-                              currentTheme:
-                                  isLight ? ThemeType.light : ThemeType.dark,
+                              padding: EdgeInsets.only(top: 20, left: _width / 4),
+                              currentTheme: isLight ? ThemeType.light : ThemeType.dark,
                               isAmountEditable: true,
                               tag: addressListViewModel.selectedCurrency.tag,
                               onTapPicker: () => _presentPicker(context),
@@ -159,10 +144,7 @@ class QRWidget extends StatelessWidget {
                 ),
               );
             }),
-            Divider(
-                height: 1,
-                color:
-                    Theme.of(context).extension<PickerTheme>()!.dividerColor),
+            Divider(height: 1, color: Theme.of(context).extension<PickerTheme>()!.dividerColor),
             Padding(
               padding: EdgeInsets.only(top: 20, bottom: 8),
               child: Builder(
@@ -213,9 +195,7 @@ class QRWidget extends StatelessWidget {
 
   String get _currencyName {
     if (addressListViewModel.selectedCurrency is CryptoCurrency) {
-      return (addressListViewModel.selectedCurrency as CryptoCurrency)
-          .title
-          .toUpperCase();
+      return (addressListViewModel.selectedCurrency as CryptoCurrency).title.toUpperCase();
     }
     return addressListViewModel.selectedCurrency.name.toUpperCase();
   }
@@ -232,21 +212,5 @@ class QRWidget extends StatelessWidget {
     );
     // update amount if currency changed
     addressListViewModel.changeAmount(amountController.text);
-  }
-  void _listenPjException(BuildContext context) {
-    reaction((_) => addressListViewModel.pjException, (PayjoinException? e) {
-      if (e != null) {
-        showPopUp<void>(
-          context: context,
-          builder: (context) {
-            return CakePayAlertModal(
-              title: 'Payjoin Error',
-              content: Text(e.toString()),
-              actionTitle: 'OK',
-            );
-          },
-        );
-      }
-    });
   }
 }
