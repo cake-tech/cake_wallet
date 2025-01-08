@@ -186,7 +186,7 @@ class AddressPage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption,
-    (ReceivePageOption option) {
+        (ReceivePageOption option) {
       if (bitcoin!.isBitcoinReceivePageOption(option)) {
         addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
 
@@ -195,11 +195,6 @@ class AddressPage extends BasePage {
         } else {
           addressListViewModel.disposePayjoinSession();
         }
-        return;
-      }
-
-      if (bitcoin!.isBitcoinReceivePageOption(option)) {
-        addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
         return;
       }
 
