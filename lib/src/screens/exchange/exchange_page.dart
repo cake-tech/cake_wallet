@@ -476,6 +476,14 @@ class ExchangePage extends BasePage {
       }
     });
 
+    reaction((_) => exchangeViewModel.bestRate, (double rate) {
+      if (exchangeViewModel.isFixedRateMode) {
+        exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
+      } else {
+        exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
+      }
+    });
+
     depositAddressController
         .addListener(() => exchangeViewModel.depositAddress = depositAddressController.text);
 

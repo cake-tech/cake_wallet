@@ -138,6 +138,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final response = await get(uri, headers: {'API-Key': apiKey});
 
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+      if (responseJSON['error'] != null) throw Exception(responseJSON['error']);
+
       final fromAmount = double.parse(responseJSON['amount_from'].toString());
       final toAmount = double.parse(responseJSON['amount_to'].toString());
       final rateId = responseJSON['trade_id'] as String? ?? '';

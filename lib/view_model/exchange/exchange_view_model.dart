@@ -144,7 +144,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     loadLimits();
     reaction((_) => isFixedRateMode, (Object _) {
       loadLimits();
-      _bestRate = 0;
+      bestRate = 0;
       _calculateBestRate();
     });
 
@@ -334,7 +334,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   final ContactListViewModel contactListViewModel;
 
-  double _bestRate = 0.0;
+  @observable
+  double bestRate = 0.0;
 
   late Timer bestRateSync;
 
@@ -366,7 +367,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
-    if (_bestRate == 0) {
+    if (bestRate == 0) {
       depositAmount = S.current.fetching;
 
       await _calculateBestRate();
@@ -374,7 +375,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _cryptoNumberFormat.maximumFractionDigits = depositMaxDigits;
 
     depositAmount = _cryptoNumberFormat
-        .format(_enteredAmount / _bestRate)
+        .format(_enteredAmount / bestRate)
         .toString()
         .replaceAll(RegExp('\\,'), '');
   }
@@ -392,7 +393,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
     /// in case the best rate was not calculated yet
-    if (_bestRate == 0) {
+    if (bestRate == 0) {
       receiveAmount = S.current.fetching;
 
       await _calculateBestRate();
@@ -400,7 +401,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _cryptoNumberFormat.maximumFractionDigits = receiveMaxDigits;
 
     receiveAmount = _cryptoNumberFormat
-        .format(_bestRate * _enteredAmount)
+        .format(bestRate * _enteredAmount)
         .toString()
         .replaceAll(RegExp('\\,'), '');
   }
@@ -453,7 +454,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         }
       }
     }
-    if (_sortedAvailableProviders.isNotEmpty) _bestRate = _sortedAvailableProviders.keys.first;
+    if (_sortedAvailableProviders.isNotEmpty) bestRate = _sortedAvailableProviders.keys.first;
   }
 
   @action
@@ -533,7 +534,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
         if (!(await provider.checkIsAvailable())) continue;
 
-        _bestRate = providerRate;
+        bestRate = providerRate;
         await changeDepositAmount(amount: depositAmount);
 
         final request = TradeRequest(
@@ -693,7 +694,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     receiveAmount = '';
     loadLimits();
     _setAvailableProviders();
-    _bestRate = 0;
+    bestRate = 0;
     _calculateBestRate();
   }
 
@@ -785,7 +786,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     isFixedRateMode = false;
     _defineIsReceiveAmountEditable();
     loadLimits();
-    _bestRate = 0;
+    bestRate = 0;
     _calculateBestRate();
 
     final Map<String, dynamic> exchangeProvidersSelection =
