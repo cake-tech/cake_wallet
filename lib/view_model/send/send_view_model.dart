@@ -390,6 +390,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
+    if (pjUri != null) {
+      debugPrint(
+          '[+] SENDPAGE => onAuthSuccess - INITIATE PAYJOIN SEND');
+      return performPayjoinSend();
+    }
+
     try {
       state = IsExecutingState();
 
@@ -810,7 +816,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   String? pjUri;
 
   @action
-  Future<void> performPayjoinSend() async {
+  Future<PendingTransaction?> performPayjoinSend() async {
     final credentials = _credentials() as BitcoinTransactionCredentials;
     final amountToSend = credentials.outputs.first.sendAll
         ? balance
@@ -831,20 +837,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     final psbt = await bitcoin!.requestAndPollV2Proposal(request);
 
     // If a proposal is received, finalize the payjoin
-    final transaction = await bitcoin!.extractPjTx(
+    return bitcoin!.extractPjTx(
       wallet,
       psbt,
       _credentials(),
       pjUri
     );
-
-    // Broadcast the finalized transaction to the blockchain
-    // final txId = await blockchain.broadcast(transaction: transaction);
-    await transaction.commit();
-
-    final txId = transaction.id;
-
-    // TODO: Reset the Payjoin session state
-    print('[+] performPayjoinSend || txID: $txId');
   }
 }
