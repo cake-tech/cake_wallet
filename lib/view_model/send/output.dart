@@ -128,7 +128,7 @@ abstract class OutputBase with Store {
   }
 
   @computed
-  double get estimatedFee {
+  Future<double> get estimatedFee async {
     try {
       if (_wallet.type == WalletType.tron) {
         if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
@@ -150,13 +150,13 @@ abstract class OutputBase with Store {
         late int fee;
 
         if (transactionPriority == bitcoin!.getBitcoinTransactionPriorityCustom()) {
-          fee = bitcoin!.estimatedFeeForOutputWithFeeRate(
+          fee = await bitcoin!.estimatedFeeForOutputWithFeeRate(
             _wallet,
             feeRate: _settingsStore.customBitcoinFeeRate,
             outputAddress: address,
           );
         } else {
-          fee = bitcoin!.estimatedFeeForOutputsWithPriority(
+          fee = await bitcoin!.calculateEstimatedFee(
             _wallet,
             priority: transactionPriority,
             outputAddress: address,
@@ -166,7 +166,7 @@ abstract class OutputBase with Store {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
-      final fee = _wallet.estimatedFeeForOutputsWithPriority(priority: transactionPriority);
+      final fee = await _wallet.calculateEstimatedFee(transactionPriority);
 
       if (_wallet.type == WalletType.monero) {
         return monero!.formatterMoneroAmountToDouble(amount: fee);
@@ -195,7 +195,7 @@ abstract class OutputBase with Store {
   }
 
   @computed
-  String get estimatedFeeFiatAmount {
+  Future<String> get estimatedFeeFiatAmount async {
     try {
       final currency = (isEVMCompatibleChain(_wallet.type) ||
               _wallet.type == WalletType.solana ||
@@ -203,7 +203,7 @@ abstract class OutputBase with Store {
           ? _wallet.currency
           : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
-          price: _fiatConversationStore.prices[currency]!, cryptoAmount: estimatedFee);
+          price: _fiatConversationStore.prices[currency]!, cryptoAmount: await estimatedFee);
       return fiat;
     } catch (_) {
       return '0.00';

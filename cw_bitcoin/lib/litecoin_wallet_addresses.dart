@@ -20,11 +20,11 @@ class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalle
 abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
+    required super.hdWallets,
     required super.network,
     required super.isHardwareWallet,
     required this.mwebHd,
     required this.mwebEnabled,
-    required super.hdWallets,
     super.initialAddresses,
     List<LitecoinMWEBAddressRecord>? initialMwebAddresses,
   })  : mwebAddresses =
@@ -126,7 +126,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required BitcoinDerivationInfo derivationInfo,
   }) {
     if (addressType == SegwitAddresType.mweb) {
-      return MwebAddress.fromAddress(address: mwebAddrs[0], network: network);
+      return MwebAddress.fromAddress(address: mwebAddrs[isChange ? index + 1 : 0]);
     }
 
     return P2wpkhAddress.fromDerivation(
@@ -160,11 +160,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @action
   @override
-  BaseBitcoinAddressRecord getChangeAddress({
+  Future<BaseBitcoinAddressRecord> getChangeAddress({
     List<BitcoinUnspent>? inputs,
     List<BitcoinOutput>? outputs,
     bool isPegIn = false,
-  }) {
+  }) async {
     // use regular change address on peg in, otherwise use mweb for change address:
 
     if (!mwebEnabled || isPegIn) {
@@ -206,8 +206,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
 
     if (mwebEnabled) {
-      // TODO:
-      // await ensureMwebAddressUpToIndexExists(1);
+      await ensureMwebAddressUpToIndexExists(1);
       return LitecoinMWEBAddressRecord(mwebAddrs[0], index: 0);
     }
 

@@ -258,14 +258,14 @@ abstract class Bitcoin {
     String? memo,
     bool enableRBF = true,
   });
-  int estimatedFeeForOutputsWithPriority(
+  Future<int> calculateEstimatedFee(
     Object wallet, {
     required TransactionPriority priority,
     required String outputAddress,
     String? memo,
     bool enableRBF = true,
   });
-  int estimatedFeeForOutputWithFeeRate(
+  Future<int> estimatedFeeForOutputWithFeeRate(
     Object wallet, {
     required int feeRate,
     required String outputAddress,

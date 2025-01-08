@@ -150,11 +150,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  BaseBitcoinAddressRecord getChangeAddress({
+  Future<BaseBitcoinAddressRecord> getChangeAddress({
     List<BitcoinUnspent>? inputs,
     List<BitcoinOutput>? outputs,
     bool isPegIn = false,
-  }) {
+  }) async {
     updateChangeAddresses();
 
     final address = changeAddresses.firstWhere(

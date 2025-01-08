@@ -1015,7 +1015,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  EstimatedTxResult estimateTxForAmount(
+  Future<EstimatedTxResult> estimateTxForAmount(
     int credentialsAmount,
     List<BitcoinOutput> outputs,
     int feeRate, {
@@ -1025,7 +1025,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     bool? useUnconfirmed,
     bool hasSilentPayment = false,
     bool isFakeTx = false,
-  }) {
+  }) async {
     if (updatedOutputs == null) {
       updatedOutputs = outputs.map((output) => output).toList();
     }
@@ -1067,7 +1067,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       throw BitcoinTransactionWrongBalanceException();
     }
 
-    final changeAddress = walletAddresses.getChangeAddress(
+    final changeAddress = await walletAddresses.getChangeAddress(
       inputs: utxoDetails.availableInputs,
       outputs: updatedOutputs,
     );

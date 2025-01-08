@@ -495,16 +495,16 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  int estimatedFeeForOutputsWithPriority(
+  Future<int> calculateEstimatedFee(
     Object wallet, {
     required TransactionPriority priority,
     required String outputAddress,
     String? memo,
     bool enableRBF = true,
-  }) {
+  }) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.estimatedFeeForOutputsWithPriority(
-      priority: priority,
+    return bitcoinWallet.calculateEstimatedFee(
+      priority,
       outputAddresses: [outputAddress],
       memo: memo,
       enableRBF: enableRBF,
@@ -512,13 +512,13 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  int estimatedFeeForOutputWithFeeRate(
+  Future<int> estimatedFeeForOutputWithFeeRate(
     Object wallet, {
     required int feeRate,
     required String outputAddress,
     String? memo,
     bool enableRBF = true,
-  }) {
+  }) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.estimatedFeeForOutputsWithFeeRate(
       feeRate: feeRate,

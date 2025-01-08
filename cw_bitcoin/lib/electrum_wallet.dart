@@ -586,7 +586,7 @@ abstract class ElectrumWalletBase
     );
   }
 
-  EstimatedTxResult estimateTxForAmount(
+  Future<EstimatedTxResult> estimateTxForAmount(
     int credentialsAmount,
     List<BitcoinOutput> outputs,
     int feeRate, {
@@ -594,7 +594,7 @@ abstract class ElectrumWalletBase
     String? memo,
     bool? useUnconfirmed,
     bool isFakeTx = false,
-  }) {
+  }) async {
     // Attempting to send less than the dust limit
     if (!isFakeTx && isBelowDust(credentialsAmount)) {
       throw BitcoinTransactionNoDustException();
@@ -629,7 +629,7 @@ abstract class ElectrumWalletBase
       throw BitcoinTransactionWrongBalanceException();
     }
 
-    final changeAddress = walletAddresses.getChangeAddress(
+    final changeAddress = await walletAddresses.getChangeAddress(
       inputs: utxoDetails.availableInputs,
       outputs: outputs,
     );
@@ -997,12 +997,12 @@ abstract class ElectrumWalletBase
       );
 
   @override
-  int estimatedFeeForOutputsWithPriority({
-    required TransactionPriority priority,
+  Future<int> calculateEstimatedFee(
+    TransactionPriority priority, {
     List<String> outputAddresses = const [],
     String? memo,
     bool enableRBF = true,
-  }) {
+  }) async {
     return estimatedFeeForOutputsWithFeeRate(
       feeRate: feeRate(priority),
       outputAddresses: outputAddresses,
@@ -1011,12 +1011,14 @@ abstract class ElectrumWalletBase
     );
   }
 
-  int estimatedFeeForOutputsWithFeeRate({
+  // Estimates the fee for paying to the given outputs
+  // using the wallet's available unspent coins as inputs
+  Future<int> estimatedFeeForOutputsWithFeeRate({
     required int feeRate,
     required List<String> outputAddresses,
     String? memo,
     bool enableRBF = true,
-  }) {
+  }) async {
     final fakePublicKey = ECPrivate.random().getPublic();
     final fakeOutputs = <BitcoinOutput>[];
     final outputTypes =
@@ -1050,7 +1052,7 @@ abstract class ElectrumWalletBase
       fakeOutputs.add(BitcoinOutput(address: address, value: BigInt.from(0)));
     }
 
-    final estimatedFakeTx = estimateTxForAmount(
+    final estimatedFakeTx = await estimateTxForAmount(
       0,
       fakeOutputs,
       feeRate,

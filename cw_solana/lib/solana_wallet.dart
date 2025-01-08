@@ -173,7 +173,7 @@ abstract class SolanaWalletBase
   }
 
   @override
-  int estimatedFeeForOutputsWithPriority({required TransactionPriority priority}) => 0;
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async => 0;
 
   @override
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");

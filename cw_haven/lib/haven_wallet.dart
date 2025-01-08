@@ -219,7 +219,7 @@ abstract class HavenWalletBase
   }
 
   @override
-  int estimatedFeeForOutputsWithPriority({required TransactionPriority priority}) {
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async {
     // FIXME: hardcoded value;
 
     if (priority is MoneroTransactionPriority) {

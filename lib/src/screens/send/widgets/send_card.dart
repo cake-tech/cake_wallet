@@ -336,17 +336,23 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                             padding: EdgeInsets.only(top: 5),
                                             child: sendViewModel.isFiatDisabled
                                                 ? const SizedBox(height: 14)
-                                                : Text(
-                                                    output.estimatedFeeFiatAmount +
-                                                        ' ' +
-                                                        sendViewModel.fiat.title,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight: FontWeight.w600,
-                                                      color: Theme.of(context)
-                                                          .extension<SendPageTheme>()!
-                                                          .textFieldHintColor,
-                                                    ),
+                                                : FutureBuilder<String>(
+                                                    future: output.estimatedFeeFiatAmount,
+                                                    builder: (context, snapshot) {
+                                                      if (snapshot.hasData) {
+                                                        return Text(
+                                                          '${snapshot.data} ${sendViewModel.fiat.title}',
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            fontWeight: FontWeight.w600,
+                                                            color: Theme.of(context)
+                                                                .extension<SendPageTheme>()!
+                                                                .textFieldHintColor,
+                                                          ),
+                                                        );
+                                                      }
+                                                      return CircularProgressIndicator();
+                                                    },
                                                   ),
                                           ),
                                         ],

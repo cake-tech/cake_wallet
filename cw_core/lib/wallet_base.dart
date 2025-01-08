@@ -74,7 +74,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<PendingTransaction> createTransaction(Object credentials);
 
-  int estimatedFeeForOutputsWithPriority({required TransactionPriority priority});
+  Future<int> calculateEstimatedFee(TransactionPriority priority);
 
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,

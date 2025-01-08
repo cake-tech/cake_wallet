@@ -10,9 +10,9 @@ class BitcoinCashWalletAddresses = BitcoinCashWalletAddressesBase with _$Bitcoin
 abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses with Store {
   BitcoinCashWalletAddressesBase(
     WalletInfo walletInfo, {
+    required super.hdWallets,
     required super.network,
     required super.isHardwareWallet,
-    required super.hdWallets,
     super.initialAddresses,
     super.initialAddressPageType,
   }) : super(walletInfo);
