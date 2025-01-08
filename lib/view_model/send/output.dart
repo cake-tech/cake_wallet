@@ -146,7 +146,7 @@ abstract class OutputBase with Store {
 
       final transactionPriority = _settingsStore.priority[_wallet.type]!;
 
-      if (_wallet.isElectrum) {
+      if (_wallet.isElectrumBased) {
         late int fee;
 
         if (transactionPriority.title == bitcoin!.getBitcoinTransactionPriorityCustom().title) {

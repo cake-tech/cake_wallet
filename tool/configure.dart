@@ -283,7 +283,6 @@ abstract class Bitcoin {
     String? memo,
     bool enableRBF = true,
   });
-  Future<void> registerSilentPaymentsKey(Object wallet, bool active);
   Future<bool> checkIfMempoolAPIIsEnabled(Object wallet);
   Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled});
   int getLitecoinHeightByDate({required DateTime date});

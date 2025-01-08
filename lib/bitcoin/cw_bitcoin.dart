@@ -662,12 +662,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<void> registerSilentPaymentsKey(Object wallet, bool active) async {
-    final bitcoinWallet = wallet as BitcoinWallet;
-    return await bitcoinWallet.registerSilentPaymentsKey();
-  }
-
-  @override
   Future<bool> checkIfMempoolAPIIsEnabled(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     return await bitcoinWallet.mempoolAPIEnabled;

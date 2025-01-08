@@ -481,50 +481,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     _setListeners(height, doSingleScan: doSingleScan);
   }
 
-  // @action
-  // Future<void> registerSilentPaymentsKey(bool register) async {
-  //   silentPaymentsScanningActive = active;
-
-  //   if (active) {
-  //     syncStatus = AttemptingScanSyncStatus();
-
-  //     final tip = await getUpdatedChainTip();
-
-  //     if (tip == walletInfo.restoreHeight) {
-  //       syncStatus = SyncedTipSyncStatus(tip);
-  //       return;
-  //     }
-
-  //     if (tip > walletInfo.restoreHeight) {
-  //       _setListeners(walletInfo.restoreHeight, chainTipParam: _currentChainTip);
-  //     }
-  //   } else {
-  //     alwaysScan = false;
-
-  //     _isolate?.then((value) => value.kill(priority: Isolate.immediate));
-
-  //     if (electrumClient.isConnected) {
-  //       syncStatus = SyncedSyncStatus();
-  //     } else {
-  //       syncStatus = NotConnectedSyncStatus();
-  //     }
-  //   }
-  // }
-
-  @action
-  Future<void> registerSilentPaymentsKey() async {
-    // final registered = await electrumClient.tweaksRegister(
-    //   secViewKey: walletAddresses.silentAddress!.b_scan.toHex(),
-    //   pubSpendKey: walletAddresses.silentAddress!.B_spend.toHex(),
-    //   labels: walletAddresses.silentAddresses
-    //       .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.labelIndex >= 1)
-    //       .map((addr) => addr.labelIndex)
-    //       .toList(),
-    // );
-
-    // printV("registered: $registered");
-  }
-
   @action
   void _updateSilentAddressRecord(BitcoinUnspent unspent) {
     final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;

@@ -81,6 +81,7 @@ android/app/.externalNativeBuild/
 cw_monero/ios/External/
 cw_monero/cw_monero/android/.externalNativeBuild/
 cw_monero/cw_monero/android/.cxx/
+cw_monero/linux/flutter/ephemeral/.plugin_symlinks/path_provider_linux
 
 # Generated dart files
 **/*.g.dart

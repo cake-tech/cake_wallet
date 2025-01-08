@@ -24,7 +24,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   WalletType get type => walletInfo.type;
 
-  bool get isElectrum =>
+  bool get isElectrumBased =>
       type == WalletType.bitcoin || type == WalletType.litecoin || type == WalletType.bitcoinCash;
 
   CryptoCurrency get currency => currencyForWalletType(type, isTestnet: isTestnet);
