@@ -290,21 +290,6 @@ abstract class ElectrumWalletBase
   TransactionPriorities? feeRates;
 
   int feeRate(TransactionPriority priority) {
-    if (priority is ElectrumTransactionPriority && feeRates is BitcoinAPITransactionPriorities) {
-      final rates = feeRates as BitcoinAPITransactionPriorities;
-
-      switch (priority) {
-        case ElectrumTransactionPriority.slow:
-          return rates.normal;
-        case ElectrumTransactionPriority.medium:
-          return rates.elevated;
-        case ElectrumTransactionPriority.fast:
-          return rates.priority;
-        case ElectrumTransactionPriority.custom:
-          return rates.custom;
-      }
-    }
-
     return feeRates![priority];
   }
 

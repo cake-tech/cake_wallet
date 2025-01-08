@@ -18,6 +18,12 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
   }) : super(walletInfo);
 
   @override
+  Future<void> init() async {
+    await generateInitialAddresses(type: P2pkhAddressType.p2pkh);
+    await super.init();
+  }
+
+  @override
   BitcoinBaseAddress generateAddress({
     required CWBitcoinDerivationType derivationType,
     required bool isChange,

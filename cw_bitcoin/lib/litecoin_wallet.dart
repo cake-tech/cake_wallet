@@ -888,22 +888,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   // }
 
   @override
-  int feeRate(TransactionPriority priority) {
-    if (priority is ElectrumTransactionPriority) {
-      switch (priority) {
-        case ElectrumTransactionPriority.slow:
-          return 1;
-        case ElectrumTransactionPriority.medium:
-          return 2;
-        case ElectrumTransactionPriority.fast:
-          return 3;
-      }
-    }
-
-    return 0;
-  }
-
-  @override
   TxCreateUtxoDetails createUTXOS({
     required bool sendAll,
     int credentialsAmount = 0,

@@ -48,14 +48,15 @@ class CWBitcoinCash extends BitcoinCash {
 
   @override
   TransactionPriority deserializeBitcoinCashTransactionPriority(int raw) =>
-      ElectrumTransactionPriority.deserialize(raw: raw);
+      BitcoinCashTransactionPriority.deserialize(raw: raw);
 
   @override
-  TransactionPriority getDefaultTransactionPriority() => ElectrumTransactionPriority.medium;
+  TransactionPriority getDefaultTransactionPriority() => BitcoinCashTransactionPriority.medium;
 
   @override
-  List<TransactionPriority> getTransactionPriorities() => ElectrumTransactionPriority.all;
+  List<TransactionPriority> getTransactionPriorities() => BitcoinCashTransactionPriority.all;
 
   @override
-  TransactionPriority getBitcoinCashTransactionPrioritySlow() => ElectrumTransactionPriority.slow;
+  TransactionPriority getBitcoinCashTransactionPrioritySlow() =>
+      BitcoinCashTransactionPriority.slow;
 }

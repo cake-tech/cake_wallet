@@ -70,10 +70,23 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<TransactionPriority> getTransactionPriorities() => ElectrumTransactionPriority.all;
+  List<TransactionPriority> getElectrumTransactionPriorities() =>
+      BitcoinElectrumTransactionPriority.all;
 
   @override
-  List<TransactionPriority> getLitecoinTransactionPriorities() => ElectrumTransactionPriority.all;
+  List<TransactionPriority> getBitcoinAPITransactionPriorities() =>
+      BitcoinAPITransactionPriority.all;
+
+  @override
+  List<TransactionPriority> getTransactionPriorities(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.feeRates is ElectrumTransactionPriorities
+        ? BitcoinElectrumTransactionPriority.all
+        : BitcoinAPITransactionPriority.all;
+  }
+
+  @override
+  List<TransactionPriority> getLitecoinTransactionPriorities() => LitecoinTransactionPriority.all;
 
   @override
   TransactionPriority deserializeBitcoinTransactionPriority(int raw) =>
@@ -205,9 +218,20 @@ class CWBitcoin extends Bitcoin {
       BitcoinAmountUtils.stringDoubleToBitcoinAmount(amount);
 
   @override
-  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate,
-          {int? customRate}) =>
-      (priority as ElectrumTransactionPriority).labelWithRate(rate, customRate);
+  TransactionPriorityLabel getTransactionPriorityWithLabel(
+    TransactionPriority priority,
+    int rate, {
+    int? customRate,
+  }) =>
+      priority.getLabelWithRate(rate, customRate);
+
+  @override
+  String bitcoinTransactionPriorityWithLabel(
+    TransactionPriority priority,
+    int rate, {
+    int? customRate,
+  }) =>
+      priority.labelWithRate(rate, customRate);
 
   @override
   List<BitcoinUnspent> getUnspents(Object wallet,
@@ -533,8 +557,8 @@ class CWBitcoin extends Bitcoin {
     final electrumWallet = wallet as ElectrumWallet;
     final feeRates = electrumWallet.feeRates;
     final maxFee = electrumWallet.feeRates is ElectrumTransactionPriorities
-        ? ElectrumTransactionPriority.fast
-        : BitcoinAPITransactionPriority.priority;
+        ? BitcoinElectrumTransactionPriority.fast
+        : BitcoinAPITransactionPriority.fastest;
 
     return (electrumWallet.feeRate(maxFee) * 10).round();
   }

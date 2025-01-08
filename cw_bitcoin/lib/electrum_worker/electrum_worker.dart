@@ -472,26 +472,27 @@ class ElectrumWorker {
   }
 
   Future<void> _handleGetFeeRates(ElectrumWorkerGetFeesRequest request) async {
-    if (request.mempoolAPIEnabled) {
+    if (request.mempoolAPIEnabled && _walletType == WalletType.bitcoin) {
       try {
         final recommendedFees = await ApiProvider.fromMempool(
           _network!,
           baseUrl: "http://mempool.cakewallet.com:8999/api/v1",
         ).getRecommendedFeeRate();
 
-        final unimportantFee = recommendedFees.economyFee!.satoshis;
-        final normalFee = recommendedFees.low.satoshis;
-        int elevatedFee = recommendedFees.medium.satoshis;
-        int priorityFee = recommendedFees.high.satoshis;
+        final minimum = recommendedFees.minimumFee!.satoshis;
+        final economy = recommendedFees.economyFee!.satoshis;
+        final hour = recommendedFees.low.satoshis;
+        int halfHour = recommendedFees.medium.satoshis;
+        int fastest = recommendedFees.high.satoshis;
 
         // Bitcoin only: adjust fee rates to avoid equal fee values
         // elevated fee should be higher than normal fee
-        if (normalFee == elevatedFee) {
-          elevatedFee++;
+        if (hour == halfHour) {
+          halfHour++;
         }
         // priority fee should be higher than elevated fee
-        while (priorityFee <= elevatedFee) {
-          priorityFee++;
+        while (fastest <= halfHour) {
+          fastest++;
         }
         // this guarantees that, even if all fees are low and equal,
         // higher priority fee txs can be consumed when chain fees start surging
@@ -499,11 +500,12 @@ class ElectrumWorker {
         _sendResponse(
           ElectrumWorkerGetFeesResponse(
             result: BitcoinAPITransactionPriorities(
-              unimportant: unimportantFee,
-              normal: normalFee,
-              elevated: elevatedFee,
-              priority: priorityFee,
-              custom: unimportantFee,
+              minimum: minimum,
+              economy: economy,
+              hour: hour,
+              halfHour: halfHour,
+              fastest: fastest,
+              custom: minimum,
             ),
           ),
         );

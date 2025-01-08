@@ -152,6 +152,12 @@ abstract class WalletCreationVMBase with Store {
           );
         }
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+      case WalletType.bitcoinCash:
+        return DerivationInfo(
+          derivationPath: "m/44'/145'/0'",
+          description: "Default Bitcoin Cash",
+          scriptType: "p2pkh",
+        );
       default:
         return null;
     }

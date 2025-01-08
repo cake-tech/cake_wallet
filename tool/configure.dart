@@ -175,7 +175,9 @@ abstract class Bitcoin {
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
   Map<String, String> getWalletKeys(Object wallet);
-  List<TransactionPriority> getTransactionPriorities();
+  List<TransactionPriority> getElectrumTransactionPriorities();
+  List<TransactionPriority> getBitcoinAPITransactionPriorities();
+  List<TransactionPriority> getTransactionPriorities(Object wallet);
   List<TransactionPriority> getLitecoinTransactionPriorities();
   TransactionPriority deserializeBitcoinTransactionPriority(int raw);
   TransactionPriority deserializeLitecoinTransactionPriority(int raw);
@@ -195,7 +197,16 @@ abstract class Bitcoin {
   String formatterBitcoinAmountToString({required int amount});
   double formatterBitcoinAmountToDouble({required int amount});
   int formatterStringDoubleToBitcoinAmount(String amount);
-  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate, {int? customRate});
+  TransactionPriorityLabel getTransactionPriorityWithLabel(
+    TransactionPriority priority,
+    int rate, {
+    int? customRate,
+  });
+  String bitcoinTransactionPriorityWithLabel(
+    TransactionPriority priority,
+    int rate, {
+    int? customRate,
+  });
 
   List<Unspent> getUnspents(Object wallet, {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   Future<void> updateUnspents(Object wallet);

@@ -60,6 +60,57 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     await super.init();
   }
 
+  @action
+  Future<List<BitcoinAddressRecord>> discoverNewAddresses({
+    required CWBitcoinDerivationType derivationType,
+    required bool isChange,
+    required BitcoinAddressType addressType,
+    required BitcoinDerivationInfo derivationInfo,
+  }) async {
+    final count = isChange
+        ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
+        : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
+
+    final startIndex = (isChange ? changeAddresses : receiveAddresses)
+        .where((addr) => addr.cwDerivationType == derivationType && addr.type == addressType)
+        .length;
+
+    final mwebAddresses = <LitecoinMWEBAddressRecord>[];
+    final newAddresses = <BitcoinAddressRecord>[];
+
+    for (var i = startIndex; i < count + startIndex; i++) {
+      final addressString = await getAddressAsync(
+        derivationType: derivationType,
+        isChange: isChange,
+        index: i,
+        addressType: addressType,
+        derivationInfo: derivationInfo,
+      );
+
+      if (addressType == SegwitAddresType.mweb) {
+        final address = LitecoinMWEBAddressRecord(addressString, index: i);
+        mwebAddresses.add(address);
+      } else {
+        final address = BitcoinAddressRecord(
+          addressString,
+          index: i,
+          isChange: isChange,
+          isHidden: OLD_DERIVATION_TYPES.contains(derivationType),
+          type: addressType,
+          network: network,
+          derivationInfo: derivationInfo,
+          cwDerivationType: derivationType,
+        );
+
+        newAddresses.add(address);
+      }
+    }
+
+    addAddresses(newAddresses);
+    addMwebAddresses(mwebAddresses);
+    return newAddresses;
+  }
+
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       return null;
@@ -225,19 +276,17 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   Future<void> updateAddressesInBox() async {
     super.updateAddressesInBox();
 
-    final lastP2wpkh = allAddresses
-        .where(
-            (addressRecord) => isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
-        .toList()
-        .last;
+    final lastP2wpkh =
+        allAddresses.where((addressRecord) => isUnusedReceiveAddress(addressRecord)).toList().last;
     if (lastP2wpkh.address != address) {
       addressesMap[lastP2wpkh.address] = 'P2WPKH';
     } else {
       addressesMap[address] = 'Active - P2WPKH';
     }
 
-    final lastMweb = allAddresses.firstWhere(
-        (addressRecord) => isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
+    final lastMweb = mwebAddresses.firstWhere(
+      (addressRecord) => isUnusedReceiveAddress(addressRecord),
+    );
     if (lastMweb.address != address) {
       addressesMap[lastMweb.address] = 'MWEB';
     } else {

@@ -430,8 +430,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return addr.isChange && !addr.isUsed && addr.type == type;
   }
 
-  bool isUnusedReceiveAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) {
-    return !addr.isChange && !addr.isUsed && addr.type == type;
+  bool isUnusedReceiveAddress(BaseBitcoinAddressRecord addr) {
+    return !addr.isChange && !addr.isUsed;
+  }
+
+  bool isUnusedReceiveAddressByType(BaseBitcoinAddressRecord addr, BitcoinAddressType type) {
+    return isUnusedReceiveAddress(addr) && addr.type == type;
   }
 
   Map<String, dynamic> toJson() {

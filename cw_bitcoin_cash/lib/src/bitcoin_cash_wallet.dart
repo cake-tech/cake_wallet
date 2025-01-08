@@ -52,7 +52,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
           encryptionFileUtils: encryptionFileUtils,
           passphrase: passphrase,
           mempoolAPIEnabled: mempoolAPIEnabled,
-          hdWallets: {CWBitcoinDerivationType.bip39: bitcoinCashHDWallet(seedBytes)},
+          hdWallets: {CWBitcoinDerivationType.bip39: Bip32Slip10Secp256k1.fromSeed(seedBytes)},
         ) {
     walletAddresses = BitcoinCashWalletAddresses(
       walletInfo,
@@ -185,22 +185,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       );
 
   @override
-  int feeRate(TransactionPriority priority) {
-    if (priority is ElectrumTransactionPriority) {
-      switch (priority) {
-        case ElectrumTransactionPriority.slow:
-          return 1;
-        case ElectrumTransactionPriority.medium:
-          return 5;
-        case ElectrumTransactionPriority.fast:
-          return 10;
-      }
-    }
-
-    return 0;
-  }
-
-  @override
   Future<String> signMessage(String message, {String? address = null}) async {
     Bip32Slip10Secp256k1 HD = bip32;
 
@@ -234,7 +218,4 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         network: network,
         memo: memo,
       );
-
-  static Bip32Slip10Secp256k1 bitcoinCashHDWallet(List<int> seedBytes) =>
-      Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/145'/0'") as Bip32Slip10Secp256k1;
 }

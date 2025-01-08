@@ -322,15 +322,21 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
-                                          Text(
-                                            output.estimatedFee.toString() +
-                                                ' ' +
-                                                sendViewModel.currency.toString(),
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
-                                            ),
+                                          FutureBuilder<double>(
+                                            future: output.estimatedFee,
+                                            builder: (context, snapshot) {
+                                              if (snapshot.hasData) {
+                                                return Text(
+                                                  '${snapshot.data} ${sendViewModel.currency.toString()}',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white,
+                                                  ),
+                                                );
+                                              }
+                                              return CircularProgressIndicator();
+                                            },
                                           ),
                                           Padding(
                                             padding: EdgeInsets.only(top: 5),
@@ -523,7 +529,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   }
 
   Future<void> pickTransactionPriority(BuildContext context) async {
-    final items = priorityForWalletType(sendViewModel.walletType);
+    final items = priorityForWalletType(sendViewModel.wallet);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
     final customItemIndex = sendViewModel.getCustomPriorityIndex(items);
     final isBitcoinWallet = sendViewModel.walletType == WalletType.bitcoin;

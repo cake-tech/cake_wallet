@@ -149,7 +149,7 @@ abstract class OutputBase with Store {
       if (_wallet.isElectrum) {
         late int fee;
 
-        if (transactionPriority == bitcoin!.getBitcoinTransactionPriorityCustom()) {
+        if (transactionPriority.title == bitcoin!.getBitcoinTransactionPriorityCustom().title) {
           fee = await bitcoin!.estimatedFeeForOutputWithFeeRate(
             _wallet,
             feeRate: _settingsStore.customBitcoinFeeRate,

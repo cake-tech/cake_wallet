@@ -566,10 +566,10 @@ abstract class TransactionDetailsViewModelBase with Store {
           StandartListItem(title: 'New recommended fee rate', value: '$recommendedRate sat/byte'));
     }
 
-    final priorities = priorityForWalletType(wallet.type);
+    final priorities = priorityForWalletType(wallet);
     final selectedItem = priorities.indexOf(sendViewModel.transactionPriority);
-    final customItem = priorities
-        .firstWhereOrNull((element) => element == sendViewModel.bitcoinTransactionPriorityCustom);
+    final customItem = priorities.firstWhereOrNull(
+        (element) => element.title == sendViewModel.bitcoinTransactionPriorityCustom.title);
     final customItemIndex = customItem != null ? priorities.indexOf(customItem) : null;
     final maxCustomFeeRate = sendViewModel.maxCustomFeeRate?.toDouble();
 
@@ -579,7 +579,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         title: S.current.estimated_new_fee,
         value: bitcoin!.formatterBitcoinAmountToString(amount: newFee) +
             ' ${walletTypeToCryptoCurrency(wallet.type)}',
-        items: priorityForWalletType(wallet.type),
+        items: priorities,
         customValue: settingsStore.customBitcoinFeeRate.toDouble(),
         maxValue: maxCustomFeeRate,
         selectedIdx: selectedItem,
@@ -675,7 +675,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   String setNewFee({double? value, required TransactionPriority priority}) {
-    if (priority == bitcoin!.getBitcoinTransactionPriorityCustom() && value != null) {
+    if (priority.title == bitcoin!.getBitcoinTransactionPriorityCustom().title && value != null) {
       newFee = bitcoin!.getFeeAmountForOutputsWithFeeRate(
         wallet,
         feeRate: value.round(),
