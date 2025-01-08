@@ -15,7 +15,7 @@ extension PsbtSigner on PsbtV2 {
     }
     while (_readKeyPair(globalMap, bufferReader)) {}
 
-    final tx = BtcTransaction.fromRaw(hex.encode(globalMap['00']!));
+    final tx = BtcTransaction.fromRaw(BytesUtils.toHexString(globalMap['00']!));
 
     setGlobalInputCount(tx.inputs.length);
     setGlobalOutputCount(tx.outputs.length);

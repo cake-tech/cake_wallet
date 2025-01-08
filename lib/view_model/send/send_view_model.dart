@@ -390,14 +390,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
-    if (pjUri != null) return performPayjoinSend(); // ToDo: Remove
-
     try {
       state = IsExecutingState();
 
       if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
 
-      pendingTransaction = await wallet.createTransaction(_credentials(provider));
+      pendingTransaction = await (pjUri != null ?  performPayjoinSend() : wallet.createTransaction(_credentials(provider))); // ToDo: Remove move Payjoin into create tx
 
       if (provider is ThorChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;
@@ -819,25 +817,43 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         : credentials.outputs.first.cryptoAmount;
     final feeRate = bitcoin!
         .getFeeRate(wallet, credentials.priority as TransactionPriority);
+    print(
+        '[+] SendVM || performPjSend => amountToSend: $amountToSend feeRate: $feeRate, pjUri: $pjUri');
 
-    // Build the Payjoin request context from the original PSBT
-    final request = await bitcoin!.buildPayjoinRequest(
+    // Build the original PSBT for the Payjoin transaction
+    final originalPsbt = await bitcoin!.buildOriginalPsbt(
       wallet,
       feeRate,
       double.parse(amountToSend!),
       credentials,
     );
 
+    print('[+] SendVM || performPjSend => originalPsbt: $originalPsbt');
+
+    // Build the Payjoin request context from the original PSBT
+    final request = await bitcoin!.buildPayjoinRequest(
+      originalPsbt,
+      pjUri!,
+      feeRate,
+    );
+
     // Request and keep polling the payjoin directory for the proposal
-    // from the receiver
-    final psbt = await bitcoin!.requestAndPollV2Proposal(request);
+    //  from the receiver
+    String psbt = originalPsbt;
+
+    try {
+      psbt = await bitcoin!.requestAndPollV2Proposal(
+        request,
+      );
+    } catch (e) {
+      rethrow;
+    }
 
     // If a proposal is received, finalize the payjoin
     return bitcoin!.extractPjTx(
       wallet,
       psbt,
-      _credentials(),
-      pjUri
+      _credentials()
     );
   }
 }
