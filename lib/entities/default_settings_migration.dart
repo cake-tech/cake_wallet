@@ -70,13 +70,8 @@ Future<void> defaultSettingsMigration(
 
   await sharedPreferences.setBool(PreferencesKey.isNewInstall, isNewInstall);
 
-  int currentVersion =
+  final currentVersion =
       sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) ?? 0;
-  // TODO: remove after v4.22.1 is live
-  /// for beta testers who didn't correctly get the 46 step configured
-  if (currentVersion == 46) {
-    currentVersion--;
-  }
 
   if (currentVersion >= version) {
     return;
