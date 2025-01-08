@@ -410,7 +410,7 @@ class BitcoinPayjoin {
     Object credentials,
       dynamic pjUri
   ) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
+    final bitcoinWallet = wallet as BitcoinWallet;
 
     final pendingTx =
         await bitcoinWallet.psbtToPendingTx(psbtString, credentials, pjUri);

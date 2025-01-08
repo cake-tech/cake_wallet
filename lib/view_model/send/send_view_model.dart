@@ -390,11 +390,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
-    if (pjUri != null) {
-      debugPrint(
-          '[+] SENDPAGE => onAuthSuccess - INITIATE PAYJOIN SEND');
-      return performPayjoinSend();
-    }
+    if (pjUri != null) return performPayjoinSend(); // ToDo: Remove
 
     try {
       state = IsExecutingState();

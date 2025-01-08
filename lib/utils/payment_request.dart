@@ -19,11 +19,8 @@ class PaymentRequest {
       }
 
       address = uri.queryParameters['address'] ?? uri.path;
-      amount =
-          uri.queryParameters['tx_amount'] ?? uri.queryParameters['amount'] ??
-              "";
-      note = uri.queryParameters['tx_description'] ??
-          uri.queryParameters['message'] ?? "";
+      amount = uri.queryParameters['tx_amount'] ?? uri.queryParameters['amount'] ?? "";
+      note = uri.queryParameters['tx_description'] ?? uri.queryParameters['message'] ?? "";
       scheme = uri.scheme;
       callbackUrl = uri.queryParameters['callback'];
       callbackMessage = uri.queryParameters['callbackMessage'];
@@ -39,8 +36,7 @@ class PaymentRequest {
         if (address.contains("nano")) {
           amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerNano);
         } else if (address.contains("ban")) {
-          amount =
-              nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerBanano);
+          amount = nanoUtil!.getRawAsUsableString(amount, nanoUtil!.rawPerBanano);
         }
       }
     }
