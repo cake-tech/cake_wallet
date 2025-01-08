@@ -38,7 +38,7 @@ extension PsbtSigner on PsbtV2 {
   }
 
   void signWithUTXO(List<UtxoWithPrivateKey> utxos, UTXOSignerCallBack signer) {
-    final raw = hex.encode(extractUnsignedTX(getSegwit: false));
+    final raw = BytesUtils.toHexString(extractUnsignedTX(getSegwit: false));
     print('[+] PsbtSigner | sign => raw: $raw');
     final tx = BtcTransaction.fromRaw(raw);
 
@@ -70,9 +70,9 @@ extension PsbtSigner on PsbtV2 {
       final sig = signer(digest, utxo, utxo.privateKey, sighash);
 
       if (utxo.utxo.isP2tr()) {
-        setInputTapKeySig(i, Uint8List.fromList(hex.decode(sig)));
+        setInputTapKeySig(i, Uint8List.fromList(BytesUtils.fromHexString(sig)));
       } else {
-        setInputPartialSig(i, Uint8List.fromList(hex.decode(utxo.public().toHex())), Uint8List.fromList(hex.decode(sig)));
+        setInputPartialSig(i, Uint8List.fromList(BytesUtils.fromHexString(utxo.public().toHex())), Uint8List.fromList(BytesUtils.fromHexString(sig)));
       }
     }
   }

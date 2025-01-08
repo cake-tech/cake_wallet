@@ -22,7 +22,6 @@ import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/receive.dart';
 import 'package:payjoin_flutter/send.dart' as send;
 import 'package:payjoin_flutter/uri.dart' as pj_uri;
-import 'package:payjoin_flutter/uri.dart' as pjuri;
 
 export 'package:payjoin_flutter/receive.dart'
     show Receiver, UncheckedProposal, PayjoinProposal;
@@ -46,10 +45,6 @@ class BitcoinPayjoin {
   static const relayUrl = "https://pj.bobspacebkk.com";
   static const v2ContentType = "message/ohttp-req";
 
-  Network get testnet => Network.testnet;
-
-  Network get mainnet => Network.bitcoin;
-
 /*
 +-------------------------+
 | Receiver starts from here |
@@ -59,16 +54,16 @@ class BitcoinPayjoin {
   Future<Map<String, dynamic>> buildV2PjStr({
     int? amount,
     required String address,
-    required Network network,
     required BigInt expireAfter,
+    bool isTestnet = false,
   }) async {
     debugPrint(
-        '[+] BITCOINPAYJOIN => buildV2PjStr - address: $address \n amount: $amount \n network: $network');
+        '[+] BITCOINPAYJOIN => buildV2PjStr - address: $address \n amount: $amount \n isTestnet: $isTestnet');
 
-    final _payjoinDirectory = await pjuri.Url.fromStr(pjUrl);
-    final _ohttpRelay = await pjuri.Url.fromStr(relayUrl);
+    final _payjoinDirectory = await pj_uri.Url.fromStr(pjUrl);
+    final _ohttpRelay = await pj_uri.Url.fromStr(relayUrl);
 
-    final _ohttpKeys = await pjuri.fetchOhttpKeys(
+    final _ohttpKeys = await pj_uri.fetchOhttpKeys(
       ohttpRelay: _ohttpRelay,
       payjoinDirectory: _payjoinDirectory,
     );
@@ -78,7 +73,7 @@ class BitcoinPayjoin {
 
     final receiver = await Receiver.create(
       address: address,
-      network: network,
+      network: isTestnet ? Network.testnet : Network.bitcoin,
       directory: _payjoinDirectory,
       ohttpKeys: _ohttpKeys,
       ohttpRelay: _ohttpRelay,
@@ -294,43 +289,37 @@ class BitcoinPayjoin {
 +-------------------------+
 */
 
-  Future<pj_uri.Uri?> stringToPjUri(String pj) async {
-    try {
-      return await pjuri.Uri.fromStr(pj);
-    } catch (e, st) {
-      debugPrint(
-          '[!] BITCOINPAYJOINERROR => stringToPjUri - Error: ${e.toString()}, Stacktrace: $st');
-      return null;
-    }
-  }
-
-  Future<send.Sender> buildPayjoinRequest(
-    Object wallet,
-    int fee,
-    double amount,
-    Object credentials,
-  ) async {
-    final _credentials = credentials as BitcoinTransactionCredentials;
+  Future<String> buildOriginalPsbt(
+      Object wallet,
+      int fee,
+      double amount,
+      Object credentials,
+      ) async {
     final bitcoinWallet = wallet as BitcoinWallet;
 
-    final psbtv2 = await bitcoinWallet.createPayjoinTransaction(_credentials);
-    debugPrint(
-        '[+] BITCOINPAYJOIN => buildOriginalPsbt - psbtv2: ${base64Encode(psbtv2.serialize())}');
+    final psbtv2 = await bitcoinWallet.createPayjoinTransaction(
+      credentials as BitcoinTransactionCredentials
+    );
 
     final psbtv0 = base64Encode(psbtv2.asPsbtV0());
     debugPrint('[+] BITCOINPAYJOIN => buildOriginalPsbt - psbtv0: $psbtv0');
 
-    final uri = await pjuri.Uri.fromStr(_credentials.payjoinUri!);
+    return psbtv0;
+  }
+
+  Future<send.Sender> buildPayjoinRequest(
+      String originalPsbt,
+      String pjUri,
+      int fee,
+      ) async {
+    final uri = await pj_uri.Uri.fromStr(pjUri);
+
     final senderBuilder = await send.SenderBuilder.fromPsbtAndUri(
-      psbtBase64: psbtv0,
+      psbtBase64: originalPsbt,
       pjUri: uri.checkPjSupported(),
     );
 
-    final sender = await senderBuilder.buildRecommended(
-      minFeeRate: BigInt.from(250),
-    );
-
-    return sender;
+    return senderBuilder.buildRecommended(minFeeRate: BigInt.from(250));
   }
 
   Future<String> requestAndPollV2Proposal(
@@ -405,16 +394,6 @@ class BitcoinPayjoin {
   }
 
   Future<PendingBitcoinTransaction> extractPjTx(
-    Object wallet,
-    String psbtString,
-    Object credentials,
-      dynamic pjUri
-  ) async {
-    final bitcoinWallet = wallet as BitcoinWallet;
-
-    final pendingTx =
-        await bitcoinWallet.psbtToPendingTx(psbtString, credentials, pjUri);
-
-    return pendingTx;
-  }
+          Object wallet, String psbtString, Object credentials) async =>
+      (wallet as BitcoinWallet).psbtToPendingTx(psbtString, credentials);
 }

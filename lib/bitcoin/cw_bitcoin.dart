@@ -722,7 +722,7 @@ class CWBitcoin extends Bitcoin {
     return payjoin.buildV2PjStr(
       amount: amount,
       address: address,
-      network: isTestnet ? payjoin.testnet : payjoin.mainnet,
+      isTestnet: isTestnet,
       expireAfter: expireAfter,
     );
   }
@@ -752,13 +752,28 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<Sender> buildPayjoinRequest(Object wallet, int fee,
+  Future<String> getTxIdFromPsbt(String psbtBase64) {
+    return payjoin.getTxIdFromPsbt(psbtBase64);
+  }
+
+  @override
+  Future<String> buildOriginalPsbt(Object wallet, int fee,
       double amount, Object credentials) {
-    return payjoin.buildPayjoinRequest(
+    return payjoin.buildOriginalPsbt(
       wallet,
       fee,
       amount,
       credentials,
+    );
+  }
+
+  @override
+  Future<Sender> buildPayjoinRequest(
+      String originalPsbt, dynamic pjUri, int fee) {
+    return payjoin.buildPayjoinRequest(
+      originalPsbt,
+      pjUri,
+      fee,
     );
   }
 
@@ -769,12 +784,11 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<PendingBitcoinTransaction> extractPjTx(
-      Object wallet, String psbtString, Object credentials, dynamic pjUri) {
+      Object wallet, String psbtString, Object credentials) {
     return payjoin.extractPjTx(
       wallet,
       psbtString,
-      credentials,
-      pjUri
+      credentials
     );
   }
 }

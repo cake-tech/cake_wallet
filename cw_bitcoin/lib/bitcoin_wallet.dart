@@ -423,12 +423,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
   }
 
-  Future<PendingBitcoinTransaction> psbtToPendingTx(
-      String preProcessedPsbt,
-      Object credentials,
-      dynamic pjUri,
-      ) async {
-
+  Future<PendingBitcoinTransaction> psbtToPendingTx(String preProcessedPsbt, Object credentials) async {
     final unspent = unspentCoins.where((e) => (e.isSending || !e.isFrozen));
 
     List<UtxoWithPrivateKey> utxos = [];
@@ -500,7 +495,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     psbt.finalizeV0();
 
-    final btcTx = BtcTransaction.fromRaw(hex.encode(psbt.extract()));
+    final btcTx = BtcTransaction.fromRaw(BytesUtils.toHexString(psbt.extract()));
 
     return PendingBitcoinTransaction(
       btcTx,
