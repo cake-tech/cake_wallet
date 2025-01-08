@@ -752,11 +752,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<String> getTxIdFromPsbt(String psbtBase64) {
-    return payjoin.getTxIdFromPsbt(psbtBase64);
-  }
-
-  @override
   Future<Sender> buildPayjoinRequest(Object wallet, int fee,
       double amount, Object credentials) {
     return payjoin.buildPayjoinRequest(
