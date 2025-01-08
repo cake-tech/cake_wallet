@@ -113,26 +113,29 @@ class CWBitcoin extends Bitcoin {
     required TransactionPriority priority,
     int? feeRate,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+    String? payjoinUri,
   }) {
     final bitcoinFeeRate =
-        priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
+        priority == BitcoinTransactionPriority.custom && feeRate != null
+            ? feeRate
+            : null;
     return BitcoinTransactionCredentials(
-      outputs
-          .map((out) => OutputInfo(
-              fiatAmount: out.fiatAmount,
-              cryptoAmount: out.cryptoAmount,
-              address: out.address,
-              note: out.note,
-              sendAll: out.sendAll,
-              extractedAddress: out.extractedAddress,
-              isParsedAddress: out.isParsedAddress,
-              formattedCryptoAmount: out.formattedCryptoAmount,
-              memo: out.memo))
-          .toList(),
-      priority: priority as BitcoinTransactionPriority,
-      feeRate: bitcoinFeeRate,
-      coinTypeToSpendFrom: coinTypeToSpendFrom,
-    );
+        outputs
+            .map((out) => OutputInfo(
+                fiatAmount: out.fiatAmount,
+                cryptoAmount: out.cryptoAmount,
+                address: out.address,
+                note: out.note,
+                sendAll: out.sendAll,
+                extractedAddress: out.extractedAddress,
+                isParsedAddress: out.isParsedAddress,
+                formattedCryptoAmount: out.formattedCryptoAmount,
+                memo: out.memo))
+            .toList(),
+        priority: priority as BitcoinTransactionPriority,
+        feeRate: bitcoinFeeRate,
+        coinTypeToSpendFrom: coinTypeToSpendFrom,
+        payjoinUri: payjoinUri);
   }
 
   @override
@@ -756,30 +759,13 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<Uri?> stringToPjUri(String pj) {
-    return payjoin.stringToPjUri(pj);
-  }
-
-  @override
-  Future<String> buildOriginalPsbt(Object wallet, dynamic pjUri, int fee,
+  Future<Sender> buildPayjoinRequest(Object wallet, int fee,
       double amount, Object credentials) {
-    return payjoin.buildOriginalPsbt(
+    return payjoin.buildPayjoinRequest(
       wallet,
-      pjUri,
       fee,
       amount,
-      isTestnet(wallet),
       credentials,
-    );
-  }
-
-  @override
-  Future<Sender> buildPayjoinRequest(
-      String originalPsbt, dynamic pjUri, int fee) {
-    return payjoin.buildPayjoinRequest(
-      originalPsbt,
-      pjUri,
-      fee,
     );
   }
 

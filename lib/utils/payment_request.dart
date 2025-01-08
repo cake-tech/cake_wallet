@@ -9,9 +9,9 @@ class PaymentRequest {
     var amount = "";
     var note = "";
     var scheme = "";
-    var pjUri = "";
     String? callbackUrl;
     String? callbackMessage;
+    String? pjUri;
 
     if (uri != null) {
       if (uri.queryParameters['pj'] != null) {
@@ -60,7 +60,7 @@ class PaymentRequest {
   final String amount;
   final String note;
   final String scheme;
-  final String pjUri;
+  final String? pjUri;
   final String? callbackUrl;
   final String? callbackMessage;
 }

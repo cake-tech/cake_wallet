@@ -542,6 +542,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           priority: priority!,
           feeRate: customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
+          payjoinUri: pjUri,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
@@ -806,15 +807,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @observable
-  dynamic pjUri;
-
-  @action
-  Future<void> stringToPjUri() async {
-    debugPrint('[+] SENDVIEWMODEL => stringToPjUri()');
-    final address = outputs.first.address;
-    final uri = await bitcoin!.stringToPjUri(address);
-    pjUri = uri;
-  }
+  String? pjUri;
 
   @action
   Future<void> performPayjoinSend() async {
@@ -825,38 +818,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     final feeRate = bitcoin!
         .getFeeRate(wallet, credentials.priority as TransactionPriority);
 
-    print(
-        '[+] SendVM || performPjSend => amountToSend: $amountToSend feeRate: $feeRate, pjUri: $pjUri');
-
-    // Build the original PSBT for the Payjoin transaction
-    final originalPsbt = await bitcoin!.buildOriginalPsbt(
+    // Build the Payjoin request context from the original PSBT
+    final request = await bitcoin!.buildPayjoinRequest(
       wallet,
-      pjUri,
       feeRate,
       double.parse(amountToSend!),
       credentials,
     );
 
-    print('[+] SendVM || performPjSend => originalPsbt: $originalPsbt');
-
-    // Build the Payjoin request context from the original PSBT
-    final request = await bitcoin!.buildPayjoinRequest(
-      originalPsbt,
-      pjUri,
-      feeRate,
-    );
-
     // Request and keep polling the payjoin directory for the proposal
-    //  from the receiver
-    String psbt = originalPsbt;
-
-    try {
-      psbt = await bitcoin!.requestAndPollV2Proposal(
-        request,
-      );
-    } catch (e) {
-      rethrow;
-    }
+    // from the receiver
+    final psbt = await bitcoin!.requestAndPollV2Proposal(request);
 
     // If a proposal is received, finalize the payjoin
     final transaction = await bitcoin!.extractPjTx(
