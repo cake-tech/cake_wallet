@@ -11,6 +11,7 @@ import 'dart:math' as math;
 import 'package:convert/convert.dart';
 
 import 'package:crypto/crypto.dart';
+import 'package:tor/tor.dart' as tor;
 
 part 'node.g.dart';
 
@@ -277,15 +278,16 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestNodeWithProxy() async {
-    if (!isValidProxyAddress /* && !Tor.instance.enabled*/) {
+    if (!isValidProxyAddress && !tor.Tor.instance.enabled) {
       return false;
     }
 
     String? proxy = socksProxyAddress;
 
-    // if ((proxy?.isEmpty ?? true) && Tor.instance.enabled) {
-    //   proxy = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
-    // }
+    if ((proxy?.isEmpty ?? true) && tor.Tor.instance.enabled) {
+      proxy = "${InternetAddress.loopbackIPv4.address}:${tor.Tor.instance.port}";
+    }
+    printV("proxy: $proxy");
     if (proxy == null) {
       return false;
     }
