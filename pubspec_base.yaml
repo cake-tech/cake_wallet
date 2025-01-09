@@ -126,6 +126,10 @@ dependencies:
       url: https://github.com/MrCyjaneK/flutter_daemon
       ref: 6d5270d64b5dd588fce12fd0a0c7314c37e6cff1
   flutter_local_notifications: ^19.0.0
+  tor:
+    git:
+      url: https://github.com/Foundation-Devices/tor/
+      ref: d01450765029a4af436be1f6bf1a2d4400dea222
 
 dev_dependencies:
   flutter_test:
@@ -167,6 +171,10 @@ dependency_overrides:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
   web_socket_channel: ^3.0.2
+  tor:
+    git:
+      url: https://github.com/Foundation-Devices/tor/
+      ref: d01450765029a4af436be1f6bf1a2d4400dea222
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

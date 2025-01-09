@@ -31,10 +31,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/on_chain.git
       ref: cake-update-v2
-#  tor:
-#    git:
-#      url: https://github.com/cake-tech/tor.git
-#      ref: main
+  tor: any
 
 dev_dependencies:
   flutter_test:
