@@ -863,7 +863,15 @@ packages:
       sha256: "62ee18aca144e4a9f29d212f5a4c6a053be252b895ab14b5821996cff4ed90fe"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.1"
+  tor:
+    dependency: "direct main"
+    description:
+      name: tor
+      sha256: eeed80e5c912a1806c2f81825c12e84f4dc5a0b50aebedea59e3a8ba53df3142
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.8"
   tuple:
     dependency: transitive
     description:
