@@ -287,6 +287,9 @@ jobs:
         with:
           path: ${{ github.workspace }}/build/app/outputs/flutter-apk
 
+      - name: Enable KVM
+        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        run: chmod 777 /dev/kvm
       - name: Integration tests on Android Emulator
         if: ${{ contains(github.event.head_commit.message, 'run tests') }}
         uses: reactivecircus/android-emulator-runner@v2
@@ -297,7 +300,7 @@ jobs:
           avd-name: cake-tester-${{ matrix.api-level }}
           profile: pixel_7_pro
           force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -enable-kvm
           disable-animations: true
           script: |
             flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/confirm_seeds_flow_test.dart || exit 1
