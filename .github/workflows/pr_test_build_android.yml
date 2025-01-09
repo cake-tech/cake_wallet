@@ -300,5 +300,6 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
-            ./integration_test_runner.sh
-  
+            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/confirm_seeds_flow_test.dart || exit 1
+            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/restore_wallet_through_seeds_flow_test.dart || exit 1
+            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/transaction_history_flow_test.dart || exit 1

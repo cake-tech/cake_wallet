@@ -254,9 +254,9 @@ class CommonTestFlows {
 
     await _walletSeedPageRobot.onCopySeedsButtonPressed();
 
-    await _walletSeedPageRobot.onNextButtonPressed();
+    await _walletSeedPageRobot.onSeedPageVerifyButtonPressed();
 
-    await _walletSeedPageRobot.onConfirmButtonOnSeedAlertDialogPressed();
+    await _walletSeedPageRobot.onOpenWalletButtonPressed();
   }
 
   //* Main Restore Actions - On the RestoreFromSeed/Keys Page - Restore from Seeds Action
