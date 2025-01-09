@@ -80,9 +80,16 @@ String getSeedLegacy(String? language) {
 Map<int, Map<int, Map<int, String>>> addressCache = {};
 
 String getAddress({int accountIndex = 0, int addressIndex = 0}) {
-  
+
+  int count = 0;
+
   while (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex) - 1 < addressIndex) {
+    printV("adding subaddress");
     monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
+    if (count > 50) {
+      throw Exception("Failed to add subaddress");
+    }
+    count++;
   }
 
   addressCache[wptr!.address] ??= {};

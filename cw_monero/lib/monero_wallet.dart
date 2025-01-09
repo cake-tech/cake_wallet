@@ -162,8 +162,8 @@ abstract class MoneroWalletBase
     bool isMainThread = Isolate.current.debugName == "main";
     printV("isMainThread: $isMainThread");
 
-    // _autoSaveTimer =
-    //     Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
+    _autoSaveTimer =
+        Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
 
     // update transaction details after restore
     walletAddresses.subaddressList.update(accountIndex: walletAddresses.account?.id ?? 0);
@@ -203,34 +203,21 @@ abstract class MoneroWalletBase
 
   @override
   Future<void> startSync({bool isBackgroundSync = false}) async {
-    // if (isBackgroundSync) {
-    //   try {
-    //     syncStatus = AttemptingSyncStatus();
-    //     monero_wallet.startBackgroundSync();
-    //     isBackgroundSyncing = true;
-    //     _setListeners();
-    //     _listener?.start();
-    //     return;
-    //   } catch (e) {
-    //     isBackgroundSyncing = false;
-    //     syncStatus = FailedSyncStatus();
-    //     printV(e);
-    //     rethrow;
-    //   }
-    // }
-
     try {
       syncStatus = AttemptingSyncStatus();
-      // monero_wallet.startRefresh();
-      monero_wallet.setupBackgroundSync(
-        backgroundSyncType: 2,
-        walletPassword: password,
-        backgroundCachePassword: "testing-cache-password",
-      );
-      monero_wallet.startBackgroundSync();
       if (isBackgroundSync) {
+        monero_wallet.setupBackgroundSync(
+          backgroundSyncType: 2,
+          walletPassword: password,
+          backgroundCachePassword: "testing-cache-password",
+        );
+        monero_wallet.startBackgroundSync();
         isBackgroundSyncing = true;
+      } else {
+        monero_wallet.stopBackgroundSync(password);
+        isBackgroundSyncing = false;
       }
+      monero_wallet.startRefresh();
       _setListeners();
       _listener?.start();
     } catch (e) {
