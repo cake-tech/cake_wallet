@@ -11,7 +11,6 @@ import 'package:cw_bitcoin/psbt_finalizer_v0.dart';
 import 'package:cw_bitcoin/psbt_signer.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_bitcoin/psbt_v0_deserialize.dart';
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
@@ -416,6 +415,22 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         publicKeys: estimatedTx.publicKeys,
       );
 
+      transaction.psbt.signWithUTXO(
+          estimatedTx.utxos
+              .map((e) =>
+                  UtxoWithPrivateKey.fromUtxo(e, estimatedTx.inputPrivKeyInfos))
+              .toList(), (txDigest, utxo, key, sighash) {
+        if (utxo.utxo.isP2tr()) {
+          return key.signTapRoot(
+            txDigest,
+            sighash: sighash,
+            tweak: utxo.utxo.isSilentPayment != true,
+          );
+        } else {
+          return key.signInput(txDigest, sigHash: sighash);
+        }
+      });
+
       return transaction.psbt;
     } catch (e, st) {
       print('[!] ElectrumWallet || e: $e and st: $st');
@@ -429,41 +444,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     List<UtxoWithPrivateKey> utxos = [];
 
     for (BitcoinUnspent input in unspent) {
-      final address = RegexUtils.addressTypeFromStr(input.address, BitcoinNetwork.mainnet);
-
-      final newHd = input.bitcoinAddressRecord.isHidden
-          ? sideHd
-          : hd;
-
-      ECPrivate privkey;
-      if (input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
-        final unspentAddress = input.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
-        privkey = walletAddresses.silentAddress!.b_spend.tweakAdd(
-          BigintUtils.fromBytes(
-            BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!),
-          ),
-        );
-      } else {
-        privkey =
-            generateECPrivate(hd: newHd, index: input.bitcoinAddressRecord.index, network: BitcoinNetwork.mainnet);
-      }
-
-      utxos.add(
-        UtxoWithPrivateKey(
-            utxo: BitcoinUtxo(
-              txHash: input.hash,
-              value: BigInt.from(input.value),
-              vout: input.vout,
-              scriptType: input.bitcoinAddressRecord.type,
-              isSilentPayment: input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord,
-            ),
-            ownerDetails: UtxoAddressDetails(
-              publicKey: newHd.publicKey.toHex(),
-              address: address,
-            ),
-            privateKey: privkey
-        ),
-      );
+      utxos.add(UtxoWithPrivateKey.fromUnspent(input, this));
     }
 
     final psbt = PsbtV2()..deserializeV0(base64.decode(preProcessedPsbt));
@@ -497,6 +478,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     final btcTx = BtcTransaction.fromRaw(BytesUtils.toHexString(psbt.extract()));
 
+    // utxos.where((e) => unsignedTx.contains(e.utxo.txHash)).toList().first.public().verifyTransaactionSignature(BytesUtils.fromHexString("58813baba61d14d2b0101ce2471a813debaf66100fcc26cd907ce2e01a165dae"), BytesUtils.fromHexString("304402203f6f262fb711920994c04d004b20a86e86be1ea3238e7b5b961756649883469d022058ba037532f6b62977e5e1ed0c1198fff4c1a4837304efe86f8b4efa635b94b101"))
     return PendingBitcoinTransaction(
       btcTx,
       type,

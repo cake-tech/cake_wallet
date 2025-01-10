@@ -720,7 +720,7 @@ abstract class WalletAddressListViewModelBase
         '[+] wallet_address_list_view_model.dart || buildV2PjStr() => satsAmount: $satsAmount');
 
     try {
-      final expireAfter = BigInt.from(60 * 5); // 5 minutes
+      final expireAfter = BigInt.from(60 * 30); // 30 minutes
 
       final res = await bitcoin!.buildV2PjStr(
         amount: satsAmount,
