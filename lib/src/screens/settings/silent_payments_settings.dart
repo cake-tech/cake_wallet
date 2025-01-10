@@ -37,13 +37,6 @@ class SilentPaymentsSettingsPage extends BasePage {
                   _silentPaymentsSettingsViewModel.setSilentPaymentsAlwaysScan(value);
                 },
               ),
-              SettingsSwitcherCell(
-                title: S.current.silent_payments_register_key,
-                value: _silentPaymentsSettingsViewModel.silentPaymentsKeyRegistered,
-                onValueChange: (_, bool value) {
-                  _silentPaymentsSettingsViewModel.registerSilentPaymentsKey(value);
-                },
-              ),
               SettingsCellWithArrow(
                 title: S.current.silent_payments_scanning,
                 handler: (BuildContext context) => Navigator.of(context).pushNamed(Routes.rescan),

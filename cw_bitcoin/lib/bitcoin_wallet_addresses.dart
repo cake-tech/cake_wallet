@@ -36,7 +36,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   List<BitcoinSilentPaymentAddressRecord> get usableSilentPaymentAddresses => silentPaymentAddresses
       .where((addressRecord) =>
-          addressRecord.type != SegwitAddresType.p2tr &&
+          addressRecord.type != SegwitAddressType.p2tr &&
           addressRecord.derivationPath == BitcoinDerivationPaths.SILENT_PAYMENTS_SPEND)
       .toList();
 
@@ -48,13 +48,13 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   @override
   Future<void> init() async {
-    await generateInitialAddresses(type: SegwitAddresType.p2wpkh);
+    await generateInitialAddresses(type: SegwitAddressType.p2wpkh);
 
     if (!isHardwareWallet) {
       await generateInitialAddresses(type: P2pkhAddressType.p2pkh);
       await generateInitialAddresses(type: P2shAddressType.p2wpkhInP2sh);
-      await generateInitialAddresses(type: SegwitAddresType.p2tr);
-      await generateInitialAddresses(type: SegwitAddresType.p2wsh);
+      await generateInitialAddresses(type: SegwitAddressType.p2tr);
+      await generateInitialAddresses(type: SegwitAddressType.p2wsh);
     }
 
     if (silentPaymentAddresses.length == 0) {
@@ -187,13 +187,13 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     //   switch (addressType) {
     //     case P2pkhAddressType.p2pkh:
     //       return ECPublic.fromBip32(pub).toP2pkhAddress();
-    //     case SegwitAddresType.p2tr:
+    //     case SegwitAddressType.p2tr:
     //       return ECPublic.fromBip32(pub).toP2trAddress();
-    //     case SegwitAddresType.p2wsh:
+    //     case SegwitAddressType.p2wsh:
     //       return ECPublic.fromBip32(pub).toP2wshAddress();
     //     case P2shAddressType.p2wpkhInP2sh:
     //       return ECPublic.fromBip32(pub).toP2wpkhInP2sh();
-    //     case SegwitAddresType.p2wpkh:
+    //     case SegwitAddressType.p2wpkh:
     //       return ECPublic.fromBip32(pub).toP2wpkhAddress();
     //     default:
     //       throw ArgumentError('Invalid address type');
@@ -208,14 +208,14 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
           isChange: isChange,
           index: index,
         );
-      case SegwitAddresType.p2tr:
+      case SegwitAddressType.p2tr:
         return P2trAddress.fromDerivation(
           bip32: hdWallet,
           derivationInfo: derivationInfo,
           isChange: isChange,
           index: index,
         );
-      case SegwitAddresType.p2wsh:
+      case SegwitAddressType.p2wsh:
         return P2wshAddress.fromDerivation(
           bip32: hdWallet,
           derivationInfo: derivationInfo,
@@ -230,7 +230,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
           index: index,
           type: P2shAddressType.p2wpkhInP2sh,
         );
-      case SegwitAddresType.p2wpkh:
+      case SegwitAddressType.p2wpkh:
         return P2wpkhAddress.fromDerivation(
           bip32: hdWallet,
           derivationInfo: derivationInfo,

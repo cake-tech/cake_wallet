@@ -909,9 +909,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
-          return utx.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+          return utx.bitcoinAddressRecord.type == SegwitAddressType.mweb;
         case UnspentCoinType.nonMweb:
-          return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+          return utx.bitcoinAddressRecord.type != SegwitAddressType.mweb;
         case UnspentCoinType.any:
           return true;
       }
@@ -919,7 +919,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
 
     // sort the unconfirmed coins so that mweb coins are first:
-    availableInputs.sort((a, b) => a.bitcoinAddressRecord.type == SegwitAddresType.mweb ? -1 : 1);
+    availableInputs.sort((a, b) => a.bitcoinAddressRecord.type == SegwitAddressType.mweb ? -1 : 1);
 
     for (int i = 0; i < availableInputs.length; i++) {
       final utx = availableInputs[i];
@@ -946,7 +946,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       String pubKeyHex;
 
       if (privkey != null) {
-        inputPrivKeyInfos.add(ECPrivateInfo(privkey, address.type == SegwitAddresType.p2tr));
+        inputPrivKeyInfos.add(ECPrivateInfo(privkey, address.type == SegwitAddressType.p2tr));
 
         pubKeyHex = privkey.getPublic().toHex();
       } else {
@@ -1191,9 +1191,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     String? memo,
     required int feeRate,
   }) async {
-    final spendsMweb = utxos.any((utxo) => utxo.utxo.scriptType == SegwitAddresType.mweb);
+    final spendsMweb = utxos.any((utxo) => utxo.utxo.scriptType == SegwitAddressType.mweb);
     final paysToMweb = outputs
-        .any((output) => output.toOutput.scriptPubKey.getAddressType() == SegwitAddresType.mweb);
+        .any((output) => output.toOutput.scriptPubKey.getAddressType() == SegwitAddressType.mweb);
     if (!spendsMweb && !paysToMweb) {
       return super.calcFee(utxos: utxos, outputs: outputs, memo: memo, feeRate: feeRate);
     }
@@ -1360,7 +1360,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
               throw Exception(error);
             }
 
-            if (utxo.utxo.isP2tr()) {
+            if (utxo.utxo.isP2tr) {
               hasTaprootInputs = true;
               return key.privkey.signTapRoot(txDigest, sighash: sighash);
             } else {
@@ -1437,7 +1437,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       // check if mweb inputs are used:
       for (final utxo in tx.utxos) {
-        if (utxo.utxo.scriptType == SegwitAddresType.mweb) {
+        if (utxo.utxo.scriptType == SegwitAddressType.mweb) {
           hasMwebInput = true;
         }
       }
@@ -1768,7 +1768,7 @@ class WalletSeedBytes {
     String mnemonic, [
     String? passphrase,
   ]) async {
-    List<int>? seedBytes = null;
+    late List<int> seedBytes;
     final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
 
     if (walletInfo.isRecovery) {
@@ -1801,18 +1801,6 @@ class WalletSeedBytes {
           }
         }
       }
-    }
-
-    switch (walletInfo.derivationInfo?.derivationType) {
-      case DerivationType.bip39:
-        seedBytes = await Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
-        hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-        break;
-      case DerivationType.electrum:
-      default:
-        seedBytes = await ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
-        hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-        break;
     }
 
     return WalletSeedBytes(seedBytes: seedBytes, hdWallets: hdWallets);

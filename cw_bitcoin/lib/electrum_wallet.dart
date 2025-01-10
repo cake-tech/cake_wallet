@@ -14,7 +14,6 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
@@ -466,7 +465,7 @@ abstract class ElectrumWalletBase
       String pubKeyHex;
 
       if (privkey != null) {
-        inputPrivKeyInfos.add(ECPrivateInfo(privkey, address.type == SegwitAddresType.p2tr));
+        inputPrivKeyInfos.add(ECPrivateInfo(privkey, address.type == SegwitAddressType.p2tr));
 
         pubKeyHex = privkey.getPublic().toHex();
       } else {
@@ -875,7 +874,7 @@ abstract class ElectrumWalletBase
           throw Exception(error);
         }
 
-        if (utxo.utxo.isP2tr()) {
+        if (utxo.utxo.isP2tr) {
           hasTaprootInputs = true;
           return key.privkey.signTapRoot(txDigest, sighash: sighash);
         } else {
@@ -928,7 +927,7 @@ abstract class ElectrumWalletBase
         'passphrase': passphrase ?? '',
         'walletAddresses': walletAddresses.toJson(),
         'address_page_type': walletInfo.addressPageType == null
-            ? SegwitAddresType.p2wpkh.toString()
+            ? SegwitAddressType.p2wpkh.toString()
             : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
         'derivationTypeIndex': walletInfo.derivationInfo?.derivationType?.index,
@@ -1018,16 +1017,16 @@ abstract class ElectrumWalletBase
         case P2shAddressType.p2pkInP2sh:
           address = fakePublicKey.toP2pkhInP2sh();
           break;
-        case SegwitAddresType.p2wpkh:
+        case SegwitAddressType.p2wpkh:
           address = fakePublicKey.toP2wpkhAddress();
           break;
         case P2shAddressType.p2pkhInP2sh:
           address = fakePublicKey.toP2pkhInP2sh();
           break;
-        case SegwitAddresType.p2wsh:
+        case SegwitAddressType.p2wsh:
           address = fakePublicKey.toP2wshAddress();
           break;
-        case SegwitAddresType.p2tr:
+        case SegwitAddressType.p2tr:
           address = fakePublicKey.toTaprootAddress();
           break;
         default:
@@ -1601,7 +1600,7 @@ abstract class ElectrumWalletBase
           throw Exception("Cannot find private key");
         }
 
-        if (utxo.utxo.isP2tr()) {
+        if (utxo.utxo.isP2tr) {
           return key.signTapRoot(txDigest, sighash: sighash);
         } else {
           return key.signInput(txDigest, sigHash: sighash);

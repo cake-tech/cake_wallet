@@ -6,14 +6,14 @@ class ElectrumWorkerScripthashesSubscribeRequest implements ElectrumWorkerReques
     this.id,
   });
 
-  final Map<String, String> scripthashByAddress;
+  final Map<String, dynamic> scripthashByAddress;
   final int? id;
 
   @override
   final String method = ElectrumRequestMethods.scriptHashSubscribe.method;
 
   @override
-  factory ElectrumWorkerScripthashesSubscribeRequest.fromJson(Map<String, dynamic> json) {
+  factory ElectrumWorkerScripthashesSubscribeRequest.fromJson(Map<dynamic, dynamic> json) {
     return ElectrumWorkerScripthashesSubscribeRequest(
       scripthashByAddress: json['scripthashes'] as Map<String, String>,
       id: json['id'] as int?,
@@ -37,7 +37,7 @@ class ElectrumWorkerScripthashesSubscribeError extends ElectrumWorkerErrorRespon
 }
 
 class ElectrumWorkerScripthashesSubscribeResponse
-    extends ElectrumWorkerResponse<Map<String, String>?, Map<String, String>?> {
+    extends ElectrumWorkerResponse<Map<String, dynamic>?, Map<String, dynamic>?> {
   ElectrumWorkerScripthashesSubscribeResponse({
     required super.result,
     super.error,
@@ -45,14 +45,14 @@ class ElectrumWorkerScripthashesSubscribeResponse
   }) : super(method: ElectrumRequestMethods.scriptHashSubscribe.method);
 
   @override
-  Map<String, String>? resultJson(result) {
+  Map<String, dynamic>? resultJson(result) {
     return result;
   }
 
   @override
   factory ElectrumWorkerScripthashesSubscribeResponse.fromJson(Map<String, dynamic> json) {
     return ElectrumWorkerScripthashesSubscribeResponse(
-      result: json['result'] as Map<String, String>?,
+      result: json['result'] as Map<String, dynamic>?,
       error: json['error'] as String?,
       id: json['id'] as int?,
     );

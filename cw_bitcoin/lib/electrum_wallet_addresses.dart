@@ -36,7 +36,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         _addressPageType = initialAddressPageType ??
             (walletInfo.addressPageType != null
                 ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
-                : SegwitAddresType.p2wpkh),
+                : SegwitAddressType.p2wpkh),
         super(walletInfo) {
     updateAddressesOnReceiveScreen();
   }
@@ -75,7 +75,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @observable
-  BitcoinAddressType changeAddressType = SegwitAddresType.p2wpkh;
+  BitcoinAddressType changeAddressType = SegwitAddressType.p2wpkh;
 
   @override
   @computed
@@ -324,7 +324,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     for (final derivationType in hdWallets.keys) {
       // p2wpkh has always had the right derivations, skip if creating old derivations
-      if (OLD_DERIVATION_TYPES.contains(derivationType) && type == SegwitAddresType.p2wpkh) {
+      if (OLD_DERIVATION_TYPES.contains(derivationType) && type == SegwitAddressType.p2wpkh) {
         continue;
       }
 

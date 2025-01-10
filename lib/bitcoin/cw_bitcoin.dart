@@ -240,9 +240,9 @@ class CWBitcoin extends Bitcoin {
     return bitcoinWallet.unspentCoins.where((element) {
       switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
-          return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+          return element.bitcoinAddressRecord.type == SegwitAddressType.mweb;
         case UnspentCoinType.nonMweb:
-          return element.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+          return element.bitcoinAddressRecord.type != SegwitAddressType.mweb;
         case UnspentCoinType.any:
           return true;
       }
@@ -345,14 +345,14 @@ class CWBitcoin extends Bitcoin {
       case BitcoinReceivePageOption.p2sh:
         return P2shAddressType.p2wpkhInP2sh;
       case BitcoinReceivePageOption.p2tr:
-        return SegwitAddresType.p2tr;
+        return SegwitAddressType.p2tr;
       case BitcoinReceivePageOption.p2wsh:
-        return SegwitAddresType.p2wsh;
+        return SegwitAddressType.p2wsh;
       case BitcoinReceivePageOption.mweb:
-        return SegwitAddresType.mweb;
+        return SegwitAddressType.mweb;
       case BitcoinReceivePageOption.p2wpkh:
       default:
-        return SegwitAddresType.p2wpkh;
+        return SegwitAddressType.p2wpkh;
     }
   }
 
@@ -573,7 +573,7 @@ class CWBitcoin extends Bitcoin {
       {int index = 0, int limit = 5}) async {
     final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.connection);
     try {
-      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+      return hardwareWalletService.getAvailableAccounts(account: index, limit: limit);
     } catch (err) {
       printV(err);
       throw err;
@@ -585,7 +585,7 @@ class CWBitcoin extends Bitcoin {
       {int index = 0, int limit = 5}) async {
     final hardwareWalletService = LitecoinHardwareWalletService(ledgerVM.connection);
     try {
-      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
+      return hardwareWalletService.getAvailableAccounts(account: index, limit: limit);
     } catch (err) {
       printV(err);
       throw err;
@@ -793,7 +793,7 @@ class CWBitcoin extends Bitcoin {
     try {
       final electrumWallet = wallet as ElectrumWallet;
       final segwitAddress = electrumWallet.walletAddresses.allAddresses
-          .firstWhere((element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh);
+          .firstWhere((element) => !element.isUsed && element.type == SegwitAddressType.p2wpkh);
       return segwitAddress.address;
     } catch (_) {
       return null;

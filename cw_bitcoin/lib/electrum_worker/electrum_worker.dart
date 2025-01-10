@@ -20,13 +20,13 @@ import 'package:sp_scanner/sp_scanner.dart';
 
 class ElectrumWorker {
   final SendPort sendPort;
-  ElectrumApiProvider? _electrumClient;
+  ElectrumProvider? _electrumClient;
   BehaviorSubject<Map<String, dynamic>>? _scanningStream;
 
   BasedUtxoNetwork? _network;
   WalletType? _walletType;
 
-  ElectrumWorker._(this.sendPort, {ElectrumApiProvider? electrumClient})
+  ElectrumWorker._(this.sendPort, {ElectrumProvider? electrumClient})
       : _electrumClient = electrumClient;
 
   static void run(SendPort sendPort) {
@@ -136,7 +136,7 @@ class ElectrumWorker {
     _walletType = request.walletType;
 
     try {
-      _electrumClient = await ElectrumApiProvider.connect(
+      _electrumClient = await ElectrumProvider.connect(
         request.useSSL
             ? ElectrumSSLService.connect(
                 request.uri,
@@ -161,7 +161,7 @@ class ElectrumWorker {
   }
 
   Future<void> _handleHeadersSubscribe(ElectrumWorkerHeadersSubscribeRequest request) async {
-    final req = ElectrumHeaderSubscribe();
+    final req = ElectrumRequestHeaderSubscribe();
 
     final stream = _electrumClient!.subscribe(req);
     if (stream == null) {
@@ -184,9 +184,9 @@ class ElectrumWorker {
   ) async {
     await Future.wait(request.scripthashByAddress.entries.map((entry) async {
       final address = entry.key;
-      final scripthash = entry.value;
+      final scripthash = entry.value.toString();
 
-      final req = ElectrumScriptHashSubscribe(scriptHash: scripthash);
+      final req = ElectrumRequestScriptHashSubscribe(scriptHash: scripthash);
 
       final stream = await _electrumClient!.subscribe(req);
 
@@ -221,7 +221,7 @@ class ElectrumWorker {
         return;
       }
 
-      final history = await _electrumClient!.request(ElectrumScriptHashGetHistory(
+      final history = await _electrumClient!.request(ElectrumRequestScriptHashGetHistory(
         scriptHash: addressRecord.scriptHash,
       ));
 
@@ -326,7 +326,7 @@ class ElectrumWorker {
       }
 
       final balanceFuture = _electrumClient!.request(
-        ElectrumGetScriptHashBalance(scriptHash: scripthash),
+        ElectrumRequestGetScriptHashBalance(scriptHash: scripthash),
       );
       balanceFutures.add(balanceFuture);
     }
@@ -365,7 +365,7 @@ class ElectrumWorker {
 
       final scriptHashUnspents = await _electrumClient!
           .request(
-            ElectrumScriptHashListUnspent(scriptHash: scriptHash),
+            ElectrumRequestScriptHashListUnspent(scriptHash: scriptHash),
           )
           .timeout(const Duration(seconds: 3));
 
@@ -380,7 +380,7 @@ class ElectrumWorker {
   Future<void> _handleBroadcast(ElectrumWorkerBroadcastRequest request) async {
     final rpcId = _electrumClient!.id + 1;
     final txHash = await _electrumClient!.request(
-      ElectrumBroadCastTransaction(transactionRaw: request.transactionRaw),
+      ElectrumRequestBroadCastTransaction(transactionRaw: request.transactionRaw),
     );
 
     if (txHash == null) {
@@ -417,7 +417,7 @@ class ElectrumWorker {
     bool? isDateValidated;
 
     final transactionVerbose = await _electrumClient!.request(
-      ElectrumGetTransactionVerbose(transactionHash: hash),
+      ElectrumRequestGetTransactionVerbose(transactionHash: hash),
     );
     String transactionHex;
 
@@ -427,7 +427,7 @@ class ElectrumWorker {
       confirmations = transactionVerbose['confirmations'] as int?;
     } else {
       transactionHex = await _electrumClient!.request(
-        ElectrumGetTransactionHex(transactionHash: hash),
+        ElectrumRequestGetTransactionHex(transactionHash: hash),
       );
 
       if (getTime && _walletType == WalletType.bitcoin) {
@@ -456,7 +456,7 @@ class ElectrumWorker {
     for (final vin in original.inputs) {
       final inputTransactionHex = await _electrumClient!.request(
         // TODO: _getTXHex
-        ElectrumGetTransactionHex(transactionHash: vin.txId),
+        ElectrumRequestGetTransactionHex(transactionHash: vin.txId),
       );
 
       ins.add(BtcTransaction.fromRaw(inputTransactionHex));
@@ -552,7 +552,7 @@ class ElectrumWorker {
     var scanningClient = _electrumClient;
 
     if (scanData.shouldSwitchNodes) {
-      scanningClient = await ElectrumApiProvider.connect(
+      scanningClient = await ElectrumProvider.connect(
         ElectrumTCPService.connect(
           // TODO: ssl
           Uri.parse("tcp://electrs.cakewallet.com:50001"),
@@ -763,7 +763,7 @@ class ElectrumWorker {
     _sendResponse(
       ElectrumWorkerGetVersionResponse(
         result: await _electrumClient!.request(
-          ElectrumVersion(
+          ElectrumRequestVersion(
             clientName: "",
             protocolVersion: "1.4",
           ),
@@ -772,137 +772,6 @@ class ElectrumWorker {
       ),
     );
   }
-}
-
-Future<void> delegatedScan(ScanData scanData) async {
-  // int syncHeight = scanData.height;
-  // int initialSyncHeight = syncHeight;
-
-  // BehaviorSubject<Object>? tweaksSubscription = null;
-
-  // final electrumClient = scanData.electrumClient;
-  // await electrumClient.connectToUri(
-  //   scanData.node?.uri ?? Uri.parse("tcp://electrs.cakewallet.com:50001"),
-  //   useSSL: scanData.node?.useSSL ?? false,
-  // );
-
-  // if (tweaksSubscription == null) {
-  //   scanData.sendPort.send(SyncResponse(syncHeight, StartingScanSyncStatus(syncHeight)));
-
-  //   tweaksSubscription = await electrumClient.tweaksScan(
-  //     pubSpendKey: scanData.silentAddress.B_spend.toHex(),
-  //   );
-
-  //   Future<void> listenFn(t) async {
-  //     final tweaks = t as Map<String, dynamic>;
-  //     final msg = tweaks["message"];
-
-  //     // success or error msg
-  //     final noData = msg != null;
-  //     if (noData) {
-  //       return;
-  //     }
-
-  //     // Continuous status UI update, send how many blocks left to scan
-  //     final syncingStatus = scanData.isSingleScan
-  //         ? SyncingSyncStatus(1, 0)
-  //         : SyncingSyncStatus.fromHeightValues(scanData.chainTip, initialSyncHeight, syncHeight);
-  //     scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
-
-  //     final blockHeight = tweaks.keys.first;
-  //     final tweakHeight = int.parse(blockHeight);
-
-  //     try {
-  //       final blockTweaks = tweaks[blockHeight] as Map<String, dynamic>;
-
-  //       for (var j = 0; j < blockTweaks.keys.length; j++) {
-  //         final txid = blockTweaks.keys.elementAt(j);
-  //         final details = blockTweaks[txid] as Map<String, dynamic>;
-  //         final outputPubkeys = (details["output_pubkeys"] as Map<dynamic, dynamic>);
-  //         final spendingKey = details["spending_key"].toString();
-
-  //         try {
-  //           // placeholder ElectrumTransactionInfo object to update values based on new scanned unspent(s)
-  //           final txInfo = ElectrumTransactionInfo(
-  //             WalletType.bitcoin,
-  //             id: txid,
-  //             height: tweakHeight,
-  //             amount: 0,
-  //             fee: 0,
-  //             direction: TransactionDirection.incoming,
-  //             isPending: false,
-  //             isReplaced: false,
-  //             date: scanData.network == BitcoinNetwork.mainnet
-  //                 ? getDateByBitcoinHeight(tweakHeight)
-  //                 : DateTime.now(),
-  //             confirmations: scanData.chainTip - tweakHeight + 1,
-  //             unspents: [],
-  //             isReceivedSilentPayment: true,
-  //           );
-
-  //           outputPubkeys.forEach((pos, value) {
-  //             final secKey = ECPrivate.fromHex(spendingKey);
-  //             final receivingOutputAddress =
-  //                 secKey.getPublic().toTaprootAddress(tweak: false).toAddress(scanData.network);
-
-  //             late int amount;
-  //             try {
-  //               amount = int.parse(value[1].toString());
-  //             } catch (_) {
-  //               return;
-  //             }
-
-  //             final receivedAddressRecord = BitcoinReceivedSPAddressRecord(
-  //               receivingOutputAddress,
-  //               labelIndex: 0,
-  //               isUsed: true,
-  //               spendKey: secKey,
-  //               txCount: 1,
-  //               balance: amount,
-  //             );
-
-  //             final unspent = BitcoinUnspent(
-  //               receivedAddressRecord,
-  //               txid,
-  //               amount,
-  //               int.parse(pos.toString()),
-  //             );
-
-  //             txInfo.unspents!.add(unspent);
-  //             txInfo.amount += unspent.value;
-  //           });
-
-  //           scanData.sendPort.send({txInfo.id: txInfo});
-  //         } catch (_) {}
-  //       }
-  //     } catch (_) {}
-
-  //     syncHeight = tweakHeight;
-
-  //     if (tweakHeight >= scanData.chainTip || scanData.isSingleScan) {
-  //       if (tweakHeight >= scanData.chainTip)
-  //         scanData.sendPort.send(SyncResponse(
-  //           syncHeight,
-  //           SyncedTipSyncStatus(scanData.chainTip),
-  //         ));
-
-  //       if (scanData.isSingleScan) {
-  //         scanData.sendPort.send(SyncResponse(syncHeight, SyncedSyncStatus()));
-  //       }
-
-  //       await tweaksSubscription!.close();
-  //       await electrumClient.close();
-  //     }
-  //   }
-
-  //   tweaksSubscription?.listen(listenFn);
-  // }
-
-  // if (tweaksSubscription == null) {
-  //   return scanData.sendPort.send(
-  //     SyncResponse(syncHeight, UnsupportedSyncStatus()),
-  //   );
-  // }
 }
 
 class ScanNode {

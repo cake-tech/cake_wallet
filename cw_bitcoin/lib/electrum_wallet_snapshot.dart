@@ -88,8 +88,8 @@ class ElectrumWalletSnapshot {
 
     final balance = ElectrumBalance.fromJSON(data['balance'] as String?) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
-    var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
-    var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
+    var regularAddressIndexByType = {SegwitAddressType.p2wpkh.toString(): 0};
+    var changeAddressIndexByType = {SegwitAddressType.p2wpkh.toString(): 0};
     var silentAddressIndex = 0;
 
     final derivationType = DerivationType
@@ -98,10 +98,10 @@ class ElectrumWalletSnapshot {
 
     try {
       regularAddressIndexByType = {
-        SegwitAddresType.p2wpkh.toString(): int.parse(data['account_index'] as String? ?? '0')
+        SegwitAddressType.p2wpkh.toString(): int.parse(data['account_index'] as String? ?? '0')
       };
       changeAddressIndexByType = {
-        SegwitAddresType.p2wpkh.toString():
+        SegwitAddressType.p2wpkh.toString():
             int.parse(data['change_address_index'] as String? ?? '0')
       };
       silentAddressIndex = int.parse(data['silent_address_index'] as String? ?? '0');

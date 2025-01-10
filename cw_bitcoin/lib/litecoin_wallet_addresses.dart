@@ -52,9 +52,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   Future<void> init() async {
     if (!super.isHardwareWallet) await initMwebAddresses();
 
-    await generateInitialAddresses(type: SegwitAddresType.p2wpkh);
+    await generateInitialAddresses(type: SegwitAddressType.p2wpkh);
     if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
-      await generateInitialAddresses(type: SegwitAddresType.mweb);
+      await generateInitialAddresses(type: SegwitAddressType.mweb);
     }
 
     await super.init();
@@ -87,7 +87,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         derivationInfo: derivationInfo,
       );
 
-      if (addressType == SegwitAddresType.mweb) {
+      if (addressType == SegwitAddressType.mweb) {
         final address = LitecoinMWEBAddressRecord(addressString, index: i);
         mwebAddresses.add(address);
       } else {
@@ -176,7 +176,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required BitcoinAddressType addressType,
     required BitcoinDerivationInfo derivationInfo,
   }) {
-    if (addressType == SegwitAddresType.mweb) {
+    if (addressType == SegwitAddressType.mweb) {
       return MwebAddress.fromAddress(address: mwebAddrs[isChange ? index + 1 : 0]);
     }
 
@@ -196,7 +196,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required BitcoinAddressType addressType,
     required BitcoinDerivationInfo derivationInfo,
   }) async {
-    if (addressType == SegwitAddresType.mweb) {
+    if (addressType == SegwitAddressType.mweb) {
       await ensureMwebAddressUpToIndexExists(index);
     }
 
@@ -268,7 +268,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   String get addressForExchange {
     // don't use mweb addresses for exchange refund address:
     final addresses = receiveAddresses
-        .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
+        .where((element) => element.type == SegwitAddressType.p2wpkh && !element.isUsed);
     return addresses.first.address;
   }
 

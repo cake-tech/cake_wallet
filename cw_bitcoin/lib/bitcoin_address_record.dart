@@ -109,7 +109,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       type: decoded['type'] != null && decoded['type'] != ''
           ? BitcoinAddressType.values
               .firstWhere((type) => type.toString() == decoded['type'] as String)
-          : SegwitAddresType.p2wpkh,
+          : SegwitAddressType.p2wpkh,
       scriptHash: decoded['scriptHash'] as String?,
     );
   }
@@ -220,7 +220,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
     super.name = '',
     super.isUsed = false,
     required this.tweak,
-    super.type = SegwitAddresType.p2tr,
+    super.type = SegwitAddressType.p2tr,
     super.labelHex,
   }) : super(isHidden: true);
 
@@ -285,7 +285,7 @@ class LitecoinMWEBAddressRecord extends BaseBitcoinAddressRecord {
     super.name = '',
     super.isUsed = false,
     BasedUtxoNetwork? network,
-    super.type = SegwitAddresType.mweb,
+    super.type = SegwitAddressType.mweb,
   });
 
   factory LitecoinMWEBAddressRecord.fromJSON(String jsonSource) {

@@ -125,16 +125,16 @@ import 'package:mobx/mobx.dart';
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
 const List<BitcoinAddressType> BITCOIN_ADDRESS_TYPES = [
-  SegwitAddresType.p2wpkh,
+  SegwitAddressType.p2wpkh,
   P2pkhAddressType.p2pkh,
-  SegwitAddresType.p2tr,
-  SegwitAddresType.p2wsh,
+  SegwitAddressType.p2tr,
+  SegwitAddressType.p2wsh,
   P2shAddressType.p2wpkhInP2sh,
 ];
 
 const List<BitcoinAddressType> LITECOIN_ADDRESS_TYPES = [
-  SegwitAddresType.p2wpkh,
-  SegwitAddresType.mweb,
+  SegwitAddressType.p2wpkh,
+  SegwitAddressType.mweb,
 ];
 
 const List<BitcoinAddressType> BITCOIN_CASH_ADDRESS_TYPES = [

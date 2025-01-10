@@ -820,7 +820,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
       if (paysToSilentPayment) {
         // Check inputs for shared secret derivation
-        if (utx.bitcoinAddressRecord.type == SegwitAddresType.p2wsh) {
+        if (utx.bitcoinAddressRecord.type == SegwitAddressType.p2wsh) {
           throw BitcoinTransactionSilentPaymentsNotSupported();
         }
       }
@@ -856,7 +856,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       if (privkey != null) {
         inputPrivKeyInfos.add(ECPrivateInfo(
           privkey,
-          address.type == SegwitAddresType.p2tr,
+          address.type == SegwitAddressType.p2tr,
           tweak: !isSilentPayment,
         ));
 
@@ -1289,7 +1289,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           throw Exception(error);
         }
 
-        if (utxo.utxo.isP2tr()) {
+        if (utxo.utxo.isP2tr) {
           hasTaprootInputs = true;
           return key.privkey.signTapRoot(
             txDigest,
@@ -1345,7 +1345,7 @@ class WalletSeedBytes {
     String mnemonic, [
     String? passphrase,
   ]) async {
-    List<int>? seedBytes = null;
+    late List<int> seedBytes;
     final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
 
     if (walletInfo.isRecovery) {
@@ -1386,18 +1386,6 @@ class WalletSeedBytes {
         hdWallets[CWBitcoinDerivationType.old_electrum] =
             hdWallets[CWBitcoinDerivationType.electrum]!;
       }
-    }
-
-    switch (walletInfo.derivationInfo?.derivationType) {
-      case DerivationType.bip39:
-        seedBytes = await Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
-        hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-        break;
-      case DerivationType.electrum:
-      default:
-        seedBytes = await ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
-        hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-        break;
     }
 
     return WalletSeedBytes(seedBytes: seedBytes, hdWallets: hdWallets);
