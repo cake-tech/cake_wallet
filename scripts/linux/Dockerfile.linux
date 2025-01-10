@@ -36,6 +36,7 @@ ENV ANDROID_SDK_ROOT=$ANDROID_HOME \
 RUN set -o xtrace \
     && cd /opt \
     && apt-get update \
+    && apt-get upgrade -y \
     && apt-get install -y jq \
     && apt-get install -y default-jdk \
     && apt-get install -y sudo wget zip unzip git openssh-client curl bc software-properties-common build-essential ruby-full ruby-bundler libstdc++6 libpulse0 libglu1-mesa locales lcov libsqlite3-dev --no-install-recommends \
@@ -49,7 +50,9 @@ RUN set -o xtrace \
     # monero_c dependencies
     && apt-get install -y ccache build-essential autoconf libtool gperf llvm \
     # extra stuff for KVM
-    && apt-get install -y udev \
+    && apt-get install -y udev qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils \
+    # for linux tests
+    && apt-get install -y xvfb \
     && rm -rf /var/lib/apt/lists/* \
     && sh -c 'echo "en_US.UTF-8 UTF-8" > /etc/locale.gen' \
     && locale-gen \
