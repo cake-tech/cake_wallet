@@ -15,6 +15,7 @@ jobs:
         KEY_PASS: test@cake_wallet
         MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
         BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        DESKTOP_FORCE_MOBILE: Y
       volumes:
         - /opt/cw_cache_linux/root/.cache:/root/.cache
         - /opt/cw_cache_linux/root/.ccache:/root/.ccache
@@ -201,3 +202,38 @@ jobs:
         uses: kittaakos/upload-artifact-as-is@v0
         with:
           path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
+      - name: Test [confirm_seeds_flow_test]
+        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        run: |
+          Xvfb :99 -screen 0 1920x1080x16 &
+          export DISPLAY=:99
+          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/confirm_seeds_flow_test.dart
+      - name: Test [create_wallet_flow_test]
+        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        run: |
+          Xvfb :99 -screen 0 1920x1080x16 &
+          export DISPLAY=:99
+          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/create_wallet_flow_test.dart
+      - name: Test [exchange_flow_test]
+        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        run: |
+          Xvfb :99 -screen 0 1920x1080x16 &
+          export DISPLAY=:99
+          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/exchange_flow_test.dart
+      - name: Test [restore_wallet_through_seeds_flow_test]
+        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        run: |
+          Xvfb :99 -screen 0 1920x1080x16 &
+          export DISPLAY=:99
+          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/restore_wallet_through_seeds_flow_test.dart
+      - name: Test [transaction_history_flow_test]
+        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        run: |
+          Xvfb :99 -screen 0 1920x1080x16 &
+          export DISPLAY=:99
+          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/transaction_history_flow_test.dart
