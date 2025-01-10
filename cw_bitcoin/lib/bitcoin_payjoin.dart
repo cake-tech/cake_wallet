@@ -3,16 +3,15 @@ import 'dart:io';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/psbt_extractor_v0.dart';
+import 'package:cw_bitcoin/psbt_finalizer_v0.dart';
 import 'package:cw_bitcoin/psbt_signer.dart';
 import 'package:cw_bitcoin/psbt_v0_deserialize.dart';
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -140,7 +139,7 @@ class BitcoinPayjoin {
     required UncheckedProposal proposal,
     required Object receiverWallet,
   }) async {
-    final bitcoinWallet = receiverWallet as ElectrumWallet;
+    final bitcoinWallet = receiverWallet as BitcoinWallet;
 
     final maybeInputsOwned = await proposal.assumeInteractiveReceiver();
 
@@ -160,7 +159,6 @@ class BitcoinPayjoin {
 
     var wantsInputs = await wantsOutputs.commitOutputs();
 
-    // final unspent = receiverWallet.listUnspent();
     final unspent = bitcoinWallet.unspentCoins.where((e) => (e.isSending || !e.isFrozen));
 
     List<InputPair> candidateInputs = [];
@@ -188,39 +186,7 @@ class BitcoinPayjoin {
 
       final ip = await InputPair.newInstance(txin, psbtin);
 
-      final hd = input.bitcoinAddressRecord.isHidden
-          ? bitcoinWallet.sideHd
-          : bitcoinWallet.hd;
-
-      ECPrivate privkey;
-      if (input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
-        final unspentAddress = input.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
-        privkey = bitcoinWallet.walletAddresses.silentAddress!.b_spend.tweakAdd(
-          BigintUtils.fromBytes(
-            BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!),
-          ),
-        );
-      } else {
-        privkey =
-            generateECPrivate(hd: hd, index: input.bitcoinAddressRecord.index, network: BitcoinNetwork.mainnet);
-      }
-
-      utxos.add(
-        UtxoWithPrivateKey(
-          utxo: BitcoinUtxo(
-            txHash: input.hash,
-            value: BigInt.from(input.value),
-            vout: input.vout,
-            scriptType: input.bitcoinAddressRecord.type,
-            isSilentPayment: input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord,
-          ),
-          ownerDetails: UtxoAddressDetails(
-            publicKey: hd.publicKey.toHex(),
-            address: address,
-          ),
-          privateKey: privkey
-        ),
-      );
+      utxos.add(UtxoWithPrivateKey.fromUnspent(input, bitcoinWallet));
       candidateInputs.add(ip);
     }
 
@@ -300,6 +266,8 @@ class BitcoinPayjoin {
     final psbtv2 = await bitcoinWallet.createPayjoinTransaction(
       credentials as BitcoinTransactionCredentials
     );
+
+    psbtv2.finalizeV0();
 
     final psbtv0 = base64Encode(psbtv2.asPsbtV0());
     debugPrint('[+] BITCOINPAYJOIN => buildOriginalPsbt - psbtv0: $psbtv0');

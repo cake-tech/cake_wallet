@@ -3,6 +3,10 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_bitcoin/utils.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 import 'package:ledger_bitcoin/src/utils/buffer_writer.dart';
 
@@ -162,4 +166,73 @@ class UtxoWithPrivateKey extends UtxoWithAddress {
     required super.ownerDetails,
     required this.privateKey,
   });
+
+  static UtxoWithPrivateKey fromUtxo(UtxoWithAddress input, List<ECPrivateInfo> inputPrivateKeyInfos) {
+
+    ECPrivateInfo? key;
+
+    if (inputPrivateKeyInfos.isEmpty) {
+      throw Exception("No private keys generated.");
+    } else {
+      key = inputPrivateKeyInfos.firstWhereOrNull((element) {
+        final elemPubkey = element.privkey.getPublic().toHex();
+        if (elemPubkey == input.public().toHex()) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    }
+
+    if (key == null) {
+      throw Exception("${input.utxo.txHash} No Key found");
+    }
+
+    return UtxoWithPrivateKey(
+      utxo: input.utxo,
+      ownerDetails: input.ownerDetails,
+      privateKey: key.privkey
+    );
+  }
+
+  static UtxoWithPrivateKey fromUnspent(BitcoinUnspent input, BitcoinWalletBase wallet) {
+    final address = RegexUtils.addressTypeFromStr(
+        input.address, BitcoinNetwork.mainnet);
+
+    final newHd = input.bitcoinAddressRecord.isHidden
+        ? wallet.sideHd
+        : wallet.hd;
+
+    ECPrivate privkey;
+    if (input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
+      final unspentAddress = input
+          .bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
+      privkey = wallet.walletAddresses.silentAddress!.b_spend.tweakAdd(
+        BigintUtils.fromBytes(
+          BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!),
+        ),
+      );
+    } else {
+      privkey =
+          generateECPrivate(hd: newHd,
+              index: input.bitcoinAddressRecord.index,
+              network: BitcoinNetwork.mainnet);
+    }
+
+    return UtxoWithPrivateKey(
+          utxo: BitcoinUtxo(
+            txHash: input.hash,
+            value: BigInt.from(input.value),
+            vout: input.vout,
+            scriptType: input.bitcoinAddressRecord.type,
+            isSilentPayment: input
+                .bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord,
+          ),
+          ownerDetails: UtxoAddressDetails(
+            publicKey: privkey.getPublic().toHex(),
+            address: address,
+          ),
+          privateKey: privkey
+      );
+  }
 }
