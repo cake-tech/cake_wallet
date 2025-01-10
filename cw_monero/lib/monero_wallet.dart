@@ -158,10 +158,7 @@ abstract class MoneroWalletBase
       }
     }
 
-    // TODO: this doesn't work, need to find a better way to check if we are on the main thread
-    bool isMainThread = Isolate.current.debugName == "main";
-    printV("isMainThread: $isMainThread");
-
+    _autoSaveTimer?.cancel();
     _autoSaveTimer =
         Timer.periodic(Duration(seconds: _autoSaveInterval), (_) async => await save());
 
@@ -275,6 +272,8 @@ abstract class MoneroWalletBase
       return;
     }
     monero_wallet.stopSync();
+    _autoSaveTimer?.cancel();
+    monero_wallet.closeCurrentWallet();
   }
 
   @override
@@ -737,13 +736,17 @@ abstract class MoneroWalletBase
       if (walletInfo.isRecovery) {
         await _askForUpdateTransactionHistory();
         _askForUpdateBalance();
-        walletAddresses.accountList.update();
+        if (!isBackgroundSyncing) {
+          walletAddresses.accountList.update();
+        }
       }
 
       if (blocksLeft < 100) {
         await _askForUpdateTransactionHistory();
         _askForUpdateBalance();
-        walletAddresses.accountList.update();
+        if (!isBackgroundSyncing) {
+          walletAddresses.accountList.update();
+        }
         syncStatus = SyncedSyncStatus();
 
         if (!_hasSyncAfterStartup) {

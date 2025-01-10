@@ -118,6 +118,22 @@ void setWalletNotification(FlutterLocalNotificationsPlugin flutterLocalNotificat
   );
 }
 
+AppLifecycleState appStateFromString(String state) {
+  switch (state) {
+    case "AppLifecycleState.paused":
+      return AppLifecycleState.paused;
+    case "AppLifecycleState.resumed":
+      return AppLifecycleState.resumed;
+    case "AppLifecycleState.hidden":
+      return AppLifecycleState.hidden;
+    case "AppLifecycleState.detached":
+      return AppLifecycleState.detached;
+    case "AppLifecycleState.inactive":
+      return AppLifecycleState.inactive;
+  }
+  throw Exception("unknown app state: $state");
+}
+
 @pragma("vm:entry-point")
 Future<void> onStart(ServiceInstance service) async {
   printV("BACKGROUND SERVICE STARTED");
@@ -125,10 +141,13 @@ Future<void> onStart(ServiceInstance service) async {
   Timer? _syncTimer;
   Timer? _stuckSyncTimer;
   Timer? _queueTimer;
+  Timer? _appStateTimer;
   List<WalletBase> syncingWallets = [];
   List<WalletBase> standbyWallets = [];
   Timer? _bgTimer;
-  int fgCount = 0;
+  AppLifecycleState lastAppState = AppLifecycleState.resumed;
+  final List<AppLifecycleState> lastAppStates = [];
+  String serviceState = "NOT_RUNNING";
 
   // commented because the behavior appears to be bugged:
   // DartPluginRegistrant.ensureInitialized();
@@ -136,8 +155,7 @@ Future<void> onStart(ServiceInstance service) async {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  service.on("stopService").listen((event) async {
-    printV("STOPPING BACKGROUND SERVICE");
+  Future<void> stopAllSyncing() async {
     _syncTimer?.cancel();
     _stuckSyncTimer?.cancel();
     _queueTimer?.cancel();
@@ -157,6 +175,11 @@ Future<void> onStart(ServiceInstance service) async {
     } catch (e) {
       printV("error stopping sync: $e");
     }
+  }
+
+  service.on("stopService").listen((event) async {
+    printV("STOPPING BACKGROUND SERVICE");
+    await stopAllSyncing();
     // stop the service itself:
     service.invoke("serviceState", {"state": "NOT_RUNNING"});
     await service.stopSelf();
@@ -166,36 +189,39 @@ Future<void> onStart(ServiceInstance service) async {
     printV(event);
   });
 
-  void setForeground() {
+  Future<void> setForeground() async {
+    serviceState = "FOREGROUND";
     bgSyncStarted = false;
-    _syncTimer?.cancel();
     setNotificationStandby(flutterLocalNotificationsPlugin);
   }
 
   service.on("setForeground").listen((event) async {
-    setForeground();
+    await setForeground();
     service.invoke("serviceState", {"state": "FOREGROUND"});
   });
 
   void setReady() {
-    setNotificationReady(flutterLocalNotificationsPlugin);
+    if (serviceState != "READY" && serviceState != "BACKGROUND") {
+      serviceState = "READY";
+      setNotificationReady(flutterLocalNotificationsPlugin);
+    }
   }
 
   service.on("setReady").listen((event) async {
     setReady();
-    service.invoke("serviceState", {"state": "READY"});
   });
 
-  service.on("foregroundPing").listen((event) async {
-    fgCount = 0;
+  service.on("appState").listen((event) async {
+    printV("APP STATE: ${event?["state"]}");
+    lastAppState = appStateFromString(event?["state"] as String);
   });
 
   // we have entered the background, start the sync:
   void setBackground() async {
-    if (bgSyncStarted) {
-      return;
-    }
+    // only runs once per service instance:
+    if (bgSyncStarted) return;
     bgSyncStarted = true;
+    serviceState = "BACKGROUND";
 
     await Future.delayed(const Duration(seconds: DELAY_SECONDS_BEFORE_SYNC_START));
     printV("STARTING SYNC FROM BG");
@@ -482,23 +508,24 @@ Future<void> onStart(ServiceInstance service) async {
     setBackground();
   });
 
-  // this is a backup timer to trigger in case the user fully closes the app, so that we still
-  // start the background sync process:
-  // annoyingly foreground code still runs in the background on android for some time, so we still use the original method
-  // to detect if we are in the background since it's much faster
-  _bgTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-    fgCount++;
-    // we haven't been pinged in a while, so we are likely in the background:
-    if (fgCount == 4) {
-      setReady();
-      return;
+  // if the app state changes to paused, setReady()
+  // if the app state has been paused for more than 10 seconds, setBackground()
+  _appStateTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+    lastAppStates.add(lastAppState);
+    if (lastAppStates.length > 10) {
+      lastAppStates.removeAt(0);
     }
-
-    if (fgCount > 10) {
-      fgCount = 0;
+    // printV(lastAppStates);
+    // if (lastAppState == AppLifecycleState.resumed && serviceState != "FOREGROUND") {
+    //   setForeground();
+    // }
+    if (lastAppStates.length < 5) return;
+    if (lastAppState == AppLifecycleState.paused && serviceState != "READY") {
+      setReady();
+    }
+    // if all 10 states are paused, setBackground()
+    if (lastAppStates.every((state) => state == AppLifecycleState.paused) && !bgSyncStarted) {
       setBackground();
-      service.invoke("serviceState", {"state": "BACKGROUND"});
-      _bgTimer?.cancel();
     }
   });
 }
@@ -592,16 +619,22 @@ class BackgroundTasks {
     bgService.invoke("foregroundPing");
   }
 
-  Future<void> serviceForeground() async {
-    if (serviceState == "FOREGROUND") {
-      return;
-    }
+  void lastAppState(AppLifecycleState state) {
+    bgService.invoke("appState", {"state": state.toString()});
+  }
 
+  Future<void> serviceForeground() async {
+    printV("SERVICE FOREGROUNDED");
     final settingsStore = getIt.get<SettingsStore>();
     bool showNotifications = settingsStore.showSyncNotification;
     bgService.invoke("stopService");
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 3));
     initializeService(bgService, showNotifications);
+    bgService.invoke("setForeground");
+  }
+
+  Future<bool> isServiceRunning() async {
+    return await bgService.isRunning();
   }
 
   void serviceReady() {
