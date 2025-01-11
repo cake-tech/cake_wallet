@@ -232,7 +232,7 @@ jobs:
             echo DISPLAY=:99 | sudo tee -a $GITHUB_ENV
             dbus-daemon --system --fork
             nohup NetworkManager &
-            nohup ffmpeg -video_size 720x1280 -f x11grab -i :99 -c:v libx264 -c:a aac -g 50 -b:v 4000k -maxrate 4000k -listen 1 /opt/screen_grab.mkv &
+            nohup ffmpeg -framerate 60 -video_size 720x1280 -f x11grab -i :99 -c:v libx264 -c:a aac -g 50 -b:v 4000k -maxrate 4000k -listen 1 /opt/screen_grab.mkv &
   
       - name: Test [confirm_seeds_flow_test]
         if: ${{ contains(github.event.head_commit.message, 'run tests') }}
