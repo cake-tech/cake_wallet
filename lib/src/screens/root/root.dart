@@ -168,34 +168,30 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
     // background service handling:
     printV("state: $state");
+    final appStore = widget.appStore;
+    final wallet = appStore.wallet;
     switch (state) {
       case AppLifecycleState.resumed:
-        // // restart the background service if it was running before:
+        bool isBackgroundSyncing = await getIt.get<BackgroundTasks>().isBackgroundSyncing();
+
+        printV("isBackgroundSyncing: $isBackgroundSyncing");
+
+        if (!isBackgroundSyncing) {
+          return;
+        }
+
+        await wallet?.stopSync(isBackgroundSync: true);
+        // await wallet?.closeWallet();
+        // restart the background service if it was running before:
         await getIt.get<BackgroundTasks>().serviceForeground();
-        // _stateTimer?.cancel();
-        // if (!wasInBackground) {
-        //   return;
-        // }
-        // wasInBackground = false;
-        // final appStore = widget.appStore;
-        // final wallet = appStore.wallet;
-        // if (syncingWalletTypes.contains(wallet?.type)) {
-        //   // wait a few seconds before starting the sync to make sure the background service is fully exited:
-        //   Future.delayed(const Duration(seconds: 50), () async {
-        //     final node = appStore.settingsStore.getCurrentNode(wallet!.type);
-        //     await wallet.stopSync();
-        //     await wallet.init();
-        //     wallet.connectToNode(node: node);
-        //     wallet.startSync();
-        //   });
-        // }
         break;
       case AppLifecycleState.hidden:
       case AppLifecycleState.inactive:
       case AppLifecycleState.detached:
         break;
       case AppLifecycleState.paused:
-        widget.appStore.wallet?.stopSync();
+        await wallet?.stopSync();
+        await wallet?.close();
         // getIt.get<BackgroundTasks>().serviceReady();
         // // if (FeatureFlag.isBackgroundSyncEnabled &&
         // //     syncingWalletTypes.contains(widget.appStore.wallet?.type)) {

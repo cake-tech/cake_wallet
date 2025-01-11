@@ -519,7 +519,10 @@ Future<void> onStart(ServiceInstance service) async {
     // if (lastAppState == AppLifecycleState.resumed && serviceState != "FOREGROUND") {
     //   setForeground();
     // }
-    if (lastAppStates.length < 5) return;
+    if (lastAppStates.length < 5) {
+      service.invoke("serviceState", {"state": serviceState});
+      return;
+    }
     if (lastAppState == AppLifecycleState.paused && serviceState != "READY") {
       setReady();
     }
@@ -527,6 +530,7 @@ Future<void> onStart(ServiceInstance service) async {
     if (lastAppStates.every((state) => state == AppLifecycleState.paused) && !bgSyncStarted) {
       setBackground();
     }
+    service.invoke("serviceState", {"state": serviceState});
   });
 }
 
@@ -607,8 +611,8 @@ class BackgroundTasks {
   FlutterBackgroundService bgService = FlutterBackgroundService();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-  Timer? _pingTimer;
-  String serviceState = "NOT_RUNNING";
+  static Timer? _pingTimer;
+  static String serviceState = "NOT_RUNNING";
 
   void serviceBackground() {
     bgService.invoke("setBackground");
@@ -628,13 +632,19 @@ class BackgroundTasks {
     final settingsStore = getIt.get<SettingsStore>();
     bool showNotifications = settingsStore.showSyncNotification;
     bgService.invoke("stopService");
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 5));
     initializeService(bgService, showNotifications);
     bgService.invoke("setForeground");
   }
 
   Future<bool> isServiceRunning() async {
     return await bgService.isRunning();
+  }
+
+  Future<bool> isBackgroundSyncing() async {
+    printV("serviceState: ${serviceState}");
+    printV("isRunning: ${await bgService.isRunning()}");
+    return await bgService.isRunning() && serviceState == "BACKGROUND";
   }
 
   void serviceReady() {
@@ -694,10 +704,12 @@ class BackgroundTasks {
       });
 
       bgService.on("serviceState").listen((event) {
+        printV("UPDATING SERVICE STATE: ${event?["state"]}");
         serviceState = event?["state"] as String;
       });
 
       await initializeService(bgService, useNotifications);
+      bgService.invoke("setForeground");
     } catch (error, stackTrace) {
       printV(error);
       printV(stackTrace);

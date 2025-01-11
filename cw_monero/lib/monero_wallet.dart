@@ -277,6 +277,19 @@ abstract class MoneroWalletBase
   }
 
   @override
+  Future<void> closeWallet() async {
+    printV("closing wallet");
+    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
+    final wmaddr = wmPtr.address;
+    final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
+    await Isolate.run(() {
+      monero.WalletManager_closeWallet(
+          Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+    });
+    await init();
+  }
+
+  @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final _credentials = credentials as MoneroTransactionCreationCredentials;
     final inputs = <String>[];
