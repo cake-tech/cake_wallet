@@ -141,7 +141,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         'commissionBps': _affiliateBps,
         'minimumPrice': minimumPrice.toString(),
         'refundAddress': request.refundAddress,
-        'retryDurationInBlocks': '10'
+        'retryDurationInBlocks': '150'
       };
 
       final swapResponse = await _openDepositChannel(swapParams);
