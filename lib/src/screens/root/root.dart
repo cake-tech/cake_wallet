@@ -192,16 +192,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       case AppLifecycleState.paused:
         await wallet?.stopSync();
         await wallet?.close();
-        // getIt.get<BackgroundTasks>().serviceReady();
-        // // if (FeatureFlag.isBackgroundSyncEnabled &&
-        // //     syncingWalletTypes.contains(widget.appStore.wallet?.type)) {
-        // //   widget.appStore.wallet?.stopSync();
-        // // }
-        // _stateTimer?.cancel();
-        // _stateTimer = Timer(const Duration(seconds: 10), () async {
-        //   wasInBackground = true;
-        //   getIt.get<BackgroundTasks>().serviceBackground();
-        // });
         break;
     }
     _previousState = state;
