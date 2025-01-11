@@ -52,7 +52,7 @@ RUN set -o xtrace \
     # extra stuff for KVM
     && apt-get install -y udev qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils \
     # for linux tests
-    && apt-get install -y xvfb network-manager \
+    && apt-get install -y xvfb network-manager ffmpeg x11-utils \
     && rm -rf /var/lib/apt/lists/* \
     && sh -c 'echo "en_US.UTF-8 UTF-8" > /etc/locale.gen' \
     && locale-gen \

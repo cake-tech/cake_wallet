@@ -219,22 +219,27 @@ jobs:
           pushd build/linux/x64/release
           zip -r cakewallet_linux.zip bundle
           popd
-      - name: Prepare virtual desktop
-        run: |
-          nohup Xvfb :99 -screen 0 1920x1080x16 &
-          echo DISPLAY=:99 | sudo tee -a $GITHUB_ENV
-          dbus-daemon --system --fork
-          nohup NetworkManager &
 
       - name: Upload Artifact to github
         uses: kittaakos/upload-artifact-as-is@v0
         with:
           path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
+
+      - name: Prepare virtual desktop
+        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        run: |
+            nohup Xvfb :99 -screen 0 720x1280x16 &
+            echo DISPLAY=:99 | sudo tee -a $GITHUB_ENV
+            dbus-daemon --system --fork
+            nohup NetworkManager &
+            nohup ffmpeg -video_size 720x1280 -f x11grab -i :99 -c:v libx264 -c:a aac -g 50 -b:v 4000k -maxrate 4000k -listen 1 /opt/screen_grab.mkv &
+  
       - name: Test [confirm_seeds_flow_test]
         if: ${{ contains(github.event.head_commit.message, 'run tests') }}
         timeout-minutes: 20
         continue-on-error: true
         run: |
+          xmessage -timeout 10 "confirm_seeds_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/confirm_seeds_flow_test.dart
       - name: Test [create_wallet_flow_test]
@@ -242,6 +247,7 @@ jobs:
         timeout-minutes: 20
         continue-on-error: true
         run: |
+          xmessage -timeout 10 "create_wallet_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/create_wallet_flow_test.dart
       - name: Test [exchange_flow_test]
@@ -249,6 +255,7 @@ jobs:
         timeout-minutes: 20
         continue-on-error: true
         run: |
+          xmessage -timeout 10 "exchange_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/exchange_flow_test.dart
       - name: Test [restore_wallet_through_seeds_flow_test]
@@ -256,6 +263,7 @@ jobs:
         timeout-minutes: 20
         continue-on-error: true
         run: |
+          xmessage -timeout 10 "restore_wallet_through_seeds_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/restore_wallet_through_seeds_flow_test.dart
       - name: Test [transaction_history_flow_test]
@@ -263,5 +271,23 @@ jobs:
         timeout-minutes: 20
         continue-on-error: true
         run: |
+          xmessage -timeout 10 "transaction_history_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/transaction_history_flow_test.dart
+      - name: Stop screen recording, encrypt and upload
+        run: |
+          killall ffmpeg
+          sleep 5
+          killall -9 ffmpeg || true
+          sleep 5
+          # Feel free to add your own public key if you wish
+          gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC # cyjan@mrcyjanek.net
+          gpg --trust-model always --encrypt --output /opt/screen_grab.mkv.gpg \
+            --recipient 35C8DBAFB8D9ACAC \
+            /opt/screen_grab.mkv
+          rm /opt/screen_grab.mkv
+          mv /opt/screen_grab.mkv.gpg ./screen_grab.mkv.gpg
+      - name: Upload Artifact to github
+        uses: kittaakos/upload-artifact-as-is@v0
+        with:
+          path: ${{ github.workspace }}/screen_grab.mkv.gpg
