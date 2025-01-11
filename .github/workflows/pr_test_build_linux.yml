@@ -237,7 +237,6 @@ jobs:
       - name: Test [confirm_seeds_flow_test]
         if: ${{ contains(github.event.head_commit.message, 'run tests') }}
         timeout-minutes: 20
-        continue-on-error: true
         run: |
           xmessage -timeout 10 "confirm_seeds_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
@@ -245,7 +244,6 @@ jobs:
       - name: Test [create_wallet_flow_test]
         if: ${{ contains(github.event.head_commit.message, 'run tests') }}
         timeout-minutes: 20
-        continue-on-error: true
         run: |
           xmessage -timeout 10 "create_wallet_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
@@ -253,7 +251,6 @@ jobs:
       - name: Test [exchange_flow_test]
         if: ${{ contains(github.event.head_commit.message, 'run tests') }}
         timeout-minutes: 20
-        continue-on-error: true
         run: |
           xmessage -timeout 10 "exchange_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
@@ -261,7 +258,6 @@ jobs:
       - name: Test [restore_wallet_through_seeds_flow_test]
         if: ${{ contains(github.event.head_commit.message, 'run tests') }}
         timeout-minutes: 20
-        continue-on-error: true
         run: |
           xmessage -timeout 10 "restore_wallet_through_seeds_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
@@ -269,20 +265,26 @@ jobs:
       - name: Test [transaction_history_flow_test]
         if: ${{ contains(github.event.head_commit.message, 'run tests') }}
         timeout-minutes: 20
-        continue-on-error: true
         run: |
           xmessage -timeout 10 "transaction_history_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/transaction_history_flow_test.dart
       - name: Stop screen recording, encrypt and upload
+        if: always()
         run: |
+          if [[ ! -f "/opt/screen_grab.mkv" ]];
+          then
+            exit 0;
+          fi
           killall ffmpeg
           sleep 5
           killall -9 ffmpeg || true
           sleep 5
           # Feel free to add your own public key if you wish
+          gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 # Konstantin
           gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC # cyjan@mrcyjanek.net
           gpg --trust-model always --encrypt --output /opt/screen_grab.mkv.gpg \
+            --recipient 6B3199AD9B3D23B8 \
             --recipient 35C8DBAFB8D9ACAC \
             /opt/screen_grab.mkv
           rm /opt/screen_grab.mkv
