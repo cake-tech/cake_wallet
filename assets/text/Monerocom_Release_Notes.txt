@@ -1,2 +1,2 @@
-UI/UX enhancements
-Bug fixes and app improvements
+UI enhancements
+Bug fixes

@@ -1,2 +1,4 @@
-UI/UX enhancements
-Bug fixes and app improvements
+Bitcoin and Litecoin enhancements
+Solana and Nano fixes/improvements
+UI enhancements
+Bug fixes

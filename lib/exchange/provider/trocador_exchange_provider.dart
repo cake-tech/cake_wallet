@@ -9,6 +9,7 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
@@ -148,7 +149,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
       return isReceiveAmount ? (amount / fromAmount) : (toAmount / amount);
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       return 0.0;
     }
   }
@@ -170,7 +171,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       if (!isFixedRateMode) 'amount_from': request.fromAmount,
       if (isFixedRateMode) 'amount_to': request.toAmount,
       'address': request.toAddress,
-      'refund': request.refundAddress
+      'refund': request.refundAddress,
+      'refund_memo' : '0',
     };
 
     if (isFixedRateMode) {
@@ -261,6 +263,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final password = responseJSON['password'] as String;
       final providerId = responseJSON['id_provider'] as String;
       final providerName = responseJSON['provider'] as String;
+      final addressProviderMemo = responseJSON['address_provider_memo'] as String?;
 
       return Trade(
         id: id,
@@ -276,6 +279,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         password: password,
         providerId: providerId,
         providerName: providerName,
+        extraId: addressProviderMemo,
       );
     });
   }

@@ -10,8 +10,10 @@ import 'package:cake_wallet/src/screens/cake_pay/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
@@ -23,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CakePayBuyCardDetailPage extends BasePage {
   CakePayBuyCardDetailPage(this.cakePayPurchaseViewModel);
@@ -207,8 +210,10 @@ class CakePayBuyCardDetailPage extends BasePage {
             padding: EdgeInsets.only(bottom: 12),
             child: Observer(builder: (_) {
               return LoadingPrimaryButton(
-                isLoading: cakePayPurchaseViewModel.sendViewModel.state is IsExecutingState,
-                onPressed: () => purchaseCard(context),
+                isDisabled: cakePayPurchaseViewModel.isPurchasing,
+                isLoading: cakePayPurchaseViewModel.isPurchasing ||
+                    cakePayPurchaseViewModel.sendViewModel.state is IsExecutingState,
+                onPressed: () => confirmPurchaseFirst(context),
                 text: S.of(context).purchase_gift_card,
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
@@ -253,6 +258,48 @@ class CakePayBuyCardDetailPage extends BasePage {
         });
   }
 
+  Future<void> _showconfirmPurchaseFirstAlert(BuildContext context) async {
+    if (!cakePayPurchaseViewModel.confirmsNoVpn ||
+        !cakePayPurchaseViewModel.confirmsVoidedRefund ||
+        !cakePayPurchaseViewModel.confirmsTermsAgreed) {
+      await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) => ThreeCheckboxAlert(
+          alertTitle: S.of(context).cakepay_confirm_purchase,
+          leftButtonText: S.of(context).cancel,
+          rightButtonText: S.of(context).confirm,
+          actionLeftButton: () {
+            cakePayPurchaseViewModel.isPurchasing = false;
+            Navigator.of(context).pop();
+          },
+          actionRightButton: (confirmsNoVpn, confirmsVoidedRefund, confirmsTermsAgreed) {
+            cakePayPurchaseViewModel.confirmsNoVpn = confirmsNoVpn;
+            cakePayPurchaseViewModel.confirmsVoidedRefund = confirmsVoidedRefund;
+            cakePayPurchaseViewModel.confirmsTermsAgreed = confirmsTermsAgreed;
+
+            Navigator.of(context).pop();
+          },
+        ),
+      );
+    }
+
+    if (cakePayPurchaseViewModel.confirmsNoVpn &&
+        cakePayPurchaseViewModel.confirmsVoidedRefund &&
+        cakePayPurchaseViewModel.confirmsTermsAgreed) {
+      await purchaseCard(context);
+    }
+  }
+
+  Future<void> confirmPurchaseFirst(BuildContext context) async {
+    bool isLogged = await cakePayPurchaseViewModel.cakePayService.isLogged();
+    if (!isLogged) {
+      Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
+    } else {
+      cakePayPurchaseViewModel.isPurchasing = true;
+      await _showconfirmPurchaseFirstAlert(context);
+    }
+  }
+
   Future<void> purchaseCard(BuildContext context) async {
     bool isLogged = await cakePayPurchaseViewModel.cakePayService.isLogged();
     if (!isLogged) {
@@ -263,7 +310,9 @@ class CakePayBuyCardDetailPage extends BasePage {
       } catch (_) {
         await cakePayPurchaseViewModel.cakePayService.logout();
       }
-    }
+
+   }
+   cakePayPurchaseViewModel.isPurchasing = false;
   }
 
   void _showHowToUseCard(
@@ -426,5 +475,203 @@ class CakePayBuyCardDetailPage extends BasePage {
     if (disposer != null) {
       disposer();
     }
+  }
+}
+
+class ThreeCheckboxAlert extends BaseAlertDialog {
+  ThreeCheckboxAlert({
+    required this.alertTitle,
+    required this.leftButtonText,
+    required this.rightButtonText,
+    required this.actionLeftButton,
+    required this.actionRightButton,
+    this.alertBarrierDismissible = true,
+    Key? key,
+  });
+
+  final String alertTitle;
+  final String leftButtonText;
+  final String rightButtonText;
+  final VoidCallback actionLeftButton;
+  final Function(bool, bool, bool) actionRightButton;
+  final bool alertBarrierDismissible;
+
+  bool checkbox1 = false;
+  void toggleCheckbox1() => checkbox1 = !checkbox1;
+  bool checkbox2 = false;
+  void toggleCheckbox2() => checkbox2 = !checkbox2;
+  bool checkbox3 = false;
+  void toggleCheckbox3() => checkbox3 = !checkbox3;
+
+  bool showValidationMessage = true;
+
+  @override
+  String get titleText => alertTitle;
+
+  @override
+  bool get isDividerExists => true;
+
+  @override
+  String get leftActionButtonText => leftButtonText;
+
+  @override
+  String get rightActionButtonText => rightButtonText;
+
+  @override
+  VoidCallback get actionLeft => actionLeftButton;
+
+  @override
+  VoidCallback get actionRight => () {
+        actionRightButton(checkbox1, checkbox2, checkbox3);
+      };
+
+  @override
+  bool get barrierDismissible => alertBarrierDismissible;
+
+  @override
+  Widget content(BuildContext context) {
+    return ThreeCheckboxAlertContent(
+      checkbox1: checkbox1,
+      toggleCheckbox1: toggleCheckbox1,
+      checkbox2: checkbox2,
+      toggleCheckbox2: toggleCheckbox2,
+      checkbox3: checkbox3,
+      toggleCheckbox3: toggleCheckbox3,
+    );
+  }
+}
+
+class ThreeCheckboxAlertContent extends StatefulWidget {
+  ThreeCheckboxAlertContent({
+    required this.checkbox1,
+    required this.toggleCheckbox1,
+    required this.checkbox2,
+    required this.toggleCheckbox2,
+    required this.checkbox3,
+    required this.toggleCheckbox3,
+    Key? key,
+  }) : super(key: key);
+
+  bool checkbox1;
+  void Function() toggleCheckbox1;
+  bool checkbox2;
+  void Function() toggleCheckbox2;
+  bool checkbox3;
+  void Function() toggleCheckbox3;
+
+  @override
+  _ThreeCheckboxAlertContentState createState() => _ThreeCheckboxAlertContentState(
+        checkbox1: checkbox1,
+        toggleCheckbox1: toggleCheckbox1,
+        checkbox2: checkbox2,
+        toggleCheckbox2: toggleCheckbox2,
+        checkbox3: checkbox3,
+        toggleCheckbox3: toggleCheckbox3,
+      );
+
+  static _ThreeCheckboxAlertContentState? of(BuildContext context) {
+    return context.findAncestorStateOfType<_ThreeCheckboxAlertContentState>();
+  }
+}
+
+class _ThreeCheckboxAlertContentState extends State<ThreeCheckboxAlertContent> {
+  _ThreeCheckboxAlertContentState({
+    required this.checkbox1,
+    required this.toggleCheckbox1,
+    required this.checkbox2,
+    required this.toggleCheckbox2,
+    required this.checkbox3,
+    required this.toggleCheckbox3,
+  });
+
+  bool checkbox1;
+  void Function() toggleCheckbox1;
+  bool checkbox2;
+  void Function() toggleCheckbox2;
+  bool checkbox3;
+  void Function() toggleCheckbox3;
+
+  bool showValidationMessage = true;
+
+  bool get areAllCheckboxesChecked => checkbox1 && checkbox2 && checkbox3;
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          StandardCheckbox(
+            value: checkbox1,
+            caption: S.of(context).cakepay_confirm_no_vpn,
+            onChanged: (bool? value) {
+              setState(() {
+                checkbox1 = value ?? false;
+                toggleCheckbox1();
+                showValidationMessage = !areAllCheckboxesChecked;
+              });
+            },
+          ),
+          StandardCheckbox(
+            value: checkbox2,
+            caption: S.of(context).cakepay_confirm_voided_refund,
+            onChanged: (bool? value) {
+              setState(() {
+                checkbox2 = value ?? false;
+                toggleCheckbox2();
+                showValidationMessage = !areAllCheckboxesChecked;
+              });
+            },
+          ),
+          StandardCheckbox(
+            value: checkbox3,
+            caption: S.of(context).cakepay_confirm_terms_agreed,
+            onChanged: (bool? value) {
+              setState(() {
+                checkbox3 = value ?? false;
+                toggleCheckbox3();
+                showValidationMessage = !areAllCheckboxesChecked;
+              });
+            },
+          ),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => launchUrl(
+              Uri.parse("https://cakepay.com/cakepay-web-terms.txt"),
+              mode: LaunchMode.externalApplication,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                S.of(context).settings_terms_and_conditions,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context).primaryColor,
+                  decoration: TextDecoration.none,
+                  height: 1,
+                ),
+                softWrap: true,
+              ),
+            ),
+          ),
+          if (showValidationMessage)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                'Please confirm all checkboxes',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 14,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w400,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }

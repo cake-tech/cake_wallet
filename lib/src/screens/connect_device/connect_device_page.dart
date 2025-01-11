@@ -10,6 +10,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -21,11 +22,13 @@ class ConnectDevicePageParams {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
+  final bool isReconnect;
 
   ConnectDevicePageParams({
     required this.walletType,
     required this.onConnectDevice,
     this.allowChangeWallet = false,
+    this.isReconnect = false,
   });
 }
 
@@ -33,19 +36,33 @@ class ConnectDevicePage extends BasePage {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
+  final bool isReconnect;
   final LedgerViewModel ledgerVM;
 
   ConnectDevicePage(ConnectDevicePageParams params, this.ledgerVM)
       : walletType = params.walletType,
         onConnectDevice = params.onConnectDevice,
-        allowChangeWallet = params.allowChangeWallet;
+        allowChangeWallet = params.allowChangeWallet,
+        isReconnect = params.isReconnect;
 
   @override
-  String get title => S.current.restore_title_from_hardware_wallet;
+  String get title => isReconnect
+      ? S.current.reconnect_your_hardware_wallet
+      : S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) => ConnectDevicePageBody(
-      walletType, onConnectDevice, allowChangeWallet, ledgerVM);
+  Widget? leading(BuildContext context) =>
+      !isReconnect ? super.leading(context) : null;
+
+  @override
+  Widget body(BuildContext context) => PopScope(
+      canPop: !isReconnect,
+      child: ConnectDevicePageBody(
+        walletType,
+        onConnectDevice,
+        allowChangeWallet,
+        ledgerVM,
+      ));
 }
 
 class ConnectDevicePageBody extends StatefulWidget {
@@ -74,6 +91,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   late Timer? _bleStateTimer = null;
   late StreamSubscription<LedgerDevice>? _bleRefresh = null;
 
+  bool longWait = false;
+  Timer? _longWaitTimer;
+
   @override
   void initState() {
     super.initState();
@@ -88,6 +108,11 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
         _usbRefreshTimer =
             Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
       }
+
+      _longWaitTimer = Timer(Duration(seconds: 10), () {
+        if (widget.ledgerVM.bleIsEnabled && bleDevices.isEmpty)
+          setState(() => longWait = true);
+      });
     });
   }
 
@@ -97,6 +122,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     _bleStateTimer?.cancel();
     _usbRefreshTimer?.cancel();
     _bleRefresh?.cancel();
+    _longWaitTimer?.cancel();
+
+    widget.ledgerVM.stopScanning();
     super.dispose();
   }
 
@@ -117,17 +145,19 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   Future<void> _refreshBleDevices() async {
     try {
       if (widget.ledgerVM.bleIsEnabled) {
-        _bleRefresh = widget.ledgerVM
-            .scanForBleDevices()
-            .listen((device) => setState(() => bleDevices.add(device)))
-          ..onError((e) {
-            throw e.toString();
-          });
+        _bleRefresh =
+            widget.ledgerVM.scanForBleDevices().listen((device) => setState(() {
+                  bleDevices.add(device);
+                  if (longWait) longWait = false;
+                }))
+              ..onError((e) {
+                throw e.toString();
+              });
         _bleRefreshTimer?.cancel();
         _bleRefreshTimer = null;
       }
     } catch (e) {
-      print(e);
+      printV(e);
     }
   }
 
@@ -174,15 +204,22 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              // DeviceTile(
-              //   onPressed: () => Navigator.of(context).push(
-              //     MaterialPageRoute<void>(
-              //       builder: (BuildContext context) => DebugDevicePage(),
-              //     ),
-              //   ),
-              //   title: "Debug Ledger",
-              //   leading: imageLedger,
-              // ),
+              Offstage(
+                offstage: !longWait,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                  child: Text(
+                    S.of(context).if_you_dont_see_your_device,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context)
+                            .extension<CakeTextTheme>()!
+                            .titleColor),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
               Observer(
                 builder: (_) => Offstage(
                   offstage: widget.ledgerVM.bleIsEnabled,
@@ -201,7 +238,6 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   ),
                 ),
               ),
-
               if (bleDevices.length > 0) ...[
                 Padding(
                   padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
@@ -243,7 +279,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        color: Theme.of(context)
+                            .extension<CakeTextTheme>()!
+                            .titleColor,
                       ),
                     ),
                   ),
@@ -265,8 +303,12 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
               if (widget.allowChangeWallet) ...[
                 PrimaryButton(
                   text: S.of(context).wallets,
-                  color: Theme.of(context).extension<WalletListTheme>()!.createNewWalletButtonBackgroundColor,
-                  textColor: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
+                  color: Theme.of(context)
+                      .extension<WalletListTheme>()!
+                      .createNewWalletButtonBackgroundColor,
+                  textColor: Theme.of(context)
+                      .extension<WalletListTheme>()!
+                      .restoreWalletButtonTextColor,
                   onPressed: _onChangeWallet,
                 )
               ],

@@ -11,13 +11,12 @@ class EVMChainERC20Balance extends Balance {
   final int exponent;
 
   @override
-  String get formattedAdditionalBalance {
-    final String formattedBalance = (balance / BigInt.from(10).pow(exponent)).toString();
-    return formattedBalance.substring(0, min(12, formattedBalance.length));
-  }
+  String get formattedAdditionalBalance => _balance();
 
   @override
-  String get formattedAvailableBalance {
+  String get formattedAvailableBalance => _balance();
+
+  String _balance() {
     final String formattedBalance = (balance / BigInt.from(10).pow(exponent)).toString();
     return formattedBalance.substring(0, min(12, formattedBalance.length));
   }

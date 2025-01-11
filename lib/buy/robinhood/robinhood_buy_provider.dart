@@ -13,6 +13,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +51,8 @@ class RobinhoodBuyProvider extends BuyProvider {
     switch (wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.tron:
         return await wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:
@@ -77,8 +80,7 @@ class RobinhoodBuyProvider extends BuyProvider {
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['connectId'] as String;
     } else {
-      throw Exception(
-          'Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
+      throw Exception('Provider currently unavailable. Status: ${response.statusCode}');
     }
   }
 
@@ -119,13 +121,13 @@ class RobinhoodBuyProvider extends BuyProvider {
     try {
       final uri = await requestProviderUrl();
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {
+    } catch (e) {
       await showPopUp<void>(
           context: context,
           builder: (BuildContext context) {
             return AlertWithOneAction(
                 alertTitle: "Robinhood Connect",
-                alertContent: S.of(context).buy_provider_unavailable,
+                alertContent: e.toString(),
                 buttonText: S.of(context).ok,
                 buttonAction: () => Navigator.of(context).pop());
           });
@@ -176,7 +178,7 @@ class RobinhoodBuyProvider extends BuyProvider {
         if (responseData.containsKey('message')) {
           log('Robinhood Error: ${responseData['message']}');
         } else {
-          print('Robinhood Failed to fetch $action quote: ${response.statusCode}');
+          printV('Robinhood Failed to fetch $action quote: ${response.statusCode}');
         }
         return null;
       }

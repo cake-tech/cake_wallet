@@ -347,7 +347,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                     key: ValueKey('new_wallet_page_confirm_button_key'),
                     onPressed: _confirmForm,
                     text: S.of(context).seed_language_next,
-                    color: Colors.green,
+                    color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                     isLoading: _walletNewVM.state is IsExecutingState,
                     isDisabled: _walletNewVM.name.isEmpty,

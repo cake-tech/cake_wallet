@@ -53,7 +53,7 @@ class TransactionsPage extends StatelessWidget {
                     onTap: () {
                       try {
                         final uri = Uri.parse(
-                            "https://guides.cakewallet.com/docs/FAQ/why_are_my_funds_not_appearing/");
+                            "https://docs.cakewallet.com/faq/funds-not-appearing");
                         launchUrl(uri, mode: LaunchMode.externalApplication);
                       } catch (_) {}
                     },

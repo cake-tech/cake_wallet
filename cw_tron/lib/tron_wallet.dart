@@ -217,7 +217,7 @@ abstract class TronWalletBase
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  Future<void> close({required bool shouldCleanup}) async => _transactionsUpdateTimer?.cancel();
+  Future<void> close({bool shouldCleanup = false}) async => _transactionsUpdateTimer?.cancel();
 
   @action
   @override

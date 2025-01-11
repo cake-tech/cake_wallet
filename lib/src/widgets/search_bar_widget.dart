@@ -17,13 +17,14 @@ class SearchBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      key: ValueKey('search_bar_widget_key'),
       controller: searchController,
       style: TextStyle(color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
       decoration: InputDecoration(
         hintText: hintText ?? S.of(context).search,
         hintStyle: TextStyle(color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
-        prefixIcon: Image.asset("assets/images/search_icon.png",
-            color: Theme.of(context).extension<PickerTheme>()!.searchIconColor),
+        prefixIcon: Icon( Icons.search,
+            color: Theme.of(context).primaryColor),
         filled: true,
         fillColor: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
         alignLabelWithHint: false,

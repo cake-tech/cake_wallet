@@ -23,6 +23,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -140,7 +141,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
       _updateItems();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -158,6 +159,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
     items.add(TradeDetailsListCardItem.tradeDetails(
       id: trade.id,
+      extraId: trade.extraId,
       createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
       from: trade.from,
       to: trade.to,
