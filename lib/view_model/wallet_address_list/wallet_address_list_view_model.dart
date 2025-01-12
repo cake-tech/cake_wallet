@@ -289,8 +289,6 @@ abstract class WalletAddressListViewModelBase
         return HavenURI(amount: amount, address: address.address);
       case WalletType.bitcoin:
         if (isPayjoinOption) {
-          print(
-              '[+] wallet_address_list_view_model.dart || PaymentURI => isPayjoinOption: $isPayjoinOption');
           return PayjoinBitcoinURI(amount: amount, address: payjoinUri);
         }
         return BitcoinURI(amount: amount, address: address.address);
