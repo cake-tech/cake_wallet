@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -40,8 +41,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   static const _swapPath = '/swap';
   static const _txInfoPath = '/status-by-deposit-channel';
   static const _affiliateBps = '170';
-  static const _affiliateKey = '6ba154d4-e219-472a-9674-5fa5b1300ccf';
-  // TODO: Example key, replace with CW key
+  static const _affiliateKey = secrets.chainflipApiKey;
 
   final Box<Trade> tradesStore;
 
@@ -141,6 +141,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         'commissionBps': _affiliateBps,
         'minimumPrice': minimumPrice.toString(),
         'refundAddress': request.refundAddress,
+        'boostFee': '6',
         'retryDurationInBlocks': '150'
       };
 
