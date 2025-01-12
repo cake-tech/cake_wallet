@@ -478,7 +478,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     final btcTx = BtcTransaction.fromRaw(BytesUtils.toHexString(psbt.extract()));
 
-    // utxos.where((e) => unsignedTx.contains(e.utxo.txHash)).toList().first.public().verifyTransaactionSignature(BytesUtils.fromHexString("58813baba61d14d2b0101ce2471a813debaf66100fcc26cd907ce2e01a165dae"), BytesUtils.fromHexString("304402203f6f262fb711920994c04d004b20a86e86be1ea3238e7b5b961756649883469d022058ba037532f6b62977e5e1ed0c1198fff4c1a4837304efe86f8b4efa635b94b101"))
     return PendingBitcoinTransaction(
       btcTx,
       type,
