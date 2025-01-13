@@ -465,7 +465,6 @@ Future<void> defaultSettingsMigration(
             useSSL: true,
           );
         case 47:
-          await addWalletNodeList(nodes: nodes, type: WalletType.decred);
           await _changeDefaultNode(
             nodes: nodes,
             sharedPreferences: sharedPreferences,
