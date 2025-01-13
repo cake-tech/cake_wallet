@@ -39,6 +39,7 @@ import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
 import 'package:monero/monero.dart' as monero;
+import 'package:cw_monero/api/transaction_history.dart' as transaction_history;
 
 part 'monero_wallet.g.dart';
 
@@ -175,6 +176,7 @@ abstract class MoneroWalletBase
     _onAccountChangeReaction?.reaction.dispose();
     _onTxHistoryChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
+    monero_wallet.stopWallet();
   }
 
   @override
@@ -268,6 +270,7 @@ abstract class MoneroWalletBase
     _listener?.stop();
     if (isBackgroundSync) {
       isBackgroundSyncing = false;
+      monero_wallet.stopWallet();
       monero_wallet.stopBackgroundSync(password);
       return;
     }
@@ -277,7 +280,7 @@ abstract class MoneroWalletBase
   }
 
   @override
-  Future<void> closeWallet() async {
+  Future<void> reopenWallet() async {
     printV("closing wallet");
     final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
     final wmaddr = wmPtr.address;
@@ -286,7 +289,10 @@ abstract class MoneroWalletBase
       monero.WalletManager_closeWallet(
           Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
     });
-    await init();
+    wptr = monero.WalletManager_openWallet(wmPtr, path: currentWalletDirPath, password: password);
+    openedWalletsByPath["$currentWalletDirPath/$name"] = wptr!;
+    transaction_history.txhistory = null;
+
   }
 
   @override

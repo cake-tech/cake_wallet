@@ -180,10 +180,18 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           return;
         }
 
-        await wallet?.stopSync(isBackgroundSync: true);
         // await wallet?.closeWallet();
         // restart the background service if it was running before:
         await getIt.get<BackgroundTasks>().serviceForeground();
+
+        await Future.delayed(const Duration(seconds: 10));
+
+        await wallet?.stopSync(isBackgroundSync: true);
+
+        await Future.delayed(const Duration(seconds: 10));
+
+        await wallet?.reopenWallet();
+
         break;
       case AppLifecycleState.hidden:
       case AppLifecycleState.inactive:

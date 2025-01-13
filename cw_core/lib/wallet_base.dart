@@ -103,5 +103,6 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool isTestnet = false;
 
-  Future<void> closeWallet() async {}
+  // TODO: use proxy layer
+  Future<void> reopenWallet() async {}
 }

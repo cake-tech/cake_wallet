@@ -164,17 +164,16 @@ Future<void> onStart(ServiceInstance service) async {
       for (int i = 0; i < syncingWallets.length; i++) {
         final wallet = syncingWallets[i];
         await wallet.stopSync(isBackgroundSync: true);
-        await wallet.close();
       }
       // stop all standby wallets (just in case):
       for (int i = 0; i < standbyWallets.length; i++) {
         final wallet = standbyWallets[i];
         await wallet.stopSync(isBackgroundSync: true);
-        await wallet.close();
       }
     } catch (e) {
       printV("error stopping sync: $e");
     }
+    printV("done stopping sync");
   }
 
   service.on("stopService").listen((event) async {
