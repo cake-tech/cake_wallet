@@ -48,7 +48,7 @@ class QRWidget extends StatelessWidget {
 
     // This magic number for wider screen sets the text input focus at center of the inputfield
     final _width =
-    responsiveLayoutUtil.shouldRenderMobileUI ? MediaQuery.of(context).size.width : 500;
+        responsiveLayoutUtil.shouldRenderMobileUI ? MediaQuery.of(context).size.width : 500;
 
     return Center(
       child: SingleChildScrollView(
@@ -167,7 +167,7 @@ class QRWidget extends StatelessWidget {
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
                                 color:
-                                Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+                                    Theme.of(context).extension<DashboardPageTheme>()!.textColor),
                           ),
                         ),
                         Padding(
