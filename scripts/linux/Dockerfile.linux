@@ -1,6 +1,6 @@
 # Usage:
-# docker build . -f Dockerfile.linux -t ghcr.io/mrcyjanek/cake_wallet:main-linux
-# docker push ghcr.io/mrcyjanek/cake_wallet:main-linux
+# docker build . -f Dockerfile.linux -t ghcr.io/cake-tech/cake_wallet:main-linux
+# docker push ghcr.io/cake-tech/cake_wallet:main-linux
 
 FROM --platform=linux/amd64 docker.io/debian:12
 

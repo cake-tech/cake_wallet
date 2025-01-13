@@ -1,6 +1,6 @@
 # Usage:
-# docker build . -f Dockerfile.windows -t ghcr.io/mrcyjanek/cake_wallet:main-windows
-# docker push ghcr.io/mrcyjanek/cake_wallet:main-windows
+# docker build . -f Dockerfile.windows -t ghcr.io/cake-tech/cake_wallet:main-windows
+# docker push ghcr.io/cake-tech/cake_wallet:main-windows
 
 FROM mcr.microsoft.com/windows/servercore:ltsc2022
 
