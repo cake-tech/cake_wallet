@@ -78,7 +78,7 @@ class QRWidget extends StatelessWidget {
                         child: GestureDetector(
                           onTap: () {
                             BrightnessUtil.changeBrightnessForFunction(
-                                  () async {
+                              () async {
                                 await Navigator.pushNamed(context, Routes.fullscreenQR,
                                     arguments: QrViewData(
                                       data: addressUri.toString(),
