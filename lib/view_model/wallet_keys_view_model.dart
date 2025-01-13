@@ -120,13 +120,6 @@ abstract class WalletKeysViewModelBase with Store {
         );
       }
       
-      final passphrase = _appStore.wallet?.passphrase;
-      if (passphrase != null && passphrase != "") {
-        items.add(StandartListItem(
-            title: S.current.passphrase_view_keys,
-            value: passphrase.toString()));
-      }
-
       final restoreHeight = monero!.getRestoreHeight(_appStore.wallet!);
       if (restoreHeight != null) {
         items.add(
