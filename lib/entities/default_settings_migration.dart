@@ -35,12 +35,12 @@ const publicBitcoinTestnetElectrumUri =
     '$publicBitcoinTestnetElectrumAddress:$publicBitcoinTestnetElectrumPort';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
-const ethereumDefaultNodeUri = 'ethereum.publicnode.com';
-const polygonDefaultNodeUri = 'polygon-bor.publicnode.com';
+const ethereumDefaultNodeUri = 'ethereum-rpc.publicnode.com';
+const polygonDefaultNodeUri = 'polygon-bor-rpc.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'nano.nownodes.io';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
-const solanaDefaultNodeUri = 'solana-rpc.publicnode.com:443';
+const solanaDefaultNodeUri = 'solana-mainnet.core.chainstack.com';
 const tronDefaultNodeUri = 'api.trongrid.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
@@ -167,7 +167,11 @@ Future<void> defaultSettingsMigration(
           break;
 
         case 18:
-          await addOnionNode(nodes);
+          await updateWalletTypeNodesWithNewNode(
+            nodes: nodes,
+            newNodeUri: "cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081",
+            type: WalletType.monero,
+          );
           break;
 
         case 19:
@@ -261,15 +265,15 @@ Future<void> defaultSettingsMigration(
           await updateTronNodesWithNowNodes(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 42:
-          updateBtcElectrumNodeToUseSSL(nodes, sharedPreferences);
+          _fixNodesUseSSLFlag(nodes);
           break;
         case 43:
-          await _updateCakeXmrNode(nodes);
+          _fixNodesUseSSLFlag(nodes);
           _deselectExchangeProvider(sharedPreferences, "THORChain");
           _deselectExchangeProvider(sharedPreferences, "SimpleSwap");
           break;
         case 44:
-          await _updateCakeXmrNode(nodes);
+          _fixNodesUseSSLFlag(nodes);
           await _changeDefaultNode(
             nodes: nodes,
             sharedPreferences: sharedPreferences,
@@ -297,14 +301,12 @@ Future<void> defaultSettingsMigration(
 
           updateWalletTypeNodesWithNewNode(
             newNodeUri: 'matic.nownodes.io',
-            sharedPreferences: sharedPreferences,
             nodes: nodes,
             type: WalletType.polygon,
             useSSL: true,
           );
           updateWalletTypeNodesWithNewNode(
             newNodeUri: 'eth.nownodes.io',
-            sharedPreferences: sharedPreferences,
             nodes: nodes,
             type: WalletType.ethereum,
             useSSL: true,
@@ -330,6 +332,47 @@ Future<void> defaultSettingsMigration(
             useSSL: true,
             oldUri: ['rpc.ankr.com'],
           );
+          break;
+        case 46:
+          await _fixNodesUseSSLFlag(nodes);
+          await updateWalletTypeNodesWithNewNode(
+            newNodeUri: 'litecoin.stackwallet.com:20063',
+            nodes: nodes,
+            type: WalletType.litecoin,
+            useSSL: true,
+          );
+          await updateWalletTypeNodesWithNewNode(
+            newNodeUri: 'electrum-ltc.bysh.me:50002',
+            nodes: nodes,
+            type: WalletType.litecoin,
+            useSSL: true,
+          );
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.solana,
+            newDefaultUri: solanaDefaultNodeUri,
+            currentNodePreferenceKey: PreferencesKey.currentSolanaNodeIdKey,
+            useSSL: true,
+            oldUri: [
+              'rpc.ankr.com',
+              'api.mainnet-beta.solana.com:443',
+              'solana-rpc.publicnode.com:443',
+            ],
+          );
+          await _updateNode(
+            nodes: nodes,
+            currentUri: "ethereum.publicnode.com",
+            newUri: "ethereum-rpc.publicnode.com",
+            useSSL: true,
+          );
+          await _updateNode(
+            nodes: nodes,
+            currentUri: "polygon-bor.publicnode.com",
+            newUri: "polygon-bor-rpc.publicnode.com",
+            useSSL: true,
+          );
+          break;
         default:
           break;
       }
@@ -342,6 +385,25 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+Future<void> _updateNode({
+  required Box<Node> nodes,
+  required String currentUri,
+  String? newUri,
+  bool? useSSL,
+}) async {
+  for (Node node in nodes.values) {
+    if (node.uriRaw == currentUri) {
+      if (newUri != null) {
+        node.uriRaw = newUri;
+      }
+      if (useSSL != null) {
+        node.useSSL = useSSL;
+      }
+      await node.save();
+    }
+  }
 }
 
 Future<void> _backupHavenSeeds(Box<HavenSeedStore> havenSeedStore) async {
@@ -361,7 +423,8 @@ Future<void> _changeDefaultNode({
   required String newDefaultUri,
   required String currentNodePreferenceKey,
   required bool useSSL,
-  required List<String> oldUri, // leave empty if you want to force replace the node regardless of the user's current node
+  required List<String>
+      oldUri, // leave empty if you want to force replace the node regardless of the user's current node
 }) async {
   final currentNodeId = sharedPreferences.getInt(currentNodePreferenceKey);
   final currentNode = nodes.values.firstWhere((node) => node.key == currentNodeId);
@@ -389,11 +452,10 @@ Future<void> _changeDefaultNode({
 
 /// Generic function for adding a new Node for a Wallet Type.
 Future<void> updateWalletTypeNodesWithNewNode({
-  required SharedPreferences sharedPreferences,
   required Box<Node> nodes,
   required WalletType type,
   required String newNodeUri,
-  required bool useSSL,
+  bool? useSSL,
 }) async {
   // If it already exists in the box of nodes, no need to add it annymore.
   if (nodes.values.any((node) => node.uriRaw == newNodeUri)) return;
@@ -405,26 +467,6 @@ Future<void> updateWalletTypeNodesWithNewNode({
       useSSL: useSSL,
     ),
   );
-}
-
-Future<void> _updateCakeXmrNode(Box<Node> nodes) async {
-  final node = nodes.values.firstWhereOrNull((element) => element.uriRaw == newCakeWalletMoneroUri);
-
-  if (node != null) {
-    node.trusted = true;
-    node.useSSL = true;
-    await node.save();
-  }
-}
-
-void updateBtcElectrumNodeToUseSSL(Box<Node> nodes, SharedPreferences sharedPreferences) {
-  final btcElectrumNode =
-      nodes.values.firstWhereOrNull((element) => element.uriRaw == newCakeWalletBitcoinUri);
-
-  if (btcElectrumNode != null) {
-    btcElectrumNode.useSSL = true;
-    btcElectrumNode.save();
-  }
 }
 
 void _deselectExchangeProvider(SharedPreferences sharedPreferences, String providerName) {
@@ -440,13 +482,16 @@ void _deselectExchangeProvider(SharedPreferences sharedPreferences, String provi
   );
 }
 
-void _fixNodesUseSSLFlag(Box<Node> nodes) {
+Future<void> _fixNodesUseSSLFlag(Box<Node> nodes) async {
   for (Node node in nodes.values) {
     switch (node.uriRaw) {
       case cakeWalletLitecoinElectrumUri:
       case cakeWalletBitcoinElectrumUri:
+      case newCakeWalletBitcoinUri:
+      case newCakeWalletMoneroUri:
         node.useSSL = true;
-        break;
+        node.trusted = true;
+        await node.save();
     }
   }
 }
@@ -462,7 +507,7 @@ Future<void> updateNanoNodeList({required Box<Node> nodes}) async {
   ];
   // add new nodes:
   for (final node in nodeList) {
-    if (listOfNewEndpoints.contains(node.uriRaw)) {
+    if (listOfNewEndpoints.contains(node.uriRaw) && !nodes.values.contains(node)) {
       await nodes.add(node);
     }
   }
@@ -577,15 +622,6 @@ Future<void> validateBitcoinSavedTransactionPriority(SharedPreferences sharedPre
   if (!bitcoin!.getTransactionPriorities().any((element) => element.raw == savedBitcoinPriority)) {
     await sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
         bitcoin!.getMediumTransactionPriority().serialize());
-  }
-}
-
-Future<void> addOnionNode(Box<Node> nodes) async {
-  final onionNodeUri = "cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081";
-
-  // check if the user has this node before (added it manually)
-  if (nodes.values.firstWhereOrNull((element) => element.uriRaw == onionNodeUri) == null) {
-    await nodes.add(Node(uri: onionNodeUri, type: WalletType.monero));
   }
 }
 

@@ -9,6 +9,7 @@ import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart'
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
@@ -122,7 +123,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     depositAmount = '';
     receiveAmount = '';
     receiveAddress = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
+    depositAddress =
+        depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     provider = providersForCurrentPair().first;
     final initialProvider = provider;
     provider!.checkIsAvailable().then((bool isAvailable) {
@@ -157,8 +159,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       wallet.type == WalletType.bitcoinCash;
 
   bool get hideAddressAfterExchange =>
-    wallet.type == WalletType.monero ||
-    wallet.type == WalletType.wownero;
+      wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
 
   bool _useTorOnly;
   final Box<Trade> trades;
@@ -167,17 +168,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   final SharedPreferences sharedPreferences;
 
   List<ExchangeProvider> get _allProviders => [
-    ChangeNowExchangeProvider(settingsStore: _settingsStore),
-    SideShiftExchangeProvider(),
-    SimpleSwapExchangeProvider(),
-    ThorChainExchangeProvider(tradesStore: trades),
-    if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
-    QuantexExchangeProvider(),
-    LetsExchangeExchangeProvider(),
-    StealthExExchangeProvider(),
-    TrocadorExchangeProvider(
-        useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
-  ];
+        ChangeNowExchangeProvider(settingsStore: _settingsStore),
+        SideShiftExchangeProvider(),
+        SimpleSwapExchangeProvider(),
+        ThorChainExchangeProvider(tradesStore: trades),
+        if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
+        QuantexExchangeProvider(),
+        LetsExchangeExchangeProvider(),
+        StealthExExchangeProvider(),
+        TrocadorExchangeProvider(
+            useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
+      ];
 
   @observable
   ExchangeProvider? provider;
@@ -613,8 +614,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     isReceiveAmountEntered = false;
     depositAmount = '';
     receiveAmount = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
-    receiveAddress = receiveCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
+    depositAddress =
+        depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
+    receiveAddress =
+        receiveCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isFixedRateMode = false;
     _onPairChange();
@@ -640,7 +643,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         wallet.type == WalletType.bitcoinCash) {
       final priority = _settingsStore.priority[wallet.type]!;
 
-      final amount = await bitcoin!.estimateFakeSendAllTxAmount(wallet, priority);
+      final amount = await bitcoin!.estimateFakeSendAllTxAmount(
+        wallet,
+        priority,
+        coinTypeToSpendFrom:
+            wallet.type == WalletType.litecoin ? UnspentCoinType.nonMweb : UnspentCoinType.any,
+      );
 
       changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
     }

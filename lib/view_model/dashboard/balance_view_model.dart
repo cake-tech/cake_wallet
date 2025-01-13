@@ -20,7 +20,8 @@ part 'balance_view_model.g.dart';
 
 class BalanceRecord {
   const BalanceRecord(
-      {required this.availableBalance,
+      {
+        required this.availableBalance,
       required this.additionalBalance,
       required this.secondAvailableBalance,
       required this.secondAdditionalBalance,
@@ -148,27 +149,19 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get availableBalanceLabel {
-    switch (wallet.type) {
-      case WalletType.monero:
-      case WalletType.wownero:
-      case WalletType.haven:
-      case WalletType.ethereum:
-      case WalletType.polygon:
-      case WalletType.nano:
-      case WalletType.banano:
-      case WalletType.solana:
-      case WalletType.tron:
-        return S.current.xmr_available_balance;
-      default:
-        return S.current.confirmed;
+
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
+      return S.current.show_balance;
+    }
+    else {
+      return S.current.xmr_available_balance;
     }
   }
 
   @computed
   String get additionalBalanceLabel {
+
     switch (wallet.type) {
-      case WalletType.monero:
-      case WalletType.wownero:
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -204,97 +197,34 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  bool get hasMultiBalance => appStore.wallet!.type == WalletType.haven;
-
-  @computed
-  String get availableBalance {
-    final walletBalance = _walletBalance;
-
-    if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '---';
-    }
-
-    return walletBalance.formattedAvailableBalance;
-  }
-
-  @computed
-  String get frozenBalance {
-    final walletBalance = _walletBalance;
-
-    if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '---';
-    }
-
-    return getFormattedFrozenBalance(walletBalance);
-  }
-
-  @computed
-  String get frozenFiatBalance {
-    final walletBalance = _walletBalance;
-    final fiatCurrency = settingsStore.fiatCurrency;
-
-    if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '---';
-    }
-
-    return _getFiatBalance(price: price, cryptoAmount: getFormattedFrozenBalance(walletBalance)) +
-        ' ${fiatCurrency.toString()}';
-  }
-
-  @computed
   String get additionalBalance {
     final walletBalance = _walletBalance;
 
     if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '---';
+      return '0.0';
     }
 
     return walletBalance.formattedAdditionalBalance;
   }
 
   @computed
-  String get availableFiatBalance {
-    final walletBalance = _walletBalance;
-    final fiatCurrency = settingsStore.fiatCurrency;
-
-    if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '---';
-    }
-
-    return _getFiatBalance(price: price, cryptoAmount: walletBalance.formattedAvailableBalance) +
-        ' ${fiatCurrency.toString()}';
-  }
-
-  @computed
-  String get additionalFiatBalance {
-    final walletBalance = _walletBalance;
-    final fiatCurrency = settingsStore.fiatCurrency;
-
-    if (displayMode == BalanceDisplayMode.hiddenBalance) {
-      return '---';
-    }
-
-    return _getFiatBalance(price: price, cryptoAmount: walletBalance.formattedAdditionalBalance) +
-        ' ${fiatCurrency.toString()}';
-  }
-
-  @computed
   Map<CryptoCurrency, BalanceRecord> get balances {
     return wallet.balance.map((key, value) {
       if (displayMode == BalanceDisplayMode.hiddenBalance) {
+        final fiatCurrency = settingsStore.fiatCurrency;
         return MapEntry(
             key,
             BalanceRecord(
-                availableBalance: '---',
-                additionalBalance: '---',
+                availableBalance: '●●●●●●',
+                additionalBalance: additionalBalance,
                 frozenBalance: '',
-                secondAvailableBalance: '---',
-                secondAdditionalBalance: '---',
-                fiatAdditionalBalance: isFiatDisabled ? '' : '---',
-                fiatAvailableBalance: isFiatDisabled ? '' : '---',
-                fiatFrozenBalance: isFiatDisabled ? '' : '---',
-                fiatSecondAvailableBalance: isFiatDisabled ? '' : '---',
-                fiatSecondAdditionalBalance: isFiatDisabled ? '' : '---',
+                secondAvailableBalance: '●●●●●●',
+                secondAdditionalBalance: '●●●●●●',
+                fiatAdditionalBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
+                fiatAvailableBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
+                fiatFrozenBalance: isFiatDisabled ? '' : '',
+                fiatSecondAvailableBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
+                fiatSecondAdditionalBalance: isFiatDisabled ? '' : '${fiatCurrency.toString()} ●●●●●',
                 asset: key,
                 formattedAssetTitle: _formatterAsset(key)));
       }
@@ -357,7 +287,12 @@ abstract class BalanceViewModelBase with Store {
   bool mwebEnabled = false;
 
   @computed
-  bool get hasAdditionalBalance => _hasAdditionalBalanceForWalletType(wallet.type);
+  bool get hasAdditionalBalance {
+    bool isWalletTypeActivated = _hasAdditionalBalanceForWalletType(wallet.type);
+    bool isNotZeroAmount = additionalBalance != "0.0";
+
+    return isWalletTypeActivated && isNotZeroAmount;
+  }
 
   @computed
   bool get hasSecondAdditionalBalance =>
@@ -369,13 +304,11 @@ abstract class BalanceViewModelBase with Store {
 
   bool _hasAdditionalBalanceForWalletType(WalletType type) {
     switch (type) {
-      case WalletType.ethereum:
-      case WalletType.polygon:
-      case WalletType.solana:
-      case WalletType.tron:
-        return false;
-      default:
+      case WalletType.monero:
+      case WalletType.wownero:
         return true;
+      default:
+        return false;
     }
   }
 
@@ -460,8 +393,6 @@ abstract class BalanceViewModelBase with Store {
     return balance;
   }
 
-  @computed
-  CryptoCurrency get currency => appStore.wallet!.currency;
 
   @observable
   bool isShowCard;
