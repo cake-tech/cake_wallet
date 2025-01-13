@@ -223,13 +223,6 @@ abstract class WalletKeysViewModelBase with Store {
           ),
         );
       }
-
-      final passphrase = _appStore.wallet?.passphrase;
-      if (passphrase != null && passphrase != "") {
-        items.add(StandartListItem(
-            title: S.current.passphrase_view_keys,
-            value: passphrase.toString()));
-      }
     }
 
     if (_appStore.wallet!.type == WalletType.bitcoin ||
