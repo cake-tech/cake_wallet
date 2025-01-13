@@ -206,6 +206,11 @@ class AddressResolver {
             }
           }
         }
+
+        // .well-known scheme:
+        if (settingsStore.lookupsWellKnown) {
+          // TODO: .well-known
+        }
       }
 
       if (!text.startsWith('@') && text.contains('@') && !text.contains('.')) {
@@ -268,6 +273,10 @@ class AddressResolver {
                 formattedName: formattedName, ticker: ticker.toLowerCase(), txtRecord: txtRecord);
             return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
           }
+        }
+
+        if (settingsStore.lookupsWellKnown) {
+          // TODO: .well-known
         }
       }
       if (isEmailFormat(text)) {
