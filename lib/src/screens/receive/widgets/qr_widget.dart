@@ -1,22 +1,22 @@
 import 'package:cake_wallet/entities/qr_view_data.dart';
-import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/picker_theme.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
-import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class QRWidget extends StatelessWidget {
   QRWidget({
@@ -47,7 +47,8 @@ class QRWidget extends StatelessWidget {
         color: Theme.of(context).extension<QRCodeTheme>()!.qrWidgetCopyButtonColor);
 
     // This magic number for wider screen sets the text input focus at center of the inputfield
-    final _width = responsiveLayoutUtil.shouldRenderMobileUI ? MediaQuery.of(context).size.width : 500;
+    final _width =
+    responsiveLayoutUtil.shouldRenderMobileUI ? MediaQuery.of(context).size.width : 500;
 
     return Center(
       child: SingleChildScrollView(
@@ -77,7 +78,7 @@ class QRWidget extends StatelessWidget {
                         child: GestureDetector(
                           onTap: () {
                             BrightnessUtil.changeBrightnessForFunction(
-                              () async {
+                                  () async {
                                 await Navigator.pushNamed(context, Routes.fullscreenQR,
                                     arguments: QrViewData(
                                       data: addressUri.toString(),
@@ -149,41 +150,33 @@ class QRWidget extends StatelessWidget {
               padding: EdgeInsets.only(top: 20, bottom: 8),
               child: Builder(
                 builder: (context) => Observer(
-                  builder: (context) {
-                    final address = !addressListViewModel.isPayjoinOption
-                        ? addressListViewModel.address.address
-                        : addressListViewModel.uri.toString();
-
-                    return GestureDetector(
-                      onTap: () {
-                        Clipboard.setData(ClipboardData(text: address));
-                        showBar<void>(
-                            context, S.of(context).copied_to_clipboard);
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Expanded(
-                            child: Text(
-                              address,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .extension<DashboardPageTheme>()!
-                                      .textColor),
-                            ),
+                  builder: (context) => GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: addressUri.address));
+                      showBar<void>(context, S.of(context).copied_to_clipboard);
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            addressUri.address,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color:
+                                Theme.of(context).extension<DashboardPageTheme>()!.textColor),
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 12),
-                            child: copyImage,
-                          )
-                        ],
-                      ),
-                    );
-                  },
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 12),
+                          child: copyImage,
+                        )
+                      ],
+                    ),
+                  ),
                 ),
               ),
             )
