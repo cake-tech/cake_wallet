@@ -28,16 +28,17 @@ class DisplaySettingsPage extends BasePage {
           child: Column(
             children: [
               SettingsSwitcherCell(
-                  title: S.current.settings_display_balance,
-                  value: _displaySettingsViewModel.shouldDisplayBalance,
-                  onValueChange: (_, bool value) {
-                    _displaySettingsViewModel.setShouldDisplayBalance(value);
-                  }),
-              SettingsSwitcherCell(
                 title: S.current.show_market_place,
                 value: _displaySettingsViewModel.shouldShowMarketPlaceInDashboard,
                 onValueChange: (_, bool value) {
                   _displaySettingsViewModel.setShouldShowMarketPlaceInDashbaord(value);
+                },
+              ),
+              SettingsSwitcherCell(
+                title: S.of(context).show_address_book_popup,
+                value: _displaySettingsViewModel.showAddressBookPopup,
+                onValueChange: (_, bool value) {
+                  _displaySettingsViewModel.setShowAddressBookPopup(value);
                 },
               ),
               //if (!isHaven) it does not work correctly

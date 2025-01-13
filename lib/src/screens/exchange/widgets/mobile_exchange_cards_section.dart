@@ -23,7 +23,7 @@ class MobileExchangeCardsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(bottom: isBuySellOption ? 8 : 32),
+      padding: EdgeInsets.only(bottom: isBuySellOption ? 16 : 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(24),
@@ -54,7 +54,7 @@ class MobileExchangeCardsSection extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-            padding: EdgeInsets.fromLTRB(24, 90, 24, isBuySellOption ? 8 : 32),
+            padding: EdgeInsets.fromLTRB(24, 90, 24, isBuySellOption ? 24 : 16),
             child: Column(
               children: [
                 if (isBuySellOption) Column(
@@ -68,7 +68,7 @@ class MobileExchangeCardsSection extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: 29, left: 24, right: 24),
+            padding: EdgeInsets.only(top: 20, left: 24, right: 24),
             child: secondExchangeCard,
           )
         ],

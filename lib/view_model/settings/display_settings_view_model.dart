@@ -37,6 +37,9 @@ abstract class DisplaySettingsViewModelBase with Store {
   @computed
   bool get disabledFiatApiMode => _settingsStore.fiatApiMode == FiatApiMode.disabled;
 
+  @computed
+  bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
+
   @action
   void setBalanceDisplayMode(BalanceDisplayMode value) => _settingsStore.balanceDisplayMode = value;
 
@@ -66,4 +69,8 @@ abstract class DisplaySettingsViewModelBase with Store {
   void setShouldShowMarketPlaceInDashbaord(bool value) {
     _settingsStore.shouldShowMarketPlaceInDashboard = value;
   }
+
+  @action
+  void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
+
 }

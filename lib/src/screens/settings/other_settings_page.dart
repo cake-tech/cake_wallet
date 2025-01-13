@@ -63,13 +63,6 @@ class OtherSettingsPage extends BasePage {
                 handler: (BuildContext context) =>
                     Navigator.of(context).pushNamed(Routes.readDisclaimer),
               ),
-              SettingsSwitcherCell(
-                title: S.of(context).show_address_book_popup,
-                value: _otherSettingsViewModel.showAddressBookPopup,
-                onValueChange: (_, bool value) {
-                  _otherSettingsViewModel.setShowAddressBookPopup(value);
-                },
-              ),
               Spacer(),
               SettingsVersionCell(
                   title: S.of(context).version(_otherSettingsViewModel.currentVersion)),
