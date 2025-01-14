@@ -207,10 +207,16 @@ class AddressResolver {
             }
           }
         }
+      }
 
-        // .well-known scheme:
+      // .well-known scheme:
+      if (text.contains('.') && text.contains('@')) {
         if (settingsStore.lookupsWellKnown) {
-          // TODO: .well-known
+          final record =
+              await WellKnownRecord.fetchAddressAndName(formattedName: text, currency: currency);
+          if (record != null) {
+            return ParsedAddress.fetchWellKnownAddress(address: record.address, name: text);
+          }
         }
       }
 
@@ -273,14 +279,6 @@ class AddressResolver {
             final record = await OpenaliasRecord.fetchAddressAndName(
                 formattedName: formattedName, ticker: ticker.toLowerCase(), txtRecord: txtRecord);
             return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
-          }
-        }
-
-        if (settingsStore.lookupsWellKnown) {
-          final record = await WellKnownRecord.fetchAddressAndName(
-              formattedName: formattedName, currency: currency);
-          if (record != null) {
-            return ParsedAddress.fetchWellKnownAddress(address: record.address, name: text);
           }
         }
       }

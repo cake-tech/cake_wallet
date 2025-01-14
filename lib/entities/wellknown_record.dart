@@ -15,11 +15,11 @@ class WellKnownRecord {
 
   static Future<String?> checkWellKnownUsername(String username, CryptoCurrency currency) async {
     String jsonLocation = "";
-
     switch (currency) {
       case CryptoCurrency.nano:
-        jsonLocation = "nano-currency.json";
+        jsonLocation = "nano-currency";
         break;
+      // TODO: add other currencies
       default:
         return null;
     }
@@ -38,6 +38,7 @@ class WellKnownRecord {
       if (name.isEmpty) {
         name = "_";
       }
+
       // lookup domain/.well-known/nano-currency.json and check if it has a nano address:
       final http.Response response = await http.get(
         Uri.parse("https://$domain/.well-known/$jsonLocation.json?names=$name"),
@@ -77,6 +78,8 @@ class WellKnownRecord {
     required CryptoCurrency currency,
   }) async {
     String name = formattedName;
+
+    print("formattedName: $formattedName");
 
     final address = await checkWellKnownUsername(formattedName, currency);
 
