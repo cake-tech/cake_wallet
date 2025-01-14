@@ -224,16 +224,14 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       final userInfo = uri.userInfo.split(':');
 
       if (userInfo.length < 2) {
-        throw Exception('Unexpected scan QR code value: Value is invalid: ${userInfo}');
+        throw Exception('Unexpected scan QR code value: Value is invalid');
       }
 
-      final rpcUser = userInfo[0];
-      final rpcPassword = userInfo[1];
+      final rpcUser = userInfo.length == 2 ? userInfo[0] : '';
+      final rpcPassword = userInfo.length == 2 ? userInfo[1] : '';
       final ipAddress = uri.host;
       final port = uri.port.toString();
       final path = uri.path;
-
-      await Future.delayed(Duration(milliseconds: 345));
 
       setAddress(ipAddress);
       setPath(path);
