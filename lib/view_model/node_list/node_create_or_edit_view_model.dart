@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -214,16 +215,11 @@ abstract class NodeCreateOrEditViewModelBase with Store {
           await PermissionHandler.checkPermission(Permission.camera, context);
       if (!isCameraPermissionGranted) return;
       String code = await presentQRScanner(context);
-
       if (code.isEmpty) {
         throw Exception('Unexpected scan QR code value: value is empty');
       }
 
-      final uri = Uri.tryParse(code);
-
-      if (uri == null) {
-        throw Exception('Unexpected scan QR code value: Value is invalid');
-      }
+      final uri = Uri.parse(code);
 
       final userInfo = uri.userInfo.split(':');
 
@@ -231,11 +227,13 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Unexpected scan QR code value: Value is invalid');
       }
 
-      final rpcUser = userInfo[0];
-      final rpcPassword = userInfo[1];
+      final rpcUser = userInfo.length == 2 ? userInfo[0] : '';
+      final rpcPassword = userInfo.length == 2 ? userInfo[1] : '';
       final ipAddress = uri.host;
       final port = uri.port.toString();
       final path = uri.path;
+
+      await Future.delayed(Duration(milliseconds: 345));
 
       setAddress(ipAddress);
       setPath(path);
