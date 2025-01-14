@@ -23,11 +23,7 @@ class LitecoinWalletService extends WalletService<
     BitcoinRestoreWalletFromWIFCredentials,
     BitcoinRestoreWalletFromHardware> {
   LitecoinWalletService(
-    this.walletInfoSource,
-    this.unspentCoinsInfoSource,
-    this.alwaysScan,
-    this.isDirect,
-  );
+      this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
@@ -72,6 +68,7 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> openWallet(String name, String password) async {
+
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
 
@@ -130,9 +127,8 @@ class LitecoinWalletService extends WalletService<
       }
     }
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values
-        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
-        .toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
+            (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 

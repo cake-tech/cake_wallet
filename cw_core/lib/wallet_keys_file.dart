@@ -27,10 +27,7 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
       final path = "$rootPath${isBackup ? ".backup" : ""}";
       dev.log("Saving .keys file '$path'");
       await encryptionFileUtils.write(
-        path: path,
-        password: password,
-        data: walletKeysData.toJSON(),
-      );
+          path: path, password: password, data: walletKeysData.toJSON());
     } catch (_) {}
   }
 

@@ -6,15 +6,8 @@ class CWBitcoinCash extends BitcoinCash {
 
   @override
   WalletService createBitcoinCashWalletService(
-    Box<WalletInfo> walletInfoSource,
-    Box<UnspentCoinsInfo> unspentCoinSource,
-    bool isDirect,
-  ) {
-    return BitcoinCashWalletService(
-      walletInfoSource,
-      unspentCoinSource,
-      isDirect,
-    );
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+    return BitcoinCashWalletService(walletInfoSource, unspentCoinSource, isDirect);
   }
 
   @override
@@ -37,10 +30,7 @@ class CWBitcoinCash extends BitcoinCash {
 
   @override
   WalletCredentials createBitcoinCashRestoreWalletFromSeedCredentials(
-          {required String name,
-          required String mnemonic,
-          required String password,
-          String? passphrase}) =>
+          {required String name, required String mnemonic, required String password, String? passphrase}) =>
       BitcoinCashRestoreWalletFromSeedCredentials(
           name: name, mnemonic: mnemonic, password: password, passphrase: passphrase);
 
