@@ -36,7 +36,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
-    required bool mempoolAPIEnabled,
   }) : super(
           mnemonic: mnemonic,
           password: password,
@@ -49,7 +48,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
           currency: CryptoCurrency.bch,
           encryptionFileUtils: encryptionFileUtils,
           passphrase: passphrase,
-          mempoolAPIEnabled: mempoolAPIEnabled,
           hdWallets: {CWBitcoinDerivationType.bip39: Bip32Slip10Secp256k1.fromSeed(seedBytes)},
         ) {
     walletAddresses = BitcoinCashWalletAddresses(
@@ -80,7 +78,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
-    required bool mempoolAPIEnabled,
   }) async {
     return BitcoinCashWallet(
       mnemonic: mnemonic,
@@ -95,7 +92,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,
       passphrase: passphrase,
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
   }
 
@@ -105,7 +101,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
-    required bool mempoolAPIEnabled,
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
 
@@ -173,7 +168,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: snp?.changeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,
       passphrase: keysData.passphrase,
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
   }
 

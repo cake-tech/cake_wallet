@@ -22,13 +22,11 @@ class BitcoinCashWalletService extends WalletService<
     this.walletInfoSource,
     this.unspentCoinsInfoSource,
     this.isDirect,
-    this.mempoolAPIEnabled,
   );
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
-  final bool mempoolAPIEnabled;
 
   @override
   WalletType getType() => WalletType.bitcoinCash;
@@ -48,7 +46,6 @@ class BitcoinCashWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       passphrase: credentials.passphrase,
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
     await wallet.save();
     await wallet.init();
@@ -68,7 +65,6 @@ class BitcoinCashWalletService extends WalletService<
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-        mempoolAPIEnabled: mempoolAPIEnabled,
       );
       await wallet.init();
       saveBackup(name);
@@ -81,7 +77,6 @@ class BitcoinCashWalletService extends WalletService<
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-        mempoolAPIEnabled: mempoolAPIEnabled,
       );
       await wallet.init();
       return wallet;
@@ -95,8 +90,9 @@ class BitcoinCashWalletService extends WalletService<
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
-            (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 
@@ -115,7 +111,6 @@ class BitcoinCashWalletService extends WalletService<
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
 
     await currentWallet.renameWalletFiles(newName);
@@ -154,7 +149,6 @@ class BitcoinCashWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       passphrase: credentials.passphrase,
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
     await wallet.save();
     await wallet.init();

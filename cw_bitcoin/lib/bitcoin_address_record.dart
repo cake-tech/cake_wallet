@@ -59,7 +59,34 @@ abstract class BaseBitcoinAddressRecord {
 
   BitcoinAddressType type;
 
-  String toJSON();
+  String toJSON() => json.encode({
+        'address': address,
+        'index': index,
+        'isHidden': isHidden,
+        'isChange': isChange,
+        'isUsed': isUsed,
+        'txCount': txCount,
+        'name': name,
+        'balance': balance,
+        'type': type.toString(),
+        'runtimeType': runtimeType.toString(),
+      });
+
+  static BaseBitcoinAddressRecord fromJSON(String jsonSource) {
+    final decoded = json.decode(jsonSource) as Map;
+
+    if (decoded['runtimeType'] == 'BitcoinAddressRecord') {
+      return BitcoinAddressRecord.fromJSON(jsonSource);
+    } else if (decoded['runtimeType'] == 'BitcoinSilentPaymentAddressRecord') {
+      return BitcoinSilentPaymentAddressRecord.fromJSON(jsonSource);
+    } else if (decoded['runtimeType'] == 'BitcoinReceivedSPAddressRecord') {
+      return BitcoinReceivedSPAddressRecord.fromJSON(jsonSource);
+    } else if (decoded['runtimeType'] == 'LitecoinMWEBAddressRecord') {
+      return LitecoinMWEBAddressRecord.fromJSON(jsonSource);
+    } else {
+      throw ArgumentError('Unknown runtimeType');
+    }
+  }
 }
 
 class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
@@ -117,20 +144,13 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   late String scriptHash;
 
   @override
-  String toJSON() => json.encode({
-        'address': address,
-        'index': index,
-        'derivationInfo': derivationInfo.toJSON(),
-        'derivationType': cwDerivationType.index,
-        'isHidden': isHidden,
-        'isChange': isChange,
-        'isUsed': isUsed,
-        'txCount': txCount,
-        'name': name,
-        'balance': balance,
-        'type': type.toString(),
-        'scriptHash': scriptHash,
-      });
+  String toJSON() {
+    final m = json.decode(super.toJSON()) as Map<String, dynamic>;
+    m['derivationInfo'] = derivationInfo.toJSON();
+    m['derivationType'] = cwDerivationType.index;
+    m['scriptHash'] = scriptHash;
+    return json.encode(m);
+  }
 
   @override
   bool operator ==(Object other) {
@@ -204,19 +224,13 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   }
 
   @override
-  String toJSON() => json.encode({
-        'address': address,
-        'derivationPath': derivationPath,
-        'index': labelIndex,
-        'isUsed': isUsed,
-        'txCount': txCount,
-        'name': name,
-        'balance': balance,
-        'type': type.toString(),
-        'labelHex': labelHex,
-        'isChange': isChange,
-        'isHidden': isHidden,
-      });
+  String toJSON() {
+    final m = json.decode(super.toJSON()) as Map<String, dynamic>;
+    m['derivationPath'] = _derivationPath;
+    m['index'] = labelIndex;
+    m['labelHex'] = labelHex;
+    return json.encode(m);
+  }
 }
 
 class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
@@ -272,18 +286,11 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
   }
 
   @override
-  String toJSON() => json.encode({
-        'address': address,
-        'index': labelIndex,
-        'isUsed': isUsed,
-        'txCount': txCount,
-        'name': name,
-        'balance': balance,
-        'type': type.toString(),
-        'labelHex': labelHex,
-        'tweak': tweak,
-        'isChange': isChange,
-      });
+  String toJSON() {
+    final m = json.decode(super.toJSON()) as Map<String, dynamic>;
+    m['tweak'] = tweak;
+    return json.encode(m);
+  }
 }
 
 class LitecoinMWEBAddressRecord extends BaseBitcoinAddressRecord {
@@ -313,19 +320,6 @@ class LitecoinMWEBAddressRecord extends BaseBitcoinAddressRecord {
       balance: decoded['balance'] as int? ?? 0,
     );
   }
-
-  @override
-  String toJSON() => json.encode({
-        'address': address,
-        'index': index,
-        'isHidden': isHidden,
-        'isChange': isChange,
-        'isUsed': isUsed,
-        'txCount': txCount,
-        'name': name,
-        'balance': balance,
-        'type': type.toString(),
-      });
 
   @override
   bool operator ==(Object other) {

@@ -11,16 +11,8 @@ class BitcoinUnspent extends Unspent {
       BitcoinUnspent(address, utxo.txId, utxo.value.toInt(), utxo.vout);
 
   factory BitcoinUnspent.fromJSON(BaseBitcoinAddressRecord? address, Map<String, dynamic> json) {
-    final addressType = json['address_runtimetype'] as String?;
-    final addressRecord = json['address_record'].toString();
-
     return BitcoinUnspent(
-      address ??
-          (addressType == null
-              ? BitcoinAddressRecord.fromJSON(addressRecord)
-              : addressType.contains("SP")
-                  ? BitcoinReceivedSPAddressRecord.fromJSON(addressRecord)
-                  : BitcoinSilentPaymentAddressRecord.fromJSON(addressRecord)),
+      address ?? BaseBitcoinAddressRecord.fromJSON(json['address_record'] as String),
       json['tx_hash'] as String,
       int.parse(json['value'].toString()),
       int.parse(json['tx_pos'].toString()),
@@ -30,7 +22,6 @@ class BitcoinUnspent extends Unspent {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{
       'address_record': bitcoinAddressRecord.toJSON(),
-      'address_runtimetype': bitcoinAddressRecord.runtimeType.toString(),
       'tx_hash': hash,
       'value': value,
       'tx_pos': vout,

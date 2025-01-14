@@ -27,14 +27,12 @@ class LitecoinWalletService extends WalletService<
     this.unspentCoinsInfoSource,
     this.alwaysScan,
     this.isDirect,
-    this.mempoolAPIEnabled,
   );
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool alwaysScan;
   final bool isDirect;
-  final bool mempoolAPIEnabled;
 
   @override
   WalletType getType() => WalletType.litecoin;
@@ -61,7 +59,6 @@ class LitecoinWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
     await wallet.save();
     await wallet.init();
@@ -86,7 +83,6 @@ class LitecoinWalletService extends WalletService<
         unspentCoinsInfo: unspentCoinsInfoSource,
         alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-        mempoolAPIEnabled: mempoolAPIEnabled,
       );
       await wallet.init();
       saveBackup(name);
@@ -100,7 +96,6 @@ class LitecoinWalletService extends WalletService<
         unspentCoinsInfo: unspentCoinsInfoSource,
         alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-        mempoolAPIEnabled: mempoolAPIEnabled,
       );
       await wallet.init();
       return wallet;
@@ -135,8 +130,9 @@ class LitecoinWalletService extends WalletService<
       }
     }
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
-            (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 
@@ -156,7 +152,6 @@ class LitecoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       alwaysScan: alwaysScan,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
 
     await currentWallet.renameWalletFiles(newName);
@@ -183,7 +178,6 @@ class LitecoinWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
     await wallet.save();
     await wallet.init();
@@ -209,7 +203,6 @@ class LitecoinWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
     await wallet.save();
     await wallet.init();

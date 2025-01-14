@@ -259,14 +259,12 @@ class CWBitcoin extends Bitcoin {
     Box<UnspentCoinsInfo> unspentCoinSource,
     bool alwaysScan,
     bool isDirect,
-    bool mempoolAPIEnabled,
   ) {
     return BitcoinWalletService(
       walletInfoSource,
       unspentCoinSource,
       alwaysScan,
       isDirect,
-      mempoolAPIEnabled,
     );
   }
 
@@ -275,14 +273,12 @@ class CWBitcoin extends Bitcoin {
     Box<UnspentCoinsInfo> unspentCoinSource,
     bool alwaysScan,
     bool isDirect,
-    bool mempoolAPIEnabled,
   ) {
     return LitecoinWalletService(
       walletInfoSource,
       unspentCoinSource,
       alwaysScan,
       isDirect,
-      mempoolAPIEnabled,
     );
   }
 
@@ -661,7 +657,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<bool> checkIfMempoolAPIIsEnabled(Object wallet) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
+    final bitcoinWallet = wallet as BitcoinWallet;
     return await bitcoinWallet.mempoolAPIEnabled;
   }
 

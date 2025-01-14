@@ -7,7 +7,7 @@ class ElectrumWorkerGetHistoryRequest implements ElectrumWorkerRequest {
     required this.walletType,
     required this.chainTip,
     required this.network,
-    required this.mempoolAPIEnabled,
+    this.mempoolAPIEnabled = false,
     this.id,
   });
 

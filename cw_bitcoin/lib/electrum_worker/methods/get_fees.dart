@@ -1,10 +1,7 @@
 part of 'methods.dart';
 
 class ElectrumWorkerGetFeesRequest implements ElectrumWorkerRequest {
-  ElectrumWorkerGetFeesRequest({
-    required this.mempoolAPIEnabled,
-    this.id,
-  });
+  ElectrumWorkerGetFeesRequest({this.mempoolAPIEnabled = false, this.id});
 
   final bool mempoolAPIEnabled;
   final int? id;

@@ -4,7 +4,7 @@ class ElectrumWorkerTxExpandedRequest implements ElectrumWorkerRequest {
   ElectrumWorkerTxExpandedRequest({
     required this.txHash,
     required this.currentChainTip,
-    required this.mempoolAPIEnabled,
+    this.mempoolAPIEnabled = false,
     this.id,
   });
 

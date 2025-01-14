@@ -215,14 +215,12 @@ abstract class Bitcoin {
     Box<UnspentCoinsInfo> unspentCoinSource,
     bool alwaysScan,
     bool isDirect,
-    bool mempoolAPIEnabled,
   );
   WalletService createLitecoinWalletService(
     Box<WalletInfo> walletInfoSource,
     Box<UnspentCoinsInfo> unspentCoinSource,
     bool alwaysScan,
     bool isDirect,
-    bool mempoolAPIEnabled,
   );
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPriorityCustom();
@@ -1130,7 +1128,6 @@ abstract class BitcoinCash {
     Box<WalletInfo> walletInfoSource,
     Box<UnspentCoinsInfo> unspentCoinSource,
     bool isDirect,
-    bool mempoolAPIEnabled,
   );
 
   WalletCredentials createBitcoinCashNewWalletCredentials(

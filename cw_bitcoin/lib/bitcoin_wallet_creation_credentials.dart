@@ -4,37 +4,26 @@ import 'package:cw_core/wallet_info.dart';
 
 class BitcoinNewWalletCredentials extends WalletCredentials {
   BitcoinNewWalletCredentials({
-    required String name,
-    WalletInfo? walletInfo,
-    String? password,
-    String? passphrase,
+    required super.name,
+    super.walletInfo,
+    super.password,
+    super.passphrase,
     this.mnemonic,
-    String? parentAddress,
-  }) : super(
-          name: name,
-          walletInfo: walletInfo,
-          password: password,
-          passphrase: passphrase,
-          parentAddress: parentAddress,
-        );
+    super.parentAddress,
+  });
 
   final String? mnemonic;
 }
 
 class BitcoinRestoreWalletFromSeedCredentials extends WalletCredentials {
   BitcoinRestoreWalletFromSeedCredentials({
-    required String name,
-    required String password,
+    required super.name,
+    required super.password,
     required this.mnemonic,
     required super.derivations,
-    WalletInfo? walletInfo,
-    String? passphrase,
-  }) : super(
-          name: name,
-          password: password,
-          passphrase: passphrase,
-          walletInfo: walletInfo,
-        );
+    super.walletInfo,
+    super.passphrase,
+  });
 
   final String mnemonic;
 }

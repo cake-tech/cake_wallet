@@ -24,7 +24,6 @@ import 'package:cw_bitcoin/exceptions.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -69,7 +68,6 @@ abstract class ElectrumWalletBase
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
     this.alwaysScan,
-    required this.mempoolAPIEnabled,
     List<BitcoinUnspent>? initialUnspentCoins,
   })  : hdWallets = hdWallets ??
             {
@@ -209,7 +207,6 @@ abstract class ElectrumWalletBase
   }
 
   bool? alwaysScan;
-  bool mempoolAPIEnabled;
   bool _updatingHistories = false;
 
   final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets;
@@ -358,11 +355,8 @@ abstract class ElectrumWalletBase
     _onError?.call(error);
   }
 
-  @action
   Future<void> updateFeeRates() async {
-    workerSendPort!.send(
-      ElectrumWorkerGetFeesRequest(mempoolAPIEnabled: mempoolAPIEnabled).toJson(),
-    );
+    workerSendPort!.send(ElectrumWorkerGetFeesRequest().toJson());
   }
 
   @action
@@ -1635,11 +1629,7 @@ abstract class ElectrumWalletBase
 
   Future<ElectrumTransactionBundle> getTransactionExpanded({required String hash}) async {
     return await sendWorker(
-      ElectrumWorkerTxExpandedRequest(
-        txHash: hash,
-        currentChainTip: currentChainTip!,
-        mempoolAPIEnabled: mempoolAPIEnabled,
-      ),
+      ElectrumWorkerTxExpandedRequest(txHash: hash, currentChainTip: currentChainTip!),
     ) as ElectrumTransactionBundle;
   }
 
@@ -1663,7 +1653,6 @@ abstract class ElectrumWalletBase
     throw UnimplementedError();
   }
 
-  @action
   Future<void> updateTransactions([List<BitcoinAddressRecord>? addresses]) async {
     workerSendPort!.send(ElectrumWorkerGetHistoryRequest(
       addresses: walletAddresses.allAddresses.toList(),
@@ -1671,9 +1660,8 @@ abstract class ElectrumWalletBase
       walletType: type,
       // If we still don't have currentChainTip, txs will still be fetched but shown
       // with confirmations as 0 but will be auto fixed on onHeadersResponse
-      chainTip: currentChainTip ?? getBitcoinHeightByDate(date: DateTime.now()),
+      chainTip: currentChainTip ?? -1,
       network: network,
-      mempoolAPIEnabled: mempoolAPIEnabled,
     ).toJson());
   }
 

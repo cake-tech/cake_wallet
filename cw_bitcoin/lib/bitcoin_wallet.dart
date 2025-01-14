@@ -12,6 +12,7 @@ import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_bitcoin/wallet_seed_bytes.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
@@ -61,7 +62,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     int initialSilentAddressIndex = 0,
     bool? alwaysScan,
-    required bool mempoolAPIEnabled,
     super.hdWallets,
     super.initialUnspentCoins,
   }) : super(
@@ -83,7 +83,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           currency:
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
-          mempoolAPIEnabled: mempoolAPIEnabled,
         ) {
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
@@ -114,7 +113,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     int initialSilentAddressIndex = 0,
-    required bool mempoolAPIEnabled,
   }) async {
     final walletSeedBytes = await WalletSeedBytes.getSeedBytes(walletInfo, mnemonic, passphrase);
 
@@ -135,7 +133,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
       networkParam: network,
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
   }
 
@@ -146,7 +143,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
     required bool alwaysScan,
-    required bool mempoolAPIEnabled,
   }) async {
     final network = walletInfo.network != null
         ? BasedUtxoNetwork.fromName(walletInfo.network!)
@@ -220,7 +216,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       addressPageType: snp?.addressPageType,
       networkParam: network,
       alwaysScan: alwaysScan,
-      mempoolAPIEnabled: mempoolAPIEnabled,
       hdWallets: hdWallets,
       initialUnspentCoins: snp?.unspentCoins,
     );
@@ -356,6 +351,43 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     return super.signMessage(message, address: address);
+  }
+
+  Future<bool> get mempoolAPIEnabled async {
+    bool isMempoolAPIEnabled = (await sharedPrefs.future).getBool("use_mempool_fee_api") ?? true;
+    return isMempoolAPIEnabled;
+  }
+
+  @override
+  Future<void> updateFeeRates() async {
+    workerSendPort!.send(
+      ElectrumWorkerGetFeesRequest(mempoolAPIEnabled: await mempoolAPIEnabled).toJson(),
+    );
+  }
+
+  @override
+  Future<ElectrumTransactionBundle> getTransactionExpanded({required String hash}) async {
+    return await sendWorker(
+      ElectrumWorkerTxExpandedRequest(
+        txHash: hash,
+        currentChainTip: currentChainTip!,
+        mempoolAPIEnabled: await mempoolAPIEnabled,
+      ),
+    ) as ElectrumTransactionBundle;
+  }
+
+  @override
+  Future<void> updateTransactions([List<BitcoinAddressRecord>? addresses]) async {
+    workerSendPort!.send(ElectrumWorkerGetHistoryRequest(
+      addresses: walletAddresses.allAddresses.toList(),
+      storedTxs: transactionHistory.transactions.values.toList(),
+      walletType: type,
+      // If we still don't have currentChainTip, txs will still be fetched but shown
+      // with confirmations as 0 but will be auto fixed on onHeadersResponse
+      chainTip: currentChainTip ?? -1,
+      network: network,
+      mempoolAPIEnabled: await mempoolAPIEnabled,
+    ).toJson());
   }
 
   @action
@@ -687,22 +719,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @override
   int get dustAmount => network == BitcoinNetwork.testnet ? 0 : 546;
-
-  @override
-  @action
-  Future<void> updateTransactions([List<BitcoinAddressRecord>? addresses]) async {
-    super.updateTransactions();
-
-    // transactionHistory.transactions.values.forEach((tx) {
-    //   if (tx.unspents != null &&
-    //       tx.unspents!.isNotEmpty &&
-    //       tx.height != null &&
-    //       tx.height! > 0 &&
-    //       (currentChainTip ?? 0) > 0) {
-    //     tx.confirmations = currentChainTip! - tx.height! + 1;
-    //   }
-    // });
-  }
 
   // @action
   // Future<ElectrumBalance> fetchBalances() async {
@@ -1331,66 +1347,5 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     } catch (e) {
       throw e;
     }
-  }
-}
-
-class WalletSeedBytes {
-  final List<int> seedBytes;
-  final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets;
-
-  WalletSeedBytes({required this.seedBytes, required this.hdWallets});
-
-  static Future<WalletSeedBytes> getSeedBytes(
-    WalletInfo walletInfo,
-    String mnemonic, [
-    String? passphrase,
-  ]) async {
-    late List<int> seedBytes;
-    final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
-
-    for (final derivation in walletInfo.derivations ?? [walletInfo.derivationInfo!]) {
-      if (derivation.description?.contains("SP") ?? false) {
-        continue;
-      }
-
-      if (derivation.derivationType == DerivationType.bip39) {
-        try {
-          seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
-          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-        } catch (e) {
-          printV("bip39 seed error: $e");
-        }
-
-        continue;
-      }
-
-      if (derivation.derivationType == DerivationType.electrum) {
-        try {
-          seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
-          hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-        } catch (e) {
-          printV("electrum_v2 seed error: $e");
-
-          try {
-            seedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
-            hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-          } catch (e) {
-            printV("electrum_v1 seed error: $e");
-          }
-        }
-      }
-    }
-
-    if (walletInfo.isRecovery) {
-      if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
-        hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
-      }
-      if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
-        hdWallets[CWBitcoinDerivationType.old_electrum] =
-            hdWallets[CWBitcoinDerivationType.electrum]!;
-      }
-    }
-
-    return WalletSeedBytes(seedBytes: seedBytes, hdWallets: hdWallets);
   }
 }

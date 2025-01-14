@@ -1069,7 +1069,6 @@ Future<void> setup({
           _unspentCoinsInfoSource,
           getIt.get<SettingsStore>().silentPaymentsAlwaysScan,
           SettingsStoreBase.walletPasswordDirectInput,
-          getIt.get<SettingsStore>().useMempoolFeeAPI,
         );
       case WalletType.litecoin:
         return bitcoin!.createLitecoinWalletService(
@@ -1077,7 +1076,6 @@ Future<void> setup({
           _unspentCoinsInfoSource,
           getIt.get<SettingsStore>().mwebAlwaysScan,
           SettingsStoreBase.walletPasswordDirectInput,
-          getIt.get<SettingsStore>().useMempoolFeeAPI,
         );
       case WalletType.ethereum:
         return ethereum!.createEthereumWalletService(
@@ -1087,7 +1085,6 @@ Future<void> setup({
           _walletInfoSource,
           _unspentCoinsInfoSource,
           SettingsStoreBase.walletPasswordDirectInput,
-          getIt.get<SettingsStore>().useMempoolFeeAPI,
         );
       case WalletType.nano:
       case WalletType.banano:
@@ -1185,7 +1182,7 @@ Future<void> setup({
       (seedPhraseLength, _) => PreSeedPage(seedPhraseLength));
 
   getIt.registerFactoryParam<TransactionSuccessPage, String, void>(
-          (content, _) => TransactionSuccessPage(content: content));
+      (content, _) => TransactionSuccessPage(content: content));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(
@@ -1422,7 +1419,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => SignViewModel(getIt.get<AppStore>().wallet!));
 
-    getIt.registerFactory(() => SeedVerificationPage(getIt.get<WalletSeedViewModel>()));
+  getIt.registerFactory(() => SeedVerificationPage(getIt.get<WalletSeedViewModel>()));
 
   _isSetupFinished = true;
 }

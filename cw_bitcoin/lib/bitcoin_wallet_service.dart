@@ -24,13 +24,11 @@ class BitcoinWalletService extends WalletService<
     this.unspentCoinsInfoSource,
     this.alwaysScan,
     this.isDirect,
-    this.mempoolAPIEnabled,
   );
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool alwaysScan;
-  final bool mempoolAPIEnabled;
   final bool isDirect;
 
   @override
@@ -62,7 +60,6 @@ class BitcoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
 
     await wallet.save();
@@ -86,7 +83,6 @@ class BitcoinWalletService extends WalletService<
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         alwaysScan: alwaysScan,
-        mempoolAPIEnabled: mempoolAPIEnabled,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -100,7 +96,6 @@ class BitcoinWalletService extends WalletService<
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         alwaysScan: alwaysScan,
-        mempoolAPIEnabled: mempoolAPIEnabled,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -115,8 +110,9 @@ class BitcoinWalletService extends WalletService<
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
-          (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 
@@ -135,7 +131,6 @@ class BitcoinWalletService extends WalletService<
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
       alwaysScan: alwaysScan,
-      mempoolAPIEnabled: mempoolAPIEnabled,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -164,7 +159,6 @@ class BitcoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
     await wallet.save();
     await wallet.init();
@@ -190,7 +184,6 @@ class BitcoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-      mempoolAPIEnabled: mempoolAPIEnabled,
     );
     await wallet.init();
     return wallet;

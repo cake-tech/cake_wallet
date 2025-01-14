@@ -9,13 +9,11 @@ class CWBitcoinCash extends BitcoinCash {
     Box<WalletInfo> walletInfoSource,
     Box<UnspentCoinsInfo> unspentCoinSource,
     bool isDirect,
-    bool mempoolAPIEnabled,
   ) {
     return BitcoinCashWalletService(
       walletInfoSource,
       unspentCoinSource,
       isDirect,
-      mempoolAPIEnabled,
     );
   }
 
