@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
+import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -159,7 +160,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       wallet.type == WalletType.bitcoinCash;
 
   bool get hideAddressAfterExchange =>
-      wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
+      wallet.type == WalletType.monero || 
+      wallet.type == WalletType.wownero;
 
   bool _useTorOnly;
   final Box<Trade> trades;
@@ -172,6 +174,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         SideShiftExchangeProvider(),
         SimpleSwapExchangeProvider(),
         ThorChainExchangeProvider(tradesStore: trades),
+        ChainflipExchangeProvider(tradesStore: trades),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         QuantexExchangeProvider(),
         LetsExchangeExchangeProvider(),
