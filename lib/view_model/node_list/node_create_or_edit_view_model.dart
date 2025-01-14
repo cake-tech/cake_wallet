@@ -233,6 +233,8 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       final port = uri.port.toString();
       final path = uri.path;
 
+      await Future.delayed(Duration(milliseconds: 345));
+
       setAddress(ipAddress);
       setPath(path);
       setPassword(rpcPassword);
