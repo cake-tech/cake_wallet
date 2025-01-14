@@ -733,6 +733,8 @@
   "shared_seed_wallet_groups": "Kelompok dompet benih bersama",
   "show": "Menunjukkan",
   "show_address_book_popup": "Tampilkan popup 'Tambahkan ke Alamat' setelah mengirim",
+  "show_balance": "PRESS PANJANG UNTUK MENUNJUKKAN Balance",
+  "show_balance_toast": "Tekan panjang untuk menyembunyikan atau menunjukkan keseimbangan",
   "show_details": "Tampilkan Rincian",
   "show_keys": "Tampilkan seed/kunci",
   "show_market_place": "Tampilkan Pasar",

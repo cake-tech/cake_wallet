@@ -729,6 +729,8 @@
   "shared_seed_wallet_groups": "Nhóm ví hạt được chia sẻ",
   "show": "Trình diễn",
   "show_address_book_popup": "Hiển thị cửa sổ bật lên 'Thêm vào sổ địa chỉ' sau khi gửi",
+  "show_balance": "Báo chí dài để hiển thị sự cân bằng",
+  "show_balance_toast": "Nhấn dài để ẩn hoặc hiển thị sự cân bằng",
   "show_details": "Hiển thị chi tiết",
   "show_keys": "Hiển thị hạt giống/khóa",
   "show_market_place": "Hiển thị Thị trường",

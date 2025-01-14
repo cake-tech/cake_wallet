@@ -730,6 +730,8 @@
   "shared_seed_wallet_groups": "Wspólne grupy portfeli nasion",
   "show": "Pokazywać",
   "show_address_book_popup": "Pokaż wysypkę „Dodaj do książki” po wysłaniu",
+  "show_balance": "Długa prasa, aby pokazać równowagę",
+  "show_balance_toast": "Długa naciśnij, aby ukryć lub pokazać równowagę",
   "show_details": "Pokaż szczegóły",
   "show_keys": "Pokaż seed/klucze",
   "show_market_place": "Pokaż rynek",

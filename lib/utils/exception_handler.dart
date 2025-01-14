@@ -215,6 +215,7 @@ class ExceptionHandler {
     "input stream error",
     "invalid signature",
     "invalid password",
+    "NetworkImage._loadAsync",
     // Temporary ignored, More context: Flutter secure storage reads the values as null some times
     // probably when the device was locked and then opened on Cake
     // this is solved by a restart of the app

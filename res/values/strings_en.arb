@@ -730,6 +730,8 @@
   "shared_seed_wallet_groups": "Shared Seed Wallet Groups",
   "show": "Show",
   "show_address_book_popup": "Show 'Add to Address Book' popup after sending",
+  "show_balance": "Long Press to Show Balance",
+  "show_balance_toast": "Long press to hide or show balance",
   "show_details": "Show Details",
   "show_keys": "Show seed/keys",
   "show_market_place": "Show Marketplace",

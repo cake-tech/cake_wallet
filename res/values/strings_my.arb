@@ -730,6 +730,8 @@
   "shared_seed_wallet_groups": "shared မျိုးစေ့ပိုက်ဆံအိတ်အုပ်စုများ",
   "show": "ပြသ",
   "show_address_book_popup": "ပေးပို့ပြီးနောက် 'address book' popup ကိုပြပါ",
+  "show_balance": "ချိန်ခွင်လျှာကိုပြသရန်ရှည်လျားသောစာနယ်ဇင်း",
+  "show_balance_toast": "ချိန်ခွင်လျှာကိုဖျောက်ရန်သို့မဟုတ်ပြသရန်ရှည်လျားသောစာနယ်ဇင်း",
   "show_details": "အသေးစိတ်ပြ",
   "show_keys": "မျိုးစေ့ /သော့များကို ပြပါ။",
   "show_market_place": "စျေးကွက်ကိုပြသပါ။",
