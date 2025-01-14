@@ -19,7 +19,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:blockchain_utils/signer/ecdsa_signing_key.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
@@ -33,7 +32,6 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
@@ -1771,8 +1769,8 @@ class WalletSeedBytes {
     late List<int> seedBytes;
     final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
 
-    if (walletInfo.isRecovery) {
-      for (final derivation in walletInfo.derivations ?? <DerivationInfo>[]) {
+    if (walletInfo.derivations != null) {
+      for (final derivation in walletInfo.derivations!) {
         if (derivation.derivationType == DerivationType.bip39) {
           try {
             seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
@@ -1800,6 +1798,28 @@ class WalletSeedBytes {
             }
           }
         }
+      }
+    } else {
+      switch (walletInfo.derivationInfo?.derivationType) {
+        case DerivationType.bip39:
+          seedBytes = await Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+          break;
+        case DerivationType.electrum:
+        default:
+          seedBytes = await ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+          hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+          break;
+      }
+    }
+
+    if (walletInfo.isRecovery) {
+      if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
+        hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
+      }
+      if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
+        hdWallets[CWBitcoinDerivationType.old_electrum] =
+            hdWallets[CWBitcoinDerivationType.electrum]!;
       }
     }
 

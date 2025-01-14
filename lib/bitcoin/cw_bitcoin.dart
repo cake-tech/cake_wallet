@@ -600,9 +600,7 @@ class CWBitcoin extends Bitcoin {
               id: addr.index,
               name: addr.name,
               address: addr.address,
-              derivationPath: Bip32PathParser.parse(addr.derivationPath)
-                  .addElem(Bip32KeyIndex(addr.index))
-                  .toString(),
+              derivationPath: addr.derivationPath,
               txCount: addr.txCount,
               balance: addr.balance,
               isChange: addr.isChange,

@@ -89,7 +89,7 @@ abstract class ElectrumTransactionHistoryBase
 
       _height = content['height'] as int;
     } catch (e) {
-      printV(e);
+      // printV(e);
     }
   }
 

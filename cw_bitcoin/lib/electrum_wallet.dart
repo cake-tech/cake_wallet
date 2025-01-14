@@ -134,7 +134,7 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> handleWorkerResponse(dynamic message) async {
-    printV('Main: received message: $message');
+    // printV('Main: received message: $message');
 
     Map<String, dynamic> messageJson;
     if (message is String) {
@@ -1314,6 +1314,7 @@ abstract class ElectrumWalletBase
               ].contains(addressRecord.cwDerivationType),
             ),
           );
+          walletAddresses.updateAdresses(newAddresses);
 
           final newAddressList =
               (isChange ? walletAddresses.changeAddresses : walletAddresses.receiveAddresses).where(

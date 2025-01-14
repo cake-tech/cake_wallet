@@ -73,10 +73,14 @@ class ElectrumWalletSnapshot {
         .toList();
 
     final silentAddressesTmp = data['silent_addresses'] as List? ?? <Object>[];
-    final silentAddresses = silentAddressesTmp
-        .whereType<String>()
-        .map((addr) => BitcoinSilentPaymentAddressRecord.fromJSON(addr, network: network))
-        .toList();
+    final silentAddresses = silentAddressesTmp.whereType<String>().map((j) {
+      final decoded = json.decode(jsonSource) as Map;
+      if (decoded['tweak'] != null || decoded['silent_payment_tweak'] != null) {
+        return BitcoinReceivedSPAddressRecord.fromJSON(j);
+      } else {
+        return BitcoinSilentPaymentAddressRecord.fromJSON(j);
+      }
+    }).toList();
 
     final mwebAddressTmp = data['mweb_addresses'] as List? ?? <Object>[];
     final mwebAddresses = mwebAddressTmp

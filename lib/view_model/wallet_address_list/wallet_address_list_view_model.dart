@@ -270,7 +270,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   WalletAddressListItem get address {
     if (_addressType != null) {
-      final shouldForceSP = _addressType != null && bitcoin!.isReceiveOptionSP(_addressType!);
+      final shouldForceSP = bitcoin!.isReceiveOptionSP(_addressType);
       if (shouldForceSP) {
         return WalletAddressListItem(
           address: bitcoin!.getSilentPaymentAddresses(wallet).first.address,
@@ -369,8 +369,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     if (isElectrumWallet) {
-      final hasSelectedSP = bitcoin!.hasSelectedSilentPayments(wallet);
-      final shouldForceSP = _addressType != null && bitcoin!.isReceiveOptionSP(_addressType!);
+      final isBitcoinWallet = wallet.type == WalletType.bitcoin;
+      final hasSelectedSP = isBitcoinWallet && bitcoin!.hasSelectedSilentPayments(wallet);
+      final shouldForceSP =
+          isBitcoinWallet && _addressType != null && bitcoin!.isReceiveOptionSP(_addressType);
 
       if (hasSelectedSP || shouldForceSP) {
         final addressItems = bitcoin!.getSilentPaymentAddresses(wallet).map((address) {

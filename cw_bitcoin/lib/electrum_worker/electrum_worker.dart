@@ -47,7 +47,7 @@ class ElectrumWorker {
   }
 
   void handleMessage(dynamic message) async {
-    printV("Worker: received message: $message");
+    // printV("Worker: received message: $message");
 
     try {
       Map<String, dynamic> messageJson;
@@ -705,6 +705,7 @@ class ElectrumWorker {
                   final receivedAddressRecord = BitcoinReceivedSPAddressRecord(
                     receivingOutputAddress,
                     labelIndex: 1, // TODO: get actual index/label
+                    isChange: false, // and if change or not
                     isUsed: true,
                     tweak: t_k,
                     txCount: 1,

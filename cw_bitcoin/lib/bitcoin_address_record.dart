@@ -156,42 +156,50 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 }
 
 class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
-  final String derivationPath;
+  String _derivationPath;
+  String get derivationPath => _derivationPath;
   int get labelIndex => index;
   final String? labelHex;
 
-  static bool isChangeAddress(int labelIndex) => labelIndex == 0;
+  static bool isPrimaryAddress(int labelIndex) => labelIndex == 0;
 
   BitcoinSilentPaymentAddressRecord(
     super.address, {
     required int labelIndex,
-    this.derivationPath = BitcoinDerivationPaths.SILENT_PAYMENTS_SPEND,
+    String derivationPath = BitcoinDerivationPaths.SILENT_PAYMENTS_SPEND,
     super.txCount = 0,
     super.balance = 0,
     super.name = '',
     super.isUsed = false,
     super.type = SilentPaymentsAddresType.p2sp,
+    required super.isChange,
     super.isHidden,
     this.labelHex,
-  }) : super(index: labelIndex, isChange: isChangeAddress(labelIndex)) {
-    if (labelIndex != 1 && labelHex == null) {
+  })  : _derivationPath = derivationPath,
+        super(index: labelIndex) {
+    if (labelIndex != 0 && labelHex == null) {
       throw ArgumentError('label must be provided for silent address index != 1');
+    }
+
+    if (labelIndex != 0) {
+      _derivationPath = _derivationPath.replaceAll(RegExp(r'\d\/?$'), '$labelIndex');
     }
   }
 
-  factory BitcoinSilentPaymentAddressRecord.fromJSON(String jsonSource,
-      {BasedUtxoNetwork? network}) {
+  factory BitcoinSilentPaymentAddressRecord.fromJSON(String jsonSource) {
     final decoded = json.decode(jsonSource) as Map;
 
     return BitcoinSilentPaymentAddressRecord(
       decoded['address'] as String,
       derivationPath: decoded['derivationPath'] as String,
-      labelIndex: decoded['labelIndex'] as int,
+      labelIndex: decoded['index'] as int,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
       labelHex: decoded['labelHex'] as String?,
+      isChange: decoded['isChange'] as bool? ?? false,
+      isHidden: decoded['isHidden'] as bool?,
     );
   }
 
@@ -199,13 +207,15 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   String toJSON() => json.encode({
         'address': address,
         'derivationPath': derivationPath,
-        'labelIndex': labelIndex,
+        'index': labelIndex,
         'isUsed': isUsed,
         'txCount': txCount,
         'name': name,
         'balance': balance,
         'type': type.toString(),
         'labelHex': labelHex,
+        'isChange': isChange,
+        'isHidden': isHidden,
       });
 }
 
@@ -220,9 +230,9 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
     super.name = '',
     super.isUsed = false,
     required this.tweak,
-    super.type = SegwitAddressType.p2tr,
+    required super.isChange,
     super.labelHex,
-  }) : super(isHidden: true);
+  }) : super(isHidden: true, type: SegwitAddressType.p2tr);
 
   SilentPaymentOwner getSPWallet(
     List<SilentPaymentOwner> silentPaymentsWallets, [
@@ -245,7 +255,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
         .tweakAdd(BigintUtils.fromBytes(BytesUtils.fromHexString(tweak)));
   }
 
-  factory BitcoinReceivedSPAddressRecord.fromJSON(String jsonSource, {BasedUtxoNetwork? network}) {
+  factory BitcoinReceivedSPAddressRecord.fromJSON(String jsonSource) {
     final decoded = json.decode(jsonSource) as Map;
 
     return BitcoinReceivedSPAddressRecord(
@@ -256,14 +266,15 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
       labelHex: decoded['label'] as String?,
-      tweak: decoded['tweak'] as String? ?? '',
+      tweak: decoded['tweak'] as String? ?? decoded['silent_payment_tweak'] as String? ?? '',
+      isChange: decoded['isChange'] as bool? ?? false,
     );
   }
 
   @override
   String toJSON() => json.encode({
         'address': address,
-        'labelIndex': labelIndex,
+        'index': labelIndex,
         'isUsed': isUsed,
         'txCount': txCount,
         'name': name,
@@ -271,6 +282,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
         'type': type.toString(),
         'labelHex': labelHex,
         'tweak': tweak,
+        'isChange': isChange,
       });
 }
 
@@ -285,8 +297,7 @@ class LitecoinMWEBAddressRecord extends BaseBitcoinAddressRecord {
     super.name = '',
     super.isUsed = false,
     BasedUtxoNetwork? network,
-    super.type = SegwitAddressType.mweb,
-  });
+  }) : super(type: SegwitAddressType.mweb);
 
   factory LitecoinMWEBAddressRecord.fromJSON(String jsonSource) {
     final decoded = json.decode(jsonSource) as Map;

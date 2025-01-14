@@ -95,7 +95,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
           addressString,
           index: i,
           isChange: isChange,
-          isHidden: OLD_DERIVATION_TYPES.contains(derivationType),
+          isHidden: OLD_DERIVATION_TYPES.contains(derivationType) || isChange,
           type: addressType,
           network: network,
           derivationInfo: derivationInfo,

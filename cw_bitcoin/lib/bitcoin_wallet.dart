@@ -1348,37 +1348,40 @@ class WalletSeedBytes {
     late List<int> seedBytes;
     final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
 
-    if (walletInfo.isRecovery) {
-      for (final derivation in walletInfo.derivations ?? <DerivationInfo>[]) {
-        if (derivation.derivationType == DerivationType.bip39) {
-          try {
-            seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
-            hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
-          } catch (e) {
-            printV("bip39 seed error: $e");
-          }
+    for (final derivation in walletInfo.derivations ?? [walletInfo.derivationInfo!]) {
+      if (derivation.description?.contains("SP") ?? false) {
+        continue;
+      }
 
-          continue;
+      if (derivation.derivationType == DerivationType.bip39) {
+        try {
+          seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+        } catch (e) {
+          printV("bip39 seed error: $e");
         }
 
-        if (derivation.derivationType == DerivationType.electrum) {
+        continue;
+      }
+
+      if (derivation.derivationType == DerivationType.electrum) {
+        try {
+          seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+          hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+        } catch (e) {
+          printV("electrum_v2 seed error: $e");
+
           try {
-            seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+            seedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
             hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
           } catch (e) {
-            printV("electrum_v2 seed error: $e");
-
-            try {
-              seedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
-              hdWallets[CWBitcoinDerivationType.electrum] =
-                  Bip32Slip10Secp256k1.fromSeed(seedBytes);
-            } catch (e) {
-              printV("electrum_v1 seed error: $e");
-            }
+            printV("electrum_v1 seed error: $e");
           }
         }
       }
+    }
 
+    if (walletInfo.isRecovery) {
       if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
         hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
       }
