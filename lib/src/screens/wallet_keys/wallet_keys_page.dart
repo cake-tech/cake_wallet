@@ -113,9 +113,9 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
             dividerColor: Colors.transparent,
             padding: EdgeInsets.zero,
             tabs: [
-              const Tab(text: 'Seed'),
-              const Tab(text: 'Keys'),
-              if (isLegacySeedExist) const Tab(text: 'Legacy'),
+              Tab(text: S.of(context).widgets_seed),
+              Tab(text: S.of(context).keys),
+              if (isLegacySeedExist) Tab(text: S.of(context).legacy),
             ],
           ),
           const SizedBox(height: 20),
@@ -212,7 +212,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Block height',
+            S.of(context).block_height,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -222,18 +222,29 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
           ),
           const SizedBox(width: 6),
           Expanded(
-              child: Text(
-            widget.walletKeysViewModel.legacyRestoreHeight,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+            child: FutureBuilder<String?>(
+              future: widget.walletKeysViewModel.restoreHeight,
+              builder: (context, snapshot) {
+                final textToDisplay = snapshot.connectionState == ConnectionState.waiting
+                    ? 'Fetching...'
+                    : (snapshot.data ?? '---');
+
+                return Text(
+                  textToDisplay,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                  ),
+                );
+              },
             ),
-          )),
+          ),
         ],
       ),
     );
   }
+
 
   Widget _buildBottomActionPanel({
     required String titleForClipboard,
