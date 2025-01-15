@@ -187,7 +187,7 @@ abstract class SettingsStoreBase with Store {
             initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
-        builtinTor = initialBuiltinTor,
+        currentBuiltinTor = initialBuiltinTor,
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -408,10 +408,8 @@ abstract class SettingsStoreBase with Store {
       sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
     });
 
-    reaction((_) => builtinTor, (bool syncAll) {
+    reaction((_) => currentBuiltinTor, (bool builtinTor) {
       sharedPreferences.setBool(PreferencesKey.builtinTorKey, builtinTor);
-
-      _backgroundTasks.registerSyncTask(changeExisting: true);
     });
 
 
@@ -818,7 +816,7 @@ abstract class SettingsStoreBase with Store {
   bool currentSyncAll;
 
   @observable
-  bool builtinTor;
+  bool currentBuiltinTor;
 
   String appVersion;
 
