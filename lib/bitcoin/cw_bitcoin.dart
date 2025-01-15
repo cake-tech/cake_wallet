@@ -1,6 +1,8 @@
 part of 'bitcoin.dart';
 
 class CWBitcoin extends Bitcoin {
+  final payjoin = BitcoinPayjoin();
+
   WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
     required String name,
     required String mnemonic,
@@ -111,26 +113,29 @@ class CWBitcoin extends Bitcoin {
     required TransactionPriority priority,
     int? feeRate,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+    String? payjoinUri,
   }) {
     final bitcoinFeeRate =
-        priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
+        priority == BitcoinTransactionPriority.custom && feeRate != null
+            ? feeRate
+            : null;
     return BitcoinTransactionCredentials(
-      outputs
-          .map((out) => OutputInfo(
-              fiatAmount: out.fiatAmount,
-              cryptoAmount: out.cryptoAmount,
-              address: out.address,
-              note: out.note,
-              sendAll: out.sendAll,
-              extractedAddress: out.extractedAddress,
-              isParsedAddress: out.isParsedAddress,
-              formattedCryptoAmount: out.formattedCryptoAmount,
-              memo: out.memo))
-          .toList(),
-      priority: priority as BitcoinTransactionPriority,
-      feeRate: bitcoinFeeRate,
-      coinTypeToSpendFrom: coinTypeToSpendFrom,
-    );
+        outputs
+            .map((out) => OutputInfo(
+                fiatAmount: out.fiatAmount,
+                cryptoAmount: out.cryptoAmount,
+                address: out.address,
+                note: out.note,
+                sendAll: out.sendAll,
+                extractedAddress: out.extractedAddress,
+                isParsedAddress: out.isParsedAddress,
+                formattedCryptoAmount: out.formattedCryptoAmount,
+                memo: out.memo))
+            .toList(),
+        priority: priority as BitcoinTransactionPriority,
+        feeRate: bitcoinFeeRate,
+        coinTypeToSpendFrom: coinTypeToSpendFrom,
+        payjoinUri: payjoinUri);
   }
 
   @override
@@ -707,5 +712,85 @@ class CWBitcoin extends Bitcoin {
     } catch (_) {
       return null;
     }
+  }
+
+  @override
+  Future<Map<String, dynamic>> buildV2PjStr({
+    int? amount,
+    required String address,
+    required bool isTestnet,
+    required BigInt expireAfter,
+  }) {
+    return payjoin.buildV2PjStr(
+      amount: amount,
+      address: address,
+      isTestnet: isTestnet,
+      expireAfter: expireAfter,
+    );
+  }
+
+  @override
+  Future<UncheckedProposal> handleReceiverSession(Receiver session) {
+    return payjoin.handleReceiverSession(session);
+  }
+
+  @override
+  Future<String> extractOriginalTransaction(UncheckedProposal proposal) {
+    return payjoin.extractOriginalTransaction(proposal);
+  }
+
+  @override
+  Future<PayjoinProposal> processProposal({
+    required UncheckedProposal proposal,
+    required Object receiverWallet,
+  }) {
+    return payjoin.processProposal(
+        proposal: proposal, receiverWallet: receiverWallet);
+  }
+
+  @override
+  Future<String> sendFinalProposal(PayjoinProposal finalProposal) {
+    return payjoin.sendFinalProposal(finalProposal);
+  }
+
+  @override
+  Future<String> getTxIdFromPsbt(String psbtBase64) {
+    return payjoin.getTxIdFromPsbt(psbtBase64);
+  }
+
+  @override
+  Future<String> buildOriginalPsbt(Object wallet, int fee,
+      double amount, Object credentials) {
+    return payjoin.buildOriginalPsbt(
+      wallet,
+      fee,
+      amount,
+      credentials,
+    );
+  }
+
+  @override
+  Future<Sender> buildPayjoinRequest(
+      String originalPsbt, dynamic pjUri, int fee) {
+    return payjoin.buildPayjoinRequest(
+      originalPsbt,
+      pjUri,
+      fee,
+    );
+  }
+
+  @override
+  Future<String> requestAndPollV2Proposal(Sender sender) {
+    return payjoin.requestAndPollV2Proposal(sender);
+  }
+
+  @override
+  Future<PendingBitcoinTransaction> extractPjTx(
+      Object wallet, String psbtString, Object credentials) {
+    return payjoin.extractPjTx(
+      wallet,
+      psbtString,
+      credentials
+    );
   }
 }

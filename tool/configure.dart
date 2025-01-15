@@ -104,6 +104,7 @@ import 'package:bip39/bip39.dart' as bip39;
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_bitcoin/bitcoin_payjoin.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
@@ -166,7 +167,7 @@ abstract class Bitcoin {
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet, String label);
   Future<void> updateAddress(Object wallet,String address, String label);
-  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
+  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, String? payjoinUri});
 
   String getAddress(Object wallet);
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet);
@@ -235,6 +236,16 @@ abstract class Bitcoin {
   bool getMwebEnabled(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
+
+  Future<Map<String, dynamic>> buildV2PjStr({int? amount, required String address, required bool isTestnet, required BigInt expireAfter});
+  Future<UncheckedProposal> handleReceiverSession(Receiver session);
+  Future<String> extractOriginalTransaction(UncheckedProposal proposal);
+  Future<PayjoinProposal> processProposal({required UncheckedProposal proposal, required Object receiverWallet});
+  Future<String> sendFinalProposal(PayjoinProposal finalProposal);
+  Future<Sender> buildPayjoinRequest(String originalPsbt, dynamic pjUri, int fee);
+  Future<String> buildOriginalPsbt(Object wallet, int fee, double amount, Object credentials);
+  Future<String> requestAndPollV2Proposal(Sender sender);
+  Future<PendingBitcoinTransaction> extractPjTx(Object wallet, String psbtString, Object credentials);
 }
   """;
 

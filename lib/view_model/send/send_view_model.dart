@@ -20,6 +20,7 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -394,7 +395,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
 
-      pendingTransaction = await wallet.createTransaction(_credentials(provider));
+      pendingTransaction = await (pjUri != null ?  performPayjoinSend() : wallet.createTransaction(_credentials())); // ToDo: Remove move Payjoin into create tx
 
       if (provider is ThorChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;
@@ -541,6 +542,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           priority: priority!,
           feeRate: customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
+          payjoinUri: pjUri,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
@@ -802,5 +804,56 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     return false;
+  }
+
+  @observable
+  String? pjUri;
+
+  @action
+  Future<PendingTransaction?> performPayjoinSend() async {
+    final credentials = _credentials() as BitcoinTransactionCredentials;
+    final amountToSend = credentials.outputs.first.sendAll
+        ? balance
+        : credentials.outputs.first.cryptoAmount;
+    final feeRate = bitcoin!
+        .getFeeRate(wallet, credentials.priority as TransactionPriority);
+    print(
+        '[+] SendVM || performPjSend => amountToSend: $amountToSend feeRate: $feeRate, pjUri: $pjUri');
+
+    // Build the original PSBT for the Payjoin transaction
+    final originalPsbt = await bitcoin!.buildOriginalPsbt(
+      wallet,
+      feeRate,
+      double.parse(amountToSend!),
+      credentials,
+    );
+
+    print('[+] SendVM || performPjSend => originalPsbt: $originalPsbt');
+
+    // Build the Payjoin request context from the original PSBT
+    final request = await bitcoin!.buildPayjoinRequest(
+      originalPsbt,
+      pjUri!,
+      feeRate,
+    );
+
+    // Request and keep polling the payjoin directory for the proposal
+    //  from the receiver
+    String psbt = originalPsbt;
+
+    try {
+      psbt = await bitcoin!.requestAndPollV2Proposal(
+        request,
+      );
+    } catch (e) {
+      rethrow;
+    }
+
+    // If a proposal is received, finalize the payjoin
+    return bitcoin!.extractPjTx(
+      wallet,
+      psbt,
+      _credentials()
+    );
   }
 }

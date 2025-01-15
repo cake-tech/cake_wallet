@@ -1959,6 +1959,11 @@ abstract class ElectrumWalletBase
     }
   }
 
+  bool isMine(Script script) {
+    final derivedAddress = addressFromOutputScript(script, network);
+    return addressesSet.contains(derivedAddress);
+  }
+
   @override
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
     try {
