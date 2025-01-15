@@ -112,8 +112,8 @@ abstract class LedgerViewModelBase with Store {
         : ledgerPlusUSB;
 
     if (_connectionChangeSubscription == null) {
-      _connectionChangeSubscription = ledger.deviceStateChanges
-          .listen(_connectionChangeListener);
+      // _connectionChangeSubscription = ledger.deviceStateChanges
+      //     .listen(_connectionChangeListener);
     }
 
     _connection = await ledger.connect(device);
