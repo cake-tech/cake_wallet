@@ -257,6 +257,9 @@ abstract class MoneroWalletBase
   }
 
   bool needExportOutputs(int amount) {
+    if (int.tryParse(monero.Wallet_secretSpendKey(wptr!)) != 0) {
+      return false;
+    }
     // viewOnlyBalance - balance that we can spend
     // TODO(mrcyjanek): remove hasUnknownKeyImages when we cleanup coin control
     return (monero.Wallet_viewOnlyBalance(wptr!, accountIndex: walletAddresses.account!.id) <
