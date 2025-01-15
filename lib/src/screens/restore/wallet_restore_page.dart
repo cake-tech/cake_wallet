@@ -37,6 +37,7 @@ class WalletRestorePage extends BasePage {
               displayBlockHeightSelector:
                   walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
               displayLanguageSelector: walletRestoreViewModel.hasSeedLanguageSelector,
+              displayPassphrase: walletRestoreViewModel.hasPassphrase,
               type: walletRestoreViewModel.type,
               key: walletRestoreFromSeedFormKey,
               blockHeightFocusNode: _blockHeightFocusNode,
