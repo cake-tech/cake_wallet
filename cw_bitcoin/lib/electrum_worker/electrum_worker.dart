@@ -212,78 +212,100 @@ class ElectrumWorker {
     }));
   }
 
-  Future<void> _handleGetHistory(ElectrumWorkerGetHistoryRequest result) async {
-    final Map<String, AddressHistoriesResponse> histories = {};
-    final addresses = result.addresses;
+  Future<void> _handleGetHistory(ElectrumWorkerGetHistoryRequest request) async {
+    final histories = <String, AddressHistoriesResponse>{};
+    final scripthashes = <String>[];
+    final addresses = <String>[];
+    request.addresses.forEach((addr) {
+      addr.txCount = 0;
 
-    await Future.wait(addresses.map((addressRecord) async {
-      if (addressRecord.scriptHash.isEmpty) {
+      if (addr.scriptHash.isNotEmpty) {
+        scripthashes.add(addr.scriptHash);
+        addresses.add(addr.address);
+      }
+    });
+
+    final historyBatches = await _electrumClient!.batchRequest(
+      ElectrumBatchRequestScriptHashGetHistory(
+        scriptHashes: scripthashes,
+      ),
+    );
+
+    await Future.wait(historyBatches.map((result) async {
+      final history = result.result;
+      if (history.isEmpty) {
         return;
       }
 
-      final history = await _electrumClient!.request(ElectrumRequestScriptHashGetHistory(
-        scriptHash: addressRecord.scriptHash,
-      ));
+      await Future.wait(history.map((transaction) async {
+        final txid = transaction['tx_hash'] as String;
+        final height = transaction['height'] as int;
+        ElectrumTransactionInfo? tx;
 
-      if (history.isNotEmpty) {
-        addressRecord.setAsUsed();
-        addressRecord.txCount = history.length;
+        try {
+          // Exception thrown on null, handled on catch
+          tx = request.storedTxs.firstWhere((tx) => tx.id == txid);
 
-        await Future.wait(history.map((transaction) async {
-          final txid = transaction['tx_hash'] as String;
-          final height = transaction['height'] as int;
-          ElectrumTransactionInfo? tx;
+          if (height > 0) {
+            tx.height = height;
 
-          try {
-            // Exception thrown on null, handled on catch
-            tx = result.storedTxs.firstWhere((tx) => tx.id == txid);
+            // the tx's block itself is the first confirmation so add 1
+            tx.confirmations = request.chainTip - height + 1;
+            tx.isPending = tx.confirmations == 0;
+          }
+        } catch (_) {}
 
-            if (height > 0) {
-              tx.height = height;
+        // date is validated when the API responds with the same date at least twice
+        // since sometimes the mempool api returns the wrong date at first, and we update
+        if (tx == null || (tx.isDateValidated != true && request.mempoolAPIEnabled)) {
+          tx = ElectrumTransactionInfo.fromElectrumBundle(
+            await _getTransactionExpanded(
+              hash: txid,
+              currentChainTip: request.chainTip,
+              mempoolAPIEnabled: request.mempoolAPIEnabled,
+              getTime: true,
+              confirmations: tx?.confirmations,
+              date: tx?.date,
+            ),
+            request.walletType,
+            request.network,
+            addresses: addresses.toSet(),
+            height: height,
+          );
+        }
 
-              // the tx's block itself is the first confirmation so add 1
-              tx.confirmations = result.chainTip - height + 1;
-              tx.isPending = tx.confirmations == 0;
+        request.addresses.forEach(
+          (addr) {
+            final usedAddress = (tx!.outputAddresses?.contains(addr.address) ?? false) ||
+                (tx.inputAddresses?.contains(addr.address) ?? false);
+            if (usedAddress == true) {
+              addr.setAsUsed();
+              addr.txCount++;
+
+              final addressHistories = histories[addr.address];
+              if (addressHistories != null) {
+                addressHistories.txs.add(tx);
+              } else {
+                histories[addr.address] = AddressHistoriesResponse(
+                  addressRecord: addr,
+                  txs: [tx],
+                  walletType: request.walletType,
+                );
+              }
             }
-          } catch (_) {}
-
-          // date is validated when the API responds with the same date at least twice
-          // since sometimes the mempool api returns the wrong date at first, and we update
-          if (tx?.isDateValidated != true) {
-            tx = ElectrumTransactionInfo.fromElectrumBundle(
-              await _getTransactionExpanded(
-                hash: txid,
-                currentChainTip: result.chainTip,
-                mempoolAPIEnabled: result.mempoolAPIEnabled,
-                getTime: true,
-                confirmations: tx?.confirmations,
-                date: tx?.date,
-              ),
-              result.walletType,
-              result.network,
-              addresses: result.addresses.map((addr) => addr.address).toSet(),
-              height: height,
-            );
-          }
-
-          final addressHistories = histories[addressRecord.address];
-          if (addressHistories != null) {
-            addressHistories.txs.add(tx!);
-          } else {
-            histories[addressRecord.address] = AddressHistoriesResponse(
-              addressRecord: addressRecord,
-              txs: [tx!],
-              walletType: result.walletType,
-            );
-          }
-        }));
-      }
+          },
+        );
+      }));
     }));
 
-    _sendResponse(ElectrumWorkerGetHistoryResponse(
-      result: histories.values.toList(),
-      id: result.id,
-    ));
+    if (histories.isNotEmpty) {
+      _sendResponse(
+        ElectrumWorkerGetHistoryResponse(
+          result: histories.values.toList(),
+          id: request.id,
+        ),
+      );
+    }
   }
 
   // Future<void> _handleListUnspents(ElectrumWorkerGetBalanceRequest request) async {
@@ -318,25 +340,18 @@ class ElectrumWorker {
   // }
 
   Future<void> _handleGetBalance(ElectrumWorkerGetBalanceRequest request) async {
-    final balanceFutures = <Future<Map<String, dynamic>>>[];
-
-    for (final scripthash in request.scripthashes) {
-      if (scripthash.isEmpty) {
-        continue;
-      }
-
-      final balanceFuture = _electrumClient!.request(
-        ElectrumRequestGetScriptHashBalance(scriptHash: scripthash),
-      );
-      balanceFutures.add(balanceFuture);
-    }
+    final balances = await _electrumClient!.batchRequest(
+      ElectrumBatchRequestGetScriptHashBalance(
+        scriptHashes: request.scripthashes.where((s) => s.isNotEmpty).toList(),
+      ),
+    );
 
     var totalConfirmed = 0;
     var totalUnconfirmed = 0;
 
-    final balances = await Future.wait(balanceFutures);
-
-    for (final balance in balances) {
+    for (final result in balances) {
+      final balance = result.result;
+      print("balance: $balance");
       final confirmed = balance['confirmed'] as int? ?? 0;
       final unconfirmed = balance['unconfirmed'] as int? ?? 0;
       totalConfirmed += confirmed;
@@ -429,16 +444,16 @@ class ElectrumWorker {
       transactionHex = await _electrumClient!.request(
         ElectrumRequestGetTransactionHex(transactionHash: hash),
       );
+    }
 
-      if (getTime && _walletType == WalletType.bitcoin) {
-        if (mempoolAPIEnabled) {
-          try {
-            final dates = await getTxDate(hash, _network!, date: date);
-            time = dates.time;
-            height = dates.height;
-            isDateValidated = dates.isDateValidated;
-          } catch (_) {}
-        }
+    if (getTime && _walletType == WalletType.bitcoin) {
+      if (mempoolAPIEnabled) {
+        try {
+          final dates = await getTxDate(hash, _network!, date: date);
+          time = dates.time;
+          height = dates.height;
+          isDateValidated = dates.isDateValidated;
+        } catch (_) {}
       }
     }
 

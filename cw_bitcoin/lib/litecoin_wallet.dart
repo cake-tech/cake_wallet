@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/exceptions.dart';
+import 'package:cw_bitcoin/litecoin_wallet_snapshot.dart';
 import 'package:cw_bitcoin/wallet_seed_bytes.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
@@ -30,7 +31,6 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -188,10 +188,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
 
-    ElectrumWalletSnapshot? snp = null;
+    LitecoinWalletSnapshot? snp = null;
 
     try {
-      snp = await ElectrumWalletSnapshot.load(
+      snp = await LitecoinWalletSnapshot.load(
         encryptionFileUtils,
         name,
         walletInfo.type,
@@ -931,7 +931,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             ))
             .addElem(Bip32KeyIndex(addressRecord.index));
 
-        privkey = ECPrivate.fromBip32(bip32: bip32.derive(path));
+        privkey = ECPrivate.fromBip32(bip32: hdWallet.derive(path));
       }
 
       vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
@@ -1301,7 +1301,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           tx = PendingBitcoinTransaction(
             transaction,
             type,
-            sendWorker: sendWorker,
+            sendWorker: waitSendWorker,
             amount: estimatedTx.amount,
             fee: estimatedTx.fee,
             feeRate: data.feeRate.toString(),
@@ -1363,7 +1363,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           tx = PendingBitcoinTransaction(
             transaction,
             type,
-            sendWorker: sendWorker,
+            sendWorker: waitSendWorker,
             amount: estimatedTx.amount,
             fee: estimatedTx.fee,
             feeRate: data.feeRate.toString(),
@@ -1472,7 +1472,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             final utxo = unspentCoins
                 .firstWhere((utxo) => utxo.hash == e.value.txId && utxo.vout == e.value.txIndex);
             final key = ECPrivate.fromBip32(
-                bip32: bip32.derive((utxo.bitcoinAddressRecord as BitcoinAddressRecord)
+                bip32: hdWallet.derive((utxo.bitcoinAddressRecord as BitcoinAddressRecord)
                     .derivationInfo
                     .derivationPath));
             final digest = tx2.getTransactionSegwitDigit(
@@ -1562,7 +1562,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    Bip32Slip10Secp256k1 HD = bip32;
+    Bip32Slip10Secp256k1 HD = hdWallet;
 
     final record = walletAddresses.allAddresses.firstWhere((element) => element.address == address);
 

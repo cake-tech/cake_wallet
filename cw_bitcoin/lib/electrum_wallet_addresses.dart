@@ -457,10 +457,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return isUnusedReceiveAddress(addr) && addr.type == type;
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'allAddresses': _allAddresses.map((address) => address.toJSON()).toList(),
-      'addressPageType': addressPageType.toString(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'allAddresses': _allAddresses.map((address) => address.toJSON()).toList(),
+        'addressPageType': addressPageType.toString(),
+      };
 }

@@ -66,6 +66,21 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   @override
   BitcoinCashNetwork get network => BitcoinCashNetwork.mainnet;
 
+  @override
+  int estimatedTransactionSize({
+    required List<BitcoinAddressType> inputTypes,
+    required List<BitcoinAddressType> outputTypes,
+    String? memo,
+    bool enableRBF = true,
+  }) =>
+      ForkedTransactionBuilder.estimateTransactionSizeFromTypes(
+        inputTypes: inputTypes,
+        outputTypes: outputTypes,
+        network: network,
+        memo: memo,
+        enableRBF: enableRBF,
+      );
+
   static Future<BitcoinCashWallet> create({
     required String mnemonic,
     required String password,
@@ -178,7 +193,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    Bip32Slip10Secp256k1 HD = bip32;
+    Bip32Slip10Secp256k1 HD = hdWallet;
 
     final record = walletAddresses.allAddresses.firstWhere((element) => element.address == address);
 

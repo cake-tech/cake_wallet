@@ -5,6 +5,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_snapshot.dart';
 import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
@@ -18,7 +19,6 @@ import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
@@ -150,10 +150,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
 
-    ElectrumWalletSnapshot? snp = null;
+    BitcoinWalletSnapshot? snp = null;
 
     try {
-      snp = await ElectrumWalletSnapshot.load(
+      snp = await BitcoinWalletSnapshot.load(
         encryptionFileUtils,
         name,
         walletInfo.type,
@@ -237,7 +237,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     if (node!.isElectrs == null) {
-      final version = await sendWorker(ElectrumWorkerGetVersionRequest());
+      final version = await waitSendWorker(ElectrumWorkerGetVersionRequest());
 
       if (version is List<String> && version.isNotEmpty) {
         final server = version[0];
@@ -269,7 +269,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     if (node!.supportsSilentPayments == null) {
       try {
-        final workerResponse = (await sendWorker(ElectrumWorkerCheckTweaksRequest())) as String;
+        final workerResponse = (await waitSendWorker(ElectrumWorkerCheckTweaksRequest())) as String;
         final tweaksResponse = ElectrumWorkerCheckTweaksResponse.fromJson(
           json.decode(workerResponse) as Map<String, dynamic>,
         );
@@ -367,7 +367,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<ElectrumTransactionBundle> getTransactionExpanded({required String hash}) async {
-    return await sendWorker(
+    return await waitSendWorker(
       ElectrumWorkerTxExpandedRequest(
         txHash: hash,
         currentChainTip: currentChainTip!,
@@ -377,8 +377,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<void> updateTransactions([List<BitcoinAddressRecord>? addresses]) async {
-    workerSendPort!.send(ElectrumWorkerGetHistoryRequest(
+  Future<ElectrumWorkerGetHistoryRequest> getUpdateTransactionsRequest([
+    List<BitcoinAddressRecord>? addresses,
+  ]) async {
+    return ElectrumWorkerGetHistoryRequest(
       addresses: walletAddresses.allAddresses.toList(),
       storedTxs: transactionHistory.transactions.values.toList(),
       walletType: type,
@@ -387,7 +389,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       chainTip: currentChainTip ?? -1,
       network: network,
       mempoolAPIEnabled: await mempoolAPIEnabled,
-    ).toJson());
+    );
   }
 
   @action
@@ -410,7 +412,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         _setListeners(walletInfo.restoreHeight);
       }
     } else if (syncStatus is! SyncedSyncStatus) {
-      await sendWorker(ElectrumWorkerStopScanningRequest());
+      await waitSendWorker(ElectrumWorkerStopScanningRequest());
       await startSync();
     }
   }
@@ -863,7 +865,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             ))
             .addElem(Bip32KeyIndex(addressRecord.index));
 
-        privkey = ECPrivate.fromBip32(bip32: bip32.derive(path));
+        privkey = ECPrivate.fromBip32(bip32: hdWallet.derive(path));
       }
 
       vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
@@ -1250,7 +1252,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         return PendingBitcoinTransaction(
           transaction,
           type,
-          sendWorker: sendWorker,
+          sendWorker: waitSendWorker,
           amount: estimatedTx.amount,
           fee: estimatedTx.fee,
           feeRate: feeRateInt.toString(),
@@ -1320,7 +1322,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       return PendingBitcoinTransaction(
         transaction,
         type,
-        sendWorker: sendWorker,
+        sendWorker: waitSendWorker,
         amount: estimatedTx.amount,
         fee: estimatedTx.fee,
         feeRate: feeRateInt.toString(),
