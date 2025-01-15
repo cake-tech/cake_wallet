@@ -5,6 +5,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cw_core/wallet_type.dart';
 
 part 'wallet_address_edit_or_create_view_model.g.dart';
@@ -110,6 +111,12 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
     final wallet = _wallet;
 
     if (isElectrum) await bitcoin!.updateAddress(wallet, _item!.address, label);
+
+    if (wallet.type == WalletType.decred) {
+      await decred!.updateAddress(wallet, _item!.address, label);
+      await wallet.save();
+      return;
+    }
 
     final index = _item?.id;
     if (index != null) {

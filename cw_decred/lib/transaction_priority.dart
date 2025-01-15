@@ -5,12 +5,10 @@ class DecredTransactionPriority extends TransactionPriority {
       : super(title: title, raw: raw);
 
   static const List<DecredTransactionPriority> all = [fast, medium, slow];
-  static const DecredTransactionPriority slow =
-      DecredTransactionPriority(title: 'Slow', raw: 0);
+  static const DecredTransactionPriority slow = DecredTransactionPriority(title: 'Slow', raw: 0);
   static const DecredTransactionPriority medium =
       DecredTransactionPriority(title: 'Medium', raw: 1);
-  static const DecredTransactionPriority fast =
-      DecredTransactionPriority(title: 'Fast', raw: 2);
+  static const DecredTransactionPriority fast = DecredTransactionPriority(title: 'Fast', raw: 2);
 
   static DecredTransactionPriority deserialize({required int raw}) {
     switch (raw) {
@@ -21,8 +19,7 @@ class DecredTransactionPriority extends TransactionPriority {
       case 2:
         return fast;
       default:
-        throw Exception(
-            'Unexpected token: $raw for DecredTransactionPriority deserialize');
+        throw Exception('Unexpected token: $raw for DecredTransactionPriority deserialize');
     }
   }
 
@@ -34,8 +31,7 @@ class DecredTransactionPriority extends TransactionPriority {
 
     switch (this) {
       case DecredTransactionPriority.slow:
-        label =
-            'Slow ~24hrs'; // '${S.current.transaction_priority_slow} ~24hrs';
+        label = 'Slow ~24hrs'; // '${S.current.transaction_priority_slow} ~24hrs';
         break;
       case DecredTransactionPriority.medium:
         label = 'Medium'; // S.current.transaction_priority_medium;

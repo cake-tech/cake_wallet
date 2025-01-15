@@ -12,6 +12,7 @@ import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -319,52 +320,6 @@ abstract class WalletAddressListViewModelBase
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
-
-    if (wallet.type == WalletType.haven) {
-      return HavenURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.bitcoin) {
-      return BitcoinURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.litecoin) {
-      return LitecoinURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.ethereum) {
-      return EthereumURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.bitcoinCash) {
-      return BitcoinCashURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.nano) {
-      return NanoURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.polygon) {
-      return PolygonURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.solana) {
-      return SolanaURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.tron) {
-      return TronURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.wownero) {
-      return WowneroURI(amount: amount, address: address.address);
-    }
-
-    if (wallet.type == WalletType.decred) {
-      return DecredURI(amount: amount, address: address.address);
-    }
-
-    throw Exception('Unexpected type: ${type.toString()}');
   }
 
   @computed
@@ -529,6 +484,14 @@ abstract class WalletAddressListViewModelBase
           isPrimary: true, name: null, address: primaryAddress));
     }
 
+    if (wallet.type == WalletType.decred) {
+      final addrInfos = decred!.getAddressInfos(wallet);
+      addrInfos.forEach((info) {
+        addressList.add(new WalletAddressListItem(isPrimary: false, address: info.address,
+          name: info.label));
+      });
+    }
+
     for (var i = 0; i < addressList.length; i++) {
       if (!(addressList[i] is WalletAddressListItem)) continue;
       (addressList[i] as WalletAddressListItem).isHidden = wallet
@@ -603,7 +566,8 @@ abstract class WalletAddressListViewModelBase
         WalletType.haven,
         WalletType.bitcoinCash,
         WalletType.bitcoin,
-        WalletType.litecoin
+        WalletType.litecoin,
+        WalletType.decred
       ].contains(wallet.type);
 
   @computed
