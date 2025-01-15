@@ -3,13 +3,12 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -38,24 +37,23 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            network: BitcoinCashNetwork.mainnet,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.bch,
-            encryptionFileUtils: encryptionFileUtils,
-            passphrase: passphrase) {
+          mnemonic: mnemonic,
+          password: password,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          network: BitcoinCashNetwork.mainnet,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          seedBytes: seedBytes,
+          currency: CryptoCurrency.bch,
+          encryptionFileUtils: encryptionFileUtils,
+          passphrase: passphrase,
+          hdWallets: {CWBitcoinDerivationType.bip39: Bip32Slip10Secp256k1.fromSeed(seedBytes)},
+        ) {
     walletAddresses = BitcoinCashWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
-      initialRegularAddressIndex: initialRegularAddressIndex,
-      initialChangeAddressIndex: initialChangeAddressIndex,
-      mainHd: hd,
-      sideHd: accountHD.childKey(Bip32KeyIndex(1)),
+      hdWallets: hdWallets,
       network: network,
       initialAddressPageType: addressPageType,
       isHardwareWallet: walletInfo.isHardwareWallet,
@@ -65,18 +63,37 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     });
   }
 
-  static Future<BitcoinCashWallet> create(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required EncryptionFileUtils encryptionFileUtils,
-      String? passphrase,
-      String? addressPageType,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumBalance? initialBalance,
-      Map<String, int>? initialRegularAddressIndex,
-      Map<String, int>? initialChangeAddressIndex}) async {
+  @override
+  BitcoinCashNetwork get network => BitcoinCashNetwork.mainnet;
+
+  @override
+  int estimatedTransactionSize({
+    required List<BitcoinAddressType> inputTypes,
+    required List<BitcoinAddressType> outputTypes,
+    String? memo,
+    bool enableRBF = true,
+  }) =>
+      ForkedTransactionBuilder.estimateTransactionSizeFromTypes(
+        inputTypes: inputTypes,
+        outputTypes: outputTypes,
+        network: network,
+        memo: memo,
+        enableRBF: enableRBF,
+      );
+
+  static Future<BitcoinCashWallet> create({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required EncryptionFileUtils encryptionFileUtils,
+    String? passphrase,
+    String? addressPageType,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
+  }) async {
     return BitcoinCashWallet(
       mnemonic: mnemonic,
       password: password,
@@ -141,17 +158,21 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
           return BitcoinAddressRecord(
             addr.address,
             index: addr.index,
-            isHidden: addr.isHidden,
+            isChange: addr.isChange,
             type: P2pkhAddressType.p2pkh,
             network: BitcoinCashNetwork.mainnet,
+            derivationInfo: BitcoinAddressUtils.getDerivationFromType(P2pkhAddressType.p2pkh),
+            cwDerivationType: CWBitcoinDerivationType.bip39,
           );
         } catch (_) {
           return BitcoinAddressRecord(
             AddressUtils.getCashAddrFormat(addr.address),
             index: addr.index,
-            isHidden: addr.isHidden,
+            isChange: addr.isChange,
             type: P2pkhAddressType.p2pkh,
             network: BitcoinCashNetwork.mainnet,
+            derivationInfo: BitcoinAddressUtils.getDerivationFromType(P2pkhAddressType.p2pkh),
+            cwDerivationType: CWBitcoinDerivationType.bip39,
           );
         }
       }).toList(),
@@ -170,56 +191,38 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         Uint8List.fromList(hd.childKey(Bip32KeyIndex(index)).privateKey.raw),
       );
 
-  int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) {
-    int inputsCount = 0;
-    int totalValue = 0;
-
-    for (final input in unspentCoins) {
-      if (input.isSending) {
-        inputsCount++;
-        totalValue += input.value;
-      }
-      if (amount != null && totalValue >= amount) {
-        break;
-      }
-    }
-
-    if (amount != null && totalValue < amount) return 0;
-
-    final _outputsCount = outputsCount ?? (amount != null ? 2 : 1);
-
-    return feeAmountWithFeeRate(feeRate, inputsCount, _outputsCount);
-  }
-
-  @override
-  int feeRate(TransactionPriority priority) {
-    if (priority is BitcoinCashTransactionPriority) {
-      switch (priority) {
-        case BitcoinCashTransactionPriority.slow:
-          return 1;
-        case BitcoinCashTransactionPriority.medium:
-          return 5;
-        case BitcoinCashTransactionPriority.fast:
-          return 10;
-      }
-    }
-
-    return 0;
-  }
-
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    int? index;
-    try {
-      index = address != null
-          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-          : null;
-    } catch (_) {}
-    final HD = index == null ? hd : hd.childKey(Bip32KeyIndex(index));
+    Bip32Slip10Secp256k1 HD = hdWallet;
+
+    final record = walletAddresses.allAddresses.firstWhere((element) => element.address == address);
+
+    if (record.isChange) {
+      HD = HD.childKey(Bip32KeyIndex(1));
+    } else {
+      HD = HD.childKey(Bip32KeyIndex(0));
+    }
+
+    HD = HD.childKey(Bip32KeyIndex(record.index));
     final priv = ECPrivate.fromWif(
       WifEncoder.encode(HD.privateKey.raw, netVer: network.wifNetVer),
       netVersion: network.wifNetVer,
     );
     return priv.signMessage(StringUtils.encode(message));
   }
+
+  @override
+  int calcFee({
+    required List<UtxoWithAddress> utxos,
+    required List<BitcoinBaseOutput> outputs,
+    String? memo,
+    required int feeRate,
+  }) =>
+      feeRate *
+      ForkedTransactionBuilder.estimateTransactionSize(
+        utxos: utxos,
+        outputs: outputs,
+        network: network,
+        memo: memo,
+      );
 }
