@@ -351,7 +351,6 @@ class ElectrumWorker {
 
     for (final result in balances) {
       final balance = result.result;
-      print("balance: $balance");
       final confirmed = balance['confirmed'] as int? ?? 0;
       final unconfirmed = balance['unconfirmed'] as int? ?? 0;
       totalConfirmed += confirmed;
