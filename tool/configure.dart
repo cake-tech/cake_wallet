@@ -1717,16 +1717,16 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.banano,\n';
   }
 
+  if (hasDecred) {
+    outputContent += '\tWalletType.decred,\n';
+  }
+
   if (hasWownero) {
     outputContent += '\tWalletType.wownero,\n';
   }
 
   if (hasHaven) {
     outputContent += '\tWalletType.haven,\n';
-  }
-
-  if (hasDecred) {
-    outputContent += '\tWalletType.decred,\n';
   }
 
   outputContent += '];\n';

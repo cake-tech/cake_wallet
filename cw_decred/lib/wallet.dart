@@ -91,6 +91,8 @@ abstract class DecredWalletBase
     updateBalance();
 
     await walletAddresses.init();
+
+    fetchTransactions();
   }
 
   void performBackgroundTasks() async {

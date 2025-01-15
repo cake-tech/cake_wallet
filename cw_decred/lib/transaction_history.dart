@@ -7,8 +7,6 @@ class DecredTransactionHistory extends TransactionHistoryBase<TransactionInfo> {
     transactions = ObservableMap<String, TransactionInfo>();
   }
 
-  Future<void> init() async {}
-
   @override
   void addOne(TransactionInfo transaction) =>
       transactions[transaction.id] = transaction;
@@ -19,8 +17,6 @@ class DecredTransactionHistory extends TransactionHistoryBase<TransactionInfo> {
 
   @override
   Future<void> save() async {}
-
-  Future<void> changePassword(String password) async {}
 
   // update returns true if a known transaction that is not pending was found.
   bool update(Map<String, TransactionInfo> txs) {
