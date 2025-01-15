@@ -221,7 +221,7 @@ jobs:
           popd
 
       - name: Upload Artifact to github
-        uses: kittaakos/upload-artifact-as-is@v0
+        uses: actions/upload-artifact@v4
         with:
           path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
 
@@ -292,6 +292,6 @@ jobs:
       - name: Upload Artifact to github
         if: always()
         continue-on-error: true
-        uses: kittaakos/upload-artifact-as-is@v0
+        uses: actions/upload-artifact@v4
         with:
           path: ${{ github.workspace }}/screen_grab.mkv.gpg
