@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . ./config.sh
-CW_DECRED_DIR=cw_decred/
+CW_DECRED_DIR=/__w/cake_wallet/cake_wallet/cw_decred/
 LIBWALLET_PATH="${WORKDIR}/decred/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
 LIBWALLET_VERSION="v2.0.0"
@@ -47,10 +47,11 @@ go build -buildmode=c-shared -o ./build/libdcrwallet.so ./cgo
 
 DEST_LIB_DIR=${CW_DECRED_DIR}/android/libs/${ARCH_ABI}
 mkdir -p $DEST_LIB_DIR
-mv /build/libdcrwallet.so $DEST_LIB_DIR
+mv ${LIBWALLET_PATH}/build/libdcrwallet.so $DEST_LIB_DIR
 
 done
 
 HEADER_DIR=$CW_DECRED_DIR/lib/api
-mv /build/libdcrwallet.h $HEADER_DIR
+mv ${LIBWALLET_PATH}/build/libdcrwallet.h $HEADER_DIR
+cd $CW_DECRED_DIR
 dart run ffigen
