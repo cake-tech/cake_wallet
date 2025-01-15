@@ -205,6 +205,22 @@ class WowneroURI extends PaymentURI {
   }
 }
 
+class DecredURI extends PaymentURI {
+  DecredURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'decred:' + address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 abstract class WalletAddressListViewModelBase
     extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
@@ -298,9 +314,57 @@ abstract class WalletAddressListViewModelBase
         return TronURI(amount: amount, address: address.address);
       case WalletType.wownero:
         return WowneroURI(amount: amount, address: address.address);
+      case WalletType.decred:
+        return DecredURI(amount: amount, address: address.address);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
+
+    if (wallet.type == WalletType.haven) {
+      return HavenURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.bitcoin) {
+      return BitcoinURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.litecoin) {
+      return LitecoinURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.ethereum) {
+      return EthereumURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.bitcoinCash) {
+      return BitcoinCashURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.nano) {
+      return NanoURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.polygon) {
+      return PolygonURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.solana) {
+      return SolanaURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.tron) {
+      return TronURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.wownero) {
+      return WowneroURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.decred) {
+      return DecredURI(amount: amount, address: address.address);
+    }
+
+    throw Exception('Unexpected type: ${type.toString()}');
   }
 
   @computed

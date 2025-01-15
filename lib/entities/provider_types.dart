@@ -74,6 +74,7 @@ class ProvidersHelper {
           ProviderType.robinhood,
           ProviderType.moonpay,
         ];
+      case WalletType.decred:
       case WalletType.none:
       case WalletType.haven:
         return [];
@@ -104,6 +105,7 @@ class ProvidersHelper {
         ];
       case WalletType.monero:
         return [ProviderType.dfx];
+      case WalletType.decred:
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.none:

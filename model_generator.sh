@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x -e
 
-for cwcoin in cw_{core,evm,monero,bitcoin,haven,nano,bitcoin_cash,solana,tron,wownero}
+for cwcoin in cw_{core,evm,monero,bitcoin,haven,nano,bitcoin_cash,solana,tron,wownero,decred}
 do
     if [[ "x$1" == "xasync" ]];
     then
@@ -11,7 +11,7 @@ do
     fi
 done
 for cwcoin in cw_{polygon,ethereum,mwebd};
-do        
+do
     if [[ "x$1" == "xasync" ]];
     then
         bash -c "cd $cwcoin; flutter pub get; cd .." &
