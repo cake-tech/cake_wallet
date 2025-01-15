@@ -8,7 +8,7 @@ NPROC="-j$(nproc)"
 
 ../prepare_moneroc.sh
 
-for COIN in monero wownero;
+for COIN in monero wownero zano;
 do
     pushd ../monero_c
         for target in x86_64-linux-gnu

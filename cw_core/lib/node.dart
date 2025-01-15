@@ -100,7 +100,9 @@ class Node extends HiveObject with Keyable {
       case WalletType.solana:
       case WalletType.tron:
         return Uri.parse(
-            "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") ? path : "/$path"}");
+          "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") ? path : "/$path"}");
+      case WalletType.zano:
+        return Uri.https(uriRaw, '');
       case WalletType.none:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -161,12 +163,19 @@ class Node extends HiveObject with Keyable {
         case WalletType.solana:
         case WalletType.tron:
           return requestElectrumServer();
+        case WalletType.zano:
+          return requestZanoNode();
         case WalletType.none:
           return false;
       }
     } catch (_) {
       return false;
     }
+  }
+
+  Future<bool> requestZanoNode() async {
+    // TODO: fix it
+    return true;
   }
 
   Future<bool> requestMoneroNode() async {
