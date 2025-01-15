@@ -224,6 +224,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
+          name: cakewallet_linux
 
       - name: Prepare virtual desktop
         if: ${{ contains(github.event.head_commit.message, 'run tests') }}
@@ -295,3 +296,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ${{ github.workspace }}/screen_grab.mkv.gpg
+          name: tests_screen_grab

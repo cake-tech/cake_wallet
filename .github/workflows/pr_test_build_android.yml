@@ -286,3 +286,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: ${{ github.workspace }}/build/app/outputs/flutter-apk
+          name: "android apk"
