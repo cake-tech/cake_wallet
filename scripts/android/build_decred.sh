@@ -2,12 +2,9 @@
 
 . ./config.sh
 CW_DECRED_DIR=cw_decred/
-LIBWALLET_PATH="decred/libwallet"
+LIBWALLET_PATH="${WORKDIR}/decred/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
 LIBWALLET_VERSION="v2.0.0"
-
-echo "11111"
-pwd
 
 if [ -e $LIBWALLET_PATH ]; then
        rm -fr $LIBWALLET_PATH
@@ -15,8 +12,6 @@ fi
 mkdir -p $LIBWALLET_PATH
 git clone $LIBWALLET_URL $LIBWALLET_PATH
 cd $LIBWALLET_PATH
-echo "22222"
-pwd
 git checkout $LIBWALLET_VERSION
 
 export CPATH="$(clang -v 2>&1 | grep "Selected GCC installation" | rev | cut -d' ' -f1 | rev)/include"
@@ -50,16 +45,12 @@ fi
 CGO_ENABLED=1 GOOS=android GOARCH=${TARGET} CC=clang CXX=clang++ \
 go build -buildmode=c-shared -o ./build/libdcrwallet.so ./cgo
 
-echo "333333"
-pwd
 DEST_LIB_DIR=${CW_DECRED_DIR}/android/libs/${ARCH_ABI}
 mkdir -p $DEST_LIB_DIR
 mv /build/libdcrwallet.so $DEST_LIB_DIR
 
 done
 
-echo "44444"
 HEADER_DIR=$CW_DECRED_DIR/lib/api
 mv /build/libdcrwallet.h $HEADER_DIR
-cd ../../$CW_DECRED_DIR
 dart run ffigen
