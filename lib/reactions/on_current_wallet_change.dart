@@ -84,7 +84,7 @@ void startCurrentWalletChangeReaction(
         bitcoin!.updatePayjoinState(wallet, settingsStore.usePayjoin);
       }
 
-      if (settingsStore.builtinTor) {
+      if (settingsStore.currentBuiltinTor) {
         await ensureTorStarted(context: null);
       }
       
