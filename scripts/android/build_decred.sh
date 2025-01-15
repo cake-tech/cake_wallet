@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . ./config.sh
-CW_DECRED_DIR=${WORKDIR}/cake_wallet/cw_decred
+CW_DECRED_DIR=cw_decred/
 LIBWALLET_PATH="${WORKDIR}/decred/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
 LIBWALLET_VERSION="v2.0.0"

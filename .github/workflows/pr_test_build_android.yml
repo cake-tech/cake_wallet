@@ -230,8 +230,6 @@ jobs:
             ./build_mwebd.sh --dont-install
           popd
 
-
-
       - name: Build Decred
         run: |
           set -x -e
