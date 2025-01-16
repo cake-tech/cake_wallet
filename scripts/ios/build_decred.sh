@@ -1,9 +1,9 @@
 #!/bin/sh
-
+set -e
 . ./config.sh
 LIBWALLET_PATH="${EXTERNAL_IOS_SOURCE_DIR}/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
-LIBWALLET_VERSION="v2.0.0"
+LIBWALLET_VERSION="c890cb24bee480e7f6eadac3f22f10b9697b7e8a"
 
 if [ -e $LIBWALLET_PATH ]; then
        rm -fr $LIBWALLET_PATH
@@ -21,7 +21,7 @@ if [ -e ./build ]; then
        rm -fr ./build
 fi
 CGO_ENABLED=1 GOOS=ios GOARCH=arm64 CC=$CLANG CXX=$CLANGXX \
-go build -buildmode=c-archive -o ./build/libdcrwallet.a ./cgo || exit 1
+go build -v -buildmode=c-archive -o ./build/libdcrwallet.a ./cgo || exit 1
 
 CW_DECRED_DIR=${CW_ROOT}/cw_decred
 HEADER_DIR=$CW_DECRED_DIR/lib/api
