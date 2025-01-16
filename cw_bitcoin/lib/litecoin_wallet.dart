@@ -394,7 +394,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
               // if the confirmations haven't changed, skip updating:
               if (tx.confirmations == confirmations) continue;
 
-
               // if an outgoing tx is now confirmed, delete the utxo from the box (delete the unspent coin):
               if (confirmations >= 2 &&
                   tx.direction == TransactionDirection.outgoing &&
@@ -966,9 +965,20 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     List<ECPrivateInfo>? inputPrivKeyInfos,
     List<Outpoint>? vinOutpoints,
   }) async {
-    final spendsMweb = utxos.any((utxo) => utxo.utxo.scriptType == SegwitAddresType.mweb);
-    final paysToMweb = outputs
+    bool spendsMweb = utxos.any((utxo) => utxo.utxo.scriptType == SegwitAddresType.mweb);
+    bool paysToMweb = outputs
         .any((output) => output.toOutput.scriptPubKey.getAddressType() == SegwitAddresType.mweb);
+
+    if ((spendsMweb || paysToMweb) && !mwebEnabled) {
+      // throw Exception("MWEB is not enabled! can't calculate fee without starting the mweb server!");
+      // rather than throwing an exception, filter out mweb inputs and outputs:
+      utxos = utxos.where((utxo) => utxo.utxo.scriptType != SegwitAddresType.mweb).toList();
+      outputs = outputs.where((output) => output.toOutput.scriptPubKey.getAddressType() != SegwitAddresType.mweb).toList();
+      paysToMweb = false;
+      spendsMweb = false;
+      printV("FILTERED OUT MWEB INPUTS AND OUTPUTS!");
+    }
+
     if (!spendsMweb && !paysToMweb) {
       return await super.calcFee(
         utxos: utxos,
