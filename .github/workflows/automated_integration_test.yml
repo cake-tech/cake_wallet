@@ -1,8 +1,6 @@
 name: Automated Integration Tests
 
-on:
-  pull_request:
-    branches: [main, Integrate-Seed-Verification-Flow-To-Integration-Tests]
+on: [push]
 defaults:
   run:
     shell: bash
@@ -249,36 +247,13 @@ jobs:
           sanitized_branch_name=$(echo "$sanitized_branch_name" | sed 's/[^a-z0-9]//g')  # Remove all special characters
 
           echo -e "id=com.cakewallet.test_${sanitized_branch_name}\nname=${BRANCH_NAME}" > android/app.properties
-
-      - name: Build
-        run: |
-          flutter build apk --release --split-per-abi
-
-      - name: Rename apk file
-        run: |
-          cd build/app/outputs/flutter-apk
-          mkdir test-apk
-          cp app-arm64-v8a-release.apk test-apk/${BRANCH_NAME}.apk
-          cp app-x86_64-release.apk test-apk/${BRANCH_NAME}_x86.apk
-          cd test-apk
-          cp ${BRANCH_NAME}.apk ${BRANCH_NAME}_slack.apk
-
-      - name: Find APK file
-        id: find_apk
-        run: |
-          set -x
-          apk_file=$(ls build/app/outputs/flutter-apk/test-apk/*_slack.apk || exit 1)
-          echo "APK_FILE=$apk_file" >> $GITHUB_ENV
-
-      - name: cleanup
-        run: rm -rf build/app/outputs/flutter-apk/test-apk/
   
       - name: 🚀 Integration tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
             api-level: ${{ matrix.api-level }}
             force-avd-creation: false
-            emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+            emulator-options: -no-snapshot-save -no-window -gpu guest -noaudio -no-boot-anim -camera-back none
             disable-animations: true
             script: |
                 chmod a+rx integration_test_runner.sh
