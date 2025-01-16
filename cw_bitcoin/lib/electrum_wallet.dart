@@ -69,6 +69,7 @@ abstract class ElectrumWalletBase
     CryptoCurrency? currency,
     this.alwaysScan,
     List<BitcoinUnspent>? initialUnspentCoins,
+    bool? didInitialSync,
   })  : hdWallets = hdWallets ??
             {
               CWBitcoinDerivationType.bip39: getAccountHDWallet(
@@ -97,6 +98,7 @@ abstract class ElectrumWalletBase
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.isTestnet = !network.isMainnet,
         this._mnemonic = mnemonic,
+        _didInitialSync = didInitialSync ?? false,
         super(walletInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = ElectrumTransactionHistory(
@@ -226,7 +228,6 @@ abstract class ElectrumWalletBase
   }
 
   bool? alwaysScan;
-  bool _updatingHistories = false;
 
   final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets;
   Bip32Slip10Secp256k1 get hdWallet => walletAddresses.hdWallet;
@@ -299,8 +300,7 @@ abstract class ElectrumWalletBase
   List<String> scripthashesListening;
 
   bool _chainTipListenerOn = false;
-  // TODO: improve this
-  int _syncedTimes = 0;
+  bool _didInitialSync;
 
   void Function(FlutterErrorDetails)? _onError;
   Timer? _autoSaveTimer;
@@ -331,8 +331,15 @@ abstract class ElectrumWalletBase
       // INFO: SECOND: Start loading transaction histories for every address, this will help discover addresses until the unused gap limit has been reached, which will help finding the full balance and unspents next
       await updateTransactions(null, true);
 
+      if (!_didInitialSync && transactionHistory.transactions.isNotEmpty) {
+        await updateTransactions(null, true);
+        _didInitialSync = true;
+      }
+
       // INFO: THIRD: Get the full wallet's balance with all addresses considered
       await updateBalance(true);
+
+      syncStatus = SyncedSyncStatus();
 
       // INFO: FOURTH: Get the latest recommended fee rates and start update timer
       await updateFeeRates();
@@ -924,6 +931,7 @@ abstract class ElectrumWalletBase
         'derivationTypeIndex': walletInfo.derivationInfo?.derivationType?.index,
         'derivationPath': walletInfo.derivationInfo?.derivationPath,
         'unspents': unspentCoins.map((e) => e.toJson()).toList(),
+        'didInitialSync': _didInitialSync,
       });
 
   int feeAmountForPriority(
@@ -1148,11 +1156,6 @@ abstract class ElectrumWalletBase
     unspentCoins.forEach(updateCoin);
 
     await refreshUnspentCoinsInfo();
-
-    _syncedTimes++;
-    if (_syncedTimes == 3) {
-      syncStatus = SyncedSyncStatus();
-    }
   }
 
   @action
@@ -1233,22 +1236,10 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> onHistoriesResponse(List<AddressHistoriesResponse> histories) async {
-    if (histories.isEmpty || _updatingHistories) {
-      _updatingHistories = false;
-      _syncedTimes++;
-      if (_syncedTimes == 3) {
-        syncStatus = SyncedSyncStatus();
-      }
-
-      return;
-    }
-
-    _updatingHistories = true;
-
     final addressesWithHistory = <BitcoinAddressRecord>[];
     BitcoinAddressType? lastDiscoveredType;
 
-    for (final addressHistory in histories) {
+    await Future.wait(histories.map((addressHistory) async {
       final txs = addressHistory.txs;
 
       if (txs.isNotEmpty) {
@@ -1306,19 +1297,13 @@ abstract class ElectrumWalletBase
           }
         }
       }
-    }
+    }));
 
     if (addressesWithHistory.isNotEmpty) {
       walletAddresses.updateAdresses(addressesWithHistory);
     }
 
     walletAddresses.updateHiddenAddresses();
-    _updatingHistories = false;
-
-    _syncedTimes++;
-    if (_syncedTimes == 3) {
-      syncStatus = SyncedSyncStatus();
-    }
   }
 
   Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
@@ -1639,7 +1624,7 @@ abstract class ElectrumWalletBase
     List<BitcoinAddressRecord>? addresses,
   ]) async {
     return ElectrumWorkerGetHistoryRequest(
-      addresses: walletAddresses.allAddresses.toList(),
+      addresses: addresses ?? walletAddresses.allAddresses.toList(),
       storedTxs: transactionHistory.transactions.values.toList(),
       walletType: type,
       // If we still don't have currentChainTip, txs will still be fetched but shown
@@ -1651,9 +1636,9 @@ abstract class ElectrumWalletBase
 
   Future<void> updateTransactions([List<BitcoinAddressRecord>? addresses, bool? wait]) async {
     if (wait == true) {
-      return waitSendWorker(await getUpdateTransactionsRequest());
+      return waitSendWorker(await getUpdateTransactionsRequest(addresses));
     } else {
-      workerSendPort!.send((await getUpdateTransactionsRequest()).toJson());
+      workerSendPort!.send((await getUpdateTransactionsRequest(addresses)).toJson());
     }
   }
 
@@ -1694,11 +1679,6 @@ abstract class ElectrumWalletBase
       unconfirmed: totalUnconfirmed,
       frozen: totalFrozen,
     );
-
-    _syncedTimes++;
-    if (_syncedTimes == 3) {
-      syncStatus = SyncedSyncStatus();
-    }
   }
 
   @action

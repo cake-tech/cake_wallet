@@ -64,6 +64,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     bool? alwaysScan,
     super.hdWallets,
     super.initialUnspentCoins,
+    super.didInitialSync,
   }) : super(
           mnemonic: mnemonic,
           passphrase: passphrase,
@@ -218,6 +219,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       alwaysScan: alwaysScan,
       hdWallets: hdWallets,
       initialUnspentCoins: snp?.unspentCoins,
+      didInitialSync: snp?.didInitialSync,
     );
   }
 
@@ -381,7 +383,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     List<BitcoinAddressRecord>? addresses,
   ]) async {
     return ElectrumWorkerGetHistoryRequest(
-      addresses: walletAddresses.allAddresses.toList(),
+      addresses: addresses ?? walletAddresses.allAddresses.toList(),
       storedTxs: transactionHistory.transactions.values.toList(),
       walletType: type,
       // If we still don't have currentChainTip, txs will still be fetched but shown

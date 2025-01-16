@@ -24,6 +24,7 @@ class ElectrumWalletSnapshot {
     this.passphrase,
     this.derivationType,
     this.derivationPath,
+    this.didInitialSync,
   });
 
   final String name;
@@ -48,6 +49,7 @@ class ElectrumWalletSnapshot {
   Map<String, int> changeAddressIndex;
   DerivationType? derivationType;
   String? derivationPath;
+  bool? didInitialSync;
 
   static Future<ElectrumWalletSnapshot> load(EncryptionFileUtils encryptionFileUtils, String name,
       WalletType type, String password, BasedUtxoNetwork network) async {
@@ -105,6 +107,7 @@ class ElectrumWalletSnapshot {
       unspentCoins: (data['unspent_coins'] as List)
           .map((e) => BitcoinUnspent.fromJSON(null, e as Map<String, dynamic>))
           .toList(),
+      didInitialSync: data['didInitialSync'] as bool?,
     );
   }
 }

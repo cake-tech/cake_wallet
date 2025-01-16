@@ -36,6 +36,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
+    super.didInitialSync,
   }) : super(
           mnemonic: mnemonic,
           password: password,
@@ -183,6 +184,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: snp?.changeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,
       passphrase: keysData.passphrase,
+      didInitialSync: snp?.didInitialSync,
     );
   }
 

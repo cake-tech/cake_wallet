@@ -236,7 +236,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     return ElectrumTransactionInfo(
       type,
       id: data['id'] as String,
-      height: data['height'] as int,
+      height: data['height'] as int?,
       amount: data['amount'] as int,
       fee: data['fee'] as int,
       direction: parseTransactionDirectionFromInt(data['direction'] as int),

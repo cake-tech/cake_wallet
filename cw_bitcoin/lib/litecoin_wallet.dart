@@ -69,6 +69,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialChangeAddressIndex,
     int? initialMwebHeight,
     bool? alwaysScan,
+    super.didInitialSync,
   }) : super(
           mnemonic: mnemonic,
           password: password,
@@ -248,6 +249,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: snp?.changeAddressIndex,
       addressPageType: snp?.addressPageType,
       alwaysScan: snp?.alwaysScan,
+      didInitialSync: snp?.didInitialSync,
     );
   }
 
