@@ -973,7 +973,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       // throw Exception("MWEB is not enabled! can't calculate fee without starting the mweb server!");
       // rather than throwing an exception, filter out mweb inputs and outputs:
       utxos = utxos.where((utxo) => utxo.utxo.scriptType != SegwitAddresType.mweb).toList();
-      outputs = outputs.where((output) => output.toOutput.scriptPubKey.getAddressType() != SegwitAddresType.mweb).toList();
+      outputs = outputs
+          .where((output) => output.toOutput.scriptPubKey.getAddressType() != SegwitAddresType.mweb)
+          .toList();
       paysToMweb = false;
       spendsMweb = false;
       printV("FILTERED OUT MWEB INPUTS AND OUTPUTS!");
@@ -990,7 +992,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         vinOutpoints: vinOutpoints,
       );
     }
-
 
     if (outputs.length == 1 && outputs[0].toOutput.amount == BigInt.zero) {
       outputs = [
@@ -1219,7 +1220,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> setMwebEnabled(bool enabled) async {
-    if (mwebEnabled == enabled) {
+    if (mwebEnabled == enabled &&
+        alwaysScan == enabled &&
+        (walletAddresses as LitecoinWalletAddresses).mwebEnabled == enabled) {
       return;
     }
 

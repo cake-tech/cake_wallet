@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
@@ -47,16 +49,16 @@ abstract class MwebSettingsViewModelBase with Store {
     _settingsStore.mwebAlwaysScan = value;
   }
 
-  Future<bool> saveLogsLocally(String filePath) async {
+  Future<bool> saveLogsLocally(String inAppPath, String localPath) async {
     try {
-      final appSupportPath = (await getApplicationSupportDirectory()).path;
-      final logsFile = File("$appSupportPath/logs/debug.log");
+      final logsFile = File(inAppPath);
       if (!logsFile.existsSync()) {
         throw Exception('Logs file does not exist');
       }
-      await logsFile.copy(filePath);
+      await logsFile.copy(localPath);
       return true;
     } catch (e, s) {
+      printV("@@@@@ ERROR SAVING LOGS @@@@@@@@");
       ExceptionHandler.onError(FlutterErrorDetails(
         exception: e,
         stack: s,
