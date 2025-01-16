@@ -60,6 +60,6 @@ do
 done
 
 HEADER_DIR=$CW_DECRED_DIR/lib/api
-cp ${LIBWALLET_PATH}/build/${TRIPLET}-libdcrwallet.h $HEADER_DIR
+cp ${LIBWALLET_PATH}/build/${TRIPLET}-libdcrwallet.h $HEADER_DIR/libdcrwallet.h
 cd $CW_DECRED_DIR
 dart run ffigen

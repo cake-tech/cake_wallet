@@ -35,5 +35,5 @@ android/libs
 ios/External/
 macos/External/
 
-libdcrwallet.h
+*libdcrwallet.h
 libdcrwallet_bindings.dart

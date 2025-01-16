@@ -7,16 +7,16 @@ do
     then
         bash -c "cd $cwcoin; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd .." &
     else
-        bash -c "cd $cwcoin; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd .."
+        cd $cwcoin; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd ..
     fi
 done
-for cwcoin in cw_{polygon,ethereum,mwebd};
+for cwcoin in cw_{polygon,ethereum,mweb};
 do
     if [[ "x$1" == "xasync" ]];
     then
         bash -c "cd $cwcoin; flutter pub get; cd .." &
     else
-        bash -c "cd $cwcoin; flutter pub get; cd .."
+        cd $cwcoin; flutter pub get; cd ..
     fi
 done
 
