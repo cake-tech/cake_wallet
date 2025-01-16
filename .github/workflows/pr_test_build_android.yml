@@ -41,7 +41,7 @@ jobs:
           git config --global user.name "CakeWallet CI"
       - name: Get the full commit message
         run: |
-          FULL_MESSAGE="$(git log -1 --pretty=%B)"
+          FULL_MESSAGE="$(git log -1 --pretty=%B ${{ github.event.pull_request.base.sha }})"
           echo "message<<EOF" >> $GITHUB_ENV
           echo "$FULL_MESSAGE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
