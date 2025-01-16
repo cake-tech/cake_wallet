@@ -56,7 +56,7 @@ do
 
     DEST_LIB_DIR=${CW_DECRED_DIR}/android/libs/${ARCH_ABI}
     mkdir -p $DEST_LIB_DIR
-    cp ${LIBWALLET_PATH}/build/${TRIPLET}-libdcrwallet.so $DEST_LIB_DIR
+    cp ${LIBWALLET_PATH}/build/${TRIPLET}-libdcrwallet.so $DEST_LIB_DIR/libdcrwallet.so
 done
 
 HEADER_DIR=$CW_DECRED_DIR/lib/api
