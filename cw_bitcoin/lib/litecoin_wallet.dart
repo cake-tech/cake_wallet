@@ -982,7 +982,16 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     if (!mwebEnabled) {
-      throw Exception("MWEB is not enabled! can't calculate fee without starting the mweb server!");
+      // in the unlikely event that we accidentally included mweb inputs or outputs, this transaction will just fail:
+      return await super.calcFee(
+        utxos: utxos,
+        outputs: outputs,
+        network: network,
+        memo: memo,
+        feeRate: feeRate,
+        inputPrivKeyInfos: inputPrivKeyInfos,
+        vinOutpoints: vinOutpoints,
+      );
     }
 
     if (outputs.length == 1 && outputs[0].toOutput.amount == BigInt.zero) {
