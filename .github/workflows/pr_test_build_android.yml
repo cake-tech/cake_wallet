@@ -35,7 +35,7 @@ jobs:
         run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: configure git
         run: |
           git config --global --add safe.directory '*'
