@@ -14,8 +14,13 @@ class WalletSeedPageRobot {
     await commonTestCases.isSpecificPage<WalletSeedPage>();
   }
 
-  Future<void> onNextButtonPressed() async {
-    await commonTestCases.tapItemByKey('wallet_seed_page_next_button_key');
+  Future<void> onVerifySeedButtonPressed() async {
+    await commonTestCases.tapItemByKey('wallet_seed_page_verify_seed_button_key');
+    await commonTestCases.defaultSleepTime();
+  }
+
+  Future<void> onSaveSeedButtonPressed() async {
+    await commonTestCases.tapItemByKey('wallet_seed_page_save_seeds_button_key');
     await commonTestCases.defaultSleepTime();
   }
 
@@ -35,14 +40,15 @@ class WalletSeedPageRobot {
     final walletSeedViewModel = walletSeedPage.walletSeedViewModel;
 
     final walletName = walletSeedViewModel.name;
-    final walletSeeds = walletSeedViewModel.seed;
-
+    final walletSeeds = walletSeedViewModel.seedSplit;
     commonTestCases.hasText(walletName);
-    commonTestCases.hasText(walletSeeds);
+    for (var seed in walletSeeds) {
+      commonTestCases.hasText(seed);
+    }
   }
 
   void confirmWalletSeedReminderDisplays() {
-    commonTestCases.hasText(S.current.seed_reminder);
+    commonTestCases.hasText( S.current.cake_seeds_save_disclaimer);
   }
 
   Future<void> onSaveSeedsButtonPressed() async {

@@ -15,6 +15,7 @@ import '../robots/new_wallet_type_page_robot.dart';
 import '../robots/pre_seed_page_robot.dart';
 import '../robots/restore_from_seed_or_key_robot.dart';
 import '../robots/restore_options_page_robot.dart';
+import '../robots/seed_verification_page_robot.dart';
 import '../robots/setup_pin_code_robot.dart';
 import '../robots/wallet_group_description_page_robot.dart';
 import '../robots/wallet_list_page_robot.dart';
@@ -22,8 +23,6 @@ import '../robots/wallet_seed_page_robot.dart';
 import '../robots/welcome_page_robot.dart';
 import 'common_test_cases.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-
-import 'common_test_constants.dart';
 
 class CommonTestFlows {
   CommonTestFlows(this._tester)
@@ -38,6 +37,7 @@ class CommonTestFlows {
         _walletListPageRobot = WalletListPageRobot(_tester),
         _newWalletTypePageRobot = NewWalletTypePageRobot(_tester),
         _restoreOptionsPageRobot = RestoreOptionsPageRobot(_tester),
+        _seedVerificationPageRobot = SeedVerificationPageRobot(_tester),
         _createPinWelcomePageRobot = CreatePinWelcomePageRobot(_tester),
         _restoreFromSeedOrKeysPageRobot = RestoreFromSeedOrKeysPageRobot(_tester),
         _walletGroupDescriptionPageRobot = WalletGroupDescriptionPageRobot(_tester);
@@ -56,6 +56,7 @@ class CommonTestFlows {
   final NewWalletTypePageRobot _newWalletTypePageRobot;
   final RestoreOptionsPageRobot _restoreOptionsPageRobot;
   final CreatePinWelcomePageRobot _createPinWelcomePageRobot;
+  final SeedVerificationPageRobot _seedVerificationPageRobot;
   final RestoreFromSeedOrKeysPageRobot _restoreFromSeedOrKeysPageRobot;
   final WalletGroupDescriptionPageRobot _walletGroupDescriptionPageRobot;
 
@@ -85,6 +86,8 @@ class CommonTestFlows {
     await _confirmPreSeedInfo();
 
     await _confirmWalletDetails();
+
+    await _verifyWalletSeed();
   }
 
   //* ========== Handles flow from welcome to restoring wallet from seeds ===============
@@ -147,6 +150,9 @@ class CommonTestFlows {
     await _confirmPreSeedInfo();
 
     await _confirmWalletDetails();
+
+    await _verifyWalletSeed();
+
     await _commonTestCases.defaultSleepTime();
   }
 
@@ -254,9 +260,17 @@ class CommonTestFlows {
 
     await _walletSeedPageRobot.onCopySeedsButtonPressed();
 
-    await _walletSeedPageRobot.onNextButtonPressed();
+    await _walletSeedPageRobot.onVerifySeedButtonPressed();
+  }
 
-    await _walletSeedPageRobot.onConfirmButtonOnSeedAlertDialogPressed();
+  //* ============ Handles Wallet Seed Verification Page ==================
+
+  Future<void> _verifyWalletSeed() async {
+    await _seedVerificationPageRobot.isSeedVerificationPage();
+
+    _seedVerificationPageRobot.hasTitle();
+
+    await _seedVerificationPageRobot.verifyWalletSeeds();
   }
 
   //* Main Restore Actions - On the RestoreFromSeed/Keys Page - Restore from Seeds Action
