@@ -329,11 +329,17 @@ abstract class ElectrumWalletBase
       await waitSendWorker(ElectrumWorkerHeadersSubscribeRequest());
 
       // INFO: SECOND: Start loading transaction histories for every address, this will help discover addresses until the unused gap limit has been reached, which will help finding the full balance and unspents next
-      await updateTransactions(null, true);
 
-      if (!_didInitialSync && transactionHistory.transactions.isNotEmpty) {
+      final hadTxs = transactionHistory.transactions.isNotEmpty;
+      final isFirstSync = !_didInitialSync;
+
+      await updateTransactions(null, true);
+      _didInitialSync = true;
+      final nowHasTxs = transactionHistory.transactions.isNotEmpty;
+
+      final shouldUpdateDates = !hadTxs && isFirstSync && nowHasTxs;
+      if (shouldUpdateDates) {
         await updateTransactions(null, true);
-        _didInitialSync = true;
       }
 
       // INFO: THIRD: Get the full wallet's balance with all addresses considered
@@ -1237,6 +1243,7 @@ abstract class ElectrumWalletBase
   @action
   Future<void> onHistoriesResponse(List<AddressHistoriesResponse> histories) async {
     final addressesWithHistory = <BitcoinAddressRecord>[];
+    final newAddresses = <BitcoinAddressRecord>[];
     BitcoinAddressType? lastDiscoveredType;
 
     await Future.wait(histories.map((addressHistory) async {
@@ -1269,16 +1276,18 @@ abstract class ElectrumWalletBase
           lastDiscoveredType = addressRecord.type;
 
           // Discover new addresses for the same address type until the gap limit is respected
-          final newAddresses = await walletAddresses.discoverNewAddresses(
-            isChange: isChange,
-            derivationType: addressRecord.cwDerivationType,
-            addressType: addressRecord.type,
-            derivationInfo: BitcoinAddressUtils.getDerivationFromType(
-              addressRecord.type,
-              isElectrum: [
-                CWBitcoinDerivationType.electrum,
-                CWBitcoinDerivationType.old_electrum,
-              ].contains(addressRecord.cwDerivationType),
+          newAddresses.addAll(
+            await walletAddresses.discoverNewAddresses(
+              isChange: isChange,
+              derivationType: addressRecord.cwDerivationType,
+              addressType: addressRecord.type,
+              derivationInfo: BitcoinAddressUtils.getDerivationFromType(
+                addressRecord.type,
+                isElectrum: [
+                  CWBitcoinDerivationType.electrum,
+                  CWBitcoinDerivationType.old_electrum,
+                ].contains(addressRecord.cwDerivationType),
+              ),
             ),
           );
           walletAddresses.updateAdresses(newAddresses);
@@ -1290,14 +1299,15 @@ abstract class ElectrumWalletBase
                       element.cwDerivationType == addressRecord.cwDerivationType);
           printV(
               "discovered ${newAddresses.length} new ${isChange ? "change" : "receive"} addresses, new total: ${newAddressList.length}");
-
-          if (newAddresses.isNotEmpty) {
-            // Update the transactions for the new discovered addresses
-            await updateTransactions(newAddresses);
-          }
         }
       }
     }));
+
+    // if the initial sync has been done, update the new discovered addresses
+    // if not, will update all again on startSync, with the new ones as well, to update dates
+    if (newAddresses.isNotEmpty && !_didInitialSync) {
+      await updateTransactions(newAddresses, true);
+    }
 
     if (addressesWithHistory.isNotEmpty) {
       walletAddresses.updateAdresses(addressesWithHistory);
