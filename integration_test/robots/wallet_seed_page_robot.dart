@@ -43,12 +43,12 @@ class WalletSeedPageRobot {
     final walletSeeds = walletSeedViewModel.seedSplit;
     commonTestCases.hasText(walletName);
     for (var seed in walletSeeds) {
-      commonTestCases.hasText(seed);
+      commonTestCases.hasTextAtLestOnce(seed);
     }
   }
 
   void confirmWalletSeedReminderDisplays() {
-    commonTestCases.hasText( S.current.cake_seeds_save_disclaimer);
+    commonTestCases.hasText(S.current.cake_seeds_save_disclaimer);
   }
 
   Future<void> onSaveSeedsButtonPressed() async {

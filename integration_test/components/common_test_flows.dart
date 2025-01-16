@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
@@ -23,6 +25,8 @@ import '../robots/wallet_seed_page_robot.dart';
 import '../robots/welcome_page_robot.dart';
 import 'common_test_cases.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+
+import 'common_test_constants.dart';
 
 class CommonTestFlows {
   CommonTestFlows(this._tester)
@@ -174,8 +178,8 @@ class CommonTestFlows {
     await _walletListPageRobot.navigateToRestoreWalletOptionsPage();
     await _commonTestCases.defaultSleepTime();
 
-    await _restoreOptionsPageRobot.navigateToRestoreFromSeedsOrKeysPage();
-    await _commonTestCases.defaultSleepTime();
+    if (!Platform.isLinux) await _restoreOptionsPageRobot.navigateToRestoreFromSeedsOrKeysPage();
+    if (!Platform.isLinux) await _commonTestCases.defaultSleepTime();
 
     await _selectWalletTypeForWallet(walletType);
     await _commonTestCases.defaultSleepTime();
@@ -186,6 +190,7 @@ class CommonTestFlows {
 
   //* ========== Handles setting up pin code for wallet on first install ===============
   Future<void> setupPinCodeForWallet(List<int> pin) async {
+    if (Platform.isLinux) return;
     // ----------- SetupPinCode Page -------------
     // Confirm initial defaults - Widgets to be displayed etc
     await _setupPinCodeRobot.isSetupPinCodePage();
@@ -218,7 +223,7 @@ class CommonTestFlows {
 
     await _welcomePageRobot.navigateToRestoreWalletPage();
 
-    await _restoreOptionsPageRobot.navigateToRestoreFromSeedsOrKeysPage();
+    if (!Platform.isLinux) await _restoreOptionsPageRobot.navigateToRestoreFromSeedsOrKeysPage();
 
     await _selectWalletTypeForWallet(walletTypeToRestore);
   }
@@ -240,6 +245,14 @@ class CommonTestFlows {
 
     await _newWalletPageRobot.generateWalletName();
 
+    if (Platform.isLinux) {
+      // manual pin input
+      await _restoreFromSeedOrKeysPageRobot
+          .enterPasswordForWalletRestore(CommonTestConstants.pin.join(""));
+      await _restoreFromSeedOrKeysPageRobot
+          .enterPasswordRepeatForWalletRestore(CommonTestConstants.pin.join(""));
+    }
+
     await _newWalletPageRobot.onNextButtonPressed();
   }
 
@@ -258,7 +271,7 @@ class CommonTestFlows {
 
     _walletSeedPageRobot.confirmWalletSeedReminderDisplays();
 
-    await _walletSeedPageRobot.onCopySeedsButtonPressed();
+    // await _walletSeedPageRobot.onCopySeedsButtonPressed();
 
     await _walletSeedPageRobot.onVerifySeedButtonPressed();
   }
@@ -289,6 +302,14 @@ class CommonTestFlows {
       // Using a constant value of 2831400 for the blockheight as its the restore blockheight for our testing wallet
       await _restoreFromSeedOrKeysPageRobot
           .enterBlockHeightForWalletRestore(secrets.moneroTestWalletBlockHeight);
+    }
+
+    if (Platform.isLinux) {
+      // manual pin input
+      await _restoreFromSeedOrKeysPageRobot
+          .enterPasswordForWalletRestore(CommonTestConstants.pin.join(""));
+      await _restoreFromSeedOrKeysPageRobot
+          .enterPasswordRepeatForWalletRestore(CommonTestConstants.pin.join(""));
     }
 
     await _restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonPressed();
