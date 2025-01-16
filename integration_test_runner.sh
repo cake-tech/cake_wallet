@@ -18,9 +18,7 @@ do
         rm -rf ~/.local/share/com.example.cake_wallet ~/Documents/cake_wallet
     fi
     echo "Running test: $target"
-    if flutter drive \
-      --driver=test_driver/integration_test.dart \
-      --target="$target"; then
+    if flutter test $target; then
         echo "✅ Test passed: $target"
         passed_tests+=("$target")
     else
