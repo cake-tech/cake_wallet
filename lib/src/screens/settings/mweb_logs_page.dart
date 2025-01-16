@@ -77,15 +77,12 @@ class MwebLogsPage extends BasePage {
           return AlertWithTwoActions(
               alertTitle: S.of(context).export_backup,
               alertContent: S.of(context).select_destination,
-              rightButtonText: S.of(context).save_to_downloads,
-              leftButtonText: S.of(context).share,
-              actionRightButton: () async {
-                final inAppPath = "${(await getApplicationSupportDirectory()).path}/logs/debug.log";
-                final localPath = "/storage/emulated/0/Download/debug.log";
-                await mwebSettingsViewModelBase.saveLogsLocally(inAppPath, localPath);
+              rightButtonText: S.of(context).save,
+              leftButtonText: S.of(context).cancel,
+              actionLeftButton: () async {
                 Navigator.of(dialogContext).pop();
               },
-              actionLeftButton: () async {
+              actionRightButton: () async {
                 Navigator.of(dialogContext).pop();
                 try {
                   await share(context);
@@ -102,11 +99,7 @@ class MwebLogsPage extends BasePage {
 
   Future<void> share(BuildContext context) async {
     final inAppPath = "${(await getApplicationSupportDirectory()).path}/logs/debug.log";
-    final localPath = "/storage/emulated/0/Download/debug.log";
-    bool success = await mwebSettingsViewModelBase.saveLogsLocally(inAppPath, localPath);
-    if (!success) return;
-    await ShareUtil.shareFile(filePath: localPath, fileName: "debug.log", context: context);
-    await mwebSettingsViewModelBase.removeLogsLocally(localPath);
+    await ShareUtil.shareFile(filePath: inAppPath, fileName: "debug.log", context: context);
   }
 
   Future<void> _saveFile() async {

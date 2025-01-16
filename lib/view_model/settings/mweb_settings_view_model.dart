@@ -55,10 +55,10 @@ abstract class MwebSettingsViewModelBase with Store {
       if (!logsFile.existsSync()) {
         throw Exception('Logs file does not exist');
       }
-      await logsFile.copy(localPath);
+      // await logsFile.copy(localPath);
+      await File(localPath).writeAsBytes(await logsFile.readAsBytes());
       return true;
     } catch (e, s) {
-      printV("@@@@@ ERROR SAVING LOGS @@@@@@@@");
       ExceptionHandler.onError(FlutterErrorDetails(
         exception: e,
         stack: s,
