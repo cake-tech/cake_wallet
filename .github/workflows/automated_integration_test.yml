@@ -314,7 +314,6 @@ jobs:
             force-avd-creation: false
             # arch: ${{ matrix.arch }}
             emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-            working-directory: /opt/android/cake_wallet
             disable-animations: false
             script: echo "Generated AVD snapshot for caching."
   
@@ -325,7 +324,6 @@ jobs:
             force-avd-creation: false
             emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
             disable-animations: true
-            working-directory: /opt/android/cake_wallet
             script: |
                 chmod a+rx integration_test_runner.sh
                 ./integration_test_runner.sh
