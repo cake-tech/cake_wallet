@@ -34,17 +34,17 @@ jobs:
       - name: Fix github actions messing up $HOME...
         run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
       - uses: actions/checkout@v4
+      - name: configure git
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@cakewallet.com"
+          git config --global user.name "CakeWallet CI"
       - name: Get the full commit message
         run: |
           FULL_MESSAGE="$(git log -1 --pretty=%B)"
           echo "message<<EOF" >> $GITHUB_ENV
           echo "$FULL_MESSAGE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-      - name: configure git
-        run: |
-          git config --global --add safe.directory '*'
-          git config --global user.email "ci@cakewallet.com"
-          git config --global user.name "CakeWallet CI"
 
       - name: Add secrets
         run: |
