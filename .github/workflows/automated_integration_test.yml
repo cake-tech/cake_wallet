@@ -1,7 +1,8 @@
 name: Automated Integration Tests
 
-on: [push]
-
+on:
+  pull_request:
+    branches: [main, Integrate-Seed-Verification-Flow-To-Integration-Tests]
 defaults:
   run:
     shell: bash
@@ -268,48 +269,9 @@ jobs:
           set -x
           apk_file=$(ls build/app/outputs/flutter-apk/test-apk/*_slack.apk || exit 1)
           echo "APK_FILE=$apk_file" >> $GITHUB_ENV
-        
-      - name: Upload artifact to slack
-        if: ${{ !contains(github.event.head_commit.message, 'skip slack') }}
-        continue-on-error: true
-        uses: adrey/slack-file-upload-action@1.0.5
-        with:
-          token: ${{ secrets.SLACK_APP_TOKEN }}
-          path: ${{ env.APK_FILE }}
-          channel: ${{ secrets.SLACK_APK_CHANNEL }}
-          initial_comment: ${{ github.event.head_commit.message }}
 
       - name: cleanup
         run: rm -rf build/app/outputs/flutter-apk/test-apk/
-  
-      - name: Upload Artifact to github
-        uses: actions/upload-artifact@v4
-        with:
-          path: ${{ github.workspace }}/build/app/outputs/flutter-apk
-          name: "android apk"
-   
-      - name: 🦾 Cache gradle
-        uses: gradle/actions/setup-gradle@v3
-   
-      - name: 🦾 Cache AVD
-        uses: actions/cache@v4
-        id: avd-cache
-        with:
-            path: |
-                ~/.android/avd/*
-                ~/.android/adb*
-            key: avd-${{ matrix.api-level }}
-  
-      - name: 🦾 Create AVD and generate snapshot for caching
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-            api-level: ${{ matrix.api-level }}
-            force-avd-creation: false
-            # arch: ${{ matrix.arch }}
-            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-            disable-animations: false
-            script: echo "Generated AVD snapshot for caching."
   
       - name: 🚀 Integration tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
