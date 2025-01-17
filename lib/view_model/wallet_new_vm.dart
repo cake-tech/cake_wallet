@@ -159,7 +159,11 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.wownero:
         return wownero!.createWowneroNewWalletCredentials(
-            name: name, language: options!.first as String, isPolyseed: options.last as bool);
+          name: name,
+          language: options!.first as String,
+          isPolyseed: options.last as bool,
+          password: walletPassword,
+        );
       case WalletType.zano:
         return zano!.createZanoNewWalletCredentials(name: name);
       case WalletType.none:
