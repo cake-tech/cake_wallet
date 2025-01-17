@@ -9,6 +9,7 @@ import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
@@ -969,19 +970,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     bool paysToMweb = outputs
         .any((output) => output.toOutput.scriptPubKey.getAddressType() == SegwitAddresType.mweb);
 
-    if ((spendsMweb || paysToMweb) && !mwebEnabled) {
-      // throw Exception("MWEB is not enabled! can't calculate fee without starting the mweb server!");
-      // rather than throwing an exception, filter out mweb inputs and outputs:
-      utxos = utxos.where((utxo) => utxo.utxo.scriptType != SegwitAddresType.mweb).toList();
-      outputs = outputs
-          .where((output) => output.toOutput.scriptPubKey.getAddressType() != SegwitAddresType.mweb)
-          .toList();
-      paysToMweb = false;
-      spendsMweb = false;
-      printV("FILTERED OUT MWEB INPUTS AND OUTPUTS!");
+    bool isRegular = !spendsMweb && !paysToMweb;
+    bool isMweb = spendsMweb || paysToMweb;
+
+    if (isMweb && !mwebEnabled) {
+      throw Exception("MWEB is not enabled! can't calculate fee without starting the mweb server!");
+      // TODO: likely the change address is mweb and just not updated
     }
 
-    if (!spendsMweb && !paysToMweb) {
+    if (isRegular) {
       return await super.calcFee(
         utxos: utxos,
         outputs: outputs,
@@ -1063,7 +1060,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       if (!mwebEnabled) {
         tx.changeAddressOverride =
-            (await (walletAddresses as LitecoinWalletAddresses).getChangeAddress(isPegIn: false))
+            (await (walletAddresses as LitecoinWalletAddresses).getChangeAddress(coinTypeToSpendFrom: UnspentCoinType.nonMweb))
                 .address;
         return tx;
       }
@@ -1115,9 +1112,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       bool isPegOut = hasMwebInput && hasRegularOutput;
       bool isRegular = !hasMwebInput && !hasMwebOutput;
       tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
-              .getChangeAddress(isPegIn: isPegIn || isRegular))
+              .getChangeAddress(coinTypeToSpendFrom: (isPegIn || isRegular) ? UnspentCoinType.nonMweb : UnspentCoinType.any))
           .address;
-      if (!hasMwebInput && !hasMwebOutput) {
+      if (isRegular) {
         tx.isMweb = false;
         return tx;
       }
