@@ -7,7 +7,7 @@ class CommonTestConstants {
   static final String exchangeTestAmount = '0.01';
   static final WalletType testWalletType = WalletType.solana;
   static final String testWalletName = 'Integrated Testing Wallet';
-  static final CryptoCurrency testReceiveCurrency = CryptoCurrency.usdtSol;
-  static final CryptoCurrency testDepositCurrency = CryptoCurrency.sol;
+  static final CryptoCurrency testReceiveCurrency = CryptoCurrency.sol;
+  static final CryptoCurrency testDepositCurrency = CryptoCurrency.usdtSol;
   static final String testWalletAddress = '5v9gTW1yWPffhnbNKuvtL2frevAf4HpBMw8oYnfqUjhm';
 }
