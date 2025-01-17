@@ -24,6 +24,7 @@ class SendPageRobot {
 
   Future<void> isSendPage() async {
     await commonTestCases.isSpecificPage<SendPage>();
+    await commonTestCases.takeScreenshots('send_page');
   }
 
   void hasTitle() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 
 class CommonTestCases {
   WidgetTester tester;
@@ -171,4 +172,8 @@ class CommonTestCases {
 
   Future<void> defaultSleepTime({int seconds = 2}) async =>
       await Future.delayed(Duration(seconds: seconds));
+
+  Future<void> takeScreenshots(String screenshotName) async {
+    await (tester.binding as IntegrationTestWidgetsFlutterBinding).takeScreenshot(screenshotName);
+  }
 }

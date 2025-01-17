@@ -27,6 +27,7 @@ class TransactionsPageRobot {
 
   Future<void> isTransactionsPage() async {
     await commonTestCases.isSpecificPage<TransactionsPage>();
+    await commonTestCases.takeScreenshots('transactions_page');
   }
 
   Future<void> confirmTransactionsPageConstantsDisplayProperly() async {

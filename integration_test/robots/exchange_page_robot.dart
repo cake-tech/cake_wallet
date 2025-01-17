@@ -15,6 +15,7 @@ class ExchangePageRobot {
 
   Future<void> isExchangePage() async {
     await commonTestCases.isSpecificPage<ExchangePage>();
+    await commonTestCases.takeScreenshots('exchange_page');
     await commonTestCases.defaultSleepTime();
   }
 

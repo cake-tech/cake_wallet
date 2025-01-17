@@ -12,6 +12,7 @@ class WalletSeedPageRobot {
 
   Future<void> isWalletSeedPage() async {
     await commonTestCases.isSpecificPage<WalletSeedPage>();
+    await commonTestCases.takeScreenshots('wallet_seed_page');
   }
 
   Future<void> onVerifySeedButtonPressed() async {

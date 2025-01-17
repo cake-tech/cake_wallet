@@ -12,6 +12,7 @@ class SeedVerificationPageRobot {
 
   Future<void> isSeedVerificationPage() async {
     await commonTestCases.isSpecificPage<SeedVerificationPage>();
+    await commonTestCases.takeScreenshots('seed_verification_page');
   }
 
   void hasTitle() {
