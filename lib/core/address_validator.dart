@@ -20,7 +20,7 @@ class AddressValidator extends TextValidator {
                           : LitecoinNetwork.mainnet,
                     )
                 : type == CryptoCurrency.zano 
-                    ? zano!.validateAddress
+                    ? zano?.validateAddress
                     : null,
             pattern: getPattern(type),
             length: getLength(type));

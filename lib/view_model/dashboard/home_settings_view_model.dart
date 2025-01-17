@@ -117,29 +117,6 @@ abstract class HomeSettingsViewModelBase with Store {
       isAddingToken = false;
     }
 
-    if (_balanceViewModel.wallet.type == WalletType.polygon) {
-      final polygonToken = Erc20Token(
-        name: token.name,
-        symbol: token.title,
-        decimal: token.decimals,
-        contractAddress: contractAddress,
-        iconPath: token.iconPath,
-      );
-      await polygon!.addErc20Token(_balanceViewModel.wallet, polygonToken);
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.solana) {
-      await solana!.addSPLToken(
-        _balanceViewModel.wallet,
-        token,
-        contractAddress,
-      );
-    }
-
-    if (_balanceViewModel.wallet.type == WalletType.tron) {
-      await tron!.addTronToken(_balanceViewModel.wallet, token, contractAddress);
-    }
-
     if (_balanceViewModel.wallet.type == WalletType.zano) {
       await zano!.addZanoAssetById(_balanceViewModel.wallet, contractAddress);
     }

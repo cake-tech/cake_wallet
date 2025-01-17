@@ -174,18 +174,17 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestZanoNode() async {
-    // TODO: fix it
-    return true;
+    return requestMoneroNode(methodName: "getinfo");
   }
 
-  Future<bool> requestMoneroNode() async {
+  Future<bool> requestMoneroNode({String methodName = "get_info"}) async {
     if (uri.toString().contains(".onion") || useSocksProxy) {
       return await requestNodeWithProxy();
     }
     final path = '/json_rpc';
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
     final realm = 'monero-rpc';
-    final body = {'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'};
+    final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
 
     try {
       final authenticatingClient = HttpClient();

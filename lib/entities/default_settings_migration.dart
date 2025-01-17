@@ -337,7 +337,7 @@ Future<void> defaultSettingsMigration(
             oldUri: ['rpc.ankr.com'],
           );
           break;
-        case 46:
+        case 48:
           await _fixNodesUseSSLFlag(nodes);
           await updateWalletTypeNodesWithNewNode(
             newNodeUri: 'litecoin.stackwallet.com:20063',

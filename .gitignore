@@ -180,3 +180,5 @@ scripts/monero_c
 # iOS generated framework bin
 ios/MoneroWallet.framework/MoneroWallet
 ios/WowneroWallet.framework/WowneroWallet
+ios/ZanoWallet.framework/ZanoWallet
+*_libwallet2_api_c.dylib

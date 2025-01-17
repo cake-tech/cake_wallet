@@ -245,7 +245,21 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                 },
                               );
                             } else {
-                              await actionCall();
+                              try {
+                                await actionCall();
+                              } catch (e) {
+                                showPopUp<void>(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return AlertWithOneAction(
+                                      alertTitle: "Unable to add token",
+                                      alertContent: "$e",
+                                      buttonText: S.of(context).ok,
+                                      buttonAction: () => Navigator.of(context).pop(),
+                                    );
+                                  },
+                                );
+                              }
                               if (mounted) {
                                 Navigator.pop(context);
                               }

@@ -429,6 +429,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
       if (transactions.length == transactionHistory.transactions.length) {
+        _isTransactionUpdating = false;  
         return;
       }
       transactionHistory.clear();

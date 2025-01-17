@@ -32,5 +32,3 @@ Runner/GeneratedPluginRegistrant.*
 !default.perspectivev3
 
 Mwebd.xcframework
-ZanoWallet
-zano_libwallet2_api_c.dylib

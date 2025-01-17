@@ -14,7 +14,6 @@ then
     ./apply_patches.sh monero
     ./apply_patches.sh wownero
     ./apply_patches.sh zano
-    git submodule foreach --recursive 'git fetch --unshallow || echo "Not a shallow submodule"'
 else
     cd monero_c
 fi
@@ -24,7 +23,6 @@ do
     if [[ ! -f "$coin/.patch-applied" ]];
     then
         ./apply_patches.sh $coin
-        (cd $coin; git submodule foreach --recursive 'git fetch --unshallow || echo "Not a shallow submodule"'; cd ..)
     fi
 done
 cd ..
