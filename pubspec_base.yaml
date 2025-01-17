@@ -167,10 +167,6 @@ dependency_overrides:
       url: https://github.com/cake-tech/bitcoin_base
       ref: cake-update-v9
   ffi: 2.1.0
-  ledger_flutter_plus:
-    git:
-      url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
   web_socket_channel: ^3.0.2
   freezed_annotation: 2.4.4
   tor:
