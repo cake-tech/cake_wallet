@@ -18,6 +18,24 @@ git clone $LIBWALLET_URL $LIBWALLET_PATH
 cd $LIBWALLET_PATH
 git checkout $LIBWALLET_VERSION
 
+if [[ "x$ANDROID_HOME" == "x" ]];
+then
+    echo "ANDROID_HOME is missing, please declare it before building (on macos it is usually $HOME/Library/Android/sdk)"
+    echo "echo > ~/.zprofile"
+    echo "echo 'export ANDROID_HOME=\"\$HOME/Library/Android/sdk\" > ~/.zprofile"
+    exit 1
+fi
+
+if [[ "x$ANDROID_NDK_VERSION" == "x" ]];
+then
+    echo "ANDROID_NDK_VERSION is missing, please declare it before building"
+    echo "You have these versions installed on your system currently:"
+    ls ${ANDROID_HOME}/ndk/ | cat | awk '{ print "- " $1 }'
+    echo "echo > ~/.zprofile"
+    echo "echo 'export ANDROID_NDK_CERSION=..... > ~/.zprofile"
+    exit 1
+fi
+
 export NDK_BIN_PATH="${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/toolchains/llvm/prebuilt/$(uname | tr '[:upper:]' '[:lower:]')-x86_64/bin"
 export ANDROID_API_VERSION=21
 
