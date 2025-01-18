@@ -128,7 +128,7 @@ abstract class DecredWalletBase
       syncTimer = Timer.periodic(
           Duration(seconds: syncIntervalSynced), (Timer t) => performBackgroundTasks());
     }
-    updateTransactionHistory();
+    await updateTransactionHistory();
   }
 
   Future<void> updateTransactionHistory() async {
@@ -292,30 +292,29 @@ abstract class DecredWalletBase
             throw "unable to send with watching only wallet";
           });
     }
+    var totalIn = 0;
     final ignoreInputs = [];
     this.unspentCoinsInfo.values.forEach((unspent) {
       if (unspent.isFrozen || !unspent.isSending) {
         final input = {"txid": unspent.hash, "vout": unspent.vout};
         ignoreInputs.add(input);
+        return;
       }
+      totalIn += unspent.value;
     });
     final creds = credentials as DecredTransactionCredentials;
     var totalAmt = 0;
+    var sendAll = false;
     final outputs = [];
     for (final out in creds.outputs) {
       var amt = 0;
       if (out.sendAll) {
-        // get all spendable inputs amount
-        totalAmt = unspentCoinsInfo.values.fold<int>(0, (sum, unspent) {
-          if (unspent.isFrozen || !unspent.isSending) {
-            return sum;
-          }
-
-          return sum + unspent.value;
-        });
-        break;
-      }
-      if (out.cryptoAmount != null) {
+        if (creds.outputs.length != 1) {
+          throw "can only send all to one output";
+        }
+        sendAll = true;
+        totalAmt = totalIn;
+      } else if (out.cryptoAmount != null) {
         final coins = double.parse(out.cryptoAmount!);
         amt = (coins * 1e8).toInt();
       }
@@ -328,26 +327,28 @@ abstract class DecredWalletBase
     }
 
     // The inputs are always used. Currently we don't have use for this
-    // argument.
+    // argument. sendall ingores output value and sends everything.
     final signReq = {
       // "inputs": inputs,
       "ignoreInputs": ignoreInputs,
       "outputs": outputs,
       "feerate": creds.feeRate ?? defaultFeeRate,
       "password": _password,
+      "sendall": sendAll,
     };
     final res = libdcrwallet.createSignedTransaction(walletInfo.name, jsonEncode(signReq));
     final decoded = json.decode(res);
     final signedHex = decoded["signedhex"];
     final send = () async {
       libdcrwallet.sendRawTransaction(walletInfo.name, signedHex);
+      await updateBalance();
     };
+    final fee = decoded["fee"] ?? 0;
+    if (sendAll) {
+      totalAmt = (totalAmt - fee).toInt() ?? totalAmt;
+    }
     return DecredPendingTransaction(
-        txid: decoded["txid"] ?? "",
-        amount: totalAmt,
-        fee: decoded["fee"] ?? 0,
-        rawHex: signedHex,
-        send: send);
+        txid: decoded["txid"] ?? "", amount: totalAmt, fee: fee, rawHex: signedHex, send: send);
   }
 
   int feeRate(TransactionPriority priority) {
