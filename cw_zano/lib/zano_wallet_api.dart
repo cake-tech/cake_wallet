@@ -259,9 +259,9 @@ mixin ZanoWalletApi {
     return result;
   }
 
-  Future<CreateWalletResult> restoreWalletFromSeed(String path, String password, String seed) async {
+  Future<CreateWalletResult> restoreWalletFromSeed(String path, String password, String seed, String? passphrase) async {
     info('restore_wallet path $path password ${_shorten(password)} seed ${_shorten(seed)}');
-    final json = zano.PlainWallet_restore(seed, path, password, "");
+    final json = zano.PlainWallet_restore(seed, path, password, passphrase??'');
     _json('restore_wallet', json);
     final map = jsonDecode(json) as Map<String, dynamic>?;
     if (map?['error'] != null) {

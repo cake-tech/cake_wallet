@@ -17,8 +17,8 @@ class ZanoNewWalletCredentials extends WalletCredentials {
 }
 
 class ZanoRestoreWalletFromSeedCredentials extends WalletCredentials {
-  ZanoRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required this.mnemonic})
-      : super(name: name, password: password, height: height);
+  ZanoRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required this.mnemonic})
+      : super(name: name, password: password, passphrase: passphrase, height: height);
 
   final String mnemonic;
 }

@@ -138,7 +138,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
     final wallet = ZanoWallet(credentials.walletInfo!, credentials.password!);    await wallet.initWallet();
     await wallet.initWallet();
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
-    final createWalletResult = await wallet.restoreWalletFromSeed(path, credentials.password!, credentials.mnemonic);
+    final createWalletResult = await wallet.restoreWalletFromSeed(path, credentials.password!, credentials.mnemonic, credentials.passphrase);
     await wallet.initWallet();
     await wallet.parseCreateWalletResult(createWalletResult);
     await wallet.init(createWalletResult.wi.address);

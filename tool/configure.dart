@@ -1441,7 +1441,7 @@ abstract class Zano {
   List<TransactionPriority> getTransactionPriorities();
   List<String> getWordList(String language);
 
-  WalletCredentials createZanoRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
+  WalletCredentials createZanoRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
   WalletCredentials createZanoNewWalletCredentials({required String name, required String? password});
   Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency});
   double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency, required bool forFee});

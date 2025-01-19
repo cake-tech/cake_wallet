@@ -48,8 +48,8 @@ class CWZano extends Zano {
 
   @override
   WalletCredentials createZanoRestoreWalletFromSeedCredentials(
-      {required String name, required String password, required int height, required String mnemonic}) {
-    return ZanoRestoreWalletFromSeedCredentials(name: name, password: password, height: height, mnemonic: mnemonic);
+      {required String name, required String password, required int height, required String passphrase, required String mnemonic}) {
+    return ZanoRestoreWalletFromSeedCredentials(name: name, password: password, passphrase: passphrase, height: height, mnemonic: mnemonic);
   }
 
   @override
