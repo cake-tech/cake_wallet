@@ -111,18 +111,15 @@ abstract class HomeSettingsViewModelBase with Store {
         await tron!.addTronToken(_balanceViewModel.wallet, token, contractAddress);
       }
 
+      if (_balanceViewModel.wallet.type == WalletType.zano) {
+        await zano!.addZanoAssetById(_balanceViewModel.wallet, contractAddress);
+      }
+      
       _updateTokensList();
       _updateFiatPrices(token);
     } finally {
       isAddingToken = false;
     }
-
-    if (_balanceViewModel.wallet.type == WalletType.zano) {
-      await zano!.addZanoAssetById(_balanceViewModel.wallet, contractAddress);
-    }
-
-    _updateTokensList();
-    _updateFiatPrices(token);
   }
 
   @action

@@ -203,17 +203,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             language: 'English',
           );
 
-      case WalletType.zano:
-        return zano!.createZanoRestoreWalletFromKeysCredentials(
-            name: name,
-            height: height,
-            spendKey: spendKey!,
-            viewKey: viewKey!,
-            address: address!,
-            password: password,
-            language: 'English');
-      
-
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromPrivateKey(
             name: name,
