@@ -130,8 +130,10 @@ void restoreWalletFromSeedSync(
   }
 
   wptr = newWptr;
+  
   wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase);
-
+  wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
+  
   openedWalletsByPath[path] = wptr!;
 
   store();
