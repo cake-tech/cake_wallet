@@ -121,7 +121,6 @@ void restoreWalletFromSeedSync(
   setRefreshFromBlockHeight(height: restoreHeight);
 
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase);
-
   openedWalletsByPath[path] = wptr!;
 
   monero.Wallet_store(wptr!);
@@ -231,7 +230,7 @@ void restoreWalletFromPolyseedWithOffset(
 
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: seedOffset);
-
+  monero.Wallet_store(wptr!);
   storeSync();
 
   openedWalletsByPath[path] = wptr!;

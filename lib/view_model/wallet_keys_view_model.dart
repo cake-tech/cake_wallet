@@ -108,6 +108,12 @@ abstract class WalletKeysViewModelBase with Store {
             title: S.current.wallet_seed,
             value: _appStore.wallet!.seed!,
           ),
+        if (keys['passphrase'] != null)
+          StandartListItem(
+            key: ValueKey('${_walletName}_passphrase_key'),
+            title: S.current.view_key_private,
+            value: keys['passphrase']!,
+          ),
       ]);
 
       if (_appStore.wallet?.seed != null && Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
@@ -206,6 +212,12 @@ abstract class WalletKeysViewModelBase with Store {
             title: S.current.view_key_private,
             value: keys['privateViewKey']!,
           ),
+        if (keys['passphrase'] != null)
+          StandartListItem(
+            key: ValueKey('${_walletName}_passphrase_key'),
+            title: S.current.view_key_private,
+            value: keys['passphrase']!,
+          ),
         if (_appStore.wallet!.seed!.isNotEmpty)
           StandartListItem(
             key: ValueKey('${_walletName}_wallet_seed_item_key'),
@@ -296,6 +308,11 @@ abstract class WalletKeysViewModelBase with Store {
       items.addAll([
         StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
+      if (_appStore.wallet!.passphrase != null) {
+        items.addAll([
+          StandartListItem(title: S.current.passphrase_view_keys, value: _appStore.wallet!.passphrase!),
+        ]);
+      }
     }
   }
 

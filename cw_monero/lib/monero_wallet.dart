@@ -131,7 +131,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       privateSpendKey: monero_wallet.getSecretSpendKey(),
       privateViewKey: monero_wallet.getSecretViewKey(),
       publicSpendKey: monero_wallet.getPublicSpendKey(),
-      publicViewKey: monero_wallet.getPublicViewKey());
+      publicViewKey: monero_wallet.getPublicViewKey(),
+      passphrase: monero_wallet.getPassphrase());
 
   int? get restoreHeight =>
       transactionHistory.transactions.values.firstOrNull?.height;

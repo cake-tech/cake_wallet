@@ -128,7 +128,8 @@ abstract class WowneroWalletBase
       privateSpendKey: wownero_wallet.getSecretSpendKey(),
       privateViewKey: wownero_wallet.getSecretViewKey(),
       publicSpendKey: wownero_wallet.getPublicSpendKey(),
-      publicViewKey: wownero_wallet.getPublicViewKey());
+      publicViewKey: wownero_wallet.getPublicViewKey(),
+      passphrase: wownero_wallet.getPassphrase());
 
   wownero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
