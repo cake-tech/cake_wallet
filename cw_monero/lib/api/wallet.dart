@@ -43,14 +43,18 @@ String getSeed() {
   if (weirdPolyseed != "") return weirdPolyseed;
 
   if (cakepolyseed != "") {
-    if (cakepassphrase != "") {
-      final lang = PolyseedLang.getByPhrase(cakepassphrase);
-      final coin = PolyseedCoin.POLYSEED_MONERO;
-      final ps = Polyseed.decode(cakepolyseed, lang, coin);
-      final passphrase = getPassphrase();
-      if (ps.isEncrypted || passphrase == "") return ps.encode(lang, coin);
-      ps.crypt(getPassphrase());
-      return ps.encode(lang, coin);
+    if (cakepassphrase != "" && cakepassphrase.split(" ").length == 16) {
+      try {
+        final lang = PolyseedLang.getByPhrase(cakepassphrase);
+        final coin = PolyseedCoin.POLYSEED_MONERO;
+        final ps = Polyseed.decode(cakepolyseed, lang, coin);
+        final passphrase = getPassphrase();
+        if (ps.isEncrypted || passphrase == "") return ps.encode(lang, coin);
+        ps.crypt(getPassphrase());
+        return ps.encode(lang, coin);
+      } catch (e) {
+        printV(e);
+      }
     }
     return cakepolyseed;
   }

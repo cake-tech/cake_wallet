@@ -111,7 +111,7 @@ abstract class WalletKeysViewModelBase with Store {
         if (keys['passphrase'] != null)
           StandartListItem(
             key: ValueKey('${_walletName}_passphrase_key'),
-            title: S.current.view_key_private,
+            title: S.current.passphrase_view_keys,
             value: keys['passphrase']!,
           ),
       ]);
