@@ -28,6 +28,8 @@ class SeedVerificationPageRobot {
     while (!walletSeedViewModel.isVerificationComplete) {
       final currentCorrectWord = walletSeedViewModel.currentCorrectWord;
 
+      commonTestCases.hasTextAtLestOnce(currentCorrectWord);
+
       await commonTestCases.tapItemByKey(
         'seed_verification_option_${currentCorrectWord}_button_key',
       );

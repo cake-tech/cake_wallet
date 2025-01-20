@@ -4,7 +4,6 @@ import 'package:integration_test/integration_test.dart';
 
 import '../components/common_test_constants.dart';
 import '../components/common_test_flows.dart';
-import '../robots/auth_page_robot.dart';
 import '../robots/dashboard_page_robot.dart';
 import '../robots/exchange_confirm_page_robot.dart';
 import '../robots/exchange_page_robot.dart';

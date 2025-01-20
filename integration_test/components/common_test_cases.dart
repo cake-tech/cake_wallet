@@ -16,7 +16,7 @@ class CommonTestCases {
     bool shouldPumpAndSettle = true,
     int pumpDuration = 100,
   }) async {
-    final widget = find.byKey(ValueKey(key));
+    final widget = find.byKey(ValueKey(key)).first;
     await tester.tap(widget);
     shouldPumpAndSettle
         ? await tester.pumpAndSettle(Duration(milliseconds: pumpDuration))
