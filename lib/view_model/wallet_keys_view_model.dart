@@ -203,20 +203,20 @@ abstract class WalletKeysViewModelBase with Store {
       ]);
     }
 
-    if (_wallet.type == WalletType.bitcoin ||
-        _wallet.type == WalletType.litecoin ||
-        _wallet.type == WalletType.bitcoinCash) {
-      // final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
-
-      items.addAll([
-        // if (keys['wif'] != null)
-        //   StandartListItem(title: "WIF", value: keys['wif']!),
-        // if (keys['privateKey'] != null)
-        //   StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
-        // if (keys['publicKey'] != null)
-        //   StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
-      ]);
-    }
+    // if (_wallet.type == WalletType.bitcoin ||
+    //     _wallet.type == WalletType.litecoin ||
+    //     _wallet.type == WalletType.bitcoinCash) {
+    //   final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
+    //
+    //   items.addAll([
+    //     if (keys['wif'] != null)
+    //       StandartListItem(title: "WIF", value: keys['wif']!),
+    //     if (keys['privateKey'] != null)
+    //       StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
+    //     if (keys['publicKey'] != null)
+    //       StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
+    //   ]);
+    // }
 
     if (isEVMCompatibleChain(_wallet.type) ||
         _wallet.type == WalletType.solana ||
