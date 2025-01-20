@@ -40,7 +40,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   static const _quotePath = '/quote-native';
   static const _swapPath = '/swap';
   static const _txInfoPath = '/status-by-deposit-channel';
-  static const _affiliateBps = '170';
+  static const _affiliateBps = secrets.chainflipAffiliateFee;
   static const _affiliateKey = secrets.chainflipApiKey;
 
   final Box<Trade> tradesStore;
@@ -141,7 +141,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         'commissionBps': _affiliateBps,
         'minimumPrice': minimumPrice.toString(),
         'refundAddress': request.refundAddress,
-        'boostFee': '6',
+        'boostFee': '5',
         'retryDurationInBlocks': '150'
       };
 

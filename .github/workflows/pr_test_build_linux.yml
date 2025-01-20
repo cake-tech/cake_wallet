@@ -155,7 +155,11 @@ jobs:
           echo "const tronTestWalletReceiveAddress =  '${{ secrets.TRON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const wowneroTestWalletReceiveAddress = '${{ secrets.WOWNERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
-          echo "const moneroTestWalletBlockHeight =  '${{ secrets.MONERO_TEST_WALLET_BLOCK_HEIGHT }}';" >> lib/.secrets.g.dart  
+          echo "const moneroTestWalletBlockHeight =  '${{ secrets.MONERO_TEST_WALLET_BLOCK_HEIGHT }}';" >> lib/.secrets.g.dart
+          # end of test secrets
+          echo "const chainflipApiKey = '${{ secrets.CHAINFLIP_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const chainflipAffiliateFee = '${{ secrets.CHAINFLIP_AFFILIATE_FEE }}';" >> lib/.secrets.g.dart
+
       - name: prepare monero_c and cache
         run: |
           export MONEROC_HASH=$(cat scripts/prepare_moneroc.sh | grep 'git checkout' | xargs | awk '{ print $3 }')
