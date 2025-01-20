@@ -63,7 +63,6 @@ class WalletSeedPage extends BasePage {
     return WillPopScope(
       onWillPop: () async => false,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         alignment: Alignment.center,
         child: ConstrainedBox(
           constraints:
@@ -74,6 +73,8 @@ class WalletSeedPage extends BasePage {
               Observer(
                 builder: (_) {
                   return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 22, right: 22),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
@@ -96,12 +97,15 @@ class WalletSeedPage extends BasePage {
                         ),
                       ],
                     ),
+                  ),
                   );
                 },
               ),
               Column(
                 children: <Widget>[
-                  Row(
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  child: Row(
                     mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
                       Flexible(
@@ -139,6 +143,7 @@ class WalletSeedPage extends BasePage {
                         ),
                       )
                     ],
+                  ),
                   ),
                   SizedBox(height: 12),
                 ],

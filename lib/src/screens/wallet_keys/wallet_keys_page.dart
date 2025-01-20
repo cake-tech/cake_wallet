@@ -28,14 +28,17 @@ class WalletKeysPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       child: Column(
         children: [
-          WarningBox(
+      Padding(
+      padding: EdgeInsets.only(left: 14, right: 14, bottom: 8),
+          child: WarningBox(
             key: const ValueKey('wallet_keys_page_share_warning_text_key'),
             content: S.of(context).do_not_share_warning_text.toUpperCase(),
             currentTheme: currentTheme,
           ),
+      ),
           Expanded(
             child: WalletKeysPageBody(
               walletKeysViewModel: walletKeysViewModel,
@@ -85,10 +88,12 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     final isLegacySeedExist = widget.walletKeysViewModel.legacySeedSplit.isNotEmpty;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       child: Column(
         children: [
-          TabBar(
+          Padding(
+            padding: const EdgeInsets.only(left: 22, right: 22, top: 0),
+          child: TabBar(
             controller: _tabController,
             splashFactory: NoSplash.splashFactory,
             indicatorSize: TabBarIndicatorSize.label,
@@ -118,23 +123,25 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
               if (isLegacySeedExist) Tab(text: S.of(context).legacy),
             ],
           ),
+          ),
           const SizedBox(height: 20),
           Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(right: 4),
+                  padding: const EdgeInsets.only(left: 22, right: 22,),
                   child: _buildSeedTab(context),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 4),
+                  padding: const EdgeInsets.only(left: 22, right: 22),
                   child: _buildKeysTab(context),
                 ),
-                if (isLegacySeedExist) _buildLegacySeedTab(context),
+                if (isLegacySeedExist) Padding(padding: const EdgeInsets.only(left: 22, right: 22), child: _buildLegacySeedTab(context)),
               ],
             ),
           ),
+
         ],
       ),
     );
@@ -253,7 +260,9 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
   }) {
     return Column(
       children: [
-        Row(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
             Flexible(
@@ -283,6 +292,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
               ),
             ),
           ],
+        ),
         ),
         const SizedBox(height: 12),
       ],
