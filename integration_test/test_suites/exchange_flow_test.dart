@@ -14,7 +14,6 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  AuthPageRobot authPageRobot;
   CommonTestFlows commonTestFlows;
   ExchangePageRobot exchangePageRobot;
   DashboardPageRobot dashboardPageRobot;
@@ -22,7 +21,6 @@ void main() {
   ExchangeConfirmPageRobot exchangeConfirmPageRobot;
 
   testWidgets('Exchange flow', (tester) async {
-    authPageRobot = AuthPageRobot(tester);
     commonTestFlows = CommonTestFlows(tester);
     exchangePageRobot = ExchangePageRobot(tester);
     dashboardPageRobot = DashboardPageRobot(tester);
@@ -38,8 +36,8 @@ void main() {
     await dashboardPageRobot.navigateToExchangePage();
 
     // ----------- Exchange Page -------------
-    await exchangePageRobot.selectDepositCurrency(CommonTestConstants.testDepositCurrency);
-    await exchangePageRobot.selectReceiveCurrency(CommonTestConstants.testReceiveCurrency);
+    await exchangePageRobot.selectDepositCurrency(CommonTestConstants.exchangeTestDepositCurrency);
+    await exchangePageRobot.selectReceiveCurrency(CommonTestConstants.exchangeTestReceiveCurrency);
 
     await exchangePageRobot.enterDepositAmount(CommonTestConstants.exchangeTestAmount);
     await exchangePageRobot.enterDepositRefundAddress(
@@ -51,15 +49,6 @@ void main() {
 
     await exchangePageRobot.handleErrors(CommonTestConstants.exchangeTestAmount);
 
-    final onAuthPage = authPageRobot.onAuthPage();
-    if (onAuthPage) {
-      await authPageRobot.enterPinCode(CommonTestConstants.pin);
-    }
-
-    final onAuthPageDesktop = authPageRobot.onAuthPageDesktop();
-    if (onAuthPageDesktop) {
-      await authPageRobot.enterPassword(CommonTestConstants.pin.join(""));
-    }
     await exchangeConfirmPageRobot.onSavedTradeIdButtonPressed();
     await exchangeTradePageRobot.onGotItButtonPressed();
   });

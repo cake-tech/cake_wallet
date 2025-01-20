@@ -33,7 +33,7 @@ void main() {
     await dashboardPageRobot.navigateToSendPage();
 
     await sendPageRobot.enterReceiveAddress(CommonTestConstants.testWalletAddress);
-    await sendPageRobot.selectReceiveCurrency(CommonTestConstants.testReceiveCurrency);
+    await sendPageRobot.selectReceiveCurrency(CommonTestConstants.sendTestReceiveCurrency);
     await sendPageRobot.enterAmount(CommonTestConstants.sendTestAmount);
     await sendPageRobot.selectTransactionPriority();
 
