@@ -67,14 +67,19 @@ class WalletKeysPageBody extends StatefulWidget {
 class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late bool showKeyTab;
+  late bool showLegacySeedTab;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-      length: widget.walletKeysViewModel.legacySeedSplit.isNotEmpty ? 3 : 2,
-      vsync: this,
-    );
+
+    showKeyTab = widget.walletKeysViewModel.items.isNotEmpty;
+    showLegacySeedTab = widget.walletKeysViewModel.legacySeedSplit.isNotEmpty;
+
+    final totalTabs = 1 + (showKeyTab ? 1 : 0) + (showLegacySeedTab ? 1 : 0);
+
+    _tabController = TabController(length: totalTabs, vsync: this);
   }
 
   @override
@@ -85,8 +90,6 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
 
   @override
   Widget build(BuildContext context) {
-    final isLegacySeedExist = widget.walletKeysViewModel.legacySeedSplit.isNotEmpty;
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       child: Column(
@@ -119,8 +122,8 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
             padding: EdgeInsets.zero,
             tabs: [
               Tab(text: S.of(context).widgets_seed),
-              Tab(text: S.of(context).keys),
-              if (isLegacySeedExist) Tab(text: S.of(context).legacy),
+              if (showKeyTab) Tab(text: S.of(context).keys),
+              if (showLegacySeedTab) Tab(text: S.of(context).legacy),
             ],
           ),
           ),
@@ -133,11 +136,12 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                   padding: const EdgeInsets.only(left: 22, right: 22,),
                   child: _buildSeedTab(context),
                 ),
+                if (showKeyTab)
                 Padding(
                   padding: const EdgeInsets.only(left: 22, right: 22),
                   child: _buildKeysTab(context),
                 ),
-                if (isLegacySeedExist) Padding(padding: const EdgeInsets.only(left: 22, right: 22), child: _buildLegacySeedTab(context)),
+                if (showLegacySeedTab) _buildLegacySeedTab(context),
               ],
             ),
           ),
