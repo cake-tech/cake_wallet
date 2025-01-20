@@ -141,7 +141,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         'commissionBps': _affiliateBps,
         'minimumPrice': minimumPrice.toString(),
         'refundAddress': request.refundAddress,
-        'boostFee': '5',
+        'boostFee': '6',
         'retryDurationInBlocks': '150'
       };
 
