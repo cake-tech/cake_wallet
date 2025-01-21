@@ -111,6 +111,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
               height: restoreWallet.height ?? 0,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
+              passphrase: restoreWallet.passphrase ?? '',
             );
           case WalletType.bitcoin:
           case WalletType.litecoin:
@@ -181,6 +182,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
               height: restoreWallet.height ?? 0,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
+              passphrase: restoreWallet.passphrase ?? '',
             );
           case WalletType.zano:
             return zano!.createZanoRestoreWalletFromSeedCredentials(

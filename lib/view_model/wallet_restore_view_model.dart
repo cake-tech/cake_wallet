@@ -99,7 +99,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       switch (type) {
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromSeedCredentials(
-              name: name, height: height, mnemonic: seed, password: password);
+              name: name, height: height, mnemonic: seed, password: password, passphrase: passphrase??'');
         case WalletType.bitcoin:
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
@@ -162,6 +162,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password,
+            passphrase: passphrase??'',
             height: height,
           );
         case WalletType.zano:
