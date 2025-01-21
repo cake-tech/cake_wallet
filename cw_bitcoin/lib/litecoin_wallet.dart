@@ -1108,11 +1108,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         }
       }
 
+      // could probably be simplified but left for clarity:
       bool isPegIn = !hasMwebInput && hasMwebOutput;
       bool isPegOut = hasMwebInput && hasRegularOutput;
       bool isRegular = !hasMwebInput && !hasMwebOutput;
+      bool shouldNotUseMwebChange = isPegIn || isRegular || !hasMwebInput;
       tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
-              .getChangeAddress(coinTypeToSpendFrom: (isPegIn || isRegular) ? UnspentCoinType.nonMweb : UnspentCoinType.any))
+              .getChangeAddress(coinTypeToSpendFrom: shouldNotUseMwebChange ? UnspentCoinType.nonMweb : UnspentCoinType.any))
           .address;
       if (isRegular) {
         tx.isMweb = false;
