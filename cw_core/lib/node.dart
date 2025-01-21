@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:cw_core/keyable.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'dart:convert';
@@ -10,7 +9,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
 import 'dart:math' as math;
 import 'package:convert/convert.dart';
-import 'package:crypto/crypto.dart' as crypto;
 
 import 'package:crypto/crypto.dart';
 
@@ -182,7 +180,7 @@ class Node extends HiveObject with Keyable {
     return requestMoneroNode(methodName: "getinfo");
   }
 
-  Future<bool> requestMoneroNode() async {
+  Future<bool> requestMoneroNode({String methodName = 'get_info'}) async {
     if (useSocksProxy) {
       return await requestNodeWithProxy();
     }
@@ -190,7 +188,7 @@ class Node extends HiveObject with Keyable {
 
     final path = '/json_rpc';
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
-    final body = {'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'};
+    final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
 
     try {
       final authenticatingClient = HttpClient();
@@ -233,7 +231,7 @@ class Node extends HiveObject with Keyable {
         final oldUseSSL = useSSL;
         useSSL = true;
         try {
-          final ret = await requestMoneroNode();
+          final ret = await requestMoneroNode(methodName: methodName);
           if (ret == true) {
             await save();
             return ret;
