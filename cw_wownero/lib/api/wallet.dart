@@ -42,7 +42,7 @@ String getSeed() {
   if (weirdPolyseed != "") return weirdPolyseed;
 
   if (cakepolyseed != "") {
-    if (cakepassphrase != "" && cakepassphrase.split(" ").length == 16) {
+    if (cakepassphrase != "") {
       try {
         final lang = PolyseedLang.getByPhrase(cakepassphrase);
         final coin = PolyseedCoin.POLYSEED_WOWNERO;
