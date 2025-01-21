@@ -108,7 +108,7 @@ abstract class WalletKeysViewModelBase with Store {
             title: S.current.wallet_seed,
             value: _appStore.wallet!.seed!,
           ),
-        if (keys['passphrase'] != null)
+        if ((keys['passphrase']??"") != "")
           StandartListItem(
             key: ValueKey('${_walletName}_passphrase_key'),
             title: S.current.passphrase_view_keys,
@@ -212,10 +212,10 @@ abstract class WalletKeysViewModelBase with Store {
             title: S.current.view_key_private,
             value: keys['privateViewKey']!,
           ),
-        if (keys['passphrase'] != null)
+        if ((keys['passphrase']??"") != "")
           StandartListItem(
             key: ValueKey('${_walletName}_passphrase_key'),
-            title: S.current.view_key_private,
+            title: S.current.passphrase_view_keys,
             value: keys['passphrase']!,
           ),
         if (_appStore.wallet!.seed!.isNotEmpty)
