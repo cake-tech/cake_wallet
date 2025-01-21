@@ -115,9 +115,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         .toList());
 
     _setAvailableProviders();
-    _calculateBestRate();
+    calculateBestRate();
 
-    bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) => _calculateBestRate());
+    bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) => calculateBestRate());
 
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     depositAmount = '';
@@ -145,7 +145,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     reaction((_) => isFixedRateMode, (Object _) {
       loadLimits();
       bestRate = 0;
-      _calculateBestRate();
+      calculateBestRate();
     });
 
     if (isElectrumWallet) {
@@ -370,7 +370,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (bestRate == 0) {
       depositAmount = S.current.fetching;
 
-      await _calculateBestRate();
+      await calculateBestRate();
     }
     _cryptoNumberFormat.maximumFractionDigits = depositMaxDigits;
 
@@ -396,7 +396,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (bestRate == 0) {
       receiveAmount = S.current.fetching;
 
-      await _calculateBestRate();
+      await calculateBestRate();
     }
     _cryptoNumberFormat.maximumFractionDigits = receiveMaxDigits;
 
@@ -417,8 +417,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     return true;
   }
-
-  Future<void> _calculateBestRate() async {
+  Future<void> calculateBestRate() async {
     final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ?? 1;
 
     final _providers = _tradeAvailableProviders
@@ -695,7 +694,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     loadLimits();
     _setAvailableProviders();
     bestRate = 0;
-    _calculateBestRate();
+    calculateBestRate();
   }
 
   void _initialPairBasedOnWallet() {
@@ -787,7 +786,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _defineIsReceiveAmountEditable();
     loadLimits();
     bestRate = 0;
-    _calculateBestRate();
+    calculateBestRate();
 
     final Map<String, dynamic> exchangeProvidersSelection =
         json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
