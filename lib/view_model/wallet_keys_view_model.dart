@@ -10,6 +10,7 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
+import 'package:cw_wownero/wownero_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
@@ -118,7 +119,7 @@ abstract class WalletKeysViewModelBase with Store {
           ),
         );
       }
-
+      
       final restoreHeight = monero!.getRestoreHeight(_appStore.wallet!);
       if (restoreHeight != null) {
         items.add(
@@ -355,7 +356,7 @@ abstract class WalletKeysViewModelBase with Store {
       if (_appStore.wallet!.seed == null && _appStore.wallet!.privateKey != null)
         'private_key': _appStore.wallet!.privateKey!,
       if (restoreHeightResult != null) ...{'height': restoreHeightResult},
-      if (_appStore.wallet!.passphrase != null) 'passphrase': _appStore.wallet!.passphrase!
+      if ((_appStore.wallet?.passphrase??"") != "") ...{'passphrase': _appStore.wallet?.passphrase??''},
     };
   }
 
