@@ -558,6 +558,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  bool isPayjoinAvailable(Object wallet) {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    return wallet.unspentCoins.isNotEmpty;
+  }
+
+  @override
   BitcoinAddressType getOptionToType(ReceivePageOption option) {
     return (option as BitcoinReceivePageOption).toType();
   }
@@ -715,47 +721,11 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<Map<String, dynamic>> buildV2PjStr({
-    int? amount,
-    required String address,
-    required bool isTestnet,
-    required BigInt expireAfter,
+  String buildV2PjStr({
+    required Object receiverWallet
   }) {
-    return payjoin.buildV2PjStr(
-      amount: amount,
-      address: address,
-      isTestnet: isTestnet,
-      expireAfter: expireAfter,
-    );
-  }
-
-  @override
-  Future<UncheckedProposal> handleReceiverSession(Receiver session) {
-    return payjoin.handleReceiverSession(session);
-  }
-
-  @override
-  Future<String> extractOriginalTransaction(UncheckedProposal proposal) {
-    return payjoin.extractOriginalTransaction(proposal);
-  }
-
-  @override
-  Future<PayjoinProposal> processProposal({
-    required UncheckedProposal proposal,
-    required Object receiverWallet,
-  }) {
-    return payjoin.processProposal(
-        proposal: proposal, receiverWallet: receiverWallet);
-  }
-
-  @override
-  Future<String> sendFinalProposal(PayjoinProposal finalProposal) {
-    return payjoin.sendFinalProposal(finalProposal);
-  }
-
-  @override
-  Future<String> getTxIdFromPsbt(String psbtBase64) {
-    return payjoin.getTxIdFromPsbt(psbtBase64);
+    final wallet = receiverWallet as BitcoinWallet;
+    return (wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
   }
 
   @override

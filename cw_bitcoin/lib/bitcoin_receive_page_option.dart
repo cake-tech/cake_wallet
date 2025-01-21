@@ -10,7 +10,6 @@ class BitcoinReceivePageOption implements ReceivePageOption {
   static const mweb = BitcoinReceivePageOption._('MWEB');
 
   static const silent_payments = BitcoinReceivePageOption._('Silent Payments');
-  static const payjoin_payments = BitcoinReceivePageOption._('Payjoin');
 
   const BitcoinReceivePageOption._(this.value);
 
@@ -22,7 +21,6 @@ class BitcoinReceivePageOption implements ReceivePageOption {
 
   static const all = [
     BitcoinReceivePageOption.silent_payments,
-    BitcoinReceivePageOption.payjoin_payments,
     BitcoinReceivePageOption.p2wpkh,
     BitcoinReceivePageOption.p2tr,
     BitcoinReceivePageOption.p2wsh,
@@ -47,8 +45,6 @@ class BitcoinReceivePageOption implements ReceivePageOption {
         return P2shAddressType.p2wpkhInP2sh;
       case BitcoinReceivePageOption.silent_payments:
         return SilentPaymentsAddresType.p2sp;
-      case BitcoinReceivePageOption.payjoin_payments:
-        return SegwitAddresType.p2tr;
       case BitcoinReceivePageOption.mweb:
         return SegwitAddresType.mweb;
       case BitcoinReceivePageOption.p2wpkh:

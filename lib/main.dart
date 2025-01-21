@@ -33,6 +33,7 @@ import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -171,6 +172,10 @@ Future<void> initializeAppConfigs() async {
 
   if (!CakeHive.isAdapterRegistered(MwebUtxo.typeId)) {
     CakeHive.registerAdapter(MwebUtxoAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(PayjoinSession.typeId)) {
+    CakeHive.registerAdapter(PayjoinSessionAdapter());
   }
 
   final secureStorage = secureStorageShared;

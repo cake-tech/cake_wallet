@@ -1,4 +1,5 @@
 import 'dart:developer' as dev;
+import 'dart:core';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
@@ -23,7 +24,6 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_hidden
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
-import 'package:cw_bitcoin/bitcoin_payjoin.dart';
 import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -73,26 +73,22 @@ class HavenURI extends PaymentURI {
 }
 
 class BitcoinURI extends PaymentURI {
-  BitcoinURI({required super.amount, required super.address});
+  BitcoinURI({required super.amount, required super.address, this.pjUri = ''});
+
+  final String pjUri;
 
   @override
   String toString() {
-    var base = 'bitcoin:$address';
+    final qp = <String, String>{};
 
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
+    if (amount.isNotEmpty) qp['amount'] = amount.replaceAll(',', '.');
+    if (pjUri.isNotEmpty) {
+      qp['pjos'] = '0';
+      qp['pj'] = pjUri;
     }
 
-    return base;
+    return Uri(scheme: 'bitcoin', path: address, queryParameters: qp).toString();
   }
-}
-
-class PayjoinBitcoinURI extends PaymentURI {
-  PayjoinBitcoinURI({required String amount, required String address})
-      : super(amount: amount, address: address);
-
-  @override
-  String toString() => address;
 }
 
 class LitecoinURI extends PaymentURI {
@@ -288,10 +284,8 @@ abstract class WalletAddressListViewModelBase
       case WalletType.haven:
         return HavenURI(amount: amount, address: address.address);
       case WalletType.bitcoin:
-        if (isPayjoinOption) {
-          return PayjoinBitcoinURI(amount: amount, address: payjoinUri);
-        }
-        return BitcoinURI(amount: amount, address: address.address);
+        final pjEndpoint = bitcoin!.buildV2PjStr(receiverWallet: wallet);
+        return BitcoinURI(amount: amount, address: address.address, pjUri: pjEndpoint);
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: address.address);
       case WalletType.ethereum:
@@ -648,8 +642,6 @@ abstract class WalletAddressListViewModelBase
     this._rawAmount = amount;
     if (selectedCurrency is FiatCurrency) {
       _convertAmountToCrypto();
-    } else if (isPayjoinOption) {
-      buildV2PjStr();
     }
   }
 
@@ -685,124 +677,6 @@ abstract class WalletAddressListViewModelBase
   void deleteAddress(ListItem item) {
     if (wallet.type == WalletType.bitcoin && item is WalletAddressListItem) {
       bitcoin!.deleteSilentPaymentAddress(wallet, item.address);
-    }
-  }
-
-  @observable
-  String payjoinUri = '';
-
-  @observable
-  Receiver? session;
-
-  @observable
-  PayjoinProposal? payjoinProposal;
-
-  @observable
-  UncheckedProposal? uncheckedProposal;
-
-  @observable
-  PayjoinException? pjException;
-
-  @computed
-  bool get isPayjoinOption => payjoinUri.trim().isNotEmpty && session != null;
-
-  @action
-  Future<void> buildV2PjStr() async {
-    print('[+] wallet_address_list_view_model.dart || buildV2PjStr()');
-    final btcAmount =
-    !(selectedCurrency is FiatCurrency) ? double.tryParse(amount) : null;
-    final satsAmount =
-    btcAmount != null ? (btcAmount * 100000000).round() : null;
-
-    print(
-        '[+] wallet_address_list_view_model.dart || buildV2PjStr() => satsAmount: $satsAmount');
-
-    try {
-      final expireAfter = BigInt.from(60 * 30); // 30 minutes
-
-      final res = await bitcoin!.buildV2PjStr(
-        amount: satsAmount,
-        address: address.address,
-        isTestnet: wallet.isTestnet,
-        expireAfter: expireAfter,
-      );
-      payjoinUri = res['pjUri'] as String;
-      session = res['session'] as Receiver;
-
-      print(
-          '[+] wallet_address_list_view_model.dart || buildV2PjStr() => payjoinUri: $payjoinUri');
-
-      final proposal = await bitcoin!.handleReceiverSession(session!);
-      uncheckedProposal = proposal;
-
-      final originalTx = await bitcoin!.extractOriginalTransaction(proposal);
-
-      // Handle the request and send back the payjoin proposal
-      final finalizedProposal = await bitcoin!.processProposal(
-        proposal: proposal,
-        receiverWallet: wallet,
-      );
-      payjoinProposal = finalizedProposal;
-
-      final proposalTxId = await bitcoin!.sendFinalProposal(finalizedProposal);
-
-      final receivedTxId = await waitForTransaction(
-        originalTxId: await originalTx,
-        proposalTxId: proposalTxId,
-      );
-
-      disposePayjoinSession();
-
-      if (receivedTxId.isNotEmpty) {
-        final msg =
-            '${receivedTxId == proposalTxId ? 'Payjoin' : 'Original'} tx received!';
-        print('[+] wallet_address_list_vm.dart => msg: $msg');
-      }
-    } catch (e, st) {
-      print('[!] WALLETADDRESSLISTVM => buildV2PjStr() - ${e.toString()}');
-
-      if (e is PayjoinException) {
-        // TODO: Handle the error appropriately
-        print(
-            '[!] WALLETADDRESSLISTVM => buildV2PjStr() - e: $e, st: $st');
-        pjException = e;
-        disposePayjoinSession();
-      }
-    }
-  }
-
-  @action
-  void disposePayjoinSession() {
-    // payjoinUri = '';
-    session = null;
-    uncheckedProposal = null;
-    payjoinProposal = null;
-  }
-
-  Future<String> waitForTransaction({
-    required String originalTxId,
-    required String proposalTxId,
-    int timeout = 1,
-  }) async {
-    final txs = wallet.transactionHistory.transactions;
-
-    try {
-      final tx = txs.values
-          .firstWhere((tx) => tx.id == originalTxId || tx.id == proposalTxId);
-      return tx.id;
-    } catch (e) {
-      if (session == null) {
-        return '';
-      }
-
-      // Wait for the specified timeout duration before retrying
-      await Future.delayed(Duration(seconds: timeout));
-
-      // Recursively call `waitForTransaction` to continue polling for the transaction
-      return waitForTransaction(
-        originalTxId: originalTxId,
-        proposalTxId: proposalTxId,
-      );
     }
   }
 }

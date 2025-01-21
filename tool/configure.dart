@@ -202,6 +202,7 @@ abstract class Bitcoin {
   List<ReceivePageOption> getBitcoinReceivePageOptions();
   List<ReceivePageOption> getLitecoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
+  bool isPayjoinAvailable(Object wallet);
   bool hasSelectedSilentPayments(Object wallet);
   bool isBitcoinReceivePageOption(ReceivePageOption option);
   BitcoinAddressType getOptionToType(ReceivePageOption option);
@@ -237,8 +238,7 @@ abstract class Bitcoin {
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
 
-  Future<Map<String, dynamic>> buildV2PjStr({int? amount, required String address, required bool isTestnet, required BigInt expireAfter});
-  Future<UncheckedProposal> handleReceiverSession(Receiver session);
+  String buildV2PjStr({required Object receiverWallet});
   Future<String> extractOriginalTransaction(UncheckedProposal proposal);
   Future<PayjoinProposal> processProposal({required UncheckedProposal proposal, required Object receiverWallet});
   Future<String> sendFinalProposal(PayjoinProposal finalProposal);
