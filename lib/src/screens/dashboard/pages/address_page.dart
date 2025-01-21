@@ -75,52 +75,24 @@ class AddressPage extends BasePage {
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        MergeSemantics(
-          child: SizedBox(
-            height: isMobileView ? 37 : 45,
-            width: isMobileView ? 37 : 45,
-            child: ButtonTheme(
-              minWidth: double.minPositive,
-              child: Semantics(
-                label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
-                child: TextButton(
-                  style: ButtonStyle(
-                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
-                  ),
-                  onPressed: () => onClose(context),
-                  child: !isMobileView ? _closeButton : _backButton,
-                ),
+    return MergeSemantics(
+      child: SizedBox(
+        height: isMobileView ? 37 : 45,
+        width: isMobileView ? 37 : 45,
+        child: ButtonTheme(
+          minWidth: double.minPositive,
+          child: Semantics(
+            label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
+            child: TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
               ),
+              onPressed: () => onClose(context),
+              child: !isMobileView ? _closeButton : _backButton,
             ),
           ),
         ),
-        MergeSemantics(
-          child: SizedBox(
-            height: isMobileView ? 37 : 45,
-            width: isMobileView ? 37 : 45,
-            child: ButtonTheme(
-              minWidth: double.minPositive,
-              child: Semantics(
-                label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
-                child: TextButton(
-                  style: ButtonStyle(
-                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
-                  ),
-                  onPressed: () => onClose(context),
-                  child: Icon(
-                    Icons.more_vert,
-                    color: titleColor(context),
-                    size: 16,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 

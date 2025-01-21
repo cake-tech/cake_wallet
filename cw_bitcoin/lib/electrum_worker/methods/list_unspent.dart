@@ -1,10 +1,15 @@
 part of 'methods.dart';
 
 class ElectrumWorkerListUnspentRequest implements ElectrumWorkerRequest {
-  ElectrumWorkerListUnspentRequest({required this.scripthashes, this.id});
+  ElectrumWorkerListUnspentRequest({
+    required this.scripthashes,
+    this.id,
+    this.completed = false,
+  });
 
   final List<String> scripthashes;
   final int? id;
+  final bool completed;
 
   @override
   final String method = ElectrumRequestMethods.listunspent.method;
@@ -14,12 +19,18 @@ class ElectrumWorkerListUnspentRequest implements ElectrumWorkerRequest {
     return ElectrumWorkerListUnspentRequest(
       scripthashes: json['scripthashes'] as List<String>,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'method': method, 'scripthashes': scripthashes};
+    return {
+      'method': method,
+      'id': id,
+      'completed': completed,
+      'scripthashes': scripthashes,
+    };
   }
 }
 
@@ -39,6 +50,7 @@ class ElectrumWorkerListUnspentResponse
     required Map<String, List<ElectrumUtxo>> utxos,
     super.error,
     super.id,
+    super.completed,
   }) : super(result: utxos, method: ElectrumRequestMethods.listunspent.method);
 
   @override
@@ -55,6 +67,7 @@ class ElectrumWorkerListUnspentResponse
       ),
       error: json['error'] as String?,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 }

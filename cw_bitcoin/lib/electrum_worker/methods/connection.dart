@@ -7,6 +7,7 @@ class ElectrumWorkerConnectionRequest implements ElectrumWorkerRequest {
     required this.useSSL,
     required this.walletType,
     this.id,
+    this.completed = false,
   });
 
   final Uri uri;
@@ -14,6 +15,7 @@ class ElectrumWorkerConnectionRequest implements ElectrumWorkerRequest {
   final BasedUtxoNetwork network;
   final WalletType walletType;
   final int? id;
+  final bool completed;
 
   @override
   final String method = ElectrumWorkerMethods.connect.method;
@@ -30,6 +32,7 @@ class ElectrumWorkerConnectionRequest implements ElectrumWorkerRequest {
       ),
       useSSL: json['useSSL'] as bool,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 
@@ -37,6 +40,8 @@ class ElectrumWorkerConnectionRequest implements ElectrumWorkerRequest {
   Map<String, dynamic> toJson() {
     return {
       'method': method,
+      'id': id,
+      'completed': completed,
       'uri': uri.toString(),
       'network': network.toString(),
       'walletType': walletType.toString(),
@@ -60,6 +65,7 @@ class ElectrumWorkerConnectionResponse extends ElectrumWorkerResponse<Connection
     required ConnectionStatus status,
     super.error,
     super.id,
+    super.completed,
   }) : super(
           result: status,
           method: ElectrumWorkerMethods.connect.method,
@@ -78,6 +84,7 @@ class ElectrumWorkerConnectionResponse extends ElectrumWorkerResponse<Connection
       ),
       error: json['error'] as String?,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 }

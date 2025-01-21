@@ -46,6 +46,8 @@ class ElectrumTransactionBundle {
 class ElectrumTransactionInfo extends TransactionInfo {
   bool isReceivedSilentPayment;
   int? time;
+  List<BtcTransaction>? ins;
+  BtcTransaction? original;
 
   ElectrumTransactionInfo(
     this.type, {
@@ -65,6 +67,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     String? to,
     this.isReceivedSilentPayment = false,
     Map<String, dynamic>? additionalInfo,
+    this.ins,
+    this.original,
   }) {
     this.id = id;
     this.height = height;
@@ -156,17 +160,19 @@ class ElectrumTransactionInfo extends TransactionInfo {
     List<String> inputAddresses = [];
     List<String> outputAddresses = [];
 
-    for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
-      final input = bundle.originalTransaction.inputs[i];
-      final inputTransaction = bundle.ins[i];
-      final outTransaction = inputTransaction.outputs[input.txIndex];
-      inputAmount += outTransaction.amount.toInt();
-      if (addresses.contains(
-          BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network))) {
-        direction = TransactionDirection.outgoing;
-        inputAddresses.add(
-          BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network),
-        );
+    if (bundle.ins.length > 0) {
+      for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
+        final input = bundle.originalTransaction.inputs[i];
+        final inputTransaction = bundle.ins[i];
+        final outTransaction = inputTransaction.outputs[input.txIndex];
+        inputAmount += outTransaction.amount.toInt();
+        if (addresses.contains(
+            BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network))) {
+          direction = TransactionDirection.outgoing;
+          inputAddresses.add(
+            BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network),
+          );
+        }
       }
     }
 
@@ -226,6 +232,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
       confirmations: bundle.confirmations,
       time: bundle.time,
       isDateValidated: bundle.isDateValidated,
+      ins: bundle.ins,
+      original: bundle.originalTransaction,
     );
   }
 
@@ -253,6 +261,10 @@ class ElectrumTransactionInfo extends TransactionInfo {
       time: data['time'] as int?,
       isDateValidated: data['isDateValidated'] as bool?,
       additionalInfo: data['additionalInfo'] as Map<String, dynamic>?,
+      ins:
+          (data['ins'] as List<dynamic>?)?.map((e) => BtcTransaction.fromRaw(e as String)).toList(),
+      original:
+          data['original'] != null ? BtcTransaction.fromRaw(data['original'] as String) : null,
     );
   }
 
@@ -312,6 +324,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['isReceivedSilentPayment'] = isReceivedSilentPayment;
     m['additionalInfo'] = additionalInfo;
     m['isDateValidated'] = isDateValidated;
+    m['ins'] = ins?.map((e) => e.toHex()).toList();
+    m['original'] = original?.toHex();
     return m;
   }
 

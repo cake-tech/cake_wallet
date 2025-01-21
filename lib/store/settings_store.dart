@@ -226,11 +226,14 @@ abstract class SettingsStoreBase with Store {
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
             PreferencesKey.currentFiatCurrencyKey, fiatCurrency.serialize()));
 
-    reaction((_) => selectedCakePayCountry, (Country? country) {
-      if (country != null) {
-        sharedPreferences.setString(PreferencesKey.currentCakePayCountry, country.raw);
-      }
-    });
+    reaction(
+            (_) => selectedCakePayCountry,
+            (Country? country) {
+              if (country != null) {
+                sharedPreferences.setString(
+                    PreferencesKey.currentCakePayCountry, country.raw);
+              }
+            });
 
     reaction(
         (_) => shouldShowYatPopup,
@@ -288,11 +291,9 @@ abstract class SettingsStoreBase with Store {
       });
     }
 
-    reaction(
-        (_) => disableTradeOption,
-        (bool disableTradeOption) =>
-            sharedPreferences.setBool(PreferencesKey.disableTradeOption, disableTradeOption));
-
+    reaction((_) => disableTradeOption,
+        (bool disableTradeOption) => sharedPreferences.setBool(PreferencesKey.disableTradeOption, disableTradeOption));
+    
     reaction(
         (_) => disableBulletin,
         (bool disableBulletin) =>
@@ -304,8 +305,8 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setInt(PreferencesKey.walletListOrder, walletListOrder.index));
 
     reaction(
-        (_) => contactListOrder,
-        (FilterListOrderType contactListOrder) =>
+            (_) => contactListOrder,
+            (FilterListOrderType contactListOrder) =>
             sharedPreferences.setInt(PreferencesKey.contactListOrder, contactListOrder.index));
 
     reaction(
@@ -314,8 +315,8 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setBool(PreferencesKey.walletListAscending, walletListAscending));
 
     reaction(
-        (_) => contactListAscending,
-        (bool contactListAscending) =>
+            (_) => contactListAscending,
+            (bool contactListAscending) =>
             sharedPreferences.setBool(PreferencesKey.contactListAscending, contactListAscending));
 
     reaction(
@@ -357,8 +358,8 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
 
     reaction(
-        (_) => showAddressBookPopupEnabled,
-        (bool value) =>
+            (_) => showAddressBookPopupEnabled,
+            (bool value) =>
             sharedPreferences.setBool(PreferencesKey.showAddressBookPopupEnabled, value));
 
     reaction((_) => pinCodeLength,
@@ -860,10 +861,10 @@ abstract class SettingsStoreBase with Store {
     final backgroundTasks = getIt.get<BackgroundTasks>();
     final currentFiatCurrency = FiatCurrency.deserialize(
         raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
-    final savedCakePayCountryRaw =
-        sharedPreferences.getString(PreferencesKey.currentCakePayCountry);
-    final currentCakePayCountry =
-        savedCakePayCountryRaw != null ? Country.deserialize(raw: savedCakePayCountryRaw) : null;
+    final savedCakePayCountryRaw = sharedPreferences.getString(PreferencesKey.currentCakePayCountry);
+    final currentCakePayCountry = savedCakePayCountryRaw != null
+        ? Country.deserialize(raw: savedCakePayCountryRaw)
+        : null;
 
     TransactionPriority? moneroTransactionPriority = monero?.deserializeMoneroTransactionPriority(
         raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!);
@@ -918,13 +919,12 @@ abstract class SettingsStoreBase with Store {
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
     final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
-    final disableTradeOption =
-        sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? false;
+    final disableTradeOption = sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? false;
     final disableBulletin = sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? false;
     final walletListOrder =
         FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     final contactListOrder =
-        FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
+    FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
     final walletListAscending =
         sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
     final contactListAscending =
@@ -1372,14 +1372,13 @@ abstract class SettingsStoreBase with Store {
     numberOfFailedTokenTrials =
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
-    disableTradeOption =
-        sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? disableTradeOption;
+    disableTradeOption = sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? disableTradeOption;
     disableBulletin =
         sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? disableBulletin;
     walletListOrder =
         FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     contactListOrder =
-        FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
+    FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
     walletListAscending = sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
     contactListAscending = sharedPreferences.getBool(PreferencesKey.contactListAscending) ?? true;
     shouldShowMarketPlaceInDashboard =

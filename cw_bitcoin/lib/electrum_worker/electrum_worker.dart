@@ -183,7 +183,8 @@ class ElectrumWorker {
   Future<void> _handleScriphashesSubscribe(
     ElectrumWorkerScripthashesSubscribeRequest request,
   ) async {
-    await Future.wait(request.scripthashByAddress.entries.map((entry) async {
+    await Future.forEach(request.scripthashByAddress.entries,
+        (MapEntry<String, dynamic> entry) async {
       final address = entry.key;
       final scripthash = entry.value.toString();
 
@@ -210,7 +211,7 @@ class ElectrumWorker {
           id: request.id,
         ));
       });
-    }));
+    });
   }
 
   Future<void> _handleGetInitialHistory(ElectrumWorkerGetHistoryRequest request) async {
@@ -246,24 +247,61 @@ class ElectrumWorker {
     }
 
     if (transactionIdsForHeights.isNotEmpty) {
-      final transactions = await _getInitialBatchTransactionsExpanded(
-        hashesForHeights: transactionIdsForHeights,
-        currentChainTip: request.chainTip,
+      final transactionsVerbose = await _getBatchTransactionVerbose(
+        hashes: transactionIdsForHeights.keys.toList(),
       );
 
-      transactions.forEach((tx) {
+      Map<String, String> transactionHexes = {};
+
+      if (transactionsVerbose.isEmpty) {
+        transactionHexes = await _getBatchTransactionHex(
+          hashes: transactionIdsForHeights.keys.toList(),
+        );
+      } else {
+        transactionsVerbose.values.forEach((e) {
+          transactionHexes[e['txid'] as String] = e['hex'] as String;
+        });
+      }
+
+      for (final transactionIdHeight in transactionHexes.entries) {
+        final hash = transactionIdHeight.key;
+        final hex = transactionIdHeight.value;
+
+        final transactionVerbose = transactionsVerbose[hash];
+
+        late ElectrumTransactionBundle txBundle;
+
+        // this is the initial tx history update, so ins will be filled later one by one,
+        // and time and confirmations will be updated if needed again
+        if (transactionVerbose != null) {
+          txBundle = ElectrumTransactionBundle(
+            BtcTransaction.fromRaw(hex),
+            ins: [],
+            time: transactionVerbose['time'] as int?,
+            confirmations: (transactionVerbose['confirmations'] as int?) ?? 1,
+            isDateValidated: (transactionVerbose['time'] as int?) != null,
+          );
+        } else {
+          txBundle = ElectrumTransactionBundle(
+            BtcTransaction.fromRaw(hex),
+            ins: [],
+            confirmations: 1,
+          );
+        }
+
         final txInfo = ElectrumTransactionInfo.fromElectrumBundle(
-          tx,
+          txBundle,
           request.walletType,
           request.network,
           addresses: addresses.toSet(),
-          // height: height,
+          height: transactionIdsForHeights[hash],
         );
 
         request.addresses.forEach(
           (addr) {
             final usedAddress = (txInfo.outputAddresses?.contains(addr.address) ?? false) ||
                 (txInfo.inputAddresses?.contains(addr.address) ?? false);
+
             if (usedAddress == true) {
               addr.setAsUsed();
               addr.txCount++;
@@ -277,29 +315,43 @@ class ElectrumWorker {
                   txs: [txInfo],
                   walletType: request.walletType,
                 );
+
+                return _sendResponse(
+                  ElectrumWorkerGetHistoryResponse(
+                    result: [
+                      AddressHistoriesResponse(
+                        addressRecord: addr,
+                        txs: [txInfo],
+                        walletType: request.walletType,
+                      )
+                    ],
+                    id: request.id,
+                    completed: false,
+                  ),
+                );
               }
             }
           },
         );
-      });
-
-      if (histories.isNotEmpty) {
-        _sendResponse(
-          ElectrumWorkerGetHistoryResponse(
-            result: histories.values.toList(),
-            id: request.id,
-          ),
-        );
       }
     }
+
+    return _sendResponse(
+      ElectrumWorkerGetHistoryResponse(
+        result: [],
+        id: request.id,
+        completed: true,
+      ),
+    );
   }
 
   Future<void> _handleGetHistory(ElectrumWorkerGetHistoryRequest request) async {
     if (request.storedTxs.isEmpty) {
+      // _handleGetInitialHistory only gets enough data to update the UI initially,
+      // then _handleGetHistory will be used to validate and update the dates, confirmations, and ins
       return await _handleGetInitialHistory(request);
     }
 
-    var histories = <String, AddressHistoriesResponse>{};
     final scripthashes = <String>[];
     final addresses = <String>[];
     request.addresses.forEach((addr) {
@@ -317,12 +369,12 @@ class ElectrumWorker {
       ),
     );
 
-    final transactionIdsHeights = <String, TxToFetch>{};
+    final transactionsByIds = <String, TxToFetch>{};
 
-    await Future.wait(historyBatches.map((result) async {
+    for (final result in historyBatches) {
       final history = result.result;
       if (history.isEmpty) {
-        return;
+        continue;
       }
 
       for (final transaction in history) {
@@ -344,72 +396,129 @@ class ElectrumWorker {
         } catch (_) {}
 
         // date is validated when the API responds with the same date at least twice
-        // since sometimes the mempool api returns the wrong date at first, and we update
-        if (tx == null || (tx.isDateValidated != true && request.mempoolAPIEnabled)) {
-          transactionIdsHeights[txid] = TxToFetch(height: height, tx: tx);
+        // since sometimes the mempool api returns the wrong date at first
+        if (tx == null ||
+            tx.original == null ||
+            // TODO: use mempool api or tx verbose
+            // (tx.isDateValidated != true && request.mempoolAPIEnabled)) {
+            (tx.isDateValidated != true)) {
+          transactionsByIds[txid] = TxToFetch(height: height, tx: tx);
         }
       }
-    }));
+    }
 
-    final txInfos = [...request.storedTxs];
-
-    if (transactionIdsHeights.isNotEmpty) {
-      final transactions = await _getBatchTransactionsExpanded(
-        txsForHeights: transactionIdsHeights,
-        currentChainTip: request.chainTip,
-        mempoolAPIEnabled: request.mempoolAPIEnabled,
-        getTime: true,
+    if (transactionsByIds.isNotEmpty) {
+      final transactionsVerbose = await _getBatchTransactionVerbose(
+        hashes: transactionsByIds.keys.toList(),
       );
 
-      transactions.entries.forEach((result) {
-        final hash = result.key;
-        final txBundle = result.value;
+      Map<String, String> transactionHexes = {};
+
+      if (transactionsVerbose.isEmpty) {
+        transactionHexes = await _getBatchTransactionHex(
+          hashes: transactionsByIds.keys.toList(),
+        );
+      } else {
+        transactionsVerbose.values.forEach((e) {
+          transactionHexes[e['txid'] as String] = e['hex'] as String;
+        });
+      }
+
+      await Future.forEach(transactionsByIds.entries, (MapEntry<String, TxToFetch> entry) async {
+        final hash = entry.key;
+        final txToFetch = entry.value;
+        final storedTx = txToFetch.tx;
+        final txVerbose = transactionsVerbose[hash];
+        final txHex = transactionHexes[hash]!;
+        final original =
+            storedTx?.original ?? BtcTransaction.fromRaw((txVerbose?["hex"] as String?) ?? txHex);
+
+        DateResult? date;
+
+        if (txVerbose != null) {
+          date = DateResult(
+            time: txVerbose['time'] as int?,
+            confirmations: txVerbose['confirmations'] as int?,
+            isDateValidated: true,
+          );
+        } else if (request.mempoolAPIEnabled) {
+          try {
+            date = await getTxDate(
+              hash,
+              _network!,
+              request.chainTip,
+              confirmations: storedTx?.confirmations,
+              date: storedTx?.date,
+            );
+          } catch (_) {}
+        }
+
+        final ins = <BtcTransaction>[];
+
+        final inputTransactionHexes = await _getBatchTransactionHex(
+          hashes: original.inputs.map((e) => e.txId).toList(),
+        );
+
+        for (final vin in original.inputs) {
+          final inputTransactionHex = inputTransactionHexes[vin.txId]!;
+          ins.add(BtcTransaction.fromRaw(inputTransactionHex));
+        }
 
         final txInfo = ElectrumTransactionInfo.fromElectrumBundle(
-          txBundle,
+          ElectrumTransactionBundle(
+            original,
+            ins: ins,
+            time: date?.time,
+            confirmations: date?.confirmations ?? 0,
+            isDateValidated: date?.isDateValidated,
+          ),
           request.walletType,
           request.network,
           addresses: addresses.toSet(),
-          height: transactionIdsHeights[hash]?.height,
+          height: transactionsByIds[hash]?.height,
         );
 
-        txInfos.add(txInfo);
+        var histories = <String, AddressHistoriesResponse>{};
+        request.addresses.forEach(
+          (addr) {
+            final usedAddress = (txInfo.outputAddresses?.contains(addr.address) ?? false) ||
+                (txInfo.inputAddresses?.contains(addr.address) ?? false);
+
+            if (usedAddress == true) {
+              addr.setAsUsed();
+              addr.txCount++;
+
+              final addressHistories = histories[addr.address];
+              if (addressHistories != null) {
+                addressHistories.txs.add(txInfo);
+              } else {
+                histories[addr.address] = AddressHistoriesResponse(
+                  addressRecord: addr,
+                  txs: [txInfo],
+                  walletType: request.walletType,
+                );
+              }
+            }
+          },
+        );
+
+        _sendResponse(
+          ElectrumWorkerGetHistoryResponse(
+            result: histories.values.toList(),
+            id: request.id,
+            completed: false,
+          ),
+        );
       });
     }
 
-    txInfos.forEach((txInfo) {
-      request.addresses.forEach(
-        (addr) {
-          final usedAddress = (txInfo.outputAddresses?.contains(addr.address) ?? false) ||
-              (txInfo.inputAddresses?.contains(addr.address) ?? false);
-
-          if (usedAddress == true) {
-            addr.setAsUsed();
-            addr.txCount++;
-
-            final addressHistories = histories[addr.address];
-            if (addressHistories != null) {
-              addressHistories.txs.add(txInfo);
-            } else {
-              histories[addr.address] = AddressHistoriesResponse(
-                addressRecord: addr,
-                txs: [txInfo],
-                walletType: request.walletType,
-              );
-            }
-          }
-        },
-      );
-    });
-
-    if (histories.isNotEmpty) {
-      _sendResponse(
-        ElectrumWorkerGetHistoryResponse(
-          result: histories.values.toList(),
-          id: request.id,
-        ),
-      );
-    }
+    _sendResponse(
+      ElectrumWorkerGetHistoryResponse(
+        result: [],
+        id: request.id,
+        completed: true,
+      ),
+    );
   }
 
   // Future<void> _handleListUnspents(ElectrumWorkerGetBalanceRequest request) async {
@@ -476,7 +585,7 @@ class ElectrumWorker {
   Future<void> _handleListUnspent(ElectrumWorkerListUnspentRequest request) async {
     final unspents = <String, List<ElectrumUtxo>>{};
 
-    await Future.wait(request.scripthashes.map((scriptHash) async {
+    await Future.forEach(request.scripthashes, (String scriptHash) async {
       if (scriptHash.isEmpty) {
         return;
       }
@@ -490,7 +599,7 @@ class ElectrumWorker {
       if (scriptHashUnspents.isNotEmpty) {
         unspents[scriptHash] = scriptHashUnspents;
       }
-    }));
+    });
 
     _sendResponse(ElectrumWorkerListUnspentResponse(utxos: unspents, id: request.id));
   }
@@ -572,11 +681,28 @@ class ElectrumWorker {
       insHashes.addAll(original.inputs.map((e) => e.txId));
     }
 
-    final inputTransactionHexBatches = await _electrumClient!.batchRequest(
-      ElectrumBatchRequestGetTransactionHex(
-        transactionHashes: insHashes,
-      ),
-    );
+    final inputTransactionHexBatches = <ElectrumBatchRequestResult<String>>[];
+
+    try {
+      inputTransactionHexBatches.addAll(
+        await _electrumClient!.batchRequest(
+          ElectrumBatchRequestGetTransactionHex(
+            transactionHashes: insHashes,
+          ),
+          Duration(seconds: 10),
+        ),
+      );
+    } catch (_) {}
+
+    await Future.forEach(insHashes, (String hash) async {
+      inputTransactionHexBatches.addAll(
+        await _electrumClient!.batchRequest(
+          ElectrumBatchRequestGetTransactionHex(
+            transactionHashes: [hash],
+          ),
+        ),
+      );
+    });
 
     for (final txHex in transactionHexes) {
       final original = BtcTransaction.fromRaw(txHex);
@@ -612,105 +738,22 @@ class ElectrumWorker {
     return bundles;
   }
 
-  Future<Map<String, ElectrumTransactionBundle>> _getBatchTransactionsExpanded({
-    required Map<String, TxToFetch> txsForHeights,
-    required int currentChainTip,
-    required bool mempoolAPIEnabled,
-    bool getTime = false,
+  Future<Map<String, Map<String, dynamic>>> _getBatchTransactionVerbose({
+    required List<String> hashes,
   }) async {
-    final hashes = txsForHeights.keys.toList();
-
-    final transactionVerboseBatches = await _electrumClient!.batchRequest(
+    final transactionHexBatches = await _electrumClient!.batchRequest(
       ElectrumBatchRequestGetTransactionVerbose(transactionHashes: hashes),
     );
-    List<String> transactionHexes = [];
-    List<String> emptyVerboseTxs = [];
 
-    transactionVerboseBatches.forEach((batch) {
-      final txVerbose = batch.result;
-      if (txVerbose.isEmpty) {
-        emptyVerboseTxs.add(
-          (batch.request.paramsById[batch.id] as List<dynamic>).first as String,
-        );
-      } else {
-        transactionHexes.add(txVerbose['hex'] as String);
-      }
+    final transactionsVerbose = <String, Map<String, dynamic>>{};
+
+    transactionHexBatches.forEach((result) {
+      final hash = result.request.paramsById[result.id]!.first as String;
+      final hex = result.result;
+      transactionsVerbose[hash] = hex;
     });
 
-    if (emptyVerboseTxs.isNotEmpty) {
-      transactionHexes.addAll((await _electrumClient!.batchRequest(
-        ElectrumBatchRequestGetTransactionHex(transactionHashes: hashes),
-      ))
-          .map((result) => result.result)
-          .toList());
-    }
-
-    final datesByHashes = <String, DateResult>{};
-
-    if (_walletType == WalletType.bitcoin) {
-      await Future.wait(hashes.map((hash) async {
-        try {
-          if (getTime && _walletType == WalletType.bitcoin && mempoolAPIEnabled) {
-            final tx = txsForHeights[hash]?.tx;
-
-            try {
-              final dates = await getTxDate(
-                hash,
-                _network!,
-                currentChainTip,
-                date: tx?.date,
-                confirmations: tx?.confirmations,
-              );
-              datesByHashes[hash] = dates;
-            } catch (_) {}
-          }
-        } catch (_) {}
-      }));
-    }
-
-    final bundles = <String, ElectrumTransactionBundle>{};
-    final insHashes = <String>[];
-
-    for (final txHex in transactionHexes) {
-      final original = BtcTransaction.fromRaw(txHex);
-      insHashes.addAll(original.inputs.map((e) => e.txId));
-    }
-
-    final inputTransactionHexBatches = await _electrumClient!.batchRequest(
-      ElectrumBatchRequestGetTransactionHex(
-        transactionHashes: insHashes,
-      ),
-    );
-
-    for (final txHex in transactionHexes) {
-      final original = BtcTransaction.fromRaw(txHex);
-      final ins = <BtcTransaction>[];
-
-      for (final input in original.inputs) {
-        try {
-          final inputTransactionHex = inputTransactionHexBatches
-              .firstWhere(
-                (batch) =>
-                    (batch.request.paramsById[batch.id] as List<dynamic>).first == input.txId,
-              )
-              .result;
-
-          ins.add(BtcTransaction.fromRaw(inputTransactionHex));
-        } catch (_) {}
-      }
-
-      final dates = datesByHashes[original.txId()];
-
-      bundles[original.txId()] = ElectrumTransactionBundle(
-        original,
-        ins: ins,
-        time: dates?.time,
-        confirmations: dates?.confirmations ?? 0,
-        isDateValidated: dates?.isDateValidated,
-      );
-    }
-
-    return bundles;
+    return transactionsVerbose;
   }
 
   Future<ElectrumTransactionBundle> _getTransactionExpanded({
@@ -772,6 +815,24 @@ class ElectrumWorker {
       confirmations: confirmations ?? dates?.confirmations ?? 0,
       isDateValidated: dates?.isDateValidated,
     );
+  }
+
+  Future<Map<String, String>> _getBatchTransactionHex({
+    required List<String> hashes,
+  }) async {
+    final transactionHexBatches = await _electrumClient!.batchRequest(
+      ElectrumBatchRequestGetTransactionHex(transactionHashes: hashes),
+    );
+
+    final transactionHexes = <String, String>{};
+
+    transactionHexBatches.forEach((result) {
+      final hash = result.request.paramsById[result.id]!.first as String;
+      final hex = result.result;
+      transactionHexes[hash] = hex;
+    });
+
+    return transactionHexes;
   }
 
   Future<void> _handleGetFeeRates(ElectrumWorkerGetFeesRequest request) async {

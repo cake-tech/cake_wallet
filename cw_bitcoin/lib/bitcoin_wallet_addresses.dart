@@ -9,8 +9,6 @@ part 'bitcoin_wallet_addresses.g.dart';
 
 class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAddresses;
 
-const OLD_SP_SPEND_PATH = "m/352'/1'/0'/0'/0";
-
 abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   BitcoinWalletAddressesBase(
     WalletInfo walletInfo, {
@@ -30,6 +28,15 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     silentPaymentWallet = SilentPaymentOwner.fromBip32(hdWallet);
     silentPaymentWallets = [silentPaymentWallet!];
   }
+
+  static const OLD_SP_SPEND_PATH = "m/352'/1'/0'/0'/0";
+  static const BITCOIN_ADDRESS_TYPES = [
+    SegwitAddressType.p2wpkh,
+    P2pkhAddressType.p2pkh,
+    SegwitAddressType.p2tr,
+    SegwitAddressType.p2wsh,
+    P2shAddressType.p2wpkhInP2sh,
+  ];
 
   @observable
   SilentPaymentOwner? silentPaymentWallet;

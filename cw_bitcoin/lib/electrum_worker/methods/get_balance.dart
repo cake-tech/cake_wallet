@@ -1,10 +1,15 @@
 part of 'methods.dart';
 
 class ElectrumWorkerGetBalanceRequest implements ElectrumWorkerRequest {
-  ElectrumWorkerGetBalanceRequest({required this.scripthashes, this.id});
+  ElectrumWorkerGetBalanceRequest({
+    required this.scripthashes,
+    this.id,
+    this.completed = false,
+  });
 
   final Set<String> scripthashes;
   final int? id;
+  final bool completed;
 
   @override
   final String method = ElectrumRequestMethods.getBalance.method;
@@ -14,12 +19,18 @@ class ElectrumWorkerGetBalanceRequest implements ElectrumWorkerRequest {
     return ElectrumWorkerGetBalanceRequest(
       scripthashes: (json['scripthashes'] as List<String>).toSet(),
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'method': method, 'scripthashes': scripthashes.toList()};
+    return {
+      'method': method,
+      'id': id,
+      'completed': completed,
+      'scripthashes': scripthashes.toList(),
+    };
   }
 }
 
@@ -39,6 +50,7 @@ class ElectrumWorkerGetBalanceResponse
     required super.result,
     super.error,
     super.id,
+    super.completed,
   }) : super(method: ElectrumRequestMethods.getBalance.method);
 
   @override
@@ -56,6 +68,7 @@ class ElectrumWorkerGetBalanceResponse
       ),
       error: json['error'] as String?,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 }

@@ -1,21 +1,32 @@
 part of 'methods.dart';
 
 class ElectrumWorkerStopScanningRequest implements ElectrumWorkerRequest {
-  ElectrumWorkerStopScanningRequest({this.id});
+  ElectrumWorkerStopScanningRequest({
+    this.id,
+    this.completed = false,
+  });
 
   final int? id;
+  final bool completed;
 
   @override
   final String method = ElectrumWorkerMethods.stopScanning.method;
 
   @override
   factory ElectrumWorkerStopScanningRequest.fromJson(Map<String, dynamic> json) {
-    return ElectrumWorkerStopScanningRequest(id: json['id'] as int?);
+    return ElectrumWorkerStopScanningRequest(
+      id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
+    );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'method': method, 'id': id};
+    return {
+      'method': method,
+      'id': id,
+      'completed': completed,
+    };
   }
 }
 
@@ -31,6 +42,7 @@ class ElectrumWorkerStopScanningResponse extends ElectrumWorkerResponse<bool, St
     required super.result,
     super.error,
     super.id,
+    super.completed,
   }) : super(method: ElectrumWorkerMethods.stopScanning.method);
 
   @override
@@ -44,6 +56,7 @@ class ElectrumWorkerStopScanningResponse extends ElectrumWorkerResponse<bool, St
       result: json['result'] as bool,
       error: json['error'] as String?,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 }

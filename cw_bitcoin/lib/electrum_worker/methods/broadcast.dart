@@ -1,10 +1,15 @@
 part of 'methods.dart';
 
 class ElectrumWorkerBroadcastRequest implements ElectrumWorkerRequest {
-  ElectrumWorkerBroadcastRequest({required this.transactionRaw, this.id});
+  ElectrumWorkerBroadcastRequest({
+    required this.transactionRaw,
+    this.id,
+    this.completed = false,
+  });
 
   final String transactionRaw;
   final int? id;
+  final bool completed;
 
   @override
   final String method = ElectrumRequestMethods.broadcast.method;
@@ -14,12 +19,18 @@ class ElectrumWorkerBroadcastRequest implements ElectrumWorkerRequest {
     return ElectrumWorkerBroadcastRequest(
       transactionRaw: json['transactionRaw'] as String,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'method': method, 'transactionRaw': transactionRaw};
+    return {
+      'method': method,
+      'id': id,
+      'completed': completed,
+      'transactionRaw': transactionRaw,
+    };
   }
 }
 
@@ -38,6 +49,7 @@ class ElectrumWorkerBroadcastResponse extends ElectrumWorkerResponse<String, Str
     required String txHash,
     super.error,
     super.id,
+    super.completed,
   }) : super(result: txHash, method: ElectrumRequestMethods.broadcast.method);
 
   @override
@@ -51,6 +63,7 @@ class ElectrumWorkerBroadcastResponse extends ElectrumWorkerResponse<String, Str
       txHash: json['result'] as String,
       error: json['error'] as String?,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 }

@@ -12,8 +12,6 @@ import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
-import 'package:cw_bitcoin/wallet_seed_bytes.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
@@ -45,45 +43,32 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   bool allowedToSwitchNodesForScanning = false;
 
   BitcoinWalletBase({
-    required String password,
-    required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required EncryptionFileUtils encryptionFileUtils,
-    List<int>? seedBytes,
-    String? mnemonic,
-    String? xpub,
+    required super.password,
+    required super.walletInfo,
+    required super.unspentCoinsInfo,
+    required super.encryptionFileUtils,
+    super.mnemonic,
+    super.xpub,
     String? addressPageType,
     BasedUtxoNetwork? networkParam,
     List<BitcoinAddressRecord>? initialAddresses,
-    ElectrumBalance? initialBalance,
+    super.initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
-    String? passphrase,
+    super.passphrase,
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     int initialSilentAddressIndex = 0,
-    bool? alwaysScan,
-    super.hdWallets,
+    super.alwaysScan,
     super.initialUnspentCoins,
     super.didInitialSync,
   }) : super(
-          mnemonic: mnemonic,
-          passphrase: passphrase,
-          xpub: xpub,
-          password: password,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfo,
           network: networkParam == null
               ? BitcoinNetwork.mainnet
               : networkParam == BitcoinNetwork.mainnet
                   ? BitcoinNetwork.mainnet
                   : BitcoinNetwork.testnet,
-          initialAddresses: initialAddresses,
-          initialBalance: initialBalance,
-          seedBytes: seedBytes,
-          encryptionFileUtils: encryptionFileUtils,
           currency:
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
-          alwaysScan: alwaysScan,
         ) {
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
@@ -115,8 +100,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialChangeAddressIndex,
     int initialSilentAddressIndex = 0,
   }) async {
-    final walletSeedBytes = await WalletSeedBytes.getSeedBytes(walletInfo, mnemonic, passphrase);
-
     return BitcoinWallet(
       mnemonic: mnemonic,
       passphrase: passphrase ?? "",
@@ -128,8 +111,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialSilentAddressIndex: initialSilentAddressIndex,
       initialBalance: initialBalance,
       encryptionFileUtils: encryptionFileUtils,
-      seedBytes: walletSeedBytes.seedBytes,
-      hdWallets: walletSeedBytes.hdWallets,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
@@ -188,22 +169,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
     walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
 
-    List<int>? seedBytes = null;
-    final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
-    final mnemonic = keysData.mnemonic;
-    final passphrase = keysData.passphrase;
-
-    if (mnemonic != null) {
-      final walletSeedBytes = await WalletSeedBytes.getSeedBytes(walletInfo, mnemonic, passphrase);
-      seedBytes = walletSeedBytes.seedBytes;
-      hdWallets.addAll(walletSeedBytes.hdWallets);
-    }
-
     return BitcoinWallet(
-      mnemonic: mnemonic,
+      mnemonic: keysData.mnemonic,
       xpub: keysData.xPub,
       password: password,
-      passphrase: passphrase,
+      passphrase: keysData.passphrase,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses,
@@ -211,13 +181,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialSilentAddressIndex: snp?.silentAddressIndex ?? 0,
       initialBalance: snp?.balance,
       encryptionFileUtils: encryptionFileUtils,
-      seedBytes: seedBytes,
       initialRegularAddressIndex: snp?.regularAddressIndex,
       initialChangeAddressIndex: snp?.changeAddressIndex,
       addressPageType: snp?.addressPageType,
       networkParam: network,
       alwaysScan: alwaysScan,
-      hdWallets: hdWallets,
       initialUnspentCoins: snp?.unspentCoins,
       didInitialSync: snp?.didInitialSync,
     );

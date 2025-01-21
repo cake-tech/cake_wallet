@@ -6,12 +6,14 @@ class ElectrumWorkerTxExpandedRequest implements ElectrumWorkerRequest {
     required this.currentChainTip,
     this.mempoolAPIEnabled = false,
     this.id,
+    this.completed = false,
   });
 
   final String txHash;
   final int currentChainTip;
   final bool mempoolAPIEnabled;
   final int? id;
+  final bool completed;
 
   @override
   final String method = ElectrumWorkerMethods.txHash.method;
@@ -23,6 +25,7 @@ class ElectrumWorkerTxExpandedRequest implements ElectrumWorkerRequest {
       currentChainTip: json['currentChainTip'] as int,
       mempoolAPIEnabled: json['mempoolAPIEnabled'] as bool,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 
@@ -30,6 +33,8 @@ class ElectrumWorkerTxExpandedRequest implements ElectrumWorkerRequest {
   Map<String, dynamic> toJson() {
     return {
       'method': method,
+      'id': id,
+      'completed': completed,
       'txHash': txHash,
       'currentChainTip': currentChainTip,
       'mempoolAPIEnabled': mempoolAPIEnabled,
@@ -53,6 +58,7 @@ class ElectrumWorkerTxExpandedResponse
     required ElectrumTransactionBundle expandedTx,
     super.error,
     super.id,
+    super.completed,
   }) : super(result: expandedTx, method: ElectrumWorkerMethods.txHash.method);
 
   @override
@@ -66,6 +72,7 @@ class ElectrumWorkerTxExpandedResponse
       expandedTx: ElectrumTransactionBundle.fromJson(json['result'] as Map<String, dynamic>),
       error: json['error'] as String?,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 }

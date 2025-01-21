@@ -3,6 +3,7 @@ import 'package:cw_bitcoin/electrum_worker/electrum_worker_methods.dart';
 abstract class ElectrumWorkerRequest {
   abstract final String method;
   abstract final int? id;
+  abstract final bool completed;
 
   Map<String, dynamic> toJson();
   ElectrumWorkerRequest.fromJson(Map<String, dynamic> json);
@@ -14,12 +15,14 @@ class ElectrumWorkerResponse<RESULT, RESPONSE> {
     required this.result,
     this.error,
     this.id,
+    this.completed = true,
   });
 
   final String method;
   final RESULT result;
   final String? error;
   final int? id;
+  final bool completed;
 
   RESPONSE resultJson(RESULT result) {
     throw UnimplementedError();
@@ -30,7 +33,13 @@ class ElectrumWorkerResponse<RESULT, RESPONSE> {
   }
 
   Map<String, dynamic> toJson() {
-    return {'method': method, 'result': resultJson(result), 'error': error, 'id': id};
+    return {
+      'method': method,
+      'result': resultJson(result),
+      'error': error,
+      'id': id,
+      'completed': completed,
+    };
   }
 }
 

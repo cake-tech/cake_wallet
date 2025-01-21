@@ -1,21 +1,32 @@
 part of 'methods.dart';
 
 class ElectrumWorkerGetVersionRequest implements ElectrumWorkerRequest {
-  ElectrumWorkerGetVersionRequest({this.id});
+  ElectrumWorkerGetVersionRequest({
+    this.id,
+    this.completed = false,
+  });
 
   final int? id;
+  final bool completed;
 
   @override
   final String method = ElectrumRequestMethods.version.method;
 
   @override
   factory ElectrumWorkerGetVersionRequest.fromJson(Map<String, dynamic> json) {
-    return ElectrumWorkerGetVersionRequest(id: json['id'] as int?);
+    return ElectrumWorkerGetVersionRequest(
+      id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
+    );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'method': method};
+    return {
+      'method': method,
+      'id': id,
+      'completed': completed,
+    };
   }
 }
 
@@ -34,6 +45,7 @@ class ElectrumWorkerGetVersionResponse extends ElectrumWorkerResponse<List<Strin
     required super.result,
     super.error,
     super.id,
+    super.completed,
   }) : super(method: ElectrumRequestMethods.version.method);
 
   @override
@@ -47,6 +59,7 @@ class ElectrumWorkerGetVersionResponse extends ElectrumWorkerResponse<List<Strin
       result: json['result'] as List<String>,
       error: json['error'] as String?,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 }

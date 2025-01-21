@@ -8,7 +8,6 @@ import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:cw_bitcoin/litecoin_wallet_snapshot.dart';
-import 'package:cw_bitcoin/wallet_seed_bytes.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -53,36 +52,26 @@ class LitecoinWallet = LitecoinWalletBase with _$LitecoinWallet;
 
 abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   LitecoinWalletBase({
-    required String password,
-    required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required EncryptionFileUtils encryptionFileUtils,
+    required super.password,
+    required super.walletInfo,
+    required super.unspentCoinsInfo,
+    required super.encryptionFileUtils,
     List<int>? seedBytes,
-    String? mnemonic,
-    String? xpub,
+    super.mnemonic,
+    super.xpub,
     String? passphrase,
     String? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
     List<LitecoinMWEBAddressRecord>? initialMwebAddresses,
-    ElectrumBalance? initialBalance,
+    super.initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     int? initialMwebHeight,
-    bool? alwaysScan,
+    super.alwaysScan,
     super.didInitialSync,
   }) : super(
-          mnemonic: mnemonic,
-          password: password,
-          xpub: xpub,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfo,
           network: LitecoinNetwork.mainnet,
-          initialAddresses: initialAddresses,
-          initialBalance: initialBalance,
-          seedBytes: seedBytes,
-          encryptionFileUtils: encryptionFileUtils,
           currency: CryptoCurrency.ltc,
-          alwaysScan: alwaysScan,
         ) {
     if (seedBytes != null) {
       mwebHd =
@@ -160,8 +149,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) async {
-    final walletSeedBytes = await WalletSeedBytes.getSeedBytes(walletInfo, mnemonic, passphrase);
-
     return LitecoinWallet(
       mnemonic: mnemonic,
       password: password,
@@ -172,7 +159,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialBalance: initialBalance,
       encryptionFileUtils: encryptionFileUtils,
       passphrase: passphrase,
-      seedBytes: walletSeedBytes.seedBytes,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
@@ -223,16 +209,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? ELECTRUM_PATH;
     walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
 
-    List<int>? seedBytes = null;
-    final mnemonic = keysData.mnemonic;
-    final passphrase = keysData.passphrase;
-
-    if (mnemonic != null) {
-      final walletSeedBytes = await WalletSeedBytes.getSeedBytes(walletInfo, mnemonic, passphrase);
-      seedBytes = walletSeedBytes.seedBytes;
-      // hdWallets.addAll(walletSeedBytes.hdWallets);
-    }
-
     return LitecoinWallet(
       mnemonic: keysData.mnemonic,
       xpub: keysData.xPub,
@@ -242,8 +218,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialAddresses: snp?.addresses,
       initialMwebAddresses: snp?.mwebAddresses,
       initialBalance: snp?.balance,
-      seedBytes: seedBytes,
-      passphrase: passphrase,
+      passphrase: keysData.passphrase,
       encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: snp?.regularAddressIndex,
       initialChangeAddressIndex: snp?.changeAddressIndex,

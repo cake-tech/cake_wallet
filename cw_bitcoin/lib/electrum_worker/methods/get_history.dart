@@ -9,6 +9,7 @@ class ElectrumWorkerGetHistoryRequest implements ElectrumWorkerRequest {
     required this.network,
     this.mempoolAPIEnabled = false,
     this.id,
+    this.completed = false,
   });
 
   final List<BitcoinAddressRecord> addresses;
@@ -18,6 +19,7 @@ class ElectrumWorkerGetHistoryRequest implements ElectrumWorkerRequest {
   final BasedUtxoNetwork network;
   final bool mempoolAPIEnabled;
   final int? id;
+  final bool completed;
 
   @override
   final String method = ElectrumRequestMethods.getHistory.method;
@@ -38,6 +40,7 @@ class ElectrumWorkerGetHistoryRequest implements ElectrumWorkerRequest {
       network: BasedUtxoNetwork.fromName(json['network'] as String),
       mempoolAPIEnabled: json['mempoolAPIEnabled'] as bool,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 
@@ -45,6 +48,8 @@ class ElectrumWorkerGetHistoryRequest implements ElectrumWorkerRequest {
   Map<String, dynamic> toJson() {
     return {
       'method': method,
+      'id': id,
+      'completed': completed,
       'addresses': addresses.map((e) => e.toJSON()).toList(),
       'storedTxIds': storedTxs.map((e) => e.toJson()).toList(),
       'walletType': walletType.index,
@@ -100,6 +105,7 @@ class ElectrumWorkerGetHistoryResponse
     required super.result,
     super.error,
     super.id,
+    super.completed,
   }) : super(method: ElectrumRequestMethods.getHistory.method);
 
   @override
@@ -115,6 +121,7 @@ class ElectrumWorkerGetHistoryResponse
           .toList(),
       error: json['error'] as String?,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 }

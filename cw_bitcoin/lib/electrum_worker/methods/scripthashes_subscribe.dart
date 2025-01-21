@@ -4,10 +4,12 @@ class ElectrumWorkerScripthashesSubscribeRequest implements ElectrumWorkerReques
   ElectrumWorkerScripthashesSubscribeRequest({
     required this.scripthashByAddress,
     this.id,
+    this.completed = false,
   });
 
   final Map<String, dynamic> scripthashByAddress;
   final int? id;
+  final bool completed;
 
   @override
   final String method = ElectrumRequestMethods.scriptHashSubscribe.method;
@@ -17,12 +19,18 @@ class ElectrumWorkerScripthashesSubscribeRequest implements ElectrumWorkerReques
     return ElectrumWorkerScripthashesSubscribeRequest(
       scripthashByAddress: json['scripthashes'] as Map<String, String>,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'method': method, 'scripthashes': scripthashByAddress};
+    return {
+      'method': method,
+      'id': id,
+      'completed': completed,
+      'scripthashes': scripthashByAddress,
+    };
   }
 }
 
@@ -42,6 +50,7 @@ class ElectrumWorkerScripthashesSubscribeResponse
     required super.result,
     super.error,
     super.id,
+    super.completed,
   }) : super(method: ElectrumRequestMethods.scriptHashSubscribe.method);
 
   @override
@@ -55,6 +64,7 @@ class ElectrumWorkerScripthashesSubscribeResponse
       result: json['result'] as Map<String, dynamic>?,
       error: json['error'] as String?,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 }

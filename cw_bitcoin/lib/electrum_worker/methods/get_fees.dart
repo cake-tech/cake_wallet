@@ -1,10 +1,15 @@
 part of 'methods.dart';
 
 class ElectrumWorkerGetFeesRequest implements ElectrumWorkerRequest {
-  ElectrumWorkerGetFeesRequest({this.mempoolAPIEnabled = false, this.id});
+  ElectrumWorkerGetFeesRequest({
+    this.mempoolAPIEnabled = false,
+    this.id,
+    this.completed = false,
+  });
 
   final bool mempoolAPIEnabled;
   final int? id;
+  final bool completed;
 
   @override
   final String method = ElectrumRequestMethods.estimateFee.method;
@@ -14,12 +19,18 @@ class ElectrumWorkerGetFeesRequest implements ElectrumWorkerRequest {
     return ElectrumWorkerGetFeesRequest(
       mempoolAPIEnabled: json['mempoolAPIEnabled'] as bool,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'method': method, 'mempoolAPIEnabled': mempoolAPIEnabled};
+    return {
+      'method': method,
+      'id': id,
+      'completed': completed,
+      'mempoolAPIEnabled': mempoolAPIEnabled,
+    };
   }
 }
 
@@ -39,6 +50,7 @@ class ElectrumWorkerGetFeesResponse
     required super.result,
     super.error,
     super.id,
+    super.completed,
   }) : super(method: ElectrumRequestMethods.estimateFee.method);
 
   @override
@@ -54,6 +66,7 @@ class ElectrumWorkerGetFeesResponse
           : deserializeTransactionPriorities(json['result'] as Map<String, dynamic>),
       error: json['error'] as String?,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 }

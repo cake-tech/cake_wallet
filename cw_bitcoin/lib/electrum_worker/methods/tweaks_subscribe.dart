@@ -73,10 +73,12 @@ class ElectrumWorkerTweaksSubscribeRequest implements ElectrumWorkerRequest {
   ElectrumWorkerTweaksSubscribeRequest({
     required this.scanData,
     this.id,
+    this.completed = false,
   });
 
   final ScanData scanData;
   final int? id;
+  final bool completed;
 
   @override
   final String method = ElectrumRequestMethods.tweaksSubscribe.method;
@@ -86,12 +88,18 @@ class ElectrumWorkerTweaksSubscribeRequest implements ElectrumWorkerRequest {
     return ElectrumWorkerTweaksSubscribeRequest(
       scanData: ScanData.fromJson(json['scanData'] as Map<String, dynamic>),
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 
   @override
   Map<String, dynamic> toJson() {
-    return {'method': method, 'scanData': scanData.toJson()};
+    return {
+      'method': method,
+      'id': id,
+      'completed': completed,
+      'scanData': scanData.toJson(),
+    };
   }
 }
 
@@ -170,6 +178,7 @@ class ElectrumWorkerTweaksSubscribeResponse
     required super.result,
     super.error,
     super.id,
+    super.completed,
   }) : super(method: ElectrumRequestMethods.tweaksSubscribe.method);
 
   @override
@@ -183,6 +192,7 @@ class ElectrumWorkerTweaksSubscribeResponse
       result: TweaksSyncResponse.fromJson(json['result'] as Map<String, dynamic>),
       error: json['error'] as String?,
       id: json['id'] as int?,
+      completed: json['completed'] as bool? ?? false,
     );
   }
 }
