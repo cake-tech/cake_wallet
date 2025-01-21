@@ -78,8 +78,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   final bool hasBlockchainHeightLanguageSelector;
   final bool hasRestoreFromPrivateKey;
 
-  bool get hasPassphrase => [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(type);
-
   @observable
   WalletRestoreMode mode;
 
