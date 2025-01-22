@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 class ZanoAlias {
   static Future<String?> fetchZanoAliasAddress(String alias) async {
     try {
-      final uri = Uri.parse("http://127.0.0.1:11211/json_rpc");
+      final uri = Uri.parse("http://37.27.100.59:10500/json_rpc");
       final response = await http.post(
         uri,
         body: {
