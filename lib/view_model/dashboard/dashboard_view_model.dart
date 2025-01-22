@@ -165,11 +165,6 @@ abstract class DashboardViewModelBase with Store {
     //   subname = nano!.getCurrentAccount(_wallet).label;
     // }
 
-    // reaction((_) => appStore.wallet, (wallet) {
-    //   onWalletChange(wallet);
-    //   _checkMweb();
-    // });
-    
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
 
@@ -179,9 +174,7 @@ abstract class DashboardViewModelBase with Store {
     }
 
     _checkMweb();
-    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
-      _checkMweb();
-    });
+    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
   }
 
   void _checkMweb() {
@@ -279,12 +272,13 @@ abstract class DashboardViewModelBase with Store {
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
 
   @computed
-  bool get hasRescan =>
-      wallet.type == WalletType.bitcoin ||
-      wallet.type == WalletType.monero ||
-      wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.wownero ||
-      wallet.type == WalletType.haven;
+  bool get hasRescan => [
+        WalletType.bitcoin,
+        WalletType.monero,
+        WalletType.litecoin,
+        WalletType.wownero,
+        WalletType.haven
+      ].contains(wallet.type);
 
   @computed
   bool get isMoneroViewOnly {
@@ -441,30 +435,25 @@ abstract class DashboardViewModelBase with Store {
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
   @computed
-  bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
+  bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(wallet.type);
 
   @computed
   bool get hasSignMessages {
-    if (wallet.isHardwareWallet) {
-      return false;
-    }
-    switch (wallet.type) {
-      case WalletType.monero:
-      case WalletType.litecoin:
-      case WalletType.bitcoin:
-      case WalletType.bitcoinCash:
-      case WalletType.ethereum:
-      case WalletType.polygon:
-      case WalletType.solana:
-      case WalletType.nano:
-      case WalletType.banano:
-      case WalletType.tron:
-      case WalletType.wownero:
-        return true;
-      case WalletType.haven:
-      case WalletType.none:
-        return false;
-    }
+    if (wallet.isHardwareWallet) return false;
+
+    return [
+      WalletType.monero,
+      WalletType.litecoin,
+      WalletType.bitcoin,
+      WalletType.bitcoinCash,
+      WalletType.ethereum,
+      WalletType.polygon,
+      WalletType.solana,
+      WalletType.nano,
+      WalletType.banano,
+      WalletType.tron,
+      WalletType.wownero
+    ].contains(wallet.type);
   }
 
   bool get showRepWarning {
