@@ -2,7 +2,6 @@ import 'dart:convert' as convert;
 import 'dart:ffi';
 import 'dart:isolate';
 
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/zano_asset.dart';
@@ -21,7 +20,6 @@ import 'package:cw_zano/api/model/store_result.dart';
 import 'package:cw_zano/api/model/transfer.dart';
 import 'package:cw_zano/api/model/transfer_params.dart';
 import 'package:cw_zano/api/model/transfer_result.dart';
-import 'package:cw_zano/model/zano_asset.dart';
 import 'package:cw_zano/zano_wallet_exceptions.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -30,8 +28,6 @@ import 'package:monero/zano.dart' as zano;
 import 'package:monero/src/generated_bindings_zano.g.dart' as zanoapi;
 
 mixin ZanoWalletApi {
-  static const _statusDelivered = 'delivered';
-  static const _maxInvokeAttempts = 10;
   static const _maxReopenAttempts = 5;
   static const _logInfo = false;
   static const _logError = true;
@@ -70,7 +66,7 @@ mixin ZanoWalletApi {
 
   Future<GetWalletInfoResult> getWalletInfo() async {
     final json = await _getWalletInfo(hWallet);
-    final result = GetWalletInfoResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    final result = GetWalletInfoResult.fromJson(jsonDecode(json));
     _json('get_wallet_info', json);
     info('get_wallet_info got ${result.wi.balances.length} balances: ${result.wi.balances} seed: ${_shorten(result.wiExtended.seed)}');
     return result;
@@ -82,7 +78,7 @@ mixin ZanoWalletApi {
       error('wrong wallet id');
       throw ZanoWalletException('Wrong wallet id');
     }
-    final status = GetWalletStatusResult.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    final status = GetWalletStatusResult.fromJson(jsonDecode(json));
     _json('get_wallet_status', json);
     if (_logInfo)
       info(
@@ -96,9 +92,8 @@ mixin ZanoWalletApi {
       "params": params,
     });
     final invokeResult = await callSyncMethod('invoke', hWallet, request);
-    Map<String, dynamic> map;
     try {
-      map = jsonDecode(invokeResult);
+      jsonDecode(invokeResult);
     } catch (e) {
       if (invokeResult.contains(Consts.errorWalletWrongId)) throw ZanoWalletException('Wrong wallet id');
       error('exception in parsing json in invokeMethod: $invokeResult');
@@ -236,7 +231,7 @@ mixin ZanoWalletApi {
   }
 
   GetAddressInfoResult getAddressInfo(String address) => GetAddressInfoResult.fromJson(
-        jsonDecode(zano.PlainWallet_getAddressInfo(address)) as Map<String, dynamic>,
+        jsonDecode(zano.PlainWallet_getAddressInfo(address)),
       );
 
   String _shorten(String s) => s.length > 10 ? '${s.substring(0, 4)}...${s.substring(s.length - 4)}' : s;
