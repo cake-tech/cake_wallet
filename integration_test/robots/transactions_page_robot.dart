@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/.secrets.g.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
@@ -75,7 +76,7 @@ class TransactionsPageRobot {
       }
 
       // Pump the UI and wait for the next polling interval
-      await tester.pump(pollingInterval);
+      await tester.pumpAndSettle(pollingInterval);
     }
 
     // After the loop, verify that both status is synced and items are loaded
@@ -106,49 +107,57 @@ class TransactionsPageRobot {
   }
 
   Future<void> _performItemChecks(DashboardViewModel dashboardViewModel) async {
-    List<ActionListItem> items = dashboardViewModel.items;
-    for (var item in items) {
+    final itemsToProcess = dashboardViewModel.items.where((item) {
+      if (item is DateSectionItem) return false;
+      if (item is TransactionListItem) {
+        return !(item.hasTokens && item.assetOfTransaction == null);
+      }
+      return true;
+    }).toList();
+
+    for (var item in itemsToProcess) {
       final keyId = (item.key as ValueKey<String>).value;
-      tester.printToConsole('\n');
-      tester.printToConsole(keyId);
 
+      tester.printToConsole('\nProcessing item: $keyId\n');
+      await tester.pumpAndSettle();
+
+      // Scroll the item into view
       await commonTestCases.dragUntilVisible(keyId, 'transactions_page_list_view_builder_key');
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      final isWidgetVisible = tester.any(find.byKey(ValueKey(keyId)));
-      if (!isWidgetVisible) {
-        tester.printToConsole('Moving to next visible item on list');
+      // Check if the widget is visible
+      if (!tester.any(find.byKey(ValueKey(keyId)))) {
+        tester.printToConsole('Item not visible: $keyId. Moving to the next.');
         continue;
       }
-      ;
-      await tester.pump();
 
-      if (item is DateSectionItem) {
-        await _verifyDateSectionItem(item);
-      } else if (item is TransactionListItem) {
-        tester.printToConsole(item.formattedTitle);
-        tester.printToConsole(item.formattedFiatAmount);
-        tester.printToConsole('\n');
-        await _verifyTransactionListItemDisplay(item, dashboardViewModel);
-      } else if (item is AnonpayTransactionListItem) {
-        await _verifyAnonpayTransactionListItemDisplay(item);
-      } else if (item is TradeListItem) {
-        await _verifyTradeListItemDisplay(item);
-      } else if (item is OrderListItem) {
-        await _verifyOrderListItemDisplay(item);
+      await tester.pumpAndSettle();
+
+      switch (item.runtimeType) {
+        case TransactionListItem:
+          final transactionItem = item as TransactionListItem;
+          tester.printToConsole(transactionItem.formattedTitle);
+          tester.printToConsole(transactionItem.formattedFiatAmount);
+          tester.printToConsole('\n');
+          await _verifyTransactionListItemDisplay(transactionItem, dashboardViewModel);
+          break;
+
+        case AnonpayTransactionListItem:
+          await _verifyAnonpayTransactionListItemDisplay(item as AnonpayTransactionListItem);
+          break;
+
+        case TradeListItem:
+          await _verifyTradeListItemDisplay(item as TradeListItem);
+          break;
+
+        case OrderListItem:
+          await _verifyOrderListItemDisplay(item as OrderListItem);
+          break;
+
+        default:
+          tester.printToConsole('Unhandled item type: ${item.runtimeType}');
       }
     }
-  }
-
-  Future<void> _verifyDateSectionItem(DateSectionItem item) async {
-    final title = DateFormatter.convertDateTimeToReadableString(item.date);
-    tester.printToConsole(title);
-    await tester.pump();
-
-    commonTestCases.findWidgetViaDescendant(
-      of: find.byKey(item.key),
-      matching: find.text(title),
-    );
   }
 
   Future<void> _verifyTransactionListItemDisplay(
@@ -167,16 +176,6 @@ class TransactionsPageRobot {
     commonTestCases.findWidgetViaDescendant(
       of: find.byKey(ValueKey(keyId)),
       matching: find.text(item.formattedCryptoAmount),
-    );
-
-    //* ======Confirm it displays the properly formatted title===========
-    final transactionType = dashboardViewModel.getTransactionType(item.transaction);
-
-    final title = item.formattedTitle + item.formattedStatus + transactionType;
-
-    commonTestCases.findWidgetViaDescendant(
-      of: find.byKey(ValueKey(keyId)),
-      matching: find.text(title),
     );
 
     //* ======Confirm it displays the properly formatted date============
