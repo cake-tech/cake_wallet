@@ -9,18 +9,18 @@ class ZanoAlias {
       final uri = Uri.parse("http://37.27.100.59:10500/json_rpc");
       final response = await http.post(
         uri,
-        body: {
+        body: json.encode({
           "id": 0,
           "jsonrpc": "2.0",
           "method": "get_alias_details",
           "params": {"alias": alias}
-        },
+        }),
       );
       final jsonParsed = json.decode(response.body) as Map<String, dynamic>;
 
       return jsonParsed['result']['alias_details']['address'] as String?;
     } catch (e) {
-      printV('Unstoppable domain error: ${e.toString()}');
+      printV('Zano Alias error: ${e.toString()}');
     }
 
     return null;
