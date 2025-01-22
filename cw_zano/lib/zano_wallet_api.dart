@@ -268,14 +268,14 @@ mixin ZanoWalletApi {
       final code = map!['error']!['code'] ?? '';
       final message = map['error']!['message'] ?? '';
       if (code == Consts.errorWrongSeed) {
-        throw RestoreFromKeysException('Error restoring wallet, wrong seed');
+        throw RestoreFromSeedsException('Error restoring wallet, wrong seed');
       } else if (code == Consts.errorAlreadyExists) {
-        throw RestoreFromKeysException('Error restoring wallet, already exists');
+        throw RestoreFromSeedsException('Error restoring wallet, already exists');
       }
-      throw RestoreFromKeysException('Error restoring wallet, $message ($code)');
+      throw RestoreFromSeedsException('Error restoring wallet, $message ($code)');
     }
     if (map?['result'] == null) {
-      throw RestoreFromKeysException('Error restoring wallet, empty response');
+      throw RestoreFromSeedsException('Error restoring wallet, empty response');
     }
     final result = CreateWalletResult.fromJson(map!['result'] as Map<String, dynamic>);
     info('restore_wallet ${result.name} ${result.wi.address}');

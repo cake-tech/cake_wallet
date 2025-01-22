@@ -1694,6 +1694,10 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.nano,\n';
   }
 
+  if (hasZano) {
+    outputContent += '\tWalletType.zano,\n';
+  }
+
   if (hasBanano) {
     outputContent += '\tWalletType.banano,\n';
   }
@@ -1704,10 +1708,6 @@ Future<void> generateWalletTypes({
 
   if (hasHaven) {
     outputContent += '\tWalletType.haven,\n';
-  }
-
-  if (hasZano) {
-    outputContent += '\tWalletType.zano,\n';
   }
 
   outputContent += '];\n';
