@@ -925,7 +925,7 @@
   "waitFewSecondForTxUpdate": "Kindly wait for a few seconds for transaction to reflect in transactions history",
   "wallet": "Wallet",
   "wallet_group": "Wallet Group",
-  "wallet_group_description_existing_seed": "You’ve chosen to use an existing seed for this wallet.You may verify the seed again if you need to confirm or write it down.",
+  "wallet_group_description_existing_seed": "You’ve chosen to use an existing seed for this wallet. You may verify the seed again if you need to confirm or write it down.",
   "wallet_group_description_four": "to create a wallet with an entirely new seed.",
   "wallet_group_description_one": "In Cake Wallet, you can create a",
   "wallet_group_description_open_wallet": "Otherwise, you can continue to open the wallet",
