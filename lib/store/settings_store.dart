@@ -114,6 +114,7 @@ abstract class SettingsStoreBase with Store {
       required this.defaultNanoRep,
       required this.defaultBananoRep,
       required this.lookupsTwitter,
+      required this.lookupsZanoAlias,
       required this.lookupsMastodon,
       required this.lookupsYatService,
       required this.lookupsUnstoppableDomains,
@@ -447,6 +448,10 @@ abstract class SettingsStoreBase with Store {
         (_) => lookupsTwitter,
         (bool looksUpTwitter) =>
             _sharedPreferences.setBool(PreferencesKey.lookupsTwitter, looksUpTwitter));
+    reaction(
+        (_) => lookupsZanoAlias,
+        (bool lookupsZanoAlias) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsZanoAlias, lookupsZanoAlias));
 
     reaction(
         (_) => lookupsMastodon,
@@ -775,6 +780,9 @@ abstract class SettingsStoreBase with Store {
   bool lookupsTwitter;
 
   @observable
+  bool lookupsZanoAlias;
+
+  @observable
   bool lookupsMastodon;
 
   @observable
@@ -986,6 +994,7 @@ abstract class SettingsStoreBase with Store {
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
+    final lookupsZanoAlias = sharedPreferences.getBool(PreferencesKey.lookupsZanoAlias) ?? true;
     final lookupsMastodon = sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? true;
     final lookupsYatService = sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? true;
     final lookupsUnstoppableDomains =
@@ -1273,6 +1282,7 @@ abstract class SettingsStoreBase with Store {
       defaultNanoRep: defaultNanoRep,
       defaultBananoRep: defaultBananoRep,
       lookupsTwitter: lookupsTwitter,
+      lookupsZanoAlias: lookupsZanoAlias,
       lookupsMastodon: lookupsMastodon,
       lookupsYatService: lookupsYatService,
       lookupsUnstoppableDomains: lookupsUnstoppableDomains,
@@ -1447,6 +1457,7 @@ abstract class SettingsStoreBase with Store {
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
+    lookupsZanoAlias = sharedPreferences.getBool(PreferencesKey.lookupsZanoAlias) ?? true;
     lookupsMastodon = sharedPreferences.getBool(PreferencesKey.lookupsMastodon) ?? true;
     lookupsYatService = sharedPreferences.getBool(PreferencesKey.lookupsYatService) ?? true;
     lookupsUnstoppableDomains =

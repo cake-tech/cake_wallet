@@ -261,7 +261,11 @@ Future<void> defaultSettingsMigration(
           await removeMoneroWorld(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 41:
-          _deselectExchangeProvider(sharedPreferences, "Quantex");
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Quantex",
+            enabled: false,
+          );
           await _addSethNode(nodes, sharedPreferences);
           await updateTronNodesWithNowNodes(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
@@ -270,8 +274,16 @@ Future<void> defaultSettingsMigration(
           break;
         case 43:
           _fixNodesUseSSLFlag(nodes);
-          _deselectExchangeProvider(sharedPreferences, "THORChain");
-          _deselectExchangeProvider(sharedPreferences, "SimpleSwap");
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "THORChain",
+            enabled: false,
+          );
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "SimpleSwap",
+            enabled: false,
+          );
           break;
         case 44:
           _fixNodesUseSSLFlag(nodes);
@@ -306,14 +318,12 @@ Future<void> defaultSettingsMigration(
             type: WalletType.polygon,
             useSSL: true,
           );
-        case 46:
           updateWalletTypeNodesWithNewNode(
             newNodeUri: 'eth.nownodes.io',
             nodes: nodes,
             type: WalletType.ethereum,
             useSSL: true,
           );
-        case 47:
 
           _changeDefaultNode(
             nodes: nodes,
@@ -337,7 +347,7 @@ Future<void> defaultSettingsMigration(
             oldUri: ['rpc.ankr.com'],
           );
           break;
-        case 48:
+        case 46:
           await _fixNodesUseSSLFlag(nodes);
           await updateWalletTypeNodesWithNewNode(
             newNodeUri: 'litecoin.stackwallet.com:20063',
@@ -377,9 +387,14 @@ Future<void> defaultSettingsMigration(
             useSSL: true,
           );
           break;
-        case 49:
+        case 47:
           await addZanoNodeList(nodes: nodes);
 			    await changeZanoCurrentNodeToDefault(sharedPreferences: sharedPreferences, nodes: nodes);
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "SimpleSwap",
+            enabled: true,
+          );
 			    break;
         default:
           break;
@@ -477,12 +492,13 @@ Future<void> updateWalletTypeNodesWithNewNode({
   );
 }
 
-void _deselectExchangeProvider(SharedPreferences sharedPreferences, String providerName) {
+void _changeExchangeProviderAvailability(SharedPreferences sharedPreferences,
+    {required String providerName, required bool enabled}) {
   final Map<String, dynamic> exchangeProvidersSelection =
       json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
           as Map<String, dynamic>;
 
-  exchangeProvidersSelection[providerName] = false;
+  exchangeProvidersSelection[providerName] = enabled;
 
   sharedPreferences.setString(
     PreferencesKey.exchangeProvidersSelection,
