@@ -2,7 +2,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
@@ -25,6 +24,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required this.network,
     required this.isHardwareWallet,
     List<BitcoinAddressRecord>? initialAddresses,
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
     BitcoinAddressType? initialAddressPageType,
   })  : _allAddresses = ObservableList.of(initialAddresses ?? []),
         addressesOnReceiveScreen =
@@ -33,13 +34,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
             (initialAddresses ?? []).where((addressRecord) => !addressRecord.isChange).toSet()),
         changeAddresses = ObservableList<BitcoinAddressRecord>.of(
             (initialAddresses ?? []).where((addressRecord) => addressRecord.isChange).toSet()),
+        currentReceiveAddressIndexByType = initialRegularAddressIndex ?? {},
+        currentChangeAddressIndexByType = initialChangeAddressIndex ?? {},
         _addressPageType = initialAddressPageType ??
             (walletInfo.addressPageType != null
                 ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
                 : SegwitAddressType.p2wpkh),
-        super(walletInfo) {
-    updateAddressesOnReceiveScreen();
-  }
+        super(walletInfo);
 
   static const defaultReceiveAddressesCount = 22;
   static const defaultChangeAddressesCount = 17;
@@ -80,10 +81,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @override
   @computed
   String get address {
-    String receiveAddress;
+    String receiveAddress = "";
 
-    final typeMatchingReceiveAddresses =
-        receiveAddresses.where(_isAddressPageTypeMatch).where((addr) => !addr.isUsed);
+    final typeMatchingReceiveAddresses = addressesOnReceiveScreen.where((addr) => !addr.isUsed);
 
     if ((isEnabledAutoGenerateSubaddress && receiveAddresses.isEmpty) ||
         typeMatchingReceiveAddresses.isEmpty) {
@@ -92,11 +92,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       final previousAddressMatchesType =
           previousAddressRecord != null && previousAddressRecord!.type == addressPageType;
 
-      if (previousAddressMatchesType &&
-          typeMatchingReceiveAddresses.first.address != addressesOnReceiveScreen.first.address) {
-        receiveAddress = previousAddressRecord!.address;
-      } else {
-        receiveAddress = typeMatchingReceiveAddresses.first.address;
+      if (typeMatchingReceiveAddresses.isNotEmpty) {
+        if (previousAddressMatchesType &&
+            typeMatchingReceiveAddresses.first.address != addressesOnReceiveScreen.first.address) {
+          receiveAddress = previousAddressRecord!.address;
+        } else {
+          receiveAddress = typeMatchingReceiveAddresses.first.address;
+        }
       }
     }
 
@@ -121,6 +123,22 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   String get primaryAddress => _allAddresses.first.address;
+
+  Map<String, int> currentReceiveAddressIndexByType;
+
+  int get currentReceiveAddressIndex =>
+      currentReceiveAddressIndexByType[_addressPageType.toString()] ?? 0;
+
+  void set currentReceiveAddressIndex(int index) =>
+      currentReceiveAddressIndexByType[_addressPageType.toString()] = index;
+
+  Map<String, int> currentChangeAddressIndexByType;
+
+  int get currentChangeAddressIndex =>
+      currentChangeAddressIndexByType[_addressPageType.toString()] ?? 0;
+
+  void set currentChangeAddressIndex(int index) =>
+      currentChangeAddressIndexByType[_addressPageType.toString()] = index;
 
   @observable
   BitcoinAddressRecord? previousAddressRecord;
@@ -156,15 +174,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateAddressesOnReceiveScreen();
     updateReceiveAddresses();
     updateChangeAddresses();
+    updateHiddenAddresses();
     await updateAddressesInBox();
   }
 
   @action
-  Future<BaseBitcoinAddressRecord> getChangeAddress({
-    List<BitcoinUnspent>? inputs,
-    List<BitcoinOutput>? outputs,
-    bool isPegIn = false,
-  }) async {
+  Future<BaseBitcoinAddressRecord> getChangeAddress() async {
     updateChangeAddresses();
 
     final address = changeAddresses.firstWhere(
@@ -173,7 +188,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return address;
   }
 
-  @action
   BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
     final newAddressIndex = addressesOnReceiveScreen.fold(
       0,
@@ -197,7 +211,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       derivationInfo: BitcoinAddressUtils.getDerivationFromType(addressPageType),
       cwDerivationType: getHDWalletType(),
     );
-    addAddresses([address]);
     return address;
   }
 
@@ -460,5 +473,63 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Map<String, dynamic> toJson() => {
         'allAddresses': _allAddresses.map((address) => address.toJSON()).toList(),
         'addressPageType': addressPageType.toString(),
+        // 'receiveAddressIndexByType': receiveAddressIndexByType,
+        // 'changeAddressIndexByType': changeAddressIndexByType,
       };
+
+  static Map<String, dynamic> fromSnapshot(Map<dynamic, dynamic> data) {
+    final addressesTmp = data['addresses'] as List? ?? <Object>[];
+    final addresses = addressesTmp
+        .whereType<String>()
+        .map((addr) => BitcoinAddressRecord.fromJSON(addr))
+        .toList();
+
+    var receiveAddressIndexByType = {SegwitAddressType.p2wpkh.toString(): 0};
+    var changeAddressIndexByType = {SegwitAddressType.p2wpkh.toString(): 0};
+
+    try {
+      receiveAddressIndexByType = {
+        SegwitAddressType.p2wpkh.toString(): int.parse(data['account_index'] as String? ?? '0')
+      };
+      changeAddressIndexByType = {
+        SegwitAddressType.p2wpkh.toString():
+            int.parse(data['change_address_index'] as String? ?? '0')
+      };
+    } catch (_) {
+      try {
+        receiveAddressIndexByType = data["account_index"] as Map<String, int>? ?? {};
+        changeAddressIndexByType = data["change_address_index"] as Map<String, int>? ?? {};
+      } catch (_) {}
+    }
+
+    return {
+      'allAddresses': addresses,
+      'addressPageType': data['address_page_type'] as String?,
+      'receiveAddressIndexByType': receiveAddressIndexByType,
+      'changeAddressIndexByType': changeAddressIndexByType,
+    };
+  }
+
+  static ElectrumWalletAddressesBase fromJson(
+    Map<String, dynamic> json,
+    WalletInfo walletInfo, {
+    required Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets,
+    required BasedUtxoNetwork network,
+    required bool isHardwareWallet,
+    List<BitcoinAddressRecord>? initialAddresses,
+    List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
+    List<BitcoinReceivedSPAddressRecord>? initialReceivedSPAddresses,
+  }) {
+    initialAddresses ??= (json['allAddresses'] as List)
+        .map((record) => BitcoinAddressRecord.fromJSON(record as String))
+        .toList();
+
+    return ElectrumWalletAddresses(
+      walletInfo,
+      hdWallets: hdWallets,
+      network: network,
+      isHardwareWallet: isHardwareWallet,
+      initialAddresses: initialAddresses,
+    );
+  }
 }

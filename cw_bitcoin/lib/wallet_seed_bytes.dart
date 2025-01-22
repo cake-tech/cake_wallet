@@ -1,6 +1,7 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 
@@ -9,11 +10,13 @@ class WalletSeedData {
 
   WalletSeedData({required this.hdWallets});
 
-  static WalletSeedData fromMnemonic(WalletInfo walletInfo, String mnemonic, [String? passphrase]) {
+  static Future<WalletSeedData> fromMnemonic(WalletInfo walletInfo, String mnemonic,
+      [String? passphrase]) async {
     final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
 
     for (final derivation in walletInfo.derivations ?? [walletInfo.derivationInfo!]) {
-      if (derivation.derivationType == DerivationType.bip39) {
+      if (derivation.derivationType == DerivationType.bip39 &&
+          !hdWallets.containsKey(CWBitcoinDerivationType.bip39)) {
         try {
           final seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
           hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
@@ -24,7 +27,8 @@ class WalletSeedData {
         continue;
       }
 
-      if (derivation.derivationType == DerivationType.electrum) {
+      if (derivation.derivationType == DerivationType.electrum &&
+          !hdWallets.containsKey(CWBitcoinDerivationType.electrum)) {
         late List<int> seedBytes;
 
         try {
@@ -36,6 +40,12 @@ class WalletSeedData {
             seedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
           } catch (e) {
             printV("electrum_v1 seed error: $e");
+
+            try {
+              seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+            } catch (e) {
+              printV("old electrum seed error: $e");
+            }
           }
         }
 

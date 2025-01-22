@@ -23,13 +23,14 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required super.hdWallets,
     required super.network,
     required super.isHardwareWallet,
-    required this.mwebHd,
     required this.mwebEnabled,
     super.initialAddresses,
     List<LitecoinMWEBAddressRecord>? initialMwebAddresses,
   })  : mwebAddresses =
             ObservableList<LitecoinMWEBAddressRecord>.of((initialMwebAddresses ?? []).toSet()),
         super(walletInfo) {
+    mwebHd = hdWallet.derivePath("m/1000'") as Bip32Slip10Secp256k1;
+
     for (int i = 0; i < mwebAddresses.length; i++) {
       mwebAddrs.add(mwebAddresses[i].address);
     }
@@ -38,7 +39,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   final ObservableList<LitecoinMWEBAddressRecord> mwebAddresses;
 
-  final Bip32Slip10Secp256k1? mwebHd;
+  late final Bip32Slip10Secp256k1? mwebHd;
   bool mwebEnabled;
   int mwebTopUpIndex = 1000;
   List<String> mwebAddrs = [];

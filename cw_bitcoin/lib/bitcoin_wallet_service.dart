@@ -3,6 +3,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -152,6 +153,12 @@ class BitcoinWalletService extends WalletService<
     credentials.walletInfo?.derivationInfo?.derivationPath =
         credentials.hwAccountData.derivationPath;
 
+    final hdWallets = await ElectrumWalletBase.getAccountHDWallets(
+      walletInfo: credentials.walletInfo!,
+      network: network,
+      xpub: credentials.hwAccountData.xpub,
+    );
+
     final wallet = await BitcoinWallet(
       password: credentials.password!,
       xpub: credentials.hwAccountData.xpub,
@@ -159,6 +166,7 @@ class BitcoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      hdWallets: hdWallets,
     );
     await wallet.save();
     await wallet.init();

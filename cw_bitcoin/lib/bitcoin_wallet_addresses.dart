@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -51,78 +53,89 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   @override
   Future<void> init() async {
-    await generateInitialAddresses(type: SegwitAddressType.p2wpkh);
+    // TODO: if restored from snapshot
 
-    if (!isHardwareWallet) {
-      await generateInitialAddresses(type: P2pkhAddressType.p2pkh);
-      await generateInitialAddresses(type: P2shAddressType.p2wpkhInP2sh);
-      await generateInitialAddresses(type: SegwitAddressType.p2tr);
-      await generateInitialAddresses(type: SegwitAddressType.p2wsh);
-
-      if (walletInfo.isRecovery) {
-        final oldScanPath = Bip32PathParser.parse("m/352'/1'/0'/1'/0");
-        final oldSpendPath = Bip32PathParser.parse("m/352'/1'/0'/0'/0");
-
-        final oldSilentPaymentWallet = SilentPaymentOwner.fromPrivateKeys(
-          b_scan: ECPrivate(hdWallet.derive(oldScanPath).privateKey),
-          b_spend: ECPrivate(hdWallet.derive(oldSpendPath).privateKey),
-        );
-
-        silentPaymentWallets.add(oldSilentPaymentWallet);
-        silentPaymentAddresses.addAll(
-          [
-            BitcoinSilentPaymentAddressRecord(
-              oldSilentPaymentWallet.toString(),
-              labelIndex: 0,
-              name: "",
-              type: SilentPaymentsAddresType.p2sp,
-              derivationPath: oldSpendPath.toString(),
-              isHidden: true,
-              isChange: false,
-            ),
-            BitcoinSilentPaymentAddressRecord(
-              oldSilentPaymentWallet.toLabeledSilentPaymentAddress(0).toString(),
-              name: "",
-              labelIndex: 0,
-              labelHex: BytesUtils.toHexString(oldSilentPaymentWallet.generateLabel(0)),
-              type: SilentPaymentsAddresType.p2sp,
-              derivationPath: oldSpendPath.toString(),
-              isHidden: true,
-              isChange: true,
-            ),
-          ],
-        );
-      }
-
-      silentPaymentAddresses.addAll([
-        BitcoinSilentPaymentAddressRecord(
-          silentPaymentWallet!.toString(),
-          labelIndex: 0,
-          name: "",
-          type: SilentPaymentsAddresType.p2sp,
-          isChange: false,
-        ),
-        BitcoinSilentPaymentAddressRecord(
-          silentPaymentWallet!.toLabeledSilentPaymentAddress(0).toString(),
-          name: "",
-          labelIndex: 0,
-          labelHex: BytesUtils.toHexString(silentPaymentWallet!.generateLabel(0)),
-          type: SilentPaymentsAddresType.p2sp,
-          isChange: true,
-        ),
-      ]);
-
-      updateHiddenAddresses();
+    if (allAddresses.where((address) => address.type == SegwitAddressType.p2wpkh).isEmpty) {
+      await generateInitialAddresses(type: SegwitAddressType.p2wpkh);
     }
 
-    await updateAddressesInBox();
+    if (!isHardwareWallet) {
+      if (allAddresses.where((address) => address.type == P2pkhAddressType.p2pkh).isEmpty)
+        await generateInitialAddresses(type: P2pkhAddressType.p2pkh);
+
+      if (allAddresses.where((address) => address.type == P2shAddressType.p2wpkhInP2sh).isEmpty)
+        await generateInitialAddresses(type: P2shAddressType.p2wpkhInP2sh);
+
+      if (allAddresses.where((address) => address.type == SegwitAddressType.p2tr).isEmpty)
+        await generateInitialAddresses(type: SegwitAddressType.p2tr);
+
+      if (allAddresses.where((address) => address.type == SegwitAddressType.p2wsh).isEmpty)
+        await generateInitialAddresses(type: SegwitAddressType.p2wsh);
+
+      if (silentPaymentAddresses.isEmpty) {
+        if (walletInfo.isRecovery) {
+          final oldScanPath = Bip32PathParser.parse("m/352'/1'/0'/1'/0");
+          final oldSpendPath = Bip32PathParser.parse("m/352'/1'/0'/0'/0");
+
+          final oldSilentPaymentWallet = SilentPaymentOwner.fromPrivateKeys(
+            b_scan: ECPrivate(hdWallet.derive(oldScanPath).privateKey),
+            b_spend: ECPrivate(hdWallet.derive(oldSpendPath).privateKey),
+          );
+
+          silentPaymentWallets.add(oldSilentPaymentWallet);
+          silentPaymentAddresses.addAll(
+            [
+              BitcoinSilentPaymentAddressRecord(
+                oldSilentPaymentWallet.toString(),
+                labelIndex: 0,
+                name: "",
+                type: SilentPaymentsAddresType.p2sp,
+                derivationPath: oldSpendPath.toString(),
+                isHidden: true,
+                isChange: false,
+              ),
+              BitcoinSilentPaymentAddressRecord(
+                oldSilentPaymentWallet.toLabeledSilentPaymentAddress(0).toString(),
+                name: "",
+                labelIndex: 0,
+                labelHex: BytesUtils.toHexString(oldSilentPaymentWallet.generateLabel(0)),
+                type: SilentPaymentsAddresType.p2sp,
+                derivationPath: oldSpendPath.toString(),
+                isHidden: true,
+                isChange: true,
+              ),
+            ],
+          );
+        }
+
+        silentPaymentAddresses.addAll([
+          BitcoinSilentPaymentAddressRecord(
+            silentPaymentWallet!.toString(),
+            labelIndex: 0,
+            name: "",
+            type: SilentPaymentsAddresType.p2sp,
+            isChange: false,
+          ),
+          BitcoinSilentPaymentAddressRecord(
+            silentPaymentWallet!.toLabeledSilentPaymentAddress(0).toString(),
+            name: "",
+            labelIndex: 0,
+            labelHex: BytesUtils.toHexString(silentPaymentWallet!.generateLabel(0)),
+            type: SilentPaymentsAddresType.p2sp,
+            isChange: true,
+          ),
+        ]);
+      }
+    }
+
+    super.init();
   }
 
   @action
   Future<void> generateSilentPaymentAddresses({required BitcoinAddressType type}) async {
-    final hasOldSPAddresses = silentPaymentAddresses.any((address) =>
-        address.type == SilentPaymentsAddresType.p2sp &&
-        address.derivationPath == OLD_SP_SPEND_PATH);
+    // final hasOldSPAddresses = silentPaymentAddresses.any((address) =>
+    //     address.type == SilentPaymentsAddresType.p2sp &&
+    //     address.derivationPath == OLD_SP_SPEND_PATH);
 
     if (walletInfo.isRecovery) {
       final oldScanPath = Bip32PathParser.parse("m/352'/1'/0'/1'/0");
@@ -437,6 +450,75 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     json['silentPaymentAddresses'] =
         silentPaymentAddresses.map((address) => address.toJSON()).toList();
     json['receivedSPAddresses'] = receivedSPAddresses.map((address) => address.toJSON()).toList();
+    // json['silentAddressIndex'] = silentAddressIndex.toString();
     return json;
+  }
+
+  static Map<String, dynamic> fromSnapshot(Map<dynamic, dynamic> data) {
+    final electrumSnapshot = ElectrumWalletAddressesBase.fromSnapshot(data);
+
+    final silentAddressesTmp = data['silent_addresses'] as List? ?? <Object>[];
+    final silentPaymentAddresses = <BitcoinReceivedSPAddressRecord>[];
+    final receivedSPAddresses = <BitcoinSilentPaymentAddressRecord>[];
+
+    silentAddressesTmp.whereType<String>().forEach((j) {
+      final decoded = json.decode(j) as Map;
+      if (decoded['tweak'] != null || decoded['silent_payment_tweak'] != null) {
+        silentPaymentAddresses.add(BitcoinReceivedSPAddressRecord.fromJSON(j));
+      } else {
+        receivedSPAddresses.add(BitcoinSilentPaymentAddressRecord.fromJSON(j));
+      }
+    });
+    var silentAddressIndex = 0;
+
+    try {
+      silentAddressIndex = int.parse(data['silent_address_index'] as String? ?? '0');
+    } catch (_) {}
+
+    return {
+      'allAddresses': electrumSnapshot["addresses"],
+      'addressPageType': data['address_page_type'] as String?,
+      'receiveAddressIndexByType': electrumSnapshot["receiveAddressIndexByType"],
+      'changeAddressIndexByType': electrumSnapshot["changeAddressIndexByType"],
+      'silentPaymentAddresses': silentPaymentAddresses,
+      'receivedSPAddresses': receivedSPAddresses,
+      'silentAddressIndex': silentAddressIndex,
+    };
+  }
+
+  static BitcoinWalletAddressesBase fromJson(
+    Map<String, dynamic> json,
+    WalletInfo walletInfo, {
+    required Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets,
+    required BasedUtxoNetwork network,
+    required bool isHardwareWallet,
+    List<BitcoinAddressRecord>? initialAddresses,
+    List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
+    List<BitcoinReceivedSPAddressRecord>? initialReceivedSPAddresses,
+  }) {
+    initialAddresses ??= (json['allAddresses'] as List)
+        .map((record) => BitcoinAddressRecord.fromJSON(record as String))
+        .toList();
+
+    initialSilentAddresses ??= (json['silentPaymentAddresses'] as List)
+        .map(
+          (address) => BitcoinSilentPaymentAddressRecord.fromJSON(address as String),
+        )
+        .toList();
+    initialReceivedSPAddresses ??= (json['receivedSPAddresses'] as List)
+        .map(
+          (address) => BitcoinReceivedSPAddressRecord.fromJSON(address as String),
+        )
+        .toList();
+
+    return BitcoinWalletAddresses(
+      walletInfo,
+      hdWallets: hdWallets,
+      network: network,
+      isHardwareWallet: isHardwareWallet,
+      initialAddresses: initialAddresses,
+      initialSilentAddresses: initialSilentAddresses,
+      initialReceivedSPAddresses: initialReceivedSPAddresses,
+    );
   }
 }

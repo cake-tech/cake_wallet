@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 
+import 'package:cw_bitcoin/electrum_worker/server_capability.dart';
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -22,6 +23,7 @@ import 'package:sp_scanner/sp_scanner.dart';
 class ElectrumWorker {
   final SendPort sendPort;
   ElectrumProvider? _electrumClient;
+  ServerCapability? _serverCapability;
   BehaviorSubject<Map<String, dynamic>>? _scanningStream;
 
   BasedUtxoNetwork? _network;
@@ -136,31 +138,61 @@ class ElectrumWorker {
     _network = request.network;
     _walletType = request.walletType;
 
+    bool initialConnection = true;
+    bool needsToConnect = false;
+
     try {
       _electrumClient = await ElectrumProvider.connect(
         request.useSSL
             ? ElectrumSSLService.connect(
                 request.uri,
                 onConnectionStatusChange: (status) {
-                  _sendResponse(
-                    ElectrumWorkerConnectionResponse(status: status, id: request.id),
-                  );
+                  if (status == ConnectionStatus.connected && initialConnection) {
+                    needsToConnect = true;
+                  } else {
+                    _sendResponse(
+                      ElectrumWorkerConnectionResponse(status: status, id: request.id),
+                    );
+                  }
                 },
               )
             : ElectrumTCPService.connect(
                 request.uri,
                 onConnectionStatusChange: (status) {
-                  _sendResponse(
-                    ElectrumWorkerConnectionResponse(status: status, id: request.id),
-                  );
+                  if (status == ConnectionStatus.connected && initialConnection) {
+                    needsToConnect = true;
+                  } else {
+                    _sendResponse(
+                      ElectrumWorkerConnectionResponse(status: status, id: request.id),
+                    );
+                  }
                 },
               ),
       );
+
+      if (needsToConnect) {
+        final version = await _electrumClient!.request(
+          ElectrumRequestVersion(clientName: "", protocolVersion: "1.4"),
+        );
+
+        _serverCapability = ServerCapability.fromVersion(version);
+
+        _sendResponse(
+          ElectrumWorkerConnectionResponse(
+            status: ConnectionStatus.connected,
+            id: request.id,
+          ),
+        );
+
+        initialConnection = false;
+        needsToConnect = false;
+      }
     } catch (e) {
       _sendError(ElectrumWorkerConnectionError(error: e.toString()));
     }
   }
 
+  // Subscribe to new blocks
   Future<void> _handleHeadersSubscribe(ElectrumWorkerHeadersSubscribeRequest request) async {
     final req = ElectrumRequestHeaderSubscribe();
 
@@ -183,38 +215,98 @@ class ElectrumWorker {
   Future<void> _handleScriphashesSubscribe(
     ElectrumWorkerScripthashesSubscribeRequest request,
   ) async {
-    await Future.forEach(request.scripthashByAddress.entries,
-        (MapEntry<String, dynamic> entry) async {
-      final address = entry.key;
-      final scripthash = entry.value.toString();
+    if (_serverCapability!.supportsBatching) {
+      try {
+        final req = ElectrumBatchRequestScriptHashSubscribe(
+          scriptHashes: request.scripthashByAddress.values.toList() as List<String>,
+        );
 
-      final req = ElectrumRequestScriptHashSubscribe(scriptHash: scripthash);
+        final streams = await _electrumClient!.batchSubscribe(req);
 
-      final stream = await _electrumClient!.subscribe(req);
+        if (streams != null) {
+          int i = 0;
 
-      if (stream == null) {
-        _sendError(ElectrumWorkerScripthashesSubscribeError(error: 'Failed to subscribe'));
-        return;
+          await Future.wait(streams.map((stream) async {
+            stream.subscription.listen((status) {
+              final batch = req.onResponse(status, stream.params);
+              final result = batch.result;
+
+              final scriptHash = batch.paramForRequest!.first as String;
+              final address = request.scripthashByAddress.entries
+                  .firstWhere(
+                    (entry) => entry.value == scriptHash,
+                  )
+                  .key;
+
+              if (result != null) {
+                _sendResponse(
+                  ElectrumWorkerScripthashesSubscribeResponse(
+                    result: {address: result},
+                    id: request.id,
+                    completed: false,
+                  ),
+                );
+              }
+
+              i++;
+
+              if (i == request.scripthashByAddress.length) {
+                _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
+                  result: {address: null},
+                  id: request.id,
+                  completed: true,
+                ));
+              }
+            });
+          }));
+        } else {
+          _serverCapability!.supportsBatching = false;
+        }
+      } catch (_) {
+        _serverCapability!.supportsBatching = false;
       }
+    }
 
-      // https://electrumx.readthedocs.io/en/latest/protocol-basics.html#status
-      // The status of the script hash is the hash of the tx history, or null if the string is empty because there are no transactions
-      stream.listen((status) async {
-        if (status == null) {
+    if (_serverCapability!.supportsBatching == false) {
+      int i = 0;
+      await Future.wait(request.scripthashByAddress.entries.map((entry) async {
+        final address = entry.key;
+        final scripthash = entry.value.toString();
+
+        final req = ElectrumRequestScriptHashSubscribe(scriptHash: scripthash);
+
+        final stream = await _electrumClient!.subscribe(req);
+
+        if (stream == null) {
+          _sendError(ElectrumWorkerScripthashesSubscribeError(error: 'Failed to subscribe'));
           return;
         }
 
-        printV("status: $status");
+        // https://electrumx.readthedocs.io/en/latest/protocol-basics.html#status
+        // The status of the script hash is the hash of the tx history, or null if the string is empty because there are no transactions
+        stream.listen((status) async {
+          if (status != null) {
+            _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
+              result: {address: req.onResponse(status)},
+              id: request.id,
+              completed: false,
+            ));
+          }
+          i++;
 
-        _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
-          result: {address: req.onResponse(status)},
-          id: request.id,
-        ));
-      });
-    });
+          if (i == request.scripthashByAddress.length) {
+            _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
+              result: {address: null},
+              id: request.id,
+              completed: true,
+            ));
+          }
+        });
+      }));
+    }
   }
 
-  Future<void> _handleGetInitialHistory(ElectrumWorkerGetHistoryRequest request) async {
+  Future<void> _handleGetBatchInitialHistory(ElectrumWorkerGetHistoryRequest request) async {
     var histories = <String, AddressHistoriesResponse>{};
     final scripthashes = <String>[];
     final addresses = <String>[];
@@ -227,11 +319,17 @@ class ElectrumWorker {
       }
     });
 
-    final historyBatches = await _electrumClient!.batchRequest(
-      ElectrumBatchRequestScriptHashGetHistory(
-        scriptHashes: scripthashes,
-      ),
-    );
+    late List<ElectrumBatchRequestResult<List<Map<String, dynamic>>>> historyBatches;
+    try {
+      historyBatches = await _electrumClient!.batchRequest(
+        ElectrumBatchRequestScriptHashGetHistory(
+          scriptHashes: scripthashes,
+        ),
+      );
+    } catch (_) {
+      _serverCapability!.supportsBatching = false;
+      return _handleGetInitialHistory(request);
+    }
 
     final transactionIdsForHeights = <String, int>{};
 
@@ -345,13 +443,8 @@ class ElectrumWorker {
     );
   }
 
-  Future<void> _handleGetHistory(ElectrumWorkerGetHistoryRequest request) async {
-    if (request.storedTxs.isEmpty) {
-      // _handleGetInitialHistory only gets enough data to update the UI initially,
-      // then _handleGetHistory will be used to validate and update the dates, confirmations, and ins
-      return await _handleGetInitialHistory(request);
-    }
-
+  Future<void> _handleGetInitialHistory(ElectrumWorkerGetHistoryRequest request) async {
+    var histories = <String, AddressHistoriesResponse>{};
     final scripthashes = <String>[];
     final addresses = <String>[];
     request.addresses.forEach((addr) {
@@ -363,16 +456,144 @@ class ElectrumWorker {
       }
     });
 
-    final historyBatches = await _electrumClient!.batchRequest(
-      ElectrumBatchRequestScriptHashGetHistory(
-        scriptHashes: scripthashes,
-      ),
-    );
+    await Future.wait(scripthashes.map((scripthash) async {
+      final history = await _electrumClient!.request(
+        ElectrumRequestScriptHashGetHistory(scriptHash: scripthash),
+      );
+
+      if (history.isEmpty) {
+        return;
+      }
+
+      final transactionIdsForHeights = <String, int>{};
+
+      history.forEach((tx) {
+        transactionIdsForHeights[tx['tx_hash'] as String] = tx['height'] as int;
+      });
+
+      if (transactionIdsForHeights.isNotEmpty) {
+        await Future.wait(transactionIdsForHeights.keys.toList().map((hash) async {
+          final transactionVerbose = await _electrumClient!.request(
+            ElectrumRequestGetTransactionVerbose(transactionHash: hash),
+          );
+
+          late String transactionHex;
+
+          if (transactionVerbose.isEmpty) {
+            transactionHex = await _electrumClient!.request(
+              ElectrumRequestGetTransactionHex(
+                transactionHash: hash,
+              ),
+            );
+          } else {
+            transactionHex = transactionVerbose['hex'] as String;
+          }
+
+          late ElectrumTransactionBundle txBundle;
+
+          // this is the initial tx history update, so ins will be filled later one by one,
+          // and time and confirmations will be updated if needed again
+          if (transactionVerbose.isNotEmpty) {
+            txBundle = ElectrumTransactionBundle(
+              BtcTransaction.fromRaw(transactionHex),
+              ins: [],
+              time: transactionVerbose['time'] as int?,
+              confirmations: (transactionVerbose['confirmations'] as int?) ?? 1,
+              isDateValidated: (transactionVerbose['time'] as int?) != null,
+            );
+          } else {
+            txBundle = ElectrumTransactionBundle(
+              BtcTransaction.fromRaw(transactionHex),
+              ins: [],
+              confirmations: 1,
+            );
+          }
+
+          final txInfo = ElectrumTransactionInfo.fromElectrumBundle(
+            txBundle,
+            request.walletType,
+            request.network,
+            addresses: addresses.toSet(),
+            height: transactionIdsForHeights[hash],
+          );
+
+          request.addresses.forEach(
+            (addr) {
+              final usedAddress = (txInfo.outputAddresses?.contains(addr.address) ?? false) ||
+                  (txInfo.inputAddresses?.contains(addr.address) ?? false);
+
+              if (usedAddress == true) {
+                addr.setAsUsed();
+                addr.txCount++;
+
+                final addressHistories = histories[addr.address];
+                if (addressHistories != null) {
+                  addressHistories.txs.add(txInfo);
+                } else {
+                  histories[addr.address] = AddressHistoriesResponse(
+                    addressRecord: addr,
+                    txs: [txInfo],
+                    walletType: request.walletType,
+                  );
+
+                  return _sendResponse(
+                    ElectrumWorkerGetHistoryResponse(
+                      result: [
+                        AddressHistoriesResponse(
+                          addressRecord: addr,
+                          txs: [txInfo],
+                          walletType: request.walletType,
+                        )
+                      ],
+                      id: request.id,
+                      completed: false,
+                    ),
+                  );
+                }
+              }
+            },
+          );
+        }));
+      }
+
+      return _sendResponse(
+        ElectrumWorkerGetHistoryResponse(
+          result: [],
+          id: request.id,
+          completed: true,
+        ),
+      );
+    }));
+  }
+
+  Future<void> _handleGetBatchHistory(ElectrumWorkerGetHistoryRequest request) async {
+    final scripthashes = <String>[];
+    final addresses = <String>[];
+    request.addresses.forEach((addr) {
+      addr.txCount = 0;
+
+      if (addr.scriptHash.isNotEmpty) {
+        scripthashes.add(addr.scriptHash);
+        addresses.add(addr.address);
+      }
+    });
+
+    late List<ElectrumBatchRequestResult<List<Map<String, dynamic>>>> historyBatches;
+    try {
+      historyBatches = await _electrumClient!.batchRequest(
+        ElectrumBatchRequestScriptHashGetHistory(
+          scriptHashes: scripthashes,
+        ),
+      );
+    } catch (_) {
+      _serverCapability!.supportsBatching = false;
+      return _handleGetHistory(request);
+    }
 
     final transactionsByIds = <String, TxToFetch>{};
 
-    for (final result in historyBatches) {
-      final history = result.result;
+    for (final batch in historyBatches) {
+      final history = batch.result;
       if (history.isEmpty) {
         continue;
       }
@@ -521,6 +742,196 @@ class ElectrumWorker {
     );
   }
 
+  Future<void> _handleGetHistory(ElectrumWorkerGetHistoryRequest request) async {
+    if (request.storedTxs.isEmpty) {
+      // _handleGetInitialHistory only gets enough data to update the UI initially,
+      // then _handleGetHistory will be used to validate and update the dates, confirmations, and ins
+      if (_serverCapability!.supportsBatching) {
+        return await _handleGetBatchInitialHistory(request);
+      } else {
+        return await _handleGetInitialHistory(request);
+      }
+    }
+
+    if (_serverCapability!.supportsBatching) {
+      return await _handleGetBatchHistory(request);
+    }
+
+    final scripthashes = <String>[];
+    final addresses = <String>[];
+    request.addresses.forEach((addr) {
+      addr.txCount = 0;
+
+      if (addr.scriptHash.isNotEmpty) {
+        scripthashes.add(addr.scriptHash);
+        addresses.add(addr.address);
+      }
+    });
+
+    await Future.wait(scripthashes.map((scripthash) async {
+      final history = await _electrumClient!.request(
+        ElectrumRequestScriptHashGetHistory(scriptHash: scripthash),
+      );
+
+      final transactionsByIds = <String, TxToFetch>{};
+
+      if (history.isEmpty) {
+        return;
+      }
+
+      for (final transaction in history) {
+        final txid = transaction['tx_hash'] as String;
+        final height = transaction['height'] as int;
+        ElectrumTransactionInfo? tx;
+
+        try {
+          // Exception thrown if non existing, handled on null condition below trycatch
+          tx = request.storedTxs.firstWhere((tx) => tx.id == txid);
+
+          if (height > 0) {
+            tx.height = height;
+
+            // the tx's block itself is the first confirmation so add 1
+            tx.confirmations = request.chainTip - height + 1;
+            tx.isPending = tx.confirmations == 0;
+          }
+        } catch (_) {}
+
+        // date is validated when the API responds with the same date at least twice
+        // since sometimes the mempool api returns the wrong date at first
+        final canValidateDate = request.mempoolAPIEnabled || _serverCapability!.supportsTxVerbose;
+        if (tx == null ||
+            tx.original == null ||
+            (tx.isDateValidated != true && canValidateDate) ||
+            tx.time == null) {
+          transactionsByIds[txid] = TxToFetch(height: height, tx: tx);
+        }
+      }
+
+      if (transactionsByIds.isNotEmpty) {
+        await Future.wait(transactionsByIds.keys.toList().map((hash) async {
+          late String txHex;
+          Map<String, dynamic>? txVerbose;
+
+          if (_serverCapability!.supportsTxVerbose) {
+            txVerbose = await _electrumClient!.request(
+              ElectrumRequestGetTransactionVerbose(
+                transactionHash: hash,
+              ),
+            );
+          }
+
+          if (txVerbose?.isEmpty ?? true) {
+            txHex = await _electrumClient!.request(
+              ElectrumRequestGetTransactionHex(transactionHash: hash),
+            );
+          } else {
+            txHex = txVerbose!['hex'] as String;
+          }
+
+          await Future.forEach(transactionsByIds.entries,
+              (MapEntry<String, TxToFetch> entry) async {
+            final hash = entry.key;
+            final txToFetch = entry.value;
+            final storedTx = txToFetch.tx;
+            final original = storedTx?.original ?? BtcTransaction.fromRaw(txHex);
+
+            DateResult? date;
+
+            if (txVerbose?.isNotEmpty ?? false) {
+              date = DateResult(
+                time: txVerbose!['time'] as int?,
+                confirmations: txVerbose['confirmations'] as int?,
+                isDateValidated: true,
+              );
+            } else if (request.mempoolAPIEnabled) {
+              try {
+                date = await getTxDate(
+                  hash,
+                  _network!,
+                  request.chainTip,
+                  confirmations: storedTx?.confirmations,
+                  date: storedTx?.date,
+                );
+              } catch (_) {}
+            }
+
+            final inputTransactionHexes = <String, String>{};
+
+            await Future.wait(original.inputs.map((e) => e.txId).toList().map((inHash) async {
+              final hex = await _electrumClient!.request(
+                ElectrumRequestGetTransactionHex(transactionHash: inHash),
+              );
+
+              inputTransactionHexes[inHash] = hex;
+            }));
+
+            final ins = <BtcTransaction>[];
+
+            for (final vin in original.inputs) {
+              final inputTransactionHex = inputTransactionHexes[vin.txId]!;
+              ins.add(BtcTransaction.fromRaw(inputTransactionHex));
+            }
+
+            final txInfo = ElectrumTransactionInfo.fromElectrumBundle(
+              ElectrumTransactionBundle(
+                original,
+                ins: ins,
+                time: date?.time,
+                confirmations: date?.confirmations ?? 0,
+                isDateValidated: date?.isDateValidated,
+              ),
+              request.walletType,
+              request.network,
+              addresses: addresses.toSet(),
+              height: transactionsByIds[hash]?.height,
+            );
+
+            var histories = <String, AddressHistoriesResponse>{};
+            request.addresses.forEach(
+              (addr) {
+                final usedAddress = (txInfo.outputAddresses?.contains(addr.address) ?? false) ||
+                    (txInfo.inputAddresses?.contains(addr.address) ?? false);
+
+                if (usedAddress == true) {
+                  addr.setAsUsed();
+                  addr.txCount++;
+
+                  final addressHistories = histories[addr.address];
+                  if (addressHistories != null) {
+                    addressHistories.txs.add(txInfo);
+                  } else {
+                    histories[addr.address] = AddressHistoriesResponse(
+                      addressRecord: addr,
+                      txs: [txInfo],
+                      walletType: request.walletType,
+                    );
+                  }
+                }
+              },
+            );
+
+            _sendResponse(
+              ElectrumWorkerGetHistoryResponse(
+                result: histories.values.toList(),
+                id: request.id,
+                completed: false,
+              ),
+            );
+          });
+        }));
+      }
+
+      _sendResponse(
+        ElectrumWorkerGetHistoryResponse(
+          result: [],
+          id: request.id,
+          completed: true,
+        ),
+      );
+    }));
+  }
+
   // Future<void> _handleListUnspents(ElectrumWorkerGetBalanceRequest request) async {
   //   final balanceFutures = <Future<Map<String, dynamic>>>[];
 
@@ -553,17 +964,33 @@ class ElectrumWorker {
   // }
 
   Future<void> _handleGetBalance(ElectrumWorkerGetBalanceRequest request) async {
-    final balances = await _electrumClient!.batchRequest(
-      ElectrumBatchRequestGetScriptHashBalance(
-        scriptHashes: request.scripthashes.where((s) => s.isNotEmpty).toList(),
-      ),
-    );
+    final scripthashes = request.scripthashes.where((s) => s.isNotEmpty).toList();
+    final balanceResults = <Map<String, dynamic>>[];
+
+    if (_serverCapability!.supportsBatching) {
+      try {
+        balanceResults.addAll((await _electrumClient!.batchRequest(
+          ElectrumBatchRequestGetScriptHashBalance(scriptHashes: scripthashes),
+        ))
+            .map((e) => e.result)
+            .toList());
+      } catch (_) {
+        _serverCapability!.supportsBatching = false;
+      }
+    } else {
+      await Future.wait(scripthashes.map((scripthash) async {
+        final history = await _electrumClient!.request(
+          ElectrumRequestGetScriptHashBalance(scriptHash: scripthash),
+        );
+
+        balanceResults.add(history);
+      }));
+    }
 
     var totalConfirmed = 0;
     var totalUnconfirmed = 0;
 
-    for (final result in balances) {
-      final balance = result.result;
+    for (final balance in balanceResults) {
       final confirmed = balance['confirmed'] as int? ?? 0;
       final unconfirmed = balance['unconfirmed'] as int? ?? 0;
       totalConfirmed += confirmed;
@@ -636,30 +1063,65 @@ class ElectrumWorker {
     required int currentChainTip,
   }) async {
     final hashes = hashesForHeights.keys.toList();
-
-    final transactionVerboseBatches = await _electrumClient!.batchRequest(
-      ElectrumBatchRequestGetTransactionVerbose(transactionHashes: hashes),
-    );
+    final txVerboseResults = <Map<String, dynamic>>[];
     List<String> transactionHexes = [];
     List<String> emptyVerboseTxs = [];
 
-    transactionVerboseBatches.forEach((batch) {
-      final txVerbose = batch.result;
-      if (txVerbose.isEmpty) {
-        emptyVerboseTxs.add(
-          (batch.request.paramsById[batch.id] as List<dynamic>).first as String,
+    if (_serverCapability!.supportsBatching) {
+      try {
+        final transactionVerboseBatches = await _electrumClient!.batchRequest(
+          ElectrumBatchRequestGetTransactionVerbose(transactionHashes: hashes),
         );
-      } else {
-        transactionHexes.add(txVerbose['hex'] as String);
+
+        txVerboseResults.addAll(transactionVerboseBatches.map((e) => e.result).toList());
+
+        transactionVerboseBatches.forEach((batch) {
+          final txVerbose = batch.result;
+          if (txVerbose.isEmpty) {
+            emptyVerboseTxs.add(batch.paramForRequest!.first as String);
+          } else {
+            transactionHexes.add(txVerbose['hex'] as String);
+          }
+        });
+      } catch (_) {
+        _serverCapability!.supportsBatching = false;
       }
-    });
+    } else {
+      await Future.wait(hashes.map((hash) async {
+        final history = await _electrumClient!.request(
+          ElectrumRequestGetTransactionVerbose(transactionHash: hash),
+        );
+
+        txVerboseResults.add(history);
+
+        if (history.isEmpty) {
+          emptyVerboseTxs.add(hash);
+        } else {
+          transactionHexes.add(history['hex'] as String);
+        }
+      }));
+    }
 
     if (emptyVerboseTxs.isNotEmpty) {
-      transactionHexes.addAll((await _electrumClient!.batchRequest(
-        ElectrumBatchRequestGetTransactionHex(transactionHashes: hashes),
-      ))
-          .map((result) => result.result)
-          .toList());
+      if (_serverCapability!.supportsBatching) {
+        try {
+          transactionHexes.addAll((await _electrumClient!.batchRequest(
+            ElectrumBatchRequestGetTransactionHex(transactionHashes: hashes),
+          ))
+              .map((e) => e.result)
+              .toList());
+        } catch (_) {
+          _serverCapability!.supportsBatching = false;
+        }
+      } else {
+        await Future.wait(hashes.map((hash) async {
+          final history = await _electrumClient!.request(
+            ElectrumRequestGetTransactionHex(transactionHash: hash),
+          );
+
+          transactionHexes.add(history);
+        }));
+      }
     }
 
     final dates = <String, DateTime>{};
@@ -681,28 +1143,7 @@ class ElectrumWorker {
       insHashes.addAll(original.inputs.map((e) => e.txId));
     }
 
-    final inputTransactionHexBatches = <ElectrumBatchRequestResult<String>>[];
-
-    try {
-      inputTransactionHexBatches.addAll(
-        await _electrumClient!.batchRequest(
-          ElectrumBatchRequestGetTransactionHex(
-            transactionHashes: insHashes,
-          ),
-          Duration(seconds: 10),
-        ),
-      );
-    } catch (_) {}
-
-    await Future.forEach(insHashes, (String hash) async {
-      inputTransactionHexBatches.addAll(
-        await _electrumClient!.batchRequest(
-          ElectrumBatchRequestGetTransactionHex(
-            transactionHashes: [hash],
-          ),
-        ),
-      );
-    });
+    final inputTransactionHexById = await _getBatchTransactionHex(hashes: insHashes);
 
     for (final txHex in transactionHexes) {
       final original = BtcTransaction.fromRaw(txHex);
@@ -710,13 +1151,7 @@ class ElectrumWorker {
 
       for (final input in original.inputs) {
         try {
-          final inputTransactionHex = inputTransactionHexBatches
-              .firstWhere(
-                (batch) =>
-                    (batch.request.paramsById[batch.id] as List<dynamic>).first == input.txId,
-              )
-              .result;
-
+          final inputTransactionHex = inputTransactionHexById[input.txId]!;
           ins.add(BtcTransaction.fromRaw(inputTransactionHex));
         } catch (_) {}
       }
@@ -741,19 +1176,37 @@ class ElectrumWorker {
   Future<Map<String, Map<String, dynamic>>> _getBatchTransactionVerbose({
     required List<String> hashes,
   }) async {
-    final transactionHexBatches = await _electrumClient!.batchRequest(
-      ElectrumBatchRequestGetTransactionVerbose(transactionHashes: hashes),
-    );
+    final txVerboseById = <String, Map<String, dynamic>>{};
 
-    final transactionsVerbose = <String, Map<String, dynamic>>{};
+    if (_serverCapability!.supportsBatching) {
+      try {
+        final inputTransactionHexBatches = await _electrumClient!.batchRequest(
+          ElectrumBatchRequestGetTransactionVerbose(
+            transactionHashes: hashes,
+          ),
+        );
 
-    transactionHexBatches.forEach((result) {
-      final hash = result.request.paramsById[result.id]!.first as String;
-      final hex = result.result;
-      transactionsVerbose[hash] = hex;
-    });
+        inputTransactionHexBatches.forEach((batch) {
+          final hash = batch.paramForRequest!.first as String;
+          final verbose = batch.result;
+          txVerboseById[hash] = verbose;
+        });
+      } catch (_) {
+        _serverCapability!.supportsBatching = false;
+      }
+    } else {
+      await Future.wait(hashes.map((hash) async {
+        final verbose = await _electrumClient!.request(
+          ElectrumRequestGetTransactionVerbose(
+            transactionHash: hash,
+          ),
+        );
 
-    return transactionsVerbose;
+        txVerboseById[hash] = verbose;
+      }));
+    }
+
+    return txVerboseById;
   }
 
   Future<ElectrumTransactionBundle> _getTransactionExpanded({
@@ -820,19 +1273,37 @@ class ElectrumWorker {
   Future<Map<String, String>> _getBatchTransactionHex({
     required List<String> hashes,
   }) async {
-    final transactionHexBatches = await _electrumClient!.batchRequest(
-      ElectrumBatchRequestGetTransactionHex(transactionHashes: hashes),
-    );
+    final inputTransactionHexById = <String, String>{};
 
-    final transactionHexes = <String, String>{};
+    if (_serverCapability!.supportsBatching) {
+      try {
+        final inputTransactionHexBatches = await _electrumClient!.batchRequest(
+          ElectrumBatchRequestGetTransactionHex(
+            transactionHashes: hashes,
+          ),
+        );
 
-    transactionHexBatches.forEach((result) {
-      final hash = result.request.paramsById[result.id]!.first as String;
-      final hex = result.result;
-      transactionHexes[hash] = hex;
-    });
+        inputTransactionHexBatches.forEach((batch) {
+          final hash = batch.paramForRequest!.first as String;
+          final hex = batch.result;
+          inputTransactionHexById[hash] = hex;
+        });
+      } catch (_) {
+        _serverCapability!.supportsBatching = false;
+      }
+    } else {
+      await Future.wait(hashes.map((hash) async {
+        final hex = await _electrumClient!.request(
+          ElectrumRequestGetTransactionHex(
+            transactionHash: hash,
+          ),
+        );
 
-    return transactionHexes;
+        inputTransactionHexById[hash] = hex;
+      }));
+    }
+
+    return inputTransactionHexById;
   }
 
   Future<void> _handleGetFeeRates(ElectrumWorkerGetFeesRequest request) async {

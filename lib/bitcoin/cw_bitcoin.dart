@@ -89,8 +89,13 @@ class CWBitcoin extends Bitcoin {
   List<TransactionPriority> getLitecoinTransactionPriorities() => LitecoinTransactionPriority.all;
 
   @override
-  TransactionPriority deserializeBitcoinTransactionPriority(int raw) =>
-      ElectrumTransactionPriority.deserialize(raw: raw);
+  TransactionPriority deserializeBitcoinTransactionPriority(int raw) {
+    try {
+      return ElectrumTransactionPriority.deserialize(raw: raw);
+    } catch (_) {
+      return BitcoinAPITransactionPriority.deserialize(raw: raw);
+    }
+  }
 
   @override
   TransactionPriority deserializeLitecoinTransactionPriority(int raw) =>
@@ -389,6 +394,7 @@ class CWBitcoin extends Bitcoin {
       if (passphrase == null || passphrase.isEmpty) {
         try {
           // TODO: language pick
+//
           electrumSeedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
         } catch (e) {
           printV("electrum_v1 seed error: $e");
@@ -426,6 +432,25 @@ class CWBitcoin extends Bitcoin {
             scriptType: addressType.value,
           ),
         );
+      }
+    }
+
+    if (electrumSeedBytes == null && bip39SeedBytes == null) {
+      try {
+        final oldElectrumSeedBytes =
+            await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+
+        for (final addressType in BITCOIN_ADDRESS_TYPES) {
+          list.add(
+            DerivationInfo(
+              derivationType: DerivationType.electrum,
+              derivationPath: "m/0'",
+              scriptType: addressType.value,
+            ),
+          );
+        }
+      } catch (e) {
+        printV("old electrum seed error: $e");
       }
     }
 
@@ -767,6 +792,7 @@ class CWBitcoin extends Bitcoin {
       }
     }
 
+    //
     // TODO: this could be improved:
     return inputAddressesContainMweb || outputAddressesContainMweb;
   }

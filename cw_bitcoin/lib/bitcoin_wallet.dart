@@ -29,6 +29,7 @@ import 'package:hive/hive.dart';
 import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
+import 'package:collection/collection.dart';
 
 part 'bitcoin_wallet.g.dart';
 
@@ -47,20 +48,16 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required super.walletInfo,
     required super.unspentCoinsInfo,
     required super.encryptionFileUtils,
+    required super.hdWallets,
     super.mnemonic,
     super.xpub,
-    String? addressPageType,
     BasedUtxoNetwork? networkParam,
-    List<BitcoinAddressRecord>? initialAddresses,
     super.initialBalance,
-    Map<String, int>? initialRegularAddressIndex,
-    Map<String, int>? initialChangeAddressIndex,
     super.passphrase,
-    List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
-    int initialSilentAddressIndex = 0,
     super.alwaysScan,
     super.initialUnspentCoins,
     super.didInitialSync,
+    Map<String, dynamic>? walletAddressesSnapshot,
   }) : super(
           network: networkParam == null
               ? BitcoinNetwork.mainnet
@@ -70,14 +67,22 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           currency:
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
         ) {
-    walletAddresses = BitcoinWalletAddresses(
-      walletInfo,
-      initialAddresses: initialAddresses,
-      initialSilentAddresses: initialSilentAddresses,
-      network: networkParam ?? network,
-      isHardwareWallet: walletInfo.isHardwareWallet,
-      hdWallets: hdWallets,
-    );
+    if (walletAddressesSnapshot != null) {
+      walletAddresses = BitcoinWalletAddressesBase.fromJson(
+        walletAddressesSnapshot,
+        walletInfo,
+        network: network,
+        isHardwareWallet: isHardwareWallet,
+        hdWallets: hdWallets,
+      );
+    } else {
+      this.walletAddresses = BitcoinWalletAddresses(
+        walletInfo,
+        network: networkParam ?? network,
+        isHardwareWallet: isHardwareWallet,
+        hdWallets: hdWallets,
+      );
+    }
 
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
@@ -91,7 +96,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required EncryptionFileUtils encryptionFileUtils,
     String? passphrase,
-    String? addressPageType,
     BasedUtxoNetwork? network,
     List<BitcoinAddressRecord>? initialAddresses,
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
@@ -100,21 +104,23 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialChangeAddressIndex,
     int initialSilentAddressIndex = 0,
   }) async {
+    final hdWallets = await ElectrumWalletBase.getAccountHDWallets(
+      walletInfo: walletInfo,
+      network: network ?? BitcoinNetwork.mainnet,
+      mnemonic: mnemonic,
+      passphrase: passphrase,
+    );
+
     return BitcoinWallet(
       mnemonic: mnemonic,
       passphrase: passphrase ?? "",
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: initialAddresses,
-      initialSilentAddresses: initialSilentAddresses,
-      initialSilentAddressIndex: initialSilentAddressIndex,
       initialBalance: initialBalance,
       encryptionFileUtils: encryptionFileUtils,
-      initialRegularAddressIndex: initialRegularAddressIndex,
-      initialChangeAddressIndex: initialChangeAddressIndex,
-      addressPageType: addressPageType,
       networkParam: network,
+      hdWallets: hdWallets,
     );
   }
 
@@ -169,6 +175,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
     walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
 
+    final hdWallets = await ElectrumWalletBase.getAccountHDWallets(
+      walletInfo: walletInfo,
+      network: network,
+      mnemonic: keysData.mnemonic,
+      passphrase: keysData.passphrase,
+      xpub: keysData.xPub,
+    );
+
     return BitcoinWallet(
       mnemonic: keysData.mnemonic,
       xpub: keysData.xPub,
@@ -176,18 +190,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       passphrase: keysData.passphrase,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: snp?.addresses,
-      initialSilentAddresses: snp?.silentAddresses,
-      initialSilentAddressIndex: snp?.silentAddressIndex ?? 0,
       initialBalance: snp?.balance,
       encryptionFileUtils: encryptionFileUtils,
-      initialRegularAddressIndex: snp?.regularAddressIndex,
-      initialChangeAddressIndex: snp?.changeAddressIndex,
-      addressPageType: snp?.addressPageType,
       networkParam: network,
       alwaysScan: alwaysScan,
       initialUnspentCoins: snp?.unspentCoins,
       didInitialSync: snp?.didInitialSync,
+      walletAddressesSnapshot: snp?.walletAddressesSnapshot,
+      hdWallets: hdWallets,
     );
   }
 
@@ -463,6 +473,31 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         coin.bitcoinAddressRecord.balance += coinInfo.value;
     } else {
       addCoinInfo(coin);
+    }
+  }
+
+  @override
+  @action
+  Future<void> addCoinInfo(BitcoinUnspent coin) async {
+    // Check if the coin is already in the unspentCoinsInfo for the wallet
+    final existingCoinInfo = unspentCoinsInfo.values
+        .firstWhereOrNull((element) => element.walletId == walletInfo.id && element == coin);
+
+    if (existingCoinInfo == null) {
+      final newInfo = UnspentCoinsInfo(
+        walletId: id,
+        hash: coin.hash,
+        isFrozen: coin.isFrozen,
+        isSending: coin.isSending,
+        noteRaw: coin.note,
+        address: coin.bitcoinAddressRecord.address,
+        value: coin.value,
+        vout: coin.vout,
+        isChange: coin.isChange,
+        isSilentPayment: coin.address is BitcoinReceivedSPAddressRecord,
+      );
+
+      await unspentCoinsInfo.add(newInfo);
     }
   }
 
@@ -778,7 +813,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       );
 
   @override
-  TxCreateUtxoDetails createUTXOS({
+  BitcoinTxCreateUtxoDetails createUTXOS({
     required bool sendAll,
     bool paysToSilentPayment = false,
     int credentialsAmount = 0,
@@ -893,7 +928,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       throw BitcoinTransactionNoInputsException();
     }
 
-    return TxCreateUtxoDetails(
+    return BitcoinTxCreateUtxoDetails(
       availableInputs: availableInputs,
       unconfirmedCoins: unconfirmedCoins,
       utxos: utxos,
@@ -907,7 +942,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<EstimatedTxResult> estimateSendAllTx(
+  Future<BitcoinEstimatedTx> estimateSendAllTx(
     List<BitcoinOutput> outputs,
     int feeRate, {
     String? memo,
@@ -944,7 +979,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       outputs[0] = BitcoinOutput(address: outputs.last.address, value: BigInt.from(amount));
     }
 
-    return EstimatedTxResult(
+    return BitcoinEstimatedTx(
       utxos: utxoDetails.utxos,
       inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
       publicKeys: utxoDetails.publicKeys,
@@ -959,7 +994,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<EstimatedTxResult> estimateTxForAmount(
+  Future<BitcoinEstimatedTx> estimateTxForAmount(
     int credentialsAmount,
     List<BitcoinOutput> outputs,
     int feeRate, {
@@ -1011,10 +1046,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       throw BitcoinTransactionWrongBalanceException();
     }
 
-    final changeAddress = await walletAddresses.getChangeAddress(
-      inputs: utxoDetails.availableInputs,
-      outputs: updatedOutputs,
-    );
+    final changeAddress = await walletAddresses.getChangeAddress();
     final address = RegexUtils.addressTypeFromStr(changeAddress.address, network);
     updatedOutputs.add(BitcoinOutput(
       address: address,
@@ -1083,7 +1115,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         }
       }
 
-      return EstimatedTxResult(
+      return BitcoinEstimatedTx(
         utxos: utxoDetails.utxos,
         inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
         publicKeys: utxoDetails.publicKeys,
@@ -1110,7 +1142,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         isChange: true,
       );
 
-      return EstimatedTxResult(
+      return BitcoinEstimatedTx(
         utxos: utxoDetails.utxos,
         inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
         publicKeys: utxoDetails.publicKeys,
@@ -1180,7 +1212,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           ? transactionCredentials.feeRate!
           : feeRate(transactionCredentials.priority!);
 
-      EstimatedTxResult estimatedTx;
+      BitcoinEstimatedTx estimatedTx;
       final updatedOutputs = outputs
           .map((e) => BitcoinOutput(
                 address: e.address,
@@ -1320,4 +1352,37 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       throw e;
     }
   }
+}
+
+class BitcoinEstimatedTx extends ElectrumEstimatedTx {
+  BitcoinEstimatedTx({
+    required super.utxos,
+    required super.inputPrivKeyInfos,
+    required super.publicKeys,
+    required super.fee,
+    required super.amount,
+    required super.hasChange,
+    required super.isSendAll,
+    required super.spendsUnconfirmedTX,
+    super.memo,
+    this.spendsSilentPayment = false,
+  });
+
+  final bool spendsSilentPayment;
+}
+
+class BitcoinTxCreateUtxoDetails extends ElectrumTxCreateUtxoDetails {
+  final bool spendsSilentPayment;
+
+  BitcoinTxCreateUtxoDetails({
+    required super.availableInputs,
+    required super.unconfirmedCoins,
+    required super.utxos,
+    required super.vinOutpoints,
+    required super.inputPrivKeyInfos,
+    required super.publicKeys,
+    required super.allInputsAmount,
+    required super.spendsUnconfirmedTX,
+    this.spendsSilentPayment = false,
+  });
 }

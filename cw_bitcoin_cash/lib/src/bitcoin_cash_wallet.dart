@@ -1,10 +1,8 @@
 import 'package:bitbox/bitbox.dart' as bitbox;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -28,25 +26,33 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required super.walletInfo,
     required super.unspentCoinsInfo,
     required super.encryptionFileUtils,
+    required super.hdWallets,
     super.passphrase,
     BitcoinAddressType? addressPageType,
-    List<BitcoinAddressRecord>? initialAddresses,
     super.initialBalance,
-    Map<String, int>? initialRegularAddressIndex,
-    Map<String, int>? initialChangeAddressIndex,
     super.didInitialSync,
+    Map<String, dynamic>? walletAddressesSnapshot,
   }) : super(
           network: BitcoinCashNetwork.mainnet,
           currency: CryptoCurrency.bch,
         ) {
-    walletAddresses = BitcoinCashWalletAddresses(
-      walletInfo,
-      initialAddresses: initialAddresses,
-      hdWallets: hdWallets,
-      network: network,
-      initialAddressPageType: addressPageType,
-      isHardwareWallet: walletInfo.isHardwareWallet,
-    );
+    if (walletAddressesSnapshot != null) {
+      walletAddresses = BitcoinCashWalletAddressesBase.fromJson(
+        walletAddressesSnapshot,
+        walletInfo,
+        network: network,
+        isHardwareWallet: isHardwareWallet,
+        hdWallets: hdWallets,
+      );
+    } else {
+      this.walletAddresses = BitcoinCashWalletAddresses(
+        walletInfo,
+        network: network,
+        isHardwareWallet: isHardwareWallet,
+        hdWallets: hdWallets,
+      );
+    }
+
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
@@ -78,23 +84,25 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required EncryptionFileUtils encryptionFileUtils,
     String? passphrase,
     String? addressPageType,
-    List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
-    Map<String, int>? initialRegularAddressIndex,
-    Map<String, int>? initialChangeAddressIndex,
   }) async {
+    final hdWallets = await ElectrumWalletBase.getAccountHDWallets(
+      walletInfo: walletInfo,
+      network: BitcoinCashNetwork.mainnet,
+      mnemonic: mnemonic,
+      passphrase: passphrase,
+    );
+
     return BitcoinCashWallet(
       mnemonic: mnemonic,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: initialAddresses,
       initialBalance: initialBalance,
       encryptionFileUtils: encryptionFileUtils,
-      initialRegularAddressIndex: initialRegularAddressIndex,
-      initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,
       passphrase: passphrase,
+      hdWallets: hdWallets,
     );
   }
 
@@ -135,42 +143,25 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       );
     }
 
+    final hdWallets = await ElectrumWalletBase.getAccountHDWallets(
+      walletInfo: walletInfo,
+      network: BitcoinCashNetwork.mainnet,
+      mnemonic: keysData.mnemonic,
+      passphrase: keysData.passphrase,
+      xpub: keysData.xPub,
+    );
+
     return BitcoinCashWallet(
       mnemonic: keysData.mnemonic!,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: snp?.addresses.map((addr) {
-        try {
-          BitcoinCashAddress(addr.address);
-          return BitcoinAddressRecord(
-            addr.address,
-            index: addr.index,
-            isChange: addr.isChange,
-            type: P2pkhAddressType.p2pkh,
-            network: BitcoinCashNetwork.mainnet,
-            derivationInfo: BitcoinAddressUtils.getDerivationFromType(P2pkhAddressType.p2pkh),
-            cwDerivationType: CWBitcoinDerivationType.bip39,
-          );
-        } catch (_) {
-          return BitcoinAddressRecord(
-            AddressUtils.getCashAddrFormat(addr.address),
-            index: addr.index,
-            isChange: addr.isChange,
-            type: P2pkhAddressType.p2pkh,
-            network: BitcoinCashNetwork.mainnet,
-            derivationInfo: BitcoinAddressUtils.getDerivationFromType(P2pkhAddressType.p2pkh),
-            cwDerivationType: CWBitcoinDerivationType.bip39,
-          );
-        }
-      }).toList(),
       initialBalance: snp?.balance,
       encryptionFileUtils: encryptionFileUtils,
-      initialRegularAddressIndex: snp?.regularAddressIndex,
-      initialChangeAddressIndex: snp?.changeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,
       passphrase: keysData.passphrase,
       didInitialSync: snp?.didInitialSync,
+      hdWallets: hdWallets,
     );
   }
 
