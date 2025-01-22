@@ -73,6 +73,7 @@ class PreferencesKey {
   static const defaultNanoRep = 'default_nano_representative';
   static const defaultBananoRep = 'default_banano_representative';
   static const lookupsTwitter = 'looks_up_twitter';
+  static const lookupsZanoAlias = 'looks_up_zano_alias';
   static const lookupsMastodon = 'looks_up_mastodon';
   static const lookupsYatService = 'looks_up_yat';
   static const lookupsUnstoppableDomains = 'looks_up_unstoppable_domain';
