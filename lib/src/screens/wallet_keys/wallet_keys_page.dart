@@ -141,7 +141,11 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                   padding: const EdgeInsets.only(left: 22, right: 22),
                   child: _buildKeysTab(context),
                 ),
-                if (showLegacySeedTab) _buildLegacySeedTab(context),
+                if (showLegacySeedTab)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 22, right: 22),
+                    child: _buildLegacySeedTab(context),
+                  ),
               ],
             ),
           ),
@@ -188,6 +192,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
             separatorBuilder: (context, index) => const SizedBox(height: 20),
           ),
         ),
+        SizedBox(height: 20),
       ],
     );
   }
