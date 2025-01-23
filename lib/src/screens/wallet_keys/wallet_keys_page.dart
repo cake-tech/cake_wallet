@@ -69,6 +69,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
   late TabController _tabController;
   late bool showKeyTab;
   late bool showLegacySeedTab;
+  late bool isLegacySeedOnly;
 
   @override
   void initState() {
@@ -76,6 +77,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
 
     showKeyTab = widget.walletKeysViewModel.items.isNotEmpty;
     showLegacySeedTab = widget.walletKeysViewModel.legacySeedSplit.isNotEmpty;
+    isLegacySeedOnly = widget.walletKeysViewModel.isLegacySeedOnly;
 
     final totalTabs = 1 + (showKeyTab ? 1 : 0) + (showLegacySeedTab ? 1 : 0);
 
@@ -134,7 +136,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 22, right: 22,),
-                  child: _buildSeedTab(context),
+                  child: _buildSeedTab(context, false),
                 ),
                 if (showKeyTab)
                 Padding(
@@ -144,7 +146,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                 if (showLegacySeedTab)
                   Padding(
                     padding: const EdgeInsets.only(left: 22, right: 22),
-                    child: _buildLegacySeedTab(context),
+                    child: _buildSeedTab(context, showLegacySeedTab),
                   ),
               ],
             ),
@@ -155,18 +157,24 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     );
   }
 
-  Widget _buildSeedTab(BuildContext context) {
+  Widget _buildSeedTab(BuildContext context, bool isLegacySeed) {
     return Column(
       children: [
+        if (isLegacySeedOnly || isLegacySeed) _buildHeightBox(),
+        const SizedBox(height: 20),
         Expanded(
           child: SeedPhraseGridWidget(
-            list: widget.walletKeysViewModel.seedSplit,
+            list: isLegacySeed
+                ? widget.walletKeysViewModel.legacySeedSplit
+                : widget.walletKeysViewModel.seedSplit,
           ),
         ),
         const SizedBox(height: 10),
         _buildBottomActionPanel(
           titleForClipboard: S.of(context).wallet_seed.toLowerCase(),
-          dataToCopy: widget.walletKeysViewModel.seed,
+          dataToCopy: isLegacySeed
+              ? widget.walletKeysViewModel.legacySeed
+              : widget.walletKeysViewModel.seed,
           onShowQR: () async => _showQR(context, false),
         ),
       ],
@@ -193,26 +201,6 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
           ),
         ),
         SizedBox(height: 20),
-      ],
-    );
-  }
-
-  Widget _buildLegacySeedTab(BuildContext context) {
-    return Column(
-      children: [
-        _buildHeightBox(),
-        const SizedBox(height: 20),
-        Expanded(
-          child: SeedPhraseGridWidget(
-            list: widget.walletKeysViewModel.legacySeedSplit,
-          ),
-        ),
-        const SizedBox(height: 10),
-        _buildBottomActionPanel(
-          titleForClipboard: S.of(context).wallet_seed.toLowerCase(),
-          dataToCopy: widget.walletKeysViewModel.legacySeed,
-          onShowQR: () async => _showQR(context, true),
-        ),
       ],
     );
   }

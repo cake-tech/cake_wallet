@@ -63,6 +63,11 @@ abstract class WalletKeysViewModelBase with Store {
 
   String get seed => _wallet.seed != null ? _wallet.seed! : '';
 
+  bool get isLegacySeedOnly =>
+      (_wallet.type == WalletType.monero || _wallet.type == WalletType.wownero) &&
+          _wallet.seed != null &&
+          !Polyseed.isValidSeed(_wallet.seed!);
+
   String get legacySeed {
     if ((_wallet.type == WalletType.monero || _wallet.type == WalletType.wownero) &&
         _wallet.seed != null &&
