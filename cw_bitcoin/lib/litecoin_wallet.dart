@@ -845,11 +845,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       mwebUnspentCoins.add(unspent);
     });
 
-    // copy coin control attributes to mwebCoins:
-    await updateCoins(mwebUnspentCoins);
+    // copy coin control attributes to coinsInfo:
+    mwebUnspentCoins = await updateCoinsWithInfoFromBox(mwebUnspentCoins);
     // get regular ltc unspents (this resets unspentCoins):
     await super.updateAllUnspents();
-    // add the mwebCoins:
+    // add back the mwebCoins:
     unspentCoins.addAll(mwebUnspentCoins);
   }
 
