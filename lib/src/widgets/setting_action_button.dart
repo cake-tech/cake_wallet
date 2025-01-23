@@ -41,7 +41,7 @@ class SettingActionButton extends StatelessWidget {
         : Theme.of(context).extension<CakeMenuTheme>()!.settingTitleColor;
     return Container(
       //padding: EdgeInsets.only(top: 5, left: 15, bottom: 5),
-      margin: EdgeInsets.only(top: 10, left: 20, bottom: 0),
+      margin: EdgeInsets.only(top: 10, left: 20, bottom: 0, right: 20),
       child: TextButton(
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(isLightMode ? Theme.of(context).cardColor : Colors.black12),
@@ -51,8 +51,7 @@ class SettingActionButton extends StatelessWidget {
                 //color: Colors.black12,
                   width: 100
               ),
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20),
-              ),
+              borderRadius: BorderRadius.circular(20),
             ),
           ),
         ),
