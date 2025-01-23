@@ -1523,18 +1523,13 @@ abstract class Decred {
       Box<UnspentCoinsInfo> unspentCoinSource);
 
   List<TransactionPriority> getTransactionPriorities();
-  TransactionPriority getMediumTransactionPriority();
   TransactionPriority getDecredTransactionPriorityMedium();
   TransactionPriority getDecredTransactionPrioritySlow();
   TransactionPriority deserializeDecredTransactionPriority(int raw);
 
-  int getFeeRate(Object wallet, TransactionPriority priority);
   Object createDecredTransactionCredentials(
       List<Output> outputs, TransactionPriority priority);
 
-  List<String> getAddresses(Object wallet);
-  String getAddress(Object wallet);
-  Future<void> generateNewAddress(Object wallet);
   List<AddressInfo> getAddressInfos(Object wallet);
   Future<void> updateAddress(Object wallet, String address, String label);
 
