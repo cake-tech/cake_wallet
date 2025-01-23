@@ -1,23 +1,43 @@
 import 'dart:convert';
+import 'package:mobx/mobx.dart';
 
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_decred/api/libdcrwallet.dart' as libdcrwallet;
 
-class DecredWalletAddresses extends WalletAddresses {
-  DecredWalletAddresses(WalletInfo walletInfo) : super(walletInfo);
+part 'wallet_addresses.g.dart';
 
-  String currentAddr = '';
+class DecredWalletAddresses = DecredWalletAddressesBase with _$DecredWalletAddresses;
+
+abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
+  DecredWalletAddressesBase(WalletInfo walletInfo) : super(walletInfo);
+
+  @observable
+  String selectedAddr = '';
 
   @override
+  @computed
   String get address {
-    // This will not return an address if the wallet is not synced.
-    final cAddr = libdcrwallet.currentReceiveAddress(walletInfo.name) ?? '';
-    if (cAddr != '') {
-      currentAddr = cAddr;
+    // Only request a new address from libwallet if an address wasn't already
+    // selected. Libwallet will return an empty string if the wallet isn't
+    // synced.
+    if (selectedAddr == '') {
+      // TODO: Consider simply returning whatever libwallet returns, and don't
+      // auto-select the address returned by libwallet, so that if that address
+      // becomes used, libwallet will be contacted to return a new unused
+      // address. If the first unused address returned by libwallet is assigned
+      // to `selectedAddr`, then it would always be returned subsequently even
+      // if the address becomes used and libwallet would have returned a
+      // different address.
+      selectedAddr = libdcrwallet.currentReceiveAddress(walletInfo.name) ?? '';
     }
-    return currentAddr;
+    return selectedAddr;
+  }
+
+  @override
+  set address(value) {
+    selectedAddr = value;
   }
 
   @override
@@ -57,14 +77,6 @@ class DecredWalletAddresses extends WalletAddresses {
     });
 
     await saveAddressesInBox();
-  }
-
-  String generateNewAddress() {
-    final nAddr = libdcrwallet.newExternalAddress(walletInfo.name) ?? '';
-    if (nAddr != '') {
-      currentAddr = nAddr;
-    }
-    return nAddr;
   }
 
   List<AddressInfo> getAddressInfos() {

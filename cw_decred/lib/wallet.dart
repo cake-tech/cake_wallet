@@ -178,7 +178,10 @@ abstract class DecredWalletBase
     if (syncStatusCode > 4) {
       syncStatus = SyncedSyncStatus();
       // Initiate a receive address in case we lose peers later.
-      if (walletAddresses.currentAddr == '') {
+      if (walletAddresses.selectedAddr == '') {
+        // TODO: `walletAddresses.address` will assign a value to
+        // `walletAddresses.selectedAddr`, but as per the comment in
+        // `walletAddresses.address`, this _may_ not be a good idea.
         walletAddresses.address;
         walletAddresses.updateAddressesInBox();
       }
@@ -345,7 +348,7 @@ abstract class DecredWalletBase
     };
     final fee = decoded["fee"] ?? 0;
     if (sendAll) {
-      totalAmt = (totalAmt - fee).toInt() ?? totalAmt;
+      totalAmt = (totalAmt - fee).toInt();
     }
     return DecredPendingTransaction(
         txid: decoded["txid"] ?? "", amount: totalAmt, fee: fee, rawHex: signedHex, send: send);
