@@ -345,18 +345,21 @@ class ElectrumWorker {
     }
 
     if (transactionIdsForHeights.isNotEmpty) {
-      final transactionsVerbose = await _getBatchTransactionVerbose(
-        hashes: transactionIdsForHeights.keys.toList(),
-      );
+      Map<String, Map<String, dynamic>>? transactionsVerbose;
+      if (_serverCapability!.supportsTxVerbose) {
+        transactionsVerbose = await _getBatchTransactionVerbose(
+          hashes: transactionIdsForHeights.keys.toList(),
+        );
+      }
 
       Map<String, String> transactionHexes = {};
 
-      if (transactionsVerbose.isEmpty) {
+      if (transactionsVerbose?.isEmpty ?? true) {
         transactionHexes = await _getBatchTransactionHex(
           hashes: transactionIdsForHeights.keys.toList(),
         );
       } else {
-        transactionsVerbose.values.forEach((e) {
+        transactionsVerbose!.values.forEach((e) {
           transactionHexes[e['txid'] as String] = e['hex'] as String;
         });
       }
@@ -365,7 +368,7 @@ class ElectrumWorker {
         final hash = transactionIdHeight.key;
         final hex = transactionIdHeight.value;
 
-        final transactionVerbose = transactionsVerbose[hash];
+        final transactionVerbose = transactionsVerbose?[hash];
 
         late ElectrumTransactionBundle txBundle;
 
@@ -473,37 +476,40 @@ class ElectrumWorker {
 
       if (transactionIdsForHeights.isNotEmpty) {
         await Future.wait(transactionIdsForHeights.keys.toList().map((hash) async {
-          final transactionVerbose = await _electrumClient!.request(
-            ElectrumRequestGetTransactionVerbose(transactionHash: hash),
-          );
+          late String txHex;
+          Map<String, dynamic>? txVerbose;
 
-          late String transactionHex;
-
-          if (transactionVerbose.isEmpty) {
-            transactionHex = await _electrumClient!.request(
-              ElectrumRequestGetTransactionHex(
+          if (_serverCapability!.supportsTxVerbose) {
+            txVerbose = await _electrumClient!.request(
+              ElectrumRequestGetTransactionVerbose(
                 transactionHash: hash,
               ),
             );
+          }
+
+          if (txVerbose?.isEmpty ?? true) {
+            txHex = await _electrumClient!.request(
+              ElectrumRequestGetTransactionHex(transactionHash: hash),
+            );
           } else {
-            transactionHex = transactionVerbose['hex'] as String;
+            txHex = txVerbose!['hex'] as String;
           }
 
           late ElectrumTransactionBundle txBundle;
 
           // this is the initial tx history update, so ins will be filled later one by one,
           // and time and confirmations will be updated if needed again
-          if (transactionVerbose.isNotEmpty) {
+          if (txVerbose?.isNotEmpty ?? false) {
             txBundle = ElectrumTransactionBundle(
-              BtcTransaction.fromRaw(transactionHex),
+              BtcTransaction.fromRaw(txHex),
               ins: [],
-              time: transactionVerbose['time'] as int?,
-              confirmations: (transactionVerbose['confirmations'] as int?) ?? 1,
-              isDateValidated: (transactionVerbose['time'] as int?) != null,
+              time: txVerbose!['time'] as int?,
+              confirmations: (txVerbose['confirmations'] as int?) ?? 1,
+              isDateValidated: (txVerbose['time'] as int?) != null,
             );
           } else {
             txBundle = ElectrumTransactionBundle(
-              BtcTransaction.fromRaw(transactionHex),
+              BtcTransaction.fromRaw(txHex),
               ins: [],
               confirmations: 1,
             );
@@ -629,18 +635,22 @@ class ElectrumWorker {
     }
 
     if (transactionsByIds.isNotEmpty) {
-      final transactionsVerbose = await _getBatchTransactionVerbose(
-        hashes: transactionsByIds.keys.toList(),
-      );
+      Map<String, Map<String, dynamic>>? transactionsVerbose;
+
+      if (_serverCapability!.supportsTxVerbose) {
+        transactionsVerbose = await _getBatchTransactionVerbose(
+          hashes: transactionsByIds.keys.toList(),
+        );
+      }
 
       Map<String, String> transactionHexes = {};
 
-      if (transactionsVerbose.isEmpty) {
+      if (transactionsVerbose?.isEmpty ?? true) {
         transactionHexes = await _getBatchTransactionHex(
           hashes: transactionsByIds.keys.toList(),
         );
       } else {
-        transactionsVerbose.values.forEach((e) {
+        transactionsVerbose!.values.forEach((e) {
           transactionHexes[e['txid'] as String] = e['hex'] as String;
         });
       }
@@ -649,7 +659,7 @@ class ElectrumWorker {
         final hash = entry.key;
         final txToFetch = entry.value;
         final storedTx = txToFetch.tx;
-        final txVerbose = transactionsVerbose[hash];
+        final txVerbose = transactionsVerbose?[hash];
         final txHex = transactionHexes[hash]!;
         final original =
             storedTx?.original ?? BtcTransaction.fromRaw((txVerbose?["hex"] as String?) ?? txHex);
@@ -1088,16 +1098,20 @@ class ElectrumWorker {
       }
     } else {
       await Future.wait(hashes.map((hash) async {
-        final history = await _electrumClient!.request(
-          ElectrumRequestGetTransactionVerbose(transactionHash: hash),
-        );
+        Map<String, dynamic>? txVerbose;
 
-        txVerboseResults.add(history);
+        if (_serverCapability!.supportsTxVerbose) {
+          txVerbose = await _electrumClient!.request(
+            ElectrumRequestGetTransactionVerbose(
+              transactionHash: hash,
+            ),
+          );
+        }
 
-        if (history.isEmpty) {
+        if (txVerbose?.isEmpty ?? true) {
           emptyVerboseTxs.add(hash);
         } else {
-          transactionHexes.add(history['hex'] as String);
+          transactionHexes.add(txVerbose!['hex'] as String);
         }
       }));
     }
@@ -1220,13 +1234,17 @@ class ElectrumWorker {
     int? time;
     DateResult? dates;
 
-    final transactionVerbose = await _electrumClient!.request(
-      ElectrumRequestGetTransactionVerbose(transactionHash: hash),
-    );
+    Map<String, dynamic>? transactionVerbose;
+    if (_serverCapability!.supportsTxVerbose) {
+      transactionVerbose = await _electrumClient!.request(
+        ElectrumRequestGetTransactionVerbose(transactionHash: hash),
+      );
+    }
+
     String transactionHex;
 
-    if (transactionVerbose.isNotEmpty) {
-      transactionHex = transactionVerbose['hex'] as String;
+    if (transactionVerbose?.isNotEmpty ?? false) {
+      transactionHex = transactionVerbose!['hex'] as String;
       time = transactionVerbose['time'] as int?;
       confirmations = transactionVerbose['confirmations'] as int?;
     } else {
