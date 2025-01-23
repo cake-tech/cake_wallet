@@ -13,7 +13,6 @@ import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -82,6 +81,10 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
     super.initState();
 
     String? address;
+
+    if (widget.homeSettingsViewModel.walletType == WalletType.zano) {
+      _tokenDecimalController.text = "12";
+    }
 
     if (widget.token != null) {
       address = widget.homeSettingsViewModel.getTokenAddressBasedOnWallet(widget.token!);
