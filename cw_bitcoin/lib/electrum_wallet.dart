@@ -1414,7 +1414,7 @@ abstract class ElectrumWalletBase
       unspentCoins.forEach((coin) => addCoinInfo(coin));
     }
 
-    await updateCoins(unspentCoins);
+    unspentCoins = await updateCoinsWithInfoFromBox(updatedUnspentCoins);
     await _refreshUnspentCoinsInfo();
   }
 
