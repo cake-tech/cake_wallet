@@ -118,6 +118,8 @@ import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
@@ -239,9 +241,6 @@ abstract class Bitcoin {
   String? getUnusedSegwitAddress(Object wallet);
 
   String buildV2PjStr({required Object receiverWallet});
-  Future<String> extractOriginalTransaction(UncheckedProposal proposal);
-  Future<PayjoinProposal> processProposal({required UncheckedProposal proposal, required Object receiverWallet});
-  Future<String> sendFinalProposal(PayjoinProposal finalProposal);
   Future<Sender> buildPayjoinRequest(String originalPsbt, dynamic pjUri, int fee);
   Future<String> buildOriginalPsbt(Object wallet, int fee, double amount, Object credentials);
   Future<String> requestAndPollV2Proposal(Sender sender);
