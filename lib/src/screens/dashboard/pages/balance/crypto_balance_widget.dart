@@ -214,6 +214,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: DashBoardRoundedCardWidget(
+                      shadowBlur: dashboardViewModel.getShadowBlur(),
+                      shadowSpread: dashboardViewModel.getShadowSpread(),
                       marginV: 0,
                       marginH: 0,
                       customBorder: 30,

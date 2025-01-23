@@ -174,8 +174,8 @@ class NavigationDock extends StatelessWidget {
                                   .extension<BalancePageTheme>()!
                                   .cardBorderColor
                                   .withAlpha(50),
-                              spreadRadius: 3,
-                              blurRadius: 7)
+                              spreadRadius: dashboardViewModel.getShadowSpread(),
+                              blurRadius: dashboardViewModel.getShadowBlur())
                         ],
                       ),
                       child: Container(

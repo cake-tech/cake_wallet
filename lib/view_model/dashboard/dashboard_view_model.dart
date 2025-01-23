@@ -52,6 +52,8 @@ import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../themes/theme_base.dart';
+
 part 'dashboard_view_model.g.dart';
 
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
@@ -475,6 +477,34 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
+
+  @action
+  double getShadowSpread() {
+    double spread = 3;
+    if (settingsStore.currentTheme.type == ThemeType.bright)
+      spread = 1;
+    else if (settingsStore.currentTheme.type == ThemeType.light)
+      spread = 0.1;
+    else if (settingsStore.currentTheme.type == ThemeType.dark)
+      spread = 1;
+    else if (settingsStore.currentTheme.type == ThemeType.oled)
+      spread = 2;
+    return spread;
+  }
+
+  @action
+  double getShadowBlur() {
+    double blur = 7;
+    if (settingsStore.currentTheme.type == ThemeType.bright)
+      blur = 7;
+    else if (settingsStore.currentTheme.type == ThemeType.light)
+      blur = 7;
+    else if (settingsStore.currentTheme.type == ThemeType.dark)
+      blur = 7;
+    else if (settingsStore.currentTheme.type == ThemeType.oled)
+      blur = 7;
+    return blur;
+  }
 
   @action
   void setMwebEnabled() {

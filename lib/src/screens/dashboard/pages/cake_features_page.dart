@@ -42,6 +42,8 @@ class CakeFeaturesPage extends StatelessWidget {
                 children: <Widget>[
                   SizedBox(height: 2),
                   DashBoardRoundedCardWidget(
+                    shadowBlur: dashboardViewModel.getShadowBlur(),
+                    shadowSpread: dashboardViewModel.getShadowSpread(),
                     onTap: () {
                       if (Platform.isMacOS) {
                         _launchUrl("buy.cakepay.com");
@@ -59,6 +61,8 @@ class CakeFeaturesPage extends StatelessWidget {
                     ),
                   ),
                   DashBoardRoundedCardWidget(
+                    shadowBlur: dashboardViewModel.getShadowBlur(),
+                    shadowSpread: dashboardViewModel.getShadowSpread(),
                     onTap: () => _launchUrl("cake.nano-gpt.com"),
                     title: "NanoGPT",
                     subTitle: S.of(context).nanogpt_subtitle,

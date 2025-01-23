@@ -15,9 +15,11 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
     this.icon,
     this.onClose,
     this.customBorder,
+    this.shadowSpread,
+    this.shadowBlur,
     super.key,
     this.marginV,
-    this.marginH
+    this.marginH,
   });
 
   final VoidCallback onTap;
@@ -31,6 +33,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
   final double? customBorder;
   final double? marginV;
   final double? marginH;
+  final double? shadowSpread;
+  final double? shadowBlur;
 
   @override
   Widget build(BuildContext context) {
@@ -54,8 +58,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
           BoxShadow(
               color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
                   .withAlpha(50),
-              spreadRadius: 3,
-              blurRadius: 7
+              spreadRadius: shadowSpread ?? 3,
+              blurRadius: shadowBlur ?? 7,
           )
         ],
       ),
