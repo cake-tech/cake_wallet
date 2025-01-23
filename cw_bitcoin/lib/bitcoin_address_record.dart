@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 
 abstract class BaseBitcoinAddressRecord {
@@ -27,8 +28,10 @@ abstract class BaseBitcoinAddressRecord {
 
   final String address;
   bool _isHidden;
+
   bool get isHidden => _isHidden;
   final bool _isChange;
+
   bool get isChange => _isChange;
   final int index;
   int _txCount;
@@ -126,6 +129,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       derivationInfo: BitcoinDerivationInfo.fromJSON(
         decoded['derivationInfo'] as Map<String, dynamic>,
       ),
+      // TODO: make nullable maybe?
       cwDerivationType: CWBitcoinDerivationType.values[decoded['derivationType'] as int],
       isHidden: decoded['isHidden'] as bool? ?? false,
       isChange: decoded['isChange'] as bool? ?? false,
@@ -177,7 +181,9 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 
 class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   String _derivationPath;
+
   String get derivationPath => _derivationPath;
+
   int get labelIndex => index;
   final String? labelHex;
 
@@ -211,7 +217,8 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
 
     return BitcoinSilentPaymentAddressRecord(
       decoded['address'] as String,
-      derivationPath: decoded['derivationPath'] as String,
+      derivationPath:
+          decoded['derivationPath'] as String? ?? BitcoinWalletAddressesBase.OLD_SP_SPEND_PATH,
       labelIndex: decoded['index'] as int,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,

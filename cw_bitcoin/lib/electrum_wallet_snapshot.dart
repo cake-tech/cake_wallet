@@ -79,9 +79,9 @@ class ElectrumWalletSnapshot {
       balance: balance,
       derivationType: derivationType,
       derivationPath: derivationPath,
-      unspentCoins: (data['unspent_coins'] as List)
-          .map((e) => BitcoinUnspent.fromJSON(null, e as Map<String, dynamic>))
-          .toList(),
+      unspentCoins: (data['unspent_coins'] as List?)
+          ?.map((e) => BitcoinUnspent.fromJSON(null, e as Map<String, dynamic>))
+          .toList() ?? [],
       didInitialSync: data['didInitialSync'] as bool?,
       walletAddressesSnapshot: walletAddressesSnapshot,
     );

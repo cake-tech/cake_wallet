@@ -1363,7 +1363,13 @@ class ElectrumWorker {
           ),
         );
       } catch (e) {
-        _sendError(ElectrumWorkerGetFeesError(error: e.toString()));
+        _sendResponse(
+          ElectrumWorkerGetFeesResponse(
+            result: ElectrumTransactionPriorities.fromList(
+              await _electrumClient!.getFeeRates(),
+            ),
+          ),
+        );
       }
     } else {
       _sendResponse(
