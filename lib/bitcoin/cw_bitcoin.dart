@@ -330,9 +330,9 @@ class CWBitcoin extends Bitcoin {
     List<DerivationInfo> list = [];
 
     List<DerivationType> types = await compareDerivationMethods(mnemonic: mnemonic, node: node);
-    if (types.length == 1 && types.first == DerivationType.electrum) {
-      return [getElectrumDerivations()[DerivationType.electrum]!.first];
-    }
+    // if (types.length == 1 && types.first == DerivationType.electrum) {
+    //   return [getElectrumDerivations()[DerivationType.electrum]!.first];
+    // }
 
     final electrumClient = ElectrumClient();
     await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
@@ -348,66 +348,149 @@ class CWBitcoin extends Bitcoin {
         break;
     }
 
-    for (DerivationType dType in electrum_derivations.keys) {
+    bool found = false;
+    print("types: $types");
+    for (DerivationType typ in types) {
+      if (found) {
+        break;
+      }
+
       late Uint8List seedBytes;
-      if (dType == DerivationType.electrum) {
+      // if (dType == DerivationType.electrum) {
+      //   seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+      // } else if (dType == DerivationType.bip39) {
+      //   seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
+      // }
+
+      if (typ == DerivationType.electrum) {
         seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
-      } else if (dType == DerivationType.bip39) {
+      } else if (typ == DerivationType.bip39) {
         seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
       }
 
-      for (DerivationInfo dInfo in electrum_derivations[dType]!) {
-        try {
-          DerivationInfo dInfoCopy = DerivationInfo(
-            derivationType: dInfo.derivationType,
-            derivationPath: dInfo.derivationPath,
-            description: dInfo.description,
-            scriptType: dInfo.scriptType,
-          );
+      String addedPath = "";
+      List<String> addedPaths = [
+        "",
+        "/0",
+        "/1",
+        "/0/1",
+        "/1/0",
+        "/0/0",
+        "/1/1",
+        "/0/0/1",
+        "/1/1/0",
+        "/0'",
+        "/1'",
+        "/0'/0'",
+        "/1'/1'",
+        "/0'/0'/0'",
+        "/1'/1'/1'",
+        "/0'/0",
+        "/1'/1",
+        "/0'/0/0",
+        "/1'/1/1",
+        "/0'/0/1",
+        "/1'/1/0"
+      ];
+      for (String addedPath in addedPaths) {
+        if (found) {
+          print("found!!!!!!!!!!!");
+          break;
+        }
+        var dType = DerivationType.bip39;
+        for (DerivationInfo dInfo in electrum_derivations[dType]!) {
+          try {
+            DerivationInfo dInfoCopy = DerivationInfo(
+              derivationType: dInfo.derivationType,
+              derivationPath: dInfo.derivationPath,
+              description: dInfo.description,
+              scriptType: dInfo.scriptType,
+            );
 
-          String balancePath = dInfoCopy.derivationPath!;
-          int derivationDepth = _countCharOccurrences(balancePath, '/');
+            String balancePath = dInfoCopy.derivationPath!;
+            // int derivationDepth = _countCharOccurrences(balancePath, '/');
 
-          // for BIP44
-          if (derivationDepth == 3 || derivationDepth == 1) {
+            // for BIP44
+            // if (derivationDepth == 3 || derivationDepth == 1) {
             // we add "/0" so that we generate account 0
-            balancePath += "/0";
+            // balancePath += "/0";
+            // }
+
+            balancePath += addedPath;
+
+            final hd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(balancePath)
+                as Bip32Slip10Secp256k1;
+            final sideHd = hd.childKey(Bip32KeyIndex(1));
+
+            print("searching: $typ : add: $addedPath : $balancePath");
+
+            // derive address at index 0:
+            String? address;
+            switch (dInfoCopy.scriptType) {
+              case "p2wpkh":
+                address = generateP2WPKHAddress(hd: hd, network: network, index: 0);
+                break;
+              case "p2pkh":
+                address = generateP2PKHAddress(hd: hd, network: network, index: 0);
+                break;
+              case "p2wpkh-p2sh":
+                address = generateP2SHAddress(hd: hd, network: network, index: 0);
+                break;
+              case "p2tr":
+                address = generateP2TRAddress(hd: hd, network: network, index: 0);
+                break;
+              default:
+                continue;
+            }
+
+            // check if it's the search address:
+            String searchAddress = "ltc1q8t38ltq733p3652sdxqufyet2s9dzdx79rutp7";
+            String searchAddress2 = "ltc1q2qpl43h8sldxtd2l66a7jzmncfgy0n7cl3clt6";
+
+            String searchAddress3 = "ltc1quwvyhz3678u6fgqqtummepqp4l45dl2swm5ksz";
+            String searchAddress4 = "ltc1qvhy3n52mektgnchl9qkdgmffs4yxkk3ejdvv5t";
+            String searchAddress5 = "ltc1qtrnqxc6tf2jfnj35x5dvsk93y6g0ndsn98rcg4";
+            String searchAddress6 = "ltc1q8t38ltq733p3652sdxqufyet2s9dzdx79rutp7";
+            List<String> searchAddresses = [
+              searchAddress,
+              searchAddress2,
+              searchAddress3,
+              searchAddress4,
+              searchAddress5,
+              searchAddress6
+            ];
+
+            for (var i = 0; i < 100; i++) {
+              String indexAddress = generateP2WPKHAddress(hd: hd, network: network, index: i);
+              String indexAddress2 = generateP2WPKHAddress(hd: sideHd, network: network, index: i);
+              if (searchAddresses.contains(indexAddress) || searchAddresses.contains(indexAddress2)) {
+                printV(
+                    "@@@@@@@@@@@@@@@@@@@@@ FOUND ADDRESS @ index: $i @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                found = true;
+                break;
+              }
+              // if (i == 1000) {
+              //   printV("address: $indexAddress");
+              // }
+            }
+
+            if (found) {
+              break;
+            }
+
+            // final sh = BitcoinAddressUtils.scriptHash(address, network: network);
+            // final history = await electrumClient.getHistory(sh);
+
+            // final balance = await electrumClient.getBalance(sh);
+            // dInfoCopy.balance = balance.entries.firstOrNull?.value.toString() ?? "0";
+            // dInfoCopy.address = address;
+            // dInfoCopy.transactionsCount = history.length;
+
+            list.add(dInfoCopy);
+          } catch (e, s) {
+            printV("derivationInfoError: $e");
+            printV("derivationInfoStack: $s");
           }
-
-          final hd = Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath(balancePath)
-              as Bip32Slip10Secp256k1;
-
-          // derive address at index 0:
-          String? address;
-          switch (dInfoCopy.scriptType) {
-            case "p2wpkh":
-              address = generateP2WPKHAddress(hd: hd, network: network, index: 0);
-              break;
-            case "p2pkh":
-              address = generateP2PKHAddress(hd: hd, network: network, index: 0);
-              break;
-            case "p2wpkh-p2sh":
-              address = generateP2SHAddress(hd: hd, network: network, index: 0);
-              break;
-            case "p2tr":
-              address = generateP2TRAddress(hd: hd, network: network, index: 0);
-              break;
-            default:
-              continue;
-          }
-
-          final sh = BitcoinAddressUtils.scriptHash(address, network: network);
-          final history = await electrumClient.getHistory(sh);
-
-          final balance = await electrumClient.getBalance(sh);
-          dInfoCopy.balance = balance.entries.firstOrNull?.value.toString() ?? "0";
-          dInfoCopy.address = address;
-          dInfoCopy.transactionsCount = history.length;
-
-          list.add(dInfoCopy);
-        } catch (e, s) {
-          printV("derivationInfoError: $e");
-          printV("derivationInfoStack: $s");
         }
       }
     }

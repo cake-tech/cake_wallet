@@ -990,6 +990,11 @@ abstract class ElectrumWalletBase
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
+      _onError?.call(FlutterErrorDetails(
+        exception: "testing exception",
+        stack: StackTrace.current,
+        library: this.runtimeType.toString(),
+      ));
       // start by updating unspent coins
       await updateAllUnspents();
 
@@ -1365,7 +1370,7 @@ abstract class ElectrumWalletBase
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
     final previousUnspentCoins = List<BitcoinUnspent>.from(unspentCoins.where((utxo) =>
-    utxo.bitcoinAddressRecord.type != SegwitAddresType.mweb &&
+        utxo.bitcoinAddressRecord.type != SegwitAddresType.mweb &&
         utxo.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord));
 
     if (hasSilentPaymentsScanning) {
@@ -1423,7 +1428,6 @@ abstract class ElectrumWalletBase
     required List<BitcoinUnspent> updatedUnspentCoins,
     required List<List<BitcoinUnspent>?> results,
   }) {
-
     if (failedCount == results.length) {
       printV("All UTXOs failed to fetch, falling back to previous UTXOs");
       return previousUnspentCoins;

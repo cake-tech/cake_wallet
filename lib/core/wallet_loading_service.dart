@@ -79,7 +79,7 @@ class WalletLoadingService {
       final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
       WalletBase? wallet;
       for (var walletInfo in walletInfoSource.values) {
-        try {
+        // try {
           final walletService = walletServiceFactory.call(walletInfo.type);
           final walletPassword = await keyService.getWalletPassword(walletName: walletInfo.name);
           wallet = await walletService.openWallet(walletInfo.name, walletPassword);
@@ -95,18 +95,18 @@ class WalletLoadingService {
 
           // if found a wallet that is not corrupted, then still display the seeds of the corrupted ones
           authenticatedErrorStreamController.add(corruptedWalletsSeeds);
-        } catch (e) {
-          printV(e);
-          // save seeds and show corrupted wallets' seeds to the user
-          try {
-            final seeds = await _getCorruptedWalletSeeds(walletInfo.name, walletInfo.type);
-            if (!corruptedWalletsSeeds.contains(seeds)) {
-              corruptedWalletsSeeds += seeds;
-            }
-          } catch (e) {
-            corruptedWalletsSeeds += "\nFailed to fetch $name seeds: $e";
-          }
-        }
+        // } catch (e) {
+        //   printV(e);
+        //   // save seeds and show corrupted wallets' seeds to the user
+        //   try {
+        //     final seeds = await _getCorruptedWalletSeeds(walletInfo.name, walletInfo.type);
+        //     if (!corruptedWalletsSeeds.contains(seeds)) {
+        //       corruptedWalletsSeeds += seeds;
+        //     }
+        //   } catch (e) {
+        //     corruptedWalletsSeeds += "\nFailed to fetch $name seeds: $e";
+        //   }
+        // }
       }
 
       // if all user's wallets are corrupted throw exception

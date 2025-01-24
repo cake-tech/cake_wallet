@@ -206,8 +206,8 @@ abstract class WalletCreationVMBase with Store {
           passphrase: restoreWallet.passphrase,
         );
 
-        if (derivationList.firstOrNull?.transactionsCount == 0 && derivationList.length > 1)
-          return [];
+        // if (derivationList.firstOrNull?.transactionsCount == 0 && derivationList.length > 1)
+        //   return [];
         return derivationList;
 
       case WalletType.nano:

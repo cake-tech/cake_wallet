@@ -68,7 +68,6 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   bool get hasAdjustableFieldChanged => items.any(_hasAdjustableFieldChanged);
 
-
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
       final existingInfo = _unspentCoinsInfo.values
@@ -78,7 +77,6 @@ abstract class UnspentCoinsListViewModelBase with Store {
       existingInfo.isFrozen = item.isFrozen;
       existingInfo.isSending = item.isSending;
       existingInfo.note = item.note;
-
 
       await existingInfo.save();
       _updateUnspentCoinsInfo();
@@ -162,7 +160,14 @@ abstract class UnspentCoinsListViewModelBase with Store {
         .whereType<UnspentCoinsItem>()
         .toList();
 
-    unspents.sort((a, b) => b.value.compareTo(a.value));
+    // sort by hash so that even if the addresses are the same, they don't jump around when selected (because that calls updateBalance)
+    unspents.sort((a, b) => a.hash.compareTo(b.hash));
+
+    // sort unspents by address so that if something changes it's easier to see:
+    unspents.sort((a, b) => a.address.compareTo(b.address));
+
+    // sort change addresses to the end:
+    unspents.sort((a, b) => a.isChange ? 1 : -1);
 
     items.addAll(unspents);
   }

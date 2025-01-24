@@ -394,7 +394,7 @@ class WalletRestorePage extends BasePage {
         }
       }
 
-      if (derivationsWithHistory > 1) {
+      if (derivationsWithHistory > 1 || true) {
         dInfo = await Navigator.of(context).pushNamed(
           Routes.restoreWalletChooseDerivation,
           arguments: derivations,

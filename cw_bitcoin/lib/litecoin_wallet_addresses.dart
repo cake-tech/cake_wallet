@@ -33,10 +33,10 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
   }) : super(walletInfo) {
-    for (int i = 0; i < mwebAddresses.length; i++) {
-      mwebAddrs.add(mwebAddresses[i].address);
-    }
-    printV("initialized with ${mwebAddrs.length} mweb addresses");
+    // for (int i = 0; i < mwebAddresses.length; i++) {
+    //   mwebAddrs.add(mwebAddresses[i].address);
+    // }
+    // printV("initialized with ${mwebAddrs.length} mweb addresses");
   }
 
   final Bip32Slip10Secp256k1? mwebHd;
@@ -62,6 +62,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
+    return null;
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       return null;
     }
@@ -127,9 +128,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) {
-    if (addressType == SegwitAddresType.mweb) {
-      return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
-    }
+    // if (addressType == SegwitAddresType.mweb) {
+    //   return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
+    // }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
 
@@ -139,9 +140,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) async {
-    if (addressType == SegwitAddresType.mweb) {
-      await ensureMwebAddressUpToIndexExists(index);
-    }
+    // if (addressType == SegwitAddresType.mweb) {
+    //   await ensureMwebAddressUpToIndexExists(index);
+    // }
     return getAddress(index: index, hd: hd, addressType: addressType);
   }
 

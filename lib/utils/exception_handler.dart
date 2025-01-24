@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -8,8 +9,10 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -78,29 +81,36 @@ class ExceptionHandler {
 
       await _addDeviceInfo(_file!);
 
-      // Check if a mail client is available
-      final bool canSend = await FlutterMailer.canSendMail();
+      // await _addElectrumWalletData(_file!);
 
-      if (Platform.isIOS && !canSend) {
-        printV('Mail app is not available');
-        return;
+      // // Check if a mail client is available
+      // final bool canSend = await FlutterMailer.canSendMail();
+
+      // if (Platform.isIOS && !canSend) {
+      //   printV('Mail app is not available');
+      //   return;
+      // }
+
+      // print the file content line by line:
+      for (var line in _file!.readAsLinesSync()) {
+        printV(line);
       }
 
-      final MailOptions mailOptions = MailOptions(
-        subject: 'Mobile App Issue',
-        recipients: ['support@cakewallet.com'],
-        attachments: [_file!.path],
-      );
+      // final MailOptions mailOptions = MailOptions(
+      //   subject: 'Mobile App Issue',
+      //   recipients: ['support@cakewallet.com'],
+      //   attachments: [_file!.path],
+      // );
 
-      final result = await FlutterMailer.send(mailOptions);
+      // final result = await FlutterMailer.send(mailOptions);
 
       // Clear file content if the error was sent or saved.
       // On android we can't know if it was sent or saved
-      if (result.name == MailerResponse.sent.name ||
-          result.name == MailerResponse.saved.name ||
-          result.name == MailerResponse.android.name) {
+      // if (result.name == MailerResponse.sent.name ||
+      //     result.name == MailerResponse.saved.name ||
+      //     result.name == MailerResponse.android.name) {
         _file!.writeAsString("", mode: FileMode.write);
-      }
+      // }
     } catch (e, s) {
       _saveException(e.toString(), s);
     }
@@ -113,8 +123,9 @@ class ExceptionHandler {
 
   static Future<void> onError(FlutterErrorDetails errorDetails) async {
     if (kDebugMode || kProfileMode) {
-      FlutterError.presentError(errorDetails);
-      printV(errorDetails.toString());
+      // FlutterError.presentError(errorDetails);
+      // printV(errorDetails.toString());
+      // _sendExceptionFile();
       return;
     }
 
@@ -253,6 +264,70 @@ class ExceptionHandler {
       "App Version: $currentVersion\n\nDevice Info $deviceInfo\n\n",
       mode: FileMode.append,
     );
+  }
+
+  static Future<void> _addElectrumWalletData(File file) async {
+    final walletLoadingService = getIt.get<WalletLoadingService>();
+    final walletName = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
+    final walletTypeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType)!;
+    final walletType = deserializeFromInt(walletTypeRaw);
+    if (walletName == null) return;
+    if (![WalletType.bitcoin, WalletType.litecoin].contains(walletType)) return;
+
+    final loadedWallet = await walletLoadingService.load(walletType, walletName);
+
+    final wallet = loadedWallet as ElectrumWallet;
+
+    await wallet.updateAllUnspents();
+
+    final receiveAddresses =
+        wallet.walletAddresses.receiveAddresses.where((e) => !e.address.contains("mweb")).toList();
+    final changeAddresses =
+        wallet.walletAddresses.changeAddresses.where((e) => !e.address.contains("mweb")).toList();
+    final unspentCoins = wallet.unspentCoins.where((e) => !e.address.contains("mweb")).toList();
+    final unspentCoinsInfo =
+        wallet.unspentCoinsInfo.values.where((e) => !e.address.contains("mweb")).toList();
+
+    String searchAddress = "ltc1q8t38ltq733p3652sdxqufyet2s9dzdx79rutp7";
+
+    await file.writeAsString("Search address: $searchAddress\n", mode: FileMode.append);
+
+    await file.writeAsString("\n\nReceive Addresses:\n", mode: FileMode.append);
+    for (var address in receiveAddresses) {
+      if (address.address == searchAddress) {
+        printV("@@@@@@@@@@@@@@@@@@@@@ FOUND ADDRESS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      }
+      String addressStr =
+          "address: ${address.address} isHidden: ${address.isHidden ? "1" : "0"} isUsed: ${address.isUsed ? "1" : "0"}";
+      await file.writeAsString("$addressStr\n", mode: FileMode.append);
+    }
+    await file.writeAsString("\n\nChange Addresses:\n", mode: FileMode.append);
+    for (var address in changeAddresses) {
+      if (address.address == searchAddress) {
+        printV("@@@@@@@@@@@@@@@@@@@@@ FOUND ADDRESS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      }
+      String addressStr =
+          "address: ${address.address} isHidden: ${address.isHidden ? "1" : "0"} isUsed: ${address.isUsed ? "1" : "0"}";
+      await file.writeAsString("$addressStr\n", mode: FileMode.append);
+    }
+    await file.writeAsString("\n\nUnspent Coins:\n", mode: FileMode.append);
+    for (var coin in unspentCoins) {
+      if (coin.address == searchAddress) {
+        printV("@@@@@@@@@@@@@@@@@@@@@ FOUND ADDRESS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      }
+      String coinStr =
+          "address: ${coin.address} isChange: ${coin.isChange ? "1" : "0"} vout: ${coin.vout} value: ${coin.value}";
+      await file.writeAsString("$coinStr\n", mode: FileMode.append);
+    }
+    await file.writeAsString("\n\nUnspent Coins Info:\n", mode: FileMode.append);
+    for (var info in unspentCoinsInfo) {
+      if (info.address == searchAddress) {
+        printV("@@@@@@@@@@@@@@@@@@@@@ FOUND ADDRESS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      }
+      String infoStr =
+          "address: ${info.address} isChange: ${info.isChange ? "1" : "0"} vout: ${info.vout} value: ${info.value}";
+      await file.writeAsString("$infoStr\n", mode: FileMode.append);
+    }
   }
 
   static Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
