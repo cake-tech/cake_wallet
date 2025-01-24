@@ -135,7 +135,7 @@ abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHis
   }
 
   static Future<ZanoWallet> restore({required ZanoRestoreWalletFromSeedCredentials credentials}) async {
-    final wallet = ZanoWallet(credentials.walletInfo!, credentials.password!);    await wallet.initWallet();
+    final wallet = ZanoWallet(credentials.walletInfo!, credentials.password!);
     await wallet.initWallet();
     final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
     final createWalletResult = await wallet.restoreWalletFromSeed(path, credentials.password!, credentials.mnemonic, credentials.passphrase);
