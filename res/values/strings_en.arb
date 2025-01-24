@@ -499,6 +499,7 @@
   "overwrite_amount": "Overwrite amount",
   "pairingInvalidEvent": "Pairing Invalid Event",
   "passphrase": "Passphrase (Optional)",
+  "passphrase_view_keys": "Passphrase",
   "passphrases_doesnt_match": "Passphrases do not match, please try again",
   "password": "Password",
   "paste": "Paste",
