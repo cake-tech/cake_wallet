@@ -478,6 +478,14 @@ class ExchangePage extends BasePage {
       }
     });
 
+    reaction((_) => exchangeViewModel.bestRate, (double rate) {
+      if (exchangeViewModel.isFixedRateMode) {
+        exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
+      } else {
+        exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
+      }
+    });
+
     depositAddressController
         .addListener(() => exchangeViewModel.depositAddress = depositAddressController.text);
 
@@ -493,6 +501,7 @@ class ExchangePage extends BasePage {
             : Debounce(Duration(milliseconds: 500));
 
         _depositAmountDebounce.run(() {
+          exchangeViewModel.calculateBestRate();
           exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
           exchangeViewModel.isReceiveAmountEntered = false;
         });
@@ -505,6 +514,7 @@ class ExchangePage extends BasePage {
     receiveAmountController.addListener(() {
       if (receiveAmountController.text != exchangeViewModel.receiveAmount) {
         _receiveAmountDebounce.run(() {
+          exchangeViewModel.calculateBestRate();
           exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
           exchangeViewModel.isReceiveAmountEntered = true;
         });

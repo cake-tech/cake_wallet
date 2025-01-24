@@ -11,6 +11,7 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart' as http;
 
 class LetsExchangeExchangeProvider extends ExchangeProvider {
@@ -101,7 +102,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
       return isFixedRateMode ? amount / amountToGet : amountToGet / amount;
     } catch (e) {
-      log(e.toString());
+      printV(e.toString());
       return 0.0;
     }
   }
