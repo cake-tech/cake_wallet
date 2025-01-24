@@ -143,14 +143,21 @@ class TweaksSyncResponse {
   int? height;
   SyncStatus? syncStatus;
   Map<String, TweakResponseData>? transactions = {};
+  final bool wasSingleBlock;
 
-  TweaksSyncResponse({this.height, this.syncStatus, this.transactions});
+  TweaksSyncResponse({
+    required this.wasSingleBlock,
+    this.height,
+    this.syncStatus,
+    this.transactions,
+  });
 
   Map<String, dynamic> toJson() {
     return {
       'height': height,
       'syncStatus': syncStatus == null ? null : syncStatusToJson(syncStatus!),
       'transactions': transactions?.map((key, value) => MapEntry(key, value.toJson())),
+      'wasSingleBlock': wasSingleBlock,
     };
   }
 
@@ -168,6 +175,7 @@ class TweaksSyncResponse {
                 TweakResponseData.fromJson(value as Map<String, dynamic>),
               ),
             ),
+      wasSingleBlock: json['wasSingleBlock'] as bool? ?? false,
     );
   }
 }

@@ -24,6 +24,7 @@ class ElectrumWorker {
   final SendPort sendPort;
   ElectrumProvider? _electrumClient;
   ServerCapability? _serverCapability;
+  String? get version => _serverCapability?.version;
   BehaviorSubject<Map<String, dynamic>>? _scanningStream;
 
   BasedUtxoNetwork? _network;
@@ -70,6 +71,11 @@ class ElectrumWorker {
         case ElectrumWorkerMethods.txHashMethod:
           await _handleGetTxExpanded(
             ElectrumWorkerTxExpandedRequest.fromJson(messageJson),
+          );
+          break;
+        case ElectrumWorkerMethods.txHexMethod:
+          await _handleGetTxHex(
+            ElectrumWorkerTxHexRequest.fromJson(messageJson),
           );
           break;
         case ElectrumRequestMethods.headersSubscribeMethod:
@@ -257,6 +263,8 @@ class ElectrumWorker {
                   completed: true,
                 ));
               }
+            }, onError: () {
+              _serverCapability!.supportsBatching = false;
             });
           }));
         } else {
@@ -488,9 +496,7 @@ class ElectrumWorker {
           }
 
           if (txVerbose?.isEmpty ?? true) {
-            txHex = await _electrumClient!.request(
-              ElectrumRequestGetTransactionHex(transactionHash: hash),
-            );
+            txHex = await _getTransactionHex(hash: hash);
           } else {
             txHex = txVerbose!['hex'] as String;
           }
@@ -624,11 +630,11 @@ class ElectrumWorker {
 
         // date is validated when the API responds with the same date at least twice
         // since sometimes the mempool api returns the wrong date at first
+        final canValidateDate = request.mempoolAPIEnabled || _serverCapability!.supportsTxVerbose;
         if (tx == null ||
             tx.original == null ||
-            // TODO: use mempool api or tx verbose
-            // (tx.isDateValidated != true && request.mempoolAPIEnabled)) {
-            (tx.isDateValidated != true)) {
+            (tx.isDateValidated != true && canValidateDate) ||
+            tx.time == null) {
           transactionsByIds[txid] = TxToFetch(height: height, tx: tx);
         }
       }
@@ -832,9 +838,7 @@ class ElectrumWorker {
           }
 
           if (txVerbose?.isEmpty ?? true) {
-            txHex = await _electrumClient!.request(
-              ElectrumRequestGetTransactionHex(transactionHash: hash),
-            );
+            txHex = await _getTransactionHex(hash: hash);
           } else {
             txHex = txVerbose!['hex'] as String;
           }
@@ -869,10 +873,7 @@ class ElectrumWorker {
             final inputTransactionHexes = <String, String>{};
 
             await Future.wait(original.inputs.map((e) => e.txId).toList().map((inHash) async {
-              final hex = await _electrumClient!.request(
-                ElectrumRequestGetTransactionHex(transactionHash: inHash),
-              );
-
+              final hex = await _getTransactionHex(hash: inHash);
               inputTransactionHexes[inHash] = hex;
             }));
 
@@ -1058,6 +1059,11 @@ class ElectrumWorker {
     }
   }
 
+  Future<void> _handleGetTxHex(ElectrumWorkerTxHexRequest request) async {
+    final hex = await _getTransactionHex(hash: request.txHash);
+    _sendResponse(ElectrumWorkerTxHexResponse(hex: hex, id: request.id));
+  }
+
   Future<void> _handleGetTxExpanded(ElectrumWorkerTxExpandedRequest request) async {
     final tx = await _getTransactionExpanded(
       hash: request.txHash,
@@ -1129,11 +1135,8 @@ class ElectrumWorker {
         }
       } else {
         await Future.wait(hashes.map((hash) async {
-          final history = await _electrumClient!.request(
-            ElectrumRequestGetTransactionHex(transactionHash: hash),
-          );
-
-          transactionHexes.add(history);
+          final hex = await _getTransactionHex(hash: hash);
+          transactionHexes.add(hex);
         }));
       }
     }
@@ -1248,9 +1251,7 @@ class ElectrumWorker {
       time = transactionVerbose['time'] as int?;
       confirmations = transactionVerbose['confirmations'] as int?;
     } else {
-      transactionHex = await _electrumClient!.request(
-        ElectrumRequestGetTransactionHex(transactionHash: hash),
-      );
+      transactionHex = await _getTransactionHex(hash: hash);
     }
 
     if (getTime && _walletType == WalletType.bitcoin) {
@@ -1271,11 +1272,7 @@ class ElectrumWorker {
     final ins = <BtcTransaction>[];
 
     for (final vin in original.inputs) {
-      final inputTransactionHex = await _electrumClient!.request(
-        // TODO: _getTXHex
-        ElectrumRequestGetTransactionHex(transactionHash: vin.txId),
-      );
-
+      final inputTransactionHex = await _getTransactionHex(hash: vin.txId);
       ins.add(BtcTransaction.fromRaw(inputTransactionHex));
     }
 
@@ -1311,17 +1308,20 @@ class ElectrumWorker {
       }
     } else {
       await Future.wait(hashes.map((hash) async {
-        final hex = await _electrumClient!.request(
-          ElectrumRequestGetTransactionHex(
-            transactionHash: hash,
-          ),
-        );
-
+        final hex = await _getTransactionHex(hash: hash);
         inputTransactionHexById[hash] = hex;
       }));
     }
 
     return inputTransactionHexById;
+  }
+
+  Future<String> _getTransactionHex({required String hash}) async {
+    final hex = await _electrumClient!.request(
+      ElectrumRequestGetTransactionHex(transactionHash: hash),
+    );
+
+    return hex;
   }
 
   Future<void> _handleGetFeeRates(ElectrumWorkerGetFeesRequest request) async {
@@ -1350,7 +1350,7 @@ class ElectrumWorker {
         // this guarantees that, even if all fees are low and equal,
         // higher priority fee txs can be consumed when chain fees start surging
 
-        _sendResponse(
+        return _sendResponse(
           ElectrumWorkerGetFeesResponse(
             result: BitcoinAPITransactionPriorities(
               minimum: minimum,
@@ -1362,24 +1362,17 @@ class ElectrumWorker {
             ),
           ),
         );
-      } catch (e) {
-        _sendResponse(
-          ElectrumWorkerGetFeesResponse(
-            result: ElectrumTransactionPriorities.fromList(
-              await _electrumClient!.getFeeRates(),
-            ),
-          ),
-        );
-      }
-    } else {
-      _sendResponse(
-        ElectrumWorkerGetFeesResponse(
-          result: ElectrumTransactionPriorities.fromList(
-            await _electrumClient!.getFeeRates(),
-          ),
-        ),
-      );
+      } catch (_) {}
     }
+
+    // If the above didn't run or failed, fallback to Electrum fees anyway
+    _sendResponse(
+      ElectrumWorkerGetFeesResponse(
+        result: ElectrumTransactionPriorities.fromList(
+          await _electrumClient!.getFeeRates(),
+        ),
+      ),
+    );
   }
 
   Future<void> _handleCheckTweaks(ElectrumWorkerCheckTweaksRequest request) async {
@@ -1440,11 +1433,11 @@ class ElectrumWorker {
     }
 
     // Initial status UI update, send how many blocks in total to scan
-    // TODO: isSingleScan : dont update restoreHeight
     _sendResponse(ElectrumWorkerTweaksSubscribeResponse(
       result: TweaksSyncResponse(
         height: syncHeight,
         syncStatus: StartingScanSyncStatus(syncHeight),
+        wasSingleBlock: scanData.isSingleScan,
       ),
     ));
 
@@ -1493,7 +1486,11 @@ class ElectrumWorker {
           ? SyncingSyncStatus(1, 0)
           : SyncingSyncStatus.fromHeightValues(scanData.chainTip, initialSyncHeight, syncHeight);
       _sendResponse(ElectrumWorkerTweaksSubscribeResponse(
-        result: TweaksSyncResponse(height: syncHeight, syncStatus: syncingStatus),
+        result: TweaksSyncResponse(
+          height: syncHeight,
+          syncStatus: syncingStatus,
+          wasSingleBlock: scanData.isSingleScan,
+        ),
       ));
 
       final tweakHeight = response.block;
@@ -1509,20 +1506,21 @@ class ElectrumWorker {
           try {
             final addToWallet = {};
 
-            receivers.forEach((receiver) {
-              // scanOutputs called from rust here
-              final scanResult = scanOutputs(outputPubkeys.keys.toList(), tweak, receiver);
+            // receivers.forEach((receiver) {
+            // scanOutputs called from rust here
+            final receiver = receivers.first;
+            final scanResult = scanOutputs([outputPubkeys.keys.toList()], tweak, receiver);
 
-              if (scanResult.isEmpty) {
-                return;
-              }
+            if (scanResult.isEmpty) {
+              continue;
+            }
 
-              if (addToWallet[receiver.BSpend] == null) {
-                addToWallet[receiver.BSpend] = scanResult;
-              } else {
-                addToWallet[receiver.BSpend].addAll(scanResult);
-              }
-            });
+            if (addToWallet[receiver.BSpend] == null) {
+              addToWallet[receiver.BSpend] = scanResult;
+            } else {
+              addToWallet[receiver.BSpend].addAll(scanResult);
+            }
+            // });
 
             if (addToWallet.isEmpty) {
               // no results tx, continue to next tx
@@ -1588,6 +1586,7 @@ class ElectrumWorker {
             _sendResponse(ElectrumWorkerTweaksSubscribeResponse(
               result: TweaksSyncResponse(
                 transactions: {txInfo.id: TweakResponseData(txInfo: txInfo, unspents: unspents)},
+                wasSingleBlock: scanData.isSingleScan,
               ),
             ));
 
@@ -1604,7 +1603,7 @@ class ElectrumWorker {
 
       syncHeight = tweakHeight;
 
-      if (tweakHeight >= scanData.chainTip || scanData.isSingleScan) {
+      if ((tweakHeight >= scanData.chainTip) || scanData.isSingleScan) {
         _sendResponse(
           ElectrumWorkerTweaksSubscribeResponse(
             result: TweaksSyncResponse(
@@ -1612,6 +1611,7 @@ class ElectrumWorker {
               syncStatus: scanData.isSingleScan
                   ? SyncedSyncStatus()
                   : SyncedTipSyncStatus(scanData.chainTip),
+              wasSingleBlock: scanData.isSingleScan,
             ),
           ),
         );
@@ -1627,15 +1627,7 @@ class ElectrumWorker {
 
   Future<void> _handleGetVersion(ElectrumWorkerGetVersionRequest request) async {
     _sendResponse(
-      ElectrumWorkerGetVersionResponse(
-        result: await _electrumClient!.request(
-          ElectrumRequestVersion(
-            clientName: "",
-            protocolVersion: "1.4",
-          ),
-        ),
-        id: request.id,
-      ),
+      ElectrumWorkerGetVersionResponse(result: version!, id: request.id),
     );
   }
 }

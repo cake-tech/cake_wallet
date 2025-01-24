@@ -9,7 +9,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
-List<TransactionPriority> priorityForWalletType(WalletBase wallet) {
+List<TransactionPriority> priorityForWallet(WalletBase wallet) {
   switch (wallet.type) {
     case WalletType.monero:
       return monero!.getTransactionPriorities();

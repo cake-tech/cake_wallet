@@ -160,6 +160,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     List<String> inputAddresses = [];
     List<String> outputAddresses = [];
 
+    final sentAmounts = <int>[];
     if (bundle.ins.length > 0) {
       for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
         final input = bundle.originalTransaction.inputs[i];
@@ -167,11 +168,13 @@ class ElectrumTransactionInfo extends TransactionInfo {
         final outTransaction = inputTransaction.outputs[input.txIndex];
         inputAmount += outTransaction.amount.toInt();
         if (addresses.contains(
-            BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network))) {
+          BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network),
+        )) {
           direction = TransactionDirection.outgoing;
           inputAddresses.add(
             BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network),
           );
+          sentAmounts.add(outTransaction.amount.toInt());
         }
       }
     }
@@ -214,6 +217,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
       // Self-send
       direction = TransactionDirection.incoming;
       amount = receivedAmounts.reduce((a, b) => a + b);
+    } else if (sentAmounts.length > 0) {
+      amount = sentAmounts.reduce((a, b) => a + b);
     }
 
     final fee = inputAmount - totalOutAmount;

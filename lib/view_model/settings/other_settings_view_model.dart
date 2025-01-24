@@ -24,7 +24,7 @@ abstract class OtherSettingsViewModelBase with Store {
         .then((PackageInfo packageInfo) => currentVersion = packageInfo.version);
 
     final priority = _settingsStore.priority[_wallet.type];
-    final priorities = priorityForWalletType(_wallet);
+    final priorities = priorityForWallet(_wallet);
 
     if (!priorities.contains(priority) && priorities.isNotEmpty) {
       _settingsStore.priority[_wallet.type] = priorities.first;
@@ -103,7 +103,7 @@ abstract class OtherSettingsViewModelBase with Store {
   double get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate.toDouble();
 
   int? get customPriorityItemIndex {
-    final priorities = priorityForWalletType(_wallet);
+    final priorities = priorityForWallet(_wallet);
     final customItem = priorities
         .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
     return customItem != null ? priorities.indexOf(customItem) : null;

@@ -7,15 +7,24 @@ class ServerCapability {
 
   bool supportsBatching;
   bool supportsTxVerbose;
+  String version;
 
-  ServerCapability({required this.supportsBatching, required this.supportsTxVerbose});
+  ServerCapability({
+    required this.supportsBatching,
+    required this.supportsTxVerbose,
+    required this.version,
+  });
 
   static ServerCapability fromVersion(List<String> serverVersion) {
     if (serverVersion.isNotEmpty) {
       final server = serverVersion.first.toLowerCase();
 
       if (server.contains('electrumx')) {
-        return ServerCapability(supportsBatching: true, supportsTxVerbose: true);
+        return ServerCapability(
+          supportsBatching: true,
+          supportsTxVerbose: true,
+          version: server,
+        );
       }
 
       if (server.startsWith('electrs/')) {
@@ -28,13 +37,21 @@ class ServerCapability {
         try {
           final version = ElectrumVersion.fromStr(electrsVersion);
           if (version.compareTo(ELECTRS_MIN_BATCHING_VERSION) >= 0) {
-            return ServerCapability(supportsBatching: true, supportsTxVerbose: false);
+            return ServerCapability(
+              supportsBatching: true,
+              supportsTxVerbose: false,
+              version: server,
+            );
           }
         } catch (e) {
           // ignore version parsing errors
         }
 
-        return ServerCapability(supportsBatching: false, supportsTxVerbose: false);
+        return ServerCapability(
+          supportsBatching: false,
+          supportsTxVerbose: false,
+          version: server,
+        );
       }
 
       if (server.startsWith('fulcrum')) {
@@ -43,7 +60,11 @@ class ServerCapability {
         try {
           final version = ElectrumVersion.fromStr(fulcrumVersion);
           if (version.compareTo(FULCRUM_MIN_BATCHING_VERSION) >= 0) {
-            return ServerCapability(supportsBatching: true, supportsTxVerbose: true);
+            return ServerCapability(
+              supportsBatching: true,
+              supportsTxVerbose: true,
+              version: server,
+            );
           }
         } catch (e) {}
       }
@@ -59,7 +80,11 @@ class ServerCapability {
         try {
           final version = ElectrumVersion.fromStr(mempoolElectrsVersion);
           if (version.compareTo(MEMPOOL_ELECTRS_MIN_BATCHING_VERSION) > 0) {
-            return ServerCapability(supportsBatching: true, supportsTxVerbose: false);
+            return ServerCapability(
+              supportsBatching: true,
+              supportsTxVerbose: false,
+              version: server,
+            );
           }
         } catch (e) {
           // ignore version parsing errors
@@ -67,6 +92,10 @@ class ServerCapability {
       }
     }
 
-    return ServerCapability(supportsBatching: false, supportsTxVerbose: false);
+    return ServerCapability(
+      supportsBatching: false,
+      supportsTxVerbose: false,
+      version: "unknown",
+    );
   }
 }

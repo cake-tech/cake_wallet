@@ -48,10 +48,11 @@ class ElectrumWalletSnapshot {
   static Future<ElectrumWalletSnapshot> load(
     EncryptionFileUtils encryptionFileUtils,
     String name,
-    WalletType type,
+    WalletInfo walletInfo,
     String password,
     BasedUtxoNetwork network,
   ) async {
+    final type = walletInfo.type;
     final path = await pathForWallet(name: name, type: type);
     final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
@@ -80,8 +81,14 @@ class ElectrumWalletSnapshot {
       derivationType: derivationType,
       derivationPath: derivationPath,
       unspentCoins: (data['unspent_coins'] as List?)
-          ?.map((e) => BitcoinUnspent.fromJSON(null, e as Map<String, dynamic>))
-          .toList() ?? [],
+              ?.map((e) => BitcoinUnspent.fromJSON(
+                    null,
+                    e as Map<String, dynamic>,
+                    walletInfo.derivationInfo!,
+                    network,
+                  ))
+              .toList() ??
+          [],
       didInitialSync: data['didInitialSync'] as bool?,
       walletAddressesSnapshot: walletAddressesSnapshot,
     );

@@ -566,7 +566,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           StandartListItem(title: 'New recommended fee rate', value: '$recommendedRate sat/byte'));
     }
 
-    final priorities = priorityForWalletType(wallet);
+    final priorities = priorityForWallet(wallet);
     final selectedItem = priorities.indexOf(sendViewModel.transactionPriority);
     final customItem = priorities.firstWhereOrNull(
         (element) => element.title == sendViewModel.bitcoinTransactionPriorityCustom.title);

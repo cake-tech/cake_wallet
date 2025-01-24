@@ -16,6 +16,7 @@ part 'scripthashes_subscribe.dart';
 part 'get_balance.dart';
 part 'get_history.dart';
 part 'get_tx_expanded.dart';
+part 'get_tx_hex.dart';
 part 'broadcast.dart';
 part 'list_unspent.dart';
 part 'tweaks_subscribe.dart';

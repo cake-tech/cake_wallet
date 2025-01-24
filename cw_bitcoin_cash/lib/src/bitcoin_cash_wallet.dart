@@ -121,7 +121,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       snp = await ElectrumWalletSnapshot.load(
         encryptionFileUtils,
         name,
-        walletInfo.type,
+        walletInfo,
         password,
         BitcoinCashNetwork.mainnet,
       );

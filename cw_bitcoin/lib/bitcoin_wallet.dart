@@ -144,7 +144,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       snp = await BitcoinWalletSnapshot.load(
         encryptionFileUtils,
         name,
-        walletInfo.type,
+        walletInfo,
         password,
         network,
       );
@@ -209,27 +209,29 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final isNamedElectrs = node?.uri.host.contains("electrs") ?? false;
     if (isNamedElectrs) {
       node!.isElectrs = true;
+      node!.save();
+      return true;
     }
 
     final isNamedFulcrum = node!.uri.host.contains("fulcrum");
     if (isNamedFulcrum) {
       node!.isElectrs = false;
+      node!.save();
+      return false;
     }
 
-    if (node!.isElectrs == null) {
-      final version = await waitSendWorker(ElectrumWorkerGetVersionRequest());
+    final version = await waitSendWorker(ElectrumWorkerGetVersionRequest());
 
-      if (version is List<String> && version.isNotEmpty) {
-        final server = version[0];
+    if (version is List<String> && version.isNotEmpty) {
+      final server = version[0];
 
-        if (server.toLowerCase().contains('electrs')) {
-          node!.isElectrs = true;
-        }
-      } else if (version is String && version.toLowerCase().contains('electrs')) {
+      if (server.toLowerCase().contains('electrs')) {
         node!.isElectrs = true;
-      } else {
-        node!.isElectrs = false;
       }
+    } else if (version is String && version.toLowerCase().contains('electrs')) {
+      node!.isElectrs = true;
+    } else {
+      node!.isElectrs = false;
     }
 
     node!.save();
@@ -293,8 +295,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     final psbtReadyInputs = <PSBTReadyUtxoWithAddress>[];
     for (final utxo in utxos) {
-      final rawTx =
-          (await getTransactionExpanded(hash: utxo.utxo.txHash)).originalTransaction.toHex();
+      final rawTx = await getTransactionHex(hash: utxo.utxo.txHash);
       final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
       psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
@@ -373,7 +374,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @action
-  Future<void> setSilentPaymentsScanning(bool active) async {
+  Future<void> setSilentPaymentsScanning(bool active, [int? height, bool? doSingleScan]) async {
     silentPaymentsScanningActive = active;
     final nodeSupportsSilentPayments = await getNodeSupportsSilentPayments();
     final isAllowedToScan = nodeSupportsSilentPayments || allowedToSwitchNodesForScanning;
@@ -382,14 +383,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       syncStatus = AttemptingScanSyncStatus();
 
       final tip = currentChainTip!;
+      final beginHeight = height ?? walletInfo.restoreHeight;
 
-      if (tip == walletInfo.restoreHeight) {
+      if (tip == beginHeight) {
         syncStatus = SyncedTipSyncStatus(tip);
         return;
       }
 
-      if (tip > walletInfo.restoreHeight) {
-        _setListeners(walletInfo.restoreHeight);
+      if (tip > beginHeight) {
+        _requestTweakScanning(beginHeight, doSingleScan: doSingleScan);
       }
     } else if (syncStatus is! SyncedSyncStatus) {
       await waitSendWorker(ElectrumWorkerStopScanningRequest());
@@ -503,21 +505,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @action
   @override
-  Future<void> startSync() async {
-    await _setInitialScanHeight();
-
-    await super.startSync();
-
-    if (alwaysScan == true) {
-      _setListeners(walletInfo.restoreHeight);
-    }
-  }
-
-  @action
-  @override
   Future<void> rescan({required int height, bool? doSingleScan}) async {
-    silentPaymentsScanningActive = true;
-    _setListeners(height, doSingleScan: doSingleScan);
+    setSilentPaymentsScanning(true, height, doSingleScan);
   }
 
   @action
@@ -645,14 +634,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
 
       final height = result.height;
-      if (height != null) {
+      if (height != null && result.wasSingleBlock == false) {
         await walletInfo.updateRestoreHeight(height);
       }
     }
   }
 
   @action
-  Future<void> _setListeners(int height, {bool? doSingleScan}) async {
+  Future<void> _requestTweakScanning(int height, {bool? doSingleScan}) async {
     if (currentChainTip == null) {
       throw Exception("currentChainTip is null");
     }
@@ -763,7 +752,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     // New headers received, start scanning
     if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
-      _setListeners(walletInfo.restoreHeight);
+      _requestTweakScanning(walletInfo.restoreHeight);
     }
   }
 

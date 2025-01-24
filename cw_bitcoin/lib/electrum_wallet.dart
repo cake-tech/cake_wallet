@@ -186,8 +186,7 @@ abstract class ElectrumWalletBase
         onBalanceResponse(response.result);
         break;
       case ElectrumRequestMethods.getHistoryMethod:
-        final response = ElectrumWorkerGetHistoryResponse.fromJson(messageJson);
-        onHistoriesResponse(response.result);
+        onHistoriesResponse(ElectrumWorkerGetHistoryResponse.fromJson(messageJson));
         break;
       case ElectrumRequestMethods.listunspentMethod:
         final response = ElectrumWorkerListUnspentResponse.fromJson(messageJson);
@@ -1270,12 +1269,10 @@ abstract class ElectrumWalletBase
     await Future.forEach(walletAddresses.allAddresses, (BitcoinAddressRecord addressRecord) async {
       final isChange = addressRecord.isChange;
 
-      final matchingAddressList =
-          (isChange ? walletAddresses.changeAddresses : walletAddresses.receiveAddresses).where(
-        (element) =>
-            element.type == addressRecord.type &&
-            element.cwDerivationType == addressRecord.cwDerivationType,
-      );
+      final matchingAddressList = walletAddresses
+          .getAddressesByType(addressRecord.type, isChange)
+          .where((element) =>
+              (element as BitcoinAddressRecord).cwDerivationType == addressRecord.cwDerivationType);
       final totalMatchingAddresses = matchingAddressList.length;
 
       final matchingGapLimit = (isChange
@@ -1305,11 +1302,11 @@ abstract class ElectrumWalletBase
         walletAddresses.updateAdresses(newAddresses);
 
         final newMatchingAddressList =
-            (isChange ? walletAddresses.changeAddresses : walletAddresses.receiveAddresses).where(
-          (element) =>
-              element.type == addressRecord.type &&
-              element.cwDerivationType == addressRecord.cwDerivationType,
-        );
+            walletAddresses.getAddressesByType(addressRecord.type, isChange).where(
+                  (element) =>
+                      element.type == addressRecord.type &&
+                      (element as BitcoinAddressRecord) == addressRecord.cwDerivationType,
+                );
         printV(
             "discovered ${newAddresses.length} new ${isChange ? "change" : "receive"} addresses");
         printV(
@@ -1329,7 +1326,8 @@ abstract class ElectrumWalletBase
   }
 
   @action
-  Future<void> onHistoriesResponse(List<AddressHistoriesResponse> histories) async {
+  Future<void> onHistoriesResponse(ElectrumWorkerGetHistoryResponse response) async {
+    final histories = response.result;
     if (histories.isNotEmpty) {
       final addressesWithHistory = <BitcoinAddressRecord>[];
 
@@ -1350,8 +1348,8 @@ abstract class ElectrumWalletBase
       }
 
       await save();
-    } else {
-      // checkAddressesGap();
+    } else if (response.completed) {
+      checkAddressesGap();
     }
   }
 
@@ -1582,7 +1580,7 @@ abstract class ElectrumWalletBase
       }
 
       // Identify all change outputs
-      final changeAddresses = walletAddresses.changeAddresses;
+      final changeAddresses = walletAddresses.allChangeAddresses;
       final List<BitcoinOutput> changeOutputs = outputs
           .where((output) => changeAddresses
               .any((element) => element.address == output.address.toAddress(network)))
@@ -1641,6 +1639,12 @@ abstract class ElectrumWalletBase
     } catch (e) {
       throw e;
     }
+  }
+
+  Future<String> getTransactionHex({required String hash}) async {
+    return await waitSendWorker(
+      ElectrumWorkerTxHexRequest(txHash: hash, currentChainTip: currentChainTip!),
+    ) as String;
   }
 
   Future<ElectrumTransactionBundle> getTransactionExpanded({required String hash}) async {

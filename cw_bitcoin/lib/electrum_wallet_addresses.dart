@@ -28,12 +28,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     Map<String, int>? initialChangeAddressIndex,
     BitcoinAddressType? initialAddressPageType,
   })  : _allAddresses = ObservableList.of(initialAddresses ?? []),
-        addressesOnReceiveScreen =
-            ObservableList<BaseBitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
-        receiveAddresses = ObservableList<BitcoinAddressRecord>.of(
-            (initialAddresses ?? []).where((addressRecord) => !addressRecord.isChange).toSet()),
-        changeAddresses = ObservableList<BitcoinAddressRecord>.of(
-            (initialAddresses ?? []).where((addressRecord) => addressRecord.isChange).toSet()),
         currentReceiveAddressIndexByType = initialRegularAddressIndex ?? {},
         currentChangeAddressIndexByType = initialChangeAddressIndex ?? {},
         _addressPageType = initialAddressPageType ??
@@ -46,10 +40,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   static const defaultChangeAddressesCount = 17;
   static const gap = 20;
 
+  final walletAddressTypes = <BitcoinAddressType>[];
+
   final ObservableList<BitcoinAddressRecord> _allAddresses;
-  final ObservableList<BaseBitcoinAddressRecord> addressesOnReceiveScreen;
-  final ObservableList<BitcoinAddressRecord> receiveAddresses;
-  final ObservableList<BitcoinAddressRecord> changeAddresses;
+  @observable
+  Map<BitcoinAddressType, List<BaseBitcoinAddressRecord>> receiveAddressesByType = {};
+  @observable
+  Map<BitcoinAddressType, List<BaseBitcoinAddressRecord>> changeAddressesByType = {};
+
   final BasedUtxoNetwork network;
 
   final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets;
@@ -60,6 +58,24 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @observable
   late BitcoinAddressType _addressPageType;
+
+  @computed
+  List<BitcoinAddressRecord> get allChangeAddresses =>
+      _allAddresses.where((addr) => addr.isChange).toList();
+
+  @computed
+  List<BaseBitcoinAddressRecord> get selectedReceiveAddresses =>
+      receiveAddressesByType[_addressPageType]!;
+
+  @computed
+  List<BaseBitcoinAddressRecord> get selectedChangeAddresses =>
+      receiveAddressesByType[_addressPageType]!;
+
+  List<BaseBitcoinAddressRecord> getAddressesByType(
+    BitcoinAddressType type, [
+    bool isChange = false,
+  ]) =>
+      isChange ? changeAddressesByType[type]! : receiveAddressesByType[type]!;
 
   @computed
   BitcoinAddressType get addressPageType => _addressPageType;
@@ -75,6 +91,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return _allAddresses.firstWhere((element) => element.address == address);
   }
 
+  // TODO: toggle to switch
   @observable
   BitcoinAddressType changeAddressType = SegwitAddressType.p2wpkh;
 
@@ -83,9 +100,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   String get address {
     String receiveAddress = "";
 
-    final typeMatchingReceiveAddresses = addressesOnReceiveScreen.where((addr) => !addr.isUsed);
+    final typeMatchingReceiveAddresses = selectedReceiveAddresses.where(
+      (addressRecord) => !addressRecord.isUsed,
+    );
 
-    if ((isEnabledAutoGenerateSubaddress && receiveAddresses.isEmpty) ||
+    if ((isEnabledAutoGenerateSubaddress && selectedReceiveAddresses.isEmpty) ||
         typeMatchingReceiveAddresses.isEmpty) {
       receiveAddress = generateNewAddress().address;
     } else {
@@ -94,7 +113,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
       if (typeMatchingReceiveAddresses.isNotEmpty) {
         if (previousAddressMatchesType &&
-            typeMatchingReceiveAddresses.first.address != addressesOnReceiveScreen.first.address) {
+            typeMatchingReceiveAddresses.first.address != selectedReceiveAddresses.first.address) {
           receiveAddress = previousAddressRecord!.address;
         } else {
           receiveAddress = typeMatchingReceiveAddresses.first.address;
@@ -143,22 +162,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @observable
   BitcoinAddressRecord? previousAddressRecord;
 
-  @computed
-  int get totalCountOfReceiveAddresses => addressesOnReceiveScreen.fold(0, (acc, addressRecord) {
-        if (!addressRecord.isChange) {
-          return acc + 1;
-        }
-        return acc;
-      });
-
-  @computed
-  int get totalCountOfChangeAddresses => addressesOnReceiveScreen.fold(0, (acc, addressRecord) {
-        if (addressRecord.isChange) {
-          return acc + 1;
-        }
-        return acc;
-      });
-
   CWBitcoinDerivationType getHDWalletType() {
     if (hdWallets.containsKey(CWBitcoinDerivationType.bip39)) {
       return CWBitcoinDerivationType.bip39;
@@ -171,25 +174,21 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   Future<void> init() async {
-    updateAddressesOnReceiveScreen();
-    updateReceiveAddresses();
-    updateChangeAddresses();
+    updateAddressesByType();
     updateHiddenAddresses();
     await updateAddressesInBox();
   }
 
   @action
   Future<BaseBitcoinAddressRecord> getChangeAddress() async {
-    updateChangeAddresses();
-
-    final address = changeAddresses.firstWhere(
-      (addressRecord) => _isUnusedChangeAddressByType(addressRecord, changeAddressType),
+    final address = selectedChangeAddresses.firstWhere(
+      (addr) => _isUnusedChangeAddressByType(addr, changeAddressType),
     );
     return address;
   }
 
   BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
-    final newAddressIndex = addressesOnReceiveScreen.fold(
+    final newAddressIndex = selectedReceiveAddresses.fold(
       0,
       (int acc, addressRecord) => addressRecord.isChange == false ? acc + 1 : acc,
     );
@@ -282,21 +281,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  void updateAddressesOnReceiveScreen() {
-    addressesOnReceiveScreen.clear();
-    addressesOnReceiveScreen.addAll(_allAddresses.where(_isAddressPageTypeMatch).toList());
-  }
-
-  @action
-  void updateReceiveAddresses() {
-    receiveAddresses.clear();
-    receiveAddresses.addAll(_allAddresses.where((addressRecord) => !addressRecord.isChange));
-  }
-
-  @action
-  void updateChangeAddresses() {
-    changeAddresses.clear();
-    changeAddresses.addAll(_allAddresses.where((addressRecord) => addressRecord.isChange));
+  void updateAddressesByType() {
+    receiveAddressesByType.clear();
+    walletAddressTypes.forEach((type) {
+      receiveAddressesByType[type] =
+          _allAddresses.where((addr) => _isAddressByType(addr, type)).toList();
+      changeAddressesByType[type] =
+          _allAddresses.where((addr) => _isAddressByType(addr, type)).toList();
+    });
   }
 
   @action
@@ -310,8 +302,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
         : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
 
-    final startIndex = (isChange ? changeAddresses : receiveAddresses)
-        .where((addr) => addr.cwDerivationType == derivationType && addr.type == addressType)
+    final startIndex = (isChange ? selectedChangeAddresses : selectedReceiveAddresses)
+        .where((addr) =>
+            (addr as BitcoinAddressRecord).cwDerivationType == derivationType &&
+            addr.type == addressType)
         .length;
 
     final newAddresses = <BitcoinAddressRecord>[];
@@ -420,9 +414,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (replacedAddresses.isNotEmpty) {
       _allAddresses.addAll(replacedAddresses);
     } else {
-      updateAddressesOnReceiveScreen();
-      updateReceiveAddresses();
-      updateChangeAddresses();
+      updateAddressesByType();
     }
   }
 
@@ -431,9 +423,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     this._allAddresses.addAll(addresses);
 
     updateHiddenAddresses();
-    updateAddressesOnReceiveScreen();
-    updateReceiveAddresses();
-    updateChangeAddresses();
+    updateAddressesByType();
   }
 
   @action
@@ -447,18 +437,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   Future<void> setAddressType(BitcoinAddressType type) async {
     _addressPageType = type;
-    updateAddressesOnReceiveScreen();
+    updateAddressesByType();
     walletInfo.addressPageType = addressPageType.toString();
     await walletInfo.save();
   }
 
-  bool _isAddressPageTypeMatch(BitcoinAddressRecord addressRecord) {
-    return _isAddressByType(addressRecord, addressPageType);
-  }
-
   bool _isAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) => addr.type == type;
 
-  bool _isUnusedChangeAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) {
+  bool _isUnusedChangeAddressByType(BaseBitcoinAddressRecord addr, BitcoinAddressType type) {
     return addr.isChange && !addr.isUsed && addr.type == type;
   }
 

@@ -72,13 +72,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebEnabled = alwaysScan ?? false;
 
     if (walletAddressesSnapshot != null) {
-      // walletAddresses = LitecoinWalletAddresses.fromJson(
-      //   walletAddressesSnapshot,
-      //   walletInfo,
-      //   network: network,
-      //   isHardwareWallet: isHardwareWallet,
-      //   hdWallets: hdWallets,
-      // );
+      walletAddresses = LitecoinWalletAddressesBase.fromJson(
+        walletAddressesSnapshot,
+        walletInfo,
+        network: network,
+        isHardwareWallet: isHardwareWallet,
+        hdWallets: hdWallets,
+      );
     } else {
       walletAddresses = LitecoinWalletAddresses(
         walletInfo,
@@ -186,7 +186,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       snp = await LitecoinWalletSnapshot.load(
         encryptionFileUtils,
         name,
-        walletInfo.type,
+        walletInfo,
         password,
         LitecoinNetwork.mainnet,
       );
@@ -346,6 +346,19 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
               // if the confirmations haven't changed, skip updating:
               if (tx.confirmations == confirmations) continue;
+
+              // if an outgoing tx is now confirmed, delete the utxo from the box (delete the unspent coin):
+              if (confirmations >= 2 && tx.direction == TransactionDirection.outgoing) {
+                for (var coin in unspentCoins) {
+                  if (tx.inputAddresses?.contains(coin.address) ?? false) {
+                    final utxo = mwebUtxosBox.get(coin.address);
+                    if (utxo != null) {
+                      printV("deleting utxo ${coin.address} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                      await mwebUtxosBox.delete(coin.address);
+                    }
+                  }
+                }
+              }
 
               tx.confirmations = confirmations;
               tx.isPending = false;
@@ -786,84 +799,85 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   // @override
-  // Future<ElectrumBalance> fetchBalances() async {
-  //   final balance = await super.fetchBalances();
+  Future<void> updateBalance([Set<String>? scripthashes, bool? wait]) async {
+    await super.updateBalance(scripthashes, true);
+    final balance = this.balance[currency]!;
 
-  //   if (!mwebEnabled) {
-  //     return balance;
-  //   }
+    if (!mwebEnabled) {
+      return;
+    }
 
-  //   // update unspent balances:
-  //   await updateUnspent();
+    // update unspent balances:
+    await updateUnspent();
 
-  //   int confirmed = balance.confirmed;
-  //   int unconfirmed = balance.unconfirmed;
-  //   int confirmedMweb = 0;
-  //   int unconfirmedMweb = 0;
-  //   try {
-  //     mwebUtxosBox.values.forEach((utxo) {
-  //       if (utxo.height > 0) {
-  //         confirmedMweb += utxo.value.toInt();
-  //       } else {
-  //         unconfirmedMweb += utxo.value.toInt();
-  //       }
-  //     });
-  //     if (unconfirmedMweb > 0) {
-  //       unconfirmedMweb = -1 * (confirmedMweb - unconfirmedMweb);
-  //     }
-  //   } catch (_) {}
+    int confirmed = balance.confirmed;
+    int unconfirmed = balance.unconfirmed;
+    int confirmedMweb = 0;
+    int unconfirmedMweb = 0;
+    try {
+      mwebUtxosBox.values.forEach((utxo) {
+        if (utxo.height > 0) {
+          confirmedMweb += utxo.value.toInt();
+        } else {
+          unconfirmedMweb += utxo.value.toInt();
+        }
+      });
+      if (unconfirmedMweb > 0) {
+        unconfirmedMweb = -1 * (confirmedMweb - unconfirmedMweb);
+      }
+    } catch (_) {}
 
-  //   for (var addressRecord in walletAddresses.allAddresses) {
-  //     addressRecord.balance = 0;
-  //     addressRecord.txCount = 0;
-  //   }
+    for (var addressRecord in walletAddresses.allAddresses) {
+      addressRecord.balance = 0;
+      addressRecord.txCount = 0;
+    }
 
-  //   unspentCoins.forEach((coin) {
-  //     final coinInfoList = unspentCoinsInfo.values.where(
-  //       (element) =>
-  //           element.walletId.contains(id) &&
-  //           element.hash.contains(coin.hash) &&
-  //           element.vout == coin.vout,
-  //     );
+    unspentCoins.forEach((coin) {
+      final coinInfoList = unspentCoinsInfo.values.where(
+        (element) =>
+            element.walletId.contains(id) &&
+            element.hash.contains(coin.hash) &&
+            element.vout == coin.vout,
+      );
 
-  //     if (coinInfoList.isNotEmpty) {
-  //       final coinInfo = coinInfoList.first;
+      if (coinInfoList.isNotEmpty) {
+        final coinInfo = coinInfoList.first;
 
-  //       coin.isFrozen = coinInfo.isFrozen;
-  //       coin.isSending = coinInfo.isSending;
-  //       coin.note = coinInfo.note;
-  //         coin.bitcoinAddressRecord.balance += coinInfo.value;
-  //     } else {
-  //       super.addCoinInfo(coin);
-  //     }
-  //   });
+        coin.isFrozen = coinInfo.isFrozen;
+        coin.isSending = coinInfo.isSending;
+        coin.note = coinInfo.note;
+        coin.bitcoinAddressRecord.balance += coinInfo.value;
+      } else {
+        super.addCoinInfo(coin);
+      }
+    });
 
-  //   // update the txCount for each address using the tx history, since we can't rely on mwebd
-  //   // to have an accurate count, we should just keep it in sync with what we know from the tx history:
-  //   for (final tx in transactionHistory.transactions.values) {
-  //     // if (tx.isPending) continue;
-  //     if (tx.inputAddresses == null || tx.outputAddresses == null) {
-  //       continue;
-  //     }
-  //     final txAddresses = tx.inputAddresses! + tx.outputAddresses!;
-  //     for (final address in txAddresses) {
-  //       final addressRecord = walletAddresses.allAddresses
-  //           .firstWhereOrNull((addressRecord) => addressRecord.address == address);
-  //       if (addressRecord == null) {
-  //         continue;
-  //       }
-  //       addressRecord.txCount++;
-  //     }
-  //   }
+    // update the txCount for each address using the tx history, since we can't rely on mwebd
+    // to have an accurate count, we should just keep it in sync with what we know from the tx history:
+    for (final tx in transactionHistory.transactions.values) {
+      // if (tx.isPending) continue;
+      if (tx.inputAddresses == null || tx.outputAddresses == null) {
+        continue;
+      }
+      final txAddresses = tx.inputAddresses! + tx.outputAddresses!;
+      for (final address in txAddresses) {
+        final addressRecord = walletAddresses.allAddresses
+            .firstWhereOrNull((addressRecord) => addressRecord.address == address);
+        if (addressRecord == null) {
+          continue;
+        }
+        addressRecord.txCount++;
+      }
+    }
 
-  //   return ElectrumBalance(
-  //     confirmed: confirmed,
-  //     unconfirmed: unconfirmed,
-  //     frozen: balance.frozen,
-  //     secondConfirmed: confirmedMweb,
-  //     secondUnconfirmed: unconfirmedMweb,
-  //   );
-  // }
+    this.balance[currency] = ElectrumBalance(
+      confirmed: confirmed,
+      unconfirmed: unconfirmed,
+      frozen: balance.frozen,
+      secondConfirmed: confirmedMweb,
+      secondUnconfirmed: unconfirmedMweb,
+    );
+  }
 
   @override
   ElectrumTxCreateUtxoDetails createUTXOS({

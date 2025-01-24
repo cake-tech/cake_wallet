@@ -529,7 +529,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   }
 
   Future<void> pickTransactionPriority(BuildContext context) async {
-    final items = priorityForWalletType(sendViewModel.wallet);
+    final items = priorityForWallet(sendViewModel.wallet);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
     final customItemIndex = sendViewModel.getCustomPriorityIndex(items);
     final isBitcoinWallet = sendViewModel.walletType == WalletType.bitcoin;

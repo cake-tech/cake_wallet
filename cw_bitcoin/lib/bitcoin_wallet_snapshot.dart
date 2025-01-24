@@ -4,7 +4,7 @@ import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/wallet_info.dart';
 
 class BitcoinWalletSnapshot extends ElectrumWalletSnapshot {
   BitcoinWalletSnapshot({
@@ -27,10 +27,11 @@ class BitcoinWalletSnapshot extends ElectrumWalletSnapshot {
   static Future<BitcoinWalletSnapshot> load(
     EncryptionFileUtils encryptionFileUtils,
     String name,
-    WalletType type,
+    WalletInfo walletInfo,
     String password,
     BasedUtxoNetwork network,
   ) async {
+    final type = walletInfo.type;
     final path = await pathForWallet(name: name, type: type);
     final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
@@ -38,7 +39,7 @@ class BitcoinWalletSnapshot extends ElectrumWalletSnapshot {
     final ElectrumWalletSnapshot electrumWalletSnapshot = await ElectrumWalletSnapshot.load(
       encryptionFileUtils,
       name,
-      type,
+      walletInfo,
       password,
       network,
     );

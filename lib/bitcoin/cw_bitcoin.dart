@@ -153,7 +153,10 @@ class CWBitcoin extends Bitcoin {
   @computed
   List<ElectrumSubAddress> getSubAddresses(Object wallet) {
     final electrumWallet = wallet as ElectrumWallet;
-    return electrumWallet.walletAddresses.addressesOnReceiveScreen
+    return [
+      ...electrumWallet.walletAddresses.selectedReceiveAddresses,
+      ...electrumWallet.walletAddresses.selectedChangeAddresses
+    ]
         .map(
           (addr) => ElectrumSubAddress(
             id: addr.index,

@@ -92,7 +92,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       setTransactionPriority(bitcoinTransactionPriorityMedium);
     }
     final priority = _settingsStore.priority[wallet.type];
-    final priorities = priorityForWalletType(wallet);
+    final priorities = priorityForWallet(wallet);
     if (priorities.isNotEmpty && !priorities.contains(priority)) {
       _settingsStore.priority[wallet.type] = priorities.first;
     }

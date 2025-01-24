@@ -72,8 +72,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
         : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
 
-    final startIndex = (isChange ? changeAddresses : receiveAddresses)
-        .where((addr) => addr.cwDerivationType == derivationType && addr.type == addressType)
+    final startIndex = getAddressesByType(addressType, isChange)
+        .where((addr) => (addr as BitcoinAddressRecord).cwDerivationType == derivationType)
         .length;
 
     final mwebAddresses = <LitecoinMWEBAddressRecord>[];
@@ -268,7 +268,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   @override
   String get addressForExchange {
     // don't use mweb addresses for exchange refund address:
-    final addresses = receiveAddresses
+    final addresses = selectedReceiveAddresses
         .where((element) => element.type == SegwitAddressType.p2wpkh && !element.isUsed);
     return addresses.first.address;
   }
@@ -329,6 +329,64 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     addressesSet.addAll(addresses);
     this.mwebAddresses.clear();
     this.mwebAddresses.addAll(addressesSet);
-    updateAddressesOnReceiveScreen();
+    updateAddressesByType();
+  }
+
+  Map<String, dynamic> toJson() {
+    final json = super.toJson();
+    json['mwebAddresses'] = mwebAddresses.map((address) => address.toJSON()).toList();
+    // json['mwebAddressIndex'] =
+    return json;
+  }
+
+  static Map<String, dynamic> fromSnapshot(Map<dynamic, dynamic> data) {
+    final electrumSnapshot = ElectrumWalletAddressesBase.fromSnapshot(data);
+
+    final mwebAddresses = data['mweb_addresses'] as List? ??
+        <Object>[].map((e) => LitecoinMWEBAddressRecord.fromJSON(e as String)).toList();
+
+    // var mwebAddressIndex = 0;
+
+    // try {
+    //   mwebAddressIndex = int.parse(data['silent_address_index'] as String? ?? '0');
+    // } catch (_) {}
+
+    return {
+      'allAddresses': electrumSnapshot["addresses"],
+      'addressPageType': data['address_page_type'] as String?,
+      'receiveAddressIndexByType': electrumSnapshot["receiveAddressIndexByType"],
+      'changeAddressIndexByType': electrumSnapshot["changeAddressIndexByType"],
+      'mwebAddresses': mwebAddresses,
+    };
+  }
+
+  static LitecoinWalletAddressesBase fromJson(
+    Map<String, dynamic> json,
+    WalletInfo walletInfo, {
+    required Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets,
+    required BasedUtxoNetwork network,
+    required bool isHardwareWallet,
+    List<BitcoinAddressRecord>? initialAddresses,
+    List<LitecoinMWEBAddressRecord>? initialMwebAddresses,
+  }) {
+    initialAddresses ??= (json['allAddresses'] as List)
+        .map((record) => BitcoinAddressRecord.fromJSON(record as String))
+        .toList();
+
+    initialMwebAddresses ??= (json['mwebAddresses'] as List)
+        .map(
+          (address) => LitecoinMWEBAddressRecord.fromJSON(address as String),
+        )
+        .toList();
+
+    return LitecoinWalletAddresses(
+      walletInfo,
+      hdWallets: hdWallets,
+      network: network,
+      isHardwareWallet: isHardwareWallet,
+      initialAddresses: initialAddresses,
+      initialMwebAddresses: initialMwebAddresses,
+      mwebEnabled: true, // TODO
+    );
   }
 }

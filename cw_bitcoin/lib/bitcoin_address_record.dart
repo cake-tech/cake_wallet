@@ -4,6 +4,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_core/wallet_info.dart';
 
 abstract class BaseBitcoinAddressRecord {
   BaseBitcoinAddressRecord(
@@ -20,16 +21,15 @@ abstract class BaseBitcoinAddressRecord {
         _balance = balance,
         _name = name,
         _isUsed = isUsed,
-        _isHidden = isHidden ?? isChange,
+        isHidden = isHidden ?? isChange,
         _isChange = isChange;
 
   @override
   bool operator ==(Object o) => o is BaseBitcoinAddressRecord && address == o.address;
 
   final String address;
-  bool _isHidden;
+  bool isHidden;
 
-  bool get isHidden => _isHidden;
   final bool _isChange;
 
   bool get isChange => _isChange;
@@ -53,7 +53,7 @@ abstract class BaseBitcoinAddressRecord {
 
   void setAsUsed() {
     _isUsed = true;
-    _isHidden = true;
+    isHidden = true;
   }
 
   void setNewName(String label) => _name = label;
@@ -75,11 +75,15 @@ abstract class BaseBitcoinAddressRecord {
         'runtimeType': runtimeType.toString(),
       });
 
-  static BaseBitcoinAddressRecord fromJSON(String jsonSource) {
+  static BaseBitcoinAddressRecord fromJSON(
+    String jsonSource, [
+    DerivationInfo? derivationInfo,
+    BasedUtxoNetwork? network,
+  ]) {
     final decoded = json.decode(jsonSource) as Map;
 
     if (decoded['runtimeType'] == 'BitcoinAddressRecord') {
-      return BitcoinAddressRecord.fromJSON(jsonSource);
+      return BitcoinAddressRecord.fromJSON(jsonSource, derivationInfo, network);
     } else if (decoded['runtimeType'] == 'BitcoinSilentPaymentAddressRecord') {
       return BitcoinSilentPaymentAddressRecord.fromJSON(jsonSource);
     } else if (decoded['runtimeType'] == 'BitcoinReceivedSPAddressRecord') {
@@ -87,7 +91,7 @@ abstract class BaseBitcoinAddressRecord {
     } else if (decoded['runtimeType'] == 'LitecoinMWEBAddressRecord') {
       return LitecoinMWEBAddressRecord.fromJSON(jsonSource);
     } else {
-      throw ArgumentError('Unknown runtimeType');
+      return BitcoinAddressRecord.fromJSON(jsonSource, derivationInfo, network);
     }
   }
 }
@@ -120,17 +124,34 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     }
   }
 
-  factory BitcoinAddressRecord.fromJSON(String jsonSource) {
+  factory BitcoinAddressRecord.fromJSON(
+    String jsonSource, [
+    DerivationInfo? derivationInfo,
+    BasedUtxoNetwork? network,
+  ]) {
     final decoded = json.decode(jsonSource) as Map;
+    final derivationInfoSnp = decoded['derivationInfo'] as Map<String, dynamic>?;
+    final derivationTypeSnp = decoded['derivationType'] as int?;
+    final cwDerivationType = derivationTypeSnp != null
+        ? CWBitcoinDerivationType.values[derivationTypeSnp]
+        : derivationInfo!.derivationType == DerivationType.bip39
+            ? CWBitcoinDerivationType.old_bip39
+            : CWBitcoinDerivationType.old_electrum;
 
     return BitcoinAddressRecord(
       decoded['address'] as String,
       index: decoded['index'] as int,
-      derivationInfo: BitcoinDerivationInfo.fromJSON(
-        decoded['derivationInfo'] as Map<String, dynamic>,
-      ),
-      // TODO: make nullable maybe?
-      cwDerivationType: CWBitcoinDerivationType.values[decoded['derivationType'] as int],
+      derivationInfo: derivationInfoSnp == null
+          ? [CWBitcoinDerivationType.bip39, CWBitcoinDerivationType.old_bip39]
+                  .contains(cwDerivationType)
+              ? BitcoinDerivationInfo.fromDerivationAndAddress(
+                  BitcoinDerivationType.bip39,
+                  decoded['address'] as String,
+                  network!,
+                )
+              : BitcoinDerivationInfos.ELECTRUM
+          : BitcoinDerivationInfo.fromJSON(derivationInfoSnp),
+      cwDerivationType: cwDerivationType,
       isHidden: decoded['isHidden'] as bool? ?? false,
       isChange: decoded['isChange'] as bool? ?? false,
       isUsed: decoded['isUsed'] as bool? ?? false,
@@ -218,7 +239,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     return BitcoinSilentPaymentAddressRecord(
       decoded['address'] as String,
       derivationPath:
-          decoded['derivationPath'] as String? ?? BitcoinWalletAddressesBase.OLD_SP_SPEND_PATH,
+          (decoded['derivationPath'] as String?) ?? BitcoinWalletAddressesBase.OLD_SP_PATH,
       labelIndex: decoded['index'] as int,
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,

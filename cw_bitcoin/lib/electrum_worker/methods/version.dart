@@ -40,7 +40,7 @@ class ElectrumWorkerGetVersionError extends ElectrumWorkerErrorResponse {
   String get method => ElectrumRequestMethods.version.method;
 }
 
-class ElectrumWorkerGetVersionResponse extends ElectrumWorkerResponse<List<String>, List<String>> {
+class ElectrumWorkerGetVersionResponse extends ElectrumWorkerResponse<String, String> {
   ElectrumWorkerGetVersionResponse({
     required super.result,
     super.error,
@@ -49,14 +49,14 @@ class ElectrumWorkerGetVersionResponse extends ElectrumWorkerResponse<List<Strin
   }) : super(method: ElectrumRequestMethods.version.method);
 
   @override
-  List<String> resultJson(result) {
-    return result;
+  String resultJson(result) {
+    return result.toString();
   }
 
   @override
   factory ElectrumWorkerGetVersionResponse.fromJson(Map<String, dynamic> json) {
     return ElectrumWorkerGetVersionResponse(
-      result: json['result'] as List<String>,
+      result: json['result'] as String,
       error: json['error'] as String?,
       id: json['id'] as int?,
       completed: json['completed'] as bool? ?? false,
