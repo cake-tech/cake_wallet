@@ -82,10 +82,6 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
     String? address;
 
-    if (widget.homeSettingsViewModel.walletType == WalletType.zano) {
-      _tokenDecimalController.text = "12";
-    }
-
     if (widget.token != null) {
       address = widget.homeSettingsViewModel.getTokenAddressBasedOnWallet(widget.token!);
 

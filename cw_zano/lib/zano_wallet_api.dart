@@ -166,7 +166,7 @@ mixin ZanoWalletApi {
     final json = await invokeMethod('proxy_to_daemon', ProxyToDaemonParams(body: body, uri: uri));
     final map = jsonDecode(json) as Map<String, dynamic>?;
     _checkForErrors(map);
-    return ProxyToDaemonResult.fromJson(map!['result']['result'] as Map<String, dynamic>);
+    return ProxyToDaemonResult.fromJson(map!['result'] as Map<String, dynamic>);
   }
 
   Future<ZanoAsset?> getAssetInfo(String assetId) async {

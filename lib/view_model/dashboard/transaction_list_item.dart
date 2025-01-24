@@ -64,6 +64,7 @@ class TransactionListItem extends ActionListItem with Keyable {
     switch (balanceViewModel.wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.zano:
         if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
           return ' (${transaction.confirmations}/10)';
         }

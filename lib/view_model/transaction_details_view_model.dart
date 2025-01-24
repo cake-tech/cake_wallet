@@ -185,7 +185,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.wownero:
         return 'https://explore.wownero.com/tx/${txId}';
       case WalletType.zano:
-        return 'https://testnet-explorer.zano.org/transaction/${txId}';
+        return 'https://explorer.zano.org/transaction/${txId}';
       case WalletType.none:
         return '';
     }
