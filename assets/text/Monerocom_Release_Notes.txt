@@ -1,2 +1,4 @@
+Monero restore with passphrase support
+Add Chainflip Exhcnage provider
 UI enhancements
 Bug fixes
