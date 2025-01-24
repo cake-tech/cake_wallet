@@ -307,6 +307,7 @@ abstract class BalanceViewModelBase with Store {
     switch (type) {
       case WalletType.monero:
       case WalletType.wownero:
+      case WalletType.zano:
         return true;
       default:
         return false;

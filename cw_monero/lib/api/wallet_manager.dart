@@ -205,7 +205,7 @@ void restoreWalletFromPolyseedWithOffset(
     required String seedOffset,
     required String language,
     int nettype = 0}) {
-  
+
   txhistory = null;
   final newWptr = monero.WalletManager_createWalletFromPolyseed(
     wmPtr,
@@ -231,7 +231,7 @@ void restoreWalletFromPolyseedWithOffset(
 
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: seedOffset);
-
+  monero.Wallet_store(wptr!);
   storeSync();
 
   openedWalletsByPath[path] = wptr!;

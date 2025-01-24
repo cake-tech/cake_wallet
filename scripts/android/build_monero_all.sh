@@ -9,7 +9,7 @@ cd "$(dirname "$0")"
 
 ../prepare_moneroc.sh
 
-for COIN in monero wownero;
+for COIN in monero wownero zano;
 do
     pushd ../monero_c
         for target in {x86_64,aarch64}-linux-android armv7a-linux-androideabi

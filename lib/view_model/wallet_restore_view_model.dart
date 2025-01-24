@@ -170,6 +170,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name, 
             password: password, 
             height: height, 
+            passphrase: passphrase??'',
             mnemonic: seed);
         case WalletType.none:
           break;

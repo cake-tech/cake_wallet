@@ -186,7 +186,12 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
             );
           case WalletType.zano:
             return zano!.createZanoRestoreWalletFromSeedCredentials(
-              name: name, password: password, height: height, mnemonic: restoreWallet.mnemonicSeed ?? '');
+              name: name,
+              password: password,
+              height: height,
+              mnemonic: restoreWallet.mnemonicSeed ?? '',
+              passphrase: restoreWallet.passphrase ?? '',
+            );
           default:
             throw Exception('Unexpected type: ${type.toString()}');
         }
