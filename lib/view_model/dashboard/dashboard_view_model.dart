@@ -152,127 +152,17 @@ abstract class DashboardViewModelBase with Store {
         type = appStore.wallet!.type,
         transactions = ObservableList<TransactionListItem>(),
         wallet = appStore.wallet! {
-    name = wallet.name;
-    type = wallet.type;
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
     isShowThirdYatIntroduction = false;
     updateActions();
 
-    final _wallet = wallet;
-
-    if (_wallet.type == WalletType.monero) {
-      subname = monero!.getCurrentAccount(_wallet).label;
-
-      _onMoneroAccountChangeReaction = reaction(
-          (_) => monero!.getMoneroWalletDetails(wallet).account,
-          (Account account) => _onMoneroAccountChange(_wallet));
-
-      _onMoneroBalanceChangeReaction = reaction(
-          (_) => monero!.getMoneroWalletDetails(wallet).balance,
-          (MoneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
-
-      final _accountTransactions = _wallet.transactionHistory.transactions.values
-          .where((tx) =>
-              monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id)
-          .toList();
-
-      final sortedTransactions = [..._accountTransactions];
-      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
-
-      transactions = ObservableList.of(
-        sortedTransactions.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
-            key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
-          ),
-        ),
-      );
-    } else if (_wallet.type == WalletType.wownero) {
-      subname = wow.wownero!.getCurrentAccount(_wallet).label;
-
-      _onMoneroAccountChangeReaction = reaction(
-          (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
-          (wow.Account account) => _onMoneroAccountChange(_wallet));
-
-      _onMoneroBalanceChangeReaction = reaction(
-          (_) => wow.wownero!.getWowneroWalletDetails(wallet).balance,
-          (wow.WowneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
-
-      final _accountTransactions = _wallet.transactionHistory.transactions.values
-          .where((tx) =>
-              wow.wownero!.getTransactionInfoAccountId(tx) ==
-              wow.wownero!.getCurrentAccount(wallet).id)
-          .toList();
-
-      final sortedTransactions = [..._accountTransactions];
-      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
-
-      transactions = ObservableList.of(
-        sortedTransactions.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
-            key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
-          ),
-        ),
-      );
-    } else {
-      final sortedTransactions = [...wallet.transactionHistory.transactions.values];
-      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
-
-      transactions = ObservableList.of(
-        sortedTransactions.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
-            key: ValueKey('${_wallet.type.name}_transaction_history_item_${transaction.id}_key'),
-          ),
-        ),
-      );
-    }
+    onWalletChange(wallet);
 
     // TODO: nano sub-account generation is disabled:
     // if (_wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
     //   subname = nano!.getCurrentAccount(_wallet).label;
     // }
-
-    reaction((_) => appStore.wallet, (wallet) {
-      _onWalletChange(wallet);
-      _checkMweb();
-    });
-
-    connectMapToListWithTransform(
-        appStore.wallet!.transactionHistory.transactions,
-        transactions,
-        (TransactionInfo? transaction) => TransactionListItem(
-              transaction: transaction!,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore,
-              key: ValueKey(
-                '${_wallet.type.name}_transaction_history_item_${transaction.id}_key',
-              ),
-            ), filter: (TransactionInfo? transaction) {
-      if (transaction == null) {
-        return false;
-      }
-
-      final wallet = _wallet;
-      if (wallet.type == WalletType.monero) {
-        return monero!.getTransactionInfoAccountId(transaction) ==
-            monero!.getCurrentAccount(wallet).id;
-      }
-      if (wallet.type == WalletType.wownero) {
-        return wow.wownero!.getTransactionInfoAccountId(transaction) ==
-            wow.wownero!.getCurrentAccount(wallet).id;
-      }
-
-      return true;
-    });
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -283,9 +173,7 @@ abstract class DashboardViewModelBase with Store {
     }
 
     _checkMweb();
-    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
-      _checkMweb();
-    });
+    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
   }
 
   void _checkMweb() {
@@ -383,12 +271,13 @@ abstract class DashboardViewModelBase with Store {
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
 
   @computed
-  bool get hasRescan =>
-      wallet.type == WalletType.bitcoin ||
-      wallet.type == WalletType.monero ||
-      wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.wownero ||
-      wallet.type == WalletType.haven;
+  bool get hasRescan => [
+        WalletType.bitcoin,
+        WalletType.monero,
+        WalletType.litecoin,
+        WalletType.wownero,
+        WalletType.haven
+      ].contains(wallet.type);
 
   @computed
   bool get isMoneroViewOnly {
@@ -545,30 +434,25 @@ abstract class DashboardViewModelBase with Store {
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
   @computed
-  bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
+  bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(wallet.type);
 
   @computed
   bool get hasSignMessages {
-    if (wallet.isHardwareWallet) {
-      return false;
-    }
-    switch (wallet.type) {
-      case WalletType.monero:
-      case WalletType.litecoin:
-      case WalletType.bitcoin:
-      case WalletType.bitcoinCash:
-      case WalletType.ethereum:
-      case WalletType.polygon:
-      case WalletType.solana:
-      case WalletType.nano:
-      case WalletType.banano:
-      case WalletType.tron:
-      case WalletType.wownero:
-        return true;
-      case WalletType.haven:
-      case WalletType.none:
-        return false;
-    }
+    if (wallet.isHardwareWallet) return false;
+
+    return [
+      WalletType.monero,
+      WalletType.litecoin,
+      WalletType.bitcoin,
+      WalletType.bitcoinCash,
+      WalletType.ethereum,
+      WalletType.polygon,
+      WalletType.solana,
+      WalletType.nano,
+      WalletType.banano,
+      WalletType.tron,
+      WalletType.wownero
+    ].contains(wallet.type);
   }
 
   bool get showRepWarning {
@@ -593,11 +477,11 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @action
-  void _onWalletChange(
+  void onWalletChange(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet) {
-    if (wallet == null) {
-      return;
-    }
+    if (wallet == null) return;
+
+    _checkMweb();
 
     this.wallet = wallet;
     type = wallet.type;
