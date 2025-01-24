@@ -21,6 +21,11 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
   }) : super(walletInfo);
 
   @override
+  final walletAddressTypes = BITCOIN_CASH_ADDRESS_TYPES;
+
+  static const BITCOIN_CASH_ADDRESS_TYPES = [P2pkhAddressType.p2pkh];
+
+  @override
   Future<void> init() async {
     await generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     allAddresses.forEach((addr) {

@@ -65,17 +65,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @computed
   List<BaseBitcoinAddressRecord> get selectedReceiveAddresses =>
-      receiveAddressesByType[_addressPageType]!;
+      receiveAddressesByType[_addressPageType] ?? [];
 
   @computed
   List<BaseBitcoinAddressRecord> get selectedChangeAddresses =>
-      receiveAddressesByType[_addressPageType]!;
+      changeAddressesByType[_addressPageType] ?? [];
 
   List<BaseBitcoinAddressRecord> getAddressesByType(
     BitcoinAddressType type, [
     bool isChange = false,
   ]) =>
-      isChange ? changeAddressesByType[type]! : receiveAddressesByType[type]!;
+      (isChange ? changeAddressesByType[type] : receiveAddressesByType[type]) ?? [];
 
   @computed
   BitcoinAddressType get addressPageType => _addressPageType;
@@ -282,7 +282,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   void updateAddressesByType() {
-    receiveAddressesByType.clear();
     walletAddressTypes.forEach((type) {
       receiveAddressesByType[type] =
           _allAddresses.where((addr) => _isAddressByType(addr, type)).toList();

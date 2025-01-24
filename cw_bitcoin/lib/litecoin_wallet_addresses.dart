@@ -37,6 +37,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     printV("initialized with ${mwebAddrs.length} mweb addresses");
   }
 
+  @override
+  final walletAddressTypes = LITECOIN_ADDRESS_TYPES;
+
+  static const LITECOIN_ADDRESS_TYPES = [SegwitAddressType.p2wpkh];
+
   final ObservableList<LitecoinMWEBAddressRecord> mwebAddresses;
 
   late final Bip32Slip10Secp256k1? mwebHd;

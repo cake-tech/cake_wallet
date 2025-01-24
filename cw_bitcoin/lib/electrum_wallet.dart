@@ -1349,7 +1349,7 @@ abstract class ElectrumWalletBase
 
       await save();
     } else if (response.completed) {
-      checkAddressesGap();
+      // checkAddressesGap();
     }
   }
 

@@ -31,6 +31,9 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     silentPaymentWallets = [silentPaymentWallet!];
   }
 
+  @override
+  final walletAddressTypes = BITCOIN_ADDRESS_TYPES;
+
   static const OLD_SP_PATH = "m/352'/1'/0'/#'/0";
   static const BITCOIN_ADDRESS_TYPES = [
     SegwitAddressType.p2wpkh,
@@ -53,6 +56,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   @override
   Future<void> init() async {
+    super.init();
+
     // TODO: if restored from snapshot
 
     if (allAddresses.where((address) => address.type == SegwitAddressType.p2wpkh).isEmpty) {
