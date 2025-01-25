@@ -486,12 +486,12 @@ abstract class DashboardViewModelBase with Store {
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet) {
     if (wallet == null) return;
 
-    _checkMweb();
-
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
     updateActions();
+
+    _checkMweb();
 
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;

@@ -1,4 +1,4 @@
 Monero restore with passphrase support
-Add Chainflip Exhcnage provider
+Add Chainflip Exchange provider
 UI enhancements
 Bug fixes
