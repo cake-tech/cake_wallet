@@ -480,29 +480,29 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   double getShadowSpread() {
-    double spread = 3;
+    double spread = 0;
     if (settingsStore.currentTheme.type == ThemeType.bright)
-      spread = 1;
+      spread = 0;
     else if (settingsStore.currentTheme.type == ThemeType.light)
-      spread = 0.1;
+      spread = 0;
     else if (settingsStore.currentTheme.type == ThemeType.dark)
-      spread = 1;
+      spread = 0;
     else if (settingsStore.currentTheme.type == ThemeType.oled)
-      spread = 2;
+      spread = 0;
     return spread;
   }
 
   @action
   double getShadowBlur() {
-    double blur = 7;
+    double blur = 0;
     if (settingsStore.currentTheme.type == ThemeType.bright)
-      blur = 7;
+      blur = 0;
     else if (settingsStore.currentTheme.type == ThemeType.light)
-      blur = 7;
+      blur = 0;
     else if (settingsStore.currentTheme.type == ThemeType.dark)
-      blur = 7;
+      blur = 0;
     else if (settingsStore.currentTheme.type == ThemeType.oled)
-      blur = 7;
+      blur = 0;
     return blur;
   }
 
