@@ -242,6 +242,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     walletInfo.derivationInfo ??= DerivationInfo();
 
+    printV("@@@@@@@@@@@@@@@@@@@@@@@ ${walletInfo.derivationInfo!.derivationPath}");
+    printV("@@@@@@@@@@@@@@@@@@@@@@@ ${walletInfo.derivationInfo!.derivationType}");
+    printV("snp derivationPath: ${snp?.derivationPath}");
+    printV("snpderivationType: ${snp?.derivationType}");
+
+
     // set the default if not present:
     walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
     walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
