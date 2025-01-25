@@ -41,6 +41,9 @@ class WalletRestoreFromQRCode {
     'wownero': WalletType.wownero,
     'wownero-wallet': WalletType.wownero,
     'wownero_wallet': WalletType.wownero,
+    'zano': WalletType.zano,
+    'zano-wallet': WalletType.zano,
+    'zano_wallet': WalletType.zano,
   };
 
   static bool _containsAssetSpecifier(String code) => _extractWalletType(code) != null;
