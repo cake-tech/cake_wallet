@@ -484,7 +484,7 @@ abstract class DashboardViewModelBase with Store {
   @action
   void onWalletChange(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet) {
-    if (wallet == null) return;
+    if (wallet == null || wallet.id == this.wallet.id) return;
 
     this.wallet = wallet;
     type = wallet.type;

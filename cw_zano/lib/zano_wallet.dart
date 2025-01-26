@@ -441,7 +441,11 @@ abstract class ZanoWalletBase
   }
 
   Future<ZanoAsset?> getZanoAsset(String assetId) async {
-    return await getAssetInfo(assetId);
+    // wallet api is not available while the wallet is syncing so only call it if it's synced
+    if (syncStatus is SyncedSyncStatus) {
+      return await getAssetInfo(assetId);
+    }
+    return null;
   }
 
   Future<void> _askForUpdateTransactionHistory() async => await updateTransactions();
