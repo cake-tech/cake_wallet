@@ -389,10 +389,6 @@ abstract class ZanoWalletBase
       }
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
-      if (transactions.length == transactionHistory.transactions.length) {
-        _isTransactionUpdating = false;
-        return;
-      }
       transactionHistory.clear();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
