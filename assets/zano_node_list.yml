@@ -4,4 +4,4 @@
 -
   uri: zano.cakewallet.com:33340
   is_default: true
-  useSSL: false
+  useSSL: true

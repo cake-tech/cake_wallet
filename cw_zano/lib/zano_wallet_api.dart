@@ -247,6 +247,7 @@ mixin ZanoWalletApi {
       throw ZanoWalletException('Error creating wallet file, empty response');
     }
     final result = CreateWalletResult.fromJson(map!['result'] as Map<String, dynamic>);
+    openWalletCache[path] = result;
     printV('create_wallet ${result.name} ${result.seed}');
     return result;
   }
@@ -269,6 +270,7 @@ mixin ZanoWalletApi {
       throw RestoreFromSeedsException('Error restoring wallet, empty response');
     }
     final result = CreateWalletResult.fromJson(map!['result'] as Map<String, dynamic>);
+    openWalletCache[path] = result;
     printV('restore_wallet ${result.name} ${result.wi.address}');
     return result;
   }
