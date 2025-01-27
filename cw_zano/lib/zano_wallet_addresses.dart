@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_zano/zano_wallet_api.dart';
@@ -34,7 +35,7 @@ abstract class ZanoWalletAddressesBase extends WalletAddresses with Store {
       addressesMap[address] = '';
       await saveAddressesInBox();
     } catch (e) {
-      ZanoWalletApi.error(e.toString());
+      printV(e.toString());
     }
   }
 }

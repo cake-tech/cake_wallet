@@ -152,19 +152,27 @@ abstract class ZanoWalletBase
   static Future<ZanoWallet> open(
       {required String name, required String password, required WalletInfo walletInfo}) async {
     final path = await pathForWallet(name: name, type: walletInfo.type);
-    final wallet = ZanoWallet(walletInfo, password);
-    await wallet.initWallet();
-    final createWalletResult = await wallet.loadWallet(path, password);
-    await wallet.initWallet();
-    await wallet.parseCreateWalletResult(createWalletResult);
-    await wallet.init(createWalletResult.wi.address);
-    return wallet;
+    if (ZanoWalletApi.openWalletCache[path] != null) {
+      final wallet = ZanoWallet(walletInfo, password);
+      await wallet.parseCreateWalletResult(ZanoWalletApi.openWalletCache[path]!).then((_) {
+        unawaited(wallet.init(ZanoWalletApi.openWalletCache[path]!.wi.address));
+      });
+      return wallet;
+    } else {
+      final wallet = ZanoWallet(walletInfo, password);
+      await wallet.initWallet();
+      final createWalletResult = await wallet.loadWallet(path, password);
+      await wallet.parseCreateWalletResult(createWalletResult).then((_) {
+        unawaited(wallet.init(createWalletResult.wi.address));
+      });
+      return wallet;
+    }
   }
 
   Future<void> parseCreateWalletResult(CreateWalletResult result) async {
     hWallet = result.walletId;
     seed = result.seed;
-    ZanoWalletApi.info('setting hWallet = ${result.walletId}');
+    printV('setting hWallet = ${result.walletId}');
     walletAddresses.address = result.wi.address;
     await loadAssets(result.wi.balances, maxRetries: _maxLoadAssetsRetries);
     for (final item in result.wi.balances) {
@@ -185,7 +193,7 @@ abstract class ZanoWalletBase
 
   @override
   Future<void> close({bool shouldCleanup = true}) async {
-    closeWallet();
+    closeWallet(null);
     _updateSyncInfoTimer?.cancel();
     _autoSaveTimer?.cancel();
   }
@@ -285,7 +293,7 @@ abstract class ZanoWalletBase
       } while (result.lastItemIndex + 1 < result.totalTransfers);
       return Transfer.makeMap(transfers, zanoAssets, currentDaemonHeight);
     } catch (e) {
-      ZanoWalletApi.error(e.toString());
+      printV((e.toString()));
       return {};
     }
   }
@@ -332,7 +340,7 @@ abstract class ZanoWalletBase
       await store();
       await walletAddresses.updateAddressesInBox();
     } catch (e) {
-      ZanoWalletApi.error('Error while saving Zano wallet file ${e.toString()}');
+      printV(('Error while saving Zano wallet file ${e.toString()}'));
     }
   }
 
@@ -349,7 +357,7 @@ abstract class ZanoWalletBase
           retryCount++;
           await Future.delayed(Duration(seconds: 1));
         } else {
-          ZanoWalletApi.error('failed to load assets after $retryCount retries');
+          printV(('failed to load assets after $retryCount retries'));
           break;
         }
       }
@@ -402,7 +410,7 @@ abstract class ZanoWalletBase
             } else {
               final asset = zanoAssets[b.assetId];
               if (asset == null) {
-                ZanoWalletApi.error('balance for an unknown asset ${b.assetInfo.assetId}');
+                printV(('balance for an unknown asset ${b.assetInfo.assetId}'));
                 continue;
               }
               if (balance.keys.any(
@@ -429,7 +437,7 @@ abstract class ZanoWalletBase
       });
     } catch (e) {
       syncStatus = FailedSyncStatus();
-      ZanoWalletApi.error(e.toString());
+      printV((e.toString()));
     }
   }
 
@@ -453,7 +461,7 @@ abstract class ZanoWalletBase
       _isTransactionUpdating = false;
     } catch (e) {
       printV("e: $e");
-      ZanoWalletApi.error(e.toString());
+      printV((e.toString()));
       _isTransactionUpdating = false;
     }
   }
@@ -480,12 +488,12 @@ abstract class ZanoWalletBase
     if (asset.enabled) {
       final assetDescriptor = await addAssetsWhitelist(asset.assetId);
       if (assetDescriptor == null) {
-        ZanoWalletApi.error('Error adding zano asset');
+        printV(('Error adding zano asset'));
       }
     } else {
       final result = await removeAssetsWhitelist(asset.assetId);
       if (result == false) {
-        ZanoWalletApi.error('Error removing zano asset');
+        printV(('Error removing zano asset'));
       }
     }
   }
@@ -514,7 +522,7 @@ abstract class ZanoWalletBase
         syncStatus = SyncingSyncStatus(blocksLeft, ptc);
       }
     } catch (e) {
-      ZanoWalletApi.error(e.toString());
+      printV((e.toString()));
     }
   }
 
