@@ -697,6 +697,7 @@
   "service_health_disabled": "Bulletin zdraví služeb je deaktivován",
   "service_health_disabled_message": "Toto je stránka Bulletin Service Health Bulletin, můžete tuto stránku povolit v rámci nastavení -> Ochrana osobních údajů",
   "set_a_pin": "Nastavte špendlík",
+  "set_up_a_wallet": "Nastavte peněženku",
   "settings": "Nastavení",
   "settings_all": "VŠE",
   "settings_allow_biometrical_authentication": "Povolit biometrické ověření",
