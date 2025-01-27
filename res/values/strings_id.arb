@@ -700,6 +700,7 @@
   "service_health_disabled": "Buletin Kesehatan Layanan dinonaktifkan",
   "service_health_disabled_message": "Ini adalah halaman Buletin Kesehatan Layanan, Anda dapat mengaktifkan halaman ini di bawah Pengaturan -> Privasi",
   "set_a_pin": "Atur pin",
+  "set_up_a_wallet": "Siapkan dompet",
   "settings": "Pengaturan",
   "settings_all": "SEMUA",
   "settings_allow_biometrical_authentication": "Izinkan otentikasi biometrik",

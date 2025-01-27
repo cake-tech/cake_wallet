@@ -696,6 +696,7 @@
   "service_health_disabled": "Thông báo sức khỏe dịch vụ bị vô hiệu hóa",
   "service_health_disabled_message": "Đây là trang thông báo sức khỏe dịch vụ, bạn có thể kích hoạt trang này trong Cài đặt -> Quyền riêng tư",
   "set_a_pin": "Đặt một pin",
+  "set_up_a_wallet": "Thiết lập ví",
   "settings": "Cài đặt",
   "settings_all": "TẤT CẢ",
   "settings_allow_biometrical_authentication": "Cho phép xác thực sinh trắc học",

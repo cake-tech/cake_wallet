@@ -146,7 +146,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
   switch (settings.name) {
     case Routes.welcome:
-      return MaterialPageRoute<void>(builder: (_) => CreatePinWelcomePage());
+      return MaterialPageRoute<void>(
+          builder: (_) => CreatePinWelcomePage(SettingsStoreBase.walletPasswordDirectInput));
 
     case Routes.welcomeWallet:
       if (SettingsStoreBase.walletPasswordDirectInput) {

@@ -697,6 +697,7 @@
   "service_health_disabled": "서비스 건강 게시판이 장애가되었습니다",
   "service_health_disabled_message": "이것은 서비스 건강 게시판 페이지입니다. 설정 에서이 페이지를 활성화 할 수 있습니다 -> 개인 정보",
   "set_a_pin": "핀을 설정하십시오",
+  "set_up_a_wallet": "지갑을 설정하십시오",
   "settings": "설정",
   "settings_all": "모든",
   "settings_allow_biometrical_authentication": "생체 인증 허용",
