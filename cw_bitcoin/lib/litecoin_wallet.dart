@@ -246,6 +246,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     printV("@@@@@@@@@@@@@@@@@@@@@@@ ${walletInfo.derivationInfo!.derivationType}");
     printV("snp derivationPath: ${snp?.derivationPath}");
     printV("snpderivationType: ${snp?.derivationType}");
+    printV("passphrase: ${keysData.passphrase}");
 
 
     // set the default if not present:
