@@ -233,13 +233,27 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                     ? 'Fetching...'
                     : (snapshot.data ?? '---');
 
-                return Text(
-                  textToDisplay,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
-                  ),
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      textToDisplay,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                      ),
+                    ),
+                    if (snapshot.connectionState == ConnectionState.done && snapshot.data != null)
+                      GestureDetector(
+                        onTap: () => _onCopy(S.of(context).block_height, snapshot.data!, context),
+                        child: Icon(
+                          Icons.copy,
+                          size: 16,
+                          color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                        ),
+                      ),
+                  ],
                 );
               },
             ),
