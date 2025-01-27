@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/entities/wellknown_record.dart';
+import 'package:cake_wallet/entities/zano_alias.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
 import 'package:cake_wallet/nostr/nostr_api.dart';
@@ -137,6 +138,16 @@ class AddressResolver {
     try {
       // twitter handle example: @username
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
+        if (currency == CryptoCurrency.zano && settingsStore.lookupsZanoAlias) {
+          final formattedName = text.substring(1);
+          final zanoAddress = await ZanoAlias.fetchZanoAliasAddress(formattedName);
+          if (zanoAddress != null) {
+            return ParsedAddress.zanoAddress(
+              address: zanoAddress,
+              name: text,
+            );
+          }
+        }
         if (settingsStore.lookupsTwitter) {
           final formattedName = text.substring(1);
           final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);

@@ -797,6 +797,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.2"
+  rational:
+    dependency: transitive
+    description:
+      name: rational
+      sha256: cb808fb6f1a839e6fc5f7d8cb3b0a10e1db48b3be102de73938c627f0b636336
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.3"
   rxdart:
     dependency: "direct main"
     description:
