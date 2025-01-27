@@ -697,6 +697,7 @@
   "service_health_disabled": "服务健康公告被禁用",
   "service_health_disabled_message": "这是服务健康公告页面，您可以在设置 - >隐私下启用此页面",
   "set_a_pin": "设置一个别针",
+  "set_up_a_wallet": "设置钱包",
   "settings": "设置",
   "settings_all": "全部",
   "settings_allow_biometrical_authentication": "允许生物识别认证",
