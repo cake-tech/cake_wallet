@@ -143,7 +143,7 @@ class CWBitcoin extends Bitcoin {
               formattedCryptoAmount: out.formattedCryptoAmount,
               memo: out.memo))
           .toList(),
-      priority: priority as ElectrumTransactionPriority,
+      priority: priority,
       feeRate: bitcoinFeeRate,
       coinTypeToSpendFrom: coinTypeToSpendFrom,
     );

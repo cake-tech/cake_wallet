@@ -6,7 +6,7 @@ class ScanData {
   final BasedUtxoNetwork network;
   final int chainTip;
   final List<String> transactionHistoryIds;
-  final Map<String, String> labels;
+  final Map<String, int> labels;
   final List<int> labelIndexes;
   final bool isSingleScan;
   final bool shouldSwitchNodes;
@@ -61,7 +61,7 @@ class ScanData {
       chainTip: json['chainTip'] as int,
       transactionHistoryIds:
           (json['transactionHistoryIds'] as List).map((e) => e as String).toList(),
-      labels: json['labels'] as Map<String, String>,
+      labels: json['labels'] as Map<String, int>,
       labelIndexes: (json['labelIndexes'] as List).map((e) => e as int).toList(),
       isSingleScan: json['isSingleScan'] as bool,
       shouldSwitchNodes: json['shouldSwitchNodes'] as bool,

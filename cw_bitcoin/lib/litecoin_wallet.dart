@@ -751,9 +751,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   @action
-  Future<void> updateAllUnspents() async {
+  Future<void> updateAllUnspents([Set<String>? scripthashes, bool? wait]) async {
     if (!mwebEnabled) {
-      await super.updateAllUnspents();
+      await super.updateAllUnspents(scripthashes, wait);
       return;
     }
 

@@ -15,7 +15,6 @@ import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
-import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -97,12 +96,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required EncryptionFileUtils encryptionFileUtils,
     String? passphrase,
     BasedUtxoNetwork? network,
-    List<BitcoinAddressRecord>? initialAddresses,
-    List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
-    ElectrumBalance? initialBalance,
-    Map<String, int>? initialRegularAddressIndex,
-    Map<String, int>? initialChangeAddressIndex,
-    int initialSilentAddressIndex = 0,
   }) async {
     final hdWallets = await ElectrumWalletBase.getAccountHDWallets(
       walletInfo: walletInfo,
@@ -117,7 +110,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialBalance: initialBalance,
       encryptionFileUtils: encryptionFileUtils,
       networkParam: network,
       hdWallets: hdWallets,
@@ -401,12 +393,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @override
   @action
-  Future<void> updateAllUnspents() async {
-    List<BitcoinUnspent> updatedUnspentCoins = [];
-
-    unspentCoins.addAll(updatedUnspentCoins);
-
-    await super.updateAllUnspents();
+  Future<void> updateAllUnspents([Set<String>? scripthashes, bool? wait]) async {
+    await super.updateAllUnspents(scripthashes, wait);
 
     final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
 
@@ -1340,6 +1328,21 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     } catch (e) {
       throw e;
     }
+  }
+
+  @override
+  @action
+  Future<void> onUnspentResponse(Map<String, List<ElectrumUtxo>> unspents) async {
+    final silentPaymentUnspents = unspentCoins
+        .where((utxo) =>
+            utxo.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord ||
+            utxo.bitcoinAddressRecord is BitcoinReceivedSPAddressRecord)
+        .toList();
+
+    unspentCoins.clear();
+    unspentCoins.addAll(silentPaymentUnspents);
+
+    super.onUnspentResponse(unspents);
   }
 }
 

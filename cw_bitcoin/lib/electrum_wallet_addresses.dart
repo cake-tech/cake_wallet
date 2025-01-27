@@ -63,13 +63,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   List<BitcoinAddressRecord> get allChangeAddresses =>
       _allAddresses.where((addr) => addr.isChange).toList();
 
-  @computed
-  List<BaseBitcoinAddressRecord> get selectedReceiveAddresses =>
-      receiveAddressesByType[_addressPageType] ?? [];
+  @observable
+  List<BaseBitcoinAddressRecord> selectedReceiveAddresses = [];
 
-  @computed
-  List<BaseBitcoinAddressRecord> get selectedChangeAddresses =>
-      changeAddressesByType[_addressPageType] ?? [];
+  @observable
+  List<BaseBitcoinAddressRecord> selectedChangeAddresses = [];
 
   List<BaseBitcoinAddressRecord> getAddressesByType(
     BitcoinAddressType type, [
@@ -179,7 +177,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     await updateAddressesInBox();
   }
 
-  @action
   Future<BaseBitcoinAddressRecord> getChangeAddress() async {
     final address = selectedChangeAddresses.firstWhere(
       (addr) => _isUnusedChangeAddressByType(addr, changeAddressType),
@@ -264,6 +261,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     _allAddresses.forEach((addressRecord) {
       allAddressesMap[addressRecord.address] = addressRecord.name;
     });
+
+    await saveAddressesInBox();
   }
 
   @action
@@ -288,6 +287,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       changeAddressesByType[type] =
           _allAddresses.where((addr) => _isAddressByType(addr, type)).toList();
     });
+
+    selectedReceiveAddresses = receiveAddressesByType[addressPageType] ?? [];
+    selectedChangeAddresses = changeAddressesByType[changeAddressType] ?? [];
   }
 
   @action
@@ -360,7 +362,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           addressType: type,
           derivationInfo: bitcoinDerivationInfo,
         );
-        updateAdresses(newReceiveAddresses);
+        addAddresses(newReceiveAddresses);
 
         final newChangeAddresses = await discoverNewAddresses(
           derivationType: derivationType,
@@ -368,7 +370,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           addressType: type,
           derivationInfo: bitcoinDerivationInfo,
         );
-        updateAdresses(newChangeAddresses);
+        addAddresses(newChangeAddresses);
 
         continue;
       }
@@ -386,7 +388,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           addressType: type,
           derivationInfo: bitcoinDerivationInfo,
         );
-        updateAdresses(newReceiveAddresses);
+        addAddresses(newReceiveAddresses);
 
         final newChangeAddresses = await discoverNewAddresses(
           derivationType: derivationType,
@@ -394,7 +396,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           addressType: type,
           derivationInfo: bitcoinDerivationInfo,
         );
-        updateAdresses(newChangeAddresses);
+        addAddresses(newChangeAddresses);
       }
     }
   }

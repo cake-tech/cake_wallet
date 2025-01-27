@@ -1506,21 +1506,20 @@ class ElectrumWorker {
           try {
             final addToWallet = {};
 
-            // receivers.forEach((receiver) {
-            // scanOutputs called from rust here
-            final receiver = receivers.first;
-            final scanResult = scanOutputs([outputPubkeys.keys.toList()], tweak, receiver);
+            receivers.forEach((receiver) {
+              // scanOutputs called from rust here
+              final scanResult = scanOutputs([outputPubkeys.keys.toList()], tweak, receiver);
 
-            if (scanResult.isEmpty) {
-              continue;
-            }
+              if (scanResult.isEmpty) {
+                return;
+              }
 
-            if (addToWallet[receiver.BSpend] == null) {
-              addToWallet[receiver.BSpend] = scanResult;
-            } else {
-              addToWallet[receiver.BSpend].addAll(scanResult);
-            }
-            // });
+              if (addToWallet[receiver.BSpend] == null) {
+                addToWallet[receiver.BSpend] = scanResult;
+              } else {
+                addToWallet[receiver.BSpend].addAll(scanResult);
+              }
+            });
 
             if (addToWallet.isEmpty) {
               // no results tx, continue to next tx
@@ -1552,27 +1551,34 @@ class ElectrumWorker {
 
             List<BitcoinUnspent> unspents = [];
 
-            addToWallet.forEach((BSpend, result) {
-              result.forEach((label, value) {
-                (value as Map<String, dynamic>).forEach((output, tweak) {
-                  final t_k = tweak.toString();
+            addToWallet.forEach((BSpend, scanResultPerLabel) {
+              scanResultPerLabel.forEach((label, scanOutput) {
+                (scanOutput as Map<String, dynamic>).forEach((outputPubkey, tweak) {
+                  final t_k = tweak as String;
 
-                  final receivingOutputAddress = ECPublic.fromHex(output)
+                  final receivingOutputAddress = ECPublic.fromHex(outputPubkey)
                       .toTaprootAddress(tweak: false)
                       .toAddress(scanData.network);
 
-                  final matchingOutput = outputPubkeys[output]!;
+                  final matchingOutput = outputPubkeys[outputPubkey]!;
                   final amount = matchingOutput.amount;
                   final pos = matchingOutput.vout;
 
+                  final matchingSPWallet = scanData.silentPaymentsWallets.firstWhere(
+                    (receiver) => receiver.B_spend.toHex() == BSpend.toString(),
+                  );
+
+                  final labelIndex = scanData.labels[label];
+
                   final receivedAddressRecord = BitcoinReceivedSPAddressRecord(
                     receivingOutputAddress,
-                    labelIndex: 1, // TODO: get actual index/label
-                    isChange: false, // and if change or not
+                    labelIndex: labelIndex ?? 0,
+                    isChange: labelIndex == 0,
                     isUsed: true,
                     tweak: t_k,
                     txCount: 1,
                     balance: amount,
+                    spAddress: matchingSPWallet.toAddress(scanData.network),
                   );
 
                   final unspent = BitcoinUnspent(receivedAddressRecord, txid, amount, pos);
@@ -1583,14 +1589,14 @@ class ElectrumWorker {
               });
             });
 
-            _sendResponse(ElectrumWorkerTweaksSubscribeResponse(
-              result: TweaksSyncResponse(
-                transactions: {txInfo.id: TweakResponseData(txInfo: txInfo, unspents: unspents)},
-                wasSingleBlock: scanData.isSingleScan,
+            _sendResponse(
+              ElectrumWorkerTweaksSubscribeResponse(
+                result: TweaksSyncResponse(
+                  transactions: {txInfo.id: TweakResponseData(txInfo: txInfo, unspents: unspents)},
+                  wasSingleBlock: scanData.isSingleScan,
+                ),
               ),
-            ));
-
-            return;
+            );
           } catch (e, stacktrace) {
             printV(stacktrace);
             printV(e.toString());

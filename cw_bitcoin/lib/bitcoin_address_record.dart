@@ -263,6 +263,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
 
 class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
   final String tweak;
+  final String spAddress;
 
   BitcoinReceivedSPAddressRecord(
     super.address, {
@@ -272,6 +273,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
     super.name = '',
     super.isUsed = false,
     required this.tweak,
+    required this.spAddress,
     required super.isChange,
     super.labelHex,
   }) : super(isHidden: true, type: SegwitAddressType.p2tr);
@@ -280,12 +282,10 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
     List<SilentPaymentOwner> silentPaymentsWallets, [
     BasedUtxoNetwork network = BitcoinNetwork.mainnet,
   ]) {
-    final spAddress = silentPaymentsWallets.firstWhere(
-      (wallet) => wallet.toAddress(network) == this.address,
+    return silentPaymentsWallets.firstWhere(
+      (wallet) => wallet.toAddress(network) == spAddress,
       orElse: () => throw ArgumentError('SP wallet not found'),
     );
-
-    return spAddress;
   }
 
   ECPrivate getSpendKey(
@@ -310,6 +310,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
       labelHex: decoded['label'] as String?,
       tweak: decoded['tweak'] as String? ?? decoded['silent_payment_tweak'] as String? ?? '',
       isChange: decoded['isChange'] as bool? ?? false,
+      spAddress: decoded['spAddress'] as String? ?? '',
     );
   }
 
@@ -317,6 +318,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
   String toJSON() {
     final m = json.decode(super.toJSON()) as Map<String, dynamic>;
     m['tweak'] = tweak;
+    m['spAddress'] = spAddress;
     return json.encode(m);
   }
 }

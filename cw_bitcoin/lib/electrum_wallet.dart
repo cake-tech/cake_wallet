@@ -347,6 +347,8 @@ abstract class ElectrumWalletBase
       // INFO: THIRD: Get the full wallet's balance with all addresses considered
       await updateBalance(scripthashesWithStatus.toSet(), true);
 
+      await updateAllUnspents(scripthashesWithStatus.toSet(), true);
+
       syncStatus = SyncedSyncStatus();
 
       // INFO: FOURTH: Get the latest recommended fee rates and start update timer
@@ -1100,12 +1102,20 @@ abstract class ElectrumWalletBase
   }
 
   @action
-  Future<void> updateAllUnspents() async {
-    workerSendPort!.send(
-      ElectrumWorkerListUnspentRequest(
-        scripthashes: walletAddresses.allScriptHashes.toList(),
-      ).toJson(),
-    );
+  Future<void> updateAllUnspents([Set<String>? scripthashes, bool? wait]) async {
+    scripthashes ??= walletAddresses.allScriptHashes;
+
+    if (wait == true) {
+      await waitSendWorker(ElectrumWorkerListUnspentRequest(
+        scripthashes: scripthashes.toList(),
+      ));
+    } else {
+      workerSendPort!.send(
+        ElectrumWorkerListUnspentRequest(
+          scripthashes: scripthashes.toList(),
+        ).toJson(),
+      );
+    }
   }
 
   @action
@@ -1316,9 +1326,9 @@ abstract class ElectrumWalletBase
 
     // if the initial sync has been done, fetch histories for the new discovered addresses
     // if not, will update all again during startSync, with the new ones as well, to update dates
-    if (newAddresses.isNotEmpty && !_didInitialSync) {
-      await updateTransactions(newAddresses, true);
-    }
+    // if (newAddresses.isNotEmpty && !_didInitialSync) {
+    //   await updateTransactions(newAddresses, true);
+    // }
 
     walletAddresses.updateHiddenAddresses();
 

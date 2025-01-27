@@ -249,27 +249,31 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }) {
     final hdWallet = hdWallets[derivationType]!;
 
-    // if (OLD_DERIVATION_TYPES.contains(derivationType)) {
-    //   final pub = hdWallet
-    //       .childKey(Bip32KeyIndex(isChange ? 1 : 0))
-    //       .childKey(Bip32KeyIndex(index))
-    //       .publicKey;
+    if (OLD_DERIVATION_TYPES.contains(derivationType)) {
+      final isElectrum = [CWBitcoinDerivationType.electrum, CWBitcoinDerivationType.old_electrum]
+          .contains(derivationType);
 
-    //   switch (addressType) {
-    //     case P2pkhAddressType.p2pkh:
-    //       return ECPublic.fromBip32(pub).toP2pkhAddress();
-    //     case SegwitAddressType.p2tr:
-    //       return ECPublic.fromBip32(pub).toP2trAddress();
-    //     case SegwitAddressType.p2wsh:
-    //       return ECPublic.fromBip32(pub).toP2wshAddress();
-    //     case P2shAddressType.p2wpkhInP2sh:
-    //       return ECPublic.fromBip32(pub).toP2wpkhInP2sh();
-    //     case SegwitAddressType.p2wpkh:
-    //       return ECPublic.fromBip32(pub).toP2wpkhAddress();
-    //     default:
-    //       throw ArgumentError('Invalid address type');
-    //   }
-    // }
+      final oldPath = (isElectrum ? BitcoinDerivationInfos.ELECTRUM : BitcoinDerivationInfos.BIP84)
+          .derivationPath
+          .addElem(Bip32KeyIndex(BitcoinAddressUtils.getAccountFromChange(isChange)))
+          .addElem(Bip32KeyIndex(index));
+      final oldPub = hdWallet.derive(oldPath).publicKey;
+
+      switch (addressType) {
+        case P2pkhAddressType.p2pkh:
+          return ECPublic.fromBip32(oldPub).toP2pkhAddress();
+        case SegwitAddressType.p2tr:
+          return ECPublic.fromBip32(oldPub).toP2trAddress();
+        case SegwitAddressType.p2wsh:
+          return ECPublic.fromBip32(oldPub).toP2wshAddress();
+        case P2shAddressType.p2wpkhInP2sh:
+          return ECPublic.fromBip32(oldPub).toP2wpkhInP2sh();
+        case SegwitAddressType.p2wpkh:
+          return ECPublic.fromBip32(oldPub).toP2wpkhAddress();
+        default:
+          throw ArgumentError('Invalid address type');
+      }
+    }
 
     switch (addressType) {
       case P2pkhAddressType.p2pkh:
@@ -343,25 +347,46 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     return super.generateNewAddress(label: label);
   }
 
-  // @override
-  // @action
-  // void addBitcoinAddressTypes() {
-  //   super.addBitcoinAddressTypes();
+  @override
+  @action
+  Future<void> updateAddressesInBox() async {
+    super.updateAddressesInBox();
 
-  //   silentPaymentAddresses.forEach((addressRecord) {
-  //     if (addressRecord.type != SilentPaymentsAddresType.p2sp || addressRecord.isChange) {
-  //       return;
-  //     }
+    receiveAddressesByType.entries.forEach((e) {
+      final type = e.key;
+      final values = e.value;
+      bool isFirstUnused = true;
 
-  //     if (addressRecord.address != address) {
-  //       addressesMap[addressRecord.address] = addressRecord.name.isEmpty
-  //           ? "Silent Payments" + ': ${addressRecord.address}'
-  //           : "Silent Payments - " + addressRecord.name + ': ${addressRecord.address}';
-  //     } else {
-  //       addressesMap[address] = 'Active - Silent Payments' + ': $address';
-  //     }
-  //   });
-  // }
+      values.forEach((addr) {
+        allAddressesMap[addr.address] = addr.name;
+
+        if (!addr.isHidden && !addr.isChange && isFirstUnused && !addr.isUsed) {
+          if (type == SilentPaymentsAddresType.p2sp) {
+            final addressString =
+                '${addr.address.substring(0, 9 + 5)}...${addr.address.substring(addr.address.length - 9, addr.address.length)}';
+
+            if (addr.address != address) {
+              addressesMap[addr.address] = addr.name.isEmpty
+                  ? "Silent Payments" + ': $addressString'
+                  : "Silent Payments - " + addr.name + ': $addressString';
+            } else {
+              addressesMap[address] = 'Active - Silent Payments' + ': $addressString';
+            }
+          } else {
+            isFirstUnused = false;
+
+            if (addr.address != address) {
+              addressesMap[addr.address] = type.value.toUpperCase();
+            } else {
+              addressesMap[address] = 'Active - ${type.value.toUpperCase()}';
+            }
+          }
+        }
+      });
+    });
+
+    await saveAddressesInBox();
+  }
 
   @override
   @action
@@ -388,14 +413,10 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @override
   @action
   void updateAddressesByType() {
-    if (addressPageType == SilentPaymentsAddresType.p2sp) {
-      receiveAddressesByType.clear();
-      receiveAddressesByType[SilentPaymentsAddresType.p2sp] = silentPaymentAddresses
-          .where((addressRecord) =>
-              addressRecord.type == SilentPaymentsAddresType.p2sp && !addressRecord.isChange)
-          .toList();
-      return;
-    }
+    receiveAddressesByType[SilentPaymentsAddresType.p2sp] = silentPaymentAddresses
+        .where((addressRecord) =>
+            addressRecord.type == SilentPaymentsAddresType.p2sp && !addressRecord.isChange)
+        .toList();
 
     super.updateAddressesByType();
   }
@@ -427,18 +448,15 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     updateAddressesByType();
   }
 
-  Map<String, String> get labels {
-    final G = ECPublic.fromBytes(BigintUtils.toBytes(Curves.generatorSecp256k1.x, length: 32));
-    final labels = <String, String>{};
+  Map<String, int> get labels {
+    final labels = <String, int>{};
+
     for (int i = 0; i < silentPaymentAddresses.length; i++) {
       final silentAddressRecord = silentPaymentAddresses[i];
       final silentPaymentTweak = silentAddressRecord.labelHex;
 
-      if (silentPaymentTweak != null &&
-          SilentPaymentAddress.regex.hasMatch(silentAddressRecord.address)) {
-        labels[G
-            .tweakMul(BigintUtils.fromBytes(BytesUtils.fromHexString(silentPaymentTweak)))
-            .toHex()] = silentPaymentTweak;
+      if (silentPaymentTweak != null) {
+        labels[silentPaymentTweak] = silentAddressRecord.labelIndex;
       }
     }
     return labels;
