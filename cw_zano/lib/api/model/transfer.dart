@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/zano_asset.dart';
 import 'package:cw_zano/api/model/employed_entries.dart';
 import 'package:cw_zano/api/model/subtransfer.dart';
@@ -97,7 +98,7 @@ class Transfer {
           if (single.assetId != ZanoWalletBase.zanoAssetId) {
             final asset = zanoAssets[single.assetId];
             if (asset == null) {
-              ZanoWalletApi.error('unknown asset ${single.assetId}');
+              printV('unknown asset ${single.assetId}');
             }
             final ticker = asset == null ? '***' : asset.ticker;
             final decimalPoint = asset == null ? 0 : asset.decimalPoint;
