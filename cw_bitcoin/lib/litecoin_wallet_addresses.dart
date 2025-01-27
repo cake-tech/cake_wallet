@@ -263,13 +263,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
     if (mwebEnabled) {
       await ensureMwebAddressUpToIndexExists(1);
-      updateChangeAddresses();
-      return BitcoinAddressRecord(
-        mwebAddrs[0],
-        index: 0,
-        type: SegwitAddresType.mweb,
-        network: network,
-      );
+      updateAddressesByType();
+      return LitecoinMWEBAddressRecord(mwebAddrs[0], index: 0, network: network);
     }
 
     return super.getChangeAddress();

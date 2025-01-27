@@ -1090,7 +1090,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     final changeAddress = await (walletAddresses as LitecoinWalletAddresses).getChangeAddress(
       inputs: utxoDetails.availableInputs,
-      outputs: updatedOutputs,
+      outputs: outputs,
       coinTypeToSpendFrom: coinTypeToSpendFrom,
     );
     final address = RegexUtils.addressTypeFromStr(changeAddress.address, network);
@@ -1200,11 +1200,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return await super.calcFee(
         utxos: utxos,
         outputs: outputs,
-        network: network,
         memo: memo,
         feeRate: feeRate,
-        inputPrivKeyInfos: inputPrivKeyInfos,
-        vinOutpoints: vinOutpoints,
       );
     }
 
