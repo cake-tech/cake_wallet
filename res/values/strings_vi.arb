@@ -904,6 +904,7 @@
   "use": "Chuyển sang",
   "use_card_info_three": "Sử dụng thẻ kỹ thuật số trực tuyến hoặc với các phương thức thanh toán không tiếp xúc.",
   "use_card_info_two": "Các khoản tiền được chuyển đổi thành USD khi chúng được giữ trong tài khoản trả trước, không phải trong các loại tiền kỹ thuật số.",
+  "use_payjoin": "Sử dụng Payjoin",
   "use_ssl": "Sử dụng SSL",
   "use_suggested": "Sử dụng đề xuất",
   "use_testnet": "Sử dụng Testnet",

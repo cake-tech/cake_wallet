@@ -5,12 +5,16 @@ import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
-import 'package:cw_bitcoin/payjoin/payjoin_worker.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_receive_worker.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_send_worker.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_bitcoin/psbt_signer.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/receive.dart';
-import 'package:payjoin_flutter/uri.dart';
+import 'package:payjoin_flutter/send.dart';
+import 'package:payjoin_flutter/uri.dart' as PayjoinUri;
 
 class PayjoinManager {
   PayjoinManager(this._payjoinStorage, this._wallet);
@@ -19,20 +23,133 @@ class PayjoinManager {
   final BitcoinWalletBase _wallet;
   final Map<String, PayjoinPollerSession> _activePollers = {};
 
-  static const List<String> _ohttpRelayUrls = [
+  static const List<String> ohttpRelayUrls = [
     'https://pj.bobspacebkk.com',
     'https://ohttp.achow101.com',
   ];
 
+  static Future<PayjoinUri.Url> randomOhttpRelayUrl() => PayjoinUri.Url.fromStr(
+      ohttpRelayUrls[Random.secure().nextInt(ohttpRelayUrls.length)]);
+
   static const payjoinDirectoryUrl = 'https://payjo.in';
+
+  Future<void> resumeSessions() async {
+    final allSessions = _payjoinStorage.readAllOpenSessions(_wallet.id);
+
+    final spawnedSessions = allSessions.map((session) {
+      if (session.isSenderSession) {
+        return spawnSender(
+          sender: Sender.fromJson(session.sender!),
+          pjUri: session.pjUri!,
+        );
+      }
+      return spawnReceiver(
+        receiver: Receiver.fromJson(session.receiver!),
+      );
+    });
+
+    await Future.wait(spawnedSessions);
+  }
+
+  Future<Sender> initSender(
+      String pjUriString, String originalPsbt, int networkFeesSatPerVb) async {
+    try {
+      final pjUri =
+          (await PayjoinUri.Uri.fromStr(pjUriString)).checkPjSupported();
+      final minFeeRateSatPerKwu = BigInt.from(networkFeesSatPerVb * 250);
+      final senderBuilder = await SenderBuilder.fromPsbtAndUri(
+        psbtBase64: originalPsbt,
+        pjUri: pjUri,
+      );
+      return senderBuilder.buildRecommended(minFeeRate: minFeeRateSatPerKwu);
+    } catch (e) {
+      throw Exception('Error initializing Payjoin Sender: $e');
+    }
+  }
+
+  Future<void> spawnNewSender({
+    required Sender sender,
+    required String pjUrl,
+    bool isTestnet = false,
+  }) async {
+    await _payjoinStorage.insertSenderSession(
+      sender,
+      pjUrl,
+      _wallet.id,
+    );
+
+    return spawnSender(
+      isTestnet: isTestnet,
+      sender: sender,
+      pjUri: pjUrl,
+    );
+  }
+
+  Future<void> spawnSender({
+    required Sender sender,
+    required String pjUri,
+    bool isTestnet = false,
+  }) async {
+    final completer = Completer();
+    final receivePort = ReceivePort();
+
+    receivePort.listen((message) async {
+      print('Sender isolate: $message');
+      if (message is Map<String, dynamic>) {
+        try {
+          switch (message['type']) {
+            case PayjoinSenderRequestTypes.requestPosted:
+              //ToDo: Update frontend
+              return;
+            case PayjoinSenderRequestTypes.psbtToSign:
+              final proposalPsbt = message['psbt'] as String;
+              final utxos = _wallet.getUtxoWithPrivateKeys();
+              final finalizedPsbt = await _wallet.signPsbt(proposalPsbt, utxos);
+              _wallet.commitPsbt(finalizedPsbt);
+
+              //ToDo: Update frontend
+              _cleanupSession(pjUri);
+              await _payjoinStorage.markSenderSessionComplete(pjUri);
+              completer.complete();
+          }
+        } catch (e) {
+          _cleanupSession(pjUri);
+          await _payjoinStorage.markReceiverSessionUnrecoverable(pjUri);
+          completer.completeError(e);
+        }
+      } else if (message is PayjoinSessionError) {
+        _cleanupSession(pjUri);
+        if (message is UnrecoverableError) {
+          printV(message.message);
+          await _payjoinStorage.markReceiverSessionUnrecoverable(pjUri);
+        }
+        completer.completeError(message);
+      }
+    });
+
+    final args = [
+      receivePort.sendPort,
+      sender.toJson(),
+    ];
+
+    final isolate = await Isolate.spawn(
+      PayjoinSenderWorker.run,
+      args,
+    );
+
+    _activePollers[pjUri] = PayjoinPollerSession(isolate, receivePort);
+
+    return completer.future;
+  }
 
   Future<Receiver> initReceiver(String address,
       [bool isTestnet = false]) async {
     try {
-      final payjoinDirectory = await Url.fromStr(payjoinDirectoryUrl);
+      final payjoinDirectory =
+          await PayjoinUri.Url.fromStr(payjoinDirectoryUrl);
 
-      final ohttpKeys = await fetchOhttpKeys(
-        ohttpRelay: await _randomOhttpRelayUrl(),
+      final ohttpKeys = await PayjoinUri.fetchOhttpKeys(
+        ohttpRelay: await randomOhttpRelayUrl(),
         payjoinDirectory: payjoinDirectory,
       );
 
@@ -41,10 +158,10 @@ class PayjoinManager {
         network: isTestnet ? Network.testnet : Network.bitcoin,
         directory: payjoinDirectory,
         ohttpKeys: ohttpKeys,
-        ohttpRelay: await _randomOhttpRelayUrl(),
+        ohttpRelay: await randomOhttpRelayUrl(),
       );
     } catch (e) {
-      throw Exception('Error initializing payjoin Receiver: $e');
+      throw Exception('Error initializing Payjoin Receiver: $e');
     }
   }
 
@@ -115,18 +232,19 @@ class PayjoinManager {
               break;
 
             case PayjoinReceiverRequestTypes.proposalSent:
-              await _cleanupSession(receiver.id());
+              _cleanupSession(receiver.id());
               await _payjoinStorage.markReceiverSessionComplete(receiver.id());
               completer.complete();
           }
         } catch (e) {
-          await _cleanupSession(receiver.id());
+          _cleanupSession(receiver.id());
           await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id());
           completer.completeError(e);
         }
       } else if (message is PayjoinSessionError) {
-        await _cleanupSession(receiver.id());
+        _cleanupSession(receiver.id());
         if (message is UnrecoverableError) {
+          printV(message.message);
           await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id());
         }
         completer.completeError(message);
@@ -150,16 +268,16 @@ class PayjoinManager {
     return completer.future;
   }
 
+  void cleanupSessions() {
+    for (final sessionId in _activePollers.keys) {
+      _cleanupSession(sessionId);
+    }
+  }
 
-  Future<void> _cleanupSession(String sessionId) async {
+  void _cleanupSession(String sessionId) {
     _activePollers[sessionId]?.close();
     _activePollers.remove(sessionId);
   }
-
-  // Top-level function to generate random OHTTP relay URL
-  Future<Url> _randomOhttpRelayUrl() => Url.fromStr(
-        _ohttpRelayUrls[Random.secure().nextInt(_ohttpRelayUrls.length)],
-      );
 }
 
 class PayjoinPollerSession {

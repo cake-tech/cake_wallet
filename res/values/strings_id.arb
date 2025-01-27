@@ -908,6 +908,7 @@
   "use": "Beralih ke ",
   "use_card_info_three": "Gunakan kartu digital secara online atau dengan metode pembayaran tanpa kontak.",
   "use_card_info_two": "Dana dikonversi ke USD ketika disimpan dalam akun pra-bayar, bukan dalam mata uang digital.",
+  "use_payjoin": "Menggunakan Payjoin",
   "use_ssl": "Gunakan SSL",
   "use_suggested": "Gunakan yang Disarankan",
   "use_testnet": "Gunakan TestNet",

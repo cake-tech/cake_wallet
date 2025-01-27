@@ -240,11 +240,12 @@ abstract class Bitcoin {
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
 
-  String buildV2PjStr({required Object receiverWallet});
+  void updatePayjoinState(Object wallet, bool state);
+  String getPayjoinEndpoint(Object wallet);
   Future<Sender> buildPayjoinRequest(String originalPsbt, dynamic pjUri, int fee);
   Future<String> buildOriginalPsbt(Object wallet, int fee, double amount, Object credentials);
   Future<String> requestAndPollV2Proposal(Sender sender);
-  Future<PendingBitcoinTransaction> extractPjTx(Object wallet, String psbtString, Object credentials);
+  Future<PendingBitcoinTransaction> extractPjTx(Object wallet, String psbtString);
 }
   """;
 

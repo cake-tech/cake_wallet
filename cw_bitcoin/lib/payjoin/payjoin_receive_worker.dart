@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
+import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/psbt_signer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:payjoin_flutter/bitcoin_ffi.dart';
@@ -17,23 +18,6 @@ enum PayjoinReceiverRequestTypes {
   checkIsOwned,
   checkIsReceiverOutput,
   processPsbt;
-}
-
-class PayjoinSessionError {
-  final String message;
-
-  const PayjoinSessionError._(this.message);
-
-  factory PayjoinSessionError.recoverable(String message) = RecoverableError;
-  factory PayjoinSessionError.unrecoverable(String message) = UnrecoverableError;
-}
-
-class RecoverableError extends PayjoinSessionError {
-  const RecoverableError(super.message) : super._();
-}
-
-class UnrecoverableError extends PayjoinSessionError {
-  const UnrecoverableError(super.message) : super._();
 }
 
 class PayjoinReceiverWorker {

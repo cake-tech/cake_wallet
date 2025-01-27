@@ -172,5 +172,8 @@ abstract class PrivacySettingsViewModelBase with Store {
       _settingsStore.useMempoolFeeAPI = value;
 
   @action
-  void setUsePayjoin(bool value) => _settingsStore.usePayjoin = value;
+  void setUsePayjoin(bool value) {
+    _settingsStore.usePayjoin = value;
+    bitcoin!.updatePayjoinState(_wallet, value);
+  }
 }

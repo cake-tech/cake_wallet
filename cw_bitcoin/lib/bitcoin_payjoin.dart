@@ -143,7 +143,6 @@ class BitcoinPayjoin {
     }
   }
 
-  Future<PendingBitcoinTransaction> extractPjTx(
-          Object wallet, String psbtString, Object credentials) async =>
-      (wallet as BitcoinWallet).psbtToPendingTx(psbtString, credentials);
+  Future<PendingBitcoinTransaction> extractPjTx(Object wallet, String psbtString) async =>
+      (wallet as BitcoinWallet).psbtToPendingTx(psbtString);
 }

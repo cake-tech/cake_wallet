@@ -51,7 +51,7 @@ class PrivacyPage extends BasePage {
               ),
               if (_privacySettingsViewModel.canUsePayjoin)
                 SettingsSwitcherCell(
-                  title: 'Use Payjoin', // ToDo: localize
+                  title: S.of(context).use_payjoin,
                   value: _privacySettingsViewModel.usePayjoin,
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setUsePayjoin(value);

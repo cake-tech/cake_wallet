@@ -284,7 +284,7 @@ abstract class WalletAddressListViewModelBase
       case WalletType.haven:
         return HavenURI(amount: amount, address: address.address);
       case WalletType.bitcoin:
-        final pjEndpoint = bitcoin!.buildV2PjStr(receiverWallet: wallet);
+        final pjEndpoint = bitcoin!.getPayjoinEndpoint(wallet);
         return BitcoinURI(amount: amount, address: address.address, pjUri: pjEndpoint);
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: address.address);

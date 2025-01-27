@@ -1181,6 +1181,7 @@ abstract class ElectrumWalletBase
         isSendAll: estimatedTx.isSendAll,
         hasTaprootInputs: hasTaprootInputs,
         utxos: estimatedTx.utxos,
+        publicKeys: estimatedTx.publicKeys
       )..addListener((transaction) async {
           transactionHistory.addOne(transaction);
           if (estimatedTx.spendsSilentPayment) {

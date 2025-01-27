@@ -907,6 +907,7 @@
   "use": "Wechsel zu ",
   "use_card_info_three": "Verwenden Sie die digitale Karte online oder mit kontaktlosen Zahlungsmethoden.",
   "use_card_info_two": "Guthaben werden auf dem Prepaid-Konto in USD umgerechnet, nicht in digitale Währung.",
+  "use_payjoin": "Benutze Payjoin",
   "use_ssl": "SSL verwenden",
   "use_suggested": "Vorgeschlagen verwenden",
   "use_testnet": "TESTNET verwenden",

@@ -905,6 +905,7 @@
   "use": "Prebaci na",
   "use_card_info_three": "Koristite digitalnu karticu online ili s beskontaktnim metodama plaćanja.",
   "use_card_info_two": "Sredstva se pretvaraju u USD kada se drže na prepaid računu, a ne u digitalnim valutama.",
+  "use_payjoin": "Koristite Payjoin",
   "use_ssl": "Koristi SSL",
   "use_suggested": "Koristite predloženo",
   "use_testnet": "Koristite TestNet",

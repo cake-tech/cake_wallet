@@ -85,7 +85,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     // String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
     // final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
 
-    payjoinManager = PayjoinManager(PayjoinStorage(payjoinSessionSources: payjoinBox), this);
+    payjoinManager = PayjoinManager(PayjoinStorage(payjoinBox), this);
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
@@ -339,43 +339,36 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     credentials = credentials as BitcoinTransactionCredentials;
-    final tx =
-        super.createTransaction(credentials) as PendingBitcoinTransaction;
 
-    // if (credentials.payjoinUri == null) return tx;
-    //
-    // final transaction = await buildPsbt(
-    //     utxos: tx.utxos,
-    //     outputs: tx.outputs.map((e) => BitcoinOutput(
-    //       address: BitcoinBaseAddress.fromString(e.scriptPubKey.toAddress()),
-    //       value: e.amount,
-    //       isSilentPayment: e.isSilentPayment,
-    //       isChange: e.isChange,
-    //     )).toList(),
-    //     fee: BigInt.from(tx.fee),
-    //     network: network,
-    //     memo: credentials.outputs.first.memo,
-    //     outputOrdering: BitcoinOrdering.none,
-    //     enableRBF: true,
-    //     publicKeys: tx.publicKeys,
-    //     masterFingerprint: Uint8List(0)
-    // );
-    //
-    // transaction.signWithUTXO(
-    //     tx.utxos
-    //         .map((e) =>
-    //         UtxoWithPrivateKey.fromUtxo(e, tx.inputPrivKeyInfos))
-    //         .toList(), (txDigest, utxo, key, sighash) {
-    //   if (utxo.utxo.isP2tr()) {
-    //     return key.signTapRoot(
-    //       txDigest,
-    //       sighash: sighash,
-    //       tweak: utxo.utxo.isSilentPayment != true,
-    //     );
-    //   } else {
-    //     return key.signInput(txDigest, sigHash: sighash);
-    //   }
-    // });
+    final tx = (await super.createTransaction(credentials)) as PendingBitcoinTransaction;
+
+    final payjoinUri = credentials.payjoinUri;
+    if (payjoinUri == null) return tx;
+
+    final transaction = await buildPsbt(
+        utxos: tx.utxos,
+        outputs: tx.outputs.map((e) => BitcoinOutput(
+          address: BitcoinBaseAddress.fromString(e.scriptPubKey.toAddress()),
+          value: e.amount,
+          isSilentPayment: e.isSilentPayment,
+          isChange: e.isChange,
+        )).toList(),
+        fee: BigInt.from(tx.fee),
+        network: network,
+        memo: credentials.outputs.first.memo,
+        outputOrdering: BitcoinOrdering.none,
+        enableRBF: true,
+        publicKeys: tx.publicKeys!,
+        masterFingerprint: Uint8List(0)
+    );
+
+    final originalPsbt = await signPsbt(base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
+
+    tx.commitOverride = () async {
+      final sender =
+          await payjoinManager.initSender(payjoinUri, originalPsbt, tx.fee);
+      await payjoinManager.spawnNewSender(sender: sender, pjUrl: payjoinUri);
+    };
 
     return tx;
   }
@@ -497,8 +490,25 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
       .toList();
 
-  Future<PendingBitcoinTransaction> psbtToPendingTx(
-      String preProcessedPsbt, Object credentials) async {
+  Future<void> commitPsbt(String finalizedPsbt) {
+    final psbt = PsbtV2()..deserializeV0(base64.decode(finalizedPsbt));
+
+    final btcTx =
+        BtcTransaction.fromRaw(BytesUtils.toHexString(psbt.extract()));
+
+    return PendingBitcoinTransaction(
+      btcTx,
+      type,
+      electrumClient: electrumClient,
+      amount: 0,
+      fee: 0,
+      feeRate: "",
+      network: network,
+      hasChange: true,
+    ).commit();
+  }
+
+  Future<PendingBitcoinTransaction> psbtToPendingTx(String preProcessedPsbt) async {
     final psbt = PsbtV2()..deserializeV0(base64.decode(preProcessedPsbt));
 
     final inputCount = psbt.getGlobalInputCount();
@@ -573,17 +583,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     psbt.finalizeV0();
     return base64Encode(psbt.asPsbtV0());
-  }
-
-  Future<String> getPJURl() async {
-    final payjoinBox = await CakeHive.openBox<PayjoinSession>(PayjoinSession.boxName);
-    final manager = PayjoinManager(PayjoinStorage(payjoinSessionSources: payjoinBox), this);
-
-    final receiver = await manager.initReceiver(walletAddresses.primaryAddress);
-
-    manager.spawnNewReceiver(receiver: receiver);
-
-    return receiver.pjUriBuilder().build().pjEndpoint();
   }
 
   @override

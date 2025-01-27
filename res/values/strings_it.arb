@@ -907,6 +907,7 @@
   "use": "Passa a ",
   "use_card_info_three": "Utilizza la carta digitale online o con metodi di pagamento contactless.",
   "use_card_info_two": "I fondi vengono convertiti in USD quando sono detenuti nel conto prepagato, non in valute digitali.",
+  "use_payjoin": "Utilizzo Payjoin",
   "use_ssl": "Usa SSL",
   "use_suggested": "Usa suggerito",
   "use_testnet": "Usa TestNet",

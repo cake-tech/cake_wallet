@@ -721,11 +721,20 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  String buildV2PjStr({
-    required Object receiverWallet
-  }) {
-    final wallet = receiverWallet as BitcoinWallet;
-    return (wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
+  String getPayjoinEndpoint(Object wallet) {
+    final _wallet = wallet as BitcoinWallet;
+    return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
+  }
+
+  @override
+  void updatePayjoinState(Object wallet, bool value) {
+    final _wallet = wallet as ElectrumWallet;
+    if (value) {
+      (_wallet.walletAddresses as BitcoinWalletAddresses).initPayjoin();
+    } else {
+      (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.cleanupSessions();
+      (_wallet.walletAddresses as BitcoinWalletAddresses).currentPayjoinReceiver = null;
+    }
   }
 
   @override
@@ -755,12 +764,10 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<PendingBitcoinTransaction> extractPjTx(
-      Object wallet, String psbtString, Object credentials) {
+  Future<PendingBitcoinTransaction> extractPjTx(Object wallet, String psbtString) {
     return payjoin.extractPjTx(
       wallet,
-      psbtString,
-      credentials
+      psbtString
     );
   }
 }

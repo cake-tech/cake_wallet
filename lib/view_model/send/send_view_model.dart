@@ -395,7 +395,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
 
-      pendingTransaction = await (pjUri != null ?  performPayjoinSend() : wallet.createTransaction(_credentials())); // ToDo: Remove move Payjoin into create tx
+      pendingTransaction = await wallet.createTransaction(_credentials());
 
       if (provider is ThorChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;
@@ -850,10 +850,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     // If a proposal is received, finalize the payjoin
-    return bitcoin!.extractPjTx(
-      wallet,
-      psbt,
-      _credentials()
-    );
+    return bitcoin!.extractPjTx(wallet, psbt);
   }
 }
