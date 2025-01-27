@@ -3,11 +3,8 @@ import 'package:cw_core/zano_asset.dart';
 import 'package:cw_zano/api/model/employed_entries.dart';
 import 'package:cw_zano/api/model/subtransfer.dart';
 import 'package:collection/collection.dart';
-import 'package:cw_zano/model/zano_asset.dart';
 import 'package:cw_zano/model/zano_transaction_info.dart';
-import 'package:cw_zano/zano_formatter.dart';
 import 'package:cw_zano/zano_wallet.dart';
-import 'package:cw_zano/zano_wallet_api.dart';
 
 class Transfer {
   final String comment;

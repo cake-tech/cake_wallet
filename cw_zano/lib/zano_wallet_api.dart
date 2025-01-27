@@ -23,7 +23,6 @@ import 'package:cw_zano/api/model/transfer_params.dart';
 import 'package:cw_zano/api/model/transfer_result.dart';
 import 'package:cw_zano/zano_wallet_exceptions.dart';
 import 'package:ffi/ffi.dart';
-import 'package:flutter/foundation.dart';
 import 'package:json_bigint/json_bigint.dart';
 import 'package:monero/zano.dart' as zano;
 import 'package:monero/src/generated_bindings_zano.g.dart' as zanoapi;
