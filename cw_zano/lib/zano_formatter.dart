@@ -33,6 +33,9 @@ class ZanoFormatter {
   }
 
   static String bigIntAmountToString(BigInt amount, [int decimalPoint = defaultDecimalPoint]) {
+    if (decimalPoint == 0) {
+      return '0';
+    }
     final numberFormat = NumberFormat()..maximumFractionDigits = decimalPoint
                                         ..minimumFractionDigits = 1;
     return numberFormat.format(

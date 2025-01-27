@@ -177,7 +177,34 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestZanoNode() async {
-    return requestMoneroNode(methodName: "getinfo");
+    final path = '/json_rpc';
+    final rpcUri = Uri.http(uri.authority, path);
+    final body = {'jsonrpc': '2.0', 'id': '0', 'method': "getinfo"};
+
+    try {
+      final authenticatingClient = HttpClient();
+      authenticatingClient.badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => true);
+
+
+      final http.Client client = ioc.IOClient(authenticatingClient);
+
+      final jsonBody = json.encode(body);
+
+      final response = await client.post(
+        rpcUri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonBody,
+      );
+
+      printV("node check response: ${response.body}");
+
+      final resBody = json.decode(response.body) as Map<String, dynamic>;
+      return resBody['result']['height'] != null;
+    } catch (e) {
+      printV("error: $e");
+      return false;
+    }
   }
 
   Future<bool> requestMoneroNode({String methodName = 'get_info'}) async {

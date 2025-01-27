@@ -197,15 +197,14 @@ abstract class BalanceViewModelBase with Store {
     }
   }
 
-  @computed
-  String get additionalBalance {
-    final walletBalance = _walletBalance;
+  String additionalBalance(CryptoCurrency cryptoCurrency) {
+    final balance = _currencyBalance(cryptoCurrency);
 
     if (displayMode == BalanceDisplayMode.hiddenBalance) {
       return '0.0';
     }
 
-    return walletBalance.formattedAdditionalBalance;
+    return balance.formattedAdditionalBalance;
   }
 
   @computed
@@ -217,7 +216,7 @@ abstract class BalanceViewModelBase with Store {
             key,
             BalanceRecord(
                 availableBalance: '●●●●●●',
-                additionalBalance: additionalBalance,
+                additionalBalance: additionalBalance(key),
                 frozenBalance: '',
                 secondAvailableBalance: '●●●●●●',
                 secondAdditionalBalance: '●●●●●●',
@@ -287,10 +286,9 @@ abstract class BalanceViewModelBase with Store {
   @observable
   bool mwebEnabled = false;
 
-  @computed
-  bool get hasAdditionalBalance {
+  bool hasAdditionalBalance(CryptoCurrency currency) {
     bool isWalletTypeActivated = _hasAdditionalBalanceForWalletType(wallet.type);
-    bool isNotZeroAmount = additionalBalance != "0.0";
+    bool isNotZeroAmount = additionalBalance(currency) != "0.0";
 
     return isWalletTypeActivated && isNotZeroAmount;
   }
@@ -384,9 +382,8 @@ abstract class BalanceViewModelBase with Store {
     return balance;
   }
 
-  @computed
-  Balance get _walletBalance {
-    final balance = wallet.balance[wallet.currency];
+  Balance _currencyBalance(CryptoCurrency cryptoCurrency) {
+    final balance = wallet.balance[cryptoCurrency];
 
     if (balance == null) {
       throw Exception('No balance for ${wallet.currency}');

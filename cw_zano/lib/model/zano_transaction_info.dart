@@ -36,7 +36,7 @@ class ZanoTransactionInfo extends TransactionInfo {
         amount = amount.isValidInt ? amount.toInt() : 0,
         fee = transfer.fee,
         confirmations = confirmations,
-        isPending = false,
+        isPending = confirmations < 10,
         recipientAddress = transfer.remoteAddresses.isNotEmpty ? transfer.remoteAddresses.first : '' {
     additionalInfo = <String, dynamic>{
       'comment': transfer.comment,

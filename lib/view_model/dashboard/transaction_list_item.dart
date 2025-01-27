@@ -105,6 +105,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       WalletType.haven,
       WalletType.wownero,
       WalletType.litecoin,
+      WalletType.zano,
     ].contains(balanceViewModel.wallet.type)) {
       return formattedPendingStatus;
     }
@@ -214,6 +215,10 @@ class TransactionListItem extends ActionListItem with Keyable {
         break;
       case WalletType.zano:
         final asset = zano!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        if (asset == null) {
+          amount = "0.00";
+          break;
+        }
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
           cryptoAmount: zano!.formatterIntAmountToDouble(amount: transaction.amount, currency: asset, forFee: false),

@@ -101,7 +101,7 @@ class Transfer {
               printV('unknown asset ${single.assetId}');
             }
             final ticker = asset == null ? '***' : asset.ticker;
-            final decimalPoint = asset == null ? ZanoFormatter.defaultDecimalPoint : asset.decimalPoint;
+            final decimalPoint = asset == null ? 0 : asset.decimalPoint;
             return ZanoTransactionInfo.fromTransfer(
               transfer,
               confirmations: currentDaemonHeight - transfer.height,
