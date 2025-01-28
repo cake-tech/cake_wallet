@@ -697,6 +697,7 @@
   "service_health_disabled": "Zdravstveni bilten usluge je onemogućen",
   "service_health_disabled_message": "Ovo je stranica zdravstvenog biltena o usluzi, možete omogućiti ovu stranicu pod postavkama -> privatnost",
   "set_a_pin": "Postavite pin",
+  "set_up_a_wallet": "Postavite novčanik",
   "settings": "Postavke",
   "settings_all": "SVE",
   "settings_allow_biometrical_authentication": "Dopusti biometrijsku autentifikaciju",

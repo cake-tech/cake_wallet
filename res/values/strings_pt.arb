@@ -699,6 +699,7 @@
   "service_health_disabled": "O Boletim de Saúde de Serviço está desativado",
   "service_health_disabled_message": "Esta é a página do Boletim de Saúde de Serviço, você pode ativar esta página em Configurações -> Privacidade",
   "set_a_pin": "Defina um pino",
+  "set_up_a_wallet": "Configurar uma carteira",
   "settings": "Configurações",
   "settings_all": "Tudo",
   "settings_allow_biometrical_authentication": "Permitir autenticação biométrica",

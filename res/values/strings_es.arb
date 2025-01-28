@@ -698,6 +698,7 @@
   "service_health_disabled": "El boletín de salud del servicio está deshabilitado",
   "service_health_disabled_message": "Esta es la página del Boletín de Salud del Servicio, puede habilitar esta página en Configuración -> Privacidad",
   "set_a_pin": "Establecer un alfiler",
+  "set_up_a_wallet": "Establecer una billetera",
   "settings": "Configuraciones",
   "settings_all": "TODOS",
   "settings_allow_biometrical_authentication": "Permitir autenticación biométrica",
