@@ -1447,7 +1447,7 @@ abstract class Zano {
   double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency, required bool forFee});
   int formatterParseAmount({required String amount, required CryptoCurrency currency});
   WalletService createZanoWalletService(Box<WalletInfo> walletInfoSource);
-  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo tx);
+  CryptoCurrency? assetOfTransaction(WalletBase wallet, TransactionInfo tx);
   List<ZanoAsset> getZanoAssets(WalletBase wallet);
   String getZanoAssetAddress(CryptoCurrency asset);
   Future<void> changeZanoAssetAvailability(WalletBase wallet, CryptoCurrency token);

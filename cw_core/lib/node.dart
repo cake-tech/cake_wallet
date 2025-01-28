@@ -102,10 +102,9 @@ class Node extends HiveObject with Keyable {
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
-        return Uri.parse(
-          "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") ? path : "/$path"}");
       case WalletType.zano:
-        return Uri.https(uriRaw, '');
+        return Uri.parse(
+            "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
       case WalletType.none:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -177,14 +176,39 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestZanoNode() async {
-    return requestMoneroNode(methodName: "getinfo");
+    final path = '/json_rpc';
+    final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
+    final body = {'jsonrpc': '2.0', 'id': '0', 'method': "getinfo"};
+
+    try {
+      final authenticatingClient = HttpClient();
+      authenticatingClient.badCertificateCallback =
+          ((X509Certificate cert, String host, int port) => true);
+
+      final http.Client client = ioc.IOClient(authenticatingClient);
+
+      final jsonBody = json.encode(body);
+
+      final response = await client.post(
+        rpcUri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonBody,
+      );
+
+      printV("node check response: ${response.body}");
+
+      final resBody = json.decode(response.body) as Map<String, dynamic>;
+      return resBody['result']['height'] != null;
+    } catch (e) {
+      printV("error: $e");
+      return false;
+    }
   }
 
   Future<bool> requestMoneroNode({String methodName = 'get_info'}) async {
     if (useSocksProxy) {
       return await requestNodeWithProxy();
     }
-
 
     final path = '/json_rpc';
     final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
@@ -194,7 +218,6 @@ class Node extends HiveObject with Keyable {
       final authenticatingClient = HttpClient();
       authenticatingClient.badCertificateCallback =
           ((X509Certificate cert, String host, int port) => true);
-
 
       final http.Client client = ioc.IOClient(authenticatingClient);
 
@@ -209,13 +232,13 @@ class Node extends HiveObject with Keyable {
       if (response.statusCode == 401) {
         final daemonRpc = DaemonRpc(
           rpcUri.toString(),
-          username: login??'',
-          password: password??'',
+          username: login ?? '',
+          password: password ?? '',
         );
         final response = await daemonRpc.call('get_info', {});
         return !(response['offline'] as bool);
       }
-      
+
       printV("node check response: ${response.body}");
 
       if ((response.body.contains("400 Bad Request") // Some other generic error
@@ -298,10 +321,7 @@ class Node extends HiveObject with Keyable {
     try {
       final response = await http.post(
         uri,
-        headers: {
-          "Content-Type": "application/json",
-          "nano-app": "cake-wallet"
-        },
+        headers: {"Content-Type": "application/json", "nano-app": "cake-wallet"},
         body: jsonEncode(
           {
             "action": "account_balance",
@@ -407,8 +427,7 @@ class DigestAuth {
   }
 
   /// Helper to format the nonce count.
-  String _formatNonceCount(int count) =>
-      count.toRadixString(16).padLeft(8, '0');
+  String _formatNonceCount(int count) => count.toRadixString(16).padLeft(8, '0');
 
   /// Compute the MD5 hash of a string.
   String md5Hash(String input) {
@@ -424,8 +443,7 @@ class DaemonRpc {
   DaemonRpc(this.rpcUrl, {required this.username, required this.password});
 
   /// Perform a JSON-RPC call with Digest Authentication.
-  Future<Map<String, dynamic>> call(
-      String method, Map<String, dynamic> params) async {
+  Future<Map<String, dynamic>> call(String method, Map<String, dynamic> params) async {
     final http.Client client = http.Client();
     final DigestAuth digestAuth = DigestAuth(username, password);
 
@@ -475,7 +493,8 @@ class DaemonRpc {
       throw Exception('RPC call failed: ${authenticatedResponse.body}');
     }
 
-    final Map<String, dynamic> result = jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
+    final Map<String, dynamic> result =
+        jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
     if (result['error'] != null) {
       throw Exception('RPC Error: ${result['error']}');
     }

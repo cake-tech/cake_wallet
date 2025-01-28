@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_zano/zano_wallet_api.dart';
 import 'package:decimal/decimal.dart';
 import 'package:decimal/intl.dart';
@@ -32,6 +33,9 @@ class ZanoFormatter {
   }
 
   static String bigIntAmountToString(BigInt amount, [int decimalPoint = defaultDecimalPoint]) {
+    if (decimalPoint == 0) {
+      return '0';
+    }
     final numberFormat = NumberFormat()..maximumFractionDigits = decimalPoint
                                         ..minimumFractionDigits = 1;
     return numberFormat.format(
@@ -66,7 +70,7 @@ class ZanoFormatter {
     } else if (d == null) {
       return BigInt.zero;
     } else {
-      ZanoWalletApi.error('cannot cast value of type ${d.runtimeType} to BigInt');
+      printV(('cannot cast value of type ${d.runtimeType} to BigInt'));
       throw 'cannot cast value of type ${d.runtimeType} to BigInt';
       //return BigInt.zero;
     }

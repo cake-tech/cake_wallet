@@ -175,7 +175,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
           dataToCopy: isLegacySeed
               ? widget.walletKeysViewModel.legacySeed
               : widget.walletKeysViewModel.seed,
-          onShowQR: () async => _showQR(context, false),
+          onShowQR: () async => _showQR(context),
         ),
       ],
     );
@@ -315,8 +315,8 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     showBar<void>(context, S.of(context).copied_key_to_clipboard(title));
   }
 
-  Future<void> _showQR(BuildContext context, bool isLegacySeed) async {
-    final url = await widget.walletKeysViewModel.getUrl(isLegacySeed);
+  Future<void> _showQR(BuildContext context) async {
+    final url = await widget.walletKeysViewModel.getUrl(false);
 
     BrightnessUtil.changeBrightnessForFunction(() async {
       await Navigator.pushNamed(
