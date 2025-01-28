@@ -4,7 +4,6 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
-import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
