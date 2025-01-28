@@ -111,7 +111,8 @@ abstract class BalanceViewModelBase with Store {
   bool get isHomeScreenSettingsEnabled =>
       isEVMCompatibleChain(wallet.type) ||
       wallet.type == WalletType.solana ||
-      wallet.type == WalletType.tron;
+      wallet.type == WalletType.tron ||
+      wallet.type == WalletType.zano;
 
   @computed
   bool get hasAccounts => wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
@@ -306,6 +307,7 @@ abstract class BalanceViewModelBase with Store {
     switch (type) {
       case WalletType.monero:
       case WalletType.wownero:
+      case WalletType.zano:
         return true;
       default:
         return false;

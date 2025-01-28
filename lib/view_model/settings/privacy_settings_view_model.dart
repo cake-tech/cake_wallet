@@ -1,4 +1,3 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -79,6 +78,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get lookupTwitter => _settingsStore.lookupsTwitter;
 
   @computed
+  bool get lookupsZanoAlias => _settingsStore.lookupsZanoAlias;
+
+  @computed
   bool get looksUpMastodon => _settingsStore.lookupsMastodon;
 
   @computed
@@ -130,6 +132,9 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setLookupsTwitter(bool value) => _settingsStore.lookupsTwitter = value;
+
+  @action
+  void setLookupsZanoAlias(bool value) => _settingsStore.lookupsZanoAlias = value;
 
   @action
   void setLookupsMastodon(bool value) => _settingsStore.lookupsMastodon = value;
