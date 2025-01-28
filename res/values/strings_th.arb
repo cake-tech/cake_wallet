@@ -698,6 +698,7 @@
   "service_health_disabled": "Service Health Bulletin ถูกปิดใช้งาน",
   "service_health_disabled_message": "นี่คือหน้า Service Health Bulletin คุณสามารถเปิดใช้งานหน้านี้ภายใต้การตั้งค่า -> ความเป็นส่วนตัว",
   "set_a_pin": "ตั้งพิน",
+  "set_up_a_wallet": "ตั้งค่ากระเป๋าเงิน",
   "settings": "การตั้งค่า",
   "settings_all": "ทั้งหมด",
   "settings_allow_biometrical_authentication": "อนุญาตให้ใช้การยืนยันตัวตนทางระบบชีวภาพ",

@@ -26,7 +26,7 @@ then
     export MAKE_JOB_COUNT="$(expr $(printf '%s\n%s' $(( $(grep MemTotal: /proc/meminfo | cut -d: -f2 | cut -dk -f1) * 4 / (1048576 * 9) )) $(nproc) | sort -n | head -n1) '|' 1)"
 elif [[ "$(uname)" == "Darwin" ]];
 then
-    export MAKE_JOB_COUNT="(expr $(printf '%s\n%s' $(( $(sysctl -n hw.memsize) * 4 / (1073741824 * 9) )) $(sysctl -n hw.logicalcpu) | sort -n | head -n1) '|' 1)"
+    export MAKE_JOB_COUNT="$(expr $(printf '%s\n%s' $(( $(sysctl -n hw.memsize) * 4 / (1073741824 * 9) )) $(sysctl -n hw.logicalcpu) | sort -n | head -n1) '|' 1)"
 else
     # Assume windows eh?
     export MAKE_JOB_COUNT="$(expr $(printf '%s\n%s' $(( $(grep MemTotal: /proc/meminfo | cut -d: -f2 | cut -dk -f1) * 4 / (1048576 * 9) )) $(nproc) | sort -n | head -n1) '|' 1)"

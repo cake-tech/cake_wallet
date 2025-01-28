@@ -700,6 +700,7 @@
   "service_health_disabled": "سروس ہیلتھ بلیٹن غیر فعال ہے",
   "service_health_disabled_message": "یہ سروس ہیلتھ بلیٹن پیج ہے ، آپ اس صفحے کو ترتیبات کے تحت اہل بنا سکتے ہیں -> رازداری",
   "set_a_pin": "ایک پن مرتب کریں",
+  "set_up_a_wallet": "ایک پرس لگائیں",
   "settings": "ترتیبات",
   "settings_all": "تمام",
   "settings_allow_biometrical_authentication": "بایومیٹریکل تصدیق کی اجازت دیں۔",

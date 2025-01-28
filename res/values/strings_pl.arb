@@ -698,6 +698,7 @@
   "service_health_disabled": "Biuletyn zdrowia usług jest wyłączony",
   "service_health_disabled_message": "To jest strona Biuletynu Zdrowie Service, możesz włączyć tę stronę w Ustawieniach -> Prywatność",
   "set_a_pin": "Ustaw szpilkę",
+  "set_up_a_wallet": "Ustaw portfel",
   "settings": "Ustawienia",
   "settings_all": "Wszystkie",
   "settings_allow_biometrical_authentication": "Zezwalaj na uwierzytelnianie biometryczne",

@@ -699,6 +699,7 @@
   "service_health_disabled": "サービスヘルス速報は無効です",
   "service_health_disabled_message": "これはService Health Bulletinページです。設定の下でこのページを有効にすることができます - >プライバシー",
   "set_a_pin": "ピンを設定します",
+  "set_up_a_wallet": "ウォレットをセットアップします",
   "settings": "設定",
   "settings_all": "すべて",
   "settings_allow_biometrical_authentication": "生体認証を許可する",

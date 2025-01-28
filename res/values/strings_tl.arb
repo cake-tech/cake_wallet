@@ -698,6 +698,7 @@
   "service_health_disabled": "Hindi pinagana ang Service Health Bulletin",
   "service_health_disabled_message": "Ito ang pahina ng Service Health Bulletin, maaari mong paganahin ang pahinang ito sa ilalim ng Mga Setting -> Pagkapribado",
   "set_a_pin": "Magtakda ng isang pin",
+  "set_up_a_wallet": "Mag -set up ng isang pitaka",
   "settings": "Mga Setting",
   "settings_all": "LAHAT",
   "settings_allow_biometrical_authentication": "Payagan ang biometrical authentication",

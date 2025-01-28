@@ -700,6 +700,7 @@
   "service_health_disabled": "सेवा स्वास्थ्य बुलेटिन अक्षम है",
   "service_health_disabled_message": "यह सेवा स्वास्थ्य बुलेटिन पृष्ठ है, आप इस पृष्ठ को सेटिंग्स के तहत सक्षम कर सकते हैं -> गोपनीयता",
   "set_a_pin": "एक पिन सेट करना",
+  "set_up_a_wallet": "एक बटुआ सेट करें",
   "settings": "समायोजन",
   "settings_all": "सब",
   "settings_allow_biometrical_authentication": "बायोमेट्रिक प्रमाणीकरण की अनुमति दें",

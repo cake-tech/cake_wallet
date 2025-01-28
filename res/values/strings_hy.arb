@@ -698,6 +698,7 @@
   "service_health_disabled": "Ծառայության առողջությունը անջատված է",
   "service_health_disabled_message": "Սա ծառայության առողջության էջն է, դուք կարող եք այս էջը միացնել Կարգավորումներ -> Գաղտնիություն",
   "set_a_pin": "Սեփական քորոց սահմանեք",
+  "set_up_a_wallet": "Ստեղծեք դրամապանակ",
   "settings": "Կարգավորումներ",
   "settings_all": "Բոլորը",
   "settings_allow_biometrical_authentication": "Թույլատրել կենսաչափական վավերացում",

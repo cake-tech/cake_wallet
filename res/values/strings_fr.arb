@@ -698,6 +698,7 @@
   "service_health_disabled": "Le bulletin de santé du service est désactivé.",
   "service_health_disabled_message": "Ceci est la page du Bulletin de santé du service, vous pouvez activer cette page sous Paramètres -> Confidentialité",
   "set_a_pin": "Définir un code PIN",
+  "set_up_a_wallet": "Configurer un portefeuille",
   "settings": "Paramètres",
   "settings_all": "TOUT",
   "settings_allow_biometrical_authentication": "Autoriser l'authentification biométrique",

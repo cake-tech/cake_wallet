@@ -700,6 +700,7 @@
   "service_health_disabled": "Il Bollettino sanitario di servizio è disabilitato",
   "service_health_disabled_message": "Questa è la pagina del Bollettino sanitario del servizio, è possibile abilitare questa pagina in Impostazioni -> Privacy",
   "set_a_pin": "Imposta un pin",
+  "set_up_a_wallet": "Imposta un portafoglio",
   "settings": "Impostazioni",
   "settings_all": "TUTTO",
   "settings_allow_biometrical_authentication": "Consenti autenticazione biometrica",

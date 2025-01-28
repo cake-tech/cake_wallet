@@ -699,6 +699,7 @@
   "service_health_disabled": "Service Health Bulletin is disabled",
   "service_health_disabled_message": "This is the service health bulletin page, you can enable this page under Settings -> Privacy",
   "set_a_pin": "Set a PIN",
+  "set_up_a_wallet": "Set up a Wallet",
   "settings": "Settings",
   "settings_all": "ALL",
   "settings_allow_biometrical_authentication": "Allow biometrical authentication",
