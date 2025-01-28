@@ -321,12 +321,12 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @action
   BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
     if (addressPageType == SilentPaymentsAddresType.p2sp) {
-      final usableSilentPaymentAddresses = silentPaymentAddresses
-          .where((a) =>
-              a.type != SegwitAddressType.p2tr &&
-              a.derivationPath != OLD_SP_PATH &&
-              a.isChange == false)
-          .toList();
+      final usableSilentPaymentAddresses =
+          (receiveAddressesByType[SilentPaymentsAddresType.p2sp] ?? [])
+              .where((a) =>
+                  (a as BitcoinSilentPaymentAddressRecord).derivationPath !=
+                  OLD_SP_PATH.replaceFirst("#", "0"))
+              .toList();
       final nextSPLabelIndex = usableSilentPaymentAddresses.length;
 
       final address = BitcoinSilentPaymentAddressRecord(
