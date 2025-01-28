@@ -12,7 +12,6 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
-import 'package:cw_wownero/wownero_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
