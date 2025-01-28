@@ -18,11 +18,12 @@ cd "$(dirname "$0")"
 for COIN in monero wownero zano;
 do
     pushd ../monero_c
-        rm -rf external/ios/build
-        ./build_single.sh ${COIN} aarch64-apple-ios -j$MAKE_JOB_COUNT
+        if [[ -f "release/${COIN}/aarch64-apple-ios_libwallet2_api_c.dylib" ]];
+        then
+            echo "file exist, not building monero_c for ${COIN}/aarch64-apple-ios.";
+        else
+            ./build_single.sh ${COIN} aarch64-apple-ios -j$MAKE_JOB_COUNT
+            unxz -f ../monero_c/release/${COIN}/aarch64-apple-ios_libwallet2_api_c.dylib.xz
+        fi
     popd
 done
-
-unxz -f ../monero_c/release/monero/aarch64-apple-ios_libwallet2_api_c.dylib.xz
-unxz -f ../monero_c/release/wownero/aarch64-apple-ios_libwallet2_api_c.dylib.xz
-unxz -f ../monero_c/release/zano/aarch64-apple-ios_libwallet2_api_c.dylib.xz
