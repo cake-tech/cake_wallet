@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Install flutter
-        run: fvm global ${{ env.FLUTTER_VERSION }}
+        run: yes | fvm global ${{ env.FLUTTER_VERSION }}
       # - name: Fix github actions messing up $HOME...
       # run: 'echo HOME=/Users/user | sudo tee -a $GITHUB_ENV'
       - uses: actions/checkout@v4
