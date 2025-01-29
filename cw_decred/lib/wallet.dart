@@ -118,7 +118,7 @@ abstract class DecredWalletBase
       return;
     }
     await updateBalance();
-    walletAddresses.updateAddressesInBox();
+    await walletAddresses.updateAddressesInBox();
     // Set sync check interval lower since we are synced.
     if (synced == false) {
       synced = true;
@@ -177,14 +177,6 @@ abstract class DecredWalletBase
 
     if (syncStatusCode > 4) {
       syncStatus = SyncedSyncStatus();
-      // Initiate a receive address in case we lose peers later.
-      if (walletAddresses.selectedAddr == '') {
-        // TODO: `walletAddresses.address` will assign a value to
-        // `walletAddresses.selectedAddr`, but as per the comment in
-        // `walletAddresses.address`, this _may_ not be a good idea.
-        walletAddresses.address;
-        walletAddresses.updateAddressesInBox();
-      }
       return true;
     }
 

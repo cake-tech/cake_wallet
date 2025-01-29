@@ -135,22 +135,23 @@ String? walletSeed(String walletName, String walletPassword) {
   return res.payload;
 }
 
-String? currentReceiveAddress(String walletName) {
-  final cName = walletName.toCString();
-  final res = executePayloadFn(
-    fn: () => dcrwalletApi.currentReceiveAddress(cName),
-    ptrsToFree: [cName],
-    skipErrorCheck: true, // errCode is checked below, before checking err
-  );
-
-  if (res.errCode == ErrCodeNotSynced) {
-    // Wallet is not synced. We do not want to give out a used address so give
-    // nothing.
-    return null;
-  }
-  checkErr(res.err);
-  return res.payload;
-}
+// NOTE: Currently unused.
+// String? currentReceiveAddress(String walletName) {
+//   final cName = walletName.toCString();
+//   final res = executePayloadFn(
+//     fn: () => dcrwalletApi.currentReceiveAddress(cName),
+//     ptrsToFree: [cName],
+//     skipErrorCheck: true, // errCode is checked below, before checking err
+//   );
+//
+//   if (res.errCode == ErrCodeNotSynced) {
+//     // Wallet is not synced. We do not want to give out a used address so give
+//     // nothing.
+//     return null;
+//   }
+//   checkErr(res.err);
+//   return res.payload;
+// }
 
 String syncStatus(String walletName) {
   final cName = walletName.toCString();

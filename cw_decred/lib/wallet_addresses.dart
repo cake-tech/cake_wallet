@@ -12,6 +12,7 @@ class DecredWalletAddresses = DecredWalletAddressesBase with _$DecredWalletAddre
 
 abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
   DecredWalletAddressesBase(WalletInfo walletInfo) : super(walletInfo);
+  String currentAddr = '';
 
   @observable
   String selectedAddr = '';
@@ -19,19 +20,6 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
   @override
   @computed
   String get address {
-    // Only request a new address from libwallet if an address wasn't already
-    // selected. Libwallet will return an empty string if the wallet isn't
-    // synced.
-    if (selectedAddr == '') {
-      // TODO: Consider simply returning whatever libwallet returns, and don't
-      // auto-select the address returned by libwallet, so that if that address
-      // becomes used, libwallet will be contacted to return a new unused
-      // address. If the first unused address returned by libwallet is assigned
-      // to `selectedAddr`, then it would always be returned subsequently even
-      // if the address becomes used and libwallet would have returned a
-      // different address.
-      selectedAddr = libdcrwallet.currentReceiveAddress(walletInfo.name) ?? '';
-    }
     return selectedAddr;
   }
 
@@ -75,6 +63,11 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
         usedAddresses.add(addr);
       }
     });
+
+    if (addrs.unusedAddrs.length > 0 && addrs.unusedAddrs[0] != currentAddr) {
+      currentAddr = addrs.unusedAddrs[0];
+      selectedAddr = currentAddr;
+    }
 
     await saveAddressesInBox();
   }
