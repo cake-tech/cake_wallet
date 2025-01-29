@@ -101,8 +101,14 @@ class _WalletNameFormState extends State<WalletNameForm> {
   void initState() {
     _stateReaction ??= reaction((_) => _walletNewVM.state, (ExecutionState state) async {
       if (state is ExecutedSuccessfullyState) {
-        Navigator.of(navigatorKey.currentContext ?? context)
-            .pushNamed(Routes.preSeedPage, arguments: _walletNewVM.seedPhraseWordsLength);
+        if (widget.isChildWallet) {
+          Navigator.of(navigatorKey.currentContext ?? context)
+              .pushNamed(Routes.walletGroupExistingSeedDescriptionPage,
+              arguments: _walletNewVM.seedPhraseWordsLength);
+        } else {
+          Navigator.of(navigatorKey.currentContext ?? context)
+              .pushNamed(Routes.preSeedPage, arguments: _walletNewVM.seedPhraseWordsLength);
+        }
       }
 
       if (state is FailureState) {
@@ -221,6 +227,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                           ),
                           if (_walletNewVM.hasWalletPassword) ...[
                             TextFormField(
+                              key: ValueKey('password'),
                               onChanged: (value) => _walletNewVM.walletPassword = value,
                               controller: _passwordController,
                               textAlign: TextAlign.center,
@@ -257,6 +264,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               ),
                             ),
                             TextFormField(
+                              key: ValueKey('repeat_wallet_password'),
                               onChanged: (value) => _walletNewVM.repeatedWalletPassword = value,
                               controller: _repeatedPasswordController,
                               textAlign: TextAlign.center,
