@@ -114,14 +114,14 @@ class CWZano extends Zano {
   }
 
   @override
-  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
+  CryptoCurrency? assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
     transaction as ZanoTransactionInfo;
     if (transaction.tokenSymbol == CryptoCurrency.zano.title) {
       return CryptoCurrency.zano;
     }
     wallet as ZanoWallet;
     final asset = wallet.zanoAssets.values.firstWhereOrNull((element) => element?.ticker == transaction.tokenSymbol);
-    return asset ?? CryptoCurrency.zano;
+    return asset;
   }
 
   String getZanoAssetAddress(CryptoCurrency asset) => (asset as ZanoAsset).assetId;

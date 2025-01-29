@@ -23,11 +23,11 @@ class ZanoTransactionInfo extends TransactionInfo {
 
   ZanoTransactionInfo.fromTransfer(Transfer transfer,
       {required int confirmations,
-      required bool isIncome,
-      required String assetId,
-      required BigInt amount,
-      this.tokenSymbol = 'ZANO',
-      this.decimalPoint = ZanoFormatter.defaultDecimalPoint})
+        required bool isIncome,
+        required String assetId,
+        required BigInt amount,
+        this.tokenSymbol = 'ZANO',
+        this.decimalPoint = ZanoFormatter.defaultDecimalPoint})
       : id = transfer.txHash,
         height = transfer.height,
         direction = isIncome ? TransactionDirection.incoming : TransactionDirection.outgoing,
@@ -36,14 +36,18 @@ class ZanoTransactionInfo extends TransactionInfo {
         amount = amount.isValidInt ? amount.toInt() : 0,
         fee = transfer.fee,
         confirmations = confirmations,
-        isPending = false,
-        recipientAddress = transfer.remoteAddresses.isNotEmpty ? transfer.remoteAddresses.first : '' {
+        isPending = confirmations < 10,
+        recipientAddress = transfer.remoteAddresses.isNotEmpty
+            ? transfer.remoteAddresses.first
+            : '' {
     additionalInfo = <String, dynamic>{
       'comment': transfer.comment,
       'assetId': assetId,
     };
   }
+
   String get assetId => additionalInfo["assetId"] as String;
+
   set assetId(String newId) => additionalInfo["assetId"] = newId;
   final String id;
   final int height;
@@ -61,7 +65,8 @@ class ZanoTransactionInfo extends TransactionInfo {
   String? key;
 
   @override
-  String amountFormatted() => '${formatAmount(ZanoFormatter.bigIntAmountToString(zanoAmount, decimalPoint))} $tokenSymbol';
+  String amountFormatted() =>
+      '${formatAmount(ZanoFormatter.bigIntAmountToString(zanoAmount, decimalPoint))} $tokenSymbol';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';

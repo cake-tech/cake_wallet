@@ -118,7 +118,6 @@ class TransactionsPage extends StatelessWidget {
                                       dashboardViewModel.balanceViewModel.isFiatDisabled
                                           ? ''
                                           : item.formattedFiatAmount,
-                                  isPending: transaction.isPending,
                                   title:
                                       item.formattedTitle + item.formattedStatus + transactionType,
                                   tags: tags,
