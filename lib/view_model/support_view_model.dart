@@ -71,7 +71,7 @@ abstract class SupportViewModelBase with Store {
           LinkListItem(
               title: 'Quantex',
               icon: 'assets/images/quantex.png',
-              linkTitle: 'help.myquantex.com',
+              linkTitle: 'help.swaptrade.io',
               link: 'mailto:support@exolix.com'),
           LinkListItem(
               title: 'Trocador',

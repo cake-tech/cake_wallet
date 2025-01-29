@@ -35,13 +35,13 @@ class QuantexExchangeProvider extends ExchangeProvider {
 
   static final markup = secrets.quantexExchangeMarkup;
 
-  static const apiAuthority = 'api.myquantex.com';
+  static const apiAuthority = 'api.swaptrade.io';
   static const getRate = '/api/swap/get-rate';
   static const getCoins = '/api/swap/get-coins';
   static const createOrder = '/api/swap/create-order';
 
   @override
-  String get title => 'Quantex';
+  String get title => 'SwapTrade';
 
   @override
   bool get isAvailable => true;

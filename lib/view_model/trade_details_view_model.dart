@@ -97,7 +97,7 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.thorChain:
         return 'https://track.ninerealms.com/${trade.id}';
       case ExchangeProviderDescription.quantex:
-        return 'https://myquantex.com/send/${trade.id}';
+        return 'https://swaptrade.io/send/${trade.id}';
       case ExchangeProviderDescription.letsExchange:
         return 'https://letsexchange.io/?transactionId=${trade.id}';
       case ExchangeProviderDescription.stealthEx:
