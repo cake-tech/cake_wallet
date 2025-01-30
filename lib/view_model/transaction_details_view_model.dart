@@ -81,6 +81,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.wownero:
         _addWowneroListItems(tx, dateFormat);
         break;
+      case WalletType.zano:
+        _addZanoListItems(tx, dateFormat);
+        break;
       case WalletType.decred:
         _addDecredListItems(tx, dateFormat);
         break;
@@ -185,6 +188,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://tronscan.org/#/transaction/${txId}';
       case WalletType.wownero:
         return 'https://explore.wownero.com/tx/${txId}';
+      case WalletType.zano:
+        return 'https://explorer.zano.org/transaction/${txId}';
       case WalletType.decred:
         return 'https://dcrdata.decred.org/tx/${txId.split(':')[0]}';
       case WalletType.none:
@@ -217,6 +222,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'tronscan.org';
       case WalletType.wownero:
         return S.current.view_transaction_on + 'Wownero.com';
+      case WalletType.zano:
+        return S.current.view_transaction_on + 'explorer.zano.org';
       case WalletType.decred:
         return S.current.view_transaction_on + 'dcrdata.decred.org';
       case WalletType.none:
@@ -829,4 +836,20 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     items.addAll(_items);
   }
+
+  void _addZanoListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final comment = tx.additionalInfo['comment'] as String?;
+    items.addAll([
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(title: 'Asset ID', value: tx.additionalInfo['assetId'] as String? ?? "Unknown asset id"),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+      if (comment != null && comment.isNotEmpty)
+        StandartListItem(title: S.current.transaction_details_title, value: comment),
+    ]);
+    }
 }

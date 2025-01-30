@@ -44,6 +44,7 @@ const solanaDefaultNodeUri = 'solana-mainnet.core.chainstack.com';
 const tronDefaultNodeUri = 'api.trongrid.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
+const zanoDefaultNodeUri = 'zano.cakewallet.com:11211';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = ":9108";
 
@@ -373,7 +374,11 @@ Future<void> defaultSettingsMigration(
           await removeMoneroWorld(sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         case 41:
-          _deselectExchangeProvider(sharedPreferences, "Quantex");
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "Quantex",
+            enabled: false,
+          );
           addWalletNodeList(nodes: nodes, type: WalletType.bitcoin);
           addWalletNodeList(nodes: nodes, type: WalletType.tron);
           break;
@@ -382,8 +387,16 @@ Future<void> defaultSettingsMigration(
           break;
         case 43:
           _fixNodesUseSSLFlag(nodes);
-          _deselectExchangeProvider(sharedPreferences, "THORChain");
-          _deselectExchangeProvider(sharedPreferences, "SimpleSwap");
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "THORChain",
+            enabled: false,
+          );
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "SimpleSwap",
+            enabled: false,
+          );
           break;
         case 44:
           _fixNodesUseSSLFlag(nodes);
@@ -465,6 +478,20 @@ Future<void> defaultSettingsMigration(
             useSSL: true,
           );
         case 47:
+          await addWalletNodeList(nodes: nodes, type: WalletType.zano);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.zano,
+            currentNodePreferenceKey: PreferencesKey.currentZanoNodeIdKey,
+          );
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "SimpleSwap",
+            enabled: true,
+          );
+          break;
+        case 48:
           await addWalletNodeList(nodes: nodes, type: WalletType.decred);
           await _changeDefaultNode(
             nodes: nodes,
@@ -582,6 +609,8 @@ String _getDefaultNodeUri(WalletType type) {
       return tronDefaultNodeUri;
     case WalletType.wownero:
       return wowneroDefaultNodeUri;
+    case WalletType.zano:
+      return zanoDefaultNodeUri;
     case WalletType.decred:
       return decredDefaultUri;
     case WalletType.banano:
@@ -590,12 +619,13 @@ String _getDefaultNodeUri(WalletType type) {
   }
 }
 
-void _deselectExchangeProvider(SharedPreferences sharedPreferences, String providerName) {
+void _changeExchangeProviderAvailability(SharedPreferences sharedPreferences,
+    {required String providerName, required bool enabled}) {
   final Map<String, dynamic> exchangeProvidersSelection =
       json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
           as Map<String, dynamic>;
 
-  exchangeProvidersSelection[providerName] = false;
+  exchangeProvidersSelection[providerName] = enabled;
 
   sharedPreferences.setString(
     PreferencesKey.exchangeProvidersSelection,
@@ -1016,6 +1046,7 @@ Future<void> checkCurrentNodes(
   final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
   final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
   final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
+  final currentZanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
   final currentMoneroNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentMoneroNodeId);
   final currentBitcoinElectrumServer =
@@ -1042,6 +1073,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentTronNodeId);
   final currentWowneroNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentWowneroNodeId);
+  final currentZanoNode = nodeSource.values.firstWhereOrNull((node) => node.key == currentZanoNodeId);
+
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
     await nodeSource.add(newCakeWalletNode);

@@ -5,6 +5,7 @@ class PreferencesKey {
   static const currentBitcoinElectrumSererIdKey = 'current_node_id_btc';
   static const currentLitecoinElectrumSererIdKey = 'current_node_id_ltc';
   static const currentHavenNodeIdKey = 'current_node_id_xhv';
+  static const currentZanoNodeIdKey = 'current_node_id_zano';
   static const currentEthereumNodeIdKey = 'current_node_id_eth';
   static const currentPolygonNodeIdKey = 'current_node_id_matic';
   static const currentNanoNodeIdKey = 'current_node_id_nano';
@@ -46,6 +47,7 @@ class PreferencesKey {
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
+  static const zanoTransactionPriority = 'current_fee_priority_zano';
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
   static const decredTransactionPriority = 'current_fee_priority_decred';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
@@ -73,11 +75,13 @@ class PreferencesKey {
   static const defaultNanoRep = 'default_nano_representative';
   static const defaultBananoRep = 'default_banano_representative';
   static const lookupsTwitter = 'looks_up_twitter';
+  static const lookupsZanoAlias = 'looks_up_zano_alias';
   static const lookupsMastodon = 'looks_up_mastodon';
   static const lookupsYatService = 'looks_up_yat';
   static const lookupsUnstoppableDomains = 'looks_up_unstoppable_domain';
   static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
+  static const lookupsWellKnown = 'looks_up_well_known';
   static const showCameraConsent = 'show_camera_consent';
 
   static String moneroWalletUpdateV1Key(String name) =>

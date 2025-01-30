@@ -30,6 +30,11 @@ Future<String> extractAddressFromParsed(
       content = S.of(context).extracted_address_content('${parsedAddress.name} (OpenAlias)');
       address = parsedAddress.addresses.first;
       break;
+    case ParseFrom.wellKnown:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Well-Known)');
+      address = parsedAddress.addresses.first;
+      break;
     case ParseFrom.fio:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (FIO)');
@@ -59,6 +64,11 @@ Future<String> extractAddressFromParsed(
     case ParseFrom.thorChain:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (ThorChain)');
+      address = parsedAddress.addresses.first;
+      break;
+    case ParseFrom.zanoAlias:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Zano Alias)');
       address = parsedAddress.addresses.first;
       break;
     case ParseFrom.yatRecord:

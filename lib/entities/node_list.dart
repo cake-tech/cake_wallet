@@ -92,6 +92,7 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
   final solanaNodes = await loadDefaultNodes(WalletType.solana);
   final tronNodes = await loadDefaultNodes(WalletType.tron);
   final decredNodes = await loadDefaultNodes(WalletType.decred);
+  final zanoNodes = await loadDefaultNodes(WalletType.zano);
 
   final nodes = moneroNodes +
       bitcoinElectrumServerList +
@@ -103,6 +104,7 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
       polygonNodes +
       solanaNodes +
       tronNodes +
+      zanoNodes +
       decredNodes;
 
   await nodeSource.clear();

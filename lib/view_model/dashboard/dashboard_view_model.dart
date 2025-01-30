@@ -131,6 +131,11 @@ abstract class DashboardViewModelBase with Store {
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
             FilterItem(
+                value: () => tradeFilterStore.displayChainflip,
+                caption: ExchangeProviderDescription.chainflip.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.chainflip)),
+            FilterItem(
                 value: () => tradeFilterStore.displayThorChain,
                 caption: ExchangeProviderDescription.thorChain.title,
                 onChanged: () =>
@@ -283,9 +288,7 @@ abstract class DashboardViewModelBase with Store {
     }
 
     _checkMweb();
-    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
-      _checkMweb();
-    });
+    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
   }
 
   void _checkMweb() {
@@ -540,7 +543,7 @@ abstract class DashboardViewModelBase with Store {
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
   @computed
-  bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
+  bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(wallet.type);
 
   @computed
   bool get hasSignMessages {
@@ -561,6 +564,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.wownero:
       case WalletType.decred:
         return true;
+      case WalletType.zano:
       case WalletType.haven:
       case WalletType.none:
         return false;

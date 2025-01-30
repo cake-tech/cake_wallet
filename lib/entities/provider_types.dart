@@ -77,6 +77,7 @@ class ProvidersHelper {
       case WalletType.decred:
       case WalletType.none:
       case WalletType.haven:
+      case WalletType.zano:
         return [];
     }
   }
@@ -111,6 +112,7 @@ class ProvidersHelper {
       case WalletType.none:
       case WalletType.haven:
       case WalletType.wownero:
+      case WalletType.zano:
         return [];
     }
   }
