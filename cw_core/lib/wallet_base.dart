@@ -60,13 +60,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool get isHardwareWallet => walletInfo.isHardwareWallet;
 
-  bool get hasRescan =>
-      walletInfo.type == WalletType.bitcoin ||
-      walletInfo.type == WalletType.litecoin ||
-      walletInfo.type == WalletType.monero ||
-      walletInfo.type == WalletType.wownero ||
-      walletInfo.type == WalletType.decred ||
-      walletInfo.type == WalletType.haven;
+  bool get hasRescan => false;
 
   Future<void> connectToNode({required Node node});
 
