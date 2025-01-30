@@ -68,7 +68,7 @@ WalletType? walletTypeForCurrency(CryptoCurrency currency) {
       return WalletType.wownero;
     case CryptoCurrency.zano:
       return WalletType.zano;
-    case CryptoCurrency.decred:
+    case CryptoCurrency.dcr:
       return WalletType.decred;
     default:
       return null;

@@ -1073,7 +1073,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentTronNodeId);
   final currentWowneroNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentWowneroNodeId);
-  final currentZanoNode = nodeSource.values.firstWhereOrNull((node) => node.key == currentZanoNodeId);
+  final currentZanoNode =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentZanoNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
@@ -1157,6 +1158,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: wowneroDefaultNodeUri, type: WalletType.wownero);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.key as int);
+  }
+
+  if (currentZanoNode == null) {
+    final node = Node(uri: zanoDefaultNodeUri, type: WalletType.zano);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.key as int);
   }
 
   if (currentDecredNodeServer == null) {

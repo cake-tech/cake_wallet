@@ -40,6 +40,9 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
     case WalletType.wownero:
       path = 'assets/wownero_node_list.yml';
       break;
+    case WalletType.zano:
+      path = 'assets/zano_node_list.yml';
+      break;
     case WalletType.decred:
       path = 'assets/decred_node_list.yml';
       break;
