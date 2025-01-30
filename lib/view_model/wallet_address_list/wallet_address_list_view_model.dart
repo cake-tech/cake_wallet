@@ -518,11 +518,14 @@ abstract class WalletAddressListViewModelBase
 
   Future<void> toggleHideAddress(WalletAddressListItem item) async {
     if (item.isHidden) {
+      item.isHidden = false;
       wallet.walletAddresses.hiddenAddresses
           .removeWhere((element) => element == item.address);
     } else {
+      item.isHidden = true;
       wallet.walletAddresses.hiddenAddresses.add(item.address);
     }
+    // update the address list:
     await wallet.walletAddresses.saveAddressesInBox();
     if (wallet.type == WalletType.monero) {
       monero!
