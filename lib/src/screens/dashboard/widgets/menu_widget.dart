@@ -38,6 +38,7 @@ class MenuWidgetState extends State<MenuWidget> {
         this.solanaIcon = Image.asset('assets/images/sol_icon.png'),
         this.tronIcon = Image.asset('assets/images/trx_icon.png'),
         this.wowneroIcon = Image.asset('assets/images/wownero_icon.png'),
+        this.zanoIcon = Image.asset('assets/images/zano_icon.png'),
         this.decredIcon = Image.asset('assets/images/decred_menu.png');
 
   final largeScreen = 731;
@@ -63,6 +64,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image solanaIcon;
   Image tronIcon;
   Image wowneroIcon;
+  Image zanoIcon;
   Image decredIcon;
 
   @override
@@ -247,6 +249,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return tronIcon;
       case WalletType.wownero:
         return wowneroIcon;
+      case WalletType.zano:
+        return zanoIcon;
       case WalletType.decred:
         return decredIcon;
       default:

@@ -54,11 +54,11 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.wownero:
       case WalletType.none:
       case WalletType.haven:
+      case WalletType.zano:
       case WalletType.decred:
         return false;
     }
   }
-
 
   bool get isMoneroSeedTypeOptionsEnabled => [
         WalletType.monero,
@@ -72,13 +72,16 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   bool get isNanoSeedTypeOptionsEnabled => [WalletType.nano].contains(type);
 
-  bool get hasPassphraseOption => [
+  bool hasPassphraseOption(bool isRestore) => [
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
         WalletType.ethereum,
         WalletType.polygon,
         WalletType.tron,
+        if (isRestore) WalletType.monero,
+        if (isRestore) WalletType.wownero,
+        if (isRestore) WalletType.zano,
       ].contains(type);
 
   @computed

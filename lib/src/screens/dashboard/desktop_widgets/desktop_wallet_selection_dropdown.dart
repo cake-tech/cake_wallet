@@ -46,6 +46,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
   final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
   final wowneroIcon = Image.asset('assets/images/wownero_icon.png', height: 24, width: 24);
+  final zanoIcon = Image.asset('assets/images/zano_icon.png', height: 24, width: 24);
   final decredIcon = Image.asset('assets/images/decred_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
@@ -159,6 +160,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return bitcoinIcon;
       case WalletType.monero:
         return moneroIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
       case WalletType.litecoin:
         return litecoinIcon;
       case WalletType.haven:
@@ -177,8 +180,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return solanaIcon;
       case WalletType.tron:
         return tronIcon;
-      case WalletType.wownero:
-        return wowneroIcon;
+      case WalletType.zano:
+        return zanoIcon;
       case WalletType.decred:
         return decredIcon;
       default:

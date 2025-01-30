@@ -73,12 +73,16 @@ abstract class HavenWalletBase
   String get seed => haven_wallet.getSeed();
 
   @override
+  bool get hasRescan => true;
+
+  @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
       primaryAddress: haven_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: haven_wallet.getSecretSpendKey(),
       privateViewKey: haven_wallet.getSecretViewKey(),
       publicSpendKey: haven_wallet.getPublicSpendKey(),
-      publicViewKey: haven_wallet.getPublicViewKey());
+      publicViewKey: haven_wallet.getPublicViewKey(),
+      passphrase: "");
 
   haven_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;

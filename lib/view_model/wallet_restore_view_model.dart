@@ -16,6 +16,7 @@ import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -63,6 +64,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.zano:
       case WalletType.none:
         availableModes = [WalletRestoreMode.seed];
         break;
@@ -72,8 +74,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   }
 
   static const moneroSeedMnemonicLength = 25;
-  static const electrumSeedMnemonicLength = 24;
-  static const electrumShortSeedMnemonicLength = 12;
   static const decredSeedMnemonicLength = 15;
 
   late List<WalletRestoreMode> availableModes;
@@ -100,7 +100,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       switch (type) {
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromSeedCredentials(
-              name: name, height: height, mnemonic: seed, password: password);
+              name: name, height: height, mnemonic: seed, password: password, passphrase: passphrase??'');
         case WalletType.bitcoin:
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
@@ -163,7 +163,16 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password,
+            passphrase: passphrase??'',
             height: height,
+          );
+        case WalletType.zano:
+          return zano!.createZanoRestoreWalletFromSeedCredentials(
+            name: name,
+            password: password,
+            height: height,
+            passphrase: passphrase??'',
+            mnemonic: seed,
           );
         case WalletType.decred:
           return decred!.createDecredRestoreWalletFromSeedCredentials(
