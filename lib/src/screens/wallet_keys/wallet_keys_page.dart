@@ -162,6 +162,8 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
       children: [
         if (isLegacySeedOnly || isLegacySeed) _buildHeightBox(),
         const SizedBox(height: 20),
+        (_buildPassphraseBox() ?? Container()),
+        if (widget.walletKeysViewModel.passphrase.isNotEmpty) const SizedBox(height: 20),
         Expanded(
           child: SeedPhraseGridWidget(
             list: isLegacySeed
@@ -261,6 +263,48 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
         ],
       ),
     );
+  }
+  
+
+  Widget? _buildPassphraseBox() {
+    if (widget.walletKeysViewModel.passphrase.isEmpty) return null;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).cardColor,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            S.of(context).passphrase_view_keys,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor.withOpacity(0.5),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      widget.walletKeysViewModel.passphrase,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
   }
 
 
