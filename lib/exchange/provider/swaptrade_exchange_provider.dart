@@ -14,8 +14,8 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart';
 
-class QuantexExchangeProvider extends ExchangeProvider {
-  QuantexExchangeProvider() : super(pairList: supportedPairs(_notSupported));
+class SwapTradeExchangeProvider extends ExchangeProvider {
+  SwapTradeExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
   static final List<CryptoCurrency> _notSupported = [
     ...(CryptoCurrency.all
@@ -33,7 +33,7 @@ class QuantexExchangeProvider extends ExchangeProvider {
         .toList())
   ];
 
-  static final markup = secrets.quantexExchangeMarkup;
+  static final markup = secrets.swapTradeExchangeMarkup;
 
   static const apiAuthority = 'api.swaptrade.io';
   static const getRate = '/api/swap/get-rate';
@@ -53,7 +53,7 @@ class QuantexExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => false;
 
   @override
-  ExchangeProviderDescription get description => ExchangeProviderDescription.quantex;
+  ExchangeProviderDescription get description => ExchangeProviderDescription.swapTrade;
 
   @override
   Future<bool> checkIsAvailable() async => true;
