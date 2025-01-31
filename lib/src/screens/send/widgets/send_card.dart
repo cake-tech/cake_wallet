@@ -409,7 +409,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                             onTap: () {
                               bool value =
                                   widget.sendViewModel.coinTypeToSpendFrom == UnspentCoinType.any;
-                              print("setting allow mweb coins to ${!value}");
                               sendViewModel.setAllowMwebCoins(!value);
                             },
                             child: Container(
@@ -417,13 +416,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  // Text(
-                                  //   S.of(context).litecoin_mweb_allow_coins,
-                                  //   style: TextStyle(
-                                  //       fontSize: 12,
-                                  //       fontWeight: FontWeight.w600,
-                                  //       color: Colors.white),
-                                  // ),
                                   StandardCheckbox(
                                     caption: S.of(context).litecoin_mweb_allow_coins,
                                     value: widget.sendViewModel.coinTypeToSpendFrom ==
