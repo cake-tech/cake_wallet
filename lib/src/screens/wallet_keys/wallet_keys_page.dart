@@ -298,7 +298,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                 Observer(builder: (BuildContext context) {
                   return Text(
                     (widget.walletKeysViewModel.obscurePassphrase) ?
-                      "*" * min(16, max(4, widget.walletKeysViewModel.passphrase.length)) :
+                      "*****" :
                       widget.walletKeysViewModel.passphrase,
                     style: TextStyle(
                       fontSize: 14,
