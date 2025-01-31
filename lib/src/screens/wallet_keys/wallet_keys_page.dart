@@ -307,16 +307,18 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                     ),
                   );
                 }),
-                GestureDetector(
-                  onTap: () {
-                    widget.walletKeysViewModel.obscurePassphrase = !widget.walletKeysViewModel.obscurePassphrase;
-                  },
-                  child: Icon(
-                    Icons.remove_red_eye,
-                    size: 16,
-                    color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
-                  ),
-                ),
+                Observer(builder: (BuildContext context) {
+                    return GestureDetector(
+                    onTap: () {
+                      widget.walletKeysViewModel.obscurePassphrase = !widget.walletKeysViewModel.obscurePassphrase;
+                    },
+                    child: Icon(
+                      widget.walletKeysViewModel.obscurePassphrase ? Icons.visibility_off : Icons.visibility,
+                      size: 16,
+                      color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                    )
+                  );
+                }),
               ],
             ),
           ),
