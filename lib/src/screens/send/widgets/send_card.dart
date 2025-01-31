@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -416,14 +417,15 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    S.of(context).litecoin_mweb_allow_coins,
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white),
-                                  ),
-                                  Checkbox(
+                                  // Text(
+                                  //   S.of(context).litecoin_mweb_allow_coins,
+                                  //   style: TextStyle(
+                                  //       fontSize: 12,
+                                  //       fontWeight: FontWeight.w600,
+                                  //       color: Colors.white),
+                                  // ),
+                                  StandardCheckbox(
+                                    caption: S.of(context).litecoin_mweb_allow_coins,
                                     value: widget.sendViewModel.coinTypeToSpendFrom ==
                                         UnspentCoinType.any,
                                     onChanged: (bool? value) {
