@@ -324,7 +324,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     ..addAll(_baseItems)
     ..addAll(addressList);
 
-  @computed
   ObservableList<ListItem> _computeAddressList() {
     final addressList = ObservableList<ListItem>();
 
@@ -508,12 +507,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   List<ListItem> get forceRecomputeAddressList {
     // necessary because the addressList contains non-observable items
     return _computeAddressList();
-  }
-
-  @action
-  void recomputeAddressList() {
-    // no observables change when we update a label, so we need a way to force a recomputation:
-    addressList;
   }
 
   Future<void> toggleHideAddress(WalletAddressListItem item) async {
