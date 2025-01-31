@@ -80,7 +80,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.tron,
         WalletType.monero,
         WalletType.wownero,
-        if (!isRestore) WalletType.zano,
+        if (isRestore) WalletType.zano,
       ].contains(type);
 
   @computed
