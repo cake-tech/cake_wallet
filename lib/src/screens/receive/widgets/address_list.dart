@@ -61,7 +61,7 @@ class _AddressListState extends State<AddressList> {
 
   void updateItems() {
     setState(() {
-      items = getItems(widget.addressListViewModel.forceRecomputeAddressList, showHiddenAddresses);
+      items = getItems(widget.addressListViewModel.forceRecomputeItems, showHiddenAddresses);
     });
   }
 

@@ -407,7 +407,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         });
         addressList.addAll(receivedAddressItems);
       } else {
-        printV("GETTING SUB ADDRESSES");
         var addressItems = bitcoin!.getSubAddresses(wallet).map((subaddress) {
           final isPrimary = subaddress.id == 0;
 
@@ -504,9 +503,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     return _computeAddressList();
   }
 
-  List<ListItem> get forceRecomputeAddressList {
+  List<ListItem> get forceRecomputeItems {
     // necessary because the addressList contains non-observable items
-    return _computeAddressList();
+    List<ListItem> recomputed = [];
+    recomputed.addAll(_baseItems);
+    recomputed.addAll(_computeAddressList());
+    return recomputed;
   }
 
   Future<void> toggleHideAddress(WalletAddressListItem item) async {
