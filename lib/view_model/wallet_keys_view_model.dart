@@ -98,7 +98,7 @@ abstract class WalletKeysViewModelBase with Store {
   bool obscurePassphrase = true;
   
   String get passphrase {
-    return _wallet.passphrase??'this is a test';
+    return _wallet.passphrase ?? '';
   }
 
   /// The Regex split the words based on any whitespace character.
