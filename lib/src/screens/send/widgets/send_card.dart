@@ -12,6 +12,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -394,6 +395,43 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                   color: Colors.white,
                                 ),
                               ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (sendViewModel.currency == CryptoCurrency.ltc)
+                      Observer(
+                        builder: (_) => Padding(
+                          padding: EdgeInsets.only(top: 6),
+                          child: GestureDetector(
+                            key: ValueKey('send_page_unspent_coin_button_key'),
+                            onTap: () {
+                              bool value =
+                                  widget.sendViewModel.coinTypeToSpendFrom == UnspentCoinType.any;
+                              print("setting allow mweb coins to ${!value}");
+                              sendViewModel.setAllowMwebCoins(!value);
+                            },
+                            child: Container(
+                              color: Colors.transparent,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    S.of(context).litecoin_mweb_allow_coins,
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white),
+                                  ),
+                                  Checkbox(
+                                    value: widget.sendViewModel.coinTypeToSpendFrom ==
+                                        UnspentCoinType.any,
+                                    onChanged: (bool? value) {
+                                      sendViewModel.setAllowMwebCoins(value ?? false);
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
