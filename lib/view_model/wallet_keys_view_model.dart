@@ -92,6 +92,11 @@ abstract class WalletKeysViewModelBase with Store {
     return '';
   }
 
+
+
+  @observable
+  bool obscurePassphrase = true;
+  
   String get passphrase {
     return _wallet.passphrase??'this is a test';
   }
