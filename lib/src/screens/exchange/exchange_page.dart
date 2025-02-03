@@ -214,15 +214,29 @@ class ExchangePage extends BasePage {
                               ? S.of(context).amount_is_estimate
                               : S.of(context).variable_pair_not_supported;
                       return Center(
-                        child: Text(
-                          description,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .extension<ExchangePageTheme>()!
-                                  .receiveAmountColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12),
+                        child: Row(
+                          children: [
+                            if(description == S.of(context).this_pair_is_not_supported_warning)
+                            Icon(Icons.warning_amber_rounded,
+                              color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
+                              size: 26),
+                            Expanded(
+                              child: Text(
+                                description,
+                                textAlign: TextAlign.center,
+                                softWrap: true,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .extension<ExchangePageTheme>()!
+                                      .receiveAmountColor,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }),
@@ -230,8 +244,8 @@ class ExchangePage extends BasePage {
                   Observer(
                       builder: (_) => LoadingPrimaryButton(
                           key: ValueKey('exchange_page_exchange_button_key'),
-                          text: S.of(context).exchange,
-                          onPressed: () {
+                          text: exchangeViewModel.isAvailableInSelected ? S.of(context).exchange : S.of(context).change_selected_exchanges,
+                          onPressed: exchangeViewModel.isAvailableInSelected ? () {
                             FocusScope.of(context).unfocus();
 
                             if (_formKey.currentState != null &&
@@ -260,7 +274,7 @@ class ExchangePage extends BasePage {
                                 );
                               }
                             }
-                          },
+                          } : () => PresentProviderPicker(exchangeViewModel: exchangeViewModel).presentProviderPicker(context),
                           color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
                           isDisabled: exchangeViewModel.selectedProviders.isEmpty,
