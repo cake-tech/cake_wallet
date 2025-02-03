@@ -336,8 +336,12 @@ class CommonTestFlows {
         return secrets.nanoTestWalletSeeds;
       case WalletType.wownero:
         return secrets.wowneroTestWalletSeeds;
-      default:
-        return '';
+      case WalletType.zano:
+        return secrets.zanoTestWalletSeeds;
+      case WalletType.none:
+      case WalletType.haven:
+      case WalletType.banano:
+        throw Exception("Unable to get seeds for ${walletType}");
     }
   }
 
