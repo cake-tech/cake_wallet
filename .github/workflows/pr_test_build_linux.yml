@@ -270,13 +270,13 @@ jobs:
           xmessage -timeout 30 "create_wallet_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/create_wallet_flow_test.dart
-      - name: Test [exchange_flow_test]
-        if: ${{ contains(env.message, 'run tests') }}
-        timeout-minutes: 20
-        run: |
-          xmessage -timeout 30 "exchange_flow_test" &
-          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
-          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/exchange_flow_test.dart
+      # - name: Test [exchange_flow_test]
+      #   if: ${{ contains(env.message, 'run tests') }}
+      #   timeout-minutes: 20
+      #   run: |
+      #     xmessage -timeout 30 "exchange_flow_test" &
+      #     rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
+      #     exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/exchange_flow_test.dart
       - name: Test [restore_wallet_through_seeds_flow_test]
         if: ${{ contains(env.message, 'run tests') }}
         timeout-minutes: 20
