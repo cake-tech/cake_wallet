@@ -403,7 +403,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     if (sendViewModel.currency == CryptoCurrency.ltc)
                       Observer(
                         builder: (_) => Padding(
-                          padding: EdgeInsets.only(top: 6),
+                          padding: EdgeInsets.only(top: 10),
                           child: GestureDetector(
                             key: ValueKey('send_page_unspent_coin_button_key'),
                             onTap: () {
@@ -418,6 +418,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                 children: [
                                   StandardCheckbox(
                                     caption: S.of(context).litecoin_mweb_allow_coins,
+                                    captionColor: Colors.white,
                                     value: widget.sendViewModel.coinTypeToSpendFrom ==
                                         UnspentCoinType.any,
                                     onChanged: (bool? value) {
