@@ -1514,24 +1514,22 @@ abstract class Decred {
   WalletCredentials createDecredNewWalletCredentials(
       {required String name, WalletInfo? walletInfo});
   WalletCredentials createDecredRestoreWalletFromSeedCredentials(
-      {required String name,
-      required String mnemonic,
-      required String password});
+      {required String name, required String mnemonic, required String password});
   WalletCredentials createDecredRestoreWalletFromPubkeyCredentials(
       {required String name, required String pubkey, required String password});
-  WalletService createDecredWalletService(Box<WalletInfo> walletInfoSource,
-      Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletService createDecredWalletService(
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
 
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority getDecredTransactionPriorityMedium();
   TransactionPriority getDecredTransactionPrioritySlow();
   TransactionPriority deserializeDecredTransactionPriority(int raw);
 
-  Object createDecredTransactionCredentials(
-      List<Output> outputs, TransactionPriority priority);
+  Object createDecredTransactionCredentials(List<Output> outputs, TransactionPriority priority);
 
   List<AddressInfo> getAddressInfos(Object wallet);
   Future<void> updateAddress(Object wallet, String address, String label);
+  Future<void> generateNewAddress(Object wallet, String label);
 
   String formatterDecredAmountToString({required int amount});
   double formatterDecredAmountToDouble({required int amount});

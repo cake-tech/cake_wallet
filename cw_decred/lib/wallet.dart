@@ -62,6 +62,7 @@ abstract class DecredWalletBase
   bool watchingOnly;
   bool connecting = false;
   String persistantPeer = "";
+  bool _isEnabledAutoGenerateSubaddress = true;
   FeeCache feeRateFast = FeeCache(defaultFeeRate);
   FeeCache feeRateMedium = FeeCache(defaultFeeRate);
   FeeCache feeRateSlow = FeeCache(defaultFeeRate);
@@ -643,4 +644,15 @@ abstract class DecredWalletBase
 
   @override
   String get password => _password;
+
+  @override
+  set isEnabledAutoGenerateSubaddress(bool value) {
+    this._isEnabledAutoGenerateSubaddress = value;
+    this.walletAddresses.isEnabledAutoGenerateSubaddress = value;
+  }
+
+  @override
+  bool get isEnabledAutoGenerateSubaddress {
+    return this._isEnabledAutoGenerateSubaddress;
+  }
 }
