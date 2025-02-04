@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -266,7 +264,6 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
       ),
     );
   }
-  
 
   Widget? _buildPassphraseBox() {
     if (widget.walletKeysViewModel.passphrase.isEmpty) return null;
@@ -295,9 +292,9 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
               children: [
                 Observer(builder: (BuildContext context) {
                   return Text(
-                    (widget.walletKeysViewModel.obscurePassphrase) ?
-                      "*****" :
-                      widget.walletKeysViewModel.passphrase,
+                    (widget.walletKeysViewModel.obscurePassphrase)
+                        ? "*****"
+                        : widget.walletKeysViewModel.passphrase,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -306,16 +303,18 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                   );
                 }),
                 Observer(builder: (BuildContext context) {
-                    return GestureDetector(
-                    onTap: () {
-                      widget.walletKeysViewModel.obscurePassphrase = !widget.walletKeysViewModel.obscurePassphrase;
-                    },
-                    child: Icon(
-                      widget.walletKeysViewModel.obscurePassphrase ? Icons.visibility_off : Icons.visibility,
-                      size: 16,
-                      color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
-                    )
-                  );
+                  return GestureDetector(
+                      onTap: () {
+                        widget.walletKeysViewModel.obscurePassphrase =
+                            !widget.walletKeysViewModel.obscurePassphrase;
+                      },
+                      child: Icon(
+                        widget.walletKeysViewModel.obscurePassphrase
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        size: 16,
+                        color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                      ));
                 }),
               ],
             ),
