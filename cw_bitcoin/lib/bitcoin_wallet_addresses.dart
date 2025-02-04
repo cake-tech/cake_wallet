@@ -18,7 +18,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     required super.mainHd,
     required super.sideHd,
     required super.network,
-    required super.isHardwareWallet, 
+    required super.isHardwareWallet,
     required this.payjoinManager,
     super.initialAddresses,
     super.initialRegularAddressIndex,
@@ -58,15 +58,9 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
 
-  @override
-  Future<void> init() async {
-    await super.init();
-  }
-  
   Future<void> initPayjoin() async {
     currentPayjoinReceiver = await payjoinManager.initReceiver(primaryAddress);
     
     await payjoinManager.resumeSessions();
-    await payjoinManager.spawnNewReceiver(receiver: currentPayjoinReceiver!);
   }
 }

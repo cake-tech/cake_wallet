@@ -43,7 +43,7 @@ dependencies:
   payjoin_flutter:
     git:
       url: https://github.com/konstantinullrich/payjoin-flutter
-      ref: cake-v1
+      ref: 6a3eb32fb9467ac12e7b75d3de47de4ca44fd88c #cake-v1
   ledger_flutter_plus: ^1.4.1
   ledger_bitcoin:
     git:

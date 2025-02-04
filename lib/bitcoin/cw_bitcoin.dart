@@ -231,9 +231,14 @@ class CWBitcoin extends Bitcoin {
     await bitcoinWallet.updateAllUnspents();
   }
 
-  WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource,
-      Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
-    return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
+  WalletService createBitcoinWalletService(
+      Box<WalletInfo> walletInfoSource,
+      Box<UnspentCoinsInfo> unspentCoinSource,
+      Box<PayjoinSession> payjoinSessionSource,
+      bool alwaysScan,
+      bool isDirect) {
+    return BitcoinWalletService(walletInfoSource, unspentCoinSource,
+        payjoinSessionSource, alwaysScan, isDirect);
   }
 
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource,

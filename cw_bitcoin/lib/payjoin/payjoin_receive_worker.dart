@@ -6,11 +6,11 @@ import 'dart:typed_data';
 import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/psbt_signer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:http/http.dart' as http;
 import 'package:payjoin_flutter/bitcoin_ffi.dart';
 import 'package:payjoin_flutter/common.dart';
-import 'package:payjoin_flutter/src/generated/frb_generated.dart' as pj;
 import 'package:payjoin_flutter/receive.dart';
-
+import 'package:payjoin_flutter/src/generated/frb_generated.dart' as pj;
 
 enum PayjoinReceiverRequestTypes {
   proposalSent,
@@ -38,12 +38,12 @@ class PayjoinReceiverWorker {
     sendPort.send(receivePort.sendPort);
     receivePort.listen(worker.handleMessage);
 
-
     try {
-      final httpClient = HttpClient();
+      final httpClient = http.Client();
       final receiver = Receiver.fromJson(receiverJson);
 
-      final uncheckedProposal = await worker.receiveUncheckedProposal(httpClient, receiver);
+      final uncheckedProposal =
+          await worker.receiveUncheckedProposal(httpClient, receiver);
       final payjoinProposal = await worker.processPayjoinProposal(
         uncheckedProposal,
       );
@@ -68,7 +68,8 @@ class PayjoinReceiverWorker {
     }
   }
 
-  Future<dynamic> _sendRequest(PayjoinReceiverRequestTypes type, [Map<String, dynamic> data = const {}])async {
+  Future<dynamic> _sendRequest(PayjoinReceiverRequestTypes type,
+      [Map<String, dynamic> data = const {}]) async {
     final completer = Completer<dynamic>();
     final requestId = DateTime.now().millisecondsSinceEpoch.toString();
     pendingRequests[requestId] = completer;
@@ -82,53 +83,46 @@ class PayjoinReceiverWorker {
     return completer.future;
   }
 
-  Future<UncheckedProposal> receiveUncheckedProposal(HttpClient httpClient, Receiver session) async {
-    UncheckedProposal? proposal;
-    while (proposal == null) {
+  Future<UncheckedProposal> receiveUncheckedProposal(
+      http.Client httpClient, Receiver session) async {
+    while (true) {
+      printV("Polling for Proposal (${session.id()})");
       final extractReq = await session.extractReq();
       final request = extractReq.$1;
-      final clientResponse = extractReq.$2;
 
       final url = Uri.parse(request.url.asString());
-      final httpRequest = await httpClient.postUrl(url);
-      httpRequest.headers.set('Content-Type', request.contentType);
-      httpRequest.add(request.body);
+      final httpRequest = await httpClient.post(url,
+          headers: {'Content-Type': request.contentType}, body: request.body);
 
-      final response = await httpRequest.close();
-      final responseBody = await response.fold<List<int>>(
-          [], (previous, element) => previous..addAll(element));
-      final uint8Response = Uint8List.fromList(responseBody);
-      proposal =
-          await session.processRes(body: uint8Response, ctx: clientResponse);
+      final proposal = await session.processRes(
+          body: httpRequest.bodyBytes, ctx: extractReq.$2);
+      if (proposal != null) return proposal;
     }
-
-    return proposal;
   }
 
-  Future<void> sendFinalProposal(HttpClient httpClient, PayjoinProposal finalProposal) async {
+  Future<void> sendFinalProposal(
+      http.Client httpClient, PayjoinProposal finalProposal) async {
     final req = await finalProposal.extractV2Req();
     final proposalReq = req.$1;
     final proposalCtx = req.$2;
 
-    final httpRequest = await httpClient.postUrl(
+    final request = await httpClient.post(
       Uri.parse(proposalReq.url.asString()),
+      headers: {"Content-Type": proposalReq.contentType},
+      body: proposalReq.body,
     );
-    httpRequest.headers.set('content-type', 'message/ohttp-req');
-    httpRequest.add(proposalReq.body);
 
-    final response = await httpRequest.close();
-    final responseBody = await response.fold<List<int>>(
-      [],
-          (previous, element) => previous..addAll(element),
-    );
     await finalProposal.processRes(
-        res: responseBody, ohttpContext: proposalCtx);
+      res: request.bodyBytes,
+      ohttpContext: proposalCtx,
+    );
 
     final ps = await finalProposal.psbt();
     printV(ps);
   }
 
-  Future<PayjoinProposal> processPayjoinProposal(UncheckedProposal proposal) async {
+  Future<PayjoinProposal> processPayjoinProposal(
+      UncheckedProposal proposal) async {
     await proposal.extractTxToScheduleBroadcast();
     // TODO Handle this. send to the main port on a timer?
 
@@ -161,7 +155,8 @@ class PayjoinReceiverWorker {
       );
       final pj5 = await pj4.commitOutputs();
 
-      final listUnspent = await _sendRequest(PayjoinReceiverRequestTypes.getCandidateInputs);
+      final listUnspent =
+          await _sendRequest(PayjoinReceiverRequestTypes.getCandidateInputs);
       final unspent = listUnspent as List<UtxoWithPrivateKey>;
       if (unspent.isEmpty) throw Exception('No unspent outputs available');
 
@@ -173,9 +168,7 @@ class PayjoinReceiverWorker {
       final payjoinProposal = await pj7.finalizeProposal(
         processPsbt: (String psbt) async {
           final result = await _sendRequest(
-            PayjoinReceiverRequestTypes.processPsbt,
-            {'psbt': psbt}
-          );
+              PayjoinReceiverRequestTypes.processPsbt, {'psbt': psbt});
           return result as String;
         },
         // TODO set maxFeeRateSatPerVb

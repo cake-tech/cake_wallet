@@ -398,6 +398,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
 
+      // pendingTransaction = await (pjUri != null ? performPayjoinSend() : wallet.createTransaction(_credentials(provider)));
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
 
       if (provider is ThorChainExchangeProvider) {

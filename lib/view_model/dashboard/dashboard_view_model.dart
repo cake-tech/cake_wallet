@@ -13,6 +13,8 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
+import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -67,6 +69,7 @@ abstract class DashboardViewModelBase with Store {
       required this.yatStore,
       required this.ordersStore,
       required this.anonpayTransactionsStore,
+      required this.payjoinTransactionsStore,
       required this.sharedPreferences,
       required this.keyService})
       : hasTradeAction = false,
@@ -246,8 +249,13 @@ abstract class DashboardViewModelBase with Store {
       ordersStore.orders.where((item) => item.order.walletId == wallet.id).toList();
 
   @computed
-  List<AnonpayTransactionListItem> get anonpayTransactons => anonpayTransactionsStore.transactions
+  List<AnonpayTransactionListItem> get anonpayTransactions => anonpayTransactionsStore.transactions
       .where((item) => item.transaction.walletId == wallet.id)
+      .toList();
+
+  @computed
+  List<PayjoinTransactionListItem> get payjoinTransactions => payjoinTransactionsStore.transactions
+      .where((item) => item.session.walletId == wallet.id)
       .toList();
 
   @computed
@@ -262,9 +270,10 @@ abstract class DashboardViewModelBase with Store {
     final _items = <ActionListItem>[];
 
     _items.addAll(
-        transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactons]));
+        transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactions]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
     _items.addAll(orders);
+    _items.addAll(payjoinTransactions);
 
     return formattedItemsList(_items);
   }
@@ -409,6 +418,8 @@ abstract class DashboardViewModelBase with Store {
   AnonpayTransactionsStore anonpayTransactionsStore;
 
   TransactionFilterStore transactionFilterStore;
+
+  PayjoinTransactionsStore payjoinTransactionsStore;
 
   Map<String, List<FilterItem>> filterItems;
 

@@ -26,14 +26,22 @@ class PayjoinStorage {
   Future<void> markReceiverSessionComplete(String sessionId) async {
     final session = _payjoinSessionSources.get("$_receiverPrefix${sessionId}")!;
 
-    session.status = "success";
+    session.status = PayjoinSessionStatus.success.name;
     await session.save();
   }
 
   Future<void> markReceiverSessionUnrecoverable(String sessionId) async {
     final session = _payjoinSessionSources.get("$_receiverPrefix${sessionId}")!;
 
-    session.status = "unrecoverable";
+    session.status = PayjoinSessionStatus.unrecoverable.name;
+    await session.save();
+  }
+
+  Future<void> markReceiverSessionInProgress(String sessionId) async {
+    final session = _payjoinSessionSources.get("$_receiverPrefix${sessionId}")!;
+
+    session.status = PayjoinSessionStatus.inProgress.name;
+    session.inProgressSince = DateTime.now();
     await session.save();
   }
 
@@ -48,20 +56,22 @@ class PayjoinStorage {
           walletId: walletId,
           pjUri: pjUrl,
           sender: sender.toJson(),
+          status: PayjoinSessionStatus.inProgress.name,
+          inProgressSince: DateTime.now(),
         ),
       );
 
   Future<void> markSenderSessionComplete(String pjUrl) async {
     final session = _payjoinSessionSources.get("$_senderPrefix$pjUrl")!;
 
-    session.status = "success";
+    session.status = PayjoinSessionStatus.success.name;
     await session.save();
   }
 
   Future<void> markSenderSessionUnrecoverable(String pjUrl) async {
     final session = _payjoinSessionSources.get("$_senderPrefix$pjUrl")!;
 
-    session.status = "unrecoverable";
+    session.status = PayjoinSessionStatus.unrecoverable.name;
     await session.save();
   }
 
@@ -69,7 +79,18 @@ class PayjoinStorage {
       _payjoinSessionSources.values
           .where((session) =>
               session.walletId == walletId &&
-              session.status != "success" &&
-              session.status != "unrecoverable")
+              session.status != PayjoinSessionStatus.success.name &&
+              session.status != PayjoinSessionStatus.unrecoverable.name)
+          .toList();
+
+  List<PayjoinSession> readAllInProgressOrFinishedSessions(String walletId) =>
+      _payjoinSessionSources.values
+          .where((session) =>
+              session.walletId == walletId &&
+              [
+                PayjoinSessionStatus.inProgress.name,
+                PayjoinSessionStatus.success.name,
+                PayjoinSessionStatus.unrecoverable.name
+              ].contains(session.status))
           .toList();
 }

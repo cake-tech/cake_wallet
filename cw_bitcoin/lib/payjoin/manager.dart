@@ -38,17 +38,19 @@ class PayjoinManager {
 
     final spawnedSessions = allSessions.map((session) {
       if (session.isSenderSession) {
+        printV("Resuming Payjoin Sender Session ${session.pjUri!}");
         return spawnSender(
           sender: Sender.fromJson(session.sender!),
           pjUri: session.pjUri!,
         );
       }
-      return spawnReceiver(
-        receiver: Receiver.fromJson(session.receiver!),
-      );
+      final receiver = Receiver.fromJson(session.receiver!);
+      printV("Resuming Payjoin Receiver Session ${receiver.id()}");
+      return spawnReceiver(receiver: receiver);
     });
 
     await Future.wait(spawnedSessions);
+    printV("Resumed ${spawnedSessions.length} Payjoin Sessions");
   }
 
   Future<Sender> initSender(
@@ -72,16 +74,17 @@ class PayjoinManager {
     required String pjUrl,
     bool isTestnet = false,
   }) async {
+    final pjUri = Uri.parse(pjUrl).queryParameters['pj']!;
     await _payjoinStorage.insertSenderSession(
       sender,
-      pjUrl,
+      pjUri,
       _wallet.id,
     );
 
     return spawnSender(
       isTestnet: isTestnet,
       sender: sender,
-      pjUri: pjUrl,
+      pjUri: pjUri,
     );
   }
 
@@ -99,7 +102,7 @@ class PayjoinManager {
         try {
           switch (message['type']) {
             case PayjoinSenderRequestTypes.requestPosted:
-              //ToDo: Update frontend
+              //ToDo: Maybe update frontend
               return;
             case PayjoinSenderRequestTypes.psbtToSign:
               final proposalPsbt = message['psbt'] as String;
@@ -107,29 +110,33 @@ class PayjoinManager {
               final finalizedPsbt = await _wallet.signPsbt(proposalPsbt, utxos);
               _wallet.commitPsbt(finalizedPsbt);
 
-              //ToDo: Update frontend
+              //ToDo: Maybe update frontend
               _cleanupSession(pjUri);
               await _payjoinStorage.markSenderSessionComplete(pjUri);
               completer.complete();
           }
         } catch (e) {
           _cleanupSession(pjUri);
-          await _payjoinStorage.markReceiverSessionUnrecoverable(pjUri);
+          printV(e);
+          await _payjoinStorage.markSenderSessionUnrecoverable(pjUri);
           completer.completeError(e);
         }
       } else if (message is PayjoinSessionError) {
         _cleanupSession(pjUri);
         if (message is UnrecoverableError) {
           printV(message.message);
-          await _payjoinStorage.markReceiverSessionUnrecoverable(pjUri);
+          await _payjoinStorage.markSenderSessionUnrecoverable(pjUri);
+          completer.complete();
+        } else {
+          completer.completeError(message);
         }
-        completer.completeError(message);
       }
     });
 
     final args = [
       receivePort.sendPort,
       sender.toJson(),
+      pjUri,
     ];
 
     final isolate = await Isolate.spawn(
@@ -153,13 +160,20 @@ class PayjoinManager {
         payjoinDirectory: payjoinDirectory,
       );
 
-      return Receiver.create(
+      final receiver = await Receiver.create(
         address: address,
         network: isTestnet ? Network.testnet : Network.bitcoin,
         directory: payjoinDirectory,
         ohttpKeys: ohttpKeys,
         ohttpRelay: await randomOhttpRelayUrl(),
       );
+
+      await _payjoinStorage.insertReceiverSession(
+        receiver,
+        _wallet.id,
+      );
+
+      return receiver;
     } catch (e) {
       throw Exception('Error initializing Payjoin Receiver: $e');
     }
@@ -246,8 +260,10 @@ class PayjoinManager {
         if (message is UnrecoverableError) {
           printV(message.message);
           await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id());
+          completer.complete();
+        } else {
+          completer.completeError(message);
         }
-        completer.completeError(message);
       } else if (message is SendPort) {
         mainToIsolateSendPort = message;
       }
@@ -269,7 +285,8 @@ class PayjoinManager {
   }
 
   void cleanupSessions() {
-    for (final sessionId in _activePollers.keys) {
+    final sessionIds = _activePollers.keys.toList();
+    for (final sessionId in sessionIds) {
       _cleanupSession(sessionId);
     }
   }

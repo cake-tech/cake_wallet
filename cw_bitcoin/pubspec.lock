@@ -397,10 +397,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_rust_bridge
-      sha256: "35c257fc7f98e34c1314d6c145e5ed54e7c94e8a9f469947e31c9298177d546f"
+      sha256: "3292ad6085552987b8b3b9a7e5805567f4013372d302736b702801acb001ee00"
       url: "https://pub.dev"
     source: hosted
-    version: "2.7.0"
+    version: "2.7.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -591,8 +591,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/ledger-bitcoin"
-      ref: HEAD
-      resolved-ref: "07cd61ef76a2a017b6d5ef233396740163265457"
+      ref: trunk
+      resolved-ref: e93254f3ff3f996fb91f65a1e7ceffb9f510b4c8
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.3"
@@ -753,9 +753,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: "0124ef669eb3b8e130e4584a534e9eb51a06bdec"
-      url: "https://github.com/LtbLightning/payjoin-flutter"
+      ref: "6a3eb32fb9467ac12e7b75d3de47de4ca44fd88c"
+      resolved-ref: "6a3eb32fb9467ac12e7b75d3de47de4ca44fd88c"
+      url: "https://github.com/konstantinullrich/payjoin-flutter"
     source: git
     version: "0.21.0"
   petitparser:

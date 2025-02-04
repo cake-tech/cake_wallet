@@ -1,12 +1,14 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/payjoin_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/trade_row.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
@@ -143,6 +145,21 @@ class TransactionsPage extends StatelessWidget {
                                 amount: transactionInfo.fiatAmount?.toString() ??
                                     (transactionInfo.amountTo?.toString() ?? ''),
                                 createdAt: DateFormat('HH:mm').format(transactionInfo.createdAt),
+                              );
+                            }
+
+                            if (item is PayjoinTransactionListItem) {
+                              final transactionInfo = item.session;
+
+                              return PayjoinTransactionRow(
+                                key: item.key,
+                                onTap: () {},
+                                // onTap: () => Navigator.of(context).pushNamed(
+                                //     Routes.anonPayDetailsPage,
+                                //     arguments: transactionInfo),
+                                currency: transactionInfo.status,
+                                amount: transactionInfo.isSenderSession ? "Sending" : "Receiving",
+                                createdAt: DateFormat('HH:mm').format(transactionInfo.inProgressSince!),
                               );
                             }
 

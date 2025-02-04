@@ -10,7 +10,8 @@ class PayjoinSession extends HiveObject {
     this.receiver,
     this.sender,
     this.pjUri,
-    this.status
+    this.status = "created",
+    this.inProgressSince
   }) {
     if (receiver == null) {
       assert(sender != null);
@@ -24,19 +25,29 @@ class PayjoinSession extends HiveObject {
   static const boxName = 'PayjoinSessions';
 
   @HiveField(0)
-  String walletId;
+  final String walletId;
 
   @HiveField(1)
-  String? sender;
+  final String? sender;
 
   @HiveField(2)
-  String? receiver;
+  final String? receiver;
 
   @HiveField(3)
-  String? pjUri;
+  final String? pjUri;
 
   @HiveField(4)
-  String? status;
+  String status;
+
+  @HiveField(5)
+  DateTime? inProgressSince;
 
   bool get isSenderSession => sender != null;
+}
+
+enum PayjoinSessionStatus {
+  created,
+  inProgress,
+  success,
+  unrecoverable,
 }

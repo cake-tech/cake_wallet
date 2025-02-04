@@ -19,6 +19,7 @@ import 'package:cw_bitcoin/psbt_finalizer_v0.dart';
 import 'package:cw_bitcoin/psbt_signer.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_bitcoin/psbt_v0_deserialize.dart';
+import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -113,6 +114,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required Box<PayjoinSession> payjoinBox,
     required EncryptionFileUtils encryptionFileUtils,
     String? passphrase,
     String? addressPageType,
@@ -140,8 +142,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         break;
     }
 
-    final payjoinBox = await CakeHive.openBox<PayjoinSession>(PayjoinSession.boxName);
-
     return BitcoinWallet(
       mnemonic: mnemonic,
       passphrase: passphrase ?? "",
@@ -166,6 +166,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String name,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required Box<PayjoinSession> payjoinBox,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
     required bool alwaysScan,
@@ -234,8 +235,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           break;
       }
     }
-
-    final payjoinBox = await CakeHive.openBox<PayjoinSession>(PayjoinSession.boxName);
 
     return BitcoinWallet(
       mnemonic: mnemonic,
@@ -348,7 +347,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final transaction = await buildPsbt(
         utxos: tx.utxos,
         outputs: tx.outputs.map((e) => BitcoinOutput(
-          address: BitcoinBaseAddress.fromString(e.scriptPubKey.toAddress()),
+          address: addressFromScript(e.scriptPubKey),
           value: e.amount,
           isSilentPayment: e.isSilentPayment,
           isChange: e.isChange,
@@ -366,7 +365,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     tx.commitOverride = () async {
       final sender =
-          await payjoinManager.initSender(payjoinUri, originalPsbt, tx.fee);
+          await payjoinManager.initSender(payjoinUri, originalPsbt, int.parse(tx.feeRate));
       await payjoinManager.spawnNewSender(sender: sender, pjUrl: payjoinUri);
     };
 

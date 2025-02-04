@@ -23,10 +23,12 @@ class BitcoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials,
     BitcoinRestoreWalletFromHardware> {
-  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan, this.isDirect);
+  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource,
+      this.payjoinSessionSource, this.alwaysScan, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+  final Box<PayjoinSession> payjoinSessionSource;
   final bool alwaysScan;
   final bool isDirect;
 
@@ -57,6 +59,7 @@ class BitcoinWalletService extends WalletService<
       passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
+      payjoinBox: payjoinSessionSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -81,6 +84,7 @@ class BitcoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
+        payjoinBox: payjoinSessionSource,
         alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
@@ -94,6 +98,7 @@ class BitcoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
+        payjoinBox: payjoinSessionSource,
         alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
@@ -128,6 +133,7 @@ class BitcoinWalletService extends WalletService<
       name: currentName,
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
+      payjoinBox: payjoinSessionSource,
       alwaysScan: alwaysScan,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -187,6 +193,7 @@ class BitcoinWalletService extends WalletService<
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
+      payjoinBox: payjoinSessionSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
