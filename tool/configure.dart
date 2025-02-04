@@ -1444,6 +1444,7 @@ abstract class Zano {
 
   WalletCredentials createZanoRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
   WalletCredentials createZanoNewWalletCredentials({required String name, required String? password});
+  Map<String, String> getKeys(Object wallet);
   Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency});
   double formatterIntAmountToDouble({required int amount, required CryptoCurrency currency, required bool forFee});
   int formatterParseAmount({required String amount, required CryptoCurrency currency});
