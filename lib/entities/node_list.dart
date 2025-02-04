@@ -44,6 +44,8 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
       path = 'assets/zano_node_list.yml';
       break;
     case WalletType.decred:
+      path = 'assets/decred_node_list.yml';
+      break;
     case WalletType.banano:
     case WalletType.none:
       path = '';
