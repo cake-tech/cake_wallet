@@ -376,7 +376,7 @@ Future<void> defaultSettingsMigration(
         case 41:
           _changeExchangeProviderAvailability(
             sharedPreferences,
-            providerName: "Quantex",
+            providerName: "SwapTrade",
             enabled: false,
           );
           addWalletNodeList(nodes: nodes, type: WalletType.bitcoin);
@@ -489,6 +489,11 @@ Future<void> defaultSettingsMigration(
             sharedPreferences,
             providerName: "SimpleSwap",
             enabled: true,
+          );
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "SwapTrade",
+            enabled: false,
           );
           break;
         case 48:
