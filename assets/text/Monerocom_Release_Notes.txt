@@ -1,2 +1,4 @@
+Added passphrase support
+Added decentralized cross-chain exchange, Chainflip
 UI enhancements
 Bug fixes

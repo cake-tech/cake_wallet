@@ -141,7 +141,7 @@ class AddressResolver {
         if (currency == CryptoCurrency.zano && settingsStore.lookupsZanoAlias) {
           final formattedName = text.substring(1);
           final zanoAddress = await ZanoAlias.fetchZanoAliasAddress(formattedName);
-          if (zanoAddress != null) {
+          if (zanoAddress != null && zanoAddress.isNotEmpty) {
             return ParsedAddress.zanoAddress(
               address: zanoAddress,
               name: text,
@@ -154,7 +154,7 @@ class AddressResolver {
           final addressFromBio = extractAddressByType(
               raw: twitterUser.description,
               type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency));
-          if (addressFromBio != null) {
+          if (addressFromBio != null && addressFromBio.isNotEmpty) {
             return ParsedAddress.fetchTwitterAddress(
                 address: addressFromBio,
                 name: text,
@@ -192,7 +192,7 @@ class AddressResolver {
           if (mastodonUser != null) {
             String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency);
 
-            if (addressFromBio != null) {
+            if (addressFromBio != null && addressFromBio.isNotEmpty) {
               return ParsedAddress.fetchMastodonAddress(
                   address: addressFromBio,
                   name: text,
@@ -207,7 +207,7 @@ class AddressResolver {
                 String? addressFromPinnedPost =
                     extractAddressByType(raw: userPinnedPostsText, type: currency);
 
-                if (addressFromPinnedPost != null) {
+                if (addressFromPinnedPost != null && addressFromPinnedPost.isNotEmpty) {
                   return ParsedAddress.fetchMastodonAddress(
                       address: addressFromPinnedPost,
                       name: text,
@@ -248,7 +248,7 @@ class AddressResolver {
       }
 
       final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
-      if (thorChainAddress != null) {
+      if (thorChainAddress != null && thorChainAddress.isNotEmpty) {
         String? address =
             thorChainAddress[ticker] ?? (ticker == 'RUNE' ? thorChainAddress['THOR'] : null);
         if (address != null) {
@@ -301,7 +301,7 @@ class AddressResolver {
 
           if (nostrUserData != null) {
             String? addressFromBio = extractAddressByType(raw: nostrUserData.about, type: currency);
-            if (addressFromBio != null) {
+            if (addressFromBio != null && addressFromBio.isNotEmpty) {
               return ParsedAddress.nostrAddress(
                   address: addressFromBio,
                   name: text,
