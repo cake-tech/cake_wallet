@@ -7,10 +7,9 @@ import 'package:cw_decred/api/util.dart';
 
 final int ErrCodeNotSynced = 1;
 
-final String libraryName =
-    Platform.isAndroid || Platform.isLinux // TODO: Linux.
-        ? 'libdcrwallet.so'
-        : 'cw_decred.framework/cw_decred';
+final String libraryName = Platform.isAndroid || Platform.isLinux // TODO: Linux.
+    ? 'libdcrwallet.so'
+    : 'cw_decred.framework/cw_decred';
 
 final dcrwalletApi = libdcrwallet(DynamicLibrary.open(libraryName));
 
@@ -53,14 +52,12 @@ void createWalletSync(Map<String, String> args) {
   final network = args["network"]!.toCString();
 
   executePayloadFn(
-    fn: () =>
-        dcrwalletApi.createWallet(name, dataDir, network, password, mnemonic),
+    fn: () => dcrwalletApi.createWallet(name, dataDir, network, password, mnemonic),
     ptrsToFree: [name, dataDir, network, password, mnemonic],
   );
 }
 
-void createWatchOnlyWallet(
-    String walletName, String datadir, String pubkey, String network) {
+void createWatchOnlyWallet(String walletName, String datadir, String pubkey, String network) {
   final cName = walletName.toCString();
   final cDataDir = datadir.toCString();
   final cPub = pubkey.toCString();
@@ -72,8 +69,7 @@ void createWatchOnlyWallet(
 }
 
 /// loadWalletAsync calls the libdcrwallet's loadWallet function asynchronously.
-Future<void> loadWalletAsync(
-    {required String name, required String dataDir, required String net}) {
+Future<void> loadWalletAsync({required String name, required String dataDir, required String net}) {
   final args = <String, String>{
     "name": name,
     "dataDir": dataDir,
@@ -118,8 +114,7 @@ void closeWallet(String walletName) {
   );
 }
 
-String changeWalletPassword(
-    String walletName, String currentPassword, String newPassword) {
+String changeWalletPassword(String walletName, String currentPassword, String newPassword) {
   final cName = walletName.toCString();
   final cCurrentPass = currentPassword.toCString();
   final cNewPass = newPassword.toCString();
@@ -140,22 +135,23 @@ String? walletSeed(String walletName, String walletPassword) {
   return res.payload;
 }
 
-String? currentReceiveAddress(String walletName) {
-  final cName = walletName.toCString();
-  final res = executePayloadFn(
-    fn: () => dcrwalletApi.currentReceiveAddress(cName),
-    ptrsToFree: [cName],
-    skipErrorCheck: true, // errCode is checked below, before checking err
-  );
-
-  if (res.errCode == ErrCodeNotSynced) {
-    // Wallet is not synced. We do not want to give out a used address so give
-    // nothing.
-    return null;
-  }
-  checkErr(res.err);
-  return res.payload;
-}
+// NOTE: Currently unused.
+// String? currentReceiveAddress(String walletName) {
+//   final cName = walletName.toCString();
+//   final res = executePayloadFn(
+//     fn: () => dcrwalletApi.currentReceiveAddress(cName),
+//     ptrsToFree: [cName],
+//     skipErrorCheck: true, // errCode is checked below, before checking err
+//   );
+//
+//   if (res.errCode == ErrCodeNotSynced) {
+//     // Wallet is not synced. We do not want to give out a used address so give
+//     // nothing.
+//     return null;
+//   }
+//   checkErr(res.err);
+//   return res.payload;
+// }
 
 String syncStatus(String walletName) {
   final cName = walletName.toCString();
@@ -185,13 +181,11 @@ String estimateFee(String walletName, int numBlocks) {
   return res.payload;
 }
 
-String createSignedTransaction(
-    String walletName, String createSignedTransactionReq) {
+String createSignedTransaction(String walletName, String createSignedTransactionReq) {
   final cName = walletName.toCString();
   final cCreateSignedTransactionReq = createSignedTransactionReq.toCString();
   final res = executePayloadFn(
-    fn: () => dcrwalletApi.createSignedTransaction(
-        cName, cCreateSignedTransactionReq),
+    fn: () => dcrwalletApi.createSignedTransaction(cName, cCreateSignedTransactionReq),
     ptrsToFree: [cName, cCreateSignedTransactionReq],
   );
   return res.payload;
@@ -246,8 +240,7 @@ String rescanFromHeight(String walletName, String height) {
   return res.payload;
 }
 
-Future<String> signMessageAsync(
-    String name, String message, String address, String walletPass) {
+Future<String> signMessageAsync(String name, String message, String address, String walletPass) {
   final args = <String, String>{
     "walletname": name,
     "message": message,
@@ -306,10 +299,12 @@ String defaultPubkey(String walletName) {
   return res.payload;
 }
 
-String addresses(String walletName) {
+String addresses(String walletName, String nUsed, String nUnused) {
   final cName = walletName.toCString();
+  final cNUsed = nUsed.toCString();
+  final cNUnused = nUnused.toCString();
   final res = executePayloadFn(
-    fn: () => dcrwalletApi.addresses(cName),
+    fn: () => dcrwalletApi.addresses(cName, cNUsed, cNUnused),
     ptrsToFree: [cName],
   );
   return res.payload;

@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 CW_DECRED_DIR=$(realpath ../..)/cw_decred
 LIBWALLET_PATH="${PWD}/decred/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
-LIBWALLET_VERSION="c890cb24bee480e7f6eadac3f22f10b9697b7e8a"
+LIBWALLET_VERSION="82ed8a80ae9fa3b15a2d5609bc748fc663be7e37" # v2.2.1
 
 if [ -e $LIBWALLET_PATH ]; then
        rm -fr $LIBWALLET_PATH/{*,.*} || true
@@ -38,6 +38,7 @@ fi
 
 export NDK_BIN_PATH="${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/toolchains/llvm/prebuilt/$(uname | tr '[:upper:]' '[:lower:]')-x86_64/bin"
 export ANDROID_API_VERSION=21
+# export CPATH="$(clang -v 2>&1 | grep "Selected GCC installation" | rev | cut -d' ' -f1 | rev)/include"
 
 for arch in "aarch" "aarch64" "x86_64"
 do
@@ -59,7 +60,7 @@ do
             TARGET="amd64"
             ARCH_ABI="x86_64";;
 		*)
-			echo "Unkonwn arch: $arch"
+			echo "Unknown arch: $arch"
 			exit 1;;
     esac
 

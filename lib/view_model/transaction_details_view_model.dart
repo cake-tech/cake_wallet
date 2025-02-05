@@ -191,7 +191,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.zano:
         return 'https://explorer.zano.org/transaction/${txId}';
       case WalletType.decred:
-        return 'https://dcrdata.decred.org/tx/${txId.split(':')[0]}';
+        return 'https://${wallet.isTestnet ? "testnet" : "dcrdata"}.decred.org/tx/${txId.split(':')[0]}';
       case WalletType.none:
         return '';
     }

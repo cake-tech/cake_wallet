@@ -1,6 +1,3 @@
 -
   uri:
   is_default: true
--
-  uri: dcrd.sethforprivacy.com:9108
-  useSSL: true

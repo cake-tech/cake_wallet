@@ -1488,6 +1488,7 @@ Future<void> generateDecred(bool hasImplementation) async {
   final outputFile = File(decredOutputPath);
   const decredCommonHeaders = """
 import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/address_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/output_info.dart';
@@ -1513,29 +1514,22 @@ abstract class Decred {
   WalletCredentials createDecredNewWalletCredentials(
       {required String name, WalletInfo? walletInfo});
   WalletCredentials createDecredRestoreWalletFromSeedCredentials(
-      {required String name,
-      required String mnemonic,
-      required String password});
+      {required String name, required String mnemonic, required String password});
   WalletCredentials createDecredRestoreWalletFromPubkeyCredentials(
-      {required String name,
-      required String pubkey,
-      required String password});
-  WalletService createDecredWalletService(Box<WalletInfo> walletInfoSource,
-      Box<UnspentCoinsInfo> unspentCoinSource);
+      {required String name, required String pubkey, required String password});
+  WalletService createDecredWalletService(
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
 
   List<TransactionPriority> getTransactionPriorities();
-  TransactionPriority getMediumTransactionPriority();
   TransactionPriority getDecredTransactionPriorityMedium();
   TransactionPriority getDecredTransactionPrioritySlow();
   TransactionPriority deserializeDecredTransactionPriority(int raw);
 
-  int getFeeRate(Object wallet, TransactionPriority priority);
-  Object createDecredTransactionCredentials(
-      List<Output> outputs, TransactionPriority priority);
+  Object createDecredTransactionCredentials(List<Output> outputs, TransactionPriority priority);
 
-  List<String> getAddresses(Object wallet);
-  String getAddress(Object wallet);
-  Future<void> generateNewAddress(Object wallet);
+  List<AddressInfo> getAddressInfos(Object wallet);
+  Future<void> updateAddress(Object wallet, String address, String label);
+  Future<void> generateNewAddress(Object wallet, String label);
 
   String formatterDecredAmountToString({required int amount});
   double formatterDecredAmountToDouble({required int amount});
