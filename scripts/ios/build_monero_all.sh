@@ -26,6 +26,7 @@ do
             else
                 ./build_single.sh ${COIN} ${platform} -j$MAKE_JOB_COUNT
             fi
+        done
     popd
 done
 
