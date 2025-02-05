@@ -32,10 +32,10 @@ class PendingZanoTransaction with PendingTransaction {
   String get hex => '';
 
   @override
-  String get amountFormatted => '${ZanoFormatter.bigIntAmountToString(amount, decimalPoint)} $ticker';
+  String get amountFormatted => ZanoFormatter.bigIntAmountToString(amount, decimalPoint);
 
   @override
-  String get feeFormatted => '${ZanoFormatter.bigIntAmountToString(fee)} ZANO';
+  String get feeFormatted => ZanoFormatter.bigIntAmountToString(fee);
 
   TransferResult? transferResult;
 

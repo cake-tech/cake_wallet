@@ -135,7 +135,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.btcln:
         pattern = '(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+)';
       case CryptoCurrency.zano:
-        pattern = r'([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d-.]+)';
+        pattern = r'([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       default:
         return '';
     }
@@ -316,7 +316,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.trx:
         pattern = '(T|t)[1-9A-HJ-NP-Za-km-z]{33}';
       case CryptoCurrency.zano:
-        pattern = '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d-.]+)';
+        pattern = '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
           pattern = '0x[0-9a-zA-Z]{42}';
