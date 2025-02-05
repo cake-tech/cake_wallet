@@ -89,7 +89,6 @@
 		CE291CFD2C15DB9A00B9F709 /* WowneroWallet.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WowneroWallet.framework; sourceTree = "<group>"; };
 		CEAFE49D2C539250009FF3AD /* Mwebd.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Mwebd.xcframework; sourceTree = "<group>"; };
 		CEB6D62E2D43BB78002C6DBC /* ZanoWallet.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ZanoWallet.framework; sourceTree = "<group>"; };
-		CEC1769E2D51F61A00DF7E54 /* libmd.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libmd.tbd; path = usr/lib/libmd.tbd; sourceTree = SDKROOT; };
 		D139E30AEB36740C21C00A9E /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		D7CD6B6020744E8FA471915D /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DCEA540E3586164FB47AD13E /* LnurlPayInvoice.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LnurlPayInvoice.swift; path = "../.symlinks/plugins/breez_sdk/ios/bindings-swift/Sources/BreezSDK/Task/LnurlPayInvoice.swift"; sourceTree = "<group>"; };
@@ -112,7 +111,6 @@
 		06957875428D0F5AAE053765 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				CEC1769E2D51F61A00DF7E54 /* libmd.tbd */,
 				CEAFE49D2C539250009FF3AD /* Mwebd.xcframework */,
 				C58D93382C00FAC6004BCF69 /* libresolv.tbd */,
 				0C9986A3251A932F00D566FD /* CryptoSwift.framework */,
