@@ -18,12 +18,21 @@ cd "$(dirname "$0")"
 for COIN in monero wownero zano;
 do
     pushd ../monero_c
-        if [[ -f "release/${COIN}/aarch64-apple-ios_libwallet2_api_c.dylib" ]];
-        then
-            echo "file exist, not building monero_c for ${COIN}/aarch64-apple-ios.";
-        else
-            ./build_single.sh ${COIN} aarch64-apple-ios -j$MAKE_JOB_COUNT
-            unxz -f ../monero_c/release/${COIN}/aarch64-apple-ios_libwallet2_api_c.dylib.xz
-        fi
+        for platform in aarch64-apple-ios{,simulator};
+        do
+            if [[ -f "release/${COIN}/${platform}_libwallet2_api_c.dylib" ]];
+            then
+                echo "file exist, not building monero_c for ${COIN}/${platform}";
+            else
+                ./build_single.sh ${COIN} ${platform} -j$MAKE_JOB_COUNT
+            fi
     popd
 done
+
+unxz -fk ../monero_c/release/monero/aarch64-apple-ios_libwallet2_api_c.dylib.xz
+unxz -fk ../monero_c/release/wownero/aarch64-apple-ios_libwallet2_api_c.dylib.xz
+unxz -fk ../monero_c/release/zano/aarch64-apple-ios_libwallet2_api_c.dylib.xz
+
+unxz -fk ../monero_c/release/monero/aarch64-apple-iossimulator_libwallet2_api_c.dylib.xz
+unxz -fk ../monero_c/release/wownero/aarch64-apple-iossimulator_libwallet2_api_c.dylib.xz
+unxz -fk ../monero_c/release/zano/aarch64-apple-iossimulator_libwallet2_api_c.dylib.xz
