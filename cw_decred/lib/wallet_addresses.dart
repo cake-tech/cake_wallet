@@ -13,6 +13,8 @@ class DecredWalletAddresses = DecredWalletAddressesBase with _$DecredWalletAddre
 abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
   DecredWalletAddressesBase(WalletInfo walletInfo) : super(walletInfo);
   String currentAddr = '';
+
+  @observable
   bool isEnabledAutoGenerateSubaddress = true;
 
   @observable
@@ -94,7 +96,7 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
 
   LibAddresses libAddresses() {
     final nUsed = "10";
-    var nUnused = "0";
+    var nUnused = "1";
     if (this.isEnabledAutoGenerateSubaddress) {
       nUnused = "3";
     }

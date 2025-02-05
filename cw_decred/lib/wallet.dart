@@ -37,19 +37,28 @@ abstract class DecredWalletBase
       : _password = password,
         this.syncStatus = NotConnectedSyncStatus(),
         this.unspentCoinsInfo = unspentCoinsInfo,
-        this.watchingOnly = walletInfo.derivationPath == DecredWalletService.pubkeyRestorePath ||
-            walletInfo.derivationPath == DecredWalletService.pubkeyRestorePathTestnet,
+        this.watchingOnly =
+            walletInfo.derivationInfo?.derivationPath == DecredWalletService.pubkeyRestorePath ||
+                walletInfo.derivationInfo?.derivationPath ==
+                    DecredWalletService.pubkeyRestorePathTestnet,
         this.balance = ObservableMap.of({CryptoCurrency.dcr: DecredBalance.zero()}),
-        this.isTestnet = walletInfo.derivationPath == DecredWalletService.seedRestorePathTestnet ||
-            walletInfo.derivationPath == DecredWalletService.pubkeyRestorePathTestnet,
+        this.isTestnet = walletInfo.derivationInfo?.derivationPath ==
+                DecredWalletService.seedRestorePathTestnet ||
+            walletInfo.derivationInfo?.derivationPath ==
+                DecredWalletService.pubkeyRestorePathTestnet,
         super(walletInfo) {
     walletAddresses = DecredWalletAddresses(walletInfo);
     transactionHistory = DecredTransactionHistory();
+
+    reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
+      this.walletAddresses.isEnabledAutoGenerateSubaddress = enabled;
+    });
   }
 
   // NOTE: Hitting this max fee would be unexpected with current on chain use
   // but this may need to be updated in the future.
   final maxFeeRate = 100000;
+
   // syncIntervalSyncing is used up until synced, then transactions are checked
   // every syncIntervalSynced.
   final syncIntervalSyncing = 5; // seconds
@@ -57,17 +66,21 @@ abstract class DecredWalletBase
   static final defaultFeeRate = 10000;
   final String _password;
   final idPrefix = "decred_";
+
   // synced is used to set the syncTimer interval.
   bool synced = false;
   bool watchingOnly;
   bool connecting = false;
   String persistantPeer = "";
-  bool _isEnabledAutoGenerateSubaddress = true;
   FeeCache feeRateFast = FeeCache(defaultFeeRate);
   FeeCache feeRateMedium = FeeCache(defaultFeeRate);
   FeeCache feeRateSlow = FeeCache(defaultFeeRate);
   Timer? syncTimer;
   Box<UnspentCoinsInfo> unspentCoinsInfo;
+
+  @override
+  @observable
+  bool isEnabledAutoGenerateSubaddress = true;
 
   @override
   @observable
@@ -644,15 +657,4 @@ abstract class DecredWalletBase
 
   @override
   String get password => _password;
-
-  @override
-  set isEnabledAutoGenerateSubaddress(bool value) {
-    this._isEnabledAutoGenerateSubaddress = value;
-    this.walletAddresses.isEnabledAutoGenerateSubaddress = value;
-  }
-
-  @override
-  bool get isEnabledAutoGenerateSubaddress {
-    return this._isEnabledAutoGenerateSubaddress;
-  }
 }
