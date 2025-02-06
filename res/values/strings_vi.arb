@@ -533,6 +533,7 @@
   "proceed_after_one_minute": "Nếu màn hình không tiếp tục sau 1 phút, hãy kiểm tra email của bạn.",
   "proceed_on_device": "Tiếp tục trên thiết bị của bạn",
   "proceed_on_device_description": "Vui lòng làm theo các hướng dẫn được nhắc trên ví phần cứng của bạn",
+  "processing": "Xử lý",
   "profile": "Hồ sơ",
   "provider_error": "Lỗi ${provider}",
   "public_key": "Khóa công khai",

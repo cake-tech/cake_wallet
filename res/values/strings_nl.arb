@@ -534,6 +534,7 @@
   "proceed_after_one_minute": "Als het scherm na 1 minuut niet verder gaat, controleer dan uw e-mail.",
   "proceed_on_device": "Ga verder met uw apparaat",
   "proceed_on_device_description": "Volg de instructies die zijn aangevraagd op uw hardware -portemonnee",
+  "processing": "Verwerking",
   "profile": "Profiel",
   "provider_error": "${provider} fout",
   "public_key": "Publieke sleutel",

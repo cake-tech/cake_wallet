@@ -534,6 +534,7 @@
   "proceed_after_one_minute": "如果屏幕在 1 分钟后没有继续，请检查您的电子邮件。",
   "proceed_on_device": "在设备上继续",
   "proceed_on_device_description": "请按照您的硬件钱包上提示的说明进行操作",
+  "processing": "加工",
   "profile": "轮廓",
   "provider_error": "${provider} 错误",
   "public_key": "公钥",

@@ -337,6 +337,10 @@ abstract class DashboardViewModelBase with Store {
       statusText = S.current.please_try_to_connect_to_another_node;
     }
 
+    if (status is ProcessingSyncStatus) {
+      statusText = (status as ProcessingSyncStatus).message ?? S.current.processing;
+    }
+
     return statusText;
   }
 

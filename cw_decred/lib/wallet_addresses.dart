@@ -102,8 +102,8 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     }
     final res = libdcrwallet.addresses(walletInfo.name, nUsed, nUnused);
     final decoded = json.decode(res);
-    final usedAddrs = List<String>.from(decoded["used"]);
-    final unusedAddrs = List<String>.from(decoded["unused"]);
+    final usedAddrs = List<String>.from(decoded["used"] ?? []);
+    final unusedAddrs = List<String>.from(decoded["unused"] ?? []);
     // index is the index of the first unused address.
     final index = decoded["index"] ?? 0;
     return new LibAddresses(usedAddrs, unusedAddrs, index);

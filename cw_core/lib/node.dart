@@ -360,8 +360,7 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestDecredNode() async {
-  final decredMainnetPort = 9108;
-  if (uri.host == "" && uri.port == decredMainnetPort) {
+  if (uri.host == "default-spv-nodes") {
     // Just show default port as ok. The wallet will connect to a list of known
     // nodes automatically.
     return true;

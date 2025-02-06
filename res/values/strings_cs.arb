@@ -534,6 +534,7 @@
   "proceed_after_one_minute": "Pokud proces nepokročí během 1 minuty, zkontrolujte svůj e-mail.",
   "proceed_on_device": "Pokračujte ve svém zařízení",
   "proceed_on_device_description": "Postupujte podle pokynů na výzvu na vaší hardwarové peněžence",
+  "processing": "Zpracování",
   "profile": "Profil",
   "provider_error": "${provider} chyba",
   "public_key": "Veřejný klíč",

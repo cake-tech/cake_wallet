@@ -46,7 +46,7 @@ const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
 const zanoDefaultNodeUri = 'zano.cakewallet.com:11211';
 const moneroWorldNodeUri = '.moneroworld.com';
-const decredDefaultUri = ":9108";
+const decredDefaultUri = "default-spv-nodes";
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -511,8 +511,9 @@ Future<void> defaultSettingsMigration(
 
       await sharedPreferences.setInt(
           PreferencesKey.currentDefaultSettingsMigrationVersion, version);
-    } catch (e) {
+    } catch (e, s) {
       printV('Migration error: ${e.toString()}');
+      printV('Migration error: ${s}');
     }
   });
 

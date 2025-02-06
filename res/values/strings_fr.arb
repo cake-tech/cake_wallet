@@ -534,6 +534,7 @@
   "proceed_after_one_minute": "Si l'écran ne s'affiche pas après 1 minute, vérifiez vos e-mails.",
   "proceed_on_device": "Continuez sur votre appareil",
   "proceed_on_device_description": "Veuillez suivre les instructions affichées sur votre portefeuille physique.",
+  "processing": "Traitement",
   "profile": "Profil",
   "provider_error": "Erreur de ${provider}",
   "public_key": "Clef publique",

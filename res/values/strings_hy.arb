@@ -534,6 +534,7 @@
   "proceed_after_one_minute": "Եթե էկրանը 1 րոպեից ավել չի անցնում, ստուգեք ձեր էլեկտրոնային փոստը",
   "proceed_on_device": "Շարունակեք ձեր սարքի վրա",
   "proceed_on_device_description": "Խնդրում ենք հետևել ձեր սարքի վրա ցուցադրվող հրահանգներին",
+  "processing": "Վերամշակում",
   "profile": "Պրոֆիլ",
   "provider_error": "${provider} սխալ",
   "public_key": "Հանրային բանալի",

@@ -534,6 +534,7 @@
   "proceed_after_one_minute": "1분 후에도 화면이 진행되지 않으면 이메일을 확인하세요.",
   "proceed_on_device": "장치를 진행하십시오",
   "proceed_on_device_description": "하드웨어 지갑에 표시된 지침을 따르십시오",
+  "processing": "처리",
   "profile": "프로필",
   "provider_error": "${provider} 오류",
   "public_key": "공개 키",

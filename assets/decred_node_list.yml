@@ -1,5 +1,5 @@
 -
-  uri:
+  uri: default-spv-nodes
   is_default: true
 -
   uri: dcrd.sethforprivacy.com:9108

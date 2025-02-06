@@ -536,6 +536,7 @@
   "proceed_after_one_minute": "Se a tela não prosseguir após 1 minuto, verifique seu e-mail.",
   "proceed_on_device": "Prossiga no seu dispositivo",
   "proceed_on_device_description": "Siga as instruções solicitadas em sua carteira de hardware",
+  "processing": "Processamento",
   "profile": "Perfil",
   "provider_error": "${provider} erro",
   "public_key": "Chave pública",

@@ -535,6 +535,7 @@
   "proceed_after_one_minute": "यदि 1 मिनट के बाद भी स्क्रीन आगे नहीं बढ़ती है, तो अपना ईमेल देखें।",
   "proceed_on_device": "अपने डिवाइस पर आगे बढ़ें",
   "proceed_on_device_description": "कृपया अपने हार्डवेयर वॉलेट पर दिए गए निर्देशों का पालन करें",
+  "processing": "प्रसंस्करण",
   "profile": "प्रोफ़ाइल",
   "provider_error": "${provider} त्रुटि",
   "public_key": "सार्वजनिक कुंजी",

@@ -71,7 +71,7 @@ abstract class DecredWalletBase
   bool synced = false;
   bool watchingOnly;
   bool connecting = false;
-  String persistantPeer = "";
+  String persistantPeer = "default-spv-nodes";
   FeeCache feeRateFast = FeeCache(defaultFeeRate);
   FeeCache feeRateMedium = FeeCache(defaultFeeRate);
   FeeCache feeRateSlow = FeeCache(defaultFeeRate);
@@ -207,7 +207,7 @@ abstract class DecredWalletBase
     if (syncStatusCode == 2) {
       final headersProg = headersHeight / targetHeight;
       // Only allow headers progress to go up half way.
-      syncStatus = SyncingSyncStatus(targetHeight - headersHeight, headersProg / 2);
+      syncStatus = SyncingSyncStatus(targetHeight - headersHeight, headersProg);
       return false;
     }
 
@@ -215,7 +215,7 @@ abstract class DecredWalletBase
     // that we are discovering addresses.
     if (syncStatusCode == 3) {
       // Hover at half.
-      syncStatus = SyncingSyncStatus(0, .5);
+      syncStatus = ProcessingSyncStatus();
       return false;
     }
 
@@ -235,8 +235,8 @@ abstract class DecredWalletBase
       return;
     }
     connecting = true;
-    String addr = "";
-    if (node.uri.host != "") {
+    String addr = "default-spv-nodes";
+    if (node.uri.host != addr) {
       addr = node.uri.host;
       if (node.uri.port != "") {
         addr += ":" + node.uri.port.toString();
@@ -279,7 +279,7 @@ abstract class DecredWalletBase
       syncStatus = ConnectingSyncStatus();
       libdcrwallet.startSyncAsync(
         name: walletInfo.name,
-        peers: persistantPeer,
+        peers: persistantPeer == "default-spv-nodes" ? "" : persistantPeer,
       );
       syncTimer = Timer.periodic(
           Duration(seconds: syncIntervalSyncing), (Timer t) => performBackgroundTasks());

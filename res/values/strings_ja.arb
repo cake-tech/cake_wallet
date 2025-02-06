@@ -535,6 +535,7 @@
   "proceed_after_one_minute": "1分経っても画面が進まない場合は、メールを確認してください。",
   "proceed_on_device": "デバイスに進みます",
   "proceed_on_device_description": "ハードウェアウォレットにプロンプ​​トされた指示に従ってください",
+  "processing": "処理",
   "profile": "プロフィール",
   "provider_error": "${provider} エラー",
   "public_key": "公開鍵",

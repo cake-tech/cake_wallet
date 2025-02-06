@@ -48,6 +48,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
+    // TODO: can be cleaned further
     switch (wallet.type) {
       case WalletType.monero:
         _addMoneroListItems(tx, dateFormat);
@@ -711,13 +712,13 @@ abstract class TransactionDetailsViewModelBase with Store {
       if (showRecipientAddress && tx.to != null)
         StandartListItem(
           title: S.current.transaction_details_recipient_address,
-          value: tron!.getTronBase58Address(tx.to!, wallet),
+          value: tx.to!,
           key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
         ),
       if (tx.from != null)
         StandartListItem(
           title: S.current.transaction_details_source_address,
-          value: tron!.getTronBase58Address(tx.from!, wallet),
+          value: tx.from!,
           key: ValueKey('standard_list_item_transaction_details_source_address_key'),
         ),
     ];

@@ -534,6 +534,7 @@
   "proceed_after_one_minute": "إذا لم تستمر الشاشة بعد دقيقة واحدة ، فتحقق من بريدك الإلكتروني.",
   "proceed_on_device": "تابع جهازك",
   "proceed_on_device_description": "يرجى اتباع الإرشادات المطلوبة على محفظة الأجهزة الخاصة بك",
+  "processing": "يعالج",
   "profile": "حساب تعريفي",
   "provider_error": "خطأ ${provider}",
   "public_key": "مفتاح عمومي",

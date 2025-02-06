@@ -536,6 +536,7 @@
   "proceed_after_one_minute": "Idan allon bai ci gaba ba bayan minti 1, duba imel ɗin ku.",
   "proceed_on_device": "Ci gaba akan na'urarka",
   "proceed_on_device_description": "Da fatan za a bi umarnin akan walatware",
+  "processing": "Aiki",
   "profile": "Rabin fuska",
   "provider_error": "${provider} kuskure",
   "public_key": "Maɓallin jama'a",

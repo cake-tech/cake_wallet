@@ -534,6 +534,7 @@
   "proceed_after_one_minute": "Ekran 1 dakika sonra ilerlemezse, e-postanızı kontrol edin.",
   "proceed_on_device": "Cihazınıza devam edin",
   "proceed_on_device_description": "Lütfen donanım cüzdanınızda istenen talimatları izleyin",
+  "processing": "İşleme",
   "profile": "Profil",
   "provider_error": "${provider} hatası",
   "public_key": "Genel Anahtar",
