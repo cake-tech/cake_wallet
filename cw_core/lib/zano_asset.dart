@@ -60,13 +60,13 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
           decimals: decimalPoint,
         );
 
-  ZanoAsset.copyWith(ZanoAsset other, {String? icon,  String? assetId, bool enabled = true})
+  ZanoAsset.copyWith(ZanoAsset other, {String? assetId, bool enabled = true})
       : this.fullName = other.fullName,
         this.ticker = other.ticker,
         this.assetId = assetId ?? other.assetId,
         this.decimalPoint = other.decimalPoint,
         this._enabled = enabled && other.enabled,
-        this.iconPath = icon,
+        this.iconPath = other.iconPath,
         this.currentSupply = other.currentSupply,
         this.hiddenSupply = other.hiddenSupply,
         this.metaInfo = other.metaInfo,
@@ -78,7 +78,7 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
           title: other.ticker.toUpperCase(),
           fullName: other.name,
           tag: 'ZANO',
-          iconPath: icon,
+          iconPath: other.iconPath,
           decimals: other.decimalPoint,
           enabled: enabled,
         );
