@@ -92,6 +92,7 @@ class ZanoAsset extends CryptoCurrency with HiveObjectMixin {
         metaInfo: json['meta_info'] as String? ?? '',
         owner: json['owner'] as String? ?? '',
         ticker: json['ticker'] as String? ?? '',
+        iconPath: json['logo'] as String? ?? '',
         totalMaxSupply: bigIntFromDynamic(json['total_max_supply']),
         isInGlobalWhitelist: isInGlobalWhitelist,
       );
