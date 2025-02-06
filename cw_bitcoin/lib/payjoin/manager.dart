@@ -49,8 +49,8 @@ class PayjoinManager {
       return spawnReceiver(receiver: receiver);
     });
 
-    await Future.wait(spawnedSessions);
     printV("Resumed ${spawnedSessions.length} Payjoin Sessions");
+    await Future.wait(spawnedSessions);
   }
 
   Future<Sender> initSender(
@@ -279,6 +279,7 @@ class PayjoinManager {
       args,
     );
 
+    print("Here!");
     _activePollers[receiver.id()] = PayjoinPollerSession(isolate, receivePort);
 
     return completer.future;

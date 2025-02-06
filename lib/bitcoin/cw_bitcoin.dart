@@ -1,8 +1,6 @@
 part of 'bitcoin.dart';
 
 class CWBitcoin extends Bitcoin {
-  final payjoin = BitcoinPayjoin();
-
   WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
     required String name,
     required String mnemonic,
@@ -727,7 +725,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   String getPayjoinEndpoint(Object wallet) {
-    final _wallet = wallet as BitcoinWallet;
+    final _wallet = wallet as ElectrumWallet;
     return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
   }
 
@@ -740,39 +738,5 @@ class CWBitcoin extends Bitcoin {
       (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.cleanupSessions();
       (_wallet.walletAddresses as BitcoinWalletAddresses).currentPayjoinReceiver = null;
     }
-  }
-
-  @override
-  Future<String> buildOriginalPsbt(Object wallet, int fee,
-      double amount, Object credentials) {
-    return payjoin.buildOriginalPsbt(
-      wallet,
-      fee,
-      amount,
-      credentials,
-    );
-  }
-
-  @override
-  Future<Sender> buildPayjoinRequest(
-      String originalPsbt, dynamic pjUri, int fee) {
-    return payjoin.buildPayjoinRequest(
-      originalPsbt,
-      pjUri,
-      fee,
-    );
-  }
-
-  @override
-  Future<String> requestAndPollV2Proposal(Sender sender) {
-    return payjoin.requestAndPollV2Proposal(sender);
-  }
-
-  @override
-  Future<PendingBitcoinTransaction> extractPjTx(Object wallet, String psbtString) {
-    return payjoin.extractPjTx(
-      wallet,
-      psbtString
-    );
   }
 }
