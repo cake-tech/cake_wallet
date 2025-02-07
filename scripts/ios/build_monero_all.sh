@@ -19,7 +19,7 @@ for COIN in monero wownero zano;
 do
     pushd ../monero_c
         rm -rf external/ios/build
-        ./build_single.sh ${COIN} aarch64-apple-ios -j$NPROC
+        ./build_single.sh ${COIN} aarch64-apple-ios -j$MAKE_JOB_COUNT
     popd
 done
 

@@ -44,7 +44,7 @@ const solanaDefaultNodeUri = 'solana-mainnet.core.chainstack.com';
 const tronDefaultNodeUri = 'api.trongrid.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
-const zanoDefaultNodeUri = '37.27.100.59:10500';
+const zanoDefaultNodeUri = 'zano.cakewallet.com:11211';
 const moneroWorldNodeUri = '.moneroworld.com';
 
 Future<void> defaultSettingsMigration(
@@ -263,7 +263,7 @@ Future<void> defaultSettingsMigration(
         case 41:
           _changeExchangeProviderAvailability(
             sharedPreferences,
-            providerName: "Quantex",
+            providerName: "SwapTrade",
             enabled: false,
           );
           await _addSethNode(nodes, sharedPreferences);
@@ -394,6 +394,11 @@ Future<void> defaultSettingsMigration(
             sharedPreferences,
             providerName: "SimpleSwap",
             enabled: true,
+          );
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "SwapTrade",
+            enabled: false,
           );
 			    break;
         default:
