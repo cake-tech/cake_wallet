@@ -562,7 +562,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   bool isPayjoinAvailable(Object wallet) {
-    final bitcoinWallet = wallet as BitcoinWallet;
+    final bitcoinWallet = wallet as ElectrumWallet;
     return wallet.unspentCoins.isNotEmpty;
   }
 

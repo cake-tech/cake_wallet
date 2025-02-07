@@ -176,7 +176,7 @@ class PayjoinReceiverWorker {
       );
       return payjoinProposal;
     } catch (e) {
-      print('Error occurred while finalizing proposal: $e');
+      printV('Error occurred while finalizing proposal: $e');
       rethrow;
     }
   }
