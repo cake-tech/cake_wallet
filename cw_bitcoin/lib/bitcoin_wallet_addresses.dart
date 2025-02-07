@@ -61,6 +61,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   Future<void> initPayjoin() async {
     currentPayjoinReceiver = await payjoinManager.initReceiver(primaryAddress);
     
-    await payjoinManager.resumeSessions();
+    payjoinManager.resumeSessions();
   }
 }

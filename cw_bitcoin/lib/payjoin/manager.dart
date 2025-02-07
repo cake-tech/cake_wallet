@@ -97,7 +97,7 @@ class PayjoinManager {
     final receivePort = ReceivePort();
 
     receivePort.listen((message) async {
-      print('Sender isolate: $message');
+      printV('Sender isolate: $message');
       if (message is Map<String, dynamic>) {
         try {
           switch (message['type']) {
@@ -204,7 +204,7 @@ class PayjoinManager {
     List<UtxoWithPrivateKey> utxos = [];
 
     receivePort.listen((message) async {
-      print('Receiver isolate: $message');
+      printV('Receiver isolate: $message');
       if (message is Map<String, dynamic>) {
         try {
           switch (message['type']) {
@@ -279,7 +279,6 @@ class PayjoinManager {
       args,
     );
 
-    print("Here!");
     _activePollers[receiver.id()] = PayjoinPollerSession(isolate, receivePort);
 
     return completer.future;

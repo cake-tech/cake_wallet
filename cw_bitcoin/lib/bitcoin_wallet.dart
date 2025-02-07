@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
@@ -18,7 +19,6 @@ import 'package:cw_bitcoin/psbt_finalizer_v0.dart';
 import 'package:cw_bitcoin/psbt_signer.dart';
 import 'package:cw_bitcoin/psbt_transaction_builder.dart';
 import 'package:cw_bitcoin/psbt_v0_deserialize.dart';
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/payjoin_session.dart';
@@ -371,7 +371,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   List<UtxoWithPrivateKey> getUtxoWithPrivateKeys() => unspentCoins
-      .where((e) => (e.isSending || !e.isFrozen))
+      .where((e) => (e.isSending && !e.isFrozen))
       .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
       .toList();
 
@@ -397,7 +397,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       String preProcessedPsbt, List<UtxoWithPrivateKey> utxos) async {
     final psbt = PsbtV2()..deserializeV0(base64Decode(preProcessedPsbt));
 
-    psbt.signWithUTXO(utxos, (txDigest, utxo, key, sighash) {
+    await psbt.signWithUTXO(utxos, (txDigest, utxo, key, sighash) {
       return utxo.utxo.isP2tr()
           ? key.signTapRoot(
               txDigest,
@@ -405,6 +405,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
               tweak: utxo.utxo.isSilentPayment != true,
             )
           : key.signInput(txDigest, sigHash: sighash);
+    }, (txId, vout) async {
+      final txHex = await electrumClient.getTransactionHex(hash: txId);
+      final output = BtcTransaction.fromRaw(txHex).outputs[vout];
+      return TaprootAmountScriptPair(output.amount, output.scriptPubKey);
     });
 
     psbt.finalizeV0();

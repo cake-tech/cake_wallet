@@ -41,9 +41,8 @@ extension PsbtSigner on PsbtV2 {
     return tx.buffer();
   }
 
-  void signWithUTXO(List<UtxoWithPrivateKey> utxos, UTXOSignerCallBack signer) {
+  Future<void> signWithUTXO(List<UtxoWithPrivateKey> utxos, UTXOSignerCallBack signer, [UTXOGetterCallBack? getTaprootPair]) async {
     final raw = BytesUtils.toHexString(extractUnsignedTX(getSegwit: false));
-    print('[+] PsbtSigner | sign => raw: $raw');
     final tx = BtcTransaction.fromRaw(raw);
 
     /// when the transaction is taproot and we must use getTaproot transaction
@@ -52,8 +51,19 @@ extension PsbtSigner on PsbtV2 {
     List<Script> taprootScripts = [];
 
     if (utxos.any((e) => e.utxo.isP2tr())) {
-      taprootAmounts = utxos.map((e) => e.utxo.value).toList();
-      taprootScripts = utxos.map((e) => _findLockingScript(e, true)).toList();
+      for (final input in tx.inputs) {
+        final utxo = utxos.firstWhereOrNull(
+            (u) => u.utxo.txHash == input.txId && u.utxo.vout == input.txIndex);
+
+        if (utxo == null) {
+          final trPair = await getTaprootPair!.call(input.txId, input.txIndex);
+          taprootAmounts.add(trPair.value);
+          taprootScripts.add(trPair.script);
+          continue;
+        }
+        taprootAmounts.add(utxo.utxo.value);
+        taprootScripts.add(_findLockingScript(utxo, true));
+      }
     }
 
     for (var i = 0; i < tx.inputs.length; i++) {
@@ -159,6 +169,16 @@ extension PsbtSigner on PsbtV2 {
 
 typedef UTXOSignerCallBack = String Function(
     List<int> trDigest, UtxoWithAddress utxo, ECPrivate privateKey, int sighash);
+
+typedef UTXOGetterCallBack = Future<
+    TaprootAmountScriptPair> Function(String txId, int vout);
+
+class TaprootAmountScriptPair {
+  final BigInt value;
+  final Script script;
+
+  const TaprootAmountScriptPair(this.value, this.script);
+}
 
 class UtxoWithPrivateKey extends UtxoWithAddress {
   final ECPrivate privateKey;
