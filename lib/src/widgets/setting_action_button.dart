@@ -47,10 +47,6 @@ class SettingActionButton extends StatelessWidget {
           backgroundColor: MaterialStateProperty.all(isLightMode ? Theme.of(context).cardColor : Colors.black12),
           shape: MaterialStateProperty.all(
             RoundedRectangleBorder(
-              side: BorderSide(
-                //color: Colors.black12,
-                  width: 100
-              ),
               borderRadius: BorderRadius.circular(20),
             ),
           ),
