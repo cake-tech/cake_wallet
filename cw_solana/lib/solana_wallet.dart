@@ -116,7 +116,7 @@ abstract class SolanaWalletBase
   String? get seed => _mnemonic;
 
   @override
-  String get privateKey => _solanaPrivateKey.toHex();
+  String get privateKey => _solanaPrivateKey.seedHex();
 
   @override
   WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
