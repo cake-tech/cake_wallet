@@ -295,7 +295,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                     child: InfoCard(
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
                       rightButtonTitle: S.of(context).learn_more,
-                      leftButtonAction: dashboardViewModel.dismissDecredInfoCard,
+                      leftButtonAction: () => dashboardViewModel.dismissDecredInfoCard(),
                       rightButtonAction: () => launchUrl(Uri.parse("https://docs.cakewallet.com/")),
                     ),
                   ),
