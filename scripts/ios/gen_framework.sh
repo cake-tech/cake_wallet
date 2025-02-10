@@ -1,47 +1,23 @@
 #!/bin/sh
 # Assume we are in scripts/ios
+
+if [[ "$1" == "--simulator" ]];
+then
+    simulator=simulator
+fi
+
 IOS_DIR="$(pwd)/../../ios"
-DYLIB_NAME="monero_libwallet2_api_c.dylib"
-DYLIB_LINK_PATH="${IOS_DIR}/${DYLIB_NAME}"
+
+
 FRWK_DIR="${IOS_DIR}/MoneroWallet.framework"
+cd $FRWK_DIR
+lipo -create "../../scripts/monero_c/release/monero/aarch64-apple-ios${simulator}_libwallet2_api_c.dylib" -output MoneroWallet
 
-if [ ! -f $DYLIB_LINK_PATH ]; then
-    echo "Dylib is not found by the link: ${DYLIB_LINK_PATH}"
-    exit 0
-fi
-
-cd $FRWK_DIR # go to iOS framework dir
-lipo -create $DYLIB_LINK_PATH -output MoneroWallet
-
-echo "Generated ${FRWK_DIR}"
-# also generate for wownero
-IOS_DIR="$(pwd)/../../ios"
-DYLIB_NAME="wownero_libwallet2_api_c.dylib"
-DYLIB_LINK_PATH="${IOS_DIR}/${DYLIB_NAME}"
 FRWK_DIR="${IOS_DIR}/WowneroWallet.framework"
+cd $FRWK_DIR
+lipo -create "../../scripts/monero_c/release/wownero/aarch64-apple-ios${simulator}_libwallet2_api_c.dylib" -output WowneroWallet
 
-if [ ! -f $DYLIB_LINK_PATH ]; then
-    echo "Dylib is not found by the link: ${DYLIB_LINK_PATH}"
-    exit 0
-fi
-
-cd $FRWK_DIR # go to iOS framework dir
-lipo -create $DYLIB_LINK_PATH -output WowneroWallet
-
-echo "Generated ${FRWK_DIR}"
-
-# also generate for zano
-IOS_DIR="$(pwd)/../../ios"
-DYLIB_NAME="zano_libwallet2_api_c.dylib"
-DYLIB_LINK_PATH="${IOS_DIR}/${DYLIB_NAME}"
 FRWK_DIR="${IOS_DIR}/ZanoWallet.framework"
+cd $FRWK_DIR
+lipo -create "../../scripts/monero_c/release/zano/aarch64-apple-ios${simulator}_libwallet2_api_c.dylib" -output ZanoWallet
 
-if [ ! -f $DYLIB_LINK_PATH ]; then
-    echo "Dylib is not found by the link: ${DYLIB_LINK_PATH}"
-    exit 0
-fi
-
-cd $FRWK_DIR # go to iOS framework dir
-lipo -create $DYLIB_LINK_PATH -output ZanoWallet
-
-echo "Generated ${FRWK_DIR}"
