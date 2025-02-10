@@ -157,6 +157,9 @@ abstract class DashboardViewModelBase with Store {
         type = appStore.wallet!.type,
         transactions = ObservableList<TransactionListItem>(),
         wallet = appStore.wallet! {
+    showDecredInfoCard = wallet.type == WalletType.decred &&
+        (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
+
     name = wallet.name;
     type = wallet.type;
     isShowFirstYatIntroduction = false;
@@ -475,6 +478,9 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool mwebEnabled = false;
 
+  @observable
+  late bool showDecredInfoCard;
+
   @computed
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
 
@@ -498,6 +504,12 @@ abstract class DashboardViewModelBase with Store {
     settingsStore.mwebAlwaysScan = false;
     mwebEnabled = false;
     bitcoin!.setMwebEnabled(wallet, false);
+  }
+
+  @action
+  void dismissDecredInfoCard() {
+    showDecredInfoCard = false;
+    sharedPreferences.setBool(PreferencesKey.showDecredInfoCard, false);
   }
 
   BalanceViewModel balanceViewModel;
