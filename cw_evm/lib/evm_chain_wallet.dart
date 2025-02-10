@@ -634,14 +634,21 @@ abstract class EVMChainWalletBase
 
     final newToken = createNewErc20TokenObject(token, iconPath);
 
-    await evmChainErc20TokensBox.put(newToken.contractAddress, newToken);
-
     if (newToken.enabled) {
-      balance[newToken] = await _client.fetchERC20Balances(
-        _evmChainPrivateKey.address,
-        newToken.contractAddress,
-      );
+      try {
+        final erc20Balance = await _client.fetchERC20Balances(
+          _evmChainPrivateKey.address,
+          newToken.contractAddress,
+        );
+
+        balance[newToken] = erc20Balance;
+
+        await evmChainErc20TokensBox.put(newToken.contractAddress, newToken);
+      } on Exception catch (_) {
+        rethrow;
+      }
     } else {
+      await evmChainErc20TokensBox.put(newToken.contractAddress, newToken);
       balance.remove(newToken);
     }
   }

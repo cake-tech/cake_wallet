@@ -25,6 +25,7 @@ class BalancePage extends StatelessWidget {
       builder: (context) {
         final isEVMCompatible = isEVMCompatibleChain(dashboardViewModel.type);
         return DefaultTabController(
+          key: ValueKey<bool>(isEVMCompatible),
           length: isEVMCompatible ? 2 : 1,
           child: Column(
             children: [
