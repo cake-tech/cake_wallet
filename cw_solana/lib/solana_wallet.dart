@@ -157,7 +157,8 @@ abstract class SolanaWalletBase
     }
 
     try {
-      return SolanaPrivateKey.fromBase58(privateKey!);
+      final keypairBytes = Base58Decoder.decode(privateKey!);
+      return SolanaPrivateKey.fromSeed(keypairBytes);
     } catch (_) {
       final privateKeyBytes = HEX.decode(privateKey!);
       return SolanaPrivateKey.fromBytes(privateKeyBytes);
@@ -622,7 +623,7 @@ abstract class SolanaWalletBase
     );
   }
 
-  SolanaProvider? get solanaProvider => _client.getSolanaProvider;
+  SolanaRPC? get solanaProvider => _client.getSolanaProvider;
 
   @override
   String get password => _password;

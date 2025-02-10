@@ -12,7 +12,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/solana_rpc_service.dart';
-import 'package:on_chain/on_chain.dart';
+import 'package:on_chain/solana/solana.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import '../chain_service.dart';
 import '../../wallet_connect_key_service.dart';
@@ -29,7 +29,7 @@ class SolanaChainServiceImpl implements ChainService {
 
   final SolanaChainId reference;
 
-  final SolanaProvider solanaProvider;
+  final SolanaRPC solanaProvider;
 
   final SolanaPrivateKey? ownerPrivateKey;
 
@@ -40,8 +40,8 @@ class SolanaChainServiceImpl implements ChainService {
     required this.wallet,
     required this.ownerPrivateKey,
     required String formattedRPCUrl,
-    SolanaProvider? solanaProvider,
-  }) : solanaProvider = solanaProvider ?? solanaRPCProvider(uri: formattedRPCUrl) {
+    SolanaRPC? solanaProvider,
+  }) : solanaProvider = solanaProvider ?? SolanaRPC(SolanaRPCHTTPService(url: formattedRPCUrl)) {
     for (final String event in getEvents()) {
       wallet.registerEventEmitter(chainId: getChainId(), event: event);
     }
@@ -114,7 +114,7 @@ class SolanaChainServiceImpl implements ChainService {
       ownerPrivateKey!.sign(message.serialize());
 
       final signature = solanaProvider.request(
-        SolanaRequestSendTransaction(
+        SolanaRPCSendTransaction(
           encodedTransaction: message.serializeHex(),
           commitment: Commitment.confirmed,
         ),

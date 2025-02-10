@@ -1,28 +1,22 @@
-import 'package:blockchain_utils/service/models/params.dart';
+import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:on_chain/solana/solana.dart';
 
-SolanaProvider solanaRPCProvider({required String uri}) {
-  final service = RPCHttpService(uri);
-  return SolanaProvider(service);
-}
-
-class RPCHttpService with SolanaServiceProvider {
-  RPCHttpService(
-    this.url, {
-    Client? client,
-    this.defaultTimeOut = const Duration(minutes: 2),
-  }) : client = client ?? Client();
-
+class SolanaRPCHTTPService implements SolanaJSONRPCService {
+  SolanaRPCHTTPService(
+      {required this.url, Client? client, this.defaultRequestTimeout = const Duration(seconds: 30)})
+      : client = client ?? Client();
+  @override
   final String url;
   final Client client;
-  final Duration defaultTimeOut;
+  final Duration defaultRequestTimeout;
+
   @override
-  Future<BaseServiceResponse<T>> doRequest<T>(SolanaRequestDetails params,
-      {Duration? timeout}) async {
-    final response = await client
-        .post(params.toUri(url), headers: params.headers, body: params.body())
-        .timeout(timeout ?? defaultTimeOut);
-    return params.toResponse(response.bodyBytes, response.statusCode);
+  Future<Map<String, dynamic>> call(SolanaRequestDetails params, [Duration? timeout]) async {
+    final response = await client.get(Uri.parse(url), headers: {
+      'Content-Type': 'application/json',
+    }).timeout(timeout ?? defaultRequestTimeout);
+    final data = json.decode(response.body) as Map<String, dynamic>;
+    return data;
   }
 }
