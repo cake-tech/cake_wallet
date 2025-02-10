@@ -204,6 +204,8 @@
   "debit_card_terms": "Przechowywanie i używanie numeru karty płatniczej (oraz danych uwierzytelniających odpowiadających numerowi karty płatniczej) w tym portfelu cyfrowym podlega Warunkom odpowiedniej umowy posiadacza karty z wydawcą karty płatniczej, zgodnie z obowiązującym od od czasu do czasu.",
   "decimal_places_error": "Za dużo miejsc dziesiętnych",
   "decimals_cannot_be_zero": "Token dziesiętny nie może być zerowy.",
+  "decred_info_card_details": "Decred używa zdecentralizowanej i zachowującej prywatność metodę synchronizacji znanej jako „SPV”, która trwa dłużej niż normalny portfel bitcoin. Aby dowiedzieć się więcej, dotknij poniżej.",
+  "decred_info_title": "Synchronizacja w dekred",
   "default_buy_provider": "Domyślny dostawca zakupu",
   "default_sell_provider": "Domyślny dostawca sprzedaży",
   "delete": "Skasuj",

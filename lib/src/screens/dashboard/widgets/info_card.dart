@@ -7,46 +7,36 @@ import 'package:url_launcher/url_launcher.dart';
 class InfoCard extends StatelessWidget {
   final String leftButtonTitle;
   final String rightButtonTitle;
+  final String title;
+  final String description;
 
   final Function() leftButtonAction;
   final Function() rightButtonAction;
 
-  const InfoCard(
-      {Key? key,
-      required this.leftButtonTitle,
-      required this.rightButtonTitle,
-      required this.leftButtonAction,
-      required this.rightButtonAction})
-      : super(key: key);
+  final Widget? hintWidget;
+
+  const InfoCard({
+    Key? key,
+    required this.title,
+    required this.description,
+    required this.leftButtonTitle,
+    required this.rightButtonTitle,
+    required this.leftButtonAction,
+    required this.rightButtonAction,
+    this.hintWidget,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return DashBoardRoundedCardWidget(
       customBorder: 30,
-      title: S.of(context).litecoin_mweb,
-      subTitle: S.of(context).litecoin_mweb_description,
+      title: title,
+      subTitle: description,
       hint: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => launchUrl(
-              Uri.parse("https://docs.cakewallet.com/cryptos/litecoin/#mweb"),
-              mode: LaunchMode.externalApplication,
-            ),
-            child: Text(
-              S.of(context).learn_more,
-              style: TextStyle(
-                fontSize: 12,
-                fontFamily: 'Lato',
-                fontWeight: FontWeight.w400,
-                color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                height: 1,
-              ),
-              softWrap: true,
-            ),
-          ),
-          SizedBox(height: 8),
+          if (hintWidget != null) hintWidget!,
+          if (hintWidget != null) SizedBox(height: 8),
           Row(
             children: [
               Expanded(

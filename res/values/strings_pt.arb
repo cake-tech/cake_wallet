@@ -204,6 +204,8 @@
   "debit_card_terms": "O armazenamento e uso do número do cartão de pagamento (e credenciais correspondentes ao número do cartão de pagamento) nesta carteira digital estão sujeitos aos Termos e Condições do contrato do titular do cartão aplicável com o emissor do cartão de pagamento, em vigor a partir de tempo ao tempo.",
   "decimal_places_error": "Muitas casas decimais",
   "decimals_cannot_be_zero": "Decimal de token não pode ser zero.",
+  "decred_info_card_details": "O Decred usa um método de sincronização descentralizado e de preservação de privacidade, conhecido como \"SPV\", que leva mais tempo do que uma carteira normal de Bitcoin. Para saber mais, toque abaixo.",
+  "decred_info_title": "Sincronização em Decred",
   "default_buy_provider": "Provedor de compra padrão",
   "default_sell_provider": "Provedor de venda padrão",
   "delete": "Excluir",

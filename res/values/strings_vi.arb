@@ -203,6 +203,8 @@
   "debit_card_terms": "Việc lưu trữ và sử dụng số thẻ thanh toán của bạn (và thông tin xác thực tương ứng với số thẻ thanh toán của bạn) trong ví điện tử này phải tuân theo Điều khoản và Điều kiện của thỏa thuận chủ thẻ hiện hành với tổ chức phát hành thẻ thanh toán, theo thời gian.",
   "decimal_places_error": "Quá nhiều chữ số thập phân",
   "decimals_cannot_be_zero": "Chữ số thập phân không thể là số không.",
+  "decred_info_card_details": "Decred sử dụng một phương pháp đồng bộ hóa bảo tồn và bảo tồn quyền riêng tư được gọi là SPV SPV, mất nhiều thời gian hơn ví Bitcoin bình thường. Để tìm hiểu thêm, nhấn bên dưới.",
+  "decred_info_title": "Đồng bộ hóa trong Decred",
   "default_buy_provider": "Nhà cung cấp Mua mặc định",
   "default_sell_provider": "Nhà cung cấp Bán mặc định",
   "delete": "Xóa",

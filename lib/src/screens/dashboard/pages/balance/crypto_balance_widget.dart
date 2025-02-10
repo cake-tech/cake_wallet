@@ -281,10 +281,30 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(
+                      title: S.of(context).litecoin_mweb,
+                      description: S.of(context).litecoin_mweb_description,
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
                       rightButtonTitle: S.of(context).enable,
                       leftButtonAction: () => _dismissMweb(context),
                       rightButtonAction: () => _enableMweb(context),
+                      hintWidget: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => launchUrl(
+                          Uri.parse("https://docs.cakewallet.com/cryptos/litecoin/#mweb"),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        child: Text(
+                          S.of(context).learn_more,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                            height: 1,
+                          ),
+                          softWrap: true,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -293,10 +313,12 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(
+                      title: S.of(context).decred_info_title,
+                      description: S.of(context).decred_info_card_details,
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
                       rightButtonTitle: S.of(context).learn_more,
                       leftButtonAction: () => dashboardViewModel.dismissDecredInfoCard(),
-                      rightButtonAction: () => launchUrl(Uri.parse("https://docs.cakewallet.com/")),
+                      rightButtonAction: () => launchUrl(Uri.parse("https://docs.cakewallet.com/")), // TODO:
                     ),
                   ),
                 ],
