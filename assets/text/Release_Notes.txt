@@ -1,5 +1,5 @@
-Add Zano Wallet
-Monero/Wownero/Zano restore with passphrase support
-Add Chainflip Exchange provider
+Added Zano wallet support
+Added Monero/Wownero passphrase support
+Added decentralized cross-chain exchange, Chainflip
 UI enhancements
 Bug fixes
