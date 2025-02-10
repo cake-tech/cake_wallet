@@ -8,14 +8,33 @@ You can find the latest instructions for installing Docker on your given OS on t
 
 - <https://docs.docker.com/engine/install/>
 
+NOTE: If building on a Mac with an M-series CPU (arm64), you may encounter segmentation faults when building. If you do, simply retry the build.
+
 ## Building Cake Wallet or Monero.com
+
+### Using the pre-built builder image
 
 In order to build the latest version of Cake Wallet, simply run the following:
 
 ```bash
-git clone https://github.com/cake-tech/cake_wallet.git
+git clone --branch build-docs https://github.com/sethforprivacy/cake_wallet.git
 cd cake_wallet
-docker build -t cakewallet:latest .
+docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x << EOF
+pushd scripts/android
+    source ./app_env.sh cakewallet
+    ./app_config.sh
+    ./build_monero_all.sh
+    ./build_mwebd.sh --dont-install
+popd
+pushd android/app
+    [[ -f key.jks ]] || keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass hunter1 -keypass hunter1
+popd
+./model_generator.sh
+dart run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=hunter1 keyPassword=hunter1
+dart run tool/generate_localization.dart
+dart run tool/generate_new_secrets.dart
+flutter build apk --release --split-per-abi
+EOF
 ```
 
 To build Monero.com Wallet instead, run:
@@ -23,27 +42,97 @@ To build Monero.com Wallet instead, run:
 ```bash
 git clone https://github.com/cake-tech/cake_wallet.git
 cd cake_wallet
-docker build --build-arg APP_NAME=monero.com -t cakewallet:latest .
+docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x << EOF
+pushd scripts/android
+    source ./app_env.sh monero.com
+    ./app_config.sh
+    ./build_monero_all.sh
+    ./build_mwebd.sh --dont-install
+popd
+pushd android/app
+    [[ -f key.jks ]] || keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass hunter1 -keypass hunter1
+popd
+./model_generator.sh
+dart run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=hunter1 keyPassword=hunter1
+dart run tool/generate_localization.dart
+dart run tool/generate_new_secrets.dart
+flutter build apk --release --split-per-abi
+EOF
 ```
 
-## Validating output
-
-To get the SHA-256 hashes of the built APKs, simply run:
+You should see the command complete with similar output:
 
 ```bash
-docker run --rm -it cakewallet:latest
+Running Gradle task 'assembleRelease'...                          519.1s
+✓ Built build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk (56.3MB)
+✓ Built build/app/outputs/flutter-apk/app-arm64-v8a-release.apk (55.8MB)
+✓ Built build/app/outputs/flutter-apk/app-x86_64-release.apk (56.4MB)
 ```
 
-You should get output similar to:
+Final builds can be found in `build/app/outputs/flutter-apk/` as seen above.
+
+### Building the builder image from Dockerfile (optional)
+
+In order to build the latest version of Cake Wallet, simply run the following:
 
 ```bash
-WIP
+git clone --branch build-docs https://github.com/sethforprivacy/cake_wallet.git
+docker build -t cake-builder:latest .
+docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm cake-builder:latest bash -x << EOF
+pushd scripts/android
+    source ./app_env.sh cakewallet
+    ./app_config.sh
+    ./build_monero_all.sh
+    ./build_mwebd.sh --dont-install
+popd
+pushd android/app
+    [[ -f key.jks ]] || keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass hunter1 -keypass hunter1
+popd
+./model_generator.sh
+dart run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=hunter1 keyPassword=hunter1
+dart run tool/generate_localization.dart
+dart run tool/generate_new_secrets.dart
+flutter build apk --release --split-per-abi
+EOF
 ```
 
-Compare the hash of the build that you generated to the developer hash of the same release on Github, i.e. `v4.23.0`.
+To build Monero.com Wallet instead, run:
+
+```bash
+git clone https://github.com/cake-tech/cake_wallet.git
+cd cake_wallet
+docker build -t cake-builder:latest .
+docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm cake-builder:latest bash -x << EOF
+pushd scripts/android
+    source ./app_env.sh monero.com
+    ./app_config.sh
+    ./build_monero_all.sh
+    ./build_mwebd.sh --dont-install
+popd
+pushd android/app
+    [[ -f key.jks ]] || keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass hunter1 -keypass hunter1
+popd
+./model_generator.sh
+dart run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=hunter1 keyPassword=hunter1
+dart run tool/generate_localization.dart
+dart run tool/generate_new_secrets.dart
+flutter build apk --release --split-per-abi
+EOF
+```
+
+You should see the command complete with similar output:
+
+```bash
+Running Gradle task 'assembleRelease'...                          519.1s
+✓ Built build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk (56.3MB)
+✓ Built build/app/outputs/flutter-apk/app-arm64-v8a-release.apk (55.8MB)
+✓ Built build/app/outputs/flutter-apk/app-x86_64-release.apk (56.4MB)
+```
+
+Final builds can be found in `build/app/outputs/flutter-apk/` as seen above.
 
 ## Signing builds
 
-While signing builds is outside of the scope of this guide (very few users want or need to run their own built APKs), to learn more about how to sign APKs you can check out the Zeus team's fantastic guide:
+While properly signing builds is outside of the scope of this guide (very few users want or need to run their own built APKs), to learn more about how to sign APKs you can check out the Zeus team's fantastic guide:
 
 - <https://github.com/ZeusLN/zeus/blob/master/docs/ReproducibleBuilds.md#signing-apks>
