@@ -10,8 +10,12 @@ class WalletSeedData {
 
   WalletSeedData({required this.hdWallets});
 
-  static Future<WalletSeedData> fromMnemonic(WalletInfo walletInfo, String mnemonic,
-      [String? passphrase]) async {
+  static Future<WalletSeedData> fromMnemonic(
+    WalletInfo walletInfo,
+    String mnemonic,
+    BasedUtxoNetwork network, [
+    String? passphrase,
+  ]) async {
     final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
 
     for (final derivation in walletInfo.derivations ?? [walletInfo.derivationInfo!]) {
@@ -19,7 +23,10 @@ class WalletSeedData {
           !hdWallets.containsKey(CWBitcoinDerivationType.bip39)) {
         try {
           final seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
-          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(
+            seedBytes,
+            BitcoinAddressUtils.getKeyNetVersion(network),
+          );
         } catch (e) {
           printV("bip39 seed error: $e");
         }
@@ -49,15 +56,20 @@ class WalletSeedData {
           }
         }
 
-        hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(seedBytes);
+        hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(
+          seedBytes,
+          BitcoinAddressUtils.getKeyNetVersion(network),
+        );
       }
     }
 
-    if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
-      hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
-    } else if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
-      hdWallets[CWBitcoinDerivationType.old_electrum] =
-          hdWallets[CWBitcoinDerivationType.electrum]!;
+    if (network == BitcoinNetwork.mainnet) {
+      if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
+        hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
+      } else if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
+        hdWallets[CWBitcoinDerivationType.old_electrum] =
+            hdWallets[CWBitcoinDerivationType.electrum]!;
+      }
     }
 
     return WalletSeedData(hdWallets: hdWallets);

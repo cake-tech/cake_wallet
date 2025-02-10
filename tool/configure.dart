@@ -234,8 +234,12 @@ abstract class Bitcoin {
   TransactionPriority getLitecoinTransactionPrioritySlow();
   Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node});
-  Future<List<DerivationInfo>> getDerivationInfosFromMnemonic(
-      {required String mnemonic, required Node node, String? passphrase});
+  Future<List<DerivationInfo>> getDerivationInfosFromMnemonic({
+    required String mnemonic,
+    required Node node,
+    String? passphrase,
+    required WalletType walletType,
+  });
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
@@ -1528,11 +1532,11 @@ abstract class Zano {
   const zanoCWDefinition = 'Zano? zano = CWZano();\n';
 
   final output = '$zanoCommonHeaders\n' +
-    (hasImplementation ? '$zanoCWHeaders\n' : '\n') +
-    (hasImplementation ? '$zanoCwPart\n\n' : '\n') +
-    (hasImplementation ? zanoCWDefinition : zanoEmptyDefinition) +
-    '\n' +
-    zanoContent;
+      (hasImplementation ? '$zanoCWHeaders\n' : '\n') +
+      (hasImplementation ? '$zanoCwPart\n\n' : '\n') +
+      (hasImplementation ? zanoCWDefinition : zanoEmptyDefinition) +
+      '\n' +
+      zanoContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();

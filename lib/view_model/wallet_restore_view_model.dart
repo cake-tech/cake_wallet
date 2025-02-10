@@ -270,6 +270,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           mnemonic: credentials['seed'] as String,
           node: node,
           passphrase: credentials['passphrase'] as String?,
+          walletType: walletType,
         );
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;

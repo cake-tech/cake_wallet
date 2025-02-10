@@ -384,6 +384,7 @@ class CWBitcoin extends Bitcoin {
   Future<List<DerivationInfo>> getDerivationInfosFromMnemonic({
     required String mnemonic,
     required Node node,
+    required WalletType walletType,
     String? passphrase,
   }) async {
     final list = <DerivationInfo>[];
@@ -438,11 +439,11 @@ class CWBitcoin extends Bitcoin {
       }
     }
 
-    if (electrumSeedBytes == null && bip39SeedBytes == null) {
-      try {
-        final oldElectrumSeedBytes =
-            await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+    try {
+      final oldElectrumSeedBytes =
+          await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
 
+      if (oldElectrumSeedBytes != bip39SeedBytes && oldElectrumSeedBytes != electrumSeedBytes) {
         for (final addressType in BITCOIN_ADDRESS_TYPES) {
           list.add(
             DerivationInfo(
@@ -452,9 +453,9 @@ class CWBitcoin extends Bitcoin {
             ),
           );
         }
-      } catch (e) {
-        printV("old electrum seed error: $e");
       }
+    } catch (e) {
+      printV("old electrum seed error: $e");
     }
 
     return list;

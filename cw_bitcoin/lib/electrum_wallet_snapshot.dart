@@ -65,6 +65,7 @@ class ElectrumWalletSnapshot {
 
     final derivationType = DerivationType
         .values[(data['derivationTypeIndex'] as int?) ?? DerivationType.electrum.index];
+    // TODO: defaulting to electrum
     final derivationPath = data['derivationPath'] as String? ?? ELECTRUM_PATH;
 
     final walletAddressesSnapshot = data['walletAddresses'] as Map<String, dynamic>? ??

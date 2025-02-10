@@ -33,8 +33,6 @@ import 'package:mobx/mobx.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
-class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletAddressListViewModel;
-
 abstract class PaymentURI {
   PaymentURI({required this.amount, required this.address});
 
@@ -222,6 +220,8 @@ class ZanoURI extends PaymentURI {
   }
 }
 
+class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletAddressListViewModel;
+
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
@@ -283,6 +283,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   WalletType get type => wallet.type;
+
+  @action
+  void resetActiveChangeAddress() {
+    wallet.walletAddresses.resetActiveChangeAddress();
+  }
 
   @computed
   WalletAddressListItem get address {

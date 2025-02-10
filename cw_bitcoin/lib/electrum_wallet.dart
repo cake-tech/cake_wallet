@@ -116,7 +116,7 @@ abstract class ElectrumWalletBase
 
     late WalletSeedData walletSeedData;
     if (mnemonic != null) {
-      walletSeedData = await WalletSeedData.fromMnemonic(walletInfo, mnemonic, passphrase);
+      walletSeedData = await WalletSeedData.fromMnemonic(walletInfo, mnemonic, network, passphrase);
     } else {
       walletSeedData = WalletSeedData.fromXpub(walletInfo, xpub!, network);
     }

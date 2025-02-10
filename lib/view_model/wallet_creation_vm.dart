@@ -184,7 +184,7 @@ abstract class WalletCreationVMBase with Store {
         }
         return DerivationInfo(
           derivationType: DerivationType.bip39,
-          derivationPath: "m/84'/0'/0'/0",
+          derivationPath: "m/84'/0'/0'",
           description: "Standard BIP84 native segwit",
           scriptType: "p2wpkh",
         );
@@ -194,7 +194,7 @@ abstract class WalletCreationVMBase with Store {
         }
         return DerivationInfo(
           derivationType: DerivationType.bip39,
-          derivationPath: "m/84'/2'/0'/0",
+          derivationPath: "m/84'/2'/0'",
           description: "Standard BIP84 native segwit (litecoin)",
           scriptType: "p2wpkh",
         );
@@ -217,6 +217,7 @@ abstract class WalletCreationVMBase with Store {
           mnemonic: restoreWallet.mnemonicSeed!,
           node: node,
           passphrase: restoreWallet.passphrase,
+          walletType: walletType,
         );
       case WalletType.nano:
         return nanoUtil!.getDerivationsFromMnemonic(

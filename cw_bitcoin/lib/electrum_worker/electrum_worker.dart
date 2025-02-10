@@ -567,15 +567,15 @@ class ElectrumWorker {
           );
         }));
       }
-
-      return _sendResponse(
-        ElectrumWorkerGetHistoryResponse(
-          result: [],
-          id: request.id,
-          completed: true,
-        ),
-      );
     }));
+
+    _sendResponse(
+      ElectrumWorkerGetHistoryResponse(
+        result: [],
+        id: request.id,
+        completed: true,
+      ),
+    );
   }
 
   Future<void> _handleGetBatchHistory(ElectrumWorkerGetHistoryRequest request) async {
