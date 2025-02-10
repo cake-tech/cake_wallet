@@ -82,6 +82,8 @@ class MoonPayProvider extends BuyProvider {
         return 'light';
       case ThemeType.dark:
         return 'dark';
+      case ThemeType.oled:
+        return 'dark';
     }
   }
 

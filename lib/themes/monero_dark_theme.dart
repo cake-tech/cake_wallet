@@ -21,6 +21,7 @@ import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,8 @@ import 'package:flutter/material.dart';
 class MoneroDarkTheme extends DarkTheme {
   MoneroDarkTheme({required int raw}) : super(raw: raw);
 
+  @override
+  ThemeType get type => ThemeType.oled;
   @override
   String get title => S.current.monero_dark_theme;
   @override
