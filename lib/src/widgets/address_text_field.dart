@@ -233,6 +233,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget{
         await PermissionHandler.checkPermission(Permission.camera, context);
     if (!isCameraPermissionGranted) return;
     final code = await presentQRScanner(context);
+    if (code == null) return;
     if (code.isEmpty) {
       return;
     }
