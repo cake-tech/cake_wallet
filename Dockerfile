@@ -1,103 +1,146 @@
-# Set Flutter SDK version
-ARG FLUTTER_VERSION=3.24.4
+# Usage:
+# docker build . -f Dockerfile.linux -t ghcr.io/cake-tech/cake_wallet:main-linux
+# docker push ghcr.io/cake-tech/cake_wallet:main-linux
 
-# Pull appropriate Flutter and Android SDK version
-FROM instrumentisto/flutter:${FLUTTER_VERSION}
+FROM --platform=linux/amd64 docker.io/debian:12
 
-# Workaround tzdata and other packages needing interaction when installing/updating
-ARG DEBIAN_FRONTEND=noninteractive
+LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
 
-# Set Cake Wallet-specific variables
-ARG CAKEWALLET_BRANCH=v4.23.0
-ARG APP_NAME=cakewallet
+ENV GOLANG_VERSION=1.23.4
+# comes from https://developer.android.com/studio/#command-tools
+ENV ANDROID_SDK_TOOLS_VERSION=11076708
+# https://developer.android.com/studio/releases/build-tools
+ENV ANDROID_PLATFORM_VERSION=34
+ENV ANDROID_BUILD_TOOLS_VERSION=34.0.0
 
-# Set Android SDK environment variables
+ENV FLUTTER_VERSION=3.24.4
+
+# If we ever need to migrate the home directory...
+RUN sed -i 's|^root:[^:]*:[^:]*:[^:]*:[^:]*:/root:|root:x:0:0:root:/root:|' /etc/passwd
+# mkdir -p /root && rm -rf /root && cp -a /root /root
+ENV HOME=/root
+# Heavily inspired by cirrusci images
+# https://github.com/cirruslabs/docker-images-android/blob/master/sdk/tools/Dockerfile
+# https://github.com/cirruslabs/docker-images-android/blob/master/sdk/34/Dockerfile
+# https://github.com/cirruslabs/docker-images-android/blob/master/sdk/34-ndk/Dockerfile
+# https://github.com/cirruslabs/docker-images-flutter/blob/master/sdk/Dockerfile
+
 ENV ANDROID_HOME=/opt/android-sdk-linux \
-    ANDROID_SDK_ROOT=$ANDROID_HOME \
-    PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools
+    LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    LANGUAGE=en_US:en
 
-SHELL ["/bin/bash", "-c"]
+ENV ANDROID_SDK_ROOT=$ANDROID_HOME \
+    PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/emulator
 
-# Update all packages on the build host and install only necessary packages for building and clear cache
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    autoconf \
-    automake \
-    build-essential \
-    ca-certificates \
-    clang \
-    cmake \
-    curl \
-    file \
-    gcc \
-    g++ \
-    gperf \
-    git \
-    lbzip2 \
-    lcov \
-    libgtk-3-dev \
-    liblzma-dev \
-    libtool \
-    libtinfo6 \
-    llvm-dev \
-    make \
-    ninja-build \
-    openjdk-8-jre-headless \
-    pkg-config \
-    python-is-python3 \
-    unzip \
-    && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-    
-# Install Rust and cargo
-RUN curl https://sh.rustup.rs -sSf | \
-    sh -s -- --default-toolchain 1.84.1 -y && \
-    . "$HOME/.cargo/env" && \
-    cargo install cargo-ndk@3.5.4 --locked
+# Upgrade base image
+RUN apt-get update \
+    && apt-get upgrade -y
 
-# Get Cake Wallet source code
-WORKDIR /opt/android
-RUN git clone --branch ${CAKEWALLET_BRANCH} https://github.com/cake-tech/cake_wallet.git
+# Install all build dependencies
+RUN set -o xtrace \
+    && cd /opt \
+    && apt-get install -y --no-install-recommends --no-install-suggests \
+    # Core dependencies
+    bc build-essential curl default-jdk git jq lcov libglu1-mesa libpulse0 libsqlite3-dev libstdc++6 locales openssh-client ruby-bundler ruby-full software-properties-common sudo unzip wget zip \
+    # for x86 emulators
+    libatk-bridge2.0-0 libgdk-pixbuf2.0-0 libgtk-3-0 libnspr4 libnss3-dev libsqlite3-dev libxtst6 libxss1 lftp sqlite3 xxd \
+    # Linux desktop dependencies
+    clang cmake libgtk-3-dev ninja-build pkg-config \
+    # monero_c dependencies
+    autoconf build-essential ccache gperf libtool llvm \
+    # extra stuff for KVM
+    bridge-utils libvirt-clients libvirt-daemon-system qemu-kvm udev \
+    # Linux test dependencies
+    ffmpeg network-manager x11-utils xvfb \
+    # aarch64-linux-gnu dependencies
+    g++-aarch64-linux-gnu gcc-aarch64-linux-gnu \
+    && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && sh -c 'echo "en_US.UTF-8 UTF-8" > /etc/locale.gen' \
+    && locale-gen \
+    && update-locale LANG=en_US.UTF-8
 
-# Install Android NDK
+# Install nodejs for Github Actions
+RUN curl -fsSL https://deb.nodesource.com/setup_23.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install Go
+ENV PATH=${PATH}:/usr/local/go/bin:${HOME}/go/bin
+ENV GOROOT=/usr/local/go
+ENV GOPATH=${HOME}/go
+RUN wget https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz &&\
+    rm -rf /usr/local/go &&\
+    tar -C /usr/local -xzf go${GOLANG_VERSION}.linux-amd64.tar.gz && \
+    go install golang.org/x/mobile/cmd/gomobile@latest && \
+    gomobile init
+
+# Install Android SDK commandline tools
+RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS_VERSION}_latest.zip -O android-sdk-tools.zip \
+    && mkdir -p ${ANDROID_HOME}/cmdline-tools/ \
+    && unzip -q android-sdk-tools.zip -d ${ANDROID_HOME}/cmdline-tools/ \
+    && mv ${ANDROID_HOME}/cmdline-tools/cmdline-tools ${ANDROID_HOME}/cmdline-tools/latest \
+    && chown -R root:root $ANDROID_HOME \
+    && rm android-sdk-tools.zip \
+    && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
+    && yes | sdkmanager --licenses \
+    && wget -O /usr/bin/android-wait-for-emulator https://raw.githubusercontent.com/travis-ci/travis-cookbooks/master/community-cookbooks/android-sdk/files/default/android-wait-for-emulator \
+    && chmod +x /usr/bin/android-wait-for-emulator \
+    && sdkmanager platform-tools \
+    && mkdir -p ${HOME}/.android \
+    && touch ${HOME}/.android/repositories.cfg \
+    && git config --global user.email "czarek@cakewallet.com" \
+    && git config --global user.name "CakeWallet CI"
+
+# Handle emulator not being available on linux/arm64 (https://issuetracker.google.com/issues/227219818)
+RUN if [ $(uname -m) == "x86_64" ]; then sdkmanager emulator ; fi
+
+# Pre-install extra Android SDK dependencies in order to not have to download them for each build
+RUN yes | sdkmanager \
+    "platforms;android-$ANDROID_PLATFORM_VERSION" \
+    "build-tools;$ANDROID_BUILD_TOOLS_VERSION" \
+    "platforms;android-33" \
+    "build-tools;33.0.2" \
+    "build-tools;33.0.1" \
+    "build-tools;33.0.0" \
+    "build-tools;35.0.0"
+
+# Install extra NDK dependency for sp_scanner
 ENV ANDROID_NDK_VERSION=27.2.12479018
 RUN yes | sdkmanager "ndk;$ANDROID_NDK_VERSION" \
     "ndk;27.0.12077973"
 
-# Configure app details
-RUN cd cake_wallet/scripts/android/ && \
-    source ./app_env.sh ${APP_NAME} && \
-    chmod +x pubspec_gen.sh && \
-    ./app_config.sh
+# https://github.com/ReactiveCircus/android-emulator-runner dependencies for tests
+RUN yes | sdkmanager "system-images;android-29;default;x86" \
+    "system-images;android-29;default;x86_64" \
+    "system-images;android-31;default;x86_64" \
+    "platforms;android-29"
 
-# Build Monero libraries
-WORKDIR /opt/android/cake_wallet/scripts/android/
-RUN set -x && source ./app_env.sh ${APP_NAME} && \
-    ./build_monero_all.sh
+# Fake the KVM status so android emulator doesn't complain (that much)
+RUN (addgroup kvm || true) && \
+    adduser root kvm && \
+    mkdir -p /etc/udev/rules.d/ && \
+    echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | tee /etc/udev/rules.d/99-kvm4all.rules
 
-# Build Haven libraries
-RUN set -x && source ./app_env.sh ${APP_NAME} && \
-    ./build_haven_all.sh
+# Install rustup, rust toolchains, and cargo-ndk
+ENV PATH=${HOME}/.cargo/bin:${PATH}
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && \
+    cargo install cargo-ndk && \
+    for target in aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android x86_64-unknown-linux-gnu; \
+    do \
+        rustup target add --toolchain stable $target; \
+    done
 
-# Build mwebd libraries
-RUN set -x && source ./app_env.sh ${APP_NAME} && \
-    source ./config.sh && \
-    ./build_mwebd.sh
+# Download and install Flutter
+ENV HOME=${HOME}
+ENV FLUTTER_HOME=${HOME}/sdks/flutter/${FLUTTER_VERSION}
+ENV FLUTTER_ROOT=$FLUTTER_HOME
+ENV PATH=${PATH}:${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin
 
-# Fetch Flutter dependencies and setup salts + localization + model
-RUN cd /opt/android/cake_wallet && \
-    flutter pub get && \
-    cd /opt/android/cake_wallet && \
-    dart run tool/generate_localization.dart && \
-    dart run tool/generate_new_secrets.dart && \
-    ./model_generator.sh
+RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git ${FLUTTER_HOME} \
+    && yes | flutter doctor --android-licenses \
+    && flutter doctor \
+    && chown -R root:root ${FLUTTER_HOME}
 
-# Build release APK file
-RUN cd /opt/android/cake_wallet && \
-    flutter build apk --release --split-per-abi
-
-# Copy APK to build directory
-RUN mkdir /build/ && \
-    cp /opt/android/cake_wallet/build/app/outputs/flutter-apk/* /build/
-
-VOLUME ["/build"]
-
-CMD ["shasum", "-a 256", "/build/*.apk"]
+# Download and pre-cache necessary Flutter artifacts to speed up builds
+RUN flutter precache
