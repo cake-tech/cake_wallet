@@ -28,6 +28,7 @@ pushd scripts/linux
     ./app_config.sh
     ./build_monero_all.sh
 popd
+flutter clean
 ./model_generator.sh
 dart run tool/generate_localization.dart
 dart run tool/generate_new_secrets.dart
@@ -49,6 +50,7 @@ pushd scripts/linux
     ./app_config.sh
     ./build_monero_all.sh
 popd
+flutter clean
 ./model_generator.sh
 dart run tool/generate_localization.dart
 dart run tool/generate_new_secrets.dart
@@ -83,6 +85,7 @@ pushd scripts/linux
     ./app_config.sh
     ./build_monero_all.sh
 popd
+flutter clean
 ./model_generator.sh
 dart run tool/generate_localization.dart
 dart run tool/generate_new_secrets.dart
@@ -105,6 +108,7 @@ pushd scripts/linux
     ./app_config.sh
     ./build_monero_all.sh
 popd
+flutter clean
 ./model_generator.sh
 dart run tool/generate_localization.dart
 dart run tool/generate_new_secrets.dart
