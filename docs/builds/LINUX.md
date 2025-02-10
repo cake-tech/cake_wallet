@@ -17,7 +17,7 @@ NOTE: If building on a Mac with an M-series CPU (arm64), you may encounter segme
 In order to build the latest version of Cake Wallet, simply run the following:
 
 ```bash
-git clone https://github.com/cake-tech/cake_wallet.git
+git clone --branch v4.23.0 https://github.com/cake-tech/cake_wallet.git
 cd cake_wallet
 docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x << EOF
 pushd scripts
@@ -38,7 +38,7 @@ EOF
 To build Monero.com Wallet instead, run:
 
 ```bash
-git clone https://github.com/cake-tech/cake_wallet.git
+git clone --branch v4.23.0 https://github.com/cake-tech/cake_wallet.git
 cd cake_wallet
 docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x << EOF
 pushd scripts
@@ -72,7 +72,7 @@ Final builds can be found in `build/app/outputs/flutter-apk/` as seen above.
 In order to build the latest version of Cake Wallet, simply run the following:
 
 ```bash
-git clone https://github.com/cake-tech/cake_wallet.git
+git clone --branch v4.23.0 https://github.com/cake-tech/cake_wallet.git
 docker build -t cake-builder:latest .
 docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm cake-builder:latest bash -x << EOF
 pushd scripts
@@ -93,7 +93,7 @@ EOF
 To build Monero.com Wallet instead, run:
 
 ```bash
-git clone https://github.com/cake-tech/cake_wallet.git
+git clone --branch v4.23.0 https://github.com/cake-tech/cake_wallet.git
 cd cake_wallet
 docker build -t cake-builder:latest .
 docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm cake-builder:latest bash -x << EOF
