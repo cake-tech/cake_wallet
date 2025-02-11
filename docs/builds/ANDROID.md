@@ -17,11 +17,14 @@ NOTE: If building on a Mac with an M-series CPU (arm64), you may encounter segme
 In order to build the latest version of Cake Wallet, simply run the following:
 
 ```bash
-git clone --branch v4.23.0 https://github.com/cake-tech/cake_wallet.git
+git clone --branch main https://github.com/cake-tech/cake_wallet.git
+# NOTE: Replace `main` with the latest release tag available at https://github.com/cake-tech/cake_wallet/releases/latest.
 cd cake_wallet
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x << EOF
+# docker build -t ghcr.io/cake-tech/cake_wallet:main-linux . # Uncomment to build the docker image yourself instead of pulling it from the registry
+docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x -e << EOF
 pushd scripts/android
     source ./app_env.sh cakewallet
+    # source ./app_env.sh monero.com # Uncomment this line to build monero.com
     ./app_config.sh
     ./build_monero_all.sh
     ./build_mwebd.sh --dont-install
@@ -38,29 +41,6 @@ flutter build apk --release --split-per-abi
 EOF
 ```
 
-To build Monero.com Wallet instead, run:
-
-```bash
-git clone --branch v4.23.0 https://github.com/cake-tech/cake_wallet.git
-cd cake_wallet
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x << EOF
-pushd scripts/android
-    source ./app_env.sh monero.com
-    ./app_config.sh
-    ./build_monero_all.sh
-    ./build_mwebd.sh --dont-install
-popd
-pushd android/app
-    [[ -f key.jks ]] || keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass hunter1 -keypass hunter1
-popd
-flutter clean
-./model_generator.sh
-dart run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=hunter1 keyPassword=hunter1
-dart run tool/generate_localization.dart
-dart run tool/generate_new_secrets.dart
-flutter build apk --release --split-per-abi
-EOF
-```
 
 You should see the command complete with similar output:
 
@@ -73,67 +53,6 @@ Running Gradle task 'assembleRelease'...                          519.1s
 
 Final builds can be found in `build/app/outputs/flutter-apk/` as seen above.
 
-### Building the builder image from Dockerfile (optional)
-
-In order to build the latest version of Cake Wallet, simply run the following:
-
-```bash
-git clone --branch v4.23.0 https://github.com/cake-tech/cake_wallet.git
-docker build -t cake-builder:latest .
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm cake-builder:latest bash -x << EOF
-pushd scripts/android
-    source ./app_env.sh cakewallet
-    ./app_config.sh
-    ./build_monero_all.sh
-    ./build_mwebd.sh --dont-install
-popd
-pushd android/app
-    [[ -f key.jks ]] || keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass hunter1 -keypass hunter1
-popd
-flutter clean
-./model_generator.sh
-dart run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=hunter1 keyPassword=hunter1
-dart run tool/generate_localization.dart
-dart run tool/generate_new_secrets.dart
-flutter build apk --release --split-per-abi
-EOF
-```
-
-To build Monero.com Wallet instead, run:
-
-```bash
-git clone --branch v4.23.0 https://github.com/cake-tech/cake_wallet.git
-cd cake_wallet
-docker build -t cake-builder:latest .
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm cake-builder:latest bash -x << EOF
-pushd scripts/android
-    source ./app_env.sh monero.com
-    ./app_config.sh
-    ./build_monero_all.sh
-    ./build_mwebd.sh --dont-install
-popd
-pushd android/app
-    [[ -f key.jks ]] || keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass hunter1 -keypass hunter1
-popd
-flutter clean
-./model_generator.sh
-dart run tool/generate_android_key_properties.dart keyAlias=testKey storeFile=key.jks storePassword=hunter1 keyPassword=hunter1
-dart run tool/generate_localization.dart
-dart run tool/generate_new_secrets.dart
-flutter build apk --release --split-per-abi
-EOF
-```
-
-You should see the command complete with similar output:
-
-```bash
-Running Gradle task 'assembleRelease'...                          519.1s
-✓ Built build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk (56.3MB)
-✓ Built build/app/outputs/flutter-apk/app-arm64-v8a-release.apk (55.8MB)
-✓ Built build/app/outputs/flutter-apk/app-x86_64-release.apk (56.4MB)
-```
-
-Final builds can be found in `build/app/outputs/flutter-apk/` as seen above.
 
 ## Signing builds
 

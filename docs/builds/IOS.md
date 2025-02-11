@@ -24,6 +24,12 @@ brew install cmake xz cocoapods
 
 Download and install the latest version of [Xcode](https://developer.apple.com/xcode/) from macOS App Store.
 
+After installing Xcode you will be prompted to install the iOS SDK, if you missed that step then you need to do that manually:
+
+1. Open Xcode
+2. Navigate to settings
+3. Open Components tab 
+4. Click next to iOS 18.2 (or any other version that is showing up as default)
 ### 3. Installing Flutter
 
 Install Flutter, specifically version `3.24.4` by following the [official docs](https://docs.flutter.dev/get-started/install/macos/desktop?tab=download).
@@ -57,11 +63,11 @@ Doctor summary (to see all details, run flutter doctor -v):
 Download the latest release tag of Cake Wallet and enter the source code directory:
 
 ```zsh
-git clone https://github.com/cake-tech/cake_wallet.git --branch v4.23.0
+git clone https://github.com/cake-tech/cake_wallet.git --branch main
 cd cake_wallet/scripts/ios/
 ```
 
-NOTE: Replace `v4.23.0` with the latest release tag available at <https://github.com/cake-tech/cake_wallet/releases/latest>.
+NOTE: Replace `main` with the latest release tag available at <https://github.com/cake-tech/cake_wallet/releases/latest>.
 
 ### 7. Setup and build Cake Wallet from source
 
@@ -106,13 +112,13 @@ Generate secrets as placeholders for official API keys etc. along with localizat
 
 ```zsh
 dart run tool/generate_new_secrets.dart
-./configure_cake_wallet.sh ios
+./model_generator.sh
 ```
 
 ### 9. Build
 
 ```zsh
-flutter build ios --release
+flutter build ios --release --no-codesign
 ```
 
 Then you can open `ios/Runner.xcworkspace` with Xcode to archive the application.

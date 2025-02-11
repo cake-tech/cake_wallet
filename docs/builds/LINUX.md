@@ -17,14 +17,17 @@ NOTE: If building on a Mac with an M-series CPU (arm64), you may encounter segme
 In order to build the latest version of Cake Wallet, simply run the following:
 
 ```bash
-git clone --branch v4.23.0 https://github.com/cake-tech/cake_wallet.git
+git clone --branch main https://github.com/cake-tech/cake_wallet.git
+# NOTE: Replace `main` with the latest release tag available at https://github.com/cake-tech/cake_wallet/releases/latest.
 cd cake_wallet
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x << EOF
+# docker build -t ghcr.io/cake-tech/cake_wallet:main-linux . # Uncomment to build the docker image yourself instead of pulling it from the registry
+docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x -e << EOF
 pushd scripts
     ./gen_android_manifest.sh
 popd
 pushd scripts/linux
     source ./app_env.sh cakewallet
+    # source ./app_env.sh monero.com # Uncomment this line to build monero.com
     ./app_config.sh
     ./build_monero_all.sh
 popd
@@ -36,27 +39,6 @@ flutter build linux
 EOF
 ```
 
-To build Monero.com Wallet instead, run:
-
-```bash
-git clone --branch v4.23.0 https://github.com/cake-tech/cake_wallet.git
-cd cake_wallet
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x << EOF
-pushd scripts
-    ./gen_android_manifest.sh
-popd
-pushd scripts/linux
-    source ./app_env.sh monero.com
-    ./app_config.sh
-    ./build_monero_all.sh
-popd
-flutter clean
-./model_generator.sh
-dart run tool/generate_localization.dart
-dart run tool/generate_new_secrets.dart
-flutter build linux
-EOF
-```
 
 You should see the command complete with similar output:
 
@@ -71,65 +53,6 @@ Building Linux application...
 
 Final builds can be found in `build/linux/x64/release/bundle/` as seen above.
 
-### Building the builder image from Dockerfile (optional)
-
-In order to build the latest version of Cake Wallet, simply run the following:
-
-```bash
-git clone --branch v4.23.0 https://github.com/cake-tech/cake_wallet.git
-docker build -t cake-builder:latest .
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm cake-builder:latest bash -x << EOF
-pushd scripts
-    ./gen_android_manifest.sh
-popd
-pushd scripts/linux
-    source ./app_env.sh cakewallet
-    ./app_config.sh
-    ./build_monero_all.sh
-popd
-flutter clean
-./model_generator.sh
-dart run tool/generate_localization.dart
-dart run tool/generate_new_secrets.dart
-flutter build linux
-EOF
-```
-
-To build Monero.com Wallet instead, run:
-
-```bash
-git clone --branch v4.23.0 https://github.com/cake-tech/cake_wallet.git
-cd cake_wallet
-docker build -t cake-builder:latest .
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm cake-builder:latest bash -x << EOF
-pushd scripts
-    ./gen_android_manifest.sh
-popd
-pushd scripts/linux
-    source ./app_env.sh monero.com
-    ./app_config.sh
-    ./build_monero_all.sh
-popd
-flutter clean
-./model_generator.sh
-dart run tool/generate_localization.dart
-dart run tool/generate_new_secrets.dart
-flutter build linux
-EOF
-```
-
-You should see the command complete with similar output:
-
-```bash
-+ dart run tool/generate_localization.dart
-+ dart run tool/generate_new_secrets.dart
-+ flutter build linux
-
-Building Linux application...                                   
-✓ Built build/linux/x64/release/bundle/cake_wallet
-```
-
-Final builds can be found in `build/linux/x64/release/bundle/` as seen above.
 
 ## Flatpak (optional)
 
