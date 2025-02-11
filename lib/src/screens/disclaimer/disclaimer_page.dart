@@ -41,7 +41,6 @@ class DisclaimerPageBody extends StatefulWidget {
 }
 
 class DisclaimerBodyState extends State<DisclaimerPageBody> {
-  static const changenowUrl = 'https://changenow.io/terms-of-use';
 
   bool _checked = false;
   String _fileText = '';
@@ -125,49 +124,6 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                         SizedBox(
                           height: 16.0,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Expanded(
-                              child: Text(
-                                'Other Terms and Conditions',
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                              ),
-                            )
-                          ],
-                        ),
-                        SizedBox(
-                          height: 16.0,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Expanded(
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    final uri = Uri.parse(changenowUrl);
-                                    if (await canLaunchUrl(uri))
-                                      await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                  },
-                              child: Text(
-                                changenowUrl,
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                    color: Theme.of(context).primaryColor,
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.underline),
-                              ),
-                            ))
-                          ],
-                        ),
-                        SizedBox(
-                          height: 16.0,
-                        )
                       ],
                     ),
                   ),
