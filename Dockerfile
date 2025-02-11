@@ -48,7 +48,7 @@ RUN set -o xtrace \
     # Linux desktop dependencies
     clang cmake libgtk-3-dev ninja-build pkg-config \
     # monero_c dependencies
-    autoconf build-essential ccache gperf libtool llvm \
+    autoconf automake build-essential ccache gperf libtool llvm \
     # extra stuff for KVM
     bridge-utils libvirt-clients libvirt-daemon-system qemu-kvm udev \
     # Linux test dependencies
