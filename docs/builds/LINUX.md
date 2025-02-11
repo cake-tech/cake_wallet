@@ -21,7 +21,8 @@ git clone --branch main https://github.com/cake-tech/cake_wallet.git
 # NOTE: Replace `main` with the latest release tag available at https://github.com/cake-tech/cake_wallet/releases/latest.
 cd cake_wallet
 # docker build -t ghcr.io/cake-tech/cake_wallet:main-linux . # Uncomment to build the docker image yourself instead of pulling it from the registry
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x -e << EOF
+docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x << EOF
+set -x -e
 pushd scripts
     ./gen_android_manifest.sh
 popd
@@ -38,7 +39,6 @@ dart run tool/generate_new_secrets.dart
 flutter build linux
 EOF
 ```
-
 
 You should see the command complete with similar output:
 

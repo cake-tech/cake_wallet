@@ -21,7 +21,8 @@ git clone --branch main https://github.com/cake-tech/cake_wallet.git
 # NOTE: Replace `main` with the latest release tag available at https://github.com/cake-tech/cake_wallet/releases/latest.
 cd cake_wallet
 # docker build -t ghcr.io/cake-tech/cake_wallet:main-linux . # Uncomment to build the docker image yourself instead of pulling it from the registry
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x -e << EOF
+docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x << EOF
+set -x -e
 pushd scripts/android
     source ./app_env.sh cakewallet
     # source ./app_env.sh monero.com # Uncomment this line to build monero.com
@@ -41,7 +42,6 @@ flutter build apk --release --split-per-abi
 EOF
 ```
 
-
 You should see the command complete with similar output:
 
 ```bash
@@ -52,7 +52,6 @@ Running Gradle task 'assembleRelease'...                          519.1s
 ```
 
 Final builds can be found in `build/app/outputs/flutter-apk/` as seen above.
-
 
 ## Signing builds
 
