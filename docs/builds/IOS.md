@@ -34,6 +34,11 @@ sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 sudo xcodebuild -runFirstLaunch
 ```
 
+1. Open Xcode
+2. Navigate to settings
+3. Open Components tab
+4. Click next to iOS 18.2 (or any other version that is showing up as default)
+
 ### 3. Installing Flutter
 
 Install Flutter, specifically version `3.24.4` by following the [official docs](https://docs.flutter.dev/get-started/install/macos/desktop?tab=download).
