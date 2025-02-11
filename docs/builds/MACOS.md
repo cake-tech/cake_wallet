@@ -126,7 +126,7 @@ flutter build macos --release --no-codesign
 
 Then you can open `macos/Runner.xcworkspace` with Xcode to archive the application.
 
-Ff you want to run on a connected device, simply run:
+If you want to run on a connected device, simply run:
 
 ```zsh
 flutter run
