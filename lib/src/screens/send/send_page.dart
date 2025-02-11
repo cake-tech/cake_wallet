@@ -114,9 +114,13 @@ class SendPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   double _sendCardHeight(BuildContext context) {
-    double initialHeight = 480;
+    double initialHeight = 495;
     if (sendViewModel.hasCoinControl) {
       initialHeight += 55;
+    }
+
+    if (sendViewModel.walletType == WalletType.litecoin) {
+      initialHeight += 20;// for the allow mweb coins checkbox 
     }
 
     if (!responsiveLayoutUtil.shouldRenderMobileUI) {
@@ -397,19 +401,16 @@ class SendPage extends BasePage {
 
                         if (sendViewModel.wallet.isHardwareWallet) {
                           if (!sendViewModel.ledgerViewModel!.isConnected) {
-                            await Navigator.of(context).pushNamed(
-                                Routes.connectDevices,
+                            await Navigator.of(context).pushNamed(Routes.connectDevices,
                                 arguments: ConnectDevicePageParams(
                                   walletType: sendViewModel.walletType,
                                   onConnectDevice: (BuildContext context, _) {
-                                    sendViewModel.ledgerViewModel!
-                                        .setLedger(sendViewModel.wallet);
+                                    sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
                                     Navigator.of(context).pop();
                                   },
                                 ));
                           } else {
-                            sendViewModel.ledgerViewModel!
-                                .setLedger(sendViewModel.wallet);
+                            sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
                           }
                         }
 
@@ -419,8 +420,10 @@ class SendPage extends BasePage {
                             amount += item.formattedCryptoAmount;
                           }
                           if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
-                            await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: 'export-outputs');
-                            await Future.delayed(Duration(seconds: 1)); // wait for monero to refresh the state
+                            await Navigator.of(context)
+                                .pushNamed(Routes.urqrAnimatedPage, arguments: 'export-outputs');
+                            await Future.delayed(
+                                Duration(seconds: 1)); // wait for monero to refresh the state
                           }
                           if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
                             return;
@@ -524,13 +527,12 @@ class SendPage extends BasePage {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-
           if (!context.mounted) {
             return;
           }
 
-          final successMessage = S.of(context).send_success(
-              sendViewModel.selectedCryptoCurrency.toString());
+          final successMessage =
+              S.of(context).send_success(sendViewModel.selectedCryptoCurrency.toString());
 
           final waitMessage = sendViewModel.walletType == WalletType.solana
               ? '. ${S.of(context).waitFewSecondForTxUpdate}'
@@ -538,10 +540,8 @@ class SendPage extends BasePage {
 
           String alertContent = "$successMessage$waitMessage";
 
-          await Navigator.of(context).pushNamed(
-              Routes.transactionSuccessPage,
-              arguments: alertContent
-          );
+          await Navigator.of(context)
+              .pushNamed(Routes.transactionSuccessPage, arguments: alertContent);
 
           newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
           if (sendViewModel.coinTypeToSpendFrom != UnspentCoinType.any) newContactAddress = null;
@@ -557,7 +557,7 @@ class SendPage extends BasePage {
                     leftButtonText: S.of(_dialogContext).ignor,
                     alertLeftActionButtonKey: ValueKey('send_page_sent_dialog_ignore_button_key'),
                     alertRightActionButtonKey:
-                    ValueKey('send_page_sent_dialog_add_contact_button_key'),
+                        ValueKey('send_page_sent_dialog_add_contact_button_key'),
                     actionRightButton: () {
                       Navigator.of(_dialogContext).pop();
                       RequestReviewHandler.requestReview();

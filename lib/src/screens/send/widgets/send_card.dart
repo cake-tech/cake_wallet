@@ -144,7 +144,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               24,
-              responsiveLayoutUtil.shouldRenderMobileUI ? 100 : 55,
+              responsiveLayoutUtil.shouldRenderMobileUI ? 120 : 55,
               24,
               responsiveLayoutUtil.shouldRenderMobileUI ? 32 : 0,
             ),
@@ -403,7 +403,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     if (sendViewModel.currency == CryptoCurrency.ltc)
                       Observer(
                         builder: (_) => Padding(
-                          padding: EdgeInsets.only(top: 10),
+                          padding: EdgeInsets.only(top: 14),
                           child: GestureDetector(
                             key: ValueKey('send_page_unspent_coin_button_key'),
                             onTap: () {
