@@ -212,32 +212,36 @@ class ExchangePage extends BasePage {
                               : S.of(context).fixed_pair_not_supported
                           : exchangeViewModel.isAvailableInSelected
                               ? S.of(context).amount_is_estimate
-                              : S.of(context).variable_pair_not_supported;
-                      return Center(
-                        child: Row(
-                          children: [
-                            if(description == S.of(context).this_pair_is_not_supported_warning)
-                            Icon(Icons.warning_amber_rounded,
-                              color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
-                              size: 26),
+                              : S.of(context).this_pair_is_not_supported_warning;
+                      return Row(
+                        children: [
+                          if(description == S.of(context).this_pair_is_not_supported_warning)
                             Expanded(
-                              child: Text(
-                                description,
-                                textAlign: TextAlign.center,
-                                softWrap: true,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .extension<ExchangePageTheme>()!
-                                      .receiveAmountColor,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 12,
-                                ),
+                            child: Container(
+                              alignment: Alignment.centerRight,
+                              child: Icon(Icons.warning_amber_rounded,
+                                color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
+                                size: 26),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 8,
+                            child: Text(
+                              description,
+                              textAlign: TextAlign.center,
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 3,
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .extension<ExchangePageTheme>()!
+                                    .receiveAmountColor,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       );
                     }),
                   ),
