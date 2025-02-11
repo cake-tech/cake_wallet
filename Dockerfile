@@ -2,34 +2,40 @@
 # docker build . -f Dockerfile.linux -t ghcr.io/cake-tech/cake_wallet:main-linux
 # docker push ghcr.io/cake-tech/cake_wallet:main-linux
 
-FROM --platform=linux/amd64 docker.io/debian:12
-
-LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
-
-ENV GOLANG_VERSION=1.23.4
-# comes from https://developer.android.com/studio/#command-tools
-ENV ANDROID_SDK_TOOLS_VERSION=11076708
-# https://developer.android.com/studio/releases/build-tools
-ENV ANDROID_PLATFORM_VERSION=34
-ENV ANDROID_BUILD_TOOLS_VERSION=34.0.0
-
-ENV FLUTTER_VERSION=3.24.4
-
-# If we ever need to migrate the home directory...
-RUN sed -i 's|^root:[^:]*:[^:]*:[^:]*:[^:]*:/root:|root:x:0:0:root:/root:|' /etc/passwd
-# mkdir -p /root && rm -rf /root && cp -a /root /root
-ENV HOME=/root
 # Heavily inspired by cirrusci images
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/tools/Dockerfile
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/34/Dockerfile
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/34-ndk/Dockerfile
 # https://github.com/cirruslabs/docker-images-flutter/blob/master/sdk/Dockerfile
 
+FROM --platform=linux/amd64 docker.io/debian:12
+
+LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
+
+# Set necessary environment variables
+# Set Go version to latest known-working version
+ENV GOLANG_VERSION=1.23.4
+
+# Pin Flutter version to latest known-working version
+ENV FLUTTER_VERSION=3.24.4
+
+# Pin Android Studio, platform, and build tools versions to latest known-working version
+# Comes from https://developer.android.com/studio/#command-tools
+ENV ANDROID_SDK_TOOLS_VERSION=11076708
+# Comes from https://developer.android.com/studio/releases/build-tools
+ENV ANDROID_PLATFORM_VERSION=34
+ENV ANDROID_BUILD_TOOLS_VERSION=34.0.0
+
+# If we ever need to migrate the home directory...
+RUN sed -i 's|^root:[^:]*:[^:]*:[^:]*:[^:]*:/root:|root:x:0:0:root:/root:|' /etc/passwd
+# mkdir -p /root && rm -rf /root && cp -a /root /root
+ENV HOME=/root
 ENV ANDROID_HOME=/opt/android-sdk-linux \
     LANG=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8 \
     LANGUAGE=en_US:en
 
+# Set Android SDK paths
 ENV ANDROID_SDK_ROOT=$ANDROID_HOME \
     PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/emulator
 
@@ -75,7 +81,7 @@ RUN wget https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz &&\
     go install golang.org/x/mobile/cmd/gomobile@latest && \
     gomobile init
 
-# Install Android SDK commandline tools
+# Install Android SDK commandline tools and emulator
 RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS_VERSION}_latest.zip -O android-sdk-tools.zip \
     && mkdir -p ${ANDROID_HOME}/cmdline-tools/ \
     && unzip -q android-sdk-tools.zip -d ${ANDROID_HOME}/cmdline-tools/ \
@@ -110,13 +116,14 @@ ENV ANDROID_NDK_VERSION=27.2.12479018
 RUN yes | sdkmanager "ndk;$ANDROID_NDK_VERSION" \
     "ndk;27.0.12077973"
 
-# https://github.com/ReactiveCircus/android-emulator-runner dependencies for tests
+# Install dependencies for tests
+# Comes from https://github.com/ReactiveCircus/android-emulator-runner
 RUN yes | sdkmanager "system-images;android-29;default;x86" \
     "system-images;android-29;default;x86_64" \
     "system-images;android-31;default;x86_64" \
     "platforms;android-29"
 
-# Fake the KVM status so android emulator doesn't complain (that much)
+# Fake the KVM status so the Android emulator doesn't complain (that much)
 RUN (addgroup kvm || true) && \
     adduser root kvm && \
     mkdir -p /etc/udev/rules.d/ && \
