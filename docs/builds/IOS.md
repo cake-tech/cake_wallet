@@ -5,10 +5,12 @@
 The following are the system requirements to build Cake Wallet for your iOS device.
 
 ```txt
-macOS >= 14.0 
-Xcode 15.3
+macOS 15.3.1
+Xcode 16.2
 Flutter 3.24.4
 ```
+
+NOTE: Newer versions of macOS and Xcode may also work, but have not been confirmed to work by the Cake team.
 
 ### 1. Installing dependencies
 
@@ -17,19 +19,21 @@ For installing dependency tools you can use brew [Install brew](https://brew.sh)
 You may easily install them on your build system with the following command:
 
 ```zsh
-brew install cmake xz cocoapods
+brew install automake ccache cmake cocoapods go libtool pkgconfig xz
+softwareupdate --install-rosetta
 ```
 
 ### 2. Installing Xcode
 
 Download and install the latest version of [Xcode](https://developer.apple.com/xcode/) from macOS App Store.
 
-After installing Xcode you will be prompted to install the iOS SDK, if you missed that step then you need to do that manually:
+Run the following to properly initialize Xcode:
 
-1. Open Xcode
-2. Navigate to settings
-3. Open Components tab 
-4. Click next to iOS 18.2 (or any other version that is showing up as default)
+```zsh
+sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+sudo xcodebuild -runFirstLaunch
+```
+
 ### 3. Installing Flutter
 
 Install Flutter, specifically version `3.24.4` by following the [official docs](https://docs.flutter.dev/get-started/install/macos/desktop?tab=download).
@@ -54,8 +58,8 @@ The output of this command should appear like this, indicating successful instal
 
 ```zsh
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 3.24.4, on macOS 14.x.x)
-[✓] Xcode - develop for iOS and macOS (Xcode 15.3)
+[✓] Flutter (Channel stable, 3.24.4, on macOS 15.x.x)
+[✓] Xcode - develop for iOS and macOS (Xcode 16.2)
 ```
 
 ### 6. Acquiring the Cake Wallet source code
@@ -85,19 +89,20 @@ For Monero.com, instead do:
 source ./app_env.sh monero.com
 ```
 
+Build the necessary libraries and their dependencies:
+
+```zsh
+./build_monero_all.sh
+./build_mwebd.sh
+```
+
+NOTE: This step will take quite a while, so be sure you grab a cup of coffee or a good book!
+
 Then run the configuration script to setup app name, app icon, etc:
 
 ```zsh
 ./app_config.sh
 ```
-
-Build the necessary libraries and their dependencies:
-
-```zsh
-./build_monero_all.sh
-```
-
-NOTE: This step will take quite a while, so be sure you grab a cup of coffee or a good book!
 
 ### 8. Prepare Flutter
 
@@ -112,6 +117,7 @@ Generate secrets as placeholders for official API keys etc. along with localizat
 
 ```zsh
 dart run tool/generate_new_secrets.dart
+dart run tool/generate_localization.dart
 ./model_generator.sh
 ```
 

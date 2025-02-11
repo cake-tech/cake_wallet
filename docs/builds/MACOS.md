@@ -5,8 +5,8 @@
 The following are the system requirements to build Cake Wallet for your macOS device.
 
 ```txt
-macOS >= 14.0 
-Xcode 15.3
+macOS 15.3.1
+Xcode 16.2
 Flutter 3.24.4
 ```
 
@@ -17,12 +17,20 @@ For installing dependency tools you can use brew [Install brew](https://brew.sh)
 You may easily install them on your build system with the following command:
 
 ```zsh
-brew install ccache binutils pigz autoconf automake libtool pkg-config cocoapods
+brew install autoconf automake binutils ccache cocoapods go libtool pigz pkg-config
+softwareupdate --install-rosetta
 ```
 
 ### 2. Installing Xcode
 
 Download and install the latest version of [Xcode](https://developer.apple.com/xcode/) from macOS App Store.
+
+Run the following to properly initialize Xcode:
+
+```zsh
+sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+sudo xcodebuild -runFirstLaunch
+```
 
 ### 3. Installing Flutter
 
@@ -48,8 +56,8 @@ The output of this command should appear like this, indicating successful instal
 
 ```zsh
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 3.24.4, on macOS 14.x.x)
-[✓] Xcode - develop for iOS and macOS (Xcode 15.3)
+[✓] Flutter (Channel stable, 3.24.4, on macOS 15.x.x)
+[✓] Xcode - develop for iOS and macOS (Xcode 16.2)
 ```
 
 ### 6. Acquiring the Cake Wallet source code
@@ -79,12 +87,6 @@ For Monero.com, instead do:
 source ./app_env.sh monero.com
 ```
 
-Then run the configuration script to setup app name, app icon, etc:
-
-```zsh
-./app_config.sh
-```
-
 Build the necessary libraries and their dependencies:
 
 ```zsh
@@ -93,6 +95,11 @@ Build the necessary libraries and their dependencies:
 
 NOTE: This step will take quite a while, so be sure you grab a cup of coffee or a good book!
 
+Then run the configuration script to setup app name, app icon, etc:
+
+```zsh
+./app_config.sh
+```
 
 ### 8. Prepare Flutter
 
@@ -107,6 +114,7 @@ Generate secrets as placeholders for official API keys etc. along with localizat
 
 ```zsh
 dart run tool/generate_new_secrets.dart
+dart run tool/generate_localization.dart
 ./model_generator.sh
 ```
 
