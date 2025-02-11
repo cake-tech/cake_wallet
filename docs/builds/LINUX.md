@@ -61,13 +61,15 @@ EOF
 You should see the command complete with similar output:
 
 ```bash
-Running Gradle task 'assembleRelease'...                          519.1s
-✓ Built build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk (56.3MB)
-✓ Built build/app/outputs/flutter-apk/app-arm64-v8a-release.apk (55.8MB)
-✓ Built build/app/outputs/flutter-apk/app-x86_64-release.apk (56.4MB)
++ dart run tool/generate_localization.dart
++ dart run tool/generate_new_secrets.dart
++ flutter build linux
+
+Building Linux application...                                   
+✓ Built build/linux/x64/release/bundle/cake_wallet
 ```
 
-Final builds can be found in `build/app/outputs/flutter-apk/` as seen above.
+Final builds can be found in `build/linux/x64/release/bundle/` as seen above.
 
 ### Building the builder image from Dockerfile (optional)
 
@@ -119,13 +121,15 @@ EOF
 You should see the command complete with similar output:
 
 ```bash
-Running Gradle task 'assembleRelease'...                          519.1s
-✓ Built build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk (56.3MB)
-✓ Built build/app/outputs/flutter-apk/app-arm64-v8a-release.apk (55.8MB)
-✓ Built build/app/outputs/flutter-apk/app-x86_64-release.apk (56.4MB)
++ dart run tool/generate_localization.dart
++ dart run tool/generate_new_secrets.dart
++ flutter build linux
+
+Building Linux application...                                   
+✓ Built build/linux/x64/release/bundle/cake_wallet
 ```
 
-Final builds can be found in `build/app/outputs/flutter-apk/` as seen above.
+Final builds can be found in `build/linux/x64/release/bundle/` as seen above.
 
 ## Flatpak (optional)
 
