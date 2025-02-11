@@ -137,5 +137,5 @@ Then you can open `ios/Runner.xcworkspace` with Xcode to archive the application
 If you want to run on a connected device, simply run:
 
 ```zsh
-flutter run --release
+flutter run
 ```
