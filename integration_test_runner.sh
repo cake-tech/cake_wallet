@@ -54,7 +54,9 @@ do
     # Run the test in the background and log output
     flutter drive \
         --driver=test_driver/integration_test.dart \
-        --target="$target" >"$log_file" 2>&1 &
+        --target="$target" \
+        --dart-define=CI_BUILD=true \
+        >"$log_file" 2>&1 &
     test_pid=$!
 
     # Monitor the test for inactivity

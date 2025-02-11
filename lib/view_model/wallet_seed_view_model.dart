@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 
@@ -45,7 +46,13 @@ abstract class WalletSeedViewModelBase with Store {
   ObservableList<String> currentOptions;
 
   /// The number of words to be verified, linked to a Feature Flag so we can easily modify it.
-  int get verificationWordCount => FeatureFlag.verificationWordsCount;
+  int get verificationWordCount {
+    final shouldVerify = shouldPerformVerification();
+
+    print(shouldVerify);
+
+    return shouldVerify ? FeatureFlag.verificationWordsCount : 0;
+  }
 
   /// Then number of wrong entries the user has selected;
   ///
@@ -59,6 +66,20 @@ abstract class WalletSeedViewModelBase with Store {
 
   @observable
   bool isVerificationComplete = false;
+
+  bool shouldPerformVerification() {
+    bool isCI = bool.fromEnvironment('CI_BUILD', defaultValue: false);
+    bool isDebug = kDebugMode;
+
+    print(isCI);
+
+    if (isDebug && !isCI) {
+      print("Skipping verification in debug mode (and when it's not in CI).");
+      return false;
+    }
+
+    return true;
+  }
 
   void setupSeedVerification() {
     if (verificationWordCount != 0) {
