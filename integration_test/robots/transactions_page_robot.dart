@@ -1,10 +1,7 @@
 import 'dart:async';
 
-import 'package:cake_wallet/.secrets.g.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
-import 'package:cake_wallet/utils/date_formatter.dart';
-import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
@@ -177,6 +174,17 @@ class TransactionsPageRobot {
       of: find.byKey(ValueKey(keyId)),
       matching: find.text(item.formattedCryptoAmount),
     );
+
+    //TODO(David): Check out inconsistencies, from Flutter?
+    // //* ======Confirm it displays the properly formatted title===========
+    // final transactionType = dashboardViewModel.getTransactionType(item.transaction);
+
+    // final title = item.formattedTitle + item.formattedStatus + transactionType;
+
+    // commonTestCases.findWidgetViaDescendant(
+    //   of: find.byKey(ValueKey(keyId)),
+    //   matching: find.text(title),
+    // );
 
     //* ======Confirm it displays the properly formatted date============
     final formattedDate = DateFormat('HH:mm').format(item.transaction.date);

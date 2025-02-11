@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -49,8 +50,6 @@ abstract class WalletSeedViewModelBase with Store {
   int get verificationWordCount {
     final shouldVerify = shouldPerformVerification();
 
-    print(shouldVerify);
-
     return shouldVerify ? FeatureFlag.verificationWordsCount : 0;
   }
 
@@ -71,10 +70,8 @@ abstract class WalletSeedViewModelBase with Store {
     bool isCI = bool.fromEnvironment('CI_BUILD', defaultValue: false);
     bool isDebug = kDebugMode;
 
-    print(isCI);
-
     if (isDebug && !isCI) {
-      print("Skipping verification in debug mode (and when it's not in CI).");
+      printV("Skipping verification in debug mode (and when it's not in CI).");
       return false;
     }
 

@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class FeatureFlag {
   static const bool isCakePayEnabled = false;
   static const bool isExolixEnabled = true;
