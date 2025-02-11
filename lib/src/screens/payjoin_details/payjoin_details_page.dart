@@ -7,26 +7,26 @@ import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
+import 'package:cake_wallet/view_model/payjoin_details_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class PayjoinDetailsPage extends BasePage {
-  PayjoinDetailsPage({required this.anonpayDetailsViewModel});
+  PayjoinDetailsPage({required this.payjoinDetailsViewModel});
 
   @override
-  String get title => S.current.invoice_details;
+  String get title => S.current.payjoin_details;
 
-  final AnonpayDetailsViewModel anonpayDetailsViewModel;
+  final PayjoinDetailsViewModel payjoinDetailsViewModel;
 
   @override
-  Widget body(BuildContext context) => PayjoinDetailsPageBody(anonpayDetailsViewModel);
+  Widget body(BuildContext context) => PayjoinDetailsPageBody(payjoinDetailsViewModel);
 }
 
 class PayjoinDetailsPageBody extends StatefulWidget {
-  PayjoinDetailsPageBody(this.anonpayDetailsViewModel);
+  PayjoinDetailsPageBody(this.payjoinDetailsViewModel);
 
-  final AnonpayDetailsViewModel anonpayDetailsViewModel;
+  final PayjoinDetailsViewModel payjoinDetailsViewModel;
 
   @override
   State<PayjoinDetailsPageBody> createState() => _PayjoinDetailsPageBodyState();
@@ -36,16 +36,16 @@ class _PayjoinDetailsPageBodyState extends State<PayjoinDetailsPageBody> {
   @override
   void dispose() {
     super.dispose();
-    widget.anonpayDetailsViewModel.timer?.cancel();
+    widget.payjoinDetailsViewModel.listener.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
     return SectionStandardList(
         sectionCount: 1,
-        itemCounter: (int _) => widget.anonpayDetailsViewModel.items.length,
+        itemCounter: (int _) => widget.payjoinDetailsViewModel.items.length,
         itemBuilder: (__, index) {
-          final item = widget.anonpayDetailsViewModel.items[index];
+          final item = widget.payjoinDetailsViewModel.items[index];
 
           if (item is DetailsListStatusItem) {
             return StandardListStatusRow(title: item.title, value: item.value);
@@ -56,7 +56,7 @@ class _PayjoinDetailsPageBodyState extends State<PayjoinDetailsPageBody> {
               id: item.id,
               create: item.createdAt,
               pair: item.pair,
-              currentTheme: widget.anonpayDetailsViewModel.settingsStore.currentTheme.type,
+              currentTheme: widget.payjoinDetailsViewModel.settingsStore.currentTheme.type,
               onTap: item.onTap,
             );
           }

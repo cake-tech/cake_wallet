@@ -4,7 +4,7 @@ import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
-import 'package:cw_bitcoin/psbt_signer.dart';
+import 'package:cw_bitcoin/psbt/signer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart' as http;
 import 'package:payjoin_flutter/bitcoin_ffi.dart';
@@ -47,8 +47,11 @@ class PayjoinReceiverWorker {
       final payjoinProposal = await worker.processPayjoinProposal(
         uncheckedProposal,
       );
-      await worker.sendFinalProposal(httpClient, payjoinProposal);
-      sendPort.send({'type': PayjoinReceiverRequestTypes.proposalSent});
+      final psbt = await worker.sendFinalProposal(httpClient, payjoinProposal);
+      sendPort.send({
+        'type': PayjoinReceiverRequestTypes.proposalSent,
+        'psbt': psbt,
+      });
     } catch (e) {
       if (e is HttpException) {
         sendPort.send(PayjoinSessionError.recoverable(e.toString()));
@@ -100,7 +103,7 @@ class PayjoinReceiverWorker {
     }
   }
 
-  Future<void> sendFinalProposal(
+  Future<String> sendFinalProposal(
       http.Client httpClient, PayjoinProposal finalProposal) async {
     final req = await finalProposal.extractV2Req();
     final proposalReq = req.$1;
@@ -117,8 +120,7 @@ class PayjoinReceiverWorker {
       ohttpContext: proposalCtx,
     );
 
-    final ps = await finalProposal.psbt();
-    printV(ps);
+    return await finalProposal.psbt();
   }
 
   Future<PayjoinProposal> processPayjoinProposal(

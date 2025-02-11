@@ -503,6 +503,7 @@
   "password": "密码",
   "paste": "粘贴",
   "pause_wallet_creation": "创建 Haven 钱包的功能当前已暂停。",
+  "payjoin_details": "％％％ 细节",
   "payment_id": "付款 ID: ",
   "payment_was_received": "您的付款已收到。",
   "pending": " (待定)",

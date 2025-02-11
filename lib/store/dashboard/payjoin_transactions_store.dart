@@ -26,19 +26,22 @@ abstract class PayjoinTransactionsStoreBase with Store {
 
   @action
   Future<void> updateTransactionList() async {
-    transactions = payjoinSessionSource.values
-        .where((session) => [
-              PayjoinSessionStatus.inProgress.name,
-              PayjoinSessionStatus.success.name,
-              PayjoinSessionStatus.unrecoverable.name
-            ].contains(session.status) && session.inProgressSince != null)
-        .map(
-          (session) => PayjoinTransactionListItem(
-            session: session,
-            key: ValueKey(
-                'payjoin_transaction_list_item_${session.inProgressSince!.millisecondsSinceEpoch}_key'),
-          ),
-        )
-        .toList();
+    final updatedTransactions = <PayjoinTransactionListItem>[];
+    payjoinSessionSource.toMap().forEach((dynamic key, PayjoinSession session) {
+      if ([
+            PayjoinSessionStatus.inProgress.name,
+            PayjoinSessionStatus.success.name,
+            PayjoinSessionStatus.unrecoverable.name
+          ].contains(session.status) &&
+          session.inProgressSince != null) {
+        updatedTransactions.add(PayjoinTransactionListItem(
+          sessionId: key as String,
+          session: session,
+          key: ValueKey('payjoin_transaction_list_item_${key}_key'),
+        ));
+      }
+    });
+
+    transactions = updatedTransactions;
   }
 }

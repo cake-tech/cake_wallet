@@ -503,6 +503,7 @@
   "password": "Heslo",
   "paste": "Vložit",
   "pause_wallet_creation": "Možnost vytvářet Haven Wallet je momentálně pozastavena.",
+  "payjoin_details": "%%TE podrobnosti",
   "payment_id": "ID platby: ",
   "payment_was_received": "Vaše platba byla přijata.",
   "pending": " (čeká)",

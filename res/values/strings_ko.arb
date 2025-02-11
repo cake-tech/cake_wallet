@@ -503,6 +503,7 @@
   "password": "암호",
   "paste": "풀",
   "pause_wallet_creation": "Haven Wallet 생성 기능이 현재 일시 중지되었습니다.",
+  "payjoin_details": "Payjoin 세부 정보",
   "payment_id": "지불 ID: ",
   "payment_was_received": "결제가 접수되었습니다.",
   "pending": " (보류 중)",

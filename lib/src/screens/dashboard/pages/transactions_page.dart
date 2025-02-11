@@ -148,17 +148,20 @@ class TransactionsPage extends StatelessWidget {
                             }
 
                             if (item is PayjoinTransactionListItem) {
-                              final transactionInfo = item.session;
+                              final session = item.session;
 
                               return PayjoinTransactionRow(
                                 key: item.key,
-                                onTap: () {},
-                                // onTap: () => Navigator.of(context).pushNamed(
-                                //     Routes.anonPayDetailsPage,
-                                //     arguments: transactionInfo),
-                                currency: transactionInfo.status,
-                                amount: transactionInfo.isSenderSession ? "Sending" : "Receiving",
-                                createdAt: DateFormat('HH:mm').format(transactionInfo.inProgressSince!),
+                                onTap: () => Navigator.of(context).pushNamed(
+                                    Routes.payjoinDetails,
+                                    arguments: item.sessionId),
+                                currency: "BTC",
+                                state: session.status,
+                                amount: bitcoin!.formatterBitcoinAmountToString(
+                                    amount: session.amount.toInt()),
+                                createdAt: DateFormat('HH:mm')
+                                    .format(session.inProgressSince!),
+                                isSending: session.isSenderSession,
                               );
                             }
 

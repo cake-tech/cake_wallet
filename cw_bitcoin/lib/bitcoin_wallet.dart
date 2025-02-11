@@ -15,10 +15,10 @@ import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
-import 'package:cw_bitcoin/psbt_finalizer_v0.dart';
-import 'package:cw_bitcoin/psbt_signer.dart';
-import 'package:cw_bitcoin/psbt_transaction_builder.dart';
-import 'package:cw_bitcoin/psbt_v0_deserialize.dart';
+import 'package:cw_bitcoin/psbt/v0_finalizer.dart';
+import 'package:cw_bitcoin/psbt/signer.dart';
+import 'package:cw_bitcoin/psbt/transaction_builder.dart';
+import 'package:cw_bitcoin/psbt/v0_deserialize.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/payjoin_session.dart';
@@ -362,9 +362,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final originalPsbt = await signPsbt(base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
 
     tx.commitOverride = () async {
-      final sender =
-          await payjoinManager.initSender(payjoinUri, originalPsbt, int.parse(tx.feeRate));
-      payjoinManager.spawnNewSender(sender: sender, pjUrl: payjoinUri);
+      final sender = await payjoinManager.initSender(
+          payjoinUri, originalPsbt, int.parse(tx.feeRate));
+      payjoinManager.spawnNewSender(
+          sender: sender, pjUrl: payjoinUri, amount: BigInt.from(tx.amount));
     };
 
     return tx;

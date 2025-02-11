@@ -503,6 +503,7 @@
   "password": "Парола",
   "paste": "Поставяне",
   "pause_wallet_creation": "Възможността за създаване на Haven Wallet в момента е на пауза.",
+  "payjoin_details": "%% подробности",
   "payment_id": "Payment ID: ",
   "payment_was_received": "Плащането бе получено.",
   "pending": " (чакащи)",

@@ -503,6 +503,7 @@
   "password": "Lozinka",
   "paste": "Zalijepi",
   "pause_wallet_creation": "Mogućnost stvaranja novčanika Haven trenutno je pauzirana.",
+  "payjoin_details": "Payjoin Pojedinosti",
   "payment_id": "ID plaćanja: ",
   "payment_was_received": "Vaša uplata je primljena.",
   "pending": " (u tijeku)",

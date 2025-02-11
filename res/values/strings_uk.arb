@@ -503,6 +503,7 @@
   "password": "Пароль",
   "paste": "Вставити",
   "pause_wallet_creation": "Можливість створення гаманця Haven зараз призупинено.",
+  "payjoin_details": "%деталей",
   "payment_id": "ID платежу: ",
   "payment_was_received": "Ваш платіж отримано.",
   "pending": " (в очікуванні)",

@@ -503,6 +503,7 @@
   "password": "Wachtwoord",
   "paste": "Plakken",
   "pause_wallet_creation": "De mogelijkheid om Haven Wallet te maken is momenteel onderbroken.",
+  "payjoin_details": "Payjoin details",
   "payment_id": "Betaling ID: ",
   "payment_was_received": "Uw betaling is ontvangen.",
   "pending": " (in afwachting)",

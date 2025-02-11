@@ -505,6 +505,7 @@
   "password": "Kata Sandi",
   "paste": "Tempel",
   "pause_wallet_creation": "Kemampuan untuk membuat Haven Wallet saat ini dijeda.",
+  "payjoin_details": "Payjoin detail",
   "payment_id": "ID Pembayaran: ",
   "payment_was_received": "Pembayaran Anda telah diterima.",
   "pending": " (pending)",

@@ -503,6 +503,7 @@
   "password": "Parola",
   "paste": "Yapıştır",
   "pause_wallet_creation": "Haven Cüzdanı oluşturma yeteneği şu anda duraklatıldı.",
+  "payjoin_details": "Payjoin detaylar",
   "payment_id": "Ödeme ID'si: ",
   "payment_was_received": "Ödemeniz alındı.",
   "pending": " (bekleyen)",

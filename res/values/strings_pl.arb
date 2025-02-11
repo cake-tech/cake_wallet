@@ -503,6 +503,7 @@
   "password": "Hasło",
   "paste": "Wklej",
   "pause_wallet_creation": "Możliwość utworzenia Portfela Haven jest obecnie wstrzymana.",
+  "payjoin_details": "Szczegóły Payjoin",
   "payment_id": "ID Płatności: ",
   "payment_was_received": "Twoja płatność została otrzymana.",
   "pending": " (w oczekiwaniu)",

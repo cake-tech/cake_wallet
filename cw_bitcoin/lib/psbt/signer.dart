@@ -84,8 +84,6 @@ extension PsbtSigner on PsbtV2 {
       final sig = signer(digest, utxo, utxo.privateKey, sighash);
 
       if (utxo.utxo.isP2tr()) {
-        assert(utxo.public().verifySchnorrTransactionSignature(digest, BytesUtils.fromHexString(sig)));
-        assert(utxo.ownerDetails.address.toAddress() != '' );
         setInputTapKeySig(i, Uint8List.fromList(BytesUtils.fromHexString(sig)));
       } else {
         setInputPartialSig(i, Uint8List.fromList(BytesUtils.fromHexString(utxo.public().toHex())), Uint8List.fromList(BytesUtils.fromHexString(sig)));

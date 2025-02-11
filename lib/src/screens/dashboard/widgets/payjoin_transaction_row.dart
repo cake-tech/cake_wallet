@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:flutter/material.dart';
 
 class PayjoinTransactionRow extends StatelessWidget {
   PayjoinTransactionRow({
@@ -8,6 +9,8 @@ class PayjoinTransactionRow extends StatelessWidget {
     required this.currency,
     required this.onTap,
     required this.amount,
+    required this.state,
+    required this.isSending,
     super.key,
   });
 
@@ -15,6 +18,8 @@ class PayjoinTransactionRow extends StatelessWidget {
   final String createdAt;
   final String amount;
   final String currency;
+  final String state;
+  final bool isSending;
 
   @override
   Widget build(BuildContext context) {
@@ -33,25 +38,53 @@ class PayjoinTransactionRow extends StatelessWidget {
                   child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    Text("Payjoin",
-                        style: TextStyle(
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          "${isSending ? S.current.outgoing : S.current.incoming} Payjoin",
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor)),
-                    Text(amount + ' ' + currency,
-                        style: TextStyle(
+                            color: Theme.of(context)
+                                .extension<DashboardPageTheme>()!
+                                .textColor,
+                          ),
+                        ),
+                        Text(
+                          amount + ' ' + currency,
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor))
-                  ]),
+                            color: Theme.of(context)
+                                .extension<DashboardPageTheme>()!
+                                .textColor,
+                          ),
+                        )
+                      ]),
                   SizedBox(height: 5),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    Text(createdAt,
-                        style: TextStyle(
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          createdAt,
+                          style: TextStyle(
                             fontSize: 14,
-                            color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
-                  ])
+                            color: Theme.of(context)
+                                .extension<CakeTextTheme>()!
+                                .dateSectionRowColor,
+                          ),
+                        ),
+                        Text(
+                          state,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context)
+                                .extension<CakeTextTheme>()!
+                                .dateSectionRowColor,
+                          ),
+                        ),
+                      ])
                 ],
               ))
             ],
@@ -62,4 +95,5 @@ class PayjoinTransactionRow extends StatelessWidget {
   Widget _getImage() => ClipRRect(
       borderRadius: BorderRadius.circular(50),
       child: Image.asset('assets/images/payjoin.png', width: 36, height: 36));
+
 }

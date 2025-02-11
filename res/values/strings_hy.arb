@@ -503,6 +503,7 @@
   "password": "Գաղտնաբառ",
   "paste": "Տեղադրել",
   "pause_wallet_creation": "Հնարավորություն ստեղծել Haven Դրամապանակ ընթացիկ դադարեցված է",
+  "payjoin_details": "Payjoin Մանրամասն",
   "payment_id": "Վճարման հերթական համար",
   "payment_was_received": "Վճարումը ստացված է",
   "pending": " (մշակվում է)",

@@ -23,10 +23,12 @@ class PayjoinStorage {
         ),
       );
 
-  Future<void> markReceiverSessionComplete(String sessionId) async {
+  Future<void> markReceiverSessionComplete(String sessionId, String txId, String amount) async {
     final session = _payjoinSessionSources.get("$_receiverPrefix${sessionId}")!;
 
     session.status = PayjoinSessionStatus.success.name;
+    session.txId = txId;
+    session.rawAmount = amount;
     await session.save();
   }
 
@@ -49,22 +51,25 @@ class PayjoinStorage {
     Sender sender,
     String pjUrl,
     String walletId,
+    BigInt amount,
   ) =>
       _payjoinSessionSources.put(
         "$_senderPrefix$pjUrl",
         PayjoinSession(
-          walletId: walletId,
-          pjUri: pjUrl,
-          sender: sender.toJson(),
-          status: PayjoinSessionStatus.inProgress.name,
-          inProgressSince: DateTime.now(),
+            walletId: walletId,
+            pjUri: pjUrl,
+            sender: sender.toJson(),
+            status: PayjoinSessionStatus.inProgress.name,
+            inProgressSince: DateTime.now(),
+            rawAmount: amount.toString(),
         ),
       );
 
-  Future<void> markSenderSessionComplete(String pjUrl) async {
+  Future<void> markSenderSessionComplete(String pjUrl, String txId) async {
     final session = _payjoinSessionSources.get("$_senderPrefix$pjUrl")!;
 
     session.status = PayjoinSessionStatus.success.name;
+    session.txId = txId;
     await session.save();
   }
 
@@ -79,16 +84,7 @@ class PayjoinStorage {
       _payjoinSessionSources.values
           .where((session) =>
               session.walletId == walletId &&
-              session.status != PayjoinSessionStatus.success.name &&
-              session.status != PayjoinSessionStatus.unrecoverable.name)
-          .toList();
-
-  List<PayjoinSession> readAllInProgressOrFinishedSessions(String walletId) =>
-      _payjoinSessionSources.values
-          .where((session) =>
-              session.walletId == walletId &&
-              [
-                PayjoinSessionStatus.inProgress.name,
+              ![
                 PayjoinSessionStatus.success.name,
                 PayjoinSessionStatus.unrecoverable.name
               ].contains(session.status))

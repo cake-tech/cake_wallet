@@ -4,6 +4,7 @@ import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:payjoin_flutter/receive.dart' as payjoin;
@@ -62,5 +63,12 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     currentPayjoinReceiver = await payjoinManager.initReceiver(primaryAddress);
     
     payjoinManager.resumeSessions();
+  }
+
+  Future<void> newPayjoinReceiver() async {
+    currentPayjoinReceiver = await payjoinManager.initReceiver(primaryAddress);
+
+    printV("Initializing new Payjoin Receiver");
+    payjoinManager.spawnNewReceiver(receiver: currentPayjoinReceiver!);
   }
 }

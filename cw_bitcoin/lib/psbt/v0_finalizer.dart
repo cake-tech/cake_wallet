@@ -1,7 +1,5 @@
 import "dart:typed_data";
 
-import 'package:bitcoin_base/bitcoin_base.dart';
-import "package:blockchain_utils/blockchain_utils.dart";
 import "package:ledger_bitcoin/src/psbt/constants.dart";
 import "package:ledger_bitcoin/src/psbt/psbtv2.dart";
 import "package:ledger_bitcoin/src/utils/buffer_writer.dart";

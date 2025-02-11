@@ -5,11 +5,13 @@ import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_receive_worker.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_send_worker.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
-import 'package:cw_bitcoin/psbt_signer.dart';
+import 'package:cw_bitcoin/psbt/signer.dart';
+import 'package:cw_bitcoin/psbt/utils.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/receive.dart';
@@ -72,20 +74,14 @@ class PayjoinManager {
   Future<void> spawnNewSender({
     required Sender sender,
     required String pjUrl,
+    required BigInt amount,
     bool isTestnet = false,
   }) async {
     final pjUri = Uri.parse(pjUrl).queryParameters['pj']!;
     await _payjoinStorage.insertSenderSession(
-      sender,
-      pjUri,
-      _wallet.id,
-    );
+        sender, pjUri, _wallet.id, amount);
 
-    return spawnSender(
-      isTestnet: isTestnet,
-      sender: sender,
-      pjUri: pjUri,
-    );
+    return spawnSender(isTestnet: isTestnet, sender: sender, pjUri: pjUri);
   }
 
   Future<void> spawnSender({
@@ -97,22 +93,20 @@ class PayjoinManager {
     final receivePort = ReceivePort();
 
     receivePort.listen((message) async {
-      printV('Sender isolate: $message');
       if (message is Map<String, dynamic>) {
         try {
           switch (message['type']) {
             case PayjoinSenderRequestTypes.requestPosted:
-              //ToDo: Maybe update frontend
               return;
             case PayjoinSenderRequestTypes.psbtToSign:
               final proposalPsbt = message['psbt'] as String;
               final utxos = _wallet.getUtxoWithPrivateKeys();
               final finalizedPsbt = await _wallet.signPsbt(proposalPsbt, utxos);
+              final txId = getTxIdFromPsbtV0(finalizedPsbt);
               _wallet.commitPsbt(finalizedPsbt);
 
-              //ToDo: Maybe update frontend
               _cleanupSession(pjUri);
-              await _payjoinStorage.markSenderSessionComplete(pjUri);
+              await _payjoinStorage.markSenderSessionComplete(pjUri, txId);
               completer.complete();
           }
         } catch (e) {
@@ -133,15 +127,9 @@ class PayjoinManager {
       }
     });
 
-    final args = [
-      receivePort.sendPort,
-      sender.toJson(),
-      pjUri,
-    ];
-
     final isolate = await Isolate.spawn(
       PayjoinSenderWorker.run,
-      args,
+      [receivePort.sendPort, sender.toJson(), pjUri],
     );
 
     _activePollers[pjUri] = PayjoinPollerSession(isolate, receivePort);
@@ -168,10 +156,7 @@ class PayjoinManager {
         ohttpRelay: await randomOhttpRelayUrl(),
       );
 
-      await _payjoinStorage.insertReceiverSession(
-        receiver,
-        _wallet.id,
-      );
+      await _payjoinStorage.insertReceiverSession(receiver, _wallet.id);
 
       return receiver;
     } catch (e) {
@@ -183,14 +168,8 @@ class PayjoinManager {
     required Receiver receiver,
     bool isTestnet = false,
   }) async {
-    await _payjoinStorage.insertReceiverSession(
-      receiver,
-      _wallet.id,
-    );
-    return spawnReceiver(
-      isTestnet: isTestnet,
-      receiver: receiver,
-    );
+    await _payjoinStorage.insertReceiverSession(receiver, _wallet.id);
+    return spawnReceiver(isTestnet: isTestnet, receiver: receiver);
   }
 
   Future<void> spawnReceiver({
@@ -204,11 +183,13 @@ class PayjoinManager {
     List<UtxoWithPrivateKey> utxos = [];
 
     receivePort.listen((message) async {
-      printV('Receiver isolate: $message');
       if (message is Map<String, dynamic>) {
         try {
           switch (message['type']) {
             case PayjoinReceiverRequestTypes.checkIsOwned:
+              (_wallet.walletAddresses as BitcoinWalletAddresses).newPayjoinReceiver();
+              _payjoinStorage.markReceiverSessionInProgress(receiver.id());
+
               final inputScript = message['input_script'] as Uint8List;
               final isOwned =
                   _wallet.isMine(Script.fromRaw(byteData: inputScript));
@@ -247,7 +228,9 @@ class PayjoinManager {
 
             case PayjoinReceiverRequestTypes.proposalSent:
               _cleanupSession(receiver.id());
-              await _payjoinStorage.markReceiverSessionComplete(receiver.id());
+              final psbt = message['psbt'] as String;
+              await _payjoinStorage.markReceiverSessionComplete(
+                  receiver.id(), getTxIdFromPsbtV0(psbt), getOutputAmountFromPsbt(psbt, _wallet));
               completer.complete();
           }
         } catch (e) {
@@ -269,14 +252,9 @@ class PayjoinManager {
       }
     });
 
-    final args = [
-      receivePort.sendPort,
-      receiver.toJson(),
-    ];
-
     final isolate = await Isolate.spawn(
       PayjoinReceiverWorker.run,
-      args,
+      [receivePort.sendPort, receiver.toJson()],
     );
 
     _activePollers[receiver.id()] = PayjoinPollerSession(isolate, receivePort);

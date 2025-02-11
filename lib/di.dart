@@ -37,6 +37,7 @@ import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
+import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
@@ -49,6 +50,7 @@ import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
+import 'package:cake_wallet/view_model/payjoin_details_view_model.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -1387,6 +1389,13 @@ Future<void> setup({
             settingsStore: getIt.get<SettingsStore>(),
           ));
 
+  getIt.registerFactoryParam<PayjoinDetailsViewModel, String, void>(
+      (String sessionId, _) => PayjoinDetailsViewModel(
+            sessionId,
+            payjoinSessionSource: _payjoinSessionSource,
+            settingsStore: getIt.get<SettingsStore>(),
+          ));
+
   getIt.registerFactoryParam<AnonPayReceivePage, AnonpayInfoBase, void>(
       (AnonpayInfoBase anonpayInvoiceInfo, _) =>
           AnonPayReceivePage(invoiceInfo: anonpayInvoiceInfo));
@@ -1394,6 +1403,10 @@ Future<void> setup({
   getIt.registerFactoryParam<AnonpayDetailsPage, AnonpayInvoiceInfo, void>(
       (AnonpayInvoiceInfo anonpayInvoiceInfo, _) => AnonpayDetailsPage(
           anonpayDetailsViewModel: getIt.get<AnonpayDetailsViewModel>(param1: anonpayInvoiceInfo)));
+
+  getIt.registerFactoryParam<PayjoinDetailsPage, String, void>(
+      (String sessionId, _) => PayjoinDetailsPage(
+          payjoinDetailsViewModel: getIt.get<PayjoinDetailsViewModel>(param1: sessionId)));
 
   getIt.registerFactoryParam<HomeSettingsPage, BalanceViewModel, void>((balanceViewModel, _) =>
       HomeSettingsPage(getIt.get<HomeSettingsViewModel>(param1: balanceViewModel)));

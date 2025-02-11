@@ -502,6 +502,7 @@
   "password": "Mật khẩu",
   "paste": "Dán",
   "pause_wallet_creation": "Khả năng tạo ví Haven hiện đang bị tạm dừng.",
+  "payjoin_details": "Payjoin chi tiết",
   "payment_id": "ID thanh toán: ",
   "payment_was_received": "Thanh toán của bạn đã được nhận.",
   "pending": " (đang chờ)",
