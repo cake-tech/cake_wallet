@@ -211,14 +211,6 @@ abstract class WalletCreationVMBase with Store {
     var node = appStore.settingsStore.getCurrentNode(walletType);
 
     switch (walletType) {
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
-        return await bitcoin!.getDerivationInfosFromMnemonic(
-          mnemonic: restoreWallet.mnemonicSeed!,
-          node: node,
-          passphrase: restoreWallet.passphrase,
-          walletType: walletType,
-        );
       case WalletType.nano:
         return nanoUtil!.getDerivationsFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,

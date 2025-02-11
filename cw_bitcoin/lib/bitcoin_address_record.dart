@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_bitcoin/seedbyte_types.dart';
 import 'package:cw_core/wallet_info.dart';
 
 abstract class BaseBitcoinAddressRecord {
@@ -98,13 +98,13 @@ abstract class BaseBitcoinAddressRecord {
 
 class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   final BitcoinDerivationInfo derivationInfo;
-  final CWBitcoinDerivationType cwDerivationType;
+  final SeedBytesType seedBytesType;
 
   BitcoinAddressRecord(
     super.address, {
     required super.index,
     required this.derivationInfo,
-    required this.cwDerivationType,
+    required this.seedBytesType,
     super.isHidden,
     super.isChange = false,
     super.txCount = 0,
@@ -133,17 +133,16 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     final derivationInfoSnp = decoded['derivationInfo'] as Map<String, dynamic>?;
     final derivationTypeSnp = decoded['derivationType'] as int?;
     final cwDerivationType = derivationTypeSnp != null
-        ? CWBitcoinDerivationType.values[derivationTypeSnp]
+        ? SeedBytesType.values[derivationTypeSnp]
         : derivationInfo!.derivationType == DerivationType.bip39
-            ? CWBitcoinDerivationType.old_bip39
-            : CWBitcoinDerivationType.old_electrum;
+            ? SeedBytesType.old_bip39
+            : SeedBytesType.old_electrum;
 
     return BitcoinAddressRecord(
       decoded['address'] as String,
       index: decoded['index'] as int,
       derivationInfo: derivationInfoSnp == null
-          ? [CWBitcoinDerivationType.bip39, CWBitcoinDerivationType.old_bip39]
-                  .contains(cwDerivationType)
+          ? [SeedBytesType.bip39, SeedBytesType.old_bip39].contains(cwDerivationType)
               ? BitcoinDerivationInfo.fromDerivationAndAddress(
                   BitcoinDerivationType.bip39,
                   decoded['address'] as String,
@@ -151,7 +150,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
                 )
               : BitcoinDerivationInfos.ELECTRUM
           : BitcoinDerivationInfo.fromJSON(derivationInfoSnp),
-      cwDerivationType: cwDerivationType,
+      seedBytesType: cwDerivationType,
       isHidden: decoded['isHidden'] as bool? ?? false,
       isChange: decoded['isChange'] as bool? ?? false,
       isUsed: decoded['isUsed'] as bool? ?? false,
@@ -172,7 +171,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   String toJSON() {
     final m = json.decode(super.toJSON()) as Map<String, dynamic>;
     m['derivationInfo'] = derivationInfo.toJSON();
-    m['derivationType'] = cwDerivationType.index;
+    m['derivationType'] = seedBytesType.index;
     m['scriptHash'] = scriptHash;
     return json.encode(m);
   }
@@ -187,7 +186,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
         other.derivationInfo == derivationInfo &&
         other.scriptHash == scriptHash &&
         other.type == type &&
-        other.cwDerivationType == cwDerivationType;
+        other.seedBytesType == seedBytesType;
   }
 
   @override
@@ -197,7 +196,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       derivationInfo.hashCode ^
       scriptHash.hashCode ^
       type.hashCode ^
-      cwDerivationType.hashCode;
+      seedBytesType.hashCode;
 }
 
 class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {

@@ -25,22 +25,21 @@ class ElectrumWorkerGetHistoryRequest implements ElectrumWorkerRequest {
   final String method = ElectrumRequestMethods.getHistory.method;
 
   @override
-  factory ElectrumWorkerGetHistoryRequest.fromJson(Map<String, dynamic> json) {
-    final walletType = WalletType.values[json['walletType'] as int];
+  factory ElectrumWorkerGetHistoryRequest.fromJson(Map<String, dynamic> m) {
+    final walletType = WalletType.values[m['walletType'] as int];
 
     return ElectrumWorkerGetHistoryRequest(
-      addresses: (json['addresses'] as List)
-          .map((e) => BitcoinAddressRecord.fromJSON(e as String))
-          .toList(),
-      storedTxs: (json['storedTxIds'] as List)
+      addresses:
+          (m['addresses'] as List).map((e) => BitcoinAddressRecord.fromJSON(e as String)).toList(),
+      storedTxs: (m['storedTxIds'] as List)
           .map((e) => ElectrumTransactionInfo.fromJson(e as Map<String, dynamic>, walletType))
           .toList(),
       walletType: walletType,
-      chainTip: json['chainTip'] as int,
-      network: BasedUtxoNetwork.fromName(json['network'] as String),
-      mempoolAPIEnabled: json['mempoolAPIEnabled'] as bool,
-      id: json['id'] as int?,
-      completed: json['completed'] as bool? ?? false,
+      chainTip: m['chainTip'] as int,
+      network: BasedUtxoNetwork.fromName(m['network'] as String),
+      mempoolAPIEnabled: m['mempoolAPIEnabled'] as bool,
+      id: m['id'] as int?,
+      completed: m['completed'] as bool? ?? false,
     );
   }
 

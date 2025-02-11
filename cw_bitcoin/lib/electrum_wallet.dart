@@ -5,6 +5,7 @@ import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/electrum_worker/electrum_worker.dart';
+import 'package:cw_bitcoin/seedbyte_types.dart';
 import 'package:cw_bitcoin/electrum_worker/electrum_worker_methods.dart';
 import 'package:cw_bitcoin/electrum_worker/electrum_worker_params.dart';
 import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
@@ -102,7 +103,7 @@ abstract class ElectrumWalletBase
     sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
-  static Future<Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1>> getAccountHDWallets({
+  static Future<Map<SeedBytesType, Bip32Slip10Secp256k1>> getAccountHDWallets({
     required WalletInfo walletInfo,
     required BasedUtxoNetwork network,
     String? mnemonic,
@@ -134,9 +135,9 @@ abstract class ElectrumWalletBase
     final completer = Completer<dynamic>();
     _responseCompleters[messageId] = completer;
 
-    final json = request.toJson();
-    json['id'] = messageId;
-    workerSendPort!.send(json);
+    final m = request.toJson();
+    m['id'] = messageId;
+    workerSendPort!.send(m);
 
     try {
       return completer.future.timeout(Duration(seconds: 30));
@@ -222,9 +223,9 @@ abstract class ElectrumWalletBase
 
   bool? alwaysScan;
 
-  final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets;
+  final Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets;
   Bip32Slip10Secp256k1 get hdWallet =>
-      hdWallets[CWBitcoinDerivationType.bip39] ?? hdWallets[CWBitcoinDerivationType.electrum]!;
+      hdWallets[SeedBytesType.bip39] ?? hdWallets[SeedBytesType.electrum]!;
   final String? _mnemonic;
 
   final EncryptionFileUtils encryptionFileUtils;
@@ -1272,75 +1273,11 @@ abstract class ElectrumWalletBase
   }
 
   @action
-  Future<void> checkAddressesGap() async {
-    final newAddresses = <BitcoinAddressRecord>[];
-    final discoveredTypes = <BitcoinAddressType>[];
-
-    await Future.forEach(walletAddresses.allAddresses, (BitcoinAddressRecord addressRecord) async {
-      final isChange = addressRecord.isChange;
-
-      final matchingAddressList = walletAddresses
-          .getAddressesByType(addressRecord.type, isChange)
-          .where((element) =>
-              (element as BitcoinAddressRecord).cwDerivationType == addressRecord.cwDerivationType);
-      final totalMatchingAddresses = matchingAddressList.length;
-
-      final matchingGapLimit = (isChange
-          ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
-          : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
-
-      final isAddressUsedAboveGap =
-          addressRecord.index >= totalMatchingAddresses - matchingGapLimit;
-
-      if (isAddressUsedAboveGap && !discoveredTypes.contains(addressRecord.type)) {
-        discoveredTypes.add(addressRecord.type);
-
-        newAddresses.addAll(
-          await walletAddresses.discoverNewAddresses(
-            isChange: isChange,
-            derivationType: addressRecord.cwDerivationType,
-            addressType: addressRecord.type,
-            derivationInfo: BitcoinAddressUtils.getDerivationFromType(
-              addressRecord.type,
-              isElectrum: [
-                CWBitcoinDerivationType.electrum,
-                CWBitcoinDerivationType.old_electrum,
-              ].contains(addressRecord.cwDerivationType),
-            ),
-          ),
-        );
-        walletAddresses.updateAdresses(newAddresses);
-
-        final newMatchingAddressList =
-            walletAddresses.getAddressesByType(addressRecord.type, isChange).where(
-                  (element) =>
-                      element.type == addressRecord.type &&
-                      (element as BitcoinAddressRecord) == addressRecord.cwDerivationType,
-                );
-        printV(
-            "discovered ${newAddresses.length} new ${isChange ? "change" : "receive"} addresses");
-        printV(
-            "Of type ${addressRecord.type} and derivation type ${addressRecord.cwDerivationType}, new total: ${newMatchingAddressList.length}");
-      }
-    });
-
-    // if the initial sync has been done, fetch histories for the new discovered addresses
-    // if not, will update all again during startSync, with the new ones as well, to update dates
-    // if (newAddresses.isNotEmpty && !_didInitialSync) {
-    //   await updateTransactions(newAddresses, true);
-    // }
-
-    walletAddresses.updateHiddenAddresses();
-
-    await save();
-  }
-
-  @action
   Future<void> onHistoriesResponse(ElectrumWorkerGetHistoryResponse response) async {
     final histories = response.result;
-    if (histories.isNotEmpty) {
-      final addressesWithHistory = <BitcoinAddressRecord>[];
+    final addressesWithHistory = <BitcoinAddressRecord>[];
 
+    if (histories.isNotEmpty) {
       await Future.wait(histories.map((addressHistory) async {
         final txs = addressHistory.txs;
 
@@ -1354,12 +1291,16 @@ abstract class ElectrumWalletBase
       }));
 
       if (addressesWithHistory.isNotEmpty) {
-        walletAddresses.updateAdresses(addressesWithHistory);
+        walletAddresses.updateAddresses(addressesWithHistory);
       }
-
-      await save();
     } else if (response.completed) {
-      // checkAddressesGap();
+      final newAddresses = await walletAddresses.updateAddressesByGapAfterUse(addressesWithHistory);
+
+      // if the initial sync has been done, fetch histories for the new discovered addresses
+      // if not, will update all again during startSync, with the new ones as well, to update dates
+      if (newAddresses.isNotEmpty && !_didInitialSync) {
+        await updateTransactions(newAddresses, true);
+      }
     }
   }
 

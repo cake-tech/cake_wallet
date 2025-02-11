@@ -5,7 +5,7 @@ class BitcoinReceivePageOption implements ReceivePageOption {
   static const p2wpkh = BitcoinReceivePageOption._('Segwit (P2WPKH) (Default)');
   static const p2sh = BitcoinReceivePageOption._('Segwit-Compatible (P2SH)');
   static const p2tr = BitcoinReceivePageOption._('Taproot (P2TR)');
-  static const p2wsh = BitcoinReceivePageOption._('Segwit (P2WSH)');
+  static const p2wsh = BitcoinReceivePageOption._('Segwit-Script (P2WSH)');
   static const p2pkh = BitcoinReceivePageOption._('Legacy (P2PKH)');
   static const mweb = BitcoinReceivePageOption._('MWEB');
 
@@ -32,7 +32,7 @@ class BitcoinReceivePageOption implements ReceivePageOption {
     BitcoinReceivePageOption.p2wpkh,
     BitcoinReceivePageOption.mweb,
   ];
-  
+
   BitcoinAddressType toType() {
     switch (this) {
       case BitcoinReceivePageOption.p2tr:

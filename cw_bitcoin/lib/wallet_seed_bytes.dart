@@ -1,12 +1,13 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_bitcoin/seedbyte_types.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 
+// TODO: pass a list instead of checking every wallet open
 class WalletSeedData {
-  final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets;
+  final Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets;
 
   WalletSeedData({required this.hdWallets});
 
@@ -16,59 +17,53 @@ class WalletSeedData {
     BasedUtxoNetwork network, [
     String? passphrase,
   ]) async {
-    final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
+    final Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets = {};
 
-    for (final derivation in walletInfo.derivations ?? [walletInfo.derivationInfo!]) {
-      if (derivation.derivationType == DerivationType.bip39 &&
-          !hdWallets.containsKey(CWBitcoinDerivationType.bip39)) {
+    try {
+      final bip39SeedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
+
+      hdWallets[SeedBytesType.bip39] = Bip32Slip10Secp256k1.fromSeed(
+        bip39SeedBytes,
+        BitcoinAddressUtils.getKeyNetVersion(network),
+      );
+    } catch (e) {
+      printV("bip39 seed error: $e");
+    }
+
+    List<int>? electrumSeedBytes;
+
+    try {
+      electrumSeedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
+    } catch (e) {
+      printV("electrum_v2 seed error: $e");
+
+      try {
+        electrumSeedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
+      } catch (e) {
+        printV("electrum_v1 seed error: $e");
+
         try {
-          final seedBytes = Bip39SeedGenerator.generateFromString(mnemonic, passphrase);
-          hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromSeed(
-            seedBytes,
-            BitcoinAddressUtils.getKeyNetVersion(network),
-          );
+          electrumSeedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
         } catch (e) {
-          printV("bip39 seed error: $e");
+          printV("mnemonicToSeedBytes electrum seed error: $e");
         }
-
-        continue;
-      }
-
-      if (derivation.derivationType == DerivationType.electrum &&
-          !hdWallets.containsKey(CWBitcoinDerivationType.electrum)) {
-        late List<int> seedBytes;
-
-        try {
-          seedBytes = ElectrumV2SeedGenerator.generateFromString(mnemonic, passphrase);
-        } catch (e) {
-          printV("electrum_v2 seed error: $e");
-
-          try {
-            seedBytes = ElectrumV1SeedGenerator(mnemonic).generate();
-          } catch (e) {
-            printV("electrum_v1 seed error: $e");
-
-            try {
-              seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
-            } catch (e) {
-              printV("old electrum seed error: $e");
-            }
-          }
-        }
-
-        hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromSeed(
-          seedBytes,
-          BitcoinAddressUtils.getKeyNetVersion(network),
-        );
       }
     }
 
+    if (electrumSeedBytes != null) {
+      hdWallets[SeedBytesType.electrum] = Bip32Slip10Secp256k1.fromSeed(
+        electrumSeedBytes,
+        BitcoinAddressUtils.getKeyNetVersion(network),
+      );
+    }
+
     if (network == BitcoinNetwork.mainnet) {
-      if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
-        hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
-      } else if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
-        hdWallets[CWBitcoinDerivationType.old_electrum] =
-            hdWallets[CWBitcoinDerivationType.electrum]!;
+      if (hdWallets[SeedBytesType.bip39] != null) {
+        hdWallets[SeedBytesType.old_bip39] = hdWallets[SeedBytesType.bip39]!;
+      }
+
+      if (hdWallets[SeedBytesType.electrum] != null) {
+        hdWallets[SeedBytesType.old_electrum] = hdWallets[SeedBytesType.electrum]!;
       }
     }
 
@@ -76,28 +71,28 @@ class WalletSeedData {
   }
 
   static WalletSeedData fromXpub(WalletInfo walletInfo, String xpub, BasedUtxoNetwork network) {
-    final Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets = {};
+    final Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets = {};
 
-    for (final derivation in walletInfo.derivations ?? [walletInfo.derivationInfo!]) {
-      if (derivation.derivationType == DerivationType.bip39) {
-        hdWallets[CWBitcoinDerivationType.bip39] = Bip32Slip10Secp256k1.fromExtendedKey(
-          xpub,
-          BitcoinAddressUtils.getKeyNetVersion(network),
-        );
-      } else if (derivation.derivationType == DerivationType.electrum) {
-        hdWallets[CWBitcoinDerivationType.electrum] = Bip32Slip10Secp256k1.fromExtendedKey(
-          xpub,
-          BitcoinAddressUtils.getKeyNetVersion(network),
-        );
-      }
+    try {
+      hdWallets[SeedBytesType.bip39] = Bip32Slip10Secp256k1.fromExtendedKey(
+        xpub,
+        BitcoinAddressUtils.getKeyNetVersion(network),
+      );
+    } catch (_) {}
+
+    try {
+      hdWallets[SeedBytesType.electrum] = Bip32Slip10Secp256k1.fromExtendedKey(
+        xpub,
+        BitcoinAddressUtils.getKeyNetVersion(network),
+      );
+    } catch (_) {}
+
+    if (hdWallets[SeedBytesType.bip39] != null) {
+      hdWallets[SeedBytesType.old_bip39] = hdWallets[SeedBytesType.bip39]!;
     }
 
-    if (hdWallets[CWBitcoinDerivationType.bip39] != null) {
-      hdWallets[CWBitcoinDerivationType.old_bip39] = hdWallets[CWBitcoinDerivationType.bip39]!;
-    }
-    if (hdWallets[CWBitcoinDerivationType.electrum] != null) {
-      hdWallets[CWBitcoinDerivationType.old_electrum] =
-          hdWallets[CWBitcoinDerivationType.electrum]!;
+    if (hdWallets[SeedBytesType.electrum] != null) {
+      hdWallets[SeedBytesType.old_electrum] = hdWallets[SeedBytesType.electrum]!;
     }
 
     return WalletSeedData(hdWallets: hdWallets);

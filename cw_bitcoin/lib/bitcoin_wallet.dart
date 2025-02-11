@@ -88,6 +88,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     });
   }
 
+  @override
+  int get dustAmount => network == BitcoinNetwork.testnet ? 0 : 546;
+
+  Future<bool> get mempoolAPIEnabled async {
+    bool isMempoolAPIEnabled = (await sharedPrefs.future).getBool("use_mempool_fee_api") ?? true;
+    return isMempoolAPIEnabled;
+  }
+
   static Future<BitcoinWallet> create({
     required String mnemonic,
     required String password,
@@ -324,11 +332,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     return super.signMessage(message, address: address);
-  }
-
-  Future<bool> get mempoolAPIEnabled async {
-    bool isMempoolAPIEnabled = (await sharedPrefs.future).getBool("use_mempool_fee_api") ?? true;
-    return isMempoolAPIEnabled;
   }
 
   @override
@@ -664,72 +667,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       ).toJson(),
     );
   }
-
-  @override
-  @action
-  Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
-    throw UnimplementedError();
-    // try {
-    //   final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
-
-    //   await Future.wait(
-    //     BITCOIN_ADDRESS_TYPES.map(
-    //       (type) => fetchTransactionsForAddressType(historiesWithDetails, type),
-    //     ),
-    //   );
-
-    //   transactionHistory.transactions.values.forEach((tx) async {
-    //     final isPendingSilentPaymentUtxo =
-    //         (tx.isPending || tx.confirmations == 0) && historiesWithDetails[tx.id] == null;
-
-    //     if (isPendingSilentPaymentUtxo) {
-    //       final info = await fetchTransactionInfo(hash: tx.id, height: tx.height);
-
-    //       if (info != null) {
-    //         tx.confirmations = info.confirmations;
-    //         tx.isPending = tx.confirmations == 0;
-    //         transactionHistory.addOne(tx);
-    //         await transactionHistory.save();
-    //       }
-    //     }
-    //   });
-
-    //   return historiesWithDetails;
-    // } catch (e) {
-    //   printV("fetchTransactions $e");
-    //   return {};
-    // }
-  }
-
-  @override
-  int get dustAmount => network == BitcoinNetwork.testnet ? 0 : 546;
-
-  // @action
-  // Future<ElectrumBalance> fetchBalances() async {
-  //   final balance = await super.fetchBalances();
-
-  //   int totalFrozen = balance.frozen;
-  //   int totalConfirmed = balance.confirmed;
-
-  //   // Add values from unspent coins that are not fetched by the address list
-  //   // i.e. scanned silent payments
-  //   transactionHistory.transactions.values.forEach((tx) {
-  //     if (tx.unspents != null) {
-  //       tx.unspents!.forEach((unspent) {
-  //         if (unspent.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
-  //           if (unspent.isFrozen) totalFrozen += unspent.value;
-  //           totalConfirmed += unspent.value;
-  //         }
-  //       });
-  //     }
-  //   });
-
-  //   return ElectrumBalance(
-  //     confirmed: totalConfirmed,
-  //     unconfirmed: balance.unconfirmed,
-  //     frozen: totalFrozen,
-  //   );
-  // }
 
   @override
   @action

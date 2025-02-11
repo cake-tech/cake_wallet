@@ -1,6 +1,7 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/seedbyte_types.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -27,13 +28,18 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
 
   @override
   Future<void> init() async {
-    await generateInitialAddresses(type: P2pkhAddressType.p2pkh);
+    for (final seedBytesType in hdWallets.keys) {
+      await generateInitialAddresses(
+        addressType: P2pkhAddressType.p2pkh,
+        seedBytesType: seedBytesType,
+      );
+    }
     await super.init();
   }
 
   @override
   BitcoinBaseAddress generateAddress({
-    required CWBitcoinDerivationType derivationType,
+    required SeedBytesType seedBytesType,
     required bool isChange,
     required int index,
     required BitcoinAddressType addressType,
@@ -49,7 +55,7 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
   static BitcoinCashWalletAddressesBase fromJson(
     Map<String, dynamic> json,
     WalletInfo walletInfo, {
-    required Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets,
+    required Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets,
     required BasedUtxoNetwork network,
     required bool isHardwareWallet,
     List<BitcoinAddressRecord>? initialAddresses,
@@ -64,7 +70,7 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
           type: P2pkhAddressType.p2pkh,
           network: BitcoinCashNetwork.mainnet,
           derivationInfo: BitcoinAddressUtils.getDerivationFromType(P2pkhAddressType.p2pkh),
-          cwDerivationType: CWBitcoinDerivationType.bip39,
+          seedBytesType: SeedBytesType.bip39,
         );
       } catch (_) {
         return BitcoinAddressRecord(
@@ -74,7 +80,7 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
           type: P2pkhAddressType.p2pkh,
           network: BitcoinCashNetwork.mainnet,
           derivationInfo: BitcoinAddressUtils.getDerivationFromType(P2pkhAddressType.p2pkh),
-          cwDerivationType: CWBitcoinDerivationType.bip39,
+          seedBytesType: SeedBytesType.bip39,
         );
       }
     }).toList();

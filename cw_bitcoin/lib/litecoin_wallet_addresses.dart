@@ -6,6 +6,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/seedbyte_types.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -59,9 +60,18 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   Future<void> init() async {
     if (!super.isHardwareWallet) await initMwebAddresses();
 
-    await generateInitialAddresses(type: SegwitAddressType.p2wpkh);
-    if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
-      await generateInitialAddresses(type: SegwitAddressType.mweb);
+    for (final derivationType in hdWallets.keys) {
+      await generateInitialAddresses(
+        addressType: P2pkhAddressType.p2pkh,
+        seedBytesType: derivationType,
+      );
+
+      if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
+        await generateInitialAddresses(
+          addressType: SegwitAddressType.mweb,
+          seedBytesType: derivationType,
+        );
+      }
     }
 
     await super.init();
@@ -69,7 +79,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @action
   Future<List<BitcoinAddressRecord>> discoverNewAddresses({
-    required CWBitcoinDerivationType derivationType,
+    required SeedBytesType seedBytesType,
     required bool isChange,
     required BitcoinAddressType addressType,
     required BitcoinDerivationInfo derivationInfo,
@@ -79,15 +89,19 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
 
     final startIndex = getAddressesByType(addressType, isChange)
-        .where((addr) => (addr as BitcoinAddressRecord).cwDerivationType == derivationType)
+        .where((addr) => (addr as BitcoinAddressRecord).seedBytesType == seedBytesType)
         .length;
 
     final mwebAddresses = <LitecoinMWEBAddressRecord>[];
     final newAddresses = <BitcoinAddressRecord>[];
 
+    final isHidden = seedBytesType.isElectrum
+        ? derivationInfo.derivationPath != BitcoinDerivationInfos.ELECTRUM.derivationPath
+        : derivationInfo.derivationPath != BitcoinDerivationInfos.BIP84.derivationPath;
+
     for (var i = startIndex; i < count + startIndex; i++) {
       final addressString = await getAddressAsync(
-        derivationType: derivationType,
+        derivationType: seedBytesType,
         isChange: isChange,
         index: i,
         addressType: addressType,
@@ -102,11 +116,11 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
           addressString,
           index: i,
           isChange: isChange,
-          isHidden: OLD_DERIVATION_TYPES.contains(derivationType) || isChange,
+          isHidden: isHidden || isChange,
           type: addressType,
           network: network,
           derivationInfo: derivationInfo,
-          cwDerivationType: derivationType,
+          seedBytesType: seedBytesType,
         );
 
         newAddresses.add(address);
@@ -177,7 +191,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @override
   BitcoinBaseAddress generateAddress({
-    required CWBitcoinDerivationType derivationType,
+    required SeedBytesType seedBytesType,
     required bool isChange,
     required int index,
     required BitcoinAddressType addressType,
@@ -188,7 +202,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
 
     return P2wpkhAddress.fromDerivation(
-      bip32: hdWallets[derivationType]!,
+      bip32: hdWallets[seedBytesType]!,
       derivationInfo: derivationInfo,
       isChange: isChange,
       index: index,
@@ -197,7 +211,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @override
   Future<String> getAddressAsync({
-    required CWBitcoinDerivationType derivationType,
+    required SeedBytesType derivationType,
     required bool isChange,
     required int index,
     required BitcoinAddressType addressType,
@@ -368,7 +382,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   static LitecoinWalletAddressesBase fromJson(
     Map<String, dynamic> json,
     WalletInfo walletInfo, {
-    required Map<CWBitcoinDerivationType, Bip32Slip10Secp256k1> hdWallets,
+    required Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets,
     required BasedUtxoNetwork network,
     required bool isHardwareWallet,
     List<BitcoinAddressRecord>? initialAddresses,
