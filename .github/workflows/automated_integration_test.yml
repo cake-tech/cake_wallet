@@ -127,7 +127,7 @@ jobs:
           echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
           echo "const CSRFToken = '${{ secrets.CSRF_TOKEN }}';" >> lib/.secrets.g.dart
-          echo "const quantexExchangeMarkup = '${{ secrets.QUANTEX_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
+          echo "const swapTradeExchangeMarkup = '${{ secrets.SWAPTRADE_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
           echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
           echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
@@ -161,6 +161,9 @@ jobs:
           echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const wowneroTestWalletReceiveAddress = '${{ secrets.WOWNERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const moneroTestWalletBlockHeight =  '${{ secrets.MONERO_TEST_WALLET_BLOCK_HEIGHT }}';" >> lib/.secrets.g.dart
+          # end of test secrets
+          echo "const chainflipApiKey = '${{ secrets.CHAINFLIP_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const chainflipAffiliateFee = '${{ secrets.CHAINFLIP_AFFILIATE_FEE }}';" >> lib/.secrets.g.dart
       - name: prepare monero_c and cache
         run: |
           export MONEROC_HASH=$(cat scripts/prepare_moneroc.sh | grep 'git checkout' | xargs | awk '{ print $3 }')
