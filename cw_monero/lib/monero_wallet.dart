@@ -123,15 +123,19 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   String get password => _password;
 
   @override
+  String get passphrase => monero_wallet.getPassphrase();
+
+  @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
       primaryAddress: monero_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: monero_wallet.getSecretSpendKey(),
       privateViewKey: monero_wallet.getSecretViewKey(),
       publicSpendKey: monero_wallet.getPublicSpendKey(),
-      publicViewKey: monero_wallet.getPublicViewKey());
+      publicViewKey: monero_wallet.getPublicViewKey(),
+      passphrase: monero_wallet.getPassphrase());
 
   int? get restoreHeight =>
-      transactionHistory.transactions.values.firstOrNull?.height;
+      transactionHistory.transactions.values.firstOrNull?.height ?? monero.Wallet_getRefreshFromBlockHeight(wptr!);
 
   monero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
@@ -265,6 +269,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   bool needExportOutputs(int amount) {
+    if (int.tryParse(monero.Wallet_secretSpendKey(wptr!)) != 0) {
+      return false;
+    }
     // viewOnlyBalance - balance that we can spend
     // TODO(mrcyjanek): remove hasUnknownKeyImages when we cleanup coin control
     return (monero.Wallet_viewOnlyBalance(wptr!,
