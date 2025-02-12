@@ -157,7 +157,9 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
 
       final params = {'walletType': restoredWallet.type, 'restoredWallet': restoredWallet};
 
-      Navigator.pushNamed(context, Routes.restoreWallet, arguments: params);
+      Navigator.pushNamed(context, Routes.restoreWallet, arguments: params).then((_) {
+        if (mounted) setState(() => isRestoring = false);
+      });
     } catch (e) {
       _showQRScanError(context, e.toString());
     }
