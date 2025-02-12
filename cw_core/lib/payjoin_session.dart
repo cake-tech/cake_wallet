@@ -11,7 +11,8 @@ class PayjoinSession extends HiveObject {
     this.sender,
     this.pjUri,
     this.status = "created",
-    this.inProgressSince
+    this.inProgressSince,
+    this.rawAmount,
   }) {
     if (receiver == null) {
       assert(sender != null);
@@ -42,7 +43,17 @@ class PayjoinSession extends HiveObject {
   @HiveField(5)
   DateTime? inProgressSince;
 
+  @HiveField(6)
+  String? txId;
+  
+  @HiveField(7)
+  String? rawAmount;
+
   bool get isSenderSession => sender != null;
+
+  BigInt get amount => BigInt.parse(rawAmount ?? "0");
+  set amount(BigInt amount) => rawAmount = amount.toString();
+
 }
 
 enum PayjoinSessionStatus {
