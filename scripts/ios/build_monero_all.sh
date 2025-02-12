@@ -30,3 +30,5 @@ unxz -fk ../monero_c/release/zano/aarch64-apple-ios_libwallet2_api_c.dylib.xz
 unxz -fk ../monero_c/release/monero/aarch64-apple-iossimulator_libwallet2_api_c.dylib.xz
 unxz -fk ../monero_c/release/wownero/aarch64-apple-iossimulator_libwallet2_api_c.dylib.xz
 unxz -fk ../monero_c/release/zano/aarch64-apple-iossimulator_libwallet2_api_c.dylib.xz
+
+./gen_framework.sh
