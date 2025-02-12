@@ -112,7 +112,6 @@ class CommonTestFlows {
   //* ========== Handles switching to wallet list or menu from dashboard ===============
   Future<void> switchToWalletMenuFromDashboardPage() async {
     _tester.printToConsole('Switching to Wallet Menu');
-    await _dashboardPageRobot.openDrawerMenu();
 
     await _dashboardPageRobot.dashboardMenuWidgetRobot.navigateToWalletMenu();
   }
@@ -204,6 +203,8 @@ class CommonTestFlows {
     await _welcomePageRobot.navigateToCreateNewWalletPage();
 
     await _selectWalletTypeForWallet(walletTypeToCreate);
+
+    await _welcomePageRobot.tapNewSingleSeed();
   }
 
   Future<void> _welcomeToRestoreFromSeedsOrKeysPath(
