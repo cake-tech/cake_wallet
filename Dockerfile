@@ -1,5 +1,5 @@
 # Usage:
-# docker build . -f Dockerfile.linux -t ghcr.io/cake-tech/cake_wallet:main-linux
+# docker build . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:main-linux
 # docker push ghcr.io/cake-tech/cake_wallet:main-linux
 
 # Heavily inspired by cirrusci images
@@ -58,7 +58,7 @@ RUN set -o xtrace \
     # extra stuff for KVM
     bridge-utils libvirt-clients libvirt-daemon-system qemu-kvm udev \
     # Linux test dependencies
-    ffmpeg network-manager x11-utils xvfb \
+    ffmpeg network-manager x11-utils xvfb psmisc \
     # aarch64-linux-gnu dependencies
     g++-aarch64-linux-gnu gcc-aarch64-linux-gnu \
     && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
