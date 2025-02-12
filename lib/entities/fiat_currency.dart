@@ -64,7 +64,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   static const tur = FiatCurrency(symbol: 'TRY', countryCode: "tur", fullName: "Turkish Lira");
 
   static final _all = {
-    FiatCurrency.amd .raw: FiatCurrency.amd,
+    FiatCurrency.amd.raw: FiatCurrency.amd,
     FiatCurrency.ars.raw: FiatCurrency.ars,
     FiatCurrency.aud.raw: FiatCurrency.aud,
     FiatCurrency.bdt.raw: FiatCurrency.bdt,
