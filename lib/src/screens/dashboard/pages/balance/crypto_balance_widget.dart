@@ -39,7 +39,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                   child: DashBoardRoundedCardWidget(
                     title: "Invalid monero bindings",
                     subTitle: dashboardViewModel.getMoneroError.toString(),
-                    onTap: () {},
                   ),
                 );
               }
@@ -54,7 +53,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                     child: DashBoardRoundedCardWidget(
                       title: "Invalid wownero bindings",
                       subTitle: dashboardViewModel.getWowneroError.toString(),
-                      onTap: () {},
                     ));
               }
               return Container();
@@ -206,7 +204,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                         subTitle: "Here are the things that you should note:\n - " +
                             dashboardViewModel.isMoneroWalletBrokenReasons.join("\n - ") +
                             "\n\nPlease restart your wallet and if it doesn't help contact our support.",
-                        onTap: () {},
                       ))
                 ],
                 if (dashboardViewModel.showSilentPaymentsCard) ...[
@@ -344,7 +341,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      onTap: () => {},
                       icon: Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
