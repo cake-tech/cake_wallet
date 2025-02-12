@@ -20,7 +20,7 @@ You may easily install them on your build system with the following command:
 
 ```zsh
 brew install automake ccache cmake cocoapods go libtool pkgconfig xz
-softwareupdate --install-rosetta
+sudo softwareupdate --install-rosetta --agree-to-license
 ```
 
 ### 2. Installing Xcode
@@ -34,10 +34,12 @@ sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 sudo xcodebuild -runFirstLaunch
 ```
 
+To enable iOS build support for Xcode, perform the following:
+
 1. Open Xcode
 2. Navigate to settings
 3. Open Components tab
-4. Click next to iOS 18.2 (or any other version that is showing up as default)
+4. Click "Get" next to iOS 18.2 (or any other version that is showing up as default)
 
 ### 3. Installing Flutter
 

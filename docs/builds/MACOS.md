@@ -17,8 +17,8 @@ For installing dependency tools you can use brew [Install brew](https://brew.sh)
 You may easily install them on your build system with the following command:
 
 ```zsh
-brew install autoconf automake binutils ccache cocoapods go libtool pigz pkg-config
-softwareupdate --install-rosetta
+brew install autoconf automake binutils ccache cmake cocoapods go libtool pigz pkg-config
+sudo softwareupdate --install-rosetta --agree-to-license
 ```
 
 ### 2. Installing Xcode
@@ -52,12 +52,14 @@ Verify that Flutter and Xcode have been correctly installed on your system with 
 
 `flutter doctor`
 
-The output of this command should appear like this, indicating successful installations. If there are problems with your installation, they **must** be corrected before proceeding.
+The output of this command should appear like this, indicating successful installations. If there are problems with your installation of Flutter or Xcode, they **must** be corrected before proceeding.
 
 ```zsh
 Doctor summary (to see all details, run flutter doctor -v):
 [✓] Flutter (Channel stable, 3.24.4, on macOS 15.x.x)
+...
 [✓] Xcode - develop for iOS and macOS (Xcode 16.2)
+...
 ```
 
 ### 6. Acquiring the Cake Wallet source code
@@ -121,7 +123,7 @@ dart run tool/generate_localization.dart
 ### 9. Build
 
 ```zsh
-flutter build macos --release --no-codesign
+flutter build macos --release
 ```
 
 Then you can open `macos/Runner.xcworkspace` with Xcode to archive the application.
