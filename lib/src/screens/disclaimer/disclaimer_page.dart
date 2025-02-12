@@ -62,7 +62,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () async => false,
+        onWillPop: () async => widget.isReadOnly,
         child: Container(
           color: Theme.of(context).colorScheme.background,
           child: Column(
