@@ -19,15 +19,7 @@ NOTE: as `3.24.4` is not the latest version, you'll need to download it from <ht
 
 Install Git for Windows and Visual Studio 2022. Follow the [Development Tools](https://docs.flutter.dev/get-started/install/windows/desktop#development-tools) installation instructions.
 
-Then install `Desktop development with C++` packages via Visual Studio 2022, or Visual Studio Build Tools 2022 including:
-
-- `C++ Build Tools core features`
-- `C++ 2022 Redistributable Update`
-- `C++ core desktop features`
-- `MVC v143 - VS 2022 C++ x64/x86 build tools`
-- `C++ CMake tools for Windows`
-- `Testing tools core features - Build Tools`
-- `C++ AddressSanitizer`
+Then install `Desktop development with C++` packages via [Visual Studio 2022](https://visualstudio.microsoft.com/downloads).
 
 ### 3. Installing rustup
 
@@ -39,7 +31,7 @@ For building Monero dependencies, it is required to install Windows WSL (https:/
 
 ```zsh
 sudo apt update 
-sudo apt build-essential cmake gcc-mingw-w64 g++-mingw-w64 autoconf libtool pkg-config
+apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf pigz gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64
 ```
 
 ### 5. Acquiring the Cake Wallet source code
@@ -47,11 +39,11 @@ sudo apt build-essential cmake gcc-mingw-w64 g++-mingw-w64 autoconf libtool pkg-
 Download the latest release tag of Cake Wallet and enter the source code directory:
 
 ```zsh
-git clone https://github.com/cake-tech/cake_wallet.git --branch v4.23.0
+git clone https://github.com/cake-tech/cake_wallet.git --branch main
 cd cake_wallet
 ```
 
-NOTE: Replace `v4.23.0` with the latest release tag available at <https://github.com/cake-tech/cake_wallet/releases/latest>.
+NOTE: Replace `main` with the latest release tag available at <https://github.com/cake-tech/cake_wallet/releases/latest>.
 
 ### 6. Build Monero, monero_c, and dependencies
 
@@ -69,7 +61,7 @@ cd scripts/windows
 To configure the application, run the following:
 
 ```zsh
-./cakewallet.sh
+.\cakewallet.bat
 ```
 
 After running the script above, you should to get `Cake Wallet.zip` in the project's root directory which will contain `CakeWallet.exe` and other needed files for running the application. Now you can extract files from `Cake Wallet.zip` archive and run the application.
