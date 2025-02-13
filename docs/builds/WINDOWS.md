@@ -21,37 +21,46 @@ NOTE: as `3.24.4` is not the latest version, you'll need to download it from <ht
 
 ### 2. Install Development Tools
 
-Install Git for Windows and Visual Studio 2022. 
+Install Git for Windows and Visual Studio 2022:
 
-1. Follow the [Development Tools](https://docs.flutter.dev/get-started/install/windows/desktop#development-tools) installation instructions.
+1. Follow the [Development Tools](https://docs.flutter.dev/get-started/install/windows/desktop#development-tools) installation instructions
+   1. NOTE: Be sure to install the `Desktop Development with C++` workload in Visual Studio as outlined in the docs.
 2. Add `git` to your path by going to Start Menu > search "environment" > Environment Variables > double-click Path > Add `C:\Program Files\Git\bin\` on a new line.
 
-Then install `Desktop development with C++` packages via [Visual Studio 2022](https://visualstudio.microsoft.com/downloads).
-
-Lastly, you'll need to install Nuget:
+Lastly, you'll need to install Nuget separately:
 
 1. Download the exe from <https://dist.nuget.org/win-x86-commandline/latest/nuget.exe>
-2. Create a new directory, `C:\Program Files\Nugat\`
+2. Create a new directory, `C:\Program Files\Nuget\`
 3. Move or copy the `nuget.exe` binary you just downloaded into the newly created directory above.
 
-### 3. Installing rustup
+### 3. Installing WSL (Windows Subsystem for Linux)
 
-Install rustup from the [rustup.rs](https://rustup.rs/#) website, downloading and running the 64-bit `rustup-init.exe`.
+For building Monero dependencies, it is required to install Windows [WSL](https://learn.microsoft.com/en-us/windows/wsl) and required packages for WSL (Ubuntu).
 
-### 4. Installing WSL (Windows Subsystem for Linux)
+1. Open a Powershell window by going to the Start Menu and searching for "Powershell"
+2. Install WSL with the command `wsl --install`
+3. Finalize WSL installation by going to the Start Menu and searching for "Ubuntu"
+   1. The new Ubuntu app should prompt you to create a username and password for the WSL terminal
+4. Install the necessary Ubuntu dependencies:
 
-For building Monero dependencies, it is required to install Windows WSL (https://learn.microsoft.com/en-us/windows/wsl/install) and required packages for WSL (Ubuntu):
+```bash
+sudo apt update
+sudo apt install -y autoconf build-essential ccache cmake curl gcc gcc-mingw-w64-x86-64 git g++ g++-mingw-w64-x86-64 gperf lbzip2 libtool make pkg-config pigz
+```
 
-```zsh
-sudo apt update 
-apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf pigz gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64
+### 4. Installing Rust
+
+Install Rust and other Rust-related dependencies using [rustup.rs](https://rustup.rs/#) by running the following command in a WSL terminal:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 ### 5. Acquiring the Cake Wallet source code
 
 Download the latest release tag of Cake Wallet and enter the source code directory:
 
-```zsh
+```bash
 git clone https://github.com/cake-tech/cake_wallet.git --branch main
 cd cake_wallet
 ```
@@ -64,17 +73,18 @@ To use Monero in Cake Wallet, you must build the Monero_C wrapper which will be 
 
 Run the following in a WSL terminal window:
 
-```zsh
+```bash
 cd scripts/windows
 ./build_all.sh
 ```
 
 ### 7. Configure and build Cake Wallet application
 
-To configure the application, run the following:
+To configure the application, run the following in a Powershell window:
 
-```zsh
+```powershell
+cd cake_wallet
 .\cakewallet.bat
 ```
 
-After running the script above, you should to get `Cake Wallet.zip` in the project's root directory which will contain `CakeWallet.exe` and other needed files for running the application. Now you can extract files from `Cake Wallet.zip` archive and run the application.
+After running the script above, you should  get `Cake Wallet.zip` in the project's root directory which will contain `CakeWallet.exe` and other needed files for running the application. Now you can extract files from `Cake Wallet.zip` archive and run the application.
