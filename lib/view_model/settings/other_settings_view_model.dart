@@ -61,10 +61,6 @@ abstract class OtherSettingsViewModelBase with Store {
       _wallet.type == WalletType.nano || _wallet.type == WalletType.banano;
 
   @computed
-  bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
-
-
-  @computed
   bool get displayTransactionPriority => !(changeRepresentativeEnabled ||
       _wallet.type == WalletType.solana ||
       _wallet.type == WalletType.tron);
@@ -117,9 +113,6 @@ abstract class OtherSettingsViewModelBase with Store {
         (element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
     return customItem != null ? priorities.indexOf(customItem) : null;
   }
-
-  @action
-  void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
 
   int? get maxCustomFeeRate {
     if (_wallet.type == WalletType.bitcoin) {
