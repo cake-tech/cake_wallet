@@ -64,17 +64,17 @@ abstract class LedgerViewModelBase with Store {
   Future<void> _initBLE() async {
     if (bleIsEnabled && !_bleIsInitialized) {
       ledgerPlusBLE = sdk.LedgerInterface.ble(
-          onPermissionRequest: (_) async {
-            Map<Permission, PermissionStatus> statuses = await [
-              Permission.bluetoothScan,
-              Permission.bluetoothConnect,
-              Permission.bluetoothAdvertise,
-            ].request();
+        onPermissionRequest: (_) async {
+          Map<Permission, PermissionStatus> statuses = await [
+            Permission.bluetoothScan,
+            Permission.bluetoothConnect,
+            Permission.bluetoothAdvertise,
+          ].request();
 
-            return statuses.values.where((status) => status.isDenied).isEmpty;
-          },
-          bleOptions:
-              sdk.BluetoothOptions(maxScanDuration: Duration(minutes: 5)));
+          return statuses.values.where((status) => status.isDenied).isEmpty;
+        },
+        bleOptions: sdk.BluetoothOptions(maxScanDuration: Duration(minutes: 5)),
+      );
       _bleIsInitialized = true;
     }
   }
