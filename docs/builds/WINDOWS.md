@@ -39,28 +39,27 @@ For building Monero dependencies, it is required to install Windows [WSL](https:
 
 1. Open a Powershell window by going to the Start Menu and searching for "Powershell"
 2. Install WSL with the command `wsl --install`
-3. Finalize WSL installation by going to the Start Menu and searching for "Ubuntu"
-   1. The new Ubuntu app should prompt you to create a username and password for the WSL terminal
-4. Install the necessary Ubuntu dependencies:
+3. Install the necessary Ubuntu dependencies
 
-```bash
-sudo apt update
-sudo apt install -y autoconf build-essential ccache cmake curl gcc gcc-mingw-w64-x86-64 git g++ g++-mingw-w64-x86-64 gperf lbzip2 libtool make pkg-config pigz
+```powershell
+wsl --install
+wsl sudo apt update
+wsl sudo apt install -y autoconf build-essential ccache cmake curl gcc gcc-mingw-w64-x86-64 git g++ g++-mingw-w64-x86-64 gperf lbzip2 libtool make pkg-config pigz
 ```
 
 ### 4. Installing Rust
 
-Install Rust and other Rust-related dependencies using [rustup.rs](https://rustup.rs/#) by running the following command in a WSL terminal:
+Install Rust and other Rust-related dependencies using [rustup.rs](https://rustup.rs/#) by running the following command:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+wsl curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 ### 5. Acquiring the Cake Wallet source code
 
 Download the latest release tag of Cake Wallet and enter the source code directory:
 
-```bash
+```powershell
 git clone https://github.com/cake-tech/cake_wallet.git --branch main
 cd cake_wallet
 ```
@@ -71,21 +70,20 @@ NOTE: Replace `main` with the latest release tag available at <https://github.co
 
 To use Monero in Cake Wallet, you must build the Monero_C wrapper which will be used by monero.dart package.
 
-Run the following in a WSL terminal window (set the Git username and email as desired):
+Run the following in commands (set the Git username and email as desired):
 
 ```bash
-git config --global user.email "builds@cakewallet.com"
-git config --global user.name "builds"
-cd scripts/windows
-./build_all.sh
+wsl git config --global user.email "builds@cakewallet.com"
+wsl git config --global user.name "builds"
+wsl cd scripts/windows
+wsl ./build_all.sh
 ```
 
 ### 7. Configure and build Cake Wallet application
 
-To configure the application, run the following in a Powershell window:
+To configure the application, run the following in:
 
 ```powershell
-cd cake_wallet
 .\cakewallet.bat
 ```
 
