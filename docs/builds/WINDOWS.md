@@ -71,9 +71,11 @@ NOTE: Replace `main` with the latest release tag available at <https://github.co
 
 To use Monero in Cake Wallet, you must build the Monero_C wrapper which will be used by monero.dart package.
 
-Run the following in a WSL terminal window:
+Run the following in a WSL terminal window (set the Git username and email as desired):
 
 ```bash
+git config --global user.email "builds@cakewallet.com"
+git config --global user.name "builds"
 cd scripts/windows
 ./build_all.sh
 ```
@@ -87,4 +89,4 @@ cd cake_wallet
 .\cakewallet.bat
 ```
 
-After running the script above, you should  get `Cake Wallet.zip` in the project's root directory which will contain `CakeWallet.exe` and other needed files for running the application. Now you can extract files from `Cake Wallet.zip` archive and run the application.
+After running the script above, you should get `Cake Wallet.zip` in the project's root directory which will contain `CakeWallet.exe` and other needed files for running the application. Now you can extract files from `Cake Wallet.zip` archive and run the application.
