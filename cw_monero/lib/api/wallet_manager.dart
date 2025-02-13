@@ -100,7 +100,7 @@ void restoreWalletFromSeedSync(
     required String passphrase,
     required String seed,
     int nettype = 0,
-    int restoreHeight = 0}) async {
+    int restoreHeight = 0}) {
   txhistory = null;
   final newWptr = monero.WalletManager_recoveryWallet(
     wmPtr,
@@ -116,6 +116,11 @@ void restoreWalletFromSeedSync(
 
   if (status != 0) {
     final error = monero.Wallet_errorString(newWptr);
+    if (error.contains('word list failed verification')) {
+      throw WalletRestoreFromSeedException(
+        message: "Seed verification failed, please make sure you entered the correct seed with the correct words order",
+      );
+    }
     throw WalletRestoreFromSeedException(message: error);
   }
   wptr = newWptr;
@@ -404,7 +409,7 @@ void _restoreFromSeed(Map<String, dynamic> args) {
   final seed = args['seed'] as String;
   final restoreHeight = args['restoreHeight'] as int;
 
-  restoreWalletFromSeedSync(
+  return restoreWalletFromSeedSync(
       path: path, password: password, passphrase: passphrase, seed: seed, restoreHeight: restoreHeight);
 }
 
@@ -472,13 +477,13 @@ Future<void> createWallet(
       'nettype': nettype
     });
 
-Future<void> restoreFromSeed(
+void restoreFromSeed(
         {required String path,
         required String password,
         required String passphrase,
         required String seed,
         int nettype = 0,
-        int restoreHeight = 0}) async =>
+        int restoreHeight = 0}) =>
     _restoreFromSeed({
       'path': path,
       'password': password,
