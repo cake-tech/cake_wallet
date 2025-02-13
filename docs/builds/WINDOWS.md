@@ -2,7 +2,7 @@
 
 ## Requirements and Setup
 
-The following are the system requirements to build CakeWallet for your Windows PC.
+The following are the system requirements to build Cake Wallet for your Windows PC.
 
 ```txt
 Windows 10 or later (64-bit), x86-64 based
@@ -13,13 +13,26 @@ Flutter 3.24.4
 
 Install Flutter, specifically version `3.24.4` by following the [official docs](https://docs.flutter.dev/get-started/install/windows).
 
+In order for Flutter to function, you'll also need to enable Developer Mode:
+
+Start Menu > search for "Run" > type `ms-settings:developers`, and turn on Developer Mode.
+
 NOTE: as `3.24.4` is not the latest version, you'll need to download it from <https://docs.flutter.dev/release/archive> instead of the link in the docs above.
 
 ### 2. Install Development Tools
 
-Install Git for Windows and Visual Studio 2022. Follow the [Development Tools](https://docs.flutter.dev/get-started/install/windows/desktop#development-tools) installation instructions.
+Install Git for Windows and Visual Studio 2022. 
+
+1. Follow the [Development Tools](https://docs.flutter.dev/get-started/install/windows/desktop#development-tools) installation instructions.
+2. Add `git` to your path by going to Start Menu > search "environment" > Environment Variables > double-click Path > Add `C:\Program Files\Git\bin\` on a new line.
 
 Then install `Desktop development with C++` packages via [Visual Studio 2022](https://visualstudio.microsoft.com/downloads).
+
+Lastly, you'll need to install Nuget:
+
+1. Download the exe from <https://dist.nuget.org/win-x86-commandline/latest/nuget.exe>
+2. Create a new directory, `C:\Program Files\Nugat\`
+3. Move or copy the `nuget.exe` binary you just downloaded into the newly created directory above.
 
 ### 3. Installing rustup
 
