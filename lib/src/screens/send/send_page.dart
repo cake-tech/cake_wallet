@@ -96,7 +96,7 @@ class SendPage extends BasePage {
     return MergeSemantics(
       child: SizedBox(
         height: isMobileView ? 37 : 45,
-        width: isMobileView ? 37 : 45,
+        width: isMobileView ? 47: 45,
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
@@ -172,6 +172,7 @@ class SendPage extends BasePage {
         var cryptoAmountFocus = FocusNode();
         var fiatAmountFocus = FocusNode();
         sendCards.add(SendCard(
+          currentTheme: currentTheme,
           key: output.key,
           output: output,
           sendViewModel: sendViewModel,
@@ -211,7 +212,6 @@ class SendPage extends BasePage {
                     policy: OrderedTraversalPolicy(),
                     child: Column(
                       children: <Widget>[
-                        SizedBox(height: 20),
                         PageViewHeightAdaptable(
                           controller: controller,
                           children: sendCards,

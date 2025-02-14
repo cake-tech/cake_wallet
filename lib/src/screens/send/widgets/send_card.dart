@@ -26,11 +26,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
+import '../../../../themes/extensions/cake_text_theme.dart';
+import '../../../../themes/theme_base.dart';
+
 class SendCard extends StatefulWidget {
   SendCard({
     Key? key,
     required this.output,
     required this.sendViewModel,
+    required this.currentTheme,
     this.initialPaymentRequest,
     this.cryptoAmountFocus,
     this.fiatAmountFocus,
@@ -41,12 +45,15 @@ class SendCard extends StatefulWidget {
   final PaymentRequest? initialPaymentRequest;
   final FocusNode? cryptoAmountFocus;
   final FocusNode? fiatAmountFocus;
+  final ThemeBase currentTheme;
+
 
   @override
   SendCardState createState() => SendCardState(
         output: output,
         sendViewModel: sendViewModel,
         initialPaymentRequest: initialPaymentRequest,
+        currentTheme: currentTheme
         // cryptoAmountFocus: cryptoAmountFocus ?? FocusNode(),
         // fiatAmountFocus: fiatAmountFocus ?? FocusNode(),
         // cryptoAmountFocus: FocusNode(),
@@ -59,6 +66,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     required this.output,
     required this.sendViewModel,
     this.initialPaymentRequest,
+    required this.currentTheme,
   })  : addressController = TextEditingController(),
         cryptoAmountController = TextEditingController(),
         fiatAmountController = TextEditingController(),
@@ -69,6 +77,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;
 
+  final ThemeBase currentTheme;
   final Output output;
   final SendViewModel sendViewModel;
   final PaymentRequest? initialPaymentRequest;
@@ -400,6 +409,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   ),
                 ),
               if (sendViewModel.currency == CryptoCurrency.ltc)
+                SizedBox(height: 5),
                 Observer(
                   builder: (_) => Padding(
                     padding: EdgeInsets.only(top: 14),
@@ -418,6 +428,12 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                             StandardCheckbox(
                               caption: S.of(context).litecoin_mweb_allow_coins,
                               captionColor: Colors.white,
+                              borderColor: currentTheme.type == ThemeType.bright
+                                  ? Colors.white
+                                  : Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                              iconColor: currentTheme.type == ThemeType.bright
+                                  ? Colors.white
+                                  : Theme.of(context).primaryColor,
                               value:
                                   widget.sendViewModel.coinTypeToSpendFrom == UnspentCoinType.any,
                               onChanged: (bool? value) {
