@@ -289,6 +289,26 @@ class Quote extends SelectableOption {
     );
   }
 
+  factory Quote.fromKryptonimJson(
+      Map<String, dynamic> json, bool isBuyAction, PaymentType paymentType) {
+    final fees = json['fees'] as Map<String, dynamic>;
+    final rate = _toDouble(json['rate']) ?? 0.0;
+    final limits = json['limits'] as Map<String, dynamic>;
+    final minLimit = _toDouble(limits['min_amount']) ?? 0.0;
+    final maxLimit = _toDouble(limits['max_amount']) ?? double.infinity;
+    return Quote(
+        rate:  rate * 100000000,
+        feeAmount: _toDouble(fees['totalFee']) ?? 0.0,
+        networkFee: _toDouble(fees['network_fee']) ?? 0.0,
+        transactionFee: _toDouble(fees['operation_fee']) ?? 0.0,
+        payout: _toDouble(json['amount']) ?? 0.0,
+        paymentType: paymentType,
+        recommendations: [],
+        provider: ProvidersHelper.getProviderByType(ProviderType.kriptonim)!,
+        isBuyAction: isBuyAction,
+        limits: Limits(min: minLimit, max: maxLimit));
+  }
+
   static double? _toDouble(dynamic value) {
     if (value is int) {
       return value.toDouble();

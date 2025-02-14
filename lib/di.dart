@@ -255,6 +255,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
@@ -1017,6 +1018,10 @@ Future<void> setup({
       ));
 
   getIt.registerFactory<MeldBuyProvider>(() => MeldBuyProvider(
+    wallet: getIt.get<AppStore>().wallet!,
+  ));
+
+  getIt.registerFactory<KryptonimBuyProvider>(() => KryptonimBuyProvider(
     wallet: getIt.get<AppStore>().wallet!,
   ));
 
