@@ -461,13 +461,12 @@ abstract class ElectrumWalletBase
 
       if (!isHardwareWallet) {
         final addressRecord = (utx.bitcoinAddressRecord as BitcoinAddressRecord);
-        final path = addressRecord.derivationInfo.derivationPath
-            .addElem(Bip32KeyIndex(
-              BitcoinAddressUtils.getAccountFromChange(addressRecord.isChange),
-            ))
-            .addElem(Bip32KeyIndex(addressRecord.index));
 
-        privkey = ECPrivate.fromBip32(bip32: hdWallet.derive(path));
+        privkey = ECPrivate.fromBip32(
+          bip32: hdWallets[addressRecord.seedBytesType]!.derive(
+            Bip32PathParser.parse(addressRecord.derivationPath),
+          ),
+        );
       }
 
       vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
