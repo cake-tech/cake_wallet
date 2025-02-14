@@ -303,58 +303,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   @override
-  BitcoinBaseAddress generateAddress({
-    required SeedBytesType seedBytesType,
-    required bool isChange,
-    required int index,
-    required BitcoinAddressType addressType,
-    required BitcoinDerivationInfo derivationInfo,
-  }) {
-    final hdWallet = hdWallets[seedBytesType]!;
-
-    switch (addressType) {
-      case P2pkhAddressType.p2pkh:
-        return P2pkhAddress.fromDerivation(
-          bip32: hdWallet,
-          derivationInfo: derivationInfo,
-          isChange: isChange,
-          index: index,
-        );
-      case SegwitAddressType.p2tr:
-        return P2trAddress.fromDerivation(
-          bip32: hdWallet,
-          derivationInfo: derivationInfo,
-          isChange: isChange,
-          index: index,
-        );
-      case SegwitAddressType.p2wsh:
-        return P2wshAddress.fromDerivation(
-          bip32: hdWallet,
-          derivationInfo: derivationInfo,
-          isChange: isChange,
-          index: index,
-        );
-      case P2shAddressType.p2wpkhInP2sh:
-        return P2shAddress.fromDerivation(
-          bip32: hdWallet,
-          derivationInfo: derivationInfo,
-          isChange: isChange,
-          index: index,
-          type: P2shAddressType.p2wpkhInP2sh,
-        );
-      case SegwitAddressType.p2wpkh:
-        return P2wpkhAddress.fromDerivation(
-          bip32: hdWallet,
-          derivationInfo: derivationInfo,
-          isChange: isChange,
-          index: index,
-        );
-      default:
-        throw ArgumentError('Invalid address type');
-    }
-  }
-
-  @override
   @action
   BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
     if (addressPageType == SilentPaymentsAddresType.p2sp) {

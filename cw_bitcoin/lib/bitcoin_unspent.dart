@@ -4,12 +4,17 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_core/wallet_info.dart';
 
 class BitcoinUnspent extends Unspent {
-  BitcoinUnspent(BaseBitcoinAddressRecord addressRecord, String hash, int value, int vout)
-      : bitcoinAddressRecord = addressRecord,
-        super(addressRecord.address, hash, value, vout, null);
+  BitcoinUnspent(
+    BaseBitcoinAddressRecord addressRecord,
+    String hash,
+    int value,
+    int vout,
+    int? height,
+  )   : bitcoinAddressRecord = addressRecord,
+        super(addressRecord.address, hash, value, vout, null, height: height);
 
   factory BitcoinUnspent.fromUTXO(BaseBitcoinAddressRecord address, ElectrumUtxo utxo) =>
-      BitcoinUnspent(address, utxo.txId, utxo.value.toInt(), utxo.vout);
+      BitcoinUnspent(address, utxo.txId, utxo.value.toInt(), utxo.vout, utxo.height);
 
   factory BitcoinUnspent.fromJSON(
     BaseBitcoinAddressRecord? address,
@@ -27,6 +32,7 @@ class BitcoinUnspent extends Unspent {
       json['tx_hash'] as String,
       int.parse(json['value'].toString()),
       int.parse(json['tx_pos'].toString()),
+      json['height'] as int?,
     );
   }
 
@@ -36,6 +42,7 @@ class BitcoinUnspent extends Unspent {
       'tx_hash': hash,
       'value': value,
       'tx_pos': vout,
+      'height': height,
     };
     return json;
   }

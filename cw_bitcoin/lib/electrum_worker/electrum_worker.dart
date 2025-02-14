@@ -1581,7 +1581,13 @@ class ElectrumWorker {
                     spAddress: matchingSPWallet.toAddress(scanData.network),
                   );
 
-                  final unspent = BitcoinUnspent(receivedAddressRecord, txid, amount, pos);
+                  final unspent = BitcoinUnspent(
+                    receivedAddressRecord,
+                    txid,
+                    amount,
+                    pos,
+                    tweakHeight,
+                  );
 
                   unspents.add(unspent);
                   txInfo.amount += unspent.value;

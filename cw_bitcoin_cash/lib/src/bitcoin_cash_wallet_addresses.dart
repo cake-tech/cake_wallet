@@ -27,30 +27,28 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
   static const BITCOIN_CASH_ADDRESS_TYPES = [P2pkhAddressType.p2pkh];
 
   @override
+  @observable
+  BitcoinAddressType changeAddressType = P2pkhAddressType.p2pkh;
+
+  @override
+  BitcoinAddressType get addressPageType => P2pkhAddressType.p2pkh;
+
+  @override
   Future<void> init() async {
     for (final seedBytesType in hdWallets.keys) {
       await generateInitialAddresses(
         addressType: P2pkhAddressType.p2pkh,
         seedBytesType: seedBytesType,
+        bitcoinDerivationInfo: BitcoinDerivationInfo(
+          derivationType: BitcoinDerivationType.bip39,
+          derivationPath: "m/44'/145'/0'",
+          description: "Default Bitcoin Cash",
+          scriptType: P2pkhAddressType.p2pkh,
+        ),
       );
     }
     await super.init();
   }
-
-  @override
-  BitcoinBaseAddress generateAddress({
-    required SeedBytesType seedBytesType,
-    required bool isChange,
-    required int index,
-    required BitcoinAddressType addressType,
-    required BitcoinDerivationInfo derivationInfo,
-  }) =>
-      P2pkhAddress.fromDerivation(
-        bip32: hdWallet,
-        derivationInfo: derivationInfo,
-        isChange: isChange,
-        index: index,
-      );
 
   static BitcoinCashWalletAddressesBase fromJson(
     Map<String, dynamic> json,
@@ -92,5 +90,14 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
       isHardwareWallet: isHardwareWallet,
       initialAddresses: initialAddresses,
     );
+  }
+
+  @override
+  bool getShouldHideAddress(Bip32Path path) {
+    if (seedTypeIsElectrum) {
+      return path.toString() != BitcoinDerivationInfos.ELECTRUM.derivationPath.toString();
+    }
+
+    return path.toString() != "m/44'/145'/0'";
   }
 }

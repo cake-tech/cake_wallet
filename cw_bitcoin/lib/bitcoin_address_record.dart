@@ -16,6 +16,7 @@ abstract class BaseBitcoinAddressRecord {
     String name = '',
     bool isUsed = false,
     required this.type,
+    this.seedBytesType,
     bool? isHidden,
   })  : _txCount = txCount,
         _balance = balance,
@@ -62,6 +63,10 @@ abstract class BaseBitcoinAddressRecord {
 
   BitcoinAddressType type;
 
+  final SeedBytesType? seedBytesType;
+
+  String get derivationPath => '';
+
   String toJSON() => json.encode({
         'address': address,
         'index': index,
@@ -73,6 +78,8 @@ abstract class BaseBitcoinAddressRecord {
         'balance': balance,
         'type': type.toString(),
         'runtimeType': runtimeType.toString(),
+        'seedBytesType': seedBytesType?.value,
+        'derivationPath': derivationPath,
       });
 
   static BaseBitcoinAddressRecord fromJSON(
@@ -98,15 +105,19 @@ abstract class BaseBitcoinAddressRecord {
 
 class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   final BitcoinDerivationInfo derivationInfo;
-  final SeedBytesType seedBytesType;
+
+  String _derivationPath = '';
+
+  @override
+  String get derivationPath => _derivationPath;
 
   BitcoinAddressRecord(
     super.address, {
     required super.index,
     required this.derivationInfo,
-    required this.seedBytesType,
+    super.seedBytesType,
     super.isHidden,
-    super.isChange = false,
+    required super.isChange,
     super.txCount = 0,
     super.balance = 0,
     super.name = '',
@@ -114,6 +125,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     required super.type,
     String? scriptHash,
     BasedUtxoNetwork? network,
+    String? derivationPath,
   }) {
     if (scriptHash != null) {
       this.scriptHash = scriptHash;
@@ -122,6 +134,14 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     } else {
       throw ArgumentError('either scriptHash or network must be provided');
     }
+
+    if (derivationPath == null)
+      _derivationPath = derivationInfo.derivationPath
+          .addElem(Bip32KeyIndex(isChange ? 1 : 0))
+          .addElem(Bip32KeyIndex(index))
+          .toString();
+    else
+      _derivationPath = derivationPath;
   }
 
   factory BitcoinAddressRecord.fromJSON(
@@ -131,18 +151,18 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   ]) {
     final decoded = json.decode(jsonSource) as Map;
     final derivationInfoSnp = decoded['derivationInfo'] as Map<String, dynamic>?;
-    final derivationTypeSnp = decoded['derivationType'] as int?;
-    final cwDerivationType = derivationTypeSnp != null
-        ? SeedBytesType.values[derivationTypeSnp]
-        : derivationInfo!.derivationType == DerivationType.bip39
+    final seedBytesTypeSnp = decoded['seedBytesType'] as String?;
+    final seedBytesType = seedBytesTypeSnp == null
+        ? derivationInfo!.derivationType == DerivationType.bip39
             ? SeedBytesType.old_bip39
-            : SeedBytesType.old_electrum;
+            : SeedBytesType.old_electrum
+        : SeedBytesType.fromValue(seedBytesTypeSnp.toString());
 
     return BitcoinAddressRecord(
       decoded['address'] as String,
       index: decoded['index'] as int,
       derivationInfo: derivationInfoSnp == null
-          ? [SeedBytesType.bip39, SeedBytesType.old_bip39].contains(cwDerivationType)
+          ? !seedBytesType.isElectrum
               ? BitcoinDerivationInfo.fromDerivationAndAddress(
                   BitcoinDerivationType.bip39,
                   decoded['address'] as String,
@@ -150,7 +170,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
                 )
               : BitcoinDerivationInfos.ELECTRUM
           : BitcoinDerivationInfo.fromJSON(derivationInfoSnp),
-      seedBytesType: cwDerivationType,
+      seedBytesType: seedBytesType,
       isHidden: decoded['isHidden'] as bool? ?? false,
       isChange: decoded['isChange'] as bool? ?? false,
       isUsed: decoded['isUsed'] as bool? ?? false,
@@ -171,7 +191,6 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
   String toJSON() {
     final m = json.decode(super.toJSON()) as Map<String, dynamic>;
     m['derivationInfo'] = derivationInfo.toJSON();
-    m['derivationType'] = seedBytesType.index;
     m['scriptHash'] = scriptHash;
     return json.encode(m);
   }
@@ -202,6 +221,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   String _derivationPath;
 
+  @override
   String get derivationPath => _derivationPath;
 
   int get labelIndex => index;
@@ -219,6 +239,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     super.isUsed = false,
     super.type = SilentPaymentsAddresType.p2sp,
     required super.isChange,
+    super.seedBytesType,
     super.isHidden,
     this.labelHex,
   })  : _derivationPath = derivationPath,
@@ -247,13 +268,13 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
       labelHex: decoded['labelHex'] as String?,
       isChange: decoded['isChange'] as bool? ?? false,
       isHidden: decoded['isHidden'] as bool?,
+      seedBytesType: SeedBytesType.fromValue(decoded['seedBytesType'] as String),
     );
   }
 
   @override
   String toJSON() {
     final m = json.decode(super.toJSON()) as Map<String, dynamic>;
-    m['derivationPath'] = _derivationPath;
     m['index'] = labelIndex;
     m['labelHex'] = labelHex;
     return json.encode(m);
@@ -263,6 +284,9 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
 class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
   final String tweak;
   final String spAddress;
+
+  @override
+  String get derivationPath => '';
 
   BitcoinReceivedSPAddressRecord(
     super.address, {
@@ -274,6 +298,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
     required this.tweak,
     required this.spAddress,
     required super.isChange,
+    super.seedBytesType,
     super.labelHex,
   }) : super(isHidden: true, type: SegwitAddressType.p2tr);
 
@@ -310,6 +335,9 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
       tweak: decoded['tweak'] as String? ?? decoded['silent_payment_tweak'] as String? ?? '',
       isChange: decoded['isChange'] as bool? ?? false,
       spAddress: decoded['spAddress'] as String? ?? '',
+      seedBytesType: (decoded['seedBytesType'] as String?) == null
+          ? null
+          : SeedBytesType.fromValue(decoded['seedBytesType'] as String),
     );
   }
 
@@ -323,9 +351,15 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
 }
 
 class LitecoinMWEBAddressRecord extends BaseBitcoinAddressRecord {
+  String _derivationPath = '';
+
+  @override
+  String get derivationPath => _derivationPath;
+
   LitecoinMWEBAddressRecord(
     super.address, {
     required super.index,
+    super.seedBytesType,
     super.isHidden,
     super.isChange = false,
     super.txCount = 0,
@@ -333,7 +367,11 @@ class LitecoinMWEBAddressRecord extends BaseBitcoinAddressRecord {
     super.name = '',
     super.isUsed = false,
     BasedUtxoNetwork? network,
-  }) : super(type: SegwitAddressType.mweb);
+  }) : super(type: SegwitAddressType.mweb) {
+    var mwebPath = BitcoinDerivationInfos.LITECOIN_MWEB.derivationPath;
+
+    _derivationPath = mwebPath.addElem(Bip32KeyIndex(index)).toString();
+  }
 
   factory LitecoinMWEBAddressRecord.fromJSON(String jsonSource) {
     final decoded = json.decode(jsonSource) as Map;
@@ -347,6 +385,9 @@ class LitecoinMWEBAddressRecord extends BaseBitcoinAddressRecord {
       txCount: decoded['txCount'] as int? ?? 0,
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
+      seedBytesType: (decoded['seedBytesType'] as String?) == null
+          ? null
+          : SeedBytesType.fromValue(decoded['seedBytesType'] as String),
     );
   }
 

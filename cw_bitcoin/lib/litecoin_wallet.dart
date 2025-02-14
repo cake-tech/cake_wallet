@@ -783,6 +783,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         outputId,
         utxo.value.toInt(),
         mwebAddrs.indexOf(utxo.address),
+        utxo.height,
       );
       if (unspent.vout == 0) {
         unspent.isChange = true;
@@ -1460,6 +1461,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         return tx;
       }
 
+      final status = await CwMweb.status(StatusRequest());
+
       // check if any of the inputs of this transaction are hog-ex:
       // this list is only non-mweb inputs:
       tx2.inputs.forEach((txInput) {
@@ -1475,6 +1478,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         }
 
         int confirmations = utxo.confirmations ?? 0;
+        if (confirmations == 0 && utxo.height != null) {
+          confirmations = status.mwebUtxosHeight - utxo.height!;
+        }
+
         if (confirmations < 6) {
           throw Exception(
               "A transaction input has less than 6 confirmations, please try again later.");
