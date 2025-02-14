@@ -109,9 +109,6 @@ abstract class OtherSettingsViewModelBase with Store {
     return customItem != null ? priorities.indexOf(customItem) : null;
   }
 
-  @action
-  void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
-
   int? get maxCustomFeeRate {
     if (_wallet.type == WalletType.bitcoin) {
       return bitcoin!.getMaxCustomFeeRate(_wallet);
