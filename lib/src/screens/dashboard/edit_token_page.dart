@@ -211,13 +211,17 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                 .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
                               _contractAddressController.text,
                             );
+                            final isWhitelisted = await widget.homeSettingsViewModel
+                                .checkIfTokenIsWhitelisted(_contractAddressController.text);
+
                             final actionCall = () async {
                               await widget.homeSettingsViewModel.addToken(
                                 token: CryptoCurrency(
                                   name: _tokenNameController.text,
                                   title: _tokenSymbolController.text.toUpperCase(),
                                   decimals: int.parse(_tokenDecimalController.text),
-                                  iconPath: _tokenIconPathController.text,
+                                  iconPath: isWhitelisted ? _tokenIconPathController.text : null,
+                                  isPotentialScam: hasPotentialError || !isWhitelisted,
                                 ),
                                 contractAddress: _contractAddressController.text,
                               );
@@ -287,7 +291,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       if (token != null) {
         final isZano = widget.homeSettingsViewModel.walletType == WalletType.zano;
         if (_tokenNameController.text.isEmpty || isZano) _tokenNameController.text = token.name;
-        if (_tokenSymbolController.text.isEmpty || isZano) _tokenSymbolController.text = token.title;
+        if (_tokenSymbolController.text.isEmpty || isZano)
+          _tokenSymbolController.text = token.title;
         if (_tokenIconPathController.text.isEmpty)
           _tokenIconPathController.text = token.iconPath ?? '';
         if (_tokenDecimalController.text.isEmpty || isZano)
@@ -322,7 +327,9 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             placeholder: S.of(context).token_contract_address,
             options: [AddressTextFieldOption.paste],
             buttonColor: Theme.of(context).hintColor,
-            validator: widget.homeSettingsViewModel.walletType == WalletType.zano ? null : AddressValidator(type: widget.homeSettingsViewModel.nativeToken).call,
+            validator: widget.homeSettingsViewModel.walletType == WalletType.zano
+                ? null
+                : AddressValidator(type: widget.homeSettingsViewModel.nativeToken).call,
             onPushPasteButton: (_) {
               _pasteText();
             },
