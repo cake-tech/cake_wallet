@@ -50,14 +50,14 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             //   color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
             //     width: 1
             // ),
-            boxShadow: [
-              BoxShadow(
-                  color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
-                      .withAlpha(50),
-                  spreadRadius: shadowSpread ?? 3,
-                  blurRadius: shadowBlur ?? 7,
-              )
-            ],
+            // boxShadow: [
+            //   BoxShadow(
+            //       color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
+            //           .withAlpha(50),
+            //       spreadRadius: shadowSpread ?? 3,
+            //       blurRadius: shadowBlur ?? 7,
+            //   )
+            // ],
           ),
           child: OutlinedButton(
             onPressed: onTap,

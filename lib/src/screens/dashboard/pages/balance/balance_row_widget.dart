@@ -79,15 +79,15 @@ class BalanceRowWidget extends StatelessWidget {
               width: 1,
             ),
             color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-            boxShadow: [
-              BoxShadow(
-                  color: Theme.of(context)
-                      .extension<BalancePageTheme>()!
-                      .cardBorderColor
-                      .withAlpha(50),
-                  spreadRadius: dashboardViewModel.getShadowSpread(),
-                  blurRadius: dashboardViewModel.getShadowBlur())
-            ],
+            // boxShadow: [
+            //   BoxShadow(
+            //       color: Theme.of(context)
+            //           .extension<BalancePageTheme>()!
+            //           .cardBorderColor
+            //           .withAlpha(50),
+            //       spreadRadius: dashboardViewModel.getShadowSpread(),
+            //       blurRadius: dashboardViewModel.getShadowBlur())
+            // ],
           ),
           child: TextButton(
             onPressed: () => Fluttertoast.showToast(
