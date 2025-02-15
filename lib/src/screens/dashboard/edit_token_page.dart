@@ -214,14 +214,19 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             final isWhitelisted = await widget.homeSettingsViewModel
                                 .checkIfTokenIsWhitelisted(_contractAddressController.text);
 
+                            bool isPotentialScam = hasPotentialError;
+                            if (_tokenIconPathController.text.isNotEmpty && !isWhitelisted) {
+                              isPotentialScam = true;
+                            }
+
                             final actionCall = () async {
                               await widget.homeSettingsViewModel.addToken(
                                 token: CryptoCurrency(
                                   name: _tokenNameController.text,
                                   title: _tokenSymbolController.text.toUpperCase(),
                                   decimals: int.parse(_tokenDecimalController.text),
-                                  iconPath: isWhitelisted ? _tokenIconPathController.text : null,
-                                  isPotentialScam: hasPotentialError || !isWhitelisted,
+                                  iconPath: isPotentialScam ? _tokenIconPathController.text : null,
+                                  isPotentialScam: isPotentialScam,
                                 ),
                                 contractAddress: _contractAddressController.text,
                               );

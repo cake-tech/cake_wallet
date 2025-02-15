@@ -186,7 +186,7 @@ abstract class HomeSettingsViewModelBase with Store {
     }
   }
 
-  List<String> getWhitelistedTokens(CryptoCurrency currency) {
+  List<String> getWhitelistedTokenAddresses(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.eth:
         return [
@@ -218,7 +218,7 @@ abstract class HomeSettingsViewModelBase with Store {
   }
 
   bool checkIfTokenIsWhitelisted(String contractAddress) {
-    return getWhitelistedTokens(_balanceViewModel.wallet.currency).contains(contractAddress);
+    return getWhitelistedTokenAddresses(_balanceViewModel.wallet.currency).contains(contractAddress);
   }
 
   Future<bool> _isPotentialScamTokenViaMoralis(
@@ -395,6 +395,7 @@ abstract class HomeSettingsViewModelBase with Store {
   CryptoCurrency get nativeToken => _balanceViewModel.wallet.currency;
 
   void _updateFiatPrices(CryptoCurrency token) async {
+    if (token.isPotentialScam) return;// don't fetch price data for potential scam tokens
     try {
       _balanceViewModel.fiatConvertationStore.prices[token] =
           await FiatConversionService.fetchPrice(
