@@ -17,6 +17,7 @@ class SettingActions {
 
   static List<SettingActions> all = [
     connectionSettingAction,
+    walletSettingAction,
     addressBookSettingAction,
     silentPaymentsSettingAction,
     litecoinMwebSettingAction,
@@ -30,6 +31,7 @@ class SettingActions {
 
   static List<SettingActions> desktopSettings = [
     connectionSettingAction,
+    walletSettingAction,
     addressBookSettingAction,
     silentPaymentsSettingAction,
     securityBackupSettingAction,
@@ -72,6 +74,16 @@ class SettingActions {
     image: 'assets/images/nodes_menu.png',
     onTap: (BuildContext context) {
       Navigator.of(context).pushNamed(Routes.connectionSync);
+    },
+  );
+
+  static SettingActions walletSettingAction = SettingActions._(
+    key: ValueKey('dashboard_page_menu_widget_wallet_menu_button_key'),
+    name: (context) => S.of(context).wallets,
+    image: 'assets/images/wallet_menu.png',
+    onTap: (BuildContext context) {
+      Navigator.pop(context);
+      Navigator.of(context).pushNamed(Routes.walletList);
     },
   );
 
