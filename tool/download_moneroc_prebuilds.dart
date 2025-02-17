@@ -44,11 +44,13 @@ Future<void> main() async {
       final url = asset["browser_download_url"] as String;
       printV("- downloading $localFilename");
       await _dio.download(url, localFilename);
-      printV("  extracting $localFilename");
-      final inputStream = InputFileStream(localFilename);
-      final archive = XZDecoder().decodeBuffer(inputStream);
-      final outputStream = OutputFileStream(localFilename.replaceAll(".xz", ""));
-      outputStream.writeBytes(archive);
+      if (localFilename.endsWith(".xz")) {
+        printV("  extracting $localFilename");
+        final inputStream = InputFileStream(localFilename);
+        final archive = XZDecoder().decodeBuffer(inputStream);
+        final outputStream = OutputFileStream(localFilename.replaceAll(".xz", ""));
+        outputStream.writeBytes(archive);
+      }
     }
   }
   if (Platform.isMacOS) {
