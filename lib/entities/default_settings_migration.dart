@@ -401,6 +401,13 @@ Future<void> defaultSettingsMigration(
             enabled: false,
           );
 			    break;
+        case 48:
+          await _updateNode(
+            nodes: nodes,
+            currentUri: zanoDefaultNodeUri,
+            useSSL: true,
+          );
+			    break;
         default:
           break;
       }
