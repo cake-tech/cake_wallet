@@ -63,6 +63,9 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   BitcoinSilentPaymentAddressRecord? activeSilentAddress;
 
   @observable
+  String? scanningSilentAddress;
+
+  @observable
   int silentAddressIndex = 0;
 
   @override
@@ -332,11 +335,13 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
         if (getIsReceive(addr)) {
           allAddressesMap[addr.address] = addr.name;
 
+          final isCurrentType = addr.type == addressPageType;
+
           if (addressType == SilentPaymentsAddresType.p2sp) {
             final addressString =
                 '${addr.address.substring(0, 9 + 5)}...${addr.address.substring(addr.address.length - 9, addr.address.length)}';
 
-            if (addr.address != address) {
+            if (!isCurrentType) {
               addressesMap[addr.address] = addr.name.isEmpty
                   ? "Silent Payments" + ': $addressString'
                   : "Silent Payments - " + addr.name + ': $addressString';
@@ -347,7 +352,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
             // Silent Payments address don't break the loop because all are used
             // break;
           } else {
-            if (addr.address != address) {
+            if (!isCurrentType) {
               addressesMap[addr.address] = '${addressType.value.toUpperCase()}: ${addr.address}';
             } else {
               addressesMap[address] = 'Active - ${addressType.value.toUpperCase()}: $address';
@@ -429,11 +434,15 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     updateAddressesByType();
   }
 
-  Map<String, int> get labels {
+  Map<String, int> getLabels(String address) {
     final labels = <String, int>{};
 
     for (int i = 0; i < silentPaymentAddresses.length; i++) {
       final silentAddressRecord = silentPaymentAddresses[i];
+      if (!silentAddressRecord.address.startsWith(address.substring(0, 9))) {
+        continue;
+      }
+
       final silentPaymentTweak = silentAddressRecord.labelHex;
 
       if (silentPaymentTweak != null) {
@@ -451,6 +460,30 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     hiddenAddresses.addAll(silentPaymentAddresses
         .where((addressRecord) => addressRecord.isHidden)
         .map((addressRecord) => addressRecord.address));
+  }
+
+  List<String> getUsableSilentPaymentAddresses() {
+    final oldSpendPath = Bip32PathParser.parse(OLD_SP_PATH.replaceFirst("#", "0"));
+    final primaryAddress = silentPaymentAddresses.firstWhere(
+      (addressRecord) =>
+          !addressRecord.isChange &&
+          addressRecord.labelIndex == 0 &&
+          addressRecord.derivationPath != oldSpendPath.toString(),
+    );
+
+    final hiddenAddress = silentPaymentAddresses.firstWhere(
+      (addressRecord) =>
+          !addressRecord.isChange &&
+          addressRecord.labelIndex == 0 &&
+          addressRecord.derivationPath == oldSpendPath.toString(),
+    );
+
+    return [primaryAddress.address, hiddenAddress.address];
+  }
+
+  @action
+  void setSilentPaymentsScanWallet(String address) {
+    scanningSilentAddress = address;
   }
 
   Map<String, dynamic> toJson() {

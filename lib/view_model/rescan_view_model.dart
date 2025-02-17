@@ -31,18 +31,28 @@ abstract class RescanViewModelBase with Store {
 
   @computed
   bool get isMwebScan => wallet.type == WalletType.litecoin;
-  
+
   Future<bool> get isBitcoinMempoolAPIEnabled async =>
       wallet.type == WalletType.bitcoin && await bitcoin!.checkIfMempoolAPIIsEnabled(wallet);
 
   @action
-  Future<void> rescanCurrentWallet({required int restoreHeight}) async {
+  Future<List<String>> getSilentPaymentWallets() async {
+    return bitcoin!.getSilentPaymentWallets(wallet);
+  }
+
+  @action
+  Future<void> rescanCurrentWallet({required int restoreHeight, String? address}) async {
     state = RescanWalletState.rescaning;
     if (wallet.type != WalletType.bitcoin) {
       wallet.rescan(height: restoreHeight);
       wallet.transactionHistory.clear();
     } else {
-      bitcoin!.rescan(wallet, height: restoreHeight, doSingleScan: doSingleScan);
+      bitcoin!.rescan(
+        wallet,
+        address: address,
+        height: restoreHeight,
+        doSingleScan: doSingleScan,
+      );
     }
     state = RescanWalletState.none;
   }

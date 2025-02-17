@@ -369,7 +369,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @action
-  Future<void> setSilentPaymentsScanning(bool active, [int? height, bool? doSingleScan]) async {
+  Future<void> setSilentPaymentsScanning(
+    bool active, [
+    String? address,
+    int? height,
+    bool? doSingleScan,
+  ]) async {
     silentPaymentsScanningActive = active;
     final nodeSupportsSilentPayments = await getNodeSupportsSilentPayments();
     final isAllowedToScan = nodeSupportsSilentPayments || allowedToSwitchNodesForScanning;
@@ -386,7 +391,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
 
       if (tip > beginHeight) {
-        _requestTweakScanning(beginHeight, doSingleScan: doSingleScan);
+        _requestTweakScanning(beginHeight, address, doSingleScan);
       }
     } else if (syncStatus is! SyncedSyncStatus) {
       await waitSendWorker(ElectrumWorkerStopScanningRequest());
@@ -397,6 +402,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   @action
   Future<void> updateAllUnspents([Set<String>? scripthashes, bool? wait]) async {
+    scripthashes ??= this.walletAddresses.allScriptHashes;
     await super.updateAllUnspents(scripthashes, wait);
 
     final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
@@ -497,7 +503,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @action
   @override
   Future<void> rescan({required int height, bool? doSingleScan}) async {
-    setSilentPaymentsScanning(true, height, doSingleScan);
+    setSilentPaymentsScanning(true, null, height, doSingleScan);
   }
 
   @action
@@ -632,7 +638,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @action
-  Future<void> _requestTweakScanning(int height, {bool? doSingleScan}) async {
+  Future<void> _requestTweakScanning(
+    int height, [
+    String? address,
+    bool? doSingleScan,
+  ]) async {
+    final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
+    address ??= walletAddresses.silentPaymentWallet?.toString();
+
     if (currentChainTip == null) {
       throw Exception("currentChainTip is null");
     }
@@ -646,16 +659,17 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     syncStatus = AttemptingScanSyncStatus();
 
-    final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
     workerSendPort!.send(
       ElectrumWorkerTweaksSubscribeRequest(
         scanData: ScanData(
-          silentPaymentsWallets: walletAddresses.silentPaymentWallets,
+          silentPaymentsWallets: walletAddresses.silentPaymentWallets
+              .where((wallet) => wallet.toString() == address)
+              .toList(),
           network: network,
           height: height,
           chainTip: chainTip,
           transactionHistoryIds: transactionHistory.transactions.keys.toList(),
-          labels: walletAddresses.labels,
+          labels: walletAddresses.getLabels(address!),
           labelIndexes: walletAddresses.silentPaymentAddresses
               .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.labelIndex >= 1)
               .map((addr) => addr.labelIndex)
@@ -1276,7 +1290,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             utxo.bitcoinAddressRecord is BitcoinReceivedSPAddressRecord)
         .toList();
 
-    unspentCoins.clear();
     unspentCoins.addAll(silentPaymentUnspents);
 
     super.onUnspentResponse(unspents);

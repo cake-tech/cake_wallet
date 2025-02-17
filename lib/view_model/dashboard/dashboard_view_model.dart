@@ -467,12 +467,17 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @action
-  void setSilentPaymentsScanning(bool active) {
+  void setSilentPaymentsScanning(bool active, String address) {
     silentPaymentsScanningActive = active;
 
     if (hasSilentPayments) {
-      bitcoin!.setScanningActive(wallet, active);
+      bitcoin!.setScanningActive(wallet, active, address);
     }
+  }
+
+  @action
+  Future<List<String>> getSilentPaymentWallets() async {
+    return bitcoin!.getSilentPaymentWallets(wallet);
   }
 
   @computed
@@ -499,8 +504,7 @@ abstract class DashboardViewModelBase with Store {
       spread = 0;
     else if (settingsStore.currentTheme.type == ThemeType.dark)
       spread = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.oled)
-      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled) spread = 0;
     return spread;
   }
 
@@ -513,8 +517,7 @@ abstract class DashboardViewModelBase with Store {
       blur = 0;
     else if (settingsStore.currentTheme.type == ThemeType.dark)
       blur = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.oled)
-      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled) blur = 0;
     return blur;
   }
 

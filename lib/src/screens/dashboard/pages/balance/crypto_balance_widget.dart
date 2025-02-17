@@ -7,8 +7,10 @@ import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_row_widg
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
@@ -383,9 +385,41 @@ class CryptoBalanceWidget extends StatelessWidget {
     final isSilentPaymentsScanningActive = dashboardViewModel.silentPaymentsScanningActive;
     final newValue = !isSilentPaymentsScanningActive;
     final willScan = newValue == true;
-    dashboardViewModel.silentPaymentsScanningActive = newValue;
 
     if (willScan) {
+      final wallets = await dashboardViewModel.getSilentPaymentWallets();
+      bool cancelled = false;
+      String? walletChoice;
+
+      await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) => DoubleCheckboxAlert(
+          value1:
+              '${wallets[0].substring(0, 9 + 5)}...${wallets[0].substring(wallets[0].length - 9, wallets[0].length)}',
+          value2:
+              '${wallets[1].substring(0, 9 + 5)}...${wallets[1].substring(wallets[1].length - 9, wallets[1].length)}',
+          alertTitle: S.of(context).cakepay_confirm_purchase,
+          leftButtonText: S.of(context).cancel,
+          rightButtonText: S.of(context).confirm,
+          actionLeftButton: () {
+            cancelled = true;
+            Navigator.of(context).pop();
+          },
+          actionRightButton: (choice) {
+            walletChoice = wallets.firstWhere(
+              (wallet) => wallet.startsWith(choice.substring(0, 9 + 5)),
+            );
+            Navigator.of(context).pop();
+          },
+        ),
+      );
+
+      if (cancelled) {
+        return;
+      }
+
+      dashboardViewModel.silentPaymentsScanningActive = newValue;
+
       late bool isElectrsSPEnabled;
       try {
         isElectrsSPEnabled = await bitcoin!
@@ -406,7 +440,7 @@ class CryptoBalanceWidget extends StatelessWidget {
             leftButtonText: S.of(context).cancel,
             actionRightButton: () {
               dashboardViewModel.allowSilentPaymentsScanning(true);
-              dashboardViewModel.setSilentPaymentsScanning(true);
+              dashboardViewModel.setSilentPaymentsScanning(true, walletChoice!);
               Navigator.of(context).pop();
             },
             actionLeftButton: () {
@@ -418,7 +452,7 @@ class CryptoBalanceWidget extends StatelessWidget {
       }
     }
 
-    return dashboardViewModel.setSilentPaymentsScanning(newValue);
+    return dashboardViewModel.setSilentPaymentsScanning(newValue, '');
   }
 
   Future<void> _enableMweb(BuildContext context) async {
@@ -449,5 +483,195 @@ class CryptoBalanceWidget extends StatelessWidget {
               },
             ));
     dashboardViewModel.dismissMweb();
+  }
+}
+
+class DoubleCheckboxAlert extends BaseAlertDialog {
+  DoubleCheckboxAlert({
+    required this.alertTitle,
+    required this.leftButtonText,
+    required this.rightButtonText,
+    required this.actionLeftButton,
+    required this.actionRightButton,
+    required this.value1,
+    required this.value2,
+    this.alertBarrierDismissible = true,
+    Key? key,
+  });
+
+  final String alertTitle;
+  final String leftButtonText;
+  final String rightButtonText;
+  final VoidCallback actionLeftButton;
+  final Function(String) actionRightButton;
+  final bool alertBarrierDismissible;
+
+  bool checkbox1 = false;
+  void toggleCheckbox1() => checkbox1 = !checkbox1;
+  bool checkbox2 = false;
+  void toggleCheckbox2() => checkbox2 = !checkbox2;
+
+  bool showValidationMessage = true;
+
+  @override
+  String get titleText => alertTitle;
+
+  @override
+  bool get isDividerExists => true;
+
+  @override
+  String get leftActionButtonText => leftButtonText;
+
+  @override
+  String get rightActionButtonText => rightButtonText;
+
+  @override
+  VoidCallback get actionLeft => actionLeftButton;
+
+  String choice = '';
+
+  void setChoice(String value) {
+    choice = value;
+  }
+
+  @override
+  VoidCallback get actionRight => () {
+        actionRightButton(choice);
+      };
+
+  @override
+  bool get barrierDismissible => alertBarrierDismissible;
+
+  String value1;
+  String value2;
+
+  @override
+  Widget content(BuildContext context) {
+    return CheckboxAlertContent(
+      checkbox1: checkbox1,
+      value1: value1,
+      toggleCheckbox1: toggleCheckbox1,
+      checkbox2: checkbox2,
+      value2: value2,
+      toggleCheckbox2: toggleCheckbox2,
+      setChoice: setChoice,
+    );
+  }
+}
+
+class CheckboxAlertContent extends StatefulWidget {
+  CheckboxAlertContent({
+    required this.checkbox1,
+    required this.value1,
+    required this.toggleCheckbox1,
+    required this.checkbox2,
+    required this.value2,
+    required this.toggleCheckbox2,
+    required this.setChoice,
+    Key? key,
+  }) : super(key: key);
+
+  bool checkbox1;
+  String value1;
+  void Function() toggleCheckbox1;
+  bool checkbox2;
+  String value2;
+  void Function() toggleCheckbox2;
+
+  void Function(String) setChoice;
+
+  @override
+  _CheckboxAlertContentState createState() => _CheckboxAlertContentState(
+        checkbox1: checkbox1,
+        value1: value1,
+        toggleCheckbox1: toggleCheckbox1,
+        checkbox2: checkbox2,
+        value2: value2,
+        toggleCheckbox2: toggleCheckbox2,
+        setChoice: setChoice,
+      );
+
+  static _CheckboxAlertContentState? of(BuildContext context) {
+    return context.findAncestorStateOfType<_CheckboxAlertContentState>();
+  }
+}
+
+class _CheckboxAlertContentState extends State<CheckboxAlertContent> {
+  _CheckboxAlertContentState({
+    required this.checkbox1,
+    required this.value1,
+    required this.toggleCheckbox1,
+    required this.checkbox2,
+    required this.value2,
+    required this.toggleCheckbox2,
+    required this.setChoice,
+  });
+
+  bool checkbox1;
+  String value1;
+  void Function() toggleCheckbox1;
+  bool checkbox2;
+  String value2;
+  void Function() toggleCheckbox2;
+
+  void Function(String) setChoice;
+
+  bool showValidationMessage = true;
+
+  bool get areAllCheckboxesChecked => checkbox1 && checkbox2;
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          StandardCheckbox(
+            value: checkbox1,
+            caption: value1,
+            onChanged: (bool? value) {
+              setState(() {
+                if (value == true) {
+                  setChoice(value1);
+                  checkbox1 = value!;
+                  checkbox2 = !checkbox1;
+                  toggleCheckbox1();
+                  showValidationMessage = !areAllCheckboxesChecked;
+                }
+              });
+            },
+          ),
+          StandardCheckbox(
+            value: checkbox2,
+            caption: value2,
+            onChanged: (bool? value) {
+              setState(() {
+                if (value == true) {
+                  setChoice(value2);
+                  checkbox2 = value!;
+                  checkbox1 = !checkbox2;
+                  toggleCheckbox2();
+                  showValidationMessage = !areAllCheckboxesChecked;
+                }
+              });
+            },
+          ),
+          if (showValidationMessage)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                'Please select one option',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 14,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w400,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }

@@ -247,7 +247,7 @@ abstract class Bitcoin {
   bool hasTaprootInput(PendingTransaction pendingTransaction);
   bool getScanningActive(Object wallet);
   Future<void> allowToSwitchNodesForScanning(Object wallet, bool allow);
-  Future<void> setScanningActive(Object wallet, bool active);
+  Future<void> setScanningActive(Object wallet, bool active, [String? address]);
   bool isTestnet(Object wallet);
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
@@ -287,7 +287,12 @@ abstract class Bitcoin {
   Future<bool> checkIfMempoolAPIIsEnabled(Object wallet);
   Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled});
   int getLitecoinHeightByDate({required DateTime date});
-  Future<void> rescan(Object wallet, {required int height, bool? doSingleScan});
+  Future<void> rescan(
+    Object wallet, {
+    required int height,
+    String? address,
+    bool? doSingleScan,
+  });
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet);
   void deleteSilentPaymentAddress(Object wallet, String address);
   Future<void> updateFeeRates(Object wallet);

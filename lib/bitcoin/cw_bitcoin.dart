@@ -579,9 +579,9 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<void> setScanningActive(Object wallet, bool active) async {
+  Future<void> setScanningActive(Object wallet, bool active, [String? address]) async {
     final bitcoinWallet = wallet as BitcoinWallet;
-    bitcoinWallet.setSilentPaymentsScanning(active);
+    bitcoinWallet.setSilentPaymentsScanning(active, address);
   }
 
   @override
@@ -621,9 +621,21 @@ class CWBitcoin extends Bitcoin {
   int getLitecoinHeightByDate({required DateTime date}) => getLtcHeightByDate(date: date);
 
   @override
-  Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
+  Future<void> rescan(
+    Object wallet, {
+    required int height,
+    String? address,
+    bool? doSingleScan,
+  }) async {
     final bitcoinWallet = wallet as BitcoinWallet;
     bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
+  }
+
+  @override
+  Future<List<String>> getSilentPaymentWallets(Object wallet) async {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    return (bitcoinWallet.walletAddresses as BitcoinWalletAddresses)
+        .getUsableSilentPaymentAddresses();
   }
 
   @override

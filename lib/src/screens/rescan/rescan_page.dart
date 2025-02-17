@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/balance/crypto_balance_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -66,9 +67,40 @@ class RescanPage extends BasePage {
     );
   }
 
-  // TODO: common with crypto balance widget.dart
+  // TODO: common function with the one on crypto balance widget.dart
   Future<void> _toggleSilentPaymentsScanning(BuildContext context) async {
     final height = _blockchainHeightWidgetKey.currentState!.height;
+    final wallets = await _rescanViewModel.getSilentPaymentWallets();
+
+    bool cancelled = false;
+    String? walletChoice;
+
+    await showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) => DoubleCheckboxAlert(
+        value1:
+            '${wallets[0].substring(0, 9 + 5)}...${wallets[0].substring(wallets[0].length - 9, wallets[0].length)}',
+        value2:
+            '${wallets[1].substring(0, 9 + 5)}...${wallets[1].substring(wallets[1].length - 9, wallets[1].length)}',
+        alertTitle: S.of(context).cakepay_confirm_purchase,
+        leftButtonText: S.of(context).cancel,
+        rightButtonText: S.of(context).confirm,
+        actionLeftButton: () {
+          cancelled = true;
+          Navigator.of(context).pop();
+        },
+        actionRightButton: (choice) {
+          walletChoice = wallets.firstWhere(
+            (wallet) => wallet.startsWith(choice.substring(0, 9 + 5)),
+          );
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+
+    if (cancelled) {
+      return;
+    }
 
     Navigator.of(context).pop();
 
@@ -93,13 +125,13 @@ class RescanPage extends BasePage {
           actionRightButton: () async {
             Navigator.of(_dialogContext).pop();
 
-            _rescanViewModel.rescanCurrentWallet(restoreHeight: height);
+            _rescanViewModel.rescanCurrentWallet(restoreHeight: height, address: walletChoice);
           },
           actionLeftButton: () => Navigator.of(_dialogContext).pop(),
         ),
       );
     }
 
-    _rescanViewModel.rescanCurrentWallet(restoreHeight: height);
+    _rescanViewModel.rescanCurrentWallet(restoreHeight: height, address: walletChoice);
   }
 }
