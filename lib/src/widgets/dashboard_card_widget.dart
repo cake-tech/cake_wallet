@@ -50,21 +50,33 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(customBorder ?? 20),
-            border: Border.all(
-              color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-            ),
+            // border: Border.all(
+            //   color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+            //     width: 1
+            // ),
             color: color,
             boxShadow: boxShadow,
+            // boxShadow: [
+            //   BoxShadow(
+            //       color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
+            //           .withAlpha(50),
+            //       spreadRadius: shadowSpread ?? 3,
+            //       blurRadius: shadowBlur ?? 7,
+            //   )
+            // ],
           ),
-          child: TextButton(
+          child: OutlinedButton(
             onPressed: onTap,
-            style: TextButton.styleFrom(
-              backgroundColor: color != null
-                  ? null
-                  : Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-              padding: EdgeInsets.all(24),
-            ),
+            style: OutlinedButton.styleFrom(
+                side: BorderSide(
+                    width: 1,
+                    color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor),
+                backgroundColor: color != null
+                    ? null
+                    : Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                shape:
+                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(customBorder ?? 20)),
+                padding: EdgeInsets.all(24)),
             child: Column(
               children: [
                 Row(
