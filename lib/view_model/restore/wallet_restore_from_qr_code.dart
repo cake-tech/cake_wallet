@@ -76,9 +76,7 @@ class WalletRestoreFromQRCode {
     RegExp _getPattern(int wordCount) =>
         RegExp(r'(?<=\W|^)((?:\w+\s+){' + (wordCount - 1).toString() + r'}\w+)(?=\W|$)');
 
-    List<int> patternCounts = walletType == WalletType.monero || walletType == WalletType.wownero
-        ? [25, 16, 14, 13]
-        : [24, 18, 12];
+    final List<int> patternCounts = [12, 13, 14, 16, 18, 24, 25, 26];
 
     for (final count in patternCounts) {
       final pattern = _getPattern(count);
@@ -91,7 +89,8 @@ class WalletRestoreFromQRCode {
   }
 
   static Future<RestoredWallet> scanQRCodeForRestoring(BuildContext context) async {
-    String code = await presentQRScanner(context);
+    String? code = await presentQRScanner(context);
+    if (code == null) throw Exception("Unexpected scan QR code value: aborted");
     if (code.isEmpty) throw Exception('Unexpected scan QR code value: value is empty');
 
     WalletType? walletType;
@@ -122,7 +121,9 @@ class WalletRestoreFromQRCode {
       queryParameters['seed'] = _extractSeedPhraseFromUrl(code, walletType!);
     }
     if (queryParameters['address'] == null) {
-      queryParameters['address'] = _extractAddressFromUrl(code, walletType!);
+      try {
+        queryParameters['address'] = _extractAddressFromUrl(code, walletType!);
+      } catch (_) {}
     }
 
     Map<String, dynamic> credentials = {'type': walletType, ...queryParameters, 'raw_qr': code};
@@ -223,7 +224,8 @@ class WalletRestoreFromQRCode {
 
     if (type == WalletType.monero) {
       final codeParsed = json.decode(credentials['raw_qr'].toString());
-      if (codeParsed["version"] != 0) throw UnimplementedError("Found view-only restore with unsupported version");
+      if (codeParsed["version"] != 0)
+        throw UnimplementedError("Found view-only restore with unsupported version");
       if (codeParsed["primaryAddress"] == null ||
           codeParsed["privateViewKey"] == null ||
           codeParsed["restoreHeight"] == null) {

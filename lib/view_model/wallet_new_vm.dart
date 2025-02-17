@@ -73,11 +73,16 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             ? advancedPrivacySettingsViewModel.seedPhraseLength.value
             : 24;
       case WalletType.nano:
+      case WalletType.banano:
         return seedSettingsViewModel.nanoSeedType == NanoSeedType.bip39
             ? advancedPrivacySettingsViewModel.seedPhraseLength.value
             : 24;
-      default:
+      case WalletType.none:
         return 24;
+      case WalletType.haven:
+        return 25;
+      case WalletType.zano:
+        return 26;
     }
   }
 
@@ -95,6 +100,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             name: name,
             language: options!.first as String,
             password: walletPassword,
+            passphrase: passphrase,
             isPolyseed: options.last as bool);
       case WalletType.bitcoin:
       case WalletType.litecoin:
@@ -163,6 +169,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           language: options!.first as String,
           isPolyseed: options.last as bool,
           password: walletPassword,
+          passphrase: passphrase,
         );
       case WalletType.zano:
         return zano!.createZanoNewWalletCredentials(

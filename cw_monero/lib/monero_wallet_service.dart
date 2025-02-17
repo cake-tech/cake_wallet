@@ -26,11 +26,12 @@ import 'package:polyseed/polyseed.dart';
 
 class MoneroNewWalletCredentials extends WalletCredentials {
   MoneroNewWalletCredentials(
-      {required String name, required this.language, required this.isPolyseed, String? password})
+      {required String name, required this.language, required this.isPolyseed, String? password, this.passphrase})
       : super(name: name, password: password);
 
   final String language;
   final bool isPolyseed;
+  final String? passphrase;
 }
 
 class MoneroRestoreWalletFromHardwareCredentials extends WalletCredentials {
@@ -92,7 +93,7 @@ class MoneroWalletService extends WalletService<
   @override
   WalletType getType() => WalletType.monero;
 
-  @override
+  @override 
   Future<MoneroWallet> create(MoneroNewWalletCredentials credentials, {bool? isTestnet}) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
@@ -112,7 +113,7 @@ class MoneroWalletService extends WalletService<
       }
 
       await monero_wallet_manager.createWallet(
-          path: path, password: credentials.password!, language: credentials.language);
+          path: path, password: credentials.password!, language: credentials.language, passphrase: credentials.passphrase??"");
       final wallet = MoneroWallet(
           walletInfo: credentials.walletInfo!,
           unspentCoinsInfo: unspentCoinsInfoSource,
@@ -291,14 +292,21 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> restoreFromSeed(
       MoneroRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    // Restore from Polyseed
-    if (Polyseed.isValidSeed(credentials.mnemonic)) {
-      return restoreFromPolyseed(credentials);
+    if (credentials.mnemonic.split(" ").length == 16) {
+      // Restore from Polyseed
+      try {
+        if (Polyseed.isValidSeed(credentials.mnemonic)) {
+          return restoreFromPolyseed(credentials);
+        }
+      } catch (e) {
+        printV("Polyseed restore failed: $e");
+        rethrow;
+      }
     }
 
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
-      await monero_wallet_manager.restoreFromSeed(
+      monero_wallet_manager.restoreFromSeed(
           path: path,
           password: credentials.password!,
           passphrase: credentials.passphrase,
@@ -381,6 +389,10 @@ class MoneroWalletService extends WalletService<
         language: lang.nameEnglish,
         restoreHeight: height,
         spendKey: spendKey);
+
+
+    monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
+    monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase??'');
 
     final wallet = MoneroWallet(
       walletInfo: walletInfo,

@@ -1,4 +1,5 @@
-Bitcoin and Litecoin enhancements
-Solana and Nano fixes/improvements
+Added Zano wallet support
+Added Monero/Wownero passphrase support
+Added decentralized cross-chain exchange, Chainflip
 UI enhancements
 Bug fixes

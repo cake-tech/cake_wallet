@@ -39,7 +39,7 @@ else
             WOWNERO_LIBS="$WOWNERO_LIBS -arch ${ARCH} ${WOWNEROC_RELEASE_DIR}/${HOST}_libwallet2_api_c.dylib"
 
             pushd ../monero_c
-                ./build_single.sh ${COIN} ${HOST} $NPROC
+                ./build_single.sh ${COIN} ${HOST} -j$MAKE_JOB_COUNT
                 unxz -f ./release/${COIN}/${HOST}_libwallet2_api_c.dylib.xz
 	    popd
 	done
