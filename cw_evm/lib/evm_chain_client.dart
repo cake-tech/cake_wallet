@@ -276,7 +276,7 @@ abstract class EVMChainClient {
 
       return EVMChainERC20Balance(balance, exponent: exponent);
     } on RangeError catch (_) {
-      throw Exception('Invalid token contract for this network. (RangeError)');
+      throw Exception('Invalid token contract for this network.');
     } catch (e) {
       throw Exception('Could not fetch balances: ${e.toString()}');
     }
