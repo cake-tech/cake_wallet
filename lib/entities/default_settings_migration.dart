@@ -44,7 +44,7 @@ const solanaDefaultNodeUri = 'solana-mainnet.core.chainstack.com';
 const tronDefaultNodeUri = 'api.trongrid.io';
 const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
-const zanoDefaultNodeUri = 'zano.cakewallet.com:11211';
+const zanoDefaultNodeUri = 'zano.cakewallet.com:443';
 const moneroWorldNodeUri = '.moneroworld.com';
 
 Future<void> defaultSettingsMigration(
@@ -404,7 +404,8 @@ Future<void> defaultSettingsMigration(
         case 48:
           await _updateNode(
             nodes: nodes,
-            currentUri: zanoDefaultNodeUri,
+            currentUri: "zano.cakewallet.com:11211",
+            newUri: zanoDefaultNodeUri,
             useSSL: true,
           );
 			    break;
