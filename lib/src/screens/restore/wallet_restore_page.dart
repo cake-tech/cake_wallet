@@ -62,40 +62,6 @@ class WalletRestorePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => walletRestoreViewModel.state, (ExecutionState state) {
-      if (state is FailureState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (_) {
-                return AlertWithOneAction(
-                    alertTitle: S.current.new_wallet,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
-        });
-      }
-    });
-
-    reaction((_) => walletRestoreViewModel.mode, (WalletRestoreMode mode) {
-      walletRestoreViewModel.isButtonEnabled = false;
-      walletRestoreViewModel.walletPassword = null;
-      walletRestoreViewModel.repeatedWalletPassword = null;
-
-      walletRestoreFromSeedFormKey
-          .currentState!.blockchainHeightKey.currentState!.restoreHeightController.text = '';
-      walletRestoreFromSeedFormKey
-          .currentState!.blockchainHeightKey.currentState!.dateController.text = '';
-      walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.text = '';
-
-      walletRestoreFromKeysFormKey
-          .currentState!.blockchainHeightKey.currentState!.restoreHeightController.text = '';
-      walletRestoreFromKeysFormKey
-          .currentState!.blockchainHeightKey.currentState!.dateController.text = '';
-      walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text = '';
-    });
-
     return KeyboardActions(
       config: KeyboardActionsConfig(
         keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
@@ -377,6 +343,40 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
         }
       },
     );
+
+    reaction((_) => walletRestoreViewModel.state, (ExecutionState state) {
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUp<void>(
+              context: context,
+              builder: (_) {
+                return AlertWithOneAction(
+                    alertTitle: S.current.new_wallet,
+                    alertContent: state.error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop());
+              });
+        });
+      }
+    });
+
+    reaction((_) => walletRestoreViewModel.mode, (WalletRestoreMode mode) {
+      walletRestoreViewModel.isButtonEnabled = false;
+      walletRestoreViewModel.walletPassword = null;
+      walletRestoreViewModel.repeatedWalletPassword = null;
+
+      walletRestoreFromSeedFormKey
+          .currentState!.blockchainHeightKey.currentState!.restoreHeightController.text = '';
+      walletRestoreFromSeedFormKey
+          .currentState!.blockchainHeightKey.currentState!.dateController.text = '';
+      walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.text = '';
+
+      walletRestoreFromKeysFormKey
+          .currentState!.blockchainHeightKey.currentState!.restoreHeightController.text = '';
+      walletRestoreFromKeysFormKey
+          .currentState!.blockchainHeightKey.currentState!.dateController.text = '';
+      walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text = '';
+    });
   }
 
   @override
