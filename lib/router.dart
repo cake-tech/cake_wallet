@@ -165,15 +165,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<WelcomePage>());
 
     case Routes.newWalletFromWelcome:
-        if (isSingleCoin) {
-          return createRoute(
-            RouteSettings(
+      if (isSingleCoin) {
+        return createRoute(
+          RouteSettings(
               name: Routes.newWallet,
-              arguments: NewWalletArguments(type: availableWalletTypes.first)
-            ),
-          );
-        }
-        return createRoute(RouteSettings(name: Routes.newWalletType));
+              arguments: NewWalletArguments(type: availableWalletTypes.first)),
+        );
+      }
+      return createRoute(RouteSettings(name: Routes.newWalletType));
 
     case Routes.newWalletType:
       return CupertinoPageRoute<void>(
@@ -258,16 +257,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
         return CupertinoPageRoute<void>(
             builder: (_) => getIt.get<WalletRestorePage>(param1: availableWalletTypes.first));
       }
-        return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NewWalletTypePage>(
-            param1: NewWalletTypeArguments(
-              onTypeSelected: (BuildContext context, WalletType type) =>
-                  Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: type),
-              isCreate: false,
-              isHardwareWallet: false,
-            ),
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<NewWalletTypePage>(
+          param1: NewWalletTypeArguments(
+            onTypeSelected: (BuildContext context, WalletType type) =>
+                Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: type),
+            isCreate: false,
+            isHardwareWallet: false,
           ),
-        );
+        ),
+      );
 
     case Routes.restoreWalletFromHardwareWallet:
       if (isSingleCoin) {
@@ -282,23 +281,23 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   getIt.get<LedgerViewModel>(),
                 ));
       }
-        return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NewWalletTypePage>(
-            param1: NewWalletTypeArguments(
-              onTypeSelected: (BuildContext context, WalletType type) {
-                final arguments = ConnectDevicePageParams(
-                  walletType: type,
-                  onConnectDevice: (BuildContext context, _) => Navigator.of(context)
-                      .pushNamed(Routes.chooseHardwareWalletAccount, arguments: [type]),
-                );
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<NewWalletTypePage>(
+          param1: NewWalletTypeArguments(
+            onTypeSelected: (BuildContext context, WalletType type) {
+              final arguments = ConnectDevicePageParams(
+                walletType: type,
+                onConnectDevice: (BuildContext context, _) => Navigator.of(context)
+                    .pushNamed(Routes.chooseHardwareWalletAccount, arguments: [type]),
+              );
 
-                Navigator.of(context).pushNamed(Routes.connectDevices, arguments: arguments);
-              },
-              isCreate: false,
-              isHardwareWallet: true,
-            ),
+              Navigator.of(context).pushNamed(Routes.connectDevices, arguments: arguments);
+            },
+            isCreate: false,
+            isHardwareWallet: true,
           ),
-        );
+        ),
+      );
 
     case Routes.restoreWalletTypeFromQR:
       return CupertinoPageRoute<void>(
@@ -379,8 +378,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<RBFDetailsPage>(param1: settings.arguments as List<dynamic>));
 
     case Routes.newSubaddress:
+      final args = settings.arguments as Map<String, dynamic>?;
+      final item = args?['item'];
+      final fromHiddenAddresses = args?['fromHiddenAddresses'] as bool?;
+
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<AddressEditOrCreatePage>(param1: settings.arguments));
+        builder: (_) => getIt.get<AddressEditOrCreatePage>(
+          param1: item,
+          param2: fromHiddenAddresses,
+        ),
+      );
 
     case Routes.disclaimer:
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage());

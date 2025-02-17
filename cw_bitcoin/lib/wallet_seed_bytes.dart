@@ -57,7 +57,7 @@ class WalletSeedData {
       );
     }
 
-    if (network == BitcoinNetwork.mainnet) {
+    if (network == BitcoinNetwork.mainnet && walletInfo.isRecovery) {
       if (hdWallets[SeedBytesType.bip39] != null) {
         hdWallets[SeedBytesType.old_bip39] = hdWallets[SeedBytesType.bip39]!;
       }
@@ -86,14 +86,6 @@ class WalletSeedData {
         BitcoinAddressUtils.getKeyNetVersion(network),
       );
     } catch (_) {}
-
-    if (hdWallets[SeedBytesType.bip39] != null) {
-      hdWallets[SeedBytesType.old_bip39] = hdWallets[SeedBytesType.bip39]!;
-    }
-
-    if (hdWallets[SeedBytesType.electrum] != null) {
-      hdWallets[SeedBytesType.old_electrum] = hdWallets[SeedBytesType.electrum]!;
-    }
 
     return WalletSeedData(hdWallets: hdWallets);
   }

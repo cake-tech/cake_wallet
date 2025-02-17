@@ -732,14 +732,22 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, void>(
-      (WalletAddressListItem? item, _) =>
-          WalletAddressEditOrCreateViewModel(wallet: getIt.get<AppStore>().wallet!, item: item));
+  getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, WalletAddressListItem?, bool?>(
+    (WalletAddressListItem? item, bool? fromHiddenAddresses) => WalletAddressEditOrCreateViewModel(
+      wallet: getIt.get<AppStore>().wallet!,
+      item: item,
+      fromHiddenAddresses: fromHiddenAddresses,
+    ),
+  );
 
-  getIt.registerFactoryParam<AddressEditOrCreatePage, dynamic, void>((dynamic item, _) =>
-      AddressEditOrCreatePage(
-          addressEditOrCreateViewModel:
-              getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
+  getIt.registerFactoryParam<AddressEditOrCreatePage, dynamic, bool?>(
+    (dynamic item, bool? fromHiddenAddresses) => AddressEditOrCreatePage(
+      addressEditOrCreateViewModel: getIt.get<WalletAddressEditOrCreateViewModel>(
+        param1: item,
+        param2: fromHiddenAddresses,
+      ),
+    ),
+  );
 
   getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(
       getIt.get<AppStore>().wallet!,
@@ -1426,3 +1434,4 @@ Future<void> setup({
 
   _isSetupFinished = true;
 }
+

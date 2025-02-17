@@ -20,6 +20,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
     super.key,
     this.marginV,
     this.marginH,
+    this.color,
+    this.boxShadow,
   });
 
   final VoidCallback? onTap;
@@ -35,6 +37,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
   final double? marginH;
   final double? shadowSpread;
   final double? shadowBlur;
+  final Color? color;
+  final List<BoxShadow>? boxShadow;
 
   @override
   Widget build(BuildContext context) {
@@ -49,23 +53,18 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             border: Border.all(
               color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
             ),
-            // boxShadow: [
-            //   BoxShadow(
-            //       color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
-            //           .withAlpha(50),
-            //       spreadRadius: shadowSpread ?? 3,
-            //       blurRadius: shadowBlur ?? 7,
-            //   )
-            // ],
+            color: color,
+            boxShadow: boxShadow,
           ),
           child: TextButton(
             onPressed: onTap,
             style: TextButton.styleFrom(
-                backgroundColor:
-                    Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(customBorder ?? 20)),
-                padding: EdgeInsets.all(24)),
+              backgroundColor: color != null
+                  ? null
+                  : Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              padding: EdgeInsets.all(24),
+            ),
             child: Column(
               children: [
                 Row(
@@ -78,9 +77,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
                           Text(
                             title,
                             style: TextStyle(
-                              color: Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .cardTextColor,
+                              color:
+                                  Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
                               fontSize: 24,
                               fontWeight: FontWeight.w900,
                             ),

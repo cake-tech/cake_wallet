@@ -2,11 +2,10 @@ import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/seedbyte_types.dart';
 import 'package:cw_core/wallet_info.dart';
 
-abstract class BaseBitcoinAddressRecord {
+class BaseBitcoinAddressRecord {
   BaseBitcoinAddressRecord(
     this.address, {
     required this.index,
@@ -82,23 +81,56 @@ abstract class BaseBitcoinAddressRecord {
         'derivationPath': derivationPath,
       });
 
+  static BaseBitcoinAddressRecord buildFromJSON(
+    String jsonSource, [
+    DerivationInfo? derivationInfo,
+    BasedUtxoNetwork? network,
+  ]) {
+    final decoded = json.decode(jsonSource) as Map;
+    final seedBytesTypeSnp = decoded['seedBytesType'] as String?;
+    final seedBytesType = seedBytesTypeSnp == null
+        ? derivationInfo == null
+            ? null
+            : (derivationInfo.derivationType == DerivationType.bip39
+                ? SeedBytesType.old_bip39
+                : SeedBytesType.old_electrum)
+        : SeedBytesType.fromValue(seedBytesTypeSnp.toString());
+
+    return BaseBitcoinAddressRecord(
+      decoded['address'] as String,
+      index: decoded['index'] as int,
+      seedBytesType: seedBytesType,
+      isHidden: decoded['isHidden'] as bool? ?? false,
+      isChange: decoded['isChange'] as bool? ?? false,
+      isUsed: decoded['isUsed'] as bool? ?? false,
+      txCount: decoded['txCount'] as int? ?? 0,
+      name: decoded['name'] as String? ?? '',
+      balance: decoded['balance'] as int? ?? 0,
+      type: decoded['type'] != null && decoded['type'] != ''
+          ? BitcoinAddressType.values
+              .firstWhere((type) => type.toString() == decoded['type'] as String)
+          : SegwitAddressType.p2wpkh,
+    );
+  }
+
   static BaseBitcoinAddressRecord fromJSON(
     String jsonSource, [
     DerivationInfo? derivationInfo,
     BasedUtxoNetwork? network,
   ]) {
     final decoded = json.decode(jsonSource) as Map;
+    final base = buildFromJSON(jsonSource, derivationInfo, network);
 
     if (decoded['runtimeType'] == 'BitcoinAddressRecord') {
-      return BitcoinAddressRecord.fromJSON(jsonSource, derivationInfo, network);
+      return BitcoinAddressRecord.fromJSON(jsonSource, base, derivationInfo, network);
     } else if (decoded['runtimeType'] == 'BitcoinSilentPaymentAddressRecord') {
-      return BitcoinSilentPaymentAddressRecord.fromJSON(jsonSource);
+      return BitcoinSilentPaymentAddressRecord.fromJSON(jsonSource, base);
     } else if (decoded['runtimeType'] == 'BitcoinReceivedSPAddressRecord') {
-      return BitcoinReceivedSPAddressRecord.fromJSON(jsonSource);
+      return BitcoinReceivedSPAddressRecord.fromJSON(jsonSource, base);
     } else if (decoded['runtimeType'] == 'LitecoinMWEBAddressRecord') {
-      return LitecoinMWEBAddressRecord.fromJSON(jsonSource);
+      return LitecoinMWEBAddressRecord.fromJSON(jsonSource, base);
     } else {
-      return BitcoinAddressRecord.fromJSON(jsonSource, derivationInfo, network);
+      return BitcoinAddressRecord.fromJSON(jsonSource, base, derivationInfo, network);
     }
   }
 }
@@ -146,23 +178,29 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 
   factory BitcoinAddressRecord.fromJSON(
     String jsonSource, [
+    BaseBitcoinAddressRecord? base,
     DerivationInfo? derivationInfo,
     BasedUtxoNetwork? network,
   ]) {
+    base ??= BaseBitcoinAddressRecord.buildFromJSON(jsonSource);
     final decoded = json.decode(jsonSource) as Map;
     final derivationInfoSnp = decoded['derivationInfo'] as Map<String, dynamic>?;
-    final seedBytesTypeSnp = decoded['seedBytesType'] as String?;
-    final seedBytesType = seedBytesTypeSnp == null
-        ? derivationInfo!.derivationType == DerivationType.bip39
-            ? SeedBytesType.old_bip39
-            : SeedBytesType.old_electrum
-        : SeedBytesType.fromValue(seedBytesTypeSnp.toString());
+    final seedBytesType = base.seedBytesType;
 
     return BitcoinAddressRecord(
-      decoded['address'] as String,
-      index: decoded['index'] as int,
+      base.address,
+      index: base.index,
+      seedBytesType: seedBytesType,
+      isHidden: base.isHidden,
+      isChange: base.isChange,
+      isUsed: base.isUsed,
+      txCount: base.txCount,
+      name: base.name,
+      balance: base.balance,
+      type: base.type,
+      scriptHash: decoded['scriptHash'] as String?,
       derivationInfo: derivationInfoSnp == null
-          ? !seedBytesType.isElectrum
+          ? seedBytesType != null && !seedBytesType.isElectrum
               ? BitcoinDerivationInfo.fromDerivationAndAddress(
                   BitcoinDerivationType.bip39,
                   decoded['address'] as String,
@@ -170,18 +208,6 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
                 )
               : BitcoinDerivationInfos.ELECTRUM
           : BitcoinDerivationInfo.fromJSON(derivationInfoSnp),
-      seedBytesType: seedBytesType,
-      isHidden: decoded['isHidden'] as bool? ?? false,
-      isChange: decoded['isChange'] as bool? ?? false,
-      isUsed: decoded['isUsed'] as bool? ?? false,
-      txCount: decoded['txCount'] as int? ?? 0,
-      name: decoded['name'] as String? ?? '',
-      balance: decoded['balance'] as int? ?? 0,
-      type: decoded['type'] != null && decoded['type'] != ''
-          ? BitcoinAddressType.values
-              .firstWhere((type) => type.toString() == decoded['type'] as String)
-          : SegwitAddressType.p2wpkh,
-      scriptHash: decoded['scriptHash'] as String?,
     );
   }
 
@@ -232,7 +258,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   BitcoinSilentPaymentAddressRecord(
     super.address, {
     required int labelIndex,
-    String derivationPath = BitcoinDerivationPaths.SILENT_PAYMENTS_SPEND,
+    String? derivationPath,
     super.txCount = 0,
     super.balance = 0,
     super.name = '',
@@ -242,7 +268,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     super.seedBytesType,
     super.isHidden,
     this.labelHex,
-  })  : _derivationPath = derivationPath,
+  })  : _derivationPath = derivationPath ?? BitcoinDerivationPaths.SILENT_PAYMENTS_SPEND,
         super(index: labelIndex) {
     if (labelIndex != 0 && labelHex == null) {
       throw ArgumentError('label must be provided for silent address index != 1');
@@ -253,22 +279,25 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     }
   }
 
-  factory BitcoinSilentPaymentAddressRecord.fromJSON(String jsonSource) {
+  factory BitcoinSilentPaymentAddressRecord.fromJSON(
+    String jsonSource, [
+    BaseBitcoinAddressRecord? base,
+  ]) {
+    base ??= BaseBitcoinAddressRecord.buildFromJSON(jsonSource);
     final decoded = json.decode(jsonSource) as Map;
 
     return BitcoinSilentPaymentAddressRecord(
-      decoded['address'] as String,
-      derivationPath:
-          (decoded['derivationPath'] as String?) ?? BitcoinWalletAddressesBase.OLD_SP_PATH,
-      labelIndex: decoded['index'] as int,
-      isUsed: decoded['isUsed'] as bool? ?? false,
-      txCount: decoded['txCount'] as int? ?? 0,
-      name: decoded['name'] as String? ?? '',
-      balance: decoded['balance'] as int? ?? 0,
+      base.address,
+      seedBytesType: base.seedBytesType,
+      isHidden: base.isHidden,
+      isChange: base.isChange,
+      isUsed: base.isUsed,
+      txCount: base.txCount,
+      name: base.name,
+      balance: base.balance,
+      type: base.type,
+      labelIndex: base.index,
       labelHex: decoded['labelHex'] as String?,
-      isChange: decoded['isChange'] as bool? ?? false,
-      isHidden: decoded['isHidden'] as bool?,
-      seedBytesType: SeedBytesType.fromValue(decoded['seedBytesType'] as String),
     );
   }
 
@@ -321,23 +350,25 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
         .tweakAdd(BigintUtils.fromBytes(BytesUtils.fromHexString(tweak)));
   }
 
-  factory BitcoinReceivedSPAddressRecord.fromJSON(String jsonSource) {
+  factory BitcoinReceivedSPAddressRecord.fromJSON(
+    String jsonSource, [
+    BaseBitcoinAddressRecord? base,
+  ]) {
+    base ??= BaseBitcoinAddressRecord.buildFromJSON(jsonSource);
     final decoded = json.decode(jsonSource) as Map;
 
     return BitcoinReceivedSPAddressRecord(
-      decoded['address'] as String,
-      labelIndex: decoded['index'] as int? ?? 1,
-      isUsed: decoded['isUsed'] as bool? ?? false,
-      txCount: decoded['txCount'] as int? ?? 0,
-      name: decoded['name'] as String? ?? '',
-      balance: decoded['balance'] as int? ?? 0,
-      labelHex: decoded['label'] as String?,
-      tweak: decoded['tweak'] as String? ?? decoded['silent_payment_tweak'] as String? ?? '',
-      isChange: decoded['isChange'] as bool? ?? false,
+      base.address,
+      seedBytesType: base.seedBytesType,
+      isChange: base.isChange,
+      isUsed: base.isUsed,
+      txCount: base.txCount,
+      name: base.name,
+      balance: base.balance,
+      labelIndex: base.index,
+      labelHex: decoded['labelHex'] as String?,
       spAddress: decoded['spAddress'] as String? ?? '',
-      seedBytesType: (decoded['seedBytesType'] as String?) == null
-          ? null
-          : SeedBytesType.fromValue(decoded['seedBytesType'] as String),
+      tweak: decoded['tweak'] as String? ?? decoded['silent_payment_tweak'] as String? ?? '',
     );
   }
 
@@ -373,21 +404,22 @@ class LitecoinMWEBAddressRecord extends BaseBitcoinAddressRecord {
     _derivationPath = mwebPath.addElem(Bip32KeyIndex(index)).toString();
   }
 
-  factory LitecoinMWEBAddressRecord.fromJSON(String jsonSource) {
-    final decoded = json.decode(jsonSource) as Map;
+  factory LitecoinMWEBAddressRecord.fromJSON(
+    String jsonSource, [
+    BaseBitcoinAddressRecord? base,
+  ]) {
+    base ??= BaseBitcoinAddressRecord.buildFromJSON(jsonSource);
 
     return LitecoinMWEBAddressRecord(
-      decoded['address'] as String,
-      index: decoded['index'] as int,
-      isHidden: decoded['isHidden'] as bool? ?? false,
-      isChange: decoded['isChange'] as bool? ?? false,
-      isUsed: decoded['isUsed'] as bool? ?? false,
-      txCount: decoded['txCount'] as int? ?? 0,
-      name: decoded['name'] as String? ?? '',
-      balance: decoded['balance'] as int? ?? 0,
-      seedBytesType: (decoded['seedBytesType'] as String?) == null
-          ? null
-          : SeedBytesType.fromValue(decoded['seedBytesType'] as String),
+      base.address,
+      index: base.index,
+      seedBytesType: base.seedBytesType,
+      isHidden: base.isHidden,
+      isChange: base.isChange,
+      isUsed: base.isUsed,
+      txCount: base.txCount,
+      name: base.name,
+      balance: base.balance,
     );
   }
 

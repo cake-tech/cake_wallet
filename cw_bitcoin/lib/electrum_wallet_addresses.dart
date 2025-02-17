@@ -46,10 +46,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final BasedUtxoNetwork network;
 
   final Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets;
+
   Bip32Slip10Secp256k1 get hdWallet =>
       hdWallets[SeedBytesType.bip39] ?? hdWallets[SeedBytesType.electrum]!;
-  bool get seedTypeIsElectrum =>
-      hdWallets[SeedBytesType.bip39] == null && hdWallets[SeedBytesType.electrum] != null;
+
+  SeedBytesType get walletSeedType => hdWallets.containsKey(SeedBytesType.bip39)
+      ? SeedBytesType.bip39
+      : (hdWallets.containsKey(SeedBytesType.electrum)
+          ? SeedBytesType.electrum
+          : hdWallets.keys.first);
+
+  bool get seedTypeIsElectrum => walletSeedType.value == SeedBytesType.electrum.value;
 
   final bool isHardwareWallet;
 
@@ -188,16 +195,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   void set currentChangeAddressIndex(int index) =>
       currentChangeAddressIndexByType[addressPageType.toString()] = index;
 
-  SeedBytesType getHDWalletType() {
-    if (hdWallets.containsKey(SeedBytesType.bip39)) {
-      return SeedBytesType.bip39;
-    } else if (hdWallets.containsKey(SeedBytesType.electrum)) {
-      return SeedBytesType.electrum;
-    } else {
-      return hdWallets.keys.first;
-    }
-  }
-
   @override
   Future<void> init() async {
     updateAddressesByType();
@@ -212,7 +209,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return address;
   }
 
-  BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
+  BaseBitcoinAddressRecord generateNewAddress({String label = '', bool? isHidden}) {
     final newAddressIndex = selectedReceiveAddresses.fold(
       0,
       (int acc, addressRecord) => addressRecord.isChange == false ? acc + 1 : acc,
@@ -221,7 +218,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     final derivationInfo = BitcoinAddressUtils.getDerivationFromType(addressPageType);
     final address = BitcoinAddressRecord(
       getAddress(
-        derivationType: getHDWalletType(),
+        derivationType: walletSeedType,
         isChange: false,
         index: newAddressIndex,
         addressType: addressPageType,
@@ -233,7 +230,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       type: addressPageType,
       network: network,
       derivationInfo: BitcoinAddressUtils.getDerivationFromType(addressPageType),
-      seedBytesType: getHDWalletType(),
+      seedBytesType: walletSeedType,
     );
     return address;
   }
@@ -364,12 +361,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required bool isChange,
     required BitcoinAddressType addressType,
     required BitcoinDerivationInfo derivationInfo,
+    int? startIndex,
   }) async {
     final count = isChange
         ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
         : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
 
-    final startIndex =
+    startIndex ??=
         ((isChange ? changeAddressesByType[addressType] : receiveAddressesByType[addressType]) ??
                 [])
             .where(
@@ -382,8 +380,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     final newAddresses = <BitcoinAddressRecord>[];
 
-    final isHidden = getShouldHideAddress(derivationInfo.derivationPath);
-
     for (var i = startIndex; i < count + startIndex; i++) {
       final address = BitcoinAddressRecord(
         await getAddressAsync(
@@ -395,16 +391,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         ),
         index: i,
         isChange: isChange,
-        isHidden: isHidden || isChange,
+        isHidden: getShouldHideAddress(derivationInfo.derivationPath) || isChange,
         type: addressType,
         network: network,
         derivationInfo: derivationInfo,
         seedBytesType: seedBytesType,
       );
 
-      if (!allAddresses.any((addr) => addr.address == address.address)) {
-        newAddresses.add(address);
-      }
+      newAddresses.add(address);
     }
 
     addAddresses(newAddresses);
@@ -425,30 +419,44 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       isElectrum: seedBytesType.isElectrum,
     );
 
-    final existingAddresses = _allAddresses
-        .where(
-          (addr) =>
-              addr.type == addressType &&
-              addr.seedBytesType == seedBytesType &&
-              addr.derivationInfo == bitcoinDerivationInfo,
-        )
-        .toList();
+    final existingReceiveAddresses =
+        (receiveAddressesByType[addressType] ?? <BaseBitcoinAddressRecord>[])
+            .where(
+              (addr) =>
+                  addr is BitcoinAddressRecord &&
+                  addr.seedBytesType == seedBytesType &&
+                  addr.derivationInfo.derivationPath.toString() ==
+                      bitcoinDerivationInfo!.derivationPath.toString(),
+            )
+            .toList();
 
-    if (existingAddresses.where((addr) => !addr.isChange).length < defaultReceiveAddressesCount) {
+    if (existingReceiveAddresses.length < defaultReceiveAddressesCount) {
       await discoverNewAddresses(
         seedBytesType: seedBytesType,
         isChange: false,
         addressType: addressType,
         derivationInfo: bitcoinDerivationInfo,
+        startIndex: existingReceiveAddresses.length,
       );
     }
 
-    if (existingAddresses.where((addr) => addr.isChange).length < defaultChangeAddressesCount) {
+    final existingChangeAddresses = (changeAddressesByType[addressType] ?? <BitcoinAddressRecord>[])
+        .where(
+          (addr) =>
+              addr is BitcoinAddressRecord &&
+              addr.seedBytesType == seedBytesType &&
+              addr.derivationInfo.derivationPath.toString() ==
+                  bitcoinDerivationInfo!.derivationPath.toString(),
+        )
+        .toList();
+
+    if (existingChangeAddresses.length < defaultChangeAddressesCount) {
       await discoverNewAddresses(
         seedBytesType: seedBytesType,
         isChange: true,
         addressType: addressType,
         derivationInfo: bitcoinDerivationInfo,
+        startIndex: existingChangeAddresses.length,
       );
     }
   }

@@ -130,50 +130,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     return mwebAddresses;
   }
 
-  @override
-  @action
-  Future<List<BitcoinAddressRecord>> discoverNewAddresses({
-    required SeedBytesType seedBytesType,
-    required bool isChange,
-    required BitcoinAddressType addressType,
-    required BitcoinDerivationInfo derivationInfo,
-  }) async {
-    if (addressType == SegwitAddressType.mweb) {
-      final count = isChange
-          ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
-          : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
-
-      final startIndex = this.mwebAddresses.length;
-
-      final mwebAddresses = <LitecoinMWEBAddressRecord>[];
-
-      for (var i = startIndex; i < count + startIndex; i++) {
-        final address = LitecoinMWEBAddressRecord(
-          await getAddressAsync(
-            derivationType: seedBytesType,
-            isChange: isChange,
-            index: i,
-            addressType: addressType,
-            derivationInfo: derivationInfo,
-          ),
-          index: i,
-        );
-        mwebAddresses.add(address);
-      }
-
-      addMwebAddresses(mwebAddresses);
-      // TODO:
-      return [];
-    }
-
-    return super.discoverNewAddresses(
-      seedBytesType: seedBytesType,
-      isChange: isChange,
-      addressType: addressType,
-      derivationInfo: derivationInfo,
-    );
-  }
-
   Future<void> ensureMwebAddressUpToIndexExists(int index) async {
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       return null;

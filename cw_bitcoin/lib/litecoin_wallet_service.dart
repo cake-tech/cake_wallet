@@ -57,7 +57,6 @@ class LitecoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
-    await wallet.save();
     await wallet.init();
 
     return wallet;

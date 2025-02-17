@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -220,6 +221,18 @@ class CryptoBalanceWidget extends StatelessWidget {
                       customBorder: 30,
                       title: S.of(context).silent_payments,
                       subTitle: S.of(context).enable_silent_payments_scanning,
+                      color:
+                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context)
+                              .extension<BalancePageTheme>()!
+                              .cardBorderColor
+                              .withAlpha(50),
+                          spreadRadius: 0,
+                          blurRadius: 0,
+                        )
+                      ],
                       hint: Column(
                         children: [
                           Row(
@@ -258,107 +271,12 @@ class CryptoBalanceWidget extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
-                          SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Semantics(
-                                  label: S.of(context).receive,
-                                  child: OutlinedButton(
-                                    onPressed: () {
-                                      Navigator.pushNamed(
-                                        context,
-                                        Routes.addressPage,
-                                        arguments: {
-                                          'addressType': bitcoin!
-                                              .getBitcoinReceivePageOptions()
-                                              .where(
-                                                (option) => option.value == "Silent Payments",
-                                              )
-                                              .first
-                                        },
-                                      );
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      backgroundColor: Colors.grey.shade400.withAlpha(50),
-                                      side: BorderSide(
-                                          color: Colors.grey.shade400.withAlpha(50), width: 0),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                    ),
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(vertical: 12),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Image.asset(
-                                            height: 30,
-                                            width: 30,
-                                            'assets/images/received.png',
-                                            color: Theme.of(context)
-                                                .extension<BalancePageTheme>()!
-                                                .balanceAmountColor,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            S.of(context).receive,
-                                            style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .extension<BalancePageTheme>()!
-                                                  .textColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+                              Observer(
+                                builder: (_) => StandardSwitch(
+                                  value: dashboardViewModel.silentPaymentsScanningActive,
+                                  onTaped: () => _toggleSilentPaymentsScanning(context),
                                 ),
-                              ),
-                              SizedBox(width: 24),
-                              Expanded(
-                                child: Semantics(
-                                  label: S.of(context).scan,
-                                  child: OutlinedButton(
-                                    onPressed: () => _toggleSilentPaymentsScanning(context),
-                                    style: OutlinedButton.styleFrom(
-                                      backgroundColor: Colors.grey.shade400.withAlpha(50),
-                                      side: BorderSide(
-                                          color: Colors.grey.shade400.withAlpha(50), width: 0),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                    ),
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(vertical: 12),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Observer(
-                                            builder: (_) => StandardSwitch(
-                                              value:
-                                                  dashboardViewModel.silentPaymentsScanningActive,
-                                              onTaped: () => _toggleSilentPaymentsScanning(context),
-                                            ),
-                                          ),
-                                          SizedBox(width: 8),
-                                          Text(
-                                            S.of(context).scan,
-                                            style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .extension<BalancePageTheme>()!
-                                                  .textColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              )
                             ],
                           ),
                         ],
