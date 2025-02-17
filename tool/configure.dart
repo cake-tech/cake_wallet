@@ -293,6 +293,7 @@ abstract class Bitcoin {
     String? address,
     bool? doSingleScan,
   });
+  Future<List<String>> getSilentPaymentWallets(Object wallet);
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet);
   void deleteSilentPaymentAddress(Object wallet, String address);
   Future<void> updateFeeRates(Object wallet);
