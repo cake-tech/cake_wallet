@@ -160,8 +160,11 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
   Widget _buildSeedTab(BuildContext context, bool isLegacySeed) {
     return Column(
       children: [
-        if (isLegacySeedOnly || isLegacySeed) _buildHeightBox(),
-        const SizedBox(height: 20),
+        if (isLegacySeedOnly || isLegacySeed) 
+          ...[
+            _buildHeightBox(),
+            const SizedBox(height: 20),
+          ],
         (_buildPassphraseBox() ?? Container()),
         if (widget.walletKeysViewModel.passphrase.isNotEmpty) const SizedBox(height: 20),
         Expanded(

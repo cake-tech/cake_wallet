@@ -186,6 +186,12 @@ abstract class ZanoWalletBase
   Future<void> parseCreateWalletResult(CreateWalletResult result) async {
     hWallet = result.walletId;
     seed = await result.seed(this);
+    keys = ZanoWalletKeys(
+      privateSpendKey: result.privateSpendKey,
+      privateViewKey: result.privateViewKey,
+      publicSpendKey: result.publicSpendKey,
+      publicViewKey: result.publicViewKey,
+    );
     passphrase = await getPassphrase();
 
     printV('setting hWallet = ${result.walletId}');

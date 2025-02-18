@@ -46,7 +46,7 @@ mixin ZanoWalletApi {
   void setPassword(String password) => zano.PlainWallet_resetWalletPassword(hWallet, password);
 
   void closeWallet(int? walletToClose, {bool force = false}) async {
-    printV('close_wallet ${walletToClose ?? hWallet}');
+    printV('close_wallet ${walletToClose ?? hWallet}: $force');
     if (Platform.isWindows || force) {
       final result = await _closeWallet(walletToClose ?? hWallet);
       printV('close_wallet result $result');
@@ -54,10 +54,9 @@ mixin ZanoWalletApi {
     }
   }
 
-  bool isInit = false;
+  static bool isInit = false;
 
   Future<bool> initWallet() async {
-    // pathForWallet(name: , type: type)
     if (isInit) return true;
     final result = zano.PlainWallet_init("", "", 0);
     isInit = true;
@@ -337,8 +336,8 @@ mixin ZanoWalletApi {
     return result;
   }
 
-  Future<CreateWalletResult>loadWallet(String path, String password, [int attempt = 0]) async {
-    printV('load_wallet1 path $path password ${_shorten(password)}');
+  Future<CreateWalletResult> loadWallet(String path, String password, [int attempt = 0]) async {
+    printV('load_wallet1 path $path');
     final String json;
     try {
       json = zano.PlainWallet_open(path, password);
@@ -346,7 +345,7 @@ mixin ZanoWalletApi {
       printV('error in loadingWallet $e'); 
       rethrow;
     }
-    // printV('load_wallet2: $json');
+
     final map = jsonDecode(json) as Map<String, dynamic>?;
     if (map?['error'] != null) {
       final code = map?['error']!['code'] ?? '';
@@ -498,10 +497,8 @@ Future<String> _getWalletInfo(int hWallet) async {
 }
 
 Future<String> _setupNode(int hWallet, String nodeUrl) async {
-  final resp = await callSyncMethod("reset_connection_url", hWallet, nodeUrl);
-  printV(resp);
-  final resp2 = await callSyncMethod("run_wallet", hWallet, "");
-  printV(resp2);
+  await callSyncMethod("reset_connection_url", hWallet, nodeUrl);
+  await callSyncMethod("run_wallet", hWallet, "");
   return "OK";
 }
 

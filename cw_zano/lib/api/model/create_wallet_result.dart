@@ -1,7 +1,6 @@
 import 'package:cw_zano/api/model/recent_history.dart';
 import 'package:cw_zano/api/model/wi.dart';
 import 'package:cw_zano/zano_wallet.dart';
-import 'package:cw_zano/zano_wallet_api.dart';
 
 class CreateWalletResult {
   final String name;
@@ -12,6 +11,10 @@ class CreateWalletResult {
   final int walletId;
   final int walletLocalBcSize;
   final Wi wi;
+  final String privateSpendKey;
+  final String privateViewKey;
+  final String publicSpendKey;
+  final String publicViewKey;
 
   CreateWalletResult(
       {required this.name,
@@ -21,7 +24,11 @@ class CreateWalletResult {
       required this.walletFileSize,
       required this.walletId,
       required this.walletLocalBcSize,
-      required this.wi});
+      required this.wi,
+      required this.privateSpendKey,
+      required this.privateViewKey,
+      required this.publicSpendKey,
+      required this.publicViewKey});
 
   factory CreateWalletResult.fromJson(Map<String, dynamic> json) =>
       CreateWalletResult(
@@ -34,6 +41,10 @@ class CreateWalletResult {
         walletId: json['wallet_id'] as int? ?? 0,
         walletLocalBcSize: json['wallet_local_bc_size'] as int? ?? 0,
         wi: Wi.fromJson(json['wi'] as Map<String, dynamic>? ?? {}),
+        privateSpendKey: json['private_spend_key'] as String? ?? '',
+        privateViewKey: json['private_view_key'] as String? ?? '',
+        publicSpendKey: json['public_spend_key'] as String? ?? '',
+        publicViewKey: json['public_view_key'] as String? ?? '',
       );
   Future<String> seed(ZanoWalletBase api) {
     return api.getSeed();
