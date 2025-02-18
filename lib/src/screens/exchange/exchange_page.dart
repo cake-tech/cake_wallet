@@ -230,7 +230,7 @@ class ExchangePage extends BasePage {
                   Observer(
                       builder: (_) => LoadingPrimaryButton(
                           key: ValueKey('exchange_page_exchange_button_key'),
-                          text: S.of(context).exchange,
+                          text: S.of(context).swap,
                           onPressed: () {
                             FocusScope.of(context).unfocus();
 
@@ -622,7 +622,7 @@ class ExchangePage extends BasePage {
             }) ??
         false;
     if (confirmed) {
-      exchangeViewModel.setDefaultTransactionPriority();
+      exchangeViewModel.feesViewModel .setDefaultTransactionPriority();
     }
   }
 

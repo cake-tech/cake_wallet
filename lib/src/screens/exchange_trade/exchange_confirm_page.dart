@@ -21,7 +21,7 @@ class ExchangeConfirmPage extends BasePage {
   final Trade trade;
 
   @override
-  String get title => S.current.copy_id;
+  String get title => S.current.swap;
 
   @override
   Widget body(BuildContext context) {
@@ -40,7 +40,7 @@ class ExchangeConfirmPage extends BasePage {
                   style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                      color:  Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                 ),
               )),
               Container(

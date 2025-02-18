@@ -7,6 +7,7 @@ import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
+import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -71,6 +72,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     this._settingsStore,
     this.sharedPreferences,
     this.contactListViewModel,
+    this.feesViewModel,
   )   : _cryptoNumberFormat = NumberFormat(),
         isSendAllEnabled = false,
         isFixedRateMode = false,
@@ -160,8 +162,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       wallet.type == WalletType.bitcoinCash;
 
   bool get hideAddressAfterExchange =>
-      wallet.type == WalletType.monero || 
-      wallet.type == WalletType.wownero;
+      wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
 
   bool _useTorOnly;
   final Box<Trade> trades;
@@ -338,6 +339,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   final ContactListViewModel contactListViewModel;
 
+  final FeesViewModel feesViewModel;
+
   @observable
   double bestRate = 0.0;
 
@@ -421,6 +424,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     return true;
   }
+
   Future<void> calculateBestRate() async {
     final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ?? 1;
 
@@ -821,35 +825,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     _tradeAvailableProviders.addAll(
         selectedProviders.where((provider) => providersForCurrentPair().contains(provider)));
-  }
-
-  @action
-  void setDefaultTransactionPriority() {
-    switch (wallet.type) {
-      case WalletType.monero:
-      case WalletType.haven:
-      case WalletType.wownero:
-      case WalletType.zano:
-        _settingsStore.priority[wallet.type] = monero!.getMoneroTransactionPriorityAutomatic();
-        break;
-      case WalletType.bitcoin:
-        _settingsStore.priority[wallet.type] = bitcoin!.getBitcoinTransactionPriorityMedium();
-        break;
-      case WalletType.litecoin:
-        _settingsStore.priority[wallet.type] = bitcoin!.getLitecoinTransactionPriorityMedium();
-        break;
-      case WalletType.ethereum:
-        _settingsStore.priority[wallet.type] = ethereum!.getDefaultTransactionPriority();
-        break;
-      case WalletType.bitcoinCash:
-        _settingsStore.priority[wallet.type] = bitcoinCash!.getDefaultTransactionPriority();
-        break;
-      case WalletType.polygon:
-        _settingsStore.priority[wallet.type] = polygon!.getDefaultTransactionPriority();
-        break;
-      default:
-        break;
-    }
   }
 
   void _setProviders() {

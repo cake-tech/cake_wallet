@@ -15,6 +15,8 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/view_model/send/fees_view_model.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -27,14 +29,16 @@ part 'exchange_trade_view_model.g.dart';
 class ExchangeTradeViewModel = ExchangeTradeViewModelBase with _$ExchangeTradeViewModel;
 
 abstract class ExchangeTradeViewModelBase with Store {
-  ExchangeTradeViewModelBase(
-      {required this.wallet,
-      required this.trades,
-      required this.tradesStore,
-      required this.sendViewModel})
-      : trade = tradesStore.trade!,
+  ExchangeTradeViewModelBase({
+    required this.wallet,
+    required this.trades,
+    required this.tradesStore,
+    required this.sendViewModel,
+    required this.feesViewModel,
+  })  : trade = tradesStore.trade!,
         isSendable = _checkIfCanSend(tradesStore, wallet),
         items = ObservableList<ExchangeTradeItem>() {
+    setUpOutput();
     switch (trade.provider) {
       case ExchangeProviderDescription.changeNow:
         _provider =
@@ -78,6 +82,9 @@ abstract class ExchangeTradeViewModelBase with Store {
   final Box<Trade> trades;
   final TradesStore tradesStore;
   final SendViewModel sendViewModel;
+  final FeesViewModel feesViewModel;
+
+  late Output output;
 
   @observable
   Trade trade;
@@ -109,16 +116,18 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   Timer? timer;
 
-  @action
-  Future<void> confirmSending() async {
-    if (!isSendable) return;
-
+  void setUpOutput() {
     sendViewModel.clearOutputs();
-    final output = sendViewModel.outputs.first;
+    output = sendViewModel.outputs.first;
     output.address = trade.inputAddress ?? '';
     output.setCryptoAmount(trade.amount);
     if (_provider is ThorChainExchangeProvider) output.memo = trade.memo;
     if (trade.isSendAll == true) output.sendAll = true;
+  }
+
+  @action
+  Future<void> confirmSending() async {
+    if (!isSendable) return;
     sendViewModel.selectedCryptoCurrency = trade.from;
     final pendingTransaction = await sendViewModel.createTransaction(provider: _provider);
     if (_provider is ThorChainExchangeProvider) {
@@ -161,6 +170,7 @@ abstract class ExchangeTradeViewModelBase with Store {
           title: "${trade.provider.title} ${S.current.id}",
           data: '${trade.id}',
           isCopied: true,
+          isReceiveDetail: true,
         ),
       );
 
@@ -168,17 +178,20 @@ abstract class ExchangeTradeViewModelBase with Store {
       ExchangeTradeItem(
         title: S.current.amount,
         data: '${trade.amount} ${trade.from}',
-        isCopied: true,
+        isCopied: false,
+        isReceiveDetail: false,
       ),
       ExchangeTradeItem(
         title: S.current.estimated_receive_amount + ':',
         data: '${tradesStore.trade?.receiveAmount} ${trade.to}',
         isCopied: true,
+        isReceiveDetail: true,
       ),
       ExchangeTradeItem(
         title: S.current.send_to_this_address('${tradesStore.trade!.from}', tagFrom) + ':',
         data: trade.inputAddress ?? '',
-        isCopied: true,
+        isCopied: false,
+        isReceiveDetail: false,
       ),
     ]);
 
@@ -189,7 +202,14 @@ abstract class ExchangeTradeViewModelBase with Store {
           ? S.current.memo
           : S.current.extra_id;
 
-      items.add(ExchangeTradeItem(title: title, data: '${trade.extraId}', isCopied: true));
+      items.add(
+        ExchangeTradeItem(
+          title: title,
+          data: '${trade.extraId}',
+          isCopied: true,
+          isReceiveDetail: true,
+        ),
+      );
     }
 
     items.add(
@@ -197,6 +217,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         title: S.current.arrive_in_this_address('${tradesStore.trade!.to}', tagTo) + ':',
         data: trade.payoutAddress ?? '',
         isCopied: true,
+        isReceiveDetail: true,
       ),
     );
   }
