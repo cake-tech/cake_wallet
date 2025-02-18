@@ -182,7 +182,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         isReceiveDetail: false,
       ),
       ExchangeTradeItem(
-        title: S.current.estimated_receive_amount + ':',
+        title: S.current.you_will_receive_estimated_amount + ':',
         data: '${tradesStore.trade?.receiveAmount} ${trade.to}',
         isCopied: true,
         isReceiveDetail: true,

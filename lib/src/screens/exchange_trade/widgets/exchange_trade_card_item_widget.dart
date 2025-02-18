@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
@@ -11,6 +12,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class ExchangeTradeCardItemWidget extends StatelessWidget {
@@ -130,12 +132,19 @@ class TradeItemRowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: ListRow(
-        padding: EdgeInsets.zero,
-        title: title,
-        value: value,
-        image: isCopied ? copyImage : null,
-        color: Colors.transparent,
+      child: GestureDetector(
+        onTap: () {
+          if (!isCopied) return;
+          Clipboard.setData(ClipboardData(text: value));
+          showBar<void>(context, S.of(context).transaction_details_copied(title));
+        },
+        child: ListRow(
+          padding: EdgeInsets.zero,
+          title: title,
+          value: value,
+          image: isCopied ? copyImage : null,
+          color: Colors.transparent,
+        ),
       ),
     );
   }
