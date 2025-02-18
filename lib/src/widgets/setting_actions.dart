@@ -82,10 +82,8 @@ class SettingActions {
     name: (context) => S.of(context).wallets,
     image: 'assets/images/wallet_menu.png',
     onTap: (BuildContext context) {
-      Navigator.of(context).pushNamed(Routes.walletList, arguments: (_) {
-        Navigator.of(context).pop(); // pops wallet list
-        Navigator.of(context).pop(); // pops drawer
-      });
+      Navigator.pop(context);
+      Navigator.of(context).pushNamed(Routes.walletList);
     },
   );
 

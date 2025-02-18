@@ -292,14 +292,21 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> restoreFromSeed(
       MoneroRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    // Restore from Polyseed
-    if (Polyseed.isValidSeed(credentials.mnemonic)) {
-      return restoreFromPolyseed(credentials);
+    if (credentials.mnemonic.split(" ").length == 16) {
+      // Restore from Polyseed
+      try {
+        if (Polyseed.isValidSeed(credentials.mnemonic)) {
+          return restoreFromPolyseed(credentials);
+        }
+      } catch (e) {
+        printV("Polyseed restore failed: $e");
+        rethrow;
+      }
     }
 
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
-      await monero_wallet_manager.restoreFromSeed(
+      monero_wallet_manager.restoreFromSeed(
           path: path,
           password: credentials.password!,
           passphrase: credentials.passphrase,

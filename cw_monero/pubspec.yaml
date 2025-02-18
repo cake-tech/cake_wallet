@@ -25,7 +25,7 @@ dependencies:
   monero:
     git:
       url: https://github.com/mrcyjanek/monero_c
-      ref: 127c54599c612d7d3d226e4c016d5812e7a0966d
+      ref: 629fa4a346ca29d5ed18a2b44895b8858ba7c9f7
       path: impls/monero.dart
   mutex: ^3.1.0
   ledger_flutter_plus: ^1.4.1
