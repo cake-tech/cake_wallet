@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "注册卡并接受条款。",
   "silent_payment": "无声付款",
   "silent_payments": "无声付款",
+  "silent_payments_always_on": "（始终打开）",
   "silent_payments_always_scan": "设置无声付款总是扫描",
   "silent_payments_disclaimer": "新地址不是新的身份。这是重复使用具有不同标签的现有身份。",
   "silent_payments_display_card": "显示无声支付卡",

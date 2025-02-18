@@ -103,7 +103,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
-import 'package:blockchain_utils/blockchain_utils.dart';
 """;
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/electrum_derivations.dart';
@@ -119,7 +118,6 @@ import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
-import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
@@ -218,13 +216,11 @@ abstract class Bitcoin {
   WalletService createBitcoinWalletService(
     Box<WalletInfo> walletInfoSource,
     Box<UnspentCoinsInfo> unspentCoinSource,
-    bool alwaysScan,
     bool isDirect,
   );
   WalletService createLitecoinWalletService(
     Box<WalletInfo> walletInfoSource,
     Box<UnspentCoinsInfo> unspentCoinSource,
-    bool alwaysScan,
     bool isDirect,
   );
   TransactionPriority getBitcoinTransactionPriorityMedium();
@@ -245,9 +241,16 @@ abstract class Bitcoin {
   bool isBitcoinReceivePageOption(ReceivePageOption option);
   BitcoinAddressType getOptionToType(ReceivePageOption option);
   bool hasTaprootInput(PendingTransaction pendingTransaction);
+  bool getAlwaysScanning(Object wallet);
+  Future<void> setAlwaysScanning(Object wallet, bool value);
   bool getScanningActive(Object wallet);
   Future<void> allowToSwitchNodesForScanning(Object wallet, bool allow);
-  Future<void> setScanningActive(Object wallet, bool active, [String? address]);
+  Future<void> setScanningActive(
+    Object wallet,
+    bool active, [
+    String? address,
+    bool? forceStop,
+  ]);
   bool isTestnet(Object wallet);
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
@@ -292,6 +295,7 @@ abstract class Bitcoin {
     required int height,
     String? address,
     bool? doSingleScan,
+    bool? forceStop,
   });
   Future<List<String>> getSilentPaymentWallets(Object wallet);
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet);

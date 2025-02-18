@@ -14,6 +14,8 @@ class WalletAddressListItem extends ListItem {
     this.isOneTimeReceiveAddress = false,
     this.isHidden = false,
     this.isManual = false,
+    this.canBeDeleted = false,
+    this.onDelete,
   }) : super();
 
   final int? id;
@@ -26,8 +28,11 @@ class WalletAddressListItem extends ListItem {
   final bool isChange;
   bool isHidden;
   bool isManual;
+  final bool canBeDeleted;
   final bool? isOneTimeReceiveAddress;
 
   @override
   String toString() => name ?? address;
+
+  Function(String)? onDelete;
 }

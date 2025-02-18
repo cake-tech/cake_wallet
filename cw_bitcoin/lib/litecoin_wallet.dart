@@ -51,6 +51,9 @@ part 'litecoin_wallet.g.dart';
 class LitecoinWallet = LitecoinWalletBase with _$LitecoinWallet;
 
 abstract class LitecoinWalletBase extends ElectrumWallet with Store {
+  @observable
+  bool _alwaysScan;
+
   LitecoinWalletBase({
     required super.password,
     required super.walletInfo,
@@ -62,14 +65,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     String? passphrase,
     super.initialBalance,
     int? initialMwebHeight,
-    super.alwaysScan,
+    bool? alwaysScan,
     super.didInitialSync,
     Map<String, dynamic>? walletAddressesSnapshot,
-  }) : super(
+  })  : _alwaysScan = alwaysScan ?? false,
+        super(
           network: LitecoinNetwork.mainnet,
           currency: CryptoCurrency.ltc,
         ) {
-    mwebEnabled = alwaysScan ?? false;
+    mwebEnabled = _alwaysScan;
 
     if (walletAddressesSnapshot != null) {
       walletAddresses = LitecoinWalletAddressesBase.fromJson(
@@ -78,6 +82,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         network: network,
         isHardwareWallet: isHardwareWallet,
         hdWallets: hdWallets,
+        mwebEnabled: mwebEnabled,
       );
     } else {
       walletAddresses = LitecoinWalletAddresses(
@@ -175,7 +180,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
-    required bool alwaysScan,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
@@ -1589,12 +1593,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   Future<void> setMwebEnabled(bool enabled) async {
     if (mwebEnabled == enabled &&
-        alwaysScan == enabled &&
+        _alwaysScan == enabled &&
         (walletAddresses as LitecoinWalletAddresses).mwebEnabled == enabled) {
       return;
     }
 
-    alwaysScan = enabled;
+    _alwaysScan = enabled;
     mwebEnabled = enabled;
     (walletAddresses as LitecoinWalletAddresses).mwebEnabled = enabled;
     await save();
@@ -1795,5 +1799,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         useTrustedInputForSegwit: true);
 
     return BtcTransaction.fromRaw(rawHex);
+  }
+
+  @override
+  String toJSON() {
+    final json = jsonDecode(super.toJSON());
+    json['alwaysScan'] = _alwaysScan;
+    return jsonEncode(json);
   }
 }

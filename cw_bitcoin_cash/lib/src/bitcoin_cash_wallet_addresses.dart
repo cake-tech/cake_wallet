@@ -39,15 +39,19 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
       await generateInitialAddresses(
         addressType: P2pkhAddressType.p2pkh,
         seedBytesType: seedBytesType,
-        bitcoinDerivationInfo: BitcoinDerivationInfo(
-          derivationType: BitcoinDerivationType.bip39,
-          derivationPath: "m/44'/145'/0'",
-          description: "Default Bitcoin Cash",
-          scriptType: P2pkhAddressType.p2pkh,
-        ),
+        bitcoinDerivationInfo: BitcoinDerivationInfos.BCH,
       );
     }
     await super.init();
+  }
+
+  @override
+  bool getShouldHideAddress(Bip32Path path) {
+    if (seedTypeIsElectrum) {
+      return path.toString() != BitcoinDerivationInfos.ELECTRUM.derivationPath.toString();
+    }
+
+    return path.toString() != BitcoinDerivationPaths.BCH;
   }
 
   static BitcoinCashWalletAddressesBase fromJson(
@@ -90,14 +94,5 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
       isHardwareWallet: isHardwareWallet,
       initialAddresses: initialAddresses,
     );
-  }
-
-  @override
-  bool getShouldHideAddress(Bip32Path path) {
-    if (seedTypeIsElectrum) {
-      return path.toString() != BitcoinDerivationInfos.ELECTRUM.derivationPath.toString();
-    }
-
-    return path.toString() != "m/44'/145'/0'";
   }
 }

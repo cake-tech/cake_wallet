@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "Mag-sign up para sa card at tanggapin ang mga tuntunin.",
   "silent_payment": "Tahimik na pagbabayad",
   "silent_payments": "Tahimik na pagbabayad",
+  "silent_payments_always_on": "(Palaging nasa)",
   "silent_payments_always_scan": "Itakda ang mga tahimik na pagbabayad na laging nag-scan",
   "silent_payments_disclaimer": "Ang mga bagong address ay hindi mga bagong pagkakakilanlan. Ito ay isang muling paggamit ng isang umiiral na pagkakakilanlan na may ibang label.",
   "silent_payments_display_card": "Ipakita ang Silent Payment Card",

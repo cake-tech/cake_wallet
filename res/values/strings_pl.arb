@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "Zarejestruj się, aby otrzymać kartę i zaakceptuj warunki.",
   "silent_payment": "Cicha płatność",
   "silent_payments": "Ciche płatności",
+  "silent_payments_always_on": "(zawsze dalej)",
   "silent_payments_always_scan": "Ustaw ciche płatności zawsze skanowanie",
   "silent_payments_disclaimer": "Nowe adresy nie są nową tożsamością. Jest to ponowne wykorzystanie istniejącej tożsamości z inną etykietą.",
   "silent_payments_display_card": "Pokaż kartę Silent Payments",

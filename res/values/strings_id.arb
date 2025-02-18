@@ -755,6 +755,7 @@
   "signup_for_card_accept_terms": "Daftar untuk kartu dan terima syarat dan ketentuan.",
   "silent_payment": "Pembayaran diam",
   "silent_payments": "Pembayaran diam",
+  "silent_payments_always_on": "(selalu aktif)",
   "silent_payments_always_scan": "Tetapkan pembayaran diam selalu pemindaian",
   "silent_payments_disclaimer": "Alamat baru bukanlah identitas baru. Ini adalah penggunaan kembali identitas yang ada dengan label yang berbeda.",
   "silent_payments_display_card": "Tunjukkan kartu pembayaran diam",

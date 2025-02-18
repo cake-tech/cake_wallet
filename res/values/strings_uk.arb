@@ -753,6 +753,7 @@
   "signup_for_card_accept_terms": "Зареєструйтеся на картку та прийміть умови.",
   "silent_payment": "Мовчазний платіж",
   "silent_payments": "Мовчазні платежі",
+  "silent_payments_always_on": "(Завжди увімкнено)",
   "silent_payments_always_scan": "Встановити мовчазні платежі завжди сканувати",
   "silent_payments_disclaimer": "Нові адреси - це не нові ідентичності. Це повторне використання існуючої ідентичності з іншою етикеткою.",
   "silent_payments_display_card": "Покажіть безшумну карту платежів",

@@ -394,6 +394,22 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     updateAddressesByType();
   }
 
+  @override
+  @action
+  void updateAddressesByType() {
+    receiveAddressesByType[SegwitAddressType.mweb] = mwebAddresses.toList();
+    super.updateAddressesByType();
+  }
+
+  @override
+  bool getShouldHideAddress(Bip32Path path) {
+    if (seedTypeIsElectrum) {
+      return path.toString() != BitcoinDerivationInfos.ELECTRUM.derivationPath.toString();
+    }
+
+    return path.toString() != BitcoinDerivationInfos.LITECOIN.derivationPath.toString();
+  }
+
   Map<String, dynamic> toJson() {
     final json = super.toJson();
     json['mwebAddresses'] = mwebAddresses.map((address) => address.toJSON()).toList();
@@ -423,19 +439,18 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   static LitecoinWalletAddressesBase fromJson(
-    Map<String, dynamic> json,
+    Map<String, dynamic> snp,
     WalletInfo walletInfo, {
     required Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets,
     required BasedUtxoNetwork network,
     required bool isHardwareWallet,
-    List<BitcoinAddressRecord>? initialAddresses,
-    List<LitecoinMWEBAddressRecord>? initialMwebAddresses,
+    required bool mwebEnabled,
   }) {
-    initialAddresses ??= (json['allAddresses'] as List)
+    final initialAddresses = (snp['allAddresses'] as List)
         .map((record) => BitcoinAddressRecord.fromJSON(record as String))
         .toList();
 
-    initialMwebAddresses ??= (json['mwebAddresses'] as List)
+    final initialMwebAddresses = (snp['mwebAddresses'] as List)
         .map(
           (address) => LitecoinMWEBAddressRecord.fromJSON(address as String),
         )
@@ -448,23 +463,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       isHardwareWallet: isHardwareWallet,
       initialAddresses: initialAddresses,
       initialMwebAddresses: initialMwebAddresses,
-      mwebEnabled: true, // TODO
+      mwebEnabled: mwebEnabled,
     );
-  }
-
-  @override
-  @action
-  void updateAddressesByType() {
-    receiveAddressesByType[SegwitAddressType.mweb] = mwebAddresses.toList();
-    super.updateAddressesByType();
-  }
-
-  @override
-  bool getShouldHideAddress(Bip32Path path) {
-    if (seedTypeIsElectrum) {
-      return path.toString() != BitcoinDerivationInfos.ELECTRUM.derivationPath.toString();
-    }
-
-    return path.toString() != BitcoinDerivationInfos.LITECOIN.derivationPath.toString();
   }
 }

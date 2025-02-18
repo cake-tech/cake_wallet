@@ -23,13 +23,11 @@ class BitcoinWalletService extends WalletService<
   BitcoinWalletService(
     this.walletInfoSource,
     this.unspentCoinsInfoSource,
-    this.alwaysScan,
     this.isDirect,
   );
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
-  final bool alwaysScan;
   final bool isDirect;
 
   @override
@@ -82,7 +80,6 @@ class BitcoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -95,7 +92,6 @@ class BitcoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -130,7 +126,6 @@ class BitcoinWalletService extends WalletService<
       name: currentName,
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      alwaysScan: alwaysScan,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 

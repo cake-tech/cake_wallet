@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "Meld je aan voor de kaart en accepteer de voorwaarden.",
   "silent_payment": "Stille betaling",
   "silent_payments": "Stille betalingen",
+  "silent_payments_always_on": "(altijd aan)",
   "silent_payments_always_scan": "Stel stille betalingen in het scannen",
   "silent_payments_disclaimer": "Nieuwe adressen zijn geen nieuwe identiteiten. Het is een hergebruik van een bestaande identiteit met een ander label.",
   "silent_payments_display_card": "Toon stille betalingskaart",

@@ -37,10 +37,21 @@ class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @observable
   bool nodeSupportsSilentPayments = true;
-  @observable
-  bool silentPaymentsScanningActive = false;
+
   @observable
   bool allowedToSwitchNodesForScanning = false;
+
+  @observable
+  bool _silentPaymentsScanningActive = false;
+
+  @computed
+  bool get silentPaymentsScanningActive => _silentPaymentsScanningActive;
+
+  @observable
+  bool _alwaysScan;
+
+  @computed
+  bool get alwaysScan => _alwaysScan;
 
   BitcoinWalletBase({
     required super.password,
@@ -53,11 +64,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     BasedUtxoNetwork? networkParam,
     super.initialBalance,
     super.passphrase,
-    super.alwaysScan,
+    bool? alwaysScan,
     super.initialUnspentCoins,
     super.didInitialSync,
     Map<String, dynamic>? walletAddressesSnapshot,
-  }) : super(
+  })  : _alwaysScan = alwaysScan ?? false,
+        super(
           network: networkParam == null
               ? BitcoinNetwork.mainnet
               : networkParam == BitcoinNetwork.mainnet
@@ -130,7 +142,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
-    required bool alwaysScan,
   }) async {
     final network = walletInfo.network != null
         ? BasedUtxoNetwork.fromName(walletInfo.network!)
@@ -193,7 +204,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialBalance: snp?.balance,
       encryptionFileUtils: encryptionFileUtils,
       networkParam: network,
-      alwaysScan: alwaysScan,
+      alwaysScan: snp?.alwaysScan,
       initialUnspentCoins: snp?.unspentCoins,
       didInitialSync: snp?.didInitialSync,
       walletAddressesSnapshot: snp?.walletAddressesSnapshot,
@@ -374,10 +385,16 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     String? address,
     int? height,
     bool? doSingleScan,
+    bool? forceStop,
   ]) async {
-    silentPaymentsScanningActive = active;
-    final nodeSupportsSilentPayments = await getNodeSupportsSilentPayments();
-    final isAllowedToScan = nodeSupportsSilentPayments || allowedToSwitchNodesForScanning;
+    _silentPaymentsScanningActive = active;
+
+    bool isAllowedToScan = allowedToSwitchNodesForScanning;
+
+    if (!isAllowedToScan) {
+      final nodeSupportsSilentPayments = await getNodeSupportsSilentPayments();
+      isAllowedToScan = nodeSupportsSilentPayments;
+    }
 
     if (active && isAllowedToScan) {
       syncStatus = AttemptingScanSyncStatus();
@@ -394,9 +411,18 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         _requestTweakScanning(beginHeight, address, doSingleScan);
       }
     } else if (syncStatus is! SyncedSyncStatus) {
-      await waitSendWorker(ElectrumWorkerStopScanningRequest());
-      await startSync();
+      await startSync(forceStop: forceStop);
     }
+  }
+
+  @action
+  Future<void> setAlwaysScanning(bool active) async {
+    _alwaysScan = active;
+    if (!active) {
+      _silentPaymentsScanningActive = false;
+    }
+
+    await save();
   }
 
   @override
@@ -502,8 +528,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @action
   @override
-  Future<void> rescan({required int height, bool? doSingleScan}) async {
-    setSilentPaymentsScanning(true, null, height, doSingleScan);
+  Future<void> rescan({
+    required int height,
+    String? address,
+    bool? doSingleScan,
+    bool? forceStop,
+  }) async {
+    setSilentPaymentsScanning(true, address, height, doSingleScan, forceStop);
   }
 
   @action
@@ -626,7 +657,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         syncStatus = newSyncStatus;
 
         if (newSyncStatus is SyncedSyncStatus) {
-          silentPaymentsScanningActive = false;
+          if (!_alwaysScan) {
+            _silentPaymentsScanningActive = false;
+          }
         }
       }
 
@@ -643,6 +676,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     String? address,
     bool? doSingleScan,
   ]) async {
+    _silentPaymentsScanningActive = true;
+
     final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
     address ??= walletAddresses.silentPaymentWallet?.toString();
 
@@ -684,15 +719,20 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @override
   @action
+  Future<void> startSync({bool? forceStop}) async {
+    await super.startSync();
+
+    if (forceStop != true && _alwaysScan == true && syncStatus is SyncedSyncStatus) {
+      _requestTweakScanning(walletInfo.restoreHeight);
+    }
+  }
+
+  @override
+  @action
   Future<void> onHeadersResponse(ElectrumHeaderResponse response) async {
     super.onHeadersResponse(response);
 
     _setInitialScanHeight();
-
-    // New headers received, start scanning
-    if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
-      _requestTweakScanning(walletInfo.restoreHeight);
-    }
   }
 
   Future<void> _setInitialScanHeight() async {
@@ -709,7 +749,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       case SyncingSyncStatus:
         return;
       case SyncedTipSyncStatus:
-        silentPaymentsScanningActive = false;
+        if (!_alwaysScan) {
+          _silentPaymentsScanningActive = false;
+        }
 
         // Message is shown on the UI for 3 seconds, then reverted to synced
         Timer(Duration(seconds: 3), () {
@@ -1293,6 +1335,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     unspentCoins.addAll(silentPaymentUnspents);
 
     super.onUnspentResponse(unspents);
+  }
+
+  @override
+  String toJSON() {
+    final json = jsonDecode(super.toJSON());
+    json['alwaysScan'] = _alwaysScan;
+    return jsonEncode(json);
   }
 }
 

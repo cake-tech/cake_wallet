@@ -751,6 +751,7 @@
   "signup_for_card_accept_terms": "Đăng ký thẻ và chấp nhận các điều khoản.",
   "silent_payment": "Thanh toán im lặng",
   "silent_payments": "Thanh toán im lặng",
+  "silent_payments_always_on": "(luôn luôn bật)",
   "silent_payments_always_scan": "Đặt Thanh toán im lặng luôn quét",
   "silent_payments_disclaimer": "Địa chỉ mới không phải là danh tính mới. Đây là việc tái sử dụng một danh tính hiện có với nhãn khác.",
   "silent_payments_display_card": "Hiển thị thẻ Thanh toán im lặng",

@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "Prijavite se za karticu i prihvatite uvjete.",
   "silent_payment": "Tiho plaćanje",
   "silent_payments": "Tiha plaćanja",
+  "silent_payments_always_on": "(uvijek uključeno)",
   "silent_payments_always_scan": "Postavite tiho plaćanje uvijek skeniranje",
   "silent_payments_disclaimer": "Nove adrese nisu novi identiteti. To je ponovna upotreba postojećeg identiteta s drugom oznakom.",
   "silent_payments_display_card": "Prikaži karticu tihih plaćanja",

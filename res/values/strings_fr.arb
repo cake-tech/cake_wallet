@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "Inscrivez-vous pour la carte et acceptez les conditions.",
   "silent_payment": "Paiement silencieux",
   "silent_payments": "Paiements silencieux",
+  "silent_payments_always_on": "(toujours sur)",
   "silent_payments_always_scan": "Définir les paiements silencieux toujours à la scanne",
   "silent_payments_disclaimer": "Les nouvelles adresses ne sont pas de nouvelles identités. Il s'agit d'une réutilisation d'une identité existante avec une étiquette différente.",
   "silent_payments_display_card": "Afficher la carte de paiement silencieuse",

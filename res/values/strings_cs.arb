@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "Zaregistrujte se pro kartu a souhlaste s podmínkami.",
   "silent_payment": "Tichá platba",
   "silent_payments": "Tiché platby",
+  "silent_payments_always_on": "(vždy dál)",
   "silent_payments_always_scan": "Nastavit tiché platby vždy skenování",
   "silent_payments_disclaimer": "Nové adresy nejsou nové identity. Je to opětovné použití existující identity s jiným štítkem.",
   "silent_payments_display_card": "Zobrazit kartu Silent Payments",

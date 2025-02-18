@@ -69,7 +69,6 @@ abstract class ElectrumWalletBase
     this.passphrase,
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
-    this.alwaysScan,
     List<BitcoinUnspent>? initialUnspentCoins,
     bool? didInitialSync,
   })  : _xpub = xpub,
@@ -220,8 +219,6 @@ abstract class ElectrumWalletBase
         memo: memo,
         enableRBF: enableRBF,
       );
-
-  bool? alwaysScan;
 
   final Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets;
   Bip32Slip10Secp256k1 get hdWallet =>

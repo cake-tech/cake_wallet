@@ -258,13 +258,11 @@ class CWBitcoin extends Bitcoin {
   WalletService createBitcoinWalletService(
     Box<WalletInfo> walletInfoSource,
     Box<UnspentCoinsInfo> unspentCoinSource,
-    bool alwaysScan,
     bool isDirect,
   ) {
     return BitcoinWalletService(
       walletInfoSource,
       unspentCoinSource,
-      alwaysScan,
       isDirect,
     );
   }
@@ -272,13 +270,11 @@ class CWBitcoin extends Bitcoin {
   WalletService createLitecoinWalletService(
     Box<WalletInfo> walletInfoSource,
     Box<UnspentCoinsInfo> unspentCoinSource,
-    bool alwaysScan,
     bool isDirect,
   ) {
     return LitecoinWalletService(
       walletInfoSource,
       unspentCoinSource,
-      alwaysScan,
       isDirect,
     );
   }
@@ -573,15 +569,34 @@ class CWBitcoin extends Bitcoin {
 
   @override
   @computed
+  bool getAlwaysScanning(Object wallet) {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    return bitcoinWallet.alwaysScan;
+  }
+
+  @override
+  @computed
+  Future<void> setAlwaysScanning(Object wallet, bool value) async {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    return bitcoinWallet.setAlwaysScanning(value);
+  }
+
+  @override
+  @computed
   bool getScanningActive(Object wallet) {
     final bitcoinWallet = wallet as BitcoinWallet;
     return bitcoinWallet.silentPaymentsScanningActive;
   }
 
   @override
-  Future<void> setScanningActive(Object wallet, bool active, [String? address]) async {
+  Future<void> setScanningActive(
+    Object wallet,
+    bool active, [
+    String? address,
+    bool? forceStop,
+  ]) async {
     final bitcoinWallet = wallet as BitcoinWallet;
-    bitcoinWallet.setSilentPaymentsScanning(active, address);
+    bitcoinWallet.setSilentPaymentsScanning(active, address, null, null, forceStop);
   }
 
   @override
@@ -626,9 +641,14 @@ class CWBitcoin extends Bitcoin {
     required int height,
     String? address,
     bool? doSingleScan,
+    bool? forceStop,
   }) async {
     final bitcoinWallet = wallet as BitcoinWallet;
-    bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
+    bitcoinWallet.rescan(
+      height: height,
+      doSingleScan: doSingleScan,
+      forceStop: forceStop,
+    );
   }
 
   @override

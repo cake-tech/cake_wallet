@@ -188,6 +188,7 @@ class _AddressListState extends State<AddressList> {
                           updateItems(); // refresh the new address
                         })
                     : null,
+                onDelete: item.isHidden ? () => item.onDelete?.call(item.address) : null,
                 isHidden: item.isHidden,
                 onHide: () => _hideAddress(item),
               );

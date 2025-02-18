@@ -412,6 +412,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             balance: AmountConverter.amountIntToString(
                 walletTypeToCryptoCurrency(type), address.balance),
             isChange: address.isChange,
+            canBeDeleted: true,
+            onDelete: (String address) => bitcoin!.deleteSilentPaymentAddress(wallet, address),
           );
         });
         addressList.addAll(addressItems);

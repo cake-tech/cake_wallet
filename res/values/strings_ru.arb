@@ -753,6 +753,7 @@
   "signup_for_card_accept_terms": "Подпишитесь на карту и примите условия.",
   "silent_payment": "Молчаливый платеж",
   "silent_payments": "Молчаливые платежи",
+  "silent_payments_always_on": "(всегда включен)",
   "silent_payments_always_scan": "Установить молчаливые платежи всегда сканирование",
   "silent_payments_disclaimer": "Новые адреса не являются новыми личностями. Это повторное использование существующей идентичности с другой этикеткой.",
   "silent_payments_display_card": "Показать бесшумную платежную карту",

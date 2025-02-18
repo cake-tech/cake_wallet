@@ -17,12 +17,14 @@ class BaseBitcoinAddressRecord {
     required this.type,
     this.seedBytesType,
     bool? isHidden,
+    String? derivationPath,
   })  : _txCount = txCount,
         _balance = balance,
         _name = name,
         _isUsed = isUsed,
         isHidden = isHidden ?? isChange,
-        _isChange = isChange;
+        _isChange = isChange,
+        _derivationPath = derivationPath ?? '';
 
   @override
   bool operator ==(Object o) => o is BaseBitcoinAddressRecord && address == o.address;
@@ -64,7 +66,9 @@ class BaseBitcoinAddressRecord {
 
   final SeedBytesType? seedBytesType;
 
-  String get derivationPath => '';
+  final String _derivationPath;
+
+  String get derivationPath => _derivationPath;
 
   String toJSON() => json.encode({
         'address': address,
@@ -106,6 +110,7 @@ class BaseBitcoinAddressRecord {
       txCount: decoded['txCount'] as int? ?? 0,
       name: decoded['name'] as String? ?? '',
       balance: decoded['balance'] as int? ?? 0,
+      derivationPath: decoded['derivationPath'] as String? ?? '',
       type: decoded['type'] != null && decoded['type'] != ''
           ? BitcoinAddressType.values
               .firstWhere((type) => type.toString() == decoded['type'] as String)
@@ -167,13 +172,11 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       throw ArgumentError('either scriptHash or network must be provided');
     }
 
-    if (derivationPath == null)
-      _derivationPath = derivationInfo.derivationPath
-          .addElem(Bip32KeyIndex(isChange ? 1 : 0))
-          .addElem(Bip32KeyIndex(index))
-          .toString();
-    else
-      _derivationPath = derivationPath;
+    _derivationPath = derivationPath ??
+        derivationInfo.derivationPath
+            .addElem(Bip32KeyIndex(isChange ? 1 : 0))
+            .addElem(Bip32KeyIndex(index))
+            .toString();
   }
 
   factory BitcoinAddressRecord.fromJSON(
@@ -198,6 +201,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       name: base.name,
       balance: base.balance,
       type: base.type,
+      derivationPath: base.derivationPath,
       scriptHash: decoded['scriptHash'] as String?,
       derivationInfo: derivationInfoSnp == null
           ? seedBytesType != null && !seedBytesType.isElectrum
@@ -274,7 +278,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
       throw ArgumentError('label must be provided for silent address index != 1');
     }
 
-    if (labelIndex != 0) {
+    if (labelIndex != 0 && derivationPath == null) {
       _derivationPath = _derivationPath.replaceAll(RegExp(r'\d\/?$'), '$labelIndex');
     }
   }
@@ -297,6 +301,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
       balance: base.balance,
       type: base.type,
       labelIndex: base.index,
+      derivationPath: base.derivationPath,
       labelHex: decoded['labelHex'] as String?,
     );
   }

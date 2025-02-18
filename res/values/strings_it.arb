@@ -754,6 +754,7 @@
   "signup_for_card_accept_terms": "Registrati per la carta e accetta i termini.",
   "silent_payment": "Pagamento silenzioso",
   "silent_payments": "Pagamenti silenziosi",
+  "silent_payments_always_on": "(sempre acceso)",
   "silent_payments_always_scan": "Impostare i pagamenti silenziosi che scansionano sempre",
   "silent_payments_disclaimer": "I nuovi indirizzi non sono nuove identità. È un riutilizzo di un'identità esistente con un'etichetta diversa.",
   "silent_payments_display_card": "Mostra la carta di pagamenti silenziosi",

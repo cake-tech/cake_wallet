@@ -422,8 +422,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @action
   void deleteSilentPaymentAddress(String address) {
     final addressRecord = silentPaymentAddresses.firstWhereOrNull(
-      (addressRecord) =>
-          addressRecord.type == SilentPaymentsAddresType.p2sp && addressRecord.address == address,
+      (addressRecord) => addressRecord.address == address,
     );
 
     if (addressRecord == null) {
@@ -432,6 +431,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
     silentPaymentAddresses.remove(addressRecord);
     updateAddressesByType();
+    updateHiddenAddresses();
   }
 
   Map<String, int> getLabels(String address) {
@@ -471,14 +471,22 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
           addressRecord.derivationPath != oldSpendPath.toString(),
     );
 
-    final hiddenAddress = silentPaymentAddresses.firstWhere(
+    final list = [primaryAddress.address];
+
+    final hiddenAddress = silentPaymentAddresses.firstWhereOrNull(
       (addressRecord) =>
           !addressRecord.isChange &&
           addressRecord.labelIndex == 0 &&
           addressRecord.derivationPath == oldSpendPath.toString(),
     );
 
-    return [primaryAddress.address, hiddenAddress.address];
+    // Do it like this to keep in order,
+    // the primary address always first in the list
+    if (hiddenAddress != null) {
+      list.add(hiddenAddress.address);
+    }
+
+    return list;
   }
 
   @action
@@ -529,26 +537,22 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   static BitcoinWalletAddressesBase fromJson(
-    Map<String, dynamic> json,
+    Map<String, dynamic> snp,
     WalletInfo walletInfo, {
     required Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets,
     required BasedUtxoNetwork network,
     required bool isHardwareWallet,
-    // TODO: make it used
-    List<BitcoinAddressRecord>? initialAddresses,
-    List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
-    List<BitcoinReceivedSPAddressRecord>? initialReceivedSPAddresses,
   }) {
-    initialAddresses ??= (json['allAddresses'] as List)
+    final initialAddresses = (snp['allAddresses'] as List)
         .map((record) => BitcoinAddressRecord.fromJSON(record as String))
         .toList();
 
-    initialSilentAddresses ??= (json['silentPaymentAddresses'] as List)
+    final initialSilentAddresses = (snp['silentPaymentAddresses'] as List)
         .map(
           (address) => BitcoinSilentPaymentAddressRecord.fromJSON(address as String),
         )
         .toList();
-    initialReceivedSPAddresses ??= (json['receivedSPAddresses'] as List)
+    final initialReceivedSPAddresses = (snp['receivedSPAddresses'] as List)
         .map(
           (address) => BitcoinReceivedSPAddressRecord.fromJSON(address as String),
         )
@@ -562,7 +566,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       initialAddresses: initialAddresses,
       initialSilentAddresses: initialSilentAddresses,
       initialReceivedSPAddresses: initialReceivedSPAddresses,
-      loadedFromNewSnapshot: json['loadedFromNewSnapshot'] as bool? ?? false,
+      loadedFromNewSnapshot: snp['loadedFromNewSnapshot'] as bool? ?? false,
     );
   }
 }

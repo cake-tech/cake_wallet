@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "ลงทะเบียนสำหรับบัตรและยอมรับเงื่อนไข",
   "silent_payment": "การชำระเงินแบบเงียบ",
   "silent_payments": "การชำระเงินเงียบ",
+  "silent_payments_always_on": "(เปิดเสมอ)",
   "silent_payments_always_scan": "ตั้งค่าการชำระเงินแบบเงียบเสมอ",
   "silent_payments_disclaimer": "ที่อยู่ใหม่ไม่ใช่ตัวตนใหม่ มันเป็นการใช้ซ้ำของตัวตนที่มีอยู่ด้วยฉลากที่แตกต่างกัน",
   "silent_payments_display_card": "แสดงบัตร Silent Payments",

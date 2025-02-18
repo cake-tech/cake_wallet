@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "ကတ်အတွက် စာရင်းသွင်းပြီး စည်းကမ်းချက်များကို လက်ခံပါ။",
   "silent_payment": "အသံတိတ်ငွေပေးချေမှု",
   "silent_payments": "အသံတိတ်ငွေပေးချေမှု",
+  "silent_payments_always_on": "(အမြဲတမ်း)",
   "silent_payments_always_scan": "အမြဲတမ်း scanning အမြဲ scanning",
   "silent_payments_disclaimer": "လိပ်စာအသစ်များသည်အထောက်အထားအသစ်များမဟုတ်ပါ။ ၎င်းသည်ကွဲပြားခြားနားသောတံဆိပ်ဖြင့်ရှိပြီးသားဝိသေသလက်ခဏာကိုပြန်လည်အသုံးပြုခြင်းဖြစ်သည်။",
   "silent_payments_display_card": "အသံတိတ်ငွေပေးချေမှုကဒ်ကိုပြပါ",

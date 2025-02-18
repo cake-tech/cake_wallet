@@ -48,6 +48,7 @@ import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
+import 'package:cake_wallet/view_model/silent_payments_scanning_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
@@ -489,7 +490,8 @@ Future<void> setup({
       settingsStore: getIt.get<SettingsStore>(),
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
-  getIt.registerFactory(() => DashboardViewModel(
+  getIt.registerFactory(
+    () => DashboardViewModel(
       balanceViewModel: getIt.get<BalanceViewModel>(),
       appStore: getIt.get<AppStore>(),
       tradesStore: getIt.get<TradesStore>(),
@@ -500,7 +502,10 @@ Future<void> setup({
       ordersStore: getIt.get<OrdersStore>(),
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
-      keyService: getIt.get<KeyService>()));
+      keyService: getIt.get<KeyService>(),
+      silentPaymentsScanningViewModel: getIt.get<SilentPaymentsScanningViewModel>(),
+    ),
+  );
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
@@ -902,8 +907,12 @@ Future<void> setup({
     return DisplaySettingsViewModel(getIt.get<SettingsStore>());
   });
 
-  getIt.registerFactory(() =>
-      SilentPaymentsSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
+  getIt.registerFactory(
+    () => SilentPaymentsSettingsViewModel(
+      getIt.get<SettingsStore>(),
+      getIt.get<SilentPaymentsScanningViewModel>(),
+    ),
+  );
 
   getIt.registerFactory(
       () => MwebSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
@@ -1076,14 +1085,12 @@ Future<void> setup({
         return bitcoin!.createBitcoinWalletService(
           _walletInfoSource,
           _unspentCoinsInfoSource,
-          getIt.get<SettingsStore>().silentPaymentsAlwaysScan,
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.litecoin:
         return bitcoin!.createLitecoinWalletService(
           _walletInfoSource,
           _unspentCoinsInfoSource,
-          getIt.get<SettingsStore>().mwebAlwaysScan,
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.ethereum:
@@ -1127,7 +1134,14 @@ Future<void> setup({
 
   getIt.registerFactory(() => WelcomePage());
 
-  getIt.registerFactory(() => RescanViewModel(getIt.get<AppStore>().wallet!));
+  getIt.registerFactory(() => SilentPaymentsScanningViewModel(getIt.get<AppStore>().wallet!));
+
+  getIt.registerFactory(
+    () => RescanViewModel(
+      getIt.get<AppStore>().wallet!,
+      getIt.get<SilentPaymentsScanningViewModel>(),
+    ),
+  );
 
   getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>()));
 
@@ -1434,4 +1448,3 @@ Future<void> setup({
 
   _isSetupFinished = true;
 }
-

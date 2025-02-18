@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "Регистрайте се за картата и приемете условията.",
   "silent_payment": "Безшумно плащане",
   "silent_payments": "Мълчаливи плащания",
+  "silent_payments_always_on": "(винаги нататък)",
   "silent_payments_always_scan": "Задайте мълчаливи плащания винаги сканиране",
   "silent_payments_disclaimer": "Новите адреси не са нови идентичности. Това е повторна употреба на съществуваща идентичност с различен етикет.",
   "silent_payments_display_card": "Показване на безшумни плащания карта",

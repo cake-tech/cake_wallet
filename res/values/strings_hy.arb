@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "Գրանցվել քարտի համար և ընդունել պայմանները",
   "silent_payment": "Լուռ վճարում",
   "silent_payments": "Լուռ Վճարումներ",
+  "silent_payments_always_on": "(Միշտ)",
   "silent_payments_always_scan": "Միացնել Լուռ Վճարումներ մշտական սկանավորումը",
   "silent_payments_disclaimer": "Նոր հասցեները նոր ինքնություն չեն։ Դա այլ պիտակով գոյություն ունեցող ինքնության վերագործածում է",
   "silent_payments_display_card": "Ցուցադրել Լուռ Վճարումներ քարտը",

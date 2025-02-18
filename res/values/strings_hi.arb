@@ -754,6 +754,7 @@
   "signup_for_card_accept_terms": "कार्ड के लिए साइन अप करें और शर्तें स्वीकार करें।",
   "silent_payment": "मूक भुगतान",
   "silent_payments": "मूक भुगतान",
+  "silent_payments_always_on": "( हमेशा बने रहें )",
   "silent_payments_always_scan": "मूक भुगतान हमेशा स्कैनिंग सेट करें",
   "silent_payments_disclaimer": "नए पते नई पहचान नहीं हैं। यह एक अलग लेबल के साथ एक मौजूदा पहचान का पुन: उपयोग है।",
   "silent_payments_display_card": "मूक भुगतान कार्ड दिखाएं",

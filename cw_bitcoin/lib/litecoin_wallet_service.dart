@@ -24,11 +24,13 @@ class LitecoinWalletService extends WalletService<
     BitcoinRestoreWalletFromWIFCredentials,
     BitcoinRestoreWalletFromHardware> {
   LitecoinWalletService(
-      this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan, this.isDirect);
+    this.walletInfoSource,
+    this.unspentCoinsInfoSource,
+    this.isDirect,
+  );
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
-  final bool alwaysScan;
   final bool isDirect;
 
   @override
@@ -77,7 +79,6 @@ class LitecoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -90,7 +91,6 @@ class LitecoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -146,7 +146,6 @@ class LitecoinWalletService extends WalletService<
       name: currentName,
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      alwaysScan: alwaysScan,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 

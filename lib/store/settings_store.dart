@@ -16,7 +16,6 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
@@ -35,11 +34,8 @@ import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/set_app_secure_native.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -123,7 +119,6 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsWellKnown,
       required this.customBitcoinFeeRate,
       required this.silentPaymentsCardDisplay,
-      required this.silentPaymentsAlwaysScan,
       required this.mwebAlwaysScan,
       required this.mwebCardDisplay,
       required this.mwebEnabled,
@@ -235,14 +230,11 @@ abstract class SettingsStoreBase with Store {
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
             PreferencesKey.currentFiatCurrencyKey, fiatCurrency.serialize()));
 
-    reaction(
-            (_) => selectedCakePayCountry,
-            (Country? country) {
-              if (country != null) {
-                sharedPreferences.setString(
-                    PreferencesKey.currentCakePayCountry, country.raw);
-              }
-            });
+    reaction((_) => selectedCakePayCountry, (Country? country) {
+      if (country != null) {
+        sharedPreferences.setString(PreferencesKey.currentCakePayCountry, country.raw);
+      }
+    });
 
     reaction(
         (_) => shouldShowYatPopup,
@@ -303,9 +295,11 @@ abstract class SettingsStoreBase with Store {
       });
     }
 
-    reaction((_) => disableTradeOption,
-        (bool disableTradeOption) => sharedPreferences.setBool(PreferencesKey.disableTradeOption, disableTradeOption));
-    
+    reaction(
+        (_) => disableTradeOption,
+        (bool disableTradeOption) =>
+            sharedPreferences.setBool(PreferencesKey.disableTradeOption, disableTradeOption));
+
     reaction(
         (_) => disableBulletin,
         (bool disableBulletin) =>
@@ -317,8 +311,8 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setInt(PreferencesKey.walletListOrder, walletListOrder.index));
 
     reaction(
-            (_) => contactListOrder,
-            (FilterListOrderType contactListOrder) =>
+        (_) => contactListOrder,
+        (FilterListOrderType contactListOrder) =>
             sharedPreferences.setInt(PreferencesKey.contactListOrder, contactListOrder.index));
 
     reaction(
@@ -327,8 +321,8 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setBool(PreferencesKey.walletListAscending, walletListAscending));
 
     reaction(
-            (_) => contactListAscending,
-            (bool contactListAscending) =>
+        (_) => contactListAscending,
+        (bool contactListAscending) =>
             sharedPreferences.setBool(PreferencesKey.contactListAscending, contactListAscending));
 
     reaction(
@@ -370,8 +364,8 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
 
     reaction(
-            (_) => showAddressBookPopupEnabled,
-            (bool value) =>
+        (_) => showAddressBookPopupEnabled,
+        (bool value) =>
             sharedPreferences.setBool(PreferencesKey.showAddressBookPopupEnabled, value));
 
     reaction((_) => pinCodeLength,
@@ -568,11 +562,6 @@ abstract class SettingsStoreBase with Store {
       _sharedPreferences.setBool(
           PreferencesKey.silentPaymentsCardDisplay, silentPaymentsCardDisplay);
     });
-
-    reaction(
-        (_) => silentPaymentsAlwaysScan,
-        (bool silentPaymentsAlwaysScan) => _sharedPreferences.setBool(
-            PreferencesKey.silentPaymentsAlwaysScan, silentPaymentsAlwaysScan));
 
     reaction(
         (_) => mwebAlwaysScan,
@@ -816,9 +805,6 @@ abstract class SettingsStoreBase with Store {
   bool silentPaymentsCardDisplay;
 
   @observable
-  bool silentPaymentsAlwaysScan;
-
-  @observable
   bool mwebAlwaysScan;
 
   @observable
@@ -880,10 +866,10 @@ abstract class SettingsStoreBase with Store {
     final backgroundTasks = getIt.get<BackgroundTasks>();
     final currentFiatCurrency = FiatCurrency.deserialize(
         raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
-    final savedCakePayCountryRaw = sharedPreferences.getString(PreferencesKey.currentCakePayCountry);
-    final currentCakePayCountry = savedCakePayCountryRaw != null
-        ? Country.deserialize(raw: savedCakePayCountryRaw)
-        : null;
+    final savedCakePayCountryRaw =
+        sharedPreferences.getString(PreferencesKey.currentCakePayCountry);
+    final currentCakePayCountry =
+        savedCakePayCountryRaw != null ? Country.deserialize(raw: savedCakePayCountryRaw) : null;
 
     TransactionPriority? moneroTransactionPriority = monero?.deserializeMoneroTransactionPriority(
         raw: sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority)!);
@@ -944,12 +930,13 @@ abstract class SettingsStoreBase with Store {
     final shouldSaveRecipientAddress =
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
     final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
-    final disableTradeOption = sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? false;
+    final disableTradeOption =
+        sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? false;
     final disableBulletin = sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? false;
     final walletListOrder =
         FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     final contactListOrder =
-    FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
+        FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
     final walletListAscending =
         sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
     final contactListAscending =
@@ -1005,8 +992,6 @@ abstract class SettingsStoreBase with Store {
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     final silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
-    final silentPaymentsAlwaysScan =
-        sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
     final mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     final mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     final mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
@@ -1291,7 +1276,6 @@ abstract class SettingsStoreBase with Store {
       lookupsWellKnown: lookupsWellKnown,
       customBitcoinFeeRate: customBitcoinFeeRate,
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
-      silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,
       mwebAlwaysScan: mwebAlwaysScan,
       mwebCardDisplay: mwebCardDisplay,
       mwebEnabled: mwebEnabled,
@@ -1376,7 +1360,7 @@ abstract class SettingsStoreBase with Store {
     }
     if (zano != null && sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority) != null) {
       priority[WalletType.zano] = zano!.deserializeMoneroTransactionPriority(
-              raw: sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority)!);
+          raw: sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority)!);
     }
 
     final generateSubaddresses =
@@ -1411,13 +1395,14 @@ abstract class SettingsStoreBase with Store {
     numberOfFailedTokenTrials =
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
-    disableTradeOption = sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? disableTradeOption;
+    disableTradeOption =
+        sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? disableTradeOption;
     disableBulletin =
         sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? disableBulletin;
     walletListOrder =
         FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
     contactListOrder =
-    FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
+        FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.contactListOrder) ?? 0];
     walletListAscending = sharedPreferences.getBool(PreferencesKey.walletListAscending) ?? true;
     contactListAscending = sharedPreferences.getBool(PreferencesKey.contactListAscending) ?? true;
     shouldShowMarketPlaceInDashboard =
@@ -1468,8 +1453,6 @@ abstract class SettingsStoreBase with Store {
     customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
-    silentPaymentsAlwaysScan =
-        sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
     mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
@@ -1496,7 +1479,7 @@ abstract class SettingsStoreBase with Store {
     final ethereumNode = nodeSource.get(ethereumNodeId);
     final polygonNode = nodeSource.get(polygonNodeId);
     final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
-    final nanoNode = nodeSource.get(nanoNodeId);   
+    final nanoNode = nodeSource.get(nanoNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
     final tronNode = nodeSource.get(tronNodeId);
     final wowneroNode = nodeSource.get(wowneroNodeId);
@@ -1544,7 +1527,6 @@ abstract class SettingsStoreBase with Store {
 
     if (wowneroNode != null) {
       nodes[WalletType.wownero] = wowneroNode;
-
     }
 
     if (zanoNode != null) {

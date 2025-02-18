@@ -753,6 +753,7 @@
   "signup_for_card_accept_terms": "Sign up for the card and accept the terms.",
   "silent_payment": "Silent Payment",
   "silent_payments": "Silent Payments",
+  "silent_payments_always_on": "( always on )",
   "silent_payments_always_scan": "Set Silent Payments always scanning",
   "silent_payments_disclaimer": "New addresses are not new identities. It is a re-use of an existing identity with a different label.",
   "silent_payments_display_card": "Show Silent Payments card",

@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "카드에 가입하고 약관에 동의합니다.",
   "silent_payment": "조용한 지불",
   "silent_payments": "조용한 지불",
+  "silent_payments_always_on": "(항상 켜짐)",
   "silent_payments_always_scan": "무음금을 항상 스캔합니다",
   "silent_payments_disclaimer": "새로운 주소는 새로운 정체성이 아닙니다. 다른 레이블로 기존 신원을 재사용하는 것입니다.",
   "silent_payments_display_card": "사일런트 지불 카드 표시",

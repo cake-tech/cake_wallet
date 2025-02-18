@@ -92,7 +92,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return _allAddresses.firstWhere((element) => element.address == address);
   }
 
-  // TODO: toggle to switch
+  // TODO: feature with toggle to switch change address type
   @observable
   BitcoinAddressType changeAddressType = SegwitAddressType.p2wpkh;
 

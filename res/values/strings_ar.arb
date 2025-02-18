@@ -752,6 +752,7 @@
   "signup_for_card_accept_terms": "قم بالتسجيل للحصول على البطاقة وقبول الشروط.",
   "silent_payment": "الدفع الصامت",
   "silent_payments": "مدفوعات صامتة",
+  "silent_payments_always_on": "(دائما على)",
   "silent_payments_always_scan": "حدد المدفوعات الصامتة دائمًا المسح الضوئي",
   "silent_payments_disclaimer": "العناوين الجديدة ليست هويات جديدة. إنها إعادة استخدام هوية موجودة مع ملصق مختلف.",
   "silent_payments_display_card": "عرض بطاقة المدفوعات الصامتة",

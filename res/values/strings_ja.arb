@@ -753,6 +753,7 @@
   "signup_for_card_accept_terms": "カードにサインアップして、利用規約に同意してください。",
   "silent_payment": "サイレント支払い",
   "silent_payments": "サイレント支払い",
+  "silent_payments_always_on": "（常にオン）",
   "silent_payments_always_scan": "サイレント決済を常にスキャンします",
   "silent_payments_disclaimer": "新しいアドレスは新しいアイデンティティではありません。これは、異なるラベルを持つ既存のアイデンティティの再利用です。",
   "silent_payments_display_card": "サイレントペイメントカードを表示します",

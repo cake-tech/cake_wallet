@@ -1,6 +1,6 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cw_core/wallet_base.dart';
+import 'package:cake_wallet/view_model/silent_payments_scanning_view_model.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 
 part 'silent_payments_settings_view_model.g.dart';
@@ -9,16 +9,20 @@ class SilentPaymentsSettingsViewModel = SilentPaymentsSettingsViewModelBase
     with _$SilentPaymentsSettingsViewModel;
 
 abstract class SilentPaymentsSettingsViewModelBase with Store {
-  SilentPaymentsSettingsViewModelBase(this._settingsStore, this._wallet);
+  SilentPaymentsSettingsViewModelBase(
+    this._settingsStore,
+    this._scanningViewModel,
+  );
 
   final SettingsStore _settingsStore;
-  final WalletBase _wallet;
+
+  final SilentPaymentsScanningViewModel _scanningViewModel;
 
   @computed
   bool get silentPaymentsCardDisplay => _settingsStore.silentPaymentsCardDisplay;
 
   @computed
-  bool get silentPaymentsAlwaysScan => _settingsStore.silentPaymentsAlwaysScan;
+  bool get silentPaymentsAlwaysScan => _scanningViewModel.silentPaymentsAlwaysScan;
 
   @action
   void setSilentPaymentsCardDisplay(bool value) {
@@ -26,8 +30,9 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
   }
 
   @action
-  void setSilentPaymentsAlwaysScan(bool value) {
-    _settingsStore.silentPaymentsAlwaysScan = value;
-    if (value) bitcoin!.setScanningActive(_wallet, true);
+  Future<void> setSilentPaymentsAlwaysScan(bool value, BuildContext context) async {
+    await _scanningViewModel.setSilentPaymentsAlwaysScan(value);
+
+    if (value) _scanningViewModel.toggleSilentPaymentsScanning(context);
   }
 }

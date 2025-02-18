@@ -50,7 +50,6 @@ class PreferencesKey {
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
-  static const silentPaymentsAlwaysScan = 'silentPaymentsAlwaysScan';
   static const mwebCardDisplay = 'mwebCardDisplay';
   static const mwebEnabled = 'mwebEnabled';
   static const hasEnabledMwebBefore = 'hasEnabledMwebBefore';
