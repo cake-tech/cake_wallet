@@ -220,16 +220,35 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             }
 
                             final actionCall = () async {
-                              await widget.homeSettingsViewModel.addToken(
-                                token: CryptoCurrency(
-                                  name: _tokenNameController.text,
-                                  title: _tokenSymbolController.text.toUpperCase(),
-                                  decimals: int.parse(_tokenDecimalController.text),
-                                  iconPath: isPotentialScam ? _tokenIconPathController.text : null,
-                                  isPotentialScam: isPotentialScam,
-                                ),
-                                contractAddress: _contractAddressController.text,
-                              );
+                              try {
+                                await widget.homeSettingsViewModel.addToken(
+                                  token: CryptoCurrency(
+                                    name: _tokenNameController.text,
+                                    title: _tokenSymbolController.text.toUpperCase(),
+                                    decimals: int.parse(_tokenDecimalController.text),
+                                    iconPath: _tokenIconPathController.text,
+                                    isPotentialScam: isPotentialScam,
+                                  ),
+                                  contractAddress: _contractAddressController.text,
+                                );
+
+                                if (mounted) {
+                                  Navigator.pop(context);
+                                }
+
+                              } catch (e) {
+                                showPopUp<void>(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return AlertWithOneAction(
+                                      alertTitle: S.current.warning,
+                                      alertContent: e.toString(),
+                                      buttonText: S.of(context).ok,
+                                      buttonAction: () => Navigator.of(dialogContext).pop(),
+                                    );
+                                  },
+                                );
+                              }
                             };
 
                             if (hasPotentialError) {
@@ -244,9 +263,6 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                     actionRightButton: () async {
                                       Navigator.of(dialogContext).pop();
                                       await actionCall();
-                                      if (mounted) {
-                                        Navigator.pop(context);
-                                      }
                                     },
                                     actionLeftButton: () => Navigator.of(dialogContext).pop(),
                                   );
