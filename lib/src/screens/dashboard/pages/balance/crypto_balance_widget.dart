@@ -386,11 +386,11 @@ class CryptoBalanceWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 150),
                 ],
               ],
             );
           }),
+          SizedBox(height: 130),
         ],
       ),
     );
