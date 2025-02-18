@@ -116,6 +116,11 @@ void restoreWalletFromSeedSync(
 
   if (status != 0) {
     final error = monero.Wallet_errorString(newWptr);
+    if (error.contains('word list failed verification')) {
+      throw WalletRestoreFromSeedException(
+        message: "Seed verification failed, please make sure you entered the correct seed with the correct words order",
+      );
+    }
     throw WalletRestoreFromSeedException(message: error);
   }
   wptr = newWptr;

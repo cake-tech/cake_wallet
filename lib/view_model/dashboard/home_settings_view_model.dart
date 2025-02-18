@@ -117,7 +117,10 @@ abstract class HomeSettingsViewModelBase with Store {
       
       _updateTokensList();
       _updateFiatPrices(token);
-    } finally {
+    } catch (e) {
+      throw e;
+  }
+    finally {
       isAddingToken = false;
     }
   }
