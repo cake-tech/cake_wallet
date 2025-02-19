@@ -293,7 +293,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
       final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-          ? Routes.disclaimer
+          ? Routes.welcome
           : Routes.login;
       final currentTheme = settingsStore.currentTheme;
       final statusBarBrightness =
