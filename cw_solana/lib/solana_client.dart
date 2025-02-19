@@ -12,6 +12,7 @@ import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_solana/solana_rpc_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:on_chain/solana/solana.dart';
+import 'package:on_chain/solana/src/instructions/associated_token_account/constant.dart';
 import 'package:on_chain/solana/src/models/pda/pda.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import '.secrets.g.dart' as secrets;
@@ -170,7 +171,7 @@ class SolanaWalletClient {
 
         if (programId == SystemProgramConst.programId) {
           // For native solana transactions
-
+          if (instruction.accounts.length < 2) continue;
           final senderIndex = instruction.accounts[0];
           final receiverIndex = instruction.accounts[1];
 
@@ -228,6 +229,51 @@ class SolanaWalletClient {
             blockTimeInInt: blockTime?.toInt() ?? 0,
             tokenSymbol: tokenSymbol ?? '',
             fee: fee / SolanaUtils.lamportsPerSol,
+          );
+        } else if (programId == AssociatedTokenAccountProgramConst.associatedTokenProgramId) {
+          // The order for an associated token account creation instruction is:
+          // accounts[0] = payer
+          // accounts[1] = associatedToken
+          // accounts[2] = owner
+          // accounts[3] = mint
+
+          if (instruction.accounts.length < 4) return null;
+
+          final payerIndex = instruction.accounts[0];
+          final associatedTokenIndex = instruction.accounts[1];
+
+          final payer = message.accountKeys[payerIndex].address;
+          final ataAddress = message.accountKeys[associatedTokenIndex].address;
+
+          final preBalances = meta.preBalances;
+          final postBalances = meta.postBalances;
+
+          final feeLamports = meta.fee;
+          final feeForTx = feeLamports / SolanaUtils.lamportsPerSol;
+
+          // Making sure we have the correct length in pre-/postBalances
+          if (payerIndex >= preBalances.length ||
+              payerIndex >= postBalances.length ||
+              associatedTokenIndex >= preBalances.length ||
+              associatedTokenIndex >= postBalances.length) {
+            return null;
+          }
+
+          final payerSpentLamports = preBalances[payerIndex] - postBalances[payerIndex];
+
+          final costForAtaLamports = payerSpentLamports - BigInt.from(feeLamports);
+          final costForAtaSol = costForAtaLamports / BigInt.from(SolanaUtils.lamportsPerSol);
+
+          return SolanaTransactionModel(
+            isOutgoingTx: payer == address,
+            from: payer,
+            to: ataAddress,
+            id: signature,
+            amount: costForAtaSol,
+            programId: AssociatedTokenAccountProgramConst.associatedTokenProgramId.address,
+            tokenSymbol: 'SOL',
+            blockTimeInInt: blockTime?.toInt() ?? 0,
+            fee: feeForTx,
           );
         } else {
           return null;

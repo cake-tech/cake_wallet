@@ -35,7 +35,7 @@ class DefaultSPLTokens {
       decimal: 6,
       mint: 'ray',
       iconPath: 'assets/images/ray_icon.png',
-      enabled: true,
+      enabled: false,
     ),
     SPLToken(
       name: 'Wrapped Ethereum (Sollet)',
