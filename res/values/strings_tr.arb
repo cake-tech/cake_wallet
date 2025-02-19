@@ -684,6 +684,7 @@
   "send_fee": "Komisyon:",
   "send_name": "İsim",
   "send_new": "Yeni",
+  "send_payjoin": "Göndermek Payjoin",
   "send_payment_id": "Ödeme ID'si (isteğe bağlı)",
   "send_priority": "Şu anda ücret ${transactionPriority} önceliğine ayarlanmıştır.\nİşlem önceliği ayarlardan değiştirilebilir",
   "send_sending": "Gönderiliyor...",

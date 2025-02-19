@@ -683,6 +683,7 @@
   "send_fee": "Phí:",
   "send_name": "Tên",
   "send_new": "Mới",
+  "send_payjoin": "Gửi Payjoin",
   "send_payment_id": "ID thanh toán (tùy chọn)",
   "send_priority": "Hiện tại phí được đặt ở mức ưu tiên ${transactionPriority}.\nƯu tiên giao dịch có thể được điều chỉnh trong cài đặt",
   "send_sending": "Đang gửi...",

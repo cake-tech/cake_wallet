@@ -686,6 +686,7 @@
   "send_fee": "Kudin:",
   "send_name": "Sunan",
   "send_new": "Sabon",
+  "send_payjoin": "Aika Payjoin",
   "send_payment_id": "ID na biyan kuɗi (optional)",
   "send_priority": "Yanzu haka fee yana set a ${transactionPriority} fifiko.\nAna iya daidaita fifikon ciniki a cikin saitunan",
   "send_sending": "Aika...",

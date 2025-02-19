@@ -686,6 +686,7 @@
   "send_fee": "शुल्क:",
   "send_name": "नाम",
   "send_new": "नया",
+  "send_payjoin": "भेजना Payjoin",
   "send_payment_id": "भुगतान ID (ऐच्छिक)",
   "send_priority": "वर्तमान में शुल्क निर्धारित है ${transactionPriority} प्राथमिकता.\nलेन-देन की प्राथमिकता को सेटिंग्स में समायोजित किया जा सकता है",
   "send_sending": "भेजना...",

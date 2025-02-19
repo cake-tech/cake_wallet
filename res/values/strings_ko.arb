@@ -684,6 +684,7 @@
   "send_fee": "회비:",
   "send_name": "이름",
   "send_new": "새로운",
+  "send_payjoin": "보내다 Payjoin",
   "send_payment_id": "지불 ID (optional)",
   "send_priority": "현재 수수료는 ${transactionPriority} 우선 순위.\n거래 우선 순위는 설정에서 조정할 수 있습니다",
   "send_sending": "배상...",

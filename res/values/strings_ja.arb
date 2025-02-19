@@ -685,6 +685,7 @@
   "send_fee": "費用：",
   "send_name": "名前",
   "send_new": "新着",
+  "send_payjoin": "送信 Payjoin",
   "send_payment_id": "支払いID (オプショナル)",
   "send_priority": "現在、料金は ${transactionPriority} 優先度.\nトランザクションの優先度は設定で調整できます",
   "send_sending": "送信...",

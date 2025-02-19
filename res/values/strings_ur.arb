@@ -686,6 +686,7 @@
   "send_fee": "فیس:",
   "send_name": "نام",
   "send_new": "نئی",
+  "send_payjoin": "بھیجیں",
   "send_payment_id": "ادائیگی کی شناخت (اختیاری)",
   "send_priority": "فی الحال فیس ${transactionPriority} کی ترجیح پر سیٹ ہے۔\\nٹرانزیکشن کی ترجیح سیٹنگز میں ایڈجسٹ کی جا سکتی ہے۔",
   "send_sending": "بھیج رہا ہے...",

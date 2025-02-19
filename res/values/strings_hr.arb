@@ -684,6 +684,7 @@
   "send_fee": "Naknada:",
   "send_name": "Ime",
   "send_new": "Novi",
+  "send_payjoin": "Pošaljite Payjoin",
   "send_payment_id": "ID plaćanja (nije obvezno)",
   "send_priority": "Trenutno se naknada nalazi na ${transactionPriority} mjestu prioriteta.\nPrioritet transakcije moguće je prilagoditi u postavkama",
   "send_sending": "Slanje...",

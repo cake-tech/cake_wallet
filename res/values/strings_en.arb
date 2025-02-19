@@ -685,6 +685,7 @@
   "send_fee": "Fee:",
   "send_name": "Name",
   "send_new": "New",
+  "send_payjoin": "Send Payjoin",
   "send_payment_id": "Payment ID (optional)",
   "send_priority": "Currently the fee is set at ${transactionPriority} priority.\nTransaction priority can be adjusted in the settings",
   "send_sending": "Sending...",

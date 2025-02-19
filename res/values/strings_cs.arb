@@ -684,6 +684,7 @@
   "send_fee": "Poplatek:",
   "send_name": "Název",
   "send_new": "Nová",
+  "send_payjoin": "Odeslat Payjoin",
   "send_payment_id": "ID platby (nepovinné)",
   "send_priority": "Momentálně je poplatek nastaven na prioritu: ${transactionPriority}.\nPriorita transakce může být upravena v nastavení.",
   "send_sending": "Odesílání...",

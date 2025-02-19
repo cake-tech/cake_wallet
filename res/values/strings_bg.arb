@@ -684,6 +684,7 @@
   "send_fee": "Такса:",
   "send_name": "Име",
   "send_new": "Ново",
+  "send_payjoin": "Изпратете Payjoin",
   "send_payment_id": "Payment ID (не е задължително)",
   "send_priority": "В момента таксата е на ${transactionPriority} приоритетност.\nПриоритетността на транзакцията може да бъде променена в настройките",
   "send_sending": "Изпращане...",

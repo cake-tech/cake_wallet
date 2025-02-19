@@ -684,6 +684,7 @@
   "send_fee": "手续费:",
   "send_name": "名称",
   "send_new": "新建",
+  "send_payjoin": "发送 Payjoin",
   "send_payment_id": "付款编号 (可选的)",
   "send_priority": "目前，费用设置为 ${transactionPriority} 优先.\n交易优先级可以在设置中进行调整",
   "send_sending": "正在发送...",

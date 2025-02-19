@@ -685,6 +685,7 @@
   "send_fee": "Owó àfikún:",
   "send_name": "Orúkọ",
   "send_new": "Títun",
+  "send_payjoin": "Firanṣẹ PayjoinPayjoin",
   "send_payment_id": "Àmì ìdánimọ̀ àránṣẹ́ (ìyàn nìyí)",
   "send_priority": "${transactionPriority} agbára ni owó àfikún lọ́wọ́lọ́wọ́.\nẸ lè pààrọ̀ iye agbára t'ẹ fikún àránṣẹ́ lórí àwọn ààtò",
   "send_sending": "Ń Ránṣẹ́...",

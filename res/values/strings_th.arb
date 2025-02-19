@@ -684,6 +684,7 @@
   "send_fee": "ค่าธรรมเนียม:",
   "send_name": "ชื่อ",
   "send_new": "ใหม่",
+  "send_payjoin": "ส่ง Payjoin",
   "send_payment_id": "ID การชำระเงิน (ไม่จำเป็น)",
   "send_priority": "ในขณะนี้ค่าธรรมเนียมถูกตั้งค่าเป็นความสำคัญ ${transactionPriority} \nความสำคัญของธุรกรรมสามารถปรับได้ในการตั้งค่า",
   "send_sending": "กำลังส่ง...",

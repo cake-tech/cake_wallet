@@ -687,6 +687,7 @@
   "send_fee": "Biaya:",
   "send_name": "Nama",
   "send_new": "Baru",
+  "send_payjoin": "Mengirim Payjoin",
   "send_payment_id": "ID Pembayaran (opsional)",
   "send_priority": "Saat ini biaya diatur dengan prioritas ${transactionPriority}.\nPrioritas transaksi dapat diubah pada pengaturan",
   "send_sending": "Mengirim...",

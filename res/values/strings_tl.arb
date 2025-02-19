@@ -684,6 +684,7 @@
   "send_fee": "Fee:",
   "send_name": "Pangalan",
   "send_new": "Bago",
+  "send_payjoin": "Magpadala ng Payjoin",
   "send_payment_id": "Payment ID (opsyonal)",
   "send_priority": "Kasalukuyang nakatakda ang fee sa ${transactionPriority} priyoridad.\n Ang priyoridad ng transaksyon ay maaaring isaayos sa mga setting",
   "send_sending": "Nagpapadala...",

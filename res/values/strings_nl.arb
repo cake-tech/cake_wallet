@@ -684,6 +684,7 @@
   "send_fee": "Vergoeding:",
   "send_name": "Naam",
   "send_new": "Nieuw",
+  "send_payjoin": "Versturen Payjoin",
   "send_payment_id": "Betaling ID (facultatief)",
   "send_priority": "Momenteel is de vergoeding vastgesteld op ${transactionPriority} prioriteit.\nTransactieprioriteit kan worden aangepast in de instellingen",
   "send_sending": "Bezig met verzenden...",

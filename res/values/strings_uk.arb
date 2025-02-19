@@ -685,6 +685,7 @@
   "send_fee": "Комісія:",
   "send_name": "Ім'я",
   "send_new": "Новий",
+  "send_payjoin": "Надіслати Payjoin",
   "send_payment_id": "ID платежу (опційно)",
   "send_priority": "Комісія встановлена в залежності від пріоритету: ${transactionPriority}.\nПріоритет транзакції може бути змінений в налаштуваннях",
   "send_sending": "Відправлення...",
