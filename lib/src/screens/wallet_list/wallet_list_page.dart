@@ -31,8 +31,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-import '../../../themes/extensions/dashboard_page_theme.dart';
-
 class WalletListPage extends BasePage {
   WalletListPage({
     required this.walletListViewModel,
@@ -506,16 +504,20 @@ class WalletListBodyState extends State<WalletListBody> {
           final requireHardwareWalletConnection = widget.walletListViewModel
               .requireHardwareWalletConnection(wallet);
           if (requireHardwareWalletConnection) {
+            bool didConnect = false;
             await Navigator.of(context).pushNamed(
               Routes.connectDevices,
               arguments: ConnectDevicePageParams(
                 walletType: WalletType.monero,
                 onConnectDevice: (context, ledgerVM) async {
                   monero!.setGlobalLedgerConnection(ledgerVM.connection);
+                  didConnect = true;
                   Navigator.of(context).pop();
                 },
               ),
             );
+
+            if (!didConnect) return;
 
             showPopUp<void>(
               context: context,
@@ -523,6 +525,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   alertTitle: S.of(context).proceed_on_device,
                   alertContent: S.of(context).proceed_on_device_description,
                   buttonText: S.of(context).cancel,
+                  alertBarrierDismissible: false,
                   buttonAction: () => Navigator.of(context).pop()),
             );
           }
