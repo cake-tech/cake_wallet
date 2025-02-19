@@ -19,13 +19,15 @@ class SilentPaymentsScanningViewModel = SilentPaymentsScanningViewModelBase
 
 abstract class SilentPaymentsScanningViewModelBase with Store {
   SilentPaymentsScanningViewModelBase(this.wallet) {
-    silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
-    _silentPaymentsAlwaysScan = bitcoin!.getAlwaysScanning(wallet);
-
-    reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
+    if (wallet.type == WalletType.bitcoin) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
       _silentPaymentsAlwaysScan = bitcoin!.getAlwaysScanning(wallet);
-    });
+
+      reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
+        silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
+        _silentPaymentsAlwaysScan = bitcoin!.getAlwaysScanning(wallet);
+      });
+    }
   }
 
   final WalletBase wallet;
@@ -38,6 +40,10 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
 
   @action
   Future<List<String>> getSilentPaymentWallets() async {
+    if (wallet.type != WalletType.bitcoin) {
+      return [];
+    }
+
     return bitcoin!.getSilentPaymentWallets(wallet);
   }
 
@@ -49,17 +55,25 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
 
   bool get silentPaymentsAlwaysScan => _silentPaymentsAlwaysScan;
 
-  Future<void> setSilentPaymentsAlwaysScan(bool value) {
-    return bitcoin!.setAlwaysScanning(wallet, value);
+  Future<void> setSilentPaymentsAlwaysScan(bool value) async {
+    if (wallet.type == WalletType.bitcoin) {
+      return bitcoin!.setAlwaysScanning(wallet, value);
+    }
   }
 
   @action
   void allowSilentPaymentsScanning(bool allow) {
-    bitcoin!.allowToSwitchNodesForScanning(wallet, allow);
+    if (wallet.type == WalletType.bitcoin) {
+      bitcoin!.allowToSwitchNodesForScanning(wallet, allow);
+    }
   }
 
   @action
   void setSilentPaymentsScanning(bool active, [String? address]) {
+    if (wallet.type != WalletType.bitcoin) {
+      return;
+    }
+
     silentPaymentsScanningActive = active;
 
     bitcoin!.setScanningActive(wallet, active, address, true);
@@ -67,6 +81,10 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
 
   @action
   void rescan({required int rescanHeight, String? address}) {
+    if (wallet.type != WalletType.bitcoin) {
+      return;
+    }
+
     silentPaymentsScanningActive = true;
 
     bitcoin!.rescan(
@@ -87,6 +105,10 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
   }
 
   Future<void> toggleSilentPaymentsScanning(BuildContext context, [int? height]) async {
+    if (wallet.type != WalletType.bitcoin) {
+      return;
+    }
+
     // Already scanning and toggled, set to false now
     if (silentPaymentsScanningActive) {
       return setSilentPaymentsScanning(false);
