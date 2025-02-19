@@ -16,6 +16,7 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 
 class BalanceRowWidget extends StatelessWidget {
   BalanceRowWidget({
@@ -65,6 +66,8 @@ class BalanceRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool brightThemeType = false;
+    if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright) brightThemeType = true;
     return Column(
       children: [
         Container(
@@ -76,6 +79,15 @@ class BalanceRowWidget extends StatelessWidget {
               width: 1,
             ),
             color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+            // boxShadow: [
+            //   BoxShadow(
+            //       color: Theme.of(context)
+            //           .extension<BalancePageTheme>()!
+            //           .cardBorderColor
+            //           .withAlpha(50),
+            //       spreadRadius: dashboardViewModel.getShadowSpread(),
+            //       blurRadius: dashboardViewModel.getShadowBlur())
+            // ],
           ),
           child: TextButton(
             onPressed: () => Fluttertoast.showToast(
@@ -310,7 +322,7 @@ class BalanceRowWidget extends StatelessWidget {
           ),
         ),
         if (hasSecondAdditionalBalance || hasSecondAvailableBalance) ...[
-          SizedBox(height: 10),
+          SizedBox(height: 16),
           Container(
             margin: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
@@ -320,6 +332,15 @@ class BalanceRowWidget extends StatelessWidget {
                 width: 1,
               ),
               color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+              // boxShadow: [
+              //   BoxShadow(
+              //       color: Theme.of(context)
+              //           .extension<BalancePageTheme>()!
+              //           .cardBorderColor
+              //           .withAlpha(50),
+              //       spreadRadius: dashboardViewModel.getShadowSpread(),
+              //       blurRadius: dashboardViewModel.getShadowBlur())
+              // ],
             ),
             child: TextButton(
               onPressed: () => Fluttertoast.showToast(
@@ -642,6 +663,25 @@ class BalanceRowWidget extends StatelessWidget {
       ],
     );
   }
+
+  //  double getShadowSpread(){
+  //   double spread = 3;
+  //   if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright) spread = 3;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.light) spread = 3;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.dark) spread = 1;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.oled) spread = 3;
+  //   return spread;
+  // }
+  //
+  //
+  // double getShadowBlur(){
+  //   double blur = 7;
+  //   if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright) blur = 7;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.light) blur = 7;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.dark) blur = 3;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.oled) blur = 7;
+  //   return blur;
+  // }
 
   void _showBalanceDescription(BuildContext context, String content) {
     showPopUp<void>(context: context, builder: (_) => InformationPage(information: content));
