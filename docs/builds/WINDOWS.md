@@ -32,6 +32,7 @@ Lastly, you'll need to install Nuget separately:
 1. Download the exe from <https://dist.nuget.org/win-x86-commandline/latest/nuget.exe>
 2. Create a new directory, `C:\Program Files\Nuget\`
 3. Move or copy the `nuget.exe` binary you just downloaded into the newly created directory above.
+4. Add `nuget` to your path by going to Start Menu > search "environment" > Environment Variables > double-click Path > Add `C:\Program Files\Nuget\` on a new line.
 
 ### 3. Installing WSL (Windows Subsystem for Linux)
 
@@ -70,7 +71,7 @@ NOTE: Replace `main` with the latest release tag available at <https://github.co
 
 To use Monero in Cake Wallet, you must build the Monero_C wrapper which will be used by monero.dart package.
 
-Run the following in a WSL terminal window (set the Git username and email as desired, and be sure to replace `USERNAME` with your Windows username [case-sensitive!]):
+Run the following in a WSL terminal window (set the Git username and email as desired):
 
 ```powershell
 wsl
