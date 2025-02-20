@@ -63,10 +63,12 @@ abstract class RestoreFromBackupViewModelBase with Store {
 
       state = ExecutedSuccessfullyState();
     } catch (e, s) {
-      var msg = e.toString();
+      var msg = e.toString().toLowerCase();
 
-      if (msg.toLowerCase().contains("message authentication code (mac)")) {
+      if (msg.contains("message authentication code (mac)")) {
         msg = 'Incorrect backup password';
+      } else if (msg.contains("faileddecryption")) {
+        msg = 'Failed to decrypt backup file, please check you entered the right password';
       } else {
         await ExceptionHandler.onError(FlutterErrorDetails(
           exception: e,
