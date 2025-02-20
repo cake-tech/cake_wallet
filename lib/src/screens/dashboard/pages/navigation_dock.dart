@@ -21,34 +21,34 @@ class NavigationDock extends StatelessWidget {
     return Positioned(
       child: Observer(
         builder: (_) {
-          return Container(
-            alignment: Alignment.bottomCenter,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: _getColors(context),
-              ),
-            ),
+          return IntrinsicHeight(
             child: Container(
-              margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50.0),
-                      border: Border.all(
-                        color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-                        width: 1,
-                      ),
-                      color:
-                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                    ),
+              alignment: Alignment.bottomCenter,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: _getColors(context),
+                ),
+              ),
+              child: Container(
+                margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: IntrinsicHeight(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50.0),
+                        border: Border.all(
+                          color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+                          width: 1,
+                        ),
+                        color:
+                            Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: MainActions.all
