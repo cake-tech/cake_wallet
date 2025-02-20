@@ -211,11 +211,18 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                 .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
                               _contractAddressController.text,
                             );
+
                             final isWhitelisted = await widget.homeSettingsViewModel
                                 .checkIfTokenIsWhitelisted(_contractAddressController.text);
 
                             bool isPotentialScam = hasPotentialError;
-                            if (_tokenIconPathController.text.isNotEmpty && !isWhitelisted) {
+                            final tokenSymbol = _tokenSymbolController.text.toUpperCase();
+                            
+                            // check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
+                            // if it is, then it's probably a scam unless it's in the whitelist
+                            final baseCurrencySymbols =
+                                CryptoCurrency.all.map((e) => e.title.toUpperCase()).toList();
+                            if (baseCurrencySymbols.contains(tokenSymbol) && !isWhitelisted) {
                               isPotentialScam = true;
                             }
 
@@ -235,7 +242,6 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                 if (mounted) {
                                   Navigator.pop(context);
                                 }
-
                               } catch (e) {
                                 showPopUp<void>(
                                   context: context,

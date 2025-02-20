@@ -119,8 +119,7 @@ abstract class HomeSettingsViewModelBase with Store {
       _updateFiatPrices(token);
     } catch (e) {
       throw e;
-  }
-    finally {
+    } finally {
       isAddingToken = false;
     }
   }
@@ -189,39 +188,38 @@ abstract class HomeSettingsViewModelBase with Store {
     }
   }
 
-  List<String> getWhitelistedTokenAddresses(CryptoCurrency currency) {
-    switch (currency) {
-      case CryptoCurrency.eth:
-        return [
-          '0x6B175474E89094C44Da98b954EedeAC495271d0F', // DAI
-          '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC
-          '0xdac17f958d2ee523a2206206994597c13d831ec7', // USDT
-        ];
-      case CryptoCurrency.sol:
-        return [
-          'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
-          'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', // USDT
-        ];
-      case CryptoCurrency.maticpoly:
-        return [
-          '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359', // USDC
-          '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', // DAI
-          '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', // USDC.E
-          '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', // USDT
-        ];
-      case CryptoCurrency.trx:
-        return [
-          'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8', // USDC
-          'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t', // USDT
-          'TXpw8XeWYeTUd4quDskoUqeQPowRh4jY65', // WBTC
-        ];
-      default:
-        return [];
-    }
-  }
-
   bool checkIfTokenIsWhitelisted(String contractAddress) {
-    return getWhitelistedTokenAddresses(_balanceViewModel.wallet.currency).contains(contractAddress);
+    // get the default tokens for each currency type:
+    List<String> defaultTokenAddresses = [];
+    switch (_balanceViewModel.wallet.type) {
+      case WalletType.ethereum:
+        defaultTokenAddresses = ethereum!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.polygon:
+        defaultTokenAddresses = polygon!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.solana:
+        defaultTokenAddresses = solana!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.tron:
+        defaultTokenAddresses = tron!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.zano:
+      case WalletType.banano:
+      case WalletType.monero:
+      case WalletType.none:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.haven:
+      case WalletType.nano:
+      case WalletType.wownero:
+      case WalletType.bitcoinCash:
+        return false;
+    }
+
+    // check if the contractAddress is in the defaultTokenAddresses
+    bool isInWhitelist = defaultTokenAddresses.any((element) => element == contractAddress);
+    return isInWhitelist;
   }
 
   Future<bool> _isPotentialScamTokenViaMoralis(
@@ -398,7 +396,7 @@ abstract class HomeSettingsViewModelBase with Store {
   CryptoCurrency get nativeToken => _balanceViewModel.wallet.currency;
 
   void _updateFiatPrices(CryptoCurrency token) async {
-    if (token.isPotentialScam) return;// don't fetch price data for potential scam tokens
+    if (token.isPotentialScam) return; // don't fetch price data for potential scam tokens
     try {
       _balanceViewModel.fiatConvertationStore.prices[token] =
           await FiatConversionService.fetchPrice(
