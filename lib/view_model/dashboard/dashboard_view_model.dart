@@ -689,10 +689,9 @@ abstract class DashboardViewModelBase with Store {
     _transactionDisposer = reaction(
             (_) => appStore.wallet!.transactionHistory.transactions.values.toList(),
             (List<TransactionInfo> txs) {
-          // Clear existing transactions
-          transactions.clear();
 
-          // Apply filtering before adding to the list
+          transactions.clear();
+          
           transactions.addAll(
             txs.where((tx) {
               if (wallet.type == WalletType.monero) {
@@ -701,7 +700,7 @@ abstract class DashboardViewModelBase with Store {
               if (wallet.type == WalletType.wownero) {
                 return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
               }
-              return true; // Include other wallet types without filtering
+              return true;
             }).map(
                   (tx) => TransactionListItem(
                 transaction: tx,
