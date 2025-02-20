@@ -106,10 +106,9 @@ String getAddress({int accountIndex = 0, int addressIndex = 0}) {
   int count = 0;
 
   while (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex) - 1 < addressIndex) {
-    printV("adding subaddress");
     monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
-    if (count > 50) {
-      throw Exception("Failed to add subaddress");
+    if (count > 10) {
+      break;
     }
     count++;
   }
@@ -198,15 +197,6 @@ void setupBackgroundSync(
       backgroundCachePassword: backgroundCachePassword);
 }
 
-bool isBackgroundSyncing() => monero.Wallet_isBackgroundSyncing(wptr!);
-
-void startBackgroundSync() {
-  monero.Wallet_startBackgroundSync(wptr!);
-}
-
-void stopBackgroundSync(String walletPassword) {
-  monero.Wallet_stopBackgroundSync(wptr!, walletPassword);
-}
 
 void stopSync() {
   monero.Wallet_init(wptr!, daemonAddress: "");

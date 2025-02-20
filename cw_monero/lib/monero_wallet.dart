@@ -232,10 +232,22 @@ abstract class MoneroWalletBase
           walletPassword: password,
           backgroundCachePassword: "testing-cache-password",
         );
-        monero_wallet.startBackgroundSync();
+        monero.Wallet_startBackgroundSync(wptr!);
+        final status = monero.Wallet_status(wptr!);
+        if (status != 0) {
+          final err = monero.Wallet_errorString(wptr!);
+          printV("unable to start background sync: $err");
+          throw Exception("unable to start background sync: $err");
+        }
         isBackgroundSyncing = true;
       } else {
-        monero_wallet.stopBackgroundSync(password);
+        monero.Wallet_stopBackgroundSync(wptr!, password);
+        final status = monero.Wallet_status(wptr!);
+        if (status != 0) {
+          final err = monero.Wallet_errorString(wptr!);
+          printV("unable to stop background sync: $err");
+          throw Exception("unable to stop background sync: $err");
+        }
         isBackgroundSyncing = false;
       }
       monero_wallet.startRefresh();
@@ -291,14 +303,20 @@ abstract class MoneroWalletBase
 
   @override
   Future<void> stopSync({bool isBackgroundSync = false}) async {
-    syncStatus = NotConnectedSyncStatus();
-    _listener?.stop();
     if (isBackgroundSync) {
+      print("Stopping background sync");
+      monero.Wallet_stopBackgroundSync(wptr!, password);
+      final status = monero.Wallet_status(wptr!);
+      if (status != 0) {
+        final err = monero.Wallet_errorString(wptr!);
+        printV("unable to stop background sync: $err");
+        throw Exception("unable to stop background sync: $err");
+      }
       isBackgroundSyncing = false;
-      monero_wallet.stopWallet();
-      monero_wallet.stopBackgroundSync(password);
       return;
     }
+    syncStatus = NotConnectedSyncStatus();
+    _listener?.stop();
     monero_wallet.stopSync();
     _autoSaveTimer?.cancel();
     monero_wallet.closeCurrentWallet();
