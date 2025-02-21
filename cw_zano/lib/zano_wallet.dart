@@ -141,7 +141,7 @@ abstract class ZanoWalletBase
       wallet.seed = await createWalletResult.seed(wallet);
       wallet.passphrase = await wallet.getPassphrase();
     }
-    await wallet.init(createWalletResult.wi.address);
+    await wallet.initZano(createWalletResult.wi.address);
     return wallet;
   }
 
@@ -159,7 +159,7 @@ abstract class ZanoWalletBase
       wallet.seed = await createWalletResult.seed(wallet);
       wallet.passphrase = await wallet.getPassphrase();
     }
-    await wallet.init(createWalletResult.wi.address);
+    await wallet.initZano(createWalletResult.wi.address);
     return wallet;
   }
 
@@ -169,7 +169,7 @@ abstract class ZanoWalletBase
     if (ZanoWalletApi.openWalletCache[path] != null) {
       final wallet = ZanoWallet(walletInfo, password);
       await wallet.parseCreateWalletResult(ZanoWalletApi.openWalletCache[path]!).then((_) {
-        unawaited(wallet.init(ZanoWalletApi.openWalletCache[path]!.wi.address));
+        unawaited(wallet.initZano(ZanoWalletApi.openWalletCache[path]!.wi.address));
       });
       return wallet;
     } else {
@@ -177,7 +177,7 @@ abstract class ZanoWalletBase
       await wallet.initWallet();
       final createWalletResult = await wallet.loadWallet(path, password);
       await wallet.parseCreateWalletResult(createWalletResult).then((_) {
-        unawaited(wallet.init(createWalletResult.wi.address));
+        unawaited(wallet.initZano(createWalletResult.wi.address));
       });
       return wallet;
     }
@@ -320,7 +320,16 @@ abstract class ZanoWalletBase
     }
   }
 
-  Future<void> init(String address) async {
+  Future<void> init() async {
+    await walletAddresses.init();
+    await walletAddresses.updateAddress(walletAddresses.address);
+    await updateTransactions();
+    _autoSaveTimer = Timer.periodic(Duration(seconds: _autoSaveIntervalSeconds), (_) async {
+      await save();
+    });
+  }
+
+  Future<void> initZano(String address) async {
     await walletAddresses.init();
     await walletAddresses.updateAddress(address);
     await updateTransactions();
@@ -395,7 +404,7 @@ abstract class ZanoWalletBase
   }
 
   @override
-  Future<void> startSync() async {
+  Future<void> startSync({bool isBackgroundSync = false}) async {
     try {
       syncStatus = AttemptingSyncStatus();
       _lastKnownBlockHeight = 0;

@@ -71,9 +71,9 @@ abstract class DevMoneroBackgroundSyncBase with Store {
   }
 
   @action
-  void manualRescan() async {
+  Future<void> manualRescan() async {
     final w = (wallet as MoneroWallet);
-    wallet.rescan(height: await w.getNodeHeight() - 10000);
+    await wallet.rescan(height: await w.getNodeHeight() - 10000);
   }
 
   @action
