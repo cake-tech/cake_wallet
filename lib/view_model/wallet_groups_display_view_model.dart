@@ -47,8 +47,6 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   @observable
   WalletInfo? selectedSingleWallet;
 
-  @observable
-  String? parentAddress;
 
   @observable
   bool isFetchingMnemonic;
@@ -76,9 +74,6 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
         walletToUse.type,
         walletToUse.name,
       );
-
-      parentAddress =
-          isGroupSelected ? selectedWalletGroup!.parentAddress : selectedSingleWallet!.address;
 
       return wallet.seed;
     } catch (e) {
