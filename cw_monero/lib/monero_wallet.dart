@@ -304,7 +304,7 @@ abstract class MoneroWalletBase
   @override
   Future<void> stopSync({bool isBackgroundSync = false}) async {
     if (isBackgroundSync) {
-      print("Stopping background sync");
+      printV("Stopping background sync");
       monero.Wallet_stopBackgroundSync(wptr!, password);
       final status = monero.Wallet_status(wptr!);
       if (status != 0) {
