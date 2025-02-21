@@ -62,8 +62,6 @@ String getSeed() {
 }
 
 String getSeedLegacy(String? language) {
-  final cakepassphrase = getPassphrase();
-  var legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   switch (language) {
     case "Chinese (Traditional)":
       language = "Chinese (simplified)";
@@ -81,6 +79,8 @@ String getSeedLegacy(String? language) {
       language = "English";
       break;
   }
+  final cakepassphrase = getPassphrase();
+  var legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   if (monero.Wallet_status(wptr!) != 0) {
     monero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
     legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
@@ -96,7 +96,9 @@ String getSeedLegacy(String? language) {
 }
 
 String getPassphrase() {
-  return monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
+  final toret = monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
+  monero.Wallet_status(wptr!); // clear status code
+  return toret;
 }
 
 Map<int, Map<int, Map<int, String>>> addressCache = {};

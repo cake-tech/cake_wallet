@@ -246,9 +246,9 @@ abstract class MoneroWalletBase
         if (status != 0) {
           final err = monero.Wallet_errorString(wptr!);
           printV("unable to stop background sync: $err");
-          throw Exception("unable to stop background sync: $err");
+        } else {
+          isBackgroundSyncing = false;
         }
-        isBackgroundSyncing = false;
       }
       monero_wallet.startRefresh();
       _setListeners();
@@ -310,10 +310,10 @@ abstract class MoneroWalletBase
       if (status != 0) {
         final err = monero.Wallet_errorString(wptr!);
         printV("unable to stop background sync: $err");
-        throw Exception("unable to stop background sync: $err");
+      } else {
+        isBackgroundSyncing = false;
+        return;
       }
-      isBackgroundSyncing = false;
-      return;
     }
     syncStatus = NotConnectedSyncStatus();
     _listener?.stop();
