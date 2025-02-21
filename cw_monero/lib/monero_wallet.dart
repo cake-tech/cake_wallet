@@ -121,14 +121,19 @@ abstract class MoneroWalletBase
   String get password => _password;
 
   @override
+  String get passphrase => monero_wallet.getPassphrase();
+
+  @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
       primaryAddress: monero_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: monero_wallet.getSecretSpendKey(),
       privateViewKey: monero_wallet.getSecretViewKey(),
       publicSpendKey: monero_wallet.getPublicSpendKey(),
-      publicViewKey: monero_wallet.getPublicViewKey());
+      publicViewKey: monero_wallet.getPublicViewKey(),
+      passphrase: monero_wallet.getPassphrase());
 
-  int? get restoreHeight => transactionHistory.transactions.values.firstOrNull?.height;
+  int? get restoreHeight =>
+      transactionHistory.transactions.values.firstOrNull?.height ?? monero.Wallet_getRefreshFromBlockHeight(wptr!);
 
   monero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
@@ -172,6 +177,23 @@ abstract class MoneroWalletBase
 
   @override
   Future<void> close({bool shouldCleanup = false}) async {
+    if (isHardwareWallet) {
+      disableLedgerExchange();
+      final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
+      if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
+        printV("closing wallet");
+        final wmaddr = wmPtr.address;
+        final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
+        await Isolate.run(() {
+          monero.WalletManager_closeWallet(
+              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+        });
+        openedWalletsByPath.remove("$currentWalletDirPath/$name");
+        wptr = null;
+        printV("wallet closed");
+      }
+    }
+
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
     _onTxHistoryChangeReaction?.reaction.dispose();

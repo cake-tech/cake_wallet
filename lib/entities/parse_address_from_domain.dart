@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/entities/wellknown_record.dart';
+import 'package:cake_wallet/entities/zano_alias.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
 import 'package:cake_wallet/nostr/nostr_api.dart';
@@ -17,6 +18,8 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
 import 'package:flutter/cupertino.dart';
+
+import 'bip_353_record.dart';
 
 class AddressResolver {
   AddressResolver({required this.yatService, required this.wallet, required this.settingsStore})
@@ -137,13 +140,23 @@ class AddressResolver {
     try {
       // twitter handle example: @username
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
+        if (currency == CryptoCurrency.zano && settingsStore.lookupsZanoAlias) {
+          final formattedName = text.substring(1);
+          final zanoAddress = await ZanoAlias.fetchZanoAliasAddress(formattedName);
+          if (zanoAddress != null && zanoAddress.isNotEmpty) {
+            return ParsedAddress.zanoAddress(
+              address: zanoAddress,
+              name: text,
+            );
+          }
+        }
         if (settingsStore.lookupsTwitter) {
           final formattedName = text.substring(1);
           final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
           final addressFromBio = extractAddressByType(
               raw: twitterUser.description,
               type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency));
-          if (addressFromBio != null) {
+          if (addressFromBio != null && addressFromBio.isNotEmpty) {
             return ParsedAddress.fetchTwitterAddress(
                 address: addressFromBio,
                 name: text,
@@ -181,7 +194,7 @@ class AddressResolver {
           if (mastodonUser != null) {
             String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency);
 
-            if (addressFromBio != null) {
+            if (addressFromBio != null && addressFromBio.isNotEmpty) {
               return ParsedAddress.fetchMastodonAddress(
                   address: addressFromBio,
                   name: text,
@@ -196,7 +209,7 @@ class AddressResolver {
                 String? addressFromPinnedPost =
                     extractAddressByType(raw: userPinnedPostsText, type: currency);
 
-                if (addressFromPinnedPost != null) {
+                if (addressFromPinnedPost != null && addressFromPinnedPost.isNotEmpty) {
                   return ParsedAddress.fetchMastodonAddress(
                       address: addressFromPinnedPost,
                       name: text,
@@ -237,7 +250,7 @@ class AddressResolver {
       }
 
       final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
-      if (thorChainAddress != null) {
+      if (thorChainAddress != null && thorChainAddress.isNotEmpty) {
         String? address =
             thorChainAddress[ticker] ?? (ticker == 'RUNE' ? thorChainAddress['THOR'] : null);
         if (address != null) {
@@ -259,6 +272,15 @@ class AddressResolver {
           if (address.isNotEmpty) {
             return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
           }
+        }
+      }
+
+      final bip353AddressMap = await Bip353Record.fetchUriByCryptoCurrency(text, ticker);
+
+      if (bip353AddressMap != null && bip353AddressMap.isNotEmpty) {
+        final chosenAddress = await Bip353Record.pickBip353AddressChoice(context, text, bip353AddressMap);
+        if (chosenAddress != null) {
+          return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
         }
       }
 
@@ -290,7 +312,7 @@ class AddressResolver {
 
           if (nostrUserData != null) {
             String? addressFromBio = extractAddressByType(raw: nostrUserData.about, type: currency);
-            if (addressFromBio != null) {
+            if (addressFromBio != null && addressFromBio.isNotEmpty) {
               return ParsedAddress.nostrAddress(
                   address: addressFromBio,
                   name: text,

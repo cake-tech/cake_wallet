@@ -23,7 +23,8 @@ final List<String> triplets = [
   // "host-apple-darwin", // not available on CI (yet)
   // "x86_64-host-apple-darwin", // not available on CI (yet)
   "aarch64-host-apple-darwin", // apple silicon macbooks (local builds)
-  "host-apple-ios",
+  "aarch64-apple-ios",
+  "aarch64-apple-iossimulator",
 ];
 
 Future<void> main() async {
@@ -43,11 +44,13 @@ Future<void> main() async {
       final url = asset["browser_download_url"] as String;
       printV("- downloading $localFilename");
       await _dio.download(url, localFilename);
-      printV("  extracting $localFilename");
-      final inputStream = InputFileStream(localFilename);
-      final archive = XZDecoder().decodeBuffer(inputStream);
-      final outputStream = OutputFileStream(localFilename.replaceAll(".xz", ""));
-      outputStream.writeBytes(archive);
+      if (localFilename.endsWith(".xz")) {
+        printV("  extracting $localFilename");
+        final inputStream = InputFileStream(localFilename);
+        final archive = XZDecoder().decodeBuffer(inputStream);
+        final outputStream = OutputFileStream(localFilename.replaceAll(".xz", ""));
+        outputStream.writeBytes(archive);
+      }
     }
   }
   if (Platform.isMacOS) {

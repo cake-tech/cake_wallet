@@ -12,7 +12,7 @@ class SettingsChoicesCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).colorScheme.background,
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.only(left: 24, right: 24, top: 16, bottom: 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +30,7 @@ class SettingsChoicesCell extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
           ],
           Center(
             child: Container(

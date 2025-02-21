@@ -69,9 +69,9 @@ abstract class SupportViewModelBase with Store {
               linkTitle: 'support@exolix.com',
               link: 'mailto:support@exolix.com'),
           LinkListItem(
-              title: 'Quantex',
-              icon: 'assets/images/quantex.png',
-              linkTitle: 'help.myquantex.com',
+              title: 'SwapTrade',
+              icon: 'assets/images/swap_trade.png',
+              linkTitle: 'help.swaptrade.io',
               link: 'mailto:support@exolix.com'),
           LinkListItem(
               title: 'Trocador',

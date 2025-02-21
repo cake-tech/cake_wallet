@@ -79,7 +79,7 @@ class WellKnownRecord {
   }) async {
     String name = formattedName;
 
-    print("formattedName: $formattedName");
+    printV("formattedName: $formattedName");
 
     final address = await checkWellKnownUsername(formattedName, currency);
 

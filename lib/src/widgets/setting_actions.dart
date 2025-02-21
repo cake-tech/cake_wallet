@@ -46,7 +46,6 @@ class SettingActions {
     name: (context) => S.of(context).silent_payments_settings,
     image: 'assets/images/bitcoin_menu.png',
     onTap: (BuildContext context) {
-      Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.silentPaymentsSettings);
     },
   );
@@ -56,7 +55,6 @@ class SettingActions {
     name: (context) => S.of(context).export_outputs,
     image: 'assets/images/monero_menu.png',
     onTap: (BuildContext context) {
-      Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: 'export-outputs');
     },
   );
@@ -66,7 +64,6 @@ class SettingActions {
     name: (context) => S.of(context).litecoin_mweb_settings,
     image: 'assets/images/litecoin_menu.png',
     onTap: (BuildContext context) {
-      Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.mwebSettings);
     },
   );
@@ -76,7 +73,6 @@ class SettingActions {
     name: (context) => S.of(context).connection_sync,
     image: 'assets/images/nodes_menu.png',
     onTap: (BuildContext context) {
-      Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.connectionSync);
     },
   );
@@ -96,7 +92,6 @@ class SettingActions {
     name: (context) => S.of(context).address_book_menu,
     image: 'assets/images/open_book_menu.png',
     onTap: (BuildContext context) {
-      Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.addressBook);
     },
   );
@@ -106,7 +101,6 @@ class SettingActions {
     name: (context) => S.of(context).security_and_backup,
     image: 'assets/images/key_menu.png',
     onTap: (BuildContext context) {
-      Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.securityBackupPage);
     },
   );
@@ -116,7 +110,6 @@ class SettingActions {
     name: (context) => S.of(context).privacy,
     image: 'assets/images/privacy_menu.png',
     onTap: (BuildContext context) {
-      Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.privacyPage);
     },
   );
@@ -126,7 +119,6 @@ class SettingActions {
     name: (context) => S.of(context).display_settings,
     image: 'assets/images/eye_menu.png',
     onTap: (BuildContext context) {
-      Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.displaySettingsPage);
     },
   );
@@ -136,7 +128,6 @@ class SettingActions {
     name: (context) => S.of(context).other_settings,
     image: 'assets/images/settings_menu.png',
     onTap: (BuildContext context) {
-      Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.otherSettingsPage);
     },
   );
@@ -146,7 +137,6 @@ class SettingActions {
     name: (context) => S.of(context).settings_support,
     image: 'assets/images/question_mark.png',
     onTap: (BuildContext context) {
-      Navigator.pop(context);
       Navigator.of(context).pushNamed(Routes.support);
     },
   );

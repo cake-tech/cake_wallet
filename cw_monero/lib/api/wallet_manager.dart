@@ -70,6 +70,7 @@ void createWalletSync(
     {required String path,
     required String password,
     required String language,
+    required String passphrase,
     int nettype = 0}) {
   txhistory = null;
   final newWptr = monero.WalletManager_createWallet(wmPtr,
@@ -80,6 +81,7 @@ void createWalletSync(
     throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
   }
   wptr = newWptr;
+  monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase);
   monero.Wallet_store(wptr!, path: path);
   openedWalletsByPath[path] = wptr!;
   _lastOpenedWallet = path;
@@ -95,6 +97,7 @@ bool isWalletExistSync({required String path}) {
 void restoreWalletFromSeedSync(
     {required String path,
     required String password,
+    required String passphrase,
     required String seed,
     int nettype = 0,
     int restoreHeight = 0}) {
@@ -105,7 +108,7 @@ void restoreWalletFromSeedSync(
     password: password,
     mnemonic: seed,
     restoreHeight: restoreHeight,
-    seedOffset: '',
+    seedOffset: passphrase,
     networkType: 0,
   );
 
@@ -113,11 +116,22 @@ void restoreWalletFromSeedSync(
 
   if (status != 0) {
     final error = monero.Wallet_errorString(newWptr);
+    if (error.contains('word list failed verification')) {
+      throw WalletRestoreFromSeedException(
+        message: "Seed verification failed, please make sure you entered the correct seed with the correct words order",
+      );
+    }
     throw WalletRestoreFromSeedException(message: error);
   }
   wptr = newWptr;
 
+  setRefreshFromBlockHeight(height: restoreHeight);
+
+  monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase);
+
   openedWalletsByPath[path] = wptr!;
+
+  monero.Wallet_store(wptr!);
   _lastOpenedWallet = path;
 }
 
@@ -188,6 +202,48 @@ void restoreWalletFromKeysSync(
   openedWalletsByPath[path] = wptr!;
   _lastOpenedWallet = path;
 }
+
+
+// English only, because normalization.
+void restoreWalletFromPolyseedWithOffset(
+    {required String path,
+    required String password,
+    required String seed,
+    required String seedOffset,
+    required String language,
+    int nettype = 0}) {
+
+  txhistory = null;
+  final newWptr = monero.WalletManager_createWalletFromPolyseed(
+    wmPtr,
+    path: path,
+    password: password,
+    networkType: nettype,
+    mnemonic: seed,
+    seedOffset: seedOffset,
+    newWallet: true, // safe to remove
+    restoreHeight: 0,
+    kdfRounds: 1,
+  );
+
+  final status = monero.Wallet_status(newWptr);
+
+  if (status != 0) {
+    final err = monero.Wallet_errorString(newWptr);
+    printV("err: $err");
+    throw WalletRestoreFromKeysException(message: err);
+  }
+
+  wptr = newWptr;
+
+  monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
+  monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: seedOffset);
+  monero.Wallet_store(wptr!);
+  storeSync();
+
+  openedWalletsByPath[path] = wptr!;
+}
+
 
 void restoreWalletFromSpendKeySync(
     {required String path,
@@ -341,18 +397,20 @@ void _createWallet(Map<String, dynamic> args) {
   final path = args['path'] as String;
   final password = args['password'] as String;
   final language = args['language'] as String;
+  final passphrase = args['passphrase'] as String;
 
-  createWalletSync(path: path, password: password, language: language);
+  createWalletSync(path: path, password: password, language: language, passphrase: passphrase);
 }
 
 void _restoreFromSeed(Map<String, dynamic> args) {
   final path = args['path'] as String;
   final password = args['password'] as String;
+  final passphrase = args['passphrase'] as String;
   final seed = args['seed'] as String;
   final restoreHeight = args['restoreHeight'] as int;
 
-  restoreWalletFromSeedSync(
-      path: path, password: password, seed: seed, restoreHeight: restoreHeight);
+  return restoreWalletFromSeedSync(
+      path: path, password: password, passphrase: passphrase, seed: seed, restoreHeight: restoreHeight);
 }
 
 void _restoreFromKeys(Map<String, dynamic> args) {
@@ -409,23 +467,27 @@ Future<void> createWallet(
         {required String path,
         required String password,
         required String language,
+        required String passphrase,
         int nettype = 0}) async =>
     _createWallet({
       'path': path,
       'password': password,
       'language': language,
+      'passphrase': passphrase,
       'nettype': nettype
     });
 
-Future<void> restoreFromSeed(
+void restoreFromSeed(
         {required String path,
         required String password,
+        required String passphrase,
         required String seed,
         int nettype = 0,
-        int restoreHeight = 0}) async =>
+        int restoreHeight = 0}) =>
     _restoreFromSeed({
       'path': path,
       'password': password,
+      'passphrase': passphrase,
       'seed': seed,
       'nettype': nettype,
       'restoreHeight': restoreHeight

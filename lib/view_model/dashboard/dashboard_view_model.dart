@@ -52,6 +52,8 @@ import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../themes/theme_base.dart';
+
 part 'dashboard_view_model.g.dart';
 
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
@@ -70,7 +72,7 @@ abstract class DashboardViewModelBase with Store {
       required this.sharedPreferences,
       required this.keyService})
       : hasTradeAction = false,
-        hasExchangeAction = false,
+        hasSwapAction = false,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
@@ -130,6 +132,11 @@ abstract class DashboardViewModelBase with Store {
                 caption: ExchangeProviderDescription.exolix.title,
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.exolix)),
+            FilterItem(
+                value: () => tradeFilterStore.displayChainflip,
+                caption: ExchangeProviderDescription.chainflip.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.chainflip)),
             FilterItem(
                 value: () => tradeFilterStore.displayThorChain,
                 caption: ExchangeProviderDescription.thorChain.title,
@@ -283,9 +290,7 @@ abstract class DashboardViewModelBase with Store {
     }
 
     _checkMweb();
-    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) {
-      _checkMweb();
-    });
+    reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
   }
 
   void _checkMweb() {
@@ -383,12 +388,13 @@ abstract class DashboardViewModelBase with Store {
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
 
   @computed
-  bool get hasRescan =>
-      wallet.type == WalletType.bitcoin ||
-      wallet.type == WalletType.monero ||
-      wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.wownero ||
-      wallet.type == WalletType.haven;
+  bool get hasRescan => [
+        WalletType.bitcoin,
+        WalletType.monero,
+        WalletType.litecoin,
+        WalletType.wownero,
+        WalletType.haven
+      ].contains(wallet.type);
 
   @computed
   bool get isMoneroViewOnly {
@@ -477,6 +483,34 @@ abstract class DashboardViewModelBase with Store {
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
 
   @action
+  double getShadowSpread() {
+    double spread = 0;
+    if (settingsStore.currentTheme.type == ThemeType.bright)
+      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.light)
+      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.dark)
+      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled)
+      spread = 0;
+    return spread;
+  }
+
+  @action
+  double getShadowBlur() {
+    double blur = 0;
+    if (settingsStore.currentTheme.type == ThemeType.bright)
+      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.light)
+      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.dark)
+      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled)
+      blur = 0;
+    return blur;
+  }
+
+  @action
   void setMwebEnabled() {
     if (!hasMweb) {
       return;
@@ -526,10 +560,10 @@ abstract class DashboardViewModelBase with Store {
   void furtherShowYatPopup(bool shouldShow) => settingsStore.shouldShowYatPopup = shouldShow;
 
   @computed
-  bool get isEnabledExchangeAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
+  bool get isEnabledSwapAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
 
   @observable
-  bool hasExchangeAction;
+  bool hasSwapAction;
 
   @computed
   bool get isEnabledTradeAction => !settingsStore.disableTradeOption;
@@ -545,30 +579,25 @@ abstract class DashboardViewModelBase with Store {
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
   @computed
-  bool get hasPowNodes => wallet.type == WalletType.nano || wallet.type == WalletType.banano;
+  bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(wallet.type);
 
   @computed
   bool get hasSignMessages {
-    if (wallet.isHardwareWallet) {
-      return false;
-    }
-    switch (wallet.type) {
-      case WalletType.monero:
-      case WalletType.litecoin:
-      case WalletType.bitcoin:
-      case WalletType.bitcoinCash:
-      case WalletType.ethereum:
-      case WalletType.polygon:
-      case WalletType.solana:
-      case WalletType.nano:
-      case WalletType.banano:
-      case WalletType.tron:
-      case WalletType.wownero:
-        return true;
-      case WalletType.haven:
-      case WalletType.none:
-        return false;
-    }
+    if (wallet.isHardwareWallet) return false;
+
+    return [
+      WalletType.monero,
+      WalletType.litecoin,
+      WalletType.bitcoin,
+      WalletType.bitcoinCash,
+      WalletType.ethereum,
+      WalletType.polygon,
+      WalletType.solana,
+      WalletType.nano,
+      WalletType.banano,
+      WalletType.tron,
+      WalletType.wownero
+    ].contains(wallet.type);
   }
 
   bool get showRepWarning {
@@ -737,7 +766,7 @@ abstract class DashboardViewModelBase with Store {
   }
 
   void updateActions() {
-    hasExchangeAction = !isHaven;
+    hasSwapAction = !isHaven;
     hasTradeAction = !isHaven;
   }
 

@@ -268,12 +268,18 @@ abstract class EVMChainClient {
 
   Future<EVMChainERC20Balance> fetchERC20Balances(
       EthereumAddress userAddress, String contractAddress) async {
-    final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
-    final balance = await erc20.balanceOf(userAddress);
+    try {
+      final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+      final balance = await erc20.balanceOf(userAddress);
 
     int exponent = (await erc20.decimals()).toInt();
 
-    return EVMChainERC20Balance(balance, exponent: exponent);
+      return EVMChainERC20Balance(balance, exponent: exponent);
+    } on RangeError catch (_) {
+      throw Exception('Invalid token contract for this network.');
+    } catch (e) {
+      throw Exception('Could not fetch balances: ${e.toString()}');
+    }
   }
 
   Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {
