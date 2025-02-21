@@ -546,7 +546,6 @@ class SendPage extends BasePage {
 
           newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
           if (newContactAddress?.address != null && isRegularElectrumAddress(newContactAddress!.address)) {
-            print(isRegularElectrumAddress(newContactAddress!.address));
             newContactAddress = null;
           }
 
