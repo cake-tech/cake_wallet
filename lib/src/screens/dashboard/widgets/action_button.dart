@@ -31,7 +31,7 @@ class ActionButton extends StatelessWidget {
       },
       child: Container(
         color: Colors.transparent,
-        padding: EdgeInsets.only(top: 5, bottom: 5, left: 0, right: 0),
+        padding: EdgeInsets.only(top: 5, bottom: 4, left: 0, right: 0),
         alignment: alignment,
         child: Column(
           mainAxisSize: MainAxisSize.max,
