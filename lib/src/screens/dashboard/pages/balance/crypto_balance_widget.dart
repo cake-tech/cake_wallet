@@ -318,7 +318,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
                       rightButtonTitle: S.of(context).learn_more,
                       leftButtonAction: () => dashboardViewModel.dismissDecredInfoCard(),
-                      rightButtonAction: () => launchUrl(Uri.parse("https://docs.cakewallet.com/")), // TODO:
+                      rightButtonAction: () => launchUrl(Uri.parse("https://docs.cakewallet.com/cryptos/decred/#spv-sync")),
                     ),
                   ),
                 ],
