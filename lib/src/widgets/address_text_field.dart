@@ -1,21 +1,20 @@
-import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/entities/contact_base.dart';
+import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/currency.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/entities/qr_scanner.dart';
-import 'package:cake_wallet/entities/contact_base.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/utils/permission_handler.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 enum AddressTextFieldOption { paste, qrCode, addressBook, walletAddresses }
 
-
-class AddressTextField<T extends Currency> extends StatelessWidget{
+class AddressTextField<T extends Currency> extends StatelessWidget {
   AddressTextField({
     required this.controller,
     this.isActive = true,
@@ -234,9 +233,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget{
     if (!isCameraPermissionGranted) return;
     final code = await presentQRScanner(context);
     if (code == null) return;
-    if (code.isEmpty) {
-      return;
-    }
+    if (code.isEmpty) return;
 
     try {
       final uri = Uri.parse(code);
@@ -259,7 +256,8 @@ class AddressTextField<T extends Currency> extends StatelessWidget{
   }
 
   Future<void> _presetWalletAddressPicker(BuildContext context) async {
-    final address = await Navigator.of(context).pushNamed(Routes.pickerWalletAddress);
+    final address =
+        await Navigator.of(context).pushNamed(Routes.pickerWalletAddress);
 
     if (address is String) {
       controller?.text = address;
@@ -272,7 +270,13 @@ class AddressTextField<T extends Currency> extends StatelessWidget{
     final address = clipboard?.text ?? '';
 
     if (address.isNotEmpty) {
-      controller?.text = address;
+      try {
+        final uri = Uri.parse(address);
+        controller?.text = uri.path;
+        onURIScanned?.call(uri);
+      } catch (_) {
+        controller?.text = address;
+      }
     }
 
     onPushPasteButton?.call(context);
