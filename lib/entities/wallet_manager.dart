@@ -109,7 +109,7 @@ class WalletManager {
     // If the openedWallet already has an hash, then there is nothing to do
     if (walletInfo.hashedWalletIdentifier != null &&
         walletInfo.hashedWalletIdentifier!.isNotEmpty) {
-      updateWalletGroups();
+      updateWalletGroups(); // Still skeptical of calling this here. Looking for a better spot.
       return;
     }
 
