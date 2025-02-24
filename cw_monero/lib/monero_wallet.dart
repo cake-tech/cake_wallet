@@ -133,7 +133,8 @@ abstract class MoneroWalletBase
       passphrase: monero_wallet.getPassphrase());
 
   int? get restoreHeight =>
-      transactionHistory.transactions.values.firstOrNull?.height ?? monero.Wallet_getRefreshFromBlockHeight(wptr!);
+      transactionHistory.transactions.values.firstOrNull?.height ??
+      monero.Wallet_getRefreshFromBlockHeight(wptr!);
 
   monero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
@@ -310,6 +311,7 @@ abstract class MoneroWalletBase
       if (status != 0) {
         final err = monero.Wallet_errorString(wptr!);
         printV("unable to stop background sync: $err");
+        return;
       } else {
         isBackgroundSyncing = false;
         return;
@@ -319,7 +321,6 @@ abstract class MoneroWalletBase
     _listener?.stop();
     monero_wallet.stopSync();
     _autoSaveTimer?.cancel();
-    monero_wallet.closeCurrentWallet();
   }
 
   @override
@@ -335,7 +336,6 @@ abstract class MoneroWalletBase
     wptr = monero.WalletManager_openWallet(wmPtr, path: currentWalletDirPath, password: password);
     openedWalletsByPath["$currentWalletDirPath/$name"] = wptr!;
     transaction_history.txhistory = null;
-
   }
 
   @override
