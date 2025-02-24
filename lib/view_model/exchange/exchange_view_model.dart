@@ -199,6 +199,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   final List<ExchangeProvider> _tradeAvailableProviders = [];
 
+  Map<ExchangeProvider, Limits> _providerLimits = {};
+
   @observable
   ObservableList<ExchangeProvider> selectedProviders;
 
@@ -422,9 +424,24 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     return true;
   }
   Future<void> calculateBestRate() async {
-    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ?? 1;
+    if (depositCurrency == receiveCurrency) {
+      bestRate = 0.0;
+      return;
+    }
+    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount)
+        ?? initialAmountByAssets(isFixedRateMode ? receiveCurrency : depositCurrency);
 
-    final _providers = _tradeAvailableProviders
+    final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
+      final limits = _providerLimits[provider];
+
+      if (limits == null) return false;
+      if (limits.min != null && amount < limits.min!) return false;
+      if (limits.max != null && amount > limits.max!) return false;
+
+      return true;
+    }).toList();
+
+    final _providers = validProvidersForAmount
         .where((element) => !isFixedRateMode || element.supportsFixedRate)
         .toList();
 
@@ -462,6 +479,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> loadLimits() async {
+    if (depositCurrency == receiveCurrency) {
+      limitsState = LimitsLoadedSuccessfully(limits: Limits(min: 0, max: 0));
+      return;
+    };
     if (selectedProviders.isEmpty) return;
 
     limitsState = LimitsIsLoading();
@@ -473,23 +494,27 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     double? highestMax = 0.0;
 
     try {
-      final result = await Future.wait(
-        selectedProviders.where((provider) => providersForCurrentPair().contains(provider)).map(
-              (provider) => provider
-                  .fetchLimits(
-                    from: from,
-                    to: to,
-                    isFixedRateMode: isFixedRateMode,
-                  )
-                  .onError((error, stackTrace) => Limits(max: 0.0, min: double.maxFinite))
-                  .timeout(
-                    Duration(seconds: 7),
-                    onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
-                  ),
-            ),
-      );
+      final futures = selectedProviders
+          .where((provider) => providersForCurrentPair().contains(provider))
+          .map((provider) async {
+        final limits = await provider
+            .fetchLimits(
+          from: from,
+          to: to,
+          isFixedRateMode: isFixedRateMode,
+        )
+            .onError((error, stackTrace) => Limits(max: 0.0, min: double.maxFinite))
+            .timeout(
+          Duration(seconds: 7),
+          onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
+        );
+        return MapEntry(provider, limits);
+      }).toList();
 
-      result.forEach((tempLimits) {
+      final entries = await Future.wait(futures);
+      _providerLimits = Map.fromEntries(entries);
+
+      _providerLimits.values.forEach((tempLimits) {
         if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin!) {
           lowestMin = tempLimits.min;
         }
@@ -518,6 +543,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
+    if (depositCurrency == receiveCurrency) {
+      tradeState = TradeIsCreatedFailure(
+          title: S.current.trade_not_created,
+          error: 'Can\'t exchange the same currency');
+      return;
+    }
     if (isSendAllEnabled) {
       await calculateDepositAllAmount();
       final amount = double.tryParse(depositAmount);
@@ -966,4 +997,21 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       return false;
     }
   }
+
+  double initialAmountByAssets (CryptoCurrency ticker) {
+    final amount = switch (ticker) {
+      CryptoCurrency.trx => 1000,
+      CryptoCurrency.nano => 10,
+      CryptoCurrency.zano => 10,
+      CryptoCurrency.wow => 1000,
+      CryptoCurrency.ada => 1000,
+      CryptoCurrency.dash => 10,
+      CryptoCurrency.rune => 10,
+
+      _ => 1
+    };
+    return amount.toDouble();
+  }
+
+
 }
