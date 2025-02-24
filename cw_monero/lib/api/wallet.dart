@@ -108,6 +108,10 @@ String getAddress({int accountIndex = 0, int addressIndex = 0}) {
   int count = 0;
 
   while (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex) - 1 < addressIndex) {
+    if (monero.Wallet_numSubaddressAccounts(wptr!) <= accountIndex) {
+      printV("accountIndex is out of bounds");
+      break;
+    }
     monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
     if (count > 10) {
       break;
